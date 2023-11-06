@@ -19,22 +19,26 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDeleter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementMover;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use Tests\Base\FunctionalTestCase;
 
 class StatementMoverTest extends FunctionalTestCase
 {
-    /** @var StatementService */
-    private $statementService;
+    /** @var StatementMover */
+    protected $sut;
 
-    public function setUp(): void
+    private StatementService|null $statementService;
+    private StatementDeleter|null $statementDeleter;
+
+    protected function setUp(): void
     {
         parent::setUp();
 
-        /* @var StatementMover sut */
-        $this->sut = self::$container->get(StatementMover::class);
-        $this->statementService = self::$container->get(StatementService::class);
+        $this->sut = $this->getContainer()->get(StatementMover::class);
+        $this->statementService = $this->getContainer()->get(StatementService::class);
+        $this->statementDeleter = $this->getContainer()->get(StatementDeleter::class);
 
         /** @var User $testUser */
         $testUser = $this->fixtures->getReference('testUser');
@@ -238,7 +242,7 @@ class StatementMoverTest extends FunctionalTestCase
 
         static::assertInstanceOf(Statement::class, $movedStatement);
 
-        $result = $this->statementService->deleteStatement($movedStatement->getId());
+        $result = $this->statementDeleter->deleteStatementObject($movedStatement);
         static::assertTrue($result);
     }
 

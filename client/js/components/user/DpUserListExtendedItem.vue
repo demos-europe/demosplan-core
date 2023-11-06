@@ -9,7 +9,7 @@
 
 <template>
   <dp-table-card
-    class="layout__item c-card list-style-none u-1-of-1"
+    class="layout__item c-card u-1-of-1"
     :open="isOpen">
     <!-- card header -->
     <template
@@ -95,8 +95,9 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, DpTableCard } from '@demos-europe/demosplan-ui'
+import { checkResponse, dpApi } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
+import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 
 export default {
   name: 'DpUserListExtendedItem',

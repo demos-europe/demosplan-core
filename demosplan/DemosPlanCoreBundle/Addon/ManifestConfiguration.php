@@ -27,6 +27,11 @@ class ManifestConfiguration implements ConfigurationInterface
         $rootChildren->scalarNode('description')->defaultValue('')->end();
         $rootChildren->scalarNode('entry')->isRequired()->end();
         $rootChildren->scalarNode('permissionInitializer')->isRequired()->end();
+        $rootChildren->arrayNode('controller_paths')
+            ->defaultValue([AddonInfo::DEFAULT_CONTROLLER_PATH])
+            ->treatNullLike([AddonInfo::DEFAULT_CONTROLLER_PATH])
+            ->scalarPrototype()->end()
+            ->end();
 
         $ui = $rootChildren->arrayNode('ui')->children();
         $ui->scalarNode('manifest')->defaultValue('');

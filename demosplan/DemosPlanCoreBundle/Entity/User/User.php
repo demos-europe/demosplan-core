@@ -24,7 +24,6 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SurveyVoteInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface as AddonUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserRoleInCustomerInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\RoleAllowedConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\UserWithMatchingDepartmentInOrgaConstraint;
 use demosplan\DemosPlanCoreBundle\Logic\SAML\SamlAttributesParser;
@@ -34,8 +33,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserInterface;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-use Symfony\Component\Security\Core\User\UserInterface as SecurityUserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use UnexpectedValueException;
 
@@ -52,7 +49,7 @@ use function in_array;
  *
  * @UserWithMatchingDepartmentInOrgaConstraint()
  */
-class User implements SecurityUserInterface, SamlUserInterface, UuidEntityInterface, PasswordAuthenticatedUserInterface, AddonUserInterface
+class User implements SamlUserInterface, AddonUserInterface
 {
     /**
      * @var string|null
@@ -278,11 +275,7 @@ class User implements SecurityUserInterface, SamlUserInterface, UuidEntityInterf
     /**
      * @var Collection<int, UserRoleInCustomerInterface>
      *
-     *     @RoleAllowedConstraint()
-     * })
-     *
-     * @ORM\OneToMany(targetEntity="UserRoleInCustomer", mappedBy="user", cascade={"persist", "remove"})
-     * @ORM\OneToMany(targetEntity="UserRoleInCustomer", mappedBy="user", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer", mappedBy="user", cascade={"persist", "remove"})
      */
     #[Assert\All([new Assert\NotNull(), new RoleAllowedConstraint()])]
     #[Assert\NotNull]
@@ -302,7 +295,7 @@ class User implements SecurityUserInterface, SamlUserInterface, UuidEntityInterf
     protected $addresses;
 
     /** @var CustomerInterface */
-    protected $currentCustomer = null;
+    protected $currentCustomer;
 
     /**
      * @var Collection<int, SurveyVoteInterface>
@@ -326,7 +319,7 @@ class User implements SecurityUserInterface, SamlUserInterface, UuidEntityInterf
      * As one user might belong only to one organisation another "twin" user is needed to fulfill
      * this purpose.
      *
-     * @var SecurityUserInterface|null
+     * @var AddonUserInterface|null
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User", cascade={"persist"})
      *
@@ -926,7 +919,6 @@ class User implements SecurityUserInterface, SamlUserInterface, UuidEntityInterf
      * Setzt eine Userflag. Wenn nicht vorhanden, wird sie neu generiert.
      *
      * @param string $flagKey
-     * @param mixed  $flagValue
      */
     protected function setFlagValue($flagKey, $flagValue)
     {
@@ -1285,7 +1277,7 @@ class User implements SecurityUserInterface, SamlUserInterface, UuidEntityInterf
         $this->rolesAllowed = $roles;
     }
 
-    public function getTwinUser(): ?SecurityUserInterface
+    public function getTwinUser(): ?AddonUserInterface
     {
         return $this->twinUser;
     }
@@ -1295,7 +1287,7 @@ class User implements SecurityUserInterface, SamlUserInterface, UuidEntityInterf
         return null !== $this->twinUser;
     }
 
-    public function setTwinUser(?AddonUserInterface $twinUser): SecurityUserInterface
+    public function setTwinUser(?AddonUserInterface $twinUser): AddonUserInterface
     {
         $this->twinUser = $twinUser;
 

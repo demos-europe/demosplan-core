@@ -114,9 +114,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
      */
     private array $addonPermissionCollections = [];
 
-    /**
-     * @param array<non-empty-string, PermissionInitializerInterface> $addonPermissionInitializers
-     */
     public function __construct(
         AddonRegistry $addonRegistry,
         private readonly CustomerService $currentCustomerProvider,
@@ -176,18 +173,13 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             'area_combined_participation_area',
             'area_data_protection_text',
             'area_demosplan',
-            'area_documents',
-            'area_globalnews',
             'area_imprint_text',
             'area_main_file',
             'area_main_procedures',
-            'area_map_participation_area',
             'area_mydata',
             'area_mydata_password',
-            'area_news',
             'area_participants_internal',
             'area_portal_user',
-            'area_public_participation',
             'feature_assessmenttable_export',
             'feature_assessmenttable_single_statement_pdf',
             'feature_assessmenttable_use_pager',
@@ -203,9 +195,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             'feature_map_search_location',
             'feature_map_use_drawing_tools',
             'feature_map_use_location_relation',
-            'feature_map_use_plan_draw_pdf',
-            'feature_map_use_plan_pdf',
-            'feature_map_use_territory',
             'feature_original_statements_export',
             'feature_original_statements_use_pager',
             'feature_participation_area_procedure_detail_map_use_baselayerbox',
@@ -215,34 +204,24 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             'feature_procedure_sort_any',
             'feature_procedure_sort_location',
             'feature_procedure_sort_orga_name',
-            'feature_public_index_map',
             'feature_send_final_email_cc_to_self',
-            'feature_single_document_fragment',
-            'feature_single_document_statement',
             'feature_statement_meta_house_number_export',
             'feature_statements_draft_email',
             'feature_statements_draft_release',
             'feature_statements_final_email',
             'feature_statements_released_email',
             'feature_statements_released_group_email',
-            'feature_statements_vote',
             'field_county_list',
-            'field_fragment_status',
             'field_municipality_list',
             'field_news_pdf',
-            'field_organisation_phone',
             'field_priority_area_list',
-            'field_procedure_adjustments_planning_agency',
             'field_procedure_administration',
             'field_procedure_documents',
-            'field_procedure_elements',
             'field_procedure_name',
             'field_procedure_paragraphs',
             'field_procedure_phase',
             'field_procedure_recommendation_version',
-            'field_procedure_single_document_text',
             'field_procedure_single_document_title',
-            'field_send_final_email',
             'field_statement_extern_id',
             'field_statement_feedback',
             'field_statement_file',
@@ -253,15 +232,12 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             'field_statement_meta_orga_department_name',
             'field_statement_meta_orga_name',
             'field_statement_meta_postal_code',
-            'field_statement_meta_street',
             'field_statement_meta_submit_name',
             'field_statement_phase',
-            'field_statement_polygon',
             'field_statement_priority',
             'field_statement_status',
             'field_statement_submit_type',
             'field_statement_text',
-            'field_statement_votes',
         ]);
     }
 
@@ -271,23 +247,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
      */
     protected function setGlobalPermissions(): void
     {
-        if ($this->user->hasAnyOfRoles(
-            [
-                Role::ORGANISATION_ADMINISTRATION,
-                Role::PLANNING_AGENCY_ADMIN,
-                Role::PLANNING_AGENCY_WORKER,
-                Role::PRIVATE_PLANNING_AGENCY,
-                Role::HEARING_AUTHORITY_ADMIN,
-                Role::HEARING_AUTHORITY_WORKER,
-            ]
-        )) {
-            $this->enablePermissions([
-                'feature_procedure_export_include_assessment_table',
-                'feature_procedure_export_include_assessment_table_anonymous',
-                'feature_procedure_export_include_assessment_table_original',
-            ]);
-        }
-
         if ($this->user->hasAnyOfRoles(
             [
                 Role::PUBLIC_AGENCY_COORDINATION,
@@ -339,16 +298,9 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_mydata_organisation',  // Daten der Organisation
                 'area_preferences',  // Einstellungen
                 'feature_admin_delete_procedure',  // Verfahren loeschen
-                'feature_admin_element_paragraph_import_docx',  // Import paragraphs from docx
                 'feature_admin_export_procedure',  // Verfahren exportieren
-                'feature_admin_export_procedure_in_detail_view',  // Verfahren exportieren in der Detailseite
                 'feature_admin_new_procedure',  // Neues Verfahren anlegen
                 'feature_procedure_export_include_public_interest_bodies_member_list',
-                'feature_statements_fragment_consideration',  // Begründung zu Datensatz speichern
-                'feature_statements_fragment_edit',  // Edit StatementFragment
-                'feature_statements_fragment_list',  // List StatementFragments
-                'feature_statements_fragment_vote',  // Votum zu Datensatz abgeben
-                'field_statement_public_allowed',  // Publish statements
                 'feature_json_api_get', // allow get requests to generic api
             ]);
         }
@@ -359,27 +311,14 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_manage_orgadata',  // Daten der Organisation
                 'area_mydata_organisation',  // Daten der Organisation
                 'area_preferences',  // Einstellungen
-                'area_statements_fragment',  // //Area StatementFragments
-                'feature_admin_element_paragraph_import_docx',  // Import paragraphs from docx
                 'feature_admin_export_procedure',  // Verfahren exportieren
-                'feature_admin_export_procedure_in_detail_view',  // Verfahren exportieren in der Detailseite
                 'feature_procedure_export_include_public_interest_bodies_member_list',
-                'field_statement_public_allowed',  // Publish statements
 
                 // kann empfehlungen abgeben aber nicht die Bearbeitung abschliessen
-                'feature_statements_fragment_advice',  // Empfehlung zu Datensatz abgeben
-                'feature_statements_fragment_consideration',  // Begründung zu Datensatz speichern
-
-                'feature_statements_fragment_edit',  // Edit StatementFragments
-                'feature_statements_fragment_list',  // List StatementFragments
                 'field_statement_recommendation',
             ]);
 
             $this->disablePermissions([
-                // Planungsbüro kann kein Vote abgeben!
-                //  @TODO AM 'feature_statements_fragment_vote' is disabled via permissions.yml; why is it set to false here again?
-                'feature_statements_fragment_update_complete',  // Bearbeitung abschliessen
-                'feature_statements_fragment_vote',  // Vote zu Datensatz abgeben
                 'field_procedure_adjustments_planning_agency',  // Planungsbüro einem Verfahren zuordnen
             ]);
         }
@@ -387,14 +326,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         if ($this->user->hasRole(Role::PLANNING_SUPPORTING_DEPARTMENT)) {         // Fachplaner-Fachbehörde GLAUTH Kommune
             $this->enablePermissions([
                 'area_manage_orgadata',  // Daten der Organisation
-                'area_statement_fragments_department',  // Edit StatementFragments
-                'area_statement_fragments_department_archive',  // Edit StatementFragments
-                'area_statements_fragment',  // Area StatementFragments
-                'feature_statements_fragment_advice',  // Empfehlung zu Datensatz abgeben
-                'feature_statements_fragment_consideration_advice',  // Empfehlungstext zu Datensatz abgeben
-                'feature_statements_fragment_edit',  // Edit StatementFragments
-                'feature_statements_fragment_list',  // List StatementFragments
-                'feature_statements_fragment_update_complete',  // Bearbeitung eines Datensatzes abschliessen
                 'field_statement_recommendation',
                 'field_organisation_email_reviewer_admin',  // Email for notifications for reviwer admin
             ]);
@@ -411,17 +342,9 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_admin_procedures',  // Verfahren verwalten
                 'area_mydata_organisation',  // Organisation sehen
                 'area_preferences',  // Einstellungen
-                'area_statements_fragment',  // Area Statement Fragments (tab in A-table)
-                'feature_admin_element_paragraph_import_docx',  // Import paragraphs from docx
                 'feature_admin_export_procedure',  // Verfahren exportieren
-                'feature_admin_export_procedure_in_detail_view',  // Verfahren exportieren in der Detailseite
                 'feature_json_api_get', // allow get requests to generic api
                 'feature_procedure_export_include_public_interest_bodies_member_list',
-                'feature_statements_fragment_consideration',  // Begründung zu Datensatz speichern
-                'feature_statements_fragment_edit',  // Edit StatementFragments
-                'feature_statements_fragment_list',  // List StatementFragments
-                'feature_statements_fragment_vote',  // Votum zu Datensatz abgeben
-                'field_statement_public_allowed',  // Publish statements
             ]);
         }
 
@@ -429,10 +352,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             // Enable procedure report sections
             $this->enablePermissions([
                 'area_admin_procedures',  // Verfahren verwalten
-                'feature_procedure_report_final_mails',
                 'feature_procedure_report_general',
-                'feature_procedure_report_invitations',
-                'feature_procedure_report_public_phase',
                 'feature_procedure_report_statements',
             ]);
         }
@@ -442,8 +362,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_manage_orgadata',  // Daten der Organisation
                 'area_mydata_organisation',  // Daten der Organisation
                 'feature_admin_export_procedure',  // Verfahren exportieren
-                'feature_admin_export_procedure_in_detail_view',  // Verfahren exportieren in der Detailseite
-                'feature_procedures_count_released_drafts',
                 'feature_statements_vote_may_vote',
             ]);
         }
@@ -452,10 +370,8 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             $this->enablePermissions([
                 'area_mydata_organisation',  // Organisation sehen
                 'feature_admin_export_procedure',  // Verfahren exportieren
-                'feature_admin_export_procedure_in_detail_view',  // Verfahren exportieren in der Detailseite
                 'feature_procedure_filter_internal_phase', // sort for internal phases in procedure list
                 'feature_procedure_filter_internal_phase_permissionset', // filter for internal phases permissionset in procedure list
-                'feature_procedures_count_released_drafts',
             ]);
 
             // double role invitable institution and planner
@@ -475,7 +391,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'feature_procedure_filter_external_public_participation_phase',  // Filter public participation phase in procedure list
                 'feature_procedure_filter_external_public_participation_phase_permissionset',  // Filter public participation phase permissionset in procedure list
                 'feature_statement_public_allowed_needs_verification',  // Publishing statements needs verification
-                'field_statement_public_allowed',  // Publish statements
                 'field_statement_recommendation',
             ]);
 
@@ -507,7 +422,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         if ($this->user->hasRole(Role::PLATFORM_SUPPORT)) {         // Verfahrenssupport GTSUPP Verfahrenssupport
             $this->enablePermissions([
                 'area_admin_contextual_help_edit',  // Globale Kontexthilfe bearbeiten
-                'area_admin_gislayer_global_edit',  // Globale Gis Layer bearbeiten
                 'area_manage_orgadata',  // Abteilungenverwalten
                 'area_mydata_organisation',  // Daten der Organisation
                 'area_organisations',
@@ -515,7 +429,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_organisations_view_of_customer',
                 'area_platformtools',  // Menübereich Plattformtools
                 'area_preferences',  // Einstellungen
-                'area_report_invitable_institutionlistchanges',
                 'area_statistics',  // Statistiken
                 'feature_orga_get',
                 'feature_procedure_report_public_phase',
@@ -543,7 +456,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
         if ($this->user->hasRole(Role::CITIZEN)) { // angemeldeter Bürger
             $this->enablePermissions([
-                'area_preferences',  // Einstellungen
                 'feature_admin_export_procedure',  // Verfahren exportieren
                 'feature_admin_export_procedure_in_detail_view',  // Verfahren exportieren in der Detailseite
                 'feature_draft_statement_citizen_immediate_submit',
@@ -553,7 +465,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'feature_procedure_filter_external_public_participation_phase_permissionset',  // Filter public participation phase permissionset in procedure list
                 'feature_statement_public_allowed_needs_verification',  // Publishing statements needs verification
                 'feature_statements_vote_may_vote',  // May vote other citizens statements
-                'field_statement_public_allowed',  // Publish statements
                 'field_statement_recommendation',
             ]);
 
@@ -588,26 +499,12 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             $this->enablePermissions([
                 'area_statement_data_input_orga',  // Create new submitted statements
                 'feature_procedure_get_base_data',  // receive basic procedure data
-                'field_statement_public_allowed',  // Publish statements
             ]);
 
             $this->disablePermissions([
                 'field_procedure_recommendation_version', // ältere Abwägungsempfehlungen
                 'field_send_final_email', // Schlussmitteilung versenden
             ]);
-        }
-
-        // Sonderfälle, wenn Öffentlichkeitsbeteiligung aktiviert ist
-        if ($this->permissions['area_public_participation']->isEnabled()) {
-            // Alle User dürfen die Liste öffentlicher Stellungnahmen ansehen, wenn Öffentlichkeitsbeteiligung aktiviert
-            $this->permissions['area_statements_public_published_public']->enable(); // Stellungnahmen anderer Bürger Bürgerebene
-
-            // Alle Bürger und Gäste dürfen Stellungnahmen abgeben, wenn Öffentlichkeitsbeteiligung aktiviert
-            if ($this->user->isPublicUser()) {
-                // feature_new_statement depends on procedurephase
-                $this->permissions['feature_new_statement']->setLoginRequired(false);
-                $this->permissions['area_statements_public_published']->enable(); // Stellungnahmen anderer Bürger*innen Institutions-Ebene
-            }
         }
 
         if ($this->user->hasRole(Role::API_AI_COMMUNICATOR)) {
@@ -647,7 +544,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_admin_preferences',  // Verwalten Allgemeine Einstellungen
                 'area_admin_protocol',  // Verwalten Protokoll
                 'area_admin_single_document',  // Verwalten Planungsdokumente
-                'feature_admin_assessmenttable_export_docx',  // Abwägungstabelle Word-Export
                 'feature_export_protocol',
                 'feature_json_api_create',
                 'feature_json_api_delete',
@@ -655,7 +551,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'feature_procedure_get_base_data', // receive basic procedure Data
                 'feature_statement_bulk_edit', // edit multiple statements at once
                 'feature_statement_data_input_orga',  // Create new submitted Statement
-                'feature_statement_fragment_bulk_edit', // edit multiple statement fragments at once
                 'field_statement_memo',
             ]);
 
@@ -913,9 +808,20 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         $this->permissions['feature_statements_released_email']['enabled'] = true; // Eigene Stellungnahmen (Freigaben) E-Mail
     }
 
+    /**
+     * Permissions to set to any user when write access is granted.
+     */
     protected function setProcedurePermissionsetWrite(): void
     {
-        // hook that may be overridden
+        $this->logger->debug('Set Permissionset write');
+        $this->permissions['feature_documents_new_statement']['enabled'] = true; // Planungsdokumente Neue Stellungnahme
+        $this->permissions['feature_map_new_statement']['enabled'] = true; // Planzeichnung Neue Stellungnahme
+        $this->permissions['feature_new_statement']['enabled'] = true; // Stellungnahmen verfassen
+        $this->permissions['feature_new_statement_form']['enabled'] = true; // Stellungnahmen verfassen
+        $this->permissions['feature_statements_draft_delete']['enabled'] = true; // Eigene Stellungnahmen (Entwuerfe) Loeschen
+        $this->permissions['feature_statements_draft_edit']['enabled'] = true; // Eigene Stellungnahmen (Entwuerfe) Bearbeiten
+        $this->permissions['feature_statements_draft_release']['enabled'] = true; // Eigene Stellungnahmen (Entwuerfe) Freigeben
+        $this->permissions['feature_statements_draft_relocate']['enabled'] = true; // Eigene Stellungnahmen (Entwuerfe) Neu verorten
     }
 
     /**
@@ -961,8 +867,8 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     public function hasPermissionsetRead($scope = null): bool
     {
         // Read ist in Write inbegriffen
-        return $this->hasPermissionset(self::PROCEDURE_PERMISSIONSET_READ, $scope) ||
-               $this->hasPermissionset(self::PROCEDURE_PERMISSIONSET_WRITE, $scope);
+        return $this->hasPermissionset(self::PROCEDURE_PERMISSIONSET_READ, $scope)
+               || $this->hasPermissionset(self::PROCEDURE_PERMISSIONSET_WRITE, $scope);
     }
 
     /**
@@ -977,8 +883,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
     /**
      * Setzt das initiale Set von kontxtbezogenen Menue-Highlights.
-     *
-     * @param array $context
      */
     protected function initMenuhightlighting(array $context = null): void
     {
@@ -1070,9 +974,9 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 $this->checkPermission($permissionToTest);
             }
         } else {
-            // Gib Devs einen Hinweis aus, dass hier die Rechte nachgearbeitet werden müssen
-            $this->logger->info('Dieser Bereich hat kein explizites Permission angegeben! '
-                        .'Bitte @DplanPermissions mit einem zu prüfenden Recht annotieren.', \debug_backtrace(0, 4));
+            // Give devs a hint that the permissions here need to be reworked
+            $this->logger->info('This area has no explicit permission specified! '
+                        .'Please provide a permission to be checked using the attribute #[DplanPermissions] or annotation @DplanPermissions.', \debug_backtrace(0, 4));
         }
     }
 
@@ -1083,9 +987,12 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     {
         // Prüfe, ob der User ins Verfahren darf
         if (null !== $this->procedure) {
+            $this->setProcedurePermissions();
+
             $readPermission = $this->hasPermissionsetRead();
             $owns = $this->ownsProcedure();
-            $hasPermissionToEnter = $readPermission || $owns;
+            $apiUserMayAccess = $this->hasPermission('feature_procedure_api_access');
+            $hasPermissionToEnter = $readPermission || $owns || $apiUserMayAccess;
             if (!$hasPermissionToEnter) {
                 // handle guest Exceptions differently as redirects
                 // may be different
@@ -1094,8 +1001,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 }
                 throw new AccessDeniedException('Sie haben nicht die nötigen Rechte, um diese Seite aufzurufen.');
             }
-            // Update die Verfahrensberechtigungen
-            $this->setProcedurePermissions();
         }
     }
 
@@ -1128,10 +1033,19 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
         // addon permission, evaluating via resolver
         $resolvablePermission = $this->getAddonPermission($permissionName, $addonIdentifier);
-        if (null === $resolvablePermission
-            || !$this->isResolvablePermissionEnabled($resolvablePermission)) {
-            throw AccessDeniedException::missingPermission($permissionName, $this->user);
+        if (null === $resolvablePermission) {
+            throw AccessDeniedException::unknownAddonPermission($permissionName, $addonIdentifier, $this->user);
         }
+        if (!$this->isResolvablePermissionEnabled($resolvablePermission)) {
+            throw AccessDeniedException::missingAddonPermission($permissionName, $addonIdentifier, $this->user);
+        }
+    }
+
+    public function requireAllPermissions(array $permissionIdentifiers): void
+    {
+        // Simply checks each permission individually for now.
+        // Optimizations may be implemented in the future.
+        array_map([$this, 'requirePermission'], $permissionIdentifiers);
     }
 
     public function isPermissionEnabled($permissionIdentifier): bool
@@ -1177,12 +1091,12 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         return match ($operator) {
             'AND' => array_reduce(
                 $permissions,
-                fn(bool $carry, string $permission) => $carry && $this->hasPermission($permission),
+                fn (bool $carry, string $permission) => $carry && $this->hasPermission($permission),
                 true
             ),
             'OR' => array_reduce(
                 $permissions,
-                fn(bool $carry, string $permission) => $carry || $this->hasPermission($permission),
+                fn (bool $carry, string $permission) => $carry || $this->hasPermission($permission),
                 false
             ),
             default => throw PermissionException::invalidPermissionCheckOperator($operator),
@@ -1333,14 +1247,10 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
     protected function getAddonPermission(string $permissionName, string $addonIdentifier): ?ResolvablePermission
     {
-        if (!array_key_exists($addonIdentifier, $this->addonPermissionCollections)) {
-            return null;
-        }
-
-        return $this->addonPermissionCollections[$addonIdentifier]->getResolvablePermission($permissionName);
+        return $this->addonPermissionCollections[$addonIdentifier]?->getResolvablePermission($permissionName);
     }
 
-    protected function isResolvablePermissionEnabled(ResolvablePermission $resolvablePermission)
+    protected function isResolvablePermissionEnabled(ResolvablePermission $resolvablePermission): bool
     {
         return $this->permissionResolver->isPermissionEnabled(
             $resolvablePermission,

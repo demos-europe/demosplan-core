@@ -16,6 +16,9 @@ use demosplan\DemosPlanCoreBundle\Entity\News\News;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadNewsData extends TestFixture implements DependentFixtureInterface
 {
     final public const TEST_SINGLE_NEWS_1 = 'testSingleNews1';

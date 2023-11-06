@@ -18,15 +18,11 @@ use demosplan\DemosPlanCoreBundle\Entity\MailAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\MailSend;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\SendMailException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Repository\MailRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\EntityNotFoundException;
-use EDT\ConditionFactory\ConditionFactoryInterface;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use EDT\Querying\Contracts\SortMethodFactoryInterface;
 use Exception;
 use League\HTMLToMarkdown\HtmlConverter;
 use Psr\Log\LoggerInterface;
@@ -64,13 +60,10 @@ class MailService extends CoreService
     private $globalConfig;
 
     public function __construct(
-        private readonly DqlConditionFactory $conditionFactory,
-        private readonly EntityFetcher $entityFetcher,
         GlobalConfigInterface $globalConfig,
         LoggerInterface $logger,
         MailerInterface $mailer,
         private readonly MailRepository $mailRepository,
-        private readonly SortMethodFactory $sortMethodFactory,
         private readonly TranslatorInterface $translator
     ) {
         $this->emailIsLiveSystem = $globalConfig->isEmailIsLiveSystem();
@@ -451,19 +444,13 @@ class MailService extends CoreService
      */
     public function getMailsToSend(int $limit = 200): array
     {
-        $conditions = [
-            $this->conditionFactory->propertyHasValue('new', ['status']),
-            $this->conditionFactory->valueSmallerEqualsThan(20, ['sendAttempt']),
-        ];
-        $sortMethod = $this->sortMethodFactory->propertyDescending(['createdDate']);
+        $conditions = Criteria::create()
+            ->where(Criteria::expr()->eq('status', 'new'))
+            ->andWhere(Criteria::expr()->lte('sendAttempt', 20))
+            ->orderBy(['createdDate' => Criteria::DESC])
+            ->setMaxResults($limit);
 
-        return $this->entityFetcher->listEntitiesUnrestricted(
-            MailSend::class,
-            $conditions,
-            [$sortMethod],
-            0,
-            $limit
-        );
+        return $this->mailRepository->matching($conditions)->toArray();
     }
 
     /**

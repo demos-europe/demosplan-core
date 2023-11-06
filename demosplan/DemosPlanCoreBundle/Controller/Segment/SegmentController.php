@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
@@ -24,7 +25,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxSegmentImport;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\StoredQuery\SegmentListQuery;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -161,10 +161,10 @@ class SegmentController extends BaseController
                     $route,
                     compact('procedureId')
                 );
-            } catch (MissingDataException) {
+            } catch (MissingDataException $e) {
                 $this->getMessageBag()->add('error', 'error.missing.data',
                     ['%fileName%' => $fileName]);
-            } catch (Exception) {
+            } catch (Exception $e) {
                 $this->getMessageBag()->add(
                     'error',
                     'statements.import.error.document.unexpected',

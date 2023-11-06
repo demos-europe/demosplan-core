@@ -20,7 +20,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table
  *
- * @ORM\Entity(repositoryClass="\demosplan\DemosPlanCoreBundle\Repository\UserFilterSetRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\UserFilterSetRepository")
  */
 class UserFilterSet extends CoreEntity implements UuidEntityInterface
 {

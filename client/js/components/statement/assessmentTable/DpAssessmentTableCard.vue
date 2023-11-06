@@ -371,8 +371,7 @@
                   @field:update="updateStatement"
                   @field:save="data => saveStatement(data, 'attribute', 'voteStk')"
                   ref="voteStk"
-                  :editable="isClaimed"
-                  :readonly="hasPermission('feature_statements_fragment_vote')" />
+                  :editable="isClaimed" />
               </dd><!--
              --><dd
                   v-if="hasPermission('field_statement_vote_pla') && hasPermission('feature_statements_fragment_vote')"
@@ -551,7 +550,7 @@
                   With tiptap we can set obscure as prop always when the obscure button should be visible in the field,
                   because the permission check (featureObscureText) takes place in tiptap
                   -->
-              <tiptap-edit-text
+              <editable-text
                 class="u-pb-0_5 u-pr-0_5 u-pt-0_25 u-1-of-2 border--right"
                 title="statement"
                 :procedure-id="procedureId"
@@ -570,7 +569,7 @@
                 @field:save="data => saveStatement(data, 'attribute', 'text')"
                 ref="text" /><!--
                 Recommendation text
-             --><tiptap-edit-text
+             --><editable-text
                   class="u-pb-0_25 u-pl-0_5 u-pt-0_25 u-1-of-2"
                   title="recommendation"
                   :procedure-id="procedureId"
@@ -597,7 +596,7 @@
                       class="fa fa-question-circle float-right u-pt-0_125"
                       aria-hidden="true" />
                   </template>
-                </tiptap-edit-text>
+                </editable-text>
             </dl>
           </dp-item-row><!--
          --><div
@@ -615,7 +614,7 @@
                 <a
                   v-if="hasOwnProp(statement.sourceAttachment, 'filename') && hasPermission('feature_read_source_statement_via_api')"
                   class="u-pr-0_5 o-hellip border--right u-mr-0_5"
-                  :href="Routing.generate('core_file', { hash: statement.sourceAttachment.hash })"
+                  :href="Routing.generate('core_file_procedure', { hash: statement.sourceAttachment.hash, procedureId: procedureId })"
                   rel="noopener"
                   target="_blank"
                   :title="Translator.trans('attachment.original')">
@@ -626,7 +625,7 @@
                   v-for="file in statement.files"
                   :key="file.hash"
                   class="u-pr-0_5 o-hellip"
-                  :href="Routing.generate('core_file', { hash: file.hash })"
+                  :href="Routing.generate('core_file_procedure', { hash: file.hash, procedureId: procedureId })"
                   rel="noopener"
                   target="_blank"
                   :title="Translator.trans('attachments')">
@@ -742,8 +741,8 @@ import DpClaim from '../DpClaim'
 import DpEditFieldMultiSelect from './DpEditFieldMultiSelect'
 import DpEditFieldSingleSelect from './DpEditFieldSingleSelect'
 import DpItemRow from './ItemRow'
+import EditableText from './EditableText'
 import TableCardFlyoutMenu from '@DpJs/components/statement/assessmentTable/TableCardFlyoutMenu'
-import TiptapEditText from './TiptapEditText'
 
 export default {
   name: 'DpAssessmentTableCard',
@@ -754,8 +753,8 @@ export default {
     DpItemRow,
     DpEditFieldMultiSelect,
     DpEditFieldSingleSelect,
-    TiptapEditText,
     DpFragmentsSwitcher: () => import(/* webpackChunkName: "dp-fragments-switcher" */ './DpFragmentsSwitcher'),
+    EditableText,
     TableCardFlyoutMenu,
     VPopover
   },
@@ -1158,7 +1157,7 @@ export default {
         this.$root.$emit('entity:updated', this.statementId, 'statement')
         return updatedField
       }).then(updatedField => {
-        this.$root.$emit('entityTextSaved:' + this.statementId, { entityId: this.statementId, field: updatedField }) // Used in TiptapEditText.vue to update short and full texts
+        this.$root.$emit('entityTextSaved:' + this.statementId, { entityId: this.statementId, field: updatedField }) // Used in EditableText.vue to update short and full texts
       })
     },
 

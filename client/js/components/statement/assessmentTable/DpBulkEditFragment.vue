@@ -163,7 +163,7 @@
         </p>
 
         <div class="u-mt-0_5 u-mb border u-p-0_75">
-          <dp-text-wrapper :text="options.consideration.value" />
+          <text-content-renderer :text="options.consideration.value" />
         </div>
       </div>
 
@@ -220,9 +220,10 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, DpButton, DpMultiselect, DpTextWrapper, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { checkResponse, dpApi, DpButton, DpMultiselect, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
+import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 import { v4 as uuid } from 'uuid'
 
 export default {
@@ -231,7 +232,7 @@ export default {
   components: {
     DpBoilerPlateModal,
     DpButton,
-    DpTextWrapper,
+    TextContentRenderer,
     DpMultiselect,
     DpEditor: async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')

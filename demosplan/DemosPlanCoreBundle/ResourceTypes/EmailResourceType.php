@@ -39,9 +39,9 @@ final class EmailResourceType extends DplanResourceType
         return false;
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
-        return $this->conditionFactory->false();
+        return [$this->conditionFactory->false()];
     }
 
     public function isReferencable(): bool

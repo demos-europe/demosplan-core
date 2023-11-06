@@ -20,11 +20,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
 use demosplan\DemosPlanCoreBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
 use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory;
 use demosplan\DemosPlanCoreBundle\Logic\ResourcePersister;
-use demosplan\DemosPlanCoreBundle\Logic\TwigableWrapperObject;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureBehaviorDefinitionRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureTypeRepository;
@@ -45,8 +42,16 @@ use Symfony\Component\HttpFoundation\Request;
 
 class ProcedureTypeService extends CoreService implements ProcedureTypeServiceInterface
 {
-    public function __construct(private readonly EntityFetcher $entityFetcher, private readonly EntityWrapperFactory $entityWrapperFactory, private readonly ProcedureBehaviorDefinitionRepository $procedureBehaviorDefinitionRepository, private readonly ProcedureRepository $procedureRepository, private readonly ProcedureTypeRepository $procedureTypeRepository, private readonly ProcedureTypeResourceType $procedureTypeResourceType, private readonly ProcedureUiDefinitionRepository $procedureUiDefinitionRepository, private readonly ResourcePersister $resourcePersister, private readonly SortMethodFactory $sortMethodFactory, private readonly StatementFormDefinitionRepository $statementFormDefinitionRepository)
-    {
+    public function __construct(
+        private readonly ProcedureBehaviorDefinitionRepository $procedureBehaviorDefinitionRepository,
+        private readonly ProcedureRepository $procedureRepository,
+        private readonly ProcedureTypeRepository $procedureTypeRepository,
+        private readonly ProcedureTypeResourceType $procedureTypeResourceType,
+        private readonly ProcedureUiDefinitionRepository $procedureUiDefinitionRepository,
+        private readonly ResourcePersister $resourcePersister,
+        private readonly SortMethodFactory $sortMethodFactory,
+        private readonly StatementFormDefinitionRepository $statementFormDefinitionRepository
+    ) {
     }
 
     public function deleteStatementFormDefinition(StatementFormDefinition $statementFormDefinition): void
@@ -315,9 +320,12 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
                 $statementFieldDefinitionResourceType->required
             );
 
-            $statementFieldDefinitionChanges[] = $this->resourcePersister->updateBackingObject(
+            $statementFieldDefinition = $statementFieldDefinitionResourceType->getEntityByTypeIdentifier(
+                $fieldDefinition['id']
+            );
+            $statementFieldDefinitionChanges[] = $this->resourcePersister->updateBackingObjectWithEntity(
                 $statementFieldDefinitionResourceType,
-                $fieldDefinition['id'],
+                $statementFieldDefinition,
                 $statementFieldDefinitionProperties
             );
         }
@@ -334,7 +342,8 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
         Request $request
     ): Request {
         $params = $request->request->all();
-        $originalProcedureTypeEntity = $this->entityFetcher->getEntityAsReadTarget($this->procedureTypeResourceType, $params['id']);
+        /** @var ProcedureType $originalProcedureTypeEntity */
+        $originalProcedureTypeEntity = $this->procedureTypeResourceType->getEntityAsReadTarget($params['id']);
         // Always adds participationGuestOnly since it is never send in the form
         $originalParticipationGuestOnly = $originalProcedureTypeEntity->getProcedureBehaviorDefinition()->isParticipationGuestOnly();
         $params[$formName]['procedureBehaviorDefinition']['participationGuestOnly'] = $originalParticipationGuestOnly;
@@ -418,20 +427,19 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
     }
 
     /**
-     * @return array<int, TwigableWrapperObject>
+     * @return array<int, ProcedureType>
      *
      * @throws PathException
      */
-    public function getAllProcedureTypeResources(): array
+    public function getAllProcedureTypes(): array
     {
         if (!$this->procedureTypeResourceType->isAvailable()) {
             throw AccessException::typeNotAvailable($this->procedureTypeResourceType);
         }
 
         $nameSorting = $this->sortMethodFactory->propertyAscending($this->procedureTypeResourceType->name);
-        $entities = $this->entityFetcher->listEntities($this->procedureTypeResourceType, [], [$nameSorting]);
 
-        return array_map(fn(object $entity): TwigableWrapperObject => $this->entityWrapperFactory->createWrapper($entity, $this->procedureTypeResourceType), $entities);
+        return $this->procedureTypeResourceType->listEntities([], [$nameSorting]);
     }
 
     public function getProcedureTypeByName(string $name): ?ProcedureType

@@ -14,10 +14,11 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use Cocur\Slugify\Slugify;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\ValueObject\CellExportStyle;
 use demosplan\DemosPlanCoreBundle\ValueObject\ExportOrgaInfoHeader;
 use PhpOffice\PhpWord\Element\Row;
@@ -25,8 +26,6 @@ use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\Exception\Exception;
 use PhpOffice\PhpWord\IOFactory;
-use PhpOffice\PhpWord\PhpWord;
-use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\Shared\Converter;
 use PhpOffice\PhpWord\Shared\Html;
 use PhpOffice\PhpWord\SimpleType\Jc;
@@ -65,16 +64,28 @@ class SegmentsExporter
      */
     public function export(Procedure $procedure, Statement $statement): WriterInterface
     {
-        $phpWord = new PhpWord();
-        Settings::setOutputEscapingEnabled(true);
+        $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $phpWord->addFontStyle('global', $this->styles['globalFont']);
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure);
         $this->addStatementInfo($section, $statement);
+        $this->addSimilarStatementSubmitters($section, $statement);
         $this->addSegments($section, $statement);
         $this->addFooter($section, $statement);
 
         return IOFactory::createWriter($phpWord);
+    }
+
+    public function addSimilarStatementSubmitters(Section $section, Statement $statement): void
+    {
+        $similarStatementSubmittersText = $this->translator->trans('segments.export.statement.similar.submitters', ['similarSubmitters' => $this->getSimilarStatementSubmitters($statement)]);
+        $section->addText(
+            $similarStatementSubmittersText,
+            $this->styles['globalFont'],
+            $this->styles['globalSection']
+        );
+
+        $section->addTextBreak(2);
     }
 
     protected function addHeader(Section $section, Procedure $procedure): void
@@ -92,6 +103,28 @@ class SegmentsExporter
             $this->styles['currentDateFont'],
             $this->styles['currentDateParagraph']
         );
+    }
+
+    public function getSimilarStatementSubmitters(Statement $statement): string
+    {
+        $submitterStrings = [];
+        foreach ($statement->getSimilarStatementSubmitters() as $submitter) {
+            $values = [
+                $submitter->getEmailAddress(),
+                $submitter->getStreetNameWithStreetNumber(),
+                $submitter->getPostalCodeWithCity(),
+            ];
+            $values = array_filter($values, fn (?string $value): bool =>null !== $value);
+            $values = implode(', ', $values);
+            $values = trim($values);
+            if ('' !== $values) {
+                $values = " ($values)";
+            }
+
+            $submitterStrings[] = "{$submitter->getFullName()}$values";
+        }
+
+        return implode(', ', $submitterStrings);
     }
 
     protected function addStatementInfo(Section $section, Statement $statement): void
@@ -179,7 +212,7 @@ class SegmentsExporter
     {
         $table = $this->addSegmentsTableHeader($section);
         $sortedSegments = $statement->getSegmentsOfStatement()->toArray();
-        uasort($sortedSegments, static fn(Segment $segmentA, Segment $segmentB) => $segmentA->getOrderInProcedure() - $segmentB->getOrderInProcedure());
+        uasort($sortedSegments, static fn (Segment $segmentA, Segment $segmentB) => $segmentA->getOrderInProcedure() - $segmentB->getOrderInProcedure());
 
         foreach ($sortedSegments as $segment) {
             $this->addSegmentTableBody($table, $segment);

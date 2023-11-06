@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 use DemosEurope\DemosplanAddon\Contracts\Repositories\EmailAddressRepositoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 
-class EmailAddressRepository extends CoreRepository implements EmailAddressRepositoryInterface
+class EmailAddressRepository extends FluentRepository implements EmailAddressRepositoryInterface
 {
     /**
      * @param string[] $inputEmailAddressStrings
@@ -24,7 +24,7 @@ class EmailAddressRepository extends CoreRepository implements EmailAddressRepos
     public function getOrCreateEmailAddresses(array $inputEmailAddressStrings): array
     {
         $foundEmailAddressEntities = $this->findBy(['fullAddress' => $inputEmailAddressStrings]);
-        $foundEmailAddressStrings = array_map(static fn(EmailAddress $emailAddress) => $emailAddress->getFullAddress(), $foundEmailAddressEntities);
+        $foundEmailAddressStrings = array_map(static fn (EmailAddress $emailAddress) => $emailAddress->getFullAddress(), $foundEmailAddressEntities);
 
         $newEmailAddressStrings = array_diff($inputEmailAddressStrings, $foundEmailAddressStrings);
         $newEmailAddressEntities = array_map(static function (string $emailAddressString) {
@@ -64,12 +64,12 @@ class EmailAddressRepository extends CoreRepository implements EmailAddressRepos
         return $connection->exec(
             'DELETE e'
             .' FROM email_address AS e'
-            .' LEFT JOIN procedure_agency_extra_email_address      AS p  ON p.email_address_id = e.id'
-            .' LEFT JOIN maillane_allowed_sender_email_address    AS p2 ON p.email_address_id = e.id'
-            .' LEFT JOIN gdpr_consent_revoke_token_email_addresses AS t  ON t.email_address_id = e.id'
-            .' WHERE p.procedure_id  IS NULL'
-            .' AND   p2.procedure_id IS NULL'
-            .' AND   t.token_id      IS NULL'
+            .' LEFT JOIN procedure_agency_extra_email_address  AS p  ON p.email_address_id = e.id'
+            .' LEFT JOIN maillane_allowed_sender_email_address AS m  ON m.email_address_id = e.id'
+            .' LEFT JOIN support_contact                      AS sc ON sc.email_address = e.id'
+            .' WHERE p.procedure_id   IS NULL'
+            .' AND   m.procedure_id   IS NULL'
+            .' AND   sc.email_address IS NULL'
         );
     }
 

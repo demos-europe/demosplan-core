@@ -279,6 +279,7 @@ class GlobalConfig implements GlobalConfigInterface
      */
     protected $mapDefaultProjection;
 
+    protected string $projectCoreVersion;
     /**
      * @var string
      */
@@ -530,10 +531,6 @@ class GlobalConfig implements GlobalConfigInterface
     protected $subdomain;
     /** @var array<string,string> */
     protected $subdomainMap;
-    /**
-     * @var array<int,string>
-     */
-    protected $subdomainsAllowed;
     // End bauleitplanung-online
 
     /** @var array */
@@ -685,6 +682,7 @@ class GlobalConfig implements GlobalConfigInterface
         $this->urlPathPrefix = trim($parameterBag->get('url_path_prefix'));
 
         // Programmversion
+        $this->projectCoreVersion = $parameterBag->get('project_core_version');
         $this->projectVersion = $parameterBag->get('project_version');
 
         $this->gatewayURL = $parameterBag->get('gateway_url');
@@ -810,7 +808,6 @@ class GlobalConfig implements GlobalConfigInterface
             $this->setSubdomain($parameterBag->get('subdomain'));
         }
         $this->subdomainMap = $parameterBag->get('subdomain_map');
-        $this->subdomainsAllowed = $parameterBag->get('subdomains_allowed');
 
         // set shared folder
         $this->sharedFolder = $parameterBag->get('is_shared_folder');
@@ -1234,6 +1231,11 @@ class GlobalConfig implements GlobalConfigInterface
     public function getProxyTrusted(): array
     {
         return $this->proxyTrusted;
+    }
+
+    public function getProjectCoreVersion(): string
+    {
+        return $this->projectCoreVersion;
     }
 
     public function getProjectVersion(): string
@@ -1671,11 +1673,6 @@ class GlobalConfig implements GlobalConfigInterface
     public function setSubdomain(string $subdomain): void
     {
         $this->subdomain = $subdomain;
-    }
-
-    public function getSubdomainsAllowed(): array
-    {
-        return $this->subdomainsAllowed;
     }
 
     /**

@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\VideoInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
@@ -20,7 +21,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<Video>
@@ -53,7 +53,7 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType implements
 
     public function isDirectlyAccessible(): bool
     {
-        return false;
+        return true;
     }
 
     public function isReferencable(): bool
@@ -61,9 +61,9 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType implements
         return true;
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
-        return $this->conditionFactory->allConditionsApply(
+        return [
             // for now the access to SignLanguageOverviewVideos is limited to the ones uploaded
             // in the current customer
             $this->conditionFactory->propertyHasValue(
@@ -75,8 +75,8 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType implements
             $this->conditionFactory->propertiesEqual(
                 $this->id->getAsNames(),
                 $this->customerContext->signLanguageOverviewVideos->id->getAsNames()
-            )
-        );
+            ),
+        ];
     }
 
     protected function getProperties(): array
@@ -146,6 +146,15 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType implements
      */
     public function getUpdatableProperties(object $updateTarget): array
     {
+        $currentCustomerVideoIds = $this->currentCustomerService->getCurrentCustomer()
+            ->getSignLanguageOverviewVideos()
+            ->map(fn (VideoInterface $video): ?string => $video->getId())
+            ->filter(fn (?string $videoId): bool => null !== $videoId);
+
+        if (!$currentCustomerVideoIds->contains($updateTarget->getId())) {
+            return [];
+        }
+
         return $this->toProperties(
             $this->title,
             $this->description
@@ -167,5 +176,10 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType implements
         $resourceChange->addEntityToPersist($customer);
 
         return $resourceChange;
+    }
+
+    public function getRequiredDeletionPermissions(): array
+    {
+        return ['field_sign_language_overview_video_edit'];
     }
 }

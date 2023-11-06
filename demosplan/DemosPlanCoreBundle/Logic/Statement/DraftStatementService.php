@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
@@ -28,7 +29,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
@@ -40,7 +40,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Repository\DraftStatementRepository;
 use demosplan\DemosPlanCoreBundle\Repository\DraftStatementVersionRepository;
@@ -126,7 +125,6 @@ class DraftStatementService extends CoreService
         private readonly DraftStatementVersionRepository $draftStatementVersionRepository,
         private readonly ElasticsearchFilterArrayTransformer $elasticsearchFilterArrayTransformer,
         ElementsService $elementsService,
-        private readonly EntityFetcher $entityFetcher,
         private readonly EntityHelper $entityHelper,
         Environment $twig,
         FileService $fileService,
@@ -229,7 +227,7 @@ class DraftStatementService extends CoreService
             $sortMethods = $this->createSortMethodsByAssociation($sort);
             array_unshift($sortMethods, $this->createSortMethod($sort));
 
-            $results = $this->entityFetcher->listEntitiesUnrestricted(DraftStatement::class, $conditions, $sortMethods);
+            $results = $this->draftStatementRepository->getEntities($conditions, $sortMethods);
 
             $list = [];
             if (null !== $results) {
@@ -287,7 +285,7 @@ class DraftStatementService extends CoreService
             $sortMethods = $this->createSortMethodsByAssociation($sort);
             array_unshift($sortMethods, $this->createSortMethod($sort));
 
-            $results = $this->entityFetcher->listEntitiesUnrestricted(DraftStatement::class, $conditions, $sortMethods);
+            $results = $this->draftStatementRepository->getEntities($conditions, $sortMethods);
 
             $list = [];
             foreach ($results as $result) {
@@ -889,7 +887,7 @@ class DraftStatementService extends CoreService
             ? explode(',', $itemsToExport)
             : null;
 
-        $filteredStatementList = collect($draftStatementList)->filter(fn($statement) => null === $selectedStatementsToExport || in_array($this->entityHelper->extractId($statement), $selectedStatementsToExport))->map(function (array $statement) use ($procedureId) {
+        $filteredStatementList = collect($draftStatementList)->filter(fn ($statement) => null === $selectedStatementsToExport || in_array($this->entityHelper->extractId($statement), $selectedStatementsToExport))->map(function (array $statement) use ($procedureId) {
             $statement['documentlist'] = $this->paragraphService->getParaDocumentObjectList($procedureId, $statement['elementId']);
             $statement = $this->checkMapScreenshotFile($statement, $procedureId);
 
@@ -947,7 +945,7 @@ class DraftStatementService extends CoreService
     {
         return collect($statements)
             ->pluck('oId')
-            ->every(static fn(string $oId) => $oId === $organisationId);
+            ->every(static fn (string $oId) => $oId === $organisationId);
     }
 
     /**
@@ -1077,6 +1075,16 @@ class DraftStatementService extends CoreService
 
             // Create and use versions of paragraph and Element
             $data = $this->getEntityVersions($data);
+
+            // before updating the draftstatement - check if a version allready exists
+            // if versioning is requested and no version exists yet - create a version of the original state as well
+            // before updating the entity. refs T32960:
+            if ($createVersion && 0 === count($this->getVersionList($data['ident']))) {
+                $draftStatementBeforeUpdate = $this->draftStatementRepository->get($data['ident']);
+                if (null !== $draftStatementBeforeUpdate) {
+                    $this->draftStatementVersionRepository->createVersion($draftStatementBeforeUpdate);
+                }
+            }
 
             $draftStatement = $this->draftStatementRepository
                 ->update($data['ident'], $data);
@@ -1383,7 +1391,7 @@ class DraftStatementService extends CoreService
                 }
             }
 
-            $draftStatementIds = array_map(fn($draftStatement) => $draftStatement->getId(), $results);
+            $draftStatementIds = array_map(fn ($draftStatement) => $draftStatement->getId(), $results);
 
             // get Elasticsearch aggregations aka Userfilters
             // add user to Filter
@@ -1738,7 +1746,7 @@ class DraftStatementService extends CoreService
             }
         }
 
-        return collect($sortMethodPaths)->map(fn(array $path): SortMethodInterface => 'asc' === $sortDir
+        return collect($sortMethodPaths)->map(fn (array $path): SortMethodInterface => 'asc' === $sortDir
             ? $this->sortMethodFactory->propertyAscending($path)
             : $this->sortMethodFactory->propertyDescending($path))->all();
     }
@@ -2042,9 +2050,7 @@ class DraftStatementService extends CoreService
      */
     public function getByIds(array $draftStatementIds): array
     {
-        $condition = $this->conditionFactory->propertyHasAnyOfValues($draftStatementIds, ['id']);
-
-        return $this->entityFetcher->listEntitiesUnrestricted(DraftStatement::class, [$condition]);
+        return $this->draftStatementRepository->findBy(['id' => $draftStatementIds]);
     }
 
     /**

@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\IsFileAvailableEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\IsFileDirectlyAccessibleEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\FileResourceTypeInterface;
@@ -20,10 +21,9 @@ use demosplan\DemosPlanCoreBundle\Event\IsFileAvailableEvent;
 use demosplan\DemosPlanCoreBundle\Event\IsFileDirectlyAccessibleEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
- * @template-extends DplanResourceType<File>
+ * @template-extends DplanResourceType<FileInterface>
  *
  * @property-read End $filename
  * @property-read End $ident
@@ -42,6 +42,11 @@ final class FileResourceType extends DplanResourceType implements FileResourceTy
     public static function getName(): string
     {
         return 'File';
+    }
+
+    public function getIdentifierPropertyPath(): array
+    {
+        return $this->ident->getAsNames();
     }
 
     public function isAvailable(): bool
@@ -64,9 +69,9 @@ final class FileResourceType extends DplanResourceType implements FileResourceTy
      * the file is used if access should be restricted. Also note that this property is
      * checked when the actual file bytes are requested.
      */
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
-        return $this->conditionFactory->propertyHasValue(false, $this->deleted);
+        return [$this->conditionFactory->propertyHasValue(false, $this->deleted)];
     }
 
     public function isReferencable(): bool

@@ -81,7 +81,7 @@
                     :aria-label="Translator.trans('contextual.help')"
                     v-tooltip="{
                       content: Translator.trans('annotator.modify.explanation'),
-                      classes: 'u-z-super'
+                      classes: 'z-ultimate'
                     }"
                     class="fa fa-question-circle float-right u-mt-0_125" />
                 </p>
@@ -263,7 +263,7 @@ export default {
       return Object.entries(this.labelTranslations)
         .map(([key, value]) => {
           return {
-            label: value,
+            label: Translator.trans(value),
             value: key
           }
         })
@@ -706,10 +706,10 @@ export default {
     },
 
     redirect () {
-      if (hasPermission('area_admin_dashboard')) {
-        window.location.href = Routing.generate('DemosPlan_procedure_dashboard', { procedure: window.dplan.procedureId })
-      } else {
+      if (hasPermission('area_admin_import')) {
         window.location.href = Routing.generate('DemosPlan_procedure_import', { procedureId: window.dplan.procedureId })
+      } else {
+        window.location.href = Routing.generate('DemosPlan_procedure_dashboard', { procedure: window.dplan.procedureId })
       }
     },
 

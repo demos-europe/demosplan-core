@@ -13,12 +13,12 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicateInternIdException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use Exception;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -100,7 +100,10 @@ class StatementResourceTypeService extends ResourceTypeService
         $updater->ifPresent($resourceType->submitterCity, $meta->setOrgaCity(...));
         $updater->ifPresent($resourceType->submitterPostalCode, $meta->setOrgaPostalCode(...));
         $updater->ifPresent($resourceType->memo, $object->setMemo(...));
-        $updater->ifPresent($resourceType->segmentDraftList, $object->setDraftsListJson(...));
+        $updater->ifPresent($resourceType->segmentDraftList, function (string $rawJson) use ($object): void {
+            $object->setDraftsListJson($rawJson);
+            $this->validateObject($object, [Statement::DRAFT_JSON_VALIDATION_GROUP]);
+        });
         $updater->ifPresent($resourceType->similarStatementSubmitters, $object->setSimilarStatementSubmitters(...));
 
         $this->resourceTypeService->validateObject($object);

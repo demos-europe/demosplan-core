@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
@@ -18,7 +19,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\SessionHandler;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHasher;
@@ -182,6 +182,8 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      * This Action is only needed to define the routes.
      * Authentication is handled via guards located in Security/Authentication.
      */
+    #[Route(name: 'DemosPlan_user_login_gateway', path: '/redirect/')]
+    #[Route(name: 'DemosPlan_user_login_osi_legacy', path: '/user/login/osi/legacy')]
     #[Route(name: 'DemosPlan_user_login', path: '/user/login', options: ['expose' => true])]
     public function loginAction(CurrentUserInterface $currentUser, LoggerInterface $logger): RedirectResponse
     {
@@ -225,6 +227,9 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         }
 
         $users = [];
+        $currentCustomer = $customerService->getCurrentCustomer()->getSubdomain();
+        $availableCustomers = $customerService->getReservedCustomerNamesAndSubdomains();
+        $customers = array_map(static fn(array $availableCustomer): string => $availableCustomer[1], $availableCustomers);
         $usersOsi = [];
         $customerKey = $customerService->getCurrentCustomer()->getSubdomain();
         $useIdp = false;
@@ -266,6 +271,8 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
             [
                 'title'     => 'user.login',
                 'useSaml'   => $useSaml,
+                'customers' => $customers,
+                'currentCustomer' => $currentCustomer,
                 'loginList' => [
                     'enabled'  => 0 < count($users) || 0 < count($usersOsi),
                     'useIdp'   => $useIdp,
@@ -277,48 +284,12 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     }
 
     /**
-     * Ausloggen.
-     *
-     * Ausloggen bedeutet, dass ein Redirect auf die Homepage durchgeführt wird und bei diesem Response gleich
-     * noch der Cookie mit dem ident-Code entwertet wird.
-     *
-     * @DplanPermissions("area_demosplan")
-     *
-     * @param bool $toGateway
-     *
-     * @throws Exception
+     * Logout via security system.
      */
     #[Route(name: 'DemosPlan_user_logout', path: '/user/logout')]
-    #[Route(name: 'DemosPlan_user_logout_gateway', path: '/user/logout/gateway', defaults: ['toGateway' => true])]
-    public function logoutAction(
-        ParameterBagInterface $parameterBag,
-        PermissionsInterface $permissions,
-        Request $request,
-        SessionHandler $sessionHandler,
-        $toGateway = false): RedirectResponse
+    public function logoutAction(): void
     {
-        // let SAML handle logout when defined. It does no harm when user is logged in locally
-        if ('' !== $parameterBag->get('saml_idp_slo_url')) {
-            return $this->redirectToRoute('saml_logout');
-        }
-
-        $sessionHandler->logoutUser($request);
-        $response = $this->redirectToRoute('core_home');
-
-        if ($permissions->hasPermission('feature_has_logout_landing_page')) {
-            $response = $this->redirectToRoute('DemosPlan_user_logout_success');
-        }
-
-        if ($toGateway) {
-            $response = $this->redirect($this->globalConfig->getGatewayURL());
-        }
-
-        // clear dplan Cookies
-        foreach ($this->allowedCookieNames as $cookieName) {
-            $response->headers->clearCookie($cookieName);
-        }
-
-        return $response;
+        // special cases are handled by the LogoutSubscriber
     }
 
     /**

@@ -22,7 +22,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedurePersonRepository")
  */
 class ProcedurePerson implements UuidEntityInterface, ProcedurePersonInterface
 {
@@ -136,6 +136,17 @@ class ProcedurePerson implements UuidEntityInterface, ProcedurePersonInterface
         return $this;
     }
 
+    public function getStreetNameWithStreetNumber()
+    {
+        if (null === $this->streetName) {
+            return null;
+        }
+
+        return null === $this->streetNumber
+            ? $this->streetName
+            : "$this->streetName $this->streetNumber";
+    }
+
     public function getStreetName(): ?string
     {
         return $this->streetName;
@@ -170,6 +181,13 @@ class ProcedurePerson implements UuidEntityInterface, ProcedurePersonInterface
         $this->city = $city;
 
         return $this;
+    }
+
+    public function getPostalCodeWithCity(): ?string
+    {
+        return null === $this->city
+            ? $this->postalCode
+            : "$this->postalCode $this->city";
     }
 
     public function getPostalCode(): ?string

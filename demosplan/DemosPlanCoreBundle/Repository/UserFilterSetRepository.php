@@ -15,7 +15,7 @@ use demosplan\DemosPlanCoreBundle\Traits\RepositoryLegacyShizzle;
 use Doctrine\ORM\NoResultException;
 use Exception;
 
-class UserFilterSetRepository extends CoreRepository
+class UserFilterSetRepository extends FluentRepository
 {
     use RepositoryLegacyShizzle;
 

@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Document;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ElementsAdminListSaveEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
@@ -43,7 +44,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
 use demosplan\DemosPlanCoreBundle\Logic\User\BrandingService;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
@@ -740,13 +740,11 @@ class DemosPlanDocumentController extends BaseController
      *
      * @DplanPermissions({"area_admin_single_document","feature_admin_element_import"})
      *
-     * @param string $procedure
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
-    #[Route(name: 'DemosPlan_element_import', path: '/verfahren/{procedure}/verwalten/planunterlagen/import')]
+    #[Route(name: 'DemosPlan_element_import', path: '/verfahren/{procedureId}/verwalten/planunterlagen/import')]
     public function elementAdminImportAction(
         CurrentUserInterface $currentUser,
         Request $request,

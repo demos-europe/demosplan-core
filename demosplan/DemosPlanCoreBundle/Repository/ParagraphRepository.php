@@ -28,7 +28,7 @@ use Exception;
 
 use function array_key_exists;
 
-class ParagraphRepository extends CoreRepository implements ArrayInterface, ObjectInterface
+class ParagraphRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
     /**
      * Get a paragraph.

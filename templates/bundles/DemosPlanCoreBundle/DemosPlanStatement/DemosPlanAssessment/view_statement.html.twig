@@ -53,7 +53,12 @@
                 {# id #}
                 <div class="layout--flush layout__item">
                     <label for="{{ statement.ident }}:item_check[]" class="layout__item u-3-of-8 u-mb-0_25">
-                        <span class="o-tooltip inline-block">
+                        <span class="inline-block" v-tooltip="`
+                            {% if statement.meta.authoredDate is defined and statement.meta.authoredDate|dplanDate() != '' %}
+                                {{ 'statement.date.authored'|trans }}: {{ statement.meta.authoredDate|default()|dplanDate()}} <br>
+                            {% endif %}
+                            {{ 'statement.date.submitted'|trans }}: {{ statement.submit|default()|dplanDate() }} <br>
+                        `">
                             {{ 'id'|trans }}:
                             {% if statement.original.ident is defined
                                 and statement.parent.ident is defined
@@ -70,13 +75,6 @@
                             {% if statement.headStatement is not null %}
                                 | {{ 'cluster'|trans }}: {{ statement.headStatement.externId }}
                             {% endif %}
-
-                            <span class="o-tooltip__content">
-                                {% if statement.meta.authoredDate is defined and statement.meta.authoredDate|dplanDate() != '' %}
-                                    {{ 'statement.date.authored'|trans }}: {{ statement.meta.authoredDate|default()|dplanDate()}} <br>
-                                {% endif %}
-                                {{ 'statement.date.submitted'|trans }}: {{ statement.submit|default()|dplanDate() }} <br>
-                            </span>
                         </span>
                     </label>
 
@@ -504,14 +502,14 @@
                     </div>
                     <span class="layout__item u-5-of-8" id="statementText">
                         {% set statementTextHeightShortened = statement.text|default("notspecified"|trans)|heightLimitShorten %}
-                        <dp-height-limit
+                        <height-limit
                             short-text="{{ statementTextHeightShortened|default("notspecified"|trans) }}"
                             full-text="{{ statement.text|default("notspecified"|trans) }}"
                             :is-shortened="{{ statementTextHeightShortened|length }} < {{ statement.text|length }}"
                             element="statement"
                             no-event
                             class="c-styled-html u-mr"
-                        ></dp-height-limit>
+                        ></height-limit>
                     </span>
                     {% endapply -%}
                 </div>

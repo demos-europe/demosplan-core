@@ -33,7 +33,7 @@
         //  apply trigger styles only for js capable devices
         html:not(.nojs) & {
             position: relative;
-            z-index: $z-content-above;
+            z-index: $dp-z-above-zero;
 
             cursor: pointer;
         }
@@ -100,7 +100,7 @@
                 animation-fill-mode: forwards;
 
                 &.table-row {
-                    display: table-row;
+                    display: table-row !important;
                 }
             }
 
@@ -119,7 +119,7 @@
                 transform: translateY(0);
 
                 &.table-row {
-                    display: table-row;
+                    display: table-row !important;
                 }
             }
         }
@@ -132,7 +132,7 @@
                 display: block !important;
 
                 &.table-row {
-                    display: table-row;
+                    display: table-row !important;
                 }
             }
         }

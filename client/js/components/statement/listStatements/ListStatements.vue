@@ -26,7 +26,7 @@
           :text="Translator.trans('search.reset')" />
       </div>
       <dp-bulk-edit-header
-        class="u-mt-0_5"
+        class="layout__item u-12-of-12 u-mt-0_5"
         v-if="selectedItemsCount > 0 && hasPermission('feature_statements_sync_to_procedure')"
         :selected-items-count="selectedItemsCount"
         :selection-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"
@@ -140,7 +140,7 @@
         </template>
         <template v-slot:text="{ text }">
           <div
-            class="line-clamp-3 break-words"
+            class="line-clamp-3 c-styled-html"
             v-cleanhtml="text" />
         </template>
         <template v-slot:flyout="{ assignee, id, originalPdf, segmentsCount, synchronized }">
@@ -161,7 +161,7 @@
             <a
               v-if="hasPermission('feature_read_source_statement_via_api')"
               :class="{'is-disabled': originalPdf === null}"
-              :href="Routing.generate('core_file', { hash: originalPdf })"
+              :href="Routing.generate('core_file_procedure', { hash: originalPdf, procedureId: procedureId })"
               rel="noreferrer noopener"
               target="_blank">
               {{ Translator.trans('original.pdf') }}
@@ -231,7 +231,7 @@
           </statement-meta-data>
 
           <!-- Statement text -->
-          <div class="u-pt-0_5 break-words">
+          <div class="u-pt-0_5 c-styled-html">
             <strong>{{ Translator.trans('statement.text.short') }}:</strong>
             <template v-if="typeof fullText === 'undefined'">
               <div v-cleanhtml="text" />

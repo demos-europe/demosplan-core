@@ -13,38 +13,16 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
-use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
-use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertyUpdateAccessException;
-use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
-use Doctrine\ORM\Query\QueryException;
 
 class ResourcePersister extends CoreService
 {
-    public function __construct(private readonly EntityFetcher $entityFetcher, private readonly RepositoryHelper $repositoryHelper, private readonly ResourceTypeService $resourceTypeService)
-    {
-    }
-
-    /**
-     * @param array<string,mixed> $properties
-     *
-     * @throws ResourceNotFoundException
-     * @throws NonUniqueResultException
-     * @throws QueryException
-     * @throws UserNotFoundException
-     * @throws PropertyUpdateAccessException
-     */
-    public function updateBackingObject(
-        UpdatableDqlResourceTypeInterface $resourceType,
-        string $id,
-        array $properties
-    ): ResourceChange {
-        $entity = $this->entityFetcher->getEntityAsUpdateTarget($resourceType, $id);
-
-        return $this->updateBackingObjectWithEntity($resourceType, $entity, $properties);
+    public function __construct(
+        private readonly RepositoryHelper $repositoryHelper,
+        private readonly ResourceTypeService $resourceTypeService
+    ) {
     }
 
     /**
@@ -83,8 +61,8 @@ class ResourcePersister extends CoreService
         }
         /** @var ResourceChange $firstResourceChange */
         $firstResourceChange = $resourceChanges[0];
-        $entitiesToPersist = array_merge(...array_map(static fn(ResourceChange $resourceChanges) => $resourceChanges->getEntitiesToPersist(), $resourceChanges));
-        $entitiesToDelete = array_merge(...array_map(static fn(ResourceChange $resourceChanges) => $resourceChanges->getEntitiesToDelete(), $resourceChanges));
+        $entitiesToPersist = array_merge(...array_map(static fn (ResourceChange $resourceChanges) => $resourceChanges->getEntitiesToPersist(), $resourceChanges));
+        $entitiesToDelete = array_merge(...array_map(static fn (ResourceChange $resourceChanges) => $resourceChanges->getEntitiesToDelete(), $resourceChanges));
 
         // We use the repository of the resource type for all resource types as it doesn't matter
         // which one we use and can wrap all changes in a single transaction this way.

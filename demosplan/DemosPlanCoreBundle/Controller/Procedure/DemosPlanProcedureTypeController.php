@@ -20,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Form\ProcedureTypeFormType;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureTypeService;
 use demosplan\DemosPlanCoreBundle\Logic\ResourcePersister;
@@ -53,13 +52,13 @@ class DemosPlanProcedureTypeController extends BaseController
     public function procedureTypeListAction(
         ProcedureTypeService $procedureTypeService): Response
     {
-        $procedureTypeResources = $procedureTypeService->getAllProcedureTypeResources();
+        $procedureTypes = $procedureTypeService->getAllProcedureTypes();
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanProcedure/administration_procedure_type_list.html.twig',
             [
                 'templateVars' => [
-                    'procedureTypes' => $procedureTypeResources,
+                    'procedureTypes' => $procedureTypes,
                 ],
                 'title'        => 'procedure.types',
             ]
@@ -82,7 +81,7 @@ class DemosPlanProcedureTypeController extends BaseController
         TranslatorInterface $translator
     ): Response {
         $template = '@DemosPlanCore/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
-        $procedureTypeResources = $procedureTypeService->getAllProcedureTypeResources();
+        $procedureTypes = $procedureTypeService->getAllProcedureTypes();
 
         $form = $this->getForm(
             $formFactory,
@@ -105,7 +104,7 @@ class DemosPlanProcedureTypeController extends BaseController
             $template,
             [
                 'templateVars' => [
-                    'procedureTypes' => $procedureTypeResources,
+                    'procedureTypes' => $procedureTypes,
                     'isCreate'       => true,
                 ],
                 'form'         => $form->createView(),
@@ -125,7 +124,6 @@ class DemosPlanProcedureTypeController extends BaseController
     #[Route(name: 'DemosPlan_procedureType_duplicate', path: 'verfahrenstypen/{procedureTypeId}/duplicate', methods: ['GET'], options: ['expose' => true])]
     public function procedureTypeCreateAction(
         Breadcrumb $breadcrumb,
-        EntityFetcher $entityFetcher,
         EntityWrapperFactory $entityWrapperFactory,
         FormFactoryInterface $formFactory,
         ProcedureTypeResourceType $procedureTypeResourceType,
@@ -138,9 +136,9 @@ class DemosPlanProcedureTypeController extends BaseController
         }
 
         // List of ProcedureTypes
-        $procedureTypeResources = $procedureTypeService->getAllProcedureTypeResources();
+        $procedureTypes = $procedureTypeService->getAllProcedureTypes();
         /** @var ProcedureType $procedureTypeEntity */
-        $procedureTypeEntity = $entityFetcher->getEntityAsReadTarget($procedureTypeResourceType, $procedureTypeId);
+        $procedureTypeEntity = $procedureTypeResourceType->getEntityAsReadTarget($procedureTypeId);
         $procedureTypeResource = $entityWrapperFactory->createWrapper($procedureTypeEntity, $procedureTypeResourceType);
 
         $template = '@DemosPlanCore/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
@@ -167,7 +165,7 @@ class DemosPlanProcedureTypeController extends BaseController
             [
                 'templateVars' => [
                     'procedureTypeId' => $procedureTypeId,
-                    'procedureTypes'  => $procedureTypeResources,
+                    'procedureTypes'  => $procedureTypes,
                     'isCreate'        => true,
                 ],
                 'form'         => $form->createView(),
@@ -187,7 +185,6 @@ class DemosPlanProcedureTypeController extends BaseController
     #[Route(name: 'DemosPlan_procedureType_edit', path: 'verfahrenstypen/{procedureTypeId}/edit', methods: ['GET'], options: ['expose' => true])]
     public function procedureTypeEditAction(
         Breadcrumb $breadcrumb,
-        EntityFetcher $entityFetcher,
         EntityWrapperFactory $wrapperFactory,
         FormFactoryInterface $formFactory,
         ProcedureTypeResourceType $procedureTypeResourceType,
@@ -198,7 +195,7 @@ class DemosPlanProcedureTypeController extends BaseController
             throw AccessException::typeNotAvailable($procedureTypeResourceType);
         }
 
-        $procedureTypeEntity = $entityFetcher->getEntityAsReadTarget($procedureTypeResourceType, $procedureTypeId);
+        $procedureTypeEntity = $procedureTypeResourceType->getEntityAsReadTarget($procedureTypeId);
         $procedureTypeResource = $wrapperFactory->createWrapper($procedureTypeEntity, $procedureTypeResourceType);
 
         $template = '@DemosPlanCore/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
@@ -244,7 +241,6 @@ class DemosPlanProcedureTypeController extends BaseController
      */
     #[Route(name: 'DemosPlan_procedureType_create_save', path: 'verfahrenstypen/create', methods: ['POST'], options: ['expose' => false])]
     public function procedureTypeCreateSaveAction(
-        EntityFetcher $entityFetcher,
         EntityWrapperFactory $wrapperFactory,
         FormFactoryInterface $formFactory,
         ProcedureTypeResourceType $procedureTypeResourceType,
@@ -339,7 +335,7 @@ class DemosPlanProcedureTypeController extends BaseController
         }
 
         $template = '@DemosPlanCore/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
-        $procedureTypes = $entityFetcher->listEntities($procedureTypeResourceType, []);
+        $procedureTypes = $procedureTypeResourceType->listEntities([]);
 
         // in case of invalid data or an exception
         return $this->renderTemplate(
@@ -369,7 +365,6 @@ class DemosPlanProcedureTypeController extends BaseController
      */
     #[Route(name: 'DemosPlan_procedureType_edit_save', path: 'verfahrenstypen/{procedureTypeId}/edit', methods: ['POST'], options: ['expose' => false])]
     public function procedureTypeEditSaveAction(
-        EntityFetcher $entityFetcher,
         EntityWrapperFactory $wrapperFactory,
         FormFactoryInterface $formFactory,
         ProcedureTypeResourceType $procedureTypeResourceType,
@@ -385,7 +380,7 @@ class DemosPlanProcedureTypeController extends BaseController
             throw AccessException::typeNotAvailable($procedureTypeResourceType);
         }
 
-        $procedureTypeEntity = $entityFetcher->getEntityAsReadTarget($procedureTypeResourceType, $procedureTypeId);
+        $procedureTypeEntity = $procedureTypeResourceType->getEntityAsReadTarget($procedureTypeId);
         $procedureTypeResource = $wrapperFactory->createWrapper($procedureTypeEntity, $procedureTypeResourceType);
         $formName = 'procedureTypeEdit';
 
@@ -415,25 +410,32 @@ class DemosPlanProcedureTypeController extends BaseController
                     $formData
                 );
 
+                $procedureType = $procedureTypeResourceType->getEntityByTypeIdentifier($procedureTypeId);
+
                 // @improve: use symfony forms mapping capabilities to map fields automatically
-                $procedureTypeResourceChange = $resourcePersister->updateBackingObject(
+                $procedureTypeResourceChange = $resourcePersister->updateBackingObjectWithEntity(
                     $procedureTypeResourceType,
-                    $procedureTypeId,
+                    $procedureType,
                     $procedureTypeResourceProperties['procedureTypeProperties']
                 );
 
-                // @improve: return resource instead of object and add object to entitiesToPersist property
-                /** @var ProcedureType $procedureType */
-                $procedureType = $procedureTypeResourceChange->getTargetResource();
-                $procedureUiDefinitionResourceChange = $resourcePersister->updateBackingObject(
+                $procedureUiDefinition = $procedureUiDefinitionResourceType->getEntityByTypeIdentifier(
+                    $procedureType->getProcedureUiDefinition()->getId()
+                );
+
+                $procedureUiDefinitionResourceChange = $resourcePersister->updateBackingObjectWithEntity(
                     $procedureUiDefinitionResourceType,
-                    $procedureType->getProcedureUiDefinition()->getId(),
+                    $procedureUiDefinition,
                     $procedureTypeResourceProperties['procedureUiDefinitionProperties']
                 );
 
-                $procedureBehaviorDefinitionResourceChange = $resourcePersister->updateBackingObject(
+                $procedureBehaviorDefinition = $procedureBehaviorDefinitionResourceType->getEntityByTypeIdentifier(
+                    $procedureType->getProcedureBehaviorDefinition()->getId()
+                );
+
+                $procedureBehaviorDefinitionResourceChange = $resourcePersister->updateBackingObjectWithEntity(
                     $procedureBehaviorDefinitionResourceType,
-                    $procedureType->getProcedureBehaviorDefinition()->getId(),
+                    $procedureBehaviorDefinition,
                     $procedureTypeResourceProperties['procedureBehaviorDefinitionProperties']
                 );
 

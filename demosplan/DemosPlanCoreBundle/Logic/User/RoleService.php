@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
@@ -80,10 +81,10 @@ class RoleService extends CoreService
         $allRoles = $this->getRoles();
 
         $allRoles = collect($allRoles)->flatMap(
-            static fn(Role $role) => [$role->getCode() => $role]
+            static fn (Role $role) => [$role->getCode() => $role]
         );
 
-        $acceptedOrgaTypeNames = array_map(static fn(OrgaType $orgaType) => $orgaType->getName(), $acceptedOrgaTypes);
+        $acceptedOrgaTypeNames = array_map(static fn (OrgaType $orgaType) => $orgaType->getName(), $acceptedOrgaTypes);
 
         $givableRoles = [];
 
@@ -139,7 +140,7 @@ class RoleService extends CoreService
 
         return collect($givableRoles)
             ->unique()
-            ->filter(static fn(Role $role) => in_array($role->getCode(), $rolesAllowed, true))
-            ->sortBy(static fn(Role $role) => $role->getName())->all();
+            ->filter(static fn (Role $role) => in_array($role->getCode(), $rolesAllowed, true))
+            ->sortBy(static fn (Role $role) => $role->getName())->all();
     }
 }

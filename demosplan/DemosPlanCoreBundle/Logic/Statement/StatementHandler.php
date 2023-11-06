@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ManualStatementCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Handler\StatementHandlerInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
@@ -80,7 +81,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
@@ -294,8 +294,8 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             $inData
         );
 
-        if (false == $storageDraftResult ||
-            !array_key_exists('ident', $storageDraftResult)
+        if (false == $storageDraftResult
+            || !array_key_exists('ident', $storageDraftResult)
         ) {
             throw new Exception('Speichern der Daten fehlgeschlagen');
         }
@@ -538,7 +538,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
             $this->getMessageBag()->add('confirm', 'confirm.fragment.edit', ['id' => $fragmentToUpdate->getDisplayId()]);
 
-            $newTags = collect($result->getTags())->filter(static fn(Tag $tag) => in_array($tag->getId(), $newTagIds, true));
+            $newTags = collect($result->getTags())->filter(static fn (Tag $tag) => in_array($tag->getId(), $newTagIds, true));
             $this->addAdditionalAreaInformationToStatement($result, $newTags);
 
             // reset assignment when planner changed reviewer but not to null
@@ -687,7 +687,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     {
         return $procedure->getAgencyExtraEmailAddresses()
             ->map(
-                static fn(EmailAddress $emailAddress) => $emailAddress->getFullAddress()
+                static fn (EmailAddress $emailAddress) => $emailAddress->getFullAddress()
             )->toArray();
     }
 
@@ -861,7 +861,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             $vars['mailsubject'] = $email['subject'];
             $toAddress = $email['to'];
             $attachments = array_key_exists('attachments', $email) ? $email['attachments'] : [];
-            $attachments = array_map(static fn(PdfFile $pdfFile): array => $pdfFile->toArray(), $attachments);
+            $attachments = array_map(static fn (PdfFile $pdfFile): array => $pdfFile->toArray(), $attachments);
 
             // schicke E-Mail ab
             $this->mailService->sendMail(
@@ -1118,10 +1118,9 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     /**
      * Einreichen der Stellungnahme(n).
      *
-     * @param array|string $idents
-     * @param string       $notificationReceiverId
-     * @param bool         $public
-     * @param bool         $gdprConsentReceived    true if the GDPR consent was received
+     * @param string $notificationReceiverId
+     * @param bool   $public
+     * @param bool   $gdprConsentReceived    true if the GDPR consent was received
      *
      * @return array<int, Statement> Statement entities in their legacy array format
      *
@@ -1249,8 +1248,8 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         foreach ($fragments as $fragment) {
             if (0 < strlen((string) $fragment['voteAdvice'])) {
                 $voteAdviceLabel =
-                    array_key_exists('statement_fragment_advice_values', $formOptions) &&
-                    array_key_exists($fragment['voteAdvice'], $formOptions['statement_fragment_advice_values'])
+                    array_key_exists('statement_fragment_advice_values', $formOptions)
+                    && array_key_exists($fragment['voteAdvice'], $formOptions['statement_fragment_advice_values'])
                         ? $formOptions['statement_fragment_advice_values'][$fragment['voteAdvice']] : '';
                 $fragment['voteAdvice'] = $voteAdviceLabel;
             }
@@ -1330,11 +1329,11 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         // sort by Organame and Department. Works because this is only
         // used for sorting and does not alter any data
         if ($asObject) {
-            $departments = collect($departments)->sortBy(fn($department) =>
+            $departments = collect($departments)->sortBy(fn ($department) =>
                 /* @var Department $department */
                 $department->getOrgaName().$department->getName())->toArray();
         } else {
-            $departments = collect($departments)->sortBy(fn($department) =>
+            $departments = collect($departments)->sortBy(fn ($department) =>
                 /* @var array $department */
                 $department['orgaName'].$department['departmentName'])->toArray();
         }
@@ -1704,7 +1703,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      *                            the given topicId.
      *
      * @throws DuplicatedTagTitleException
-     * @throws Exception
+     * @throws BadRequestException|TagTopicNotFoundException
      */
     public function createTagFromTopicId(string $topicId, string $tagstring, string $procedureId): Tag
     {
@@ -1913,7 +1912,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         if (Role::CITIZEN === $role) {
             $public = $this->statementService->getStatementsByProcedureId(
                 $procedureId,
-                ['publicVerified' => true],
+                ['publicVerified' => Statement::PUBLICATION_APPROVED],
                 null,
                 null,
                 1_000_000
@@ -1974,8 +1973,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
     /**
      * Definition der incoming Data.
-     *
-     * @return mixed
      */
     protected function incomingDataDefinition()
     {
@@ -2243,14 +2240,14 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         }
 
         // thought it has prefix 'r_' but i don't want to break anything.
-        if ($this->permissions->hasPermission('field_fragment_status') &&
-            array_key_exists('status', $data)) {
+        if ($this->permissions->hasPermission('field_fragment_status')
+            && array_key_exists('status', $data)) {
             $statementFragmentData['status'] = $data['status'];
         }
 
         // thats why...
-        if ($this->permissions->hasPermission('field_fragment_status') &&
-            array_key_exists('r_status', $data) && '' != $data['r_status']) {
+        if ($this->permissions->hasPermission('field_fragment_status')
+            && array_key_exists('r_status', $data) && '' != $data['r_status']) {
             $statementFragmentData['status'] = $data['r_status'];
         }
 
@@ -2274,8 +2271,8 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             }
         }
 
-        if ($this->permissions->hasPermission('feature_single_document_fragment') &&
-            array_key_exists('r_document', $data)) {
+        if ($this->permissions->hasPermission('feature_single_document_fragment')
+            && array_key_exists('r_document', $data)) {
             // Check if the incoming document is already set. Version stuff here
             if ($data['r_document'] != $fragmentToUpdate->getDocumentParentId()) {
                 if ('' == $data['r_document']) {
@@ -2326,7 +2323,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         $interpreter = new Interpreter();
         $interpreter->addObserver(function (array $row) {
             // Do not use line if all fields are empty
-            if (array_reduce($row, fn($carry, $item) => $carry && ('' == $item), true)) {
+            if (array_reduce($row, fn ($carry, $item) => $carry && ('' == $item), true)) {
                 return;
             }
             $this->csvImportDatasets[] = $row;
@@ -2402,9 +2399,9 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         $relatedStatement = $fragment->getStatement();
 
         $addedPriorityAreas = collect($fragment->getPriorityAreas())->filter(
-            fn(PriorityArea $priorityArea) => $relatedStatement->addPriorityArea($priorityArea)
+            fn (PriorityArea $priorityArea) => $relatedStatement->addPriorityArea($priorityArea)
         )->map(
-            fn(PriorityArea $priorityArea) => $priorityArea->getName()
+            fn (PriorityArea $priorityArea) => $priorityArea->getName()
         );
 
         $this->consolidateAdditionalAreaInformationMessages(
@@ -2415,9 +2412,9 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         );
 
         $addedMunicipalities = collect($fragment->getMunicipalities())->filter(
-            fn(Municipality $municipality) => $relatedStatement->addMunicipality($municipality)
+            fn (Municipality $municipality) => $relatedStatement->addMunicipality($municipality)
         )->map(
-            fn(Municipality $municipality) => $municipality->getName()
+            fn (Municipality $municipality) => $municipality->getName()
         );
 
         $this->consolidateAdditionalAreaInformationMessages(
@@ -2428,9 +2425,9 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         );
 
         $addedCounties = collect($fragment->getCounties())->filter(
-            fn(County $county) => $relatedStatement->addCounty($county)
+            fn (County $county) => $relatedStatement->addCounty($county)
         )->map(
-            fn(County $county) => $county->getName()
+            fn (County $county) => $county->getName()
         );
 
         $this->consolidateAdditionalAreaInformationMessages(
@@ -2441,9 +2438,9 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         );
 
         $addedTags = $tagsToAdd->filter(
-            static fn(Tag $tag) => $relatedStatement->addTag($tag)
+            static fn (Tag $tag) => $relatedStatement->addTag($tag)
         )->map(
-            static fn(Tag $tag) => $tag->getName()
+            static fn (Tag $tag) => $tag->getName()
         );
         $this->consolidateAdditionalAreaInformationMessages(
             $addedTags,
@@ -2454,12 +2451,13 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
         // only update Statement if needed
         if (
-            0 < $addedCounties->count() ||
-            0 < $addedMunicipalities->count() ||
-            0 < $addedPriorityAreas->count() ||
-            0 < $addedTags->count()
+            0 < $addedCounties->count()
+            || 0 < $addedMunicipalities->count()
+            || 0 < $addedPriorityAreas->count()
+            || 0 < $addedTags->count()
         ) {
             $this->updateStatementObject($relatedStatement);
+
             // statement was updated
             return true;
         }
@@ -2575,19 +2573,19 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         // remove every element which is not "isolated":
         // if(isPriorityAreaInFragments()) {do nothing}
         $isolatedPriorityAreaIds = collect($areaInformationIdsToCheck['priorityAreaIds'])
-            ->filter(fn($id) => !$this->isPriorityAreaInFragments($id, $fragments));
+            ->filter(fn ($id) => !$this->isPriorityAreaInFragments($id, $fragments));
 
         // remove every element which is not "isolated":
         $isolatedMunicipalityIds = collect($areaInformationIdsToCheck['municipalityIds'])
-            ->filter(fn($id) => !$this->isMunicipalityInFragments($id, $fragments));
+            ->filter(fn ($id) => !$this->isMunicipalityInFragments($id, $fragments));
 
         // remove every element which is not "isolated":
         $isolatedCountyIds = collect($areaInformationIdsToCheck['countyIds'])
-            ->filter(fn($id) => !$this->isCountyInFragments($id, $fragments));
+            ->filter(fn ($id) => !$this->isCountyInFragments($id, $fragments));
 
         // remove every element which is not "isolated":
         $isolatedTagIds = collect($areaInformationIdsToCheck['tagIds'])
-            ->filter(fn($id) => !$this->isTagInFragments($id, $fragments));
+            ->filter(fn ($id) => !$this->isTagInFragments($id, $fragments));
 
         return collect([
             'priorityAreas'  => $isolatedPriorityAreaIds,
@@ -2702,9 +2700,9 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         // sort Statements by external Id
         return $votedStatements
             // display only votes from current procedure
-            ->filter(static fn(Statement $statement) => $statement->getProcedureId() === $procedure)
+            ->filter(static fn (Statement $statement) => $statement->getProcedureId() === $procedure)
             ->sortBy(
-                static fn(Statement $statement) => $statement->getExternId()
+                static fn (Statement $statement) => $statement->getExternId()
             )
             ->toArray();
     }
@@ -2975,9 +2973,9 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      */
     private function attachSimilarStatementSubmitters(Statement $statementToAttachTo, array $data): Statement
     {
-        if (!array_key_exists('r_similarStatementSubmitters', $data) ||
-            !is_array($data['r_similarStatementSubmitters']) ||
-            0 === count($data['r_similarStatementSubmitters'])) {
+        if (!array_key_exists('r_similarStatementSubmitters', $data)
+            || !is_array($data['r_similarStatementSubmitters'])
+            || 0 === count($data['r_similarStatementSubmitters'])) {
             $statementToAttachTo->setSimilarStatementSubmitters(new ArrayCollection());
 
             return $statementToAttachTo;
@@ -3110,7 +3108,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                     ->toArray();
         }
 
-        $templateVars['elements'] = array_map(static fn(Elements $element) => [
+        $templateVars['elements'] = array_map(static fn (Elements $element) => [
             'id'       => $element->getId(),
             'ident'    => $element->getIdent(),
             'title'    => $element->getTitle(),
@@ -3193,7 +3191,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
         foreach ($topics as $topic) {
             $resolved = [];
-            $resolved['tags'] = array_map(fn(Tag $tag) => ['id' => $tag->getId(), 'name' => $tag->getTitle()], $topic->getTags()->toArray());
+            $resolved['tags'] = array_map(fn (Tag $tag) => ['id' => $tag->getId(), 'name' => $tag->getTitle()], $topic->getTags()->toArray());
             $resolved['name'] = $topic->getTitle();
             $resolved['id'] = $topic->getId();
             $result[] = $resolved;
@@ -3582,14 +3580,14 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             }
 
             // check for assignment of statement and its fragments
-            if (false === $ignoreAssignmentOfStatement &&
-                false === $this->hasValidStatementAssignments($statementToAdd)) {
+            if (false === $ignoreAssignmentOfStatement
+                && false === $this->hasValidStatementAssignments($statementToAdd)) {
                 return false;
             }
 
             // check for assignment of statement and its fragments
-            if (false === $ignoreAssignmentOfHeadStatement &&
-                false === $this->hasValidStatementAssignments($headStatement)) {
+            if (false === $ignoreAssignmentOfHeadStatement
+                && false === $this->hasValidStatementAssignments($headStatement)) {
                 return false;
             }
 
@@ -3854,7 +3852,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         $fragments = $this->getStatementFragmentsStatementES($statementId, []);
 
         return collect($fragments->getResult())
-            ->filter(fn($fragment) => $fragment['id'] === $fragmentId)->first(null, []);
+            ->filter(fn ($fragment) => $fragment['id'] === $fragmentId)->first(null, []);
     }
 
     /**
@@ -3899,8 +3897,8 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             // fragment is currently not assigned to a department (to set advice)
             // and current user has permission to set vote -> voteAdvice needed
             // (the one who set set vote, shall not see voteAdvice until it is completed)
-            if (null === $fragment['departmentId'] &&
-                $this->permissions->hasPermission('feature_statements_fragment_vote')
+            if (null === $fragment['departmentId']
+                && $this->permissions->hasPermission('feature_statements_fragment_vote')
             ) {
                 unset($keysToRemove[3]);
             }
@@ -3997,8 +3995,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      * @param string $userId
      * @param bool   $deleted
      * @param bool   $active
-     *
-     * @return mixed
      */
     public function getStatementVotes($userId, $deleted = false, $active = true)
     {
@@ -4356,7 +4352,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      */
     public function getStatementIds(array $statements): array
     {
-        return array_map(fn(Statement $statement) => $statement->getId(), $statements);
+        return array_map(fn (Statement $statement) => $statement->getId(), $statements);
     }
 
     /**

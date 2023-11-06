@@ -11,23 +11,24 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\News;
 
 use Carbon\Carbon;
+use DemosEurope\DemosplanAddon\Contracts\Services\ProcedureNewsServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\News\News;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\NoDesignatedStateException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\ManualListSorter;
 use demosplan\DemosPlanCoreBundle\Repository\NewsRepository;
+use Doctrine\Common\Collections\Criteria;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use Exception;
 use InvalidArgumentException;
 
-class ProcedureNewsService extends CoreService
+class ProcedureNewsService extends CoreService implements ProcedureNewsServiceInterface
 {
     /**
      * @var FileService
@@ -37,7 +38,6 @@ class ProcedureNewsService extends CoreService
     public function __construct(
         private readonly DateHelper $dateHelper,
         private readonly DqlConditionFactory $conditionFactory,
-        private readonly EntityFetcher $entityFetcher,
         private readonly EntityHelper $entityHelper,
         FileService $fileService,
         private readonly ManualListSorter $manualListSorter,
@@ -74,7 +74,7 @@ class ProcedureNewsService extends CoreService
 
         $sortMethod = $this->sortMethodFactory->propertyDescending(['createDate']);
 
-        $news = $this->entityFetcher->listEntitiesUnrestricted(News::class, $conditions, [$sortMethod]);
+        $news = $this->newsRepository->getEntities($conditions, [$sortMethod]);
 
         // Legacy Arrays
         $result = [];
@@ -107,14 +107,12 @@ class ProcedureNewsService extends CoreService
      */
     public function getProcedureNewsAdminList($procedureId, $manualSortScope = null)
     {
-        $conditions = [
-            $this->conditionFactory->propertyHasValue(false, ['deleted']),
-            $this->conditionFactory->propertyHasValue($procedureId, ['pId']),
-        ];
-
-        $sortMethod = $this->sortMethodFactory->propertyDescending(['createDate']);
-
-        $news = $this->entityFetcher->listEntitiesUnrestricted(News::class, $conditions, [$sortMethod]);
+        $news = $this->newsRepository->findBy([
+            'deleted' => false,
+            'pId'     => $procedureId,
+        ], [
+            'createDate' => Criteria::DESC,
+        ]);
 
         // Legacy Arrays
         $result = [];

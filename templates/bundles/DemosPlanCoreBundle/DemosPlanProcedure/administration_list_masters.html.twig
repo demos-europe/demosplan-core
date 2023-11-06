@@ -23,9 +23,12 @@
         <input
             class="btn btn--primary"
             type="submit"
-            data-cy="searchingSubmit"
+            data-cy="manageBlueprints:searchingSubmit"
             value="{{ 'searching'|trans }}">
-        <a class="btn btn--secondary" href="{{ path('DemosPlan_procedure_templates_list') }}">
+        <a
+            class="btn btn--secondary"
+            data-cy="manageBlueprints:reset"
+            href="{{ path('DemosPlan_procedure_templates_list') }}">
             {{ 'reset'|trans }}
         </a>
     </form>

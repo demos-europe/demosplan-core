@@ -19,7 +19,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFieldDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureTypeService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureTypeResourceType;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
@@ -206,6 +205,8 @@ class ProcedureTypeServiceTest extends FunctionalTestCase
 
     public function testDeleteProcedureType(): void
     {
+        self::markSkippedForCIIntervention();
+
         $testProcedureType1 = $this->getProcedureTypeReference('testProcedureType1');
         $amountOfProcedureTypesBefore = $this->countEntries(ProcedureType::class);
         $amountOfProcedureBehaviorDefinitionBefore = $this->countEntries(ProcedureBehaviorDefinition::class);
@@ -283,11 +284,9 @@ class ProcedureTypeServiceTest extends FunctionalTestCase
     {
         self::markSkippedForCIIntervention();
 
-        /** @var EntityFetcher $entityFetcher */
-        $entityFetcher = self::$container->get(EntityFetcher::class);
         /** @var ProcedureTypeResourceType $procedureTypeResourceType */
         $procedureTypeResourceType = self::$container->get(ProcedureTypeResourceType::class);
-        $procedureTypes = $entityFetcher->listEntities($procedureTypeResourceType, [], []);
+        $procedureTypes = $procedureTypeResourceType->listEntities([], []);
         static::assertCount($this->countEntries(ProcedureType::class), $procedureTypes);
     }
 

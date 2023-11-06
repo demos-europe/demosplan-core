@@ -6,6 +6,7 @@ parameters:
     demosplan.project_dir: ''
     demosplan.project_name: ''
     demosplan.project_version: ''
+    demosplan.project_core_version: ''
 
 imports:
     - { resource: "allowedMimeTypes.yml" }
@@ -17,4 +18,6 @@ imports:
     - { resource: "services_autowire.yml" }
     - { resource: "services_repositories.yml" }
     - { resource: "services.yml" }
+#    # allow to override services in config_dev_container_services.yml if needed
+    - { resource: "config_dev_container_services.yml", ignore_errors: true }
     - { resource: "doctrine_extensions.yml" }

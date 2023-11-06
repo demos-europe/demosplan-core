@@ -13,6 +13,14 @@
 .c-edit-field {
     position: relative;
 
+    ul {
+        list-style: disc;
+    }
+
+    ol {
+        list-style: decimal;
+    }
+
     &__trigger {
         position: absolute;
         right: 0;
@@ -33,6 +41,6 @@
     &__editing {
         margin-left: -8px;
         margin-top: math.div(-$inuit-base-spacing-unit--tiny, 2) - 1; // minus one for the border
-        padding-right: 30px; // space for the edit and reset icon
+        padding-right: 40px; // space for the edit and reset icon
     }
 }

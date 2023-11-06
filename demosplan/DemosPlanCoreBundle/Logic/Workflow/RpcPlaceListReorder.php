@@ -12,18 +12,17 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Workflow;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
+use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\ReorderEntityListByInteger;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
-use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\PlaceResourceType;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
@@ -61,11 +60,6 @@ class RpcPlaceListReorder implements RpcMethodSolverInterface
     protected $conditionFactory;
 
     /**
-     * @var EntityFetcher
-     */
-    protected $entityFetcher;
-
-    /**
      * @var JsonSchemaValidator
      */
     protected $jsonValidator;
@@ -85,7 +79,6 @@ class RpcPlaceListReorder implements RpcMethodSolverInterface
 
     public function __construct(
         DqlConditionFactory $conditionFactory,
-        EntityFetcher $entityFetcher,
         JsonSchemaValidator $jsonSchemaValidator,
         private readonly PermissionsInterface $permissions,
         private readonly PlaceResourceType $placeResourceType,
@@ -95,7 +88,6 @@ class RpcPlaceListReorder implements RpcMethodSolverInterface
         private readonly TransactionService $transactionService
     ) {
         $this->conditionFactory = $conditionFactory;
-        $this->entityFetcher = $entityFetcher;
         $this->errorGenerator = $errorGenerator;
         $this->jsonValidator = $jsonSchemaValidator;
         $this->procedureService = $procedureService;
@@ -113,10 +105,10 @@ class RpcPlaceListReorder implements RpcMethodSolverInterface
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function execute(?Procedure $procedure, $rpcRequests): array
+    public function execute(?ProcedureInterface $procedure, $rpcRequests): array
     {
         return $this->transactionService->executeAndFlushInTransaction(
-            fn(): array => $this->prepareAndExecuteAction($procedure->getId(), $rpcRequests));
+            fn (): array => $this->prepareAndExecuteAction($procedure->getId(), $rpcRequests));
     }
 
     public function isTransactional(): bool
@@ -199,7 +191,7 @@ class RpcPlaceListReorder implements RpcMethodSolverInterface
         }
 
         /** @var array<int, Place> $places */
-        $places = $this->entityFetcher->listEntities($this->placeResourceType, [$procedureCondition], [$sortMethod]);
+        $places = $this->placeResourceType->listEntities([$procedureCondition], [$sortMethod]);
 
         $result = new ArrayCollection();
         /** @var Place $place */

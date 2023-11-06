@@ -25,7 +25,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\SegmentCommentRepository")
  */
 class SegmentComment implements UuidEntityInterface, SegmentCommentInterface
 {

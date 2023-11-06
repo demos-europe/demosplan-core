@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
@@ -158,7 +159,6 @@ class OrgaHandler extends CoreHandler
             'ccEmail2',
             'copySpec',
             'cssvars',
-            'email2',
             'emailNotificationEndingPhase',
             'emailNotificationNewStatement',
             'participationEmail',
@@ -167,6 +167,10 @@ class OrgaHandler extends CoreHandler
             'showlistChangeReason',
             'showname',
         ];
+
+        if ($this->currentUser->hasPermission('field_organisation_email2_cc')) {
+            $writableAttributes[] = 'email2';
+        }
 
         if ($this->currentUser->hasPermission('field_organisation_management_paper_copy')) {
             $writableAttributes[] = 'copy';

@@ -14,7 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Maps;
 
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use geoPHP;
+use geoPHP\geoPHP;
 use GuzzleHttp\Exception\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use stdClass;
@@ -61,17 +61,12 @@ class WktToGeoJsonConverter
         return '';
     }
 
-    /**
-     * @param mixed $input
-     */
     private function isWkt($input): bool
     {
         return is_array($input);
     }
 
     /**
-     * @return mixed
-     *
      * @throws JsonException
      */
     private function getValidInput(string $geoJson)

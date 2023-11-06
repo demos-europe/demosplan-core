@@ -32,8 +32,14 @@ use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface
 
 class OzgKeycloakAuthenticator extends OAuth2Authenticator implements AuthenticationEntrypointInterface
 {
-    public function __construct(private readonly ClientRegistry $clientRegistry, private readonly EntityManagerInterface $entityManager, private readonly KeycloakUserDataInterface $keycloakUserData, private readonly LoggerInterface $logger, private readonly OzgKeycloakUserDataMapper $ozgKeycloakUserDataMapper, private readonly RouterInterface $router)
-    {
+    public function __construct(
+        private readonly ClientRegistry $clientRegistry,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly KeycloakUserDataInterface $keycloakUserData,
+        private readonly LoggerInterface $logger,
+        private readonly OzgKeycloakUserDataMapper $ozgKeycloakUserDataMapper,
+        private readonly RouterInterface $router
+    ) {
     }
 
     public function supports(Request $request): ?bool
@@ -92,9 +98,10 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
-        $message = strtr($exception->getMessageKey(), $exception->getMessageData());
+        $this->logger->warning('Login via Keycloak failed', ['exception' => $exception]);
+        $targetUrl = $this->router->generate('core_login_idp_error');
 
-        return new Response($message, Response::HTTP_FORBIDDEN);
+        return new RedirectResponse($targetUrl);
     }
 
     /**

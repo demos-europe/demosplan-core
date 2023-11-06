@@ -159,18 +159,17 @@ final class StatementFragmentResourceType extends DplanResourceType
         return false;
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
-            return $this->conditionFactory->false();
+            return [$this->conditionFactory->false()];
         }
 
-        return $this->conditionFactory->allConditionsApply(
+        return [
             $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id),
             $this->conditionFactory->propertyHasValue($procedure->getId(), $this->statement->procedure->id),
-            $this->conditionFactory->propertyHasValue(false, $this->deleted),
             $this->conditionFactory->propertyHasValue(false, $this->statement->deleted)
-        );
+        ];
     }
 }

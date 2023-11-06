@@ -98,18 +98,18 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
         return true;
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
         $userOrga = $this->currentUser->getUser()->getOrga();
 
         if (null === $userOrga) {
-            return $this->conditionFactory->false();
+            return [$this->conditionFactory->false()];
         }
 
-        return $this->conditionFactory->propertyHasValue(
+        return [$this->conditionFactory->propertyHasValue(
             $userOrga->getId(),
             $this->owningOrganisation->id
-        );
+        )];
     }
 
     /**
@@ -200,10 +200,6 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
      */
     public function delete(object $tag): ResourceChange
     {
-        if (!$this->currentUser->hasPermission('feature_institution_tag_delete')) {
-            throw new InvalidArgumentException('Insufficient permissions');
-        }
-
         $owningOrganisation = $tag->getOwningOrganisation();
         $owningOrganisation->removeOwnInstitutionTag($tag);
         $violations = $this->validator->validate($owningOrganisation);
@@ -228,6 +224,11 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
         return $resourceChange;
     }
 
+    public function getRequiredDeletionPermissions(): array
+    {
+        return ['feature_institution_tag_delete'];
+    }
+
     /**
      * @param Collection<int, Orga> $currentTaggedInstitutions
      * @param Collection<int, Orga> $newTaggedInstitutions
@@ -238,7 +239,7 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
         Collection $currentTaggedInstitutions,
         Collection $newTaggedInstitutions
     ): Collection {
-        return $newTaggedInstitutions->filter(static fn(Orga $newOrga): bool => !$currentTaggedInstitutions->contains($newOrga));
+        return $newTaggedInstitutions->filter(static fn (Orga $newOrga): bool => !$currentTaggedInstitutions->contains($newOrga));
     }
 
     /**
@@ -252,7 +253,7 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
         Collection $newTaggedInstitutions
     ): Collection {
         return $currentTaggedInstitutions->filter(
-            static fn(Orga $currentOrga): bool => !$newTaggedInstitutions->contains($currentOrga)
+            static fn (Orga $currentOrga): bool => !$newTaggedInstitutions->contains($currentOrga)
         );
     }
 

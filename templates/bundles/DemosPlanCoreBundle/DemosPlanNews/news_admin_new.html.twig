@@ -28,6 +28,8 @@
             {% endif %}
         {% endfor %}
 
+        {% set statusOptions = [{ 'value': '1', 'label': 'released'|trans }, { 'value': '0', 'label': 'blocked'|trans }] %}
+
         {% if hasPermission('feature_auto_switch_procedure_news') and proceduresettings is defined and proceduresettings.master|default(false) is same as(false) %}
             <change-state-at-date
                 class="u-mb-0_75"
@@ -37,7 +39,7 @@
                 label="status"
                 :active-delay="JSON.parse('{{ templateVars.news.determinedToSwitch|default(false)|json_encode }}')"
                 date-id="r_designatedSwitchDate"
-                :status-options="[{ 'value': '1', 'label': 'released'}, {'value': '0', 'label': 'blocked'}]"
+                :status-options="JSON.parse('{{ statusOptions|json_encode }}')"
                 default-new-state="1"
                 default-current-state="0"
                 init-status="0">
@@ -221,7 +223,7 @@
                     <button
                         class="{{ 'menubar__button'|prefixClass }}"
                         type="button"
-                        v-tooltip="'{{ 'boilerplate.insert'|trans }})'"
+                        v-tooltip="'{{ 'boilerplate.insert'|trans }}'"
                         @click.stop="$refs.boilerPlateModal.toggleModal()">
                         <i class="{{ 'fa fa-puzzle-piece'|prefixClass }}"></i>
                     </button>

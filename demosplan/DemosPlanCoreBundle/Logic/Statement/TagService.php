@@ -17,23 +17,24 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTopicTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\BoilerplateRepository;
 use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
 use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\TagResourceType;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\NonUniqueResultException;
-use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use Exception;
 
 class TagService extends CoreService
 {
-    public function __construct(private readonly BoilerplateRepository $boilerplateRepository, private readonly DqlConditionFactory $conditionFactory, private readonly EntityFetcher $entityFetcher, private readonly TagRepository $tagRepository, private readonly TagResourceType $tagResourceType, private readonly TagTopicRepository $tagTopicRepository)
-    {
+    public function __construct(
+        private readonly BoilerplateRepository $boilerplateRepository,
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly TagRepository $tagRepository,
+        private readonly TagTopicRepository $tagTopicRepository
+    ) {
     }
 
     /**
@@ -76,21 +77,17 @@ class TagService extends CoreService
     /**
      * Creates a new Tag with the given title.
      *
-     * @param string $title
-     *
      * @throws DuplicatedTagTitleException
-     * @throws Exception
      */
-    public function createTag($title, TagTopic $topic, bool $persistAndFlush = true): Tag
+    public function createTag(string $title, TagTopic $topic, bool $persistAndFlush = true): Tag
     {
         $procedureId = $topic->getProcedure()->getId();
         if ('' === $title) {
             throw new InvalidArgumentException('Tag title may not be empty.');
         }
 
-        $titleCount = $this->tagRepository->count(['id' => $procedureId, 'title' => $title]);
-        if (0 !== $titleCount) {
-            throw DuplicatedTagTitleException::createFromTitleAndProcedureId($title, $procedureId);
+        if (!$this->tagRepository->isTagTitleFree($procedureId, $title)) {
+            throw DuplicatedTagTitleException::createFromTitleAndProcedureId($topic, $title);
         }
 
         $toCreate = new Tag($title, $topic);
@@ -259,7 +256,7 @@ class TagService extends CoreService
             $this->conditionFactory->propertyHasValue($procedureId, ['topic', 'procedure', 'id']),
         ];
 
-        $tags = $this->entityFetcher->listEntitiesUnrestricted(Tag::class, $conditions);
+        $tags = $this->tagRepository->getEntities($conditions, []);
 
         $count = count($tags);
         if (1 < $count) {

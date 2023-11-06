@@ -91,7 +91,7 @@
           <h3 class="font-size-medium weight--bold">
             {{ Translator.trans('statementtext') }}
           </h3>
-          <dp-height-limit
+          <height-limit
             :short-text="!statement.shortText ? statement.text : statement.shortText"
             :full-text="statement.text"
             :is-shortened="statement.textIsTruncated"
@@ -118,7 +118,7 @@
               rel="noopener"
               class="o-hellip"
               :class="statement.files.length > 0 ? 'border--right border-color--grey-light u-mr-0_5 u-pr-0_5' : ''"
-              :href="Routing.generate('core_file', { hash: statement.sourceAttachment.hash })">
+              :href="Routing.generate('core_file_procedure', { hash: statement.sourceAttachment.hash, procedureId: procedureId })">
               {{ statement.sourceAttachment.filename }}
             </a>
 
@@ -129,7 +129,7 @@
               target="_blank"
               rel="noopener"
               class="o-hellip"
-              :href="Routing.generate('core_file', { hash: file.hash })">
+              :href="Routing.generate('core_file_procedure', { hash: file.hash, procedureId: procedureId })">
               {{ file.filename }}
             </a>
           </div>
@@ -189,18 +189,18 @@ import {
   CleanHtml,
   dpApi,
   DpFlyout,
-  DpHeightLimit,
   formatDate,
   hasOwnProp
 } from '@demos-europe/demosplan-ui'
 import { mapGetters, mapMutations, mapState } from 'vuex'
+import HeightLimit from '@DpJs/components/statement/HeightLimit'
 
 export default {
   name: 'OriginalStatementsTableItem',
 
   components: {
     DpFlyout,
-    DpHeightLimit
+    HeightLimit
   },
 
   directives: {

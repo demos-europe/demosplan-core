@@ -129,6 +129,7 @@
           <dp-editor
             :class="prefixClass('u-mb')"
             hidden-input="r_text"
+            :data-dp-validate-error-fieldname="Translator.trans('statement.text.short')"
             id="statementText"
             :toolbar-items="{
               mark: true,
@@ -146,6 +147,7 @@
             id="confirmPrivacy"
             :checked="formData.r_privacy === 'on'"
             data-cy="privacyCheck"
+            :data-dp-validate-error-fieldname="Translator.trans('confirm.statement.privacy')"
             :label="{
               text: Translator.trans('explanation.statement.privacy')
             }"
@@ -256,7 +258,7 @@
                   :class="prefixClass('o-hellip')">
                   <a
                     :class="prefixClass('align-top')"
-                    :href="Routing.generate('core_file', { hash: file.hash })"
+                    :href="Routing.generate('core_file_procedure', { hash: file.hash, procedureId: procedureId })"
                     rel="noopener"
                     target="_blank">
                     {{ file.name }}
@@ -279,11 +281,13 @@
                 <dp-upload-files
                   id="upload_files"
                   allowed-file-types="pdf-img-zip"
-                  :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
+                  :basic-auth="dplan.settings.basicAuth"
+                  :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
                   :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
                   :max-number-of-files="20"
                   ref="uploadFiles"
                   :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
+                  :tus-endpoint="dplan.paths.tusEndpoint"
                   :side-by-side="initialFiles.length === 0"
                   :storage-name="fileStorageName"
                   @file-remove="removeUnsavedFile"
@@ -551,6 +555,7 @@
           :checked="formData.r_gdpr_consent === 'on'"
           :class="prefixClass('u-mv-0_5')"
           data-cy="gdprCheck"
+          :data-dp-validate-error-fieldname="Translator.trans('confirm.statement.data_protection')"
           :label="{
             text: Translator.trans('confirm.gdpr.consent', { link: Routing.generate('DemosPlan_misccontent_static_dataprotection'), orgaId: orgaId })
           }"

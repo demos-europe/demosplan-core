@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
@@ -42,7 +43,6 @@ use demosplan\DemosPlanCoreBundle\Form\BoilerplateGroupType;
 use demosplan\DemosPlanCoreBundle\Form\BoilerplateType;
 use demosplan\DemosPlanCoreBundle\Form\ProcedureFormType;
 use demosplan\DemosPlanCoreBundle\Form\ProcedureTemplateFormType;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\DocumentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
@@ -78,7 +78,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyService;
 use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyShowHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\AddressBookEntryService;
 use demosplan\DemosPlanCoreBundle\Logic\User\BrandingService;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\MasterToebService;
@@ -150,7 +149,6 @@ class DemosPlanProcedureController extends BaseController
     protected $procedureServiceOutput;
 
     public function __construct(
-        private readonly EntityFetcher $entityFetcher,
         private readonly AssessmentHandler $assessmentHandler,
         private readonly Environment $twig,
         private readonly PermissionsInterface $permissions,
@@ -445,20 +443,21 @@ class DemosPlanProcedureController extends BaseController
         }
 
         // save status counts
-        $esResultMeta = $statementQueryResult->getFilterSet();
-        $aggregations = $esResultMeta['filters'];
+        $aggregations = $statementQueryResult->getFilterSet()['filters'];
         foreach ($aggregations[StatementService::AGGREGATION_STATEMENT_STATUS] as $aggregationBucket) {
-            $statusValue = $aggregationBucket['value'];
-            $statusCount = $aggregationBucket['count'];
-            $statementStatusData[$statusValue]['count'] = $statusCount;
+            if (array_key_exists($aggregationBucket['value'], $statementStatuses)) {
+                $statusValue = $aggregationBucket['value'];
+                $statusCount = $aggregationBucket['count'];
+                $statementStatusData[$statusValue]['count'] = $statusCount;
 
-            // add link with filterhash to assessment table
-            if (0 < $statusCount) {
-                $statementStatusData[$statusValue]['url'] = $this->generateAssessmentTableFilterLinkFromStatus(
-                    $statusValue,
-                    $procedureId,
-                    'statement'
-                );
+                // add link with filterhash to assessment table
+                if (0 < $statusCount) {
+                    $statementStatusData[$statusValue]['url'] = $this->generateAssessmentTableFilterLinkFromStatus(
+                        $statusValue,
+                        $procedureId,
+                        'statement'
+                    );
+                }
             }
         }
 
@@ -718,7 +717,6 @@ class DemosPlanProcedureController extends BaseController
     public function newProcedureAction(
         Breadcrumb $breadcrumb,
         CurrentUserInterface $currentUser,
-        EntityWrapperFactory $wrapperFactory,
         FormFactoryInterface $formFactory,
         MasterTemplateService $masterTemplateService,
         Request $request,
@@ -795,7 +793,7 @@ class DemosPlanProcedureController extends BaseController
         $this->writeErrorsIntoMessageBag($form->getErrors(true));
 
         $templateVars['contextualHelpBreadcrumb'] = $breadcrumb->getContextualHelp('procedure.new');
-        $templateVars = $this->addProcedureTypesToTemplateVars($templateVars, false, $wrapperFactory);
+        $templateVars = $this->addProcedureTypesToTemplateVars($templateVars, false);
         $templateVars = $this->procedureServiceOutput->fillTemplateVars($templateVars);
         $templateVars['masterTemplateId'] = $masterTemplateService->getMasterTemplateId();
 
@@ -820,7 +818,6 @@ class DemosPlanProcedureController extends BaseController
     public function newProcedureTemplateAction(
         Breadcrumb $breadcrumb,
         CurrentUserInterface $currentUser,
-        EntityWrapperFactory $wrapperFactory,
         FormFactoryInterface $formFactory,
         MasterTemplateService $masterTemplateService,
         Request $request,
@@ -897,7 +894,7 @@ class DemosPlanProcedureController extends BaseController
         $this->writeErrorsIntoMessageBag($form->getErrors(true));
 
         $templateVars['contextualHelpBreadcrumb'] = $breadcrumb->getContextualHelp('procedure.master.new');
-        $templateVars = $this->addProcedureTypesToTemplateVars($templateVars, true, $wrapperFactory);
+        $templateVars = $this->addProcedureTypesToTemplateVars($templateVars, true);
         $templateVars = $this->procedureServiceOutput->fillTemplateVars($templateVars);
         $templateVars['masterTemplateId'] = $masterTemplateService->getMasterTemplateId();
 
@@ -2143,7 +2140,7 @@ class DemosPlanProcedureController extends BaseController
 
         $emailTextAdded = '';
         if ($this->permissions->hasPermission('feature_email_invitable_institution_additional_invitation_text')) {
-            $emailTextAdded = $this->generateAdditionalInvitationEmailText($publicAffairsAgents, $organization, $procedureAsArray['agencyMainEmailAddress']);
+            $emailTextAdded = $this->generateAdditionalInvitationEmailText($publicAffairsAgents, $organization, $procedureAsArray['agencyMainEmailAddress'] ?? '');
         }
         // versende die Einladungsemail mit dem aktuell eingegebenen Text und speichere den Text nicht
         if (\array_key_exists('sendInvitationEmail', $requestPost)) {
@@ -2772,8 +2769,7 @@ class DemosPlanProcedureController extends BaseController
      */
     protected function addProcedureTypesToTemplateVars(
         array $templateVars,
-        bool $isProcedureTemplate,
-        WrapperFactoryInterface $wrapperFactory
+        bool $isProcedureTemplate
     ): array {
         // procedure types are completely irrelevant in procedure templates (Blaupausen), so no need
         // to pass the variable if it's a procedure template (Blaupause)
@@ -2786,10 +2782,7 @@ class DemosPlanProcedureController extends BaseController
         }
 
         $nameSorting = $this->sortMethodFactory->propertyAscending($this->procedureTypeResourceType->name);
-        $entities = $this->entityFetcher->listEntities($this->procedureTypeResourceType, [], [$nameSorting]);
-        $procedureTypeResources = array_map(fn (object $entity) => $wrapperFactory->createWrapper($entity, $this->procedureTypeResourceType), $entities);
-
-        $templateVars['procedureTypes'] = $procedureTypeResources;
+        $templateVars['procedureTypes'] = $this->procedureTypeResourceType->listEntities([], [$nameSorting]);
 
         return $templateVars;
     }
