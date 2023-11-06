@@ -38,7 +38,7 @@
       </div><!--
    --><div
         class="layout__item u-1-of-2"
-        v-if="uploadedFileId">
+        v-if="brandingList[brandingId].relationships?.logo?.data">
         <p
           class="weight--bold"
           v-text="Translator.trans('logo.current')" />
@@ -165,11 +165,7 @@ export default {
       this.saveBranding(this.brandingId).then(() => {
         dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
         this.isBusy = false
-
-        if (this.isLogoDeleted) {
-          this.uploadedFileId = ''
-          this.isLogoDeleted = false
-        }
+        this.isLogoDeleted = false
       })
     }
   }
