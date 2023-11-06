@@ -14,23 +14,16 @@ use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
-use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
-use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionCollectionInterface;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionResolver;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
 use Exception;
 use Psr\Log\NullLogger;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\FunctionalTestCase;
 use Tests\Base\MockMethodDefinition;
@@ -40,10 +33,8 @@ use Tests\Base\MockMethodDefinition;
  */
 class ProcedureExtensionTest extends FunctionalTestCase
 {
-
     /** @var ProcedureExtension */
     protected $sut;
-
 
     public function setUp(): void
     {
@@ -85,8 +76,6 @@ class ProcedureExtensionTest extends FunctionalTestCase
 
     /**
      * @dataProvider getDataProviderProcedureStartDate
-     *
-     * @param $providerData
      *
      * @throws Exception
      */
@@ -364,7 +353,7 @@ class ProcedureExtensionTest extends FunctionalTestCase
     private function createSut(User $user, $ownsProcedure = false): void
     {
         $permissionMockMethods = [
-            new MockMethodDefinition('hasPermission', fn($permission) => $permission === 'area_public_participation'),
+            new MockMethodDefinition('hasPermission', fn ($permission) => 'area_public_participation' === $permission),
             new MockMethodDefinition('ownsProcedure', $ownsProcedure),
         ];
         $permissions = $this->getMock(Permissions::class, $permissionMockMethods);

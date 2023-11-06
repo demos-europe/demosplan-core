@@ -17,7 +17,6 @@ use demosplan\DemosPlanCoreBundle\Event\RequestValidationStrictEvent;
 use demosplan\DemosPlanCoreBundle\Exception\HoneypotException;
 use demosplan\DemosPlanCoreBundle\Logic\FloodControlService;
 use demosplan\DemosPlanCoreBundle\Repository\FloodRepository;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
