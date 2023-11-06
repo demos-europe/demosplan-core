@@ -88,6 +88,9 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Services\ElementsServiceInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService
 
+    DemosEurope\DemosplanAddon\Contracts\Services\ParagraphServiceInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService
+
     DemosEurope\DemosplanAddon\Contracts\Services\InitializeServiceInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\InitializeService'
 
