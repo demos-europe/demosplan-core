@@ -1019,6 +1019,7 @@ error.annotated.statement.boxes.already.being.reviewed: "Dieses Dokument wird ak
 error.annotated.statement.text.already.being.reviewed: "Der Import wird aktuell durch {user} geprüft."
 error.annotated.statement.not.being.reviewed: "Das Dokument wird nicht überprüft."
 error.api.generic: "Während der Verarbeitung der Anfrage ist ein Fehler aufgetreten."
+error.csrf.missing: "Der CSRF-Token fehlt. Bitte @DemosPlanCore/DemosPlanCore/includes/csrf.html.twig in dem Formular zur Route {uri} importieren."
 error.procedure.token.creation: "Fehler beim Generieren des Verfahrenstokens."
 error.procedure.token.not.found: "Der eingegebene Token konnte nicht gefunden werden."
 error.procedure.token.already.used: "Der eingegebene Token wurde bereits verwendet."
