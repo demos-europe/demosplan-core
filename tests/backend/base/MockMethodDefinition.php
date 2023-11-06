@@ -46,7 +46,7 @@ class MockMethodDefinition
         $this->method = $method;
         $this->returnValue = $returnValue;
         $this->propertyName = $propertyName;
-        $this->returnValueCallback = false;
+        $this->returnValueCallback = $returnValue instanceof \Closure;
     }
 
     /**
