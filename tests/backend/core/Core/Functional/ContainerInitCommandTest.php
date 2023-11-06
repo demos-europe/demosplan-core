@@ -61,6 +61,7 @@ class ContainerInitCommandTest extends FunctionalTestCase
 
         $exitCode = $commandTester->execute([
             '--customerConfig' => 'tests/backend/core/Core/Functional/res/customerConfig_without_user.yaml',
+            '--skip-es-populate' => true
         ]);
         self::assertSame(0, $exitCode);
 
