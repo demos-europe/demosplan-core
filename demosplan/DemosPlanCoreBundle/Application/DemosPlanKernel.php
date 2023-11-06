@@ -14,6 +14,7 @@ use demosplan\DemosPlanCoreBundle\Addon\AddonBundleGenerator;
 use demosplan\DemosPlanCoreBundle\Addon\AddonDoctrineMigrationsPass;
 use demosplan\DemosPlanCoreBundle\Addon\LoadAddonInfoCompilerPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DeploymentStrategyLoaderPass;
+use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DoctrineMigrationsProjectsPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DumpGraphContainerPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DumpYmlContainerPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\MenusLoaderPass;
@@ -281,6 +282,7 @@ class DemosPlanKernel extends Kernel
         $container->addCompilerPass(new DeploymentStrategyLoaderPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
         $container->addCompilerPass(new RpcMethodSolverPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
         $container->addCompilerPass(new MenusLoaderPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new DoctrineMigrationsProjectsPass());
         $container->addCompilerPass(new OptionsLoaderPass(), PassConfig::TYPE_AFTER_REMOVING, 0);
         if ('test' !== $this->getEnvironment()) {
             $container->addCompilerPass(new LoadAddonInfoCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
