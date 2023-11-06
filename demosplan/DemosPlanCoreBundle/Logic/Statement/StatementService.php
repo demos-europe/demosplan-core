@@ -268,7 +268,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         StatementFragmentService $statementFragmentService,
         StatementGeoService $statementGeoService,
         private readonly StatementReportEntryFactory $statementReportEntryFactory,
-        private readonly StatementRepository $statementRepository,
+        protected readonly StatementRepository $statementRepository,
         private readonly StatementResourceType $statementResourceType,
         StatementValidator $statementValidator,
         private readonly StatementVoteRepository $statementVoteRepository,

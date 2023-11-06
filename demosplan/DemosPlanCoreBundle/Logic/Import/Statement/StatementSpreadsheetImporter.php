@@ -82,6 +82,8 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
             Assert::same($actualColumnName, $expectedColumnName);
             $actualColumnNames->next();
         }
+        // assures there can be only the supported column names.
+        Assert::false($actualColumnNames->valid());
 
         return $columnMapping;
     }
@@ -152,11 +154,11 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
                 $usedExternIds[$externId] = $externId;
 
                 $statementCopy = $this->createCopy($originalStatementOrViolations);
-                $constraints = $this->validator->validate($statementCopy, null, [StatementInterface::IMPORT_VALIDATION]);
-                if (0 === $constraints->count()) {
+                $violations = $this->validator->validate($statementCopy, null, [StatementInterface::IMPORT_VALIDATION]);
+                if (0 === $violations->count()) {
                     $this->generatedStatements[] = $statementCopy;
                 } else {
-                    $this->addImportViolations($constraints, $zeroBasedStatementIndex, $worksheetTitle);
+                    $this->addImportViolations($violations, $zeroBasedStatementIndex, $worksheetTitle);
                 }
             } else {
                 $this->addImportViolations($originalStatementOrViolations, $zeroBasedStatementIndex, $worksheetTitle);

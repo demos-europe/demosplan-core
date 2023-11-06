@@ -37,10 +37,11 @@ use function is_string;
 /**
  * Contains the details how to handle each cell in a row during the import of a statement via a spreadsheet.
  *
- * Each cell is handled via a dedicated method. When the statement is build, additional adjustment may be done that do
+ * Each cell is handled via a dedicated (setter) method. When the statement is build via
+ * {@link self::buildStatementAndReset()}, additional adjustment may be done that do
  * not correspond to a single cell.
  *
- * Neither the setter methods nor the {@link self::buildStatement()} method must throw an exception in case of invalid
+ * Neither the setter methods nor the {@link self::buildStatementAndReset()} method must throw an exception in case of invalid
  * cell values or an invalid statement state. Instead, non-empty {@link ConstraintViolationListInterface} instances are
  * to be returned. In valid cases an empty instance or `null` may be returned. {@link \Throwable} instances indicating
  * other problems are still to be thrown though. This approach was chosen to avoid exception creation (which is costly

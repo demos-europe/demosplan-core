@@ -29,6 +29,7 @@ use TusPhp\File;
  * Tus is the [transload-it upload specification](https://tus.io)
  * which our uploader component in the frontend (Uppy) uses
  * to process files in chunks.
+ * This class will be called when the route /_tus/upload is called
  */
 class TusUploadEventSubscriber implements EventSubscriberInterface
 {
@@ -76,7 +77,7 @@ class TusUploadEventSubscriber implements EventSubscriberInterface
         try {
             $checkVirus = FileService::VIRUSCHECK_ASYNC;
             $this->logger->info('Try to save temporary file', [$file->getFilePath()]);
-            $fileId = $this->fileService->saveTemporaryFile(
+                $fileId = $this->fileService->saveTemporaryFile(
                 $file->getFilePath(),
                 $filename,
                 null,
