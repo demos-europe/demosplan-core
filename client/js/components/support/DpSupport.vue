@@ -77,7 +77,7 @@ export default {
     }),
 
     visibleContacts () {
-      return Object.values(this.contacts).filter(el => el.attributes.visible)
+      return Object.values(this.contacts).filter(contact => contact.attributes.visible)
     }
   },
 
