@@ -143,10 +143,11 @@
       </div>
 
       <!-- All other filters -->
-      <template v-for="(filter, idx) in filters">
+      <template
+        v-for="(filter, idx) in filters"
+        :key="'label_' + idx">
         <label
           :for="filter.name"
-          :key="'label_' + idx"
           :class="prefixClass('c-proceduresearch__filter-label layout__item u-mb-0_25 u-1-of-1')">
           {{ filter.title }}
           <dp-tooltip-icon

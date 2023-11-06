@@ -27,9 +27,10 @@
       <p class="lbl u-mb-0_5">
         {{ Translator.trans('submitted.author') }}
       </p>
-      <template v-for="role in roles">
+      <template
+        v-for="role in roles"
+        :key="role.value">
         <input
-          :key="role.value"
           type="radio"
           name="r_role"
           :value="role.value"
@@ -37,7 +38,6 @@
           :id="`r_role_${role.value}`"
           v-model="currentRole"><!--
      --><label
-          :key="role.value"
           class="lbl--text inline-block u-mb-0_5 u-pr u-ml-0_25"
           :for="`r_role_${role.value}`">
           {{ Translator.trans(role.label) }}
