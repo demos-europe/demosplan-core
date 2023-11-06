@@ -238,20 +238,6 @@
         :title="Translator.trans('support.login')">
         <customer-settings-login-support />
       </customer-settings-section>
-
-      <!-- Button row -->
-      <div class="text-right space-inline-s">
-        <button
-          type="submit"
-          class="btn btn--primary"
-          v-text="Translator.trans('save')"
-          @click.prevent="dpValidateAction('customerSettings', submit, false)" />
-        <!-- Reset link to reload the page to its initial values -->
-        <a
-          class="btn btn--secondary"
-          :href="Routing.generate('dplan_user_customer_showSettingsPage')"
-          v-text="Translator.trans('reset')" />
-      </div>
     </template>
   </div>
 </template>
