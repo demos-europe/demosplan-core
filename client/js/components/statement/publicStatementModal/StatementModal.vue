@@ -482,7 +482,7 @@
               id="r_useName_0"
               name="r_useName"
               value="0"
-              @change="val => setPrivacyPreference({ r_useName: '0' })"
+              @change="val => setPrivacyPreference({r_useName: '0'})"
               :checked="formData.r_useName === '0'"
               :label="{
                 text: Translator.trans('statement.detail.form.personal.post_anonymously')
@@ -1184,6 +1184,12 @@ export default {
       this.setStatementData(elementFields)
     },
 
+    removeNotificationsFromStore () {
+      this.messages.forEach(message => {
+        this.remove(message)
+      })
+    },
+
     removeUnsavedFile (file) {
       const indexToRemove = this.unsavedFiles.findIndex(el => el.hash === file.hash)
       this.unsavedFiles.splice(indexToRemove, 1)
@@ -1350,9 +1356,7 @@ export default {
 
     setPrivacyPreference (data) {
       this.setStatementData(data)
-      this.messages.forEach(message => {
-        this.remove(message)
-      })
+      this.removeNotificationsFromStore()
     },
 
     writeDraftStatementIdToSession (draftStatementId) {
