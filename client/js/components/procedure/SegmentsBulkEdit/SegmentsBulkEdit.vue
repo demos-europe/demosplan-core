@@ -258,7 +258,6 @@ import {
   DpRadio,
   dpRpc,
   hasOwnProp,
-  hasPermission,
   prefixClassMixin
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
