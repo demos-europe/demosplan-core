@@ -8,7 +8,7 @@ All rights reserved
 </license>
 
 <template>
-  <section class="c-support__wrapper">
+  <section class="bg-color--white u-p-0">
     <h4
       v-if="title"
       class="font-semibold font-size-large"
@@ -39,8 +39,7 @@ All rights reserved
     <div
       v-else
       v-cleanhtml="reachability.officeHours"
-      class="u-mt-0_75 lg:mt-2">
-    </div>
+      class="u-mt-0_75 lg:mt-2" />
   </section>
 </template>
 <script>

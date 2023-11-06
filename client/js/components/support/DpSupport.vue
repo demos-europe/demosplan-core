@@ -9,7 +9,7 @@ All rights reserved
 
 <template>
   <div
-    class="c-support space-inset-m color--black bg-color--blue-light-3">
+    class="space-inset-m bg-color--blue-light-3">
     <h2 class="font-normal color--black">
       {{ Translator.trans('support.heading') }}
     </h2>
@@ -24,12 +24,12 @@ All rights reserved
     </h3>
     <ul
       class="u-mb-0_75"
-      :class="contactCount === 1 ? '' : 'grid lg:grid-cols-3 gap-3'">
+      :class="{ 'grid lg:grid-cols-3 gap-3': visibleContacts.length !== 1 }">
       <li
-        v-for="contact in contacts"
+        v-for="contact in visibleContacts"
         :key="contact.id"
-        class="space-inset-m c-support__card color--black bg-color--white"
-        :class="contactCount === 1 ? 'lg:w-8/12' : ''">
+        class="space-inset-m bg-color--white"
+        :class="{ 'lg:w-8/12': visibleContacts.length === 1 }">
         <dp-support-card
           :title="contact.attributes.title"
           :email="contact.attributes.eMailAddress"
@@ -40,7 +40,7 @@ All rights reserved
     <h3>
       {{ Translator.trans('support.technical') }}
     </h3>
-    <div class="lg:w-8/12 space-inset-m u-pv-0 c-support__card color--black bg-color--white">
+    <div class="lg:w-8/12 space-inset-m u-pv-0 bg-color--white">
       <dp-support-card
         :phone-number="Translator.trans('support.contact.number')"
         :reachability="{
@@ -76,8 +76,8 @@ export default {
       contacts: 'items'
     }),
 
-    contactCount () {
-      return Object.entries(this.contacts).length
+    visibleContacts () {
+      return Object.values(this.contacts).filter(el => el.attributes.visible)
     }
   },
 
