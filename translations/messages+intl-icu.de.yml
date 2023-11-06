@@ -2,6 +2,58 @@
 # you can also use `php app/console lint:yaml $filename` for a general yaml check
 abort: "Abbrechen"
 abort.and.back: "Abbrechen und zurück"
+about.introduction: >-
+    <p>Wenn räumliche Entwicklungen geplant oder vorbereitet werden, berührt das viele Interessengruppen.  Verschiedene
+    Planwerke werden auf allen Ebenen der Verwaltung - vom Bund bis zu den Kommunen - ausgearbeitet und sind, abhängig
+    vom Plangeber, unterschiedlich in ihren inhaltlichen Schwerpunkten. Eine Aufgabe der behördlichen Planung ist,
+    wesentliche Interessen abzuwägen, Konflikte zwischen verschiedenen Bereichen zu minimieren und Flächen bestmöglich
+    zu nutzen.</p>
+
+    <p>Darum darf die Öffentlichkeit sowie Träger öffentlicher Belange (TöB) bei den Planungen mitreden. Bei
+    landesweiten Planungen sind weitere Institutionen, wie zum Beispiel Umwelt- und Naturschutzvereinigungen, je nach
+    Planungsanlass ebenfalls aufgefordert Stellung zu nehmen.</p>
+
+    <p>Die Beteiligung in der Bauleitplanung steht im Baugesetzbuch. In einem festgelegten Zeitraum werden Stellungnahmen
+    der Öffentlichkeit und TöB gesammelt und von der zuständigen Sachbearbeitung ausgewertet. Die Inhalte der Stellungnahmen
+    müssen bei der Abwägung aller Belange aufgenommen und adressiert werden, bevor die Bebauungs- und Flächennutzungspläne
+    verabschiedet werden.</p>
+
+    <p>Das Raumordnungsgesetz, ergänzt um die entsprechenden Landesplanungsgesetze, sieht eine Beteiligung der
+    Öffentlichkeit sowie die in ihren Belangen berührten öffentlichen Stellen an raumordnerischen Verfahren vor. Hierzu
+    zählen z.B. Raumordnungspläne des Landes oder des Bundes, Regionalpläne, sowie Raumordnungsverfahren.</p>
+
+    <p>Bei einem Planfeststellungsverfahren nach dem Verwaltunsverfahrensgesetz handelt es sich um ein Genehmigungsverfahren
+    für größere Vorhaben in der Infrastruktur. Das können z.B. Straßen, Eisenbahnen, Stadtbahnen, Flugplätze,
+    Hoch-/Höchstspannungsleitungen des Stromnetzes, Deponien oder auch Gewässerausbauten sein. Diese berühren bei ihrer
+    Erstellung eine große Menge an öffentlichen wie auch zumeist eine Vielzahl an Interessen des privaten Lebens. Alle
+    betroffenen Behörden, deren Aufgabenbereiche hier berührt werden, sind zur Stellungnahme aufgefordert.</p>
+
+    <p><strong>DiPlanBeteiligung ist eine Plattform, auf der Sie Ihr Recht zur Mitsprache online wahrnehmen können.</strong></p>
+
+    <p>Die planenden Behörden laden öffentliche Bekanntmachungen, Unterlagen und Pläne über DiPlanBeteiligung hoch. Die
+    Öffentlichkeit und TöB können sich z.B. über geplante städtebauliche Entwicklungen und andere Vorhaben in den Behörden
+    informieren und Stellungnahmen einreichen.</p>
+
+    <p>DiPlanBeteiligung ist ein gemeinsames Projekt der Freien und Hansestadt Hamburg und dem Bund in Zusammenarbeit
+    mit den Bundesländern Berlin und Bremen. Es wurde im Rahmen des Onlinezugangsgesetz gefördert und weiterentwickelt.
+    Der Funktionsumfang wird in den folgenden Monaten um Beteiligungen an der Raumordnung und Anhörungen im Zuge von
+    Planfeststellungsverfahren schrittweise erweitert. Auch sind Beteiligungen im Rahmen der Landschaftsplanung und bei
+    Verfahren nach dem  Bundes-Immissionsschutzgesetz vorgesehen.</p>
+
+    <p>Eine bundesweite Übersicht über alle raumbezogenen Planwerke und formalen Beteiligungsverfahren des Baugesetzbuches
+    sowie perspektivisch der Raumordnung und Planfeststellung finden Sie in unserem
+    <a class="o-link--external" href="https://portal.demo.diplanung.de/" target="_blank" rel="noopener">DiPlanPortal</a>.
+    </p>
+
+    <p>DiPlanBeteiligung ist als freie Software unter der Open-Source-Lizenz für die Europäische Union
+    „European Union Public License“ (EUPL) auf der Open CoDE Plattform der öffentlichen Verwaltung bereitgestellt
+    <a class="o-link--external" href="https://gitlab.opencode.de/diplanung/" target="_blank" rel="noopener">
+    DiPlanung · GitLab (opencode.de)</a>.
+    </p>
+
+    <p>DiPlanBeteiligung ist eine Software-Komponente der DiPlanung-Produktfamilie. Mehr Informationen zur DiPlanung finden Sie
+    <a class="o-link--external" href="https://diplanung.de/" target="_blank" rel="noopener">hier</a>.
+    </p>
 about.project: "Über demosplan"
 accept: "Übernehmen"
 access.authorized: "Zugriffsberechtigt"
@@ -1032,6 +1084,8 @@ error.copy: "Leider ist beim Kopieren ein Fehler aufgetreten."
 error.copy.files: "Die Dateien der Stellungnahme {externId} konnten nicht kopiert werden."
 error.copy.mapfile: "Die Einzeichnung der Stellungnahme {externId} konnte nicht kopiert werden."
 error.changes.not.saved: "Beim Speichern der Änderungen ist ein Fehler aufgetreten."
+error.customer.contact.phone_or_email: "Bitte geben Sie entweder eine gültige E-Mail-Adresse oder Telefonnummer ein."
+error.customer.contact.title: "Bitte geben Sie einen Namen für den Kontakt ein."
 error.date.authored: "Bitte geben Sie ein Verfassungsdatum ein."
 error.in.fields: "Bitte korrigieren Sie Ihre Eingabe in folgenden Feldern: "
 error.phone_or_email.required: "Bitte geben Sie entweder eine gültige E-Mail-Adresse oder Telefonnummer ein."
@@ -3436,6 +3490,7 @@ support.contact.service: "Servicezeiten"
 support.heading: "Sie haben Fragen?"
 support.introduction: "Wir helfen Ihnen gerne! Bei inhaltlichen und fachlichen Fragen zu unserem Portal können Sie sich gerne an den inhaltlichen Support wenden.
 Hier steht Ihnen sowohl eine bundesweite Telefonnummer als auch unser anbieterspezifischer Kontakt zur Verfügung."
+support.login: "Kontakt für fehlende Berechtigungen"
 support.technical: "Technischer Support"
 survey: "Umfrage"
 survey.comment: "Begründung"

@@ -74,7 +74,7 @@ class BrandingResourceType extends DplanResourceType implements UpdatableDqlReso
 
     public function isDirectlyAccessible(): bool
     {
-        return false;
+        return true;
     }
 
     protected function getAccessConditions(): array
