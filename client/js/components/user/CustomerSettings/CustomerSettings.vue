@@ -8,12 +8,9 @@
 </license>
 
 <template>
-  <form
-    :action="Routing.generate('DemosPlan_user_setting_page_post')"
+  <div
     data-dp-validate="customerSettings"
-    ref="customerSettings"
-    method="post"
-    enctype="multipart/form-data">
+    ref="customerSettings">
     <dp-loading v-if="isLoading" />
 
     <template v-else>
@@ -22,7 +19,10 @@
         v-if="hasPermission('feature_platform_logo_edit') || hasPermission('feature_customer_branding_edit')"
         is-open
         :title="Translator.trans('customer.branding.label')">
-        <customer-settings-branding :branding="branding" />
+        <customer-settings-branding
+          :branding="branding"
+          :branding-id="customerBrandingId"
+          @saveBrandingUpdate="fetchCustomerData" />
       </customer-settings-section>
 
       <!-- Map -->
@@ -31,9 +31,10 @@
         is-open
         :title="Translator.trans('map.mainpage.settings')">
         <customer-settings-map
+          :current-customer-id="currentCustomerId"
           :init-layer="initLayer"
           :init-layer-url="initLayerUrl"
-          :map-attribution="mapAttribution"
+          :init-map-attribution="mapAttribution"
           :map-extent="mapExtent" />
       </customer-settings-section>
 
@@ -53,6 +54,14 @@
             headings: [2,3,4],
             linkButton: true
           }" />
+        <dp-button-row
+          class="u-mt"
+          primary
+          secondary
+          :busy="isBusy"
+          :secondary-text="Translator.trans('reset')"
+          @secondary-action="resetProperty('imprint')"
+          @primary-action="saveSettings('imprint')" />
       </customer-settings-section>
 
       <!-- Data Protection -->
@@ -71,6 +80,14 @@
             headings: [2,3,4],
             linkButton: true
           }" />
+        <dp-button-row
+          class="u-mt"
+          primary
+          secondary
+          :busy="isBusy"
+          :secondary-text="Translator.trans('reset')"
+          @secondary-action="resetProperty('dataProtection')"
+          @primary-action="saveSettings('dataProtection')" />
       </customer-settings-section>
 
       <!-- Terms of use -->
@@ -89,6 +106,14 @@
             headings: [2,3,4],
             linkButton: true
           }" />
+        <dp-button-row
+          class="u-mt"
+          primary
+          secondary
+          :busy="isBusy"
+          :secondary-text="Translator.trans('reset')"
+          @secondary-action="resetProperty('termsOfUse')"
+          @primary-action="saveSettings('termsOfUse')" />
       </customer-settings-section>
 
       <!-- Xplanning -->
@@ -107,6 +132,14 @@
             headings: [2,3,4],
             linkButton: true
           }" />
+        <dp-button-row
+          class="u-mt"
+          primary
+          secondary
+          :busy="isBusy"
+          :secondary-text="Translator.trans('reset')"
+          @secondary-action="resetProperty('xplanning')"
+          @primary-action="saveSettings('xplanning')" />
       </customer-settings-section>
 
       <!-- Sign language video page -->
@@ -125,12 +158,13 @@
             linkButton: true,
             headings: [2, 3, 4]
           }" />
-        <h3
-          class="u-mt"
-          v-text="Translator.trans('video')" />
+          <h3
+            class="u-mt"
+            v-text="Translator.trans('video')" />
         <customer-settings-sign-language-video
           v-if="!isLoadingSignLanguageOverviewVideo"
           :sign-language-overview-video="signLanguageOverviewVideo"
+          :sign-language-overview-description="customer.signLanguageOverviewDescription"
           @created="fetchCustomerData"
           @deleted="fetchCustomerData" />
         <dp-loading v-else />
@@ -152,6 +186,14 @@
             headings: [2,3,4],
             linkButton: true
           }" />
+        <dp-button-row
+          class="u-mt"
+          primary
+          secondary
+          :busy="isBusy"
+          :secondary-text="Translator.trans('reset')"
+          @secondary-action="resetProperty('accessibilityExplanation')"
+          @primary-action="saveSettings('accessibilityExplanation')" />
       </customer-settings-section>
 
       <customer-settings-section
@@ -165,16 +207,24 @@
           v-model="customer.overviewDescriptionInSimpleLanguage"
           :basic-auth="dplan.settings.basicAuth"
           hidden-input="r_simpleLanguage"
+          :routes="{
+            getFileByHash: (hash) => Routing.generate('core_file', { hash: hash })
+          }"
           :toolbar-items="{
             fullscreenButton: true,
             headings: [2,3,4],
             imageButton: true,
             linkButton: true
           }"
-          :routes="{
-            getFileByHash: (hash) => Routing.generate('core_file', { hash: hash })
-          }"
           :tus-endpoint="dplan.paths.tusEndpoint" />
+        <dp-button-row
+          class="u-mt"
+          primary
+          secondary
+          :busy="isBusy"
+          :secondary-text="Translator.trans('reset')"
+          @secondary-action="resetProperty('overviewDescriptionInSimpleLanguage')"
+          @primary-action="saveSettings('overviewDescriptionInSimpleLanguage')" />
       </customer-settings-section>
 
       <customer-settings-section
@@ -183,39 +233,35 @@
         <customer-settings-support />
       </customer-settings-section>
 
-      <!-- Button row -->
-      <div class="text-right space-inline-s">
-        <button
-          type="submit"
-          class="btn btn--primary"
-          v-text="Translator.trans('save')"
-          @click.prevent="dpValidateAction('customerSettings', submit, false)" />
-        <!-- Reset link to reload the page to its initial values -->
-        <a
-          class="btn btn--secondary"
-          :href="Routing.generate('dplan_user_customer_showSettingsPage')"
-          v-text="Translator.trans('reset')" />
-      </div>
+      <customer-settings-section
+        v-if="hasPermission('feature_customer_login_support_contact_administration')"
+        :title="Translator.trans('support.login')">
+        <customer-settings-login-support />
+      </customer-settings-section>
     </template>
-  </form>
+  </div>
 </template>
 
 <script>
-import { dpApi, DpLabel, DpLoading, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { DpButtonRow, DpLabel, DpLoading, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { mapActions, mapMutations, mapState } from 'vuex'
 import CustomerSettingsBranding from './CustomerSettingsBranding'
-import CustomerSettingsSupport from './CustomerSettingsSupport'
+import CustomerSettingsLoginSupport from './CustomerSettingsLoginSupport'
 import CustomerSettingsSection from './CustomerSettingsSection'
 import CustomerSettingsSignLanguageVideo from './CustomerSettingsSignLanguageVideo'
+import CustomerSettingsSupport from './CustomerSettingsSupport'
 
 export default {
   name: 'CustomerSettings',
 
   components: {
+    DpButtonRow,
     CustomerSettingsBranding,
-    CustomerSettingsSupport,
+    CustomerSettingsLoginSupport,
     CustomerSettingsMap: () => import('./CustomerSettingsMap'),
     CustomerSettingsSection,
     CustomerSettingsSignLanguageVideo,
+    CustomerSettingsSupport,
     DpLabel,
     DpLoading,
     DpEditor: async () => {
@@ -267,7 +313,8 @@ export default {
     return {
       branding: {
         logo: null,
-        cssvars: ''
+        cssvars: '',
+        logoHash: ''
       },
       customer: {
         accessibilityExplanation: '',
@@ -279,6 +326,7 @@ export default {
         termsOfUse: '',
         xplanning: ''
       },
+      customerBrandingId: '',
       isLoading: true,
       isLoadingSignLanguageOverviewVideo: true,
       requestFields: {},
@@ -289,11 +337,24 @@ export default {
         id: null,
         mimetype: '',
         title: ''
-      }
+      },
+      isBusy:false
     }
   },
 
   computed: {
+    ...mapState('branding', {
+      brandingList: 'items'
+    }),
+
+    ...mapState('customer', {
+      customerList: 'items'
+    }),
+
+    ...mapState('file', {
+      fileList: 'items'
+    }),
+
     isUnsavedSignLanguageVideo () {
       // The signLanguageOverviewVideo.file is available after the video was uploaded and the signLanguageOverviewVideo.id is only available after the video was saved
       return this.signLanguageOverviewVideo.file && !this.signLanguageOverviewVideo.id
@@ -301,6 +362,24 @@ export default {
   },
 
   methods: {
+    ...mapActions('branding', {
+      fetchBranding: 'list',
+      saveBranding: 'save'
+    }),
+
+    ...mapActions('customer', {
+      fetchCustomer: 'list',
+      saveCustomer: 'save'
+    }),
+
+    ...mapMutations('branding', {
+      updateBranding: 'setItem'
+    }),
+
+    ...mapMutations('customer', {
+      updateCustomer: 'setItem'
+    }),
+
     addAttributesToField (field, attributes) {
       this.requestFields[field] = [
         ...(this.requestFields[field] ? this.requestFields[field] : []),
@@ -311,12 +390,24 @@ export default {
     fetchCustomerData () {
       this.isLoadingSignLanguageOverviewVideo = true
       const payload = this.getRequestPayload()
-      dpApi.get(Routing.generate('api_resource_list', { resourceType: 'Customer' }), payload, { serialize: true })
-        .then((response) => this.handleCustomerResponse(response))
+      this.fetchCustomer(payload, { serialize: true }).then(() => {
+        this.isLoading = this.isLoadingSignLanguageOverviewVideo = false
+
+        // Update fields
+        const currentCustomer = this.customerList[this.currentCustomerId]
+        const currentData = currentCustomer.attributes
+        this.customerBrandingId = this.customerList[this.currentCustomerId].relationships?.branding?.data?.id
+        this.customer = {
+          ...this.customer,
+          imprint : currentData.imprint ? currentData.imprint : '',
+          dataProtection : currentData.dataProtection ? currentData.dataProtection : ''
+        }
+        this.branding.logoHash = this.fileList[this.brandingList[this.customerBrandingId].relationships?.logo.data?.id]?.attributes.hash
+      })
     },
 
     handleCustomerResponse (response) {
-      const customer = response.data.data[0]
+      const customer = response.data?.data[0]
 
       // The request is filtered by currentCustomer, so we assume that exactly one customer is returned
       this.customer = { ...customer.attributes }
@@ -324,7 +415,7 @@ export default {
       if (hasPermission('feature_platform_logo_edit') || hasPermission('feature_customer_branding_edit')) {
         // Find branding relationship and set cssvars
         const brandingId = customer.relationships.branding?.data?.id
-        const branding = response.data.included.find(item => item.id === brandingId)
+        const branding = response.data?.included.find(item => item.id === brandingId)
 
         if (hasPermission('feature_customer_branding_edit') && typeof branding !== 'undefined') {
           this.branding.cssvars = branding.attributes.cssvars
@@ -332,8 +423,8 @@ export default {
 
         // Find logo relationship in branding, set logoHash
         if (hasPermission('feature_platform_logo_edit') && typeof branding !== 'undefined' && branding.relationships.logo.data) {
-          const logoId = branding.relationships.logo.data.id
-          const logo = response.data.included.find(item => item.id === logoId)
+          const logoId = branding.relationships.logo.data?.id
+          const logo = response.data?.included.find(item => item.id === logoId)
           this.branding.logoHash = logo.attributes.hash
         }
       }
@@ -341,9 +432,9 @@ export default {
       // Find signLanguageOverviewVideo relationship, set video data
       if (hasPermission('field_sign_language_overview_video_edit')) {
         if (customer.relationships?.signLanguageOverviewVideo?.data) {
-          const signLanguageOverviewVideoId = customer.relationships.signLanguageOverviewVideo.data.id
+          const signLanguageOverviewVideoId = customer.relationships.signLanguageOverviewVideo.data?.id
           const signLanguageOverviewVideo = response.data.included.find(item => item.id === signLanguageOverviewVideoId) || null
-          const file = response.data.included.find(item => item.id === signLanguageOverviewVideo.relationships?.file.data.id) || null
+          const file = response.data?.included.find(item => item.id === signLanguageOverviewVideo.relationships?.file.data?.id) || null
 
           if (signLanguageOverviewVideoId && file) {
             this.signLanguageOverviewVideo = { ...signLanguageOverviewVideo.attributes }
@@ -380,6 +471,10 @@ export default {
         this.addAttributesToField('Customer', ['branding'])
       }
 
+      if (hasPermission('feature_platform_public_index_map_settings')) {
+        this.addAttributesToField('Customer', ['baseLayerUrl', 'baseLayerLayers', 'mapAttribution'])
+      }
+
       if (hasPermission('field_sign_language_overview_video_edit')) {
         this.requestIncludes.push('signLanguageOverviewVideo', 'signLanguageOverviewVideo.file')
         this.addAttributesToField('File', ['mimetype'])
@@ -411,6 +506,18 @@ export default {
         this.addAttributesToField('Customer', ['imprint'])
       }
 
+      if (hasPermission('feature_customer_support_contact_administration')) {
+        this.requestIncludes.push('customerContacts')
+        this.addAttributesToField('CustomerSettingsSupport', ['title', 'text', 'phoneNumber', 'eMailAddress', 'visible'])
+        this.addAttributesToField('Customer', ['customerContacts'])
+      }
+
+      if (hasPermission('feature_customer_login_support_contact_administration')) {
+        this.requestIncludes.push('customerLoginSupportContact')
+        this.addAttributesToField('CustomerLoginSupportContact', ['title', 'text', 'phoneNumber', 'eMailAddress'])
+        this.addAttributesToField('Customer', ['customerLoginSupportContact'])
+      }
+
       // Transform arrays to csv strings ready to be passed into query
       for (const prop in this.requestFields) {
         this.requestFields[prop] = this.requestFields[prop].join(',')
@@ -428,6 +535,28 @@ export default {
         fields: this.requestFields,
         include: this.requestIncludes.join(',')
       }
+    },
+
+    resetProperty(property) {
+      const currentCustomer = this.customerList[this.currentCustomerId]
+      this.customer[property] = currentCustomer.attributes[property]
+    },
+
+    saveSettings(property) {
+      this.isBusy = true
+      const payload = {
+        id: this.currentCustomerId,
+        type: 'Customer',
+        attributes: {
+          ...this.customerList[this.currentCustomerId].attributes,
+          [property]: this.customer[property]
+        }
+      }
+      this.updateCustomer(payload)
+      this.saveCustomer(this.currentCustomerId).then(() => {
+        dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+        this.isBusy = false
+      })
     },
 
     submit () {
