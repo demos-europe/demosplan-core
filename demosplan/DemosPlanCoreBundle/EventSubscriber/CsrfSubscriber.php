@@ -20,7 +20,6 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 class CsrfSubscriber implements EventSubscriberInterface
 {
-
     public function __construct(
         private readonly CsrfTokenManagerInterface $csrfTokenManager,
         private readonly MessageBagInterface $messageBag,
@@ -32,12 +31,12 @@ class CsrfSubscriber implements EventSubscriberInterface
     {
         $request = $event->getRequest();
 
-        if($request->isMethod('GET')) {
+        if ($request->isMethod('GET')) {
             return;
         }
 
         $tokenId = $request->request->get('_token');
-        if(null === $tokenId) {
+        if (null === $tokenId) {
             $this->messageBag->add('dev', 'error.csrf.missing', ['uri' => $request->getRequestUri()]);
             $this->logger->info('CSRF token missing', ['uri' => $request->getRequestUri()]);
 
@@ -51,9 +50,7 @@ class CsrfSubscriber implements EventSubscriberInterface
         }
 
         $this->logger->info('CSRF token invalid', ['uri' => $request->getRequestUri(), 'token' => $token ?? 'null']);
-
     }
-
 
     public static function getSubscribedEvents(): array
     {
