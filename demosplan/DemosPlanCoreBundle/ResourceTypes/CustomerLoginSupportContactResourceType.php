@@ -38,7 +38,7 @@ use Webmozart\Assert\Assert;
  * @property-read EmailAddressResourceType $eMailAddress
  * @property-read CustomerResourceType     $customer
  */
-class CustomerContactResourceType extends DplanResourceType implements CreatableDqlResourceTypeInterface, DeletableDqlResourceTypeInterface, UpdatableDqlResourceTypeInterface
+class CustomerLoginSupportContactResourceType extends DplanResourceType implements CreatableDqlResourceTypeInterface, DeletableDqlResourceTypeInterface, UpdatableDqlResourceTypeInterface
 {
     public function __construct(
         protected readonly EmailAddressService $emailAddressService
@@ -47,19 +47,14 @@ class CustomerContactResourceType extends DplanResourceType implements Creatable
 
     protected function getProperties(): array
     {
-        $properties = [
+        return [
             $this->createAttribute($this->id)->readable(true),
+            $this->createToOneRelationship($this->customer)->filterable(),
             $this->createAttribute($this->title)->readable()->initializable(),
             $this->createAttribute($this->phoneNumber)->readable()->initializable(),
             $this->createAttribute($this->text)->readable()->initializable(),
             $this->createAttribute($this->eMailAddress)->aliasedPath($this->eMailAddress->fullAddress)->readable()->initializable(),
         ];
-
-        if ($this->hasManagementPermission()) {
-            $properties[] = $this->createAttribute($this->visible)->readable()->initializable();
-        }
-
-        return $properties;
     }
 
     public function isReferencable(): bool
@@ -74,22 +69,19 @@ class CustomerContactResourceType extends DplanResourceType implements Creatable
             return [$this->conditionFactory->false()];
         }
 
-        $conditions = [
-            // A CustomerContact is only a CustomerContact if it is connected to a customer
+        return [
+            // A CustomerLoginContact is only a CustomerLoginContact if it is connected to a customer
             $this->conditionFactory->propertyIsNotNull($this->customer),
-            // and if its supportType is of this type explicitly
-            $this->conditionFactory->propertyHasValue(SupportContact::SUPPORT_CONTACT_TYPE_DEFAULT, $this->supportType),
+            // and if its supportType is this type explicitly.
+            $this->conditionFactory->propertyHasValue(
+                SupportContact::SUPPORT_CONTACT_TYPE_CUSTOMER_LOGIN,
+                $this->supportType
+            ),
             // Additionally, we limit the access to contacts of the current customer
             $this->conditionFactory->propertyHasValue($currentCustomerId, $this->customer->id),
+            // the visibility has no meaning in regard to CustomerLoginSupportContacts - its default is true
+            $this->conditionFactory->propertyHasValue(true, $this->visible),
         ];
-
-        if (!$this->hasManagementPermission()) {
-            // Users without management permission can access all visible CustomerContacts,
-            // regardless of customer.
-            $conditions[] = $this->conditionFactory->propertyHasValue(true, $this->visible);
-        }
-
-        return $conditions;
     }
 
     public function getEntityClass(): string
@@ -109,7 +101,7 @@ class CustomerContactResourceType extends DplanResourceType implements Creatable
 
     public static function getName(): string
     {
-        return 'CustomerContact';
+        return 'CustomerLoginSupportContact';
     }
 
     public function createObject(array $properties): ResourceChange
@@ -126,13 +118,13 @@ class CustomerContactResourceType extends DplanResourceType implements Creatable
 
         // create support contact
         $contact = new SupportContact(
-            SupportContact::SUPPORT_CONTACT_TYPE_DEFAULT,
+            SupportContact::SUPPORT_CONTACT_TYPE_CUSTOMER_LOGIN,
             $properties[$this->title->getAsNamesInDotNotation()],
             $properties[$this->phoneNumber->getAsNamesInDotNotation()],
             $emailAddressEntity,
             $properties[$this->text->getAsNamesInDotNotation()],
             $currentCustomer,
-            $properties[$this->visible->getAsNamesInDotNotation()],
+            true,
         );
 
         // update customer
@@ -192,8 +184,7 @@ class CustomerContactResourceType extends DplanResourceType implements Creatable
             $this->title,
             $this->phoneNumber,
             $this->eMailAddress,
-            $this->text,
-            $this->visible
+            $this->text
         );
     }
 
@@ -229,7 +220,6 @@ class CustomerContactResourceType extends DplanResourceType implements Creatable
             }
         );
         $updater->ifPresent($this->text, $contact->setText(...));
-        $updater->ifPresent($this->visible, $contact->setVisible(...));
 
         $this->resourceTypeService->validateObject($contact);
 
@@ -238,6 +228,6 @@ class CustomerContactResourceType extends DplanResourceType implements Creatable
 
     protected function hasManagementPermission(): bool
     {
-        return $this->currentUser->hasPermission('feature_customer_support_contact_administration');
+        return $this->currentUser->hasPermission('feature_customer_login_support_contact_administration');
     }
 }
