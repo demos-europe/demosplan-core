@@ -50,8 +50,8 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
             'Schlagwort'          => null,
             'Schlagwortkategorie' => null,
             'Dokumentenkategorie' => [$builder, 'setPlanningDocumentCategoryName'],
-            'Dokument'            => null,
-            'Absatz'              => null,
+            'Dokument'            => [$builder, 'setPlanningDocumentName'],
+            'Absatz'              => [$builder, 'setParagraphName'],
             'Status'              => null,
             'Priorität'           => null,
             'Votum'               => null,
@@ -112,7 +112,7 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
             $currentProcedure,
             $this->currentUser->getUser(),
             $this->orgaService->getOrga(User::ANONYMOUS_USER_ORGA_ID),
-            $this->elementsService->getStatementElement($currentProcedure->getId()),
+            $this->elementsService,
             $this->getStatementTextConstraint(),
             [$this, 'replaceLineBreak']
         );

@@ -932,4 +932,12 @@ class ElementsService extends CoreService implements ElementsServiceInterface
 
         return $this->countParents($parent);
     }
+
+    public function getPlanningDocumentCategoryByTitle(string $procedureId, string $title): ?Elements
+    {
+        return $this->elementsRepository->findOneBy([
+            'title' => $title,
+            'procedure' => $procedureId,
+        ]);
+    }
 }

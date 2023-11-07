@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
 use Carbon\Carbon;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\DateStringConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -23,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 use Symfony\Component\Validator\Constraint;
@@ -57,6 +59,14 @@ class StatementFromRowBuilder
 {
     protected Statement $statement;
     protected DateTime $now;
+    /**
+     * Set to non-null if the planning document category needs to be created when finalizing the statement
+     */
+    protected ?string $planningDocumentCategoryTitle;
+
+    protected ?string $paragraphName;
+
+    protected ?string $planningDocumentName;
 
     /**
      * @param callable(string): string $textPostValidationProcessing
@@ -66,7 +76,7 @@ class StatementFromRowBuilder
         protected readonly Procedure $procedure,
         protected readonly User $importingUser,
         protected readonly Orga $anonymousOrga,
-        protected readonly Elements $statementElement,
+        protected readonly ElementsService $planningCategoryService,
         protected readonly Constraint $textConstraint,
         protected readonly mixed $textPostValidationProcessing
     ) {
@@ -95,9 +105,33 @@ class StatementFromRowBuilder
 
     public function setPlanningDocumentCategoryName(Cell $cell): ?ConstraintViolationListInterface
     {
-        if ($cell->getValue() === $this->statementElement->getTitle()) {
-            $this->statement->setElement($this->statementElement);
+        $planningDocumentCategoryTitle = $cell->getValue() ?? '';
+        $planningCategory = $this->planningCategoryService->getPlanningDocumentCategoryByTitle(
+            $this->procedure->getId(),
+            $planningDocumentCategoryTitle
+        );
+
+        if (null === $planningCategory) {
+            // remember title for later planning document category creation
+            $this->planningDocumentCategoryTitle = $planningDocumentCategoryTitle;
+        } else {
+            // attach statement to planning document category
+            $this->statement->setElement($planningCategory);
         }
+
+        return null;
+    }
+
+    public function setPlanningDocumentName(Cell $cell): ?ConstraintViolationListInterface
+    {
+        $this->planningDocumentName = $cell->getValue() ?? '';
+
+        return null;
+    }
+
+    public function setParagraphName(Cell $cell): ?ConstraintViolationListInterface
+    {
+        $this->paragraphName = $cell->getValue() ?? '';
 
         return null;
     }
@@ -236,6 +270,22 @@ class StatementFromRowBuilder
         $gdprConsent->setStatement($newOriginalStatement);
         $newOriginalStatement->setGdprConsent($gdprConsent);
 
+        // set planning document category
+        if (null !== $this->planningDocumentCategoryTitle) {
+            $planningCategory = new Elements();
+            $planningCategory->setTitle($this->planningDocumentCategoryTitle);
+            $planningCategory->setCategory($this->determineCategoryType());
+            $planningCategory->setProcedure($this->procedure);
+            $nextOrderIndex = $this->planningCategoryService->getNextFreeOrderIndex($this->procedure);
+            $planningCategory->setOrder($nextOrderIndex);
+            $planningCategory->setEnabled(false);
+
+            $this->planningCategoryService->addEntity($planningCategory);
+            $this->procedure->getElements()->add($planningCategory);
+
+            $newOriginalStatement->setElement($planningCategory);
+        }
+
         // set other static values
         $newOriginalStatement->setManual();
         $newOriginalStatement->setSubmitType(StatementInterface::SUBMIT_TYPE_UNKNOWN);
@@ -289,5 +339,19 @@ class StatementFromRowBuilder
         }
 
         return $violations;
+    }
+
+    /**
+     * Tries to guess the type of the planning document category to be created based on:
+     *
+     * * {@link self::$planningDocumentCategoryTitle}
+     * * {@link self::$planningDocumentName}
+     * * {@link self::$paragraphName}
+     *
+     * @see ElementsInterface contains some possible category type constants
+     */
+    protected function determineCategoryType(): string
+    {
+        return null;
     }
 }
