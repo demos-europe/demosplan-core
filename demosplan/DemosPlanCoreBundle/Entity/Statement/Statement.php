@@ -34,6 +34,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\ClaimConstraint;
+use demosplan\DemosPlanCoreBundle\Constraint\ConsistentAnonymousOrgaConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\CorrectDateOrderConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\FormDefinitionConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\MatchingSubmitTypesConstraint;
@@ -80,6 +81,8 @@ use UnexpectedValueException;
  * @ClaimConstraint()
  *
  * @CorrectDateOrderConstraint(groups={StatementInterface::IMPORT_VALIDATION})
+ *
+ * @ConsistentAnonymousOrgaConstraint(groups={StatementInterface::IMPORT_VALIDATION})
  *
  * @FormDefinitionConstraint()
  *
@@ -629,6 +632,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements", cascade={"persist"})
      *
      * @ORM\JoinColumn(name="_st_element_id", referencedColumnName="_e_id", onDelete="SET NULL")
+     *
      **/
     protected $element;
 

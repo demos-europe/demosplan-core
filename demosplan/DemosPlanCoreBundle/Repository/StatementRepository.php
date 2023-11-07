@@ -65,6 +65,8 @@ use ReflectionException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Tightenco\Collect\Support\Collection;
 
+use function array_combine;
+
 class StatementRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
     public function __construct(
@@ -487,6 +489,25 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
     }
 
     /**
+     * @param non-empty-string $procedureId
+     *
+     * @return array<non-empty-string, non-empty-string>
+     */
+    public function getExternIdsInUse(string $procedureId): array
+    {
+        $query = $this->getEntityManager()
+            ->createQueryBuilder()
+            ->select('statement.externId')
+            ->from(Statement::class, 'statement')
+            ->where('statement.procedure = :procedureId')
+            ->setParameter('procedureId', $procedureId)
+            ->getQuery();
+        $externIds = array_column($query->getScalarResult(), 'externId');
+
+        return array_combine($externIds, $externIds);
+    }
+
+    /**
      * Some Statements does not have any StatementMeta. Whysoever.
      */
     protected function ensureHasMeta(Statement $statement): Statement
@@ -751,15 +772,15 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         }
 
         // nutze die paragraphId nur, wenn nicht schon das Objekt direkt gesetzt wurde
-        if (!array_key_exists('paragraph', $data) &&
-            array_key_exists('paragraphId', $data) &&
-            36 === strlen((string) $data['paragraphId'])) {
+        if (!array_key_exists('paragraph', $data)
+            && array_key_exists('paragraphId', $data)
+            && 36 === strlen((string) $data['paragraphId'])) {
             $statement->setParagraph($em->getReference(ParagraphVersion::class, $data['paragraphId']));
         }
 
-        if (!array_key_exists('paragraph', $data) &&
-            array_key_exists('paragraphId', $data) &&
-            '' === $data['paragraphId']) {
+        if (!array_key_exists('paragraph', $data)
+            && array_key_exists('paragraphId', $data)
+            && '' === $data['paragraphId']) {
             $statement->setParagraph(null);
         }
 
@@ -1818,7 +1839,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         }
 
         // todo. load clusterprefix from config
-//            $clusterPrefix = $this->getServiceStatement()->getGlobalConfig()->getClusterPrefix();
+        //            $clusterPrefix = $this->getServiceStatement()->getGlobalConfig()->getClusterPrefix();
         if ($originalToCopy->isClusterStatement()) {
             $newExternId = 'G'.$newExternId;
         }
