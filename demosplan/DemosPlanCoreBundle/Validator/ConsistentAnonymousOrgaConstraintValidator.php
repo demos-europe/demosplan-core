@@ -35,7 +35,10 @@ class ConsistentAnonymousOrgaConstraintValidator extends ConstraintValidator
         $department = $statement->getMeta()->getOrgaDepartmentName();
         if ((User::ANONYMOUS_USER_ORGA_NAME === $orga && User::ANONYMOUS_USER_DEPARTMENT_NAME !== $department)
             || (User::ANONYMOUS_USER_ORGA_NAME !== $orga && User::ANONYMOUS_USER_DEPARTMENT_NAME === $department)) {
-            $this->context->addViolation('If for a submitted statement either the organization or department is set as anonymous, both must be set in this way.'); // FIXME: add translation key
+
+            $this->context->buildViolation('statement.anonymous')
+                ->setParameter('{{ externId }}', $statement->getExternId())
+                ->addViolation();
         }
     }
 }
