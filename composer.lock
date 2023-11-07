@@ -13192,16 +13192,16 @@
         },
         {
             "name": "symfony/framework-bundle",
-            "version": "v5.4.29",
+            "version": "v5.4.30",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/framework-bundle.git",
-                "reference": "63e4ad1386fd4f31a005d751cd4dc016f9f2346e"
+                "reference": "896ce662696a89e44ea38972df5e6263ddd02c74"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/framework-bundle/zipball/63e4ad1386fd4f31a005d751cd4dc016f9f2346e",
-                "reference": "63e4ad1386fd4f31a005d751cd4dc016f9f2346e",
+                "url": "https://api.github.com/repos/symfony/framework-bundle/zipball/896ce662696a89e44ea38972df5e6263ddd02c74",
+                "reference": "896ce662696a89e44ea38972df5e6263ddd02c74",
                 "shasum": ""
             },
             "require": {
@@ -13322,7 +13322,7 @@
             "description": "Provides a tight integration between Symfony components and the Symfony full-stack framework",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/framework-bundle/tree/v5.4.29"
+                "source": "https://github.com/symfony/framework-bundle/tree/v5.4.30"
             },
             "funding": [
                 {
@@ -13338,7 +13338,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-09-27T13:49:58+00:00"
+            "time": "2023-10-26T16:43:35+00:00"
         },
         {
             "name": "symfony/http-client",
@@ -15961,16 +15961,16 @@
         },
         {
             "name": "symfony/security-core",
-            "version": "v5.4.29",
+            "version": "v5.4.30",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/security-core.git",
-                "reference": "f8421bb428f48655d2b327d4bf58870983eef84a"
+                "reference": "3908c54da30dd68c2fe31915d82a1c81809d1928"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/security-core/zipball/f8421bb428f48655d2b327d4bf58870983eef84a",
-                "reference": "f8421bb428f48655d2b327d4bf58870983eef84a",
+                "url": "https://api.github.com/repos/symfony/security-core/zipball/3908c54da30dd68c2fe31915d82a1c81809d1928",
+                "reference": "3908c54da30dd68c2fe31915d82a1c81809d1928",
                 "shasum": ""
             },
             "require": {
@@ -16034,7 +16034,7 @@
             "description": "Symfony Security Component - Core Library",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/security-core/tree/v5.4.29"
+                "source": "https://github.com/symfony/security-core/tree/v5.4.30"
             },
             "funding": [
                 {
@@ -16050,7 +16050,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-09-10T17:22:50+00:00"
+            "time": "2023-10-27T07:38:28+00:00"
         },
         {
             "name": "symfony/security-csrf",
@@ -21790,16 +21790,16 @@
         },
         {
             "name": "symfony/web-profiler-bundle",
-            "version": "v5.4.26",
+            "version": "v5.4.30",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/web-profiler-bundle.git",
-                "reference": "a08572ac2e4aea7ed85065524bb4fe3ace6c81c3"
+                "reference": "3ad75bc82e91d33cc3aff6639e62da765bfbe346"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/web-profiler-bundle/zipball/a08572ac2e4aea7ed85065524bb4fe3ace6c81c3",
-                "reference": "a08572ac2e4aea7ed85065524bb4fe3ace6c81c3",
+                "url": "https://api.github.com/repos/symfony/web-profiler-bundle/zipball/3ad75bc82e91d33cc3aff6639e62da765bfbe346",
+                "reference": "3ad75bc82e91d33cc3aff6639e62da765bfbe346",
                 "shasum": ""
             },
             "require": {
@@ -21850,7 +21850,7 @@
             "description": "Provides a development tool that gives detailed information about the execution of any request",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/web-profiler-bundle/tree/v5.4.26"
+                "source": "https://github.com/symfony/web-profiler-bundle/tree/v5.4.30"
             },
             "funding": [
                 {
@@ -21866,7 +21866,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-07-19T19:34:05+00:00"
+            "time": "2023-10-11T08:22:16+00:00"
         },
         {
             "name": "theseer/tokenizer",
@@ -22444,5 +22444,5 @@
     "platform-overrides": {
         "php": "8.1"
     },
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }
