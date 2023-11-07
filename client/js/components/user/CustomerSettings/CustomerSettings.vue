@@ -399,10 +399,10 @@ export default {
         this.customerBrandingId = this.customerList[this.currentCustomerId].relationships?.branding?.data?.id
         this.customer = {
           ...this.customer,
-          imprint : currentData.imprint ? currentData.imprint : '',
-          dataProtection : currentData.dataProtection ? currentData.dataProtection : ''
+          imprint: currentData.imprint ? currentData.imprint : '',
+          dataProtection: currentData.dataProtection ? currentData.dataProtection : ''
         }
-        this.branding.logoHash = this.fileList[this.brandingList[this.customerBrandingId].relationships?.logo.data?.id]?.attributes.hash
+        this.branding.logoHash = this.fileList[this.brandingList[this.customerBrandingId].relationships?.logo.data?.id]?.attributes.hash || ''
       })
     },
 
