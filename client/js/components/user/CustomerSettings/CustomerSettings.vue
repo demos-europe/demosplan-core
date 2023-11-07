@@ -424,7 +424,7 @@ export default {
       // Find signLanguageOverviewVideo relationship, set video data
       if (hasPermission('field_sign_language_overview_video_edit')) {
         const signLanguageOverviewVideoId = customer.relationships?.signLanguageOverviewVideo?.data?.id
-        const signLanguageOverviewVideo = response.data.included.find(item => item.id === signLanguageOverviewVideoId) || null
+        const signLanguageOverviewVideo = response.data?.included.find(item => item.id === signLanguageOverviewVideoId) || null
         const file = response.data?.included.find(item => item.id === signLanguageOverviewVideo.relationships?.file.data?.id) || null
 
         this.signLanguageOverviewVideo = {
