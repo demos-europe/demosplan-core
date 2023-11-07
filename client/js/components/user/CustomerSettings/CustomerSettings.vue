@@ -406,56 +406,6 @@ export default {
       })
     },
 
-    handleCustomerResponse (response) {
-      const customer = response.data?.data[0]
-
-      // The request is filtered by currentCustomer, so we assume that exactly one customer is returned
-      this.customer = { ...customer.attributes }
-
-      if ((hasPermission('feature_platform_logo_edit') || hasPermission('feature_customer_branding_edit')) && typeof branding !== 'undefined') {
-        // Find branding relationship and set cssvars
-        const brandingId = customer.relationships.branding?.data?.id
-        const branding = response.data?.included.find(item => item.id === brandingId)
-
-        if (hasPermission('feature_customer_branding_edit')) {
-          this.branding.cssvars = branding.attributes.cssvars
-        }
-
-        // Find logo relationship in branding, set logoHash
-        if (hasPermission('feature_platform_logo_edit') && branding.relationships.logo.data) {
-          const logoId = branding.relationships.logo.data?.id
-          const logo = response.data?.included.find(item => item.id === logoId)
-          this.branding.logoHash = logo.attributes.hash
-        }
-      }
-
-      // Find signLanguageOverviewVideo relationship, set video data
-      if (hasPermission('field_sign_language_overview_video_edit')) {
-        const signLanguageOverviewVideoId = customer.relationships?.signLanguageOverviewVideo?.data?.id
-        const signLanguageOverviewVideo = response.data?.included.find(item => item.id === signLanguageOverviewVideoId) || null
-        const file = response.data?.included.find(item => item.id === signLanguageOverviewVideo.relationships?.file.data?.id) || null
-
-        this.signLanguageOverviewVideo = {
-          description: '',
-          file: '',
-          id: null,
-          mimetype: '',
-          title: ''
-        }
-
-        if (signLanguageOverviewVideoId && file) {
-          this.signLanguageOverviewVideo = {
-            ...signLanguageOverviewVideo.attributes,
-            id: signLanguageOverviewVideoId,
-            file: file.id,
-            mimetype: file.attributes.mimetype
-          }
-        }
-      }
-
-      this.isLoading = this.isLoadingSignLanguageOverviewVideo = false
-    },
-
     getRequestPayload () {
       this.requestIncludes = []
       this.requestFields = {}
