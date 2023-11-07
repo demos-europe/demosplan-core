@@ -140,6 +140,7 @@ export default {
 
     handleClose (isOpen) {
       if (!isOpen) {
+        this.$refs.assignModal.preventScroll(false)
         this.setModalProperty({ prop: 'assignEntityModal', val: { ...this.assignEntityModal, show: false } })
       }
     },
