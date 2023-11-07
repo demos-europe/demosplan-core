@@ -35,7 +35,6 @@ class ConsistentAnonymousOrgaConstraintValidator extends ConstraintValidator
         $department = $statement->getMeta()->getOrgaDepartmentName();
         if ((User::ANONYMOUS_USER_ORGA_NAME === $orga && User::ANONYMOUS_USER_DEPARTMENT_NAME !== $department)
             || (User::ANONYMOUS_USER_ORGA_NAME !== $orga && User::ANONYMOUS_USER_DEPARTMENT_NAME === $department)) {
-
             $this->context->buildViolation('statement.anonymous')
                 ->setParameter('{{ externId }}', $statement->getExternId())
                 ->addViolation();
