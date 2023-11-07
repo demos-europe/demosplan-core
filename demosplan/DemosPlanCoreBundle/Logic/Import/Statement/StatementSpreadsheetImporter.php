@@ -149,6 +149,8 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
                 $externId = $originalStatementOrViolations->getExternId();
                 if (array_key_exists($externId, $usedExternIds)) {
                     // skip statements with existing extern IDs
+                    $this->skippedStatements[$externId] = ($this->skippedStatements[$externId] ?? 0) + 1;
+
                     continue;
                 }
                 $usedExternIds[$externId] = $externId;
