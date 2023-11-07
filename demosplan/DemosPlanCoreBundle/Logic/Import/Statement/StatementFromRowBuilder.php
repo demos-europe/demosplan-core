@@ -60,7 +60,7 @@ class StatementFromRowBuilder
     protected Statement $statement;
     protected DateTime $now;
     /**
-     * Set to non-null if the planning document category needs to be created when finalizing the statement
+     * Set to non-null if the planning document category needs to be created when finalizing the statement.
      */
     protected ?string $planningDocumentCategoryTitle;
 
@@ -342,7 +342,7 @@ class StatementFromRowBuilder
     }
 
     /**
-     * Tries to guess the type of the planning document category to be created based on:
+     * Tries to guess the type of the planning document category to be created based on:.
      *
      * * {@link self::$planningDocumentCategoryTitle}
      * * {@link self::$planningDocumentName}

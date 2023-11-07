@@ -2503,8 +2503,8 @@ class DemosPlanStatementController extends BaseController
                 'confirm.statements.imported.from.xlsx.skipped',
                 [
                     'successCount' => $numberOfCreatedStatements,
-                    'fileName' => $fileName,
-                    'skippedCount' => $numberOfSkippedStatements
+                    'fileName'     => $fileName,
+                    'skippedCount' => $numberOfSkippedStatements,
                 ]
             );
         }
