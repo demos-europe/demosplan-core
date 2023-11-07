@@ -32,9 +32,10 @@
                 <div class="justify-center flex">
                     <dp-support-card
                         class="text-left u-mt-2 w-full max-w-sm bg-gray-50"
-                        title="{{ templateVars.customerLoginSupport.title|default }}"
+                        email="{{ templateVars.customerLoginSupport.eMailAddress.fullAddress|default }}"
                         phone-number="{{ templateVars.customerLoginSupport.phoneNumber|default }}"
-                        :reachability="{ officeHours: '{{ templateVars.customerLoginSupport.text|default }}' }">
+                        :reachability="{ officeHours: '{{ templateVars.customerLoginSupport.text|default }}' }"
+                        title="{{ templateVars.customerLoginSupport.title|default }}">
                     </dp-support-card>
                 </div>
             {% endif %}
