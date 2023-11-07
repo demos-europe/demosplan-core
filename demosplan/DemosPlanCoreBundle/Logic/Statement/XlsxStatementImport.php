@@ -116,7 +116,7 @@ class XlsxStatementImport
     }
 
     /**
-     * @return array<int, array>
+     * @return list<array{id: int, currentWorksheet: string, lineNumber: int, message: string}>
      */
     public function getErrorsAsArray(): array
     {

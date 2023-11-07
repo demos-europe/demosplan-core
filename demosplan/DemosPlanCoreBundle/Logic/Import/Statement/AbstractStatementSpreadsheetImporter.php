@@ -37,6 +37,10 @@ abstract class AbstractStatementSpreadsheetImporter implements StatementSpreadsh
     protected readonly NotBlank $notNullConstraint;
 
     /**
+     * Non-original {@link Statement} entities that do not yet exist in the database and were created during the import.
+     * The instances contain a reference to their original statement, which will automatically cascade persisted, when
+     * the statement copy is persisted.
+     *
      * @var list<Statement>
      */
     protected array $generatedStatements = [];

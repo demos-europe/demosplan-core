@@ -2429,7 +2429,7 @@ class DemosPlanStatementController extends BaseController
                 }
 
                 $createdStatements = $importer->getCreatedStatements();
-                $numberOfCreatedStatements = is_countable($createdStatements) ? count($createdStatements) : 0;
+                $numberOfCreatedStatements = count($createdStatements);
 
                 return $this->createSuccessResponse($procedureId, $numberOfCreatedStatements, $fileName);
             } catch (MissingDataException) {
@@ -2468,6 +2468,9 @@ class DemosPlanStatementController extends BaseController
         );
     }
 
+    /**
+     * @param list<array{id: int, currentWorksheet: string, lineNumber: int, message: string}> $errors
+     */
     protected function createErrorResponse(string $procedureId, array $errors): Response
     {
         return $this->renderTemplate(
