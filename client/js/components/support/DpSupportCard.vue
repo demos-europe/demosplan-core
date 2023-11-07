@@ -8,14 +8,14 @@ All rights reserved
 </license>
 
 <template>
-  <section class="bg-color--white u-p-0">
+  <section class="bg-color--white">
     <h4
       v-if="title"
       class="font-semibold font-size-large"
       v-text="title" />
     <a
       v-if="phoneNumber"
-      class="u-mt-0_75 inline-block font-semibold font-size-large"
+      class="inline-block font-semibold font-size-large"
       :href="`tel:${phoneNumber}`">
       <dp-icon
         class="inline-block"
@@ -26,8 +26,7 @@ All rights reserved
       v-if="email"
       v-text="email" />
     <div
-      v-if="reachability.service"
-      class="u-pb-0_75">
+      v-if="reachability.service">
       <h4
         class="u-mt-0_75 font-semibold"
         v-text="reachability.service" />

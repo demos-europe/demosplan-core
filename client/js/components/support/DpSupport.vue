@@ -40,7 +40,7 @@ All rights reserved
     <h3>
       {{ Translator.trans('support.technical') }}
     </h3>
-    <div class="lg:w-8/12 space-inset-m u-pv-0 bg-color--white">
+    <div class="lg:w-8/12 space-inset-m bg-color--white">
       <dp-support-card
         :phone-number="Translator.trans('support.contact.number')"
         :reachability="{
