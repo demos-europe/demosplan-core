@@ -96,15 +96,9 @@ class StatementFromRowBuilder
 
     public function setPlanningDocumentCategoryName(Cell $cell): ?ConstraintViolationListInterface
     {
-        $violations = $this->validator->validate($cell->getValue(), new Regex(
-            '/^Gesamtstellungnahme$/',
-            'import.statement.element.unsupported' // FIXME: add translation
-        ));
-        if (0 !== $violations->count()) {
-            return $violations;
+        if ($cell->getValue() === $this->statementElement->getTitle()) {
+            $this->statement->setElement($this->statementElement);
         }
-
-        $this->statement->setElement($this->statementElement);
 
         return null;
     }
