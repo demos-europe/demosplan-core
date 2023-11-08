@@ -658,8 +658,12 @@ confirm.statements.marked.numbertext: |
     }
 confirm.statements.marked.released: "Die markierten Stellungnahmen wurden an Ihre Koordination freigegeben. Die Stellungnahmen müssen von Ihrer Koordination anschließend noch aus dem Ordner \"Freigaben der Organisation\" an den Verfahrensträger eingereicht werden."
 confirm.statements.marked.submitted: "Die markierten Stellungnahmen wurden eingereicht."
-confirm.statements.imported.from.xlsx: "{count} Stellungnahmen wurden erfolgreich aus {fileName} in das System importiert."
-confirm.statements.imported.from.xlsx.skipped: "{successCount} Stellungnahmen wurden erfolgreich aus {fileName} in das System importiert. {skippedCount} Stellungnahmen mit bereits existierenden IDs wurden übersprungen."
+confirm.statements.imported.from.xlsx: |
+    {count, plural,
+        =1 {Eine Stellungnahme wurde erfolgreich aus {fileName} importiert.}
+        other {{count} Stellungnahmen wurden erfolgreich aus {fileName} importiert.}
+    }
+confirm.statements.imported.from.xlsx.skipped: "{successCount} Stellungnahme(n) wurde(n) erfolgreich aus {fileName} importiert. {skippedCount} Stellungnahme(n) mit bereits existierenden IDs wurde(n) übersprungen."
 confirm.story.created: "Die Userstory wurde angelegt."
 confirm.story.deleted: "Die Userstory wurde gelöscht."
 confirm.story.updated: "Die Userstory wurde aktualisiert."
