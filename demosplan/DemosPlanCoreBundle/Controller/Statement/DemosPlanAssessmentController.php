@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -210,6 +210,10 @@ class DemosPlanAssessmentController extends BaseController
                 }
 
                 if ($newStatement instanceof Statement) {
+                    $this->getMessageBag()->add(
+                        'confirm', 'confirm.statement.new', ['externId' => $newStatement->getExternId()]
+                    );
+
                     return $this->redirectToRoute(
                         'DemosPlan_statement_new_submitted',
                         ['procedureId' => $procedureId]
