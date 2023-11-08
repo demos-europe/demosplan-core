@@ -660,10 +660,10 @@ confirm.statements.marked.released: "Die markierten Stellungnahmen wurden an Ihr
 confirm.statements.marked.submitted: "Die markierten Stellungnahmen wurden eingereicht."
 confirm.statements.imported.from.xlsx: |
     {count, plural,
-        =1 {Eine Stellungnahme wurde erfolgreich aus {fileName} importiert.}
-        other {{count} Stellungnahmen wurden erfolgreich aus {fileName} importiert.}
+        =1 {Eine Stellungnahme wurde erfolgreich aus {fileName} in das System importiert.}
+        other {{count} Stellungnahmen wurden erfolgreich aus {fileName} in das System importiert.}
     }
-confirm.statements.imported.from.xlsx.skipped: "{successCount} Stellungnahme(n) wurde(n) erfolgreich aus {fileName} importiert. {skippedCount} Stellungnahme(n) mit bereits existierenden IDs wurde(n) übersprungen."
+confirm.statements.imported.from.xlsx.skipped: "{successCount} Stellungnahme(n) wurde(n) erfolgreich aus {fileName} in das System importiert. {skippedCount} Stellungnahme(n) mit bereits existierenden IDs wurde(n) übersprungen."
 confirm.story.created: "Die Userstory wurde angelegt."
 confirm.story.deleted: "Die Userstory wurde gelöscht."
 confirm.story.updated: "Die Userstory wurde aktualisiert."
