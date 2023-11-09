@@ -2469,12 +2469,12 @@
     "@uppy/utils" "^5.4.3"
     preact "^10.5.13"
 
-"@uppy/progress-bar@^3.0.0", "@uppy/progress-bar@^3.0.3":
-  version "3.0.3"
-  resolved "https://registry.yarnpkg.com/@uppy/progress-bar/-/progress-bar-3.0.3.tgz#0f16c274a957322afc4a85827fc37f58a851faa1"
-  integrity sha512-s0iRCnDQ5zcyk8ZyTF46W7Kkf9S1hH1oj2+GBYDdFzc72tgrx49arHs3YobkH7X9whhc/qTskLe32cyC9oe6ZQ==
+"@uppy/progress-bar@^3.0.0", "@uppy/progress-bar@^3.0.4":
+  version "3.0.4"
+  resolved "https://registry.yarnpkg.com/@uppy/progress-bar/-/progress-bar-3.0.4.tgz#3e684a77cb8b38ff227dbd06045a5f8dd74d5771"
+  integrity sha512-sxv/mG7Uc9uyTnRvfcXBhO+TWd+UqjuW5aHXCKWwTkMgDShHR0T46sEk12q+jwgbFwyeFg3p0GU3hgUxqxiEUQ==
   dependencies:
-    "@uppy/utils" "^5.4.3"
+    "@uppy/utils" "^5.5.2"
     preact "^10.5.13"
 
 "@uppy/store-default@^3.0.5":
