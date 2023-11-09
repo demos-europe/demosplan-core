@@ -2,7 +2,9 @@
 
 /**
  * This file is part of the package demosplan.
+ *
  * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
  * All rights reserved
  */
 
@@ -77,6 +79,7 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
      * Definitions have to be persisted and flushed first.
      * This method ensures this order of creation to avoid doctrine-exception caused by flushing ProcedureType
      * before Definitions.
+     *
      * @throws ExclusiveProcedureOrProcedureTypeException
      * @throws ORMException
      * @throws OptimisticLockException
@@ -154,6 +157,7 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
      *                                                           will be related to
      *
      * @return ProcedureUiDefinition copied ProcedureUiDefinition
+     *
      * @throws ExclusiveProcedureOrProcedureTypeException
      */
     private function copyProcedureUiDefinition(
@@ -186,6 +190,7 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
      *                                   ProcedureBehaviorDefinition will be related to
      *
      * @return ProcedureBehaviorDefinition copied ProcedureBehaviorDefinition
+     *
      * @throws ExclusiveProcedureOrProcedureTypeException
      */
     private function copyProcedureBehaviorDefinition(
@@ -209,6 +214,7 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
      *                                                               StatementFormDefinition will be related to
      *
      * @return StatementFormDefinition copied statementFormDefinition
+     *
      * @throws ExclusiveProcedureOrProcedureTypeException
      */
     private function copyStatementFormDefinition(
@@ -293,7 +299,6 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
      * each path will be used as key.
      *
      * @param array<string,mixed> $data
-     * @param PropertyPathInterface ...$keyValuePairs
      *
      * @return array<string,mixed>
      */
@@ -434,15 +439,16 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
         $fieldDefinitions = array_pop($fieldDefinitions);
 
         return [
-            'procedureTypeProperties' => $procedureTypeProperties,
-            'procedureUiDefinitionProperties' => $procedureUiDefinitionProperties,
+            'procedureTypeProperties'               => $procedureTypeProperties,
+            'procedureUiDefinitionProperties'       => $procedureUiDefinitionProperties,
             'procedureBehaviorDefinitionProperties' => $procedureBehaviorDefinitionProperties,
-            'fieldDefinitions' => $fieldDefinitions,
+            'fieldDefinitions'                      => $fieldDefinitions,
         ];
     }
 
     /**
      * @return array<int, ProcedureType>
+     *
      * @throws PathException
      */
     public function getAllProcedureTypes(): array
