@@ -1018,6 +1018,7 @@ error.date.endbeforestart: "Das Enddatum kann nicht vor dem Startdatum liegen."
 error.date: "Bitte geben Sie ein Datum ein."
 error.date.invalid: "Das angegebene Datum ist ungültig"
 error.delete.addressBookEntry: "Der Adressbucheintrag konnte nicht gelöscht werden"
+error.delete.annotatedStatementPdf: "Beim PdfLöschen ist ein Fehler aufgetreten"
 error.delete.department.related.users: "Die Abteilung konnte nicht gelöscht werden, weil ihr noch Nutzende zugewiesen sind. Löschen Sie bitte zunächst die Nutzenden."
 error.delete.department: "Leider ist beim Löschen der Abteilung ein Fehler aufgetreten."
 error.delete.last.admin.user.of.orga.with.open.procedures: "Nutzer*in kann nicht gelöscht werden, weil er der letzte Administrator der Organisation \"{organisationName}\" mit {numberOfOpenProcedures} offenen Verfahren ist."
@@ -1838,6 +1839,11 @@ items.selected: |
     {count, plural,
         =1 { Ein Eintrag ausgewählt}
         other { # Einträge ausgewählt}
+    }
+items.deleted: |
+    {count, plural,
+        =1 { Ein Eintrag wurde gelöscht}
+        other { # Einträge wurden gelöscht}
     }
 jumpTo.login: "Direkt zum Login springen"
 jumpTo.mainContent: "Direkt zum Inhalt springen"
@@ -3750,6 +3756,7 @@ warning.edit.selection.statements.not.claimed: "Sie können die aktuelle Auswahl
 warning.edit.selection.contains.moved.statements: "Sie können die aktuelle Auswahl nicht bearbeiten, weil sie Stellungnahmen enthält, die in ein anderes Verfahren verschoben wurden."
 warning.date.authored: "Ein leeres Verfassungsdatum ist ungültig und wurde nicht übernommen."
 warning.date.submitted: "Ein leeres Einreichungsdatum ist ungültig und wurde nicht übernommen."
+warning.delete.annotatedStatementPdf: "Vollständig geteilte PDFs können nicht gelöscht werden"
 warning.delete.statement.because.of.assignment: "Die Stellungnahme {externId} konnte nicht entfernt werden, weil sie einer Person zugewiesen ist."
 warning.delete.statement.because.of.fragments.not.claimed.by.current.user: "Die Stellungnahme {externId} konnte nicht entfernt werden, da deren Datensätze Ihnen nicht alle zugewiesen sind."
 warning.delete.statement.metadata.inconsistent.fragments.county: "Die Kreise an der Stellungnahme konnten nicht gelöscht werden, da sie auch an Datensätzen vergeben sind."
