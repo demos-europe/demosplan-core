@@ -114,6 +114,11 @@ class FunctionalUser extends User
             if ($role instanceof Role) {
                 $this->dplanRoles->add($role);
             }
+            if (is_string($role)) {
+                $roleEntity = new Role();
+                $roleEntity->setCode($role);
+                $this->dplanRoles->add($roleEntity);
+            }
         }
     }
 }
