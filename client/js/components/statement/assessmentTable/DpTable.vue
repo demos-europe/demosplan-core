@@ -771,7 +771,7 @@ export default {
              * Initialize fixed header after all data has been processed (a.k.a. pager has been rendered)
              * to ensure dom manipulation of Stickier is executed last.
              */
-            this.stickyHeader = new Stickier(this.$refs.filter.$refs.header, this.$el, 0)
+            this.stickyHeader = new Stickier(this.$refs.filter.$refs.header, this.$refs.root, 0)
 
             this.$root.$emit('assessment-table-loaded')
           })
