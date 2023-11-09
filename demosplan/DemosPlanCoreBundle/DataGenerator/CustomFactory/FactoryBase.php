@@ -95,8 +95,6 @@ abstract class FactoryBase implements FactoryInterface
      * the necessity of persisting them or requirements to create tehm.
      *
      * @param int $amount
-     *
-     * @return mixed
      */
     public function create($amount = 1)
     {
