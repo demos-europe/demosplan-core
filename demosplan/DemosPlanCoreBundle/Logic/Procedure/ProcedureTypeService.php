@@ -2,9 +2,7 @@
 
 /**
  * This file is part of the package demosplan.
- *
  * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
- *
  * All rights reserved
  */
 
@@ -59,8 +57,8 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
         $this->statementFormDefinitionRepository->deleteObject($statementFormDefinition);
     }
 
-    public function deleteProcedureBehaviorDefinition(ProcedureBehaviorDefinition $procedureBehaviorDefinition): void
-    {
+    public function deleteProcedureBehaviorDefinition(ProcedureBehaviorDefinition $procedureBehaviorDefinition
+    ): void {
         $this->procedureBehaviorDefinitionRepository->deleteObject($procedureBehaviorDefinition);
     }
 
@@ -79,7 +77,6 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
      * Definitions have to be persisted and flushed first.
      * This method ensures this order of creation to avoid doctrine-exception caused by flushing ProcedureType
      * before Definitions.
-     *
      * @throws ExclusiveProcedureOrProcedureTypeException
      * @throws ORMException
      * @throws OptimisticLockException
@@ -113,13 +110,12 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
 
     /**
      * ProcedureType itself will not be copied, therefore no new ProcedureType will be created.
-     * The copied content of the ProcedureType is the ProcedureBehaviorDefinition, the ProcedureUiDefinition and the
-     * StatementFormDefinition.
-     * These will be related to the given $targetProcedure.
+     * The copied content of the ProcedureType is the ProcedureBehaviorDefinition, the ProcedureUiDefinition and
+     * the StatementFormDefinition. These will be related to the given $targetProcedure.
      *
      * @param ProcedureType $procedureTypeToCopyContent holds the content to copy
-     * @param Procedure     $targetProcedure            procedure where the copied procedureTypeContent will be related
-     *                                                  to
+     * @param Procedure     $targetProcedure            procedure where the copied procedureTypeContent will be
+     *                                                  related to
      *
      * @throws Exception
      */
@@ -154,10 +150,10 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
 
     /**
      * @param ProcedureUiDefinition $procedureUiDefinitionToCopy procedureUiDefinition to copy
-     * @param Procedure             $targetProcedure             procedure where the copied ProcedureUiDefinition will be related to
+     * @param Procedure             $targetProcedure             procedure where the copied ProcedureUiDefinition
+     *                                                           will be related to
      *
      * @return ProcedureUiDefinition copied ProcedureUiDefinition
-     *
      * @throws ExclusiveProcedureOrProcedureTypeException
      */
     private function copyProcedureUiDefinition(
@@ -169,10 +165,18 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
         $targetProcedure->setProcedureUiDefinition($copiedProcedureUiDefinition);
 
         $copiedProcedureUiDefinition->setMapHintDefault($procedureUiDefinitionToCopy->getMapHintDefault());
-        $copiedProcedureUiDefinition->setStatementFormHintPersonalData($procedureUiDefinitionToCopy->getStatementFormHintPersonalData());
-        $copiedProcedureUiDefinition->setStatementFormHintRecheck($procedureUiDefinitionToCopy->getStatementFormHintRecheck());
-        $copiedProcedureUiDefinition->setStatementFormHintStatement($procedureUiDefinitionToCopy->getStatementFormHintStatement());
-        $copiedProcedureUiDefinition->setStatementPublicSubmitConfirmationText($procedureUiDefinitionToCopy->getStatementPublicSubmitConfirmationText());
+        $copiedProcedureUiDefinition->setStatementFormHintPersonalData(
+            $procedureUiDefinitionToCopy->getStatementFormHintPersonalData()
+        );
+        $copiedProcedureUiDefinition->setStatementFormHintRecheck(
+            $procedureUiDefinitionToCopy->getStatementFormHintRecheck()
+        );
+        $copiedProcedureUiDefinition->setStatementFormHintStatement(
+            $procedureUiDefinitionToCopy->getStatementFormHintStatement()
+        );
+        $copiedProcedureUiDefinition->setStatementPublicSubmitConfirmationText(
+            $procedureUiDefinitionToCopy->getStatementPublicSubmitConfirmationText()
+        );
 
         return $copiedProcedureUiDefinition;
     }
@@ -182,7 +186,6 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
      *                                   ProcedureBehaviorDefinition will be related to
      *
      * @return ProcedureBehaviorDefinition copied ProcedureBehaviorDefinition
-     *
      * @throws ExclusiveProcedureOrProcedureTypeException
      */
     private function copyProcedureBehaviorDefinition(
@@ -206,7 +209,6 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
      *                                                               StatementFormDefinition will be related to
      *
      * @return StatementFormDefinition copied statementFormDefinition
-     *
      * @throws ExclusiveProcedureOrProcedureTypeException
      */
     private function copyStatementFormDefinition(
@@ -228,8 +230,8 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
      */
     private function copyStatementFieldDefinitions(
         StatementFormDefinition $statementFormDefinitionToCopy,
-        StatementFormDefinition $targetStatementFromDefinition): StatementFormDefinition
-    {
+        StatementFormDefinition $targetStatementFromDefinition
+    ): StatementFormDefinition {
         /** @var StatementFieldDefinition $field */
         foreach ($statementFormDefinitionToCopy->getFieldDefinitions() as $field) {
             $newFieldDefinition = $targetStatementFromDefinition->getFieldDefinitionByName($field->getName());
@@ -250,20 +252,26 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
     /**
      * @param array<string, mixed> $properties
      */
-    public function updateProcedureUiDefinition(ProcedureUiDefinition $procedureUiDefinition, array $properties): void
-    {
+    public function updateProcedureUiDefinition(
+        ProcedureUiDefinition $procedureUiDefinition,
+        array $properties
+    ): void {
         $procedureUiDefinition->setMapHintDefault($properties['mapHintDefault']);
         $procedureUiDefinition->setStatementFormHintPersonalData($properties['statementFormHintPersonalData']);
         $procedureUiDefinition->setStatementFormHintRecheck($properties['statementFormHintRecheck']);
         $procedureUiDefinition->setStatementFormHintStatement($properties['statementFormHintStatement']);
-        $procedureUiDefinition->setStatementPublicSubmitConfirmationText($properties['statementPublicSubmitConfirmationText']);
+        $procedureUiDefinition->setStatementPublicSubmitConfirmationText(
+            $properties['statementPublicSubmitConfirmationText']
+        );
     }
 
     /**
      * @param array<string, mixed> $properties
      */
-    public function updateProcedureBehaviorDefinition(ProcedureBehaviorDefinition $procedureBehaviorDefinition, array $properties): void
-    {
+    public function updateProcedureBehaviorDefinition(
+        ProcedureBehaviorDefinition $procedureBehaviorDefinition,
+        array $properties
+    ): void {
         $procedureBehaviorDefinition->setAllowedToEnableMap($properties['allowedToEnableMap']);
         $procedureBehaviorDefinition->setHasPriorityArea($properties['hasPriorityArea']);
         $procedureBehaviorDefinition->setParticipationGuestOnly($properties['participationGuestOnly']);
@@ -272,8 +280,10 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
     /**
      * @param array<string, mixed> $properties
      */
-    public function updateStatementFieldDefinition(StatementFieldDefinition $statementFieldDefinition, array $properties): void
-    {
+    public function updateStatementFieldDefinition(
+        StatementFieldDefinition $statementFieldDefinition,
+        array $properties
+    ): void {
         $statementFieldDefinition->setEnabled($properties['enabled']);
         $statementFieldDefinition->setRequired($properties['required']);
     }
@@ -282,7 +292,7 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
      * Uses all names of each path to retrieve nested values from the given data. The last name of
      * each path will be used as key.
      *
-     * @param array<string,mixed>   $data
+     * @param array<string,mixed> $data
      * @param PropertyPathInterface ...$keyValuePairs
      *
      * @return array<string,mixed>
@@ -339,7 +349,6 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
      * handling in case of a redirect to the form.
      */
     public function addMissingRequestData(
-        string $formName,
         Request $request
     ): Request {
         $params = $request->request->all();
@@ -425,16 +434,15 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
         $fieldDefinitions = array_pop($fieldDefinitions);
 
         return [
-            'procedureTypeProperties'               => $procedureTypeProperties,
-            'procedureUiDefinitionProperties'       => $procedureUiDefinitionProperties,
+            'procedureTypeProperties' => $procedureTypeProperties,
+            'procedureUiDefinitionProperties' => $procedureUiDefinitionProperties,
             'procedureBehaviorDefinitionProperties' => $procedureBehaviorDefinitionProperties,
-            'fieldDefinitions'                      => $fieldDefinitions,
+            'fieldDefinitions' => $fieldDefinitions,
         ];
     }
 
     /**
      * @return array<int, ProcedureType>
-     *
      * @throws PathException
      */
     public function getAllProcedureTypes(): array
