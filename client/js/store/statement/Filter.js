@@ -6,8 +6,6 @@
  *
  * All rights reserved
  */
-
-import { del, set } from 'vue'
 import { dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
 
 const Filter = {
@@ -51,7 +49,7 @@ const Filter = {
 
   mutations: {
     loadAppliedFilterOptions (state, options) {
-      set(state, 'appliedOptions', options)
+      state.appliedOptions = options
     },
 
     /**
@@ -61,10 +59,10 @@ const Filter = {
     loadAvailableFilterListOptions (state, updatedFilters) {
       if (updatedFilters.length) {
         updatedFilters.forEach(filter => {
-          set(state.filterListOptions, filter.id, filter.attributes.options)
+          state.filterListOptions[filter.id] = filter.attributes.options
         })
       } else {
-        set(state, 'filterListOptions', {})
+        state.filterListOptions = {}
       }
     },
 
@@ -74,7 +72,7 @@ const Filter = {
      * @param options
      */
     loadSelectedFilterOptions (state, options) {
-      set(state, 'selectedOptions', options)
+      state.selectedOptions = options
     },
 
     /**
@@ -99,9 +97,9 @@ const Filter = {
 
     resetSelectedOptions (state, optionsToKeep) {
       if (state.appliedOptions.length) {
-        set(state, 'selectedOptions', optionsToKeep)
+        state.selectedOptions = optionsToKeep
       } else {
-        set(state, 'selectedOptions', [])
+        state.selectedOptions = []
       }
     },
 
@@ -189,7 +187,7 @@ const Filter = {
           if (idx < 0) {
             state.selectedOptions.splice(state.selectedOptions.length, 0, selectedOption)
           } else {
-            del(state.selectedOptions, idx)
+            delete state.selectedOptions[idx]
           }
         } else {
           state.selectedOptions.splice(state.selectedOptions.length, 0, selectedOption)
@@ -211,7 +209,7 @@ const Filter = {
               const idx = state.selectedOptions.findIndex(opt => opt.filterId === filter.id && opt.value === option.value)
               if (idx >= 0) {
                 const newCount = filter.attributes.options.find(opt => opt.value === option.value).count
-                set(state.selectedOptions[idx], 'count', newCount)
+                state.selectedOptions[idx].count = newCount
               }
             }
           })
