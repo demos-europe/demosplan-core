@@ -8,8 +8,7 @@ All rights reserved
 </license>
 
 <template>
-  <div
-    class="space-inset-m bg-color--blue-light-3">
+  <div class="space-inset-m bg-color--blue-light-3">
     <h2 class="font-normal color--black">
       {{ Translator.trans('support.heading') }}
     </h2>
@@ -19,17 +18,19 @@ All rights reserved
     <p>
       {{ Translator.trans('support.contact.advice') }}
     </p>
-    <h3 class="u-mt-0_75">
+    <h3
+      v-if="contacts.length > 0"
+      class="u-mt-0_75">
       {{ Translator.trans('support') }}
     </h3>
     <ul
       class="u-mb-0_75"
-      :class="{ 'grid lg:grid-cols-3 gap-3': visibleContacts.length !== 1 }">
+      :class="{ 'grid lg:grid-cols-3 gap-3': contacts.length !== 1 }">
       <li
-        v-for="contact in visibleContacts"
+        v-for="contact in contacts"
         :key="contact.id"
         class="space-inset-m bg-color--white"
-        :class="{ 'lg:w-8/12': visibleContacts.length === 1 }">
+        :class="{ 'lg:w-8/12': contacts.length === 1 }">
         <dp-support-card
           :title="contact.attributes.title"
           :email="contact.attributes.eMailAddress"
@@ -74,11 +75,7 @@ export default {
   computed: {
     ...mapState('customerContact', {
       contacts: 'items'
-    }),
-
-    visibleContacts () {
-      return Object.values(this.contacts).filter(contact => contact.attributes.visible)
-    }
+    })
   },
 
   methods: {
@@ -94,7 +91,6 @@ export default {
           'title',
           'phoneNumber',
           'text',
-          'visible',
           'eMailAddress'
         ].join()
       }
