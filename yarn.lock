@@ -2447,14 +2447,14 @@
     "@uppy/utils" "^5.5.0"
     namespace-emitter "^2.0.1"
 
-"@uppy/core@^3.0.1", "@uppy/core@^3.6.1":
-  version "3.6.1"
-  resolved "https://registry.yarnpkg.com/@uppy/core/-/core-3.6.1.tgz#db9ef5bcb9e0b8b69ecff9b462a21727b2378519"
-  integrity sha512-DZWSCcQlRbYmIjZ5cl4PMqnvssgpovLQ9Ke/9N8djIcVZdUV4TwNlF3ctdYaFSwsthIkxjR+h3Hf4cWDCZujJg==
+"@uppy/core@^3.0.1", "@uppy/core@^3.7.0":
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/@uppy/core/-/core-3.7.0.tgz#afeb30fc7efc02e0e448e2161aafa6d875503df7"
+  integrity sha512-Yol7DUC8HZ0usXyawgAwZe9PZ2T9Cii0nqqsRr1JVAMoLPt0NIr5MA2/VhPv1dXoDvOBRTyRzCC/+j9BCrgGjw==
   dependencies:
     "@transloadit/prettier-bytes" "0.0.9"
     "@uppy/store-default" "^3.0.5"
-    "@uppy/utils" "^5.5.2"
+    "@uppy/utils" "^5.6.0"
     lodash "^4.17.21"
     mime-match "^1.0.2"
     namespace-emitter "^2.0.1"
@@ -2491,10 +2491,10 @@
     "@uppy/utils" "^5.5.0"
     tus-js-client "^3.0.0"
 
-"@uppy/utils@^5.4.3", "@uppy/utils@^5.5.0", "@uppy/utils@^5.5.2":
-  version "5.5.2"
-  resolved "https://registry.yarnpkg.com/@uppy/utils/-/utils-5.5.2.tgz#374af59a16b26bf25dd2c17975aff52af3d54f89"
-  integrity sha512-3vGx0L3t2ikZ1fgQxM2ztHDfx0hnC8QYFi+Wtc+8tNpiClzlJQHyOWLfBJ0mW0yREVXoITqa6mxev+/Zc3oVzA==
+"@uppy/utils@^5.4.3", "@uppy/utils@^5.5.0", "@uppy/utils@^5.6.0":
+  version "5.6.0"
+  resolved "https://registry.yarnpkg.com/@uppy/utils/-/utils-5.6.0.tgz#07dd996353bd49738b79d8c9e232edf7cabbc07e"
+  integrity sha512-Blr6Po6a49niTugSzuguNtH9M1wSU4vdRnaGBsScv+JjcslzG3OkMmfnnhesj1ZIVyxMdVDjyPGXoqh4Wm2Dzg==
   dependencies:
     lodash "^4.17.21"
     preact "^10.5.13"
