@@ -282,8 +282,7 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
      * Uses all names of each path to retrieve nested values from the given data. The last name of
      * each path will be used as key.
      *
-     * @param array<string,mixed>   $data
-     * @param PropertyPathInterface ...$keyValuePairs
+     * @param array<string,mixed> $data
      *
      * @return array<string,mixed>
      */
@@ -334,8 +333,9 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
     }
 
     /**
-     * Adds the fieldDefinitions and participationGuestOnly (it is never send in request since it can't be manually changed) of the original procedure type to the request. Also adds the original ID for easier
-     * error handling in case of a redirect to the form.
+     * Adds the fieldDefinitions and participationGuestOnly (it is never send in request since it can't be
+     * manually changed) of the original procedure type to the request. Also adds the original ID for easier error
+     * handling in case of a redirect to the form.
      */
     public function addMissingRequestData(
         string $formName,
@@ -344,13 +344,24 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
         $params = $request->request->all();
         /** @var ProcedureType $originalProcedureTypeEntity */
         $originalProcedureTypeEntity = $this->procedureTypeResourceType->getEntityAsReadTarget($params['id']);
-        // Always adds participationGuestOnly since it is never send in the form
-        $originalParticipationGuestOnly = $originalProcedureTypeEntity->getProcedureBehaviorDefinition()->isParticipationGuestOnly();
-        $params[$formName]['procedureBehaviorDefinition']['participationGuestOnly'] = $originalParticipationGuestOnly;
 
-        // Fills field definitions based on the original if they are missing. Also use original values if they shouldn't be changed anyway
-        if (!isset($params[$formName]['statementFormDefinition']) || !$originalParticipationGuestOnly) {
-            $originalFieldDefinitions = $originalProcedureTypeEntity->getStatementFormDefinition()->getFieldDefinitions();
+        // Always adds participationGuestOnly since it is never send in the form
+        $originalParticipationGuestOnly =
+            $originalProcedureTypeEntity->getProcedureBehaviorDefinition()->isParticipationGuestOnly();
+
+        $procedureBehaviorDefinition = $request->request->get('procedureBehaviorDefinition');
+        if (is_array($procedureBehaviorDefinition)) {
+            $procedureBehaviorDefinition['participationGuestOnly'] = $originalParticipationGuestOnly;
+        } else {
+            $procedureBehaviorDefinition = ['participationGuestOnly' => $originalParticipationGuestOnly];
+        }
+        $request->request->set('procedureBehaviorDefinition', $procedureBehaviorDefinition);
+
+        // Fills field definitions based on the original if they are missing.
+        // Also use original values if they shouldn't be changed anyway
+        if (!isset($request->request->all()['statementFormDefinition']) || !$originalParticipationGuestOnly) {
+            $originalFieldDefinitions = $originalProcedureTypeEntity->getStatementFormDefinition(
+            )->getFieldDefinitions();
             $fieldDefinitions = $originalFieldDefinitions->map(function (StatementFieldDefinition $item) {
                 $return = [];
                 $return['name'] = $item->getName();
@@ -363,15 +374,9 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
 
                 return $return;
             })->toArray();
-            $params[$formName]['statementFormDefinition']['fieldDefinitions'] = $fieldDefinitions;
+            $statementFormDefinition['fieldDefinitions'] = $fieldDefinitions;
+            $request->request->set('statementFormDefinition', $statementFormDefinition);
         }
-
-        // Adds id to the form if missing
-        if (!isset($params[$formName]['id'])) {
-            $params[$formName]['id'] = $params['id'];
-        }
-
-        $request->request->add([$formName => $params[$formName]]);
 
         return $request;
     }
