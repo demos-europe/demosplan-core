@@ -25,12 +25,12 @@ All rights reserved
     </h3>
     <ul
       class="u-mb-0_75"
-      :class="{ 'grid lg:grid-cols-3 gap-3': visibleContacts.length !== 1 }">
+      :class="{ 'grid lg:grid-cols-3 gap-3': contacts.length !== 1 }">
       <li
-        v-for="contact in visibleContacts"
+        v-for="contact in contacts"
         :key="contact.id"
         class="space-inset-m bg-color--white"
-        :class="{ 'lg:w-8/12': visibleContacts.length === 1 }">
+        :class="{ 'lg:w-8/12': contacts.length === 1 }">
         <dp-support-card
           :title="contact.attributes.title"
           :email="contact.attributes.eMailAddress"
@@ -75,38 +75,47 @@ export default {
   computed: {
     ...mapState('customerContact', {
       contacts: 'items'
-    }),
-
-    visibleContacts () {
-      const contacts = []
-      Object.values(this.contacts).forEach(contact => {
-        if (contact.attributes.visible !== false) {
-          contacts.push(contact)
-        }
-      })
-
-      return contacts
-    }
+    })
   },
 
   methods: {
     ...mapActions('customerContact', {
       fetchContacts: 'list'
-    })
+    }),
+
+    fetchCustomerContactsData () {
+      let params = {
+        fields: {
+          CustomerContact: [
+            'title',
+            'phoneNumber',
+            'text',
+            'eMailAddress',
+            'visible'
+          ].join()
+        }
+      }
+
+      if (hasPermission('feature_customer_support_contact_administration')) {
+        params = {
+          ...params,
+          filter: {
+            onlyVisible: {
+              condition: {
+                path: 'visible',
+                value: 1
+              }
+            }
+          }
+        }
+      }
+
+      this.fetchContacts(params)
+    }
   },
 
   mounted () {
-    this.fetchContacts({
-      fields: {
-        CustomerContact: [
-          'title',
-          'phoneNumber',
-          'text',
-          'visible',
-          'eMailAddress'
-        ].join()
-      }
-    })
+    this.fetchCustomerContactsData()
   }
 }
 </script>
