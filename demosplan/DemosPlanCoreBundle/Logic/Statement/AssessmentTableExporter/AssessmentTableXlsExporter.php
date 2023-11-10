@@ -440,6 +440,14 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         $htmlConverter = new HtmlConverter(['strip_tags' => true]);
 
         foreach ($keysOfAttributesToExport as $attributeKey) {
+            // refs T35367 The meta.getAuthoredDate method called here returns a timestamp.
+            // to keep the format the same with what the getSubmitDateString method
+            // returns this timestamp gets transformed into a dates tring of the same d.m.Y format.
+            if ($attributeKey === 'meta.authoredDate') {
+                $formattedStatement[$attributeKey] = date('d.m.Y', $statementArray['meta']['authoredDate']);
+
+                continue;
+            }
             $formattedStatement[$attributeKey] = $statementArray[$attributeKey] ?? null;
 
             // allow dot notation in export definition
