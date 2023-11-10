@@ -2439,6 +2439,10 @@ field_procedure_phase:
     label: 'Show procedure phase (Verfahrensschritt)'
     loginRequired: false
     parent: field_procedure
+field_segment_assignee_filter:
+    description: 'allow assigne search filter in statements of current procedure. Use to gain access to necessary resource type'
+    label: 'Filter segment list by assigne'
+    loginRequired: true
 field_procedure_phase_filter:
     description: 'Enable filtering the procedures list in public index by procedure phase.'
     label: 'Filter procedure list by phase'

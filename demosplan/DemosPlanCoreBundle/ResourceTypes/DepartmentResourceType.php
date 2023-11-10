@@ -39,7 +39,10 @@ final class DepartmentResourceType extends DplanResourceType
             // Managing users includes access to their departments
             'area_manage_users',
             // Departments are included in the response when fragments are updated
-            'feature_statements_fragment_edit'
+            'feature_statements_fragment_edit',
+            // Resource is needed for segments filtering :In the case when segments are filtered by assignee,
+            // the department resource type has to be available
+            'field_segment_assignee_filter'
         );
     }
 
