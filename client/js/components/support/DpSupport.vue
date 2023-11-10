@@ -77,7 +77,14 @@ export default {
     }),
 
     visibleContacts () {
-      return Object.values(this.contacts).filter(contact => contact.attributes.visible)
+      const contacts = []
+      Object.values(this.contacts).forEach(contact => {
+        if (contact.attributes.visible !== false) {
+          contacts.push(contact)
+        }
+      })
+
+      return contacts
     }
   },
 
