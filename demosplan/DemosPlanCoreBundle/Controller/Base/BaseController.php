@@ -332,7 +332,6 @@ abstract class BaseController extends AbstractController
         $type,
         $useCsrf = true,
         $allowExtraFields = false,
-        string $formName = null
     ): FormInterface {
         $formOptions = [
             'csrf_protection'    => $useCsrf,
