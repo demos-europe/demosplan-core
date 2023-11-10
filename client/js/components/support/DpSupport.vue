@@ -41,7 +41,7 @@ All rights reserved
     <h3>
       {{ Translator.trans('support.technical') }}
     </h3>
-    <div class="d-support__wrapper lg:w-8/12">
+    <div class="lg:w-8/12">
       <dp-support-card
         :phone-number="Translator.trans('support.contact.number')"
         :reachability="{
