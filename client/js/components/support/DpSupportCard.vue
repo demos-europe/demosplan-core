@@ -8,14 +8,14 @@ All rights reserved
 </license>
 
 <template>
-  <section class="bg-color--white">
+  <section class="c-support__wrapper">
     <h4
       v-if="title"
-      class="font-semibold font-size-large"
+      class="u-mb-0_75 font-semibold font-size-large"
       v-text="title" />
     <a
       v-if="phoneNumber"
-      class="inline-block font-semibold font-size-large"
+      class="u-mt-0_25 inline-block font-semibold font-size-large color--black"
       :href="`tel:${phoneNumber}`">
       <dp-icon
         class="inline-block"
