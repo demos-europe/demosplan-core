@@ -57,7 +57,7 @@ class RpcBulkDeleteStatements extends AbstractRpcStatementBulkAction
     {
         /** @var Statement $statement */
         foreach ($statements as $statement) {
-            if (!$this->statementService->deleteStatement($statement->getId())) {
+            if (!$this->statementDeleter->deleteStatementObject($statement)) {
                 return false;
             }
         }

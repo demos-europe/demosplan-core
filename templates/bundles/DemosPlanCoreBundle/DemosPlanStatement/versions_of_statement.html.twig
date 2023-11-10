@@ -26,7 +26,7 @@
 
         {% if draftStatementVersions is defined and  draftStatementVersions|length > 0 %}
 
-            {% for index, statement in draftStatementVersions if index < lastIndex %}
+            {% for statement in draftStatementVersions|filter((_statement, index) => index < lastIndex) %}
                 <h2>{{ "date"|trans }}: {{ statement.versionDate|dplanDate('d.m.Y | H:i') }}</h2>
                 {{ statement.text|wysiwyg }}
             {% endfor %}

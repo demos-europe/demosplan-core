@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
+use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Consultation\ConsultationTokenService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
@@ -33,8 +34,35 @@ use Doctrine\ORM\ORMException;
 
 class StatementDeleter extends CoreService
 {
-    public function __construct(protected AssignService $assignService, protected PermissionsInterface $permissions, protected StatementFragmentService $statementFragmentService, protected ConsultationTokenService $consultationTokenService, protected StatementAttachmentService $statementAttachmentService, private readonly StatementRepository $statementRepository, private readonly StatementReportEntryFactory $statementReportEntryFactory, private readonly ReportService $reportService, private readonly MessageBagInterface $messageBag, private readonly EntityContentChangeService $entityContentChangeService, private readonly StatementService $statementService)
+    public function __construct(
+        protected AssignService $assignService,
+        protected PermissionsInterface $permissions,
+        protected StatementFragmentService $statementFragmentService,
+        protected ConsultationTokenService $consultationTokenService,
+        protected StatementAttachmentService $statementAttachmentService,
+        private readonly StatementRepository $statementRepository,
+        private readonly StatementReportEntryFactory $statementReportEntryFactory,
+        private readonly ReportService $reportService,
+        private readonly MessageBagInterface $messageBag,
+        private readonly EntityContentChangeService $entityContentChangeService,
+        private readonly StatementService $statementService
+    ) {
+    }
+
+    /**
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws StatementNotFoundException
+     */
+    public function deleteOriginalStatementAttachmentByStatementId(string $statementId): Statement
     {
+        $statement = $this->statementService->getStatement($statementId);
+        if (!$statement instanceof Statement) {
+            throw StatementNotFoundException::createFromId($statementId);
+        }
+        $statement = $this->statementAttachmentService->deleteOriginalAttachment($statement);
+
+        return $this->statementService->updateStatementObject($statement);
     }
 
     /**

@@ -17,11 +17,13 @@ use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
-class Version20230711125038 extends AbstractMigration
+class Version20231023132710 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'refs 32796 create ProcedureMessage in relation with XBeteiligung ';
+        return 'refs T34808: alters table support_contact to support different types of contacts
+        which can be customer related or not. These three different support types are needed so far:
+        customer, customerLogin, platform';
     }
 
     /**
@@ -30,8 +32,7 @@ class Version20230711125038 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->abortIfNotMysql();
-        $this->addSql('ALTER TABLE procedure_message DROP FOREIGN KEY FK_E7F5DA961624BCD2');
-        $this->addSql('DROP INDEX UNIQ_E7F5DA961624BCD2 ON procedure_message');
+        $this->addSql('ALTER TABLE support_contact ADD type VARCHAR(255) DEFAULT \'customer\' NOT NULL');
     }
 
     /**
@@ -40,9 +41,10 @@ class Version20230711125038 extends AbstractMigration
     public function down(Schema $schema): void
     {
         $this->abortIfNotMysql();
+        $this->addSql('ALTER TABLE support_contact DROP type');
     }
 
-    /**S
+    /**
      * @throws Exception
      */
     private function abortIfNotMysql(): void

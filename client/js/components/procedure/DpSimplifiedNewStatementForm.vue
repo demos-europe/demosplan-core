@@ -314,10 +314,12 @@
           :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
           name="r_attachment_original"
           allowed-file-types="all"
+          :basic-auth="dplan.settings.basicAuth"
           :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
           :max-number-of-files="1"
           needs-hidden-input
-          :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }" />
+          :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
+          :tus-endpoint="dplan.paths.tusEndpoint" />
       </template>
       <dp-label
         :text="Translator.trans('more.attachments')"
@@ -328,11 +330,13 @@
         id="r_upload"
         name="r_upload"
         allowed-file-types="all"
+        :basic-auth="dplan.settings.basicAuth"
         :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
         :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
         :max-number-of-files="1000"
         needs-hidden-input
-        :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }" />
+        :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
+        :tus-endpoint="dplan.paths.tusEndpoint" />
 
       <!-- When used from annotated pdf view, a hidden input with annotatedStatementPdf.id has to be sent to BE -->
       <input

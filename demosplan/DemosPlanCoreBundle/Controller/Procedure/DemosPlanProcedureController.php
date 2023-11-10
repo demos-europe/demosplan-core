@@ -717,7 +717,6 @@ class DemosPlanProcedureController extends BaseController
     public function newProcedureAction(
         Breadcrumb $breadcrumb,
         CurrentUserInterface $currentUser,
-        EntityWrapperFactory $wrapperFactory,
         FormFactoryInterface $formFactory,
         MasterTemplateService $masterTemplateService,
         Request $request,
@@ -794,7 +793,7 @@ class DemosPlanProcedureController extends BaseController
         $this->writeErrorsIntoMessageBag($form->getErrors(true));
 
         $templateVars['contextualHelpBreadcrumb'] = $breadcrumb->getContextualHelp('procedure.new');
-        $templateVars = $this->addProcedureTypesToTemplateVars($templateVars, false, $wrapperFactory);
+        $templateVars = $this->addProcedureTypesToTemplateVars($templateVars, false);
         $templateVars = $this->procedureServiceOutput->fillTemplateVars($templateVars);
         $templateVars['masterTemplateId'] = $masterTemplateService->getMasterTemplateId();
 
@@ -819,7 +818,6 @@ class DemosPlanProcedureController extends BaseController
     public function newProcedureTemplateAction(
         Breadcrumb $breadcrumb,
         CurrentUserInterface $currentUser,
-        EntityWrapperFactory $wrapperFactory,
         FormFactoryInterface $formFactory,
         MasterTemplateService $masterTemplateService,
         Request $request,
@@ -896,7 +894,7 @@ class DemosPlanProcedureController extends BaseController
         $this->writeErrorsIntoMessageBag($form->getErrors(true));
 
         $templateVars['contextualHelpBreadcrumb'] = $breadcrumb->getContextualHelp('procedure.master.new');
-        $templateVars = $this->addProcedureTypesToTemplateVars($templateVars, true, $wrapperFactory);
+        $templateVars = $this->addProcedureTypesToTemplateVars($templateVars, true);
         $templateVars = $this->procedureServiceOutput->fillTemplateVars($templateVars);
         $templateVars['masterTemplateId'] = $masterTemplateService->getMasterTemplateId();
 
@@ -2771,8 +2769,7 @@ class DemosPlanProcedureController extends BaseController
      */
     protected function addProcedureTypesToTemplateVars(
         array $templateVars,
-        bool $isProcedureTemplate,
-        WrapperFactoryInterface $wrapperFactory
+        bool $isProcedureTemplate
     ): array {
         // procedure types are completely irrelevant in procedure templates (Blaupausen), so no need
         // to pass the variable if it's a procedure template (Blaupause)
@@ -2785,10 +2782,7 @@ class DemosPlanProcedureController extends BaseController
         }
 
         $nameSorting = $this->sortMethodFactory->propertyAscending($this->procedureTypeResourceType->name);
-        $entities = $this->procedureTypeResourceType->listEntities([], [$nameSorting]);
-        $procedureTypeResources = array_map(fn (object $entity) => $wrapperFactory->createWrapper($entity, $this->procedureTypeResourceType), $entities);
-
-        $templateVars['procedureTypes'] = $procedureTypeResources;
+        $templateVars['procedureTypes'] = $this->procedureTypeResourceType->listEntities([], [$nameSorting]);
 
         return $templateVars;
     }

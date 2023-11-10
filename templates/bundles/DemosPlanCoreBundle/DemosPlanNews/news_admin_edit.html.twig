@@ -55,6 +55,7 @@
         novalidate>
         <input name="action" type="hidden" value="newsedit">
         <input name="r_ident" type="hidden" value="{% if news.ident is defined %}{{ news.ident }}{% endif %}">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         {% set currentState = '0' %}
         {% set defaultNewState = '1' %}
@@ -263,7 +264,7 @@
                     <button
                         class="{{ 'menubar__button'|prefixClass }}"
                         type="button"
-                        v-tooltip="'{{ 'boilerplate.insert'|trans }})'"
+                        v-tooltip="'{{ 'boilerplate.insert'|trans }}'"
                         @click.stop="$refs.boilerPlateModal.toggleModal()">
                         <i class="{{ 'fa fa-puzzle-piece'|prefixClass }}"></i>
                     </button>

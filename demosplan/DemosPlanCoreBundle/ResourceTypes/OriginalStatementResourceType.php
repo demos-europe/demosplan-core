@@ -12,16 +12,16 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\IsOriginalStatementAvailableEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\OriginalStatementResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\IsOriginalStatementAvailableEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
- * @template-extends DplanResourceType<Statement>
+ * @template-extends DplanResourceType<StatementInterface>
  *
  * @property-read ProcedureResourceType $procedure
  * @property-read StatementResourceType $statements
@@ -63,7 +63,7 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
             $this->conditionFactory->propertyIsNull($this->original->id),
             $this->conditionFactory->propertyIsNull($this->headStatement->id),
             $this->conditionFactory->propertyIsNull($this->movedStatement),
-            $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id)
+            $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id),
         ];
     }
 

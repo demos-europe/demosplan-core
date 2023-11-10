@@ -16,7 +16,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\FunctionalTestCase;
-use Twig_SimpleFunction;
+use Twig\TwigFilter;
 
 /**
  * Teste TwigToolsExtension.
@@ -46,33 +46,49 @@ class TwigToolsExtensionTest extends FunctionalTestCase
         try {
             $result = $this->sut->getFunctions();
             static::assertTrue(is_array($result) && isset($result[0]));
-            static::assertTrue($result[0] instanceof Twig_SimpleFunction);
-            $callable = $result[0]->getCallable();
-            static::assertTrue('getFormOption' === $callable[1]);
-            static::assertTrue('getFormOption' === $result[0]->getName());
+            static::assertInstanceOf(TwigFilter::class, $result[0]);
+            static::assertSame('getFormOption', $result[0]->getName());
         } catch (Exception $e) {
             $this->fail(false);
         }
     }
 
-    public function testSaveStatic()
+    public function testSaveLoginPath(): void
     {
         try {
-            $variableKey = 'testKey';
-            $variableValue = 'testValue';
+            $loginPath = 'testValue';
 
-            $result = $this->sut->getStaticVariable($variableKey);
-            static::assertNull($result);
+            $result = $this->sut->getLoginPath();
+            static::assertSame('', $result);
 
-            $this->sut->setStaticVariable($variableKey, $variableValue);
-            $result = $this->sut->getStaticVariable($variableKey);
-            static::assertEquals($variableValue, $result);
+            $this->sut->setLoginPath($loginPath);
+            $result = $this->sut->getLoginPath();
+            static::assertEquals($loginPath, $result);
 
-            $this->sut->setStaticVariable($variableKey, $variableValue);
-            $result = $this->sut->getStaticVariable($variableKey);
-            static::assertEquals($variableValue, $result);
+            $this->sut->setLoginPath($loginPath);
+            $result = $this->sut->getLoginPath();
+            static::assertEquals($loginPath, $result);
         } catch (Exception $e) {
-            $this->fail();
+            $this->fail($e->getMessage());
+        }
+    }
+    public function testSaveDisplayOrder(): void
+    {
+        try {
+            $displayOrder = 2;
+
+            $result = $this->sut->getDisplayOrder();
+            static::assertSame(0, $result);
+
+            $this->sut->setDisplayOrder($displayOrder);
+            $result = $this->sut->getDisplayOrder();
+            static::assertEquals($displayOrder, $result);
+
+            $this->sut->setDisplayOrder($displayOrder);
+            $result = $this->sut->getDisplayOrder();
+            static::assertEquals($displayOrder, $result);
+        } catch (Exception $e) {
+            $this->fail($e->getMessage());
         }
     }
 

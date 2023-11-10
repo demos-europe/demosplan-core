@@ -69,18 +69,18 @@ class APIPaginationTest extends UnitTestCase
         $this->sut->setSortString('');
         $this->sut->lock();
 
-        self::assertNull($this->sut->getSortBy());
-        self::assertNull($this->sut->getSortDirection());
-        self::assertNull($this->sut->getSort());
+        self::assertEmpty($this->sut->getSortBy());
+        self::assertEmpty($this->sut->getSortDirection());
+        self::assertEmpty($this->sut->getSort());
     }
 
     public function testSetSortStringNotSet()
     {
         $this->sut->lock();
 
-        self::assertNull($this->sut->getSortBy());
-        self::assertNull($this->sut->getSortDirection());
-        self::assertNull($this->sut->getSort());
+        self::assertEmpty($this->sut->getSortBy());
+        self::assertEmpty($this->sut->getSortDirection());
+        self::assertEmpty($this->sut->getSort());
     }
 
     public function testSetSortStringNull()
@@ -88,8 +88,8 @@ class APIPaginationTest extends UnitTestCase
         $this->sut->setSortString(null);
         $this->sut->lock();
 
-        self::assertNull($this->sut->getSortBy());
-        self::assertNull($this->sut->getSortDirection());
-        self::assertNull($this->sut->getSort());
+        self::assertEmpty($this->sut->getSortBy());
+        self::assertEmpty($this->sut->getSortDirection());
+        self::assertEmpty($this->sut->getSort());
     }
 }
