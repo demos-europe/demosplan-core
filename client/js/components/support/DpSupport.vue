@@ -29,7 +29,7 @@ All rights reserved
       <li
         v-for="contact in contacts"
         :key="contact.id"
-        class="space-inset-m bg-color--white"
+        class="bg-color--white"
         :class="{ 'lg:w-8/12': contacts.length === 1 }">
         <dp-support-card
           :title="contact.attributes.title"
@@ -41,7 +41,7 @@ All rights reserved
     <h3>
       {{ Translator.trans('support.technical') }}
     </h3>
-    <div class="lg:w-8/12 space-inset-m bg-color--white">
+    <div class="d-support__wrapper lg:w-8/12">
       <dp-support-card
         :phone-number="Translator.trans('support.contact.number')"
         :reachability="{
@@ -90,8 +90,7 @@ export default {
             'title',
             'phoneNumber',
             'text',
-            'eMailAddress',
-            'visible'
+            'eMailAddress'
           ].join()
         }
       }
