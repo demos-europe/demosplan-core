@@ -52,7 +52,7 @@
     "@efrane/vuex-json-api": "0.0.38",
     "@masterportal/masterportalapi": "^2.19.2",
     "@sentry/browser": "^7.74.1",
-    "@sentry/integrations": "^7.74.1",
+    "@sentry/integrations": "^7.80.0",
     "@sentry/tracing": "^7.76.0",
     "@uppy/core": "^3.7.0",
     "@uppy/drag-drop": "^3.0.3",
