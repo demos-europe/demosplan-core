@@ -8,8 +8,7 @@ All rights reserved
 </license>
 
 <template>
-  <div
-    class="space-inset-m bg-color--blue-light-3">
+  <div class="space-inset-m bg-color--blue-light-3">
     <h2 class="font-normal color--black">
       {{ Translator.trans('support.heading') }}
     </h2>
@@ -19,7 +18,9 @@ All rights reserved
     <p>
       {{ Translator.trans('support.contact.advice') }}
     </p>
-    <h3 class="u-mt-0_75">
+    <h3
+      v-if="contacts.length > 0"
+      class="u-mt-0_75">
       {{ Translator.trans('support') }}
     </h3>
     <ul
