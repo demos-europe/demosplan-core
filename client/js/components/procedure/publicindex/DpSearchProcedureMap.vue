@@ -153,7 +153,7 @@
           <dp-tooltip-icon
             v-if="filter.contextHelp !== ''"
             :aria-label="Translator.trans('contextual.help')"
-            class="u-ml-0_25"
+            :class="prefixClass('u-ml-0_25')"
             tabindex="0"
             icon="fa-question-circle"
             :text="filter.contextHelp" />
