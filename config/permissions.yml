@@ -2471,8 +2471,8 @@ field_procedure_phase:
     loginRequired: false
     parent: field_procedure
 field_segment_assignee_filter:
-    description: 'allow assigne search filter in statements of current procedure. Use to gain access to necessary resource type'
-    label: 'Filter segment list by assigne'
+    description: 'Allow assignee facet search in segments of current procedure.'
+    label: 'Filter segment list by assignee'
     loginRequired: true
 field_procedure_phase_filter:
     description: 'Enable filtering the procedures list in public index by procedure phase.'

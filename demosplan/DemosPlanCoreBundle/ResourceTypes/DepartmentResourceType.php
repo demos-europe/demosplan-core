@@ -40,7 +40,7 @@ final class DepartmentResourceType extends DplanResourceType
             // Departments are included in the response when fragments are updated
             'feature_statements_fragment_edit',
             // Resource is needed for segments filtering :In the case when segments are filtered by assignee,
-            // the department resource type has to be available
+            // the department resource type has to be available because user are grouped by departments
             'field_segment_assignee_filter'
         );
     }
