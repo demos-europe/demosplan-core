@@ -186,11 +186,11 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     public function selectFormat(string $formatIdentifier): array
     {
         $columnsDefinition = match ($formatIdentifier) {
-            'topicsAndTags' => $this->createColumnsDefinitionForTopicsAndTags(),
+            'topicsAndTags'  => $this->createColumnsDefinitionForTopicsAndTags(),
             'potentialAreas' => $this->createColumnsDefinitionForPotentialAreas(),
-            'statements' => $this->createColumnsDefinitionForStatementsOrSegments(true),
-            'segments' => $this->createColumnsDefinitionForStatementsOrSegments(false),
-            default => $this->createColumnsDefinitionDefault(),
+            'statements'     => $this->createColumnsDefinitionForStatementsOrSegments(true),
+            'segments'       => $this->createColumnsDefinitionForStatementsOrSegments(false),
+            default          => $this->createColumnsDefinitionDefault(),
         };
 
         return $columnsDefinition;
@@ -215,7 +215,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     {
         return [
             $this->createColumnDefinition('externId', 'id'),
-            $this->createColumnDefinition('name', 'name'),
+            $this->createColumnDefinition('uName', 'name'),
             $this->createColumnDefinition('topicNames', 'topic', 30),
             $this->createColumnDefinition('tagNames', 'tag', 40),
             $this->createColumnDefinition('recommendation', 'recommendation', 200),
@@ -229,7 +229,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     {
         return [
             $this->createColumnDefinition('externId', 'id'),
-            $this->createColumnDefinition('name', 'name'),
+            $this->createColumnDefinition('uName', 'name'),
             $this->createColumnDefinition('priorityAreaKeys', 'potential.area'),
             $this->createColumnDefinition('recommendation', 'recommendation', 200),
         ];

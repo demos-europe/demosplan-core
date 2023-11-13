@@ -281,11 +281,13 @@
                 <dp-upload-files
                   id="upload_files"
                   allowed-file-types="pdf-img-zip"
+                  :basic-auth="dplan.settings.basicAuth"
                   :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
                   :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
                   :max-number-of-files="20"
                   ref="uploadFiles"
                   :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
+                  :tus-endpoint="dplan.paths.tusEndpoint"
                   :side-by-side="initialFiles.length === 0"
                   :storage-name="fileStorageName"
                   @file-remove="removeUnsavedFile"
@@ -453,7 +455,7 @@
               name="r_useName"
               data-cy="submitPublicly"
               value="1"
-              @change="val => setStatementData({r_useName: '1'})"
+              @change="val => setPrivacyPreference({r_useName: '1'})"
               :checked="formData.r_useName === '1'"
               :label="{
                 text: Translator.trans('statement.detail.form.personal.post_publicly')
@@ -480,7 +482,7 @@
               id="r_useName_0"
               name="r_useName"
               value="0"
-              @change="val => setStatementData({r_useName: '0'})"
+              @change="val => setPrivacyPreference({r_useName: '0'})"
               :checked="formData.r_useName === '0'"
               :label="{
                 text: Translator.trans('statement.detail.form.personal.post_anonymously')
@@ -883,6 +885,8 @@ export default {
   },
 
   computed: {
+    ...mapState('notify', ['messages']),
+
     ...mapState('publicStatement', {
       initFormDataJSON: 'initForm',
       initDraftStatements: 'initDraftStatements',
@@ -960,6 +964,8 @@ export default {
   },
 
   methods: {
+    ...mapMutations('notify', ['remove']),
+
     ...mapMutations('publicStatement', [
       'addUnsavedDraft',
       'clearDraftState',
@@ -985,11 +991,11 @@ export default {
       }
 
       const invalidFields = this.dpValidate.invalidFields[formId]
-      const fieldDescriptions = invalidFields.map(field => {
+      const uniqueFieldDescriptions = Array.from(new Set(invalidFields.map(field => {
         const fieldId = field.getAttribute('id')
         return `<li>${Translator.trans(fieldDescriptionsForErrors[fieldId])}</li>`
-      })
-      return `<p>${Translator.trans('error.in.fields')}</p><ul class="u-mb-0 u-ml">${fieldDescriptions.join('')}</ul>`
+      })))
+      return `<p>${Translator.trans('error.in.fields')}</p><ul class="u-mb-0 u-ml">${uniqueFieldDescriptions.join('')}</ul>`
     },
 
     fieldIsActive (fieldKey) {
@@ -1178,6 +1184,12 @@ export default {
       this.setStatementData(elementFields)
     },
 
+    removeNotificationsFromStore () {
+      this.messages.forEach(message => {
+        this.remove(message)
+      })
+    },
+
     removeUnsavedFile (file) {
       const indexToRemove = this.unsavedFiles.findIndex(el => el.hash === file.hash)
       this.unsavedFiles.splice(indexToRemove, 1)
@@ -1340,6 +1352,11 @@ export default {
         .then(() => {
           this.isLoading = false
         })
+    },
+
+    setPrivacyPreference (data) {
+      this.setStatementData(data)
+      this.removeNotificationsFromStore()
     },
 
     writeDraftStatementIdToSession (draftStatementId) {

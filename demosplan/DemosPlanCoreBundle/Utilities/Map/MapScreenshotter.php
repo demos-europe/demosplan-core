@@ -32,7 +32,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Map\MapLayer;
 use Exception;
 use GdImage;
 use GeoJson\GeoJson;
-use geoPHP;
+use geoPHP\geoPHP;
 use Intervention\Image\ImageManager;
 use Psr\Log\LoggerInterface;
 use stdClass;
@@ -99,8 +99,6 @@ class MapScreenshotter
     /**
      * @param string[]    $wms
      * @param string|null $copyrightText
-     *
-     * @return string
      *
      * @throws Exception
      */
@@ -170,8 +168,6 @@ class MapScreenshotter
 
     /**
      * @param string|null $copyrightText
-     *
-     * @return string
      *
      * @throws Exception
      */
@@ -354,10 +350,10 @@ class MapScreenshotter
     private function saveImage(GdImage $image, string $file, string $format): bool
     {
         return match ($format) {
-            'PNG' => imagepng($image, $file),
-            'GIF' => imagegif($image, $file),
-            'BMP' => imagebmp($image, $file),
-            'JPG' => imagejpeg($image, $file),
+            'PNG'   => imagepng($image, $file),
+            'GIF'   => imagegif($image, $file),
+            'BMP'   => imagebmp($image, $file),
+            'JPG'   => imagejpeg($image, $file),
             default => false,
         };
     }

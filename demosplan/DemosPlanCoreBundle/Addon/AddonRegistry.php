@@ -38,12 +38,28 @@ class AddonRegistry implements ArrayAccess
     public function boot(array $addonInfos = [])
     {
         if ([] !== $this->addonInfos) {
-            AddonException::immutableRegistry();
+            throw AddonException::immutableRegistry();
         }
 
         foreach ($addonInfos as $addonInfo) {
             $this->addonInfos[$addonInfo->getName()] = $addonInfo;
         }
+    }
+
+    /**
+     * @return array<string, AddonInfo>
+     */
+    public function getEnabledAddons(): array
+    {
+        return array_filter($this->getAddonInfos(), fn(AddonInfo $addonInfo) => $addonInfo->isEnabled());
+    }
+
+    /**
+     * @return array<string, AddonInfo>
+     */
+    public function getInstalledAddons(): array
+    {
+        return $this->getAddonInfos();
     }
 
     public function getAddonInfos(): array

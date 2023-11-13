@@ -52,13 +52,13 @@ class DemosPlanProcedureTypeController extends BaseController
     public function procedureTypeListAction(
         ProcedureTypeService $procedureTypeService): Response
     {
-        $procedureTypeResources = $procedureTypeService->getAllProcedureTypeResources();
+        $procedureTypes = $procedureTypeService->getAllProcedureTypes();
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanProcedure/administration_procedure_type_list.html.twig',
             [
                 'templateVars' => [
-                    'procedureTypes' => $procedureTypeResources,
+                    'procedureTypes' => $procedureTypes,
                 ],
                 'title'        => 'procedure.types',
             ]
@@ -81,15 +81,13 @@ class DemosPlanProcedureTypeController extends BaseController
         TranslatorInterface $translator
     ): Response {
         $template = '@DemosPlanCore/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
-        $procedureTypeResources = $procedureTypeService->getAllProcedureTypeResources();
+        $procedureTypes = $procedureTypeService->getAllProcedureTypes();
 
         $form = $this->getForm(
             $formFactory,
             null,
             ProcedureTypeFormType::class,
             false,
-            false,
-            'procedureTypeCreate'
         );
 
         // To make it easy to quickly move back to the list of procedure types, a breadcrumb item is added.
@@ -104,7 +102,7 @@ class DemosPlanProcedureTypeController extends BaseController
             $template,
             [
                 'templateVars' => [
-                    'procedureTypes' => $procedureTypeResources,
+                    'procedureTypes' => $procedureTypes,
                     'isCreate'       => true,
                 ],
                 'form'         => $form->createView(),
@@ -136,7 +134,7 @@ class DemosPlanProcedureTypeController extends BaseController
         }
 
         // List of ProcedureTypes
-        $procedureTypeResources = $procedureTypeService->getAllProcedureTypeResources();
+        $procedureTypes = $procedureTypeService->getAllProcedureTypes();
         /** @var ProcedureType $procedureTypeEntity */
         $procedureTypeEntity = $procedureTypeResourceType->getEntityAsReadTarget($procedureTypeId);
         $procedureTypeResource = $entityWrapperFactory->createWrapper($procedureTypeEntity, $procedureTypeResourceType);
@@ -147,8 +145,6 @@ class DemosPlanProcedureTypeController extends BaseController
             $procedureTypeResource,
             ProcedureTypeFormType::class,
             false,
-            false,
-            'procedureTypeCreate'
         );
         $form->get('name')->setData($procedureTypeEntity->getName().' (Kopie)');
 
@@ -165,7 +161,7 @@ class DemosPlanProcedureTypeController extends BaseController
             [
                 'templateVars' => [
                     'procedureTypeId' => $procedureTypeId,
-                    'procedureTypes'  => $procedureTypeResources,
+                    'procedureTypes'  => $procedureTypes,
                     'isCreate'        => true,
                 ],
                 'form'         => $form->createView(),
@@ -204,8 +200,6 @@ class DemosPlanProcedureTypeController extends BaseController
             $procedureTypeResource,
             ProcedureTypeFormType::class,
             false,
-            false,
-            'procedureTypeEdit'
         );
 
         // To make it easy to quickly move back to the list of procedure types, a breadcrumb item is added.
@@ -260,19 +254,16 @@ class DemosPlanProcedureTypeController extends BaseController
             new ProcedureUiDefinition(),
         );
         $procedureTypeResource = $wrapperFactory->createWrapper($procedureTypeEntity, $procedureTypeResourceType);
-        $formName = 'procedureTypeCreate';
 
         $form = $this->getForm(
             $formFactory,
             $procedureTypeResource,
             ProcedureTypeFormType::class,
             false,
-            false,
-            $formName
         );
 
         // adds needed field definitions, behavior definition and ID to request form
-        $request = $procedureTypeService->addMissingRequestData($formName, $request);
+        $request = $procedureTypeService->addMissingRequestData($request);
 
         try {
             $form->handleRequest($request);
@@ -382,19 +373,16 @@ class DemosPlanProcedureTypeController extends BaseController
 
         $procedureTypeEntity = $procedureTypeResourceType->getEntityAsReadTarget($procedureTypeId);
         $procedureTypeResource = $wrapperFactory->createWrapper($procedureTypeEntity, $procedureTypeResourceType);
-        $formName = 'procedureTypeEdit';
 
         $form = $this->getForm(
             $formFactory,
             $procedureTypeResource,
             ProcedureTypeFormType::class,
             false,
-            false,
-            $formName
         );
 
         // adds needed field definitions, behavior definition and ID to request form
-        $request = $procedureTypeService->addMissingRequestData($formName, $request);
+        $request = $procedureTypeService->addMissingRequestData($request);
 
         try {
             $form->handleRequest($request);

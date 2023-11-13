@@ -26,6 +26,9 @@ class TwigToolsExtension extends ExtensionBase
      */
     protected $formOptions;
 
+    private string $loginPath = '';
+    private int $displayOrder = 0;
+
     public function __construct(
         ContainerInterface $container,
         ParameterBagInterface $parameterBag,
@@ -44,8 +47,10 @@ class TwigToolsExtension extends ExtensionBase
             new TwigFunction('getFormOption', $this->getFormOption(...)),
             new TwigFunction('arraysHasSameValues', $this->arraysHasSameValues(...)),
 
-            new TwigFunction('setStaticVariable', $this->setStaticVariable(...)),
-            new TwigFunction('getStaticVariable', $this->getStaticVariable(...)),
+            new TwigFunction('setLoginPath', $this->setLoginPath(...)),
+            new TwigFunction('getLoginPath', $this->getLoginPath(...)),
+            new TwigFunction('setDisplayOrder', $this->setDisplayOrder(...)),
+            new TwigFunction('getDisplayOrder', $this->getDisplayOrder(...)),
         ];
     }
 
@@ -105,26 +110,24 @@ class TwigToolsExtension extends ExtensionBase
         );
     }
 
-    /**
-     * Setter for a dynamic variable.
-     *
-     * @param mixed $value
-     */
-    public function setStaticVariable(string $key, $value): void
+    public function setLoginPath($value): void
     {
-        $this->$key = $value;
+        $this->loginPath = $value;
     }
 
-    /**
-     * @return mixed|null
-     */
-    public function getStaticVariable(string $key)
+    public function getLoginPath(): string
     {
-        if (property_exists($this, $key)) {
-            return $this->$key;
-        }
+        return $this->loginPath;
+    }
 
-        return null;
+    public function setDisplayOrder($value): void
+    {
+        $this->displayOrder = $value;
+    }
+
+    public function getDisplayOrder(): int
+    {
+        return $this->displayOrder;
     }
 
     public function arraysHasSameValues(array $array1 = [], array $array2 = []): bool

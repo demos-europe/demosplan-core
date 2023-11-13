@@ -57,7 +57,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\NoTargetsException;
-use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UnexpectedDoctrineResultException;
 use demosplan\DemosPlanCoreBundle\Exception\UnknownIdsException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
@@ -269,7 +268,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         StatementFragmentService $statementFragmentService,
         StatementGeoService $statementGeoService,
         private readonly StatementReportEntryFactory $statementReportEntryFactory,
-        private readonly StatementRepository $statementRepository,
+        protected readonly StatementRepository $statementRepository,
         private readonly StatementResourceType $statementResourceType,
         StatementValidator $statementValidator,
         private readonly StatementVoteRepository $statementVoteRepository,
@@ -487,6 +486,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                     $fileString
                 );
             })->toArray();
+
         // Update Statement with attached files
         return $this->getStatement($statement->getId());
     }
@@ -507,20 +507,6 @@ class StatementService extends CoreService implements StatementServiceInterface
 
         // Update Statement with attached files
         $newStatement->setFiles($fileStrings);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function deleteOriginalStatementAttachmentByStatementId(string $statementId): Statement
-    {
-        $statement = $this->getStatement($statementId);
-        if (!$statement instanceof Statement) {
-            throw StatementNotFoundException::createFromId($statementId);
-        }
-        $statement = $this->statementAttachmentService->deleteOriginalAttachment($statement);
-
-        return $this->updateStatementObject($statement);
     }
 
     /**
@@ -748,6 +734,16 @@ class StatementService extends CoreService implements StatementServiceInterface
         }
 
         return $groupStructure;
+    }
+
+    /**
+     * @param non-empty-string $procedureId
+     *
+     * @return array<non-empty-string, non-empty-string>
+     */
+    public function getExternIdsInUse(string $procedureId): array
+    {
+        return $this->statementRepository->getExternIdsInUse($procedureId);
     }
 
     /**
@@ -1411,8 +1407,8 @@ class StatementService extends CoreService implements StatementServiceInterface
      */
     public function hasCurrentUserStatementAssignWriteRights($statement): bool
     {
-        return !$this->permissions->hasPermission('feature_statement_assignment') ||
-            $this->assignService->isStatementObjectAssignedToCurrentUser($statement);
+        return !$this->permissions->hasPermission('feature_statement_assignment')
+            || $this->assignService->isStatementObjectAssignedToCurrentUser($statement);
     }
 
     /**
@@ -1425,9 +1421,9 @@ class StatementService extends CoreService implements StatementServiceInterface
     protected function isStatementLockedByCluster(Statement $statement, $ignoreCluster = false): bool
     {
         return
-            !$ignoreCluster &&
-            $this->permissions->hasPermission('feature_statement_cluster') &&
-            $statement->isInCluster();
+            !$ignoreCluster
+            && $this->permissions->hasPermission('feature_statement_cluster')
+            && $statement->isInCluster();
     }
 
     /**
@@ -1752,26 +1748,6 @@ class StatementService extends CoreService implements StatementServiceInterface
     }
 
     /**
-     * Löscht eine Stellungnahme nur wenn diese keinem Anwender zugewiesen ist.
-     *
-     * @throws ORMException
-     * @throws OptimisticLockException
-     * @throws UserNotFoundException
-     * @throws \Doctrine\DBAL\Exception
-     */
-    public function deleteStatement(string $statementId, bool $ignoreAssignment = false, bool $ignoreOriginal = false): bool
-    {
-        $statement = $this->statementRepository->get($statementId);
-        if (null === $statement) {
-            $this->getLogger()->warning('Fehler beim Löschen eines Statements: Statement '.$statementId.' nicht gefunden.');
-
-            return false;
-        }
-
-        return $this->statementDeleter->deleteStatementObject($statement, $ignoreAssignment, $ignoreOriginal);
-    }
-
-    /**
      * Add user vote to statement.
      */
     public function addVote(string $statementId, User $user): StatementVote|bool
@@ -2012,27 +1988,27 @@ class StatementService extends CoreService implements StatementServiceInterface
         $em = $this->getDoctrine()->getManager();
         $currentStatement = $this->getStatement($data['ident']);
 
-        if (\array_key_exists('paragraph', $data) && $data['paragraph'] instanceof Paragraph &&
-            $data['paragraph']->getId() != $currentStatement->getParagraphId()) {
+        if (\array_key_exists('paragraph', $data) && $data['paragraph'] instanceof Paragraph
+            && $data['paragraph']->getId() != $currentStatement->getParagraphId()) {
             $data['paragraph'] = $this->paragraphService->createParagraphVersion($data['paragraph']);
         }
         // Wenn das Statement einen Absatz hat lege eine Version an, wenn sich der Absatz verändert hat
-        if (\array_key_exists('paragraphId', $data) &&
-            0 < \strlen((string) $data['paragraphId']) &&
-            $data['paragraphId'] != $currentStatement->getParagraphId()) {
+        if (\array_key_exists('paragraphId', $data)
+            && 0 < \strlen((string) $data['paragraphId'])
+            && $data['paragraphId'] != $currentStatement->getParagraphId()) {
             $data['paragraph'] = $this->paragraphService->createParagraphVersion(
                 $em->getReference(Paragraph::class, $data['paragraphId'])
             );
         }
 
-        if (\array_key_exists('document', $data) && $data['document'] instanceof SingleDocument &&
-            $data['document']->getId() != $currentStatement->getDocumentId()) {
+        if (\array_key_exists('document', $data) && $data['document'] instanceof SingleDocument
+            && $data['document']->getId() != $currentStatement->getDocumentId()) {
             $data['document'] = $this->singleDocumentService->createSingleDocumentVersion($data['document']);
         }
 
-        if (\array_key_exists('documentId', $data) &&
-            0 < \strlen((string) $data['documentId']) &&
-            $data['documentId'] != $currentStatement->getDocumentId()) {
+        if (\array_key_exists('documentId', $data)
+            && 0 < \strlen((string) $data['documentId'])
+            && $data['documentId'] != $currentStatement->getDocumentId()) {
             $data['document'] = $this->singleDocumentService->createSingleDocumentVersion(
                 $em->getReference(SingleDocument::class, $data['documentId'])
             );
@@ -2124,6 +2100,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         foreach ($statements as $statement) {
             $statementsByIds[$statement->getId()] = $statement;
         }
+
         // remove items for statements that were returned by the ES but meanwhile deleted
         // in the database
         return array_filter($statementsByIds, static fn (?Statement $statement) => null !== $statement);
@@ -2193,8 +2170,6 @@ class StatementService extends CoreService implements StatementServiceInterface
 
     /**
      * @param string $statementId
-     *
-     * @return mixed
      *
      * @deprecated use {@link Statement::isManual()} instead
      */
@@ -4324,7 +4299,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             $statement['pId'] = $data['r_ident'];
         }
 
-//        do not set fileupload if emtpystring, because id '' will not be found and lead to error on add filecontainer
+        //        do not set fileupload if emtpystring, because id '' will not be found and lead to error on add filecontainer
         if (\array_key_exists('fileupload', $data) && '' !== $data['fileupload']) {
             $statement['file'] = $data['fileupload'];
         }
