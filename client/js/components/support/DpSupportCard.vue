@@ -25,20 +25,22 @@ All rights reserved
     <p
       v-if="email"
       v-text="email" />
-    <div
-      v-if="reachability.service">
-      <h4
-        class="u-mt-0_75 font-semibold"
-        v-text="reachability.service" />
-      <p v-cleanhtml="reachability.officeHours" />
-      <span
-        class="color--grey-light font-size-smaller"
-        v-text="reachability.exception" />
-    </div>
-    <div
-      v-else
-      v-cleanhtml="reachability.officeHours"
-      class="u-mt-0_75 lg:mt-2" />
+    <template v-if="reachability.officeHours">
+      <div
+        v-if="reachability.service">
+        <h4
+          class="u-mt-0_75 font-semibold"
+          v-text="reachability.service" />
+        <p v-cleanhtml="reachability.officeHours" />
+        <span
+          class="color--grey-light font-size-smaller"
+          v-text="reachability.exception" />
+      </div>
+      <div
+        v-else
+        v-cleanhtml="reachability.officeHours"
+        class="u-mt-0_75 lg:mt-2" />
+    </template>
   </section>
 </template>
 <script>
