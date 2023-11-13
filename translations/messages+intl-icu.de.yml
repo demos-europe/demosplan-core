@@ -22,7 +22,7 @@ about.introduction: >-
     Öffentlichkeit sowie die in ihren Belangen berührten öffentlichen Stellen an raumordnerischen Verfahren vor. Hierzu
     zählen z.B. Raumordnungspläne des Landes oder des Bundes, Regionalpläne, sowie Raumordnungsverfahren.</p>
 
-    <p>Bei einem Planfeststellungsverfahren nach dem Verwaltunsverfahrensgesetz handelt es sich um ein Genehmigungsverfahren
+    <p>Bei einem Planfeststellungsverfahren nach dem Verwaltungsverfahrensgesetz handelt es sich um ein Genehmigungsverfahren
     für größere Vorhaben in der Infrastruktur. Das können z.B. Straßen, Eisenbahnen, Stadtbahnen, Flugplätze,
     Hoch-/Höchstspannungsleitungen des Stromnetzes, Deponien oder auch Gewässerausbauten sein. Diese berühren bei ihrer
     Erstellung eine große Menge an öffentlichen wie auch zumeist eine Vielzahl an Interessen des privaten Lebens. Alle
@@ -801,6 +801,7 @@ customer.accessibility.explanation.label: "Geben Sie hier die Informationen ein,
 customer.branding.label: "Plattform-Branding"
 customer.branding.logo: "Plattform-Logo"
 customer.branding.logo.hint: "(wird im Kopfbereich der Seite angezeigt)"
+customer.data: "Nutzerbezogene Daten"
 customer.data.protection.explanation: "Der hier eingegebene Text wird an die Datenschutzhinweise der Plattform angehängt."
 customer.imprint.explanation: "Bitte geben Sie hier einen Text für das Impressum ein. Diese Eingabe ist verpflichtend. Der Text wird neben den Anbieter-Informationen unter <a href=\"{url}\"><strong>{url}</strong></a> angezeigt."
 customer.master.blueprint.already.exists: "Blaupause konnte nicht als Plattform-Blaupause gespeichert werden, da bereits eine  Plattform-Blaupause für den Mandanten {customerName} existiert."
@@ -1102,6 +1103,7 @@ error.date.endbeforestart: "Das Enddatum kann nicht vor dem Startdatum liegen."
 error.date: "Bitte geben Sie ein Datum ein."
 error.date.invalid: "Das angegebene Datum ist ungültig"
 error.delete.addressBookEntry: "Der Adressbucheintrag konnte nicht gelöscht werden"
+error.delete.annotatedStatementPdf: "Beim PdfLöschen ist ein Fehler aufgetreten"
 error.delete.department.related.users: "Die Abteilung konnte nicht gelöscht werden, weil ihr noch Nutzende zugewiesen sind. Löschen Sie bitte zunächst die Nutzenden."
 error.delete.department: "Leider ist beim Löschen der Abteilung ein Fehler aufgetreten."
 error.delete.last.admin.user.of.orga.with.open.procedures: "Nutzer*in kann nicht gelöscht werden, weil er der letzte Administrator der Organisation \"{organisationName}\" mit {numberOfOpenProcedures} offenen Verfahren ist."
@@ -1417,7 +1419,7 @@ explanation.organisation.email.cc: "Alle E-Mails an die oben genannte E-Mail-Adr
 explanation.organisation.email.participation: "Sie erhalten Benachrichtigungen an diese Adresse bezüglich Ihrer Stellungnahme(n).<br />Hier sollte ein Funktionspostfach eingetragen werden."
 explanation.organisation.email.procedure.agency: "Die hier angegebene E-Mail-Adresse wird im Einladungstext an Institutionen als Absender*in eingesetzt. Sie erhalten Benachrichtigungen an diese Adresse, falls bei einer Einladung zur Beteiligung, die Sie an Ihre Institutionen verschickt haben, E-Mails nicht bei dem/der Empfänger*in angekommen sind. Weiterhin werden Kopien der Beteiligungseinladungen und der Schlussmitteilungen von Stellungnahmen an diese E-Mail-Adresse verschickt. <strong>Hier sollte ein Funktionspostfach eingetragen werden.</strong>"
 explanation.organisation.email.reviewer.admin: "Diese Adresse erhält Benachrichtigungen zu zugewiesenen und zurückgewiesenen Datensätzen aller untergeordneten Abteilungen zur Information."
-explanation.organisation.email: "An die als <strong>E-Mail für Beteiligung</strong> angegebene Adresse schicken Verfahrensträger die Einladung zur Beteiligung. Stellen Sie daher sicher, dass die zuständige(n) Person(en) diese E-Mail empfangen kann.<br />Hier sollte ein Funktionspostfach eingetragen werden."
+explanation.organisation.email: "Sie erhalten Benachrichtigungen an diese Adresse bezüglich Ihrer Beteiligung. Stellen Sie daher sicher, dass zuständige Personen diese E-Mail empfangen. Hier sollte ein Funktionspostfach stehen."
 explanation.paste: "Beim Kopieren, z.B. aus Word, kann es Fehler bei der Formatierung geben. Bitte kontrollieren Sie Ihren Text anschließend noch einmal auf Formatfehler."
 explanation.pdf.document: "Über den Button „Neu“ können Sie der Kategorie ein PDF-Dokument hinzufügen."
 explanation.pdf.download: "Benutzen Sie die PDF-Download-Funktion, um eine für Druck und Archivierung optimierte Ansicht zu erhalten."
@@ -1926,6 +1928,11 @@ items.selected: |
     {count, plural,
         =1 { Ein Eintrag ausgewählt}
         other { # Einträge ausgewählt}
+    }
+items.deleted: |
+    {count, plural,
+        =1 { Ein Eintrag wurde gelöscht}
+        other { # Einträge wurden gelöscht}
     }
 jumpTo.login: "Direkt zum Login springen"
 jumpTo.mainContent: "Direkt zum Inhalt springen"
@@ -3864,6 +3871,7 @@ warning.edit.selection.statements.not.claimed: "Sie können die aktuelle Auswahl
 warning.edit.selection.contains.moved.statements: "Sie können die aktuelle Auswahl nicht bearbeiten, weil sie Stellungnahmen enthält, die in ein anderes Verfahren verschoben wurden."
 warning.date.authored: "Ein leeres Verfassungsdatum ist ungültig und wurde nicht übernommen."
 warning.date.submitted: "Ein leeres Einreichungsdatum ist ungültig und wurde nicht übernommen."
+warning.delete.annotatedStatementPdf: "Vollständig geteilte PDFs können nicht gelöscht werden"
 warning.delete.statement.because.of.assignment: "Die Stellungnahme {externId} konnte nicht entfernt werden, weil sie einer Person zugewiesen ist."
 warning.delete.statement.because.of.fragments.not.claimed.by.current.user: "Die Stellungnahme {externId} konnte nicht entfernt werden, da deren Datensätze Ihnen nicht alle zugewiesen sind."
 warning.delete.statement.metadata.inconsistent.fragments.county: "Die Kreise an der Stellungnahme konnten nicht gelöscht werden, da sie auch an Datensätzen vergeben sind."

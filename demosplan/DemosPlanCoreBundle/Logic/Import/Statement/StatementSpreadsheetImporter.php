@@ -82,8 +82,6 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
             Assert::same($actualColumnName, $expectedColumnName);
             $actualColumnNames->next();
         }
-        // assures there can be only the supported column names.
-        Assert::false($actualColumnNames->valid());
 
         return $columnMapping;
     }

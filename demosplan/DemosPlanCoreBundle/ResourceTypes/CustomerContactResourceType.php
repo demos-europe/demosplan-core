@@ -56,7 +56,7 @@ class CustomerContactResourceType extends DplanResourceType implements Creatable
         ];
 
         if ($this->hasManagementPermission()) {
-            $properties[] = $this->createAttribute($this->visible)->readable()->initializable();
+            $properties[] = $this->createAttribute($this->visible)->readable()->filterable()->initializable();
         }
 
         return $properties;
