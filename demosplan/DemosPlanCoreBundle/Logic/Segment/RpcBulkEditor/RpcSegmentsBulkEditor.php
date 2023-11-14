@@ -172,10 +172,13 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                     $resultSegments = array_merge($resultSegments, $segments);
                     $resultResponse[] = $this->generateMethodResult($rpcRequest);
                 } catch (InvalidArgumentException|InvalidSchemaException|UserNotAssignableException $e) {
+                    $this->logger->error('Problem while segments bulk editing', ['Exception' => $e]);
                     $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
                 } catch (AccessDeniedException|UserNotFoundException $e) {
+                    $this->logger->error('Problem while segments bulk editing', ['Exception' => $e]);
                     $resultResponse[] = $this->errorGenerator->accessDenied($rpcRequest);
                 } catch (Exception $e) {
+                    $this->logger->error('Problem while segments bulk editing', ['Exception' => $e]);
                     $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
                 }
             }

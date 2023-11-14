@@ -116,8 +116,8 @@ class SegmentRepository extends CoreRepository
 
         $qb = $this->getEntityManager()->createQueryBuilder();
         $value = $attach
-            ? $qb->expr()->concat('segment.recommendation', $recommendationText)
-            : $recommendationText;
+            ? $qb->expr()->concat('segment.recommendation', ':recommendationText')
+            : ':recommendationText';
 
         $query = $qb
             ->update(Segment::class, 'segment')
@@ -125,6 +125,7 @@ class SegmentRepository extends CoreRepository
             ->where($qb->expr()->in('segment.id', $segmentIds))
             ->andWhere('segment.procedure = :procedureId')
             ->setParameter('procedureId', $procedureId)
+            ->setParameter('recommendationText', $recommendationText)
             ->getQuery();
 
         $query->execute();
