@@ -8,14 +8,14 @@ All rights reserved
 </license>
 
 <template>
-  <section class="bg-color--white">
+  <section class="c-support__wrapper">
     <h4
       v-if="title"
-      class="font-semibold font-size-large"
+      class="u-mb-0_75 font-semibold font-size-large"
       v-text="title" />
     <a
       v-if="phoneNumber"
-      class="inline-block font-semibold font-size-large"
+      class="u-mt-0_25 inline-block font-semibold font-size-large color--black"
       :href="`tel:${phoneNumber}`">
       <dp-icon
         class="inline-block"
@@ -25,20 +25,22 @@ All rights reserved
     <p
       v-if="email"
       v-text="email" />
-    <div
-      v-if="reachability.service">
-      <h4
-        class="u-mt-0_75 font-semibold"
-        v-text="reachability.service" />
-      <p v-cleanhtml="reachability.officeHours" />
-      <span
-        class="color--grey-light font-size-smaller"
-        v-text="reachability.exception" />
-    </div>
-    <div
-      v-else
-      v-cleanhtml="reachability.officeHours"
-      class="u-mt-0_75 lg:mt-2" />
+    <template v-if="reachability.officeHours">
+      <div
+        v-if="reachability.service">
+        <h4
+          class="u-mt-0_75 font-semibold"
+          v-text="reachability.service" />
+        <p v-cleanhtml="reachability.officeHours" />
+        <span
+          class="color--grey-light font-size-smaller"
+          v-text="reachability.exception" />
+      </div>
+      <div
+        v-else
+        v-cleanhtml="reachability.officeHours"
+        class="u-mt-0_75 lg:mt-2" />
+    </template>
   </section>
 </template>
 <script>
