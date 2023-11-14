@@ -64,7 +64,6 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
     app.config.globalProperties.Translator = window.Translator
     app.config.globalProperties.hasPermission = window.hasPermission
     app.config.globalProperties.h = window.h
-    app.config.productionTip = false
 
     if (dplan?.settings?.debug) {
       app.config.performance = false
