@@ -65,6 +65,9 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
     app.config.globalProperties.hasPermission = window.hasPermission
     app.config.globalProperties.h = window.h
 
+    // This is explicitly set despite being the default value to suppress console warnings
+    app.config.compilerOptions.whitespace = 'condense'
+
     if (dplan?.settings?.debug) {
       app.config.performance = false
     }
