@@ -1385,9 +1385,9 @@
   resolved "https://registry.yarnpkg.com/@csstools/selector-specificity/-/selector-specificity-3.0.0.tgz#798622546b63847e82389e473fd67f2707d82247"
   integrity sha512-hBI9tfBtuPIi885ZsZ32IMEU/5nlZH/KOVYJCOh7gyMxaVLGmLedYqFN6Ui1LXkI8JlC8IsuC0rF0btcRZKd5g==
 
-"@demos-europe/demosplan-ui@github:demos-europe/demosplan-ui#2b2bcefcc7331098b50144072b987a40dc129384":
-  version "0.2.1"
-  resolved "https://codeload.github.com/demos-europe/demosplan-ui/tar.gz/2b2bcefcc7331098b50144072b987a40dc129384"
+"@demos-europe/demosplan-ui@github:demos-europe/demosplan-ui#f_set_demosplan-ui_invue3_compat_mode":
+  version "0.3.1"
+  resolved "https://codeload.github.com/demos-europe/demosplan-ui/tar.gz/eb9d0fb60b0a639b9bd54d5ad585a9db032c70a2"
   dependencies:
     "@braintree/sanitize-url" "^6.0.1"
     "@floating-ui/dom" "^1.4.5"
@@ -1432,7 +1432,6 @@
     tippy.js "^6.3.7"
     uuid "^9.0.0"
     v-tooltip "2.1.3"
-    vue "3.1.5"
     vue-multiselect "^2.1.6"
     vue-omnibox "^0.3.7"
     vue-sliding-pagination "^1.3.2"
