@@ -346,6 +346,22 @@
             </p>
           </div>
 
+          <!-- Zip -->
+          <div
+            v-if="options.zip"
+            class="tab-content"
+            :class="activeTab('zip')"
+            role="tabpanel">
+            <input
+              type="hidden"
+              name="zipExportType"
+              id="zipExportTypeStatement"
+              value="statements">
+            <p class="lbl__hint u-ml-0_75 u-mb-0">
+              {{ Translator.trans('explanation.export.statements.participation') }}
+            </p>
+          </div>
+
           <button
             type="button"
             class="btn btn--primary submitBtn"
@@ -501,10 +517,25 @@ export default {
      * Only show truthy options as tabs.
      */
     tabsOptions () {
-      return Object.keys(this.options)
-        .filter(option => this.options[option])
+      const options = this.options
+      options.zip = {
+        _defaults: {
+          anonymous: false,
+          exportType: 'statements',
+          sortType: 'false',
+          template: 'compact'
+        },
+        obscure: false,
+        anonymize: false,
+        exportTypes: false,
+        tabLabel: 'export.zip',
+        buttonLabel: 'export.zip',
+        buttonLabelSingle: 'export.trigger.zip'
+      }
+      return Object.keys(options)
+        .filter(option => options[option])
         .reduce((obj, key) => {
-          obj[key] = this.options[key]
+          obj[key] = options[key]
           return obj
         }, {})
     }
