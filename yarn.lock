@@ -2466,20 +2466,6 @@
     nanoid "^4.0.0"
     preact "^10.5.13"
 
-"@uppy/core@^3.5.0":
-  version "3.5.1"
-  resolved "https://registry.yarnpkg.com/@uppy/core/-/core-3.5.1.tgz#997110e2430fe0fa198bfbd47406e5dfd3f0f9bd"
-  integrity sha512-iaHn2JG6HgwQMxRAwzEeqRoJGElnUerAh/coDF30Ha92lAPe8xkjFIqIHjaCtEMJqjQAm1msZX4v5Vi7M9hzsw==
-  dependencies:
-    "@transloadit/prettier-bytes" "0.0.9"
-    "@uppy/store-default" "^3.0.4"
-    "@uppy/utils" "^5.5.1"
-    lodash "^4.17.21"
-    mime-match "^1.0.2"
-    namespace-emitter "^2.0.1"
-    nanoid "^4.0.0"
-    preact "^10.5.13"
-
 "@uppy/drag-drop@^3.0.0", "@uppy/drag-drop@^3.0.3":
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/@uppy/drag-drop/-/drag-drop-3.0.3.tgz#9cd67d683d30f8d4ddebb41ebc4bb941278e5df3"
@@ -2488,26 +2474,13 @@
     "@uppy/utils" "^5.4.3"
     preact "^10.5.13"
 
-"@uppy/progress-bar@^3.0.0":
+"@uppy/progress-bar@^3.0.0", "@uppy/progress-bar@^3.0.4":
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/@uppy/progress-bar/-/progress-bar-3.0.4.tgz#3e684a77cb8b38ff227dbd06045a5f8dd74d5771"
   integrity sha512-sxv/mG7Uc9uyTnRvfcXBhO+TWd+UqjuW5aHXCKWwTkMgDShHR0T46sEk12q+jwgbFwyeFg3p0GU3hgUxqxiEUQ==
   dependencies:
     "@uppy/utils" "^5.5.2"
     preact "^10.5.13"
-
-"@uppy/progress-bar@^3.0.4":
-  version "3.0.4"
-  resolved "https://registry.yarnpkg.com/@uppy/progress-bar/-/progress-bar-3.0.4.tgz#3e684a77cb8b38ff227dbd06045a5f8dd74d5771"
-  integrity sha512-sxv/mG7Uc9uyTnRvfcXBhO+TWd+UqjuW5aHXCKWwTkMgDShHR0T46sEk12q+jwgbFwyeFg3p0GU3hgUxqxiEUQ==
-  dependencies:
-    "@uppy/utils" "^5.5.2"
-    preact "^10.5.13"
-
-"@uppy/store-default@^3.0.5":
-  version "3.0.5"
-  resolved "https://registry.yarnpkg.com/@uppy/store-default/-/store-default-3.0.5.tgz#a1c864691c61a936936f3b425f26d801d14e4769"
-  integrity sha512-NEow8ZYicAvxEDqcmi9MSW2gy4uElVnRuHoHBx9zwB5g81F9i2Q/i1u08sKzUY704o84zI6bctDe2cCYdBCuZw==
 
 "@uppy/store-default@^3.0.5":
   version "3.0.5"
@@ -2527,14 +2500,6 @@
   version "5.6.0"
   resolved "https://registry.yarnpkg.com/@uppy/utils/-/utils-5.6.0.tgz#07dd996353bd49738b79d8c9e232edf7cabbc07e"
   integrity sha512-Blr6Po6a49niTugSzuguNtH9M1wSU4vdRnaGBsScv+JjcslzG3OkMmfnnhesj1ZIVyxMdVDjyPGXoqh4Wm2Dzg==
-  dependencies:
-    lodash "^4.17.21"
-    preact "^10.5.13"
-
-"@uppy/utils@^5.5.1":
-  version "5.5.1"
-  resolved "https://registry.yarnpkg.com/@uppy/utils/-/utils-5.5.1.tgz#372bdf03848c7b93d119a81492b752b5b1237b8e"
-  integrity sha512-iGLYSp9DHH54TXIoTxcArjPFEPNyWxSyMxXso9qRi3eY4wB8+Vflj/BGj4nm3sGzE+NSuat48nDa55vboYCn3g==
   dependencies:
     lodash "^4.17.21"
     preact "^10.5.13"
@@ -3316,10 +3281,10 @@ caniuse-api@^3.0.0:
     lodash.memoize "^4.1.2"
     lodash.uniq "^4.5.0"
 
-caniuse-lite@^1.0.0, caniuse-lite@^1.0.30001538, caniuse-lite@^1.0.30001541, caniuse-lite@^1.0.30001554:
-  version "1.0.30001554"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001554.tgz#ba80d88dff9acbc0cd4b7535fc30e0191c5e2e2a"
-  integrity sha512-A2E3U//MBwbJVzebddm1YfNp7Nud5Ip+IPn4BozBmn4KqVX7AvluoIDFWjsv5OkGnKUXQVmMSoMKLa3ScCblcQ==
+caniuse-lite@^1.0.0, caniuse-lite@^1.0.30001538, caniuse-lite@^1.0.30001541, caniuse-lite@^1.0.30001562:
+  version "1.0.30001562"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001562.tgz#9d16c5fd7e9c592c4cd5e304bc0f75b0008b2759"
+  integrity sha512-kfte3Hym//51EdX4239i+Rmp20EsLIYGdPkERegTgU19hQWCRhsRFGKHTliUlsry53tv17K7n077Kqa0WJU4ng==
 
 case-anything@^2.1.13:
   version "2.1.13"
@@ -3567,11 +3532,6 @@ core-js-compat@^3.31.0, core-js-compat@^3.32.2:
     browserslist "^4.22.1"
 
 core-js@3, core-js@^3.26.1, core-js@^3.30.2, core-js@^3.33.2, core-js@^3.6.5:
-  version "3.33.2"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.33.2.tgz#312bbf6996a3a517c04c99b9909cdd27138d1ceb"
-  integrity sha512-XeBzWI6QL3nJQiHmdzbAOiMYqjrb7hwU7A39Qhvd/POSa/t9E1AeZyEZx3fNvp/vtM8zXwhoL0FsiS0hD0pruQ==
-
-core-js@^3.26.1, core-js@^3.6.5:
   version "3.33.2"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.33.2.tgz#312bbf6996a3a517c04c99b9909cdd27138d1ceb"
   integrity sha512-XeBzWI6QL3nJQiHmdzbAOiMYqjrb7hwU7A39Qhvd/POSa/t9E1AeZyEZx3fNvp/vtM8zXwhoL0FsiS0hD0pruQ==
