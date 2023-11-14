@@ -379,9 +379,9 @@ export default {
 
     checkConditionalValidity (consolidationMethodCondition, assertion, validationKey) {
       if (consolidationMethodCondition === this.consolidationMethod) {
-        Vue.set(this.validations, validationKey, assertion())
+        this.validations[validationKey] = assertion()
       } else {
-        Vue.set(this.validations, validationKey, true)
+        this.validations[validationKey] = true
       }
       return this.validations[validationKey]
     },
