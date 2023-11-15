@@ -49,8 +49,8 @@ updates:
                 - "@babel/plugin-*"
                 - "@babel/eslint-*"
         sentry:
-            patterns:
-                - "@sentry/*"
+            pattern:
+                - "@sentry*"
     labels:
       - dependencies:yarn
 

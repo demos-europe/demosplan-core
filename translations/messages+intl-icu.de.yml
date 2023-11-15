@@ -965,11 +965,7 @@ elements.bulk.edit.change.state.hint: "Planungsdokumente, die bereits den hier g
 elements.bulk.edit.change.state.success: "Die automatische Umstellung wurde bei <strong>{changed}</strong> von <strong>{total}</strong> Planungsdokumenten erfolgreich aktiviert."
 elements.create.subcategory: "Neue Unterkategorie erstellen"
 elements.export: "Planungsdokumente herunterladen"
-elements.selected: |
-    {count, plural,
-        =1 { Ein Element ausgewählt }
-        other { # Elemente ausgewählt }
-    }
+elements.selected: "Elemente ausgewählt"
 elements.statement.global.explanation: "Hier können Sie eine Stellungnahme zum gesamten Verfahren abgeben"
 elements.statement.indicationerror.explanation: "Hier können Sie eine Fehlanzeige zum gesamten Verfahren abgeben."
 elements: "Planungsdokumente"
@@ -1076,7 +1072,6 @@ error.annotated.statement.boxes.already.being.reviewed: "Dieses Dokument wird ak
 error.annotated.statement.text.already.being.reviewed: "Der Import wird aktuell durch {user} geprüft."
 error.annotated.statement.not.being.reviewed: "Das Dokument wird nicht überprüft."
 error.api.generic: "Während der Verarbeitung der Anfrage ist ein Fehler aufgetreten."
-error.csrf.missing: "Der CSRF-Token fehlt. Bitte @DemosPlanCore/DemosPlanCore/includes/csrf.html.twig in dem Formular zur Route {uri} importieren."
 error.procedure.token.creation: "Fehler beim Generieren des Verfahrenstokens."
 error.procedure.token.not.found: "Der eingegebene Token konnte nicht gefunden werden."
 error.procedure.token.already.used: "Der eingegebene Token wurde bereits verwendet."
@@ -1818,7 +1813,6 @@ images.saved: "Gespeicherte Bilder"
 import: "Import"
 import.confirm: "Import bestätigen"
 import.edited.by.user: "Diese Datei wird von einer anderen Person bearbeitet."
-import.menu: "Import (Stellungnahmen)"
 import.options.form: "Direkteingabe"
 import.options.none: "Es stehen keine Import-Optionen zur Verfügung."
 import.options.participation: "Beteiligungs-Import"
@@ -2177,11 +2171,6 @@ news.create: "Neue Mitteilung anlegen"
 news.edit: "Mitteilung bearbeiten"
 news.new: "Neue Mitteilung"
 news.notes: "Aktuelle Mitteilungen"
-news.notes.selected: |
-    {count, plural,
-        =1 { Eine aktuelle Mitteilung ausgewählt }
-        other { # aktuelle Mitteilungen ausgewählt }
-    }
 news.see.all: "zu allen Neuigkeiten"
 news.text: "Mitteilungstext"
 news: "Aktuelles"
@@ -2991,8 +2980,8 @@ segments.recommendations.tags: "Vorschläge zu Schlagworten"
 segments.recommendations.tags.none: "Da für diesen Abschnitt keine Schlagworte hinterlegt sind, können keine Erwiderungs-Vorschläge angezeigt werden."
 items.selected.multi.page: |
     {count, plural,
-        =1 { Ein Element ausgewählt (u.U. nicht auf Seite 1). }
-        other { # Elemente (u.U. auf mehreren Seiten) ausgewählt. }
+        =1 { Element ausgewählt (u.U. nicht auf Seite 1). }
+        other { Elemente (u.U. auf mehreren Seiten) ausgewählt. }
     }
 select.all.on.page: "Alle auf dieser Seite auswählen"
 selection.no: "Keine Auswahl"

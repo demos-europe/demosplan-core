@@ -255,9 +255,7 @@ export default {
 
   methods: {
     openBoilerPlate () {
-      if (hasPermission('area_admin_boilerplates')) {
-        this.$refs.boilerPlateModal.toggleModal()
-      }
+      this.$refs.boilerPlateModal.toggleModal()
     },
 
     reset () {

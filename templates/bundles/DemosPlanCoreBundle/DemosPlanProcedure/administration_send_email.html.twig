@@ -54,7 +54,6 @@
                 value="{{ templateVars.preparationMail.mailBody }}">
                 <template v-slot:modal="modalProps">
                     <dp-boiler-plate-modal
-                        v-if="hasPermission('area_admin_boilerplates')"
                         ref="boilerPlateModal"
                         boiler-plate-type="email"
                         procedure-id="{{ templateVars.procedureId }}"
@@ -63,7 +62,6 @@
                 </template>
                 <template v-slot:button>
                     <button
-                        v-if="hasPermission('area_admin_boilerplates')"
                         class="{{ 'menubar__button'|prefixClass }}"
                         type="button"
                         v-tooltip="'{{ 'boilerplate.insert'|trans }}'"

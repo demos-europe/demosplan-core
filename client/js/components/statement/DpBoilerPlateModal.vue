@@ -133,9 +133,7 @@ export default {
     },
 
     toggleModal () {
-      if (hasPermission('area_admin_boilerplates')) {
-        this.$refs.boilerPlateModal.toggle()
-      }
+      this.$refs.boilerPlateModal.toggle()
     }
   },
 

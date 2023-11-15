@@ -16,7 +16,6 @@ import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
 import DpFragmentList from '@DpJs/components/statement/fragmentList/DpFragmentList'
 import DpFragmentListFilterModal from '@DpJs/components/statement/fragmentList/DpFragmentListFilterModal'
 import fragmentStore from '@DpJs/store/statement/Fragment'
-import { hasPermission } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
 import ListStatementFragments from '@DpJs/lib/statement/ListStatementFragments'
 
@@ -27,11 +26,8 @@ const components = {
 
 const stores = {
   assessmentTableStore,
+  boilerplates: BoilerplatesStore,
   fragmentStore
-}
-
-if (hasPermission('area_admin_boilerplates')) {
-  stores.boilerplates = BoilerplatesStore
 }
 
 initialize(components, stores).then(() => {
