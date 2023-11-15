@@ -16,9 +16,15 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\AbstractStatementSpreadsheetImporter;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxStatementImport;
+use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Tests\Base\FunctionalTestCase;
 
 class StatementImportTest extends FunctionalTestCase
@@ -36,7 +42,14 @@ class StatementImportTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(XlsxStatementImport::class);
+        $this->sut = new XlsxStatementImport(
+            $this->createMock(EventDispatcherPostInterface::class),
+            $this->createMock(AbstractStatementSpreadsheetImporter::class),
+            $this->createMock(LoggerInterface::class),
+            $this->createMock(StatementRepository::class),
+            $this->createMock(StatementService::class),
+            $this->createMock(EntityManagerInterface::class)
+        );
         $this->fileService = self::$container->get(FileService::class);
     }
 
