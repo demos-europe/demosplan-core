@@ -161,8 +161,8 @@
         </template>
         <template v-slot:tags="rowData">
           <span
-            :key="tag.id"
             v-for="tag in getTagsBySegment(rowData.id)"
+            :key="tag.id"
             style="color: #63667e; background: #EBE9E9; border-radius: 4px; padding: 2px 4px; margin: 4px 2px; display: inline-block;">
             {{ tag.attributes.title }}
           </span>

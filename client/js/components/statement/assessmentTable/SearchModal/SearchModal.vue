@@ -353,7 +353,7 @@ export default {
 
   mounted () {
     this.availableFilterFields.forEach(checkbox => {
-      Vue.set(checkbox, 'checked', this.preselectedFields.includes(checkbox.id))
+      this.$set(checkbox, 'checked', this.preselectedFields.includes(checkbox.id))
     })
   }
 }

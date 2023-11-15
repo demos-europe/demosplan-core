@@ -10,7 +10,6 @@
 import { checkResponse, handleResponseMessages, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { initJsonApiPlugin, prepareModuleHashMap, StaticRouter } from '@efrane/vuex-json-api'
 import notify from './Notify'
-import Vue from 'vue'
 import Vuex from 'vuex'
 import { VuexApiRoutes } from './VuexApiRoutes'
 
@@ -35,8 +34,6 @@ function registerPresetModules (store, presetStoreModules) {
 }
 
 function initStore (storeModules, apiStoreModules, presetStoreModules) {
-  Vue.use(Vuex)
-
   const staticModules = { notify, ...storeModules }
 
   // This should probably be replaced with an adapter to our existing routes
