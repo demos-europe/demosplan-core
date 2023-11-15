@@ -11,7 +11,7 @@
 {% endif %}
 
 <dp-tooltip-icon
-    :aria-label="Translator.trans('contextual.help')"
+    aria-label="{{ 'contextual.help'|trans }}"
     class="{{ 'u-nojs-hide'|prefixClass(omitPrefix) }} {{ cssClasses|default|prefixClass(omitPrefix) }}"
     tabindex="0"
     icon="{{ icon|default('fa-question-circle') }}"
