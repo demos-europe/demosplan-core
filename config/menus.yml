@@ -346,7 +346,7 @@ submenu_procedures:
             data-cy: 'assessmenttable'
             data-extern-dataport: 'assessmenttable'
     import:
-        label: 'import.statements'
+        label: 'import.menu'
         path: 'DemosPlan_procedure_import'
         child_paths: [
             'DemosPlan_statement_import',
