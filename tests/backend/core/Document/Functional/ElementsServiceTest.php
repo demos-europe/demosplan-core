@@ -436,7 +436,7 @@ class ElementsServiceTest extends FunctionalTestCase
     {
         $data = [
             'enabled'       => true,
-            'title'         => ElementsInterface::FILE_TYPE_PLANZEICHNUNG,
+            'title'         => ElementsInterface::ELEMENTS_TITLE_PLANZEICHNUNG,
             'category'      => ElementsInterface::ELEMENTS_CATEGORY_MAP,
         ];
 
@@ -457,7 +457,7 @@ class ElementsServiceTest extends FunctionalTestCase
 
         $data = [
             'enabled'       => true,
-            'title'         => ElementsInterface::STATEMENT_TYPE_FEHLANZEIGE,
+            'title'         => ElementsInterface::ELEMENTS_TITLE_FEHLANZEIGE,
             'category'      => ElementsInterface::ELEMENTS_CATEGORY_STATEMENT,
         ];
 

@@ -545,7 +545,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
 
         $titlesOfHiddenElements = $this->globalConfig->getAdminlistElementsHiddenByTitle();
         // category map is allowed to be modified
-        $titlesOfHiddenElements = collect($titlesOfHiddenElements)->filter(static fn ($title) => ElementsInterface::FILE_TYPE_PLANZEICHNUNG !== $title);
+        $titlesOfHiddenElements = collect($titlesOfHiddenElements)->filter(static fn ($title) => ElementsInterface::ELEMENTS_TITLE_PLANZEICHNUNG !== $title);
         if ($titlesOfHiddenElements->contains($currentTitle)) {
             // deny update of elements which are hidden for this project, because this means also there are not editable.
             throw new HiddenElementUpdateException();

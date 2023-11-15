@@ -932,19 +932,19 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         Procedure $masterBlueprint
     ): void {
         $elementsToCreate = [
-            ElementsInterface::FILE_TYPE_FNP_AENDERUNG,
-            ElementsInterface::FILE_TYPE_LAPRO_AENDERUNG,
-            ElementsInterface::FILE_TYPE_ERGAENZENDE_UNTERLAGE,
-            ElementsInterface::FILE_TYPE_ARBEITSKREISPAPIER,
-            ElementsInterface::FILE_TYPE_VERTEILER,
-            ElementsInterface::FILE_TYPE_NIEDERSCHRIFT_SONSTIGE,
-            ElementsInterface::FILE_TYPE_SCOPING_PAPIER,
-            ElementsInterface::FILE_TYPE_GUTACHTEN,
-            ElementsInterface::FILE_TYPE_ARBEITSKREISPAPIER_I,
-            ElementsInterface::FILE_TYPE_ARBEITSKREISPAPIER_II,
-            ElementsInterface::FILE_TYPE_NIEDERSCHRIFT_GROBABSTIMMUNG_ARBEITSKREISE,
-            ElementsInterface::FILE_TYPE_GROBABSTIMMUNGSPAPIER,
-            ElementsInterface::FILE_TYPE_SCOPING_PROTOKOLL,
+            ElementsInterface::ELEMENTS_TITLE_FNP_AENDERUNG,
+            ElementsInterface::ELEMENTS_TITLE_LAPRO_AENDERUNG,
+            ElementsInterface::ELEMENTS_TITLE_ERGAENZENDE_UNTERLAGE,
+            ElementsInterface::ELEMENTS_TITLE_ARBEITSKREISPAPIER,
+            ElementsInterface::ELEMENTS_TITLE_VERTEILER,
+            ElementsInterface::ELEMENTS_TITLE_NIEDERSCHRIFT_SONSTIGE,
+            ElementsInterface::ELEMENTS_TITLE_SCOPING_PAPIER,
+            ElementsInterface::ELEMENTS_TITLE_GUTACHTEN,
+            ElementsInterface::ELEMENTS_TITLE_ARBEITSKREISPAPIER_I,
+            ElementsInterface::ELEMENTS_TITLE_ARBEITSKREISPAPIER_II,
+            ElementsInterface::ELEMENTS_TITLE_NIEDERSCHRIFT_GROBABSTIMMUNG_ARBEITSKREISE,
+            ElementsInterface::ELEMENTS_TITLE_GROBABSTIMMUNGSPAPIER,
+            ElementsInterface::ELEMENTS_TITLE_SCOPING_PROTOKOLL,
         ];
 
         foreach ($elementsToCreate as $key => $elementTitle) {
@@ -969,8 +969,8 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         Procedure $masterBlueprint
     ): void {
         $elementsToCreate = [
-            ElementsInterface::FILE_TYPE_VERORDNUNG,
-            ElementsInterface::FILE_TYPE_BEGRUENDUNG,
+            ElementsInterface::ELEMENTS_TITLE_VERORDNUNG,
+            ElementsInterface::ELEMENTS_TITLE_BEGRUENDUNG,
         ];
         foreach ($elementsToCreate as $key => $elementTitle) {
             $element = new Elements();
