@@ -12,7 +12,7 @@
 
 <dp-tooltip-icon
     :aria-label="Translator.trans('contextual.help')"
-    class="{{ icon|default('fa-question-circle') ~ ' fa u-nojs-hide'|prefixClass(omitPrefix) }} {{ cssClasses|default|prefixClass(omitPrefix) }}"
+    class="{{ 'u-nojs-hide'|prefixClass(omitPrefix) }} {{ cssClasses|default|prefixClass(omitPrefix) }}"
     tabindex="0"
     icon="{{ icon|default('fa-question-circle') }}"
     text="{{ helpText|wysiwyg|e('html_attr') }}"
