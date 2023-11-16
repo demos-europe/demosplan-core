@@ -358,7 +358,7 @@
               id="zipExportTypeStatement"
               value="statements">
             <p class="lbl__hint u-ml-0_75 u-mb-0">
-              {{ Translator.trans('explanation.export.statements.participation') }}
+              {{ Translator.trans('explanation.export.statements.zip') }}
             </p>
           </div>
 
