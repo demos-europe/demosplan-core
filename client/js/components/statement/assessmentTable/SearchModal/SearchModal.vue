@@ -353,7 +353,7 @@ export default {
 
   mounted () {
     this.availableFilterFields.forEach(checkbox => {
-      this.$set(checkbox, 'checked', this.preselectedFields.includes(checkbox.id))
+      checkbox.checked = this.preselectedFields.includes(checkbox.id)
     })
   }
 }

@@ -387,16 +387,16 @@ export default {
           if (currentFilterType && hasOwnProp(result, 'included')) {
             result.included.forEach(el => {
               if (el.type === 'AggregationFilterGroup' && typeof currentFilterType.relationships.aggregationFilterGroups.data.find(group => group.id === el.id) !== 'undefined') {
-                this.$set(this.groupsObject, el.id, el)
+                this.groupsObject[el.id] = el
                 if (hasOwnProp(el.relationships, 'aggregationFilterItems') && el.relationships.aggregationFilterItems.data.length > 0) {
                   el.relationships.aggregationFilterItems.data.forEach(item => {
                     const filterItem = result.included.find(filterItem => filterItem.id === item.id)
-                    this.$set(this.itemsObject, filterItem.id, filterItem)
+                    this.itemsObject[filterItem.id] = filterItem
                   })
                 }
               } else if (el.type === 'AggregationFilterItem' && typeof currentFilterType.relationships.aggregationFilterItems.data.find(item => item.id === el.id) !== 'undefined') {
                 el.ungrouped = true
-                this.$set(this.itemsObject, el.id, el)
+                this.itemsObject[el.id] = el
               }
             })
           }

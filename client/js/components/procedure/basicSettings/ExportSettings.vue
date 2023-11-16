@@ -354,20 +354,20 @@ export default {
 
     setCheckedFields () {
       this.availableFields.forEach(field => {
-        this.$set(this.checkedFields, field.id, field.initVal || false)
+        this.checkedFields[field.id] = field.initVal || false
       })
       this.setAllChecked()
     },
 
     toggleAll (val) {
       this.availableFields.forEach(field => {
-        this.$set(this.checkedFields, field.id, val)
+        this.checkedFields[field.id] = val
       })
     },
 
     updateCheckedFields (checkedFields) {
       Object.keys(checkedFields).forEach(id => {
-        this.$set(this.checkedFields, id, checkedFields[id])
+        this.checkedFields[id] = checkedFields[id]
       })
       this.setAllChecked()
     }

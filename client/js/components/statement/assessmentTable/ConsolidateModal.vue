@@ -435,7 +435,7 @@ export default {
       this.headStatement = {}
       this.selectedCluster = {}
       this.groupName = ''
-      Object.keys(this.validations).forEach(key => this.$set(this.validations, key, true))
+      Object.keys(this.validations).forEach(key => this.validations[key] = true)
     },
 
     // Set initialStatementSelection to show options in multiselect
