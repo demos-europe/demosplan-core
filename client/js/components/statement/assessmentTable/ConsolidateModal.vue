@@ -401,11 +401,9 @@ export default {
         include: 'Claim',
         fields: {
           Cluster: [
-            'id',
             'assignee'
           ].join(),
           Claim: [
-            'id',
             'name',
             'orgaName'
           ].join()
