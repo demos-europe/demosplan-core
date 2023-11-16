@@ -517,25 +517,10 @@ export default {
      * Only show truthy options as tabs.
      */
     tabsOptions () {
-      const options = this.options
-      options.zip = {
-        _defaults: {
-          anonymous: false,
-          exportType: 'statements',
-          sortType: 'false',
-          template: 'compact'
-        },
-        obscure: false,
-        anonymize: false,
-        exportTypes: false,
-        tabLabel: 'export.zip',
-        buttonLabel: 'export.zip',
-        buttonLabelSingle: 'export.trigger.zip'
-      }
-      return Object.keys(options)
-        .filter(option => options[option])
+      return Object.keys(this.options)
+        .filter(option => this.options[option])
         .reduce((obj, key) => {
-          obj[key] = options[key]
+          obj[key] = this.options[key]
           return obj
         }, {})
     }
