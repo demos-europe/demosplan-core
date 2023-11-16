@@ -396,12 +396,22 @@ export default {
 
     // Get clusters in procedure to have the current assignee state in selectStatementCluster
     fetchClusters () {
-      return dpApi({
-        method: 'GET',
-        url: Routing.generate('api_resource_list', {
-          resourceType: 'Cluster'
-        })
-      })
+      const url = Routing.generate('api_resource_list', { resourceType: 'Cluster' })
+      const params = {
+        include: 'Claim',
+        fields: {
+          Cluster: [
+            'id',
+            'assignee'
+          ].join(),
+          Claim: [
+            'id',
+            'name',
+            'orgaName'
+          ].join()
+        }
+      }
+      return dpApi.get(url, params)
         .then(checkResponse)
         .then(response => response.data)
     },
