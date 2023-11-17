@@ -223,7 +223,7 @@ class AssessmentTableServiceOutput
             $addAllAggregations
         );
 
-        $statements = array_map($this->replacePhase(...), $serviceResult->getResult());
+        $statements = array_map($this->replaceDataOfEsStatementFields(...), $serviceResult->getResult());
 
         $filterStatementFragments = false;
         if (!(1 === count($rParams['filters']) && isset($rParams['filters']['original'])) ||
@@ -505,6 +505,11 @@ class AssessmentTableServiceOutput
         return false;
     }
 
+    public function replaceDataOfEsStatementFields(array $statement): array
+    {
+        return  $this->replaceAuthoredDateOfStatementMeta($this->replacePhase($statement));
+    }
+
     /**
      * Ersetze die Phase, in der die SN eingegangen ist.
      *
@@ -513,6 +518,32 @@ class AssessmentTableServiceOutput
     public function replacePhase(array $statement): array
     {
         $statement['phase'] = $this->statementService->getInternalOrExternalPhaseName($statement);
+
+        return $statement;
+    }
+
+    /**
+     * Returns a formatted date. Uses the 'authoredDate' entry in the array if existent or the 'submitDateString'.
+     */
+    public function replaceAuthoredDateOfStatementMeta(array $statement): array
+    {
+        if (isset($statement['meta']['authoredDate'])
+            && 100000 < $statement['meta']['authoredDate']
+            && 3 < strlen((string) $statement['meta']['authoredDate'])
+        ) {
+            // authored-dates apparently arrive in iso-format
+            $date = $statement['meta']['authoredDate'];
+            $date = is_string($date) ? strtotime($date) : $date;
+            $this->logger->debug('Found valid authoredDate: '.$date);
+            $this->logger->debug('authoredDate (formatted): '.date('d.m.Y', $date));
+
+            $statement['meta']['authoredDate'] = date('d.m.Y', $date);
+        }
+        if (isset($statement['submitDateString'])) {
+            $this->logger->debug('Use submitDate: '.$statement['submitDateString']);
+
+            $statement['meta']['authoredDate'] = $statement['submitDateString'];
+        }
 
         return $statement;
     }
