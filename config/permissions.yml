@@ -2497,6 +2497,10 @@ field_required_procedure_end_date:
     label: 'require procedure end date'
     expose: true
     loginRequired: true
+field_segment_assignee_filter:
+    description: 'Allow assignee facet search in segments of current procedure.'
+    label: 'Filter segment list by assignee'
+    loginRequired: true
 field_send_final_email:
     label: 'Schlussmitteilung versenden'
     loginRequired: true
