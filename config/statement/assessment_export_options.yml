@@ -51,6 +51,12 @@ defaults:
     tabLabel: export.xlsx
     buttonLabel: export.xlsx
     buttonLabelSingle: export.trigger.xlsx
+  zip:
+    _defaults:
+      anonymous: false
+      exportType: 'statementsWithAttachments'
+    tabLabel: export.zip
+    buttonLabel: export.zip
 original_statements:
   docx:  false
   pdf:

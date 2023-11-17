@@ -134,7 +134,7 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
      *
      * @throws Exception
      */
-    #[Route(name: 'DemosPlan_procedure_export', path: '/verfahren/{procedure}/export')]
+    #[Route(path: '/verfahren/{procedure}/export', name: 'DemosPlan_procedure_export')]
     public function exportProcedureAction(
         CurrentUserService $currentUser,
         ExportService $exportService,

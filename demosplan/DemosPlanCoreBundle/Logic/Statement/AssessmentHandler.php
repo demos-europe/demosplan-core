@@ -88,6 +88,11 @@ class AssessmentHandler extends CoreHandler
         $this->userFilterSetService = $userFilterSetService;
     }
 
+    public function getStatementService(): StatementService
+    {
+        return $this->statementService;
+    }
+
     /**
      * Set given values as filter parameters as array. If no values are given, use defaults.
      * See sister-method: updateFilterSetParametersInRequest.
