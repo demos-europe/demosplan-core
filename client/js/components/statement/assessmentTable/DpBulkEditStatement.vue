@@ -97,6 +97,7 @@
             @input="updateRecommendationText">
             <template v-slot:modal="modalProps">
               <dp-boiler-plate-modal
+                v-if="hasPermission('area_admin_boilerplates')"
                 ref="boilerPlateModal"
                 boiler-plate-type="consideration"
                 :procedure-id="procedureId"
@@ -343,7 +344,9 @@ export default {
     },
 
     openBoilerPlate () {
-      this.$refs.boilerPlateModal.toggleModal()
+      if (hasPermission('area_admin_boilerplates')) {
+        this.$refs.boilerPlateModal.toggleModal()
+      }
     },
 
     redirectToAssessmentTable () {

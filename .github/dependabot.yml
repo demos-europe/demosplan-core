@@ -50,7 +50,7 @@ updates:
                 - "@babel/eslint-*"
         sentry:
             patterns:
-                - "@sentry*"
+                - "@sentry/*"
     labels:
       - dependencies:yarn
 
