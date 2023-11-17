@@ -41,7 +41,6 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
 
     private function createStreamedResponseForZip(array $file): StreamedResponse
     {
-        // create zip archive
         return $this->zipExportService->buildZipStreamResponse(
             $file['zipFileName'].'.zip',
             fn (ZipStream $zipStream) => $this->fillZipWithData($zipStream, $file)

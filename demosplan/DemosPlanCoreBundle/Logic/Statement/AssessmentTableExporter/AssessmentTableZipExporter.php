@@ -50,9 +50,7 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
         $files = [];
         $index = 0;
         foreach ($statementIds as $statementId) {
-            // $statement = $this->assessmentHandler->getStatementService()->getStatement($statementId);
-            // $statementAttachments = $statement->getAttachments(); // only Stellungnahme als Anhang?
-            $statementAttachments = // Weitere Anhänge
+            $statementAttachments =
                 $this->assessmentHandler->getStatementService()->getFileContainersForStatement($statementId);
             $files[$index] = [];
             foreach ($statementAttachments as $statementAttachment) {
@@ -76,11 +74,8 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
             $this->logger->error('No worksheet in xlsx for zip export!', [$sheet]);
         }
 
-        // Anzahl der Zeilen imArbeitsblatt
         $rowCount = $sheet->getHighestRow();
-        // Letzte Spalte im Arbeitsblatt
         $lastColumn = $sheet->getHighestColumn();
-        // Iteriere über jede Zeile und setze den neuen Wert in der letzten Spalte
         $indexStatment = 0;
         for ($row = 2; $row <= $rowCount; ++$row) {
             $referencesAsString = '';
@@ -92,7 +87,6 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
             $sheet->setCellValue($cell, trim($referencesAsString, ', '));
             ++$indexStatment;
         }
-        // speichern
         $xlsxWriter->setSpreadsheet($spreadsheet);
 
         return $xlsxWriter;
