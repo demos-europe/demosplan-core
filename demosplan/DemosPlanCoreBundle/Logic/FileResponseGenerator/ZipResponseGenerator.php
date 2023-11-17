@@ -1,9 +1,16 @@
 <?php
+
 declare(strict_types=1);
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator;
-
 
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
@@ -22,26 +29,22 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
         array $supportedTypes,
         NameGenerator $nameGenerator,
         private readonly ZipExportService $zipExportService
-    )
-    {
+    ) {
         parent::__construct($nameGenerator);
         $this->supportedTypes = $supportedTypes;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function __invoke(array $file): Response
     {
         return $this->createStreamedResponseForZip($file);
     }
 
-    private function createStreamedResponseForZip(array $file):  StreamedResponse
+    private function createStreamedResponseForZip(array $file): StreamedResponse
     {
         // create zip archive
         return $this->zipExportService->buildZipStreamResponse(
             $file['zipFileName'].'.zip',
-            fn(ZipStream $zipStream) => $this->fillZipWithData($zipStream, $file)
+            fn (ZipStream $zipStream) => $this->fillZipWithData($zipStream, $file)
         );
     }
 

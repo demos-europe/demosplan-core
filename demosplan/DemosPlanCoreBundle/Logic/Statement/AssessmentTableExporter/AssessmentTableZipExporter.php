@@ -1,9 +1,16 @@
 <?php
+
 declare(strict_types=1);
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter;
-
 
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use Exception;
@@ -12,8 +19,8 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 class AssessmentTableZipExporter extends AssessmentTableXlsExporter
 {
     protected array $supportedTypes = ['zip'];
+
     /**
-     * @inheritDoc
      * @throws Exception
      */
     public function __invoke(array $parameters): array
@@ -26,16 +33,16 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
         $xlsxWriter = $xlsxArray['writer'];
         $xlsxArray['writer'] = $this->writeReferencesIntoXlsx($xlsxWriter, $statementAttachments);
 
-
         return [
             'zipFileName' => $this->translator->trans('evaluation.assessment.table.export'),
-            'xlsx' => $xlsxArray,
+            'xlsx'        => $xlsxArray,
             'attachments' => $statementAttachments,
         ];
     }
 
     /**
      * @return array<int, array<int, File>>
+     *
      * @throws Exception
      */
     private function getAttachmentsOfStatements(array $statementIds): array
@@ -43,15 +50,15 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
         $files = [];
         $index = 0;
         foreach ($statementIds as $statementId) {
-            //$statement = $this->assessmentHandler->getStatementService()->getStatement($statementId);
-            //$statementAttachments = $statement->getAttachments(); // only Stellungnahme als Anhang?
+            // $statement = $this->assessmentHandler->getStatementService()->getStatement($statementId);
+            // $statementAttachments = $statement->getAttachments(); // only Stellungnahme als Anhang?
             $statementAttachments = // Weitere Anhänge
                 $this->assessmentHandler->getStatementService()->getFileContainersForStatement($statementId);
             $files[$index] = [];
             foreach ($statementAttachments as $statementAttachment) {
                 $files[$index][] = $statementAttachment->getFile();
             }
-            $index++;
+            ++$index;
         }
 
         return $files;
@@ -75,15 +82,15 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
         $lastColumn = $sheet->getHighestColumn();
         // Iteriere über jede Zeile und setze den neuen Wert in der letzten Spalte
         $indexStatment = 0;
-        for ($row = 2; $row <= $rowCount; $row++) {
+        for ($row = 2; $row <= $rowCount; ++$row) {
             $referencesAsString = '';
             /** @var File $file */
             foreach ($files[$indexStatment] as $file) {
-                $referencesAsString .= $file->getHash(). ', ';
+                $referencesAsString .= $file->getHash().', ';
             }
-            $cell = $lastColumn . $row;
+            $cell = $lastColumn.$row;
             $sheet->setCellValue($cell, trim($referencesAsString, ', '));
-            $indexStatment++;
+            ++$indexStatment;
         }
         // speichern
         $xlsxWriter->setSpreadsheet($spreadsheet);

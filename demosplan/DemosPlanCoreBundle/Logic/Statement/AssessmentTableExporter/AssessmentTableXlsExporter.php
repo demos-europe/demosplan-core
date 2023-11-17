@@ -188,7 +188,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         return match ($formatIdentifier) {
             'topicsAndTags'             => $this->createColumnsDefinitionForTopicsAndTags(),
             'potentialAreas'            => $this->createColumnsDefinitionForPotentialAreas(),
-            'statementsWithAttachments' => $this->createColumnsDefinitionForStatementAttachments(), //WithAttachments
+            'statementsWithAttachments' => $this->createColumnsDefinitionForStatementAttachments(), // WithAttachments
             'statements'                => $this->createColumnsDefinitionForStatementsOrSegments(true),
             'segments'                  => $this->createColumnsDefinitionForStatementsOrSegments(false),
             default                     => $this->createColumnsDefinitionDefault(),

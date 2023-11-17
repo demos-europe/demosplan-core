@@ -808,13 +808,11 @@ class ExportService
     ): void {
         collect($attachments)
             ->filter(
-                static fn (StatementAttachment $attachment): bool =>
-                    StatementAttachment::SOURCE_STATEMENT === $attachment->getType()
+                static fn (StatementAttachment $attachment): bool => StatementAttachment::SOURCE_STATEMENT === $attachment->getType()
             )->map(
-                fn (StatementAttachment $attachment): FileInfo =>
-                    $this->fileService->getFileInfo(
-                        $attachment->getFile()->getId()
-                    )
+                fn (StatementAttachment $attachment): FileInfo => $this->fileService->getFileInfo(
+                    $attachment->getFile()->getId()
+                )
             )->each(
                 function (FileInfo $fileInfo) use ($fileFolderPath, $zip, $fileNamePrefix): void {
                     $this->zipExportService->addFileToZip(
