@@ -60,8 +60,7 @@
       class="c-at__controls o-sticky o-sticky--border space-stack-xs u-pt-0_5 u-pb-0_25"
       ref="header">
       <search-and-sorting
-        :search-term="searchTerm"
-        :has-changed-statements="hasChangedStatements" />
+        :search-term="searchTerm" />
 
       <div class="flex items-center space-inline-m">
         <!-- mark all -->
