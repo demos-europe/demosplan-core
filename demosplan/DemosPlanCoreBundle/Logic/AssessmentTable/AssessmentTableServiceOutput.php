@@ -226,8 +226,8 @@ class AssessmentTableServiceOutput
         $statements = array_map($this->replaceDataOfEsStatementFields(...), $serviceResult->getResult());
 
         $filterStatementFragments = false;
-        if (!(1 === count($rParams['filters']) && isset($rParams['filters']['original'])) ||
-            null !== $rParams['search']) {
+        if (!(1 === count($rParams['filters']) && isset($rParams['filters']['original']))
+            || null !== $rParams['search']) {
             $filterStatementFragments = true;
         }
 
@@ -507,7 +507,7 @@ class AssessmentTableServiceOutput
 
     public function replaceDataOfEsStatementFields(array $statement): array
     {
-        return  $this->replaceAuthoredDateOfStatementMeta($this->replacePhase($statement));
+        return $this->replaceAuthoredDateOfStatementMeta($this->replacePhase($statement));
     }
 
     /**
@@ -738,8 +738,8 @@ class AssessmentTableServiceOutput
 
             // resize Image
             if (0 != $factor) {
-                $width = $width / $factor;
-                $height = $height / $factor;
+                $width /= $factor;
+                $height /= $factor;
             }
             $this->logger->info('Docx Image resize to width: '.$width.' and height: '.$height);
         }
