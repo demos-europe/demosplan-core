@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<Department>
@@ -39,7 +38,10 @@ final class DepartmentResourceType extends DplanResourceType
             // Managing users includes access to their departments
             'area_manage_users',
             // Departments are included in the response when fragments are updated
-            'feature_statements_fragment_edit'
+            'feature_statements_fragment_edit',
+            // Resource is needed for segments filtering :In the case when segments are filtered by assignee,
+            // the department resource type has to be available because user are grouped by departments
+            'field_segment_assignee_filter'
         );
     }
 
