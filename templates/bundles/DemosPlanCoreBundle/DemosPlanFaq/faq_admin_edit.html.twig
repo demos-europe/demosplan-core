@@ -37,6 +37,7 @@
     <form class="flow-root u-pb" name="xsubmititem" action="{{ actionPath }}" method="post" enctype="multipart/form-data" data-dp-validate>
 		<input name="action" type="hidden" value="{{ actionName }}">
         <input name="r_id" type="hidden" value="{% if faq.id is defined %}{{ faq.id }}{% endif %}">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         {{ uiComponent('form.row', {
             elements: [

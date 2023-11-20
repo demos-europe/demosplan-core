@@ -5,8 +5,9 @@
 <form
     action="{{ path('dplan_procedure_mail_send_all_submitters_confirm_send', {'procedureId': templateVars.procedureId}) }}"
     method="post"
-    data-dp-validate
->
+    data-dp-validate>
+    {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
     <fieldset>
         <legend>
             <h1>

@@ -22,6 +22,8 @@
             action="{{ path('DemosPlan_create_addresses_entry', {'organisationId': currentUser.organisationId}) }}"
             method="post"
             data-dp-validate="newUnregisteredPublicAgency">
+            {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
             <fieldset class="u-mt">
                 {{ uiComponent('form.row', {
                     elements: [
@@ -56,8 +58,9 @@
 
         <form
             action="{{ path('DemosPlan_delete_email_addresses_entry', {'organisationId': currentUser.organisationId}) }}"
-            method="post"
-        >
+            method="post">
+            {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
             <label
                 class="btn-icns btn-icns--thin inline u-mb-0 u-ml-0_5">
                 <input
