@@ -527,6 +527,12 @@ class AssessmentTableServiceOutput
      */
     public function replaceAuthoredDateOfStatementMeta(array $statement): array
     {
+        $statement['meta']['authoredDate'] = '';
+        if (isset($statement['submitDateString'])) {
+            $this->logger->debug('Use submitDate: '.$statement['submitDateString']);
+
+            $statement['meta']['authoredDate'] = $statement['submitDateString'];
+        }
         if (isset($statement['meta']['authoredDate'])
             && 100000 < $statement['meta']['authoredDate']
             && 3 < strlen((string) $statement['meta']['authoredDate'])
@@ -538,11 +544,6 @@ class AssessmentTableServiceOutput
             $this->logger->debug('authoredDate (formatted): '.date('d.m.Y', $date));
 
             $statement['meta']['authoredDate'] = date('d.m.Y', $date);
-        }
-        if (isset($statement['submitDateString'])) {
-            $this->logger->debug('Use submitDate: '.$statement['submitDateString']);
-
-            $statement['meta']['authoredDate'] = $statement['submitDateString'];
         }
 
         return $statement;
