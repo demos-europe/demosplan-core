@@ -110,18 +110,18 @@
         <div v-text="Translator.trans('public')" />
       </template>
 
-      <template v-slot:name="user">
+      <template v-slot:name="{ creationDate, externalName, id, name }">
         <a
           data-cy="procedurePath"
-          :data-cy-procedure-id="user.id"
-          :href="Routing.generate('DemosPlan_procedure_dashboard', { procedure: user.id })">
-          <strong v-text="user.name" />
+          :data-cy-procedure-id="id"
+          :href="Routing.generate('DemosPlan_procedure_dashboard', { procedure: id })">
+          <strong v-text="name" />
         </a>
-        <div v-if="user.externalName !== user.name">
-          <strong v-text="`(${Translator.trans('public.participation.name')}: ${user.externalName})`" />
+        <div v-if="externalName !== name">
+          <strong v-text="`(${Translator.trans('public.participation.name')}: ${externalName})`" />
         </div>
         <div>
-          <strong v-text="'vom ' + user.creationDate" />
+          <strong v-text="`${Translator.trans('from.date')} ${creationDate}`" />
         </div>
       </template>
 
@@ -134,7 +134,7 @@
           class="text-center" />
       </template>
 
-      <template v-slot:internalPhase="{internalPhase, internalStartDate, internalEndDate}">
+      <template v-slot:internalPhase="{ internalPhase, internalStartDate, internalEndDate }">
         <div
           class="float-left u-m-0">
           <span v-text="internalPhase" />
@@ -142,7 +142,7 @@
         </div>
       </template>
 
-      <template v-slot:externalPhase="{externalPhase, externalStartDate, externalEndDate}">
+      <template v-slot:externalPhase="{ externalPhase, externalStartDate, externalEndDate }">
         <span v-text="externalPhase" />
         <div v-text="externalStartDate + ' - ' + externalEndDate" />
       </template>
