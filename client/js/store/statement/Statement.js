@@ -604,7 +604,7 @@ export default {
             ].join(),
             StatementAttachment: [
               'file',
-              'type'
+              'attachmentType'
             ].join()
           },
           include: includes.join(',')
