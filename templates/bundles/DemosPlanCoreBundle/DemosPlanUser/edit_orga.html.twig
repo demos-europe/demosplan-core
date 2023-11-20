@@ -16,13 +16,12 @@
             <input
                 type="hidden"
                 name="organisation_ident"
-                value="{% if organisation is defined %}{{ organisation.ident|default }}{% endif %}"
-            >
+                value="{% if organisation is defined %}{{ organisation.ident|default }}{% endif %}">
             <input
                 type="hidden"
                 name="address_ident"
-                value="{% if organisation is defined %}{{ organisation.address_ident|default }}{% endif %}"
-            >
+                value="{% if organisation is defined %}{{ organisation.address_ident|default }}{% endif %}">
+            {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
             {% include '@DemosPlanCore/DemosPlanUser/orga_data_entry.html.twig' %}
         </form>

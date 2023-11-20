@@ -16,6 +16,7 @@
         :selected-scales="JSON.parse('{{ selectedScales|json_encode|e('js', 'utf-8') }}')">
         <form class="layout u-pt flow-root" action="{{ path('DemosPlan_map_administration_map',{'procedureId':procedure}) }}" method="post" name="configForm">
             <input type="hidden" name="action" value="mapglobals">
+            {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
             {# Select available scales for procedure #}
             <label class="layout__item u-1-of-4 u-mb-0_5" for="r_scales">

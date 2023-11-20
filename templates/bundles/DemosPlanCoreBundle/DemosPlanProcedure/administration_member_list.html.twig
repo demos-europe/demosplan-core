@@ -17,6 +17,7 @@
         name="procedureForm"
         action="{{ path('DemosPlan_procedure_member_index',{'procedure': procedure}) }}"
         method="post">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         {% if templateVars.orgas is defined and templateVars.orgas|length > 0 %}
         <div class="flow-root">
