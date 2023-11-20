@@ -786,7 +786,7 @@ export default {
     })
   },
 
-  beforeDestroy () {
+  beforeUnmount () {
     this.stickyHeader.destroy()
   }
 }

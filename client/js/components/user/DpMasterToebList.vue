@@ -630,7 +630,7 @@ export default {
       this.dataTableObserver = new ResizeObserver(this.updateScrollbarWidth.bind(this))
       this.dataTableObserver.observe(this.dataTableElement)
 
-      // To unbind handler on beforeDestroy, it exists as a named function.
+      // To unbind handler on beforeUnmount, it exists as a named function.
       bindFullScreenChange(this.setIsFullscreen.bind(this))
 
       // Set scrollbars + dataTable container height.
@@ -638,7 +638,7 @@ export default {
     })
   },
 
-  beforeDestroy () {
+  beforeUnmount () {
     // Remove event listener, just to not let them pile up
     unbindFullScreenChange(this.setIsFullscreen)
   }
