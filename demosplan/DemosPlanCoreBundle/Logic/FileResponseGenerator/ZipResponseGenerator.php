@@ -78,7 +78,7 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
         foreach ($file['attachments'] as $attachmentArray) {
             /** @var File $attachment */
             foreach ($attachmentArray as $attachment) {
-                try{
+                try {
                     $this->zipExportService->addFileToZipStream(
                         $attachment->getFilePathWithHash(),
                         $file['zipFileName'].'/'.$attachment->getHash().'_'.$attachment->getFilename(),
@@ -109,11 +109,11 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
         }
     }
 
-    private function addErrorTextFile(ZipStream $zipStream,array $errorMessages): void
+    private function addErrorTextFile(ZipStream $zipStream, array $errorMessages): void
     {
         $zipStream->addFile(
             'errors.txt',
-            implode("\n",$errorMessages)
+            implode("\n", $errorMessages)
         );
     }
 }
