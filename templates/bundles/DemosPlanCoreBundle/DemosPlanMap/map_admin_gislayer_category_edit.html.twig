@@ -16,6 +16,7 @@
     <h1>{{ heading }}</h1>
 
     <form action="{{ url }}" method="post" enctype="multipart/form-data" name="xsubmititem">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         <label class="u-mb-0_5">
             {{ "name"|trans }}*

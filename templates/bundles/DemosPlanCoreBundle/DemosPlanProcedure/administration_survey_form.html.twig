@@ -26,6 +26,7 @@
         enctype="multipart/form-data"
         method="post"
         data-dp-validate>
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         {% if surveyId is defined %}
             <p class="u-mb">{{ 'survey.edit.explanation'|trans }}</p>
