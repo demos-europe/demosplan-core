@@ -140,6 +140,7 @@
         <div id="votedStatementsList" class="{{ 'c-tabs__panel u-mh-0_5'|prefixClass }}">
 
             <form class="{{ 'layout flow-root'|prefixClass }}" name="sortform2" action="{{ path('DemosPlan_statement_list_final_group',{'procedure':procedure})}}" method="post">
+                {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
                 {# form controls above entry table (check all, print, email) #}
                 <fieldset class="{{ 'flow-root layout__item u-pb-0'|prefixClass }}">
