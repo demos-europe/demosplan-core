@@ -13,6 +13,7 @@
             data-dp-validate>
 
             <input type="hidden" value="singledocumentnew" name="action">
+            {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
             {% if hasPermission('field_procedure_single_document_title') %}
                 <dp-input

@@ -1,5 +1,5 @@
 <form class="" method="post" action="{{ path('DemosPlan_user_edit') }}">
-
+    {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
     {# Gib einen Hinweis aus, wenn eine ungünstige Rollenkombination vorhanden ist. #}
     {% if templateVars.multiroleFP is defined %}

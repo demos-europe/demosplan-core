@@ -84,6 +84,7 @@
                 <input name="r_action" type="hidden" value="elementedit">
                 <input type="hidden" name="r_ident" value="{{ element.ident|default() }}">
                 <input type="hidden" name="r_parent" value="{{ templateVars.parent|default('') }}">
+                {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
                 <label
                     class="o-form__label"
@@ -299,6 +300,7 @@
                         <input name="r_action" type="hidden" value="elementedit">
                         <input type="hidden" name="r_ident" value="{{ element.ident|default() }}">
                         <input type="hidden" name="r_parent" value="{{ templateVars.parent|default('') }}">
+                        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
                         <fieldset class="u-pb-0">
                             <legend>{{ "category.delete"|trans }}</legend>

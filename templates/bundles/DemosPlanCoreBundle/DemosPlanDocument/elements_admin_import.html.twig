@@ -5,6 +5,7 @@
     <p>{{ "text.elementimport"|trans }}</p>
     <form action="{{ path('DemosPlan_element_administration', {'procedure':templateVars.procedure}) }}" method="post">
         <input type="hidden" name="action" value="importElements">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         <p class="weight--bold">
             {{ "confirm.elementimport.filecount"|trans({ imported: templateVars.importedFiles, total: templateVars.totalFiles }) }}
