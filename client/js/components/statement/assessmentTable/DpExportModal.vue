@@ -352,11 +352,6 @@
             class="tab-content"
             :class="activeTab('zip')"
             role="tabpanel">
-            <input
-              type="hidden"
-              name="zipExportType"
-              id="zipExportTypeStatement"
-              value="statements">
             <p class="lbl__hint u-ml-0_75 u-mb-0">
               {{ Translator.trans('explanation.export.statements.zip') }}
             </p>
