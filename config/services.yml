@@ -1044,6 +1044,7 @@ services:
     # ZIP Response Generator
     demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\ZipResponseGenerator:
         arguments:
+            $logger: '@monolog.logger.dplan'
             $supportedTypes: "%file.formats.zip%"
         tags:
             - { name: "dplan.file.response.generator" }
