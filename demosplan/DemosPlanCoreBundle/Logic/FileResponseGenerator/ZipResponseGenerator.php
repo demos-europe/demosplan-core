@@ -71,7 +71,7 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
             $this->logger->critical('Unable to load or read file from path.', [$e]);
             $errorMessages[] = $this->translator->trans('error.statements.zip.export.generic.xlsx');
         } catch (WriterException|Exception $e) {
-            $this->logger->critical('An error occured during creation of zip file for export.', [$e]);
+            $this->logger->critical('An error occurred during creation of zip file for export.', [$e]);
             $errorMessages[] = $this->translator->trans('error.statements.zip.export.generic.xlsx');
         }
 
