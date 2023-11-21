@@ -12,13 +12,60 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
+use demosplan\DemosPlanCoreBundle\Logic\EditorService;
+use demosplan\DemosPlanCoreBundle\Logic\FormOptionsResolver;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use Exception;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Twig\Environment;
 
 class AssessmentTableZipExporter extends AssessmentTableXlsExporter
 {
     protected array $supportedTypes = ['zip'];
+
+    public function __construct(
+        AssessmentHandler $assessmentHandler,
+        AssessmentTableServiceOutput $assessmentTableServiceOutput,
+        CurrentProcedureService $currentProcedureService,
+        EditorService $editorService,
+        Environment $twig,
+        FormOptionsResolver $formOptionsResolver,
+        LoggerInterface $logger,
+        PermissionsInterface $permissions,
+        RequestStack $requestStack,
+        ServiceImporter $serviceImport,
+        SimpleSpreadsheetService $simpleSpreadsheetService,
+        StatementHandler $statementHandler,
+        TranslatorInterface $translator,
+        private readonly StatementService $statementService
+    ) {
+        parent::__construct(
+            $assessmentHandler,
+            $assessmentTableServiceOutput,
+            $currentProcedureService,
+            $editorService,
+            $twig,
+            $formOptionsResolver,
+            $logger,
+            $permissions,
+            $requestStack,
+            $serviceImport,
+            $simpleSpreadsheetService,
+            $statementHandler,
+            $translator
+        );
+    }
 
     /**
      * @throws Exception
@@ -50,8 +97,7 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
         $files = [];
         $index = 0;
         foreach ($statementIds as $statementId) {
-            $statementAttachments =
-                $this->assessmentHandler->getStatementService()->getFileContainersForStatement($statementId);
+            $statementAttachments = $this->statementService->getFileContainersForStatement($statementId);
             $files[$index] = [];
             foreach ($statementAttachments as $statementAttachment) {
                 $files[$index][] = $statementAttachment->getFile();
