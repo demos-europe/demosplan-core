@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
+use demosplan\DemosPlanCoreBundle\Exception\NullPointerException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
 use demosplan\DemosPlanCoreBundle\Logic\FormOptionsResolver;
@@ -118,6 +119,7 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
 
         if (null === $sheet) {
             $this->logger->error('No worksheet in xlsx for zip export!', [$sheet]);
+            throw new NullPointerException('No worksheet in xlsx for zip export!');
         }
 
         $rowCount = $sheet->getHighestRow();
