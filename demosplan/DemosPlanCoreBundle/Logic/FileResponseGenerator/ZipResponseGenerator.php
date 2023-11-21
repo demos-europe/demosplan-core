@@ -98,7 +98,7 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
                     );
                     $errorMessages[] = $this->translator->trans('error.statments.zip.export.hash.invalid');
                 } catch (Exception $e) {
-                    $this->logger->critical('An error occured during creation of zip file for export.', [$e]);
+                    $this->logger->critical('An error occurred during creation of zip file for export.', [$e]);
                     $errorMessages[] = $this->translator->trans('error.statements.zip.export.generic.attachment');
                 }
             }
