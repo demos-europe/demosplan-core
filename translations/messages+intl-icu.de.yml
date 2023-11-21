@@ -3090,7 +3090,7 @@ statement.assignment.assigned: "Bearbeitet durch: {name} ({organisation})"
 statement.assignment.override: "Stellungnahme mir zuweisen"
 statement.assignment.release: "Stellungnahme freigeben"
 statement.assignment.unassigned: "Aktuell nicht in Bearbeitung"
-statement.attachments.reference: "Referenz Anhänge"
+statement.attachments.reference: "Referenzen auf Anhänge"
 statement.change.failed: "Änderung der Stellungnahme fehlgeschlagen"
 statement.pdfs.checkable.now: |
     {count, plural,
