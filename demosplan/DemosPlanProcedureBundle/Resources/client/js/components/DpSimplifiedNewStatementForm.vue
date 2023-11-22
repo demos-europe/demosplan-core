@@ -361,7 +361,7 @@ import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
 import SimilarStatementSubmitters from '@DemosPlanProcedureBundle/components/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 import { v4 as uuid } from 'uuid'
 import dayjs from 'dayjs'
-import { hasOwnProp } from '@DpJs/lib/utils/hasOwnProp'
+import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
 
 const submitterProperties = {
   orga: '',
