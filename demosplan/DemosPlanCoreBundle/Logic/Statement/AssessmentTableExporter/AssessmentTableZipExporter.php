@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
+use demosplan\DemosPlanCoreBundle\Exception\AssessmentTableZipExportException;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\NullPointerException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
@@ -35,8 +36,10 @@ use Twig\Environment;
 class AssessmentTableZipExporter extends AssessmentTableXlsExporter
 {
     private const ATTACHMENTS_NOT_ADDABLE = 'error.statements.zip.export.attachments.not.addable';
+    private const SHEET_MISSING_IN_XLSX = 'error.statements.zip.export.incomplete.xlsx';
     private const ATTACHMENTS_NOT_ADDABLE_LOG =
         'An error occurred during the getting of Statement Attachments for Zip export. Zip export was canceled.';
+    private const SHEET_MISSING_IN_XLSX_LOG = 'No worksheet in xlsx for zip export!';
     protected array $supportedTypes = ['zip'];
 
     public function __construct(
@@ -82,7 +85,8 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
         try {
             $statementAttachments = $this->getAttachmentsOfStatements($xlsxArray['statementIds']);
         } catch (Exception) {
-            throw new DemosException(self::ATTACHMENTS_NOT_ADDABLE, self::ATTACHMENTS_NOT_ADDABLE_LOG);
+            $this->logger->error(self::ATTACHMENTS_NOT_ADDABLE_LOG);
+            throw new AssessmentTableZipExportException('error', self::ATTACHMENTS_NOT_ADDABLE);
         }
 
         /** @var Xlsx $xlsxWriter */
@@ -119,6 +123,8 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
 
     /**
      * @param array<int, array<int, File> $files
+     *
+     * @throws DemosException
      */
     private function writeReferencesIntoXlsx(Xlsx $xlsxWriter, array $files): Xlsx
     {
@@ -127,7 +133,7 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
 
         if (null === $sheet) {
             $this->logger->error('No worksheet in xlsx for zip export!', [$sheet]);
-            throw new NullPointerException('No worksheet in xlsx for zip export!');
+            throw new AssessmentTableZipExportException('error',self::SHEET_MISSING_IN_XLSX);
         }
 
         $rowCount = $sheet->getHighestRow();

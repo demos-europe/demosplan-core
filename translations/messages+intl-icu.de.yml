@@ -1278,6 +1278,7 @@ error.statement.submit.phase: "In der aktuellen Phase des Verfahrens können kei
 error.statement.update: "Beim Aktualisieren der Stellungnahme ist ein Fehler aufgetreten."
 error.statements.marked.submitted: "Die Stellungnahmen konnten nicht eingereicht werden!"
 error.statements.zip.export.generic.xlsx: "Die XLSX-Datei konnte dem ZIP-Archiv nicht hinzugefügt werden."
+error.statements.zip.export.incomplete.xlsx: "Die generierte XLSX-Datei war unvollständig. Export abgebrochen."
 error.statements.zip.export.generic.attachment: |
     {count, plural,
     =1 { Beim Hinzufügen eines Anhangs ist ein unbekannter Fehler aufgetreten.}
@@ -1288,7 +1289,7 @@ error.statments.zip.export.attachment: |
     =1 { Ein Anhang konnte dem ZIP-Archiv nicht hinzugefügt werden.}
     other { # Anhänge konnten dem ZIP-Archiv nicht hinzugefügt werden.}
     }
-error.statements.zip.export.attachments.not.addable: 'Es konnten keine Anhänge dem Zip hinzugefügt werden.'
+error.statements.zip.export.attachments.not.addable: 'Es konnten keine Anhänge dem Zip hinzugefügt werden. Export abgebrochen.'
 error.survey.votes.publication: "Die Veröffentlichung der Antwort konnte nicht verändert werden."
 error.tag.notfound: "Das Schlagwort konnte nicht gefunden werden."
 error.topic.notfound: "Das Thema wurde nicht gefunden. Möglicherweise wurde es zwischenzeitlich gelöscht."
