@@ -45,7 +45,9 @@ use EDT\Querying\Contracts\PathException;
 use Exception;
 use ReflectionException;
 use Symfony\Component\Validator\Constraints\Blank;
+use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Throwable;
 
 class ElementsService extends CoreService implements ElementsServiceInterface
@@ -72,7 +74,8 @@ class ElementsService extends CoreService implements ElementsServiceInterface
         private readonly PlanningDocumentCategoryResourceType $elementResourceType,
         private readonly SingleDocumentRepository $singleDocumentRepository,
         SingleDocumentService $singleDocumentService,
-        private readonly SortMethodFactory $sortMethodFactory
+        private readonly SortMethodFactory $sortMethodFactory,
+        protected readonly ValidatorInterface $validator,
     ) {
         $this->paragraphService = $paragraphService;
         $this->singleDocumentService = $singleDocumentService;
@@ -547,7 +550,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
 
         $titlesOfHiddenElements = $this->globalConfig->getAdminlistElementsHiddenByTitle();
         // category map is allowed to be modified
-        $titlesOfHiddenElements = collect($titlesOfHiddenElements)->filter(static fn ($title) => ElementsInterface::ELEMENTS_TITLE_PLANZEICHNUNG !== $title);
+        $titlesOfHiddenElements = collect($titlesOfHiddenElements)->filter(static fn ($title) => ElementsInterface::ELEMENT_TITLES['planzeichnung'] !== $title);
         if ($titlesOfHiddenElements->contains($currentTitle)) {
             // deny update of elements which are hidden for this project, because this means also there are not editable.
             throw new HiddenElementUpdateException();
@@ -947,81 +950,91 @@ class ElementsService extends CoreService implements ElementsServiceInterface
         ?string $elementTitle,
         ?string $documentTitle,
         ?string $paragraphTitle
-    ): null|string|ConstraintViolationListInterface {
+    ): null|string|ConstraintViolationListInterface
+    {
         if (null !== $documentTitle) {
-            $violations = $this->validator->validate($paragraphTitle, new Blank('message'));
+            $violations = $this->validator->validate($paragraphTitle, new Blank(
+                ['message' => 'statement.categoryType.already.defined.by.give.document']
+            ));
+            if (0 !== $violations->count()) {
+                return $violations;
+            }
+
+            return ElementsInterface::ELEMENT_CATEGORIES['file'];
         }
+
         if (null !== $paragraphTitle) {
-            $violations = $this->validator->validate($documentTitle, new Blank('message'));
+            $violations = $this->validator->validate($documentTitle, new Blank(
+                ['message' => 'statement.categoryType.already.defined.by.give.paragraph']
+            ));
+
+            if (0 !== $violations->count()) {
+                return $violations;
+            }
+
+            return ElementsInterface::ELEMENT_CATEGORIES['paragraph'];
         }
 
-        if (null !== $documentTitle && null !== $paragraphTitle) {
-            $violations = $this->validator->validate($documentTitle, new Blank('message'));
-        }
 
-        // have related planningDocument
-        if (null !== $documentTitle && null === $paragraphTitle) {
-            return ElementsInterface::ELEMENTS_CATEGORY_FILE;
-        }
+        return $this->determineCategoryTypeByTitleOnly($elementTitle);
+    }
 
-        // have related paragraph
-        if (null === $documentTitle && null !== $paragraphTitle) {
-            return ElementsInterface::ELEMENTS_CATEGORY_PARAGRAPH;
-        }
-
-        // determine category depending on element.title (= $planningDocumentCategoryTitle)
-        return match ($elementTitle) {
+    /**
+     * Tries to guess the type of the planning document category with only the document(elements) title is given.
+     */
+    private function determineCategoryTypeByTitleOnly(string $title): string|ConstraintViolationListInterface
+    {
+        return match ($title) {
             // statement
-            ElementsInterface::ELEMENTS_TITLE_GESAMTSTELLUNGNAHME,
-            ElementsInterface::ELEMENTS_TITLE_FEHLANZEIGE => ElementsInterface::ELEMENTS_CATEGORY_STATEMENT,
+            ElementsInterface::ELEMENT_TITLES['gesamtstellungnahme'],
+            ElementsInterface::ELEMENT_TITLES['fehlanzeige']
+            => ElementsInterface::ELEMENT_CATEGORIES['statement'],
 
             // paragraph:
-            ElementsInterface::ELEMENTS_TITLE_TEXTLICHE_FESTSETZUNGEN,
-            ElementsInterface::ELEMENTS_TITLE_BEGRUENDUNG,
-            ElementsInterface::ELEMENTS_TITLE_VERORDNUNG_TEXT_TEIL_B => ElementsInterface::ELEMENTS_CATEGORY_PARAGRAPH,
+            ElementsInterface::ELEMENT_TITLES['textliche_festsetzungen'],
+            ElementsInterface::ELEMENT_TITLES['begruendung'],
+            ElementsInterface::ELEMENT_TITLES['verordnung_text_teil_b']
+            => ElementsInterface::ELEMENT_CATEGORIES['paragraph'],
 
             // map:
-            ElementsInterface::ELEMENTS_TITLE_PLANZEICHNUNG => ElementsInterface::ELEMENTS_CATEGORY_MAP,
+            ElementsInterface::ELEMENT_TITLES['planzeichnung']
+            => ElementsInterface::ELEMENT_CATEGORIES['map'],
 
             // file:
-            ElementsInterface::ELEMENTS_TITLE_GROBABSTIMMUNGSPAPIER,
-            ElementsInterface::ELEMENTS_TITLE_ARBEITSKREISPAPIER,
-            ElementsInterface::ELEMENTS_TITLE_ARBEITSKREISPAPIER_I,
-            ElementsInterface::ELEMENTS_TITLE_ARBEITSKREISPAPIER_II,
-            ElementsInterface::ELEMENTS_TITLE_ERGAENZENDE_UNTERLAGE,
-            ElementsInterface::ELEMENTS_TITLE_FNP_AENDERUNG,
-            ElementsInterface::ELEMENTS_TITLE_FNP_BERICHTIGUNG,
-            ElementsInterface::ELEMENTS_TITLE_GUTACHTEN,
-            ElementsInterface::ELEMENTS_TITLE_LAPRO_AENDERUNG,
-            ElementsInterface::ELEMENTS_TITLE_NIEDERSCHRIFT_GROBABSTIMMUNG_ARBEITSKREISE,
-            ElementsInterface::ELEMENTS_TITLE_NIEDERSCHRIFT_SONSTIGE,
-            ElementsInterface::ELEMENTS_TITLE_SCOPING_PAPIER,
-            ElementsInterface::ELEMENTS_TITLE_SCOPING_PROTOKOLL,
-            ElementsInterface::ELEMENTS_TITLE_VERORDNUNG,
-            ElementsInterface::ELEMENTS_TITLE_VERTEILER,
-            ElementsInterface::ELEMENTS_TITLE_WEITERE_INFORMATION,
-            ElementsInterface::ELEMENTS_TITLE_ERGAENZENDE_UNTERLAGEN,
-            ElementsInterface::ELEMENTS_TITLE_NIEDERSCHRIFTEN,
-            ElementsInterface::ELEMENTS_TITLE_UNTERSUCHUNGEN,
-            ElementsInterface::ELEMENTS_TITLE_UNTERSUCHUNG,
-            ElementsInterface::ELEMENTS_TITLE_VERTEILER_UND_EINLADUNG,
-            ElementsInterface::ELEMENTS_TITLE_ARBEITSKREISPAPIER_0,
-            ElementsInterface::ELEMENTS_TITLE_INFOBLATT,
-            ElementsInterface::ELEMENTS_TITLE_INFOBLATT_SCOPING_PAPIER_NUR_SCOPING_PROTOKOLL,
-            ElementsInterface::ELEMENTS_TITLE_STAEDTEBAULICHE_VERTRAEGE_ERGAENZENDE_UNTERLAGEN,
-            ElementsInterface::ELEMENTS_TITLE_PROTOKOLLE_UND_NIEDERSCHRIFTEN,
-            ElementsInterface::ELEMENTS_TITLE_LANDSCHAFTSPLAN_AENDERUNG => ElementsInterface::ELEMENTS_CATEGORY_FILE,
+            ElementsInterface::ELEMENT_TITLES['grobabstimmungspapier'],
+            ElementsInterface::ELEMENT_TITLES['arbeitskreispapier'],
+            ElementsInterface::ELEMENT_TITLES['arbeitskreispapier_i'],
+            ElementsInterface::ELEMENT_TITLES['arbeitskreispapier_ii'],
+            ElementsInterface::ELEMENT_TITLES['ergaenzende_unterlage'],
+            ElementsInterface::ELEMENT_TITLES['fnp_aenderung'],
+            ElementsInterface::ELEMENT_TITLES['fnp_berichtigung'],
+            ElementsInterface::ELEMENT_TITLES['gutachten'],
+            ElementsInterface::ELEMENT_TITLES['lapro_aenderung'],
+            ElementsInterface::ELEMENT_TITLES['niederschrift_grobabstimmung_arbeitskreise'],
+            ElementsInterface::ELEMENT_TITLES['niederschrift_sonstige'],
+            ElementsInterface::ELEMENT_TITLES['scoping_papier'],
+            ElementsInterface::ELEMENT_TITLES['scoping_protokoll'],
+            ElementsInterface::ELEMENT_TITLES['verordnung'],
+            ElementsInterface::ELEMENT_TITLES['verteiler'],
+            ElementsInterface::ELEMENT_TITLES['weitere_information'],
+            ElementsInterface::ELEMENT_TITLES['ergaenzende_unterlagen'],
+            ElementsInterface::ELEMENT_TITLES['niederschriften'],
+            ElementsInterface::ELEMENT_TITLES['untersuchungen'],
+            ElementsInterface::ELEMENT_TITLES['untersuchung'],
+            ElementsInterface::ELEMENT_TITLES['verteiler_und_einladung'],
+            ElementsInterface::ELEMENT_TITLES['arbeitskreispapier_0'],
+            ElementsInterface::ELEMENT_TITLES['infoblatt'],
+            ElementsInterface::ELEMENT_TITLES['infoblatt_scoping_papier_nur_scoping_protokoll'],
+            ElementsInterface::ELEMENT_TITLES['staedtebauliche_vertraege_ergaenzende_unterlagen'],
+            ElementsInterface::ELEMENT_TITLES['protokolle_und_niederschriften'],
+            ElementsInterface::ELEMENT_TITLES['landschaftsplan_aenderung']
+            => ElementsInterface::ELEMENT_CATEGORIES['file'],
+
+            default => $this->validator->validate($title, new Choice(
+                [
+                    'choices' => ElementsInterface::ELEMENT_TITLES,
+                    'message' => 'statement.categoryType.already.defined.by.give.paragraph']
+            ))
         };
-
-        // validate
-        $violations = $this->validator->validate(
-            $this,
-            new StatementElementCategoryConstraint()
-        );
-        if (0 !== $violations->count()) {
-            return $violations;
-        }
-
-        return $violations;
     }
 }

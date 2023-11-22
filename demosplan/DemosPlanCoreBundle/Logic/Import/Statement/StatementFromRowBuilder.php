@@ -29,6 +29,7 @@ use PhpOffice\PhpSpreadsheet\Shared\Date;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Range;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -271,22 +272,10 @@ class StatementFromRowBuilder
 
         // set planning document category
         if (null !== $this->planningDocumentCategoryTitle) {
-            $planningCategory = new Elements();
-            $planningCategory->setTitle($this->planningDocumentCategoryTitle);
-            $planningCategory->setCategory($this->planningCategoryService->determineCategoryType(
-                $this->planningDocumentCategoryTitle,
-                $this->planningDocumentName,
-                $this->paragraphName
-            ));
-            $planningCategory->setProcedure($this->procedure);
-            $nextOrderIndex = $this->planningCategoryService->getNextFreeOrderIndex($this->procedure);
-            $planningCategory->setOrder($nextOrderIndex);
-            $planningCategory->setEnabled(false);
-
-            $this->planningCategoryService->addEntity($planningCategory);
-            $this->procedure->getElements()->add($planningCategory);
-
-            $newOriginalStatement->setElement($planningCategory);
+            $violations = $this->fillPlanningCategory(new Elements(), $newOriginalStatement);
+            if (0 !== $violations->count()) {
+                return $violations;
+            }
         }
 
         // set other static values
@@ -298,7 +287,11 @@ class StatementFromRowBuilder
         $newOriginalStatement->setPublicVerified(Statement::PUBLICATION_NO_CHECK_SINCE_NOT_ALLOWED);
 
         // validate
-        $violations = $this->validator->validate($newOriginalStatement, null, [StatementInterface::IMPORT_VALIDATION]);
+        $violations = $this->validator->validate(
+            $newOriginalStatement,
+            null,
+            [StatementInterface::IMPORT_VALIDATION]
+        );
         if (0 !== $violations->count()) {
             return $violations;
         }
@@ -342,5 +335,36 @@ class StatementFromRowBuilder
         }
 
         return $violations;
+    }
+
+    private function fillPlanningCategory(
+        Elements $planningCategory,
+        Statement $originalStatement
+    ): ConstraintViolationListInterface
+    {
+        $planningCategory->setTitle($this->planningDocumentCategoryTitle);
+
+        $categoryTitleOrViolationList = $this->planningCategoryService->determineCategoryType(
+            $this->planningDocumentCategoryTitle,
+            $this->planningDocumentName,
+            $this->paragraphName
+        );
+
+        if (is_string($categoryTitleOrViolationList)) {
+            $planningCategory->setCategory($categoryTitleOrViolationList);
+        } else {
+            return $categoryTitleOrViolationList;
+        }
+
+        $planningCategory->setProcedure($this->procedure);
+        $nextOrderIndex = $this->planningCategoryService->getNextFreeOrderIndex($this->procedure);
+        $planningCategory->setOrder($nextOrderIndex);
+        $planningCategory->setEnabled(false);
+
+        $this->planningCategoryService->addEntity($planningCategory);
+        $this->procedure->getElements()->add($planningCategory);
+
+        $originalStatement->setElement($planningCategory);
+        return new ConstraintViolationList();
     }
 }
