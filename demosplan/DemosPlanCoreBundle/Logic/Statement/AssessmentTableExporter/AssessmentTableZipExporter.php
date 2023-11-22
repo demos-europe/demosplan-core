@@ -140,10 +140,13 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
         $indexStatment = 0;
         for ($row = 2; $row <= $rowCount; ++$row) {
             $referencesAsString = '';
-            /** @var File $file */
-            foreach ($files[$indexStatment] as $file) {
-                $referencesAsString .= $file->getHash().', ';
+            if (array_key_exists($indexStatment, $files)) {
+                /** @var File $file */
+                foreach ($files[$indexStatment] as $file) {
+                    $referencesAsString .= $file->getHash().', ';
+                }
             }
+
             $cell = $lastColumn.$row;
             $sheet->setCellValue($cell, trim($referencesAsString, ', '));
             ++$indexStatment;
