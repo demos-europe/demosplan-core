@@ -1288,6 +1288,7 @@ error.statments.zip.export.attachment: |
     =1 { Ein Anhang konnte dem ZIP-Archiv nicht hinzugefügt werden.}
     other { # Anhänge konnten dem ZIP-Archiv nicht hinzugefügt werden.}
     }
+error.statements.zip.export.attachments.not.addable: 'Es konnten keine Anhänge dem Zip hinzugefügt werden.'
 error.survey.votes.publication: "Die Veröffentlichung der Antwort konnte nicht verändert werden."
 error.tag.notfound: "Das Schlagwort konnte nicht gefunden werden."
 error.topic.notfound: "Das Thema wurde nicht gefunden. Möglicherweise wurde es zwischenzeitlich gelöscht."

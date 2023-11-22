@@ -93,6 +93,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         );
 
         $statements = $outputResult->getStatements();
+        $statementIds = array_column($statements, 'id');
         $columnsDefinition = $this->selectFormat($parameters['exportType']);
 
         try {
@@ -108,6 +109,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
                 Carbon::now()->format('d-m-Y-H:i')
             ),
             'writer'   => $objWriter,
+            'statementIds' => $statementIds
         ];
     }
 

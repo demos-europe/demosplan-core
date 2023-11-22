@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
+use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\NullPointerException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
@@ -33,6 +34,9 @@ use Twig\Environment;
 
 class AssessmentTableZipExporter extends AssessmentTableXlsExporter
 {
+    private const ATTACHMENTS_NOT_ADDABLE = 'error.statements.zip.export.attachments.not.addable';
+    private const ATTACHMENTS_NOT_ADDABLE_LOG =
+        'An error occurred during the getting of Statement Attachments for Zip export. Zip export was canceled.';
     protected array $supportedTypes = ['zip'];
 
     public function __construct(
@@ -75,7 +79,11 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
     {
         $xlsxArray = parent::__invoke($parameters);
 
-        $statementAttachments = $this->getAttachmentsOfStatements($parameters['items']);
+        try {
+            $statementAttachments = $this->getAttachmentsOfStatements($xlsxArray['statementIds']);
+        } catch (Exception) {
+            throw new DemosException(self::ATTACHMENTS_NOT_ADDABLE, self::ATTACHMENTS_NOT_ADDABLE_LOG);
+        }
 
         /** @var Xlsx $xlsxWriter */
         $xlsxWriter = $xlsxArray['writer'];
