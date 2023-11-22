@@ -30,6 +30,16 @@ use ZipStream\ZipStream;
 
 class ZipResponseGenerator extends FileResponseGeneratorAbstract
 {
+    private const FIILE_NOT_FOUND_OR_READABLE = 'Unable to load or read file from path.';
+    private const FILE_HASH_INVALID = 'The hash for a file, which should be added to a zip export is not a string,
+    is an empty string, equals \'..\' or contains a slash (\'/\').';
+    private const UNKOWN_ERROR = 'An error occurred during creation of zip file for export.';
+    private const ATTACHMENT_NOT_ADDED = 'error.statments.zip.export.attachment';
+    private const ATTACHMENT_GENERIC = 'error.statements.zip.export.generic.attachment';
+    private const XLSX_GENERIC = 'error.statements.zip.export.generic.xlsx';
+    private array $errorMessages;
+    private array $errorCount;
+
     public function __construct(
         array $supportedTypes,
         NameGenerator $nameGenerator,
@@ -39,6 +49,11 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
     ) {
         parent::__construct($nameGenerator);
         $this->supportedTypes = $supportedTypes;
+        $this->errorMessages = [];
+        $this->errorCount = [
+            'attachmentNotAddedCount' => 0,
+            'attachmentUnkownErrorCount' => 0,
+        ];
     }
 
     public function __invoke(array $file): Response
@@ -56,7 +71,6 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
 
     private function fillZipWithData(ZipStream $zipStream, array $file): void
     {
-        $errorMessages = [];
         $temporaryFullFilePath = DemosPlanPath::getTemporaryPath($file['xlsx']['filename']);
         /** @var IWriter $writer */
         $writer = $file['xlsx']['writer'];
@@ -68,11 +82,9 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
                 $zipStream
             );
         } catch (FileNotFoundException|FileNotReadableException $e) {
-            $this->logger->critical('Unable to load or read file from path.', [$e]);
-            $errorMessages[] = $this->translator->trans('error.statements.zip.export.generic.xlsx');
+            $this->handleError($e, self::FIILE_NOT_FOUND_OR_READABLE, self::XLSX_GENERIC);
         } catch (WriterException|Exception $e) {
-            $this->logger->critical('An error occurred during creation of zip file for export.', [$e]);
-            $errorMessages[] = $this->translator->trans('error.statements.zip.export.generic.xlsx');
+            $this->handleError($e, self::UNKOWN_ERROR, self::XLSX_GENERIC);
         }
 
         foreach ($file['attachments'] as $attachmentArray) {
@@ -85,35 +97,52 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
                         $zipStream
                     );
                 } catch (FileNotFoundException|FileNotReadableException $e) {
-                    $this->logger->critical('Unable to load or read file from path.', [$e]);
-                    $errorMessages[] = $this->translator->trans(
-                        'error.statments.zip.export.filenotfoundorreadable',
-                        ['hash' => $attachment->getHash()]
-                    );
+                    $this->handleError($e, self::FIILE_NOT_FOUND_OR_READABLE);
+                    $this->errorCount['attachmentNotAddedCount']++;
                 } catch (InvalidDataException $e) {
-                    $this->logger->critical(
-                        'The hash for a file, which should be added to a zip export is not a string,
-            is an empty string, equals \'..\' or contains a slash (\'/\').',
-                        [$e]
-                    );
-                    $errorMessages[] = $this->translator->trans('error.statments.zip.export.hash.invalid');
+                    $this->handleError($e, self::FILE_HASH_INVALID);
+                    $this->errorCount['attachmentNotAddedCount']++;
                 } catch (Exception $e) {
-                    $this->logger->critical('An error occurred during creation of zip file for export.', [$e]);
-                    $errorMessages[] = $this->translator->trans('error.statements.zip.export.generic.attachment');
+                    $this->handleError($e, self::UNKOWN_ERROR);
+                    $this->errorCount['attachmentUnkownErrorCount']++;
                 }
             }
         }
-
-        if (0 < count($errorMessages)) {
-            $this->addErrorTextFile($zipStream, $errorMessages);
+        $this->addCountedErrorMessages();
+        if (0 < count($this->errorMessages)) {
+            $this->addErrorTextFile($zipStream);
         }
     }
 
-    private function addErrorTextFile(ZipStream $zipStream, array $errorMessages): void
+    private function addErrorTextFile(ZipStream $zipStream): void
     {
         $zipStream->addFile(
             'errors.txt',
-            implode("\n", $errorMessages)
+            implode("\n", $this->errorMessages)
         );
+    }
+
+    private function addCountedErrorMessages(): void
+    {
+        if (0 < $this->errorCount['attachmentNotAddedCount']) {
+            $this->errorMessages[] = $this->translator->trans(
+                self::ATTACHMENT_NOT_ADDED,
+                ['count' => $this->errorCount['attachmentNotAddedCount']]
+            );
+        }
+        if (0 < $this->errorCount['attachmentUnkownErrorCount']) {
+            $this->errorMessages[] = $this->translator->trans(
+                self::ATTACHMENT_GENERIC,
+                ['count' => $this->errorCount['attachmentUnkownErrorCount']]
+            );
+        }
+    }
+
+    private function handleError(Exception $exception, string $logMessage, string $transKey = ''): void
+    {
+        $this->logger->critical($logMessage, [$exception]);
+        if ('' !== $transKey) {
+            $this->errorMessages[] = $this->translator->trans($transKey);
+        }
     }
 }
