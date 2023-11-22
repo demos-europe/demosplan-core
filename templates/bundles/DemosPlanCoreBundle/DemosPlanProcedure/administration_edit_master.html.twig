@@ -68,7 +68,7 @@
                 {% endblock %}
             {% endif %}
 
-            {% if hasProcedureUserRestrictedAccess %}
+            {% if hasProcedureUserRestrictedAccess and hasPermission('feature_procedure_user_restrict_access_edit') %}
                 <div class="u-mb flow-root">
                     <label class="inline-block u-mb-0" for="r_dataInputOrga">
                         {{ "authorized.users"|trans }}
