@@ -44,6 +44,8 @@ use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\PathException;
 use Exception;
 use ReflectionException;
+use Symfony\Component\Validator\Constraints\Blank;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Throwable;
 
 class ElementsService extends CoreService implements ElementsServiceInterface
@@ -932,4 +934,104 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             'procedure' => $procedureId,
         ]);
     }
+
+
+    /**
+     * Tries to guess the type of the planning document category to be created based on the given parameters.
+     *
+     * @param string|null $elementTitle statement.elements.title
+     *                                  = Name of the kind of related document which type we want to determine here.
+     * @param string|null $documentTitle  statement.document(singleDocumentVersion).title
+     * @param string|null $paragraphTitle statement.paragraph(paragraphVersion).title
+     *
+     * @return string|ConstraintViolationListInterface|null
+     */
+    public function determineCategoryType(
+        ?string $elementTitle,
+        ?string $documentTitle,
+        ?string $paragraphTitle
+    ): null|string|ConstraintViolationListInterface
+    {
+
+        if (null !== $documentTitle) {
+            $violations = $this->validator->validate($paragraphTitle, new Blank('message'));
+        }
+        if (null !== $paragraphTitle) {
+            $violations = $this->validator->validate($documentTitle, new Blank('message'));
+        }
+
+        if (null !== $documentTitle && null !== $paragraphTitle) {
+            $violations = $this->validator->validate($documentTitle, new Blank('message'));
+        }
+
+        //have related planningDocument
+        if (null !== $documentTitle && null === $paragraphTitle) {
+            return ElementsInterface::ELEMENTS_CATEGORY_FILE;
+        }
+
+        // have related paragraph
+        if (null === $documentTitle && null !== $paragraphTitle) {
+            return ElementsInterface::ELEMENTS_CATEGORY_PARAGRAPH;
+        }
+
+        //determine category depending on element.title (= $planningDocumentCategoryTitle)
+        return match ($elementTitle) {
+            //statement
+            ElementsInterface::ELEMENTS_TITLE_GESAMTSTELLUNGNAHME,
+            ElementsInterface::ELEMENTS_TITLE_FEHLANZEIGE
+            => ElementsInterface::ELEMENTS_CATEGORY_STATEMENT,
+
+            // paragraph:
+            ElementsInterface::ELEMENTS_TITLE_TEXTLICHE_FESTSETZUNGEN,
+            ElementsInterface::ELEMENTS_TITLE_BEGRUENDUNG,
+            ElementsInterface::ELEMENTS_TITLE_VERORDNUNG_TEXT_TEIL_B
+            => ElementsInterface::ELEMENTS_CATEGORY_PARAGRAPH,
+
+            // map:
+            ElementsInterface::ELEMENTS_TITLE_PLANZEICHNUNG
+            => ElementsInterface::ELEMENTS_CATEGORY_MAP,
+
+            //file:
+            ElementsInterface::ELEMENTS_TITLE_GROBABSTIMMUNGSPAPIER,
+            ElementsInterface::ELEMENTS_TITLE_ARBEITSKREISPAPIER,
+            ElementsInterface::ELEMENTS_TITLE_ARBEITSKREISPAPIER_I,
+            ElementsInterface::ELEMENTS_TITLE_ARBEITSKREISPAPIER_II,
+            ElementsInterface::ELEMENTS_TITLE_ERGAENZENDE_UNTERLAGE,
+            ElementsInterface::ELEMENTS_TITLE_FNP_AENDERUNG,
+            ElementsInterface::ELEMENTS_TITLE_FNP_BERICHTIGUNG,
+            ElementsInterface::ELEMENTS_TITLE_GUTACHTEN,
+            ElementsInterface::ELEMENTS_TITLE_LAPRO_AENDERUNG,
+            ElementsInterface::ELEMENTS_TITLE_NIEDERSCHRIFT_GROBABSTIMMUNG_ARBEITSKREISE,
+            ElementsInterface::ELEMENTS_TITLE_NIEDERSCHRIFT_SONSTIGE,
+            ElementsInterface::ELEMENTS_TITLE_SCOPING_PAPIER,
+            ElementsInterface::ELEMENTS_TITLE_SCOPING_PROTOKOLL,
+            ElementsInterface::ELEMENTS_TITLE_VERORDNUNG,
+            ElementsInterface::ELEMENTS_TITLE_VERTEILER,
+            ElementsInterface::ELEMENTS_TITLE_WEITERE_INFORMATION,
+            ElementsInterface::ELEMENTS_TITLE_ERGAENZENDE_UNTERLAGEN,
+            ElementsInterface::ELEMENTS_TITLE_NIEDERSCHRIFTEN,
+            ElementsInterface::ELEMENTS_TITLE_UNTERSUCHUNGEN,
+            ElementsInterface::ELEMENTS_TITLE_UNTERSUCHUNG,
+            ElementsInterface::ELEMENTS_TITLE_VERTEILER_UND_EINLADUNG,
+            ElementsInterface::ELEMENTS_TITLE_ARBEITSKREISPAPIER_0,
+            ElementsInterface::ELEMENTS_TITLE_INFOBLATT,
+            ElementsInterface::ELEMENTS_TITLE_INFOBLATT_SCOPING_PAPIER_NUR_SCOPING_PROTOKOLL,
+            ElementsInterface::ELEMENTS_TITLE_STAEDTEBAULICHE_VERTRAEGE_ERGAENZENDE_UNTERLAGEN,
+            ElementsInterface::ELEMENTS_TITLE_PROTOKOLLE_UND_NIEDERSCHRIFTEN,
+            ElementsInterface::ELEMENTS_TITLE_LANDSCHAFTSPLAN_AENDERUNG
+            => ElementsInterface::ELEMENTS_CATEGORY_FILE,
+        };
+
+        // validate
+        $violations = $this->validator->validate(
+            $this,
+            new StatementElementCategoryConstraint()
+        );
+        if (0 !== $violations->count()) {
+            return $violations;
+        }
+        return $violations;
+
+    }
+
 }

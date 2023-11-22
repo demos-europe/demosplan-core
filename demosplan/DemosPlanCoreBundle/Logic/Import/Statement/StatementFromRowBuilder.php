@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
 use Carbon\Carbon;
 use DateTime;
-use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\DateStringConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -274,7 +273,11 @@ class StatementFromRowBuilder
         if (null !== $this->planningDocumentCategoryTitle) {
             $planningCategory = new Elements();
             $planningCategory->setTitle($this->planningDocumentCategoryTitle);
-            $planningCategory->setCategory($this->determineCategoryType());
+            $planningCategory->setCategory($this->planningCategoryService->determineCategoryType(
+                $this->planningDocumentCategoryTitle,
+                $this->planningDocumentName,
+                $this->paragraphName
+            ));
             $planningCategory->setProcedure($this->procedure);
             $nextOrderIndex = $this->planningCategoryService->getNextFreeOrderIndex($this->procedure);
             $planningCategory->setOrder($nextOrderIndex);
@@ -341,17 +344,4 @@ class StatementFromRowBuilder
         return $violations;
     }
 
-    /**
-     * Tries to guess the type of the planning document category to be created based on:.
-     *
-     * * {@link self::$planningDocumentCategoryTitle}
-     * * {@link self::$planningDocumentName}
-     * * {@link self::$paragraphName}
-     *
-     * @see ElementsInterface contains some possible category type constants
-     */
-    protected function determineCategoryType(): string
-    {
-        return null;
-    }
 }
