@@ -59,8 +59,9 @@
                 name="bpform"
                 action="{{ path("DemosPlan_cluster_view", {'statement': templateVars.table.statement.ident, 'procedureId': procedure, 'isCluster': true}) }}"
                 method="post"
-                enctype="multipart/form-data"
-            >
+                enctype="multipart/form-data">
+                {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
                 <dp-map-modal
                     ref="mapModal"
                     procedure-id="{{ procedureId }}"

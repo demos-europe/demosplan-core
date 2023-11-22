@@ -5,6 +5,7 @@
     <h1>{{ 'gislayer.global'|trans }}</h1>
 
     <form method="post" action="{{ path('DemosPlan_map_administration_gislayer_global') }}" name="gisLayerForm">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         <p>{{ 'explanation.gislayer.global.administration'|trans }}</p>
 

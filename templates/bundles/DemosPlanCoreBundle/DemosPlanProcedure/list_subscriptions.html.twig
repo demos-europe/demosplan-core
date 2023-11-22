@@ -24,6 +24,8 @@
                     id="subscriptionForm"
                     action="{{ path('DemosPlan_procedure_list_subscriptions') }}"
                     method="post">
+                    {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
                     <h2 class="font-size-large u-mt-0_5">
                       {{ 'notification.create'|trans }}
                     </h2>
