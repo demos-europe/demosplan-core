@@ -67,7 +67,7 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
     {
         try {
             self::checkIfNeededArrayKeysExist($file);
-        } catch(InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             $this->logger->error($e->getMessage(), $file);
             throw new AssessmentTableZipExportException('error', self::ZIP_NOT_CREATED);
         }
