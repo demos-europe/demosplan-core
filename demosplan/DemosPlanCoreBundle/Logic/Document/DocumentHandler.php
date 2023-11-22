@@ -357,8 +357,8 @@ class DocumentHandler extends CoreHandler
 
         foreach ($outputResultElementList as $element) {
             if ($element->getEnabled()
-                && (ElementsInterface::ELEMENTS_CATEGORY_FILE === $element->getCategory()
-                    || ElementsInterface::ELEMENTS_CATEGORY_PARAGRAPH === $element->getCategory())
+                && (ElementsInterface::ELEMENT_CATEGORIES['file'] === $element->getCategory()
+                    || ElementsInterface::ELEMENT_CATEGORIES['paragraph'] === $element->getCategory())
             ) {
                 $hasProcedureElements = true;
                 break;

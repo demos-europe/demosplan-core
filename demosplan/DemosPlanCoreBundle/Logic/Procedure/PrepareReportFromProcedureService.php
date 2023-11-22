@@ -381,10 +381,10 @@ class PrepareReportFromProcedureService extends CoreService
 
         foreach ($elementsList as $element) {
             switch ($element->getCategory()) {
-                case ElementsInterface::ELEMENTS_CATEGORY_PARAGRAPH:
+                case ElementsInterface::ELEMENT_CATEGORIES['paragraph']:
                     $paragraphs = $this->addParagraphReportToMessage($element, $paragraphs);
                     break;
-                case ElementsInterface::ELEMENTS_CATEGORY_FILE:
+                case ElementsInterface::ELEMENT_CATEGORIES['file']:
                     $elements = $this->addFileReportToMessage($element, $elements);
                     break;
                 default:

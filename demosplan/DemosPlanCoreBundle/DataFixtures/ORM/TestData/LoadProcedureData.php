@@ -932,19 +932,19 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         Procedure $masterBlueprint
     ): void {
         $elementsToCreate = [
-            ElementsInterface::ELEMENTS_TITLE_FNP_AENDERUNG,
-            ElementsInterface::ELEMENTS_TITLE_LAPRO_AENDERUNG,
-            ElementsInterface::ELEMENTS_TITLE_ERGAENZENDE_UNTERLAGE,
-            ElementsInterface::ELEMENTS_TITLE_ARBEITSKREISPAPIER,
-            ElementsInterface::ELEMENTS_TITLE_VERTEILER,
-            ElementsInterface::ELEMENTS_TITLE_NIEDERSCHRIFT_SONSTIGE,
-            ElementsInterface::ELEMENTS_TITLE_SCOPING_PAPIER,
-            ElementsInterface::ELEMENTS_TITLE_GUTACHTEN,
-            ElementsInterface::ELEMENTS_TITLE_ARBEITSKREISPAPIER_I,
-            ElementsInterface::ELEMENTS_TITLE_ARBEITSKREISPAPIER_II,
-            ElementsInterface::ELEMENTS_TITLE_NIEDERSCHRIFT_GROBABSTIMMUNG_ARBEITSKREISE,
-            ElementsInterface::ELEMENTS_TITLE_GROBABSTIMMUNGSPAPIER,
-            ElementsInterface::ELEMENTS_TITLE_SCOPING_PROTOKOLL,
+            ElementsInterface::ELEMENT_TITLES['fnp_aenderung'],
+            ElementsInterface::ELEMENT_TITLES['lapro_aenderung'],
+            ElementsInterface::ELEMENT_TITLES['ergaenzende_unterlage'],
+            ElementsInterface::ELEMENT_TITLES['arbeitskreispapier'],
+            ElementsInterface::ELEMENT_TITLES['verteiler'],
+            ElementsInterface::ELEMENT_TITLES['niederschrift_sonstige'],
+            ElementsInterface::ELEMENT_TITLES['scoping_papier'],
+            ElementsInterface::ELEMENT_TITLES['gutachten'],
+            ElementsInterface::ELEMENT_TITLES['arbeitskreispapier_i'],
+            ElementsInterface::ELEMENT_TITLES['arbeitskreispapier_ii'],
+            ElementsInterface::ELEMENT_TITLES['niederschrift_grobabstimmung_arbeitskreise'],
+            ElementsInterface::ELEMENT_TITLES['grobabstimmungspapier'],
+            ElementsInterface::ELEMENT_TITLES['scoping_protokoll'],
         ];
 
         foreach ($elementsToCreate as $key => $elementTitle) {
@@ -969,13 +969,13 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         Procedure $masterBlueprint
     ): void {
         $elementsToCreate = [
-            ElementsInterface::ELEMENTS_TITLE_VERORDNUNG,
-            ElementsInterface::ELEMENTS_TITLE_BEGRUENDUNG,
+            ElementsInterface::ELEMENT_TITLES['verordnung'],
+            ElementsInterface::ELEMENT_TITLES['begruendung'],
         ];
         foreach ($elementsToCreate as $key => $elementTitle) {
             $element = new Elements();
             $element->setProcedure($masterBlueprint);
-            $element->setCategory(ElementsInterface::ELEMENTS_CATEGORY_PARAGRAPH);
+            $element->setCategory(ElementsInterface::ELEMENT_CATEGORIES['paragraph']);
             $element->setOrder($key);
             $element->setEnabled(1);
             $element->setTitle($elementTitle);
