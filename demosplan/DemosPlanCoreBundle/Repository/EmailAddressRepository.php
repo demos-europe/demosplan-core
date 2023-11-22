@@ -57,20 +57,36 @@ class EmailAddressRepository extends FluentRepository implements EmailAddressRep
      *
      * @return int the number of deletions
      */
-    public function deleteOrphanEmailAddresses(): int
+    public function deleteOrphanEmailAddresses(array $toDeleteEmailIds): int
     {
         $connection = $this->getEntityManager()->getConnection();
 
-        return $connection->exec(
+        $numberOfDeletedEmailAddresses = $connection->exec(
+            'DELETE e'
+            .' FROM email_address AS e'
+            .' LEFT JOIN procedure_agency_extra_email_address  AS p  ON p.email_address_id = e.id'
+            .' LEFT JOIN support_contact                      AS sc ON sc.email_address = e.id'
+            .' WHERE p.procedure_id   IS NULL'
+            .' AND   sc.email_address IS NULL'
+        );
+
+        return $numberOfDeletedEmailAddresses += $connection->exec(
+            'DELETE e'
+            .' FROM email_address AS e'
+            .' WHERE e.id IN ()' //FIXME IN $toDeleteEmailIds.
+        );
+
+        /*return $connection->exec(
             'DELETE e'
             .' FROM email_address AS e'
             .' LEFT JOIN procedure_agency_extra_email_address  AS p  ON p.email_address_id = e.id'
             .' LEFT JOIN maillane_allowed_sender_email_address AS m  ON m.email_address_id = e.id'
             .' LEFT JOIN support_contact                      AS sc ON sc.email_address = e.id'
             .' WHERE p.procedure_id   IS NULL'
-            .' AND   m.procedure_id   IS NULL'
+            .' AND e.id IN ()'
             .' AND   sc.email_address IS NULL'
-        );
+
+        );*/
     }
 
     /**
