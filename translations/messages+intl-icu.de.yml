@@ -1277,10 +1277,20 @@ error.statement.submit.nowriteaccess: "In dem Verfahren können derzeit keine St
 error.statement.submit.phase: "In der aktuellen Phase des Verfahrens können keine Stellungnahmen eingereicht werden."
 error.statement.update: "Beim Aktualisieren der Stellungnahme ist ein Fehler aufgetreten."
 error.statements.marked.submitted: "Die Stellungnahmen konnten nicht eingereicht werden!"
-error.statements.zip.export.generic.xlsx: "Die xlsx Datei konnte nicht dem Zip hinzugefügt werden."
-error.statements.zip.export.generic.attachment: "Beim Hinzufügen eines Anhang ist ein unbekannter Fehler aufgetreten."
-error.statments.zip.export.filenotfoundorreadable: "Der Anhang mit dem Hash: {hash} konnte dem Zip nicht hinzugefügt werden."
-error.statments.zip.export.hash.invalid: "Ein Anhang konnte dem Zip nicht hinzugefügt werden. Hash ist invalide."
+error.statements.zip.export: "Das ZIP-Archiv konnte nicht erstellt werden."
+error.statements.zip.export.generic.xlsx: "Die XLSX-Datei konnte dem ZIP-Archiv nicht hinzugefügt werden."
+error.statements.zip.export.incomplete.xlsx: "Die generierte XLSX-Datei war unvollständig. Export abgebrochen."
+error.statements.zip.export.generic.attachment: |
+    {count, plural,
+    =1 { Beim Hinzufügen eines Anhangs ist ein unbekannter Fehler aufgetreten.}
+    other { Beim Hinzufügen eines Anhangs sind # unbekannte Fehler aufgetreten.}
+    }
+error.statments.zip.export.attachment: |
+    {count, plural,
+    =1 { Ein Anhang konnte dem ZIP-Archiv nicht hinzugefügt werden.}
+    other { # Anhänge konnten dem ZIP-Archiv nicht hinzugefügt werden.}
+    }
+error.statements.zip.export.attachments.not.addable: 'Es konnten dem ZIP-Archiv keine Anhänge hinzugefügt werden. Export abgebrochen.'
 error.survey.votes.publication: "Die Veröffentlichung der Antwort konnte nicht verändert werden."
 error.tag.notfound: "Das Schlagwort konnte nicht gefunden werden."
 error.topic.notfound: "Das Thema wurde nicht gefunden. Möglicherweise wurde es zwischenzeitlich gelöscht."
@@ -1356,8 +1366,16 @@ explanation.export.disabled.viewMode: "Die Exporte mit Datensätzen sind in der 
 explanation.export.docx: "Es werden die Daten entsprechend der Auswahl in den Grundeinstellungen exportiert. Bei diesem Export werden ausschließlich Stellungnahmen exportiert."
 explanation.export.potentialAreas: "Es werden die Begründungen zu den Stellungnahmen mit Potenzialflächen exportiert."
 explanation.export.projectlogin: "Bitte melden Sie sich bei {projectName} an, um das Archiv herunterzuladen."
-explanation.export.statements: "Exportiert ausgewählte Stellungnahmen mit allen Daten als XLSX."
-explanation.export.statements.zip: "Exportiert ausgewählte Stellungnahmen mit allen Daten und Anhängen als ZIP-Archiv für den Import in das Einwendungsmanagement (EWM)."
+explanation.export.statements: |
+    {hasSelectedElements, select,
+        true {Exportiert ausgewählte Stellungnahmen mit allen Daten als XLSX.}
+        other {Exportiert alle Stellungnahmen mit allen Daten als XLSX.}
+    }
+explanation.export.statements.zip: |
+    {hasSelectedElements, select,
+        true {Exportiert ausgewählte Stellungnahmen mit allen Daten und Anhängen als ZIP-Archiv für den Import in das Einwendungsmanagement (EWM).}
+        other {Exportiert alle Stellungnahmen mit allen Daten und Anhängen als ZIP-Archiv für den Import in das Einwendungsmanagement (EWM).}
+    }
 explanation.export.statementsAndFragments: "Es wird die Stellungnahme exportiert, wenn kein Datensatz vorhanden ist."
 explanation.export.topicsAndTags: "Es werden die Begründungen zu den Stellungnahmen mit Themen und Schlagworten exportiert."
 explanation.feedback.email: "An die hinterlegte E-Mail-Adresse erhalten Sie die Bestätigung Ihrer Stellungnahme und eine Information, sobald die Ergebnisse der Online-Beteiligung vorliegen."
@@ -3090,7 +3108,7 @@ statement.assignment.assigned: "Bearbeitet durch: {name} ({organisation})"
 statement.assignment.override: "Stellungnahme mir zuweisen"
 statement.assignment.release: "Stellungnahme freigeben"
 statement.assignment.unassigned: "Aktuell nicht in Bearbeitung"
-statement.attachments.reference: "Referenz Anhänge"
+statement.attachments.reference: "Referenzen auf Anhänge"
 statement.change.failed: "Änderung der Stellungnahme fehlgeschlagen"
 statement.pdfs.checkable.now: |
     {count, plural,

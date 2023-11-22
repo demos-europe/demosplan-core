@@ -335,7 +335,7 @@
                   v-model="exportChoice.xlsx.exportType">
                 {{ Translator.trans('statements') }}
                 <p class="lbl__hint u-ml-0_75 u-mb-0">
-                  {{ Translator.trans('explanation.export.statements') }}
+                  {{ Translator.trans('explanation.export.statements', { hasSelectedElements: hasSelectedElements }) }}
                 </p>
               </label>
             </fieldset>
@@ -353,7 +353,7 @@
             :class="activeTab('zip')"
             role="tabpanel">
             <p class="lbl__hint u-ml-0_75 u-mb-0">
-              {{ Translator.trans('explanation.export.statements.zip') }}
+              {{ Translator.trans('explanation.export.statements.zip', { hasSelectedElements: hasSelectedElements }) }}
             </p>
           </div>
 
@@ -384,6 +384,12 @@ export default {
       required: false,
       type: String,
       default: ''
+    },
+
+    hasSelectedElements: {
+      required: false,
+      type: Boolean,
+      default: false
     },
 
     //  Export options that define which formats / fields to display
