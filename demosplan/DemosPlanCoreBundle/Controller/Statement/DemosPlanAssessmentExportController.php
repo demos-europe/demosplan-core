@@ -46,8 +46,6 @@ class DemosPlanAssessmentExportController extends BaseController
      *
      * @DplanPermissions("area_admin_assessmenttable")
      *
-     * @return Response
-     *
      * @throws Exception
      */
     #[Route(
@@ -73,7 +71,7 @@ class DemosPlanAssessmentExportController extends BaseController
         try {
             $file = $assessmentExporter->export($exportFormat, $exportParameters);
             $response = $responseGenerator($exportFormat, $file);
-        } catch(AssessmentTableZipExportException $e){
+        } catch (AssessmentTableZipExportException $e) {
             $this->getMessageBag()->add($e->getLevel(), $e->getUserMsg());
 
             return $this->redirectBack($request);
