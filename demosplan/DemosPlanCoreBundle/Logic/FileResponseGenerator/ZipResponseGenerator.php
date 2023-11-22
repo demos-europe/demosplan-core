@@ -51,7 +51,7 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
         $this->supportedTypes = $supportedTypes;
         $this->errorMessages = [];
         $this->errorCount = [
-            'attachmentNotAddedCount' => 0,
+            'attachmentNotAddedCount'    => 0,
             'attachmentUnkownErrorCount' => 0,
         ];
     }
@@ -98,13 +98,13 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
                     );
                 } catch (FileNotFoundException|FileNotReadableException $e) {
                     $this->handleError($e, self::FIILE_NOT_FOUND_OR_READABLE);
-                    $this->errorCount['attachmentNotAddedCount']++;
+                    ++$this->errorCount['attachmentNotAddedCount'];
                 } catch (InvalidDataException $e) {
                     $this->handleError($e, self::FILE_HASH_INVALID);
-                    $this->errorCount['attachmentNotAddedCount']++;
+                    ++$this->errorCount['attachmentNotAddedCount'];
                 } catch (Exception $e) {
                     $this->handleError($e, self::UNKOWN_ERROR);
-                    $this->errorCount['attachmentUnkownErrorCount']++;
+                    ++$this->errorCount['attachmentUnkownErrorCount'];
                 }
             }
         }
