@@ -975,7 +975,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         foreach ($elementsToCreate as $key => $elementTitle) {
             $element = new Elements();
             $element->setProcedure($masterBlueprint);
-            $element->setCategory(ElementsInterface::ELEMENTS_CATEGORY_PARAGRAPH);
+            $element->setCategory(ElementsInterface::ELEMENT_CATEGORIES['paragraph']);
             $element->setOrder($key);
             $element->setEnabled(1);
             $element->setTitle($elementTitle);
