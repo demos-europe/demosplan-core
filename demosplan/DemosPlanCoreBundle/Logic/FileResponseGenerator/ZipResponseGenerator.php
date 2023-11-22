@@ -13,17 +13,20 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator;
 
 use demosplan\DemosPlanCoreBundle\Entity\File;
+use demosplan\DemosPlanCoreBundle\Exception\AssessmentTableZipExportException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
+use InvalidArgumentException;
 use PhpOffice\PhpSpreadsheet\Writer\Exception as WriterException;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Webmozart\Assert\Assert;
 use ZipStream\Exception\FileNotFoundException;
 use ZipStream\Exception\FileNotReadableException;
 use ZipStream\ZipStream;
@@ -37,6 +40,7 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
     private const ATTACHMENT_NOT_ADDED = 'error.statments.zip.export.attachment';
     private const ATTACHMENT_GENERIC = 'error.statements.zip.export.generic.attachment';
     private const XLSX_GENERIC = 'error.statements.zip.export.generic.xlsx';
+    private const ZIP_NOT_CREATED = 'error.statements.zip.export';
     private array $errorMessages;
     private array $errorCount;
 
@@ -56,8 +60,18 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
         ];
     }
 
+    /**
+     * @throws AssessmentTableZipExportException
+     */
     public function __invoke(array $file): Response
     {
+        try {
+            self::checkIfNeededArrayKeysExist($file);
+        } catch(InvalidArgumentException $e) {
+            $this->logger->error($e->getMessage(), $file);
+            throw new AssessmentTableZipExportException('error', self::ZIP_NOT_CREATED);
+        }
+
         return $this->createStreamedResponseForZip($file);
     }
 
@@ -144,5 +158,21 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
         if ('' !== $transKey) {
             $this->errorMessages[] = $this->translator->trans($transKey);
         }
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    private static function checkIfNeededArrayKeysExist(array $file): void
+    {
+        $logSuffix = ', in zip response generation.';
+        $prefix = 'Array key expected: ';
+        Assert::keyExists($file, 'zipFileName', $prefix.'zipFileName'.$logSuffix);
+        Assert::keyExists($file, 'xlsx', $prefix.'xlsx'.$logSuffix);
+        Assert::isArray($file['xlsx'], 'Array expected under the key xlsx'.$logSuffix);
+        Assert::keyExists($file['xlsx'], 'filename', $prefix.'filename'.$logSuffix);
+        Assert::keyExists($file['xlsx'], 'writer', $prefix.'writer'.$logSuffix);
+        Assert::keyExists($file['xlsx'], 'statementIds', $prefix.'statementIds'.$logSuffix);
+        Assert::keyExists($file, 'attachments', $prefix.'attachments'.$logSuffix);
     }
 }
