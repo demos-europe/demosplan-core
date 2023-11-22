@@ -6,8 +6,8 @@
     <form
         action="{{ path('dplan_customer_mail_send_all_users') }}"
         method="post"
-        data-dp-validate
-    >
+        data-dp-validate>
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         <fieldset>
             <legend>

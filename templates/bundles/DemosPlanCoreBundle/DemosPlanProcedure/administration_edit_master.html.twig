@@ -20,12 +20,12 @@
             enctype="multipart/form-data"
             data-dp-validate
             method="post"
-            action="{{ path('DemosPlan_procedure_edit_master',{'procedure':proceduresettings.ident}) }}"
-        >
+            action="{{ path('DemosPlan_procedure_edit_master',{'procedure':proceduresettings.ident}) }}">
             <input type="hidden" name="_token" value="{{ form._token.vars.value }}" />
             <input type="hidden" value="{% if proceduresettings.ident is defined %}{{ proceduresettings.ident }}{% endif %}" name="r_ident">
             <input type="hidden" value="{% if templateVars.internalPhases.1 is defined %}{{ templateVars.internalPhases.1.key }}{% endif %}" name="r_phase">
             <input type="hidden" value="edit" name="action">
+            {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
             <label>
                 {{ "name"|trans }}*
@@ -68,7 +68,7 @@
                 {% endblock %}
             {% endif %}
 
-            {% if hasProcedureUserRestrictedAccess %}
+            {% if hasProcedureUserRestrictedAccess and hasPermission('feature_procedure_user_restrict_access_edit') %}
                 <div class="u-mb flow-root">
                     <label class="inline-block u-mb-0" for="r_dataInputOrga">
                         {{ "authorized.users"|trans }}
