@@ -935,24 +935,19 @@ class ElementsService extends CoreService implements ElementsServiceInterface
         ]);
     }
 
-
     /**
      * Tries to guess the type of the planning document category to be created based on the given parameters.
      *
-     * @param string|null $elementTitle statement.elements.title
-     *                                  = Name of the kind of related document which type we want to determine here.
+     * @param string|null $elementTitle   statement.elements.title
+     *                                    = Name of the kind of related document which type we want to determine here.
      * @param string|null $documentTitle  statement.document(singleDocumentVersion).title
      * @param string|null $paragraphTitle statement.paragraph(paragraphVersion).title
-     *
-     * @return string|ConstraintViolationListInterface|null
      */
     public function determineCategoryType(
         ?string $elementTitle,
         ?string $documentTitle,
         ?string $paragraphTitle
-    ): null|string|ConstraintViolationListInterface
-    {
-
+    ): null|string|ConstraintViolationListInterface {
         if (null !== $documentTitle) {
             $violations = $this->validator->validate($paragraphTitle, new Blank('message'));
         }
@@ -964,7 +959,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             $violations = $this->validator->validate($documentTitle, new Blank('message'));
         }
 
-        //have related planningDocument
+        // have related planningDocument
         if (null !== $documentTitle && null === $paragraphTitle) {
             return ElementsInterface::ELEMENTS_CATEGORY_FILE;
         }
@@ -974,24 +969,21 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             return ElementsInterface::ELEMENTS_CATEGORY_PARAGRAPH;
         }
 
-        //determine category depending on element.title (= $planningDocumentCategoryTitle)
+        // determine category depending on element.title (= $planningDocumentCategoryTitle)
         return match ($elementTitle) {
-            //statement
+            // statement
             ElementsInterface::ELEMENTS_TITLE_GESAMTSTELLUNGNAHME,
-            ElementsInterface::ELEMENTS_TITLE_FEHLANZEIGE
-            => ElementsInterface::ELEMENTS_CATEGORY_STATEMENT,
+            ElementsInterface::ELEMENTS_TITLE_FEHLANZEIGE => ElementsInterface::ELEMENTS_CATEGORY_STATEMENT,
 
             // paragraph:
             ElementsInterface::ELEMENTS_TITLE_TEXTLICHE_FESTSETZUNGEN,
             ElementsInterface::ELEMENTS_TITLE_BEGRUENDUNG,
-            ElementsInterface::ELEMENTS_TITLE_VERORDNUNG_TEXT_TEIL_B
-            => ElementsInterface::ELEMENTS_CATEGORY_PARAGRAPH,
+            ElementsInterface::ELEMENTS_TITLE_VERORDNUNG_TEXT_TEIL_B => ElementsInterface::ELEMENTS_CATEGORY_PARAGRAPH,
 
             // map:
-            ElementsInterface::ELEMENTS_TITLE_PLANZEICHNUNG
-            => ElementsInterface::ELEMENTS_CATEGORY_MAP,
+            ElementsInterface::ELEMENTS_TITLE_PLANZEICHNUNG => ElementsInterface::ELEMENTS_CATEGORY_MAP,
 
-            //file:
+            // file:
             ElementsInterface::ELEMENTS_TITLE_GROBABSTIMMUNGSPAPIER,
             ElementsInterface::ELEMENTS_TITLE_ARBEITSKREISPAPIER,
             ElementsInterface::ELEMENTS_TITLE_ARBEITSKREISPAPIER_I,
@@ -1018,8 +1010,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             ElementsInterface::ELEMENTS_TITLE_INFOBLATT_SCOPING_PAPIER_NUR_SCOPING_PROTOKOLL,
             ElementsInterface::ELEMENTS_TITLE_STAEDTEBAULICHE_VERTRAEGE_ERGAENZENDE_UNTERLAGEN,
             ElementsInterface::ELEMENTS_TITLE_PROTOKOLLE_UND_NIEDERSCHRIFTEN,
-            ElementsInterface::ELEMENTS_TITLE_LANDSCHAFTSPLAN_AENDERUNG
-            => ElementsInterface::ELEMENTS_CATEGORY_FILE,
+            ElementsInterface::ELEMENTS_TITLE_LANDSCHAFTSPLAN_AENDERUNG => ElementsInterface::ELEMENTS_CATEGORY_FILE,
         };
 
         // validate
@@ -1030,8 +1021,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
         if (0 !== $violations->count()) {
             return $violations;
         }
+
         return $violations;
-
     }
-
 }

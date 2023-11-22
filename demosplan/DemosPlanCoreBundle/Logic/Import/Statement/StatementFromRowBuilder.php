@@ -343,5 +343,4 @@ class StatementFromRowBuilder
 
         return $violations;
     }
-
 }
