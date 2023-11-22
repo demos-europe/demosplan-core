@@ -108,8 +108,8 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
                 $this->translator->trans('considerationtable').'-%s.xlsx',
                 Carbon::now()->format('d-m-Y-H:i')
             ),
-            'writer'   => $objWriter,
-            'statementIds' => $statementIds
+            'writer'       => $objWriter,
+            'statementIds' => $statementIds,
         ];
     }
 
