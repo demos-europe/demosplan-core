@@ -255,7 +255,7 @@ class GetFeatureInfo
                 $return = preg_replace('|<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>|mi', '', $return);
                 // Ersetze h2 durch h4
                 $return = preg_replace('|h2>|', 'h4>', $return);
-                $return = strip_tags($return, '<h4><table><tr><th><td><strong><b>');
+                $return = strip_tags($return, '<h4><table><tr><th><td><strong><b><a>');
             }
         }
 
