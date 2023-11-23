@@ -66,6 +66,7 @@
             {{ "text.elementimport.fileupload"|trans }}
         </p>
         <form action="{{ path('DemosPlan_element_import', {'procedureId':procedure }) }}" method="post" enctype="multipart/form-data">
+            {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
             {{
                 fileupload(

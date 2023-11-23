@@ -26,9 +26,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use Doctrine\Common\Collections\Collection;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\PathException;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-implements UpdatableDqlResourceTypeInterface<Elements>

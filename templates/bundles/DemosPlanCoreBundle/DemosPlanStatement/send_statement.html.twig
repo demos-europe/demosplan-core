@@ -16,6 +16,7 @@
             <form action="{{ path((templateVars.backroute),{'procedure':procedure}) }}" method="post" name="emailForm" data-dp-validate>
                 <input type="hidden" name="statement_send" value="statement_send">
                 <input type="hidden" name="statementID" value="{{ templateVars.statementID }}">
+                {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
                 {{ uiComponent('form.row', {
                     elements: [
