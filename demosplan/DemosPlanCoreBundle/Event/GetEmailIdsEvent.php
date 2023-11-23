@@ -12,19 +12,19 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Event;
 
-use DemosEurope\DemosplanAddon\Contracts\Events\GetToDeleteEmailIdsEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\GetEmailIdsEventInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class GetToDeleteEmailIdsEvent extends Event implements GetToDeleteEmailIdsEventInterface
+class GetEmailIdsEvent extends Event implements GetEmailIdsEventInterface
 {
     private readonly array $toDeleteEmailIds;
 
-    public function getToDeleteEmailIds(): array
+    public function getEmailIds(): array
     {
         return $this->toDeleteEmailIds;
     }
 
-    public function setToDeleteEmailIds(array $emailIds): void
+    public function setEmailIds(array $emailIds): void
     {
         $this->toDeleteEmailIds = $emailIds;
     }

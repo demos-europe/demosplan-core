@@ -10,10 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use DemosEurope\DemosplanAddon\Contracts\Events\GetToDeleteEmailIdsEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\GetEmailIdsEventInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
-use demosplan\DemosPlanCoreBundle\Event\GetToDeleteEmailIdsEvent;
+use demosplan\DemosPlanCoreBundle\Event\GetEmailIdsEvent;
 use demosplan\DemosPlanCoreBundle\Repository\EmailAddressRepository;
 
 class EmailAddressService extends CoreService
@@ -32,15 +32,15 @@ class EmailAddressService extends CoreService
      */
     public function deleteOrphanEmailAddresses(): int
     {
-        $event = new GetToDeleteEmailIdsEvent();
+        $event = new GetEmailIdsEvent();
         $this->eventDispatcher->dispatch(
             $event,
-            GetToDeleteEmailIdsEventInterface::class
+            GetEmailIdsEventInterface::class
         );
 
-        $toDeleteEmailIds = $event->getToDeleteEmailIds();
+        $emailIds = $event->getEmailIds();
 
-        return $this->emailAddressRepository->deleteOrphanEmailAddresses($toDeleteEmailIds);
+        return $this->emailAddressRepository->deleteOrphanEmailAddresses($emailIds);
     }
 
     public function getOrCreateEmailAddress(string $fullEmailAddress): EmailAddress

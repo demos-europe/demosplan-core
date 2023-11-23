@@ -57,7 +57,7 @@ class EmailAddressRepository extends FluentRepository implements EmailAddressRep
      *
      * @return int the number of deletions
      */
-    public function deleteOrphanEmailAddresses(array $toDeleteEmailIds): int
+    public function deleteOrphanEmailAddresses(array $emailIds): int
     {
         $connection = $this->getEntityManager()->getConnection();
 
