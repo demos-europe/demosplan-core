@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Exception\AssessmentTableZipExportException;
-use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
 use demosplan\DemosPlanCoreBundle\Logic\FormOptionsResolver;
@@ -26,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use Exception;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -36,9 +36,11 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
 {
     private const ATTACHMENTS_NOT_ADDABLE = 'error.statements.zip.export.attachments.not.addable';
     private const SHEET_MISSING_IN_XLSX = 'error.statements.zip.export.incomplete.xlsx';
+    private const SHEET_MISSING_COLUMN = 'error.statements.zip.export.column.missing';
     private const ATTACHMENTS_NOT_ADDABLE_LOG =
         'An error occurred during the getting of Statement Attachments for Zip export. Zip export was canceled.';
     private const SHEET_MISSING_IN_XLSX_LOG = 'No worksheet in xlsx for zip export!';
+    private const SHEET_MISSING_COLUMN_LOG = 'No column for references to attachment in worksheet for zip export!';
     protected array $supportedTypes = ['zip'];
 
     public function __construct(
@@ -123,7 +125,7 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
     /**
      * @param array<int, array<int, File> $files
      *
-     * @throws DemosException
+     * @throws AssessmentTableZipExportException
      */
     private function writeReferencesIntoXlsx(Xlsx $xlsxWriter, array $files): Xlsx
     {
@@ -131,12 +133,12 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
         $sheet = $spreadsheet->getSheetByName($this->translator->trans('considerationtable'));
 
         if (null === $sheet) {
-            $this->logger->error('No worksheet in xlsx for zip export!', [$sheet]);
+            $this->logger->error(self::SHEET_MISSING_IN_XLSX_LOG, [$sheet]);
             throw new AssessmentTableZipExportException('error', self::SHEET_MISSING_IN_XLSX);
         }
 
         $rowCount = $sheet->getHighestRow();
-        $lastColumn = $sheet->getHighestColumn();
+        $columnForReferencesToAttachments = $this->getColumnForReferencesToAttachments($sheet);
         $indexStatment = 0;
         for ($row = 2; $row <= $rowCount; ++$row) {
             $referencesAsString = '';
@@ -147,12 +149,28 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
                 }
             }
 
-            $cell = $lastColumn.$row;
+            $cell = $columnForReferencesToAttachments.$row;
             $sheet->setCellValue($cell, trim($referencesAsString, ', '));
             ++$indexStatment;
         }
         $xlsxWriter->setSpreadsheet($spreadsheet);
 
         return $xlsxWriter;
+    }
+
+    /**
+     * @throws AssessmentTableZipExportException
+     */
+    private function getColumnForReferencesToAttachments(Worksheet $sheet): string
+    {
+        foreach ($sheet->getColumnIterator() as $column) {
+            $columnTitle = $sheet->getCell($column->getColumnIndex().'1')->getValue();
+            if ($columnTitle === $this->translator->trans('statement.attachments.reference')) {
+                return $column->getColumnIndex();
+            }
+        }
+
+        $this->logger->error(self::SHEET_MISSING_COLUMN_LOG, [$sheet]);
+        throw new AssessmentTableZipExportException('error', self::SHEET_MISSING_COLUMN);
     }
 }

@@ -1278,6 +1278,7 @@ error.statement.submit.phase: "In der aktuellen Phase des Verfahrens können kei
 error.statement.update: "Beim Aktualisieren der Stellungnahme ist ein Fehler aufgetreten."
 error.statements.marked.submitted: "Die Stellungnahmen konnten nicht eingereicht werden!"
 error.statements.zip.export: "Das ZIP-Archiv konnte nicht erstellt werden."
+error.statements.zip.export.column.missing: "In der XLSX-Datei konnte die Spalte für die Referenzen auf weitere Anhänge nicht gefüllt werden."
 error.statements.zip.export.generic.xlsx: "Die XLSX-Datei konnte dem ZIP-Archiv nicht hinzugefügt werden."
 error.statements.zip.export.incomplete.xlsx: "Die generierte XLSX-Datei war unvollständig. Export abgebrochen."
 error.statements.zip.export.generic.attachment: |
