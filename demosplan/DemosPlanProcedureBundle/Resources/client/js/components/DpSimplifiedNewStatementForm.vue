@@ -544,7 +544,7 @@ export default {
 
       // Synchronize values.authoredDate with the date value provided by data only if date is existing and format is valid.
       if (hasOwnProp(this.values.submitter, 'date') && dayjs(this.values.submitter.date, 'YYYY-MM-DD', true).isValid()) {
-        Vue.set(this.values, 'authoredDate', this.values.submitter.date)
+        Vue.set(this.values, 'authoredDate', dayjs(this.values.submitter.date).format('DD.MM.YYYY'))
       }
     },
 
