@@ -339,7 +339,7 @@ class StatementFromRowBuilder
      */
     private function findOrCreatePlanningCategory(Statement $originalStatement): ConstraintViolationListInterface
     {
-        //1. guess category type
+        // 1. guess category type
         $foundCategoryTitleOrViolationList = $this->planningCategoryService->guessSystemCategoryType(
             $this->planningDocumentCategoryTitle->getValue() ?? '',
             $this->planningDocumentTitle->getValue() ?? '',
@@ -352,10 +352,9 @@ class StatementFromRowBuilder
             return $foundCategoryTitleOrViolationList;
         }
 
-
         // matching system category type was found, search for it in the DB
         if (is_string($foundCategoryTitleOrViolationList)) {
-            //find existing element by title and categorytype
+            // find existing element by title and categorytype
             $planningCategory = $this->planningCategoryService->getPlanningDocumentCategoryByTitleAndCategoryType(
                 $this->procedure->getId(),
                 $this->planningDocumentCategoryTitle->getValue() ?? '',
@@ -365,11 +364,12 @@ class StatementFromRowBuilder
             // set if found one:
             if ($planningCategory instanceof Elements) {
                 $this->statement->setElement($planningCategory);
+
                 return new ConstraintViolationList();
             }
         }
 
-        //no matching system category type was found, or planningDocumentCategory could not be found, create new one.
+        // no matching system category type was found, or planningDocumentCategory could not be found, create new one.
         $planningCategory = new Elements();
         $planningCategory->setCategory($this->planningDocumentCategoryTitle->getValue() ?? '');
 
@@ -382,6 +382,7 @@ class StatementFromRowBuilder
         $this->procedure->getElements()->add($planningCategory);
 
         $originalStatement->setElement($planningCategory);
+
         return new ConstraintViolationList();
     }
 }
