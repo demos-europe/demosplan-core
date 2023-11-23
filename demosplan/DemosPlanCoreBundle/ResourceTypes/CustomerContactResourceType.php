@@ -35,7 +35,7 @@ use Webmozart\Assert\Assert;
  * @property-read End                      $phoneNumber
  * @property-read End                      $text
  * @property-read End                      $visible
- * @property-read EmailAddressResourceType $eMailAddress
+ * @property-read End                      $eMailAddress
  * @property-read CustomerResourceType     $customer
  */
 class CustomerContactResourceType extends DplanResourceType implements CreatableDqlResourceTypeInterface, DeletableDqlResourceTypeInterface, UpdatableDqlResourceTypeInterface
@@ -52,7 +52,7 @@ class CustomerContactResourceType extends DplanResourceType implements Creatable
             $this->createAttribute($this->title)->readable()->initializable(),
             $this->createAttribute($this->phoneNumber)->readable()->initializable(),
             $this->createAttribute($this->text)->readable()->initializable(),
-            $this->createAttribute($this->eMailAddress)->aliasedPath($this->eMailAddress->fullAddress)->readable()->initializable(),
+            $this->createAttribute($this->eMailAddress)->readable()->initializable(),
         ];
 
         if ($this->hasManagementPermission()) {
@@ -220,7 +220,7 @@ class CustomerContactResourceType extends DplanResourceType implements Creatable
                     if (null === $emailAddress) {
                         $emailAddress = $this->emailAddressService->getOrCreateEmailAddress($fullEMailAddress);
                         $resourceChange->addEntityToPersist($emailAddress);
-                        $contact->setEMailAddress($emailAddress);
+                        //$contact->setEMailAddress($emailAddress);
                     } else {
                         $emailAddress->setFullAddress($fullEMailAddress);
                     }
