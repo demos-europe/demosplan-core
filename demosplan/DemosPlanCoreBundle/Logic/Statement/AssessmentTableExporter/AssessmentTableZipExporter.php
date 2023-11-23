@@ -166,7 +166,6 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
         foreach ($sheet->getColumnIterator() as $column) {
             $columnTitle = $sheet->getCell($column->getColumnIndex().'1')->getValue();
             if ($columnTitle === $this->translator->trans('statement.attachments.reference')) {
-
                 return $column->getColumnIndex();
             }
         }
