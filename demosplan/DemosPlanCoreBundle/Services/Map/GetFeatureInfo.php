@@ -293,11 +293,11 @@ class GetFeatureInfo
                 break;
             case 'vorranggebietId':
                 $featureInfoUrl = $this->getUrl2();
-//                http://geodienstewindstage.bob-sh.de/robob/services/wms_vorranggebiete
+                //                http://geodienstewindstage.bob-sh.de/robob/services/wms_vorranggebiete
 
                 $query['LAYERS'] = $this->getUrl2Layer();
                 $query['QUERY_LAYERS'] = $this->getUrl2Layer();
-//                vorranggebiete,potentialflaechen
+                //                vorranggebiete,potentialflaechen
 
                 $versionString = $this->getUrl2VersionString();
                 // ""
@@ -381,8 +381,6 @@ class GetFeatureInfo
     /** Setze den Request ab.
      * @param string $path
      * @param array  $data
-     *
-     * @return mixed
      *
      * @throws Exception
      */
