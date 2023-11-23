@@ -10,7 +10,7 @@
 <template>
   <dp-modal
     ref="labelModal"
-    content-classes="width-auto">
+    content-classes="u-1-of-3">
     <template>
       <h3>
         {{ Translator.trans('format') }}
