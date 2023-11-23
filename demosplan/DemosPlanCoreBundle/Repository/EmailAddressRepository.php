@@ -68,7 +68,7 @@ class EmailAddressRepository extends FluentRepository implements EmailAddressRep
             .' LEFT JOIN support_contact                      AS sc ON sc.email_address = e.id'
             .' WHERE p.procedure_id   IS NULL'
             .' AND   sc.email_address IS NULL'
-            //:' FIXME have to use the array here something like e.id in ()'
+            // :' FIXME have to use the array here something like e.id in ()'
         );
     }
 

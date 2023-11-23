@@ -11,18 +11,17 @@
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Events\GetEmailIdsEventInterface;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use demosplan\DemosPlanCoreBundle\Event\GetEmailIdsEvent;
 use demosplan\DemosPlanCoreBundle\Repository\EmailAddressRepository;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class EmailAddressService extends CoreService
 {
     public function __construct(
         private readonly EmailAddressRepository $emailAddressRepository,
         private readonly EventDispatcherInterface $eventDispatcher
-    )
-    {
+    ) {
     }
 
     /**
