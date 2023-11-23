@@ -45,7 +45,7 @@ use EDT\Querying\Contracts\PathException;
 use Exception;
 use ReflectionException;
 use Symfony\Component\Validator\Constraints\Blank;
-use Symfony\Component\Validator\Constraints\Choice;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Throwable;
@@ -939,51 +939,71 @@ class ElementsService extends CoreService implements ElementsServiceInterface
     }
 
     /**
-     * Tries to guess the type of the planning document category to be created based on the given parameters.
+     * Tries to guess the type of a related planning document category (element)
+     * to be created based on the given parameters.
      *
-     * @param string|null $elementTitle   statement.elements.title
+     * @param string $elementTitle   statement.elements.title
      *                                    = Name of the kind of related document which type we want to determine here.
-     * @param string|null $documentTitle  statement.document(singleDocumentVersion).title
-     * @param string|null $paragraphTitle statement.paragraph(paragraphVersion).title
+     * @param string $documentTitle  statement.document(singleDocumentVersion).title
+     * @param string $paragraphTitle statement.paragraph(paragraphVersion).title
+     *
+     * @return null|string|ConstraintViolationListInterface
+     *      ConstraintViolationListInterface in case of the combination of the incoming titles are illicit.
+     *      Name of the found system category type if found one.
+     *      Null if the combination of incoming titles are allowed but no system-category-type matched.
      */
-    public function determineCategoryType(
-        ?string $elementTitle,
-        ?string $documentTitle,
-        ?string $paragraphTitle
+    public function guessSystemCategoryType(
+        string $elementTitle,
+        string $documentTitle,
+        string $paragraphTitle
     ): null|string|ConstraintViolationListInterface
     {
-        if (null !== $documentTitle) {
+        if ('' !== $documentTitle) {
             $violations = $this->validator->validate($paragraphTitle, new Blank(
                 ['message' => 'statement.categoryType.already.defined.by.give.document']
             ));
             if (0 !== $violations->count()) {
                 return $violations;
             }
-
+            //documentTitle and no paragraphTitle =
             return ElementsInterface::ELEMENT_CATEGORIES['file'];
         }
 
-        if (null !== $paragraphTitle) {
+        if ('' !== $paragraphTitle) {
             $violations = $this->validator->validate($documentTitle, new Blank(
-                ['message' => 'statement.categoryType.already.defined.by.give.paragraph']
+                ['message' => 'statement.categoryType.already.defined.by.given.paragraph']
             ));
 
             if (0 !== $violations->count()) {
                 return $violations;
             }
-
+            //paragraphTitle and no documentTitle =
             return ElementsInterface::ELEMENT_CATEGORIES['paragraph'];
         }
 
 
-        return $this->determineCategoryTypeByTitleOnly($elementTitle);
+        return $this->findSystemCategoryTypeTitleBasedOfTitle($elementTitle);
     }
 
     /**
-     * Tries to guess the type of the planning document category with only the document(elements) title is given.
+     * Tries to guess the type of the planning document category with the document(elements) title only.
+     * @return null|string|ConstraintViolationListInterface
+     *      ConstraintViolationListInterface if given title is empty.
+     *      System-category-title if appropriate one was found, otherwise null.
      */
-    private function determineCategoryTypeByTitleOnly(string $title): string|ConstraintViolationListInterface
+    private function findSystemCategoryTypeTitleBasedOfTitle(string $title
+    ): null|string|ConstraintViolationListInterface
     {
+        $violations = $this->validator->validate(
+            $title,
+            new NotBlank(['message' => 'element.title.not.blank'])
+        );
+
+        if (0 !== $violations->count()) {
+            return $violations;
+        }
+
+
         return match ($title) {
             // statement
             ElementsInterface::ELEMENT_TITLES['gesamtstellungnahme'],
@@ -1030,11 +1050,20 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             ElementsInterface::ELEMENT_TITLES['landschaftsplan_aenderung']
             => ElementsInterface::ELEMENT_CATEGORIES['file'],
 
-            default => $this->validator->validate($title, new Choice(
-                [
-                    'choices' => ElementsInterface::ELEMENT_TITLES,
-                    'message' => 'statement.categoryType.already.defined.by.give.paragraph']
-            ))
+            default => null
         };
+    }
+
+    public function getPlanningDocumentCategoryByTitleAndCategoryType(
+        string $procedureId,
+        string $title,
+        string $category
+    ): ?Elements
+    {
+        return $this->elementsRepository->findOneBy([
+            'title'     => $title,
+            'category'  => $category,
+            'procedure' => $procedureId,
+        ]);
     }
 }

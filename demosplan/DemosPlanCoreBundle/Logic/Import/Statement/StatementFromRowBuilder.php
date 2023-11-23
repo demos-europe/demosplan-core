@@ -59,14 +59,12 @@ class StatementFromRowBuilder
 {
     protected Statement $statement;
     protected DateTime $now;
-    /**
-     * Set to non-null if the planning document category needs to be created when finalizing the statement.
-     */
-    protected ?string $planningDocumentCategoryTitle;
 
-    protected ?string $paragraphName;
+    protected Cell $planningDocumentCategoryTitle;
 
-    protected ?string $planningDocumentName;
+    protected Cell $paragraphTitle;
+
+    protected Cell $planningDocumentTitle;
 
     /**
      * @param callable(string): string $textPostValidationProcessing
@@ -103,35 +101,36 @@ class StatementFromRowBuilder
         return null;
     }
 
-    public function setPlanningDocumentCategoryName(Cell $cell): ?ConstraintViolationListInterface
+    /**
+     * Search and set PlanningDocumentCategory if found at lease one(!), otherwise just set the cellvalue as title
+     * and try to guess the related PlanningDocumentCategory later on.
+     *
+     * Searching for an existing PlanningDocumentCategory by given cell value as title.
+     * In case of a PlanningDocumentCategory was found, the relation will be set, otherwise,
+     * only the name will be set, and the PlanningDocumentCategory will be guessed later by guessCategoryType().
+     *
+     * Attention: Searching for the PlanningDocumentCategory by title, can lead to a wrong result, because
+     * titles of the PlanningDocumentCategory are not unique!
+     * Also it is possible to name a PlanningDocumentCategory with a complete misleading name, which leads to find
+     * a wrong category at all.
+     */
+    public function setPlanningDocumentCategoryTitle(Cell $cell): ?ConstraintViolationListInterface
     {
-        $planningDocumentCategoryTitle = $cell->getValue() ?? '';
-        $planningCategory = $this->planningCategoryService->getPlanningDocumentCategoryByTitle(
-            $this->procedure->getId(),
-            $planningDocumentCategoryTitle
-        );
-
-        if (null === $planningCategory) {
-            // remember title for later planning document category creation
-            $this->planningDocumentCategoryTitle = $planningDocumentCategoryTitle;
-        } else {
-            // attach statement to planning document category
-            $this->statement->setElement($planningCategory);
-        }
+        $this->planningDocumentCategoryTitle = $cell;
 
         return null;
     }
 
-    public function setPlanningDocumentName(Cell $cell): ?ConstraintViolationListInterface
+    public function setPlanningDocumentTitle(Cell $cell): ?ConstraintViolationListInterface
     {
-        $this->planningDocumentName = $cell->getValue() ?? '';
+        $this->planningDocumentTitle = $cell;
 
         return null;
     }
 
-    public function setParagraphName(Cell $cell): ?ConstraintViolationListInterface
+    public function setParagraphTitle(Cell $cell): ?ConstraintViolationListInterface
     {
-        $this->paragraphName = $cell->getValue() ?? '';
+        $this->paragraphTitle = $cell;
 
         return null;
     }
@@ -270,12 +269,9 @@ class StatementFromRowBuilder
         $gdprConsent->setStatement($newOriginalStatement);
         $newOriginalStatement->setGdprConsent($gdprConsent);
 
-        // set planning document category
-        if (null !== $this->planningDocumentCategoryTitle) {
-            $violations = $this->fillPlanningCategory(new Elements(), $newOriginalStatement);
-            if (0 !== $violations->count()) {
-                return $violations;
-            }
+        $violations = $this->findOrCreatePlanningCategory($newOriginalStatement);
+        if (0 !== $violations->count()) {
+            return $violations;
         }
 
         // set other static values
@@ -305,7 +301,8 @@ class StatementFromRowBuilder
     /**
      * Handles three cases
      * * empty cell: use the current date
-     * * normal string: determine format and use it (see {@link https://php.net/manual/en/datetime.formats.php Date and Time Formats})
+     * * normal string: determine format and use it
+     * (see {@link https://php.net/manual/en/datetime.formats.php Date and Time Formats})
      * * number, i.e. date formatted cell: convert from exel number to {@link DateTime}.
      */
     protected function getDate(Cell $cell): DateTime|ConstraintViolationListInterface
@@ -337,24 +334,44 @@ class StatementFromRowBuilder
         return $violations;
     }
 
-    private function fillPlanningCategory(
-        Elements $planningCategory,
-        Statement $originalStatement
-    ): ConstraintViolationListInterface
+    /**
+     * Also validates the combination of planningDocumentCategoryTitle, planningDocumentTitle and paragraphTitle.
+     */
+    private function findOrCreatePlanningCategory(Statement $originalStatement): ConstraintViolationListInterface
     {
-        $planningCategory->setTitle($this->planningDocumentCategoryTitle);
-
-        $categoryTitleOrViolationList = $this->planningCategoryService->determineCategoryType(
-            $this->planningDocumentCategoryTitle,
-            $this->planningDocumentName,
-            $this->paragraphName
+        //1. guess category type
+        $foundCategoryTitleOrViolationList = $this->planningCategoryService->guessSystemCategoryType(
+            $this->planningDocumentCategoryTitle->getValue() ?? '',
+            $this->planningDocumentTitle->getValue() ?? '',
+            $this->paragraphTitle->getValue() ?? ''
         );
 
-        if (is_string($categoryTitleOrViolationList)) {
-            $planningCategory->setCategory($categoryTitleOrViolationList);
-        } else {
-            return $categoryTitleOrViolationList;
+        // illicit combination of paragraphTitle and planningDocumentTitle
+        if ($foundCategoryTitleOrViolationList instanceof ConstraintViolationListInterface
+            && 0 !== $foundCategoryTitleOrViolationList->count()) {
+            return $foundCategoryTitleOrViolationList;
         }
+
+
+        // matching system category type was found, search for it in the DB
+        if (is_string($foundCategoryTitleOrViolationList)) {
+            //find existing element by title and categorytype
+            $planningCategory = $this->planningCategoryService->getPlanningDocumentCategoryByTitleAndCategoryType(
+                $this->procedure->getId(),
+                $this->planningDocumentCategoryTitle->getValue() ?? '',
+                $foundCategoryTitleOrViolationList
+            );
+
+            // set if found one:
+            if ($planningCategory instanceof Elements) {
+                $this->statement->setElement($planningCategory);
+                return new ConstraintViolationList();
+            }
+        }
+
+        //no matching system category type was found, or planningDocumentCategory could not be found, create new one.
+        $planningCategory = new Elements();
+        $planningCategory->setCategory($this->planningDocumentCategoryTitle->getValue() ?? '');
 
         $planningCategory->setProcedure($this->procedure);
         $nextOrderIndex = $this->planningCategoryService->getNextFreeOrderIndex($this->procedure);
