@@ -541,6 +541,11 @@ export default {
           Vue.set(this.values.submitter, key, value)
         }
       }
+
+      // Synchronize values.authoredDate with the date value provided by data only if date is existing and format is valid.
+      if (hasOwnProp(this.values.submitter, 'date') && dayjs(this.values.submitter.date, 'YYYY-MM-DD', true).isValid()) {
+        Vue.set(this.values, 'authoredDate', this.values.submitter.date)
+      }
     },
 
     sortSelected (property) {
@@ -561,10 +566,6 @@ export default {
 
   mounted () {
     this.setInitialValues()
-    // Synchronize values.authoredDate with the date value provided by data only if date is existing and format is valid.
-    if (hasOwnProp(this.values.submitter, 'date') && dayjs(this.values.submitter.date, 'YYYY-MM-DD', true).isValid()) {
-      Vue.set(this.values, 'authoredDate', this.values.submitter.date)
-    }
   }
 }
 </script>
