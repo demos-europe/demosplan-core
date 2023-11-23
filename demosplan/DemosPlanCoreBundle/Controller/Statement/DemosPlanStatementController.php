@@ -2416,7 +2416,6 @@ class DemosPlanStatementController extends BaseController
             $fileMap = $zipImportService->doEverythingWithZip($zipFileInfo, $procedureId);
         }
 
-
         return $this->importStatements($files, $procedureId, $importer);
     }
 

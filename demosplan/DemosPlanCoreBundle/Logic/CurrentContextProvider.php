@@ -20,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 
-
 class CurrentContextProvider implements CurrentContextProviderInterface
 {
     public function __construct(

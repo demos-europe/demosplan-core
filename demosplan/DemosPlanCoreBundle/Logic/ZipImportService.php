@@ -24,8 +24,10 @@ use SplFileInfo;
 use Symfony\Component\Finder\Finder;
 use Throwable;
 use ZipArchive;
-use const DIRECTORY_SEPARATOR;
+
 use function is_string;
+
+use const DIRECTORY_SEPARATOR;
 
 class ZipImportService
 {
@@ -94,7 +96,6 @@ class ZipImportService
             for ($indexInZipFile = 0; $indexInZipFile < $zip->numFiles; ++$indexInZipFile) {
                 $filenameOrig = $zip->getNameIndex($indexInZipFile);
                 if (str_ends_with($filenameOrig, '/') || false === $filenameOrig) {
-
                     continue;
                 }
 
@@ -157,5 +158,4 @@ class ZipImportService
 
         return $tmpDir;
     }
-
 }
