@@ -67,16 +67,12 @@ class SupportContact extends CoreEntity implements UuidEntityInterface
     private ?string $phoneNumber;
 
     /**
-     * @ORM\ManyToOne(
-     *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\EmailAddress",
-     *     cascade={"persist"})
+     * @var string
      *
-     * @ORM\JoinColumn(name="email_address",
-     *     referencedColumnName="id",
-     *     nullable = true)
+     * @ORM\Column(type="string", length=254)
      */
-    #[Assert\Valid]
-    private ?EmailAddress $eMailAddress;
+    #[Assert\Email(mode: 'strict')]
+    private ?string $eMailAddress;
 
     /**
      * @ORM\Column(name="text", type="text", nullable=true)
@@ -110,7 +106,7 @@ class SupportContact extends CoreEntity implements UuidEntityInterface
         string $supportType,
         ?string $title,
         ?string $phoneNumber,
-        ?EmailAddress $emailAddress,
+        ?string $emailAddress,
         ?string $text,
         ?Customer $customer,
         bool $visible = false
@@ -154,12 +150,12 @@ class SupportContact extends CoreEntity implements UuidEntityInterface
         $this->phoneNumber = $phoneNumber;
     }
 
-    public function getEMailAddress(): ?EmailAddress
+    public function getEMailAddress(): ?string
     {
         return $this->eMailAddress;
     }
 
-    public function setEMailAddress(?EmailAddress $eMailAddress): void
+    public function setEMailAddress(?string $eMailAddress): void
     {
         $this->eMailAddress = $eMailAddress;
     }
