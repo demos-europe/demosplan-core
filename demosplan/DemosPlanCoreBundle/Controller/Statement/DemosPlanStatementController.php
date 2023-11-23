@@ -65,6 +65,7 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Logic\XlsxStatementImporterFactory;
+use demosplan\DemosPlanCoreBundle\Logic\ZipImportService;
 use demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Services\DatasheetService;
@@ -73,7 +74,6 @@ use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementListFilters;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Exception;
-use PhpOffice\PhpSpreadsheet\Writer\Pdf;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -2396,6 +2396,7 @@ class DemosPlanStatementController extends BaseController
         ProcedureService $procedureService,
         XlsxStatementImporterFactory $importerFactory,
         StatementSpreadsheetImporter $excelImporter,
+        ZipImportService $zipImportService,
         string $procedureId,
         Request $request
     ): Response {
@@ -2410,6 +2411,11 @@ class DemosPlanStatementController extends BaseController
         $uploads = explode(',', (string) $requestPost['uploadedFiles']);
         $files = array_map([$fileService, 'getFileInfo'], $uploads);
         $importer = $importerFactory->createXlsxStatementImporter($excelImporter);
+        // get files out of zip.
+        foreach ($files as $zipFileInfo) {
+            $fileMap = $zipImportService->doEverythingWithZip($zipFileInfo, $procedureId);
+        }
+
 
         return $this->importStatements($files, $procedureId, $importer);
     }
