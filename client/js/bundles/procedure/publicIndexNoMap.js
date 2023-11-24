@@ -12,7 +12,11 @@
  * where we don't have any map
  */
 import { initialize } from '@DpJs/InitVue'
+import RegisterFlyout from "@DpJs/components/user/RegisterFlyout.vue"
 
+const components = {
+  RegisterFlyout
+}
 /*
  *  Values for combined filters
  *  all in participation
@@ -180,7 +184,7 @@ const filterProceduresByPhase = function () {
   }
 }
 
-initialize().then(() => {
+initialize(components).then(() => {
   filterProceduresByPhase()
   setSelectedOption()
   document.getElementById('filterPhases').addEventListener('change', filterProceduresByPhase)

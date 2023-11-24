@@ -14,9 +14,13 @@
 import { dpApi, prefixClass } from '@demos-europe/demosplan-ui'
 import DpSearchProcedureMap from '@DpJs/components/procedure/publicindex/DpSearchProcedureMap'
 import { initialize } from '@DpJs/InitVue'
+import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 
 const stores = {}
-const components = { DpSearchProcedureMap }
+const components = {
+  DpSearchProcedureMap,
+  RegisterFlyout
+}
 window.prefixClass = prefixClass
 
 initialize(components, stores).then(() => {
