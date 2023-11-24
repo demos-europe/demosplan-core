@@ -21,7 +21,7 @@
       :name="fragmentId+':r_paragraph'"
       :value="paragraphId">
     <input
-      name="_csrf_token"
+      name="_token"
       type="hidden"
       :value="csrfToken">
 
