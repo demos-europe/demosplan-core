@@ -21,12 +21,10 @@ class Version20231123062620 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
+        $this->addSql('TRUNCATE support_contact');
         $this->addSql('ALTER TABLE support_contact DROP FOREIGN KEY FK_8C8C0928B08E074E');
-
         $this->addSql('DROP INDEX IDX_8C8C0928B08E074E ON support_contact');
-
-        $this->addSql('ALTER TABLE support_contact ADD e_mail_address VARCHAR(254) NOT NULL, DROP email_address');
-
+        $this->addSql('ALTER TABLE support_contact CHANGE email_address email_address VARCHAR(255) NOT NULL');
     }
 
     /**
@@ -36,14 +34,9 @@ class Version20231123062620 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $this->addSql('ALTER TABLE support_contact ADD email_address CHAR(36) NOT NULL , DROP e_mail_address');
-
+        $this->addSql('ALTER TABLE support_contact CHANGE email_address email_address CHAR(36) DEFAULT NULL');
+        $this->addSql('ALTER TABLE support_contact ADD CONSTRAINT FK_8C8C0928B08E074E FOREIGN KEY (email_address) REFERENCES email_address (id)');
         $this->addSql('CREATE INDEX IDX_8C8C0928B08E074E ON support_contact (email_address)');
-
-        $this->addSql('ALTER TABLE support_contact ADD CONSTRAINT FK_8C8C0928B08E074E FOREIGN KEY (email_address) REFERENCES email_address (id) ON DELETE CASCADE');
-
-        $this->addSql('ALTER TABLE support_contact CHANGE email_address email_address CHAR(36)');
-
     }
 
     /**
