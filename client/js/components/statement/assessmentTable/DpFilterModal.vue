@@ -86,12 +86,15 @@
         </div>
 
         <!-- Tabs with filters -->
-        <dp-tabs tab-size="medium">
+        <dp-tabs
+          tab-size="medium"
+          @change="(id) => setActiveTabId(id)">
           <dp-tab
             v-for="(filterGroup, index) in filterGroupsToBeDisplayed"
             class="u-pt-0_5"
             :key="index"
             :id="filterGroup.label"
+            :is-active="activeTabId === filterGroup.label"
             :label="Translator.trans(filterGroup.label)"
             :suffix="createSelectedFiltersBadge(filterGroup)">
             <dp-filter-modal-select-item
@@ -252,6 +255,7 @@ export default {
 
   data () {
     return {
+      activeTabId: null,
       disabledInteractions: false, // Do not submit form if filters are currently updating
       disabledOpenModalButton: true, // Do not open modal if AT is still loading
       isLoading: true,
@@ -359,6 +363,10 @@ export default {
       'loadSelectedFilterOptions',
       'resetSelectedOptions'
     ]),
+
+    setActiveTabId (id) {
+      this.activeTabId = id
+    },
 
     back () {
       this.saveFilterSetView = false
