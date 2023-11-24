@@ -159,10 +159,10 @@ export default {
         type: 'CustomerContact',
         attributes: {
           title: this.customerContact.title,
-          phoneNumber: this.customerContact.phoneNumber ? this.customerContact.phoneNumber : null,
-          text: this.customerContact.text ? this.customerContact.text : null,
+          phoneNumber: this.customerContact.phoneNumber ?? null,
+          text: this.customerContact.text ?? null,
           visible: this.customerContact.visible,
-          eMailAddress: this.customerContact.eMailAddress ? this.customerContact.eMailAddress : null
+          eMailAddress: this.customerContact.eMailAddress ?? null
         }
       }
 
@@ -214,9 +214,9 @@ export default {
       this.updating = true
       this.customerContact = {
         title: currentData.title,
-        phoneNumber: currentData.phoneNumber ? currentData.phoneNumber : '',
-        eMailAddress: currentData.eMailAddress ? currentData.eMailAddress : '',
-        text: currentData.text ? currentData.text : '',
+        phoneNumber: currentData.phoneNumber ?? '',
+        eMailAddress: currentData.eMailAddress ?? '',
+        text: currentData.text ?? '',
         visible: currentData.visible,
         id: id
       }
