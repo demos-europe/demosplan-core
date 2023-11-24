@@ -11,7 +11,7 @@ class Version20231123062620 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'refs T: ';
+        return 'refs T:  ';
     }
 
     /**
