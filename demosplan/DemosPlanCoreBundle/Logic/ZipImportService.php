@@ -95,7 +95,7 @@ class ZipImportService
         if (true === $res) {
             for ($indexInZipFile = 0; $indexInZipFile < $zip->numFiles; ++$indexInZipFile) {
                 $filenameOrig = $zip->getNameIndex($indexInZipFile);
-                if (str_ends_with($filenameOrig, '/') || false === $filenameOrig) {
+                if (false === $filenameOrig || str_ends_with($filenameOrig, '/')) {
                     continue;
                 }
 
