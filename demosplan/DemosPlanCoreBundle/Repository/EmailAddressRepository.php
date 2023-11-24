@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DemosEurope\DemosplanAddon\Contracts\Repositories\EmailAddressRepositoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
+use Doctrine\Common\Collections\ArrayCollection;
 
 class EmailAddressRepository extends FluentRepository implements EmailAddressRepositoryInterface
 {
@@ -61,15 +62,19 @@ class EmailAddressRepository extends FluentRepository implements EmailAddressRep
     {
         $connection = $this->getEntityManager()->getConnection();
 
-        return $connection->exec(
-            'DELETE e'
-            .' FROM email_address AS e'
-            .' LEFT JOIN procedure_agency_extra_email_address  AS p  ON p.email_address_id = e.id'
-            .' LEFT JOIN support_contact                      AS sc ON sc.email_address = e.id'
-            .' WHERE p.procedure_id   IS NULL'
-            .' AND   sc.email_address IS NULL'
-            // :' FIXME have to use the array here something like e.id in ()'
-        );
+        /*return $connection->exec(
+            "DELETE e.id"
+            ." FROM email_address AS e"
+            ." LEFT JOIN procedure_agency_extra_email_address  AS p  ON p.email_address_id = e.id"
+            ." WHERE p.procedure_id   IS NULL"
+            ." AND e.id IN ('$emailIds')"
+        );*/
+        return $this->getEntityManager()->createQuery('
+            DELETE e.id FROM email_address AS e
+            LEFT JOIN procedure_agency_extra_email_address  AS p  ON p.email_address_id = e.id
+            WHERE p.procedure_id   IS NULL
+            AND e.id IN (:emailIds)')
+            ->setParameter(['emailIds' => $emailIds])->getResult();
     }
 
     /**
