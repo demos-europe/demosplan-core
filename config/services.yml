@@ -1008,6 +1008,12 @@ services:
         tags:
             - { name: "dplan.assessment.table.exporter" }
 
+    # Zip Exporter
+    demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableZipExporter:
+        lazy: true
+        tags:
+            - { name: "dplan.assessment.table.exporter" }
+
     # DOCX Exporter
     demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableDocxExporter:
         lazy: true
@@ -1032,6 +1038,14 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\XlsResponseGenerator:
         arguments:
             $supportedTypes: "%file.formats.xls%"
+        tags:
+            - { name: "dplan.file.response.generator" }
+
+    # ZIP Response Generator
+    demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\ZipResponseGenerator:
+        arguments:
+            $logger: '@monolog.logger.dplan'
+            $supportedTypes: "%file.formats.zip%"
         tags:
             - { name: "dplan.file.response.generator" }
 
