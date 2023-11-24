@@ -11,7 +11,7 @@ class Version20231123062620 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'refs T:  ';
+        return 'refs T: the email address property have to be of type a string, not any more a relation to EmailAddress and with no unique constraint. ';
     }
 
     /**
