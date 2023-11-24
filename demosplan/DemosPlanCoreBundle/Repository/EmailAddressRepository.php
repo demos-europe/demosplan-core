@@ -12,7 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DemosEurope\DemosplanAddon\Contracts\Repositories\EmailAddressRepositoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
-use Doctrine\Common\Collections\ArrayCollection;
 
 class EmailAddressRepository extends FluentRepository implements EmailAddressRepositoryInterface
 {
