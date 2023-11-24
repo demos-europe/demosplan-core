@@ -1337,6 +1337,10 @@ services:
         calls:
             - [ 'setPropertyAccessor', ['@demosplan\DemosPlanCoreBundle\Logic\NullablePropertyAccessor'] ]
 
+    demosplan\DemosPlanCoreBundle\Logic\ZipImportService:
+        lazy: true
+        public: true
+
     # HEY YOU, YES YOU! STOP! Please follow the alphabetical order and
     # do NOT just add new code to the end of this file.
 

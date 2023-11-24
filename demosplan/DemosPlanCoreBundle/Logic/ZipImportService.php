@@ -23,6 +23,7 @@ use RuntimeException;
 use SplFileInfo;
 use Symfony\Component\Finder\Finder;
 use Throwable;
+use Webmozart\Assert\Assert;
 use ZipArchive;
 
 use function is_string;
@@ -48,6 +49,7 @@ class ZipImportService
     {
         $fileMap = [];
         $extractDir = $this->extractZipToTempFolder($fileInfo, $procedureId);
+        Assert::notNull($extractDir);
         $this->finder->files()->in($extractDir);
         if ($this->finder->hasResults()) {
             /** @var SplFileInfo $file */
@@ -106,7 +108,7 @@ class ZipImportService
                 $dirname = Utf8::filter($fileInfo['dirname']);
 
                 $user = $this->currentContextProvider->getCurrentUser();
-                $extractDir = $this->getElementImportDir($procedureId, $user);
+                $extractDir = $this->getStatementAttachmentImportDir($procedureId, $user);
                 // T8843 zip-slip: check whether path is in valid location
                 $destination = $extractDir.'/'.$dirname;
                 // if path contains any relative path immediately skip file
@@ -132,7 +134,7 @@ class ZipImportService
                     .DemosPlanTools::varExport($filename, true)
                     .' Dirname: '
                     .DemosPlanTools::varExport($dirname, true)
-                    .' Orig base64encoded: '
+                    .' FileNameOrig: '
                     .DemosPlanTools::varExport($filenameOrig, true)
                 );
                 $zip->renameIndex($indexInZipFile, $dirname.'/'.$filename);
@@ -141,15 +143,15 @@ class ZipImportService
         }
         $zip->close();
 
-        $returnVal = null;
+        $extractedTo = null;
         if (isset($extractDir, $dirname) && is_string($extractDir) && is_string($dirname)) {
-            $returnVal = $extractDir.DIRECTORY_SEPARATOR.$dirname;
+            $extractedTo = $extractDir.DIRECTORY_SEPARATOR.$dirname;
         }
 
-        return $returnVal;
+        return $extractedTo;
     }
 
-    public function getElementImportDir(string $procedureId, UserInterface $user): string
+    public function getStatementAttachmentImportDir(string $procedureId, UserInterface $user): string
     {
         $tmpDir = sys_get_temp_dir().'/'.$user->getId().'/'.$procedureId;
         if (!is_dir($tmpDir) && !mkdir($tmpDir, 0777, true) && !is_dir($tmpDir)) {
