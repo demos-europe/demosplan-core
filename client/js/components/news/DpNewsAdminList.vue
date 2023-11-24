@@ -20,8 +20,7 @@
     <dp-bulk-edit-header
       class="layout__item u-12-of-12"
       v-if="selectedItems.length > 0"
-      :selected-items-count="selectedItems.length"
-      :selection-text="Translator.trans('news.notes')"
+      :selected-items-text="Translator.trans('news.notes.selected', { count: selectedItems.length })"
       @reset-selection="resetSelection">
       <button
         class="btn-icns u-m-0"

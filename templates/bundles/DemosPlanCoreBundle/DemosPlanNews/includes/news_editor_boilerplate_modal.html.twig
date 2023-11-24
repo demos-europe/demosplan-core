@@ -1,0 +1,20 @@
+{% if hasPermission('area_admin_boilerplates') %}
+    <template v-slot:modal="modalProps">
+        <dp-boiler-plate-modal
+            ref="boilerPlateModal"
+            boiler-plate-type="news.notes"
+            editor-id="newsText"
+            procedure-id="{{ procedure }}"
+            @insert="text => modalProps.handleInsertText(text)">
+        </dp-boiler-plate-modal>
+    </template>
+    <template v-slot:button>
+        <button
+            class="{{ 'menubar__button'|prefixClass }}"
+            type="button"
+            v-tooltip="'{{ 'boilerplate.insert'|trans }})'"
+            @click.stop="$refs.boilerPlateModal.toggleModal()">
+            <i class="{{ 'fa fa-puzzle-piece'|prefixClass }}"></i>
+        </button>
+    </template>
+{% endif %}

@@ -53,14 +53,15 @@ class ContainerInitCommandTest extends FunctionalTestCase
     public function testConfigWithoutUser(): void
     {
         // test fails when performed multiple times
-        //self::markSkippedForCIIntervention();
+        // self::markSkippedForCIIntervention();
 
         $commandTester = $this->getCommandTester();
         $customers = $this->getCustomers('foobar');
         self::assertEmpty($customers);
 
         $exitCode = $commandTester->execute([
-            '--customerConfig' => 'tests/backend/core/Core/Functional/res/customerConfig_without_user.yaml',
+            '--customerConfig'   => 'tests/backend/core/Core/Functional/res/customerConfig_without_user.yaml',
+            '--skip-es-populate' => true,
         ]);
         self::assertSame(0, $exitCode);
 
@@ -147,6 +148,7 @@ class ContainerInitCommandTest extends FunctionalTestCase
             ->getQuery()
             ->getResult();
     }
+
     private function removeCustomer(string $subdomain): int
     {
         $query = $this->getEntityManager()->createQueryBuilder()
@@ -154,6 +156,7 @@ class ContainerInitCommandTest extends FunctionalTestCase
             ->where('customer.subdomain = :subdomain')
             ->setParameter('subdomain', $subdomain)
             ->getQuery();
+
         return $query->execute();
     }
 }

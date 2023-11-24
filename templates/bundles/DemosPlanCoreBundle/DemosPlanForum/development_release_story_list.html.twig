@@ -47,6 +47,8 @@
 
             {% if templateVars.userStoryList is defined and templateVars.userStoryList != false %}
                 <form action="{{ path('DemosPlan_forum_development_release_voting', {'releaseId': templateVars.release.ident}) }}" method="post" enctype="multipart/form-data">
+                    {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
                     {% if templateVars.release.phase == 'configuration' %}
                         <p class="u-mb">
                             <i class="fa fa-exclamation-circle"></i>

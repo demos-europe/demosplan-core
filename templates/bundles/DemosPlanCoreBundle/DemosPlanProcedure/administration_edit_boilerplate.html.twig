@@ -21,6 +21,7 @@
                 <input name="action" type="hidden" value="boilerplateedit">
                 <input name="r_ident" type="hidden" value="{{ form.vars.value.id }}">
                 <input type="hidden" name="_token" value="{{ form._token.vars.value }}" />
+                {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
                 <label class="layout__item u-1-of-4" for="r_title">
                     {{ "title"|trans }}*
