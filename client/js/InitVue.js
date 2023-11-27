@@ -29,6 +29,7 @@ import loadSentry from './loadSentry'
 import NotificationStoreAdapter from '@DpJs/store/core/NotificationStoreAdapter'
 import NotifyContainer from '@DpJs/components/shared/NotifyContainer'
 import PortalVue from 'portal-vue'
+import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 import Vue from 'vue'
 import Vuex from 'vuex'
 
@@ -40,6 +41,7 @@ Vue.use(DPVueCorePlugin)
 
 // Register components that are used globally
 Vue.component('DpObscure', DpObscure)
+Vue.component('RegisterFlyout', RegisterFlyout)
 
 function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}) {
   bootstrap()
