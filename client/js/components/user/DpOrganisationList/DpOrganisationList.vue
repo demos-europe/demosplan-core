@@ -390,6 +390,14 @@ export default {
         }
       }
 
+      filterObject.orgaStatus = {
+        condition: {
+          path: 'statusInCustomers.status',
+          operator: '<>',
+          value: 'rejected'
+        }
+      }
+
       filterObject.namefilter = {
         condition: {
           path: 'name',
