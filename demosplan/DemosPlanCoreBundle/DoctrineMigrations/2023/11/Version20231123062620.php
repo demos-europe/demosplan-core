@@ -34,7 +34,7 @@ class Version20231123062620 extends AbstractMigration
         $this->addSql('TRUNCATE support_contact');
         $this->addSql('ALTER TABLE support_contact DROP FOREIGN KEY FK_8C8C0928B08E074E');
         $this->addSql('DROP INDEX IDX_8C8C0928B08E074E ON support_contact');
-        $this->addSql('ALTER TABLE support_contact CHANGE email_address email_address VARCHAR(255) NOT NULL');
+        $this->addSql('ALTER TABLE support_contact CHANGE email_address email_address VARCHAR(255)');
     }
 
     /**
