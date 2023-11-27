@@ -379,9 +379,9 @@ export default {
 
     checkConditionalValidity (consolidationMethodCondition, assertion, validationKey) {
       if (consolidationMethodCondition === this.consolidationMethod) {
-        Vue.set(this.validations, validationKey, assertion())
+        this.validations[validationKey] = assertion()
       } else {
-        Vue.set(this.validations, validationKey, true)
+        this.validations[validationKey] = true
       }
       return this.validations[validationKey]
     },
@@ -435,7 +435,7 @@ export default {
       this.headStatement = {}
       this.selectedCluster = {}
       this.groupName = ''
-      Object.keys(this.validations).forEach(key => this.$set(this.validations, key, true))
+      Object.keys(this.validations).forEach(key => this.validations[key] = true)
     },
 
     // Set initialStatementSelection to show options in multiselect

@@ -178,8 +178,11 @@ export default {
   },
 
   watch: {
-    filteredSelectedOptions: function () {
-      this.selected = this.filteredSelectedOptions
+    filteredSelectedOptions: {
+      handler () {
+        this.selected = this.filteredSelectedOptions
+      },
+      deep: true
     }
   },
 

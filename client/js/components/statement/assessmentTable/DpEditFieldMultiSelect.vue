@@ -166,8 +166,11 @@ export default {
   },
 
   watch: {
-    value (newValue) {
-      this.setInitialValues()
+    value: {
+      handler () {
+        this.setInitialValues()
+      },
+      deep: true
     }
   },
 

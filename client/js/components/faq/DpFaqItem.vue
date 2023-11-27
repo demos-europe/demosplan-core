@@ -174,13 +174,17 @@ export default {
   },
 
   watch: {
-    queue (newQueue) {
-      if (newQueue.length) {
-        newQueue[0]().finally(() => {
-          newQueue.shift()
-          this.queue = newQueue
-        })
-      }
+    queue: {
+      handler (newQueue) {
+        if (newQueue.length) {
+          newQueue[0]()
+            .finally(() => {
+              newQueue.shift()
+              this.queue = newQueue
+            })
+        }
+      },
+      deep: true
     }
   },
 

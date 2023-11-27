@@ -550,17 +550,18 @@ export default {
   methods: {
     setInitialValues () {
       this.values = { ...this.initValues }
+
       // Set default values to ensure reactivity.
       if (typeof this.values.submitter !== 'undefined' && typeof this.values.submitter.institution === 'undefined') {
         // Since Data sends us the key toeb instead of institution, we need to transform this for now but keep all init values
-        this.$set(this.values.submitter, 'institution', this.values.submitter.toeb)
+        this.values.submitter.institution = this.values.submitter.toeb
         this.$delete(this.values.submitter, 'toeb')
       }
 
       if (typeof this.values.submitter === 'undefined' || Object.keys(this.values.submitter).length === 0) {
-        this.$set(this.values, 'submitter', {})
+        this.values.submitter = {}
         for (const [key, value] of Object.entries(submitterProperties)) {
-          this.$set(this.values.submitter, key, value)
+          this.values.submitter[key] = value
         }
       }
     },
@@ -571,7 +572,7 @@ export default {
      */
     setInstitutionValue (val) {
       this.$nextTick(() => {
-        this.$set(this.values.submitter, 'institution', val)
+        this.values.submitter.institution = val
       })
     },
 
@@ -593,9 +594,10 @@ export default {
 
   mounted () {
     this.setInitialValues()
+
     // Synchronize values.authoredDate with the date value provided by data only if date is existing and format is valid.
     if (hasOwnProp(this.values.submitter, 'date') && dayjs(this.values.submitter.date, 'YYYY-MM-DD', true).isValid()) {
-      this.$set(this.values, 'authoredDate', dayjs(this.values.submitter.date).format('DD.MM.YYYY'))
+      this.values.authoredDate = dayjs(this.values.submitter.date).format('DD.MM.YYYY')
     }
   }
 }

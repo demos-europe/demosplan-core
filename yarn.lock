@@ -1385,9 +1385,9 @@
   resolved "https://registry.yarnpkg.com/@csstools/selector-specificity/-/selector-specificity-3.0.0.tgz#798622546b63847e82389e473fd67f2707d82247"
   integrity sha512-hBI9tfBtuPIi885ZsZ32IMEU/5nlZH/KOVYJCOh7gyMxaVLGmLedYqFN6Ui1LXkI8JlC8IsuC0rF0btcRZKd5g==
 
-"@demos-europe/demosplan-ui@github:demos-europe/demosplan-ui#f_set_demosplan-ui_invue3_compat_mode":
+"@demos-europe/demosplan-ui@github:demos-europe/demosplan-ui#i_vue3_migration":
   version "0.3.1"
-  resolved "https://codeload.github.com/demos-europe/demosplan-ui/tar.gz/eb9d0fb60b0a639b9bd54d5ad585a9db032c70a2"
+  resolved "https://codeload.github.com/demos-europe/demosplan-ui/tar.gz/0bac80c4ffc4775973f5e5cb0d42ae87ae68ffdc"
   dependencies:
     "@braintree/sanitize-url" "^6.0.1"
     "@floating-ui/dom" "^1.4.5"

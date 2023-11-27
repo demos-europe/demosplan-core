@@ -333,8 +333,11 @@ export default {
       this.saveFilterSet = false
     },
 
-    selectedOptionsInStore: function () {
-      this.selectedOptions = this.selectedFilterOptions
+    selectedOptionsInStore: {
+      handler () {
+        this.selectedOptions = this.selectedFilterOptions
+      },
+      deep: true
     }
   },
 
