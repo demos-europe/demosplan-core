@@ -104,14 +104,10 @@ class AddonInstallFromZipCommand extends CoreCommand
             $this->checkReinstall($packageDefinition, $reinstall);
 
             $this->addAddonToComposerRequire($packageDefinition);
-        } catch (JsonException $e) {
+        } catch (JsonException|AddonException $e) {
             $output->error($e->getMessage());
 
             return Command::FAILURE;
-        } catch (AddonException $e) {
-            $output->success($e->getMessage());
-
-            return Command::SUCCESS;
         }
 
         try {
