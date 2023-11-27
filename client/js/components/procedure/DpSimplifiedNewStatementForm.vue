@@ -28,6 +28,11 @@
         type="hidden"
         name="r_ident"
         :value="procedureId">
+      <input
+        name="_token"
+        type="hidden"
+        :value="csrfToken">
+
       <div class="u-mb">
         <dp-accordion
           :title="Translator.trans('user.details')"
@@ -414,6 +419,11 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+
+    csrfToken: {
+      type: String,
+      required: true
     },
 
     currentProcedurePhase: {

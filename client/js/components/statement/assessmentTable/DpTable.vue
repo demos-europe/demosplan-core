@@ -164,12 +164,14 @@
 
       <assessment-table-group-list
         v-if="viewMode === 'view_mode_tag' || viewMode === 'view_mode_elements'"
+        :csrf-token="csrfToken"
         :form-definitions="formDefinitions" />
       <!-- Loop statements in default viewMode -->
       <template
         v-else
         v-for="statement in statements">
         <dp-assessment-table-card
+          :csrf-token="csrfToken"
           :ref="'itemdisplay_' + statement.id"
           :key="`statement:${statement.id}`"
           class="o-list__item"
@@ -294,6 +296,11 @@ export default {
       required: false,
       type: Array,
       default: () => ([])
+    },
+
+    csrfToken: {
+      type: String,
+      required: true
     },
 
     currentUserId: {
