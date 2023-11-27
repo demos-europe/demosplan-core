@@ -64,7 +64,7 @@ class ZipImportService
             }
         }
         // delete zip after everything got extracted.
-        $this->fileService->deleteFile($fileInfo->getHash());
+//        $this->fileService->deleteFile($fileInfo->getHash());
 
         return $fileMap;
     }

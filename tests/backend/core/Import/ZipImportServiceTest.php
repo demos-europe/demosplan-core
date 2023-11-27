@@ -3,8 +3,8 @@
 namespace Tests\Core\Import;
 
 use _PHPStan_93af41bf5\Symfony\Component\Finder\SplFileInfo;
+use DemosEurope\DemosplanAddon\Contracts\FileServiceInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
-use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\ZipImportService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
@@ -15,15 +15,16 @@ use Zenstruck\Foundry\Proxy;
 class ZipImportServiceTest extends FunctionalTestCase
 {
     private Finder $finder;
-    private FileService $fileService;
+    private FileServiceInterface $fileService;
     private array $fileInfos;
 
     private Proxy $testProcedure;
     public function setUp(): void
     {
+        putenv('RABBITMQ_DSN=');
         parent::setUp();
-        $testProcedure = ProcedureFactory::createOne();
-        $this->fileService = $this->getContainer()->get(FileService::class);
+        $this->testProcedure = ProcedureFactory::createOne();
+        $this->fileService = $this->getContainer()->get(FileServiceInterface::class);
         $this->finder = Finder::create();
         $currentDirectoryPath = DemosPlanPath::getTestPath('backend/core/Import');
         $this->finder->files()->in($currentDirectoryPath);
@@ -40,8 +41,8 @@ class ZipImportServiceTest extends FunctionalTestCase
                         $file->getSize(),
                         'application/zip',
                         $file->getPath(),
-                        $file->getPath(),
-                        $testProcedure->object()
+                        $file->getRealPath(),
+                        $this->testProcedure->object()
                     );
                     $this->fileInfos[] = $fileInfo;
                 }
@@ -54,6 +55,10 @@ class ZipImportServiceTest extends FunctionalTestCase
     {
         $workingZip = $this->fileInfos[1];
         $errorZip = $this->fileInfos[0];
+
+        $fileMap = $this->sut->doEverythingWithZip($workingZip, $this->testProcedure->getId());
+
+        $test = 3;
 
 
     }
