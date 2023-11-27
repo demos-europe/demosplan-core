@@ -33,11 +33,6 @@
     </button>
 
     <!-- Modal content -->
-    <!-- refs T11499: The portal removed the filter form
-         fields from the corresponding form.
-         Once we have no more need to serialize these
-         form fields with jquery this can be
-         added to the portal again. -->
     <dp-modal
       ref="filterModalInner"
       class="layout"

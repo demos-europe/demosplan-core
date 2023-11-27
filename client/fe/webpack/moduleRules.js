@@ -174,7 +174,7 @@ const moduleRules =
       use: ['source-map-loader'],
       enforce: 'pre',
       exclude: (path) => {
-        return /[\\/]node_modules[\\/]/.test(path) && !/[\\/]node_modules[\\/](@sentry|popper|portal-vue|tooltip|fscreen)/.test(path)
+        return /[\\/]node_modules[\\/]/.test(path) && !/[\\/]node_modules[\\/](@sentry|popper|tooltip|fscreen)/.test(path)
       }
     },
     {
