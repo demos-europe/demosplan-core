@@ -650,7 +650,7 @@ class ElementsServiceTest extends FunctionalTestCase
                 $foundFileElement = true;
             }
 
-            self::assertNotEquals(ElementsInterface::ELEMENTS_CATEGORY_CATEGORY, $element['category']);
+            self::assertNotEquals(ElementsInterface::ELEMENT_CATEGORIES['category'], $element['category']);
             self::assertNotEquals(ElementsInterface::ELEMENT_CATEGORIES['map'], $element['category']);
             self::assertNotEquals(ElementsInterface::ELEMENT_CATEGORIES['statement'], $element['category']);
             self::assertEquals(1, $element['enabled']);
