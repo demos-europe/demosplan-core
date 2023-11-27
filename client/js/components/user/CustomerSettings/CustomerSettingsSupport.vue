@@ -197,14 +197,7 @@ export default {
     },
 
     resetForm () {
-      const {title, phoneNumber, eMailAddress, text, visible } = emptyCustomer
-      this.customerContact = {
-        title,
-        phoneNumber,
-        eMailAddress,
-        text,
-        visible
-      }
+      this.customerContact = { ...emptyCustomer }
       this.updating = false
     },
 
