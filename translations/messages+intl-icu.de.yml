@@ -662,7 +662,7 @@ confirm.statements.imported.from.files.xlsx.format: |
     {count, plural,
             =0 {Es wurde keine Stellungnahme aus {fileName} importiert.}
             =1 {Es wurde eine Stellungnahme aus {fileName} importiert.}
-            other {Es wurden {count} Stellungnahmen aus {fileName} importiert.}
+            other {Es wurden {numbers} Stellungnahmen aus {fileName} importiert.}
     }
 confirm.story.created: "Die Userstory wurde angelegt."
 confirm.story.deleted: "Die Userstory wurde gelöscht."

@@ -24,7 +24,7 @@ use Psr\Log\LoggerInterface;
 use RuntimeException;
 use SplFileInfo;
 use Symfony\Component\Finder\Finder;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 use Webmozart\Assert\Assert;
 use ZipArchive;

@@ -2540,10 +2540,10 @@ class DemosPlanStatementController extends BaseController
         int $numberOfCreatedStatements,
         array $fileNames
     ) {
-        $this->getMessageBag()->add(
+        $this->getMessageBag()->addChoice(
             'confirm',
             'confirm.statements.imported.from.files.xlsx.format',
-            ['count' => $numberOfCreatedStatements, 'fileName' => implode(', ', $fileNames)]
+            ['count' => $numberOfCreatedStatements, 'fileName' => implode(', ', $fileNames), 'numbers' => (string)$numberOfCreatedStatements]
         );
         $route = 'dplan_procedure_statement_list';
         // Change redirect target if data input user
