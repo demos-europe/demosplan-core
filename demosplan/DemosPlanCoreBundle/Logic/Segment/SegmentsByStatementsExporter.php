@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -263,7 +264,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      *
      * @throws ReflectionException
      */
-    private function convertIntoExportableArray(SegmentInterface $segmentOrStatement): array
+    private function convertIntoExportableArray(StatementInterface $segmentOrStatement): array
     {
         $exportData = $this->entityHelper->toArray($segmentOrStatement);
         $exportData['meta'] = $this->entityHelper->toArray($exportData['meta']);
