@@ -111,14 +111,14 @@
             <div class="u-mb flow-root">
                 <label class="inline-block u-mb-0" for="{{ form.agencyMainEmailAddress.vars.id }}">
                     {{ "email.procedure.agency"|trans }}
-                    {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                        helpText: 'email.procedure.agency.help'|trans,
-                        cssClasses:'o-tooltip--question-circle float-right u-mt-0_125'
-                    } %}
                     <p class="lbl__hint weight--normal text-left">
                         {{ "explanation.organisation.email.procedure.agency"|trans|wysiwyg }}
                     </p>
                 </label>
+                {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
+                    helpText: 'email.procedure.agency.help'|trans,
+                    cssClasses:'o-tooltip--question-circle float-right u-mt-0_125'
+                } %}
 
                 {{ form_errors(form.agencyMainEmailAddress) }}
                 <input
