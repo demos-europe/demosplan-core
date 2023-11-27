@@ -658,7 +658,12 @@ confirm.statements.marked.numbertext: |
     }
 confirm.statements.marked.released: "Die markierten Stellungnahmen wurden an Ihre Koordination freigegeben. Die Stellungnahmen müssen von Ihrer Koordination anschließend noch aus dem Ordner \"Freigaben der Organisation\" an den Verfahrensträger eingereicht werden."
 confirm.statements.marked.submitted: "Die markierten Stellungnahmen wurden eingereicht."
-confirm.statements.imported.from.xlsx: "{count} Stellungnahmen wurden aus {fileName} importiert."
+confirm.statements.imported.from.files.xlsx.format: |
+    {count, plural,
+            =0 {Es wurde keine Stellungnahme aus {fileName} importiert.}
+            =1 {Es wurde eine Stellungnahme aus {fileName} importiert.}
+            other {Es wurden {count} Stellungnahmen aus {fileName} importiert.}
+    }
 confirm.story.created: "Die Userstory wurde angelegt."
 confirm.story.deleted: "Die Userstory wurde gelöscht."
 confirm.story.updated: "Die Userstory wurde aktualisiert."
@@ -1150,6 +1155,7 @@ error.featureinfo.failed: "Die Sachdaten können derzeit nicht abgerufen werden"
 error.featureinfourl.global.updated: "Die globale Sachdaten-URL konnte nicht erfolgreich verändert werden."
 error.fileupload.mimetype: "Der von Ihnen hochgeladene Dateityp ist nicht erlaubt. Beim Upload der Datei ist ein Fehler aufgetreten."
 error.fileupload: "Beim Upload der Datei ist ein Fehler aufgetreten."
+error.file.could.not.be.read: "Es ist ein Fehler beim Verarbeiten der Datei(en) aufgetreten."
 error.file.notFound: "Die Datei {fileName} konnte nicht gefunden werden."
 error.fragment.assignment.assigned: "Der Datensatz konnte nicht erfolgreich zugewiesen werden."
 error.fragment.assignment.changed: "Die Zuweisung des Datensatzes wurde nicht erfolgreich geändert."

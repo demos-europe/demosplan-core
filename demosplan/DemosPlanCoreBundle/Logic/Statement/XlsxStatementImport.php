@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualOriginalStatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Statement\StatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
+use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
 use demosplan\DemosPlanCoreBundle\Exception\RowAwareViolationsException;
 use demosplan\DemosPlanCoreBundle\Exception\UnexpectedWorksheetNameException;
 use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\AbstractStatementSpreadsheetImporter;
@@ -54,13 +55,15 @@ class XlsxStatementImport
      *
      * @param FileInfo $file Hands over basic information about the file
      *
-     * @throws Exception
      * @throws RowAwareViolationsException
-     * @throws ConnectionException|UnexpectedWorksheetNameException
+     * @throws ConnectionException
+     * @throws \Doctrine\DBAL\Driver\Exception
+     * @throws MissingDataException
+     * @throws UnexpectedWorksheetNameException
+     * @throws Exception
      */
-    public function importFromFile(FileInfo $file): void
+    public function importFromFile(SplFileInfo $fileInfo): void
     {
-        $fileInfo = new SplFileInfo($file->getAbsolutePath(), '', $file->getHash());
         $this->createdStatements = [];
 
         // allow to rollback all in case of error

@@ -14,11 +14,11 @@ use Zenstruck\Foundry\Proxy;
 
 class ZipImportServiceTest extends FunctionalTestCase
 {
-    private Finder $finder;
-    private FileServiceInterface $fileService;
-    private array $fileInfos;
+    private ?Finder $finder;
+    private ?FileServiceInterface $fileService;
+    private ?array $fileInfos;
 
-    private Proxy $testProcedure;
+    private ?Proxy $testProcedure;
     public function setUp(): void
     {
         putenv('RABBITMQ_DSN=');

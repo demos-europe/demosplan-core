@@ -13,7 +13,9 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
+use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Exception;
@@ -22,6 +24,7 @@ use Psr\Log\LoggerInterface;
 use RuntimeException;
 use SplFileInfo;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Translation\TranslatorInterface;
 use Throwable;
 use Webmozart\Assert\Assert;
 use ZipArchive;
@@ -37,36 +40,48 @@ class ZipImportService
     public function __construct(
         private readonly CurrentContextProvider $currentContextProvider,
         private readonly LoggerInterface $logger,
+        private readonly MessageBagInterface $messageBag,
+        private readonly TranslatorInterface $translator,
         private readonly FileService $fileService
     ) {
         $this->finder = Finder::create();
     }
 
     /**
-     * @throws Exception|Throwable
+     * @throws DemosException
      */
     public function doEverythingWithZip(FileInfo $fileInfo, string $procedureId): array
     {
-        $fileMap = [];
-        $extractDir = $this->extractZipToTempFolder($fileInfo, $procedureId);
-        Assert::notNull($extractDir);
-        $this->finder->files()->in($extractDir);
-        if ($this->finder->hasResults()) {
-            /** @var SplFileInfo $file */
-            foreach ($this->finder as $file) {
-                $extension = $file->getExtension();
-                if ('pdf' === $extension) {
-                    $fileMap[$file->getFilename()] = $this->saveAsDemosFile($file, $procedureId);
-                }
-                if ('txt' === $extension || 'xlsx' === $extension) {
-                    $fileMap[$file->getFilename()] = $file;
+        try {
+            $fileMap = [];
+            $extractDir = $this->extractZipToTempFolder($fileInfo, $procedureId);
+            Assert::notNull($extractDir);
+            $this->finder->files()->in($extractDir);
+            if ($this->finder->hasResults()) {
+                /** @var SplFileInfo $file */
+                foreach ($this->finder as $file) {
+                    $extension = $file->getExtension();
+                    if ('pdf' === $extension) {
+                        $fileMap[$file->getFilename()] = $this->saveAsDemosFile($file, $procedureId);
+                    }
+                    if ('txt' === $extension || 'xlsx' === $extension) {
+                        $fileMap[$file->getFilename()] = $file;
+                    }
                 }
             }
-        }
-        // delete zip after everything got extracted.
-//        $this->fileService->deleteFile($fileInfo->getHash());
+            // delete zip after everything got extracted.
 
-        return $fileMap;
+            return $fileMap;
+        } catch (Throwable $e) {
+            $this->messageBag->add(
+                'error',
+                $this->translator->trans('error.file.could.not.be.read'),
+                ['files' => implode(array_keys($fileMap))]
+            );
+
+            throw new DemosException('statement import failed');
+        }
+
     }
 
     /**
