@@ -1974,14 +1974,14 @@
     "@sentry/types" "7.82.0"
     "@sentry/utils" "7.82.0"
 
-"@sentry/integrations@^7.80.1":
-  version "7.80.1"
-  resolved "https://registry.yarnpkg.com/@sentry/integrations/-/integrations-7.80.1.tgz#c70534ae8c0f95e4017d72bcfb9bff751c23e5a7"
-  integrity sha512-9C+CBwgFZZUkBYLrPTHaDr3kyknfSs0ejF/00RucvPZjiUPoxfslnh4IjWnN90ELEy2u09kcJY+dTCFVKd0UPQ==
+"@sentry/integrations@^7.82.0":
+  version "7.82.0"
+  resolved "https://registry.yarnpkg.com/@sentry/integrations/-/integrations-7.82.0.tgz#f2f631301b93c6c08c4989f7d92b0e600efd8f42"
+  integrity sha512-dLfLG7W+mNK7tyyIdoJc0eBd/vmboyBprQgnusbFFZeTgf7NjEjI4gk/VNFZp/EhZ+G6lLu/UJxttx/2QtSCYg==
   dependencies:
-    "@sentry/core" "7.80.1"
-    "@sentry/types" "7.80.1"
-    "@sentry/utils" "7.80.1"
+    "@sentry/core" "7.82.0"
+    "@sentry/types" "7.82.0"
+    "@sentry/utils" "7.82.0"
     localforage "^1.8.1"
 
 "@sentry/replay@7.80.1":
