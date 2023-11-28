@@ -15,6 +15,7 @@ use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\MailSend;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -2397,7 +2398,7 @@ class DemosPlanStatementController extends BaseController
     }
 
     /**
-     * Imports Statements from a xlsx-file created by the assessment table export.
+     * Imports Statements from a xlsx-file inside a zip created by the assessment table export and adds related documents.
      *
      * @throws ProcedureNotFoundException
      * @throws Exception
@@ -2430,16 +2431,20 @@ class DemosPlanStatementController extends BaseController
             $uploads = explode(',', (string) $requestPost['uploadedFiles']);
             $files = array_map([$fileService, 'getFileInfo'], $uploads);
             $importer = $importerFactory->createXlsxStatementImporter($excelImporter);
-            // get files out of zip.
             $fileNames = [];
             $statementsCount = 0;
             /** @var FileInfo $zipFileInfo */
             foreach ($files as $zipFileInfo) {
                 $fileMap = $zipImportService->doEverythingWithZip($zipFileInfo, $procedureId);
                 Assert::minCount($fileMap, 1, 'Zip file does not contain any Files');
-                $xlsFiles = array_filter($fileMap, static fn ($entry): bool => $entry instanceof SplFileInfo);
+                $xlsFiles = array_filter(
+                    $fileMap,
+                    static fn (File|SplFileInfo $entry): bool =>
+                        $entry->getExtension() === 'xlsx' && $entry instanceof SplFileInfo
+                );
                 Assert::count($xlsFiles, 1, 'Only one xls File per Zip supported');
                 $this->importStatementsFromXls(reset($xlsFiles), $procedureId, $importer);
+
                 $fileNames[] = $zipFileInfo->getFileName();
                 $statements = $importer->getCreatedStatements();
                 $statementsCount += count($statements);

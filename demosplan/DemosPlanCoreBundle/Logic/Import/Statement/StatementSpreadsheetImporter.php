@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -86,6 +87,19 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
         return $columnMapping;
     }
 
+    protected function getStatementFromRowBuilder(ProcedureInterface $procedure): StatementFromRowBuilder
+    {
+        return new StatementFromRowBuilder(
+            $this->validator,
+            $procedure,
+            $this->currentUser->getUser(),
+            $this->orgaService->getOrga(User::ANONYMOUS_USER_ORGA_ID),
+            $this->elementsService->getStatementElement($procedure->getId()),
+            $this->getStatementTextConstraint(),
+            [$this, 'replaceLineBreak']
+        );
+    }
+
     public function process(SplFileInfo $workbook): void
     {
         [$assessmentTable] = $this->extractWorksheets($workbook, 1);
@@ -105,15 +119,7 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
         $currentProcedure = $this->currentProcedureService->getProcedure()
             ?? throw new MissingPostParameterException('Current procedure is missing.');
 
-        $builder = new StatementFromRowBuilder(
-            $this->validator,
-            $currentProcedure,
-            $this->currentUser->getUser(),
-            $this->orgaService->getOrga(User::ANONYMOUS_USER_ORGA_ID),
-            $this->elementsService->getStatementElement($currentProcedure->getId()),
-            $this->getStatementTextConstraint(),
-            [$this, 'replaceLineBreak']
-        );
+        $builder = $this->getStatementFromRowBuilder($currentProcedure);
 
         $usedExternIds = $this->statementService->getExternIdsInUse($currentProcedure->getId());
 
