@@ -1,0 +1,105 @@
+<?php
+
+namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
+
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use demosplan\DemosPlanCoreBundle\Entity\File;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\CopyException;
+use demosplan\DemosPlanCoreBundle\Exception\DemosException;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
+use demosplan\DemosPlanCoreBundle\Exception\MissingPostParameterException;
+use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\UnexpectedWorksheetNameException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\ZipImportService;
+use InvalidArgumentException;
+use Symfony\Component\Finder\SplFileInfo;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Webmozart\Assert\Assert;
+
+class StatementSpreadsheetImporterWithZipSupport extends StatementSpreadsheetImporter
+{
+    private ?array $fileMap;
+    public function __construct(
+        CurrentProcedureService $currentProcedureService,
+        CurrentUserService $currentUser,
+        ElementsService $elementsService,
+        OrgaService $orgaService,
+        StatementCopier $statementCopier,
+        StatementService $statementService,
+        TranslatorInterface $translator,
+        ValidatorInterface $validator,
+        private readonly ZipImportService $zipImportService
+    ) {
+        parent::__construct($currentProcedureService, $currentUser, $elementsService, $orgaService, $statementCopier, $statementService, $translator, $validator);
+    }
+
+    public function getStatementFromRowBuilder(ProcedureInterface $procedure): StatementFromRowBuilder
+    {
+        return new StatementFromRowBuilderWithZipSupport(
+            $this->validator,
+            $procedure,
+            $this->currentUser->getUser(),
+            $this->orgaService->getOrga(User::ANONYMOUS_USER_ORGA_ID),
+            $this->elementsService->getStatementElement($procedure->getId()),
+            $this->getStatementTextConstraint(),
+            [$this, 'replaceLineBreak'],
+            $this->getFileMap()
+        );
+    }
+
+    protected function getColumnMapping(StatementFromRowBuilder $builder): array
+    {
+       $baseColumns = parent::getColumnMapping($builder);
+       // add new columns
+       // fixme how to handle missing Method
+       $baseColumns['Referenzen auf Anhänge'] = [$builder, 'setFileReferences'];
+
+       return $baseColumns;
+    }
+
+    /**
+     * @throws UserNotFoundException
+     * @throws CopyException
+     * @throws UnexpectedWorksheetNameException
+     * @throws DemosException
+     * @throws StatementElementNotFoundException
+     * @throws MissingPostParameterException
+     * @throws InvalidDataException
+     */
+    public function process(SplFileInfo $zipFileInfo): void
+    {
+        $this->fileMap = $this->zipImportService->doEverythingWithZip(
+            $zipFileInfo,
+            $this->currentProcedureService->getProcedure()->getId()
+        );
+        Assert::minCount($this->fileMap, 1, 'Zip file does not contain any Files');
+        $xlsFiles = array_filter(
+            $this->fileMap,
+            static fn (File|SplFileInfo $entry): bool =>
+                $entry instanceof SplFileInfo && $entry->getExtension() === 'xlsx'
+        );
+        Assert::count($xlsFiles, 1, 'Only one xls File per Zip supported');
+
+        parent::process(reset($xlsFiles));
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    protected function getFileMap(): array
+    {
+        Assert::notNull($this->fileMap);
+
+        return $this->fileMap;
+    }
+}

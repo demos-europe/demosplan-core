@@ -50,7 +50,7 @@ class ZipImportService
     /**
      * @throws DemosException
      */
-    public function doEverythingWithZip(FileInfo $fileInfo, string $procedureId): array
+    public function doEverythingWithZip(SplFileInfo $fileInfo, string $procedureId): array
     {
         try {
             $fileMap = [];
@@ -61,18 +61,22 @@ class ZipImportService
                 /** @var SplFileInfo $file */
                 foreach ($this->finder as $file) {
                     $extension = $file->getExtension();
+                    $fileNameParts = explode('_', $file->getFilename());
+                    $fileHash = reset($fileNameParts);
+                    Assert::string($fileHash);
                     if ('pdf' === $extension) {
-                        $fileMap[$file->getFilename()] = $this->saveAsDemosFile($file, $procedureId);
+                        $fileMap[$fileHash] = $this->saveAsDemosFile($file, $procedureId);
                     }
+                    // fixme txt case: throw exception, return violation - or ignore?
                     if ('txt' === $extension || 'xlsx' === $extension) {
-                        $fileMap[$file->getFilename()] = $file;
+                        $fileMap[$fileHash] = $file;
                     }
                 }
             }
-            // delete zip after everything got extracted.
 
             return $fileMap;
         } catch (Throwable $e) {
+            $this->logger->error('statement import failed', ['exception' => $e]);
             $this->messageBag->add(
                 'error',
                 $this->translator->trans('error.file.could.not.be.read'),
@@ -104,9 +108,9 @@ class ZipImportService
     /**
      * @throws Exception
      */
-    public function extractZipToTempFolder(FileInfo $fileInfo, string $procedureId): ?string
+    public function extractZipToTempFolder(SplFileInfo $fileInfo, string $procedureId): ?string
     {
-        $fn = $fileInfo->getAbsolutePath();
+        $fn = $fileInfo->getRealPath();
         $zip = new ZipArchive();
         $res = $zip->open($fn);
         if (true === $res) {
@@ -156,7 +160,9 @@ class ZipImportService
                 $zip->extractTo($extractDir, $zip->getNameIndex($indexInZipFile));
             }
         }
-        $zip->close();
+        if (ZipArchive::ER_OPEN !== $res) {
+            $zip->close();
+        }
 
         $extractedTo = null;
         if (isset($extractDir, $dirname) && is_string($extractDir) && is_string($dirname)) {

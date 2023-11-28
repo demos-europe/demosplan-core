@@ -47,6 +47,7 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\ExcelImporter;
 use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\StatementSpreadsheetImporter;
+use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\StatementSpreadsheetImporterWithZipSupport;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
@@ -2414,8 +2415,7 @@ class DemosPlanStatementController extends BaseController
         FileService $fileService,
         ProcedureService $procedureService,
         XlsxStatementImporterFactory $importerFactory,
-        StatementSpreadsheetImporter $excelImporter,
-        ZipImportService $zipImportService,
+        StatementSpreadsheetImporterWithZipSupport $excelImporter,
         string $procedureId,
         Request $request
     ): Response {
@@ -2435,15 +2435,7 @@ class DemosPlanStatementController extends BaseController
             $statementsCount = 0;
             /** @var FileInfo $zipFileInfo */
             foreach ($files as $zipFileInfo) {
-                $fileMap = $zipImportService->doEverythingWithZip($zipFileInfo, $procedureId);
-                Assert::minCount($fileMap, 1, 'Zip file does not contain any Files');
-                $xlsFiles = array_filter(
-                    $fileMap,
-                    static fn (File|SplFileInfo $entry): bool =>
-                        $entry->getExtension() === 'xlsx' && $entry instanceof SplFileInfo
-                );
-                Assert::count($xlsFiles, 1, 'Only one xls File per Zip supported');
-                $this->importStatementsFromXls(reset($xlsFiles), $procedureId, $importer);
+                $this->importStatementsFromXls($zipFileInfo, $procedureId, $importer);
 
                 $fileNames[] = $zipFileInfo->getFileName();
                 $statements = $importer->getCreatedStatements();
@@ -2452,6 +2444,7 @@ class DemosPlanStatementController extends BaseController
                 $fileService->deleteFile($zipFileInfo->getHash());
             }
         } catch (Throwable $e) {
+            $this->logger->error('Something went wrong importing Statements from zip', ['exception' => $e]);
             return $this->redirectToRoute(
                 'DemosPlan_procedure_import',
                 compact('procedureId')
@@ -2515,6 +2508,7 @@ class DemosPlanStatementController extends BaseController
             }
             throw new DemosException('statement import failed');
         } catch (\Doctrine\DBAL\Driver\Exception|Exception $e) {
+            $this->logger->error('statement import failed', ['exception' => $e]);
             $this->getMessageBag()->add(
                 'error',
                 'statements.import.error.document.unexpected',

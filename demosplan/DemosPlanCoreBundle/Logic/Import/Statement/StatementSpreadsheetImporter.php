@@ -42,7 +42,28 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
      */
     protected function getColumnCallbacks(StatementFromRowBuilder $builder, RowCellIterator $actualColumnNames): array
     {
-        $columnMapping = [
+        $columnMapping = $this->getColumnMapping($builder);
+        // Currently an exception will be thrown in case of unsorted columns. To avoid that you can adjust the sorting
+        // of the array above to the order of the actual columns.
+        $expectedColumns = array_keys($columnMapping);
+        foreach ($expectedColumns as $expectedColumnName) {
+            Assert::true($actualColumnNames->valid());
+            $actualColumn = $actualColumnNames->current();
+            Assert::notNull($actualColumn);
+            $actualColumnName = $actualColumn->getValue();
+            Assert::same($actualColumnName, $expectedColumnName);
+            $actualColumnNames->next();
+        }
+
+        return $columnMapping;
+    }
+
+    /**
+     * @return array<string, callable(Cell): ConstraintViolationListInterface|null>
+     */
+    protected function getColumnMapping(StatementFromRowBuilder $builder): array
+    {
+        return [
             'ID'                  => [$builder, 'setExternId'],
             'Gruppenname'         => null,
             'Text'                => [$builder, 'setText'],
@@ -70,21 +91,12 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
             'Verfassungsdatum'    => [$builder, 'setAuthoredDate'],
             'Eingangsnummer'      => [$builder, 'setInternId'],
             'Notiz'               => [$builder, 'setMemo'],
+            // fixme check weather or not null
+            'Rückmeldung'         => null,
+            'Mitzeichnende'         => null,
+            'Verfahrensschritt'         => null,
+            'Art der Einreichung'         => null,
         ];
-
-        // Currently an exception will be thrown in case of unsorted columns. To avoid that you can adjust the sorting
-        // of the array above to the order of the actual columns.
-        $expectedColumns = array_keys($columnMapping);
-        foreach ($expectedColumns as $expectedColumnName) {
-            Assert::true($actualColumnNames->valid());
-            $actualColumn = $actualColumnNames->current();
-            Assert::notNull($actualColumn);
-            $actualColumnName = $actualColumn->getValue();
-            Assert::same($actualColumnName, $expectedColumnName);
-            $actualColumnNames->next();
-        }
-
-        return $columnMapping;
     }
 
     protected function getStatementFromRowBuilder(ProcedureInterface $procedure): StatementFromRowBuilder
