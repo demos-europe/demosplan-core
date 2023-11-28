@@ -11,6 +11,7 @@
   <section class="u-mb">
     <template v-if="fragments.length">
       <dp-statement-fragment
+        :csrf-token="csrfToken"
         :is-archive="isArchive"
         v-for="fragment in fragments"
         :key="missKeyValue(fragment.id, 0)"
@@ -41,6 +42,11 @@ export default {
   },
 
   props: {
+    csrfToken: {
+      type: String,
+      required: true
+    },
+
     isArchive: {
       type: Boolean,
       required: false,
