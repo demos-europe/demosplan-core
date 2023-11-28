@@ -13,6 +13,7 @@
     <form class="flow-root" name="xsubmititem" action="{{ actionPath }}" method="post" enctype="multipart/form-data" data-dp-validate>
         {# if the ID isn't set, don't send the value, even not an empty-Sting  #}
         <input type="hidden" name="r_category_id" value="{{ templateVars.category.id }}" />
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         {{ uiComponent('form.row', {
             elements: [

@@ -5,6 +5,7 @@
 	<form name="xsubmititem" enctype="multipart/form-data" method="post" action="{{ path('DemosPlan_plandocument_administration_' ~ category ~ '_new',{'procedure':procedure, 'elementId':elementId}) }}" data-dp-validate>
         <input name="r_action" type="hidden" value="documentnew">
         <input name="r_elementId" type="hidden" value="{{ elementId|default() }}">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
 		<label>
             {{ "status"|trans }}*

@@ -43,6 +43,7 @@
       <div class="convert-annotated-pdf__form">
         <dp-simplified-new-statement-form
           :allow-file-upload="false"
+          :csrf-token="csrfToken"
           :current-procedure-phase="currentProcedurePhase"
           :document-id="documentId"
           :expand-all="false"
@@ -78,6 +79,11 @@ export default {
   },
 
   props: {
+    csrfToken: {
+      type: String,
+      required: true
+    },
+
     currentProcedurePhase: {
       type: String,
       required: false,

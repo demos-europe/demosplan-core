@@ -141,27 +141,33 @@ export default {
     },
 
     saveBrandingSettings () {
-      if (this.uploadedFileId) {
-        this.isBusy = true
-        const payload = {
-          id: this.brandingId,
-          type: 'Branding',
-          attributes: {
-            ...this.brandingList[this.brandingId].attributes
-          },
-          relationships: {
-            logo: {
-              data: this.isLogoDeleted ? null : { id: this.uploadedFileId, type: 'file' }
-            }
+
+      if (!this.uploadedFileId) {
+        this.isBusy = false
+
+        return
+      }
+
+      this.isBusy = true
+      const payload = {
+        id: this.brandingId,
+        type: 'Branding',
+        attributes: {
+          ...this.brandingList[this.brandingId].attributes
+        },
+        relationships: {
+          logo: {
+            data: this.isLogoDeleted ? null : { id: this.uploadedFileId, type: 'file' }
           }
         }
-        this.updateBranding(payload)
-        this.saveBranding(this.brandingId).then(() => {
-          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-          this.isLogoDeleted = false
-          this.isBusy = false
-        })
       }
+
+      this.updateBranding(payload)
+      this.saveBranding(this.brandingId).then(() => {
+        dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+        this.isBusy = false
+        this.isLogoDeleted = false
+      })
     }
   }
 }

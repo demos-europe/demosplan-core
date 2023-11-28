@@ -31,6 +31,8 @@
     </div>
 
     <form class="push--top" id="userlist" action="{{ path('DemosPlan_user_admin') }}" method="post" novalidate>
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
         {% if hasPermission('feature_user_edit') %}
             <dp-user-list
                 preset-user-orga-id="{{ currentUser.orga.id }}"

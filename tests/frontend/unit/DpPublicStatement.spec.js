@@ -41,6 +41,7 @@ describe('DpPublicStatement', () => {
         phase: 'Frühzeitige Beteiligung Öffentlichkeit',
         polygon: {},
         priorityAreas: null,
+        procedureId: '45752f51-f68a-11e5-b083-005056ae0004',
         rejectedReason: '',
         submittedDate: null,
         text: '',

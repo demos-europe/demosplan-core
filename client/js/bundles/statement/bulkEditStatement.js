@@ -15,18 +15,22 @@ import AssessmentTableStore from '@DpJs/store/statement/AssessmentTable'
 import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
 import DpBulkEditStatement from '@DpJs/components/statement/assessmentTable/DpBulkEditStatement'
 import FragmentStore from '@DpJs/store/statement/Fragment'
+import { hasPermission } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
 import StatementStore from '@DpJs/store/statement/Statement'
 
 const stores = {
   assessmentTable: AssessmentTableStore,
-  boilerplates: BoilerplatesStore,
   fragment: FragmentStore,
   statement: StatementStore
 }
 
 const components = {
   DpBulkEditStatement
+}
+
+if (hasPermission('area_admin_boilerplates')) {
+  stores.boilerplates = BoilerplatesStore
 }
 
 initialize(components, stores)

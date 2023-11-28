@@ -399,59 +399,11 @@ export default {
         this.customerBrandingId = this.customerList[this.currentCustomerId].relationships?.branding?.data?.id
         this.customer = {
           ...this.customer,
-          imprint : currentData.imprint ? currentData.imprint : '',
-          dataProtection : currentData.dataProtection ? currentData.dataProtection : ''
+          imprint: currentData.imprint ? currentData.imprint : '',
+          dataProtection: currentData.dataProtection ? currentData.dataProtection : ''
         }
-        this.branding.logoHash = this.fileList[this.brandingList[this.customerBrandingId].relationships?.logo.data?.id]?.attributes.hash
+        this.branding.logoHash = this.fileList[this.brandingList[this.customerBrandingId].relationships?.logo.data?.id]?.attributes.hash || ''
       })
-    },
-
-    handleCustomerResponse (response) {
-      const customer = response.data?.data[0]
-
-      // The request is filtered by currentCustomer, so we assume that exactly one customer is returned
-      this.customer = { ...customer.attributes }
-
-      if (hasPermission('feature_platform_logo_edit') || hasPermission('feature_customer_branding_edit')) {
-        // Find branding relationship and set cssvars
-        const brandingId = customer.relationships.branding?.data?.id
-        const branding = response.data?.included.find(item => item.id === brandingId)
-
-        if (hasPermission('feature_customer_branding_edit') && typeof branding !== 'undefined') {
-          this.branding.cssvars = branding.attributes.cssvars
-        }
-
-        // Find logo relationship in branding, set logoHash
-        if (hasPermission('feature_platform_logo_edit') && typeof branding !== 'undefined' && branding.relationships.logo.data) {
-          const logoId = branding.relationships.logo.data?.id
-          const logo = response.data?.included.find(item => item.id === logoId)
-          this.branding.logoHash = logo.attributes.hash
-        }
-      }
-
-      // Find signLanguageOverviewVideo relationship, set video data
-      if (hasPermission('field_sign_language_overview_video_edit')) {
-        if (customer.relationships?.signLanguageOverviewVideo?.data) {
-          const signLanguageOverviewVideoId = customer.relationships.signLanguageOverviewVideo.data?.id
-          const signLanguageOverviewVideo = response.data.included.find(item => item.id === signLanguageOverviewVideoId) || null
-          const file = response.data?.included.find(item => item.id === signLanguageOverviewVideo.relationships?.file.data?.id) || null
-
-          if (signLanguageOverviewVideoId && file) {
-            this.signLanguageOverviewVideo = { ...signLanguageOverviewVideo.attributes }
-            this.signLanguageOverviewVideo.id = signLanguageOverviewVideoId
-            this.signLanguageOverviewVideo.file = file.id
-            this.signLanguageOverviewVideo.mimetype = file.attributes.mimetype
-          }
-        } else {
-          this.signLanguageOverviewVideo.description = ''
-          this.signLanguageOverviewVideo.file = ''
-          this.signLanguageOverviewVideo.id = null
-          this.signLanguageOverviewVideo.mimetype = ''
-          this.signLanguageOverviewVideo.title = ''
-        }
-      }
-
-      this.isLoading = this.isLoadingSignLanguageOverviewVideo = false
     },
 
     getRequestPayload () {
