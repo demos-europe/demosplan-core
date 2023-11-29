@@ -23,7 +23,7 @@ class Version20231129120204 extends AbstractMigration
         $this->addSql('TRUNCATE support_contact');
         $this->addSql('ALTER TABLE support_contact DROP FOREIGN KEY FK_8C8C0928B08E074E');
         $this->addSql('DROP INDEX IDX_8C8C0928B08E074E ON support_contact');
-        $this->addSql('ALTER TABLE support_contact CHANGE email_address email_address VARCHAR(255)');
+        $this->addSql('ALTER TABLE support_contact CHANGE email_address email_address VARCHAR(255) NULL');
     }
 
     /**
@@ -32,6 +32,7 @@ class Version20231129120204 extends AbstractMigration
     public function down(Schema $schema): void
     {
         $this->abortIfNotMysql();
+        $this->addSql('TRUNCATE support_contact');
         $this->addSql('ALTER TABLE support_contact CHANGE email_address email_address CHAR(36) DEFAULT NULL');
         $this->addSql('ALTER TABLE support_contact ADD CONSTRAINT FK_8C8C0928B08E074E FOREIGN KEY (email_address) REFERENCES email_address (id)');
         $this->addSql('CREATE INDEX IDX_8C8C0928B08E074E ON support_contact (email_address)');
