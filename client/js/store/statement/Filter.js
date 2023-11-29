@@ -172,28 +172,28 @@ const Filter = {
 
     /**
      * Add or remove an option to/from selectedOptions
-     * @param selectedOption
-     * @param filterId
+     * @param {Object} selectedOption option to add to or remove from selectedOptions
+     * @param {String} filterId
      */
     updateSelectedOptions (state, { selectedOption, filterId }) {
       // @improve send filterId with every option from BE
       if (hasOwnProp(selectedOption, 'filterId') === false) {
         selectedOption.filterId = filterId
       }
-      if (state.selectedOptions.length) {
-        const optionsForCurrentFilter = state.selectedOptions.filter(option => option.filterId === filterId)
-        if (optionsForCurrentFilter.length) {
-          const idx = state.selectedOptions.findIndex(option => option.value === selectedOption.value)
-          if (idx < 0) {
-            state.selectedOptions.splice(state.selectedOptions.length, 0, selectedOption)
-          } else {
-            delete state.selectedOptions[idx]
-          }
+
+      const optionsForCurrentFilter = state.selectedOptions.filter(option => option.filterId === filterId)
+      const idx = state.selectedOptions.findIndex(option => option.value === selectedOption.value)
+      const currentOptionIsNotInSelectedOptions = idx < 0
+      const hasSelectedOptionsForCurrentFilter = state.selectedOptions.length && optionsForCurrentFilter.length
+
+      if (hasSelectedOptionsForCurrentFilter) {
+        if (currentOptionIsNotInSelectedOptions) {
+          state.selectedOptions.push(selectedOption)
         } else {
-          state.selectedOptions.splice(state.selectedOptions.length, 0, selectedOption)
+          state.selectedOptions.splice(idx, 1)
         }
       } else {
-        state.selectedOptions.splice(state.selectedOptions.length, 0, selectedOption)
+        state.selectedOptions.push(selectedOption)
       }
     },
 
