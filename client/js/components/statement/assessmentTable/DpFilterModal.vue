@@ -444,7 +444,6 @@ export default {
     },
 
     /**
-     **
      * Reset only the unsaved selected filter options, but only when closing modal
      */
     resetUnsavedOptions (isOpen) {

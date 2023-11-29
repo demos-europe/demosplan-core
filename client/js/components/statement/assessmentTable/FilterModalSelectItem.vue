@@ -54,7 +54,6 @@
             </template>
 
             <!-- sorting -->
-            <!-- don't remove slot-scope=props, without it, the button won't be displayed -->
             <template
               v-if="'fragment' !== filterGroup.type"
               v-slot:beforeList>
