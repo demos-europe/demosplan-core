@@ -25,7 +25,6 @@
             <input type="hidden" value="{% if proceduresettings.ident is defined %}{{ proceduresettings.ident }}{% endif %}" name="r_ident">
             <input type="hidden" value="{% if templateVars.internalPhases.1 is defined %}{{ templateVars.internalPhases.1.key }}{% endif %}" name="r_phase">
             <input type="hidden" value="edit" name="action">
-            {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
             <label>
                 {{ "name"|trans }}*
