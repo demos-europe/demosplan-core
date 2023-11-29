@@ -4,15 +4,15 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
 
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
+use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use Geocoder\Assert;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Collection;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\Constraints\Required;
+use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -25,23 +25,35 @@ class StatementFromRowBuilderWithZipSupport extends StatementFromRowBuilder
 
     public function setFileReferences(Cell $cell): ?ConstraintViolationListInterface
     {
-//        $violation = new ConstraintViolation();
-        // fixme add violation if reasonable
+        // early return in case no file-reference is found
+        $cellValue = $cell->getValue();
+        if (null === $cellValue || '' === $cellValue) {
+            return null;
+        }
+
         $references = explode(', ', $cell->getValue());
-//       $keyConstraint = new Collection(
-//           array_fill_keys($references, []),
-//           null,
-//           null,
-//           true,
-//           false
-//       );
-//        $violations = $this->validator->validate(
-//            $this->fileMap,
-//            [$keyConstraint]
-//        );
-//        if (0 !== $violations->count()) {
-//            return $violations;
-//        }
+
+        $collectionContent = array_fill_keys(
+            $references,
+            new Required(
+                new Type(File::class)
+            )
+        );
+        $keyConstraint = new Collection(
+            $collectionContent,
+            null,
+            null,
+            true,
+            false
+       );
+        $violations = $this->validator->validate(
+            $this->fileMap,
+            [$keyConstraint]
+        );
+        if (0 !== $violations->count()) {
+            return $violations;
+        }
+
         foreach ($references as $fileMapKey) {
             // fixme use the correct method - attachement or files
 //            $this->statement->addAttachment($this->fileMap[$fileMapKey]);
