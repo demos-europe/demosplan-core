@@ -41,7 +41,6 @@ Vue.use(DPVueCorePlugin)
 
 // Register components that are used globally
 Vue.component('DpObscure', DpObscure)
-Vue.component('RegisterFlyout', RegisterFlyout)
 
 function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}) {
   bootstrap()
@@ -67,7 +66,8 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
         DpAccordion,
         DpFlyout,
         HamburgerMenuButton,
-        NotifyContainer
+        NotifyContainer,
+        RegisterFlyout
       },
       store: store,
       mounted () {
