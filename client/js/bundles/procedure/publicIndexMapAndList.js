@@ -16,7 +16,9 @@ import DpSearchProcedureMap from '@DpJs/components/procedure/publicindex/DpSearc
 import { initialize } from '@DpJs/InitVue'
 
 const stores = {}
-const components = { DpSearchProcedureMap }
+const components = {
+  DpSearchProcedureMap
+}
 window.prefixClass = prefixClass
 
 initialize(components, stores).then(() => {
