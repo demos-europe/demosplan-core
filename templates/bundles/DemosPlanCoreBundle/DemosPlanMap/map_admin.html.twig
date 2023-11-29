@@ -13,36 +13,31 @@
 
     <dp-map-admin
         inline-template
+        :available-scales="JSON.parse('{{ availableScales|json_encode|e('js', 'utf-8') }}')"
         :selected-scales="JSON.parse('{{ selectedScales|json_encode|e('js', 'utf-8') }}')">
         <form class="layout u-pt flow-root" action="{{ path('DemosPlan_map_administration_map',{'procedureId':procedure}) }}" method="post" name="configForm">
             <input type="hidden" name="action" value="mapglobals">
             {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
-            {# Select available scales for procedure #}
             <label class="layout__item u-1-of-4 u-mb-0_5" for="r_scales">
                 {{ 'map.scales'|trans }}
             </label><!--
-         --><div class="layout__item u-3-of-4 u-pl-0 u-mb">
-                <dp-multiselect
-                    v-model="scales"
-                    label="label"
-                    multiple
-                    :options="JSON.parse('{{ availableScales|json_encode|e('js', 'utf-8') }}')"
-                    track-by="value"
-                    @input="sortSelected('scales')">
-                    <template v-slot:option="{ props }">
-                        {% verbatim %}{{ props.option.label }}{% endverbatim %}
-                    </template>
-                    <template v-slot:tag="{ props }">
-                        <span class="multiselect__tag">
-                            {%  verbatim %}{{ props.option.label }}{%  endverbatim %}
-                            <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
-                            <input type="hidden" :value="props.option.value" name="r_scales[]"/>
-                        </span>
-                    </template>
-                </dp-multiselect>
-                <p class="lbl__hint u-mt-0_25">{{ 'map.scales.select.hint'|trans }}</p>
+         --><div class="layout__item u-3-of-4 u-mb height-130 u-pl-0_25 u-pr-0_5">
+                <vue-slider
+                    adsorb
+                    :data="availableScales"
+                    data-value="value"
+                    data-label="label"
+                    :marks="marks"
+                    :tooltip-formatter="tooltipFormatter"
+                    tooltip-placement="bottom"
+                    v-model="scaleValue"
+                    @drag-start="show">
+                </vue-slider>
             </div>
+
+            {# Select available scales for procedure #}
+
 
 
             {# Value that is used to set the extent of map a.k.a. procedureMaxExtent #}
