@@ -19,26 +19,23 @@
             <input type="hidden" name="action" value="mapglobals">
             {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
+            {# Select available scales for procedure #}
             <label class="layout__item u-1-of-4 u-mb-0_5" for="r_scales">
                 {{ 'map.scales'|trans }}
             </label><!--
-         --><div class="layout__item u-3-of-4 u-mb height-130 u-pl-0_25 u-pr-0_5">
+         --><div class="layout__item u-3-of-4 u-mb height-130 u-ph">
                 <vue-slider
                     adsorb
                     :data="availableScales"
                     data-value="value"
                     data-label="label"
                     :marks="marks"
+                    :min-range="5"
                     :tooltip-formatter="tooltipFormatter"
-                    tooltip-placement="bottom"
                     v-model="scaleValue"
                     @drag-start="show">
                 </vue-slider>
             </div>
-
-            {# Select available scales for procedure #}
-
-
 
             {# Value that is used to set the extent of map a.k.a. procedureMaxExtent #}
             <label class="layout__item u-1-of-4" for="bbox_of_project_epsg25832">

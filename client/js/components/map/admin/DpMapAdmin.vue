@@ -62,15 +62,16 @@ export default {
       return {
         label: this.availableScales.find(scale => scale.value === val).label,
         labelStyle: {
-          transform: 'translateX(-4px) translateY(-30px) rotate(315deg)',
-          position: 'relative',
-          marginTop: '0'
+          transform: 'rotate(315deg)',
+          width: '100px',
+          display: 'block',
+          marginTop: '20px',
+          marginLeft: '-50px'
         }
       }
     },
-    tooltipFormatter (v, b) {
-      console.log(v, b)
-      return v
+    tooltipFormatter (value) {
+      return `Maßstab: ${this.availableScales.find(scale => scale.value === value).label}`
     }
   },
 
