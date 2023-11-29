@@ -67,7 +67,7 @@ class SupportContact extends CoreEntity implements UuidEntityInterface
     private ?string $phoneNumber;
 
     /**
-     * @ORM\Column(type="string", length=255, name="email_address")
+     * @ORM\Column(type="string", length=255, name="email_address", nullable=true)
      */
     #[Assert\Email(mode: 'strict')]
     private ?string $eMailAddress;
