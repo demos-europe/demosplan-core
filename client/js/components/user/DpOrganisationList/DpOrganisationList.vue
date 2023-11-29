@@ -420,7 +420,6 @@ export default {
 
     fetchAllOrganisations (page) {
       this.isLoading = true
-      console.log('here')
 
       this.list({
         page: {
