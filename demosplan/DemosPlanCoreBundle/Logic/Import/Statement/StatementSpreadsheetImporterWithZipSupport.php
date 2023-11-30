@@ -42,7 +42,6 @@ class StatementSpreadsheetImporterWithZipSupport extends StatementSpreadsheetImp
         ValidatorInterface $validator,
         private readonly ZipImportService $zipImportService,
         private readonly FileService $fileService,
-        private readonly EntityManagerInterface $entityManager,
         private readonly NCNameGenerator $nameGenerator
     ) {
         parent::__construct($currentProcedureService, $currentUser, $elementsService, $orgaService, $statementCopier, $statementService, $translator, $validator);
@@ -60,7 +59,6 @@ class StatementSpreadsheetImporterWithZipSupport extends StatementSpreadsheetImp
             [$this, 'replaceLineBreak'],
             $this->getFileMap(),
             $this->fileService,
-            $this->entityManager,
             $this->nameGenerator
         );
     }
