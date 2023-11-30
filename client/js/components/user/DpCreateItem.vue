@@ -23,7 +23,7 @@
     @item:toggle="(open) => { toggleItem(open) }">
     <div class="o-box--dark soft">
       <div
-        class="u-ph-0_5 u-pt-0_5 u-pb-0_25"
+        class="u-ph-0_5 u-pv-0_5"
         :data-dp-validate="customComponent[entity].formName">
         <!-- Form fields   -->
         <component
@@ -34,6 +34,7 @@
 
         <!-- Save/Abort buttons   -->
         <dp-button-row
+          class="u-mt"
           :form-name="customComponent[entity].formName"
           primary
           secondary
