@@ -5,6 +5,7 @@
 	<form name="xsubmititem" enctype="multipart/form-data" method="post" action="{{ path('DemosPlan_plandocument_administration_' ~ category ~ '_new',{'procedure':procedure, 'elementId':elementId}) }}" data-dp-validate>
         <input name="r_action" type="hidden" value="documentnew">
         <input name="r_elementId" type="hidden" value="{{ elementId|default() }}">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
 		<label>
             {{ "status"|trans }}*
@@ -59,21 +60,23 @@
             {{ "paragraph.text"|trans }}*
         </label>
         <dp-editor
-            value=""
+            ref="r_text"
+            :basic-auth="dplan.settings.basicAuth"
             class="u-mb"
             hidden-input="r_text"
-            ref="r_text"
+            procedure-id="{{ procedure }}"
+            :required="true"
+            :routes="{
+               getFileByHash: (hash, procedure) => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedure })
+            }"
             :toolbar-items="{
                 imageButton: true,
                 insertAndDelete: true,
                 linkButton: true,
                 table: true
             }"
-            :routes="{
-              getFileByHash: (hash) => Routing.generate('core_file', { hash: hash })
-            }"
-            procedure-id="{{ procedure }}"
-            :required="true">
+            :tus-endpoint="dplan.paths.tusEndpoint"
+            value="">
         </dp-editor>
 
         <div class="text-right space-inline-s">

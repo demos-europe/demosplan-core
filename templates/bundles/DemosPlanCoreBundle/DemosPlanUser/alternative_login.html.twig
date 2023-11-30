@@ -42,6 +42,7 @@
                             <input type="hidden" name="r_useremail" :value="rowData.login">
                             <input type="hidden" name="password" :value="password">
                             <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate')|json_encode }}">
+                            {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
                             <input type="submit" class="{{ 'btn btn--primary'|prefixClass }}" value="Login">
                         </form>
                     </template>
@@ -75,6 +76,8 @@
                 </alternative-login>
             {% endif %}
 
+            {# As this is debug output no translation keys are needed here #}
+            <div class="{{ 'u-m u-mt-0'|prefixClass }}">Current Customer: {{ currentCustomer }}, available customers: {{ customers|join(', ') }}</div>
         </div>
     {% endif %}
 

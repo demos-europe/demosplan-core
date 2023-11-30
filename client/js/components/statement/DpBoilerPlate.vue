@@ -44,7 +44,7 @@
         Vorschau:
       </label>
       <div
-        class="u-p-0_5 border border-radius-large min-height-250"
+        class="u-p-0_5 border border-radius-large min-height-250 c-styled-html"
         id="previewField"
         v-cleanhtml="previewValue" />
     </div>

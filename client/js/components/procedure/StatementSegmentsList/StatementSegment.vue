@@ -14,7 +14,7 @@
     :class="{'segment-list-row--assigned': isAssignedToMe, 'fullscreen': isFullscreen}"
     @mouseenter="isHover = true"
     @mouseleave="isHover = false"
-    :id="'segment_' + segment.id">
+    :id="`segment_${segment.id}`">
     <div class="flex flex-col justify-start basis-1/5 u-pt-0_5 u-pl-0_5">
       <v-popover :container="$refs.statementSegment">
         <i
@@ -109,6 +109,7 @@
           @input="value => updateSegment('recommendation', value)">
           <template v-slot:modal="modalProps">
             <dp-boiler-plate-modal
+              v-if="hasPermission('area_admin_boilerplates')"
               ref="boilerPlateModal"
               boiler-plate-type="consideration"
               editor-id="recommendationText"
@@ -130,7 +131,7 @@
                   :text="Translator.trans('segment.oracle.tooltip')" />
                 <dp-badge
                   v-if="activeId === 'oracleRec'"
-                  class="absolute u-right-0 u-mr-0_75"
+                  class="absolute right-12"
                   size="smaller"
                   :text="Translator.trans('segment.oracle.beta')"
                   v-tooltip="Translator.trans('segment.oracle.beta.tooltip')" />
@@ -158,6 +159,7 @@
           </template>
           <template v-slot:button>
             <button
+              v-if="hasPermission('area_admin_boilerplates')"
               :class="prefixClass('menubar__button')"
               type="button"
               v-tooltip="Translator.trans('boilerplate.insert')"
@@ -237,7 +239,7 @@
           data-cy="editorFullscreen"
           :aria-label="Translator.trans('editor.fullscreen')"
           v-tooltip="{
-            container: this.$refs.statementSegment,
+            container: `#segment_${segment.id}`,
             content: Translator.trans('editor.fullscreen')
           }"
           @click="isFullscreen = !isFullscreen">
@@ -253,7 +255,7 @@
           data-cy="segmentEdit"
           :aria-label="Translator.trans('edit')"
           v-tooltip="{
-            container: this.$refs.statementSegment,
+            container: `#segment_${segment.id}`,
             content: Translator.trans('edit')
           }"
           @click="startEditing">
@@ -268,7 +270,7 @@
           type="button"
           :aria-label="Translator.trans('history')"
           v-tooltip="{
-            container: this.$refs.statementSegment,
+            container: `#segment_${segment.id}`,
             content: Translator.trans('history')
           }"
           @click.prevent="showSegmentVersionHistory"
@@ -285,7 +287,7 @@
           type="button"
           :aria-label="Translator.trans('comments')"
           v-tooltip="{
-            container: this.$refs.statementSegment,
+            container: `#segment_${segment.id}`,
             content: Translator.trans('comments')
           }"
           data-cy="segmentComments"
@@ -306,7 +308,7 @@
           type="button"
           :aria-label="Translator.trans('public.participation.relation')"
           v-tooltip="{
-            container: this.$refs.statementSegment,
+            container: `#segment_${segment.id}`,
             content: Translator.trans('public.participation.relation')
           }"
           data-cy="segmentMap"
@@ -610,7 +612,9 @@ export default {
     },
 
     openBoilerPlate () {
-      this.$refs.boilerPlateModal.toggleModal()
+      if (hasPermission('area_admin_boilerplates')) {
+        this.$refs.boilerPlateModal.toggleModal()
+      }
     },
 
     /**
@@ -849,6 +853,7 @@ export default {
     loadAddonComponents('segment.recommendationModal.tab')
       .then(response => {
         this.asyncComponents = response
+        this.activeId = response[0].options.id || ''
         this.allComponentsLoaded = true
 
         response.forEach(component => {

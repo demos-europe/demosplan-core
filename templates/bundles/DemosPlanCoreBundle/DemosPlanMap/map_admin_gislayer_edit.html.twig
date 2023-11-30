@@ -15,6 +15,7 @@
 
             <input type="hidden" value="{{ gislayer.ident|default() }}" name="r_ident">
             <input type="hidden" value="{{ isGlobalLayer == true ? '1' : '0' }}" name="r_isGlobalLayer">
+            {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
             {% if isGlobalLayer %}
 

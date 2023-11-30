@@ -66,7 +66,7 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface, Institut
      *
      * @var Orga
      *
-     * @ORM\ManyToOne(targetEntity="Orga", inversedBy="ownInstitutionTags", cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", inversedBy="ownInstitutionTags", cascade={"persist"})
      *
      * @ORM\JoinColumn(referencedColumnName="_o_id", nullable=false)
      */

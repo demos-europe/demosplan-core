@@ -20,6 +20,7 @@
         novalidate
         data-dp-validate>
         <input name="action" type="hidden" value="newsnew">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         {% set statusOptions = [{ 'value': '1', 'label': 'released'}, {'value': '0', 'label': 'blocked'}] %}
         {% for option in statusOptions %}
@@ -210,6 +211,7 @@
                     linkButton: true
                 }"
                 value="{{ templateVars.prefill.r_text|default }}">
+                {% include '@DemosPlanCore/DemosPlanNews/includes/news_editor_boilerplate_modal.html.twig' %}
                 <template v-slot:modal="modalProps">
                     <dp-boiler-plate-modal
                         ref="boilerPlateModal"
@@ -223,7 +225,7 @@
                     <button
                         class="{{ 'menubar__button'|prefixClass }}"
                         type="button"
-                        v-tooltip="'{{ 'boilerplate.insert'|trans }})'"
+                        v-tooltip="'{{ 'boilerplate.insert'|trans }}'"
                         @click.stop="$refs.boilerPlateModal.toggleModal()">
                         <i class="{{ 'fa fa-puzzle-piece'|prefixClass }}"></i>
                     </button>

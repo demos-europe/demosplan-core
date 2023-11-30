@@ -13,6 +13,7 @@
             data-dp-validate>
 
             <input type="hidden" value="singledocumentnew" name="action">
+            {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
             {% if hasPermission('field_procedure_single_document_title') %}
                 <dp-input
@@ -67,7 +68,8 @@
             {% endif %}
 
             {% include "@DemosPlanCore/DemosPlanDocument/includes/single_document_file_upload.html.twig" with {
-                required: true
+                required: true,
+                procedure: procedure
             } %}
 
             <div class="text-right space-inline-s">

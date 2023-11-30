@@ -727,6 +727,23 @@ field_customer_accessibility_explanation_edit:
     expose: true
     loginRequired: true
     parent: area_customer_settings
+feature_customer_support_contact_administration:
+    description: |-
+        Enables the option to create/edit/delete supportContact entities.
+        A customer-admin can post support contact information visible to everyone who is in that customer context.
+        visible under /informationen
+    label: 'Enables the option to create/edit/delete supportContact entities.'
+    expose: true
+    loginRequired: true
+feature_customer_login_support_contact_administration:
+    description: |-
+        Enables the option to create/edit/delete the customer supportLoginContact entity.
+        A customer-admin can post login support contact information visible to everyone who is in that customer context.
+        Shown when keycloak authentication failed.
+        visible under /idp/login/error
+    label: 'Enables the option to create/edit/delete customer loginSupportContact entities shown if keycloak login authentication failed.'
+    expose: true
+    loginRequired: true
 feature_customer_branding_edit:
     description: 'Allows the editing of the customer branding. At the moment this only includes css styling.'
     expose: true
@@ -2111,6 +2128,16 @@ feature_statements_import_excel:
     label: 'Generate statements from uploaded excel file'
     loginRequired: true
     parent: area_statements
+feature_statements_participation_import_excel:
+    description: |-
+        Allows the user to upload a spreadsheet workbook file (e.g. an Excel-file) containing statements.
+        The spreadsheets in the file must use the same format as the assessment table export.
+        If the extern ID of a statement to be imported is already in use that statement will be skipped (i.e.
+        not imported).
+    expose: true
+    label: 'Generate statements from uploaded assessment table spreadsheet export'
+    loginRequired: true
+    parent: area_statements
 feature_statements_like:
     label: 'Feature Stellungnahme als anonymer Nutzer liken aktiviert'
     loginRequired: false
@@ -2469,6 +2496,10 @@ field_required_procedure_end_date:
     descriptiom: this permission makes the end date required when creating procedure
     label: 'require procedure end date'
     expose: true
+    loginRequired: true
+field_segment_assignee_filter:
+    description: 'Allow assignee facet search in segments of current procedure.'
+    label: 'Filter segment list by assignee'
     loginRequired: true
 field_send_final_email:
     label: 'Schlussmitteilung versenden'

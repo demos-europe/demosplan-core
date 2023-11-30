@@ -37,6 +37,7 @@
         id="{{ element_id }}"
         :allow-multiple-uploads="{{ maxfiles > 1 ? 'true' : 'false' }}"
         :allowed-file-types="JSON.parse('{{ type|default( "pdf" )|json_encode|e('js', 'utf-8') }}')"
+        :basic-auth="dplan.settings.basicAuth"
         :chunk-size="{{ chunksize|default('Infinity') }}"
         :get-file-by-hash="(hash) => {
             return Routing.generate('core_file', { hash: hash })
@@ -46,5 +47,6 @@
         :max-number-of-files="{{ maxfiles|default(1) }}"
         needs-hidden-input
         :required="{{ field_required ? 'true' : 'false' }}"
-        :translations="{ dropHereOr: '{{ label|default( "form.button.upload.pdf")|trans( { browse: '{browse}', maxUploadSize: human_max_upload_size } ) }}' }">
+        :translations="{ dropHereOr: '{{ label|default( "form.button.upload.pdf")|trans( { browse: '{browse}', maxUploadSize: human_max_upload_size } ) }}' }"
+        :tus-endpoint="dplan.paths.tusEndpoint">
     </dp-upload-files>

@@ -55,6 +55,7 @@
         novalidate>
         <input name="action" type="hidden" value="newsedit">
         <input name="r_ident" type="hidden" value="{% if news.ident is defined %}{{ news.ident }}{% endif %}">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         {% set currentState = '0' %}
         {% set defaultNewState = '1' %}
@@ -250,24 +251,7 @@
                     linkButton: true
                 }"
                 value="{{ news.text }}">
-                <template v-slot:modal="modalProps">
-                    <dp-boiler-plate-modal
-                        ref="boilerPlateModal"
-                        boiler-plate-type="news.notes"
-                        editor-id="newsText"
-                        procedure-id="{{ procedure }}"
-                        @insert="text => modalProps.handleInsertText(text)">
-                    </dp-boiler-plate-modal>
-                </template>
-                <template v-slot:button>
-                    <button
-                        class="{{ 'menubar__button'|prefixClass }}"
-                        type="button"
-                        v-tooltip="'{{ 'boilerplate.insert'|trans }})'"
-                        @click.stop="$refs.boilerPlateModal.toggleModal()">
-                        <i class="{{ 'fa fa-puzzle-piece'|prefixClass }}"></i>
-                    </button>
-                </template>
+                {% include '@DemosPlanCore/DemosPlanNews/includes/news_editor_boilerplate_modal.html.twig' %}
             </dp-editor>
         </div>
 
