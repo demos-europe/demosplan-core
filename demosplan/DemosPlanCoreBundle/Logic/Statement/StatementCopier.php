@@ -17,6 +17,7 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\NCNameGenerator;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
@@ -69,7 +70,8 @@ class StatementCopier extends CoreService
         private readonly StatementHandler $statementHandler,
         private readonly StatementReportEntryFactory $statementReportEntryFactory,
         private readonly StatementRepository $statementRepository,
-        private readonly StatementService $statementService
+        private readonly StatementService $statementService,
+        private readonly NCNameGenerator $nameGenerator
     ) {
         $this->elasticsearchIndexManager = $elasticsearchIndexManager;
         $this->reportService = $reportService;
@@ -573,9 +575,12 @@ class StatementCopier extends CoreService
                 $em->flush();
             }
 
-            // add Files to Statement in case of existing (persisted/flushed) "oldStatement"
+            // add Files to Statement in case of existing (persisted/flushed) or sometimes not "oldStatement"
             if (null !== $oldStatementId) {
                 // automatically flushes everything
+                if (null === $newStatement->getId()) {
+                    $newStatement->setId($this->nameGenerator->uuid());
+                }
                 $this->statementService->addFilesToCopiedStatement($newStatement, $oldStatementId);
             } else {
                 $this->getLogger()->info(

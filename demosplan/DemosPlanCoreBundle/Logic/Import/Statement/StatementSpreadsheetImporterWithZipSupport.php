@@ -3,6 +3,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\NCNameGenerator;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\CopyException;
@@ -13,15 +14,16 @@ use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UnexpectedWorksheetNameException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\ZipImportService;
+use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use Symfony\Component\Finder\SplFileInfo;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Webmozart\Assert\Assert;
@@ -38,7 +40,10 @@ class StatementSpreadsheetImporterWithZipSupport extends StatementSpreadsheetImp
         StatementService $statementService,
         TranslatorInterface $translator,
         ValidatorInterface $validator,
-        private readonly ZipImportService $zipImportService
+        private readonly ZipImportService $zipImportService,
+        private readonly FileService $fileService,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly NCNameGenerator $nameGenerator
     ) {
         parent::__construct($currentProcedureService, $currentUser, $elementsService, $orgaService, $statementCopier, $statementService, $translator, $validator);
     }
@@ -53,7 +58,10 @@ class StatementSpreadsheetImporterWithZipSupport extends StatementSpreadsheetImp
             $this->elementsService->getStatementElement($procedure->getId()),
             $this->getStatementTextConstraint(),
             [$this, 'replaceLineBreak'],
-            $this->getFileMap()
+            $this->getFileMap(),
+            $this->fileService,
+            $this->entityManager,
+            $this->nameGenerator
         );
     }
 

@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Doctrine\Generator;
 
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Id\AbstractIdGenerator;
 use Ramsey\Uuid\Uuid;
@@ -38,6 +39,17 @@ class NCNameGenerator extends AbstractIdGenerator
 
     public function generateId(EntityManagerInterface $em, $entity): string
     {
+        if ($entity instanceof Statement) {
+            $id = $entity->getId();
+            if (null !== $id && '' !== $id) {
+                if (0 === preg_match('/[A-Za-z]/', $id[0])) {
+                    return $this->uuid();
+                }
+
+                return $id;
+            }
+        }
+
         return $this->uuid();
     }
 }

@@ -3,14 +3,17 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
 
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\NCNameGenerator;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Collection;
+use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Required;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
@@ -18,7 +21,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class StatementFromRowBuilderWithZipSupport extends StatementFromRowBuilder
 {
-    public function __construct(ValidatorInterface $validator, Procedure $procedure, User $importingUser, Orga $anonymousOrga, Elements $statementElement, Constraint $textConstraint, mixed $textPostValidationProcessing, protected readonly array $fileMap)
+    public function __construct(ValidatorInterface $validator, Procedure $procedure, User $importingUser, Orga $anonymousOrga, Elements $statementElement, Constraint $textConstraint, mixed $textPostValidationProcessing, protected readonly array $fileMap, protected readonly FileService $fileService, private readonly NCNameGenerator $nameGenerator)
     {
         parent::__construct($validator, $procedure, $importingUser, $anonymousOrga, $statementElement, $textConstraint, $textPostValidationProcessing);
     }
@@ -54,9 +57,17 @@ class StatementFromRowBuilderWithZipSupport extends StatementFromRowBuilder
             return $violations;
         }
 
+        $id = $this->nameGenerator->uuid();
+        $this->statement->setId($id);
         foreach ($references as $fileMapKey) {
-            // fixme use the correct method - attachement or files
-//            $this->statement->addAttachment($this->fileMap[$fileMapKey]);
+            /** @var File $fileEntity */
+            $fileEntity = $this->fileMap[$fileMapKey];
+            $fileContainer = $this->fileService->addStatementFileContainer(
+                $this->statement->getId(),
+                $fileEntity->getId(),
+                $fileEntity->getFileString()
+            );
+            $this->validator->validate($fileContainer, [new NotNull()]);
         }
 
         return null;

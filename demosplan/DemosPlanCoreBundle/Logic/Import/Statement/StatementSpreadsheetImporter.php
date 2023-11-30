@@ -92,10 +92,10 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
             'Eingangsnummer'      => [$builder, 'setInternId'],
             'Notiz'               => [$builder, 'setMemo'],
             // fixme check weather or not null
-            'Rückmeldung'         => null,
-            'Mitzeichnende'         => null,
-            'Verfahrensschritt'         => null,
-            'Art der Einreichung'         => null,
+            'Rückmeldung'         => function ($cell) {return null;},
+            'Mitzeichnende'         => function ($cell) {return null;},
+            'Verfahrensschritt'         => function ($cell) {return null;},
+            'Art der Einreichung'         => function ($cell) {return null;},
         ];
     }
 
