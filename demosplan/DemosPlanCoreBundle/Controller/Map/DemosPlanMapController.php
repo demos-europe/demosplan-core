@@ -342,8 +342,9 @@ class DemosPlanMapController extends BaseController
                         ['procedureId' => $procedureId]
                     );
                 }
-            } catch (InvalidArgumentException) {
-                $this->messageBag->warning('warning', 'error.name');
+            } catch (InvalidArgumentException $exception) {
+                $this->logger->warning('Exception on GisLayerCategory adding.', ['exception' => $exception]);
+                $this->messageBag->add('warning', 'error.name');
             }
         }
 

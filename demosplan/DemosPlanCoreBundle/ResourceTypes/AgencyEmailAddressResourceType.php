@@ -42,14 +42,14 @@ final class AgencyEmailAddressResourceType extends DplanResourceType
         );
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isGetAllowed(): bool
     {
         return false;
     }
 
-    public function isReferencable(): bool
+    public function isListAllowed(): bool
     {
-        return true;
+        return false;
     }
 
     protected function getAccessConditions(): array
@@ -60,7 +60,7 @@ final class AgencyEmailAddressResourceType extends DplanResourceType
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(),
+            $this->createIdentifier()->readable(),
             $this->createAttribute($this->fullAddress)->readable(),
         ];
     }

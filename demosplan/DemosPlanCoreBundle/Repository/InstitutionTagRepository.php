@@ -12,12 +12,16 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Exception;
 
-class InstitutionTagRepository extends FluentRepository implements ObjectInterface
+/**
+ * @template-extends CoreRepository<InstitutionTag>
+ */
+class InstitutionTagRepository extends CoreRepository implements ObjectInterface
 {
     /**
      * @return InstitutionTag|null

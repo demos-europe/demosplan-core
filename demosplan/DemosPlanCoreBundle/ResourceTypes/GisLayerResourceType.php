@@ -83,12 +83,12 @@ final class GisLayerResourceType extends DplanResourceType
         return true;
     }
 
-    public function isReferencable(): bool
+    public function isGetAllowed(): bool
     {
-        return true;
+        return false;
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isListAllowed(): bool
     {
         return false;
     }
@@ -112,8 +112,8 @@ final class GisLayerResourceType extends DplanResourceType
             $this->createAttribute($this->treeOrder)->readable(true),
             $this->createAttribute($this->projectionValue)->readable(true),
             $this->createAttribute($this->projectionLabel)->readable(true),
-            $this->createAttribute($this->id)
-                ->readable(true)->aliasedPath($this->ident),
+            $this->createIdentifier()
+                ->readable()->aliasedPath($this->ident),
             $this->createAttribute($this->isGlobalLayer)
                 ->readable(true)->aliasedPath($this->globalLayer),
             $this->createAttribute($this->globalLayerId)
@@ -138,8 +138,8 @@ final class GisLayerResourceType extends DplanResourceType
                 ->readable(true)->aliasedPath($this->isMiniMap),
             // Keep this as a default include because these relationships are included in
             // GisLayerCategories and available filters are not usable for nested resources yet.
-            $this->createToOneRelationship($this->contextualHelp, true)
-                ->readable(true),
+            $this->createToOneRelationship($this->contextualHelp)
+                ->readable(true, null, true),
             $this->createAttribute($this->serviceType)
                 ->readable(true, static fn (GisLayer $gisLayer): string => $gisLayer->getServiceType()),
             $this->createAttribute($this->isBaseLayer)

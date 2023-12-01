@@ -45,7 +45,7 @@ class RpcProcedureAnalytics implements RpcMethodSolverInterface
      *
      * @return array<string, mixed>
      *
-     * @throws JsonException
+     * @throws \JsonException
      * @throws ClientExceptionInterface
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface

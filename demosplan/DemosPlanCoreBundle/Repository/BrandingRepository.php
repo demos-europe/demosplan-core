@@ -13,7 +13,10 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\CustomerResourceInterface;
 
-class BrandingRepository extends FluentRepository
+/**
+ * @template-extends CoreRepository<Branding>
+ */
+class BrandingRepository extends CoreRepository
 {
     public function createFromData(array $data): Branding
     {

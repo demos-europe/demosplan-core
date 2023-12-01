@@ -106,7 +106,6 @@ use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
 use ReflectionException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -1038,8 +1037,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     /**
      * Update eines Verfahren.
      *
-     * @param array   $data
-     * @param Session $session
+     * @param array $data
      *
      * @return array
      *
@@ -1103,8 +1101,6 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
     /**
      * Update of a procedure-object.
-     *
-     * @param User|null $user
      *
      * @return array|Procedure
      *

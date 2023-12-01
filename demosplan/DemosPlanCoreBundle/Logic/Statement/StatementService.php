@@ -90,7 +90,6 @@ use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
-use demosplan\DemosPlanCoreBundle\Repository\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
@@ -127,6 +126,7 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
+use EDT\Wrapping\CreationDataInterface;
 use Elastica\Aggregation\GlobalAggregation;
 use Elastica\Exception\ClientException;
 use Elastica\Index;
@@ -603,34 +603,6 @@ class StatementService extends CoreService implements StatementServiceInterface
         }
 
         return $statement;
-    }
-
-    /**
-     * @param array<string, mixed> $properties
-     */
-    public function createPersonAndAddToStatementWithResourceType(array $properties): ResourceChange
-    {
-        $procedure = $properties[$this->similarStatementSubmitterResourceType->procedure->getAsNamesInDotNotation()];
-        $fullName = $properties[$this->similarStatementSubmitterResourceType->fullName->getAsNamesInDotNotation()];
-
-        $submitter = new ProcedurePerson($fullName, $procedure);
-        $change = new ResourceChange($submitter, $this->similarStatementSubmitterResourceType, $properties);
-        $change->addEntityToPersist($submitter);
-
-        $updater = new PropertiesUpdater($properties);
-        $this->updatePersonEditableProperties($updater, $submitter);
-        $updater->ifPresent(
-            $this->similarStatementSubmitterResourceType->similarStatements,
-            static function (Collection $similarStatements) use ($change, $submitter): void {
-                /** @var Statement $statement */
-                foreach ($similarStatements as $statement) {
-                    $statement->getSimilarStatementSubmitters()->add($submitter);
-                }
-                $change->addEntitiesToPersist($similarStatements->getValues());
-            }
-        );
-
-        return $change;
     }
 
     public function updatePersonEditableProperties(PropertiesUpdater $updater, ProcedurePerson $person): void
@@ -4554,7 +4526,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             $this->statementResourceType->procedure->id
         );
 
-        return $this->statementResourceType->listEntities([$condition]);
+        return $this->statementResourceType->getEntities([$condition], []);
     }
 
     public function addMissingSortKeys($sort, string $defaultPropertyName, string $defaultDirection): ToBy

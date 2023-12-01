@@ -522,7 +522,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     protected $customer;
 
     /**
-     * @var ProcedureCategory[]
+     * @var Collection<int, ProcedureCategory>
      *
      * @ORM\ManyToMany(
      *      targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureCategory",
@@ -1755,7 +1755,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     }
 
     /**
-     * @return ArrayCollection[Orga]
+     * @return Collection<int, Orga>
      */
     public function getDataInputOrganisations()
     {

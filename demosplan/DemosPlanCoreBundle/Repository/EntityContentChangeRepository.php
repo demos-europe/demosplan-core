@@ -21,6 +21,9 @@ use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query\Expr\Join;
 use Exception;
 
+/**
+ * @template-extends CoreRepository<EntityContentChange>
+ */
 class EntityContentChangeRepository extends CoreRepository implements ImmutableObjectInterface
 {
     /**

@@ -56,24 +56,19 @@ final class OrgaStatusInCustomerResourceType extends DplanResourceType
         return 'OrgaStatusInCustomer';
     }
 
-    public function isReferencable(): bool
-    {
-        return true;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
-    }
-
     protected function getProperties(): array
     {
-        return [
-            $this->createAttribute($this->id)->readable(true)->filterable()->sortable(),
-            $this->createToOneRelationship($this->customer)->readable()->sortable()->filterable(),
+        $properties = [
+            $this->createIdentifier()->readable()->filterable()->sortable(),
             $this->createToOneRelationship($this->orgaType)->readable()->sortable()->filterable(),
             $this->createToOneRelationship($this->orga)->readable()->sortable()->filterable(),
             $this->createAttribute($this->status)->readable(true)->filterable()->sortable(),
         ];
+
+        if ($this->resourceTypeStore->getCustomerResourceType()->isReferencable()) {
+            $properties[] = $this->createToOneRelationship($this->customer)->readable()->sortable()->filterable();
+        }
+
+        return $properties;
     }
 }

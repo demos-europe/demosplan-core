@@ -65,19 +65,9 @@ final class AdminProcedureResourceType extends DplanResourceType
         return 'AdminProcedure';
     }
 
-    public function isReferencable(): bool
-    {
-        return true;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
-    }
-
     protected function getProperties(): array
     {
-        $id = $this->createAttribute($this->id)->readable(true);
+        $id = $this->createIdentifier()->readable();
         $name = $this->createAttribute($this->name);
         $creationDate = $this->createAttribute($this->creationDate)->aliasedPath($this->createdDate);
 
@@ -95,7 +85,7 @@ final class AdminProcedureResourceType extends DplanResourceType
         }
 
         if ($this->currentUser->hasPermission('area_admin_procedures')) {
-            $name->sortable()->readable();
+            $name->sortable()->readable()->filterable();
             $creationDate->sortable()->readable();
 
             $internalPhases = $this->globalConfig->getInternalPhasesAssoc();

@@ -53,12 +53,12 @@ final class StatementMetaResourceType extends DplanResourceType
         return [$this->conditionFactory->false()];
     }
 
-    public function isReferencable(): bool
+    public function isGetAllowed(): bool
     {
         return false;
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isListAllowed(): bool
     {
         return false;
     }

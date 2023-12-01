@@ -21,7 +21,7 @@ use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\SortMethodInterface;
 
 /**
- * @template I of object
+ * @template TItem of object
  */
 interface FacetInterface
 {
@@ -32,7 +32,7 @@ interface FacetInterface
 
     /**
      * @return string The name of the resource type items correspond to. Must be the name of
-     *                a resource type implementing {@link ResourceTypeInterface}&lt;I&gt;.
+     *                a resource type implementing {@link ResourceTypeInterface}&lt;TItem&gt;.
      */
     public function getItemsResourceType(): string;
 
@@ -45,12 +45,12 @@ interface FacetInterface
     public function getRootItemsLoadConditions(): array;
 
     /**
-     * @param I $item
+     * @param TItem $item
      */
     public function getItemIdentifier(object $item): string;
 
     /**
-     * @param I $item
+     * @param TItem $item
      */
     public function getItemTitle(object $item): string;
 
@@ -63,7 +63,7 @@ interface FacetInterface
      * May return `null` or an empty string, if this instance has been configured to use a property
      * of the given `$item` but this property is set to `null`/an empty string.
      *
-     * @param I $item
+     * @param TItem $item
      */
     public function getItemDescription(object $item): ?string;
 

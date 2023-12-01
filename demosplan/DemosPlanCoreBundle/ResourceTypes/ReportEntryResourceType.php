@@ -67,17 +67,6 @@ class ReportEntryResourceType extends DplanResourceType
         return $this->currentUser->hasPermission('area_admin_protocol');
     }
 
-    public function isDirectlyAccessible(): bool
-    {
-        // always returning true assumes availability only with area_admin_protocol permission
-        return true;
-    }
-
-    public function isReferencable(): bool
-    {
-        return false;
-    }
-
     protected function getAccessConditions(): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
@@ -121,7 +110,7 @@ class ReportEntryResourceType extends DplanResourceType
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true),
+            $this->createIdentifier()->readable(),
             $this->createAttribute($this->category)->readable(true),
             $this->createAttribute($this->group)->readable(true),
             $this->createAttribute($this->level)->readable(true),

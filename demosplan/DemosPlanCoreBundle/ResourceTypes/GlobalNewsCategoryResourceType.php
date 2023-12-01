@@ -40,12 +40,12 @@ class GlobalNewsCategoryResourceType extends DplanResourceType
         return $this->currentUser->hasPermission('area_admin_globalnews');
     }
 
-    public function isReferencable(): bool
+    public function isGetAllowed(): bool
     {
         return false;
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isListAllowed(): bool
     {
         return false;
     }
@@ -61,7 +61,7 @@ class GlobalNewsCategoryResourceType extends DplanResourceType
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true),
+            $this->createIdentifier()->readable(),
         ];
     }
 }

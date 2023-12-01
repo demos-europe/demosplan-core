@@ -14,6 +14,10 @@ namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
+use Doctrine\ORM\Query\Expr\Comparison;
+use Doctrine\ORM\Query\Expr\Composite;
+use Doctrine\ORM\Query\Expr\Func;
+use Doctrine\ORM\Query\Expr\Math;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\Querying\Contracts\PropertyPathAccessInterface;
 use EDT\Querying\PropertyPaths\PathInfo;
@@ -33,7 +37,7 @@ class HasSegmentsClause implements ClauseFunctionInterface, Stringable
         return [new PathInfo($idPath, true)];
     }
 
-    public function asDql(array $valueReferences, array $propertyAliases)
+    public function asDql(array $valueReferences, array $propertyAliases): Composite|Math|Func|Comparison|string
     {
         $procedureIdReference = array_pop($valueReferences);
         $statementIdAlias = array_pop($propertyAliases);

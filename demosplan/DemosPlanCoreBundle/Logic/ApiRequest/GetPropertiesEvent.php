@@ -12,49 +12,47 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\GetPropertiesEventInterface;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
-use EDT\JsonApi\ResourceTypes\PropertyBuilder;
-use EDT\Wrapping\Contracts\Types\TypeInterface;
+use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
+use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
+use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
+use EDT\Querying\Contracts\EntityBasedInterface;
 
 /**
- * @template O of \DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface
+ * @template O of EntityInterface
  */
 class GetPropertiesEvent extends DPlanEvent implements GetPropertiesEventInterface
 {
     /**
-     * @param TypeInterface<O>            $type
-     * @param array<int, PropertyBuilder> $properties
+     * @param EntityBasedInterface<O> $type
      */
-    public function __construct(private readonly TypeInterface $type, private array $properties)
+    public function __construct(
+        private readonly EntityBasedInterface $type,
+        private ResourceConfigBuilderInterface $resourceConfigBuilder
+    ) {}
+
+    /**
+     * @return ResourceConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, O>
+     */
+    public function getConfigBuilder(): ResourceConfigBuilderInterface
     {
+        return $this->resourceConfigBuilder;
     }
 
     /**
-     * @return array<int, PropertyBuilder>
+     * @param ResourceConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, O> $configBuilder
      */
-    public function getProperties(): array
+    public function setConfigBuilder(ResourceConfigBuilderInterface $configBuilder): void
     {
-        return $this->properties;
-    }
-
-    public function addProperty(PropertyBuilder $property): void
-    {
-        $this->properties[] = $property;
+        $this->resourceConfigBuilder = $configBuilder;
     }
 
     /**
-     * @param list<PropertyBuilder> $properties
+     * @return EntityBasedInterface<O>
      */
-    public function setProperties(array $properties): void
-    {
-        $this->properties = $properties;
-    }
-
-    /**
-     * @return TypeInterface<O>
-     */
-    public function getType(): TypeInterface
+    public function getType(): EntityBasedInterface
     {
         return $this->type;
     }

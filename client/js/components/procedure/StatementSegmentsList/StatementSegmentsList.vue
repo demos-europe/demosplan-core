@@ -304,7 +304,7 @@ export default {
           return {
             hash: file.attributes.hash,
             filename: file.attributes.filename,
-            type: attachment.attributes.type
+            type: attachment.attributes.attachmentType
           }
         })
       } else {
@@ -520,7 +520,7 @@ export default {
           StatementAttachment: [
             'id',
             'file',
-            'type'
+            'attachmentType'
           ].join(),
           File: [
             'hash',

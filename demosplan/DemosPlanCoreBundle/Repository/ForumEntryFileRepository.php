@@ -22,6 +22,9 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\NonUniqueResultException;
 
+/**
+ * @template-extends CoreRepository<ForumEntryFile>
+ */
 class ForumEntryFileRepository extends CoreRepository implements ArrayInterface
 {
     /**

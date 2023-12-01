@@ -623,7 +623,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
         $matchingTags = $this->tagResourceType->listPrefilteredEntities($this->generatedTags, [$titleCondition]);
         if ([] === $matchingTags) {
-            $matchingTags = $this->tagResourceType->listEntities([$titleCondition]);
+            $matchingTags = $this->tagResourceType->getEntities([$titleCondition], []);
         }
 
         return $matchingTags[0] ?? null;

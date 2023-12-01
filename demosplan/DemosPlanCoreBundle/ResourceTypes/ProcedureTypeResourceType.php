@@ -12,17 +12,13 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
- * @template-implements UpdatableDqlResourceTypeInterface<ProcedureType>
- *
  * @template-extends DplanResourceType<ProcedureType>
  *
  * @property-read End $name
@@ -31,7 +27,7 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  * @property-read ProcedureUiDefinitionResourceType $procedureUiDefinition
  * @property-read ProcedureBehaviorDefinitionResourceType $procedureBehaviorDefinition
  */
-final class ProcedureTypeResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface
+final class ProcedureTypeResourceType extends DplanResourceType
 {
     protected function getAccessConditions(): array
     {
@@ -49,6 +45,11 @@ final class ProcedureTypeResourceType extends DplanResourceType implements Updat
             'area_admin_procedures',
             'area_procedure_type_edit'
         );
+    }
+
+    public function isUpdateAllowed(): bool
+    {
+        return $this->currentUser->hasPermission('area_procedure_type_edit');
     }
 
     public static function getName(): string
@@ -75,30 +76,20 @@ final class ProcedureTypeResourceType extends DplanResourceType implements Updat
         return new ResourceChange($object, $this, $properties);
     }
 
-    public function getUpdatableProperties(object $updateTarget): array
+    public function getUpdatableProperties(): array
     {
-        return $this->toProperties(
-            $this->name,
-            $this->description
-        );
-    }
-
-    public function isReferencable(): bool
-    {
-        return true;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
+        return [
+            $this->name->getAsNamesInDotNotation() => null,
+            $this->description->getAsNamesInDotNotation() => null,
+        ];
     }
 
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true)->filterable()->sortable(),
-            $this->createAttribute($this->name)->readable(true)->filterable()->sortable(),
-            $this->createAttribute($this->description)->readable(true)->filterable()->sortable(),
+            $this->createIdentifier()->readable()->filterable()->sortable(),
+            $this->createAttribute($this->name)->readable(true)->filterable()->sortable()->updatable(),
+            $this->createAttribute($this->description)->readable(true)->filterable()->sortable()->updatable(),
             $this->createToOneRelationship($this->statementFormDefinition)->readable()->filterable()->sortable(),
             $this->createToOneRelationship($this->procedureUiDefinition)->readable()->filterable()->sortable(),
             $this->createToOneRelationship($this->procedureBehaviorDefinition)->readable()->filterable()->sortable(),

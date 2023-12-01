@@ -68,20 +68,10 @@ final class StatementFormDefinitionResourceType extends DplanResourceType
         return 'StatementFormDefinition';
     }
 
-    public function isReferencable(): bool
-    {
-        return true;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
-    }
-
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true)->sortable()->filterable(),
+            $this->createIdentifier()->readable()->sortable()->filterable(),
             $this->createToOneRelationship($this->fieldDefinitions)->readable()->sortable()->filterable(),
             $this->createToManyRelationship($this->procedure)->readable()->sortable()->filterable(),
             $this->createToOneRelationship($this->procedureType)->readable()->sortable()->filterable(),

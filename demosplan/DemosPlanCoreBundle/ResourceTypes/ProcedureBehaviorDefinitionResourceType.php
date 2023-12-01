@@ -12,17 +12,13 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
- * @template-implements UpdatableDqlResourceTypeInterface<ProcedureBehaviorDefinition>
- *
  * @template-extends DplanResourceType<ProcedureBehaviorDefinition>
  *
  * @property-read End $allowedToEnableMap
@@ -31,7 +27,7 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  * @property-read ProcedureResourceType $procedure
  * @property-read ProcedureTypeResourceType $procedureType
  */
-final class ProcedureBehaviorDefinitionResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface
+final class ProcedureBehaviorDefinitionResourceType extends DplanResourceType
 {
     protected function getAccessConditions(): array
     {
@@ -62,6 +58,11 @@ final class ProcedureBehaviorDefinitionResourceType extends DplanResourceType im
         return $this->currentUser->hasPermission('area_procedure_type_edit');
     }
 
+    public function isUpdateAllowed(): bool
+    {
+        return $this->currentUser->hasPermission('area_procedure_type_edit');
+    }
+
     public static function getName(): string
     {
         return 'ProcedureBehaviorDefinition';
@@ -87,32 +88,22 @@ final class ProcedureBehaviorDefinitionResourceType extends DplanResourceType im
         return new ResourceChange($object, $this, $properties);
     }
 
-    public function getUpdatableProperties(object $updateTarget): array
+    public function getUpdatableProperties(): array
     {
-        return $this->toProperties(
-            $this->allowedToEnableMap,
-            $this->hasPriorityArea,
-            $this->participationGuestOnly
-        );
-    }
-
-    public function isReferencable(): bool
-    {
-        return true;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
+        return [
+            $this->allowedToEnableMap->getAsNamesInDotNotation() => null,
+            $this->hasPriorityArea->getAsNamesInDotNotation() => null,
+            $this->participationGuestOnly->getAsNamesInDotNotation() => null
+        ];
     }
 
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true)->sortable()->filterable(),
-            $this->createAttribute($this->allowedToEnableMap)->readable(true)->sortable()->filterable(),
-            $this->createAttribute($this->hasPriorityArea)->readable(true)->sortable()->filterable(),
-            $this->createAttribute($this->participationGuestOnly)->readable(true)->sortable()->filterable(),
+            $this->createIdentifier()->readable()->sortable()->filterable(),
+            $this->createAttribute($this->allowedToEnableMap)->readable(true)->sortable()->filterable()->updatable(),
+            $this->createAttribute($this->hasPriorityArea)->readable(true)->sortable()->filterable()->updatable(),
+            $this->createAttribute($this->participationGuestOnly)->readable(true)->sortable()->filterable()->updatable(),
             $this->createToOneRelationship($this->procedure)->readable()->sortable()->filterable(),
             $this->createToOneRelationship($this->procedureType)->readable()->sortable()->filterable(),
         ];

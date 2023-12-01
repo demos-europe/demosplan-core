@@ -59,6 +59,7 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\FluentQueries\FluentQuery;
 use EDT\Querying\Pagination\PagePagination;
+use EDT\Querying\Utilities\Reindexer;
 use Exception;
 use Pagerfanta\Pagerfanta;
 use ReflectionException;
@@ -67,16 +68,20 @@ use Tightenco\Collect\Support\Collection;
 
 use function array_combine;
 
-class StatementRepository extends FluentRepository implements ArrayInterface, ObjectInterface
+/**
+ * @template-extends CoreRepository<Statement>
+ */
+class StatementRepository extends CoreRepository implements ArrayInterface, ObjectInterface
 {
     public function __construct(
         DqlConditionFactory $dqlConditionFactory,
+        Reindexer $reindexer,
         private readonly EventDispatcherInterface $eventDispatcher,
         ManagerRegistry $registry,
         SortMethodFactory $sortMethodFactory,
         string $entityClass
     ) {
-        parent::__construct($dqlConditionFactory, $registry, $sortMethodFactory, $entityClass);
+        parent::__construct($dqlConditionFactory, $registry, $reindexer, $sortMethodFactory, $entityClass);
     }
 
     /**
@@ -481,9 +486,9 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
     }
 
     /**
-     * @return DemosPlanPaginator&Pagerfanta<Statement|Segment>
+     * @return Pagerfanta<Statement|Segment>
      */
-    public function getEntitiesForPage(array $conditions, array $sortMethods, PagePagination $pagination): DemosPlanPaginator
+    public function getEntitiesForPage(array $conditions, array $sortMethods, PagePagination $pagination): Pagerfanta
     {
         return parent::getEntitiesForPage($conditions, $sortMethods, $pagination);
     }

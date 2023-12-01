@@ -24,6 +24,9 @@ use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 use Symfony\Component\Form\Exception\InvalidArgumentException;
 
+/**
+ * @template-extends CoreRepository<ForumEntry>
+ */
 class ForumEntryRepository extends CoreRepository implements ArrayInterface
 {
     /**

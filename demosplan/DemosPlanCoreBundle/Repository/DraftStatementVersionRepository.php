@@ -22,6 +22,9 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Exception;
 use InvalidArgumentException;
 
+/**
+ * @template-extends CoreRepository<DraftStatementVersion>
+ */
 class DraftStatementVersionRepository extends CoreRepository implements ArrayInterface
 {
     /**

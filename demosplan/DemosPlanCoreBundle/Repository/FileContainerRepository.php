@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use function collect;
 
 use demosplan\DemosPlanCoreBundle\Entity\File;
@@ -18,6 +19,9 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Exception;
 
+/**
+ * @template-extends FluentRepository<FileContainer>
+ */
 class FileContainerRepository extends FluentRepository implements ObjectInterface
 {
     /**
