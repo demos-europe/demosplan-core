@@ -351,10 +351,6 @@ export default {
       customerList: 'items'
     }),
 
-    ...mapState('file', {
-      fileList: 'items'
-    }),
-
     isUnsavedSignLanguageVideo () {
       // The signLanguageOverviewVideo.file is available after the video was uploaded and the signLanguageOverviewVideo.id is only available after the video was saved
       return this.signLanguageOverviewVideo.file && !this.signLanguageOverviewVideo.id
@@ -390,20 +386,31 @@ export default {
     fetchCustomerData () {
       this.isLoadingSignLanguageOverviewVideo = true
       const payload = this.getRequestPayload()
-      this.fetchCustomer(payload, { serialize: true }).then(() => {
-        this.isLoading = this.isLoadingSignLanguageOverviewVideo = false
 
-        // Update fields
-        const currentCustomer = this.customerList[this.currentCustomerId]
-        const currentData = currentCustomer.attributes
-        this.customerBrandingId = this.customerList[this.currentCustomerId].relationships?.branding?.data?.id
-        this.customer = {
-          ...this.customer,
-          imprint: currentData.imprint ? currentData.imprint : '',
-          dataProtection: currentData.dataProtection ? currentData.dataProtection : ''
-        }
-        this.branding.logoHash = this.fileList[this.brandingList[this.customerBrandingId].relationships?.logo.data?.id]?.attributes.hash || ''
-      })
+      this.fetchCustomer(payload, { serialize: true })
+        .then(res => {
+          this.customerBrandingId = this.customerList[this.currentCustomerId].relationships?.branding?.data?.id
+
+          // Update fields
+          const response = res.data
+          const currentCustomer = this.customerList[this.currentCustomerId]
+          const currentData = currentCustomer.attributes
+          const fileId = response.branding[this.customerBrandingId].relationships.logo.data.id
+          const fileHash = response.file[fileId].attributes.hash
+
+          this.customer = {
+            ...this.customer,
+            imprint: currentData.imprint ?? '',
+            dataProtection: currentData.dataProtection ?? ''
+          }
+          this.branding.logoHash = fileHash
+        })
+        .catch(err => {
+          console.error(err)
+        })
+        .finally(() => {
+          this.isLoading = this.isLoadingSignLanguageOverviewVideo = false
+        })
     },
 
     getRequestPayload () {
