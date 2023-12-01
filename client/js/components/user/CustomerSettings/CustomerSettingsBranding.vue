@@ -34,11 +34,12 @@
           name="r_customerLogo"
           :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '200 KB' }) }"
           :tus-endpoint="dplan.paths.tusEndpoint"
+          @file-remove="unsetFile"
           @upload-success="setFile" />
       </div><!--
    --><div
         class="layout__item u-1-of-2"
-        v-if="brandingList[brandingId].relationships?.logo?.data">
+        v-if="branding.logoHash">
         <p
           class="weight--bold"
           v-text="Translator.trans('logo.current')" />
@@ -104,12 +105,6 @@ export default {
     brandingId: {
       required: true,
       type: String
-    },
-
-    logoPath: {
-      required: false,
-      type: String,
-      default: ''
     }
   },
 
@@ -141,11 +136,6 @@ export default {
       updateFile: 'setItem'
     }),
 
-    deleteFileHash () {
-      this.$emit('clear-branding-logo')
-      this.uploadedFileId = null
-    },
-
     setFile (file) {
       this.branding.logoHash = file.hash
       this.updateFile({ id: file.fileId, attributes: { hash: file.hash }})
@@ -153,32 +143,41 @@ export default {
     },
 
     saveBrandingSettings () {
-      if (!this.uploadedFileId && !this.isLogoDeletable) {
+      if (this.uploadedFileId || this.isLogoDeletable) {
+        this.isBusy = true
+        const payload = {
+          id: this.brandingId,
+          type: 'Branding',
+          attributes: {
+            ...this.brandingList[this.brandingId].attributes
+          },
+          relationships: {
+            logo: {
+              data: this.isLogoDeletable ? null : { id: this.uploadedFileId, type: 'file' }
+            }
+          }
+        }
+
+        if (this.isLogoDeletable) {
+          this.branding.logoHash = null
+        }
+
+        this.updateBranding(payload)
+        this.saveBranding(this.brandingId).then(() => {
+          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+          this.isBusy = false
+          this.isLogoDeletable = false
+        })
+      } else {
         this.isBusy = false
 
         return
       }
+    },
 
-      this.isBusy = true
-      const payload = {
-        id: this.brandingId,
-        type: 'Branding',
-        attributes: {
-          ...this.brandingList[this.brandingId].attributes
-        },
-        relationships: {
-          logo: {
-            data: this.isLogoDeletable ? null : { id: this.uploadedFileId, type: 'file' }
-          }
-        }
-      }
-
-      this.updateBranding(payload)
-      this.saveBranding(this.brandingId).then(() => {
-        dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-        this.isBusy = false
-        this.isLogoDeletable = false
-      })
+    unsetFile (file) {
+      this.updateFile({ id: file.fileId, attributes: { hash: null }})
+      this.uploadedFileId = null
     }
   }
 }

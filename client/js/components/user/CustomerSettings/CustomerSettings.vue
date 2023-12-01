@@ -312,7 +312,8 @@ export default {
   data () {
     return {
       branding: {
-        cssvars: ''
+        cssvars: '',
+        logoHash: ''
       },
       customer: {
         accessibilityExplanation: '',
@@ -326,7 +327,6 @@ export default {
       },
       isLoading: true,
       isLoadingSignLanguageOverviewVideo: true,
-      logoPath: '',
       requestFields: {},
       requestIncludes: [],
       signLanguageOverviewVideo: {
@@ -403,7 +403,7 @@ export default {
             imprint: currentData.imprint ?? '',
             dataProtection: currentData.dataProtection ?? ''
           }
-          this.logoPath = Routing.generate('core_logo', { hash: fileHash })
+          this.branding.logoHash = fileHash
         })
         .catch(err => {
           console.error(err)
