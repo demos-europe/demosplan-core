@@ -98,18 +98,8 @@ export default {
     }
   },
 
-  methods: {
-    sortSelected (type) {
-      this[type].sort((a, b) => {
-        return parseInt(a.value) > parseInt(b.value)
-          ? 1
-          : parseInt(b.value) > parseInt(a.value) ? -1 : 0
-      })
-    }
-  },
-
   mounted () {
-    this.sortSelected('scales')
+    this.scales.sort((a, b) => parseInt(a.value) - parseInt(b.value))
   }
 }
 </script>
