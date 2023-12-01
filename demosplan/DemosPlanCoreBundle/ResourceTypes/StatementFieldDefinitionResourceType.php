@@ -48,9 +48,9 @@ final class StatementFieldDefinitionResourceType extends DplanResourceType
     {
         foreach ($properties as $propertyName => $value) {
             match ($propertyName) {
-                $this->enabled->getAsNamesInDotNotation() => $object->setEnabled($value),
+                $this->enabled->getAsNamesInDotNotation()  => $object->setEnabled($value),
                 $this->required->getAsNamesInDotNotation() => $object->setRequired($value),
-                default => throw new InvalidArgumentException("Property not available for update: {$propertyName}"),
+                default                                    => throw new InvalidArgumentException("Property not available for update: {$propertyName}"),
             };
         }
 
@@ -62,7 +62,7 @@ final class StatementFieldDefinitionResourceType extends DplanResourceType
     public function getUpdatableProperties(): array
     {
         return [
-            $this->enabled->getAsNamesInDotNotation() => null,
+            $this->enabled->getAsNamesInDotNotation()  => null,
             $this->required->getAsNamesInDotNotation() => null,
         ];
     }

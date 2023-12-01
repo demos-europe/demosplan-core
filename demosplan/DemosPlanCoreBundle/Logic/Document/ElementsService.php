@@ -397,8 +397,6 @@ class ElementsService extends CoreService implements ElementsServiceInterface
     /**
      * Fügt ein Element hinzu.
      *
-     * @return array
-     *
      * @throws Exception
      */
     public function addElement(array $data): ?array
@@ -645,8 +643,6 @@ class ElementsService extends CoreService implements ElementsServiceInterface
 
     /**
      * Convert datetime element array.
-     *
-     * @return mixed
      */
     protected function convertDateTime(array $element)
     {

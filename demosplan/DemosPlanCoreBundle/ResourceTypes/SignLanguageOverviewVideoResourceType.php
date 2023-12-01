@@ -38,7 +38,8 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType
 {
     public function __construct(
         protected readonly VideoRepository $videoRepository
-    ) {}
+    ) {
+    }
 
     public static function getName(): string
     {
@@ -100,8 +101,8 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType
         $configBuilder->file
             ->setRelationshipType($this->resourceTypeStore->getFileResourceType())
             ->readable()->addConstructorBehavior(
-            new ToOneRelationshipConstructorBehaviorFactory(null, [], null)
-        );
+                new ToOneRelationshipConstructorBehaviorFactory(null, [], null)
+            );
         $configBuilder->addConstructorBehavior(new FixedConstructorBehavior(
             Paths::video()->uploader->getAsNamesInDotNotation(),
             fn (CreationDataInterface $entityData): array => [$this->currentUser->getUser(), []]

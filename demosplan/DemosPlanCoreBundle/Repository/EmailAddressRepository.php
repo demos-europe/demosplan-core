@@ -11,7 +11,6 @@
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DemosEurope\DemosplanAddon\Contracts\Repositories\EmailAddressRepositoryInterface;
-use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 
 /**

@@ -19,7 +19,6 @@ use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeServiceInterface;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use Doctrine\ORM\EntityManagerInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;

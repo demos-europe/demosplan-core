@@ -25,7 +25,6 @@ use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomerResourceType;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\CustomerFormInput;
-use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\Wrapping\Contracts\AccessException;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;

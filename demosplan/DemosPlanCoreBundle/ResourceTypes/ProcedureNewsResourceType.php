@@ -47,7 +47,8 @@ final class ProcedureNewsResourceType extends AbstractNewsResourceType
     public function __construct(
         private readonly ManualListSortRepository $manualListSortRepository,
         private readonly RoleService $roleService
-    ){}
+    ) {
+    }
 
     public static function getName(): string
     {
@@ -140,15 +141,15 @@ final class ProcedureNewsResourceType extends AbstractNewsResourceType
             $configBuilder->pdf
                 ->setRelationshipType($this->resourceTypeStore->getFileResourceType())
                 ->initializable(true, static function (News $news, ?File $pdf): array {
-                if (null === $pdf) {
-                    $news->setPdf('');
-                    $news->setPictitle('');
-                } else {
-                    $news->setPdf($pdf->getFileString());
-                }
+                    if (null === $pdf) {
+                        $news->setPdf('');
+                        $news->setPictitle('');
+                    } else {
+                        $news->setPdf($pdf->getFileString());
+                    }
 
-                return [];
-            });
+                    return [];
+                });
             $configBuilder->roles
                 ->setRelationshipType($this->resourceTypeStore->getRoleResourceType())
                 ->initializable(false, function (News $news, Collection $roles): array {
@@ -185,8 +186,8 @@ final class ProcedureNewsResourceType extends AbstractNewsResourceType
         $configBuilder->addPostConstructorBehavior(new FixedSetBehavior(
             function (News $news, EntityDataInterface $entityData): array {
                 $manualListSort = $this->manualListSortRepository->findOneBy([
-                    'pId' => $news->getPId(),
-                    'context' => 'procedure:' . $news->getPId(),
+                    'pId'       => $news->getPId(),
+                    'context'   => 'procedure:'.$news->getPId(),
                     'namespace' => News::MANUAL_SORT_NAMESPACE,
                 ]);
                 $this->manualListSortRepository->persistEntities([$news]);

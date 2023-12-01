@@ -42,6 +42,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 use Tightenco\Collect\Support\Collection;
 use Twig\Environment;
+
 use function array_key_exists;
 
 class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
@@ -133,8 +134,8 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         $esQuery->addFilterMust('deleted', false);
 
         foreach ($esQuery->getAvailableFilters() as $availableFilter) {
-            if (array_key_exists($availableFilter->getName(), $requestValues) &&
-                !$esQuery->isFilterValueEmpty($requestValues[$availableFilter->getName()])) {
+            if (array_key_exists($availableFilter->getName(), $requestValues)
+                && !$esQuery->isFilterValueEmpty($requestValues[$availableFilter->getName()])) {
                 // Field "Amtlicher Regionalschlüssel" needs to be queried as Prefixquery
                 // which equals db query "LIKE $ars%"
                 if ('ars' === $availableFilter->getField()) {
@@ -182,7 +183,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
             $orga = $this->orgaService->findOrgaBySlug($requestValues['orgaSlug']);
             $orgaId = $orga->getId();
 
-            $outputResult = array_filter($outputResult, static fn(array $procedure): bool => $procedure['orgaId'] === $orgaId);
+            $outputResult = array_filter($outputResult, static fn (array $procedure): bool => $procedure['orgaId'] === $orgaId);
         }
 
         // sorting by end date is a special case and requires extra steps
@@ -675,8 +676,6 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
      * @param string $procedureId
      * @param bool   $useDistance
      *
-     * @return mixed
-     *
      * @throws Exception
      */
     public function getProcedureSubscriptionList($procedureId, $useDistance = true)
@@ -813,7 +812,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
      */
     public function convertProceduresForTwigAdminList(array $procedures): array
     {
-        return array_map(static fn(Procedure $procedure): array => [
+        return array_map(static fn (Procedure $procedure): array => [
             'id'   => $procedure->getId(),
             'name' => $procedure->getName(),
         ], $procedures);

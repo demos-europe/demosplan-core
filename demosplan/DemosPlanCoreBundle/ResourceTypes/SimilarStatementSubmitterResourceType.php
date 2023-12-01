@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -41,7 +40,8 @@ final class SimilarStatementSubmitterResourceType extends DplanResourceType
 {
     public function __construct(
         private readonly ProcedureRepository $procedureRepository
-    ){}
+    ) {
+    }
 
     public static function getName(): string
     {

@@ -36,10 +36,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Traversable;
 use Webmozart\Assert\Assert;
+
 use function get_class;
 
 /**
- * FIXME: this command should be automatically executed. Approaches may be using the "cache warmer" or coupling it to a doctrine:diff execution
+ * FIXME: this command should be automatically executed. Approaches may be using the "cache warmer" or coupling it to a doctrine:diff execution.
  *
  * TODO: this class does not automatically delete generated classes whose corresponding entities do no longer exist.
  */
@@ -55,7 +56,6 @@ class EntityCompanionGeneratorCommand extends CoreCommand
 
     /**
      * @param Traversable<DplanResourceType> $resourceTypes
-     * @param string|null $name
      */
     public function __construct(
         protected readonly Traversable $resourceTypes,
@@ -79,8 +79,8 @@ class EntityCompanionGeneratorCommand extends CoreCommand
     {
         parent::configure();
 
-        //$this->setHelp('');
-        //$this->addArgument('', InputArgument::OPTIONAL, '', '');
+        // $this->setHelp('');
+        // $this->addArgument('', InputArgument::OPTIONAL, '', '');
 
         $this->addOption('builderDir', null, InputOption::VALUE_OPTIONAL, 'The output directory to store the generated builder classes in.', 'tmp_output/ResourceConfigBuilder');
         $this->addOption('builderNs', null, InputOption::VALUE_OPTIONAL, 'The output directory to store the generated builder classes in.', 'DemosEurope\DemosplanAddon\ResourceConfigBuilder');
@@ -128,7 +128,7 @@ class EntityCompanionGeneratorCommand extends CoreCommand
                     $configBuilderClassNamespace,
                     false
                 );
-                $this->overwriteFile($configBuilderOutputDirectory, $configBuilderClassName, (string)$configBuilderFile);
+                $this->overwriteFile($configBuilderOutputDirectory, $configBuilderClassName, (string) $configBuilderFile);
 
                 // generate path class
                 $pathClassName = "{$entityShortName}Path";
@@ -138,7 +138,7 @@ class EntityCompanionGeneratorCommand extends CoreCommand
                     $pathClassNamespace,
                     false
                 );
-                $this->overwriteFile($pathClassOutputDirectory, $pathClassName, (string)$pathFile);
+                $this->overwriteFile($pathClassOutputDirectory, $pathClassName, (string) $pathFile);
                 $pathClasses[] = ClassOrInterfaceType::fromFqcn("$pathClassNamespace\\$pathClassName");
             }
             $output->writeln('Generated '.count($pathClasses)." config builder classes into `$configBuilderOutputDirectory`.");
@@ -151,7 +151,7 @@ class EntityCompanionGeneratorCommand extends CoreCommand
                 $pathClassNamespace,
                 [$this, 'pathClassToMethodName']
             );
-            $this->overwriteFile($pathClassOutputDirectory, $pathEntryPointClassName, (string)$entryPointClass);
+            $this->overwriteFile($pathClassOutputDirectory, $pathEntryPointClassName, (string) $entryPointClass);
             $output->writeln("Generated path entry point class `$pathEntryPointClassName` into `$pathClassOutputDirectory`.");
 
             // generate resource type quick access
@@ -165,12 +165,13 @@ class EntityCompanionGeneratorCommand extends CoreCommand
                 $typeHolderName,
                 $typeHolderNamespace,
             );
-            $this->overwriteFile($typeHolderOutputDir, $typeHolderName, (string)$typeHolder);
+            $this->overwriteFile($typeHolderOutputDir, $typeHolderName, (string) $typeHolder);
             $output->writeln("Generated resource type holder class `$typeHolderName` into `$typeHolderOutputDir`.");
         } catch (Exception $exception) {
             $logger = $this->getLoggingOutput($output, true);
             $logger->writeln($exception->getMessage());
             $logger->writeln($exception->getTraceAsString());
+
             return Command::FAILURE;
         }
 
@@ -197,9 +198,9 @@ class EntityCompanionGeneratorCommand extends CoreCommand
             protected function isCorrectInterface(string $interface, ReflectionClass $class): bool
             {
                 return match ($class->getName()) {
-                    PlatformFaq::class => $interface === FaqInterface::class,
-                    PlatformFaqCategory::class => $interface === FaqCategoryInterface::class,
-                    default => str_ends_with($interface, "DemosEurope\DemosplanAddon\Contracts\Entities\\{$class->getShortName()}Interface")
+                    PlatformFaq::class         => FaqInterface::class === $interface,
+                    PlatformFaqCategory::class => FaqCategoryInterface::class === $interface,
+                    default                    => str_ends_with($interface, "DemosEurope\DemosplanAddon\Contracts\Entities\\{$class->getShortName()}Interface")
                 };
             }
         };
@@ -210,7 +211,6 @@ class EntityCompanionGeneratorCommand extends CoreCommand
             MagicResourceConfigBuilder::class,
             [$this->conditionClass, $this->sortingClass, $entityInterface]
         );
-
 
         return new ResourceConfigBuilderFromEntityGenerator(
             $this->conditionClass,

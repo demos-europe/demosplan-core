@@ -13,14 +13,9 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
-use demosplan\DemosPlanCoreBundle\ValueObject\APIPagination;
 use Doctrine\ORM\EntityManager;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
-use EDT\DqlQuerying\Contracts\ClauseInterface;
-use EDT\DqlQuerying\Contracts\OrderByInterface;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\DqlQuerying\ObjectProviders\DoctrineOrmEntityProvider;
 use EDT\DqlQuerying\Utilities\JoinFinder;
@@ -34,10 +29,7 @@ use EDT\Querying\ObjectProviders\PrefilledEntityProvider;
 use EDT\Querying\Pagination\OffsetPagination;
 use EDT\Querying\Utilities\ConditionEvaluator;
 use EDT\Querying\Utilities\Sorter;
-use EDT\Wrapping\Contracts\AccessException;
-use EDT\Wrapping\Contracts\Types\TransferableTypeInterface;
-use Pagerfanta\Doctrine\ORM\QueryAdapter;
-use Pagerfanta\Pagerfanta;
+
 use const PHP_INT_MAX;
 
 class EntityFetcher

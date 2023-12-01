@@ -12,7 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
-use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\Slug;
 use demosplan\DemosPlanCoreBundle\Entity\SluggedEntity;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicateSlugException;

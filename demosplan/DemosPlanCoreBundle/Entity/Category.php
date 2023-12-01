@@ -57,7 +57,7 @@ class Category extends CoreEntity implements UuidEntityInterface, CategoryInterf
      *
      * @ORM\Column(name="_c_description", type="text", length=65535, nullable=true, options={"default":null})
      */
-    protected $description = null;
+    protected $description;
 
     /**
      * @var string

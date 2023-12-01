@@ -562,9 +562,9 @@ class StatementFragmentService extends CoreService
         }
 
         // case 2 - unclaiming: since assignee is null but only current users can unclaim, we can take that
-        if (null === $assignee &&
-            null === $fragmentObject->getDepartment() &&
-            Role::PLANNING_SUPPORTING_DEPARTMENT !== $currentUserLayerObject->getRole()
+        if (null === $assignee
+            && null === $fragmentObject->getDepartment()
+            && Role::PLANNING_SUPPORTING_DEPARTMENT !== $currentUserLayerObject->getRole()
         ) {
             // case 2a - the DS is being unclaimed by a reviewer. those are never set as lastClaimedId, so no need to reset
             // case 2b - the current user is not a reviewer, but the DS has a department. then keep the lastClaimedId
@@ -910,16 +910,16 @@ class StatementFragmentService extends CoreService
         $fragmentId = $this->entityHelper->extractId($fragmentArray);
         $currentFragment = $this->getStatementFragment($fragmentId);
 
-        if (array_key_exists('paragraph', $fragmentArray) &&
-            $fragmentArray['paragraph'] instanceof Paragraph &&
-            $fragmentArray['paragraph']->getId() != $currentFragment->getParagraphId()) {
+        if (array_key_exists('paragraph', $fragmentArray)
+            && $fragmentArray['paragraph'] instanceof Paragraph
+            && $fragmentArray['paragraph']->getId() != $currentFragment->getParagraphId()) {
             $fragmentArray['paragraph'] = $this->paragraphService->createParagraphVersion($fragmentArray['paragraph']);
         }
 
         // Wenn das Fragment einen Absatz hat lege eine Version an, wenn sich der Absatz verändert hat
-        if (array_key_exists('paragraphId', $fragmentArray) &&
-            0 < \strlen((string) $fragmentArray['paragraphId']) &&
-            $fragmentArray['paragraphId'] != $currentFragment->getParagraphId()) {
+        if (array_key_exists('paragraphId', $fragmentArray)
+            && 0 < \strlen((string) $fragmentArray['paragraphId'])
+            && $fragmentArray['paragraphId'] != $currentFragment->getParagraphId()) {
             $paragraphVersion = $em->getReference(
                 Paragraph::class,
                 $fragmentArray['paragraphId']);
@@ -1368,9 +1368,9 @@ class StatementFragmentService extends CoreService
             }
 
             // add default sort, additionally to primary sort
-            if (!array_key_exists('displayId', $esSort) ||
-                (array_key_exists('submit', $esSort) &&
-                    'asc' !== $esSort['submit'])) {
+            if (!array_key_exists('displayId', $esSort)
+                || (array_key_exists('submit', $esSort)
+                    && 'asc' !== $esSort['submit'])) {
                 $esSort['displayId.sort'] = 'desc';
             }
 

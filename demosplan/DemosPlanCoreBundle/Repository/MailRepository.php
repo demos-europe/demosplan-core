@@ -153,8 +153,6 @@ class MailRepository extends FluentRepository implements ImmutableArrayInterface
      * Replace placeholder.
      *
      * @param string $string
-     *
-     * @return mixed
      */
     public function replacePlaceholder($string, array $placeholder)
     {
@@ -183,8 +181,6 @@ class MailRepository extends FluentRepository implements ImmutableArrayInterface
 
     /**
      * @param MailSend $entity
-     *
-     * @return MailSend
      *
      * @throws Exception
      */

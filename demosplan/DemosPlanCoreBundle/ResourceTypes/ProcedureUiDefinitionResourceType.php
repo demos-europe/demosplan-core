@@ -78,12 +78,12 @@ final class ProcedureUiDefinitionResourceType extends DplanResourceType
     {
         foreach ($properties as $propertyName => $value) {
             match ($propertyName) {
-                $this->statementFormHintPersonalData->getAsNamesInDotNotation() => $object->setStatementFormHintPersonalData($value),
-                $this->statementFormHintRecheck->getAsNamesInDotNotation() => $object->setStatementFormHintRecheck($value),
-                $this->statementFormHintStatement->getAsNamesInDotNotation() => $object->setStatementFormHintStatement($value),
-                $this->mapHintDefault->getAsNamesInDotNotation() => $object->setMapHintDefault($value),
+                $this->statementFormHintPersonalData->getAsNamesInDotNotation()         => $object->setStatementFormHintPersonalData($value),
+                $this->statementFormHintRecheck->getAsNamesInDotNotation()              => $object->setStatementFormHintRecheck($value),
+                $this->statementFormHintStatement->getAsNamesInDotNotation()            => $object->setStatementFormHintStatement($value),
+                $this->mapHintDefault->getAsNamesInDotNotation()                        => $object->setMapHintDefault($value),
                 $this->statementPublicSubmitConfirmationText->getAsNamesInDotNotation() => $object->setStatementPublicSubmitConfirmationText($value),
-                default => throw new InvalidArgumentException("Property not available for update: {$propertyName}"),
+                default                                                                 => throw new InvalidArgumentException("Property not available for update: {$propertyName}"),
             };
         }
 
@@ -95,10 +95,10 @@ final class ProcedureUiDefinitionResourceType extends DplanResourceType
     public function getUpdatableProperties(): array
     {
         return [
-            $this->statementFormHintPersonalData->getAsNamesInDotNotation() => null,
-            $this->statementFormHintRecheck->getAsNamesInDotNotation() => null,
-            $this->statementFormHintStatement->getAsNamesInDotNotation() => null,
-            $this->mapHintDefault->getAsNamesInDotNotation() => null,
+            $this->statementFormHintPersonalData->getAsNamesInDotNotation()         => null,
+            $this->statementFormHintRecheck->getAsNamesInDotNotation()              => null,
+            $this->statementFormHintStatement->getAsNamesInDotNotation()            => null,
+            $this->mapHintDefault->getAsNamesInDotNotation()                        => null,
             $this->statementPublicSubmitConfirmationText->getAsNamesInDotNotation() => null,
         ];
     }

@@ -46,7 +46,7 @@ class JsonApiActionService
 
     /**
      * @param DrupalFilterParser<ClauseFunctionInterface<bool>> $filterParser
-     * @param JsonApiSortingParser<OrderBySortMethodInterface> $sortingParser
+     * @param JsonApiSortingParser<OrderBySortMethodInterface>  $sortingParser
      */
     public function __construct(
         TraceableEventDispatcher $eventDispatcher,

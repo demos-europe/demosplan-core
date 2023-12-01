@@ -41,7 +41,8 @@ final class SegmentCommentResourceType extends DplanResourceType
 {
     public function __construct(
         protected readonly SegmentCommentRepository $segmentCommentRepository
-    ) {}
+    ) {
+    }
 
     public static function getName(): string
     {
@@ -78,7 +79,7 @@ final class SegmentCommentResourceType extends DplanResourceType
 
         if ($this->currentUser->hasPermission('feature_segment_comment_list_on_segment')) {
             $configBuilder->creationDate
-                ->readable(false, fn(SegmentComment $comment): string => $this->formatDate($comment->getCreationDate()));
+                ->readable(false, fn (SegmentComment $comment): string => $this->formatDate($comment->getCreationDate()));
             $configBuilder->text->readable();
             $configBuilder->submitter->readable();
             $configBuilder->place->readable();
@@ -106,7 +107,6 @@ final class SegmentCommentResourceType extends DplanResourceType
                 if ($segment->getPlace()->getId() !== $segmentCommentPlace->getId()) {
                     throw new AccessException($this, 'Segment must be in same place as comment on creation.');
                 }
-
 
                 $this->resourceTypeService->validateObject(
                     $segment,

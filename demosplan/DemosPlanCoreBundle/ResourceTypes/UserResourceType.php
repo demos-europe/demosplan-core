@@ -124,7 +124,7 @@ final class UserResourceType extends DplanResourceType implements UserResourceTy
             $this->createAttribute($this->newsletter)
                 ->readable(true, static fn (User $user): bool => $user->getNewsletter()),
             $this->createAttribute($this->noPiwik)
-                ->readable(true, static fn(User $user): bool => $user->getNoPiwik()),
+                ->readable(true, static fn (User $user): bool => $user->getNoPiwik()),
             $this->createToManyRelationship($this->roles)
                 ->readable(true, static function (User $user): array {
                     $roles = [];
@@ -140,7 +140,7 @@ final class UserResourceType extends DplanResourceType implements UserResourceTy
                     return $roles;
                 }, true),
             $this->createToOneRelationship($this->department)
-                ->readable(true, static fn(User $user) => $user->getDepartment(), true)
+                ->readable(true, static fn (User $user) => $user->getDepartment(), true)
                 ->updatable([], [], static function (User $user, Department $newDepartment): array {
                     // Special logic for moving users from one department into another
                     $originalDepartment = $user->getDepartment();
@@ -154,7 +154,7 @@ final class UserResourceType extends DplanResourceType implements UserResourceTy
                     return [];
                 }),
             $this->createToOneRelationship($this->orga)
-                ->readable(true, static fn(User $user) => $user->getOrga(), true)
+                ->readable(true, static fn (User $user) => $user->getOrga(), true)
                 ->updatable([], [], static function (User $user, Orga $newOrga): array {
                     // Special logic for moving users from one organization into another
                     $originalOrga = $user->getOrga();

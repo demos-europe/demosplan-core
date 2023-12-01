@@ -71,21 +71,21 @@ class FaqResourceType extends DplanResourceType
             $this->createAttribute($this->enabled)->readable(true)->updatable(),
             $this->createAttribute($this->title)->readable(true),
             $this->createAttribute($this->invitableInstitutionVisible)
-                ->readable(true, fn(Faq $faq): bool => $faq->hasRoleGroupCode(Role::GPSORG))
+                ->readable(true, fn (Faq $faq): bool => $faq->hasRoleGroupCode(Role::GPSORG))
                 ->updatable([], function (Faq $faqEntity, mixed $newValue): array {
                     $this->buildAddOrRemoveRoleGroupFunction($faqEntity, Role::GPSORG)($newValue);
 
                     return [];
                 }),
             $this->createAttribute($this->publicVisible)
-                ->readable(true, fn(Faq $faq): bool => $faq->hasRoleGroupCode(Role::GGUEST))
+                ->readable(true, fn (Faq $faq): bool => $faq->hasRoleGroupCode(Role::GGUEST))
                 ->updatable([], function (Faq $faqEntity, mixed $newValue): array {
                     $this->buildAddOrRemoveRoleGroupFunction($faqEntity, Role::GGUEST)($newValue);
 
                     return [];
                 }),
             $this->createAttribute($this->fpVisible)
-                ->readable(true, fn(Faq $faq): bool => $faq->hasRoleGroupCode(Role::GLAUTH))
+                ->readable(true, fn (Faq $faq): bool => $faq->hasRoleGroupCode(Role::GLAUTH))
                 ->updatable([], function (Faq $faqEntity, mixed $newValue): array {
                     $this->buildAddOrRemoveRoleGroupFunction($faqEntity, Role::GLAUTH)($newValue);
 

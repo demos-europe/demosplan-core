@@ -20,7 +20,7 @@ class GetOriginalFileFromAnnotatedStatementEvent
     /**
      * @var File
      */
-    private $file = null;
+    private $file;
 
     public function __construct(
         /**

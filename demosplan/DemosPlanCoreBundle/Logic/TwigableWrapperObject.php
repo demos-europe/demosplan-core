@@ -12,8 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use const DEBUG_BACKTRACE_IGNORE_ARGS;
-
 use demosplan\DemosPlanCoreBundle\Exception\ValueObjectException;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 use EDT\Querying\Contracts\PaginationException;
@@ -22,6 +20,8 @@ use EDT\Querying\Contracts\SortException;
 use EDT\Wrapping\WrapperFactories\WrapperObject;
 
 use function strlen;
+
+use const DEBUG_BACKTRACE_IGNORE_ARGS;
 
 class TwigableWrapperObject extends WrapperObject
 {

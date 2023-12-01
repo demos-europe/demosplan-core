@@ -143,25 +143,16 @@ class ForumEntry extends CoreEntity implements UuidEntityInterface, ForumEntryIn
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
     public function getFiles()
     {
         return $this->files;
     }
 
-    /**
-     * @param mixed $files
-     */
     public function setFiles($files)
     {
         $this->files = $files;
     }
 
-    /**
-     * @return mixed
-     */
     public function getThreadClosed()
     {
         if (is_null($this->threadClosed)) {
@@ -176,25 +167,16 @@ class ForumEntry extends CoreEntity implements UuidEntityInterface, ForumEntryIn
         return $this->getThreadClosed();
     }
 
-    /**
-     * @param mixed $threadClosed
-     */
     public function setThreadClosed($threadClosed)
     {
         $this->threadClosed = $threadClosed;
     }
 
-    /**
-     * @return mixed
-     */
     public function getUserStory()
     {
         return $this->userStory;
     }
 
-    /**
-     * @param mixed $userStory
-     */
     public function setUserStory($userStory)
     {
         $this->userStory = $userStory;

@@ -37,7 +37,8 @@ final class TagResourceType extends DplanResourceType
     public function __construct(
         private readonly TagService $tagService,
         private readonly TagRepository $tagRepository
-    ){}
+    ) {
+    }
 
     public function getEntityClass(): string
     {
@@ -100,7 +101,7 @@ final class TagResourceType extends DplanResourceType
 
                     return [$tagTopic, [Paths::tag()->topic->getAsNamesInDotNotation()]];
                 })
-        );
+            );
         $configBuilder->addPostConstructorBehavior(new FixedSetBehavior(function (Tag $tag, EntityDataInterface $entityData): array {
             $this->tagRepository->persistEntities([$tag]);
 

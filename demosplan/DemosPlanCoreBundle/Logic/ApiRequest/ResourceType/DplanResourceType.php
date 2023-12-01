@@ -18,8 +18,6 @@ use DemosEurope\DemosplanAddon\Contracts\ResourceType\DoctrineResourceType;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\JsonApi\ResourceConfig\Builder\MagicResourceConfigBuilder;
-use EDT\Querying\Contracts\PathsBasedInterface;
-use EDT\Wrapping\Contracts\AccessException;
 
 /**
  * @template T of EntityInterface
@@ -31,11 +29,12 @@ abstract class DplanResourceType extends DoctrineResourceType
     use DplanResourceTypeTrait;
 
     /**
-     * FIXME: just for experimental purposes, improve or replace altogether
+     * FIXME: just for experimental purposes, improve or replace altogether.
      *
      * @template TConfig of MagicResourceConfigBuilder
      *
      * @param class-string<TConfig> $class
+     *
      * @return TConfig
      */
     protected function getConfig(string $class): MagicResourceConfigBuilder

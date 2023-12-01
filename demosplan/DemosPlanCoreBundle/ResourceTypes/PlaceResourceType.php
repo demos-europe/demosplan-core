@@ -36,7 +36,8 @@ final class PlaceResourceType extends DplanResourceType
 {
     public function __construct(
         private readonly PlaceRepository $placeRepository
-    ){}
+    ) {
+    }
 
     public static function getName(): string
     {
@@ -119,7 +120,7 @@ final class PlaceResourceType extends DplanResourceType
                 Paths::place()->sortIndex->getAsNamesInDotNotation(),
                 fn (CreationDataInterface $entityData): array => [
                     $this->placeRepository->getMaxUsedIndex($this->currentProcedureService->getProcedureWithCertainty()->getId()) + 1,
-                    [Paths::place()->sortIndex->getAsNamesInDotNotation()]
+                    [Paths::place()->sortIndex->getAsNamesInDotNotation()],
                 ]
             )
         );

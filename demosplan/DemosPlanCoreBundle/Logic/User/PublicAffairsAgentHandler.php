@@ -44,7 +44,7 @@ class PublicAffairsAgentHandler extends CoreHandler
     public function getFromResourceLinkage(array $resourceLinkage): array
     {
         return array_map(
-            fn(array $resourceIdentifierObject): Orga => $this->getFromResourceIdentifierObject($resourceIdentifierObject['id'], $resourceIdentifierObject['type']),
+            fn (array $resourceIdentifierObject): Orga => $this->getFromResourceIdentifierObject($resourceIdentifierObject['id'], $resourceIdentifierObject['type']),
             $resourceLinkage
         );
     }
@@ -96,7 +96,7 @@ class PublicAffairsAgentHandler extends CoreHandler
         // using collect we retrieve all elements before using
         // laravels Collection::contains.
         return collect($orga->getAllUsers())->contains(
-            static fn(User $user) => $user->isPublicAgency()
+            static fn (User $user) => $user->isPublicAgency()
         );
     }
 }

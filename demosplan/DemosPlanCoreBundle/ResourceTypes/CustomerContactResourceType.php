@@ -193,7 +193,7 @@ class CustomerContactResourceType extends DplanResourceType
         );
     }
 
-    public function isDeleteAllowed() : bool
+    public function isDeleteAllowed(): bool
     {
         return $this->hasManagementPermission();
     }
@@ -203,7 +203,7 @@ class CustomerContactResourceType extends DplanResourceType
         return $this->currentUser->hasPermission('feature_customer_support_contact_administration');
     }
 
-    public function isUpdateAllowed() : bool
+    public function isUpdateAllowed(): bool
     {
         return $this->hasManagementPermission();
     }

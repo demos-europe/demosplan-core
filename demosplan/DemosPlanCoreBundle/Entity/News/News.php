@@ -602,9 +602,6 @@ class News extends CoreEntity implements UuidEntityInterface, NewsInterface
         $this->determinedToSwitch = $determinedToSwitch;
     }
 
-    /**
-     * @return bool
-     */
     public function getDesignatedState(): ?bool
     {
         return $this->designatedState;

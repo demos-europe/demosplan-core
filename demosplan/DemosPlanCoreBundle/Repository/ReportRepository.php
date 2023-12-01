@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -53,13 +52,13 @@ class ReportRepository extends CoreRepository implements ArrayInterface, ObjectI
     private function hasNecessaryKeys(array $array): bool
     {
         return
-            array_key_exists('category', $array) &&
-            array_key_exists('group', $array) &&
-            array_key_exists('user', $array) &&
-            array_key_exists('identifierType', $array) &&
-            array_key_exists('ident', $array) &&
-            array_key_exists('message', $array) &&
-            array_key_exists('customer', $array)
+            array_key_exists('category', $array)
+            && array_key_exists('group', $array)
+            && array_key_exists('user', $array)
+            && array_key_exists('identifierType', $array)
+            && array_key_exists('ident', $array)
+            && array_key_exists('message', $array)
+            && array_key_exists('customer', $array)
         ;
     }
 

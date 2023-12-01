@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<Municipality>
@@ -76,7 +75,7 @@ final class MunicipalityResourceType extends DplanResourceType
         return [
             $this->createIdentifier()->readable(),
             // @improve T22478
-            $this->createAttribute($this->name)->readable(true, static fn(Municipality $municipality): string => $municipality->getName()),
+            $this->createAttribute($this->name)->readable(true, static fn (Municipality $municipality): string => $municipality->getName()),
         ];
     }
 }

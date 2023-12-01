@@ -170,11 +170,11 @@ final class CustomerResourceType extends DplanResourceType
                 });
         }
 
-        if ($this->currentUser->hasPermission('feature_imprint_text_customized_view',)) {
+        if ($this->currentUser->hasPermission('feature_imprint_text_customized_view')) {
             $configBuilder->imprint->readable();
         }
 
-        if ($this->currentUser->hasPermission('feature_data_protection_text_customized_view',)) {
+        if ($this->currentUser->hasPermission('feature_data_protection_text_customized_view')) {
             $configBuilder->dataProtection->readable();
         }
 

@@ -99,15 +99,15 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType
             $configBuilder->picture
                 ->setRelationshipType($this->resourceTypeStore->getFileResourceType())
                 ->initializable(true, static function (GlobalContent $news, ?File $pictureFile): array {
-                if (null === $pictureFile) {
-                    $news->setPicture('');
-                    $news->setPictitle('');
-                } else {
-                    $news->setPicture($pictureFile->getFileString());
-                }
+                    if (null === $pictureFile) {
+                        $news->setPicture('');
+                        $news->setPictitle('');
+                    } else {
+                        $news->setPicture($pictureFile->getFileString());
+                    }
 
-                return [];
-            });
+                    return [];
+                });
             $configBuilder->pdf
                 ->setRelationshipType($this->resourceTypeStore->getFileResourceType())
                 ->initializable(true, static function (GlobalContent $news, ?File $pdfFile): array {
@@ -137,7 +137,6 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType
                         $this->updateManualListSort($manualListSort, $news);
                         $this->resourceTypeService->validateObject($manualListSort);
                     }
-
 
                     return [];
                 }

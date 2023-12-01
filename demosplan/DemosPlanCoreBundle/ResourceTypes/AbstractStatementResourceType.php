@@ -122,7 +122,8 @@ abstract class AbstractStatementResourceType extends DplanResourceType
     public function __construct(
         private readonly FileService $fileService,
         private readonly HTMLSanitizer $htmlSanitizer
-    ) {}
+    ) {
+    }
 
     /**
      * some of the following attributes are (currently) only needed in the assessment table,
@@ -137,38 +138,38 @@ abstract class AbstractStatementResourceType extends DplanResourceType
 
         $configBuilder->id->readable()->filterable();
         $configBuilder->submitterEmailAddress
-            ->readable(true, static fn(Statement $statement): ?string => $statement->getSubmitterEmailAddress());
+            ->readable(true, static fn (Statement $statement): ?string => $statement->getSubmitterEmailAddress());
         $configBuilder->authoredDate
-            ->aliasedPath(Paths::statement()->meta->authoredDate)->readable(true, fn(Statement $statement): ?string => $this->formatDate($statement->getMeta()->getAuthoredDateObject()));
+            ->aliasedPath(Paths::statement()->meta->authoredDate)->readable(true, fn (Statement $statement): ?string => $this->formatDate($statement->getMeta()->getAuthoredDateObject()));
         $configBuilder->elementCategory
             ->readable(true)->aliasedPath(Paths::statement()->element->category);
         $configBuilder->externId->readable(true)->filterable()->sortable();
         $configBuilder->filteredFragmentsCount
-            ->readable(true, static fn(Statement $statement): int => $statement->getFragmentsFilteredCount());
+            ->readable(true, static fn (Statement $statement): int => $statement->getFragmentsFilteredCount());
         $configBuilder->formerExternId
             ->readable(true)->aliasedPath(Paths::statement()->placeholderStatement->externId);
         $configBuilder->fragmentsCount
-            ->readable(true, static fn(Statement $statement): int => $statement->getFragments()->count());
+            ->readable(true, static fn (Statement $statement): int => $statement->getFragments()->count());
         $configBuilder->internId
             ->readable(true)->filterable()->aliasedPath(Paths::statement()->original->internId);
         $configBuilder->isCitizen
-            ->readable(true, static fn(Statement $statement): bool => User::ANONYMOUS_USER_ORGA_NAME === $statement->getMeta()->getOrgaName());
+            ->readable(true, static fn (Statement $statement): bool => User::ANONYMOUS_USER_ORGA_NAME === $statement->getMeta()->getOrgaName());
         $configBuilder->isCluster
             ->readable(true)->aliasedPath(Paths::statement()->clusterStatement);
         $configBuilder->likesNum
-            ->readable(true, static fn(Statement $statement): int => $statement->getLikesNum());
+            ->readable(true, static fn (Statement $statement): int => $statement->getLikesNum());
         $configBuilder->movedFromProcedureId
-            ->readable(true, static fn(Statement $statement): string => $statement->getMovedFromProcedureId() ?: '');
+            ->readable(true, static fn (Statement $statement): string => $statement->getMovedFromProcedureId() ?: '');
         $configBuilder->movedFromProcedureName
-            ->readable(true, static fn(Statement $statement): string => $statement->getMovedFromProcedureName() ?: '');
+            ->readable(true, static fn (Statement $statement): string => $statement->getMovedFromProcedureName() ?: '');
         $configBuilder->movedStatementId
             ->readable(true)->aliasedPath(Paths::statement()->movedStatement->id);
         $configBuilder->movedToProcedureId
-            ->readable(true, static fn(Statement $statement): string => $statement->getMovedToProcedureId() ?: '');
+            ->readable(true, static fn (Statement $statement): string => $statement->getMovedToProcedureId() ?: '');
         $configBuilder->movedToProcedureName
-            ->readable(true, static fn(Statement $statement): string => $statement->getMovedToProcedureName() ?: '');
+            ->readable(true, static fn (Statement $statement): string => $statement->getMovedToProcedureName() ?: '');
         $configBuilder->name
-            ->readable(true, static fn(Statement $statement): string => $statement->getName());
+            ->readable(true, static fn (Statement $statement): string => $statement->getName());
         $configBuilder->initialOrganisationHouseNumber
             ->readable(true)->aliasedPath(Paths::statement()->meta->houseNumber);
         $configBuilder->initialOrganisationStreet
@@ -200,44 +201,44 @@ abstract class AbstractStatementResourceType extends DplanResourceType
         $configBuilder->priority->readable(true);
         $configBuilder->procedureId->readable(true)->aliasedPath(Paths::statement()->procedure->id);
         $configBuilder->publicAllowed
-            ->readable(true, static fn(Statement $statement): bool => $statement->getPublicAllowed());
+            ->readable(true, static fn (Statement $statement): bool => $statement->getPublicAllowed());
         $configBuilder->publicVerified->readable(true);
         $configBuilder->publicVerifiedTranslation
-            ->readable(true, static fn(Statement $statement): ?string => $statement->getPublicVerifiedTranslation());
+            ->readable(true, static fn (Statement $statement): ?string => $statement->getPublicVerifiedTranslation());
         $configBuilder->recommendation
-            ->readable(true, fn(Statement $statement): ?string => $this->htmlSanitizer->purify($statement->getRecommendationShort()));
+            ->readable(true, fn (Statement $statement): ?string => $this->htmlSanitizer->purify($statement->getRecommendationShort()));
         $configBuilder->recommendationIsTruncated
-            ->readable(true, static fn(Statement $statement): bool => $statement->getRecommendation() !== $statement->getRecommendationShort());
+            ->readable(true, static fn (Statement $statement): bool => $statement->getRecommendation() !== $statement->getRecommendationShort());
         $configBuilder->status->readable(true);
         $configBuilder->submitDate
-            ->sortable()->aliasedPath(Paths::statement()->submit)->readable(true, fn(Statement $statement): ?string => $this->formatDate($statement->getSubmitObject()));
+            ->sortable()->aliasedPath(Paths::statement()->submit)->readable(true, fn (Statement $statement): ?string => $this->formatDate($statement->getSubmitObject()));
         $configBuilder->submitType->readable(true);
         $configBuilder->text
-            ->readable(true, fn(Statement $statement): ?string => $this->htmlSanitizer->purify($statement->getTextShort()));
+            ->readable(true, fn (Statement $statement): ?string => $this->htmlSanitizer->purify($statement->getTextShort()));
         $configBuilder->textIsTruncated
-            ->readable(true, static fn(Statement $statement): bool => $statement->getText() !== $statement->getTextShort());
+            ->readable(true, static fn (Statement $statement): bool => $statement->getText() !== $statement->getTextShort());
         $configBuilder->userGroup
-            ->readable(true, static fn(Statement $statement): ?string => $statement->getMeta()->getUserGroup());
+            ->readable(true, static fn (Statement $statement): ?string => $statement->getMeta()->getUserGroup());
         $configBuilder->userOrganisation
-            ->readable(true, static fn(Statement $statement): ?string => $statement->getMeta()->getUserOrganisation());
+            ->readable(true, static fn (Statement $statement): ?string => $statement->getMeta()->getUserOrganisation());
         $configBuilder->userPosition
-            ->readable(true, static fn(Statement $statement): ?string => $statement->getMeta()->getUserPosition());
+            ->readable(true, static fn (Statement $statement): ?string => $statement->getMeta()->getUserPosition());
         $configBuilder->userState
-            ->readable(true, static fn(Statement $statement): ?string => $statement->getMeta()->getUserState());
+            ->readable(true, static fn (Statement $statement): ?string => $statement->getMeta()->getUserState());
         $configBuilder->votePla->readable(true);
         $configBuilder->votesNum
-            ->readable(true, static fn(Statement $statement): int => $statement->getVotesNum());
+            ->readable(true, static fn (Statement $statement): int => $statement->getVotesNum());
         $configBuilder->voteStk->readable(true);
         $configBuilder->fullText
             // add the large full text field only if it was requested
-            ->readable(false, fn(Statement $statement): string => $this->htmlSanitizer->purify($statement->getText()));
+            ->readable(false, fn (Statement $statement): string => $this->htmlSanitizer->purify($statement->getText()));
         // keep `isManual` optional, as it may be removed when the resource type is splitted
         $configBuilder->isManual->readable()->aliasedPath(Paths::statement()->manual);
         $configBuilder->numberOfAnonymVotes->filterable();
         $configBuilder->files
             ->setRelationshipType($this->resourceTypeStore->getFileResourceType())
             // files need to be fetched via Filecontainer
-            ->readable(false, fn(Statement $statement): array => $this->fileService->getEntityFiles(
+            ->readable(false, fn (Statement $statement): array => $this->fileService->getEntityFiles(
                 Statement::class,
                 $statement->getId(),
                 'file')

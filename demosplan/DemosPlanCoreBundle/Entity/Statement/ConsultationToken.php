@@ -112,7 +112,7 @@ class ConsultationToken implements UuidEntityInterface, ConsultationTokenInterfa
      *
      * @ORM\JoinColumn(referencedColumnName="_ms_id", nullable=true)
      */
-    private $sentEmail = null;
+    private $sentEmail;
 
     /**
      * @var DateTime

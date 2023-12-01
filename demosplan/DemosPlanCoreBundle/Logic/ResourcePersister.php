@@ -37,8 +37,8 @@ class ResourcePersister extends CoreService
      * @template T of ProcedureType|ProcedureUiDefinition|ProcedureBehaviorDefinition|StatementFieldDefinition
      *
      * @param (ProcedureTypeResourceType|ProcedureUiDefinitionResourceType|ProcedureBehaviorDefinitionResourceType|StatementFieldDefinitionResourceType)&DplanResourceType<T> $resourceType
-     * @param T $entity
-     * @param array<string, mixed> $properties
+     * @param T                                                                                                                                                               $entity
+     * @param array<string, mixed>                                                                                                                                            $properties
      *
      * @throws PropertyUpdateAccessException
      */

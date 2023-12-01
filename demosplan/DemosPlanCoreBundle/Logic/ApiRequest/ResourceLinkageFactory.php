@@ -14,9 +14,9 @@ namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use EDT\JsonApi\Schema\ResourceIdentifierObject;
 use EDT\Wrapping\Contracts\ContentField;
 use Exception;
+
 use function array_key_exists;
 use function is_array;
 use function is_string;

@@ -28,7 +28,8 @@ class OwnsProcedureConditionFactory
         private readonly GlobalConfigInterface $globalConfig,
         private readonly LoggerInterface $logger,
         private readonly Procedure $procedure
-    ) {}
+    ) {
+    }
 
     /**
      * The organisation of the user must be set as planning office in the procedure.
