@@ -68,18 +68,18 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType
     public function isGetAllowed(): bool
     {
         return $this->currentUser->hasAnyPermissions(
-                'feature_admin_element_edit',
-                // used within the procedure detail view (project specific)
-                'area_documents')
+            'feature_admin_element_edit',
+            // used within the procedure detail view (project specific)
+            'area_documents')
             || $this->isBulkEditAllowed();
     }
 
     public function isListAllowed(): bool
     {
         return $this->currentUser->hasAnyPermissions(
-                'feature_admin_element_edit',
-                // used within the procedure detail view (project specific)
-                'area_documents')
+            'feature_admin_element_edit',
+            // used within the procedure detail view (project specific)
+            'area_documents')
             || $this->isBulkEditAllowed();
     }
 

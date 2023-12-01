@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\Category;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\GlobalContent;

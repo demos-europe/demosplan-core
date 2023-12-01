@@ -103,12 +103,12 @@ final class InvitableInstitutionResourceType extends DplanResourceType
 
                 // removed tags
                 $removedTags = $currentlyAssignedTags->filter(
-                    static fn(InstitutionTag $currentTag): bool => !$newAssignedTags->contains($currentTag)
+                    static fn (InstitutionTag $currentTag): bool => !$newAssignedTags->contains($currentTag)
                 );
 
                 // new tags
                 $newTags = $newAssignedTags->filter(
-                    static fn(InstitutionTag $newTag): bool => !$currentlyAssignedTags->contains($newTag)
+                    static fn (InstitutionTag $newTag): bool => !$currentlyAssignedTags->contains($newTag)
                 );
 
                 foreach ($removedTags as $removedTag) {

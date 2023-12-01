@@ -45,7 +45,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\FluentStatementQuery;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityNotFoundException;

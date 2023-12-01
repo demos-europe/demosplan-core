@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
 use DemosEurope\DemosplanAddon\Contracts\ApiRequest\JsonApiEsServiceInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+
 use function array_key_exists;
 
 // @improve T21985
@@ -28,12 +29,12 @@ class SearchParams
     /**
      * @var string|null
      */
-    private $searchPhrase = null;
+    private $searchPhrase;
 
     /**
      * @var array<int,non-empty-string>|null
      */
-    private $fieldsToSearch = null;
+    private $fieldsToSearch;
 
     /**
      * The identifier for the facet is used as both key and value.

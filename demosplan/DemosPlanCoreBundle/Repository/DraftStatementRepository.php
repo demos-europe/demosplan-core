@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
@@ -189,8 +188,8 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
                 $em->getReference(SingleDocumentVersion::class, $data['documentId'])
             );
         }
-        if (!array_key_exists('document', $data) && array_key_exists('documentId', $data) &&
-            '' === $data['documentId']
+        if (!array_key_exists('document', $data) && array_key_exists('documentId', $data)
+            && '' === $data['documentId']
         ) {
             $entity->setDocument(null);
         }
@@ -256,8 +255,8 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
                 $em->getReference(ParagraphVersion::class, $data['paragraphId'])
             );
         }
-        if (!array_key_exists('paragraph', $data) && array_key_exists('paragraphId', $data) &&
-            '' === $data['paragraphId']
+        if (!array_key_exists('paragraph', $data) && array_key_exists('paragraphId', $data)
+            && '' === $data['paragraphId']
         ) {
             $entity->setParagraph(null);
         }

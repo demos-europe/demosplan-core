@@ -17,7 +17,6 @@ use demosplan\DemosPlanCoreBundle\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigBuilder;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @property-read End $assignee @deprecated refactor frontend and backend to use a relationship instead
@@ -72,7 +71,7 @@ final class ClusterStatementResourceType extends AbstractStatementResourceType
             $this->conditionFactory->propertyIsNull($this->headStatement),
             // statement placeholders are not considered actual statement resources
             $this->conditionFactory->propertyIsNull($this->movedStatement),
-            $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id)
+            $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id),
         ];
     }
 
@@ -95,9 +94,9 @@ final class ClusterStatementResourceType extends AbstractStatementResourceType
         /** @var StatementResourceConfigBuilder $configBuilder */
         $configBuilder = parent::getProperties();
         $configBuilder->documentParentId
-            ->readable(true, static fn(Statement $statement): ?string => $statement->getDocumentParentId());
+            ->readable(true, static fn (Statement $statement): ?string => $statement->getDocumentParentId());
         $configBuilder->documentTitle
-            ->readable(true, static fn(Statement $statement): ?string => $statement->getDocumentTitle());
+            ->readable(true, static fn (Statement $statement): ?string => $statement->getDocumentTitle());
         $configBuilder->elementId
             ->readable(true)->aliasedPath(Paths::statement()->element->id);
         $configBuilder->elementTitle

@@ -65,9 +65,9 @@ final class ProcedureTypeResourceType extends DplanResourceType
     {
         foreach ($properties as $propertyName => $value) {
             match ($propertyName) {
-                $this->name->getAsNamesInDotNotation() => $object->setName($value),
+                $this->name->getAsNamesInDotNotation()        => $object->setName($value),
                 $this->description->getAsNamesInDotNotation() => $object->setDescription($value),
-                default => throw new InvalidArgumentException("Property not available for update: {$propertyName}"),
+                default                                       => throw new InvalidArgumentException("Property not available for update: {$propertyName}"),
             };
         }
 
@@ -79,7 +79,7 @@ final class ProcedureTypeResourceType extends DplanResourceType
     public function getUpdatableProperties(): array
     {
         return [
-            $this->name->getAsNamesInDotNotation() => null,
+            $this->name->getAsNamesInDotNotation()        => null,
             $this->description->getAsNamesInDotNotation() => null,
         ];
     }

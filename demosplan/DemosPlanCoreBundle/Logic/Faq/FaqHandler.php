@@ -23,8 +23,6 @@ use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\FaqNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
@@ -183,7 +181,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
      * @throws CustomerNotFoundException
      * @throws MessageBagException
      */
-    public function addOrUpdateFaq($data, ?Faq $faq = null): ?Faq
+    public function addOrUpdateFaq($data, Faq $faq = null): ?Faq
     {
         // improve:
         // Sanitize and validate fields
@@ -303,6 +301,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
     public function getCustomFaqCategoriesByNamesOrCustom(array $categoryTypeNamesToInclude): Collection
     {
         $allFaqCategories = collect($this->getAllCategoriesOfCurrentCustomer());
+
         // filter: custom categories only
         return $allFaqCategories->filter(
             static fn (FaqCategory $faqCategory) => in_array($faqCategory->getType(), $categoryTypeNamesToInclude, true) || $faqCategory->isCustom()

@@ -31,7 +31,8 @@ class GetPropertiesEvent extends DPlanEvent implements GetPropertiesEventInterfa
     public function __construct(
         private readonly EntityBasedInterface $type,
         private ResourceConfigBuilderInterface $resourceConfigBuilder
-    ) {}
+    ) {
+    }
 
     /**
      * @return ResourceConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, O>

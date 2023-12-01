@@ -36,7 +36,6 @@ use Doctrine\ORM\Query\QueryException;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\PropertyPathInterface;
-use EDT\Wrapping\Contracts\AccessException;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
 

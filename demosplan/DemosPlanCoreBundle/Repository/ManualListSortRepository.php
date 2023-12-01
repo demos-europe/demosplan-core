@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\ManualListSort;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;

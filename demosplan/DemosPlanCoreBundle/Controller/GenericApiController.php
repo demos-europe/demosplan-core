@@ -26,7 +26,6 @@ use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use EDT\JsonApi\Requests\CreationRequest;
 use EDT\JsonApi\Requests\DeletionRequest;
 use EDT\JsonApi\Requests\GetRequest;
-use EDT\JsonApi\Requests\ListRequest;
 use EDT\JsonApi\Requests\RequestException;
 use EDT\JsonApi\Requests\UpdateRequest;
 use EDT\Wrapping\Contracts\TypeRetrievalAccessException;
@@ -219,7 +218,6 @@ class GenericApiController extends APIController
         if (!$type->isDeleteAllowed()) {
             throw new BadRequestException("The resource type `$resourceType` is not allowed for JSON:API `delete` requests.");
         }
-
 
         // execute deletion
         $deletionRequest->deleteResource($type, $resourceId);

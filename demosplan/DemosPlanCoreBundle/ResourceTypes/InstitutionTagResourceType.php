@@ -44,7 +44,8 @@ class InstitutionTagResourceType extends DplanResourceType
     public function __construct(
         private readonly ValidatorInterface $validator,
         private readonly InstitutionTagRepository $institutionTagRepository
-    ) {}
+    ) {
+    }
 
     protected function getProperties(): array
     {

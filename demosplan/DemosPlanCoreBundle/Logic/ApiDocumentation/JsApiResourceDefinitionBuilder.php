@@ -16,8 +16,8 @@ use cebe\openapi\spec\OpenApi;
 use cebe\openapi\spec\Reference;
 use cebe\openapi\SpecObjectInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-
 use EDT\Wrapping\Contracts\ContentField;
+
 use function array_key_exists;
 use function array_pop;
 use function array_reduce;

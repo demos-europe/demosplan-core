@@ -11,7 +11,6 @@
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
@@ -296,8 +295,8 @@ class ElementsRepository extends CoreRepository implements ArrayInterface, Objec
             $entity->setParent($this->get($data['parent']));
         }
 
-        if (array_key_exists('permission', $data) &&
-            null !== $data['permission']) {
+        if (array_key_exists('permission', $data)
+            && null !== $data['permission']) {
             $entity->setPermission($data['permission']);
         }
 
@@ -379,8 +378,6 @@ class ElementsRepository extends CoreRepository implements ArrayInterface, Objec
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @throws Exception
      */
     public function updateObject($entity)
@@ -411,7 +408,7 @@ class ElementsRepository extends CoreRepository implements ArrayInterface, Objec
         $paragraphs = $paragraphRepository->findBy(['procedure' => $procedureId]);
         $documents = $documentRepository->findBy(['procedure' => $procedureId]);
         $elementIdsWithParagraphsOrDocuments = array_map(
-            static fn($paragraphOrDocument) =>
+            static fn ($paragraphOrDocument) =>
                 /* @var Paragraph|SingleDocument $paragraphOrDocument */
                 $paragraphOrDocument->getElement()->getId(),
             [...$paragraphs, ...$documents]
@@ -431,7 +428,7 @@ class ElementsRepository extends CoreRepository implements ArrayInterface, Objec
         $elements = $queryBuilder->getQuery()->getResult();
 
         return array_map(
-            static fn(Elements $element) => $element->getId(),
+            static fn (Elements $element) => $element->getId(),
             $this->filterElementsByPermissions($elements)
         );
     }

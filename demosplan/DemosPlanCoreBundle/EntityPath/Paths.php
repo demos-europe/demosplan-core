@@ -2,6 +2,14 @@
 
 declare(strict_types=1);
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\EntityPath;
 
 /**
@@ -10,614 +18,513 @@ namespace demosplan\DemosPlanCoreBundle\EntityPath;
  */
 class Paths
 {
-	public static function role(): RolePath
-	{
-		return RolePath::startPath();
-	}
-
-
-	public static function procedure(): ProcedurePath
-	{
-		return ProcedurePath::startPath();
-	}
-
-
-	public static function sluggedEntity(): SluggedEntityPath
-	{
-		return SluggedEntityPath::startPath();
-	}
-
-
-	public static function slug(): SlugPath
-	{
-		return SlugPath::startPath();
-	}
-
-
-	public static function orga(): OrgaPath
-	{
-		return OrgaPath::startPath();
-	}
-
-
-	public static function procedureSettings(): ProcedureSettingsPath
-	{
-		return ProcedureSettingsPath::startPath();
-	}
-
-
-	public static function survey(): SurveyPath
-	{
-		return SurveyPath::startPath();
-	}
-
-
-	public static function procedureBehaviorDefinition(): ProcedureBehaviorDefinitionPath
-	{
-		return ProcedureBehaviorDefinitionPath::startPath();
-	}
-
-
-	public static function procedureUiDefinition(): ProcedureUiDefinitionPath
-	{
-		return ProcedureUiDefinitionPath::startPath();
-	}
-
-
-	public static function statementFormDefinition(): StatementFormDefinitionPath
-	{
-		return StatementFormDefinitionPath::startPath();
-	}
-
-
-	public static function procedureType(): ProcedureTypePath
-	{
-		return ProcedureTypePath::startPath();
-	}
-
-
-	public static function exportFieldsConfiguration(): ExportFieldsConfigurationPath
-	{
-		return ExportFieldsConfigurationPath::startPath();
-	}
-
-
-	public static function file(): FilePath
-	{
-		return FilePath::startPath();
-	}
-
-
-	public static function user(): UserPath
-	{
-		return UserPath::startPath();
-	}
-
-
-	public static function masterToeb(): MasterToebPath
-	{
-		return MasterToebPath::startPath();
-	}
-
-
-	public static function branding(): BrandingPath
-	{
-		return BrandingPath::startPath();
-	}
-
-
-	public static function statementFieldDefinition(): StatementFieldDefinitionPath
-	{
-		return StatementFieldDefinitionPath::startPath();
-	}
-
-
-	public static function segment(): SegmentPath
-	{
-		return SegmentPath::startPath();
-	}
-
-
-	public static function statement(): StatementPath
-	{
-		return StatementPath::startPath();
-	}
-
-
-	public static function statementMeta(): StatementMetaPath
-	{
-		return StatementMetaPath::startPath();
-	}
-
-
-	public static function emailAddress(): EmailAddressPath
-	{
-		return EmailAddressPath::startPath();
-	}
-
-
-	public static function tag(): TagPath
-	{
-		return TagPath::startPath();
-	}
-
-
-	public static function consultationToken(): ConsultationTokenPath
-	{
-		return ConsultationTokenPath::startPath();
-	}
-
-
-	public static function elements(): ElementsPath
-	{
-		return ElementsPath::startPath();
-	}
-
-
-	public static function mailSend(): MailSendPath
-	{
-		return MailSendPath::startPath();
-	}
-
-
-	public static function globalContent(): GlobalContentPath
-	{
-		return GlobalContentPath::startPath();
-	}
-
-
-	public static function entitySyncLink(): EntitySyncLinkPath
-	{
-		return EntitySyncLinkPath::startPath();
-	}
-
-
-	public static function mailTemplate(): MailTemplatePath
-	{
-		return MailTemplatePath::startPath();
-	}
-
-
-	public static function faqCategory(): FaqCategoryPath
-	{
-		return FaqCategoryPath::startPath();
-	}
-
-
-	public static function reportEntry(): ReportEntryPath
-	{
-		return ReportEntryPath::startPath();
-	}
-
-
-	public static function location(): LocationPath
-	{
-		return LocationPath::startPath();
-	}
-
-
-	public static function statementVersionField(): StatementVersionFieldPath
-	{
-		return StatementVersionFieldPath::startPath();
-	}
-
-
-	public static function county(): CountyPath
-	{
-		return CountyPath::startPath();
-	}
-
-
-	public static function tagTopic(): TagTopicPath
-	{
-		return TagTopicPath::startPath();
-	}
-
-
-	public static function statementFragment(): StatementFragmentPath
-	{
-		return StatementFragmentPath::startPath();
-	}
-
-
-	public static function draftStatement(): DraftStatementPath
-	{
-		return DraftStatementPath::startPath();
-	}
-
-
-	public static function statementAttribute(): StatementAttributePath
-	{
-		return StatementAttributePath::startPath();
-	}
-
-
-	public static function gdprConsent(): GdprConsentPath
-	{
-		return GdprConsentPath::startPath();
-	}
-
-
-	public static function statementFragmentVersion(): StatementFragmentVersionPath
-	{
-		return StatementFragmentVersionPath::startPath();
-	}
-
-
-	public static function draftStatementVersion(): DraftStatementVersionPath
-	{
-		return DraftStatementVersionPath::startPath();
-	}
-
-
-	public static function draftStatementFile(): DraftStatementFilePath
-	{
-		return DraftStatementFilePath::startPath();
-	}
-
-
-	public static function priorityArea(): PriorityAreaPath
-	{
-		return PriorityAreaPath::startPath();
-	}
-
-
-	public static function statementVote(): StatementVotePath
-	{
-		return StatementVotePath::startPath();
-	}
-
-
-	public static function municipality(): MunicipalityPath
-	{
-		return MunicipalityPath::startPath();
-	}
-
-
-	public static function segmentComment(): SegmentCommentPath
-	{
-		return SegmentCommentPath::startPath();
-	}
-
-
-	public static function statementLike(): StatementLikePath
-	{
-		return StatementLikePath::startPath();
-	}
-
-
-	public static function gdprConsentRevokeToken(): GdprConsentRevokeTokenPath
-	{
-		return GdprConsentRevokeTokenPath::startPath();
-	}
-
-
-	public static function mailAttachment(): MailAttachmentPath
-	{
-		return MailAttachmentPath::startPath();
-	}
-
-
-	public static function boilerplateCategory(): BoilerplateCategoryPath
-	{
-		return BoilerplateCategoryPath::startPath();
-	}
-
-
-	public static function userFilterSet(): UserFilterSetPath
-	{
-		return UserFilterSetPath::startPath();
-	}
-
-
-	public static function boilerplate(): BoilerplatePath
-	{
-		return BoilerplatePath::startPath();
-	}
-
-
-	public static function institutionMail(): InstitutionMailPath
-	{
-		return InstitutionMailPath::startPath();
-	}
-
-
-	public static function procedureSubscription(): ProcedureSubscriptionPath
-	{
-		return ProcedureSubscriptionPath::startPath();
-	}
-
-
-	public static function procedureCategory(): ProcedureCategoryPath
-	{
-		return ProcedureCategoryPath::startPath();
-	}
-
-
-	public static function procedureCoupleToken(): ProcedureCoupleTokenPath
-	{
-		return ProcedureCoupleTokenPath::startPath();
-	}
-
-
-	public static function boilerplateGroup(): BoilerplateGroupPath
-	{
-		return BoilerplateGroupPath::startPath();
-	}
-
-
-	public static function procedureProposal(): ProcedureProposalPath
-	{
-		return ProcedureProposalPath::startPath();
-	}
-
-
-	public static function procedurePerson(): ProcedurePersonPath
-	{
-		return ProcedurePersonPath::startPath();
-	}
-
-
-	public static function hashedQuery(): HashedQueryPath
-	{
-		return HashedQueryPath::startPath();
-	}
-
-
-	public static function notificationReceiver(): NotificationReceiverPath
-	{
-		return NotificationReceiverPath::startPath();
-	}
-
-
-	public static function gisLayerCategory(): GisLayerCategoryPath
-	{
-		return GisLayerCategoryPath::startPath();
-	}
-
-
-	public static function gisLayer(): GisLayerPath
-	{
-		return GisLayerPath::startPath();
-	}
-
-
-	public static function developmentRelease(): DevelopmentReleasePath
-	{
-		return DevelopmentReleasePath::startPath();
-	}
-
-
-	public static function forumEntry(): ForumEntryPath
-	{
-		return ForumEntryPath::startPath();
-	}
-
-
-	public static function developmentUserStoryVote(): DevelopmentUserStoryVotePath
-	{
-		return DevelopmentUserStoryVotePath::startPath();
-	}
-
-
-	public static function forumThread(): ForumThreadPath
-	{
-		return ForumThreadPath::startPath();
-	}
-
-
-	public static function developmentUserStory(): DevelopmentUserStoryPath
-	{
-		return DevelopmentUserStoryPath::startPath();
-	}
-
-
-	public static function forumEntryFile(): ForumEntryFilePath
-	{
-		return ForumEntryFilePath::startPath();
-	}
-
-
-	public static function fileContainer(): FileContainerPath
-	{
-		return FileContainerPath::startPath();
-	}
-
-
-	public static function manualListSort(): ManualListSortPath
-	{
-		return ManualListSortPath::startPath();
-	}
-
-
-	public static function migrationVersions(): MigrationVersionsPath
-	{
-		return MigrationVersionsPath::startPath();
-	}
-
-
-	public static function sessions(): SessionsPath
-	{
-		return SessionsPath::startPath();
-	}
-
-
-	public static function paragraphVersion(): ParagraphVersionPath
-	{
-		return ParagraphVersionPath::startPath();
-	}
-
-
-	public static function singleDocumentVersion(): SingleDocumentVersionPath
-	{
-		return SingleDocumentVersionPath::startPath();
-	}
-
-
-	public static function singleDocument(): SingleDocumentPath
-	{
-		return SingleDocumentPath::startPath();
-	}
-
-
-	public static function paragraph(): ParagraphPath
-	{
-		return ParagraphPath::startPath();
-	}
-
-
-	public static function masterToebVersion(): MasterToebVersionPath
-	{
-		return MasterToebVersionPath::startPath();
-	}
-
-
-	public static function customerCounty(): CustomerCountyPath
-	{
-		return CustomerCountyPath::startPath();
-	}
-
-
-	public static function orgaType(): OrgaTypePath
-	{
-		return OrgaTypePath::startPath();
-	}
-
-
-	public static function orgaStatusInCustomer(): OrgaStatusInCustomerPath
-	{
-		return OrgaStatusInCustomerPath::startPath();
-	}
-
-
-	public static function customer(): CustomerPath
-	{
-		return CustomerPath::startPath();
-	}
-
-
-	public static function addressBookEntry(): AddressBookEntryPath
-	{
-		return AddressBookEntryPath::startPath();
-	}
-
-
-	public static function department(): DepartmentPath
-	{
-		return DepartmentPath::startPath();
-	}
-
-
-	public static function userRoleInCustomer(): UserRoleInCustomerPath
-	{
-		return UserRoleInCustomerPath::startPath();
-	}
-
-
-	public static function institutionTag(): InstitutionTagPath
-	{
-		return InstitutionTagPath::startPath();
-	}
-
-
-	public static function supportContact(): SupportContactPath
-	{
-		return SupportContactPath::startPath();
-	}
-
-
-	public static function address(): AddressPath
-	{
-		return AddressPath::startPath();
-	}
-
-
-	public static function video(): VideoPath
-	{
-		return VideoPath::startPath();
-	}
-
-
-	public static function setting(): SettingPath
-	{
-		return SettingPath::startPath();
-	}
-
-
-	public static function platformFaqCategory(): PlatformFaqCategoryPath
-	{
-		return PlatformFaqCategoryPath::startPath();
-	}
-
-
-	public static function entityContentChange(): EntityContentChangePath
-	{
-		return EntityContentChangePath::startPath();
-	}
-
-
-	public static function openGeoDbShortTable(): OpenGeoDbShortTablePath
-	{
-		return OpenGeoDbShortTablePath::startPath();
-	}
-
-
-	public static function flood(): FloodPath
-	{
-		return FloodPath::startPath();
-	}
-
-
-	public static function statementAttachment(): StatementAttachmentPath
-	{
-		return StatementAttachmentPath::startPath();
-	}
-
-
-	public static function faq(): FaqPath
-	{
-		return FaqPath::startPath();
-	}
-
-
-	public static function place(): PlacePath
-	{
-		return PlacePath::startPath();
-	}
-
-
-	public static function originalStatementAnonymization(): OriginalStatementAnonymizationPath
-	{
-		return OriginalStatementAnonymizationPath::startPath();
-	}
-
-
-	public static function news(): NewsPath
-	{
-		return NewsPath::startPath();
-	}
-
-
-	public static function surveyVote(): SurveyVotePath
-	{
-		return SurveyVotePath::startPath();
-	}
-
-
-	public static function category(): CategoryPath
-	{
-		return CategoryPath::startPath();
-	}
-
-
-	public static function contextualHelp(): ContextualHelpPath
-	{
-		return ContextualHelpPath::startPath();
-	}
-
-
-	public static function platformFaq(): PlatformFaqPath
-	{
-		return PlatformFaqPath::startPath();
-	}
+    public static function role(): RolePath
+    {
+        return RolePath::startPath();
+    }
+
+    public static function procedure(): ProcedurePath
+    {
+        return ProcedurePath::startPath();
+    }
+
+    public static function sluggedEntity(): SluggedEntityPath
+    {
+        return SluggedEntityPath::startPath();
+    }
+
+    public static function slug(): SlugPath
+    {
+        return SlugPath::startPath();
+    }
+
+    public static function orga(): OrgaPath
+    {
+        return OrgaPath::startPath();
+    }
+
+    public static function procedureSettings(): ProcedureSettingsPath
+    {
+        return ProcedureSettingsPath::startPath();
+    }
+
+    public static function survey(): SurveyPath
+    {
+        return SurveyPath::startPath();
+    }
+
+    public static function procedureBehaviorDefinition(): ProcedureBehaviorDefinitionPath
+    {
+        return ProcedureBehaviorDefinitionPath::startPath();
+    }
+
+    public static function procedureUiDefinition(): ProcedureUiDefinitionPath
+    {
+        return ProcedureUiDefinitionPath::startPath();
+    }
+
+    public static function statementFormDefinition(): StatementFormDefinitionPath
+    {
+        return StatementFormDefinitionPath::startPath();
+    }
+
+    public static function procedureType(): ProcedureTypePath
+    {
+        return ProcedureTypePath::startPath();
+    }
+
+    public static function exportFieldsConfiguration(): ExportFieldsConfigurationPath
+    {
+        return ExportFieldsConfigurationPath::startPath();
+    }
+
+    public static function file(): FilePath
+    {
+        return FilePath::startPath();
+    }
+
+    public static function user(): UserPath
+    {
+        return UserPath::startPath();
+    }
+
+    public static function masterToeb(): MasterToebPath
+    {
+        return MasterToebPath::startPath();
+    }
+
+    public static function branding(): BrandingPath
+    {
+        return BrandingPath::startPath();
+    }
+
+    public static function statementFieldDefinition(): StatementFieldDefinitionPath
+    {
+        return StatementFieldDefinitionPath::startPath();
+    }
+
+    public static function segment(): SegmentPath
+    {
+        return SegmentPath::startPath();
+    }
+
+    public static function statement(): StatementPath
+    {
+        return StatementPath::startPath();
+    }
+
+    public static function statementMeta(): StatementMetaPath
+    {
+        return StatementMetaPath::startPath();
+    }
+
+    public static function emailAddress(): EmailAddressPath
+    {
+        return EmailAddressPath::startPath();
+    }
+
+    public static function tag(): TagPath
+    {
+        return TagPath::startPath();
+    }
+
+    public static function consultationToken(): ConsultationTokenPath
+    {
+        return ConsultationTokenPath::startPath();
+    }
+
+    public static function elements(): ElementsPath
+    {
+        return ElementsPath::startPath();
+    }
+
+    public static function mailSend(): MailSendPath
+    {
+        return MailSendPath::startPath();
+    }
+
+    public static function globalContent(): GlobalContentPath
+    {
+        return GlobalContentPath::startPath();
+    }
+
+    public static function entitySyncLink(): EntitySyncLinkPath
+    {
+        return EntitySyncLinkPath::startPath();
+    }
+
+    public static function mailTemplate(): MailTemplatePath
+    {
+        return MailTemplatePath::startPath();
+    }
+
+    public static function faqCategory(): FaqCategoryPath
+    {
+        return FaqCategoryPath::startPath();
+    }
+
+    public static function reportEntry(): ReportEntryPath
+    {
+        return ReportEntryPath::startPath();
+    }
+
+    public static function location(): LocationPath
+    {
+        return LocationPath::startPath();
+    }
+
+    public static function statementVersionField(): StatementVersionFieldPath
+    {
+        return StatementVersionFieldPath::startPath();
+    }
+
+    public static function county(): CountyPath
+    {
+        return CountyPath::startPath();
+    }
+
+    public static function tagTopic(): TagTopicPath
+    {
+        return TagTopicPath::startPath();
+    }
+
+    public static function statementFragment(): StatementFragmentPath
+    {
+        return StatementFragmentPath::startPath();
+    }
+
+    public static function draftStatement(): DraftStatementPath
+    {
+        return DraftStatementPath::startPath();
+    }
+
+    public static function statementAttribute(): StatementAttributePath
+    {
+        return StatementAttributePath::startPath();
+    }
+
+    public static function gdprConsent(): GdprConsentPath
+    {
+        return GdprConsentPath::startPath();
+    }
+
+    public static function statementFragmentVersion(): StatementFragmentVersionPath
+    {
+        return StatementFragmentVersionPath::startPath();
+    }
+
+    public static function draftStatementVersion(): DraftStatementVersionPath
+    {
+        return DraftStatementVersionPath::startPath();
+    }
+
+    public static function draftStatementFile(): DraftStatementFilePath
+    {
+        return DraftStatementFilePath::startPath();
+    }
+
+    public static function priorityArea(): PriorityAreaPath
+    {
+        return PriorityAreaPath::startPath();
+    }
+
+    public static function statementVote(): StatementVotePath
+    {
+        return StatementVotePath::startPath();
+    }
+
+    public static function municipality(): MunicipalityPath
+    {
+        return MunicipalityPath::startPath();
+    }
+
+    public static function segmentComment(): SegmentCommentPath
+    {
+        return SegmentCommentPath::startPath();
+    }
+
+    public static function statementLike(): StatementLikePath
+    {
+        return StatementLikePath::startPath();
+    }
+
+    public static function gdprConsentRevokeToken(): GdprConsentRevokeTokenPath
+    {
+        return GdprConsentRevokeTokenPath::startPath();
+    }
+
+    public static function mailAttachment(): MailAttachmentPath
+    {
+        return MailAttachmentPath::startPath();
+    }
+
+    public static function boilerplateCategory(): BoilerplateCategoryPath
+    {
+        return BoilerplateCategoryPath::startPath();
+    }
+
+    public static function userFilterSet(): UserFilterSetPath
+    {
+        return UserFilterSetPath::startPath();
+    }
+
+    public static function boilerplate(): BoilerplatePath
+    {
+        return BoilerplatePath::startPath();
+    }
+
+    public static function institutionMail(): InstitutionMailPath
+    {
+        return InstitutionMailPath::startPath();
+    }
+
+    public static function procedureSubscription(): ProcedureSubscriptionPath
+    {
+        return ProcedureSubscriptionPath::startPath();
+    }
+
+    public static function procedureCategory(): ProcedureCategoryPath
+    {
+        return ProcedureCategoryPath::startPath();
+    }
+
+    public static function procedureCoupleToken(): ProcedureCoupleTokenPath
+    {
+        return ProcedureCoupleTokenPath::startPath();
+    }
+
+    public static function boilerplateGroup(): BoilerplateGroupPath
+    {
+        return BoilerplateGroupPath::startPath();
+    }
+
+    public static function procedureProposal(): ProcedureProposalPath
+    {
+        return ProcedureProposalPath::startPath();
+    }
+
+    public static function procedurePerson(): ProcedurePersonPath
+    {
+        return ProcedurePersonPath::startPath();
+    }
+
+    public static function hashedQuery(): HashedQueryPath
+    {
+        return HashedQueryPath::startPath();
+    }
+
+    public static function notificationReceiver(): NotificationReceiverPath
+    {
+        return NotificationReceiverPath::startPath();
+    }
+
+    public static function gisLayerCategory(): GisLayerCategoryPath
+    {
+        return GisLayerCategoryPath::startPath();
+    }
+
+    public static function gisLayer(): GisLayerPath
+    {
+        return GisLayerPath::startPath();
+    }
+
+    public static function developmentRelease(): DevelopmentReleasePath
+    {
+        return DevelopmentReleasePath::startPath();
+    }
+
+    public static function forumEntry(): ForumEntryPath
+    {
+        return ForumEntryPath::startPath();
+    }
+
+    public static function developmentUserStoryVote(): DevelopmentUserStoryVotePath
+    {
+        return DevelopmentUserStoryVotePath::startPath();
+    }
+
+    public static function forumThread(): ForumThreadPath
+    {
+        return ForumThreadPath::startPath();
+    }
+
+    public static function developmentUserStory(): DevelopmentUserStoryPath
+    {
+        return DevelopmentUserStoryPath::startPath();
+    }
+
+    public static function forumEntryFile(): ForumEntryFilePath
+    {
+        return ForumEntryFilePath::startPath();
+    }
+
+    public static function fileContainer(): FileContainerPath
+    {
+        return FileContainerPath::startPath();
+    }
+
+    public static function manualListSort(): ManualListSortPath
+    {
+        return ManualListSortPath::startPath();
+    }
+
+    public static function migrationVersions(): MigrationVersionsPath
+    {
+        return MigrationVersionsPath::startPath();
+    }
+
+    public static function sessions(): SessionsPath
+    {
+        return SessionsPath::startPath();
+    }
+
+    public static function paragraphVersion(): ParagraphVersionPath
+    {
+        return ParagraphVersionPath::startPath();
+    }
+
+    public static function singleDocumentVersion(): SingleDocumentVersionPath
+    {
+        return SingleDocumentVersionPath::startPath();
+    }
+
+    public static function singleDocument(): SingleDocumentPath
+    {
+        return SingleDocumentPath::startPath();
+    }
+
+    public static function paragraph(): ParagraphPath
+    {
+        return ParagraphPath::startPath();
+    }
+
+    public static function masterToebVersion(): MasterToebVersionPath
+    {
+        return MasterToebVersionPath::startPath();
+    }
+
+    public static function customerCounty(): CustomerCountyPath
+    {
+        return CustomerCountyPath::startPath();
+    }
+
+    public static function orgaType(): OrgaTypePath
+    {
+        return OrgaTypePath::startPath();
+    }
+
+    public static function orgaStatusInCustomer(): OrgaStatusInCustomerPath
+    {
+        return OrgaStatusInCustomerPath::startPath();
+    }
+
+    public static function customer(): CustomerPath
+    {
+        return CustomerPath::startPath();
+    }
+
+    public static function addressBookEntry(): AddressBookEntryPath
+    {
+        return AddressBookEntryPath::startPath();
+    }
+
+    public static function department(): DepartmentPath
+    {
+        return DepartmentPath::startPath();
+    }
+
+    public static function userRoleInCustomer(): UserRoleInCustomerPath
+    {
+        return UserRoleInCustomerPath::startPath();
+    }
+
+    public static function institutionTag(): InstitutionTagPath
+    {
+        return InstitutionTagPath::startPath();
+    }
+
+    public static function supportContact(): SupportContactPath
+    {
+        return SupportContactPath::startPath();
+    }
+
+    public static function address(): AddressPath
+    {
+        return AddressPath::startPath();
+    }
+
+    public static function video(): VideoPath
+    {
+        return VideoPath::startPath();
+    }
+
+    public static function setting(): SettingPath
+    {
+        return SettingPath::startPath();
+    }
+
+    public static function platformFaqCategory(): PlatformFaqCategoryPath
+    {
+        return PlatformFaqCategoryPath::startPath();
+    }
+
+    public static function entityContentChange(): EntityContentChangePath
+    {
+        return EntityContentChangePath::startPath();
+    }
+
+    public static function openGeoDbShortTable(): OpenGeoDbShortTablePath
+    {
+        return OpenGeoDbShortTablePath::startPath();
+    }
+
+    public static function flood(): FloodPath
+    {
+        return FloodPath::startPath();
+    }
+
+    public static function statementAttachment(): StatementAttachmentPath
+    {
+        return StatementAttachmentPath::startPath();
+    }
+
+    public static function faq(): FaqPath
+    {
+        return FaqPath::startPath();
+    }
+
+    public static function place(): PlacePath
+    {
+        return PlacePath::startPath();
+    }
+
+    public static function originalStatementAnonymization(): OriginalStatementAnonymizationPath
+    {
+        return OriginalStatementAnonymizationPath::startPath();
+    }
+
+    public static function news(): NewsPath
+    {
+        return NewsPath::startPath();
+    }
+
+    public static function surveyVote(): SurveyVotePath
+    {
+        return SurveyVotePath::startPath();
+    }
+
+    public static function category(): CategoryPath
+    {
+        return CategoryPath::startPath();
+    }
+
+    public static function contextualHelp(): ContextualHelpPath
+    {
+        return ContextualHelpPath::startPath();
+    }
+
+    public static function platformFaq(): PlatformFaqPath
+    {
+        return PlatformFaqPath::startPath();
+    }
 }

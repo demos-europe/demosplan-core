@@ -1296,8 +1296,6 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      * @param string $procedureId
      * @param bool   $useDistance
      *
-     * @return mixed
-     *
      * @throws Exception
      */
     public function getProcedureSubscriptionList($procedureId, $useDistance = true)
@@ -2549,8 +2547,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         // use array_key_exists, because value of key 'customer' is null
         if (\array_key_exists('customer', $filters)) {
             // T15644 customer master procedure has customer set
-            if ($template &&
-                $this->permissions->hasPermission('feature_admin_customer_master_procedure_template')
+            if ($template
+                && $this->permissions->hasPermission('feature_admin_customer_master_procedure_template')
             ) {
                 $conditions[] = $this->conditionFactory->anyConditionApplies(
                     $this->conditionFactory->propertyIsNull(['customer']),

@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote;
 use Exception;
@@ -22,8 +21,6 @@ class SurveyVoteRepository extends CoreRepository
 {
     /**
      * Get all votes of a specific procedure.
-     *
-     * @return mixed
      *
      * @throws Exception
      */

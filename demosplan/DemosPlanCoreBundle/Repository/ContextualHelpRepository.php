@@ -185,6 +185,7 @@ class ContextualHelpRepository extends FluentRepository implements ArrayInterfac
                 $this->getEntityManager()->persist($help);
                 $this->getEntityManager()->flush();
             }
+
             // if no just return
             return true;
         }

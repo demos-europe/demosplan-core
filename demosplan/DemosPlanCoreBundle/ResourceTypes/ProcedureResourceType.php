@@ -161,7 +161,7 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
         $invitedOrganisations = $this->createToManyRelationship($this->invitedOrganisations)->aliasedPath($this->organisation);
         $properties = [
             $this->createIdentifier()->readable()->sortable()->filterable(),
-            $this->createAttribute($this->name)->readable(true, fn(Procedure $procedure): ?string => !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
+            $this->createAttribute($this->name)->readable(true, fn (Procedure $procedure): ?string => !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
                 ? $procedure->getName()
                 : null)->sortable()->filterable(),
             $owningOrganisation,

@@ -17,7 +17,6 @@ use demosplan\DemosPlanCoreBundle\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigBuilder;
 use Doctrine\Common\Collections\Collection;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 final class HeadStatementResourceType extends AbstractStatementResourceType
 {
@@ -57,7 +56,7 @@ final class HeadStatementResourceType extends AbstractStatementResourceType
         $configBuilder = parent::getProperties();
         $configBuilder->statements
             ->setRelationshipType($this->getTypes()->getStatementResourceType())
-            ->readable(true, static fn(Statement $statement): Collection => $statement->getCluster(), true);
+            ->readable(true, static fn (Statement $statement): Collection => $statement->getCluster(), true);
         $configBuilder->authorName
             ->readable(true)->filterable()->aliasedPath(Paths::statement()->meta->authorName);
         $configBuilder->submitName

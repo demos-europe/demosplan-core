@@ -189,7 +189,7 @@ final class OrgaResourceType extends DplanResourceType
         ];
 
         if ($this->resourceTypeStore->getCustomerResourceType()->isReferencable()) {
-            $properties[] = $this->createToManyRelationship($this->customers)->readable(false, static fn(Orga $orga): Collection => $orga->getCustomers());
+            $properties[] = $this->createToManyRelationship($this->customers)->readable(false, static fn (Orga $orga): Collection => $orga->getCustomers());
         }
 
         if ($this->currentUser->hasPermission('feature_institution_tag_read')) {

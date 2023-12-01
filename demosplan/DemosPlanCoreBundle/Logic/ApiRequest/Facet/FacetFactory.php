@@ -20,8 +20,8 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Filters\AggregationFilterType;
 use Enqueue\Util\UUID;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tightenco\Collect\Support\Collection;
-
 use Webmozart\Assert\Assert;
+
 use function collect;
 
 class FacetFactory
@@ -183,11 +183,11 @@ class FacetFactory
      *
      * @param GroupedFacetInterface<object, TGroup> $facetDefinition
      * @param TGroup                                $group
-     * @param array<string,int>        $itemCounts      mapping from the item IDs to the corresponding
-     *                                                  facet count
-     * @param array<string,bool>       $selections      mapping from the item IDs to the boolean if the
-     *                                                  corresponding aggregation item is selected in
-     *                                                  the UI
+     * @param array<string,int>                     $itemCounts      mapping from the item IDs to the corresponding
+     *                                                               facet count
+     * @param array<string,bool>                    $selections      mapping from the item IDs to the boolean if the
+     *                                                               corresponding aggregation item is selected in
+     *                                                               the UI
      *
      * @return Collection<string,AggregationFilterItem>
      */

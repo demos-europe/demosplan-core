@@ -38,7 +38,7 @@ final class ProcedureBehaviorDefinitionResourceType extends DplanResourceType
             // that are connected to a ProcedureType (and thus not connected to a Procedure)
             return [
                 $this->conditionFactory->propertyIsNull($this->procedure),
-                $this->conditionFactory->propertyIsNotNull($this->procedureType)
+                $this->conditionFactory->propertyIsNotNull($this->procedureType),
             ];
         }
 
@@ -76,10 +76,10 @@ final class ProcedureBehaviorDefinitionResourceType extends DplanResourceType
     {
         foreach ($properties as $propertyName => $value) {
             match ($propertyName) {
-                $this->allowedToEnableMap->getAsNamesInDotNotation() => $object->setAllowedToEnableMap($value),
-                $this->hasPriorityArea->getAsNamesInDotNotation() => $object->setHasPriorityArea($value),
+                $this->allowedToEnableMap->getAsNamesInDotNotation()     => $object->setAllowedToEnableMap($value),
+                $this->hasPriorityArea->getAsNamesInDotNotation()        => $object->setHasPriorityArea($value),
                 $this->participationGuestOnly->getAsNamesInDotNotation() => $object->setParticipationGuestOnly($value),
-                default => throw new InvalidArgumentException("Property not available for update: {$propertyName}"),
+                default                                                  => throw new InvalidArgumentException("Property not available for update: {$propertyName}"),
             };
         }
 
@@ -91,9 +91,9 @@ final class ProcedureBehaviorDefinitionResourceType extends DplanResourceType
     public function getUpdatableProperties(): array
     {
         return [
-            $this->allowedToEnableMap->getAsNamesInDotNotation() => null,
-            $this->hasPriorityArea->getAsNamesInDotNotation() => null,
-            $this->participationGuestOnly->getAsNamesInDotNotation() => null
+            $this->allowedToEnableMap->getAsNamesInDotNotation()     => null,
+            $this->hasPriorityArea->getAsNamesInDotNotation()        => null,
+            $this->participationGuestOnly->getAsNamesInDotNotation() => null,
         ];
     }
 
