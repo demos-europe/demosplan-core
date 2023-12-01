@@ -2,7 +2,6 @@
   <div class="space-stack-xs">
     <dp-multiselect
       v-model="scales"
-      class="border-error"
       label="label"
       multiple
       :options="availableScales"
