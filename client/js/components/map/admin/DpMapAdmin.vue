@@ -25,20 +25,6 @@ export default {
     DpTooltipIcon
   },
 
-  props: {
-    availableScales: {
-      type: Array,
-      required: false,
-      default: () => []
-    },
-
-    selectedScales: {
-      type: Array,
-      required: false,
-      default: () => []
-    }
-  },
-
   data () {
     return {
       areScalesSuitable: true
