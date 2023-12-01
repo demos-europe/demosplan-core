@@ -67,6 +67,13 @@ export default {
   },
 
   computed: {
+    /**
+     * To allow users to pick scales individually but prevent a combination
+     * of scales that will cause performance issues (which is triggered by
+     * scale jumps that are too big), a simple heuristic is applied here:
+     * a scale must not be bigger than 50x the preceding scale.
+     * @return {boolean}
+     */
     areScalesSuitable () {
       if (this.scales.length < 2) {
         return true
