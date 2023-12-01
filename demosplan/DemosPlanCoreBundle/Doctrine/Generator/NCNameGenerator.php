@@ -39,17 +39,6 @@ class NCNameGenerator extends AbstractIdGenerator
 
     public function generateId(EntityManagerInterface $em, $entity): string
     {
-        if ($entity instanceof Statement) {
-            $id = $entity->getId();
-            if (null !== $id && '' !== $id) {
-                if (0 === preg_match('/[A-Za-z]/', $id[0])) {
-                    return $this->uuid();
-                }
-
-                return $id;
-            }
-        }
-
         return $this->uuid();
     }
 }

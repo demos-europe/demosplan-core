@@ -575,11 +575,11 @@ class StatementCopier extends CoreService
                 $em->flush();
             }
 
-            // add Files to Statement in case of existing (persisted/flushed) or sometimes not "oldStatement"
+            // add Files to Statement in case of existing (persisted/flushed) "oldStatement"
             if (null !== $oldStatementId) {
                 // automatically flushes everything
                 if (null === $newStatement->getId()) {
-                    $newStatement->setId($this->nameGenerator->uuid());
+                    $em->persist($newStatement);
                 }
                 $this->statementService->addFilesToCopiedStatement($newStatement, $oldStatementId);
             } else {

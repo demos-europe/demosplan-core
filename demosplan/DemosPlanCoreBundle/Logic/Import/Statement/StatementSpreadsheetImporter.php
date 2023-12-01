@@ -17,16 +17,30 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\MissingPostParameterException;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use Doctrine\ORM\EntityManagerInterface;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Worksheet\RowCellIterator;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Webmozart\Assert\Assert;
 
 use function array_key_exists;
 
 class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
 {
+    public function __construct(CurrentProcedureService $currentProcedureService, CurrentUserService $currentUser, ElementsService $elementsService, OrgaService $orgaService, StatementCopier $statementCopier, StatementService $statementService, TranslatorInterface $translator, ValidatorInterface $validator, private readonly EntityManagerInterface $entityManager)
+    {
+        parent::__construct($currentProcedureService, $currentUser, $elementsService, $orgaService, $statementCopier, $statementService, $translator, $validator);
+    }
+
     /**
      * Maps the actual column names to callbacks to be invoked with the cell corresponding that column.
      *
@@ -168,6 +182,9 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
                     continue;
                 }
                 $usedExternIds[$externId] = $externId;
+
+                // flush original here to be able to copy its file-Containers
+                $this->entityManager->flush();
 
                 $statementCopy = $this->createCopy($originalStatementOrViolations);
                 $violations = $this->validator->validate($statementCopy, null, [StatementInterface::IMPORT_VALIDATION]);

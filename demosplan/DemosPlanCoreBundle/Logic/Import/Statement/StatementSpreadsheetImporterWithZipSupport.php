@@ -42,9 +42,10 @@ class StatementSpreadsheetImporterWithZipSupport extends StatementSpreadsheetImp
         ValidatorInterface $validator,
         private readonly ZipImportService $zipImportService,
         private readonly FileService $fileService,
-        private readonly NCNameGenerator $nameGenerator
+        private readonly NCNameGenerator $nameGenerator,
+        private readonly EntityManagerInterface $entityManager
     ) {
-        parent::__construct($currentProcedureService, $currentUser, $elementsService, $orgaService, $statementCopier, $statementService, $translator, $validator);
+        parent::__construct($currentProcedureService, $currentUser, $elementsService, $orgaService, $statementCopier, $statementService, $translator, $validator, $this->entityManager);
     }
 
     public function getStatementFromRowBuilder(ProcedureInterface $procedure): StatementFromRowBuilder
@@ -59,7 +60,8 @@ class StatementSpreadsheetImporterWithZipSupport extends StatementSpreadsheetImp
             [$this, 'replaceLineBreak'],
             $this->getFileMap(),
             $this->fileService,
-            $this->nameGenerator
+            $this->nameGenerator,
+            $this->entityManager
         );
     }
 

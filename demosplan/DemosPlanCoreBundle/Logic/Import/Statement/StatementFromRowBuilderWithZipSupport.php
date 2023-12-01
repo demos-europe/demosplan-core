@@ -10,6 +10,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use Doctrine\ORM\EntityManagerInterface;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Collection;
@@ -21,7 +22,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class StatementFromRowBuilderWithZipSupport extends StatementFromRowBuilder
 {
-    public function __construct(ValidatorInterface $validator, Procedure $procedure, User $importingUser, Orga $anonymousOrga, Elements $statementElement, Constraint $textConstraint, mixed $textPostValidationProcessing, protected readonly array $fileMap, protected readonly FileService $fileService, private readonly NCNameGenerator $nameGenerator)
+    public function __construct(ValidatorInterface $validator, Procedure $procedure, User $importingUser, Orga $anonymousOrga, Elements $statementElement, Constraint $textConstraint, mixed $textPostValidationProcessing, protected readonly array $fileMap, protected readonly FileService $fileService, private readonly NCNameGenerator $nameGenerator, private readonly EntityManagerInterface $entityManager)
     {
         parent::__construct($validator, $procedure, $importingUser, $anonymousOrga, $statementElement, $textConstraint, $textPostValidationProcessing);
     }
@@ -57,15 +58,15 @@ class StatementFromRowBuilderWithZipSupport extends StatementFromRowBuilder
             return $violations;
         }
 
-        $id = $this->nameGenerator->uuid();
-        $this->statement->setId($id);
+        $this->entityManager->persist($this->statement);
         foreach ($references as $fileMapKey) {
             /** @var File $fileEntity */
             $fileEntity = $this->fileMap[$fileMapKey];
             $fileContainer = $this->fileService->addStatementFileContainer(
                 $this->statement->getId(),
                 $fileEntity->getId(),
-                $fileEntity->getFileString()
+                $fileEntity->getFileString(),
+                false
             );
             $this->validator->validate($fileContainer, [new NotNull()]);
         }
