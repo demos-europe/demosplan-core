@@ -174,7 +174,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
      *
      * @throws Exception
      */
-    public function addObject($statement, bool $flush = true): Statement
+    public function addObject($statement): Statement
     {
         try {
             $manager = $this->getEntityManager();
@@ -183,9 +183,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             }
             $statement->setText($this->sanitize($statement->getText(), [$this->obscureTag]));
             $manager->persist($statement);
-            if ($flush) {
-                $manager->flush();
-            }
+            $manager->flush();
 
             return $statement;
         } catch (Exception $e) {

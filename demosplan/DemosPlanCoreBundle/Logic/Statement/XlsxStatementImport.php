@@ -79,16 +79,9 @@ class XlsxStatementImport
                 return;
             }
 
-            $generatedStatements = array_map(
-                function (Statement $statement): Statement
-                {
-                    return $this->statementRepository->addObject($statement, false);
-                },
-                $generatedStatements
-            );
-            $this->entityManager->flush();
             foreach ($generatedStatements as $statement) {
                 try {
+                    $this->statementRepository->addObject($statement);
                     $statementArray = $this->statementService->convertToLegacy($statement);
                     $this->statementService->addReportNewStatement($statementArray);
                 } catch (Exception $exception) {

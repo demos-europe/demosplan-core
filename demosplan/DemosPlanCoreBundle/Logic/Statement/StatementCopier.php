@@ -18,6 +18,7 @@ use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Doctrine\Generator\NCNameGenerator;
+use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
@@ -578,6 +579,12 @@ class StatementCopier extends CoreService
             // add Files to Statement in case of existing (persisted/flushed) "oldStatement"
             if (null !== $oldStatementId) {
                 // automatically flushes everything
+                /**
+                 * Why persist even with bool persistAndFlush = false?
+                 * We need to persist the statement copy to be able to
+                 * set the fileReferences as a statement id is needed for the { @link FileContainer }.
+                 * but no flush will be called here.
+                 */
                 if (null === $newStatement->getId()) {
                     $em->persist($newStatement);
                 }

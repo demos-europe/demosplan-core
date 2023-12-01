@@ -86,7 +86,7 @@ class StatementSpreadsheetImporterWithZipSupport extends StatementSpreadsheetImp
      */
     public function process(SplFileInfo $zipFileInfo): void
     {
-        $this->fileMap = $this->zipImportService->doEverythingWithZip(
+        $this->fileMap = $this->zipImportService->createFileMapFromZip(
             $zipFileInfo,
             $this->currentProcedureService->getProcedure()->getId()
         );

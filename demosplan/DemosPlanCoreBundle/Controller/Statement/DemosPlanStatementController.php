@@ -15,7 +15,6 @@ use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
-use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\MailSend;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -46,7 +45,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\ExcelImporter;
-use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\StatementSpreadsheetImporter;
 use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\StatementSpreadsheetImporterWithZipSupport;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
@@ -68,7 +66,6 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Logic\XlsxStatementImporterFactory;
-use demosplan\DemosPlanCoreBundle\Logic\ZipImportService;
 use demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Services\DatasheetService;
@@ -95,7 +92,6 @@ use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
-use Webmozart\Assert\Assert;
 use function explode;
 
 /**
@@ -2383,7 +2379,7 @@ class DemosPlanStatementController extends BaseController
             $statementCount = 0;
             /** @var FileInfo $fileInfo */
             foreach ($files as $fileInfo) {
-                $this->importStatementsFromXls($fileInfo, $procedureId, $importer);
+                $this->importStatementsFromXls($fileInfo, $importer);
                 $fileNames[] = $fileInfo->getFileName();
                 $statementCount += count($importer->getCreatedStatements());
             }
@@ -2435,7 +2431,7 @@ class DemosPlanStatementController extends BaseController
             $statementsCount = 0;
             /** @var FileInfo $zipFileInfo */
             foreach ($files as $zipFileInfo) {
-                $this->importStatementsFromXls($zipFileInfo, $procedureId, $importer);
+                $this->importStatementsFromXls($zipFileInfo, $importer);
 
                 $fileNames[] = $zipFileInfo->getFileName();
                 $statements = $importer->getCreatedStatements();
@@ -2459,8 +2455,7 @@ class DemosPlanStatementController extends BaseController
      */
     public function importStatementsFromXls(
         FileInfo|SplFileInfo $fileInfo,
-        string $procedureId,
-        XlsxStatementImport $importer
+        XlsxStatementImport|StatementSpreadsheetImporterWithZipSupport $importer
     ): void {
         if ($fileInfo instanceof FileInfo) {
             $fileInfo = new \Symfony\Component\Finder\SplFileInfo(

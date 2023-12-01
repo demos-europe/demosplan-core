@@ -183,7 +183,14 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
                 }
                 $usedExternIds[$externId] = $externId;
 
-                // flush original here to be able to copy its file-Containers
+                /**
+                 * At this point the original Statement has been build including the file-references.
+                 * File-references are persisted inside the { @link FileContainer } but were not flushed yet.
+                 * Flushing the FileContainer needs to be done now - as the previously persisted original Statement is
+                 * only now in a valid state and will not throw validation errors on flush.
+                 * The File container has to be flushed now in order to create copies of them for the statement we
+                 * will actually use.
+                 */
                 $this->entityManager->flush();
 
                 $statementCopy = $this->createCopy($originalStatementOrViolations);

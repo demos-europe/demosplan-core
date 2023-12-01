@@ -50,7 +50,7 @@ class ZipImportService
     /**
      * @throws DemosException
      */
-    public function doEverythingWithZip(SplFileInfo $fileInfo, string $procedureId): array
+    public function createFileMapFromZip(SplFileInfo $fileInfo, string $procedureId): array
     {
         try {
             $fileMap = [];
