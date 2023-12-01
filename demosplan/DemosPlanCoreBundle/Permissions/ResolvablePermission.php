@@ -102,7 +102,7 @@ class ResolvablePermission
     }
 
     /**
-     * @param list<PermissionCondition>
+     * @param list<PermissionCondition> $conditions
      */
     public function setConditions(array $conditions): void
     {

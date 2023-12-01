@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\HashedQueryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\StoredQuery\StoredQueryInterface;
@@ -24,7 +25,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\HashedQueryRepository")
  */
-class HashedQuery extends CoreEntity implements UuidEntityInterface
+class HashedQuery extends CoreEntity implements UuidEntityInterface, HashedQueryInterface
 {
     /**
      * @var string|null

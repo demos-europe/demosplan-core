@@ -2,6 +2,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\SessionsInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -12,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="sessions")
  * @ORM\Table(indexes={@ORM\Index(name="sessions_sess_lifetime_idx", columns={"sess_lifetime"})})
  */
-class Sessions
+class Sessions implements SessionsInterface
 {
     /**
      *

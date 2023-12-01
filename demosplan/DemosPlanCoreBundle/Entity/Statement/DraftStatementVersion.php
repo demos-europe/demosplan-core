@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementVersionInterface;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
@@ -31,7 +32,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\DraftStatementVersionRepository")
  */
-class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
+class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, DraftStatementVersionInterface
 {
     /**
      * @var string|null

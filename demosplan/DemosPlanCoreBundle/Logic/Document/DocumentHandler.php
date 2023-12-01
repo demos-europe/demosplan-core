@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use DirectoryIterator;
 use Exception;
@@ -222,7 +223,7 @@ class DocumentHandler extends CoreHandler
                     $singleDocument->setDeleted(false);
                     $singleDocument->setOrder($singleDocumentIndex);
 
-                    $violations = $this->validator->validate($singleDocument, null, ['Default', SingleDocument::IMPORT_CREATION]);
+                    $violations = $this->validator->validate($singleDocument, null, [ResourceTypeService::VALIDATION_GROUP_DEFAULT, SingleDocument::IMPORT_CREATION]);
                     if (0 !== $violations->count()) {
                         throw ViolationsException::fromConstraintViolationList($violations);
                     }

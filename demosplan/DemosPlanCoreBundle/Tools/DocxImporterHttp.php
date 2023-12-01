@@ -32,6 +32,7 @@ class DocxImporterHttp implements DocxImporterInterface
 
     public function importDocx(File $file, string $elementId, string $procedure, string $category): array
     {
+        $response = null;
         try {
             $formFields = [
                 'docxFile' => DataPart::fromPath($file->getRealPath()),

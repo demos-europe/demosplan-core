@@ -18,6 +18,9 @@ use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Exception;
 
+/**
+ * @template-extends CoreRepository<ForumThread>
+ */
 class ForumThreadRepository extends CoreRepository implements ArrayInterface
 {
     /**

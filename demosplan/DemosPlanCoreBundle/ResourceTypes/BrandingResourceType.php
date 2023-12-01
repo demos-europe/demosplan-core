@@ -12,21 +12,20 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
-use DemosEurope\DemosplanAddon\Logic\ResourceChange;
+use DemosEurope\DemosplanAddon\Contracts\Entities\BrandingInterface;
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Branding;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
 
 /**
- * @template-extends DplanResourceType<Branding>
+ * @template-extends DplanResourceType<BrandingInterface>
  *
- * @property-read End              $cssvars
+ * @property-read End              $cssvars @deprecated, expose {@link self::$styling} instead
  * @property-read End              $styling
  * @property-read FileResourceType $logo
  */
-class BrandingResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface
+class BrandingResourceType extends DplanResourceType
 {
     public static function getName(): string
     {
@@ -35,9 +34,21 @@ class BrandingResourceType extends DplanResourceType implements UpdatableDqlReso
 
     protected function getProperties(): array
     {
+        $currentCustomerBrandingId = $this->currentCustomerService->getCurrentCustomer()->getBranding()?->getId();
+        $customerCondition = null === $currentCustomerBrandingId
+            ? $this->conditionFactory->false()
+            : $this->conditionFactory->propertyHasValue($currentCustomerBrandingId, Paths::branding()->id);
+
         $properties = [
-            $this->createAttribute($this->id)->readable(true),
+            $this->createIdentifier()->readable(),
+            $this->createAttribute($this->logo)->updatable([$customerCondition]),
         ];
+
+        if ($this->currentUser->hasPermission('feature_customer_branding_edit')) {
+            $properties[] = $this->createAttribute($this->styling)
+                ->updatable([$customerCondition])
+                ->aliasedPath(Paths::branding()->cssvars);
+        }
 
         if ($this->currentUser->hasAnyPermissions(
             'feature_orga_branding_edit',
@@ -67,61 +78,19 @@ class BrandingResourceType extends DplanResourceType implements UpdatableDqlReso
         );
     }
 
-    public function isReferencable(): bool
-    {
-        return true;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
-    }
-
     protected function getAccessConditions(): array
     {
         return [];
     }
 
-    /**
-     * @param Branding $updateTarget
-     */
-    public function getUpdatableProperties(object $updateTarget): array
+    public function isUpdateAllowed(): bool
     {
         if (!$this->currentUser->hasPermission('area_customer_settings')) {
-            return [];
+            return false;
         }
 
         $currentCustomerBrandingId = $this->currentCustomerService->getCurrentCustomer()->getBranding()?->getId();
-        if (null === $currentCustomerBrandingId) {
-            return [];
-        }
 
-        if ($currentCustomerBrandingId !== $updateTarget->getId()) {
-            return [];
-        }
-
-        $properties = [
-            $this->logo,
-        ];
-
-        if ($this->currentUser->hasPermission('feature_customer_branding_edit')) {
-            $properties[] = $this->styling;
-        }
-
-        return $this->toProperties(...$properties);
-    }
-
-    /**
-     * @param Branding $object
-     */
-    public function updateObject(object $object, array $properties): ResourceChange
-    {
-        $updater = new PropertiesUpdater($properties);
-        $updater->ifPresent($this->logo, $object->setLogo(...));
-        $updater->ifPresent($this->styling, $object->setCssvars(...));
-
-        $this->resourceTypeService->validateObject($object);
-
-        return new ResourceChange($object, $this, $properties);
+        return null !== $currentCustomerBrandingId;
     }
 }

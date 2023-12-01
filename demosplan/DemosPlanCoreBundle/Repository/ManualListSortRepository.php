@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\ManualListSort;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
@@ -18,7 +19,10 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Exception;
 
-class ManualListSortRepository extends FluentRepository implements ImmutableArrayInterface
+/**
+ * @template-extends CoreRepository<ManualListSort>
+ */
+class ManualListSortRepository extends CoreRepository implements ImmutableArrayInterface
 {
     /**
      * Get Entity by Context.

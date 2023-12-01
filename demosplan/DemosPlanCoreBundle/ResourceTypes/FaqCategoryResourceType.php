@@ -43,12 +43,12 @@ class FaqCategoryResourceType extends DplanResourceType
         return false;
     }
 
-    public function isReferencable(): bool
+    public function isGetAllowed(): bool
     {
         return false;
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isListAllowed(): bool
     {
         return false;
     }

@@ -177,7 +177,7 @@ class Xplanbox
      * The follow-up code expects the bounds to be a comma-separated string of min_x, min_y, max_x, max_y
      * input to this method is an array of coordinate arrays.
      *
-     * @param array<int, array<int, string>> [[min_x, max_y], [max_x, max_y]]
+     * @param array<int, array<int, string>> $reprojectedBounds [[min_x, max_y], [max_x, max_y]]
      */
     private function remapBounds(array $reprojectedBounds): string
     {

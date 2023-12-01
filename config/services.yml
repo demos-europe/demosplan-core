@@ -307,6 +307,11 @@ services:
         arguments: ['%kernel.default_locale%']
         tags: [kernel.event_subscriber]
 
+    demosplan\DemosPlanCoreBundle\EventSubscriber\ProcedureCoupleTokenSubscriber:
+        arguments:
+            $typeResolver: '@EDT\JsonApi\ApiDocumentation\AttributeTypeResolver'
+            $propertyAccessor: '@EDT\DqlQuerying\PropertyAccessors\Iso8601PropertyAccessor'
+
     demosplan\DemosPlanCoreBundle\Form\ProcedureTypeFormType: ~
 
     demosplan\DemosPlanCoreBundle\Form\ProcedureBehaviorDefinitionFormType: ~
@@ -357,11 +362,7 @@ services:
         calls:
             - [ 'loadFieldMapping' ]
 
-    demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory:
-        arguments:
-            $propertyReader: '@EDT\Wrapping\Utilities\CachingPropertyReader'
-            $conditionEvaluator: '@EDT\Querying\Utilities\ConditionEvaluator'
-            $propertyAccessor: '@EDT\DqlQuerying\PropertyAccessors\ProxyPropertyAccessor'
+    demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory: ~
 
     DemosEurope\DemosplanAddon\Contracts\Handler\FaqHandlerInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\Faq\FaqHandler'
@@ -382,12 +383,7 @@ services:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
-    demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService:
-        arguments:
-            $filterParser: '@EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser'
-            $sortingParser: '@EDT\JsonApi\RequestHandling\JsonApiSortingParser'
-            $paginatorFactory: '@EDT\JsonApi\RequestHandling\PaginatorFactory'
-            $propertyValuesGenerator: '@EDT\JsonApi\RequestHandling\PropertyValuesGenerator'
+    demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService: ~
 
     # as long at this service is used in commands and symfony < 4.1 this needs to be public
     demosplan\DemosPlanCoreBundle\Logic\LocationUpdateService:
@@ -428,6 +424,18 @@ services:
 
     EDT\JsonApi\RequestHandling\EntityFetcherInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher
+
+    EDT\JsonApi\RequestHandling\FilterParserInterface: '@EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser'
+
+    EDT\JsonApi\Pagination\PagePaginationParser:
+        arguments:
+            $defaultSize: !php/const 'demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser::DEFAULT_PAGE_SIZE'
+
+    EDT\JsonApi\RequestHandling\RequestTransformer: ~
+
+    EDT\JsonApi\RequestHandling\RequestConstraintFactory: ~
+
+    DemosEurope\DemosplanAddon\Contracts\ApiRequest\JsonApiEsServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService'
 
     demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger: ~
 
@@ -570,10 +578,6 @@ services:
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             - name: dplan.json_api_transformer
-
-    demosplan\DemosPlanCoreBundle\Logic\ApiRequest\DplanPropertyPathProcessorFactory:
-        arguments:
-            $logger: '@demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger'
 
     demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\TransformerLoader:
         lazy: true
@@ -1241,7 +1245,7 @@ services:
 
     EDT\DqlQuerying\ConditionFactories\DqlConditionFactory: ~
 
-    EDT\DqlQuerying\PropertyAccessors\ProxyPropertyAccessor:
+    EDT\DqlQuerying\PropertyAccessors\Iso8601PropertyAccessor:
         arguments:
             $objectManager: '@doctrine.orm.entity_manager'
 
@@ -1251,8 +1255,8 @@ services:
 
     EDT\JsonApi\ApiDocumentation\OpenAPISchemaGenerator:
         arguments:
-            $typeResolver: '@EDT\JsonApi\ApiDocumentation\AttributeTypeResolver'
-            $typeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+            # FIXME: limit provided resource types to those that are exposed as primary
+            $primaryExposedResourceTypes: !tagged dplan.resourceType
             $schemaStore: '@EDT\JsonApi\ApiDocumentation\SchemaStore'
             $defaultPageSize: !php/const 'demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser::DEFAULT_PAGE_SIZE'
 
@@ -1264,16 +1268,15 @@ services:
 
     EDT\JsonApi\RequestHandling\PaginatorFactory: ~
 
-    EDT\JsonApi\RequestHandling\PropertyValuesGenerator:
-        arguments:
-            $typeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
-            $entityFetcher: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher'
-
     EDT\JsonApi\Validation\FieldsValidator: ~
 
     EDT\Querying\ConditionParsers\Drupal\DrupalConditionParser:
         arguments:
-            $drupalConditionFactory: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\DplanDrupalConditionFactory'
+            $drupalConditionFactory: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
+
+    EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory:
+        arguments:
+            $conditionFactory: '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
 
     EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser:
         public: true
@@ -1284,11 +1287,7 @@ services:
 
     EDT\Querying\ConditionParsers\Drupal\DrupalFilterValidator:
         arguments:
-            $drupalConditionFactory: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\DplanDrupalConditionFactory'
-
-    demosplan\DemosPlanCoreBundle\Logic\ApiRequest\DplanDrupalConditionFactory:
-        arguments:
-            $conditionFactory: '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
+            $drupalConditionFactory: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
 
     EDT\Querying\Utilities\ConditionEvaluator:
         arguments:
@@ -1300,18 +1299,42 @@ services:
 
     EDT\Querying\Utilities\TableJoiner:
         arguments:
-            $propertyAccessor: '@EDT\DqlQuerying\PropertyAccessors\ProxyPropertyAccessor'
-
-    EDT\Wrapping\Utilities\CachingPropertyReader:
-        arguments:
-            $schemaPathProcessor: '@EDT\Wrapping\Utilities\SchemaPathProcessor'
-            $conditionEvaluator: '@EDT\Querying\Utilities\ConditionEvaluator'
-            $sorter: '@EDT\Querying\Utilities\Sorter'
+            $propertyAccessor: '@EDT\DqlQuerying\PropertyAccessors\Iso8601PropertyAccessor'
 
     EDT\Wrapping\Utilities\SchemaPathProcessor:
         arguments:
-            $propertyPathProcessorFactory: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\DplanPropertyPathProcessorFactory'
-            $typeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+            $propertyPathProcessorFactory: '@EDT\Wrapping\Utilities\PropertyPathProcessorFactory'
+
+    EDT\Wrapping\Utilities\PropertyPathProcessorFactory: ~
+
+    EDT\JsonApi\RequestHandling\MessageFormatter: ~
+
+    EDT\Querying\Utilities\Reindexer: ~
+
+    EDT\JsonApi\Utilities\PropertyBuilderFactory:
+        arguments:
+            $propertyAccessor: '@EDT\DqlQuerying\PropertyAccessors\Iso8601PropertyAccessor'
+            $typeResolver: '@EDT\JsonApi\ApiDocumentation\AttributeTypeResolver'
+
+    EDT\PathBuilding\DocblockPropertyByTraitEvaluator:
+        arguments:
+            $targetTraits: []
+            $targetTags: [!php/const 'EDT\PathBuilding\PropertyTag::PROPERTY_READ']
+
+    EDT\PathBuilding\TraitEvaluator: ~
+
+    EDT\DqlQuerying\ClassGeneration\PathClassFromEntityGenerator: ~
+
+    EDT\DqlQuerying\ClassGeneration\TypeHolderGenerator: ~
+
+    EDT\JsonApi\Requests\GetRequest: ~
+    EDT\JsonApi\Requests\CreationRequest: ~
+    EDT\JsonApi\Requests\UpdateRequest: ~
+    EDT\JsonApi\Requests\DeletionRequest: ~
+
+    demosplan\DemosPlanCoreBundle\Command\ClassGenerator\EntityCompanionGeneratorCommand:
+        arguments:
+            $resourceTypes: !tagged dplan.resourceType
 
     Intervention\Image\ImageManager: ~
 
@@ -1332,5 +1355,3 @@ services:
     DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiResourceTypeService'
 
     DemosEurope\DemosplanAddon\Contracts\Services\SegmentServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService'
-
-    EDT\Wrapping\WrapperFactories\WrapperObjectFactory: '@demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory'

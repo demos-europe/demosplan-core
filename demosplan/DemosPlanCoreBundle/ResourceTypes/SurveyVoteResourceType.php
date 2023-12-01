@@ -47,12 +47,12 @@ final class SurveyVoteResourceType extends DplanResourceType
         return $this->currentUser->hasPermission('area_survey');
     }
 
-    public function isReferencable(): bool
+    public function isGetAllowed(): bool
     {
-        return true;
+        return false;
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isListAllowed(): bool
     {
         return false;
     }
@@ -65,8 +65,8 @@ final class SurveyVoteResourceType extends DplanResourceType
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)
-                ->readable(true)->filterable()->sortable(),
+            $this->createIdentifier()
+                ->readable()->filterable()->sortable(),
             $this->createAttribute($this->isAgreed)
                 ->readable(true)->filterable()->sortable(),
             $this->createAttribute($this->text)

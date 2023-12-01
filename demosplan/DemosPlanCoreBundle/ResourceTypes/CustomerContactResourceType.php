@@ -12,22 +12,18 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableDqlResourceTypeInterface;
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
-use DemosEurope\DemosplanAddon\Logic\ResourceChange;
+use DemosEurope\DemosplanAddon\Contracts\Events\BeforeResourceCreateFlushEvent;
 use demosplan\DemosPlanCoreBundle\Entity\User\SupportContact;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanCoreBundle\Logic\EmailAddressService;
+use demosplan\DemosPlanCoreBundle\Repository\EmailAddressRepository;
+use demosplan\DemosPlanCoreBundle\Repository\SupportContactRepository;
+use EDT\JsonApi\RequestHandling\ModifiedEntity;
 use EDT\PathBuilding\End;
+use EDT\Wrapping\CreationDataInterface;
+use Exception;
 use Webmozart\Assert\Assert;
 
 /**
- * @template-implements UpdatableDqlResourceTypeInterface<SupportContact>
- * @template-implements CreatableDqlResourceTypeInterface<SupportContact>
- * @template-implements DeletableDqlResourceTypeInterface<SupportContact>
- *
  * @template-extends DplanResourceType<SupportContact>
  *
  * @property-read End                      $supportType
@@ -38,10 +34,11 @@ use Webmozart\Assert\Assert;
  * @property-read EmailAddressResourceType $eMailAddress
  * @property-read CustomerResourceType     $customer
  */
-class CustomerContactResourceType extends DplanResourceType implements CreatableDqlResourceTypeInterface, DeletableDqlResourceTypeInterface, UpdatableDqlResourceTypeInterface
+class CustomerContactResourceType extends DplanResourceType
 {
     public function __construct(
-        protected readonly EmailAddressService $emailAddressService
+        protected readonly EmailAddressRepository $emailAddressRepository,
+        protected readonly SupportContactRepository $supportContactRepository
     ) {
     }
 
@@ -49,22 +46,38 @@ class CustomerContactResourceType extends DplanResourceType implements Creatable
     {
         $properties = [
             $this->createAttribute($this->id)->readable(true),
-            $this->createAttribute($this->title)->readable()->initializable(),
-            $this->createAttribute($this->phoneNumber)->readable()->initializable(),
-            $this->createAttribute($this->text)->readable()->initializable(),
-            $this->createAttribute($this->eMailAddress)->aliasedPath($this->eMailAddress->fullAddress)->readable()->initializable(),
+            $this->createAttribute($this->title)->readable()->updatable()->initializable(),
+            $this->createAttribute($this->phoneNumber)->readable()->updatable()->initializable(),
+            $this->createAttribute($this->text)->readable()->updatable()->initializable(),
+            $this->createAttribute($this->eMailAddress)->aliasedPath($this->eMailAddress->fullAddress)->readable()
+                ->updatable([], function (SupportContact $contact, ?string $fullEMailAddress): array {
+                    if (null === $fullEMailAddress) {
+                        $contact->setEMailAddress(null);
+                    } else {
+                        $emailAddress = $contact->getEMailAddress();
+                        if (null === $emailAddress) {
+                            $emailAddress = $this->emailAddressRepository->getOrCreateEmailAddress($fullEMailAddress);
+                            $this->emailAddressRepository->persistEntities([$emailAddress]);
+                            $contact->setEMailAddress($emailAddress);
+                        } else {
+                            $emailAddress->setFullAddress($fullEMailAddress);
+                        }
+                        $this->resourceTypeService->validateObject($emailAddress);
+                    }
+
+                    return [];
+                })->initializable(),
         ];
 
         if ($this->hasManagementPermission()) {
-            $properties[] = $this->createAttribute($this->visible)->readable()->filterable()->initializable();
+            $properties[] = $this->createAttribute($this->visible)
+                ->readable()
+                ->updatable()
+                ->filterable()
+                ->initializable();
         }
 
         return $properties;
-    }
-
-    public function isReferencable(): bool
-    {
-        return true;
     }
 
     protected function getAccessConditions(): array
@@ -102,142 +115,96 @@ class CustomerContactResourceType extends DplanResourceType implements Creatable
         return true;
     }
 
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
-    }
-
     public static function getName(): string
     {
         return 'CustomerContact';
     }
 
-    public function createObject(array $properties): ResourceChange
+    public function createEntity(CreationDataInterface $entityData): ModifiedEntity
     {
-        $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
+        try {
+            return $this->getTransactionService()->executeAndFlushInTransaction(
+                function () use ($entityData): ModifiedEntity {
+                    $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
+                    $attributes = $entityData->getAttributes();
 
-        // create/get email address
-        $providedEmailAddress = $properties[$this->eMailAddress->getAsNamesInDotNotation()];
-        if (null !== $providedEmailAddress) {
-            $emailAddressEntity = $this->emailAddressService->getOrCreateEmailAddress($providedEmailAddress);
-        } else {
-            $emailAddressEntity = null;
+                    // create/get email address
+                    $providedEmailAddress = $attributes[$this->eMailAddress->getAsNamesInDotNotation()];
+                    $emailAddressEntity = null !== $providedEmailAddress
+                        ? $this->emailAddressRepository->getOrCreateEmailAddress($providedEmailAddress)
+                        : null;
+
+                    // create support contact
+                    $contact = new SupportContact(
+                        SupportContact::SUPPORT_CONTACT_TYPE_DEFAULT,
+                        $attributes[$this->title->getAsNamesInDotNotation()],
+                        $attributes[$this->phoneNumber->getAsNamesInDotNotation()],
+                        $emailAddressEntity,
+                        $attributes[$this->text->getAsNamesInDotNotation()],
+                        $currentCustomer,
+                        $attributes[$this->visible->getAsNamesInDotNotation()],
+                    );
+
+                    // update customer
+                    $currentCustomer->getContacts()->add($contact);
+
+                    // validate entities
+                    $this->resourceTypeService->validateObject($contact);
+                    $this->resourceTypeService->validateObject($currentCustomer);
+                    if (null !== $emailAddressEntity) {
+                        $this->resourceTypeService->validateObject($emailAddressEntity);
+                    }
+
+                    // persist created entities
+                    $this->supportContactRepository->persistEntities([$contact]);
+                    if (null !== $emailAddressEntity) {
+                        $this->emailAddressRepository->persistEntities([$emailAddressEntity]);
+                    }
+
+                    $this->eventDispatcher->dispatch(new BeforeResourceCreateFlushEvent($this, $contact));
+
+                    return new ModifiedEntity($contact, false);
+                }
+            );
+        } catch (Exception $exception) {
+            $this->addCreationErrorMessage([]);
+
+            throw $exception;
         }
-
-        // create support contact
-        $contact = new SupportContact(
-            SupportContact::SUPPORT_CONTACT_TYPE_DEFAULT,
-            $properties[$this->title->getAsNamesInDotNotation()],
-            $properties[$this->phoneNumber->getAsNamesInDotNotation()],
-            $emailAddressEntity,
-            $properties[$this->text->getAsNamesInDotNotation()],
-            $currentCustomer,
-            $properties[$this->visible->getAsNamesInDotNotation()],
-        );
-
-        // update customer
-        $currentCustomer->getContacts()->add($contact);
-
-        // validate entities
-        $this->resourceTypeService->validateObject($contact);
-        $this->resourceTypeService->validateObject($currentCustomer);
-        if (null !== $emailAddressEntity) {
-            $this->resourceTypeService->validateObject($emailAddressEntity);
-        }
-
-        // build resource change
-        $change = new ResourceChange($contact, $this, $properties);
-        $change->addEntityToPersist($contact);
-        if (null !== $emailAddressEntity) {
-            $change->addEntityToPersist($emailAddressEntity);
-        }
-
-        return $change;
     }
 
-    public function isCreatable(): bool
+    public function isCreateAllowed(): bool
     {
         return $this->hasManagementPermission();
     }
 
-    /**
-     * @param SupportContact $entity
-     */
-    public function delete(object $entity): ResourceChange
+    public function deleteEntity(string $entityIdentifier): void
     {
-        $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
-        Assert::same($entity->getCustomer(), $currentCustomer);
+        $this->getTransactionService()->executeAndFlushInTransaction(
+            function () use ($entityIdentifier) {
+                $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
+                $entity = $this->getEntity($entityIdentifier);
+                Assert::same($entity->getCustomer(), $currentCustomer);
+                $currentCustomer->getContacts()->removeElement($entity);
+                $this->resourceTypeService->validateObject($currentCustomer);
 
-        $currentCustomer->getContacts()->removeElement($entity);
-        $this->resourceTypeService->validateObject($currentCustomer);
-
-        $change = new ResourceChange($entity, $this, []);
-        $change->addEntityToDelete($entity);
-
-        return $change;
-    }
-
-    public function getRequiredDeletionPermissions(): array
-    {
-        return ['feature_customer_support_contact_administration'];
-    }
-
-    public function getUpdatableProperties(object $updateTarget): array
-    {
-        if (!$this->hasManagementPermission()) {
-            return [];
-        }
-
-        return $this->toProperties(
-            $this->title,
-            $this->phoneNumber,
-            $this->eMailAddress,
-            $this->text,
-            $this->visible
-        );
-    }
-
-    /**
-     * @param SupportContact $contact
-     */
-    public function updateObject(object $contact, array $properties): ResourceChange
-    {
-        $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
-        Assert::same($contact->getCustomer(), $currentCustomer);
-
-        $resourceChange = new ResourceChange($contact, $this, $properties);
-
-        $updater = new PropertiesUpdater($properties);
-        $updater->ifPresent($this->title, $contact->setTitle(...));
-        $updater->ifPresent($this->phoneNumber, $contact->setPhoneNumber(...));
-        $updater->ifPresent(
-            $this->eMailAddress,
-            function (?string $fullEMailAddress) use ($contact, $resourceChange): void {
-                if (null === $fullEMailAddress) {
-                    $contact->setEMailAddress(null);
-                } else {
-                    $emailAddress = $contact->getEMailAddress();
-                    if (null === $emailAddress) {
-                        $emailAddress = $this->emailAddressService->getOrCreateEmailAddress($fullEMailAddress);
-                        $resourceChange->addEntityToPersist($emailAddress);
-                        $contact->setEMailAddress($emailAddress);
-                    } else {
-                        $emailAddress->setFullAddress($fullEMailAddress);
-                    }
-                    $this->resourceTypeService->validateObject($emailAddress);
-                }
+                parent::deleteEntity($entityIdentifier);
             }
         );
-        $updater->ifPresent($this->text, $contact->setText(...));
-        $updater->ifPresent($this->visible, $contact->setVisible(...));
+    }
 
-        $this->resourceTypeService->validateObject($contact);
-
-        return $resourceChange;
+    public function isDeleteAllowed() : bool
+    {
+        return $this->hasManagementPermission();
     }
 
     protected function hasManagementPermission(): bool
     {
         return $this->currentUser->hasPermission('feature_customer_support_contact_administration');
+    }
+
+    public function isUpdateAllowed() : bool
+    {
+        return $this->hasManagementPermission();
     }
 }

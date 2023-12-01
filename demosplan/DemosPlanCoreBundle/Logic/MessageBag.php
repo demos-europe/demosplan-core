@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use Symfony\Component\Validator\ConstraintViolationListInterface;
 use function collect;
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
@@ -206,7 +207,7 @@ class MessageBag implements MessageBagInterface
         $this->storeParsedMessage($severity, $message);
     }
 
-    public function addViolations(ConstraintViolationList $constraintViolationList): void
+    public function addViolations(ConstraintViolationListInterface $constraintViolationList): void
     {
         collect($constraintViolationList)->each(
             function (ConstraintViolation $violation): void {

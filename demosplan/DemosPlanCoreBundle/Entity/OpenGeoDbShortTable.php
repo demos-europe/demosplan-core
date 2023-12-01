@@ -10,13 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\OpenGeoDbShortTableInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(name="geodb_short_table")
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\OpenGeoDbRepository")
  */
-class OpenGeoDbShortTable extends CoreEntity
+class OpenGeoDbShortTable extends CoreEntity implements OpenGeoDbShortTableInterface
 {
     /**
      * Unique identification of the Location.

@@ -12,6 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-class ConsultationTokenRepository extends FluentRepository
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\ConsultationToken;
+
+/**
+ * @template-extends CoreRepository<ConsultationToken>
+ */
+class ConsultationTokenRepository extends CoreRepository
 {
 }

@@ -66,6 +66,7 @@ use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\Querying\Utilities\Reindexer;
 use Elastica\Exception\ClientException;
 use Elastica\Index;
 use Elastica\Query;
@@ -131,6 +132,7 @@ class StatementFragmentService extends CoreService
         ParagraphService $paragraphService,
         PermissionsInterface $permissions,
         ProcedureService $procedureService,
+        private readonly Reindexer $reindexer,
         private readonly SortMethodFactory $sortMethodFactory,
         private readonly StatementFragmentRepository $statementFragmentRepository,
         private readonly StatementFragmentVersionRepository $statementFragmentVersionRepository,
@@ -1568,6 +1570,7 @@ class StatementFragmentService extends CoreService
             $this->managerRegistry,
             $this->globalConfig,
             $this->getLogger(),
+            $this->reindexer,
             $this->translator,
             $this->sortMethodFactory,
             $this->elementService,

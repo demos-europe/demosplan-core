@@ -20,6 +20,9 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 
+/**
+ * @template-extends CoreRepository<DevelopmentRelease>
+ */
 class DevelopmentReleaseRepository extends CoreRepository implements ArrayInterface
 {
     /**

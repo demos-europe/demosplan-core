@@ -19,6 +19,9 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Exception;
 use InvalidArgumentException;
 
+/**
+ * @template-extends CoreRepository<StatementAttribute>
+ */
 class StatementAttributeRepository extends CoreRepository implements ArrayInterface
 {
     public function get($entityId)

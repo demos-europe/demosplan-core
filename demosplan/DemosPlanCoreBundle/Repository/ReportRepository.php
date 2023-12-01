@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -22,7 +23,10 @@ use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query;
 use InvalidArgumentException;
 
-class ReportRepository extends FluentRepository implements ArrayInterface, ObjectInterface
+/**
+ * @template-extends CoreRepository<ReportEntry>
+ */
+class ReportRepository extends CoreRepository implements ArrayInterface, ObjectInterface
 {
     /**
      * Gets an ReportEntry.

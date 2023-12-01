@@ -66,12 +66,12 @@ final class PriorityAreaResourceType extends DplanResourceType
         return $this->currentUser->hasPermission('field_statement_priority_area');
     }
 
-    public function isReferencable(): bool
+    public function isGetAllowed(): bool
     {
-        return true;
+        return false;
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isListAllowed(): bool
     {
         return false;
     }
@@ -84,7 +84,7 @@ final class PriorityAreaResourceType extends DplanResourceType
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true)->filterable(),
+            $this->createIdentifier()->readable()->filterable(),
             $this->createAttribute($this->name)->readable(true)->filterable()->sortable()->aliasedPath($this->key),
             $this->createAttribute($this->type)->readable(true)->filterable()->sortable(),
             $this->createAttribute($this->key)->readable(true)->filterable()->sortable(),

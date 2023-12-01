@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Validator;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use EDT\JsonApi\Schema\ContentField;
+use EDT\Wrapping\Contracts\ContentField;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Webmozart\Assert\Assert;

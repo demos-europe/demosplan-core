@@ -494,7 +494,7 @@ export default {
             'submitType'
           ].join(),
           Tag: 'title',
-          StatementAttachment: ['file', 'type'].join(),
+          StatementAttachment: ['file', 'attachmentType'].join(),
           File: 'hash'
         }
       }
@@ -552,7 +552,7 @@ export default {
     getOriginalPdfAttachmentHashBySegment (segment) {
       const parentStatement = segment.rel('parentStatement')
       if (parentStatement.hasRelationship('attachments')) {
-        const originalAttachment = Object.values(parentStatement.relationships.attachments.list()).filter(attachment => attachment.attributes.type === 'source_statement')[0]
+        const originalAttachment = Object.values(parentStatement.relationships.attachments.list()).filter(attachment => attachment.attributes.attachmentType === 'source_statement')[0]
         if (originalAttachment) {
           return originalAttachment.rel('file').attributes.hash
         }

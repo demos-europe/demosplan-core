@@ -125,20 +125,10 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         return [];
     }
 
-    public function isReferencable(): bool
-    {
-        return true;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
-    }
-
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true)->filterable()->sortable(),
+            $this->createIdentifier()->readable()->filterable()->sortable(),
             $this->createAttribute($this->firstname)->readable(true)->filterable()->sortable(),
             $this->createAttribute($this->lastname)->readable(true)->filterable()->sortable(),
             $this->createAttribute($this->login)->readable(true)->filterable()->sortable(),

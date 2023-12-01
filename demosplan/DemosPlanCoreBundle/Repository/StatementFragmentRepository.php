@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
@@ -37,7 +38,10 @@ use InvalidArgumentException;
 use RuntimeException;
 use Symfony\Component\Validator\Validation;
 
-class StatementFragmentRepository extends FluentRepository implements ArrayInterface, ObjectInterface
+/**
+ * @template-extends CoreRepository<StatementFragment>
+ */
+class StatementFragmentRepository extends CoreRepository implements ArrayInterface, ObjectInterface
 {
     /**
      * Get Entity by Id.

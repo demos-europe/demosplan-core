@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -18,7 +19,10 @@ use Doctrine\ORM\Query\Expr\Join;
 use Exception;
 use Webmozart\Assert\Assert;
 
-class TagRepository extends FluentRepository implements ObjectInterface
+/**
+ * @template-extends CoreRepository<Tag>
+ */
+class TagRepository extends CoreRepository implements ObjectInterface
 {
     /**
      * Get Entity by Id.

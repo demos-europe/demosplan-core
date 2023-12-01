@@ -33,7 +33,7 @@ final class ClaimResourceType extends DplanResourceType
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true),
+            $this->createIdentifier()->readable(),
             $this->createAttribute($this->name)
                 ->readable(true, static fn(User $user): string => $user->getName()),
             $this->createAttribute($this->orgaName)
@@ -51,14 +51,14 @@ final class ClaimResourceType extends DplanResourceType
         return true;
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isGetAllowed(): bool
     {
         return false;
     }
 
-    public function isReferencable(): bool
+    public function isListAllowed(): bool
     {
-        return true;
+        return false;
     }
 
     protected function getAccessConditions(): array

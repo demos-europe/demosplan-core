@@ -23,6 +23,9 @@ use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 use InvalidArgumentException;
 
+/**
+ * @template-extends CoreRepository<StatementVote>
+ */
 class StatementVoteRepository extends CoreRepository implements ArrayInterface, ObjectInterface
 {
     /**

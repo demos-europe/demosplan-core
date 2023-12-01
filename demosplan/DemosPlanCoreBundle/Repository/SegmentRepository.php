@@ -11,11 +11,15 @@
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use Doctrine\ORM\ORMException;
 use Exception;
 
-class SegmentRepository extends FluentRepository
+/**
+ * @template-extends CoreRepository<Segment>
+ */
+class SegmentRepository extends CoreRepository
 {
     /**
      * @return array<Segment>

@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
@@ -31,7 +32,10 @@ use Doctrine\ORM\ORMException;
 use Exception;
 use InvalidArgumentException;
 
-class DraftStatementRepository extends FluentRepository implements ArrayInterface
+/**
+ * @template-extends CoreRepository<DraftStatement>
+ */
+class DraftStatementRepository extends CoreRepository implements ArrayInterface
 {
     /**
      * Gib eine Liste der Versionen der Stellungnahme zurück.

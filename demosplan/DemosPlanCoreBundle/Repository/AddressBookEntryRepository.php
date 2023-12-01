@@ -20,6 +20,9 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
 
+/**
+ * @template-extends CoreRepository<AddressBookEntry>
+ */
 class AddressBookEntryRepository extends CoreRepository implements ObjectInterface
 {
     /**

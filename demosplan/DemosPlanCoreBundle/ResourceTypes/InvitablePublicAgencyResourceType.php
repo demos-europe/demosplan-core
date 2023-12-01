@@ -53,16 +53,6 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
         );
     }
 
-    public function isReferencable(): bool
-    {
-        return false;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
-    }
-
     /**
      * @throws PathException
      * @throws CustomerNotFoundException
@@ -115,7 +105,7 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true),
+            $this->createIdentifier()->readable(),
             $this->createAttribute($this->legalName)->readable(true)->aliasedPath($this->name),
             $this->createAttribute($this->competenceDescription)->readable(
                 true,
