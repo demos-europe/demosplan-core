@@ -225,7 +225,7 @@ class DeleteOrgaCommand extends CoreCommand
     /**
      * @throws Exception
      */
-    private function processAllAddresses() :void
+    private function processAllAddresses(): void
     {
         $addressesId = array_column($this->fetchFromTableByOrga(['_a_id'], '_orga_addresses_doctrine', '_o_id'), '_a_id');
         // delete addresses
@@ -236,7 +236,7 @@ class DeleteOrgaCommand extends CoreCommand
     /**
      * @throws Exception
      */
-    private function processAllDepartments() :void
+    private function processAllDepartments(): void
     {
         $departmentsId = array_column($this->fetchFromTableByOrga(['_d_id'], '_orga_departments_doctrine', '_o_id'), '_d_id');
         // delete departments
@@ -247,7 +247,7 @@ class DeleteOrgaCommand extends CoreCommand
     /**
      * @throws Exception
      */
-    private function processAllUsers() :void
+    private function processAllUsers(): void
     {
         $usersId = array_column($this->fetchFromTableByOrga(['_u_id'], '_orga_users_doctrine', '_o_id'), '_u_id');
         // delete users
@@ -299,9 +299,9 @@ class DeleteOrgaCommand extends CoreCommand
         return $fetchQueryBuilder->fetchAllAssociative();
     }
 
-
     /**
      * This is necessary to even allow us to delete all tables individually.
+     *
      * @throws Exception
      */
     private function deactivateForeignKeyChecks(): void
@@ -338,5 +338,4 @@ class DeleteOrgaCommand extends CoreCommand
             ->add($repopulateEsCommand)
             ->run();
     }
-
 }
