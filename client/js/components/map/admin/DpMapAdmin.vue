@@ -8,20 +8,21 @@
 </license>
 
 <script>
-import { DpMultiselect, DpTooltipIcon } from '@demos-europe/demosplan-ui'
+import { DpCheckbox, DpMultiselect, DpTooltipIcon } from '@demos-europe/demosplan-ui'
+import DpMapAdminScales from './DpMapAdminScales'
 import DpMapView from '@DpJs/components/map/map/DpMapView'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
-import VueSlider from 'vue-slider-component'
 
 export default {
   name: 'DpMapAdmin',
 
   components: {
+    DpCheckbox,
     DpOlMap,
     DpMapView,
+    DpMapAdminScales,
     DpMultiselect,
-    DpTooltipIcon,
-    VueSlider
+    DpTooltipIcon
   },
 
   props: {
@@ -40,43 +41,8 @@ export default {
 
   data () {
     return {
-      scales: this.selectedScales,
-      scaleValue: ['250', '35000']
+      areScalesSuitable: true
     }
-  },
-
-  computed: {
-    maxScale () {
-      return 10
-    }
-  },
-
-  methods: {
-    sortSelected (type) {
-      this[type].sort((a, b) => (parseInt(a.value) > parseInt(b.value)) ? 1 : ((parseInt(b.value) > parseInt(a.value)) ? -1 : 0))
-    },
-    show (e) {
-      console.log(e)
-    },
-    marks (val) {
-      return {
-        label: this.availableScales.find(scale => scale.value === val).label,
-        labelStyle: {
-          transform: 'rotate(315deg)',
-          width: '100px',
-          display: 'block',
-          marginTop: '20px',
-          marginLeft: '-50px'
-        }
-      }
-    },
-    tooltipFormatter (value) {
-      return `Maßstab: ${this.availableScales.find(scale => scale.value === value).label}`
-    }
-  },
-
-  mounted () {
-    this.sortSelected('scales')
   }
 }
 </script>
