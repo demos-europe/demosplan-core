@@ -1163,7 +1163,7 @@ class UserService extends CoreService implements UserServiceInterface
      *
      * @param string $userId - Indicates the user whose draftStatements will be deleted
      *
-     * @return bool|User - The wiped User if all operations are successful, otherwise false
+     * @return bool `true` if all operations are successful, otherwise `false`
      */
     public function deleteDraftStatementsOfUser($userId): bool
     {

@@ -35,7 +35,7 @@ class UserFilterSetResourceType extends DplanResourceType
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true),
+            $this->createIdentifier()->readable(),
             $this->createAttribute($this->name)->readable(true),
             $this->createToOneRelationship($this->filterSet)->readable(true),
         ];
@@ -52,16 +52,6 @@ class UserFilterSetResourceType extends DplanResourceType
             'area_admin_assessmenttable',
             'feature_procedure_user_filter_sets'
         );
-    }
-
-    public function isReferencable(): bool
-    {
-        return false;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
     }
 
     protected function getAccessConditions(): array

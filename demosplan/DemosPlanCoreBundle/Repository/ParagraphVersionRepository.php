@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
@@ -21,7 +22,10 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
 
-class ParagraphVersionRepository extends FluentRepository implements ArrayInterface, ObjectInterface
+/**
+ * @template-extends CoreRepository<ParagraphVersion>
+ */
+class ParagraphVersionRepository extends CoreRepository implements ArrayInterface, ObjectInterface
 {
     /**
      * Get a paragraph.

@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\MigrationVersionsInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -18,7 +19,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="migration_versions")
  * @ORM\Entity
  */
-class MigrationVersions
+class MigrationVersions implements MigrationVersionsInterface
 {
     /**
      * @var string

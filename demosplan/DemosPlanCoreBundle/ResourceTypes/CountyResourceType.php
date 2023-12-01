@@ -39,14 +39,14 @@ final class CountyResourceType extends DplanResourceType
         return $this->currentUser->hasPermission('field_statement_county');
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isGetAllowed(): bool
     {
         return false;
     }
 
-    public function isReferencable(): bool
+    public function isListAllowed(): bool
     {
-        return true;
+        return false;
     }
 
     protected function getAccessConditions(): array
@@ -57,7 +57,7 @@ final class CountyResourceType extends DplanResourceType
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true)->filterable(),
+            $this->createIdentifier()->readable()->filterable(),
             $this->createAttribute($this->name)->readable(true)->filterable()->sortable(),
         ];
     }

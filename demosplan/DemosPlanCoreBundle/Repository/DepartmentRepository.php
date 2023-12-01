@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -19,7 +20,10 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
 
-class DepartmentRepository extends FluentRepository implements ArrayInterface
+/**
+ * @template-extends CoreRepository<Department>
+ */
+class DepartmentRepository extends CoreRepository implements ArrayInterface
 {
     /**
      * Get Entity by Id.

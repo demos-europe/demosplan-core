@@ -32,20 +32,10 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 final class ProcedureTemplateResourceType extends DplanResourceType
 {
-    public function isReferencable(): bool
-    {
-        return true;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
-    }
-
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true)->sortable()->filterable(),
+            $this->createIdentifier()->readable()->sortable()->filterable(),
             $this->createAttribute($this->agencyMainEmailAddress)->readable(true)->sortable()->filterable(),
             $this->createAttribute($this->description)->readable()->aliasedPath($this->desc),
             $this->createToManyRelationship($this->agencyExtraEmailAddresses)->readable()->filterable(),

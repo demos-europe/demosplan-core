@@ -12,6 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-class SegmentCommentRepository extends FluentRepository
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\SegmentComment;
+
+/**
+ * @template-extends CoreRepository<SegmentComment>
+ */
+class SegmentCommentRepository extends CoreRepository
 {
 }

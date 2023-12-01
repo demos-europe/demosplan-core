@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\LocationInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -23,7 +24,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\LocationRepository")
  */
-class Location extends CoreEntity implements UuidEntityInterface
+class Location extends CoreEntity implements UuidEntityInterface, LocationInterface
 {
     /**
      * @var string|null

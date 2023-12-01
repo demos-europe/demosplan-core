@@ -15,6 +15,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentCommentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
+use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -73,7 +74,7 @@ class Segment extends Statement implements SegmentInterface
      *
      * @ORM\JoinColumn(referencedColumnName="id", nullable=true)
      */
-    #[Assert\NotBlank(groups: ['Default', SegmentInterface::VALIDATION_GROUP_IMPORT])]
+    #[Assert\NotBlank(groups: [ResourceTypeService::VALIDATION_GROUP_DEFAULT, SegmentInterface::VALIDATION_GROUP_IMPORT])]
     private $place;
 
     public function __construct()

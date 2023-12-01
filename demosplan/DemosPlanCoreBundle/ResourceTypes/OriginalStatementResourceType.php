@@ -67,12 +67,12 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
         ];
     }
 
-    public function isReferencable(): bool
+    public function isGetAllowed(): bool
     {
-        return true;
+        return $this->currentUser->hasPermission('feature_json_api_original_statement');
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isListAllowed(): bool
     {
         return $this->currentUser->hasPermission('feature_json_api_original_statement');
     }
@@ -80,7 +80,7 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true)->filterable(),
+            $this->createIdentifier()->readable()->filterable(),
         ];
     }
 }

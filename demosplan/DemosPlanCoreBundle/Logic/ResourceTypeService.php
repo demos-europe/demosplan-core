@@ -66,7 +66,7 @@ class ResourceTypeService implements ResourceTypeServiceInterface
     {
         foreach ($properties as $propertyName => $propertyValue) {
             if (!is_string($propertyName)) {
-                throw PropertyUpdateAccessException::intPropertyKey($propertyName);
+                throw PropertyUpdateAccessException::intPropertyKey($type, $propertyName);
             }
             if (!array_key_exists($propertyName, $allowedProperties)) {
                 $propertyNames = array_keys($allowedProperties);
@@ -89,7 +89,7 @@ class ResourceTypeService implements ResourceTypeServiceInterface
         if (0 !== count($missingProperties)) {
             $missingPropertiesString = implode(',', array_keys($missingProperties));
 
-            throw new AccessException("The following properties are required but were not provided when creating a new {$type::getName()} resource: $missingPropertiesString");
+            throw new AccessException($type, "The following properties are required but were not provided when creating a new {$type->getTypeName()} resource: $missingPropertiesString");
         }
     }
 

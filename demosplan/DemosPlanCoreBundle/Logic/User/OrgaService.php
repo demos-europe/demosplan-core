@@ -788,7 +788,7 @@ class OrgaService extends CoreService
      */
     public function getInvitablePublicAgencies(): array
     {
-        return $this->invitablePublicAgencyResourceType->listEntities([]);
+        return $this->invitablePublicAgencyResourceType->getEntities([], []);
     }
 
     /**

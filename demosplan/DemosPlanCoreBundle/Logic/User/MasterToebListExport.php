@@ -27,7 +27,7 @@ class MasterToebListExport extends XlsxExporter
     }
 
     /**
-     * @param MasterToeb[]
+     * @param MasterToeb[] $masterToebArray
      *
      * @return array<string, Xlsx>
      */

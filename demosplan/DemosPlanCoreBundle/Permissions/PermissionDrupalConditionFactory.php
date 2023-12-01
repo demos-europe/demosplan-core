@@ -28,12 +28,9 @@ class PermissionDrupalConditionFactory extends PredefinedDrupalConditionFactory
 
     final public const NOT_SIZE = 'NOT SIZE';
 
-    protected PathsBasedConditionFactoryInterface $conditionFactory;
-
     public function __construct(PathsBasedConditionFactoryInterface $conditionFactory)
     {
         parent::__construct($conditionFactory);
-        $this->conditionFactory = $conditionFactory;
     }
 
     protected function getOperatorFunctions(): array

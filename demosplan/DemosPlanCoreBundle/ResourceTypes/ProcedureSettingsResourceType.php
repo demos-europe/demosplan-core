@@ -29,16 +29,6 @@ class ProcedureSettingsResourceType extends DplanResourceType
         return 'ProcedureSettings';
     }
 
-    public function isReferencable(): bool
-    {
-        return true;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
-    }
-
     protected function getProperties(): array
     {
         return [];

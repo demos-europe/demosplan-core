@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -21,7 +22,10 @@ use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\ORMException;
 use Exception;
 
-class SingleDocumentRepository extends FluentRepository implements ArrayInterface
+/**
+ * @template-extends CoreRepository<SingleDocument>
+ */
+class SingleDocumentRepository extends CoreRepository implements ArrayInterface
 {
     /**
      * Add single document entry.

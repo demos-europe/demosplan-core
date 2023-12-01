@@ -69,7 +69,7 @@ final class StatementFragmentResourceType extends DplanResourceType
     protected function getProperties(): array
     {
         $properties = [
-            $this->createAttribute($this->id)->readable(true),
+            $this->createIdentifier()->readable(),
             $this->createAttribute($this->displayId)->readable(true, static fn(StatementFragment $fragment): string => $fragment->getDisplayId()),
             $this->createAttribute($this->text)->readable(true, fn(StatementFragment $fragment): string => $this->htmlSanitizer->purify($fragment->getText())),
             $this->createAttribute($this->created)->readable(true),
@@ -122,7 +122,9 @@ final class StatementFragmentResourceType extends DplanResourceType
         $properties[] = $this->createToOneRelationship($this->statement)->readable(true);
         $properties[] = $this->createToManyRelationship($this->tags)->readable(true);
         $properties[] = $this->createToOneRelationship($this->department)->readable(true);
-        $properties[] = $this->createToOneRelationship($this->element)->readable(true);
+        if ($this->currentUser->hasPermission('field_procedure_elements')) {
+            $properties[] = $this->createToOneRelationship($this->element)->readable(true);
+        }
         $properties[] = $this->createToOneRelationship($this->assignee)->readable(true);
         $properties[] = $this->createToOneRelationship($this->lastClaimedUser)->readable(true)->aliasedPath($this->lastClaimed);
 
@@ -149,12 +151,12 @@ final class StatementFragmentResourceType extends DplanResourceType
         return $this->currentUser->hasPermission('feature_statements_fragment_edit');
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isGetAllowed(): bool
     {
         return false;
     }
 
-    public function isReferencable(): bool
+    public function isListAllowed(): bool
     {
         return false;
     }

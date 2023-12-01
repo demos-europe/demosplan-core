@@ -55,20 +55,10 @@ final class OrgaTypeResourceType extends DplanResourceType
         return 'OrgaType';
     }
 
-    public function isReferencable(): bool
-    {
-        return true;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
-    }
-
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true)->sortable()->filterable(),
+            $this->createIdentifier()->readable()->sortable()->filterable(),
             $this->createAttribute($this->name)->readable(true)->sortable()->filterable(),
             $this->createAttribute($this->label)->readable(true)->sortable()->filterable(),
         ];

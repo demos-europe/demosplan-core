@@ -10,6 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-class SurveyRepository extends FluentRepository
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
+use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
+
+/**
+ * @template-extends CoreRepository<Survey>
+ */
+class SurveyRepository extends CoreRepository
 {
 }

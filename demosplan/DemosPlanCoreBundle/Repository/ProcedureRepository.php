@@ -60,6 +60,9 @@ use function array_key_exists;
 use function array_merge;
 use function array_unique;
 
+/**
+ * @template-extends SluggedRepository<Procedure>
+ */
 class ProcedureRepository extends SluggedRepository implements ArrayInterface, ObjectInterface
 {
     /**

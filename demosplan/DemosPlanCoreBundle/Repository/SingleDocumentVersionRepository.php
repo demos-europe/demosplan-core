@@ -19,6 +19,9 @@ use Doctrine\ORM\NoResultException;
 use Exception;
 use ReflectionException;
 
+/**
+ * @template-extends CoreRepository<SingleDocumentVersion>
+ */
 class SingleDocumentVersionRepository extends CoreRepository implements ArrayInterface
 {
     /**

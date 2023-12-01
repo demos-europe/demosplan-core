@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
@@ -25,12 +26,16 @@ use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\Querying\Utilities\Reindexer;
 use Exception;
 
 use function array_key_exists;
 use function collect;
 
-class ElementsRepository extends FluentRepository implements ArrayInterface, ObjectInterface
+/**
+ * @template-extends CoreRepository<Elements>
+ */
+class ElementsRepository extends CoreRepository implements ArrayInterface, ObjectInterface
 {
     /**
      * @var PermissionsInterface
@@ -41,9 +46,10 @@ class ElementsRepository extends FluentRepository implements ArrayInterface, Obj
         DqlConditionFactory $dqlConditionFactory,
         ManagerRegistry $registry,
         PermissionsInterface $permissions,
+        Reindexer $reindexer,
         SortMethodFactory $sortMethodFactory
     ) {
-        parent::__construct($dqlConditionFactory, $registry, $sortMethodFactory, Elements::class);
+        parent::__construct($dqlConditionFactory, $registry, $reindexer, $sortMethodFactory, Elements::class);
 
         $this->permissions = $permissions;
     }
