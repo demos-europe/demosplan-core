@@ -110,11 +110,6 @@ export default {
       required: false,
       type: String,
       default: ''
-    },
-
-    isLoading: {
-      required: true,
-      type: Boolean
     }
   },
 
