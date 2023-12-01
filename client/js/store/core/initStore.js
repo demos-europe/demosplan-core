@@ -10,7 +10,7 @@
 import { checkResponse, handleResponseMessages, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { initJsonApiPlugin, prepareModuleHashMap, StaticRouter } from '@efrane/vuex-json-api'
 import notify from './Notify'
-import Vuex from 'vuex'
+import { createStore } from 'vuex'
 import { VuexApiRoutes } from './VuexApiRoutes'
 
 function registerPresetModules (store, presetStoreModules) {
@@ -54,9 +54,9 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
   return router
     .updateRoutes()
     .then(router => {
-      const store = new Vuex.Store({
+      const store = createStore({
         strict: process.env.NODE_ENV !== 'production',
-
+        devtools: true,
         modules: prepareModuleHashMap(staticModules),
         plugins: [
           initJsonApiPlugin({
