@@ -17,7 +17,7 @@ All rights reserved
       method="post"
       enctype="multipart/form-data">
       <dp-upload-files
-        allowed-file-types="xls"
+        allowed-file-types="zip"
         :basic-auth="dplan.settings.basicAuth"
         :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
         :max-file-size="100 * 1024 * 1024/* 100 MiB */"
