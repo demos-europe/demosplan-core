@@ -78,13 +78,16 @@ export default {
       if (this.scales.length < 2) {
         return true
       }
+
       let scaleRatio
       for (let i = 0; i < this.scales.length - 1; i++) {
         scaleRatio = +this.scales[i + 1].value / +this.scales[i].value
+
         if (scaleRatio > 50) {
           return false
         }
       }
+
       return true
     }
   },
