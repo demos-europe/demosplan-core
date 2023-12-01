@@ -48,7 +48,8 @@
           style="max-width: 300px">
         <dp-checkbox
           id="r_logoDelete"
-          v-model="isLogoDeleted"
+          class="mb-1"
+          v-model="isLogoDeletable"
           :label="{
             bold: true,
             text: Translator.trans('logo.delete')
@@ -103,12 +104,23 @@ export default {
     brandingId: {
       required: true,
       type: String
+    },
+
+    logoPath: {
+      required: false,
+      type: String,
+      default: ''
+    },
+
+    isLoading: {
+      required: true,
+      type: Boolean
     }
   },
 
   data () {
     return {
-      isLogoDeleted: false,
+      isLogoDeletable: false,
       isBusy: false,
       uploadedFileId: '',
     }
@@ -134,6 +146,11 @@ export default {
       updateFile: 'setItem'
     }),
 
+    deleteFileHash () {
+      this.$emit('clear-branding-logo')
+      this.uploadedFileId = null
+    },
+
     setFile (file) {
       this.branding.logoHash = file.hash
       this.updateFile({ id: file.fileId, attributes: { hash: file.hash }})
@@ -141,8 +158,7 @@ export default {
     },
 
     saveBrandingSettings () {
-
-      if (!this.uploadedFileId) {
+      if (!this.uploadedFileId && !this.isLogoDeletable) {
         this.isBusy = false
 
         return
@@ -157,7 +173,7 @@ export default {
         },
         relationships: {
           logo: {
-            data: this.isLogoDeleted ? null : { id: this.uploadedFileId, type: 'file' }
+            data: this.isLogoDeletable ? null : { id: this.uploadedFileId, type: 'file' }
           }
         }
       }
@@ -166,7 +182,7 @@ export default {
       this.saveBranding(this.brandingId).then(() => {
         dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
         this.isBusy = false
-        this.isLogoDeleted = false
+        this.isLogoDeletable = false
       })
     }
   }

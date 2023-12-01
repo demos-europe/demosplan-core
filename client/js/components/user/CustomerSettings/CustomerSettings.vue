@@ -312,9 +312,7 @@ export default {
   data () {
     return {
       branding: {
-        logo: null,
-        cssvars: '',
-        logoHash: ''
+        cssvars: ''
       },
       customer: {
         accessibilityExplanation: '',
@@ -326,9 +324,9 @@ export default {
         termsOfUse: '',
         xplanning: ''
       },
-      customerBrandingId: '',
       isLoading: true,
       isLoadingSignLanguageOverviewVideo: true,
+      logoPath: '',
       requestFields: {},
       requestIncludes: [],
       signLanguageOverviewVideo: {
@@ -350,6 +348,10 @@ export default {
     ...mapState('customer', {
       customerList: 'items'
     }),
+
+    customerBrandingId () {
+      return this.customerList[this.currentCustomerId].relationships?.branding?.data?.id ?? ''
+    },
 
     isUnsavedSignLanguageVideo () {
       // The signLanguageOverviewVideo.file is available after the video was uploaded and the signLanguageOverviewVideo.id is only available after the video was saved
@@ -389,21 +391,19 @@ export default {
 
       this.fetchCustomer(payload, { serialize: true })
         .then(res => {
-          this.customerBrandingId = this.customerList[this.currentCustomerId].relationships?.branding?.data?.id
-
           // Update fields
           const response = res.data
           const currentCustomer = this.customerList[this.currentCustomerId]
           const currentData = currentCustomer.attributes
-          const fileId = response.branding[this.customerBrandingId].relationships.logo.data.id
-          const fileHash = response.file[fileId].attributes.hash
+          const fileId = response.file ? Object.keys(response.file).toString() : ''
+          const fileHash = response.file ? response.file[fileId]?.attributes?.hash : ''
 
           this.customer = {
             ...this.customer,
             imprint: currentData.imprint ?? '',
             dataProtection: currentData.dataProtection ?? ''
           }
-          this.branding.logoHash = fileHash
+          this.logoPath = Routing.generate('core_logo', { hash: fileHash })
         })
         .catch(err => {
           console.error(err)
