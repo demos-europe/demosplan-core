@@ -8,7 +8,7 @@
 </license>
 
 <script>
-import { DpCheckbox, DpTooltipIcon } from '@demos-europe/demosplan-ui'
+import { DpCheckbox } from '@demos-europe/demosplan-ui'
 import DpMapAdminScales from './DpMapAdminScales'
 import DpMapView from '@DpJs/components/map/map/DpMapView'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
@@ -20,8 +20,7 @@ export default {
     DpCheckbox,
     DpOlMap,
     DpMapView,
-    DpMapAdminScales,
-    DpTooltipIcon
+    DpMapAdminScales
   },
 
   data () {
