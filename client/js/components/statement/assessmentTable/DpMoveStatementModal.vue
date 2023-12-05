@@ -95,7 +95,9 @@
             aria-describedby="deleteHistoryDesc">
           <label
             for="deleteVersionHistory"
-            class="inline-block u-mb-0">{{ Translator.trans('delete.history') }}</label>
+            class="inline-block u-mb-0">
+            {{ Translator.trans('delete.history') }}
+          </label>
           <p
             class="lbl__hint"
             id="deleteHistoryDesc">
