@@ -176,6 +176,7 @@ import qs from 'qs'
 
 export default {
   name: 'DpUserFormFields',
+
   components: {
     DpMultiselect
   },
@@ -183,6 +184,10 @@ export default {
   inject: [
     'presetUserOrgaId',
     'projectName'
+  ],
+
+  emits: [
+    'user-update'
   ],
 
   props: {
