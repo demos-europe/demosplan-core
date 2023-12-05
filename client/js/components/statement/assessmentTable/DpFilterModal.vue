@@ -83,7 +83,7 @@
         <!-- Tabs with filters -->
         <dp-tabs
           tab-size="medium"
-          @change="(id) => setActiveTabId(id)">
+          @change="id => setActiveTabId(id)">
           <dp-tab
             v-for="(filterGroup, index) in filterGroupsToBeDisplayed"
             class="u-pt-0_5"
