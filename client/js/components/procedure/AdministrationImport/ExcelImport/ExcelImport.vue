@@ -33,6 +33,11 @@
       class="space-stack-s"
       method="post"
       enctype="multipart/form-data">
+      <input
+        name="_token"
+        type="hidden"
+        :value="csrfToken">
+
       <dp-upload-files
         allowed-file-types="xls"
         :basic-auth="dplan.settings.basicAuth"
@@ -66,6 +71,13 @@ export default {
   components: {
     DpRadio,
     DpUploadFiles
+  },
+
+  props: {
+    csrfToken: {
+      type: String,
+      required: true
+    }
   },
 
   data () {

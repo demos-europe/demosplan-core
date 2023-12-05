@@ -648,6 +648,7 @@
           </div>
 
           <dp-fragment-list
+            :csrf-token="csrfToken"
             :procedure-id="procedureId"
             :statement-id="statement.id"
             :current-user-id="currentUserId"
@@ -760,6 +761,11 @@ export default {
   },
 
   props: {
+    csrfToken: {
+      type: String,
+      required: true
+    },
+
     isSelected: {
       required: true,
       type: Boolean

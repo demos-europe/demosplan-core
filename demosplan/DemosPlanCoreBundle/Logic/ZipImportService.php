@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Exception;
 use Patchwork\Utf8;
@@ -25,6 +26,7 @@ use SplFileInfo;
 use Symfony\Component\Finder\Finder;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
+use ValueError;
 use Webmozart\Assert\Assert;
 use Webmozart\Assert\InvalidArgumentException;
 use ZipArchive;
@@ -120,7 +122,7 @@ class ZipImportService
     }
 
     /**
-     * @throws Exception
+     * @throws InvalidDataException|ValueError
      */
     public function extractZipToTempFolder(SplFileInfo $fileInfo, string $procedureId): ?string
     {
@@ -154,7 +156,7 @@ class ZipImportService
                     continue;
                 }
 
-                // Falls gar kein valider Filename ermittelt werden konnte, lieber einen Hash als nix
+                // In case of no valid filename could be determined, create random hash.
                 if ('' === $filename) {
                     $filename = md5((string) random_int(0, 9999));
                     $this->logger->warning(
@@ -180,18 +182,27 @@ class ZipImportService
         }
 
         $extractedTo = null;
-        if (isset($extractDir, $dirname) && is_string($extractDir) && is_string($dirname)) {
+        if (isset($extractDir, $dirname) && is_string($dirname)) {
             $extractedTo = $extractDir.DIRECTORY_SEPARATOR.$dirname;
         }
 
         return $extractedTo;
     }
 
-    public function getStatementAttachmentImportDir(string $procedureId, string $tempfileFolder,  UserInterface $user): string
-    {
-        $tmpDir = sys_get_temp_dir().'/'.$user->getId().'/'.$procedureId.'/'.$tempfileFolder;
+    /**
+     * @throws InvalidDataException
+     */
+    public function getStatementAttachmentImportDir(
+        string $procedureId,
+        string $tempFileFolder,
+        UserInterface $user
+    ): string {
+        $tmpDir = sys_get_temp_dir().'/'.$user->getId().'/'.$procedureId.'/'.$tempFileFolder;
+
         if (!is_dir($tmpDir) && !mkdir($tmpDir, 0777, true) && !is_dir($tmpDir)) {
-            throw new RuntimeException(sprintf('Directory "%s" was not created', $tmpDir));
+            throw new InvalidDataException(
+                'The filename does not exists or is not a directory. Directory was not created'
+            );
         }
 
         return $tmpDir;

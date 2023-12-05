@@ -324,6 +324,7 @@
           v-if="editable && editing">
           <dp-fragment-edit
             @closeEditMode="closeEditMode"
+            :csrf-token="csrfToken"
             :fragment-id="fragment.id"
             :procedure-id="fragment.procedureId"
             :consideration-advice-initial="fragment.considerationAdvice"
@@ -528,6 +529,11 @@ export default {
   },
 
   props: {
+    csrfToken: {
+      type: String,
+      required: true
+    },
+
     isArchive: {
       type: Boolean,
       required: false,

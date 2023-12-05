@@ -104,14 +104,10 @@ class AddonInstallFromZipCommand extends CoreCommand
             $this->checkReinstall($packageDefinition, $reinstall);
 
             $this->addAddonToComposerRequire($packageDefinition);
-        } catch (JsonException $e) {
+        } catch (JsonException|AddonException $e) {
             $output->error($e->getMessage());
 
             return Command::FAILURE;
-        } catch (AddonException $e) {
-            $output->success($e->getMessage());
-
-            return Command::SUCCESS;
         }
 
         try {
@@ -149,7 +145,7 @@ class AddonInstallFromZipCommand extends CoreCommand
 
             if (0 === $batchReturn) {
                 $output->success("Addon {$name} successfully installed. Please remember to ".
-                    "build the frontend assets of the core and deployment to webserver folder when needed.");
+                    'build the frontend assets of the core and deployment to webserver folder when needed.');
 
                 return Command::SUCCESS;
             }
