@@ -23,13 +23,13 @@
           data-cy="organisationItemSelect"
           @change="$emit('item:selected', organisation.id)">
         <div
-          @click="isOpen = false === isOpen"
+          @click="isOpen = !isOpen"
           class="weight--bold cursor-pointer o-hellip--nowrap u-pv-0_75 u-ph-0_25 grow"
           data-cy="organisationListTitle">
           {{ initialOrganisation.attributes.name }}
         </div>
         <button
-          @click="isOpen = false === isOpen"
+          @click="isOpen = !isOpen"
           type="button"
           data-cy="accordionToggleBtn"
           class="btn--blank o-link--default">
@@ -68,6 +68,7 @@
 <script>
 import { DpButtonRow, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
+import { defineAsyncComponent } from 'vue'
 import { mapState } from 'vuex'
 
 export default {
@@ -76,7 +77,7 @@ export default {
   components: {
     DpButtonRow,
     DpIcon,
-    DpOrganisationFormFields: () => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationFormFields'),
+    DpOrganisationFormFields: defineAsyncComponent(() => import('./DpOrganisationFormFields')),
     DpTableCard
   },
 
