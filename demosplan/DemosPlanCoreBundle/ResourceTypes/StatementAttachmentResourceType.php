@@ -130,7 +130,7 @@ final class StatementAttachmentResourceType extends DplanResourceType
                         StatementAttachmentInterface::GENERIC          => $this->createGenericAttachment($statement, $file),
                         default                                        => throw new InvalidArgumentException("Attachment type not available: $attachmentType"),
                     };
-                    $modifiedEntity = new ModifiedEntity($attachment, false);
+                    $modifiedEntity = new ModifiedEntity($attachment, []);
 
                     $this->eventDispatcher->dispatch(new BeforeResourceCreateFlushEvent(
                         $this,

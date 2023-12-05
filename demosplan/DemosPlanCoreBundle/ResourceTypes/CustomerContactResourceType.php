@@ -163,7 +163,7 @@ class CustomerContactResourceType extends DplanResourceType
 
                     $this->eventDispatcher->dispatch(new BeforeResourceCreateFlushEvent($this, $contact));
 
-                    return new ModifiedEntity($contact, false);
+                    return new ModifiedEntity($contact, []);
                 }
             );
         } catch (Exception $exception) {
