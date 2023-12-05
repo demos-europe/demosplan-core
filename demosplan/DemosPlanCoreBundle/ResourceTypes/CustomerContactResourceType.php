@@ -35,7 +35,7 @@ use Webmozart\Assert\Assert;
  * @property-read End                      $phoneNumber
  * @property-read End                      $text
  * @property-read End                      $visible
- * @property-read EmailAddressResourceType $eMailAddress
+ * @property-read End                      $eMailAddress
  * @property-read CustomerResourceType     $customer
  */
 class CustomerContactResourceType extends DplanResourceType implements CreatableDqlResourceTypeInterface, DeletableDqlResourceTypeInterface, UpdatableDqlResourceTypeInterface
@@ -52,8 +52,7 @@ class CustomerContactResourceType extends DplanResourceType implements Creatable
             $this->createAttribute($this->title)->readable()->initializable(),
             $this->createAttribute($this->phoneNumber)->readable()->initializable(),
             $this->createAttribute($this->text)->readable()->initializable(),
-            $this->createAttribute($this->eMailAddress)->aliasedPath($this->eMailAddress->fullAddress)->readable()->initializable(),
-        ];
+            $this->createAttribute($this->eMailAddress)->readable()->initializable(),        ];
 
         if ($this->hasManagementPermission()) {
             $properties[] = $this->createAttribute($this->visible)->readable()->filterable()->initializable();
@@ -116,20 +115,12 @@ class CustomerContactResourceType extends DplanResourceType implements Creatable
     {
         $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
 
-        // create/get email address
-        $providedEmailAddress = $properties[$this->eMailAddress->getAsNamesInDotNotation()];
-        if (null !== $providedEmailAddress) {
-            $emailAddressEntity = $this->emailAddressService->getOrCreateEmailAddress($providedEmailAddress);
-        } else {
-            $emailAddressEntity = null;
-        }
-
         // create support contact
         $contact = new SupportContact(
             SupportContact::SUPPORT_CONTACT_TYPE_DEFAULT,
             $properties[$this->title->getAsNamesInDotNotation()],
             $properties[$this->phoneNumber->getAsNamesInDotNotation()],
-            $emailAddressEntity,
+            $properties[$this->eMailAddress->getAsNamesInDotNotation()],
             $properties[$this->text->getAsNamesInDotNotation()],
             $currentCustomer,
             $properties[$this->visible->getAsNamesInDotNotation()],
@@ -141,16 +132,10 @@ class CustomerContactResourceType extends DplanResourceType implements Creatable
         // validate entities
         $this->resourceTypeService->validateObject($contact);
         $this->resourceTypeService->validateObject($currentCustomer);
-        if (null !== $emailAddressEntity) {
-            $this->resourceTypeService->validateObject($emailAddressEntity);
-        }
 
         // build resource change
         $change = new ResourceChange($contact, $this, $properties);
         $change->addEntityToPersist($contact);
-        if (null !== $emailAddressEntity) {
-            $change->addEntityToPersist($emailAddressEntity);
-        }
 
         return $change;
     }
@@ -210,24 +195,7 @@ class CustomerContactResourceType extends DplanResourceType implements Creatable
         $updater = new PropertiesUpdater($properties);
         $updater->ifPresent($this->title, $contact->setTitle(...));
         $updater->ifPresent($this->phoneNumber, $contact->setPhoneNumber(...));
-        $updater->ifPresent(
-            $this->eMailAddress,
-            function (?string $fullEMailAddress) use ($contact, $resourceChange): void {
-                if (null === $fullEMailAddress) {
-                    $contact->setEMailAddress(null);
-                } else {
-                    $emailAddress = $contact->getEMailAddress();
-                    if (null === $emailAddress) {
-                        $emailAddress = $this->emailAddressService->getOrCreateEmailAddress($fullEMailAddress);
-                        $resourceChange->addEntityToPersist($emailAddress);
-                        $contact->setEMailAddress($emailAddress);
-                    } else {
-                        $emailAddress->setFullAddress($fullEMailAddress);
-                    }
-                    $this->resourceTypeService->validateObject($emailAddress);
-                }
-            }
-        );
+        $updater->ifPresent($this->eMailAddress, $contact->setEMailAddress(...));
         $updater->ifPresent($this->text, $contact->setText(...));
         $updater->ifPresent($this->visible, $contact->setVisible(...));
 
