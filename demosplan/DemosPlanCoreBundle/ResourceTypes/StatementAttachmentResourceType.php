@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttachmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\BeforeResourceCreateFlushEvent;
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -79,7 +80,12 @@ final class StatementAttachmentResourceType extends DplanResourceType
     {
         $properties = [
             $this->createIdentifier()->readable()->sortable()->filterable(),
-            $this->createAttribute($this->attachmentType)->readable(true)->sortable()->filterable()->initializable(),
+            $this->createAttribute($this->attachmentType)
+                ->readable(true)
+                ->aliasedPath(Paths::statementAttachment()->type)
+                ->sortable()
+                ->filterable()
+                ->initializable(),
         ];
 
         if ($this->currentUser->hasPermission('feature_read_source_statement_via_api')) {
