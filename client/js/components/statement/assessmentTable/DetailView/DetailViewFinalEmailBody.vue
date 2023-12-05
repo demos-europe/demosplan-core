@@ -32,6 +32,7 @@
 </template>
 
 <script>
+import { defineAsyncComponent } from 'vue'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import { prefixClassMixin } from '@demos-europe/demosplan-ui'
 
@@ -40,10 +41,7 @@ export default {
 
   components: {
     DpBoilerPlateModal,
-    DpEditor: async () => {
-      const { DpEditor } = await import('@demos-europe/demosplan-ui')
-      return DpEditor
-    }
+    DpEditor: defineAsyncComponent(() => import('@demos-europe/demosplan-ui'))
   },
 
   mixins: [prefixClassMixin],

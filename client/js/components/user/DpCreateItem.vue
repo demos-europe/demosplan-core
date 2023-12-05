@@ -47,6 +47,7 @@
 <script>
 import { DpAccordion, DpButtonRow, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 
 export default {
   name: 'DpCreateItem',
@@ -67,8 +68,8 @@ export default {
   components: {
     DpAccordion,
     DpButtonRow,
-    DpOrganisationFormFields: () => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationList/DpOrganisationFormFields'),
-    DpUserFormFields: () => import(/* webpackChunkName: "user-form-fields" */ './DpUserList/DpUserFormFields')
+    DpOrganisationFormFields: defineAsyncComponent(() => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationList/DpOrganisationFormFields')),
+    DpUserFormFields: defineAsyncComponent(() => import(/* webpackChunkName: "user-form-fields" */ './DpUserList/DpUserFormFields'))
   },
 
   mixins: [dpValidateMixin],

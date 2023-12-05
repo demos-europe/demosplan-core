@@ -91,6 +91,7 @@ import {
   dpValidateMixin,
   getFileIdsByHash
 } from '@demos-europe/demosplan-ui'
+import { defineAsyncComponent } from 'vue'
 
 export default {
   name: 'CustomerSettingsSignLanguageVideo',
@@ -100,10 +101,7 @@ export default {
     DpInput,
     DpTextArea,
     DpUploadFiles,
-    DpVideoPlayer: async () => {
-      const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui')
-      return DpVideoPlayer
-    }
+    DpVideoPlayer: defineAsyncComponent(() => import('@demos-europe/demosplan-ui'))
   },
 
   mixins: [dpValidateMixin],

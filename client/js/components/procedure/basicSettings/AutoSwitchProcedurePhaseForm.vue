@@ -101,6 +101,7 @@ import {
   DpSelect,
   formatDate
 } from '@demos-europe/demosplan-ui'
+import { defineAsyncComponent } from 'vue'
 
 export default {
   name: 'AutoSwitchProcedurePhaseForm',
@@ -109,10 +110,7 @@ export default {
     DpCheckbox,
     DpDateRangePicker,
     DpDatetimePicker,
-    DpInlineNotification: async () => {
-      const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
-      return DpInlineNotification
-    },
+    DpInlineNotification: defineAsyncComponent(() => import('@demos-europe/demosplan-ui')),
     DpLabel,
     DpSelect
   },

@@ -9,6 +9,7 @@
 
 <script>
 import { DpDataTable, DpDatetimePicker, DpMultiselect, DpUploadFiles, makeFormPost } from '@demos-europe/demosplan-ui'
+import { defineAsyncComponent } from 'vue'
 
 export default {
   name: 'DpElementAdminEdit',
@@ -17,10 +18,7 @@ export default {
     DpMultiselect,
     DpDataTable,
     DpDatetimePicker,
-    DpEditor: async () => {
-      const { DpEditor } = await import('@demos-europe/demosplan-ui')
-      return DpEditor
-    },
+    DpEditor: defineAsyncComponent(() => import('@demos-europe/demosplan-ui')),
     DpUploadFiles
   },
 

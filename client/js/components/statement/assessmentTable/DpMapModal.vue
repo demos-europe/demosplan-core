@@ -32,14 +32,15 @@
 
 <script>
 import { DpModal, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { defineAsyncComponent } from 'vue'
 
 export default {
   name: 'DpMapModal',
 
   components: {
     DpModal,
-    DpOlMap: () => import('@DpJs/components/map/map/DpOlMap'),
-    DpOlMapLayerVector: () => import('@DpJs/components/map/map/DpOlMapLayerVector')
+    DpOlMap: defineAsyncComponent(() => import('@DpJs/components/map/map/DpOlMap')),
+    DpOlMapLayerVector: defineAsyncComponent(() => import('@DpJs/components/map/map/DpOlMapLayerVector'))
   },
 
   mixins: [prefixClassMixin],

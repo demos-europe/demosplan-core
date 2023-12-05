@@ -215,6 +215,7 @@ import {
   prefixClassMixin
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 import { v4 as uuid } from 'uuid'
@@ -227,10 +228,7 @@ export default {
     DpMultiselect,
     DpButton,
     TextContentRenderer,
-    DpEditor: async () => {
-      const { DpEditor } = await import('@demos-europe/demosplan-ui')
-      return DpEditor
-    }
+    DpEditor: defineAsyncComponent(() => import('@demos-europe/demosplan-ui'))
   },
 
   mixins: [prefixClassMixin],

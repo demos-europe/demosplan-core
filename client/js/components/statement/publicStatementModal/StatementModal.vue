@@ -657,6 +657,7 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { mapMutations, mapState } from 'vuex'
 import dayjs from 'dayjs'
+import { defineAsyncComponent } from 'vue'
 import StatementModalRecheck from './StatementModalRecheck'
 
 // This is the mapping between form field ids and translation keys, which are displayed in the error message if the field contains an error
@@ -692,24 +693,21 @@ export default {
     DpModal,
     DpMultistepNav,
     DpRadio,
-    DpEditor: async () => {
-      const { DpEditor } = await import('@demos-europe/demosplan-ui')
-      return DpEditor
-    },
+    DpEditor: defineAsyncComponent(() => import('@demos-europe/demosplan-ui')),
     DpUploadFiles,
-    FormGroupCitizenOrInstitution: () => import('./formGroups/FormGroupCitizenOrInstitution'),
-    FormGroupCountyReference: () => import('./formGroups/FormGroupCountyReference'),
-    FormGroupEmailAddress: () => import('./formGroups/FormGroupEmailAddress'),
-    FormGroupEvaluationMailViaEmail: () => import('./formGroups/FormGroupEvaluationMailViaEmail'),
-    FormGroupEvaluationMailViaSnailMailOrEmail: () => import('./formGroups/FormGroupEvaluationMailViaSnailMailOrEmail'),
-    FormGroupMapReference: () => import('./formGroups/FormGroupMapReference'),
-    FormGroupName: () => import('./formGroups/FormGroupName'),
-    FormGroupPhoneNumber: () => import('./formGroups/FormGroupPhoneNumber'),
-    FormGroupPhoneOrEmail: () => import('./formGroups/FormGroupPhoneOrEmail'),
-    FormGroupPostalAndCity: () => import('./formGroups/FormGroupPostalAndCity'),
-    FormGroupStateAndGroupAndOrgaNameAndPosition: () => import('./formGroups/FormGroupStateAndGroupAndOrgaNameAndPosition'),
-    FormGroupStreet: () => import('./formGroups/FormGroupStreet'),
-    FormGroupStreetAndHouseNumber: () => import('./formGroups/FormGroupStreetAndHouseNumber'),
+    FormGroupCitizenOrInstitution: defineAsyncComponent(() => import('./formGroups/FormGroupCitizenOrInstitution')),
+    FormGroupCountyReference: defineAsyncComponent(() => import('./formGroups/FormGroupCountyReference')),
+    FormGroupEmailAddress: defineAsyncComponent(() => import('./formGroups/FormGroupEmailAddress')),
+    FormGroupEvaluationMailViaEmail: defineAsyncComponent(() => import('./formGroups/FormGroupEvaluationMailViaEmail')),
+    FormGroupEvaluationMailViaSnailMailOrEmail: defineAsyncComponent(() => import('./formGroups/FormGroupEvaluationMailViaSnailMailOrEmail')),
+    FormGroupMapReference: defineAsyncComponent(() => import('./formGroups/FormGroupMapReference')),
+    FormGroupName: defineAsyncComponent(() => import('./formGroups/FormGroupName')),
+    FormGroupPhoneNumber: defineAsyncComponent(() => import('./formGroups/FormGroupPhoneNumber')),
+    FormGroupPhoneOrEmail: defineAsyncComponent(() => import('./formGroups/FormGroupPhoneOrEmail')),
+    FormGroupPostalAndCity: defineAsyncComponent(() => import('./formGroups/FormGroupPostalAndCity')),
+    FormGroupStateAndGroupAndOrgaNameAndPosition: defineAsyncComponent(() => import('./formGroups/FormGroupStateAndGroupAndOrgaNameAndPosition')),
+    FormGroupStreet: defineAsyncComponent(() => import('./formGroups/FormGroupStreet')),
+    FormGroupStreetAndHouseNumber: defineAsyncComponent(() => import('./formGroups/FormGroupStreetAndHouseNumber')),
     StatementModalRecheck
   },
 

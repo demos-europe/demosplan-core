@@ -100,6 +100,7 @@
 
 <script>
 import { DpAutocomplete, DpButton, DpSelect, formatDate } from '@demos-europe/demosplan-ui'
+import { defineAsyncComponent } from 'vue'
 
 export default {
   name: 'ListSubscriptions',
@@ -107,14 +108,8 @@ export default {
   components: {
     DpAutocomplete,
     DpButton,
-    DpDataTable: async () => {
-      const { DpDataTable } = await import('@demos-europe/demosplan-ui')
-      return DpDataTable
-    },
-    DpInlineNotification: async () => {
-      const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
-      return DpInlineNotification
-    },
+    DpDataTable: defineAsyncComponent(() => import('@demos-europe/demosplan-ui')),
+    DpInlineNotification: defineAsyncComponent(() => import('@demos-europe/demosplan-ui')),
     DpSelect
   },
 

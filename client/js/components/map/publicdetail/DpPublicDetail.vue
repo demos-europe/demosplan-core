@@ -10,6 +10,7 @@
 <script>
 import { mapMutations, mapState } from 'vuex'
 import CustomLayer from '@DpJs/components/map/publicdetail/controls/CustomLayer'
+import { defineAsyncComponent } from 'vue'
 import DpLayerLegend from '@DpJs/components/map/publicdetail/controls/legendList/DpLayerLegend'
 import DpPublicLayerListWrapper from '@DpJs/components/map/publicdetail/controls/layerlist/DpPublicLayerListWrapper'
 import DpPublicSurvey from '@DpJs/components/procedure/survey/DpPublicSurvey'
@@ -30,10 +31,7 @@ export default {
     DpPublicLayerListWrapper,
     DpPublicSurvey,
     DpUnfoldToolbarControl,
-    DpVideoPlayer: async () => {
-      const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui')
-      return DpVideoPlayer
-    },
+    DpVideoPlayer: defineAsyncComponent(() => import('@demos-europe/demosplan-ui')),
     StatementModal
   },
 
