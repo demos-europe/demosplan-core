@@ -32,7 +32,7 @@ use Webmozart\Assert\Assert;
  * @property-read End                      $phoneNumber
  * @property-read End                      $text
  * @property-read End                      $visible
- * @property-read EmailAddressResourceType $eMailAddress
+ * @property-read End                   $eMailAddress
  * @property-read CustomerResourceType     $customer
  */
 class CustomerLoginSupportContactResourceType extends DplanResourceType
@@ -55,29 +55,9 @@ class CustomerLoginSupportContactResourceType extends DplanResourceType
             $this->createAttribute($this->phoneNumber)->readable()->initializable()->updatable([$customerCondition]),
             $this->createAttribute($this->text)->readable()->initializable()->updatable([$customerCondition]),
             $this->createAttribute($this->eMailAddress)
-                ->aliasedPath($this->eMailAddress->fullAddress)
                 ->readable()
                 ->initializable()
-                ->updatable(
-                    [$customerCondition],
-                    function (SupportContact $contact, ?string $fullEMailAddress): array {
-                        if (null === $fullEMailAddress) {
-                            $contact->setEMailAddress(null);
-                        } else {
-                            $emailAddress = $contact->getEMailAddress();
-                            if (null === $emailAddress) {
-                                $emailAddress = $this->emailAddressRepository->getOrCreateEmailAddress($fullEMailAddress);
-                                $this->emailAddressRepository->persistEntities([$emailAddress]);
-                                $contact->setEMailAddress($emailAddress);
-                            } else {
-                                $emailAddress->setFullAddress($fullEMailAddress);
-                            }
-                            $this->resourceTypeService->validateObject($emailAddress);
-                        }
-
-                        return [];
-                    }
-                ),
+                ->updatable([$customerCondition]),
         ];
 
         if ($this->resourceTypeStore->getCustomerResourceType()->isReferencable()) {
@@ -132,18 +112,12 @@ class CustomerLoginSupportContactResourceType extends DplanResourceType
                     $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
                     $attributes = $entityData->getAttributes();
 
-                    // create/get email address
-                    $providedEmailAddress = $attributes[$this->eMailAddress->getAsNamesInDotNotation()];
-                    $emailAddressEntity = null !== $providedEmailAddress
-                        ? $this->emailAddressRepository->getOrCreateEmailAddress($providedEmailAddress)
-                        : null;
-
                     // create support contact
                     $contact = new SupportContact(
                         SupportContact::SUPPORT_CONTACT_TYPE_CUSTOMER_LOGIN,
                         $attributes[$this->title->getAsNamesInDotNotation()],
                         $attributes[$this->phoneNumber->getAsNamesInDotNotation()],
-                        $emailAddressEntity,
+                        $attributes[$this->eMailAddress->getAsNamesInDotNotation()],
                         $attributes[$this->text->getAsNamesInDotNotation()],
                         $currentCustomer,
                         true,
@@ -155,15 +129,9 @@ class CustomerLoginSupportContactResourceType extends DplanResourceType
                     // validate entities
                     $this->resourceTypeService->validateObject($contact);
                     $this->resourceTypeService->validateObject($currentCustomer);
-                    if (null !== $emailAddressEntity) {
-                        $this->resourceTypeService->validateObject($emailAddressEntity);
-                    }
 
                     // persist created entities
                     $this->supportContactRepository->persistEntities([$contact]);
-                    if (null !== $emailAddressEntity) {
-                        $this->emailAddressRepository->persistEntities([$emailAddressEntity]);
-                    }
 
                     $this->eventDispatcher->dispatch(new BeforeResourceCreateFlushEvent($this, $contact));
 

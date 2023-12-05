@@ -278,13 +278,13 @@ class ElementsService extends CoreService implements ElementsServiceInterface
         $elements = $this->getElementsListObjects($procedureId, $organisationId, $isOwner);
         $elements = array_filter($elements, static fn (Elements $element) => in_array(
             $element->getCategory(),
-            [ElementsInterface::ELEMENTS_CATEGORY_PARAGRAPH, ElementsInterface::ELEMENTS_CATEGORY_FILE],
+            [ElementsInterface::ELEMENT_CATEGORIES['paragraph'], ElementsInterface::ELEMENT_CATEGORIES['file']],
             true
         ));
         $elements = array_map($this->convertElementToArray(...), $elements);
         foreach ($elements as $key => $element) {
             $elements[$key]['paragraphDocs'] = false;
-            if (ElementsInterface::ELEMENTS_CATEGORY_PARAGRAPH === $element['category']) {
+            if (ElementsInterface::ELEMENT_CATEGORIES['paragraph'] === $element['category']) {
                 $elements[$key]['paragraphDocs'] = true;
             }
             $documentList = $this->paragraphService->getParaDocumentObjectList($procedureId, $element['id']);
@@ -545,7 +545,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
 
         $titlesOfHiddenElements = $this->globalConfig->getAdminlistElementsHiddenByTitle();
         // category map is allowed to be modified
-        $titlesOfHiddenElements = collect($titlesOfHiddenElements)->filter(static fn ($title) => ElementsInterface::FILE_TYPE_PLANZEICHNUNG !== $title);
+        $titlesOfHiddenElements = collect($titlesOfHiddenElements)->filter(static fn ($title) => ElementsInterface::ELEMENT_TITLES['planzeichnung'] !== $title);
         if ($titlesOfHiddenElements->contains($currentTitle)) {
             // deny update of elements which are hidden for this project, because this means also there are not editable.
             throw new HiddenElementUpdateException();
@@ -807,7 +807,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
                 $copiedElement = clone $elementToCopy;
                 $copiedElement->setDocuments(new ArrayCollection([]));
 
-                if (ElementsInterface::ELEMENTS_CATEGORY_MAP === $copiedElement->getCategory()) {
+                if (ElementsInterface::ELEMENT_CATEGORIES['map'] === $copiedElement->getCategory()) {
                     $behaviorDefinition = $destinationProcedure->getProcedureBehaviorDefinition();
                     if ($behaviorDefinition instanceof ProcedureBehaviorDefinition
                         && !$behaviorDefinition->isAllowedToEnableMap()) {

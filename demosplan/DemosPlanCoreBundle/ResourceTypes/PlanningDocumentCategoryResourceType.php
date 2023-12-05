@@ -103,7 +103,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType
         $adminConditions = [
             $this->conditionFactory->propertyHasValue(false, $this->deleted),
             $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id),
-            $this->conditionFactory->propertyHasNotValue(ElementsInterface::ELEMENTS_CATEGORY_MAP, $this->category),
+            $this->conditionFactory->propertyHasNotValue(ElementsInterface::ELEMENT_CATEGORIES['map'], $this->category),
         ];
 
         // These "elements" are needed for technical reasons but are no actual categories.

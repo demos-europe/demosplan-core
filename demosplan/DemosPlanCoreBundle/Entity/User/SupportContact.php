@@ -16,7 +16,6 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\SupportContactInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\SupportContactConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
@@ -68,16 +67,10 @@ class SupportContact extends CoreEntity implements UuidEntityInterface, SupportC
     private ?string $phoneNumber;
 
     /**
-     * @ORM\ManyToOne(
-     *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\EmailAddress",
-     *     cascade={"persist"})
-     *
-     * @ORM\JoinColumn(name="email_address",
-     *     referencedColumnName="id",
-     *     nullable = true)
+     * @ORM\Column(type="string", length=255, name="email_address", nullable=true)
      */
-    #[Assert\Valid]
-    private ?EmailAddress $eMailAddress;
+    #[Assert\Email(mode: 'strict')]
+    private ?string $eMailAddress;
 
     /**
      * @ORM\Column(name="text", type="text", nullable=true)
@@ -111,7 +104,7 @@ class SupportContact extends CoreEntity implements UuidEntityInterface, SupportC
         string $supportType,
         ?string $title,
         ?string $phoneNumber,
-        ?EmailAddress $emailAddress,
+        ?string $emailAddress,
         ?string $text,
         ?Customer $customer,
         bool $visible = false
@@ -155,12 +148,12 @@ class SupportContact extends CoreEntity implements UuidEntityInterface, SupportC
         $this->phoneNumber = $phoneNumber;
     }
 
-    public function getEMailAddress(): ?EmailAddress
+    public function getEMailAddress(): ?string
     {
         return $this->eMailAddress;
     }
 
-    public function setEMailAddress(?EmailAddress $eMailAddress): void
+    public function setEMailAddress(?string $eMailAddress): void
     {
         $this->eMailAddress = $eMailAddress;
     }
