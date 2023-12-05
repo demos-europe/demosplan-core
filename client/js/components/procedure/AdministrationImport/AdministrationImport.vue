@@ -23,7 +23,8 @@
           <keep-alive>
             <component
               class="u-mt"
-              :is="option.name" />
+              :is="option.name"
+              :csrf-token="csrfToken" />
           </keep-alive>
         </slot>
       </dp-tab>
@@ -67,6 +68,11 @@ export default {
   },
 
   props: {
+    csrfToken: {
+      type: String,
+      required: true
+    },
+
     currentUserId: {
       type: String,
       required: true

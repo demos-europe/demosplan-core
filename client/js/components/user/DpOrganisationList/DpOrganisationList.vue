@@ -382,6 +382,14 @@ export default {
               memberOf: 'orgaType'
             }
           }
+
+          filterObject.orgaStatus = {
+            condition: {
+              path: 'statusInCustomers.status',
+              operator: '<>',
+              value: 'rejected'
+            }
+          }
         }
       })
       filterObject.orgaType = {

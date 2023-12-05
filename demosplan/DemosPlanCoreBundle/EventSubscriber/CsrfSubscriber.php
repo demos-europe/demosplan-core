@@ -23,7 +23,7 @@ class CsrfSubscriber implements EventSubscriberInterface
     public function __construct(
         private readonly CsrfTokenManagerInterface $csrfTokenManager,
         private readonly MessageBagInterface $messageBag,
-        private readonly LoggerInterface $logger,
+        private readonly LoggerInterface $logger
     ) {
     }
 
