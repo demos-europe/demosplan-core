@@ -46,7 +46,6 @@ class CsrfSubscriberTest extends FunctionalTestCase
     {
         $globalConfig = self::$container->get(GlobalConfigInterface::class);
 
-
         // Set up a valid token
         $validToken = new CsrfToken('token_id', 'valid_token');
         $this->csrfTokenManager->expects($this->once())
