@@ -7,10 +7,6 @@
   All rights reserved
 </license>
 
-<documentation>
-<!--  This component is used as a wrapper for DpItem to display organisation data that can be editable -->
-</documentation>
-
 <template>
   <dp-table-card
     :id="organisation.id"
