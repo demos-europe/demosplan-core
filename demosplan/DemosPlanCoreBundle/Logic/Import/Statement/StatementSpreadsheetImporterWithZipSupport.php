@@ -48,31 +48,26 @@ class StatementSpreadsheetImporterWithZipSupport extends StatementSpreadsheetImp
         parent::__construct($currentProcedureService, $currentUser, $elementsService, $orgaService, $statementCopier, $statementService, $translator, $validator, $this->entityManager);
     }
 
-    public function getStatementFromRowBuilder(ProcedureInterface $procedure): StatementFromRowBuilder
+    private function getStatementFromRowBuilder(StatementFromRowBuilder $baseStatementBuilder): StatementFromRowBuilderWithZipSupport
     {
         return new StatementFromRowBuilderWithZipSupport(
             $this->validator,
-            $procedure,
-            $this->currentUser->getUser(),
-            $this->orgaService->getOrga(User::ANONYMOUS_USER_ORGA_ID),
-            $this->elementsService->getStatementElement($procedure->getId()),
-            $this->getStatementTextConstraint(),
-            [$this, 'replaceLineBreak'],
             $this->getFileMap(),
             $this->fileService,
-            $this->nameGenerator,
-            $this->entityManager
+            $this->entityManager,
+            $baseStatementBuilder
         );
     }
 
-    protected function getColumnMapping(StatementFromRowBuilder $builder): array
+    protected function getColumnMapping(): array
     {
-       $baseColumns = parent::getColumnMapping($builder);
+        [$baseColumns, $builder] = parent::getColumnMapping();
+        $builder = $this->getStatementFromRowBuilder($builder);
        // add new columns
-       // fixme how to handle missing Method
-       $baseColumns['Referenzen auf Anhänge'] = [$builder, 'setFileReferences'];
+        $baseColumns['Referenzen auf Anhänge'] = [$builder, 'setFileReferences'];
 
-       return $baseColumns;
+
+       return [$baseColumns, $builder];
     }
 
     /**
@@ -96,7 +91,7 @@ class StatementSpreadsheetImporterWithZipSupport extends StatementSpreadsheetImp
             static fn (File|SplFileInfo $entry): bool =>
                 $entry instanceof SplFileInfo && $entry->getExtension() === 'xlsx'
         );
-        Assert::count($xlsFiles, 1, 'Only one xls File per Zip supported');
+        Assert::count($xlsFiles, 1, 'Only %d xls File per Zip supported, got %d');
 
         parent::process(reset($xlsFiles));
     }

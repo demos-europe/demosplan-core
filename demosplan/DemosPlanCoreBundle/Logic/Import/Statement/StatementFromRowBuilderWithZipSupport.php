@@ -3,16 +3,11 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
 
-use demosplan\DemosPlanCoreBundle\Doctrine\Generator\NCNameGenerator;
-use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use Doctrine\ORM\EntityManagerInterface;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
-use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Required;
@@ -20,11 +15,16 @@ use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class StatementFromRowBuilderWithZipSupport extends StatementFromRowBuilder
+class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuilder
 {
-    public function __construct(ValidatorInterface $validator, Procedure $procedure, User $importingUser, Orga $anonymousOrga, Elements $statementElement, Constraint $textConstraint, mixed $textPostValidationProcessing, protected readonly array $fileMap, protected readonly FileService $fileService, private readonly NCNameGenerator $nameGenerator, private readonly EntityManagerInterface $entityManager)
-    {
-        parent::__construct($validator, $procedure, $importingUser, $anonymousOrga, $statementElement, $textConstraint, $textPostValidationProcessing);
+    public function __construct(
+        private readonly ValidatorInterface $validator,
+        protected readonly array $fileMap,
+        protected readonly FileService $fileService,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly StatementFromRowBuilder $baseStatementFromRowBuilder
+    ) {
+        parent::__construct();
     }
 
     public function setFileReferences(Cell $cell): ?ConstraintViolationListInterface
@@ -58,12 +58,19 @@ class StatementFromRowBuilderWithZipSupport extends StatementFromRowBuilder
             return $violations;
         }
 
-        $this->entityManager->persist($this->statement);
+        $statement = $this->baseStatementFromRowBuilder->statement;
+        /**
+         * The statement has to be persisted now in order to get an id.
+         * This id needs to be used to persist a new fileContainer.
+         * The fileContainer can not be flushed at this point as the also persisted statement
+         * is not functional yet and will trigger constraints.
+         */
+        $this->entityManager->persist($statement);
         foreach ($references as $fileMapKey) {
             /** @var File $fileEntity */
             $fileEntity = $this->fileMap[$fileMapKey];
             $fileContainer = $this->fileService->addStatementFileContainer(
-                $this->statement->getId(),
+                $statement->getId(),
                 $fileEntity->getId(),
                 $fileEntity->getFileString(),
                 false
@@ -72,5 +79,90 @@ class StatementFromRowBuilderWithZipSupport extends StatementFromRowBuilder
         }
 
         return null;
+    }
+
+    public function setExternId(Cell $cell): ?ConstraintViolationListInterface
+    {
+        return $this->baseStatementFromRowBuilder->setExternId($cell);
+    }
+
+    public function setText(Cell $cell): ?ConstraintViolationListInterface
+    {
+        return $this->baseStatementFromRowBuilder->setText($cell);
+    }
+
+    public function setPlanningDocumentCategoryName(Cell $cell): ?ConstraintViolationListInterface
+    {
+        return $this->baseStatementFromRowBuilder->setPlanningDocumentCategoryName($cell);
+    }
+
+    public function setOrgaName(Cell $cell): ?ConstraintViolationListInterface
+    {
+        return $this->baseStatementFromRowBuilder->setOrgaName($cell);
+    }
+
+    public function setDepartmentName(Cell $cell): ?ConstraintViolationListInterface
+    {
+        return $this->baseStatementFromRowBuilder->setDepartmentName($cell);
+    }
+
+    public function setAuthorName(Cell $cell): ?ConstraintViolationListInterface
+    {
+        return $this->baseStatementFromRowBuilder->setAuthorName($cell);
+    }
+
+    public function setSubmitterName(Cell $cell): ?ConstraintViolationListInterface
+    {
+        return $this->baseStatementFromRowBuilder->setSubmitterName($cell);
+    }
+
+    public function setSubmiterEmailAddress(Cell $cell): ?ConstraintViolationListInterface
+    {
+        return $this->baseStatementFromRowBuilder->setSubmiterEmailAddress($cell);
+    }
+
+    public function setSubmitterStreetName(Cell $cell): ?ConstraintViolationListInterface
+    {
+        return $this->baseStatementFromRowBuilder->setSubmitterStreetName($cell);
+    }
+
+    public function setSubmitterHouseNumber(Cell $cell): ?ConstraintViolationListInterface
+    {
+        return $this->baseStatementFromRowBuilder->setSubmitterHouseNumber($cell);
+    }
+
+    public function setSubmitterPostalCode(Cell $cell): ?ConstraintViolationListInterface
+    {
+        return $this->baseStatementFromRowBuilder->setSubmitterPostalCode($cell);
+    }
+
+    public function setSubmitterCity(Cell $cell): ?ConstraintViolationListInterface
+    {
+        return $this->baseStatementFromRowBuilder->setSubmitterCity($cell);
+    }
+
+    public function setSubmitDate(Cell $cell): ?ConstraintViolationListInterface
+    {
+        return $this->baseStatementFromRowBuilder->setSubmitDate($cell);
+    }
+
+    public function setAuthoredDate(Cell $cell): ?ConstraintViolationListInterface
+    {
+        return $this->baseStatementFromRowBuilder->setAuthoredDate($cell);
+    }
+
+    public function setInternId(Cell $cell): ?ConstraintViolationListInterface
+    {
+        return $this->baseStatementFromRowBuilder->setInternId($cell);
+    }
+
+    public function setMemo(Cell $cell): ?ConstraintViolationListInterface
+    {
+        return $this->baseStatementFromRowBuilder->setMemo($cell);
+    }
+
+    public function buildStatementAndReset(): StatementInterface|ConstraintViolationListInterface
+    {
+        return $this->baseStatementFromRowBuilder->buildStatementAndReset();
     }
 }

@@ -52,11 +52,11 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
      * `null` values indicate (currently) missing support for the corresponding column, while still allowing it to
      * be present in the input file. Such columns should be simply ignored.
      *
-     * @return array<string, callable(Cell): ConstraintViolationListInterface|null>
+     * @return array{array<string, callable(Cell): ConstraintViolationListInterface|null>, StatementFromRowBuilder}
      */
-    protected function getColumnCallbacks(StatementFromRowBuilder $builder, RowCellIterator $actualColumnNames): array
+    protected function getColumnCallbacks(RowCellIterator $actualColumnNames): array
     {
-        $columnMapping = $this->getColumnMapping($builder);
+        [$columnMapping, $builder] = $this->getColumnMapping();
         // Currently an exception will be thrown in case of unsorted columns. To avoid that you can adjust the sorting
         // of the array above to the order of the actual columns.
         $expectedColumns = array_keys($columnMapping);
@@ -69,15 +69,16 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
             $actualColumnNames->next();
         }
 
-        return $columnMapping;
+        return [$columnMapping, $builder];
     }
 
     /**
-     * @return array<string, callable(Cell): ConstraintViolationListInterface|null>
+     * @return array{array<string, callable(Cell): ConstraintViolationListInterface|null>,StatementFromRowBuilder}
      */
-    protected function getColumnMapping(StatementFromRowBuilder $builder): array
+    protected function getColumnMapping(): array
     {
-        return [
+        $builder = $this->getStatementFromRowBuilder($this->currentProcedureService->getProcedure());
+        return [[
             'ID'                  => [$builder, 'setExternId'],
             'Gruppenname'         => null,
             'Text'                => [$builder, 'setText'],
@@ -110,10 +111,10 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
             'Mitzeichnende'         => function ($cell) {return null;},
             'Verfahrensschritt'         => function ($cell) {return null;},
             'Art der Einreichung'         => function ($cell) {return null;},
-        ];
+        ], $builder];
     }
 
-    protected function getStatementFromRowBuilder(ProcedureInterface $procedure): StatementFromRowBuilder
+    private function getStatementFromRowBuilder(ProcedureInterface $procedure): StatementFromRowBuilder
     {
         return new StatementFromRowBuilder(
             $this->validator,
@@ -145,12 +146,10 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
         $currentProcedure = $this->currentProcedureService->getProcedure()
             ?? throw new MissingPostParameterException('Current procedure is missing.');
 
-        $builder = $this->getStatementFromRowBuilder($currentProcedure);
-
         $usedExternIds = $this->statementService->getExternIdsInUse($currentProcedure->getId());
 
         // loop through all rows and (if valid) create corresponding original statements and statement copies
-        $columnCallbacks = $this->getColumnCallbacks($builder, $headIterator);
+        [$columnCallbacks, $builder] = $this->getColumnCallbacks($headIterator);
         for (; $rows->valid(); $rows->next()) {
             $row = $rows->current();
             $zeroBasedStatementIndex = $row->getRowIndex() - 2;

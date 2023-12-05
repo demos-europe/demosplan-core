@@ -111,6 +111,7 @@ class ZipImportService
     public function extractZipToTempFolder(SplFileInfo $fileInfo, string $procedureId): ?string
     {
         $fn = $fileInfo->getRealPath();
+        $tempFileFolder = $fileInfo->getFilename();
         $zip = new ZipArchive();
         $res = $zip->open($fn);
         if (true === $res) {
@@ -127,7 +128,7 @@ class ZipImportService
                 $dirname = Utf8::filter($fileInfo['dirname']);
 
                 $user = $this->currentContextProvider->getCurrentUser();
-                $extractDir = $this->getStatementAttachmentImportDir($procedureId, $user);
+                $extractDir = $this->getStatementAttachmentImportDir($procedureId, $tempFileFolder, $user);
                 // T8843 zip-slip: check whether path is in valid location
                 $destination = $extractDir.'/'.$dirname;
                 // if path contains any relative path immediately skip file
@@ -172,9 +173,9 @@ class ZipImportService
         return $extractedTo;
     }
 
-    public function getStatementAttachmentImportDir(string $procedureId, UserInterface $user): string
+    public function getStatementAttachmentImportDir(string $procedureId, string $tempfileFolder,  UserInterface $user): string
     {
-        $tmpDir = sys_get_temp_dir().'/'.$user->getId().'/'.$procedureId;
+        $tmpDir = sys_get_temp_dir().'/'.$user->getId().'/'.$procedureId.'/'.$tempfileFolder;
         if (!is_dir($tmpDir) && !mkdir($tmpDir, 0777, true) && !is_dir($tmpDir)) {
             throw new RuntimeException(sprintf('Directory "%s" was not created', $tmpDir));
         }

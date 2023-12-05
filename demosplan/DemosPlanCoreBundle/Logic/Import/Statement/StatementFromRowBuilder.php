@@ -53,9 +53,8 @@ use function is_string;
  * 2. processing all cells in one big method: possible, but more messy than spreading the logic over multiple,
  *    specialized methods
  */
-class StatementFromRowBuilder
+class StatementFromRowBuilder extends AbstractStatementFromRowBuilder
 {
-    protected Statement $statement;
     protected DateTime $now;
 
     /**
@@ -70,7 +69,7 @@ class StatementFromRowBuilder
         protected readonly Constraint $textConstraint,
         protected readonly mixed $textPostValidationProcessing
     ) {
-        $this->statement = new Statement();
+        parent::__construct();
         $this->now = Carbon::now();
     }
 
