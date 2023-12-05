@@ -543,33 +543,48 @@
           <dp-item-row
             title="statement.text"
             class="u-pb-0 u-pt-0"
+            is-fullscreen-row
             :border-bottom="(statement.files.length > 0)">
-            <dl class="flex">
-              <!--
-                  Statement text
-                  With tiptap we can set obscure as prop always when the obscure button should be visible in the field,
-                  because the permission check (featureObscureText) takes place in tiptap
-                  -->
-              <editable-text
-                class="u-pb-0_5 u-pr-0_5 u-pt-0_25 u-1-of-2 border--right"
-                title="statement"
-                :procedure-id="procedureId"
-                :initial-text="initText"
-                :entity-id="statement.id"
-                :editor-id="statement.id + '_statementText'"
-                :initial-is-shortened="statement.textIsTruncated || false"
-                full-text-fetch-route="dm_plan_assessment_get_statement_ajax"
-                field-key="text"
-                :editable="isClaimed"
-                edit-label="statement.edit"
-                mark
-                :obscure="hasPermission('feature_obscure_text')"
-                strikethrough
-                height-limit-element-label="statement"
-                @field:save="data => saveStatement(data, 'attribute', 'text')"
-                ref="text" /><!--
-                Recommendation text
-             --><editable-text
+            <template>
+              <dp-claim
+                v-if="hasPermission('feature_statement_assignment')"
+                class="c-at-item__row-icon inline-block fullscreen-claim"
+                :assigned-id="(statement.assignee.id || '')"
+                :assigned-name="(statement.assignee.name || '')"
+                :assigned-organisation="(statement.assignee.orgaName || '')"
+                :current-user-id="currentUserId"
+                :current-user-name="currentUserName"
+                entity-type="statement"
+                :is-loading="updatingClaimState"
+                @click="updateClaim" />
+              <dl class="flex">
+                <!--
+                    Statement text
+                    With tiptap we can set obscure as prop always when the obscure button should be visible in the field,
+                    because the permission check (featureObscureText) takes place in tiptap
+                    -->
+                <editable-text
+                  class="u-pb-0_5 u-pr-0_5 u-pt-0_25 u-1-of-2 border--right"
+                  title="statement"
+                  :procedure-id="procedureId"
+                  :initial-text="initText"
+                  :entity-id="statement.id"
+                  :editor-id="statement.id + '_statementText'"
+                  :initial-is-shortened="statement.textIsTruncated || false"
+                  full-text-fetch-route="dm_plan_assessment_get_statement_ajax"
+                  field-key="text"
+                  :editable="isClaimed"
+                  edit-label="statement.edit"
+                  mark
+                  :obscure="hasPermission('feature_obscure_text')"
+                  strikethrough
+                  height-limit-element-label="statement"
+                  @field:save="data => saveStatement(data, 'attribute', 'text')"
+                  ref="text" />
+                <!--
+                  Recommendation text
+               -->
+                <editable-text
                   class="u-pb-0_25 u-pl-0_5 u-pt-0_25 u-1-of-2"
                   title="recommendation"
                   :procedure-id="procedureId"
@@ -597,7 +612,8 @@
                       aria-hidden="true" />
                   </template>
                 </editable-text>
-            </dl>
+              </dl>
+            </template>
           </dp-item-row><!--
          --><div
               v-if="statement.files.length > 0 || statement.sourceAttachment !== '' && hasOwnProp(statement.sourceAttachment, 'filename')"
@@ -792,6 +808,7 @@ export default {
       expanded: this.$store.state.assessmentTable.currentTableView === 'statement' || this.$store.state.assessmentTable.currentTableView === 'fragments',
       tab: this.$store.state.assessmentTable.currentTableView === 'fragments' ? 'fragments' : 'statement',
       updatingClaimState: false,
+      fullscreen: false,
       fragmentsLoading: false,
       placeholderStatementId: null
     }
@@ -851,7 +868,8 @@ export default {
     },
 
     publicVerifiedKeyIcon () {
-      let icon = 'fa-eye-slash color--grey'
+      let icon
+
       if (this.statement.publicVerified !== 'no_check_since_not_allowed' && this.statement.publicVerified !== 'no_check_permission_disabled') {
         switch (this.statement.publicVerified) {
           case 'publication_pending':
@@ -867,6 +885,7 @@ export default {
             icon = 'fa-eye-slash color--grey'
         }
       }
+
       return icon
     },
 

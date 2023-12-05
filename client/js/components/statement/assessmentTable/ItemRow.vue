@@ -10,7 +10,12 @@
 <template>
   <div
     class="layout--flush u-ph-0_5"
-    :class="{'border--bottom': borderBottom, 'border--right': borderRight}">
+    :class="{
+      'border--bottom': borderBottom,
+      'border--right': borderRight,
+      'fullscreen': isFullscreen,
+      'fullscreen-row': isFullscreenRow
+    }">
     <div
       class="layout__item u-pl-0 c-at-item__row-icon color--grey"
       :title="Translator.trans(title)">
@@ -19,17 +24,34 @@
         :class="icon"
         aria-hidden="true"
         v-if="icon" />
-    </div><!--
-
- --><div class="layout--flush layout__item c-at-item__row">
-      <slot />
+    </div>
+    <button
+      v-if="isFullscreenRow"
+      class="btn--blank absolute right-1 top-1 z-above-zero"
+      data-cy="rowFullscreen"
+      :aria-label="Translator.trans('fullscreen')"
+      v-tooltip="Translator.trans('fullscreen')"
+      @click.stop.prevent="isFullscreen = !isFullscreen">
+      <dp-icon
+        class="inline-block"
+        :icon="isFullscreen ? 'compress' : 'expand'"
+        aria-hidden="true" />
+    </button>
+    <div class="layout--flush layout__item c-at-item__row relative">
+      <slot :is-fullcreen="isFullscreen" />
     </div>
   </div>
 </template>
 
 <script>
+import { DpIcon } from '@demos-europe/demosplan-ui'
+
 export default {
   name: 'DpItemRow',
+
+  components: {
+    DpIcon
+  },
 
   props: {
     icon: {
@@ -54,6 +76,18 @@ export default {
       required: false,
       type: Boolean,
       default: false
+    },
+
+    isFullscreenRow: {
+      required: false,
+      type: Boolean,
+      default: false
+    }
+  },
+
+  data () {
+    return {
+      isFullscreen: false
     }
   }
 }
