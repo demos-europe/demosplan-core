@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Core\Functional;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\EventSubscriber\CsrfSubscriber;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
@@ -43,6 +44,9 @@ class CsrfSubscriberTest extends FunctionalTestCase
      */
     public function testOnKernelRequestWithValidToken($method): void
     {
+        $globalConfig = self::$container->get(GlobalConfigInterface::class);
+
+
         // Set up a valid token
         $validToken = new CsrfToken('token_id', 'valid_token');
         $this->csrfTokenManager->expects($this->once())
@@ -56,7 +60,7 @@ class CsrfSubscriberTest extends FunctionalTestCase
             ->willReturn(true);
 
         // Create a subscriber with the mocked dependencies
-        $subscriber = new CsrfSubscriber($this->csrfTokenManager, $this->messageBag, $this->logger);
+        $subscriber = new CsrfSubscriber($this->csrfTokenManager, $this->messageBag, $this->logger, $globalConfig);
 
         // Create a request event with a request and a valid token
         $request = new Request([], ['_token' => 'valid_token'], [], [], [], ['REQUEST_URI' => '/some-uri', 'REQUEST_METHOD' => $method]);
