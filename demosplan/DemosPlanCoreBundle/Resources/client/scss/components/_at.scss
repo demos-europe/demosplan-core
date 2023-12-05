@@ -225,6 +225,10 @@ $at-icon-row-width: math.round($inuit-base-spacing-unit * 1.3);
 
             .fullscreen-claim {
                 display: block !important;
+                position: absolute;
+                top: -20px;
+                right: -20px;
+                z-index: $dp-z-above-zero;
             }
         }
     }

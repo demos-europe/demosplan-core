@@ -31,7 +31,7 @@
       data-cy="rowFullscreen"
       :aria-label="Translator.trans('fullscreen')"
       v-tooltip="Translator.trans('fullscreen')"
-      @click.stop.prevent="isFullscreen = !isFullscreen">
+      @click.stop.prevent="toggleFullscreen">
       <dp-icon
         class="inline-block"
         :icon="isFullscreen ? 'compress' : 'expand'"
@@ -88,6 +88,18 @@ export default {
   data () {
     return {
       isFullscreen: false
+    }
+  },
+
+  methods: {
+    toggleFullscreen () {
+      this.isFullscreen = !this.isFullscreen
+
+      if (this.isFullscreen) {
+        document.querySelector('html').style = 'overflow: hidden;'
+      } else {
+        document.querySelector('html').style = ''
+      }
     }
   }
 }
