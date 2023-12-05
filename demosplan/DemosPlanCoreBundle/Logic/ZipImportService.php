@@ -17,7 +17,6 @@ use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Exception;
 use Patchwork\Utf8;
 use Psr\Log\LoggerInterface;
@@ -27,6 +26,7 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 use Webmozart\Assert\Assert;
+use Webmozart\Assert\InvalidArgumentException;
 use ZipArchive;
 
 use function is_string;
@@ -36,7 +36,11 @@ use const DIRECTORY_SEPARATOR;
 class ZipImportService
 {
     private Finder $finder;
+    private const ZIP_CONTAINS_ERROR_TXT_FILE = 'File is not valid. It contains an errors.txt file indicating a faulty export';
 
+    private const IMPORT_FILE_TYPES_TO_BE_SAVED = [
+        'pdf'
+    ];
     public function __construct(
         private readonly CurrentContextProvider $currentContextProvider,
         private readonly LoggerInterface $logger,
@@ -48,6 +52,8 @@ class ZipImportService
     }
 
     /**
+     * @return array<string, File|SplFileInfo> // Filehash => File || FileName => SplFileInfo
+     *
      * @throws DemosException
      */
     public function createFileMapFromZip(SplFileInfo $fileInfo, string $procedureId): array
@@ -64,17 +70,25 @@ class ZipImportService
                     $fileNameParts = explode('_', $file->getFilename());
                     $fileHash = reset($fileNameParts);
                     Assert::string($fileHash);
-                    if ('pdf' === $extension) {
+                    Assert::notContains('errors.txt', $file->getFilename(), self::ZIP_CONTAINS_ERROR_TXT_FILE);
+                    if (in_array($extension, self::IMPORT_FILE_TYPES_TO_BE_SAVED, true)) {
                         $fileMap[$fileHash] = $this->saveAsDemosFile($file, $procedureId);
                     }
-                    // fixme txt case: throw exception, return violation - or ignore?
-                    if ('txt' === $extension || 'xlsx' === $extension) {
+                    if ('xlsx' === $extension) {
                         $fileMap[$fileHash] = $file;
                     }
                 }
             }
 
             return $fileMap;
+        } catch (InvalidArgumentException $e) {
+            $this->logger->error('statement import failed', ['exception' => $e]);
+            $this->messageBag->add(
+                'error',
+                $this->translator->trans('error.statements.zip.import.contains.error.textfile')
+            );
+
+            throw new DemosException('statement import failed');
         } catch (Throwable $e) {
             $this->logger->error('statement import failed', ['exception' => $e]);
             $this->messageBag->add(
