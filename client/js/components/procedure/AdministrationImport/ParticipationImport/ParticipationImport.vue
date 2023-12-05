@@ -16,6 +16,11 @@ All rights reserved
       class="space-stack-s"
       method="post"
       enctype="multipart/form-data">
+      <input
+        name="_token"
+        type="hidden"
+        :value="csrfToken">
+
       <dp-upload-files
         allowed-file-types="zip"
         :basic-auth="dplan.settings.basicAuth"
@@ -48,6 +53,13 @@ export default {
 
   components: {
     DpUploadFiles
+  },
+
+  props: {
+    csrfToken: {
+      type: String,
+      required: true
+    }
   },
 
   data () {

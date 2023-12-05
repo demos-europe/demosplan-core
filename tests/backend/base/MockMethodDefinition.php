@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Tests\Base;
 
+use Closure;
+
 class MockMethodDefinition
 {
     /**
@@ -19,9 +21,6 @@ class MockMethodDefinition
      */
     private $method;
 
-    /**
-     * @var mixed
-     */
     private $returnValue;
 
     /**
@@ -46,7 +45,7 @@ class MockMethodDefinition
         $this->method = $method;
         $this->returnValue = $returnValue;
         $this->propertyName = $propertyName;
-        $this->returnValueCallback = false;
+        $this->returnValueCallback = $returnValue instanceof Closure;
     }
 
     /**
@@ -82,9 +81,6 @@ class MockMethodDefinition
         return $this->method;
     }
 
-    /**
-     * @return mixed
-     */
     public function getReturnValue()
     {
         return $this->returnValue;

@@ -13,7 +13,7 @@ namespace Tests\Core\Core\Unit\Utilities\Twig;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\IsNotExtension;
 use stdClass;
 use Tests\Base\UnitTestCase;
-use Twig_SimpleFilter;
+use Twig\TwigFilter;
 
 /**
  * Teste IfNotExtension
@@ -39,7 +39,7 @@ class IsNotExtensionTest extends UnitTestCase
     {
         $result = $this->twigExtension->getFilters();
         static::assertTrue(is_array($result) && isset($result[0]));
-        static::assertTrue($result[0] instanceof Twig_SimpleFilter);
+        static::assertTrue($result[0] instanceof TwigFilter);
         static::assertTrue('isNot' === $result[0]->getName());
     }
 
