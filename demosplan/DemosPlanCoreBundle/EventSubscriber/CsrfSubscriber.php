@@ -10,9 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
-use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
-use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -25,8 +23,7 @@ class CsrfSubscriber implements EventSubscriberInterface
     public function __construct(
         private readonly CsrfTokenManagerInterface $csrfTokenManager,
         private readonly MessageBagInterface $messageBag,
-        private readonly LoggerInterface $logger,
-        private readonly GlobalConfigInterface $globalConfig
+        private readonly LoggerInterface $logger
     ) {
     }
 
@@ -38,13 +35,10 @@ class CsrfSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $environment = $this->globalConfig->getKernelEnvironment();
         $tokenId = $request->request->get('_token');
         if (null === $tokenId) {
+            $this->messageBag->add('dev', 'error.csrf.missing', ['uri' => $request->getRequestUri()]);
             $this->logger->info('CSRF token missing', ['uri' => $request->getRequestUri()]);
-            if (DemosPlanKernel::ENVIRONMENT_DEV === $environment) {
-                $this->messageBag->add('dev', 'error.csrf.missing', ['uri' => $request->getRequestUri()]);
-            }
 
             return;
         }
