@@ -62,6 +62,9 @@ abstract class AbstractStatementFromRowBuilder
 
     abstract public function setMemo(Cell $cell): ?ConstraintViolationListInterface;
 
+    abstract public function setFeedback(Cell $cell): ?ConstraintViolationListInterface;
+    abstract public function setNumberOfAnonymVotes(Cell $cell): ?ConstraintViolationListInterface;
+    abstract public function setSubmitType(Cell $cell): ?ConstraintViolationListInterface;
 
     /**
      * Returns the statement that was created and filled since the last call of this method or a list of violations

@@ -89,11 +89,11 @@ abstract class AbstractStatementSpreadsheetImporter implements StatementSpreadsh
      */
     public function createCopy(Statement $generatedOriginalStatement): Statement
     {
-        return $this->statementCopier->copyStatementObjectWithinProcedure(
+        // fixme are the other callers of this method fine being persisted on the way?
+        return $this->statementCopier->copyStatementObjectWithinProcedureWithRelatedFiles(
             $generatedOriginalStatement,
             false,
-            true,
-            false
+            true
         );
     }
 
