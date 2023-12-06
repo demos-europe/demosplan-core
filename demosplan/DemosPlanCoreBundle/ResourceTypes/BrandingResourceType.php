@@ -39,9 +39,11 @@ class BrandingResourceType extends DplanResourceType
             ? $this->conditionFactory->false()
             : $this->conditionFactory->propertyHasValue($currentCustomerBrandingId, Paths::branding()->id);
 
+        $logo = $this->createToOneRelationship($this->logo);
+
         $properties = [
             $this->createIdentifier()->readable(),
-            $this->createAttribute($this->logo)->updatable([$customerCondition]),
+            $logo,
         ];
 
         if ($this->currentUser->hasPermission('feature_customer_branding_edit')) {
@@ -57,8 +59,12 @@ class BrandingResourceType extends DplanResourceType
             $properties[] = $this->createAttribute($this->cssvars)->readable(true);
         }
 
+        if ($this->currentUser->hasPermission('area_customer_settings')) {
+            $logo->updatable([$customerCondition]);
+        }
+
         if ($this->currentUser->hasPermission('feature_platform_logo_edit')) {
-            $properties[] = $this->createToOneRelationship($this->logo)->readable();
+            $logo->readable();
         }
 
         return $properties;
