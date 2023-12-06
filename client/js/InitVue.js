@@ -35,7 +35,6 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
 
   return initStore(storeModules, apiStoreModules, presetStoreModules).then(store => {
     const app = createApp({
-      store,
       mounted () {
         window.dplan.notify = new NotificationStoreAdapter(this.$store)
         loadLibs()
@@ -75,6 +74,8 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
 
     app.directive('dp-validate-multiselect', dpValidateMultiselectDirective)
     app.directive('tooltip', Tooltip)
+
+    app.use(store)
 
     // Add plugins to Vue instance
     app.use(DPVueCorePlugin)
