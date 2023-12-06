@@ -464,7 +464,7 @@ export default {
       if (this.segment?.relationships?.assignee?.data?.id && this.segment.relationships.assignee.data.id !== '') {
         const assignee = this.assignableUserItems[this.segment.relationships.assignee.data.id]
         const name = `${assignee.attributes.firstname} ${assignee.attributes.lastname}`
-        const orga = assignee ? Object.values(assignee.rel('orga'))[0] : ''
+        const orga = assignee ? assignee.rel('orga') : ''
 
         return { id: this.segment.relationships.assignee.data.id, name: name, orgaName: orga ? orga.attributes.name : '' }
       } else {

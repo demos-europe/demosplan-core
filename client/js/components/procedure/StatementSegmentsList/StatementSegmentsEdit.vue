@@ -169,7 +169,7 @@ export default {
         const segment = this.segments[segmentId]
         try {
           const assignee = segment.rel('assignee')
-          const orga = assignee ? Object.values(assignee.rel('orga'))[0] : ''
+          const orga = assignee ? assignee.rel('orga') : ''
 
           return { id: assignee.id, name: assignee.attributes.firstname + ' ' + assignee.attributes.lastname, orgaName: orga ? orga.attributes.name : '' }
         } catch (err) {

@@ -353,6 +353,10 @@ export default {
       assignableUsersObject: 'items'
     }),
 
+    ...mapState('orga', {
+      orgaObject: 'items'
+    }),
+
     ...mapState('statementSegment', {
       segmentsObject: 'items'
     }),

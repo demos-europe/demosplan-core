@@ -402,6 +402,10 @@ export default {
       assignableUsersObject: 'items'
     }),
 
+    ...mapState('orga', {
+      orgaObject: 'items'
+    }),
+
     ...mapState('statement', {
       statementsObject: 'items',
       currentPage: 'currentPage',
@@ -484,7 +488,8 @@ export default {
     getAssignee (statement) {
       if (this.assigneeId(statement)) {
         const assignee = this.assignableUsersObject[this.assigneeId(statement)]
-        const assigneeOrga = assignee ? Object.values(assignee.rel('orga'))[0] : null
+        const assigneeOrga = assignee ? assignee.rel('orga') : null
+
         if (typeof assignee === 'undefined') {
           return {
             id: statement.relationships.assignee.data.id,
@@ -492,12 +497,15 @@ export default {
             orgaName: 'unbekannt'
           }
         }
+
         return {
           id: statement.relationships.assignee.data.id,
           name: `${assignee.attributes.firstname} ${assignee.attributes.lastname}`,
           orgaName: assigneeOrga ? assigneeOrga.attributes.name : ''
+
         }
       }
+
       return {
         id: '',
         name: '',
@@ -535,7 +543,7 @@ export default {
         window.location.href = Routing.generate('dplan_drafts_list_edit', { statementId: statementId, procedureId: this.procedureId })
       }
 
-      if (!isStatementClaimed || isStatementClaimedByOtherUser && dpconfirm(Translator.trans('warning.statement.needLock.generic'))) {
+      if ((!isStatementClaimed || isStatementClaimedByOtherUser) && dpconfirm(Translator.trans('warning.statement.needLock.generic'))) {
         this.claimStatement(statementId)
           .then(() => {
             window.location.href = Routing.generate('dplan_drafts_list_edit', { statementId: statementId, procedureId: this.procedureId })
@@ -581,6 +589,7 @@ export default {
             }
           }
         }
+
         return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: statementId }), {}, payload)
           .then(response => {
             checkResponse(response)

@@ -332,7 +332,7 @@ export default {
 
       if (currentAssigneeId) {
         const assignee = this.assignableUsersObject[currentAssigneeId] || { attributes: {} }
-        const assigneeOrga = assignee.rel ? Object.values(assignee.rel('orga'))[0] : null
+        const assigneeOrga = assignee.rel ? assignee.rel('orga') : null
 
         return {
           id: currentAssigneeId,
