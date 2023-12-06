@@ -7,7 +7,7 @@
   All rights reserved
 </license>
 
-<portal to="vueModals">
+<template>
   <dp-modal
     ref="mapModal"
     content-classes="u-1-of-2 u-pb"
@@ -28,7 +28,7 @@
         :features="drawing" />
     </dp-ol-map>
   </dp-modal>
-</portal>
+</template>
 
 <script>
 import { DpModal, prefixClassMixin } from '@demos-europe/demosplan-ui'

@@ -143,6 +143,7 @@
                   v-for="(component, idx) in asyncComponents"
                   :key="idx"
                   :id="component.options.id"
+                  :is-active="activeId === component.options.id"
                   :label="Translator.trans(component.options.title)">
                   <slot>
                     <component
