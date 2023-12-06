@@ -98,8 +98,14 @@ export default {
     }
   },
 
+  methods: {
+    sortSelected () {
+      this.scales.sort((a, b) => parseInt(a.value) - parseInt(b.value))
+    }
+  },
+
   mounted () {
-    this.scales.sort((a, b) => parseInt(a.value) - parseInt(b.value))
+    this.sortSelected()
   }
 }
 </script>
