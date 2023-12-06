@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
 use DemosEurope\DemosplanAddon\Contracts\ApiRequest\JsonApiEsServiceInterface;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Logger\ApiLoggerInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
@@ -64,7 +65,7 @@ class DemosPlanUserAPIController extends APIController
 
     public function __construct(
         UserService $userService,
-        LoggerInterface $apiLogger,
+        ApiLoggerInterface $apiLogger,
         FieldsValidator $fieldsValidator,
         PrefilledTypeProvider $resourceTypeProvider,
         TranslatorInterface $translator,
