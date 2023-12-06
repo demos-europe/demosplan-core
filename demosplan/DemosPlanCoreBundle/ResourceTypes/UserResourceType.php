@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\UserResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
@@ -154,7 +155,7 @@ final class UserResourceType extends DplanResourceType implements UserResourceTy
                     return [];
                 }),
             $this->createToOneRelationship($this->orga)
-                ->readable(true, static fn (User $user) => $user->getOrga(), true)
+                ->readable(true, static fn (User $user): ?OrgaInterface => $user->getOrga(), true)
                 ->updatable([], [], static function (User $user, Orga $newOrga): array {
                     // Special logic for moving users from one organization into another
                     $originalOrga = $user->getOrga();
