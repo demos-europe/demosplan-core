@@ -8,7 +8,8 @@
 </license>
 
 <script>
-import { DpMultiselect, DpTooltipIcon } from '@demos-europe/demosplan-ui'
+import { DpCheckbox } from '@demos-europe/demosplan-ui'
+import DpMapAdminScales from './DpMapAdminScales'
 import DpMapView from '@DpJs/components/map/map/DpMapView'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 
@@ -16,34 +17,16 @@ export default {
   name: 'DpMapAdmin',
 
   components: {
+    DpCheckbox,
     DpOlMap,
     DpMapView,
-    DpMultiselect,
-    DpTooltipIcon
-  },
-
-  props: {
-    selectedScales: {
-      type: Array,
-      required: false,
-      default: () => []
-    }
+    DpMapAdminScales
   },
 
   data () {
     return {
-      scales: this.selectedScales
+      areScalesSuitable: true
     }
-  },
-
-  methods: {
-    sortSelected (type) {
-      this[type].sort((a, b) => (parseInt(a.value) > parseInt(b.value)) ? 1 : ((parseInt(b.value) > parseInt(a.value)) ? -1 : 0))
-    }
-  },
-
-  mounted () {
-    this.sortSelected('scales')
   }
 }
 </script>
