@@ -1326,9 +1326,9 @@
   resolved "https://registry.yarnpkg.com/@csstools/selector-specificity/-/selector-specificity-3.0.0.tgz#798622546b63847e82389e473fd67f2707d82247"
   integrity sha512-hBI9tfBtuPIi885ZsZ32IMEU/5nlZH/KOVYJCOh7gyMxaVLGmLedYqFN6Ui1LXkI8JlC8IsuC0rF0btcRZKd5g==
 
-"@demos-europe/demosplan-ui@github:demos-europe/demosplan-ui#f_T19759_update_vue_deps":
+"@demos-europe/demosplan-ui@github:demos-europe/demosplan-ui#i_vue3_migration":
   version "0.3.1"
-  resolved "https://codeload.github.com/demos-europe/demosplan-ui/tar.gz/cea2418722dcf562468dab06ddafab2253285744"
+  resolved "https://codeload.github.com/demos-europe/demosplan-ui/tar.gz/364d92512ca0d02ead1de3ecd71d283e149d6bac"
   dependencies:
     "@braintree/sanitize-url" "^6.0.1"
     "@floating-ui/dom" "^1.4.5"
@@ -1395,6 +1395,7 @@
     deep-object-diff "^1.1.0"
     json-api-normalizer "^1.0"
     qs "~6.10.3"
+    vuex "^3.1.1"
 
 "@eslint-community/eslint-utils@^4.2.0", "@eslint-community/eslint-utils@^4.4.0":
   version "4.4.0"
