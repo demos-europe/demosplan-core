@@ -39,6 +39,7 @@ class AddonListCommand extends CoreCommand
             $addons[] = [
                 'name'    => $name,
                 'enabled' => $addonLoaded['enabled'] ? 'true' : 'false',
+                'version' => $addonLoaded['version'] ?? '-',
             ];
         }
 
@@ -46,7 +47,7 @@ class AddonListCommand extends CoreCommand
         $table = new Table($output);
 
         // Set the table headers
-        $table->setHeaders(['Name', 'Enabled']);
+        $table->setHeaders(['Name', 'Enabled', 'Version']);
 
         // Add rows to the table
         $table->setRows($addons);

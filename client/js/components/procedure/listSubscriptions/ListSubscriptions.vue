@@ -12,6 +12,11 @@
     id="subscriptionForm"
     :action="Routing.generate('DemosPlan_procedure_list_subscriptions')"
     method="post">
+    <input
+      name="_token"
+      type="hidden"
+      :value="csrfToken">
+
     <h2 class="font-size-large u-mt-0_5">
       {{ Translator.trans('notification.create') }}
     </h2>
@@ -119,6 +124,11 @@ export default {
   },
 
   props: {
+    csrfToken: {
+      type: String,
+      required: true
+    },
+
     subscriptions: {
       type: Array,
       required: false,

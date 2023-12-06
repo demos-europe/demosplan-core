@@ -20,6 +20,10 @@
       type="hidden"
       :name="fragmentId+':r_paragraph'"
       :value="paragraphId">
+    <input
+      name="_token"
+      type="hidden"
+      :value="csrfToken">
 
     <!-- consideration advice, vote advice -->
     <fieldset class="layout__item u-1-of-2 u-pl-0">
@@ -116,6 +120,11 @@ export default {
   },
 
   props: {
+    csrfToken: {
+      type: String,
+      required: true
+    },
+
     fragmentId: {
       required: true,
       type: String

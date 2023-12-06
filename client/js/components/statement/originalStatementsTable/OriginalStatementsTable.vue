@@ -45,6 +45,10 @@
       type="hidden"
       name="r_limit"
       :value="pageSize">
+    <input
+      name="_token"
+      type="hidden"
+      :value="csrfToken">
 
     <dp-pager
       v-if="pagination.hasOwnProperty('current_page')"
@@ -157,6 +161,11 @@ export default {
   },
 
   props: {
+    csrfToken: {
+      type: String,
+      required: true
+    },
+
     exportOptions: {
       type: Object,
       required: false,
