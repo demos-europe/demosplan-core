@@ -56,7 +56,7 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
     .then(router => {
       const store = createStore({
         strict: process.env.NODE_ENV !== 'production',
-        devtools: true,
+        devtools: process.env.NODE_ENV !== 'production',
         modules: prepareModuleHashMap(staticModules),
         plugins: [
           initJsonApiPlugin({
