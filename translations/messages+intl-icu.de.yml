@@ -3770,6 +3770,7 @@ upload.files.uploaded.not.saved: "Folgende Dateien wurden bereits hochgeladen, a
 upload.files.scan.for.virus: "Die hochgeladenen Daten werden auf Viren überprüft, dieser Vorgang kann je nach Dateigröße mehrere Minuten dauern."
 uploaded.file: "Hochgeladene Datei"
 uploaded.files: "Hochgeladene Dateien"
+uploaded.files.but.incomplete.import: "Nur Dateien anzeigen, die der Importprozess noch nicht abgeschlossen hat"
 upload.pdf: "PDF hochladen"
 url.information.global: "Globale Sachdaten-URL"
 url.information: "Sachdaten-URL"
