@@ -808,7 +808,6 @@ export default {
       expanded: this.$store.state.assessmentTable.currentTableView === 'statement' || this.$store.state.assessmentTable.currentTableView === 'fragments',
       tab: this.$store.state.assessmentTable.currentTableView === 'fragments' ? 'fragments' : 'statement',
       updatingClaimState: false,
-      fullscreen: false,
       fragmentsLoading: false,
       placeholderStatementId: null
     }
