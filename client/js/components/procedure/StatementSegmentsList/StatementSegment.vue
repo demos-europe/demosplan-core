@@ -131,7 +131,7 @@
                   :text="Translator.trans('segment.oracle.tooltip')" />
                 <dp-badge
                   v-if="activeId === 'oracleRec'"
-                  class="absolute u-right-0 u-mr-0_75"
+                  class="absolute right-12"
                   size="smaller"
                   :text="Translator.trans('segment.oracle.beta')"
                   v-tooltip="Translator.trans('segment.oracle.beta.tooltip')" />
