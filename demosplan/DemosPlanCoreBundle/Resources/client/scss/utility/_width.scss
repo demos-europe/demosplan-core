@@ -33,8 +33,7 @@
 // Px-based classes like .width-160
 $width-map-px: (
     'max-width': (350, 600),
-    'min-width': (25),
-    'width': (16, 20, 25, 40, 60, 85, 100, 120, 160, 200, 250, 300, 350, 450, 600)
+    'width': (16, 20, 40, 85, 100, 120, 160, 200, 250, 300, 350, 450, 600)
 );
 @each $property, $widths in $width-map-px {
     @each $width in $widths {
@@ -61,10 +60,6 @@ $width-map-percentage: (
 .min-width {
     &-m {
         min-width: $inuit-base-spacing-unit;
-    }
-
-    &-l {
-        min-width: 120px;
     }
 }
 
