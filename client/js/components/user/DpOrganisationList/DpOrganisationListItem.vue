@@ -7,10 +7,6 @@
   All rights reserved
 </license>
 
-<documentation>
-<!--  This component is used as a wrapper for DpItem to display organisation data that can be editable -->
-</documentation>
-
 <template>
   <dp-table-card
     :id="organisation.id"
@@ -27,13 +23,13 @@
           data-cy="organisationItemSelect"
           @change="$emit('item:selected', organisation.id)">
         <div
-          @click="isOpen = false === isOpen"
+          @click="isOpen = !isOpen"
           class="weight--bold cursor-pointer o-hellip--nowrap u-pv-0_75 u-ph-0_25 grow"
           data-cy="organisationListTitle">
           {{ initialOrganisation.attributes.name }}
         </div>
         <button
-          @click="isOpen = false === isOpen"
+          @click="isOpen = !isOpen"
           type="button"
           data-cy="accordionToggleBtn"
           class="btn--blank o-link--default">

@@ -115,8 +115,11 @@ export default {
   components: {
     DpButton,
     DpLoading,
-    DpSlidingPagination: defineAsyncComponent(() => import('@demos-europe/demosplan-ui')),
-    DpUserListItem: defineAsyncComponent(() => import(/* webpackChunkName: "user-list-item" */ './DpUserListItem'))
+    DpSlidingPagination: defineAsyncComponent(async () => {
+      const { DpSlidingPagination } = await import('@demos-europe/demosplan-ui')
+      return DpSlidingPagination
+    }),
+    DpUserListItem: defineAsyncComponent(() => import('./DpUserListItem'))
   },
 
   mixins: [dpSelectAllMixin],

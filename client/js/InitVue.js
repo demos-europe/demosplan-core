@@ -29,14 +29,12 @@ import { loadLibs } from '@DpJs/lib/core/loadLibs'
 import loadSentry from './loadSentry'
 import NotificationStoreAdapter from '@DpJs/store/core/NotificationStoreAdapter'
 import NotifyContainer from '@DpJs/components/shared/NotifyContainer'
-// import PortalVue from 'portal-vue'
 
 function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}) {
   bootstrap()
 
   return initStore(storeModules, apiStoreModules, presetStoreModules).then(store => {
     const app = createApp({
-      store,
       mounted () {
         window.dplan.notify = new NotificationStoreAdapter(this.$store)
         loadLibs()
@@ -77,8 +75,9 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
     app.directive('dp-validate-multiselect', dpValidateMultiselectDirective)
     app.directive('tooltip', Tooltip)
 
+    app.use(store)
+
     // Add plugins to Vue instance
-    // app.use(PortalVue)
     app.use(DPVueCorePlugin)
 
     // Register components that are used globally
