@@ -45,7 +45,10 @@ export default {
     // Only needed in statement detail view
     DpSelectStatementCluster: defineAsyncComponent(() => import(/* webpackChunkName: "select-statement-cluster" */ '@DpJs/components/statement/statement/SelectStatementCluster')),
 
-    DpSlidebar: defineAsyncComponent(() => import('@demos-europe/demosplan-ui')),
+    DpSlidebar: defineAsyncComponent(async () => {
+      const { DpSlidebar } = await import('@demos-europe/demosplan-ui')
+      return DpSlidebar
+    }),
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor

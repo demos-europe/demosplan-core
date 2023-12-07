@@ -39,7 +39,10 @@ export default {
     DpInput,
     DpMultiselect,
     DpProcedureCoordinate: defineAsyncComponent(() => import(/* webpackChunkName: "dp-procedure-coordinate" */ './DpProcedureCoordinate')),
-    DpUploadFiles: defineAsyncComponent(() => import('@demos-europe/demosplan-ui')),
+    DpUploadFiles: defineAsyncComponent(async () => {
+      const { DpUploadFiles } = await import('@demos-europe/demosplan-ui')
+      return DpUploadFiles
+    }),
     ExportSettings
   },
 

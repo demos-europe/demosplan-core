@@ -110,7 +110,10 @@ export default {
     DpCheckbox,
     DpDateRangePicker,
     DpDatetimePicker,
-    DpInlineNotification: defineAsyncComponent(() => import('@demos-europe/demosplan-ui')),
+    DpInlineNotification: defineAsyncComponent(async () => {
+      const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
+      return DpInlineNotification
+    }),
     DpLabel,
     DpSelect
   },

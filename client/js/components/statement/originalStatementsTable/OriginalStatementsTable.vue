@@ -148,7 +148,10 @@ export default {
   components: {
     DpLoading,
     DpExportModal,
-    DpInlineNotification: defineAsyncComponent(() => import('@demos-europe/demosplan-ui')),
+    DpInlineNotification: defineAsyncComponent(async () => {
+      const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
+      return DpInlineNotification
+    }),
     DpMapModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-map-modal" */ '@DpJs/components/statement/assessmentTable/DpMapModal')),
     DpPager,
     OriginalStatementsTableItem

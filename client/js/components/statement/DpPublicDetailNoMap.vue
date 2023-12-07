@@ -26,8 +26,14 @@ export default {
     DpPublicSurvey,
     DpPublicStatementList,
     DpMapModal: defineAsyncComponent(() => import('@DpJs/components/statement/assessmentTable/DpMapModal')),
-    DpSelect: defineAsyncComponent(() => import('@demos-europe/demosplan-ui')),
-    DpVideoPlayer: defineAsyncComponent(() => import('@demos-europe/demosplan-ui')),
+    DpSelect: defineAsyncComponent(async () => {
+      const { DpSelect } = await import('@demos-europe/demosplan-ui')
+      return DpSelect
+    }),
+    DpVideoPlayer: defineAsyncComponent(async () => {
+      const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui')
+      return DpVideoPlayer
+    }),
     ElementsList: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList'))
   },
 

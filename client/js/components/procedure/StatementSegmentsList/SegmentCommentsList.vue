@@ -66,7 +66,10 @@ export default {
   components: {
     CreateCommentForm,
     DpButton,
-    DpInlineNotification: defineAsyncComponent(() => import('@demos-europe/demosplan-ui')),
+    DpInlineNotification: defineAsyncComponent(async () => {
+      const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
+      return DpInlineNotification
+    }),
     DpLoading,
     SegmentComment: defineAsyncComponent(() => import(/* webpackChunkName: "segment-comment" */ './SegmentComment'))
   },

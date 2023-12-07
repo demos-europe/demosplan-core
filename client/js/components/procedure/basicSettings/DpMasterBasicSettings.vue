@@ -22,7 +22,10 @@ export default {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
     }),
-    DpUploadFiles: defineAsyncComponent(() => import('@demos-europe/demosplan-ui'))
+    DpUploadFiles: defineAsyncComponent(async () => {
+      const { DpUploadFiles } = await import('@demos-europe/demosplan-ui')
+      return DpUploadFiles
+    })
   },
 
   props: {

@@ -108,8 +108,14 @@ export default {
   components: {
     DpAutocomplete,
     DpButton,
-    DpDataTable: defineAsyncComponent(() => import('@demos-europe/demosplan-ui')),
-    DpInlineNotification: defineAsyncComponent(() => import('@demos-europe/demosplan-ui')),
+    DpDataTable: defineAsyncComponent(async () => {
+      const { DpDataTable } = await import('@demos-europe/demosplan-ui')
+      return DpDataTable
+    }),
+    DpInlineNotification: defineAsyncComponent(async () => {
+      const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
+      return DpInlineNotification
+    }),
     DpSelect
   },
 

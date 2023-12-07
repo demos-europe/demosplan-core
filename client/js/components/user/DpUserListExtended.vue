@@ -87,7 +87,10 @@ export default {
   components: {
     DpButton,
     DpLoading,
-    DpSlidingPagination: defineAsyncComponent(() => import('@demos-europe/demosplan-ui')),
+    DpSlidingPagination: defineAsyncComponent(async () => {
+      const { DpSlidingPagination } = await import('@demos-europe/demosplan-ui')
+      return DpSlidingPagination
+    }),
     DpTableCardListHeader,
     DpUserListExtendedItem
   },

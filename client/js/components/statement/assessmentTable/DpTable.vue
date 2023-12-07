@@ -259,7 +259,10 @@ export default {
     DpMapModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-map-modal" */ '@DpJs/components/statement/assessmentTable/DpMapModal')),
     DpMoveStatementModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-move-statement-modal" */ '@DpJs/components/statement/assessmentTable/DpMoveStatementModal')),
     DpPager,
-    DpSlidebar: defineAsyncComponent(() => import('@demos-europe/demosplan-ui')),
+    DpSlidebar: defineAsyncComponent(async () => {
+      const { DpSlidebar } = await import('@demos-europe/demosplan-ui')
+      return DpSlidebar
+    }),
     DpAssessmentTableCard,
     DpVersionHistory: defineAsyncComponent(() => import(/* webpackChunkName: "dp-version-history" */ '@DpJs/components/statement/statement/DpVersionHistory'))
   },

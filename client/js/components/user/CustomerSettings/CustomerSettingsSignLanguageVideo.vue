@@ -101,7 +101,10 @@ export default {
     DpInput,
     DpTextArea,
     DpUploadFiles,
-    DpVideoPlayer: defineAsyncComponent(() => import('@demos-europe/demosplan-ui'))
+    DpVideoPlayer: defineAsyncComponent(async () => {
+      const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui')
+      return DpVideoPlayer
+    })
   },
 
   mixins: [dpValidateMixin],
