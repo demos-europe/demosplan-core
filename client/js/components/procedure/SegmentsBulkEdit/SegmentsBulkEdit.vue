@@ -278,7 +278,10 @@ export default {
     DpInlineNotification: defineAsyncComponent(() => import('@demos-europe/demosplan-ui')),
     DpMultiselect,
     DpRadio,
-    DpEditor: defineAsyncComponent(() => import('@demos-europe/demosplan-ui')),
+    DpEditor: defineAsyncComponent(async () => {
+      const { DpEditor } = await import('@demos-europe/demosplan-ui')
+      return DpEditor
+    }),
     SelectedTagsList
   },
 

@@ -117,7 +117,10 @@ export default {
     DpClaim,
     DpEditField,
     DpLoading,
-    DpEditor: defineAsyncComponent(() => import('@demos-europe/demosplan-ui'))
+    DpEditor: defineAsyncComponent(async () => {
+      const { DpEditor } = await import('@demos-europe/demosplan-ui')
+      return DpEditor
+    })
   },
 
   directives: {

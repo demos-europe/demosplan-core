@@ -131,7 +131,10 @@ export default {
     DpButton,
     HeightLimit,
     DpLoading,
-    DpEditor: defineAsyncComponent(() => import('@demos-europe/demosplan-ui'))
+    DpEditor: defineAsyncComponent(async () => {
+      const { DpEditor } = await import('@demos-europe/demosplan-ui')
+      return DpEditor
+    })
   },
 
   mixins: [prefixClassMixin],

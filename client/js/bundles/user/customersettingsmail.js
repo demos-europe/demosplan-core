@@ -19,7 +19,10 @@ import { initialize } from '@DpJs/InitVue'
 const components = {
   DpBoilerPlateModal,
   DpLabel,
-  DpEditor: defineAsyncComponent(() => import('@demos-europe/demosplan-ui'))
+  DpEditor: defineAsyncComponent(async () => {
+    const { DpEditor } = await import('@demos-europe/demosplan-ui')
+    return DpEditor
+  })
 }
 
 const stores = {

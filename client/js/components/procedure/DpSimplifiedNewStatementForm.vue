@@ -400,7 +400,10 @@ export default {
     DpRadio,
     DpSelect,
     DpTextArea,
-    DpEditor: defineAsyncComponent(() => import('@demos-europe/demosplan-ui')),
+    DpEditor: defineAsyncComponent(async () => {
+      const { DpEditor } = await import('@demos-europe/demosplan-ui')
+      return DpEditor
+    }),
     DpUploadFiles,
     SimilarStatementSubmitters
   },

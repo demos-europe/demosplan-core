@@ -21,7 +21,10 @@ import { initialize } from '@DpJs/InitVue'
 import ProcedureTypeSelect from '@DpJs/components/procedure/admin/ProcedureTypeSelect'
 
 const components = {
-  DpEditor: defineAsyncComponent(() => import('@demos-europe/demosplan-ui')),
+  DpEditor: defineAsyncComponent(async () => {
+    const { DpEditor } = await import('@demos-europe/demosplan-ui')
+    return DpEditor
+  }),
   ProcedureTypeSelect
 }
 // Const components = { DpAccordion, DpEditor }

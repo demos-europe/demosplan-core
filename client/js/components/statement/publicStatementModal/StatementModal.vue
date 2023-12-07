@@ -693,7 +693,10 @@ export default {
     DpModal,
     DpMultistepNav,
     DpRadio,
-    DpEditor: defineAsyncComponent(() => import('@demos-europe/demosplan-ui')),
+    DpEditor: defineAsyncComponent(async () => {
+      const { DpEditor } = await import('@demos-europe/demosplan-ui')
+      return DpEditor
+    }),
     DpUploadFiles,
     FormGroupCitizenOrInstitution: defineAsyncComponent(() => import('./formGroups/FormGroupCitizenOrInstitution')),
     FormGroupCountyReference: defineAsyncComponent(() => import('./formGroups/FormGroupCountyReference')),

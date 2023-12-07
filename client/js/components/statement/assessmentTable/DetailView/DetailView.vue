@@ -46,7 +46,10 @@ export default {
     DpSelectStatementCluster: defineAsyncComponent(() => import(/* webpackChunkName: "select-statement-cluster" */ '@DpJs/components/statement/statement/SelectStatementCluster')),
 
     DpSlidebar: defineAsyncComponent(() => import('@demos-europe/demosplan-ui')),
-    DpEditor: defineAsyncComponent(() => import('@demos-europe/demosplan-ui')),
+    DpEditor: defineAsyncComponent(async () => {
+      const { DpEditor } = await import('@demos-europe/demosplan-ui')
+      return DpEditor
+    }),
     DpVersionHistory: defineAsyncComponent(() => import(/* webpackChunkName: "version-history" */ '@DpJs/components/statement/statement/DpVersionHistory')),
     StatementReplySelect: defineAsyncComponent(() => import(/* webpackChunkName: "statement-reply-select" */ '@DpJs/components/statement/assessmentTable/StatementReplySelect')),
     StatementVoter: defineAsyncComponent(() => import(/* webpackChunkName: "statement-voter" */ '@DpJs/components/statement/voter/StatementVoter'))
