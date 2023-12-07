@@ -67,8 +67,8 @@
 
 <script>
 import { DpButtonRow, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
-import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import { defineAsyncComponent } from 'vue'
+import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import { mapState } from 'vuex'
 
 export default {
@@ -77,7 +77,7 @@ export default {
   components: {
     DpButtonRow,
     DpIcon,
-    DpOrganisationFormFields: defineAsyncComponent(() => import('./DpOrganisationFormFields')),
+    DpOrganisationFormFields: defineAsyncComponent(() => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationFormFields')),
     DpTableCard
   },
 

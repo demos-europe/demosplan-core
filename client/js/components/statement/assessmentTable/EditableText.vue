@@ -119,6 +119,7 @@
 <script>
 import { dpApi, DpButton, DpLoading, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { Base64 } from 'js-base64'
+import { defineAsyncComponent } from 'vue'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import HeightLimit from '@DpJs/components/statement/HeightLimit'
 
@@ -130,10 +131,10 @@ export default {
     DpButton,
     HeightLimit,
     DpLoading,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    }
+    })
   },
 
   mixins: [prefixClassMixin],

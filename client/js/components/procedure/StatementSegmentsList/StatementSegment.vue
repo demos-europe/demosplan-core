@@ -342,6 +342,7 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import { defineAsyncComponent } from 'vue'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
@@ -363,10 +364,10 @@ export default {
     DpLabel,
     DpModal,
     DpMultiselect,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    },
+    }),
     DpTab,
     DpTabs,
     VPopover

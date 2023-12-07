@@ -67,16 +67,17 @@
 
 <script>
 import { checkResponse, dpApi, DpLoading } from '@demos-europe/demosplan-ui'
+import { defineAsyncComponent } from 'vue'
 import DpVersionHistoryDay from './DpVersionHistoryDay'
 
 export default {
   name: 'DpVersionHistory',
 
   components: {
-    DpInlineNotification: async () => {
+    DpInlineNotification: defineAsyncComponent(async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
       return DpInlineNotification
-    },
+    }),
     DpLoading,
     DpVersionHistoryDay
   },

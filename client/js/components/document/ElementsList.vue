@@ -64,6 +64,7 @@
 <script>
 import { CleanHtml, DpLoading, DpTreeList, formatBytes, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 
 export default {
   name: 'ElementsList',
@@ -71,7 +72,7 @@ export default {
   components: {
     DpLoading,
     DpTreeList,
-    FileInfo: () => import('@DpJs/components/document/ElementsList/FileInfo')
+    FileInfo: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList/FileInfo'))
   },
 
   directives: {

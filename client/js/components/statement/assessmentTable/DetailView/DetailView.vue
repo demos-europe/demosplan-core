@@ -21,6 +21,7 @@ import {
   DpUploadFiles
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 import DetailViewFinalEmailBody from '@DpJs/components/statement/assessmentTable/DetailView/DetailViewFinalEmailBody'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
@@ -42,19 +43,19 @@ export default {
     DpUploadFiles,
 
     // Only needed in statement detail view
-    DpSelectStatementCluster: () => import(/* webpackChunkName: "select-statement-cluster" */ '@DpJs/components/statement/statement/SelectStatementCluster'),
+    DpSelectStatementCluster: defineAsyncComponent(() => import(/* webpackChunkName: "select-statement-cluster" */ '@DpJs/components/statement/statement/SelectStatementCluster')),
 
-    DpSlidebar: async () => {
+    DpSlidebar: defineAsyncComponent(async () => {
       const { DpSlidebar } = await import('@demos-europe/demosplan-ui')
       return DpSlidebar
-    },
-    DpEditor: async () => {
+    }),
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    },
-    DpVersionHistory: () => import(/* webpackChunkName: "version-history" */ '@DpJs/components/statement/statement/DpVersionHistory'),
-    StatementReplySelect: () => import(/* webpackChunkName: "statement-reply-select" */ '@DpJs/components/statement/assessmentTable/StatementReplySelect'),
-    StatementVoter: () => import(/* webpackChunkName: "statement-voter" */ '@DpJs/components/statement/voter/StatementVoter')
+    }),
+    DpVersionHistory: defineAsyncComponent(() => import(/* webpackChunkName: "version-history" */ '@DpJs/components/statement/statement/DpVersionHistory')),
+    StatementReplySelect: defineAsyncComponent(() => import(/* webpackChunkName: "statement-reply-select" */ '@DpJs/components/statement/assessmentTable/StatementReplySelect')),
+    StatementVoter: defineAsyncComponent(() => import(/* webpackChunkName: "statement-voter" */ '@DpJs/components/statement/voter/StatementVoter'))
   },
 
   directives: {

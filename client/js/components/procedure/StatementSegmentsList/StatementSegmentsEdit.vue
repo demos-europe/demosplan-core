@@ -104,6 +104,7 @@ import {
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpEditField from '@DpJs/components/statement/assessmentTable/DpEditField'
 import { scrollTo } from 'vue-scrollto'
@@ -116,10 +117,10 @@ export default {
     DpClaim,
     DpEditField,
     DpLoading,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    }
+    })
   },
 
   directives: {

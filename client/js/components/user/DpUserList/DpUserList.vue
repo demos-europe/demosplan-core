@@ -106,8 +106,8 @@
 
 <script>
 import { debounce, DpButton, DpLoading, dpSelectAllMixin, hasOwnProp } from '@demos-europe/demosplan-ui'
-import { defineAsyncComponent } from 'vue'
 import { mapActions, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 
 export default {
   name: 'DpUserList',

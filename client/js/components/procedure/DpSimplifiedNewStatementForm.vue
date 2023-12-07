@@ -372,6 +372,7 @@ import {
   , hasOwnProp
 } from '@demos-europe/demosplan-ui'
 import dayjs from 'dayjs'
+import { defineAsyncComponent } from 'vue'
 import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 import { v4 as uuid } from 'uuid'
 
@@ -399,10 +400,10 @@ export default {
     DpRadio,
     DpSelect,
     DpTextArea,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    },
+    }),
     DpUploadFiles,
     SimilarStatementSubmitters
   },

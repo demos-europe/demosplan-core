@@ -203,9 +203,10 @@
 <script>
 import { dpApi, DpLabel, DpLoading, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import CustomerSettingsBranding from './CustomerSettingsBranding'
-import CustomerSettingsSupport from './CustomerSettingsSupport'
 import CustomerSettingsSection from './CustomerSettingsSection'
 import CustomerSettingsSignLanguageVideo from './CustomerSettingsSignLanguageVideo'
+import CustomerSettingsSupport from './CustomerSettingsSupport'
+import { defineAsyncComponent } from 'vue'
 
 export default {
   name: 'CustomerSettings',
@@ -213,15 +214,15 @@ export default {
   components: {
     CustomerSettingsBranding,
     CustomerSettingsSupport,
-    CustomerSettingsMap: () => import('./CustomerSettingsMap'),
+    CustomerSettingsMap: defineAsyncComponent(() => import('./CustomerSettingsMap')),
     CustomerSettingsSection,
     CustomerSettingsSignLanguageVideo,
     DpLabel,
     DpLoading,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    }
+    })
   },
 
   mixins: [dpValidateMixin],
