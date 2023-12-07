@@ -29,6 +29,7 @@ import { loadLibs } from '@DpJs/lib/core/loadLibs'
 import loadSentry from './loadSentry'
 import NotificationStoreAdapter from '@DpJs/store/core/NotificationStoreAdapter'
 import NotifyContainer from '@DpJs/components/shared/NotifyContainer'
+import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 
 function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}) {
   bootstrap()
@@ -87,6 +88,7 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
     app.component('DpAccordion', DpAccordion)
     app.component('DpFlyout', DpFlyout)
     app.component('HamburgerMenuButton', HamburgerMenuButton)
+    app.component('RegisterFlyout', RegisterFlyout)
 
     Object.keys(components).forEach(comp => {
       if (components[comp]) {

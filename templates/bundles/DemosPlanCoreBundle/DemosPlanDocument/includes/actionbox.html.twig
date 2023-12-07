@@ -38,8 +38,9 @@
         <form
             action="{{ path('core_auth_procedure_consultation', {'procedureId': proceduresettings.id|default('') }) }}"
             method="post"
-            autocomplete="off"
-        >
+            autocomplete="off">
+            {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
             <h3 class="weight--bold font-size-large color--white u-mb-0_25">
                 {{ 'actionbox.consultation.title'|trans }}
             </h3>

@@ -18,9 +18,9 @@
         enctype="multipart/form-data"
         method="post"
         action="{{ path('DemosPlan_singledocument_administration_edit', {'procedure':procedure, 'documentID':documentID}) }}"
-        data-dp-validate
-    >
+        data-dp-validate>
         <input type="hidden" value="singledocumentedit" name="r_action">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         <fieldset class="flex u-pb-0">
             <legend class="font-size-medium u-mb-0_25">{{ 'status'|trans }}</legend>

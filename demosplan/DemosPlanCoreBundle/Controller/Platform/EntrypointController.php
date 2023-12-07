@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDeciderInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PublicIndexProcedureLister;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomerLoginSupportContactResourceType;
 use demosplan\DemosPlanCoreBundle\ValueObject\EntrypointRoute;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use Exception;
@@ -152,12 +153,19 @@ class EntrypointController extends BaseController
         return $this->processEntrypointRoute($entrypointRoute);
     }
 
-    #[AttributeDplanPermissions('area_public_participation')]
+    #[AttributeDplanPermissions('area_demosplan')]
     #[Route(path: '/idp/login/error', name: 'core_login_idp_error', options: ['expose' => true])]
-    public function loginIdpError(): RedirectResponse|Response
+    public function loginIdpError(CustomerLoginSupportContactResourceType $customerLoginSupportContactResourceType): RedirectResponse|Response
     {
+        // there is in practise only one customerLoginSupport entity for each customer
+        // therefore it is ok to pass the first entry of the array via reset($array)
+        $loginSupportEntities = $customerLoginSupportContactResourceType->listEntities([]);
+
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanUser/login_idp_error.html.twig',
+            [
+                'templateVars' => ['customerLoginSupport' => reset($loginSupportEntities)],
+            ]
         );
     }
 

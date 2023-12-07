@@ -53,7 +53,7 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType implements
 
     public function isDirectlyAccessible(): bool
     {
-        return false;
+        return true;
     }
 
     public function isReferencable(): bool

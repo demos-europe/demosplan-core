@@ -109,6 +109,7 @@
           @input="value => updateSegment('recommendation', value)">
           <template v-slot:modal="modalProps">
             <dp-boiler-plate-modal
+              v-if="hasPermission('area_admin_boilerplates')"
               ref="boilerPlateModal"
               boiler-plate-type="consideration"
               editor-id="recommendationText"
@@ -130,7 +131,7 @@
                   :text="Translator.trans('segment.oracle.tooltip')" />
                 <dp-badge
                   v-if="activeId === 'oracleRec'"
-                  class="absolute u-right-0 u-mr-0_75"
+                  class="absolute right-12"
                   size="smaller"
                   :text="Translator.trans('segment.oracle.beta')"
                   v-tooltip="Translator.trans('segment.oracle.beta.tooltip')" />
@@ -159,6 +160,7 @@
           </template>
           <template v-slot:button>
             <button
+              v-if="hasPermission('area_admin_boilerplates')"
               :class="prefixClass('menubar__button')"
               type="button"
               v-tooltip="Translator.trans('boilerplate.insert')"
@@ -612,7 +614,9 @@ export default {
     },
 
     openBoilerPlate () {
-      this.$refs.boilerPlateModal.toggleModal()
+      if (hasPermission('area_admin_boilerplates')) {
+        this.$refs.boilerPlateModal.toggleModal()
+      }
     },
 
     /**

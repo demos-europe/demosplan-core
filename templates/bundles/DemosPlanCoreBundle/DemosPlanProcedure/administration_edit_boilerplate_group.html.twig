@@ -15,6 +15,7 @@
         method="post"
         action="{{ path('DemosPlan_procedure_boilerplate_group_edit', {'procedure': procedure, 'boilerplateGroupId': form.vars.value.id|default('new')}) }}"
         data-dp-validate>
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         {# new group #}
         <label class="layout__item u-2-of-3 u-pl-0 u-pr">

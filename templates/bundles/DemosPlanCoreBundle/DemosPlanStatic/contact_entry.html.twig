@@ -27,6 +27,8 @@
 
     <form action="{{ path('DemosPlan_misccontent_static_contact') }}" method="post" data-dp-validate>
         <input name="action" type="hidden" value="contact">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
         <fieldset>
             <legend>
                 {{ "request"|trans }}

@@ -15,14 +15,13 @@ namespace demosplan\DemosPlanCoreBundle\Entity\User;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\SupportContactConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Table(uniqueConstraints= {@UniqueConstraint(name="customer_title_unique", columns={"customer", "title"})})
+ * @ORM\Table(uniqueConstraints={@UniqueConstraint(name="customer_title_unique", columns={"customer", "title"})})
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\SupportContactRepository")
  */
@@ -30,6 +29,18 @@ use Symfony\Component\Validator\Constraints as Assert;
 class SupportContact extends CoreEntity implements UuidEntityInterface
 {
     use TimestampableEntity;
+
+    /**
+     * These constants represent all possible values the property
+     * {@link SupportContact::$supportType} can hold. This type is used to distinguish between support contacts used in
+     * different locations with different context.
+     * For example: A SupportContact can of type customerLogin in order to be shown under /idp/login/error on keycloak
+     * authentication failure - or it can be of type customer to be shown under /informationen - or even without any
+     * customer relation as type platform as a general support contact visible throughout all customers.
+     */
+    public const SUPPORT_CONTACT_TYPE_DEFAULT = 'customer';
+    public const SUPPORT_CONTACT_TYPE_CUSTOMER_LOGIN = 'customerLogin';
+    public const SUPPORT_CONTACT_TYPE_PLATFORM = 'platform';
 
     /**
      * @ORM\Column(name="id", type="string", length=36, options={"fixed":true})
@@ -55,16 +66,10 @@ class SupportContact extends CoreEntity implements UuidEntityInterface
     private ?string $phoneNumber;
 
     /**
-     * @ORM\ManyToOne(
-     *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\EmailAddress",
-     *     cascade={"persist"})
-     *
-     * @ORM\JoinColumn(name="email_address",
-     *     referencedColumnName="id",
-     *     nullable = true)
+     * @ORM\Column(type="string", length=255, name="email_address", nullable=true)
      */
-    #[Assert\Valid]
-    private ?EmailAddress $eMailAddress;
+    #[Assert\Email(mode: 'strict')]
+    private ?string $eMailAddress;
 
     /**
      * @ORM\Column(name="text", type="text", nullable=true)
@@ -84,14 +89,26 @@ class SupportContact extends CoreEntity implements UuidEntityInterface
      */
     private ?Customer $customer;
 
+    /**
+     * @ORM\Column(name="type", type="string", length=255, nullable=false, options={"default":"customer"})
+     */
+    #[Assert\Choice(choices: [
+        SupportContact::SUPPORT_CONTACT_TYPE_DEFAULT,
+        SupportContact::SUPPORT_CONTACT_TYPE_CUSTOMER_LOGIN,
+        SupportContact::SUPPORT_CONTACT_TYPE_PLATFORM,
+    ], message: 'invalid support type')]
+    private readonly string $supportType;
+
     public function __construct(
+        string $supportType,
         ?string $title,
         ?string $phoneNumber,
-        ?EmailAddress $emailAddress,
+        ?string $emailAddress,
         ?string $text,
         ?Customer $customer,
         bool $visible = false
     ) {
+        $this->supportType = $supportType;
         $this->title = $title;
         $this->phoneNumber = $phoneNumber;
         $this->eMailAddress = $emailAddress;
@@ -103,6 +120,11 @@ class SupportContact extends CoreEntity implements UuidEntityInterface
     public function getId(): ?string
     {
         return $this->id;
+    }
+
+    public function getSupportType(): string
+    {
+        return $this->supportType;
     }
 
     public function getTitle(): ?string
@@ -125,12 +147,12 @@ class SupportContact extends CoreEntity implements UuidEntityInterface
         $this->phoneNumber = $phoneNumber;
     }
 
-    public function getEMailAddress(): ?EmailAddress
+    public function getEMailAddress(): ?string
     {
         return $this->eMailAddress;
     }
 
-    public function setEMailAddress(?EmailAddress $eMailAddress): void
+    public function setEMailAddress(?string $eMailAddress): void
     {
         $this->eMailAddress = $eMailAddress;
     }

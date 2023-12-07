@@ -14,23 +14,16 @@ use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
-use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
-use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionCollectionInterface;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionResolver;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
 use Exception;
 use Psr\Log\NullLogger;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\FunctionalTestCase;
 use Tests\Base\MockMethodDefinition;
@@ -40,62 +33,13 @@ use Tests\Base\MockMethodDefinition;
  */
 class ProcedureExtensionTest extends FunctionalTestCase
 {
-    /**
-     * @var GlobalConfigInterface
-     */
-    protected $globalConfig;
-
     /** @var ProcedureExtension */
     protected $sut;
-
-    /** @var Permissions */
-    protected $permissionsStub;
-
-    /** @var array */
-    protected $procedure;
-    /**
-     * @var ProcedureService
-     */
-    protected $procedureService;
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
 
     public function setUp(): void
     {
         parent::setUp();
-        /* @var  GlobalConfigInterface globalConfig */
-        $this->globalConfig = self::$container->get(GlobalConfigInterface::class);
-        $this->procedureService = self::$container->get(ProcedureService::class);
-        /** @var ProcedureRepository $procedureRepository */
-        $procedureRepository = self::$container->get(ProcedureRepository::class);
-        /** @var CustomerService $currentCustomerProvider */
-        $currentCustomerProvider = self::$container->get(CustomerService::class);
-        /** @var PermissionResolver $permissionResolver */
-        $permissionResolver = self::$container->get(PermissionResolver::class);
-        /** @var ValidatorInterface $validator */
-        $validator = self::$container->get(ValidatorInterface::class);
-        $this->translator = self::$container->get(TranslatorInterface::class);
-        /** @var ProcedureAccessEvaluator $procedureAccessEvaluator */
-        $procedureAccessEvaluator = self::$container->get(ProcedureAccessEvaluator::class);
-        /** @var PermissionCollectionInterface $permissionCollection */
-        $permissionCollection = self::$container->get(PermissionCollectionInterface::class);
-
-        $this->permissionsStub = new Permissions(
-            $this->createMock(AddonRegistry::class),
-            $currentCustomerProvider,
-            new NullLogger(),
-            $this->globalConfig,
-            $permissionCollection,
-            $permissionResolver,
-            $procedureAccessEvaluator,
-            $procedureRepository,
-            $validator
-        );
-
         $this->createSut($this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY));
-        $this->sut->setGlobalConfig($this->globalConfig);
     }
 
     public function testGetPhase()
@@ -108,16 +52,9 @@ class ProcedureExtensionTest extends FunctionalTestCase
         foreach ($poorPeoplesDataProvider as $data) {
             $procedure->setPhase($data[0]['phase']);
             $procedure->setPublicParticipationPhase($data[0]['publicParticipationPhase']);
-            $user = $this->fixtures->getReference(LoadUserData::TEST_USER_INVITABLE_INSTITUTION_ONLY);
-            $this->permissionsStub->initPermissions($user, ['area_public_participation']);
-            $this->sut->setPermissions($this->permissionsStub);
-
             $phase = $this->sut->getPhase($procedure);
             static::assertEquals($data[0]['assertedPhase'], $phase);
 
-            $user = $this->fixtures->getReference(LoadUserData::TEST_USER_CITIZEN);
-            $this->permissionsStub->initPermissions($user, ['area_public_participation']);
-            $this->sut->setPermissions($this->permissionsStub);
             $phase = $this->sut->getPhase($procedure, 'public');
             static::assertEquals($data[0]['assertedPublicParticipationPhase'], $phase);
         }
@@ -126,19 +63,13 @@ class ProcedureExtensionTest extends FunctionalTestCase
     public function testGetPhaseKey()
     {
         $procedure = $this->getProcedure();
-        $user = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-        $this->permissionsStub->initPermissions($user, ['area_public_participation']);
-        $this->sut->setPermissions($this->permissionsStub);
-
         $user = $this->fixtures->getReference(LoadUserData::TEST_USER_INVITABLE_INSTITUTION_ONLY);
-        $this->permissionsStub->initPermissions($user, ['area_public_participation']);
-        $this->sut->setPermissions($this->permissionsStub);
+        $this->createSut($user);
         $phase = $this->sut->getPhaseKey($procedure);
         static::assertEquals($procedure->getPhase(), $phase);
 
         $user = $this->fixtures->getReference(LoadUserData::TEST_USER_CITIZEN);
-        $this->permissionsStub->initPermissions($user, ['area_public_participation']);
-        $this->sut->setPermissions($this->permissionsStub);
+        $this->createSut($user);
         $phase = $this->sut->getPhaseKey($procedure, 'public');
         static::assertEquals($procedure->getPublicParticipationPhase(), $phase);
     }
@@ -146,16 +77,10 @@ class ProcedureExtensionTest extends FunctionalTestCase
     /**
      * @dataProvider getDataProviderProcedureStartDate
      *
-     * @param $providerData
-     *
      * @throws Exception
      */
     public function testGetStartDate($procedure)
     {
-        $user = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-        $this->permissionsStub->initPermissions($user, ['area_public_participation']);
-        $this->sut->setPermissions($this->permissionsStub);
-
         if (!array_key_exists('startDate', $procedure)) {
             $this->expectException(InvalidArgumentException::class);
             $this->sut->getStartDate($procedure);
@@ -193,8 +118,7 @@ class ProcedureExtensionTest extends FunctionalTestCase
 
         /** @var User $user */
         $user = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-        $this->permissionsStub->initPermissions($user, ['area_public_participation']);
-        $this->sut->setPermissions($this->permissionsStub);
+        $this->createSut($user);
         $endDate = $this->sut->getEndDate($procedure);
         static::assertEquals($procedure->getEndDateTimestamp(), $endDate);
 
@@ -212,15 +136,13 @@ class ProcedureExtensionTest extends FunctionalTestCase
         $procedure->setExternalName($providerData['assertedExternalName']);
 
         $user = $this->fixtures->getReference(LoadUserData::TEST_USER_INVITABLE_INSTITUTION_ONLY);
-        $this->permissionsStub->initPermissions($user, ['area_public_participation']);
-        $this->sut->setPermissions($this->permissionsStub);
+        $this->createSut($user);
 
         $phase = $this->sut->getNameFunction($procedure);
         static::assertEquals($providerData['assertedName'], $phase);
 
         $user = $this->fixtures->getReference(LoadUserData::TEST_USER_CITIZEN);
-        $this->permissionsStub->initPermissions($user, ['area_public_participation']);
-        $this->sut->setPermissions($this->permissionsStub);
+        $this->createSut($user);
         $phase = $this->sut->getNameFunction($procedure, 'public');
         static::assertEquals($providerData['assertedExternalName'], $phase);
     }
@@ -327,39 +249,29 @@ class ProcedureExtensionTest extends FunctionalTestCase
         /** @var User $otherPlannerUser */
         $otherPlannerUser = $this->fixtures->getReference(LoadUserData::TEST_USER_FP_ONLY);
         $this->logIn($anonymousUser);
-        $this->permissionsStub->initPermissions($anonymousUser, ['area_public_participation']);
-        $this->sut->setPermissions($this->permissionsStub);
         $procedure = $this->getProcedure();
         $result = $this->sut->getNameFunction($procedure);
         static::assertSame($procedure->getExternalName(), $result);
 
-        $this->permissionsStub->initPermissions($anonymousUser, ['area_public_participation']);
-        $this->sut->setPermissions($this->permissionsStub);
         $procedure = new Procedure();
         $procedure->setName('Name');
         $procedure->setExternalName('externalName');
         $result = $this->sut->getNameFunction($procedure);
         static::assertSame($procedure->getExternalName(), $result);
 
-        $this->logIn($plannerUser);
-        $this->permissionsStub->initPermissions($plannerUser, ['area_public_participation']);
-        $this->sut->setPermissions($this->permissionsStub);
+        $this->logIn($plannerUser, true);
         $procedure = $this->getProcedure();
         $result = $this->sut->getNameFunction($procedure);
         // user owns procedure, so he should see both names
         static::assertSame($procedure->getName().' ('.$procedure->getExternalName().')', $result);
 
         $this->logIn($otherPlannerUser);
-        $this->permissionsStub->initPermissions($otherPlannerUser, ['area_public_participation']);
-        $this->sut->setPermissions($this->permissionsStub);
         $procedure = $this->getProcedure();
         $result = $this->sut->getNameFunction($procedure);
-        // user owns procedure, so he should see both names
+        // user does not own procedure, so he should not see both names
         static::assertSame($procedure->getName(), $result);
 
         $this->logIn($plannerUser);
-        $this->permissionsStub->initPermissions($plannerUser, ['area_public_participation']);
-        $this->sut->setPermissions($this->permissionsStub);
         $procedure = new Procedure();
         $procedure->setName('internalName');
         $result = $this->sut->getNameFunction($procedure);
@@ -367,22 +279,16 @@ class ProcedureExtensionTest extends FunctionalTestCase
 
         // invalid
         $this->logIn($anonymousUser);
-        $this->permissionsStub->initPermissions($anonymousUser, ['area_public_participation']);
-        $this->sut->setPermissions($this->permissionsStub);
         $result = $this->sut->getNameFunction([]);
         static::assertSame('', $result);
 
         // invalid
         $this->logIn($anonymousUser);
-        $this->permissionsStub->initPermissions($anonymousUser, ['area_public_participation']);
-        $this->sut->setPermissions($this->permissionsStub);
         $result = $this->sut->getNameFunction('invalidString');
         static::assertSame('', $result);
 
         // invalid
         $this->logIn($anonymousUser);
-        $this->permissionsStub->initPermissions($anonymousUser, ['area_public_participation']);
-        $this->sut->setPermissions($this->permissionsStub);
         $result = $this->sut->getNameFunction(123);
         static::assertSame('', $result);
     }
@@ -444,8 +350,13 @@ class ProcedureExtensionTest extends FunctionalTestCase
         static::assertTrue('procedure_extension' === $result);
     }
 
-    private function createSut(User $user): void
+    private function createSut(User $user, $ownsProcedure = false): void
     {
+        $permissionMockMethods = [
+            new MockMethodDefinition('hasPermission', fn ($permission) => 'area_public_participation' === $permission),
+            new MockMethodDefinition('ownsProcedure', $ownsProcedure),
+        ];
+        $permissions = $this->getMock(Permissions::class, $permissionMockMethods);
         $mockMethods = [
             new MockMethodDefinition('getUser', $user),
         ];
@@ -453,20 +364,20 @@ class ProcedureExtensionTest extends FunctionalTestCase
         $this->sut = new ProcedureExtension(
             self::$container,
             $currentUser,
-            $this->globalConfig,
+            self::$container->get(GlobalConfigInterface::class),
             new NullLogger(),
-            $this->permissionsStub,
-            $this->procedureService,
-            $this->translator
+            $permissions,
+            self::$container->get(ProcedureService::class),
+            self::$container->get(TranslatorInterface::class)
         );
     }
 
     /**
      * Method needs to be overidden to automatically set up a new sut.
      */
-    protected function logIn($user)
+    protected function logIn($user, $ownsProcedure = false): void
     {
         parent::logIn($user);
-        $this->createSut($user);
+        $this->createSut($user, $ownsProcedure);
     }
 }

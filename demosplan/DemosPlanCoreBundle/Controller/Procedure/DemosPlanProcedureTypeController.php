@@ -88,8 +88,6 @@ class DemosPlanProcedureTypeController extends BaseController
             null,
             ProcedureTypeFormType::class,
             false,
-            false,
-            'procedureTypeCreate'
         );
 
         // To make it easy to quickly move back to the list of procedure types, a breadcrumb item is added.
@@ -147,8 +145,6 @@ class DemosPlanProcedureTypeController extends BaseController
             $procedureTypeResource,
             ProcedureTypeFormType::class,
             false,
-            false,
-            'procedureTypeCreate'
         );
         $form->get('name')->setData($procedureTypeEntity->getName().' (Kopie)');
 
@@ -204,8 +200,6 @@ class DemosPlanProcedureTypeController extends BaseController
             $procedureTypeResource,
             ProcedureTypeFormType::class,
             false,
-            false,
-            'procedureTypeEdit'
         );
 
         // To make it easy to quickly move back to the list of procedure types, a breadcrumb item is added.
@@ -260,19 +254,16 @@ class DemosPlanProcedureTypeController extends BaseController
             new ProcedureUiDefinition(),
         );
         $procedureTypeResource = $wrapperFactory->createWrapper($procedureTypeEntity, $procedureTypeResourceType);
-        $formName = 'procedureTypeCreate';
 
         $form = $this->getForm(
             $formFactory,
             $procedureTypeResource,
             ProcedureTypeFormType::class,
             false,
-            false,
-            $formName
         );
 
         // adds needed field definitions, behavior definition and ID to request form
-        $request = $procedureTypeService->addMissingRequestData($formName, $request);
+        $request = $procedureTypeService->addMissingRequestData($request);
 
         try {
             $form->handleRequest($request);
@@ -382,19 +373,16 @@ class DemosPlanProcedureTypeController extends BaseController
 
         $procedureTypeEntity = $procedureTypeResourceType->getEntityAsReadTarget($procedureTypeId);
         $procedureTypeResource = $wrapperFactory->createWrapper($procedureTypeEntity, $procedureTypeResourceType);
-        $formName = 'procedureTypeEdit';
 
         $form = $this->getForm(
             $formFactory,
             $procedureTypeResource,
             ProcedureTypeFormType::class,
             false,
-            false,
-            $formName
         );
 
         // adds needed field definitions, behavior definition and ID to request form
-        $request = $procedureTypeService->addMissingRequestData($formName, $request);
+        $request = $procedureTypeService->addMissingRequestData($request);
 
         try {
             $form->handleRequest($request);
