@@ -47,6 +47,10 @@ export default {
     }
   },
 
+  emits: [
+    'layerFeatures:changed'
+  ],
+
   data () {
     return {
       drawingExtent: '',
@@ -137,7 +141,7 @@ export default {
 
       //  Whenever drawing changes, emit current features
       vectorSource.on('change', () => {
-        this.$emit('layer:features:changed', vectorSource.getFeatures())
+        this.$emit('layerFeatures:changed', vectorSource.getFeatures())
       })
     }
   },
