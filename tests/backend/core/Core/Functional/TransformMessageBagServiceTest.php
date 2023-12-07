@@ -1,5 +1,14 @@
 <?php
+
 declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace Tests\Core\Core\Functional;
 
@@ -32,10 +41,10 @@ class TransformMessageBagServiceTest extends FunctionalTestCase
         // dev env should have all messages
         $this->assertEquals(
             [
-                'dev' => ['Dev message 1'],
-                'info' => ['Info message 1', 'Info message 2'],
+                'dev'     => ['Dev message 1'],
+                'info'    => ['Info message 1', 'Info message 2'],
                 'warning' => ['Warning message 1'],
-                'error' => ['Error message 1'],
+                'error'   => ['Error message 1'],
             ],
             $flashes
         );
@@ -49,13 +58,12 @@ class TransformMessageBagServiceTest extends FunctionalTestCase
 
         $this->assertEquals(
             [
-                'info' => ['Info message 1', 'Info message 2'],
+                'info'    => ['Info message 1', 'Info message 2'],
                 'warning' => ['Warning message 1'],
-                'error' => ['Error message 1'],
+                'error'   => ['Error message 1'],
             ],
             $flashBag->all()
         );
-
     }
 
     public function testTransformMessageBagToResponseFormat(): void
@@ -71,10 +79,10 @@ class TransformMessageBagServiceTest extends FunctionalTestCase
         // dev env should have all messages
         $this->assertEquals(
             [
-                'dev' => ['Dev message 1'],
-                'info' => ['Info message 1', 'Info message 2'],
+                'dev'     => ['Dev message 1'],
+                'info'    => ['Info message 1', 'Info message 2'],
                 'warning' => ['Warning message 1'],
-                'error' => ['Error message 1'],
+                'error'   => ['Error message 1'],
             ],
             $responseFormat
         );
@@ -87,9 +95,9 @@ class TransformMessageBagServiceTest extends FunctionalTestCase
 
         $this->assertEquals(
             [
-                'info' => ['Info message 1', 'Info message 2'],
+                'info'    => ['Info message 1', 'Info message 2'],
                 'warning' => ['Warning message 1'],
-                'error' => ['Error message 1'],
+                'error'   => ['Error message 1'],
             ],
             $responseFormat
         );
@@ -110,6 +118,7 @@ class TransformMessageBagServiceTest extends FunctionalTestCase
             new MockMethodDefinition('getEnvironment', $env),
         ];
         $kernelMock = $this->getMock(KernelInterface::class, $kernelMethods);
+
         return new TransformMessageBagService(
             $kernelMock,
             $messageBag,
@@ -121,17 +130,18 @@ class TransformMessageBagServiceTest extends FunctionalTestCase
     private function getMessageBagMock()
     {
         $returnValues = collect([
-            'dev' => collect([MessageSerializable::createMessage('dev', 'Dev message 1')]),
+            'dev'  => collect([MessageSerializable::createMessage('dev', 'Dev message 1')]),
             'info' => collect([
                 MessageSerializable::createMessage('info', 'Info message 1'),
-                MessageSerializable::createMessage('info', 'Info message 2')
+                MessageSerializable::createMessage('info', 'Info message 2'),
             ]),
             'warning' => collect([MessageSerializable::createMessage('warning', 'Warning message 1')]),
-            'error' => collect([MessageSerializable::createMessage('error', 'Error message 1')]),
+            'error'   => collect([MessageSerializable::createMessage('error', 'Error message 1')]),
         ]);
         $messageBagMethods = [
             new MockMethodDefinition('get', $returnValues),
         ];
+
         return $this->getMock(MessageBagInterface::class, $messageBagMethods);
     }
 }
