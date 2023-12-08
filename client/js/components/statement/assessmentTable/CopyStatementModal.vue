@@ -117,6 +117,10 @@ export default {
     }
   },
 
+  emits: [
+    'statement:copyToProcedure'
+  ],
+
   data () {
     return {
       isLoading: true,

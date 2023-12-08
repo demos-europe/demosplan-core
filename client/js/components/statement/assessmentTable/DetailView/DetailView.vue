@@ -128,6 +128,11 @@ export default {
     }
   },
 
+  emits: [
+    'show-slidebar',
+    'version:history'
+  ],
+
   data () {
     return {
       busyCopyFromFragments: false,

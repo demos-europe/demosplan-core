@@ -127,6 +127,14 @@ export default {
     }
   },
 
+  emits: [
+    'changeActive',
+    'fullscreen-toggle',
+    'layer:toggleLayer',
+    'layer:toggleVisibiltyGroup',
+    'update-statement-form-map-data'
+  ],
+
   data () {
     return {
       activeclickcontrol: null,
