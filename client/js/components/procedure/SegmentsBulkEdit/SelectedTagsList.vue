@@ -10,8 +10,8 @@
 <template>
   <ul class="o-list">
     <li
-      class="inline-block border bg-color--white color--grey-dark"
-      style="border-radius: 4px; padding: 4px 8px; margin-right: 12px;"
+      class="inline-block border bg-color--white color--grey-dark rounded-md"
+      style="padding: 4px 8px; margin-right: 12px;"
       :key="tag.id"
       v-for="tag in selectedTags">
       {{ tag.title }}
