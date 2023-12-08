@@ -2117,11 +2117,11 @@ export default {
         this.toggleLayer(id, exclusively, isVisible)
       })
 
-      this.$root.$on('layerOpacity:change', ({ id, opacity }) => {
+      this.$root.$on('layer-opacity:change', ({ id, opacity }) => {
         this.findLayerById(id).setOpacity(opacity)
       })
 
-      this.$root.$on('layerOpacity:changed', ({ id, opacity }) => {
+      this.$root.$on('layer-opacity:changed', ({ id, opacity }) => {
         this.saveOpacitiesToSessionStorage(id, opacity)
       })
       this.$root.$on('toolbar:drag', () => this.resizeOnDrag())
