@@ -12,6 +12,11 @@
     id="subscriptionForm"
     :action="Routing.generate('DemosPlan_procedure_list_subscriptions')"
     method="post">
+    <input
+      name="_token"
+      type="hidden"
+      :value="csrfToken">
+
     <h2 class="font-size-large u-mt-0_5">
       {{ Translator.trans('notification.create') }}
     </h2>
@@ -100,6 +105,7 @@
 
 <script>
 import { DpAutocomplete, DpButton, DpSelect, formatDate } from '@demos-europe/demosplan-ui'
+import { defineAsyncComponent } from 'vue'
 
 export default {
   name: 'ListSubscriptions',
@@ -107,18 +113,23 @@ export default {
   components: {
     DpAutocomplete,
     DpButton,
-    DpDataTable: async () => {
+    DpDataTable: defineAsyncComponent(async () => {
       const { DpDataTable } = await import('@demos-europe/demosplan-ui')
       return DpDataTable
-    },
-    DpInlineNotification: async () => {
+    }),
+    DpInlineNotification: defineAsyncComponent(async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
       return DpInlineNotification
-    },
+    }),
     DpSelect
   },
 
   props: {
+    csrfToken: {
+      type: String,
+      required: true
+    },
+
     subscriptions: {
       type: Array,
       required: false,

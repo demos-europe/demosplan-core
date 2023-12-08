@@ -171,9 +171,9 @@ class DocumentHandler extends CoreHandler
             $fileName = utf8_decode((string) $entry['title']);
             if (in_array($entry['path'], $sessionElementImportList)) {
                 $keys = array_keys($sessionElementImportList, $entry['path']);
-                if (is_array($keys) &&
-                    isset($request[$keys[0]]) &&
-                    0 < strlen((string) $request[$keys[0]])
+                if (is_array($keys)
+                    && isset($request[$keys[0]])
+                    && 0 < strlen((string) $request[$keys[0]])
                 ) {
                     $fileName = $request[$keys[0]];
                 }
@@ -357,8 +357,8 @@ class DocumentHandler extends CoreHandler
 
         foreach ($outputResultElementList as $element) {
             if ($element->getEnabled()
-                && (ElementsInterface::ELEMENTS_CATEGORY_FILE === $element->getCategory()
-                    || ElementsInterface::ELEMENTS_CATEGORY_PARAGRAPH === $element->getCategory())
+                && (ElementsInterface::ELEMENT_CATEGORIES['file'] === $element->getCategory()
+                    || ElementsInterface::ELEMENT_CATEGORIES['paragraph'] === $element->getCategory())
             ) {
                 $hasProcedureElements = true;
                 break;

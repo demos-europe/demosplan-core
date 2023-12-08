@@ -455,7 +455,7 @@
               name="r_useName"
               data-cy="submitPublicly"
               value="1"
-              @change="val => setStatementData({r_useName: '1'})"
+              @change="val => setPrivacyPreference({r_useName: '1'})"
               :checked="formData.r_useName === '1'"
               :label="{
                 text: Translator.trans('statement.detail.form.personal.post_publicly')
@@ -482,7 +482,7 @@
               id="r_useName_0"
               name="r_useName"
               value="0"
-              @change="val => setStatementData({r_useName: '0'})"
+              @change="val => setPrivacyPreference({r_useName: '0'})"
               :checked="formData.r_useName === '0'"
               :label="{
                 text: Translator.trans('statement.detail.form.personal.post_anonymously')
@@ -657,6 +657,7 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { mapMutations, mapState } from 'vuex'
 import dayjs from 'dayjs'
+import { defineAsyncComponent } from 'vue'
 import StatementModalRecheck from './StatementModalRecheck'
 
 // This is the mapping between form field ids and translation keys, which are displayed in the error message if the field contains an error
@@ -692,24 +693,24 @@ export default {
     DpModal,
     DpMultistepNav,
     DpRadio,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    },
+    }),
     DpUploadFiles,
-    FormGroupCitizenOrInstitution: () => import('./formGroups/FormGroupCitizenOrInstitution'),
-    FormGroupCountyReference: () => import('./formGroups/FormGroupCountyReference'),
-    FormGroupEmailAddress: () => import('./formGroups/FormGroupEmailAddress'),
-    FormGroupEvaluationMailViaEmail: () => import('./formGroups/FormGroupEvaluationMailViaEmail'),
-    FormGroupEvaluationMailViaSnailMailOrEmail: () => import('./formGroups/FormGroupEvaluationMailViaSnailMailOrEmail'),
-    FormGroupMapReference: () => import('./formGroups/FormGroupMapReference'),
-    FormGroupName: () => import('./formGroups/FormGroupName'),
-    FormGroupPhoneNumber: () => import('./formGroups/FormGroupPhoneNumber'),
-    FormGroupPhoneOrEmail: () => import('./formGroups/FormGroupPhoneOrEmail'),
-    FormGroupPostalAndCity: () => import('./formGroups/FormGroupPostalAndCity'),
-    FormGroupStateAndGroupAndOrgaNameAndPosition: () => import('./formGroups/FormGroupStateAndGroupAndOrgaNameAndPosition'),
-    FormGroupStreet: () => import('./formGroups/FormGroupStreet'),
-    FormGroupStreetAndHouseNumber: () => import('./formGroups/FormGroupStreetAndHouseNumber'),
+    FormGroupCitizenOrInstitution: defineAsyncComponent(() => import('./formGroups/FormGroupCitizenOrInstitution')),
+    FormGroupCountyReference: defineAsyncComponent(() => import('./formGroups/FormGroupCountyReference')),
+    FormGroupEmailAddress: defineAsyncComponent(() => import('./formGroups/FormGroupEmailAddress')),
+    FormGroupEvaluationMailViaEmail: defineAsyncComponent(() => import('./formGroups/FormGroupEvaluationMailViaEmail')),
+    FormGroupEvaluationMailViaSnailMailOrEmail: defineAsyncComponent(() => import('./formGroups/FormGroupEvaluationMailViaSnailMailOrEmail')),
+    FormGroupMapReference: defineAsyncComponent(() => import('./formGroups/FormGroupMapReference')),
+    FormGroupName: defineAsyncComponent(() => import('./formGroups/FormGroupName')),
+    FormGroupPhoneNumber: defineAsyncComponent(() => import('./formGroups/FormGroupPhoneNumber')),
+    FormGroupPhoneOrEmail: defineAsyncComponent(() => import('./formGroups/FormGroupPhoneOrEmail')),
+    FormGroupPostalAndCity: defineAsyncComponent(() => import('./formGroups/FormGroupPostalAndCity')),
+    FormGroupStateAndGroupAndOrgaNameAndPosition: defineAsyncComponent(() => import('./formGroups/FormGroupStateAndGroupAndOrgaNameAndPosition')),
+    FormGroupStreet: defineAsyncComponent(() => import('./formGroups/FormGroupStreet')),
+    FormGroupStreetAndHouseNumber: defineAsyncComponent(() => import('./formGroups/FormGroupStreetAndHouseNumber')),
     StatementModalRecheck
   },
 
@@ -885,6 +886,8 @@ export default {
   },
 
   computed: {
+    ...mapState('notify', ['messages']),
+
     ...mapState('publicStatement', {
       initFormDataJSON: 'initForm',
       initDraftStatements: 'initDraftStatements',
@@ -962,6 +965,8 @@ export default {
   },
 
   methods: {
+    ...mapMutations('notify', ['remove']),
+
     ...mapMutations('publicStatement', [
       'addUnsavedDraft',
       'clearDraftState',
@@ -987,11 +992,11 @@ export default {
       }
 
       const invalidFields = this.dpValidate.invalidFields[formId]
-      const fieldDescriptions = invalidFields.map(field => {
+      const uniqueFieldDescriptions = Array.from(new Set(invalidFields.map(field => {
         const fieldId = field.getAttribute('id')
         return `<li>${Translator.trans(fieldDescriptionsForErrors[fieldId])}</li>`
-      })
-      return `<p>${Translator.trans('error.in.fields')}</p><ul class="u-mb-0 u-ml">${fieldDescriptions.join('')}</ul>`
+      })))
+      return `<p>${Translator.trans('error.in.fields')}</p><ul class="u-mb-0 u-ml">${uniqueFieldDescriptions.join('')}</ul>`
     },
 
     fieldIsActive (fieldKey) {
@@ -1180,6 +1185,12 @@ export default {
       this.setStatementData(elementFields)
     },
 
+    removeNotificationsFromStore () {
+      this.messages.forEach(message => {
+        this.remove(message)
+      })
+    },
+
     removeUnsavedFile (file) {
       const indexToRemove = this.unsavedFiles.findIndex(el => el.hash === file.hash)
       this.unsavedFiles.splice(indexToRemove, 1)
@@ -1342,6 +1353,11 @@ export default {
         .then(() => {
           this.isLoading = false
         })
+    },
+
+    setPrivacyPreference (data) {
+      this.setStatementData(data)
+      this.removeNotificationsFromStore()
     },
 
     writeDraftStatementIdToSession (draftStatementId) {

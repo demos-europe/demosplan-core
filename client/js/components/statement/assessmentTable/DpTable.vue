@@ -165,6 +165,7 @@
 
       <assessment-table-group-list
         v-if="viewMode === 'view_mode_tag' || viewMode === 'view_mode_elements'"
+        :csrf-token="csrfToken"
         :form-definitions="formDefinitions" />
       <!-- Loop statements in default viewMode -->
       <dp-assessment-table-card
@@ -173,6 +174,7 @@
         :ref="'itemdisplay_' + statement.id"
         :key="`statement:${statement.id}`"
         class="o-list__item"
+        :csrf-token="csrfToken"
         :init-statement="{}"
         :statement-procedure-id="statement.procedureId"
         :statement-id="statement.id"
@@ -235,6 +237,7 @@ import { CleanHtml, DpLoading, DpPager, handleResponseMessages, Stickier } from 
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import AssessmentTableFilter from '@DpJs/components/statement/assessmentTable/AssessmentTableFilter'
 import changeUrlforPager from './utils/changeUrlforPager'
+import { defineAsyncComponent } from 'vue'
 import DpAssessmentTableCard from '@DpJs/components/statement/assessmentTable/DpAssessmentTableCard'
 import DpExportModal from '@DpJs/components/statement/assessmentTable/DpExportModal'
 import { scrollTo } from 'vue-scrollto'
@@ -248,22 +251,22 @@ export default {
   name: 'DpTable',
 
   components: {
-    AssessmentTableGroupList: () => import(/* webpackChunkName: "assessment-table-group-list" */ './TocView/AssessmentTableGroupList'),
+    AssessmentTableGroupList: defineAsyncComponent(() => import(/* webpackChunkName: "assessment-table-group-list" */ './TocView/AssessmentTableGroupList')),
     AssessmentTableFilter,
-    AssignEntityModal: () => import(/* webpackChunkName: "assign-entity-modal" */ '@DpJs/components/statement/assessmentTable/AssignEntityModal'),
-    ConsolidateModal: () => import(/* webpackChunkName: "consolidate-modal" */ '@DpJs/components/statement/assessmentTable/ConsolidateModal'),
-    CopyStatementModal: () => import(/* webpackChunkName: "copy-statement-modal" */ '@DpJs/components/statement/assessmentTable/CopyStatementModal'),
+    AssignEntityModal: defineAsyncComponent(() => import(/* webpackChunkName: "assign-entity-modal" */ '@DpJs/components/statement/assessmentTable/AssignEntityModal')),
+    ConsolidateModal: defineAsyncComponent(() => import(/* webpackChunkName: "consolidate-modal" */ '@DpJs/components/statement/assessmentTable/ConsolidateModal')),
+    CopyStatementModal: defineAsyncComponent(() => import(/* webpackChunkName: "copy-statement-modal" */ '@DpJs/components/statement/assessmentTable/CopyStatementModal')),
     DpExportModal,
     DpLoading,
-    DpMapModal: () => import(/* webpackChunkName: "dp-map-modal" */ '@DpJs/components/statement/assessmentTable/DpMapModal'),
-    DpMoveStatementModal: () => import(/* webpackChunkName: "dp-move-statement-modal" */ '@DpJs/components/statement/assessmentTable/DpMoveStatementModal'),
+    DpMapModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-map-modal" */ '@DpJs/components/statement/assessmentTable/DpMapModal')),
+    DpMoveStatementModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-move-statement-modal" */ '@DpJs/components/statement/assessmentTable/DpMoveStatementModal')),
     DpPager,
-    DpSlidebar: async () => {
+    DpSlidebar: defineAsyncComponent(async () => {
       const { DpSlidebar } = await import('@demos-europe/demosplan-ui')
       return DpSlidebar
-    },
+    }),
     DpAssessmentTableCard,
-    DpVersionHistory: () => import(/* webpackChunkName: "dp-version-history" */ '@DpJs/components/statement/statement/DpVersionHistory')
+    DpVersionHistory: defineAsyncComponent(() => import(/* webpackChunkName: "dp-version-history" */ '@DpJs/components/statement/statement/DpVersionHistory'))
   },
 
   directives: {
@@ -293,6 +296,11 @@ export default {
       required: false,
       type: Array,
       default: () => ([])
+    },
+
+    csrfToken: {
+      type: String,
+      required: true
     },
 
     currentUserId: {

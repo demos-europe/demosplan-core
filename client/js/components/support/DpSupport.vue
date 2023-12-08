@@ -8,8 +8,7 @@ All rights reserved
 </license>
 
 <template>
-  <div
-    class="c-support space-inset-m color--black bg-color--blue-light-3">
+  <div class="space-inset-m bg-color--blue-light-3">
     <h2 class="font-normal color--black">
       {{ Translator.trans('support.heading') }}
     </h2>
@@ -19,17 +18,19 @@ All rights reserved
     <p>
       {{ Translator.trans('support.contact.advice') }}
     </p>
-    <h3 class="u-mt-0_75">
+    <h3
+      v-if="contacts.length > 0"
+      class="u-mt-0_75">
       {{ Translator.trans('support') }}
     </h3>
     <ul
       class="u-mb-0_75"
-      :class="contactCount === 1 ? '' : 'grid lg:grid-cols-3 gap-3'">
+      :class="{ 'grid lg:grid-cols-3 gap-3': contacts.length !== 1 }">
       <li
         v-for="contact in contacts"
         :key="contact.id"
-        class="space-inset-m c-support__card color--black bg-color--white"
-        :class="contactCount === 1 ? 'lg:w-8/12' : ''">
+        class="bg-color--white"
+        :class="{ 'lg:w-8/12': contacts.length === 1 }">
         <dp-support-card
           :title="contact.attributes.title"
           :email="contact.attributes.eMailAddress"
@@ -40,7 +41,7 @@ All rights reserved
     <h3>
       {{ Translator.trans('support.technical') }}
     </h3>
-    <div class="lg:w-8/12 space-inset-m u-pv-0 c-support__card color--black bg-color--white">
+    <div class="lg:w-8/12">
       <dp-support-card
         :phone-number="Translator.trans('support.contact.number')"
         :reachability="{
@@ -58,9 +59,10 @@ import DpSupportCard from './DpSupportCard'
 
 export default {
   name: 'DpSupport',
+
   components: { DpSupportCard },
 
-  data() {
+  data () {
     return {
       contactList: this.contacts,
       email: '',
@@ -73,31 +75,46 @@ export default {
   computed: {
     ...mapState('customerContact', {
       contacts: 'items'
-    }),
-
-    contactCount () {
-      return Object.entries(this.contacts).length
-    }
+    })
   },
 
   methods: {
     ...mapActions('customerContact', {
-      fetchContact: 'list'
-    })
+      fetchContacts: 'list'
+    }),
+
+    fetchCustomerContactsData () {
+      let params = {
+        fields: {
+          CustomerContact: [
+            'title',
+            'phoneNumber',
+            'text',
+            'eMailAddress'
+          ].join()
+        }
+      }
+
+      if (hasPermission('feature_customer_support_contact_administration')) {
+        params = {
+          ...params,
+          filter: {
+            onlyVisible: {
+              condition: {
+                path: 'visible',
+                value: 1
+              }
+            }
+          }
+        }
+      }
+
+      this.fetchContacts(params)
+    }
   },
 
   mounted () {
-    this.fetchContact({
-      fields: {
-        CustomerContact: [
-          'title',
-          'phoneNumber',
-          'text',
-          'visible',
-          'eMailAddress'
-        ].join()
-      }
-    })
+    this.fetchCustomerContactsData()
   }
 }
 </script>

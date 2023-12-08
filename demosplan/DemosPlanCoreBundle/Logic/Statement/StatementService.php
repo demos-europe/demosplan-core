@@ -268,7 +268,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         StatementFragmentService $statementFragmentService,
         StatementGeoService $statementGeoService,
         private readonly StatementReportEntryFactory $statementReportEntryFactory,
-        private readonly StatementRepository $statementRepository,
+        protected readonly StatementRepository $statementRepository,
         private readonly StatementResourceType $statementResourceType,
         StatementValidator $statementValidator,
         private readonly StatementVoteRepository $statementVoteRepository,
@@ -734,6 +734,16 @@ class StatementService extends CoreService implements StatementServiceInterface
         }
 
         return $groupStructure;
+    }
+
+    /**
+     * @param non-empty-string $procedureId
+     *
+     * @return array<non-empty-string, non-empty-string>
+     */
+    public function getExternIdsInUse(string $procedureId): array
+    {
+        return $this->statementRepository->getExternIdsInUse($procedureId);
     }
 
     /**

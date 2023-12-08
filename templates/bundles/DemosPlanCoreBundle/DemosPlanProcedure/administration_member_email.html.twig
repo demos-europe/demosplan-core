@@ -73,6 +73,7 @@
         action="{{ path('DemosPlan_procedure_member_index', {'procedure': procedureId}) }}"
         method="post"
         data-dp-validate="procedureForm">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         {% for agency in selectedPublicAgencies %}
             <input

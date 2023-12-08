@@ -737,6 +737,10 @@ export default {
     cleanhtml: CleanHtml
   },
 
+  emits: [
+    'organisation-update'
+  ],
+
   props: {
     availableOrgaTypes: {
       type: Array,

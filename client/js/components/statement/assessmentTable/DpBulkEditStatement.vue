@@ -97,6 +97,7 @@
             @input="updateRecommendationText">
             <template v-slot:modal="modalProps">
               <dp-boiler-plate-modal
+                v-if="hasPermission('area_admin_boilerplates')"
                 ref="boilerPlateModal"
                 boiler-plate-type="consideration"
                 :procedure-id="procedureId"
@@ -215,6 +216,7 @@ import {
   prefixClassMixin
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 import { v4 as uuid } from 'uuid'
@@ -227,10 +229,10 @@ export default {
     DpMultiselect,
     DpButton,
     TextContentRenderer,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    }
+    })
   },
 
   mixins: [prefixClassMixin],
@@ -343,7 +345,9 @@ export default {
     },
 
     openBoilerPlate () {
-      this.$refs.boilerPlateModal.toggleModal()
+      if (hasPermission('area_admin_boilerplates')) {
+        this.$refs.boilerPlateModal.toggleModal()
+      }
     },
 
     redirectToAssessmentTable () {

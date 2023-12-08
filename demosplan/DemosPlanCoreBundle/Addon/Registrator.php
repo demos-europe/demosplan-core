@@ -104,6 +104,7 @@ final class Registrator
             'installed_at' => Carbon::now()->toIso8601String(),
             // use relative path to be compatible with different environments
             'install_path' => 'addons/vendor/'.$addonName,
+            'version'      => $addonComposerDefinition->getPrettyVersion(),
             'manifest'     => $this->loadManifest($addonName),
         ];
     }

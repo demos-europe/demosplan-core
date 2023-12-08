@@ -83,6 +83,7 @@
         name="action"
         type="hidden"
         value="confirmVotePublicStatement">
+    {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
     {{ include('@DemosPlanCore/DemosPlanStatement/new_public_participation_statement_confirm_entry.html.twig') }}
 

@@ -28,6 +28,11 @@
         type="hidden"
         name="r_ident"
         :value="procedureId">
+      <input
+        name="_token"
+        type="hidden"
+        :value="csrfToken">
+
       <div class="u-mb">
         <dp-accordion
           :title="Translator.trans('user.details')"
@@ -139,7 +144,7 @@
                     :size="5" />
                   <dp-input
                     id="r_orga_city"
-                    v-model="values.submitter.city"
+                    v-model="values.submitter.ort"
                     class="o-form__group-item"
                     name="r_orga_city"
                     :label="{
@@ -372,17 +377,18 @@ import {
   , hasOwnProp
 } from '@demos-europe/demosplan-ui'
 import dayjs from 'dayjs'
+import { defineAsyncComponent } from 'vue'
 import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 import { v4 as uuid } from 'uuid'
 
 const submitterProperties = {
-  city: '',
   date: '',
   department: '',
   email: '',
   institution: false,
   name: '',
   orga: '',
+  ort: '',
   plz: ''
 }
 
@@ -399,10 +405,10 @@ export default {
     DpRadio,
     DpSelect,
     DpTextArea,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    },
+    }),
     DpUploadFiles,
     SimilarStatementSubmitters
   },
@@ -414,6 +420,11 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+
+    csrfToken: {
+      type: String,
+      required: true
     },
 
     currentProcedurePhase: {

@@ -5,7 +5,7 @@ abort.and.back: "Abbrechen und zurück"
 about.introduction: >-
     <p>Wenn räumliche Entwicklungen geplant oder vorbereitet werden, berührt das viele Interessengruppen.  Verschiedene
     Planwerke werden auf allen Ebenen der Verwaltung - vom Bund bis zu den Kommunen - ausgearbeitet und sind, abhängig
-    vom Plangeber, unterschiedlich in ihren inhaltlichen Schwerpunkten. Eine Aufgabe der kommunalen Planung ist,
+    vom Plangeber, unterschiedlich in ihren inhaltlichen Schwerpunkten. Eine Aufgabe der behördlichen Planung ist,
     wesentliche Interessen abzuwägen, Konflikte zwischen verschiedenen Bereichen zu minimieren und Flächen bestmöglich
     zu nutzen.</p>
 
@@ -22,7 +22,7 @@ about.introduction: >-
     Öffentlichkeit sowie die in ihren Belangen berührten öffentlichen Stellen an raumordnerischen Verfahren vor. Hierzu
     zählen z.B. Raumordnungspläne des Landes oder des Bundes, Regionalpläne, sowie Raumordnungsverfahren.</p>
 
-    <p>Bei einem Planfeststellungsverfahren nach dem Verwaltunsverfahrensgesetz handelt es sich um ein Genehmigungsverfahren
+    <p>Bei einem Planfeststellungsverfahren nach dem Verwaltungsverfahrensgesetz handelt es sich um ein Genehmigungsverfahren
     für größere Vorhaben in der Infrastruktur. Das können z.B. Straßen, Eisenbahnen, Stadtbahnen, Flugplätze,
     Hoch-/Höchstspannungsleitungen des Stromnetzes, Deponien oder auch Gewässerausbauten sein. Diese berühren bei ihrer
     Erstellung eine große Menge an öffentlichen wie auch zumeist eine Vielzahl an Interessen des privaten Lebens. Alle
@@ -42,13 +42,13 @@ about.introduction: >-
 
     <p>Eine bundesweite Übersicht über alle raumbezogenen Planwerke und formalen Beteiligungsverfahren des Baugesetzbuches
     sowie perspektivisch der Raumordnung und Planfeststellung finden Sie in unserem
-    <a class="o-link--external" href="https://portal.demo.diplanung.de/" target="_blank" rel="noopener">DiPlanPortal</a>
+    <a class="o-link--external" href="https://portal.demo.diplanung.de/" target="_blank" rel="noopener">DiPlanPortal</a>.
     </p>
 
     <p>DiPlanBeteiligung ist als freie Software unter der Open-Source-Lizenz für die Europäische Union
-    „European Union Public License“ (EUPL) auf der Open CoDE Plattform der öffentlichen Verwaltung bereitgestellt.
+    „European Union Public License“ (EUPL) auf der Open CoDE Plattform der öffentlichen Verwaltung bereitgestellt
     <a class="o-link--external" href="https://gitlab.opencode.de/diplanung/" target="_blank" rel="noopener">
-    DiPlanung · GitLab (opencode.de)</a>
+    DiPlanung · GitLab (opencode.de)</a>.
     </p>
 
     <p>DiPlanBeteiligung ist eine Software-Komponente der DiPlanung-Produktfamilie. Mehr Informationen zur DiPlanung finden Sie
@@ -801,6 +801,7 @@ customer.accessibility.explanation.label: "Geben Sie hier die Informationen ein,
 customer.branding.label: "Plattform-Branding"
 customer.branding.logo: "Plattform-Logo"
 customer.branding.logo.hint: "(wird im Kopfbereich der Seite angezeigt)"
+customer.data: "Nutzerbezogene Daten"
 customer.data.protection.explanation: "Der hier eingegebene Text wird an die Datenschutzhinweise der Plattform angehängt."
 customer.imprint.explanation: "Bitte geben Sie hier einen Text für das Impressum ein. Diese Eingabe ist verpflichtend. Der Text wird neben den Anbieter-Informationen unter <a href=\"{url}\"><strong>{url}</strong></a> angezeigt."
 customer.master.blueprint.already.exists: "Blaupause konnte nicht als Plattform-Blaupause gespeichert werden, da bereits eine  Plattform-Blaupause für den Mandanten {customerName} existiert."
@@ -964,7 +965,11 @@ elements.bulk.edit.change.state.hint: "Planungsdokumente, die bereits den hier g
 elements.bulk.edit.change.state.success: "Die automatische Umstellung wurde bei <strong>{changed}</strong> von <strong>{total}</strong> Planungsdokumenten erfolgreich aktiviert."
 elements.create.subcategory: "Neue Unterkategorie erstellen"
 elements.export: "Planungsdokumente herunterladen"
-elements.selected: "Elemente ausgewählt"
+elements.selected: |
+    {count, plural,
+        =1 { Ein Element ausgewählt }
+        other { # Elemente ausgewählt }
+    }
 elements.statement.global.explanation: "Hier können Sie eine Stellungnahme zum gesamten Verfahren abgeben"
 elements.statement.indicationerror.explanation: "Hier können Sie eine Fehlanzeige zum gesamten Verfahren abgeben."
 elements: "Planungsdokumente"
@@ -1071,6 +1076,7 @@ error.annotated.statement.boxes.already.being.reviewed: "Dieses Dokument wird ak
 error.annotated.statement.text.already.being.reviewed: "Der Import wird aktuell durch {user} geprüft."
 error.annotated.statement.not.being.reviewed: "Das Dokument wird nicht überprüft."
 error.api.generic: "Während der Verarbeitung der Anfrage ist ein Fehler aufgetreten."
+error.csrf.missing: "Der CSRF-Token fehlt. Bitte @DemosPlanCore/DemosPlanCore/includes/csrf.html.twig in dem Formular zur Route {uri} importieren."
 error.procedure.token.creation: "Fehler beim Generieren des Verfahrenstokens."
 error.procedure.token.not.found: "Der eingegebene Token konnte nicht gefunden werden."
 error.procedure.token.already.used: "Der eingegebene Token wurde bereits verwendet."
@@ -1084,6 +1090,8 @@ error.copy: "Leider ist beim Kopieren ein Fehler aufgetreten."
 error.copy.files: "Die Dateien der Stellungnahme {externId} konnten nicht kopiert werden."
 error.copy.mapfile: "Die Einzeichnung der Stellungnahme {externId} konnte nicht kopiert werden."
 error.changes.not.saved: "Beim Speichern der Änderungen ist ein Fehler aufgetreten."
+error.customer.contact.phone_or_email: "Bitte geben Sie entweder eine gültige E-Mail-Adresse oder Telefonnummer ein."
+error.customer.contact.title: "Bitte geben Sie einen Namen für den Kontakt ein."
 error.date.authored: "Bitte geben Sie ein Verfassungsdatum ein."
 error.in.fields: "Bitte korrigieren Sie Ihre Eingabe in folgenden Feldern: "
 error.phone_or_email.required: "Bitte geben Sie entweder eine gültige E-Mail-Adresse oder Telefonnummer ein."
@@ -1095,6 +1103,7 @@ error.date.endbeforestart: "Das Enddatum kann nicht vor dem Startdatum liegen."
 error.date: "Bitte geben Sie ein Datum ein."
 error.date.invalid: "Das angegebene Datum ist ungültig"
 error.delete.addressBookEntry: "Der Adressbucheintrag konnte nicht gelöscht werden"
+error.delete.annotatedStatementPdf: "Beim PdfLöschen ist ein Fehler aufgetreten"
 error.delete.department.related.users: "Die Abteilung konnte nicht gelöscht werden, weil ihr noch Nutzende zugewiesen sind. Löschen Sie bitte zunächst die Nutzenden."
 error.delete.department: "Leider ist beim Löschen der Abteilung ein Fehler aufgetreten."
 error.delete.last.admin.user.of.orga.with.open.procedures: "Nutzer*in kann nicht gelöscht werden, weil er der letzte Administrator der Organisation \"{organisationName}\" mit {numberOfOpenProcedures} offenen Verfahren ist."
@@ -1410,7 +1419,7 @@ explanation.organisation.email.cc: "Alle E-Mails an die oben genannte E-Mail-Adr
 explanation.organisation.email.participation: "Sie erhalten Benachrichtigungen an diese Adresse bezüglich Ihrer Stellungnahme(n).<br />Hier sollte ein Funktionspostfach eingetragen werden."
 explanation.organisation.email.procedure.agency: "Die hier angegebene E-Mail-Adresse wird im Einladungstext an Institutionen als Absender*in eingesetzt. Sie erhalten Benachrichtigungen an diese Adresse, falls bei einer Einladung zur Beteiligung, die Sie an Ihre Institutionen verschickt haben, E-Mails nicht bei dem/der Empfänger*in angekommen sind. Weiterhin werden Kopien der Beteiligungseinladungen und der Schlussmitteilungen von Stellungnahmen an diese E-Mail-Adresse verschickt. <strong>Hier sollte ein Funktionspostfach eingetragen werden.</strong>"
 explanation.organisation.email.reviewer.admin: "Diese Adresse erhält Benachrichtigungen zu zugewiesenen und zurückgewiesenen Datensätzen aller untergeordneten Abteilungen zur Information."
-explanation.organisation.email: "An die als <strong>E-Mail für Beteiligung</strong> angegebene Adresse schicken Verfahrensträger die Einladung zur Beteiligung. Stellen Sie daher sicher, dass die zuständige(n) Person(en) diese E-Mail empfangen kann.<br />Hier sollte ein Funktionspostfach eingetragen werden."
+explanation.organisation.email: "Sie erhalten Benachrichtigungen an diese Adresse bezüglich Ihrer Beteiligung. Stellen Sie daher sicher, dass zuständige Personen diese E-Mail empfangen. Hier sollte ein Funktionspostfach stehen."
 explanation.paste: "Beim Kopieren, z.B. aus Word, kann es Fehler bei der Formatierung geben. Bitte kontrollieren Sie Ihren Text anschließend noch einmal auf Formatfehler."
 explanation.pdf.document: "Über den Button „Neu“ können Sie der Kategorie ein PDF-Dokument hinzufügen."
 explanation.pdf.download: "Benutzen Sie die PDF-Download-Funktion, um eine für Druck und Archivierung optimierte Ansicht zu erhalten."
@@ -1809,8 +1818,10 @@ images.saved: "Gespeicherte Bilder"
 import: "Import"
 import.confirm: "Import bestätigen"
 import.edited.by.user: "Diese Datei wird von einer anderen Person bearbeitet."
+import.menu: "Import (Stellungnahmen)"
 import.options.form: "Direkteingabe"
 import.options.none: "Es stehen keine Import-Optionen zur Verfügung."
+import.options.participation: "Beteiligungs-Import"
 import.options.pdf: "PDF-Import"
 import.options.xls: "Excel-Import"
 import.process.running: "In Verarbeitung (Boxen-Erkennung)"
@@ -1919,6 +1930,11 @@ items.selected: |
         =1 { Ein Eintrag ausgewählt}
         other { # Einträge ausgewählt}
     }
+items.deleted: |
+    {count, plural,
+        =1 { Ein Eintrag wurde gelöscht}
+        other { # Einträge wurden gelöscht}
+    }
 jumpTo.login: "Direkt zum Login springen"
 jumpTo.mainContent: "Direkt zum Inhalt springen"
 jumpTo.mainNavigation: "Direkt zur Hauptnavigation springen"
@@ -2023,7 +2039,6 @@ map.base.minimap.hint: "Legen Sie hier eine eigene Kartenebene für die Übersic
 # uhuh...
 map.default.bounds: "Startkartenausschnitt übernehmen"
 map.default: "Startkarte"
-map.editarea.title: "Passen Sie hier Ihre Karteneinstellungen an"
 map.getfeatureinfo.description: "Aktivieren, um die Kriterien durch einen Klick in den entsprechenden Bereich der Karte einzusehen."
 map.getfeatureinfo.label: "Kriterien am Ort abfragen"
 map.getfeatureinfo.none: "An diesem Punkt wurden keine Entscheidungskriterien ermittelt."
@@ -2071,6 +2086,7 @@ map.tilematrixset: "MatrixSet (nur WMTS)"
 map: "Karte"
 map.allow.procedure.type.activate: "Karte für Verfahrenstyp aktivieren"
 map.scales.select.hint: "Achten Sie bei der Wahl der Maßstäbe auf die Differenzen zwischen einzelnen Maßstäben. Zu große Unterschiede können dazu führen, dass die Karte nicht mehr nutzbar ist."
+map.scales.select.error: "Wählen Sie die Maßstäbe so, daß zwischen zwei Maßstäben kein zu großer Abstand liegt."
 map.to: "Zur Karte..."
 map.zoom.in: "In Karte hineinzoomen"
 map.zoom.reset: "Zoom der Karte zurücksetzen"
@@ -2161,6 +2177,11 @@ news.create: "Neue Mitteilung anlegen"
 news.edit: "Mitteilung bearbeiten"
 news.new: "Neue Mitteilung"
 news.notes: "Aktuelle Mitteilungen"
+news.notes.selected: |
+    {count, plural,
+        =1 { Eine aktuelle Mitteilung ausgewählt }
+        other { # aktuelle Mitteilungen ausgewählt }
+    }
 news.see.all: "zu allen Neuigkeiten"
 news.text: "Mitteilungstext"
 news: "Aktuelles"
@@ -2970,8 +2991,8 @@ segments.recommendations.tags: "Vorschläge zu Schlagworten"
 segments.recommendations.tags.none: "Da für diesen Abschnitt keine Schlagworte hinterlegt sind, können keine Erwiderungs-Vorschläge angezeigt werden."
 items.selected.multi.page: |
     {count, plural,
-        =1 { Element ausgewählt (u.U. nicht auf Seite 1). }
-        other { Elemente (u.U. auf mehreren Seiten) ausgewählt. }
+        =1 { Ein Element ausgewählt (u.U. nicht auf Seite 1). }
+        other { # Elemente (u.U. auf mehreren Seiten) ausgewählt. }
     }
 select.all.on.page: "Alle auf dieser Seite auswählen"
 selection.no: "Keine Auswahl"
@@ -3268,6 +3289,7 @@ statement.participate.hint: "Starten Sie hier Ihre Stellung&shy;nahme."
 statement.participate.resume.hint: "Eine angefangene Stellungnahme können Sie hier wiederfinden und bearbeiten."
 statement.participate.resume: "Reden Sie weiter..."
 statement.participate: "Reden Sie mit!"
+statement.participation.import: "Hier kann der Export aus den demos-Beteiligungslösungen in EWM importiert werden. Übernommen werden hierbei die Einreichendendaten, der Stellungnahmetext, die zugehörige ID und Eingangsnummer, Einreichungs-und Verfassungsdatum, sowie eine eventuell hinzugefügte Notiz."
 statement.possible: "Stellungnahme möglich"
 statement.priority.a: "A-Punkt"
 statement.priority.b: "B-Punkt"
@@ -3488,6 +3510,7 @@ support.contact.service: "Servicezeiten"
 support.heading: "Sie haben Fragen?"
 support.introduction: "Wir helfen Ihnen gerne! Bei inhaltlichen und fachlichen Fragen zu unserem Portal können Sie sich gerne an den inhaltlichen Support wenden.
 Hier steht Ihnen sowohl eine bundesweite Telefonnummer als auch unser anbieterspezifischer Kontakt zur Verfügung."
+support.login: "Kontakt für fehlende Berechtigungen"
 support.technical: "Technischer Support"
 survey: "Umfrage"
 survey.comment: "Begründung"
@@ -3747,6 +3770,7 @@ upload.files.uploaded.not.saved: "Folgende Dateien wurden bereits hochgeladen, a
 upload.files.scan.for.virus: "Die hochgeladenen Daten werden auf Viren überprüft, dieser Vorgang kann je nach Dateigröße mehrere Minuten dauern."
 uploaded.file: "Hochgeladene Datei"
 uploaded.files: "Hochgeladene Dateien"
+uploaded.files.but.incomplete.import: "Nur Dateien anzeigen, die der Importprozess noch nicht abgeschlossen hat"
 upload.pdf: "PDF hochladen"
 url.information.global: "Globale Sachdaten-URL"
 url.information: "Sachdaten-URL"
@@ -3849,6 +3873,7 @@ warning.edit.selection.statements.not.claimed: "Sie können die aktuelle Auswahl
 warning.edit.selection.contains.moved.statements: "Sie können die aktuelle Auswahl nicht bearbeiten, weil sie Stellungnahmen enthält, die in ein anderes Verfahren verschoben wurden."
 warning.date.authored: "Ein leeres Verfassungsdatum ist ungültig und wurde nicht übernommen."
 warning.date.submitted: "Ein leeres Einreichungsdatum ist ungültig und wurde nicht übernommen."
+warning.delete.annotatedStatementPdf: "Vollständig geteilte PDFs können nicht gelöscht werden"
 warning.delete.statement.because.of.assignment: "Die Stellungnahme {externId} konnte nicht entfernt werden, weil sie einer Person zugewiesen ist."
 warning.delete.statement.because.of.fragments.not.claimed.by.current.user: "Die Stellungnahme {externId} konnte nicht entfernt werden, da deren Datensätze Ihnen nicht alle zugewiesen sind."
 warning.delete.statement.metadata.inconsistent.fragments.county: "Die Kreise an der Stellungnahme konnten nicht gelöscht werden, da sie auch an Datensätzen vergeben sind."

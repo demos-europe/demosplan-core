@@ -75,16 +75,17 @@
         label="submitter"
         :options="submitterOptions"
         :placeholder="Translator.trans('choose.search')"
+        :sub-slots="['option', 'singleLabel']"
         track-by="entityId"
         @input="emitSubmitterData">
         <!-- Template for select options -->
           <template v-slot:option="{ props }">
-            <div v-cleanhtml="customOption(props.option, true)" />
+            <span v-cleanhtml="customOption(props.option, true)" />
           </template>
 
           <!-- Template for element that is visible when Multiselect is closed -->
           <template v-slot:singleLabel="{ props }">
-            {{ customSingleLabel(props.option) }}
+            <span v-cleanhtml="customSingleLabel(props.option)" />
           </template>
       </dp-multiselect>
     </div>

@@ -109,6 +109,7 @@
           @input="value => updateSegment('recommendation', value)">
           <template v-slot:modal="modalProps">
             <dp-boiler-plate-modal
+              v-if="hasPermission('area_admin_boilerplates')"
               ref="boilerPlateModal"
               boiler-plate-type="consideration"
               editor-id="recommendationText"
@@ -130,7 +131,7 @@
                   :text="Translator.trans('segment.oracle.tooltip')" />
                 <dp-badge
                   v-if="activeId === 'oracleRec'"
-                  class="absolute u-right-0 u-mr-0_75"
+                  class="absolute right-12"
                   size="smaller"
                   :text="Translator.trans('segment.oracle.beta')"
                   v-tooltip="Translator.trans('segment.oracle.beta.tooltip')" />
@@ -159,6 +160,7 @@
           </template>
           <template v-slot:button>
             <button
+              v-if="hasPermission('area_admin_boilerplates')"
               :class="prefixClass('menubar__button')"
               type="button"
               v-tooltip="Translator.trans('boilerplate.insert')"
@@ -342,6 +344,7 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import { defineAsyncComponent } from 'vue'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
@@ -363,10 +366,10 @@ export default {
     DpLabel,
     DpModal,
     DpMultiselect,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    },
+    }),
     DpTab,
     DpTabs,
     VPopover
@@ -611,7 +614,9 @@ export default {
     },
 
     openBoilerPlate () {
-      this.$refs.boilerPlateModal.toggleModal()
+      if (hasPermission('area_admin_boilerplates')) {
+        this.$refs.boilerPlateModal.toggleModal()
+      }
     },
 
     /**

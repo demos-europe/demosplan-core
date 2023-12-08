@@ -74,6 +74,12 @@ EOT
             InputOption::VALUE_NONE,
             'Override existing database'
         );
+        $this->addOption(
+            'skip-es-populate',
+            null,
+            InputOption::VALUE_NONE,
+            'Skip populating elasticsearch'
+        );
     }
 
     /**
@@ -85,7 +91,9 @@ EOT
             $this->initializeDatabase($input, $output);
             $this->initializeCustomer($input, $output);
             $this->migrateDatabase($output);
-            $this->elasticsearchPopulate($output);
+            if (!$input->getOption('skip-es-populate')) {
+                $this->elasticsearchPopulate($output);
+            }
         } catch (Exception) {
             return Command::FAILURE;
         }
