@@ -852,7 +852,6 @@ export default {
 
     loadAddonComponents('segment.recommendationModal.tab')
       .then(response => {
-        console.log(response)
         if (response.length > 0) {
           this.asyncComponents = response
           this.activeId = response[0].options.id || ''
