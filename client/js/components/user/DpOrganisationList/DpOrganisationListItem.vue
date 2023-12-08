@@ -118,6 +118,12 @@ export default {
     }
   },
 
+  emits: [
+    'get-items',
+    'item:selected',
+    'organisation-reset'
+  ],
+
   data () {
     return {
       isOpen: false,

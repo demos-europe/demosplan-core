@@ -128,8 +128,13 @@ export default {
       required: false,
       type: String,
       default: ''
-    },
+    }
   },
+
+  emits: [
+    'created',
+    'deleted'
+  ],
 
   data () {
     return {
@@ -186,7 +191,7 @@ export default {
         .then(() => this.$emit('deleted'))
     },
 
-    saveSignLanguage() {
+    saveSignLanguage () {
       const payload = {
         id: this.currentCustomerId,
         type: 'Customer',
