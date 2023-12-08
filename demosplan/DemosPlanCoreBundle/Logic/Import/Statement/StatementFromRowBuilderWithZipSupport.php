@@ -171,11 +171,6 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
        return $this->baseStatementFromRowBuilder->setNumberOfAnonymVotes($cell);
     }
 
-    public function setSubmitType(Cell $cell): ?ConstraintViolationListInterface
-    {
-        return $this->baseStatementFromRowBuilder->setSubmitType($cell);
-    }
-
     public function buildStatementAndReset(): StatementInterface|ConstraintViolationListInterface
     {
         return $this->baseStatementFromRowBuilder->buildStatementAndReset();

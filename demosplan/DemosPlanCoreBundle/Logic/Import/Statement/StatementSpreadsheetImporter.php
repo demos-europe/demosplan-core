@@ -49,6 +49,8 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
      * The callbacks will be connected to the given builder, i.e. invoking its setter methods with the corresponding
      * cell.
      *
+     * If no callback is given for the current cell - null will be used as value.
+     *
      * `null` values indicate (currently) missing support for the corresponding column, while still allowing it to
      * be present in the input file. Such columns should be simply ignored.
      *
@@ -57,17 +59,15 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
     protected function getColumnCallbacks(RowCellIterator $actualColumnNames): array
     {
         [$columnMapping, $builder] = $this->getColumnMapping();
-        // Currently an exception will be thrown in case of unsorted columns. To avoid that you can adjust the sorting
-        // of the array above to the order of the actual columns.
-        $expectedColumns = array_keys($columnMapping);
-        foreach ($expectedColumns as $expectedColumnName) {
-            Assert::true($actualColumnNames->valid());
-            $actualColumn = $actualColumnNames->current();
-            Assert::notNull($actualColumn);
-            $actualColumnName = $actualColumn->getValue();
-            Assert::same($actualColumnName, $expectedColumnName);
-            $actualColumnNames->next();
+
+        $allColumnNames = [];
+        foreach ($actualColumnNames as $cellName) {
+            $allColumnNames[$cellName->getValue()] = null;
         }
+        // the columns we support we now assign a setter
+        $columnMapping = array_intersect_key($columnMapping, $allColumnNames);
+        // merge them in the correct order.
+        $columnMapping = array_merge($allColumnNames, $columnMapping);
 
         return [$columnMapping, $builder];
     }
@@ -78,7 +78,7 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
     protected function getColumnMapping(): array
     {
         $builder = $this->getStatementFromRowBuilder($this->currentProcedureService->getProcedure());
-        return [[
+        $callBackMap = [
             'ID'                            => [$builder, 'setExternId'],
             'Gruppenname'                   => null,
             'Text'                          => [$builder, 'setText'],
@@ -109,8 +109,9 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
             'Rückmeldung'                   => [$builder, 'setFeedback'],
             'Mitzeichnende'                 => [$builder, 'setNumberOfAnonymVotes'],
             'Verfahrensschritt'             => null,
-            'Art der Einreichung'           => [$builder, 'setSubmitType'],
-        ], $builder];
+            'Art der Einreichung'           => null,
+        ];
+        return [$callBackMap, $builder];
     }
 
     private function getStatementFromRowBuilder(ProcedureInterface $procedure): StatementFromRowBuilder

@@ -217,31 +217,6 @@ class StatementFromRowBuilder extends AbstractStatementFromRowBuilder
         return null;
     }
 
-    public function setSubmitType(Cell $cell): ?ConstraintViolationListInterface
-    {
-        $constraint = new Choice(
-            [
-                StatementInterface::SUBMIT_TYPE_UNKNOWN,
-                StatementInterface::SUBMIT_TYPE_DECLARATION,
-                StatementInterface::SUBMIT_TYPE_EAKTE,
-                StatementInterface::SUBMIT_TYPE_EMAIL,
-                StatementInterface::SUBMIT_TYPE_FAX,
-                StatementInterface::SUBMIT_TYPE_LETTER,
-                StatementInterface::SUBMIT_TYPE_SYSTEM,
-                StatementInterface::SUBMIT_TYPE_UNSPECIFIED
-            ]
-        );
-        $violations = $this->validator->validate($cell->getValue(),[$constraint]);
-
-        if (0 !== $violations->count()) {
-            return $violations;
-        }
-
-        $this->statement->setSubmitType($cell->getValue());
-
-        return null;
-    }
-
     /**
      * Returns the statement that was created and filled since the last call of this method or a list of violations
      * due to invalid values/state of the statement.

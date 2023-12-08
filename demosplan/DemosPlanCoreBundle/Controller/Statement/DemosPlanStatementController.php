@@ -2466,6 +2466,19 @@ class DemosPlanStatementController extends BaseController
         }
         try {
             $importer->importFromFile($fileInfo);
+            // accumulated errors during import have to be handled now - the transaction got rolled back already
+            if ($importer->hasErrors()) {
+                foreach ($importer->getErrorsAsArray() as $importError) {
+                    $line = (string) $importError['lineNumber'];
+                    $message = $importError['message'];
+                    $this->messageBag->add(
+                        'error',
+                        'statements.import.error.property.constraint.violation',
+                        ['lineNumber' => $line, 'message' => $message]
+                    );
+                }
+                throw new DemosException('statement import failed');
+            }
         } catch (RowAwareViolationsException $e) {
             $this->getMessageBag()->add(
                 'error',

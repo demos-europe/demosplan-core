@@ -30,6 +30,7 @@ segment.import.error.metadata.statement.id: "Stellungnahmen müssen eine ID habe
 segment.import.error.segment.statement.id: "Abschnitte müssen eine Stellungnahme ID haben, damit sie korrekt zugeordnet werden können. Dies ist ein Pflichtfeld."
 similarStatementSubmitter.procedureMismatch: "Personeneinträge dürfen nicht außerhalb des Verfahrenskontextes verwendet werden."
 statement.existing.internId: "Die Eingangsnummer \"{{ internId }}\" ist bereits in Verwendung."
+statement.invalid.submit.type: "Die Einreichungsart {{ value }} ist ungültig. Gültig sind nur folgende Werte: {{ choices }}."
 statement.import.invalidSubmitDateBlank: "Das Feld 'Einreichungsdatum' darf nicht leer sein."
 statement.import.invalidSubmitDateType: "Das Einreichungsdatum muss ein gültiges Datum sein."
 statement.import.invalidSubmitTypeBlank: "Das Feld 'Art der Einreichung' darf nicht leer sein."
