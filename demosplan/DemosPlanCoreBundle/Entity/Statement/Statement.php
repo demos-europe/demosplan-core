@@ -96,17 +96,6 @@ use UnexpectedValueException;
  */
 class Statement extends CoreEntity implements UuidEntityInterface, StatementInterface
 {
-    // fixme has to be moved into addon
-    public const SUBMIT_TYPES = [
-        StatementInterface::SUBMIT_TYPE_UNKNOWN,
-        StatementInterface::SUBMIT_TYPE_DECLARATION,
-        StatementInterface::SUBMIT_TYPE_EAKTE,
-        StatementInterface::SUBMIT_TYPE_EMAIL,
-        StatementInterface::SUBMIT_TYPE_FAX,
-        StatementInterface::SUBMIT_TYPE_LETTER,
-        StatementInterface::SUBMIT_TYPE_SYSTEM,
-        StatementInterface::SUBMIT_TYPE_UNSPECIFIED,
-    ];
     public const SUPPORT_TYPE_E_AKTE = 'eakte';
     final public const DRAFT_JSON_VALIDATION_GROUP = 'draftJsonValidationGroup';
 
@@ -828,7 +817,11 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * @ORM\Column(name="_st_submit_type", type="string", nullable=false)
      */
     #[Assert\NotBlank(groups: [Statement::IMPORT_VALIDATION], message: 'statement.import.invalidSubmitTypeBlank')]
-    #[Assert\Choice(choices: self::SUBMIT_TYPES, message: 'statement.invalid.submit.type', groups: ['Default', StatementInterface::IMPORT_VALIDATION])]
+    #[Assert\Choice(
+        choices: self::SUBMIT_TYPES,
+        message: 'statement.invalid.submit.type',
+        groups: ['Default', StatementInterface::IMPORT_VALIDATION]
+    )]
     protected $submitType = StatementInterface::SUBMIT_TYPE_SYSTEM;
 
     /**
