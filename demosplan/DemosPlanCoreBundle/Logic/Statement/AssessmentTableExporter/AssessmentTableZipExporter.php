@@ -125,14 +125,13 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
     }
 
     /**
-     *
      * @throws Exception
      */
     private function getOriginalAttachment(string $statementId): ?File
     {
         $statementAttachments = $this->statementService->getStatement($statementId)->getAttachments();
         foreach ($statementAttachments as $statementAttachment) {
-            if ($statementAttachment->getType() === StatementAttachmentInterface::SOURCE_STATEMENT) {
+            if (StatementAttachmentInterface::SOURCE_STATEMENT === $statementAttachment->getType()) {
                 return $statementAttachment->getFile();
             }
         }
