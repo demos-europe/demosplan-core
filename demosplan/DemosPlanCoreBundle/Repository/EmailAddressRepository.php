@@ -62,9 +62,7 @@ class EmailAddressRepository extends FluentRepository implements EmailAddressRep
         return $this->getEntityManager()->createQuery('
             DELETE e.id FROM email_address AS e
             LEFT JOIN procedure_agency_extra_email_address AS p ON p.email_address_id = e.id
-            LEFT JOIN support_contact AS sc ON sc.e_mail_address = e.id
             WHERE p.procedure_id IS NULL
-            AND sc.e_mail_address IS NULL
             AND e.id NOT IN (:emailIds)')
             ->setParameter(['emailIds' => $emailIds])->getResult();
     }

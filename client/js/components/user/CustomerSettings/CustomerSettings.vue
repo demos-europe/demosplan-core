@@ -312,7 +312,6 @@ export default {
   data () {
     return {
       branding: {
-        logo: null,
         cssvars: '',
         logoHash: ''
       },
@@ -326,7 +325,6 @@ export default {
         termsOfUse: '',
         xplanning: ''
       },
-      customerBrandingId: '',
       isLoading: true,
       isLoadingSignLanguageOverviewVideo: true,
       requestFields: {},
@@ -351,9 +349,9 @@ export default {
       customerList: 'items'
     }),
 
-    ...mapState('file', {
-      fileList: 'items'
-    }),
+    customerBrandingId () {
+      return this.customerList[this.currentCustomerId].relationships?.branding?.data?.id ?? ''
+    },
 
     isUnsavedSignLanguageVideo () {
       // The signLanguageOverviewVideo.file is available after the video was uploaded and the signLanguageOverviewVideo.id is only available after the video was saved
@@ -390,20 +388,29 @@ export default {
     fetchCustomerData () {
       this.isLoadingSignLanguageOverviewVideo = true
       const payload = this.getRequestPayload()
-      this.fetchCustomer(payload, { serialize: true }).then(() => {
-        this.isLoading = this.isLoadingSignLanguageOverviewVideo = false
 
-        // Update fields
-        const currentCustomer = this.customerList[this.currentCustomerId]
-        const currentData = currentCustomer.attributes
-        this.customerBrandingId = this.customerList[this.currentCustomerId].relationships?.branding?.data?.id
-        this.customer = {
-          ...this.customer,
-          imprint: currentData.imprint ? currentData.imprint : '',
-          dataProtection: currentData.dataProtection ? currentData.dataProtection : ''
-        }
-        this.branding.logoHash = this.fileList[this.brandingList[this.customerBrandingId].relationships?.logo.data?.id]?.attributes.hash || ''
-      })
+      this.fetchCustomer(payload, { serialize: true })
+        .then(res => {
+          // Update fields
+          const response = res.data
+          const currentCustomer = this.customerList[this.currentCustomerId]
+          const currentData = currentCustomer.attributes
+          const fileId = response.file ? Object.keys(response.file).toString() : ''
+          const fileHash = response.file ? response.file[fileId]?.attributes?.hash : ''
+
+          this.customer = {
+            ...this.customer,
+            imprint: currentData.imprint ?? '',
+            dataProtection: currentData.dataProtection ?? ''
+          }
+          this.branding.logoHash = fileHash
+        })
+        .catch(err => {
+          console.error(err)
+        })
+        .finally(() => {
+          this.isLoading = this.isLoadingSignLanguageOverviewVideo = false
+        })
     },
 
     getRequestPayload () {
