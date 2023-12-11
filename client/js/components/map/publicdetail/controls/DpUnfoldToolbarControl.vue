@@ -65,6 +65,10 @@ export default {
     }
   },
 
+  emits: [
+    'toolbar:drag'
+  ],
+
   data () {
     return {
       unfolded: false,
