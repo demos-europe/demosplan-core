@@ -101,25 +101,30 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
             $this->handleError($e, self::UNKOWN_ERROR, self::XLSX_GENERIC);
         }
 
-        foreach ($file['attachments'] as $attachmentArray) {
-            /** @var File $attachment */
-            foreach ($attachmentArray as $attachment) {
-                try {
+        foreach ($file['attachments'] as $attachmentsArray) {
+            try {
+                foreach ($attachmentsArray['attachments'] as $attachment) {
                     $this->zipExportService->addFileToZipStream(
                         $attachment->getFilePathWithHash(),
                         $file['zipFileName'].'/'.$attachment->getHash().'_'.$attachment->getFilename(),
                         $zipStream
                     );
-                } catch (FileNotFoundException|FileNotReadableException $e) {
-                    $this->handleError($e, self::FIILE_NOT_FOUND_OR_READABLE);
-                    ++$this->errorCount['attachmentNotAddedCount'];
-                } catch (InvalidDataException $e) {
-                    $this->handleError($e, self::FILE_HASH_INVALID);
-                    ++$this->errorCount['attachmentNotAddedCount'];
-                } catch (Exception $e) {
-                    $this->handleError($e, self::UNKOWN_ERROR);
-                    ++$this->errorCount['attachmentUnkownErrorCount'];
                 }
+                $originalAttachment = $attachmentsArray['originalAttachment'];
+                $this->zipExportService->addFileToZipStream(
+                    $originalAttachment->getFilePathWithHash(),
+                    $file['zipFileName'].'/'.$originalAttachment->getHash().'_'.$originalAttachment->getFilename(),
+                    $zipStream
+                );
+            } catch (FileNotFoundException|FileNotReadableException $e) {
+                $this->handleError($e, self::FIILE_NOT_FOUND_OR_READABLE);
+                ++$this->errorCount['attachmentNotAddedCount'];
+            } catch (InvalidDataException $e) {
+                $this->handleError($e, self::FILE_HASH_INVALID);
+                ++$this->errorCount['attachmentNotAddedCount'];
+            } catch (Exception $e) {
+                $this->handleError($e, self::UNKOWN_ERROR);
+                ++$this->errorCount['attachmentUnkownErrorCount'];
             }
         }
         $this->addCountedErrorMessages();
@@ -174,5 +179,10 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
         Assert::keyExists($file['xlsx'], 'writer', $prefix.'writer'.$logSuffix);
         Assert::keyExists($file['xlsx'], 'statementIds', $prefix.'statementIds'.$logSuffix);
         Assert::keyExists($file, 'attachments', $prefix.'attachments'.$logSuffix);
+        Assert::isArray($file['attachments']);
+        foreach ($file['attachments'] as $attachment) {
+            Assert::keyExists($attachment, 'attachments');
+            Assert::keyExists($attachment, 'originalAttachment');
+        }
     }
 }

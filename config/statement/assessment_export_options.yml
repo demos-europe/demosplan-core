@@ -71,6 +71,7 @@ original_statements:
       portrait:
         name: export.portrait
   xlsx: false
+  zip: false
 assessment_table:
 fragment_list:
   xlsx: false

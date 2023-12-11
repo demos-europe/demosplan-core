@@ -341,7 +341,8 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         $columnsDefinition = $this->createColumnsDefinitionForStatementsOrSegments(true);
         $columnsDefinition[] =
             $this->createColumnDefinition('statementAttachments', 'statement.attachments.reference');
-
+        $columnsDefinition[] =
+            $this->createColumnDefinition('statementOriginalAttachment', 'statement.original.attachment.reference');
         return $columnsDefinition;
     }
 
