@@ -447,7 +447,7 @@ export default {
           relationships: {
             assignee: {
               data: {
-                type: 'User',
+                type: 'Claim',
                 id: this.currentUser.id
               }
             }
@@ -563,7 +563,7 @@ export default {
             ...this.statements[this.statement.id].relationships,
             assignee: {
               data: {
-                type: 'User',
+                type: 'Claim',
                 id: claimingStatement ? this.currentUser.id : null
               }
             }
