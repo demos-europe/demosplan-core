@@ -17,15 +17,15 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 class GetEmailIdsEvent extends Event implements GetEmailIdsEventInterface
 {
-    private readonly array $toDeleteEmailIds;
+    private array $emailIds = [];
 
     public function getEmailIds(): array
     {
-        return $this->toDeleteEmailIds;
+        return $this->emailIds;
     }
 
-    public function setEmailIds(array $emailIds): void
+    public function addEmailIds(array $emailIds): void
     {
-        $this->toDeleteEmailIds = $emailIds;
+        $this->emailIds[] = $emailIds;
     }
 }
