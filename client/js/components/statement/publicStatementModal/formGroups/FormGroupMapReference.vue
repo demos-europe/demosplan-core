@@ -152,6 +152,10 @@ export default {
     }
   },
 
+  emits: [
+    'statement-modal:goto-tab'
+  ],
+
   computed: {
     ...mapState('publicStatement', ['activeActionBoxTab', 'highlighted']),
 
