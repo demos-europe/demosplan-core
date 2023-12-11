@@ -15,10 +15,10 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 use DemosEurope\DemosplanAddon\Contracts\CurrentContextProviderInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class CurrentContextProvider implements CurrentContextProviderInterface
 {
@@ -34,7 +34,6 @@ class CurrentContextProvider implements CurrentContextProviderInterface
         return $this->currentProcedureProvider->getProcedure();
     }
 
-    // todo Needs to be done for DemosplanAddon as well!!!
     public function getCurrentUser(): UserInterface
     {
         return $this->currentUserProvider->getUser();
