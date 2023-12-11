@@ -220,6 +220,7 @@ const SplitStatementStore = {
           const initialData = data.data.attributes.segmentDraftList.data
           const segments = initialData.attributes.segments
             // Filter out segments with less than 10 characters as those may lead the frontend to crash
+            // (because often that are closing or opening tags)
             // and should probably not be needed in a real world scenario.
             .filter(segment => (segment.charEnd - segment.charStart) > 10)
 
