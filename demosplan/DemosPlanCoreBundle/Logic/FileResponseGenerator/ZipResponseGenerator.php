@@ -123,16 +123,15 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
                 } else {
                     $parameters = [
                         'procedureId' => $this->currentProcedureService->getProcedure()->getId(),
-                        'anonymous' => false,
-                        'exportType' => 'statementsOnly',
-                        'template' => 'portrait',
-                        'original' => true,
-                        'viewMode' => 'view_mode_default',
+                        'anonymous'   => false,
+                        'exportType'  => 'statementsOnly',
+                        'template'    => 'portrait',
+                        'original'    => true,
+                        'viewMode'    => 'view_mode_default',
                     ];
                     $pdf = $this->assessmentTablePdfExporter->__invoke($parameters);
-
                 }
-                #TODO add originalstatement if statement doesn't have
+                // TODO add originalstatement if statement doesn't have
             } catch (FileNotFoundException|FileNotReadableException $e) {
                 $this->handleError($e, self::FIILE_NOT_FOUND_OR_READABLE);
                 ++$this->errorCount['attachmentNotAddedCount'];
