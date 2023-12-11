@@ -96,7 +96,6 @@ use UnexpectedValueException;
  */
 class Statement extends CoreEntity implements UuidEntityInterface, StatementInterface
 {
-    public const SUPPORT_TYPE_E_AKTE = 'eakte';
     final public const DRAFT_JSON_VALIDATION_GROUP = 'draftJsonValidationGroup';
 
     /**
@@ -818,7 +817,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      */
     #[Assert\NotBlank(groups: [Statement::IMPORT_VALIDATION], message: 'statement.import.invalidSubmitTypeBlank')]
     #[Assert\Choice(
-        choices: self::SUBMIT_TYPES,
+        choices: StatementInterface::SUBMIT_TYPES,
         message: 'statement.invalid.submit.type',
         groups: ['Default', StatementInterface::IMPORT_VALIDATION]
     )]

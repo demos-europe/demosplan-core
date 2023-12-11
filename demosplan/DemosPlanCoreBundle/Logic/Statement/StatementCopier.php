@@ -502,7 +502,6 @@ class StatementCopier extends CoreService
      *                                    clusterStatement, has to be allowed.
      *
      * @throws CopyException
-     * @throws ClusterStatementCopyNotImplementedException|DemosException
      */
     public function copyStatementObjectWithinProcedureWithRelatedFiles(
         Statement $statement,
@@ -518,7 +517,7 @@ class StatementCopier extends CoreService
         );
 
         if (!$statement instanceof Statement) {
-            throw new DemosException(''); //fixme: use specific exception
+            throw new CopyException('error on copying original statement');
         }
 
         // persist to get an ID for the FileContainer copying below

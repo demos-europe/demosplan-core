@@ -89,7 +89,6 @@ abstract class AbstractStatementSpreadsheetImporter implements StatementSpreadsh
      */
     public function createCopy(Statement $generatedOriginalStatement): Statement
     {
-        // fixme are the other callers of this method fine being persisted on the way?
         return $this->statementCopier->copyStatementObjectWithinProcedureWithRelatedFiles(
             $generatedOriginalStatement,
             false,

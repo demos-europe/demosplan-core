@@ -101,6 +101,8 @@ class DemosPlanStatementController extends BaseController
 {
     private NameGenerator $nameGenerator;
 
+    private const STATEMENT_IMPORT_ENCOUNTERED_ERRORS = 'statement import failed';
+
     public function __construct(private readonly CurrentProcedureService $currentProcedureService,
         private readonly CurrentUserService $currentUser,
         private readonly DraftStatementHandler $draftStatementHandler,
@@ -2468,7 +2470,12 @@ class DemosPlanStatementController extends BaseController
             $importer->importFromFile($fileInfo);
             // accumulated errors during import have to be handled now - the transaction got rolled back already
             if ($importer->hasErrors()) {
+                $messageBagEntryCounter = 0;
                 foreach ($importer->getErrorsAsArray() as $importError) {
+                    if (15 < $messageBagEntryCounter) {
+                        break;
+                    }
+                    $messageBagEntryCounter++;
                     $line = (string) $importError['lineNumber'];
                     $message = $importError['message'];
                     $this->messageBag->add(
@@ -2477,7 +2484,7 @@ class DemosPlanStatementController extends BaseController
                         ['lineNumber' => $line, 'message' => $message]
                     );
                 }
-                throw new DemosException('statement import failed');
+                throw new DemosException(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS);
             }
         } catch (RowAwareViolationsException $e) {
             $this->getMessageBag()->add(
@@ -2493,14 +2500,14 @@ class DemosPlanStatementController extends BaseController
             foreach ($e->getViolationsAsStrings() as $error) {
                 $this->getMessageBag()->add('error', $error);
             }
-            throw new DemosException('statement import failed');
+            throw new DemosException(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS);
         } catch (MissingDataException $e) {
             $this->getMessageBag()->add(
                 'error',
                 'error.missing.data',
                 ['fileName' => $fileInfo->getFileName()]
             );
-            throw new DemosException('statement import failed');
+            throw new DemosException(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS);
         } catch (UnexpectedWorksheetNameException $e) {
             if ('Abschnitte' === $e->getIncomingTitle()) {
                 $this->getMessageBag()->add('error', 'error.wrong.selected.importer');
@@ -2514,15 +2521,15 @@ class DemosPlanStatementController extends BaseController
                     ]
                 );
             }
-            throw new DemosException('statement import failed');
+            throw new DemosException(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS);
         } catch (\Doctrine\DBAL\Driver\Exception|Exception $e) {
-            $this->logger->error('statement import failed', ['exception' => $e]);
+            $this->logger->error(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS, ['exception' => $e]);
             $this->getMessageBag()->add(
                 'error',
                 'statements.import.error.document.unexpected',
                 ['doc' => $fileInfo->getFileName()]
             );
-            throw new DemosException('statement import failed');
+            throw new DemosException(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS);
         }
     }
 
