@@ -14,7 +14,9 @@ namespace demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator;
 
 use demosplan\DemosPlanCoreBundle\Exception\AssessmentTableZipExportException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTablePdfExporter;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
@@ -48,7 +50,9 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
         NameGenerator $nameGenerator,
         private readonly ZipExportService $zipExportService,
         private readonly LoggerInterface $logger,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
+        private readonly AssessmentTablePdfExporter $assessmentTablePdfExporter,
+        private readonly CurrentProcedureService $currentProcedureService
     ) {
         parent::__construct($nameGenerator);
         $this->supportedTypes = $supportedTypes;
@@ -110,11 +114,25 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
                     );
                 }
                 $originalAttachment = $attachmentsArray['originalAttachment'];
-                $this->zipExportService->addFileToZipStream(
-                    $originalAttachment->getFilePathWithHash(),
-                    $file['zipFileName'].'/'.$originalAttachment->getHash().'_'.$originalAttachment->getFilename(),
-                    $zipStream
-                );
+                if (null !== $originalAttachment) {
+                    $this->zipExportService->addFileToZipStream(
+                        $originalAttachment->getFilePathWithHash(),
+                        $file['zipFileName'].'/'.$originalAttachment->getHash().'_'.$originalAttachment->getFilename(),
+                        $zipStream
+                    );
+                } else {
+                    $parameters = [
+                        'procedureId' => $this->currentProcedureService->getProcedure()->getId(),
+                        'anonymous' => false,
+                        'exportType' => 'statementsOnly',
+                        'template' => 'portrait',
+                        'original' => true,
+                        'viewMode' => 'view_mode_default',
+                    ];
+                    $pdf = $this->assessmentTablePdfExporter->__invoke($parameters);
+
+                }
+                #TODO add originalstatement if statement doesn't have
             } catch (FileNotFoundException|FileNotReadableException $e) {
                 $this->handleError($e, self::FIILE_NOT_FOUND_OR_READABLE);
                 ++$this->errorCount['attachmentNotAddedCount'];
