@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
@@ -43,7 +44,7 @@ use EDT\PathBuilding\End;
  * @property-read End $opacity
  * @property-read End $procedureId
  * @property-read End $serviceType
- * @property-read End $type
+ * @property-read End $layerType
  * @property-read End $isBaseLayer
  * @property-read End $tileMatrixSet
  * @property-read End $url
@@ -107,7 +108,7 @@ final class GisLayerResourceType extends DplanResourceType
             $this->createAttribute($this->name)->readable(true),
             $this->createAttribute($this->opacity)->readable(true),
             $this->createAttribute($this->procedureId)->readable(true),
-            $this->createAttribute($this->type)->readable(true),
+            $this->createAttribute($this->layerType)->readable(true)->aliasedPath(Paths::gisLayer()->type),
             $this->createAttribute($this->tileMatrixSet)->readable(true),
             $this->createAttribute($this->treeOrder)->readable(true),
             $this->createAttribute($this->projectionValue)->readable(true),
