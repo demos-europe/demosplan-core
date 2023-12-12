@@ -123,7 +123,7 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
             'original'    => true,
             'viewMode'    => 'view_mode_default',
         ];
-            // set file attachments if present:
+        // set file attachments if present:
         foreach ($statementIds as $statementId) {
             $statementAttachments = $this->statementService->getFileContainersForStatement($statementId);
             $files[$index] = ['attachments' => [], 'originalAttachment' => null];

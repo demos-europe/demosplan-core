@@ -66,7 +66,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
         ServiceImporter $serviceImport,
         StatementHandler $statementHandler,
         TranslatorInterface $translator
-        ) {
+    ) {
         parent::__construct(
             $assessmentTableServiceOutput,
             $currentProcedureService,
@@ -116,7 +116,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             if (!array_key_exists('statementId', $parameters)) {
                 $parameters = $this->addStatementsFromCurrentQueryHashToFilter($parameters, $procedureId, $original);
             } else {
-                /**
+                /*
                  * in case the key 'statementId' was set by the invoking
                  * { @link AssessmentTableZipExporter::getAttachmentsOfStatements }
                  * do not try to obtain the ids from session
