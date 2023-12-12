@@ -14,10 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
-use Doctrine\ORM\Query\Expr\Comparison;
-use Doctrine\ORM\Query\Expr\Composite;
-use Doctrine\ORM\Query\Expr\Func;
-use Doctrine\ORM\Query\Expr\Math;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\Querying\Contracts\PropertyPathAccessInterface;
 use EDT\Querying\PropertyPaths\PathInfo;
