@@ -75,7 +75,6 @@ class SupportContact extends CoreEntity implements UuidEntityInterface, SupportC
     /**
      * @ORM\Column(name="text", type="text", nullable=true)
      */
-    #[Assert\NotBlank(allowNull: true)]
     private ?string $text;
 
     /**

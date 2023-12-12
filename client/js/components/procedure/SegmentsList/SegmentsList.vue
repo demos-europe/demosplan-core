@@ -25,7 +25,7 @@
           @change-fields="updateSearchFields"
           @search="updateSearchQuery"
           @reset="updateSearchQuery" />
-        <div class="flex bg-color--grey-light-2 border-radius-medium space-inline-xs">
+        <div class="flex bg-color--grey-light-2 rounded-md space-inline-xs">
           <span class="color--grey u-ml-0_5 line-height--2">
             {{ Translator.trans('filter') }}
           </span>
@@ -161,8 +161,9 @@
         <template v-slot:tags="rowData">
           <span
             :key="tag.id"
+            class="rounded-md"
             v-for="tag in getTagsBySegment(rowData.id)"
-            style="color: #63667e; background: #EBE9E9; border-radius: 4px; padding: 2px 4px; margin: 4px 2px; display: inline-block;">
+            style="color: #63667e; background: #EBE9E9; padding: 2px 4px; margin: 4px 2px; display: inline-block;">
             {{ tag.attributes.title }}
           </span>
         </template>

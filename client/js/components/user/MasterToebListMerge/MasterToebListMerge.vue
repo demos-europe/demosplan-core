@@ -10,7 +10,7 @@
 <template>
   <div class="layout">
     <div class="layout__item u-1-of-2">
-      <div class="space-inset-s space-stack-s bg-color-light border-radius-medium">
+      <div class="space-inset-s space-stack-s bg-color-light rounded-md">
         <dp-label
           class="u-mb-0_25"
           :text="Translator.trans('invitable_institution.master.organisations.new')"
@@ -47,7 +47,7 @@
     </div><!--
 
  --><div class="layout__item u-1-of-2">
-      <div class="space-inset-s space-stack-s bg-color-light border-radius-medium">
+      <div class="space-inset-s space-stack-s bg-color-light rounded-md">
         <dp-label
           class="u-mb-0_25"
           :text="Translator.trans('invitable_institutions.master.organisations.master_toeb_list')"
