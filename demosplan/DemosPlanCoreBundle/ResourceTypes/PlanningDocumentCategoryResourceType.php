@@ -26,9 +26,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use Doctrine\Common\Collections\Collection;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\PathException;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-implements UpdatableDqlResourceTypeInterface<Elements>
@@ -103,7 +101,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
         $adminConditions = [
             $this->conditionFactory->propertyHasValue(false, $this->deleted),
             $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id),
-            $this->conditionFactory->propertyHasNotValue(ElementsInterface::ELEMENTS_CATEGORY_MAP, $this->category),
+            $this->conditionFactory->propertyHasNotValue(ElementsInterface::ELEMENT_CATEGORIES['map'], $this->category),
         ];
 
         // These "elements" are needed for technical reasons but are no actual categories.

@@ -37,6 +37,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Yaml\Yaml;
@@ -68,12 +69,13 @@ class AddonInstallFromZipCommand extends CoreCommand
     {
         $this->addArgument(
             'path',
-            InputArgument::REQUIRED,
+            InputArgument::OPTIONAL,
             'Path to zip'
         );
 
         $this->addOption('reinstall', '', InputOption::VALUE_NONE, 'Re-install an addon (useful for debugging)');
         $this->addOption('enable', '', InputOption::VALUE_NONE, 'Immediately enable addon during installation');
+        $this->addOption('folder', '', InputOption::VALUE_REQUIRED, 'Folder to read addon zips from', 'addonZips');
     }
 
     /**
@@ -86,8 +88,23 @@ class AddonInstallFromZipCommand extends CoreCommand
 
         $reinstall = $input->getOption('reinstall');
         $enable = $input->getOption('enable');
+        $path = $input->getArgument('path');
+        $folder = $input->getOption('folder');
 
-        $this->setPaths($input->getArgument('path'));
+        if (null === $path) {
+            $zips = glob(DemosPlanPath::getRootPath($folder).'/*.zip');
+
+            if (!is_array($zips) || 0 === count($zips)) {
+                $output->error("No Addon zips found in Folder {$folder}");
+
+                return self::FAILURE;
+            }
+
+            $question = new ChoiceQuestion('Which addon do you want to install? ', $zips);
+            $path = $this->getHelper('question')->ask($input, $output, $question);
+        }
+
+        $this->setPaths($path);
         try {
             $this->initializeAddonsInfrastructure();
         } catch (JsonException|RuntimeException $e) {
@@ -104,14 +121,10 @@ class AddonInstallFromZipCommand extends CoreCommand
             $this->checkReinstall($packageDefinition, $reinstall);
 
             $this->addAddonToComposerRequire($packageDefinition);
-        } catch (JsonException $e) {
+        } catch (JsonException|AddonException $e) {
             $output->error($e->getMessage());
 
             return Command::FAILURE;
-        } catch (AddonException $e) {
-            $output->success($e->getMessage());
-
-            return Command::SUCCESS;
         }
 
         try {
@@ -149,7 +162,7 @@ class AddonInstallFromZipCommand extends CoreCommand
 
             if (0 === $batchReturn) {
                 $output->success("Addon {$name} successfully installed. Please remember to ".
-                    "build the frontend assets of the core and deployment to webserver folder when needed.");
+                    'build the frontend assets of the core and deployment to webserver folder when needed.');
 
                 return Command::SUCCESS;
             }
