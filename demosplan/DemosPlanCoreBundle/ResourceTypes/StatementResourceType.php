@@ -18,6 +18,7 @@ use DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInter
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicateInternIdException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
@@ -32,6 +33,9 @@ use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryStatement;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
+use EDT\DqlQuerying\Functions\IsInstanceOfTargetEntity;
+use EDT\DqlQuerying\Functions\IsTargetEntityInstanceOf;
+use EDT\DqlQuerying\Functions\IsTargetEntityNotInstanceOf;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 use Elastica\Index;
@@ -222,7 +226,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $this->conditionFactory->propertyIsNull(Paths::statement()->headStatement->id),
             $this->conditionFactory->propertyIsNotNull(Paths::statement()->original->id),
             // all segments must have a segment set, hence the following check is used to ensure this resource type does not return segments
-            $this->conditionFactory->propertyIsNull(Paths::segment()->parentStatementOfSegment)
+            $this->conditionFactory->isTargetEntityNotInstanceOf(Segment::class)
         );
 
         /** @var StatementResourceConfigBuilder $configBuilder */

@@ -37,7 +37,7 @@ class HasSegmentsClause implements ClauseFunctionInterface, Stringable
         return [new PathInfo($idPath, true)];
     }
 
-    public function asDql(array $valueReferences, array $propertyAliases): Composite|Math|Func|Comparison|string
+    public function asDql(array $valueReferences, array $propertyAliases, string $mainEntityAlias): string
     {
         $procedureIdReference = array_pop($valueReferences);
         $statementIdAlias = array_pop($propertyAliases);
