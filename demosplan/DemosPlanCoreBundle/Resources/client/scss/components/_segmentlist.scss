@@ -21,7 +21,6 @@ $utility-border-thickness: $dp-border-thickness;
 
     &-row {
         display: flex;
-        border-radius: 4px;
 
         &:not(.segment-list-row--assigned) {
             background-color: $dp-color-white;
