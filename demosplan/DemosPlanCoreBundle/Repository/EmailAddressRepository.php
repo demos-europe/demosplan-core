@@ -59,12 +59,21 @@ class EmailAddressRepository extends FluentRepository implements EmailAddressRep
      */
     public function deleteOrphanEmailAddresses(array $emailIds): int
     {
-        return $this->getEntityManager()->createQuery('
-            DELETE e.id FROM email_address AS e
-            LEFT JOIN procedure_agency_extra_email_address AS p ON p.email_address_id = e.id
-            WHERE p.procedure_id IS NULL
-            AND e.id NOT IN (:emailIds)')
-            ->setParameter(['emailIds' => $emailIds])->getResult();
+//        return $this->getEntityManager()->createQuery('
+//            DELETE e.id FROM email_address AS e
+//            LEFT JOIN procedure_agency_extra_email_address AS p ON p.email_address_id = e.id
+//            WHERE p.procedure_id IS NULL
+//            AND e.id NOT IN (:emailIds)')
+//            ->setParameter(['emailIds' => $emailIds])->getResult();
+
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $query = $qb->delete()
+            ->from(EmailAddress::class, 'e')
+            ->leftJoin('procedure_agency_extra_email_address.email_address_id e.id', 'alias', 'ON', '=')
+            ->andWhere('procedure_agency_extra_email_address.procedure_id IS NULL')
+            ->andWhere('e.id NOT IN (:emailIds)')
+            ->setParameter('emailIds', $emailIds)
+            ->getQuery();
     }
 
     /**
