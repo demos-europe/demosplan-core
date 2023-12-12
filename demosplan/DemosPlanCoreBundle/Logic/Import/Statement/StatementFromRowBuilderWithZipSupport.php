@@ -5,7 +5,10 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
+use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use Symfony\Component\Validator\Constraints\Collection;
@@ -22,9 +25,54 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
         protected readonly array $fileMap,
         protected readonly FileService $fileService,
         private readonly EntityManagerInterface $entityManager,
-        private readonly StatementFromRowBuilder $baseStatementFromRowBuilder
+        private readonly StatementFromRowBuilder $baseStatementFromRowBuilder,
+        private readonly StatementAttachmentService $statementAttachmentService
     ) {
         parent::__construct();
+    }
+
+    public function setOriginalFileReferences(Cell $cell): ?ConstraintViolationListInterface
+    {
+        // early return in case no file-reference is found
+        $cellValue = $cell->getValue();
+        if (null === $cellValue || '' === $cellValue) {
+            return null;
+        }
+
+        $collectionContent = [$cellValue =>  new Required(new Type(File::class))];
+
+        $keyConstraint = new Collection(
+            $collectionContent,
+            null,
+            null,
+            true,
+            false
+        );
+        $violations = $this->validator->validate(
+            $this->fileMap,
+            [$keyConstraint]
+        );
+        if (0 !== $violations->count()) {
+            return $violations;
+        }
+
+        $statement = $this->baseStatementFromRowBuilder->statement;
+        /** @var File $fileEntity */
+        $fileEntity = $this->fileMap[$cellValue];
+        /**
+         * The statement has to be persisted now in order to get an id.
+         * This id needs to be used to persist a new { @link StatementAttachment }.
+         * The StatementAttachment can not be flushed at this point as the also persisted statement
+         * is not functional yet and will trigger constraints.
+         */
+        $this->entityManager->persist($statement);
+        $statementAttachmentList = new ArrayCollection();
+        $statementAttachment = $this->statementAttachmentService->createOriginalAttachment($statement, $fileEntity);
+        $this->entityManager->persist($statementAttachment);
+        $statementAttachmentList->add($statementAttachment);
+        $statement->setAttachments($statementAttachmentList);
+
+        return null;
     }
 
     public function setFileReferences(Cell $cell): ?ConstraintViolationListInterface
@@ -75,7 +123,10 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
                 $fileEntity->getFileString(),
                 false
             );
-            $this->validator->validate($fileContainer, [new NotNull()]);
+            $violations = $this->validator->validate($fileContainer, [new NotNull()]);
+            if (0 !== $violations->count()) {
+                return $violations;
+            }
         }
 
         return null;

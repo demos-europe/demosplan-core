@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\ZipImportService;
@@ -43,7 +44,8 @@ class StatementSpreadsheetImporterWithZipSupport extends StatementSpreadsheetImp
         private readonly ZipImportService $zipImportService,
         private readonly FileService $fileService,
         private readonly NCNameGenerator $nameGenerator,
-        private readonly EntityManagerInterface $entityManager
+        private readonly EntityManagerInterface $entityManager,
+        private readonly StatementAttachmentService $statementAttachmentService
     ) {
         parent::__construct($currentProcedureService, $currentUser, $elementsService, $orgaService, $statementCopier, $statementService, $translator, $validator, $this->entityManager);
     }
@@ -55,7 +57,8 @@ class StatementSpreadsheetImporterWithZipSupport extends StatementSpreadsheetImp
             $this->getFileMap(),
             $this->fileService,
             $this->entityManager,
-            $baseStatementBuilder
+            $baseStatementBuilder,
+            $this->statementAttachmentService
         );
     }
 
@@ -63,11 +66,11 @@ class StatementSpreadsheetImporterWithZipSupport extends StatementSpreadsheetImp
     {
         [$baseColumns, $builder] = parent::getColumnMapping();
         $builder = $this->getStatementFromRowBuilder($builder);
-       // add new columns
+        // add new columns
         $baseColumns['Referenzen auf Anhänge'] = [$builder, 'setFileReferences'];
+        $baseColumns['Referenzen auf original Anhang'] = [$builder, 'setOriginalFileReferences'];
 
-
-       return [$baseColumns, $builder];
+        return [$baseColumns, $builder];
     }
 
     /**
