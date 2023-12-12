@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Exception\AssessmentTableZipExportException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FormOptionsResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService;
@@ -58,7 +59,9 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
         SimpleSpreadsheetService $simpleSpreadsheetService,
         StatementHandler $statementHandler,
         TranslatorInterface $translator,
-        private readonly StatementService $statementService
+        private readonly AssessmentTablePdfExporter $pdfExporter,
+        private readonly StatementService $statementService,
+        private readonly FileService $fileService
     ) {
         parent::__construct(
             $assessmentHandler,
@@ -111,13 +114,34 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
     {
         $files = [];
         $index = 0;
+
+        $parameters = [
+            'procedureId' => $this->currentProcedureService->getProcedure()->getId(),
+            'anonymous'   => false,
+            'exportType'  => 'statementsOnly',
+            'template'    => 'portrait',
+            'original'    => true,
+            'viewMode'    => 'view_mode_default',
+        ];
+            // set file attachments if present:
         foreach ($statementIds as $statementId) {
             $statementAttachments = $this->statementService->getFileContainersForStatement($statementId);
             $files[$index] = ['attachments' => [], 'originalAttachment' => null];
             foreach ($statementAttachments as $statementAttachment) {
                 $files[$index]['attachments'][] = $statementAttachment->getFile();
             }
+            // set the stn attachment:
+            // if present just take the given one.
             $files[$index]['originalAttachment'] = $this->getOriginalAttachment($statementId);
+            if (null === $files[$index]['originalAttachment']) {
+                // if not present yet, invoke the pdfCreator and create an original-stn-pdf to use instead
+                $parameters['statementId'] =
+                    $this->statementService->getStatement($statementId)?->getOriginal()->getId();
+                $files[$index]['originalAttachment'] = $this->pdfExporter->__invoke(
+                    $parameters
+                );
+                $files[$index]['originalAttachment']['fileHash'] = $this->fileService->createHash();
+            }
             ++$index;
         }
 
@@ -166,7 +190,12 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
                 foreach ($files[$indexStatment]['attachments'] as $file) {
                     $referencesAsString .= $file->getHash().', ';
                 }
-                $referencesAsStringOriginal = $files[$indexStatment]['originalAttachment']?->getHash() ?? '';
+                if ($files[$indexStatment]['originalAttachment'] instanceof File) {
+                    $referencesAsStringOriginal = $files[$indexStatment]['originalAttachment']?->getHash() ?? '';
+                }
+                if (is_array($files[$indexStatment]['originalAttachment'])) {
+                    $referencesAsStringOriginal = $files[$indexStatment]['originalAttachment']['fileHash'];
+                }
             }
 
             $cell = $columnForReferencesToAttachments.$row;

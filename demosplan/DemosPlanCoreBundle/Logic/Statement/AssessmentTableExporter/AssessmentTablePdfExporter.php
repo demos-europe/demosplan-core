@@ -113,7 +113,17 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             if (!array_key_exists('filters', $parameters) || !is_array($parameters['filters'])) {
                 $parameters['filters'] = [];
             }
-            $parameters = $this->addStatementsFromCurrentQueryHashToFilter($parameters, $procedureId, $original);
+            if (!array_key_exists('statementId', $parameters)) {
+                $parameters = $this->addStatementsFromCurrentQueryHashToFilter($parameters, $procedureId, $original);
+            } else {
+                /**
+                 * in case the key 'statementId' was set by the invoking
+                 * { @link AssessmentTableZipExporter::getAttachmentsOfStatements }
+                 * do not try to obtain the ids from session
+                 */
+                $parameters['items'] = [$parameters['statementId']];
+            }
+
             $fragmentIds = [];
             if (array_key_exists('items', $parameters) && 0 < (is_countable($parameters['items']) ? count($parameters['items']) : 0)) {
                 $parameters['filters']['id'] = [];
