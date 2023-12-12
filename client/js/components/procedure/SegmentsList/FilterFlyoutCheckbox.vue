@@ -18,16 +18,26 @@
     <label
       :class="{'weight--normal': highlight === false }"
       class="inline-block u-m-0"
-      :for="`${instance}_id_${option.id}`"
-      v-tooltip="option.attributes.description">
+      :for="`${instance}_id_${option.id}`">
       {{ option.attributes.label }} <template v-if="showCount">({{ option.attributes.count }})</template>
     </label>
+    <dp-contextual-help
+      v-if="option.attributes.description && instance !=='itemsSelected'"
+      class="float-right mt-8"
+      icon="question"
+      :text="option.attributes.description" />
   </li>
 </template>
 
 <script>
+import { DpContextualHelp } from '@demos-europe/demosplan-ui'
+
 export default {
   name: 'FilterFlyoutCheckbox',
+
+  components: {
+    DpContextualHelp
+  },
 
   props: {
     checked: {
