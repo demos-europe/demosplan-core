@@ -258,11 +258,11 @@
 
                                 <td class="u-ph-0 {{ loop.last ? 'u-pt-0_25 u-pb-0_5' : 'u-pv-0_25' }} text-center">
                                     {% if tag.boilerplate %}
-                                        <dp-tooltip-icon
+                                        <dp-contextual-help
                                             class="color--grey"
-                                            icon="fa-file"
+                                            icon="file"
                                             text="{{ tag.boilerplate.text }}"
-                                        ></dp-tooltip-icon>
+                                        ></dp-contextual-help>
                                     {% endif %}
                                 </td>
 
@@ -364,11 +364,11 @@
             </div>
 
             {# import #}
-            <dp-tooltip-icon
+            <dp-contextual-help
                 class="float-right"
-                icon="fa-question-circle"
+                icon="question"
                 text="{{ "tags.import.help"|trans }}"
-            ></dp-tooltip-icon>
+            ></dp-contextual-help>
 
             <div class="u-mb">
                 {{  fileupload(
