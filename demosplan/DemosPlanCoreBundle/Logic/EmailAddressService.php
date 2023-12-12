@@ -39,7 +39,7 @@ class EmailAddressService extends CoreService
 
         $emailIds = $event->getEmailIds();
 
-        return $this->emailAddressRepository->deleteOrphanEmailAddresses($emailIds);
+        return $this->emailAddressRepository->deleteOrphanEmailAddresses(reset($emailIds));
     }
 
     public function getOrCreateEmailAddress(string $fullEmailAddress): EmailAddress
