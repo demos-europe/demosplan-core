@@ -133,7 +133,7 @@
    --><div class="inline-block u-2-of-3 u-1-of-1-palm">
         {{ authoredBy }}
       </div>
-      </div><!--
+    </div><!--
  --><div class="u-1-of-1 c-public-statement__content-item">
       <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
         {{ Translator.trans('department') }}
@@ -141,7 +141,7 @@
    --><div class="inline-block u-2-of-3 u-1-of-1-palm">
         {{ department || '-' }}
       </div>
-      </div><!--
+    </div><!--
  --><div class="u-1-of-1 c-public-statement__content-item">
       <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
         {{ Translator.trans('phase') }}
@@ -157,7 +157,7 @@
    --><div class="inline-block u-2-of-3 u-1-of-1-palm">
         {{ document }}
       </div>
-      </div><!--
+    </div><!--
  --><div
       v-if="hasPermission('feature_documents_new_statement')"
       class="u-1-of-1 c-public-statement__content-item">
@@ -168,28 +168,28 @@
         {{ paragraph }}
       </div>
     </div>
-    </div>
-    <div class="u-1-of-2 u-1-of-1-palm c-public-statement__content-container">
-      <div class="u-1-of-1 c-public-statement__content-item">
-        <template v-if="hasPermission('field_statement_location')">
-          <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
-            {{ Translator.trans('location') }}
-          </div>
-          <div class="inline-block u-2-of-3 u-1-of-1-palm">
-            <button
-              v-if="Object.keys(polygon).length > 0"
-              class="btn--blank o-link--default"
-              type="button"
-              @click.prevent.stop="$emit('open-map-modal', polygon)"
-              :aria-label="`${Translator.trans('statement.map.drawing.show')} ${Translator.trans('statement')}: ${number}`">
-              {{ Translator.trans('see') }}
-            </button>
-            <span v-else>
-              -
-            </span>
-          </div>
-        </template>
-      </div><!--
+  </div>
+  <div class="u-1-of-2 u-1-of-1-palm c-public-statement__content-container">
+    <div class="u-1-of-1 c-public-statement__content-item">
+      <template v-if="hasPermission('field_statement_location')">
+        <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
+          {{ Translator.trans('location') }}
+        </div>
+        <div class="inline-block u-2-of-3 u-1-of-1-palm">
+          <button
+            v-if="Object.keys(polygon).length > 0"
+            class="btn--blank o-link--default"
+            type="button"
+            @click.prevent.stop="$emit('open-map-modal', polygon)"
+            :aria-label="`${Translator.trans('statement.map.drawing.show')} ${Translator.trans('statement')}: ${number}`">
+            {{ Translator.trans('see') }}
+          </button>
+          <span v-else>
+            -
+          </span>
+        </div>
+      </template>
+    </div><!--
  --><div
       class="u-1-of-1 c-public-statement__content-item"
       v-if="priorityAreas !== null">
@@ -199,7 +199,7 @@
    --><div class="inline-block u-2-of-3 u-1-of-1-palm">
         {{ renderPriorityAreas(priorityAreas) }}
       </div>
-      </div><!--
+    </div><!--
    --><div
         class="u-1-of-1 c-public-statement__content-item"
         v-if="county !== null">
@@ -209,7 +209,7 @@
    --><div class="inline-block u-2-of-3 u-1-of-1-palm">
       {{ county }}
       </div>
-      </div><!--
+    </div><!--
  --><div class="u-1-of-1 c-public-statement__content-item">
       <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
         {{ Translator.trans('attachments') }}
