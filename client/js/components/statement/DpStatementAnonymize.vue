@@ -60,7 +60,7 @@
         v-show="actions.anonymizeStatementText"
         class="u-ml">
         <dp-contextual-help
-          icon="question float-right"
+          class="float-right"
           :text="Translator.trans('statement.anonymize.text.editor.hint')" />
         <p class="weight--bold u-mb-0_25">
           {{ Translator.trans('statement.anonymize.text.editor.title') }}

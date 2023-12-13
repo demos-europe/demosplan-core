@@ -24,7 +24,6 @@
     <dp-contextual-help
       v-if="option.attributes.description && instance !=='itemsSelected'"
       class="float-right mt-8"
-      icon="question"
       :text="option.attributes.description" />
   </li>
 </template>
