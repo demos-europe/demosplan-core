@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DemosEurope\DemosplanAddon\Contracts\Repositories\EmailAddressRepositoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
+use Doctrine\DBAL\ParameterType;
 
 class EmailAddressRepository extends FluentRepository implements EmailAddressRepositoryInterface
 {
@@ -59,21 +60,29 @@ class EmailAddressRepository extends FluentRepository implements EmailAddressRep
      */
     public function deleteOrphanEmailAddresses(array $emailIds): int
     {
-        //        return $this->getEntityManager()->createQuery('
-        //            DELETE e.id FROM email_address AS e
-        //            LEFT JOIN procedure_agency_extra_email_address AS p ON p.email_address_id = e.id
-        //            WHERE p.procedure_id IS NULL
-        //            AND e.id NOT IN (:emailIds)')
-        //            ->setParameter(['emailIds' => $emailIds])->getResult();
 
-        $qb = $this->getEntityManager()->createQueryBuilder();
-        $query = $qb->delete()
-            ->from(EmailAddress::class, 'e')
-            ->leftJoin('procedure_agency_extra_email_address.email_address_id e.id', 'alias', 'ON', '=')
-            ->andWhere('procedure_agency_extra_email_address.procedure_id IS NULL')
-            ->andWhere('e.id NOT IN (:emailIds)')
-            ->setParameter('emailIds', $emailIds)
-            ->getQuery();
+        $connection = $this->getEntityManager()->getConnection();
+
+        $emailIdsCount = count($emailIds);
+        if ($emailIdsCount === 0)
+        {
+            return $connection->exec(
+                'DELETE e'
+                .' FROM email_address AS e'
+                .' LEFT JOIN procedure_agency_extra_email_address  AS p  ON p.email_address_id = e.id'
+                .' WHERE p.procedure_id   IS NULL'
+            );
+        }else {
+            $emailIdsString = array_fill(0,$emailIdsCount, '?');
+            $emailIdsString = implode(',', $emailIdsString);
+            return $connection->executeStatement(
+                'DELETE e'
+                .' FROM email_address AS e'
+                .' LEFT JOIN procedure_agency_extra_email_address  AS p  ON p.email_address_id = e.id'
+                .' WHERE p.procedure_id   IS NULL'
+                .' AND e.id NOT IN ('.$emailIdsString.')',$emailIds
+            );
+        }
     }
 
     /**
