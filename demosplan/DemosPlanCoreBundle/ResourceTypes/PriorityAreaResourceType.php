@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
@@ -21,7 +22,7 @@ use EDT\PathBuilding\End;
  * @template-extends DplanResourceType<PriorityArea>
  *
  * @property-read End $name
- * @property-read End $type
+ * @property-read End $priorityAreaType
  * @property-read End $key
  */
 final class PriorityAreaResourceType extends DplanResourceType
@@ -85,7 +86,8 @@ final class PriorityAreaResourceType extends DplanResourceType
         return [
             $this->createIdentifier()->readable()->filterable(),
             $this->createAttribute($this->name)->readable(true)->filterable()->sortable()->aliasedPath($this->key),
-            $this->createAttribute($this->type)->readable(true)->filterable()->sortable(),
+            $this->createAttribute($this->priorityAreaType)
+                ->readable(true)->filterable()->sortable()->aliasedPath(Paths::priorityArea()->type),
             $this->createAttribute($this->key)->readable(true)->filterable()->sortable(),
         ];
     }
