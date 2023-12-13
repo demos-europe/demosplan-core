@@ -32,7 +32,6 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
-use Elasticsearch\Endpoints\Cluster\State;
 
 class StatementDeleter extends CoreService
 {
@@ -83,7 +82,6 @@ class StatementDeleter extends CoreService
             throw new InvalidArgumentException('Original-Statement to delete still has children.');
         }
         $forReport = clone $originalStatement;
-
 
         $this->deleteStatementObject(
             $originalStatement,
@@ -164,8 +162,6 @@ class StatementDeleter extends CoreService
                                     $this->deleteOriginalStatement($originalStatement);
                                 }
                             }
-
-
                         }
                     } catch (Exception $e) {
                         $this->getLogger()->warning('Add Report in deleteStatement() failed Message: ', [$e]);
