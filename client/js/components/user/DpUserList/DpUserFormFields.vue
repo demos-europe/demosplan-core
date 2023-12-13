@@ -9,7 +9,7 @@
 
 <template>
   <div class="whitespace-nowrap">
-    <div class="inline-block u-1-of-2 u-pr-0_5 u-mv-0_5">
+    <div class="inline-block w-1/2 pr-3 my-3">
       <dp-input
         :id="userId + ':firstName'"
         v-model="localUser.attributes.firstname"
@@ -21,7 +21,7 @@
         @input="emitUserUpdate" />
     </div>
 
-    <div class="inline-block u-1-of-2 u-pr-0_5 u-mv-0_5">
+    <div class="inline-block w-1/2 pr-3 my-3">
       <dp-input
         :id="userId + ':lastName'"
         v-model="localUser.attributes.lastname"
@@ -34,7 +34,7 @@
     </div>
 
     <!-- Email -->
-    <div class="u-1-of-2 u-pr-0_5 u-mb-0_5">
+    <div class="w-1/2 pr-3 mb-3">
       <dp-input
         :id="userId + ':email'"
         v-model="localUser.attributes.email"
@@ -47,21 +47,21 @@
         @input="emitUserUpdate" />
     </div>
 
-    <div class="u-1-of-2 u-pr-0_5 inline-block">
+    <div class="w-1/2 pr-3 inline-block">
       <label
-        class="push--bottom u-mb-0_25 u-mt-0_5"
+        class="mb-1.5 mt-3"
         :for="userId + ':organisationId'">
         {{ Translator.trans('organisation') }}*
       </label>
       <dp-multiselect
         v-if="hasPermission('area_organisations')"
         :id="userId + ':organisationId'"
+        ref="orgasDropdown"
         data-cy="organisation"
         label="name"
         :loading="isLoading"
         :options="initialOrgaSuggestions"
         :placeholder="Translator.trans('search.three.signs')"
-        ref="orgasDropdown"
         required
         track-by="id"
         :value="currentUserOrga"
@@ -80,7 +80,7 @@
       </span>
     </div>
 
-    <div class="u-1-of-2 u-pr-0_5 inline-block">
+    <div class="w-1/2 pr-3 inline-block">
       <dp-select
         :id="userId + ':departmentId'"
         data-cy="department"
@@ -98,26 +98,26 @@
     <!-- Role -->
     <div
       v-if="organisations[this.currentUserOrga.id]"
-      class="u-1-of-2 u-pr-0_5 u-mt-0_5">
+      class="w-1/2 pr-3 mt-3">
       <label
-        class="push--bottom u-mt-0_75 u-mb-0_25"
+        class="u-mt-0_75 mb-1.5"
         :for="userId + ':userRoles'">
         {{ Translator.trans('role') }}*
       </label>
       <dp-multiselect
         :id="userId + ':userRoles'"
+        ref="rolesDropdown"
         class="u-mb-0_5"
         :custom-label="option =>`${ roles[option.id].attributes.name }`"
         data-cy="role"
         label="name"
         multiple
         :options="allowedRolesForOrga"
-        ref="rolesDropdown"
         required
         track-by="id"
         :value="localUser.relationships.roles.data"
-        @select="addRole"
-        @remove="removeRole">
+        @remove="removeRole"
+        @select="addRole">
         <template v-slot:option="{ props }">
           <span>{{ roles[props.option.id].attributes.name }}</span>
         </template>
@@ -126,8 +126,8 @@
             {{ roles[props.option.id].attributes.name }}
             <i
               aria-hidden="true"
-              tabindex="1"
               class="multiselect__tag-icon"
+              tabindex="1"
               @click="props.remove(props.option)" />
             <input
               :name="userId + ':userRoles[]'"
