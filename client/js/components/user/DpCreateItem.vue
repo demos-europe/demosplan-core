@@ -23,7 +23,7 @@
     @item:toggle="(open) => { toggleItem(open) }">
     <div class="o-box--dark soft">
       <div
-        class="u-ph-0_5 u-pv-0_5"
+        class="px-3 py-3"
         :data-dp-validate="customComponent[entity].formName">
         <!-- Form fields   -->
         <component
