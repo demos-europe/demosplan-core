@@ -320,6 +320,11 @@ export default {
     }
   },
 
+  emits: [
+    'exportModal:toggle',
+    'handle-sort-change'
+  ],
+
   data () {
     return {
       viewModes: [

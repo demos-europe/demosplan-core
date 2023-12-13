@@ -285,6 +285,10 @@ export default {
     }
   },
 
+  emits: [
+    'orga-updated'
+  ],
+
   data () {
     return {
       boolToStringFields: ['documentRoughAgreement', 'documentAgreement', 'documentNotice', 'documentAssessment'],

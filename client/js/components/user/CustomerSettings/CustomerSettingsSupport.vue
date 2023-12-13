@@ -10,7 +10,7 @@
         <h3 v-text="contact.attributes.title" />
         <p v-text="contact.attributes.phoneNumber" />
         <p v-text="contact.attributes.eMailAddress" />
-        <template v-html="contact.attributes.text" />
+        <div v-html="contact.attributes.text" />
         <dp-badge
           class="color--white border-radius-extra-large whitespace--nowrap bg-color--grey u-mt-0_125"
           size="smaller"

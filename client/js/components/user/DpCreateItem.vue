@@ -141,6 +141,12 @@ export default {
     }
   },
 
+  emits: [
+    'get-items',
+    this.customComponent[this.entity].resetEvent,
+    this.customComponent[this.entity].updateEvent
+  ],
+
   data () {
     return {
       /**

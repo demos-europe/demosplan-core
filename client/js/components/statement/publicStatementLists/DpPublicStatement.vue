@@ -371,6 +371,10 @@ export default {
     }
   },
 
+  emits: [
+    'open-map-modal'
+  ],
+
   data () {
     return {
       isOpen: true

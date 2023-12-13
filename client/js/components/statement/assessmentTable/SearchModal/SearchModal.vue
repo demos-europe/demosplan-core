@@ -266,6 +266,11 @@ export default {
     }
   },
 
+  emits: [
+    'close',
+    'search'
+  ],
+
   data () {
     return {
       exactSearch: this.preselectedExactSearch,

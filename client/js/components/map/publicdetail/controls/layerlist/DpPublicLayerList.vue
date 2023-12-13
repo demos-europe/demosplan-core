@@ -70,6 +70,10 @@ export default {
     }
   },
 
+  emits: [
+    'layer:toggleLayer'
+  ],
+
   computed: {
     showBaseLayers () {
       return hasPermission('feature_participation_area_procedure_detail_map_use_baselayerbox')

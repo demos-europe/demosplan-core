@@ -46,6 +46,11 @@ export default {
     }
   },
 
+  emits: [
+    'tool:activated',
+    'tool:setPoint'
+  ],
+
   data () {
     return {
       // Active: true,

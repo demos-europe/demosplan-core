@@ -153,11 +153,17 @@ export default {
       required: true
     }
   },
+
+  emits: [
+    'open-statement-modal-from-list'
+  ],
+
   data () {
     return {
       transformedStatements: this.transformStatements(this.statements)
     }
   },
+
   computed: {
     actionFields () {
       const fields = []
@@ -204,6 +210,7 @@ export default {
       })
     }
   },
+
   methods: {
     openMapModal (polygon) {
       this.$refs.mapModal.toggleModal(polygon)
