@@ -38,8 +38,11 @@ class ZipImportService
     private Finder $finder;
     private const ZIP_CONTAINS_ERROR_TXT_FILE = 'File is not valid. It contains an errors.txt file indicating a faulty export';
 
+    //fixme: allow all files, or even remove this list? to ensure all exported files will be considered?
     private const IMPORT_FILE_TYPES_TO_BE_SAVED = [
-        'pdf'
+        'pdf',
+        'docx',
+        'png'
     ];
     public function __construct(
         private readonly CurrentContextProvider $currentContextProvider,

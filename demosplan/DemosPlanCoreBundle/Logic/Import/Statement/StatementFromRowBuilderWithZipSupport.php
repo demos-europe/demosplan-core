@@ -11,10 +11,12 @@ use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
+use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Required;
 use Symfony\Component\Validator\Constraints\Type;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -83,30 +85,9 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
             return null;
         }
 
-        $references = explode(', ', $cell->getValue());
-
-        $collectionContent = array_fill_keys(
-            $references,
-            new Required(
-                new Type(File::class)
-            )
-        );
-        $keyConstraint = new Collection(
-            $collectionContent,
-            null,
-            null,
-            true,
-            false
-       );
-        $violations = $this->validator->validate(
-            $this->fileMap,
-            [$keyConstraint]
-        );
-        if (0 !== $violations->count()) {
-            return $violations;
-        }
-
+        $fileHashes = explode(', ', $cell->getValue());
         $statement = $this->baseStatementFromRowBuilder->statement;
+
         /**
          * The statement has to be persisted now in order to get an id.
          * This id needs to be used to persist a new fileContainer.
@@ -114,19 +95,36 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
          * is not functional yet and will trigger constraints.
          */
         $this->entityManager->persist($statement);
-        foreach ($references as $fileMapKey) {
-            /** @var File $fileEntity */
-            $fileEntity = $this->fileMap[$fileMapKey];
-            $fileContainer = $this->fileService->addStatementFileContainer(
-                $statement->getId(),
-                $fileEntity->getId(),
-                $fileEntity->getFileString(),
-                false
+
+        $violations = new ConstraintViolationList();
+        foreach ($fileHashes as $fileMapKey) {
+
+            $newViolations = $this->validator->validate(
+                $fileMapKey,
+                new Choice(
+                    choices: array_keys($this->fileMap),
+                    message: 'Anhang '.$fileMapKey.'nicht im ZIP gefunden' //fixme: use transkey
+                )
             );
-            $violations = $this->validator->validate($fileContainer, [new NotNull()]);
-            if (0 !== $violations->count()) {
-                return $violations;
+
+            if (0 === $newViolations->count()) {
+                /** @var File $fileEntity */
+                $fileEntity = $this->fileMap[$fileMapKey];
+
+                $fileContainer = $this->fileService->addStatementFileContainer(
+                    $statement->getId(),
+                    $fileEntity->getId(),
+                    $fileEntity->getFileString(),
+                    false
+                );
+                $violations = $this->validator->validate($fileContainer, [new NotNull()]);
             }
+
+            $violations->addAll($newViolations);
+        }
+
+        if (0 !== $violations->count()) {
+            return $violations;
         }
 
         return null;

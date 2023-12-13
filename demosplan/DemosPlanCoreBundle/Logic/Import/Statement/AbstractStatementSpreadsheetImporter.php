@@ -137,7 +137,11 @@ abstract class AbstractStatementSpreadsheetImporter implements StatementSpreadsh
     /**
      * Add error-entries from constraintValidations in reference to current line number.
      */
-    public function addImportViolations(ConstraintViolationListInterface $errors, int $currentLineNumber, string $currentWorksheetTitle): void
+    public function addImportViolations(
+        ConstraintViolationListInterface $errors,
+        int $currentLineNumber,
+        string $currentWorksheetTitle
+    ): void
     {
         // $currentLineNumber is the index of the statement/segment array derived from the xlsx. +2 is needed to
         // compensate for arrays starting at 0 (while xslx tables start at 1) and also the first line being the headings
