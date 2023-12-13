@@ -34,7 +34,7 @@
 
         <!-- Save/Abort buttons   -->
         <dp-button-row
-          class="u-mt"
+          class="mt-6"
           :form-name="customComponent[entity].formName"
           primary
           secondary
