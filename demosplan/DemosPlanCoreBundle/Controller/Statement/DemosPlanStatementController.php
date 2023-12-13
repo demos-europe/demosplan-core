@@ -2385,6 +2385,9 @@ class DemosPlanStatementController extends BaseController
                 $fileNames[] = $fileInfo->getFileName();
                 $statementCount += count($importer->getCreatedStatements());
             }
+            if ($importer->hasErrors()) {
+                return $this->createErrorResponse($procedureId, $importer->getErrorsAsArray());
+            }
         } catch (Exception $e) {
 
             return $this->redirectToRoute(
@@ -2441,6 +2444,9 @@ class DemosPlanStatementController extends BaseController
 
                 $fileService->deleteFile($zipFileInfo->getHash());
             }
+            if ($importer->hasErrors()) {
+                return $this->createErrorResponse($procedureId, $importer->getErrorsAsArray());
+            }
         } catch (Throwable $e) {
             $this->logger->error('Something went wrong importing Statements from zip', ['exception' => $e]);
             return $this->redirectToRoute(
@@ -2468,24 +2474,6 @@ class DemosPlanStatementController extends BaseController
         }
         try {
             $importer->importFromFile($fileInfo);
-            // accumulated errors during import have to be handled now - the transaction got rolled back already
-            if ($importer->hasErrors()) {
-                $messageBagEntryCounter = 0;
-                foreach ($importer->getErrorsAsArray() as $importError) {
-                    if (15 < $messageBagEntryCounter) {
-                        break;
-                    }
-                    $messageBagEntryCounter++;
-                    $line = (string) $importError['lineNumber'];
-                    $message = $importError['message'];
-                    $this->messageBag->add(
-                        'error',
-                        'statements.import.error.property.constraint.violation',
-                        ['lineNumber' => $line, 'message' => $message]
-                    );
-                }
-                throw new DemosException(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS);
-            }
         } catch (RowAwareViolationsException $e) {
             $this->getMessageBag()->add(
                 'error',
