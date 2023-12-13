@@ -23,7 +23,7 @@
     </label>
     <dp-contextual-help
       v-if="option.attributes.description && instance !=='itemsSelected'"
-      class="float-right mt-8"
+      class="float-right mt-0.5"
       :text="option.attributes.description" />
   </li>
 </template>
