@@ -101,15 +101,15 @@ export default {
   },
 
   emits: [
+    'layer:hideOtherCategories',
+    'layer-opacity:change',
+    'layer-opacity:changed',
+    'layer:showParent',
+    'layer:showVisibiltyGroupLayer',
     'layer:toggle',
     'layer:toggleLegend',
     'layer:toggleOtherBaselayers',
-    'layer:showParent',
-    'layer:hideOtherCategories',
-    'layer:toggleVisibiltyGroup',
-    'layer:showVisibiltyGroupLayer',
-    'layer-opacity:change',
-    'layer-opacity:changed'
+    'layer:toggleVisibiltyGroup'
   ],
 
   data () {
