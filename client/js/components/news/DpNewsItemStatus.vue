@@ -12,24 +12,24 @@
     <dp-toggle
       :value="newsStatus"
       @input="e => $emit('status-changed', e)" />
-    <dp-tooltip-icon
+    <dp-contextual-help
       v-if="determinedToSwitch"
-      icon="fa-clock-o"
-      :text="tooltipText"
+      class="u-ml-0_25"
+      icon="clock"
       large
-      class="u-ml-0_25" />
+      :text="tooltipText" />
   </div>
 </template>
 
 <script>
-import { DpToggle, DpTooltipIcon } from '@demos-europe/demosplan-ui'
+import { DpContextualHelp, DpToggle } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpNewsItemStatus',
 
   components: {
-    DpToggle,
-    DpTooltipIcon
+    DpContextualHelp,
+    DpToggle
   },
 
   props: {

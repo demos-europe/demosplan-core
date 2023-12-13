@@ -10,8 +10,8 @@
 <template>
   <div
     ref="statementSegment"
-    class="border-radius segment-list-row"
-    :class="{'segment-list-row--assigned': isAssignedToMe, 'fullscreen': isFullscreen}"
+    class="segment-list-row"
+    :class="{'segment-list-row--assigned': isAssignedToMe, 'fullscreen': isFullscreen, 'rounded-lg': !isFullscreen}"
     @mouseenter="isHover = true"
     @mouseleave="isHover = false"
     :id="`segment_${segment.id}`">
@@ -131,7 +131,7 @@
                   :text="Translator.trans('segment.oracle.tooltip')" />
                 <dp-badge
                   v-if="activeId === 'oracleRec'"
-                  class="absolute u-right-0 u-mr-0_75"
+                  class="absolute right-12"
                   size="smaller"
                   :text="Translator.trans('segment.oracle.beta')"
                   v-tooltip="Translator.trans('segment.oracle.beta.tooltip')" />
@@ -852,13 +852,15 @@ export default {
 
     loadAddonComponents('segment.recommendationModal.tab')
       .then(response => {
-        this.asyncComponents = response
-        this.activeId = response[0].options.id || ''
-        this.allComponentsLoaded = true
+        if (response.length > 0) {
+          this.asyncComponents = response
+          this.activeId = response[0].options.id || ''
+          this.allComponentsLoaded = true
 
-        response.forEach(component => {
-          this.$options.components[component.name] = window[component.name].default
-        })
+          response.forEach(component => {
+            this.$options.components[component.name] = window[component.name].default
+          })
+        }
       })
   }
 }

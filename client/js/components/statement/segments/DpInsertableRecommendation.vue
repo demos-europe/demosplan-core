@@ -36,7 +36,7 @@ All rights reserved
       v-if="isContentRec"
       class="flex flex-nowrap">
       <dp-badge
-        class="color--white border-radius-extra-large whitespace--nowrap bg-color--grey u-mt-0_125"
+        class="color--white rounded-full whitespace--nowrap bg-color--grey u-mt-0_125"
         size="smaller"
         :text="Translator.trans('segment.oracle.score', { score: recommendationScore })" />
     </div>
@@ -60,7 +60,7 @@ All rights reserved
 </template>
 
 <script>
-import { DpBadge, CleanHtml, Tooltip } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpBadge, Tooltip } from '@demos-europe/demosplan-ui'
 
 // This number is used to shorten long texts.
 const SHORT_TEXT_CHAR_LENGTH = 300
@@ -163,4 +163,3 @@ export default {
   }
 }
 </script>
-
