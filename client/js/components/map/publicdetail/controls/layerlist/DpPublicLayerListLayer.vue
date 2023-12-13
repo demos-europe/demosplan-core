@@ -102,14 +102,14 @@ export default {
 
   emits: [
     'layer:hideOtherCategories',
-    'layer-opacity:change',
-    'layer-opacity:changed',
     'layer:showParent',
     'layer:showVisibiltyGroupLayer',
     'layer:toggle',
     'layer:toggleLegend',
     'layer:toggleOtherBaselayers',
-    'layer:toggleVisibiltyGroup'
+    'layer:toggleVisibiltyGroup',
+    'layer-opacity:change',
+    'layer-opacity:changed',
   ],
 
   data () {
