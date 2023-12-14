@@ -20,18 +20,24 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class GetEmailIdsEvent extends Event implements GetEmailIdsEventInterface
 {
-    private array $emailIds;
+    private array $emailIds = [];
 
     public function getEmailIds(): array
     {
         return $this->emailIds;
     }
 
+    /**
+     * This event can be catched and handled by many addons simultaneously, that's mean that we can have addon
+     * emails ids from one or many addons. The 'addEmailIds' method add ids that don't already exist in emailIds.
+     */
     public function addEmailIds(array $addonEmailIds): void
     {
         if (0 !== count($addonEmailIds)) {
             foreach ($addonEmailIds as $addonEmailId) {
-                $this->emailIds[] = $addonEmailId;
+                if (!in_array($addonEmailId, $this->emailIds)) {
+                    $this->emailIds[] = $addonEmailId;
+                }
             }
         }
     }
