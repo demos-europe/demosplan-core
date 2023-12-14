@@ -2462,8 +2462,8 @@ class DemosPlanStatementController extends BaseController
      * @throws DemosException
      */
     public function importStatementsFromXls(
-        FileInfo|SplFileInfo $fileInfo,
-        XlsxStatementImport|StatementSpreadsheetImporterWithZipSupport $importer
+        FileInfo $fileInfo,
+        XlsxStatementImport $importer
     ): void {
         if ($fileInfo instanceof FileInfo) {
             $fileInfo = new \Symfony\Component\Finder\SplFileInfo(
