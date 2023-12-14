@@ -1339,8 +1339,8 @@ evaluation.assessment.table.export: "Auswertung_Abwaegungstabelle_Export"
 example.file: "Beispieldatei"
 excel.import.error: |
     {count, plural,
-        =1 {Beim Hochladen des Excel-Dokuments ist ein Fehler aufgetreten. Die {entities} wurden nicht importiert. Bitte überprüfen Sie die Daten auf Korrektheit.}
-        other {Beim Hochladen des Excel-Dokuments sind Fehler aufgetreten. Die {entities} wurden nicht importiert. Bitte überprüfen Sie die Daten auf Korrektheit.}
+        =1 {Beim Verarbeiten des Excel-Dokuments ist ein Fehler aufgetreten. Die {entities} wurden nicht importiert. Bitte überprüfen Sie die Daten auf Korrektheit.}
+        other {Beim Verarbeiten des Excel-Dokuments sind Fehler aufgetreten. Die {entities} wurden nicht importiert. Bitte überprüfen Sie die Daten auf Korrektheit.}
     }
 excel.import.errors.checklist.hint: "Markieren Sie die unten stehenden Fehler als erledigt, sobald Sie diese im Excel-Dokument behoben haben. Alternativ können Sie auch direkt zum {entities}-Import zurückkehren."
 existing: "vorhanden"

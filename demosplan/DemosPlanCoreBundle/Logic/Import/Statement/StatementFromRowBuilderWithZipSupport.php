@@ -12,10 +12,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotNull;
-use Symfony\Component\Validator\Constraints\Required;
-use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -41,19 +38,14 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
             return null;
         }
 
-        $collectionContent = [$cellValue =>  new Required(new Type(File::class))];
-
-        $keyConstraint = new Collection(
-            $collectionContent,
-            null,
-            null,
-            true,
-            false
-        );
         $violations = $this->validator->validate(
-            $this->fileMap,
-            [$keyConstraint]
+            $cellValue,
+            new Choice(
+                choices: array_keys($this->fileMap),
+                message: 'statement.import.invalidFileReference'
+            )
         );
+
         if (0 !== $violations->count()) {
             return $violations;
         }
@@ -103,7 +95,7 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
                 $fileMapKey,
                 new Choice(
                     choices: array_keys($this->fileMap),
-                    message: 'Anhang '.$fileMapKey.'nicht im ZIP gefunden' //fixme: use transkey
+                    message: 'statement.import.invalidFileReference'
                 )
             );
 

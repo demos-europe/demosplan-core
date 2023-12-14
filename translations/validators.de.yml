@@ -31,6 +31,7 @@ segment.import.error.segment.statement.id: "Abschnitte müssen eine Stellungnahm
 similarStatementSubmitter.procedureMismatch: "Personeneinträge dürfen nicht außerhalb des Verfahrenskontextes verwendet werden."
 statement.existing.internId: "Die Eingangsnummer \"{{ internId }}\" ist bereits in Verwendung."
 statement.invalid.submit.type: "Die Einreichungsart {{ value }} ist ungültig. Gültig sind nur folgende Werte: {{ choices }}."
+statement.import.invalidFileReference: "Die im Excel angegebene Referenz auf die Datei mit der Id: {{ value }} konnte nicht aus dem Zip Archiv extrahiert werden."
 statement.import.invalidSubmitDateBlank: "Das Feld 'Einreichungsdatum' darf nicht leer sein."
 statement.import.invalidSubmitDateType: "Das Einreichungsdatum muss ein gültiges Datum sein."
 statement.import.invalidSubmitTypeBlank: "Das Feld 'Art der Einreichung' darf nicht leer sein."
