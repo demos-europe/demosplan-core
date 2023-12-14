@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Images;
 
-
 use demosplan\DemosPlanCoreBundle\DataGenerator\CustomFactory\DataGeneratorInterface;
+
 use function call_user_func_array;
 use function imagecolorallocate;
 use function imagecreatetruecolor;
