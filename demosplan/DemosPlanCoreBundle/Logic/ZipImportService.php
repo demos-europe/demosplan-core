@@ -37,12 +37,8 @@ class ZipImportService
 {
     private Finder $finder;
     private const ZIP_CONTAINS_ERROR_TXT_FILE = 'File is not valid. It contains an errors.txt file indicating a faulty export';
-
-    //fixme: allow all files, or even remove this list? to ensure all exported files will be considered?
-    private const IMPORT_FILE_TYPES_TO_BE_SAVED = [
-        'pdf',
-        'docx',
-        'png'
+    private const IMPORT_FILE_TYPES_TO_NOT_BE_SAVED = [
+        'xlsx',
     ];
     public function __construct(
         private readonly CurrentContextProvider $currentContextProvider,
@@ -74,11 +70,10 @@ class ZipImportService
                     $fileHash = reset($fileNameParts);
                     Assert::string($fileHash);
                     Assert::notContains('errors.txt', $file->getFilename(), self::ZIP_CONTAINS_ERROR_TXT_FILE);
-                    if (in_array($extension, self::IMPORT_FILE_TYPES_TO_BE_SAVED, true)) {
-                        $fileMap[$fileHash] = $this->saveAsDemosFile($file, $procedureId);
-                    }
-                    if ('xlsx' === $extension) {
+                    if (in_array($extension, self::IMPORT_FILE_TYPES_TO_NOT_BE_SAVED, true)) {
                         $fileMap[$fileHash] = $file;
+                    } else {
+                        $fileMap[$fileHash] = $this->saveAsDemosFile($file, $procedureId);
                     }
                 }
             }
