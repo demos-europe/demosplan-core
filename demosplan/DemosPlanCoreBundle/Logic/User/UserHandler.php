@@ -1272,9 +1272,11 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
 
         foreach ($data as $ident => $department) {
             try {
-                $result = $this->updateDepartment($ident, $department);
-                if (is_array($result) && array_key_exists('mandatoryfieldwarning', $result)) {
-                    return $this->getSession()->getFlashBag()->get('error.mandatoryfields', 'error');
+                if ($ident !== '_token') {
+                    $result = $this->updateDepartment($ident, $department);
+                    if (is_array($result) && array_key_exists('mandatoryfieldwarning', $result)) {
+                        return $this->getSession()->getFlashBag()->get('error.mandatoryfields', 'error');
+                    }
                 }
             } catch (Exception) {
                 $this->logger->error("Failed updating Department {$ident}.");
