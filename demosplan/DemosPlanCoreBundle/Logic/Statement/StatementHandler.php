@@ -1501,14 +1501,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         return $tagIds->diff($fragmentTagIds);
     }
 
-    /**
-     * Concatenate the text of the given text and the boilerplate-texts of the given tags.
-     *
-     * @param string[]|Collection $tagIds            - IDs of Tags which boilerplates will be concatenated
-     * @param string              $considerationText
-     *
-     * @return string - concatenated boilerplates
-     */
     public function addBoilerplatesOfTags($tagIds, $considerationText = ''): string
     {
         foreach ($tagIds as $tagId) {
@@ -2878,14 +2870,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         }
     }
 
-    /**
-     * Neue manuelle Stellungnahme speichern
-     * Auf dem üblichen Weg eingereichte Stellungnahmen werden kopiert, nicht neu angelegt.
-     *
-     * @return Statement|bool
-     *
-     * @throws MessageBagException
-     */
     public function newStatement(array $data, bool $isDataInput = false)
     {
         // tackle legacy structure

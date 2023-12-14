@@ -21,12 +21,14 @@ use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\Querying\Contracts\EntityBasedInterface;
 
 /**
- * @template O of EntityInterface
+ * @template TEntity of EntityInterface
+ *
+ * @template-implements GetPropertiesEventInterface<TEntity>
  */
 class GetPropertiesEvent extends DPlanEvent implements GetPropertiesEventInterface
 {
     /**
-     * @param EntityBasedInterface<O> $type
+     * @param EntityBasedInterface<TEntity> $type
      */
     public function __construct(
         private readonly EntityBasedInterface $type,
@@ -34,25 +36,19 @@ class GetPropertiesEvent extends DPlanEvent implements GetPropertiesEventInterfa
     ) {
     }
 
-    /**
-     * @return ResourceConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, O>
-     */
     public function getConfigBuilder(): ResourceConfigBuilderInterface
     {
         return $this->resourceConfigBuilder;
     }
 
     /**
-     * @param ResourceConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, O> $configBuilder
+     * @param ResourceConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, TEntity> $configBuilder
      */
     public function setConfigBuilder(ResourceConfigBuilderInterface $configBuilder): void
     {
         $this->resourceConfigBuilder = $configBuilder;
     }
 
-    /**
-     * @return EntityBasedInterface<O>
-     */
     public function getType(): EntityBasedInterface
     {
         return $this->type;

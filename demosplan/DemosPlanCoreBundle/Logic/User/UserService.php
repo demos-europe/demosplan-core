@@ -218,20 +218,6 @@ class UserService extends CoreService implements UserServiceInterface
         return null;
     }
 
-    /**
-     * In order to enable login via login OR email, we need to be sure the found user is the right one.
-     * In the database model the field email of a user is not unique!
-     * Solution is first look for user with incoming string as login.
-     * If no one was found, looking for user with incoming string as email.
-     * In case of more than one user was found, login will fail.
-     *
-     * @param string $loginOrEmail - The incoming email address or login, which we need to find a distinct user
-     *
-     * @return User|false - User in case of a distinct user entry was found, otherwise false
-     *
-     * @throws ReflectionException
-     * @throws MessageBagException
-     */
     public function findDistinctUserByEmailOrLogin($loginOrEmail)
     {
         $user = $this->userRepository->findOneBy(['login' => $loginOrEmail, 'deleted' => false]);

@@ -93,17 +93,6 @@ class ResourceTypeService implements ResourceTypeServiceInterface
         }
     }
 
-    /**
-     * Validates the given object using the annotations defined on its properties/getters.
-     *
-     * @param array<int,string>|null $groups the groups to validate against. If no groups are given
-     *                                       the `Default` group will be used, which considers only
-     *                                       constraints that are not part of any other group.
-     *
-     * @throws ViolationsException thrown if the validation found violations
-     *
-     * @see https://symfony.com/doc/4.4/validation/groups.html
-     */
     public function validateObject(object $entity, array $groups = null): void
     {
         $violationList = $this->validator->validate($entity, null, $groups);

@@ -1363,12 +1363,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "f20fa7305f241a2ada0a4c9615cc306c908ae82c"
+                "reference": "7807fdbdfd129caae9eb9e100459c955fedd959e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/f20fa7305f241a2ada0a4c9615cc306c908ae82c",
-                "reference": "f20fa7305f241a2ada0a4c9615cc306c908ae82c",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/7807fdbdfd129caae9eb9e100459c955fedd959e",
+                "reference": "7807fdbdfd129caae9eb9e100459c955fedd959e",
                 "shasum": ""
             },
             "require": {
@@ -1414,7 +1414,7 @@
             "support": {
                 "source": "https://github.com/demos-europe/demosplan-addon/tree/f_update_edt_0_18_0"
             },
-            "time": "2023-12-06T16:14:10+00:00"
+            "time": "2023-12-14T11:22:31+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",

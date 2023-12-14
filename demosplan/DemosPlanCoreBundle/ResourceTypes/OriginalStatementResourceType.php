@@ -24,8 +24,6 @@ use EDT\PathBuilding\End;
  * @template-extends DplanResourceType<StatementInterface>
  *
  * @property-read ProcedureResourceType $procedure
- * @property-read StatementResourceType $statements
- * @property-read StatementResourceType $statementsCreatedFromOriginal
  * @property-read StatementResourceType $original
  * @property-read End                   $deleted
  * @property-read StatementResourceType $headStatement

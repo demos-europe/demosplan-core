@@ -52,11 +52,6 @@ class FileService extends CoreService implements FileServiceInterface
     final public const INVALID_FILENAME_CHARS = ['%', '&', ':'];
 
     /**
-     * Die Datei wird nach dem Upload zum FileService direkt auf Viren geprüft.
-     */
-    final public const VIRUSCHECK_SYNC = 'sync';
-
-    /**
      * Die Datei wird nach dem Upload zum FileService nicht direkt auf Viren geprüft.
      */
     final public const VIRUSCHECK_ASYNC = 'async';
@@ -329,8 +324,6 @@ class FileService extends CoreService implements FileServiceInterface
     }
 
     /**
-     * Save a temporary file as regular file by its path.
-     *
      * @throws VirusFoundException|Throwable
      */
     public function saveTemporaryFile(
@@ -338,7 +331,7 @@ class FileService extends CoreService implements FileServiceInterface
         string $fileName,
         ?string $userId = null,
         ?string $procedureId = null,
-        ?string $virencheck = FileService::VIRUSCHECK_SYNC,
+        ?string $virencheck = FileServiceInterface::VIRUSCHECK_SYNC,
         ?string $hash = null
     ): File {
         $dplanFile = new File();
@@ -369,7 +362,7 @@ class FileService extends CoreService implements FileServiceInterface
      *
      * @throws Throwable
      */
-    public function saveUploadedFile(UploadedFile $symfonyFile, $userId = null, $virencheck = FileService::VIRUSCHECK_SYNC): File
+    public function saveUploadedFile(UploadedFile $symfonyFile, $userId = null, $virencheck = FileServiceInterface::VIRUSCHECK_SYNC): File
     {
         $dplanFile = new File();
         $dplanFile->setMimetype($symfonyFile->getClientMimeType());
@@ -968,11 +961,6 @@ class FileService extends CoreService implements FileServiceInterface
         return $this->fileRepository->findBy(['ident' => $fileIds]);
     }
 
-    /**
-     * @param string $fileId
-     *
-     * @return File|null
-     */
     public function getFileById($fileId)
     {
         return $this->fileRepository->findOneBy(['ident' => $fileId]);
