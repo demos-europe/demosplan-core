@@ -33,6 +33,7 @@ use Webmozart\Assert\Assert;
 use ZipStream\Exception\FileNotFoundException;
 use ZipStream\Exception\FileNotReadableException;
 use ZipStream\ZipStream;
+use function Symfony\Component\String\u;
 
 class ZipResponseGenerator extends FileResponseGeneratorAbstract
 {
@@ -129,10 +130,11 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
                     );
                 }
                 if (is_array($originalAttachment)) {
+                    $content = u(
+                        $file['zipFileName'].'/'.$originalAttachment['fileHash'].'_'.$originalAttachment['name']
+                    )->ascii();
                     $zipStream->addFile(
-                        Utf8::toAscii(
-                            $file['zipFileName'].'/'.$originalAttachment['fileHash'].'_'.$originalAttachment['name'],
-                        ),
+                        $content->toString(),
                         $originalAttachment['content']
                     );
                 }
