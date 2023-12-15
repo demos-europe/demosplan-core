@@ -15,7 +15,9 @@ namespace demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Exception\AssessmentTableZipExportException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTablePdfExporter;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
@@ -30,6 +32,8 @@ use Webmozart\Assert\Assert;
 use ZipStream\Exception\FileNotFoundException;
 use ZipStream\Exception\FileNotReadableException;
 use ZipStream\ZipStream;
+
+use function Symfony\Component\String\u;
 
 class ZipResponseGenerator extends FileResponseGeneratorAbstract
 {
@@ -49,7 +53,9 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
         NameGenerator $nameGenerator,
         private readonly ZipExportService $zipExportService,
         private readonly LoggerInterface $logger,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
+        private readonly AssessmentTablePdfExporter $assessmentTablePdfExporter,
+        private readonly CurrentProcedureService $currentProcedureService
     ) {
         parent::__construct($nameGenerator);
         $this->supportedTypes = $supportedTypes;
@@ -101,25 +107,46 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
             $this->handleError($e, self::UNKOWN_ERROR, self::XLSX_GENERIC);
         }
 
-        foreach ($file['attachments'] as $attachmentArray) {
-            /** @var File $attachment */
-            foreach ($attachmentArray as $attachment) {
-                try {
+        foreach ($file['attachments'] as $attachmentsArray) {
+            try {
+                foreach ($attachmentsArray['attachments'] as $attachment) {
                     $this->zipExportService->addFileToZipStream(
                         $attachment->getFilePathWithHash(),
                         $file['zipFileName'].'/'.$attachment->getHash().'_'.$attachment->getFilename(),
                         $zipStream
                     );
-                } catch (FileNotFoundException|FileNotReadableException $e) {
-                    $this->handleError($e, self::FIILE_NOT_FOUND_OR_READABLE);
-                    ++$this->errorCount['attachmentNotAddedCount'];
-                } catch (InvalidDataException $e) {
-                    $this->handleError($e, self::FILE_HASH_INVALID);
-                    ++$this->errorCount['attachmentNotAddedCount'];
-                } catch (Exception $e) {
-                    $this->handleError($e, self::UNKOWN_ERROR);
-                    ++$this->errorCount['attachmentUnkownErrorCount'];
                 }
+                /**
+                 * The originalAttachment can be of type { @see File } if there was a stn attachment already set within
+                 * the exported entity. Or it is an array in case the { @see AssessmentTablePdfExporter } got invoked
+                 * to generate a pdf of the original-stn.
+                 */
+                $originalAttachment = $attachmentsArray['originalAttachment'];
+                if ($originalAttachment instanceof File) {
+                    $this->zipExportService->addFileToZipStream(
+                        $originalAttachment->getFilePathWithHash(),
+                        $file['zipFileName'].'/'.$originalAttachment->getHash().'_'.$originalAttachment->getFilename(),
+                        $zipStream
+                    );
+                }
+                if (is_array($originalAttachment)) {
+                    $content = u(
+                        $file['zipFileName'].'/'.$originalAttachment['fileHash'].'_'.$originalAttachment['name']
+                    )->ascii();
+                    $zipStream->addFile(
+                        $content->toString(),
+                        $originalAttachment['content']
+                    );
+                }
+            } catch (FileNotFoundException|FileNotReadableException $e) {
+                $this->handleError($e, self::FIILE_NOT_FOUND_OR_READABLE);
+                ++$this->errorCount['attachmentNotAddedCount'];
+            } catch (InvalidDataException $e) {
+                $this->handleError($e, self::FILE_HASH_INVALID);
+                ++$this->errorCount['attachmentNotAddedCount'];
+            } catch (Exception $e) {
+                $this->handleError($e, self::UNKOWN_ERROR);
+                ++$this->errorCount['attachmentUnkownErrorCount'];
             }
         }
         $this->addCountedErrorMessages();
@@ -174,5 +201,10 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
         Assert::keyExists($file['xlsx'], 'writer', $prefix.'writer'.$logSuffix);
         Assert::keyExists($file['xlsx'], 'statementIds', $prefix.'statementIds'.$logSuffix);
         Assert::keyExists($file, 'attachments', $prefix.'attachments'.$logSuffix);
+        Assert::isArray($file['attachments']);
+        foreach ($file['attachments'] as $attachment) {
+            Assert::keyExists($attachment, 'attachments');
+            Assert::keyExists($attachment, 'originalAttachment');
+        }
     }
 }
