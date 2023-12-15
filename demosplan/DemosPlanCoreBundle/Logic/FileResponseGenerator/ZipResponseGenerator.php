@@ -22,7 +22,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
 use InvalidArgumentException;
-use Patchwork\Utf8;
 use PhpOffice\PhpSpreadsheet\Writer\Exception as WriterException;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use Psr\Log\LoggerInterface;
@@ -33,6 +32,7 @@ use Webmozart\Assert\Assert;
 use ZipStream\Exception\FileNotFoundException;
 use ZipStream\Exception\FileNotReadableException;
 use ZipStream\ZipStream;
+
 use function Symfony\Component\String\u;
 
 class ZipResponseGenerator extends FileResponseGeneratorAbstract
