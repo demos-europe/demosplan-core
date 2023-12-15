@@ -76,13 +76,13 @@ class RpcStatementSynchronizer implements RpcMethodSolverInterface
         private readonly DrupalFilterParser $filterParser,
         private readonly EntitySyncLinkRepository $entitySyncLinkRepository,
         private readonly JsonApiActionService $jsonApiActionService,
+        private readonly LoggerInterface $logger,
         private readonly MessageBagInterface $messageBag,
         private readonly PermissionsInterface $permissions,
         private readonly ProcedureCoupleTokenRepository $tokenRepository,
         private readonly RpcErrorGenerator $errorGenerator,
         private readonly StatementResourceType $statementResourceType,
         private readonly StatementSynchronizer $statementSynchronizer,
-        private readonly LoggerInterface $logger
     ) {
     }
 
