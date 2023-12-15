@@ -118,7 +118,7 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
                 }
                 /**
                  * The originalAttachment can be of type { @see File } if there was a stn attachment already set within
-                 * the exportet entity. Or it is an array in case the { @see AssessmentTablePdfExporter } got invoked
+                 * the typo exported entity. Or it is an array in case the { @see AssessmentTablePdfExporter } got invoked
                  * to generate a pdf of the original-stn.
                  */
                 $originalAttachment = $attachmentsArray['originalAttachment'];
