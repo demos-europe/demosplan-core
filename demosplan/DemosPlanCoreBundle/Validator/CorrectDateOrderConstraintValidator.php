@@ -41,8 +41,10 @@ class CorrectDateOrderConstraintValidator extends ConstraintValidator
 
         $authoredDate = $value->getMeta()->getAuthoredDate();
         if (is_int($authoredDate) && $authoredDate > $value->getSubmit()) {
+            $externId = $value->getExternId();
             $this->context->buildViolation($constraint->message)
                 ->atPath('submit')
+                ->setParameter('{{ externId }}', $externId)
                 ->addViolation();
         }
     }
