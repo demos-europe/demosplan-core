@@ -137,7 +137,8 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
                 // if not present yet, invoke the pdfCreator and create an original-stn-pdf to use instead
                 $parameters['statementId'] =
                     $this->statementService->getStatement($statementId)?->getOriginal()->getId();
-                $files[$index]['originalAttachment'] = $this->pdfExporter->__invoke(
+                $pdfExporter = $this->pdfExporter;
+                $files[$index]['originalAttachment'] = $pdfExporter(
                     $parameters
                 );
                 $files[$index]['originalAttachment']['fileHash'] = $this->fileService->createHash();
