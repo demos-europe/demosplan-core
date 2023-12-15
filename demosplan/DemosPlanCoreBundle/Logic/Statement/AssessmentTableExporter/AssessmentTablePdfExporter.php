@@ -30,6 +30,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Exception;
 use LogicException;
 use Psr\Log\InvalidArgumentException;
@@ -121,6 +122,9 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
                  * { @link AssessmentTableZipExporter::getAttachmentsOfStatements }
                  * do not try to obtain the ids from session
                  */
+                if (!array_key_exists('sort', $parameters)) {
+                    $parameters['sort'] = ToBy::createArray('submitDate', 'desc');
+                }
                 $parameters['items'] = [$parameters['statementId']];
             }
 
