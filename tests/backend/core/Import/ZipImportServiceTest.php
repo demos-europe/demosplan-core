@@ -29,7 +29,6 @@ class ZipImportServiceTest extends FunctionalTestCase
 
     public function setUp(): void
     {
-//        putenv('RABBITMQ_DSN=');
         parent::setUp();
         $this->sut = $this->getContainer()->get(ZipImportService::class);
         $this->testProcedure = ProcedureFactory::createOne();

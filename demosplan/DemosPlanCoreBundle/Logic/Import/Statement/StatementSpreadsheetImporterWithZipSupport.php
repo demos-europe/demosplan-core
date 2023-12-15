@@ -2,10 +2,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
-use demosplan\DemosPlanCoreBundle\Doctrine\Generator\NCNameGenerator;
 use demosplan\DemosPlanCoreBundle\Entity\File;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\CopyException;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
@@ -43,7 +40,6 @@ class StatementSpreadsheetImporterWithZipSupport extends StatementSpreadsheetImp
         ValidatorInterface $validator,
         private readonly ZipImportService $zipImportService,
         private readonly FileService $fileService,
-        private readonly NCNameGenerator $nameGenerator,
         private readonly EntityManagerInterface $entityManager,
         private readonly StatementAttachmentService $statementAttachmentService
     ) {
