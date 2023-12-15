@@ -83,8 +83,7 @@ class RpcStatementSynchronizer implements RpcMethodSolverInterface
         private readonly StatementResourceType $statementResourceType,
         private readonly StatementSynchronizer $statementSynchronizer,
         private readonly LoggerInterface $logger
-    )
-    {
+    ) {
     }
 
     public function execute(?ProcedureInterface $sourceProcedure, $rpcRequests): array
