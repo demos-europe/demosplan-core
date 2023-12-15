@@ -64,7 +64,7 @@ class StatementSpreadsheetImporterWithZipSupport extends StatementSpreadsheetImp
         $builder = $this->getStatementFromRowBuilder($builder);
         // add new columns
         $baseColumns['Referenzen auf Anhänge'] = [$builder, 'setFileReferences'];
-        $baseColumns['Original Anhang'] = [$builder, 'setOriginalFileReferences'];
+        $baseColumns['Originalanhang'] = [$builder, 'setOriginalFileReferences'];
 
         return [$baseColumns, $builder];
     }
