@@ -26,9 +26,6 @@ use Symfony\Component\Validator\ConstraintValidator;
  */
 class CorrectDateOrderConstraintValidator extends ConstraintValidator
 {
-    /**
-     * @param mixed $value
-     */
     public function validate($value, Constraint $constraint): void
     {
         if (!$value instanceof Statement) {
@@ -41,8 +38,10 @@ class CorrectDateOrderConstraintValidator extends ConstraintValidator
 
         $authoredDate = $value->getMeta()->getAuthoredDate();
         if (is_int($authoredDate) && $authoredDate > $value->getSubmit()) {
+            $externId = $value->getExternId();
             $this->context->buildViolation($constraint->message)
                 ->atPath('submit')
+                ->setParameter('{{ externId }}', $externId)
                 ->addViolation();
         }
     }
