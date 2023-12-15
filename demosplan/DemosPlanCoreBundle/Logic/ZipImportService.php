@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Patchwork\Utf8;
 use Psr\Log\LoggerInterface;
@@ -108,7 +109,7 @@ class ZipImportService
         $fileHash = $this->fileService->createHash();
 
         return $this->fileService->saveTemporaryFile(
-            $file->getRealPath(), // filename might be missing here...
+            $file->getRealPath(),
             $file->getFilename(),
             null,
             $procedureId,
@@ -156,7 +157,7 @@ class ZipImportService
                 if ('' === $filename) {
                     $filename = md5((string) random_int(0, 9999));
                     $this->logger->warning(
-                        'Es konnte via kein gültiger Name gefunden werden. RandomHash: '
+                        'No valid name could be found. RandomHash: '
                         .DemosPlanTools::varExport($filename, true)
                     );
                 }
@@ -193,7 +194,7 @@ class ZipImportService
         string $tempFileFolder,
         UserInterface $user
     ): string {
-        $tmpDir = sys_get_temp_dir().'/'.$user->getId().'/'.$procedureId.'/'.$tempFileFolder;
+        $tmpDir = DemosPlanPath::getTemporaryPath($user->getId().'/'.$procedureId.'/'.$tempFileFolder);
 
         if (!is_dir($tmpDir) && !mkdir($tmpDir, 0777, true) && !is_dir($tmpDir)) {
             throw new InvalidDataException(
