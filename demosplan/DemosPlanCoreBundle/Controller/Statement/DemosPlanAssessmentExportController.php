@@ -64,12 +64,13 @@ class DemosPlanAssessmentExportController extends BaseController
         AssessmentTableExporterStrategy $assessmentExporter,
         FileResponseGeneratorStrategy $responseGenerator,
         string $procedureId,
-        bool $original = false): ?Response
-    {
+        bool $original = false
+    ): ?Response {
         $exportParameters = $this->getExportParameters($request, $procedureId, $original);
         $exportFormat = $request->request->get('r_export_format');
         try {
             $file = $assessmentExporter->export($exportFormat, $exportParameters);
+
             $response = $responseGenerator($exportFormat, $file);
         } catch (AssessmentTableZipExportException $e) {
             $this->getMessageBag()->add($e->getLevel(), $e->getUserMsg());

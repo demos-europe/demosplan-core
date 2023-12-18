@@ -31,7 +31,7 @@ use Symfony\Component\Finder\SplFileInfo;
 class XlsxStatementImport
 {
     /**
-     * @var array
+     * @var list<Statement>
      */
     private $createdStatements = [];
 
@@ -123,5 +123,13 @@ class XlsxStatementImport
     public function getErrorsAsArray(): array
     {
         return $this->xlsxStatementImporter->getErrorsAsArray();
+    }
+
+    /**
+     * @return array<non-empty-string, int<0, max>>
+     */
+    public function getSkippedStatements(): array
+    {
+        return $this->xlsxStatementImporter->getSkippedStatements();
     }
 }

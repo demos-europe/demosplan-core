@@ -86,9 +86,9 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
             'Kreis'                         => null,
             'Schlagwort'                    => null,
             'Schlagwortkategorie'           => null,
-            'Dokumentenkategorie'           => [$builder, 'setPlanningDocumentCategoryName'],
-            'Dokument'                      => null,
-            'Absatz'                        => null,
+            'Dokumentenkategorie'           => [$builder, 'setPlanningDocumentCategoryTitle'],
+            'Dokument'                      => [$builder, 'setPlanningDocumentTitle'],
+            'Absatz'                        => [$builder, 'setParagraphTitle'],
             'Status'                        => null,
             'Priorität'                     => null,
             'Votum'                         => null,
@@ -146,6 +146,16 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
         $currentProcedure = $this->currentProcedureService->getProcedure()
             ?? throw new MissingPostParameterException('Current procedure is missing.');
 
+        $builder = new StatementFromRowBuilder(
+            $this->validator,
+            $currentProcedure,
+            $this->currentUser->getUser(),
+            $this->orgaService->getOrga(User::ANONYMOUS_USER_ORGA_ID),
+            $this->elementsService,
+            $this->getStatementTextConstraint(),
+            [$this, 'replaceLineBreak']
+        );
+
         $usedExternIds = $this->statementService->getExternIdsInUse($currentProcedure->getId());
 
         // loop through all rows and (if valid) create corresponding original statements and statement copies
@@ -178,6 +188,8 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
                 $externId = $originalStatementOrViolations->getExternId();
                 if (array_key_exists($externId, $usedExternIds)) {
                     // skip statements with existing extern IDs
+                    $this->skippedStatements[$externId] = ($this->skippedStatements[$externId] ?? 0) + 1;
+
                     continue;
                 }
                 $usedExternIds[$externId] = $externId;
