@@ -26,6 +26,7 @@ use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
+use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Doctrine\DBAL\Connection;
@@ -46,7 +47,8 @@ class StatementDeleter extends CoreService
         private readonly ReportService $reportService,
         private readonly MessageBagInterface $messageBag,
         private readonly EntityContentChangeService $entityContentChangeService,
-        private readonly StatementService $statementService
+        private readonly StatementService $statementService,
+        private readonly EntitySyncLinkRepository $entitySyncLinkRepository
     ) {
     }
 
@@ -131,11 +133,18 @@ class StatementDeleter extends CoreService
             // placeholders (even originalSTN) are allowed to delete:
             $lockedBecauseOfOriginal = $statement->isOriginal() && !$ignoreOriginal;
 
+            //T27971:
+            $lockedBySync = null !== $this->entitySyncLinkRepository
+                    ->findOneBy(['class' => Statement::class, 'sourceId' => $statement->getId()])
+                || null !== $this->entitySyncLinkRepository
+                    ->findOneBy(['class' => Statement::class, 'targetId' => $statement->getId()]);
+
             $allowedToDelete =
                 !$lockedByAssignmentOfRelatedFragments
                 && !$lockedByAssignment
                 && !$lockedByCluster
-                && !$lockedBecauseOfOriginal;
+                && !$lockedBecauseOfOriginal
+                && !$lockedBySync;
 
             if ($allowedToDelete) {
                 try {
@@ -215,6 +224,15 @@ class StatementDeleter extends CoreService
                         ->warning("Statement {$statementId} was not deleted, because it is a undeletable original-Statement");
                     $this->messageBag->add(
                         'warning', 'warning.delete.statement.original',
+                        ['externId' => $statement->getExternId()]
+                    );
+                }
+
+                if ($lockedBySync) {
+                    $this->getLogger()
+                        ->warning("Statement {$statementId} was not deleted, because of locked by related synced statement.");
+                    $this->messageBag->add(
+                        'warning', 'warning.delete.statement.synced', //add transkey
                         ['externId' => $statement->getExternId()]
                     );
                 }
