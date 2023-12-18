@@ -263,12 +263,7 @@ export default {
     },
 
     departmentSelectOptions () {
-      const options = []
-      this.currentOrgaDepartments.forEach((department) => {
-        options.push({ label: department.name, value: department.id })
-      })
-
-      return options
+      return this.currentOrgaDepartments.map(department => ({ label: department.name, value: department.id }))
     },
 
     isDepartmentSet () {
