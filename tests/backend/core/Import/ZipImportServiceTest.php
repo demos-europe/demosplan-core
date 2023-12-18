@@ -63,9 +63,9 @@ class ZipImportServiceTest extends FunctionalTestCase
     public function testCreateFileMapFromZip(): void
     {
         $splFileInfo = new SplFileInfo(
-            $this->fileInfos[1]->getAbsolutePath(),
+            $this->fileInfos[0]->getAbsolutePath(),
             '',
-            $this->fileInfos[1]->getHash()
+            $this->fileInfos[0]->getHash()
         );
 
         $resultArray = $this->sut->createFileMapFromZip($splFileInfo, $this->testProcedure->getId());
@@ -93,16 +93,16 @@ class ZipImportServiceTest extends FunctionalTestCase
         $splFileInfo = new SplFileInfo(
             '../../../../../../../..',
             '',
-            $this->fileInfos[1]->getHash()
+            $this->fileInfos[0]->getHash()
         );$resultArray = $this->sut->createFileMapFromZip($splFileInfo, $this->testProcedure->getId());
     }
 
     public function testExtractZipToTempFolder(): void
     {
         $splFileInfo = new SplFileInfo(
-            $this->fileInfos[1]->getAbsolutePath(),
+            $this->fileInfos[0]->getAbsolutePath(),
             '',
-            $this->fileInfos[1]->getHash()
+            $this->fileInfos[0]->getHash()
         );
 
         $result = $this->sut->extractZipToTempFolder($splFileInfo, $this->testProcedure->getId());
@@ -121,7 +121,7 @@ class ZipImportServiceTest extends FunctionalTestCase
         $splFileInfo = new SplFileInfo(
             '../../../../../../../..',
             '',
-            $this->fileInfos[1]->getHash()
+            $this->fileInfos[0]->getHash()
         );
 
         $result = $this->sut->extractZipToTempFolder($splFileInfo, $this->testProcedure->getId());
@@ -133,7 +133,7 @@ class ZipImportServiceTest extends FunctionalTestCase
 
         $result = $this->sut->getStatementAttachmentImportDir(
             $this->testProcedure->getId(),
-            $this->fileInfos[1]->getFileName(),
+            $this->fileInfos[0]->getFileName(),
             $user
         );
 
