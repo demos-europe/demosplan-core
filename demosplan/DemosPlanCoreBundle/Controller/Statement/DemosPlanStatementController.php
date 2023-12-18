@@ -2392,7 +2392,7 @@ class DemosPlanStatementController extends BaseController
 
             return $this->redirectToRoute(
                 'DemosPlan_procedure_import',
-                compact('procedureId')
+                ['procedureId' => $procedureId]
             );
         }
 
@@ -2451,7 +2451,7 @@ class DemosPlanStatementController extends BaseController
             $this->logger->error('Something went wrong importing Statements from zip', ['exception' => $e]);
             return $this->redirectToRoute(
                 'DemosPlan_procedure_import',
-                compact('procedureId')
+                ['procedureId' => $procedureId]
             );
         }
 
@@ -2555,7 +2555,7 @@ class DemosPlanStatementController extends BaseController
 
         return $this->redirectToRoute(
             $route,
-            compact('procedureId')
+            ['procedureId' => $procedureId]
         );
     }
 
