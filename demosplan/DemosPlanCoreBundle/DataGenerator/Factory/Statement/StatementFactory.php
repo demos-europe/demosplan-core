@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
@@ -40,41 +48,41 @@ class StatementFactory extends ModelFactory
     protected function getDefaults(): array
     {
         return [
-            'anonymous' => false,
-            'clusterStatement' => false,
-            'countyNotified' => false,
-            'created' => self::faker()->dateTime(),
-            'deleted' => false,
-            'deletedDate' => self::faker()->dateTime(),
-            'externId' => self::faker()->numberBetween(1, 9999),
-            'feedback' => self::faker()->text(10),
-            'file' => self::faker()->text(255),
-            'manual' => false,
-            'memo' => self::faker()->text(65535),
-            'modified' => self::faker()->dateTime(),
-            'negativeStatement' => false,
+            'anonymous'           => false,
+            'clusterStatement'    => false,
+            'countyNotified'      => false,
+            'created'             => self::faker()->dateTime(),
+            'deleted'             => false,
+            'deletedDate'         => self::faker()->dateTime(),
+            'externId'            => self::faker()->numberBetween(1, 9999),
+            'feedback'            => self::faker()->text(10),
+            'file'                => self::faker()->text(255),
+            'manual'              => false,
+            'memo'                => self::faker()->text(65535),
+            'modified'            => self::faker()->dateTime(),
+            'negativeStatement'   => false,
             'numberOfAnonymVotes' => self::faker()->randomNumber(),
-            'phase' => SurveyInterface::STATUS_PARTICIPATION,
-            'planningDocument' => self::faker()->text(4096),
-            'polygon' => self::faker()->text(65535),
-            'priority' => self::faker()->text(10),
-            'procedure' => ProcedureFactory::new(),
-            'publicStatement' => self::faker()->text(20),
-            'publicUseName' => false,
-            'publicVerified' => StatementInterface::PUBLICATION_PENDING,
-            'reasonParagraph' => self::faker()->text(65535),
-            'recommendation' => self::faker()->text(65535),
-            'replied' => false,
+            'phase'               => SurveyInterface::STATUS_PARTICIPATION,
+            'planningDocument'    => self::faker()->text(4096),
+            'polygon'             => self::faker()->text(65535),
+            'priority'            => self::faker()->text(10),
+            'procedure'           => ProcedureFactory::new(),
+            'publicStatement'     => self::faker()->text(20),
+            'publicUseName'       => false,
+            'publicVerified'      => StatementInterface::PUBLICATION_PENDING,
+            'reasonParagraph'     => self::faker()->text(65535),
+            'recommendation'      => self::faker()->text(65535),
+            'replied'             => false,
 //            'segmentationPiRetries' => self::faker()->numberBetween(1, 15),
-            'send' => self::faker()->dateTime(),
-            'sentAssessment' => false,
+            'send'               => self::faker()->dateTime(),
+            'sentAssessment'     => false,
             'sentAssessmentDate' => self::faker()->dateTime(),
-            'status' => 'fragment.status.verified',
-            'submit' => self::faker()->dateTime(),
-            'submitType' => 'system',
-            'text' => self::faker()->text(65535),
-            'title' => self::faker()->text(4096),
-            'toSendPerMail' => false,
+            'status'             => 'fragment.status.verified',
+            'submit'             => self::faker()->dateTime(),
+            'submitType'         => 'system',
+            'text'               => self::faker()->text(65535),
+            'title'              => self::faker()->text(4096),
+            'toSendPerMail'      => false,
         ];
     }
 

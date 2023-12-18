@@ -133,7 +133,7 @@ class StatementDeleter extends CoreService
             // placeholders (even originalSTN) are allowed to delete:
             $lockedBecauseOfOriginal = $statement->isOriginal() && !$ignoreOriginal;
 
-            //T27971:
+            // T27971:
             $lockedBySync = null !== $this->entitySyncLinkRepository
                     ->findOneBy(['class' => Statement::class, 'sourceId' => $statement->getId()])
                 || null !== $this->entitySyncLinkRepository
@@ -232,7 +232,7 @@ class StatementDeleter extends CoreService
                     $this->getLogger()
                         ->warning("Statement {$statementId} was not deleted, because of locked by related synced statement.");
                     $this->messageBag->add(
-                        'warning', 'warning.delete.statement.synced', //add transkey
+                        'warning', 'warning.delete.statement.synced', // add transkey
                         ['externId' => $statement->getExternId()]
                     );
                 }

@@ -362,7 +362,7 @@ class StatementDeleterTest extends FunctionalTestCase
     }
 
     /**
-     * T22439
+     * T22439.
      *
      * Deleting a statement which is the only child of the related original-statement while
      * "feature_auto_delete_original_statement" is enabled.
@@ -378,7 +378,7 @@ class StatementDeleterTest extends FunctionalTestCase
         $testSegment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $testStatement]);
         $testSegment2 = SegmentFactory::createOne(['parentStatementOfSegment' => $testStatement]);
 
-//        $testStatement = $this->getStatementReference('statementTestTagsBulkEdit1');
+        //        $testStatement = $this->getStatementReference('statementTestTagsBulkEdit1');
         $testOriginalStatement = $testStatement->getOriginal();
         self::assertFalse($testStatement->isOriginal());
         self::assertNotNull($testOriginalStatement);
@@ -388,15 +388,15 @@ class StatementDeleterTest extends FunctionalTestCase
         $testOriginalStatementId = $testStatement->getOriginal()->getId();
         $this->enablePermissions(['feature_auto_delete_original_statement']);
 
-        //Segments are stored on non-original statement:
+        // Segments are stored on non-original statement:
         self::assertNotEmpty($testStatement->getSegmentsOfStatement());
 
-        //Expect exactly one children, to keep this testcase simple.
+        // Expect exactly one children, to keep this testcase simple.
         self::assertCount(1, $testStatement->getOriginal()->getChildren());
         $successful = $this->sut->deleteStatementObject($testStatement->object());
         self::assertTrue($successful);
 
-        //Use find() to search for IDs directly in DB to avoid doctrine cache
+        // Use find() to search for IDs directly in DB to avoid doctrine cache
         self::assertNull($this->find(Statement::class, $testStatementId));
         self::assertNull($this->find(Statement::class, $testOriginalStatementId));
     }
