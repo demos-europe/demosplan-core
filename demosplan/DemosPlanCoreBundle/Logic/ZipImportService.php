@@ -70,7 +70,7 @@ class ZipImportService
                     $extension = $file->getExtension();
                     $fileNameParts = explode('_', $file->getFilename());
 
-                    if (!is_array($fileNameParts) || is_string($fileNameParts[0])) {
+                    if (!is_array($fileNameParts) || !is_string($fileNameParts[0])) {
                         $this->logger->error('Filename could not be exploded.');
                         throw new InvalidDataException('Filename of attachments in ZIP could not be exploded.');
                     }
@@ -91,8 +91,6 @@ class ZipImportService
                                 $this->fileService->createHash()
                             );
                         }
-
-
                 }
             }
 
