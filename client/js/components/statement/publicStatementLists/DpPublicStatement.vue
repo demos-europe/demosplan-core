@@ -232,7 +232,7 @@
           {{ Translator.trans('statementtext') }}
         </div>
         <div
-          class="break-words"
+          class="c-styled-html"
           v-cleanhtml="text" />
       </div>
     </template>
