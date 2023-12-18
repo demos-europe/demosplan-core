@@ -53,8 +53,8 @@ class ZipImportService
 
     /**
      * @return array<string, File|SplFileInfo> // Filehash => File || FileName => SplFileInfo
-     *
-     * @throws DemosException
+     * @throws InvalidDataException
+     * @throws InvalidArgumentException
      */
     public function createFileMapFromZip(SplFileInfo $fileInfo, string $procedureId): array
     {
@@ -66,16 +66,33 @@ class ZipImportService
             if ($this->finder->hasResults()) {
                 /** @var SplFileInfo $file */
                 foreach ($this->finder as $file) {
+
                     $extension = $file->getExtension();
                     $fileNameParts = explode('_', $file->getFilename());
-                    $fileHash = reset($fileNameParts);
-                    Assert::string($fileHash);
+
+                    if (!is_array($fileNameParts) || is_string($fileNameParts[0])) {
+                        $this->logger->error('Filename could not be exploded.');
+                        throw new InvalidDataException('Filename of attachments in ZIP could not be exploded.');
+                    }
+
+                    $fileHash = $fileNameParts[0];
                     Assert::notContains('errors.txt', $file->getFilename(), self::ZIP_CONTAINS_ERROR_TXT_FILE);
+
                     if (in_array($extension, self::IMPORT_FILE_TYPES_TO_NOT_BE_SAVED, true)) {
                         $fileMap[$fileHash] = $file;
-                    } else {
-                        $fileMap[$fileHash] = $this->saveAsDemosFile($file, $procedureId);
-                    }
+                        } else {
+
+                            $fileMap[$fileHash] = $this->fileService->saveTemporaryFile(
+                                $file->getRealPath(),
+                                $file->getFilename(),
+                                null,
+                                $procedureId,
+                                FileService::VIRUSCHECK_ASYNC,
+                                $this->fileService->createHash()
+                            );
+                        }
+
+
                 }
             }
 
@@ -99,23 +116,6 @@ class ZipImportService
             throw new DemosException('statement import failed');
         }
 
-    }
-
-    /**
-     * @throws Throwable
-     */
-    public function saveAsDemosFile(SplFileInfo $file, string $procedureId): File
-    {
-        $fileHash = $this->fileService->createHash();
-
-        return $this->fileService->saveTemporaryFile(
-            $file->getRealPath(),
-            $file->getFilename(),
-            null,
-            $procedureId,
-            FileService::VIRUSCHECK_ASYNC,
-            $fileHash
-        );
     }
 
     /**

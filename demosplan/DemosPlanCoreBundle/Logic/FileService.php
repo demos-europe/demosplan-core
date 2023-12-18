@@ -737,10 +737,8 @@ class FileService extends CoreService implements FileServiceInterface
 
     /**
      * Generate a unique name for the file.
-     *
-     * @return string
      */
-    public function createHash()
+    public function createHash(): string
     {
         return md5(uniqid('', true));
     }
