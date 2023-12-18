@@ -45,8 +45,6 @@ class DemosPlanAssessmentExportController extends BaseController
      *
      * @DplanPermissions("area_admin_assessmenttable")
      *
-     * @return Response
-     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_assessment_table_export', methods: ['POST', 'GET'], path: '/verfahren/abwaegung/export/{procedureId}', options: ['expose' => true])]
@@ -56,12 +54,13 @@ class DemosPlanAssessmentExportController extends BaseController
         AssessmentTableExporterStrategy $assessmentExporter,
         FileResponseGeneratorStrategy $responseGenerator,
         string $procedureId,
-        bool $original = false): ?Response
-    {
+        bool $original = false
+    ): ?Response {
         $exportParameters = $this->getExportParameters($request, $procedureId, $original);
         $exportFormat = $request->request->get('r_export_format');
         try {
             $file = $assessmentExporter->export($exportFormat, $exportParameters);
+
             $response = $responseGenerator($exportFormat, $file);
         } catch (DemosException $e) {
             $this->getMessageBag()->add('warning', $e->getUserMsg());
