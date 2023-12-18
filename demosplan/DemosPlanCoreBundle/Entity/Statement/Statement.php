@@ -40,7 +40,6 @@ use demosplan\DemosPlanCoreBundle\Constraint\FormDefinitionConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\MatchingSubmitTypesConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\OriginalReferenceConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\PrePersistUniqueInternIdConstraint;
-use demosplan\DemosPlanCoreBundle\Constraint\SegmentDraftJsonConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\SimilarStatementSubmittersSameProcedureConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -96,8 +95,6 @@ use UnexpectedValueException;
  */
 class Statement extends CoreEntity implements UuidEntityInterface, StatementInterface
 {
-    final public const DRAFT_JSON_VALIDATION_GROUP = 'draftJsonValidationGroup';
-
     /**
      * @var string|null
      *                  Generates a UUID in code that confirms to https://www.w3.org/TR/1999/REC-xml-names-19990114/#NT-NCName
@@ -946,7 +943,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * @ORM\Column(name="drafts_info_json", type="string", length=15000000, nullable=true)
      */
-    #[SegmentDraftJsonConstraint(groups: [self::DRAFT_JSON_VALIDATION_GROUP])]
     protected $draftsListJson;
 
     /**

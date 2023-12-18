@@ -46,6 +46,11 @@ abstract class AbstractStatementSpreadsheetImporter implements StatementSpreadsh
     protected array $generatedStatements = [];
 
     /**
+     * @var array<non-empty-string, int<0, max>>
+     */
+    protected array $skippedStatements = [];
+
+    /**
      * {@link Tag} entities that do not yet exist in the database and were created during the import.
      *
      * @var list<Tag>
@@ -68,6 +73,11 @@ abstract class AbstractStatementSpreadsheetImporter implements StatementSpreadsh
         protected readonly ValidatorInterface $validator,
     ) {
         $this->notNullConstraint = new NotBlank(['message' => 'segment.import.error.metadata.statement.id']);
+    }
+
+    public function getSkippedStatements(): array
+    {
+        return $this->skippedStatements;
     }
 
     /**

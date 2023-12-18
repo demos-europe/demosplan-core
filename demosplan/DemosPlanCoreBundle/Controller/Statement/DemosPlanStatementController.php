@@ -2430,8 +2430,9 @@ class DemosPlanStatementController extends BaseController
 
                 $createdStatements = $importer->getCreatedStatements();
                 $numberOfCreatedStatements = count($createdStatements);
+                $numberOfSkippedStatements = array_sum($importer->getSkippedStatements());
 
-                return $this->createSuccessResponse($procedureId, $numberOfCreatedStatements, $fileName);
+                return $this->createSuccessResponse($procedureId, $numberOfCreatedStatements, $numberOfSkippedStatements, $fileName);
             } catch (MissingDataException) {
                 $this->getMessageBag()->add('error', 'error.missing.data',
                     ['fileName' => $fileName]);
@@ -2484,13 +2485,29 @@ class DemosPlanStatementController extends BaseController
         );
     }
 
-    protected function createSuccessResponse(string $procedureId, int $numberOfCreatedStatements, string $fileName)
-    {
-        $this->getMessageBag()->add(
-            'confirm',
-            'confirm.statements.imported.from.xlsx',
-            ['count' => $numberOfCreatedStatements, 'fileName' => $fileName]
-        );
+    protected function createSuccessResponse(
+        string $procedureId,
+        int $numberOfCreatedStatements,
+        int $numberOfSkippedStatements,
+        string $fileName
+    ): RedirectResponse {
+        if (0 === $numberOfCreatedStatements) {
+            $this->getMessageBag()->add(
+                'confirm',
+                'confirm.statements.imported.from.xlsx',
+                ['count' => $numberOfCreatedStatements, 'fileName' => $fileName]
+            );
+        } else {
+            $this->getMessageBag()->add(
+                'confirm',
+                'confirm.statements.imported.from.xlsx.skipped',
+                [
+                    'successCount' => $numberOfCreatedStatements,
+                    'fileName'     => $fileName,
+                    'skippedCount' => $numberOfSkippedStatements,
+                ]
+            );
+        }
         $route = 'dplan_procedure_statement_list';
         // Change redirect target if data input user
         if ($this->permissions->hasPermission('feature_statement_data_input_orga')) {
