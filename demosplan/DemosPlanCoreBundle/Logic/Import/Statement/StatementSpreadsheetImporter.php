@@ -121,7 +121,7 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
             $procedure,
             $this->currentUser->getUser(),
             $this->orgaService->getOrga(User::ANONYMOUS_USER_ORGA_ID),
-            $this->elementsService->getStatementElement($procedure->getId()),
+            $this->elementsService,
             $this->getStatementTextConstraint(),
             [$this, 'replaceLineBreak']
         );
@@ -145,16 +145,6 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
         $headIterator = $head->getCellIterator('A', $highestColumn);
         $currentProcedure = $this->currentProcedureService->getProcedure()
             ?? throw new MissingPostParameterException('Current procedure is missing.');
-
-        $builder = new StatementFromRowBuilder(
-            $this->validator,
-            $currentProcedure,
-            $this->currentUser->getUser(),
-            $this->orgaService->getOrga(User::ANONYMOUS_USER_ORGA_ID),
-            $this->elementsService,
-            $this->getStatementTextConstraint(),
-            [$this, 'replaceLineBreak']
-        );
 
         $usedExternIds = $this->statementService->getExternIdsInUse($currentProcedure->getId());
 
