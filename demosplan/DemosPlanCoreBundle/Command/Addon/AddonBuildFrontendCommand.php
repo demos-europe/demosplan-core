@@ -10,8 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\Addon;
 
-use Composer\Console\Input\InputOption;
-use demosplan\DemosPlanCoreBundle\Addon\AddonManifestCollectionWrapper;
 use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
@@ -44,10 +42,11 @@ class AddonBuildFrontendCommand extends CoreCommand
         $addonName = $input->getArgument('addon-name');
         $env = $input->getOption('env');
 
-        if(null === $addonName) {
+        if (null === $addonName) {
             $enabledAddons = $this->registry->getEnabledAddons();
-            if(0 === count($enabledAddons)) {
+            if (0 === count($enabledAddons)) {
                 $output->warning('No addons enabled, nothing to do.');
+
                 return self::SUCCESS;
             }
             $question = new ChoiceQuestion('Which addon do you want to build the assets for? ', array_keys($enabledAddons));
