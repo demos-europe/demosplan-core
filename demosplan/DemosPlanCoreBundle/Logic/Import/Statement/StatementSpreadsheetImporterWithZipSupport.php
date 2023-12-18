@@ -78,10 +78,10 @@ class StatementSpreadsheetImporterWithZipSupport extends StatementSpreadsheetImp
      * @throws MissingPostParameterException
      * @throws InvalidDataException
      */
-    public function process(SplFileInfo $zipFileInfo): void
+    public function process(SplFileInfo $workbook): void
     {
         $this->fileMap = $this->zipImportService->createFileMapFromZip(
-            $zipFileInfo,
+            $workbook,
             $this->currentProcedureService->getProcedure()->getId()
         );
         Assert::minCount($this->fileMap, 1, 'Zip file does not contain any Files');
