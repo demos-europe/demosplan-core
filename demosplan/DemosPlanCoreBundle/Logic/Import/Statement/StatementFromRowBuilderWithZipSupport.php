@@ -132,9 +132,9 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
         return $this->baseStatementFromRowBuilder->setText($cell);
     }
 
-    public function setPlanningDocumentCategoryName(Cell $cell): ?ConstraintViolationListInterface
+    public function setPlanningDocumentCategoryTitle(Cell $cell): ?ConstraintViolationListInterface
     {
-        return $this->baseStatementFromRowBuilder->setPlanningDocumentCategoryName($cell);
+        return $this->baseStatementFromRowBuilder->setPlanningDocumentCategoryTitle($cell);
     }
 
     public function setOrgaName(Cell $cell): ?ConstraintViolationListInterface

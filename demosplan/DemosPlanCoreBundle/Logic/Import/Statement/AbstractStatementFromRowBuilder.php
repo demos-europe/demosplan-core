@@ -21,7 +21,7 @@ abstract class AbstractStatementFromRowBuilder
     abstract public function setText(Cell $cell): ?ConstraintViolationListInterface;
 
 
-    abstract public function setPlanningDocumentCategoryName(Cell $cell): ?ConstraintViolationListInterface;
+    abstract public function setPlanningDocumentCategoryTitle(Cell $cell): ?ConstraintViolationListInterface;
 
 
     abstract public function setOrgaName(Cell $cell): ?ConstraintViolationListInterface;
