@@ -12,11 +12,13 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttachmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Exception\AssessmentTableZipExportException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FormOptionsResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService;
@@ -57,7 +59,9 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
         SimpleSpreadsheetService $simpleSpreadsheetService,
         StatementHandler $statementHandler,
         TranslatorInterface $translator,
-        private readonly StatementService $statementService
+        private readonly AssessmentTablePdfExporter $pdfExporter,
+        private readonly StatementService $statementService,
+        private readonly FileService $fileService
     ) {
         parent::__construct(
             $assessmentHandler,
@@ -110,16 +114,54 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
     {
         $files = [];
         $index = 0;
+
+        $parameters = [
+            'procedureId' => $this->currentProcedureService->getProcedure()->getId(),
+            'anonymous'   => false,
+            'exportType'  => 'statementsOnly',
+            'template'    => 'portrait',
+            'original'    => true,
+            'viewMode'    => 'view_mode_default',
+        ];
+        // set file attachments if present:
         foreach ($statementIds as $statementId) {
             $statementAttachments = $this->statementService->getFileContainersForStatement($statementId);
-            $files[$index] = [];
+            $files[$index] = ['attachments' => [], 'originalAttachment' => null];
             foreach ($statementAttachments as $statementAttachment) {
-                $files[$index][] = $statementAttachment->getFile();
+                $files[$index]['attachments'][] = $statementAttachment->getFile();
+            }
+            // set the stn attachment:
+            // if present just take the given one.
+            $files[$index]['originalAttachment'] = $this->getOriginalAttachment($statementId);
+            if (null === $files[$index]['originalAttachment']) {
+                // if not present yet, invoke the pdfCreator and create an original-stn-pdf to use instead
+                $parameters['statementId'] =
+                    $this->statementService->getStatement($statementId)?->getOriginal()->getId();
+                $pdfExporter = $this->pdfExporter;
+                $files[$index]['originalAttachment'] = $pdfExporter(
+                    $parameters
+                );
+                $files[$index]['originalAttachment']['fileHash'] = $this->fileService->createHash();
             }
             ++$index;
         }
 
         return $files;
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function getOriginalAttachment(string $statementId): ?File
+    {
+        $statementAttachments = $this->statementService->getStatement($statementId)->getAttachments();
+        foreach ($statementAttachments as $statementAttachment) {
+            if (StatementAttachmentInterface::SOURCE_STATEMENT === $statementAttachment->getType()) {
+                return $statementAttachment->getFile();
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -138,19 +180,29 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
         }
 
         $rowCount = $sheet->getHighestRow();
-        $columnForReferencesToAttachments = $this->getColumnForReferencesToAttachments($sheet);
+        $columnForReferencesToAttachments = $this->getColumnForReferencesToAttachments($sheet, 'statement.attachments.reference');
+        $columnForReferencesToOriginalAttachments = $this->getColumnForReferencesToAttachments($sheet, 'statement.original.attachment.reference');
         $indexStatment = 0;
         for ($row = 2; $row <= $rowCount; ++$row) {
             $referencesAsString = '';
+            $referencesAsStringOriginal = '';
             if (array_key_exists($indexStatment, $files)) {
                 /** @var File $file */
-                foreach ($files[$indexStatment] as $file) {
+                foreach ($files[$indexStatment]['attachments'] as $file) {
                     $referencesAsString .= $file->getHash().', ';
+                }
+                if ($files[$indexStatment]['originalAttachment'] instanceof File) {
+                    $referencesAsStringOriginal = $files[$indexStatment]['originalAttachment']?->getHash() ?? '';
+                }
+                if (is_array($files[$indexStatment]['originalAttachment'])) {
+                    $referencesAsStringOriginal = $files[$indexStatment]['originalAttachment']['fileHash'];
                 }
             }
 
             $cell = $columnForReferencesToAttachments.$row;
             $sheet->setCellValue($cell, trim($referencesAsString, ', '));
+            $cell = $columnForReferencesToOriginalAttachments.$row;
+            $sheet->setCellValue($cell, $referencesAsStringOriginal);
             ++$indexStatment;
         }
         $xlsxWriter->setSpreadsheet($spreadsheet);
@@ -161,11 +213,11 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
     /**
      * @throws AssessmentTableZipExportException
      */
-    private function getColumnForReferencesToAttachments(Worksheet $sheet): string
+    private function getColumnForReferencesToAttachments(Worksheet $sheet, string $title): string
     {
         foreach ($sheet->getColumnIterator() as $column) {
             $columnTitle = $sheet->getCell($column->getColumnIndex().'1')->getValue();
-            if ($columnTitle === $this->translator->trans('statement.attachments.reference')) {
+            if ($columnTitle === $this->translator->trans($title)) {
                 return $column->getColumnIndex();
             }
         }

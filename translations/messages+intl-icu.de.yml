@@ -3118,6 +3118,7 @@ statement.assignment.override: "Stellungnahme mir zuweisen"
 statement.assignment.release: "Stellungnahme freigeben"
 statement.assignment.unassigned: "Aktuell nicht in Bearbeitung"
 statement.attachments.reference: "Referenzen auf Anhänge"
+statement.original.attachment.reference: "Originalanhang"
 statement.change.failed: "Änderung der Stellungnahme fehlgeschlagen"
 statement.pdfs.checkable.now: |
     {count, plural,
