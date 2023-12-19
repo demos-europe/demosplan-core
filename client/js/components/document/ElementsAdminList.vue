@@ -289,11 +289,11 @@ export default {
 
     /**
      * Callback that is executed whenever an item is dragged over a new target.
-     * Here it is used to cancel the drag action when dragging over singleDocument
+     * Here it is used to cancel the drag action when dragging over singleDocument (=!isBranch)
      * elements, hereby keeping folders above files.
      */
-    onMove ({ relatedContext }) {
-      return relatedContext.element.type !== 'singleDocument'
+    onMove (e) {
+      return e.related.__vnode.context.isBranch
     },
 
     resetSelection () {
