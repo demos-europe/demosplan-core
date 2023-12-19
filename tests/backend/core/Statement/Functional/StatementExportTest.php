@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace Tests\Core\Statement\Functional;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttachmentInterface;
@@ -92,9 +100,9 @@ class StatementExportTest extends FunctionalTestCase
         $this->loginTestUser();
         $parameters = [
             'procedureId' => $this->statement->getProcedure()->getId(),
-            'original' => $this->statement->getOriginal(),
-            'anonymous' => false,
-            'exportType' => 'statementsWithAttachments',
+            'original'    => $this->statement->getOriginal(),
+            'anonymous'   => false,
+            'exportType'  => 'statementsWithAttachments',
         ];
         $sut = $this->sut;
         $return = $sut($parameters);
