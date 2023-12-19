@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Exception\AssessmentTableZipExportException;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidPostParameterTypeException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingPostParameterException;
@@ -47,8 +48,17 @@ class DemosPlanAssessmentExportController extends BaseController
      *
      * @throws Exception
      */
-    #[Route(name: 'DemosPlan_assessment_table_export', methods: ['POST', 'GET'], path: '/verfahren/abwaegung/export/{procedureId}', options: ['expose' => true])]
-    #[Route(name: 'DemosPlan_assessment_table_original_export', path: '/verfahren/abwaegung/original/export/{procedureId}', defaults: ['original' => true], options: ['expose' => true])]
+    #[Route(
+        path: '/verfahren/abwaegung/export/{procedureId}',
+        name: 'DemosPlan_assessment_table_export',
+        options: ['expose' => true],
+        methods: ['POST', 'GET']
+    )]
+    #[Route(path: '/verfahren/abwaegung/original/export/{procedureId}',
+        name: 'DemosPlan_assessment_table_original_export',
+        options: ['expose' => true],
+        defaults: ['original' => true]
+    )]
     public function exportAction(
         Request $request,
         AssessmentTableExporterStrategy $assessmentExporter,
@@ -62,6 +72,10 @@ class DemosPlanAssessmentExportController extends BaseController
             $file = $assessmentExporter->export($exportFormat, $exportParameters);
 
             $response = $responseGenerator($exportFormat, $file);
+        } catch (AssessmentTableZipExportException $e) {
+            $this->getMessageBag()->add($e->getLevel(), $e->getUserMsg());
+
+            return $this->redirectBack($request);
         } catch (DemosException $e) {
             $this->getMessageBag()->add('warning', $e->getUserMsg());
 

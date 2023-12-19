@@ -258,7 +258,12 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      *
      * @throws Exception
      */
-    #[Route(name: 'DemosPlan_procedures_export', path: '/verfahren/export', methods: ['GET'], options: ['expose' => true])]
+    #[Route(
+        path: '/verfahren/export',
+        name: 'DemosPlan_procedures_export',
+        options: ['expose' => true],
+        methods: ['GET']
+    )]
     public function exportProceduresAction(ExportService $exportService, Request $request): Response
     {
         $selectedProcedures = $this->getSelectedItems($request);

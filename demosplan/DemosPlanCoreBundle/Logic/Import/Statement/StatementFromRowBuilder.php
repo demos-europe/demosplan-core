@@ -27,6 +27,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Range;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -55,9 +56,8 @@ use function is_string;
  * 2. processing all cells in one big method: possible, but more messy than spreading the logic over multiple,
  *    specialized methods
  */
-class StatementFromRowBuilder
+class StatementFromRowBuilder extends AbstractStatementFromRowBuilder
 {
-    protected Statement $statement;
     protected DateTime $now;
 
     protected Cell $planningDocumentCategoryTitle;
@@ -78,7 +78,7 @@ class StatementFromRowBuilder
         protected readonly Constraint $textConstraint,
         protected readonly mixed $textPostValidationProcessing
     ) {
-        $this->statement = new Statement();
+        parent::__construct();
         $this->now = Carbon::now();
     }
 
@@ -236,6 +236,20 @@ class StatementFromRowBuilder
         return null;
     }
 
+    public function setFeedback(Cell $cell): ?ConstraintViolationListInterface
+    {
+        $this->statement->setFeedback($cell->getValue() ?? '');
+
+        return null;
+    }
+
+    public function setNumberOfAnonymVotes(Cell $cell): ?ConstraintViolationListInterface
+    {
+        $this->statement->setNumberOfAnonymVotes($cell->getValue() ?? 0);
+
+        return null;
+    }
+
     /**
      * Returns the statement that was created and filled since the last call of this method or a list of violations
      * due to invalid values/state of the statement.
@@ -276,7 +290,6 @@ class StatementFromRowBuilder
 
         // set other static values
         $newOriginalStatement->setManual();
-        $newOriginalStatement->setSubmitType(StatementInterface::SUBMIT_TYPE_UNKNOWN);
         $newOriginalStatement->setProcedure($this->procedure);
         $newStatementMeta->setSubmitOrgaId($this->importingUser->getOrganisationId());
         $newOriginalStatement->setPhase($this->procedure->getPhase());
