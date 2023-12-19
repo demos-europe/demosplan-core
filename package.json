@@ -177,7 +177,7 @@
   },
   "engines": {
     "npm": ">= 6.0.0",
-    "node": ">= 16.18.1"
+    "node": ">= 18.13.0"
   },
   "browserslist": [
     "last 5 versions",
