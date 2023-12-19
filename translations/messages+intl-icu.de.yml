@@ -658,12 +658,12 @@ confirm.statements.marked.numbertext: |
     }
 confirm.statements.marked.released: "Die markierten Stellungnahmen wurden an Ihre Koordination freigegeben. Die Stellungnahmen müssen von Ihrer Koordination anschließend noch aus dem Ordner \"Freigaben der Organisation\" an den Verfahrensträger eingereicht werden."
 confirm.statements.marked.submitted: "Die markierten Stellungnahmen wurden eingereicht."
-confirm.statements.imported.from.xlsx: |
+confirm.statements.imported.from.files.xlsx.format: |
     {count, plural,
-        =1 {Eine Stellungnahme wurde erfolgreich aus {fileName} in das System importiert.}
-        other {{count} Stellungnahmen wurden erfolgreich aus {fileName} in das System importiert.}
+            =0 {Es wurde keine Stellungnahme aus {fileName} importiert.}
+            =1 {Es wurde eine Stellungnahme aus {fileName} importiert.}
+            other {Es wurden {numbers} Stellungnahmen aus {fileName} importiert.}
     }
-confirm.statements.imported.from.xlsx.skipped: "{successCount} Stellungnahme(n) wurde(n) erfolgreich aus {fileName} in das System importiert. {skippedCount} Stellungnahme(n) mit bereits existierenden IDs wurde(n) übersprungen."
 confirm.story.created: "Die Userstory wurde angelegt."
 confirm.story.deleted: "Die Userstory wurde gelöscht."
 confirm.story.updated: "Die Userstory wurde aktualisiert."
@@ -1155,6 +1155,7 @@ error.featureinfo.failed: "Die Sachdaten können derzeit nicht abgerufen werden"
 error.featureinfourl.global.updated: "Die globale Sachdaten-URL konnte nicht erfolgreich verändert werden."
 error.fileupload.mimetype: "Der von Ihnen hochgeladene Dateityp ist nicht erlaubt. Beim Upload der Datei ist ein Fehler aufgetreten."
 error.fileupload: "Beim Upload der Datei ist ein Fehler aufgetreten."
+error.file.could.not.be.read: "Es ist ein Fehler beim Verarbeiten der Datei(en) aufgetreten."
 error.file.notFound: "Die Datei {fileName} konnte nicht gefunden werden."
 error.fragment.assignment.assigned: "Der Datensatz konnte nicht erfolgreich zugewiesen werden."
 error.fragment.assignment.changed: "Die Zuweisung des Datensatzes wurde nicht erfolgreich geändert."
@@ -1297,6 +1298,7 @@ error.statments.zip.export.attachment: |
     other { # Anhänge konnten dem ZIP-Archiv nicht hinzugefügt werden.}
     }
 error.statements.zip.export.attachments.not.addable: 'Es konnten dem ZIP-Archiv keine Anhänge hinzugefügt werden. Export abgebrochen.'
+error.statements.zip.import.contains.error.textfile: 'Es wurde versucht, ein fehlerhaft erstelltes ZIP-Archiv zu importieren. Bitte versuchen Sie das Zip-Archiv zu ersetzen.'
 error.survey.votes.publication: "Die Veröffentlichung der Antwort konnte nicht verändert werden."
 error.tag.notfound: "Das Schlagwort konnte nicht gefunden werden."
 error.topic.notfound: "Das Thema wurde nicht gefunden. Möglicherweise wurde es zwischenzeitlich gelöscht."
@@ -1337,8 +1339,8 @@ evaluation.assessment.table.export: "Auswertung_Abwaegungstabelle_Export"
 example.file: "Beispieldatei"
 excel.import.error: |
     {count, plural,
-        =1 {Beim Hochladen des Excel-Dokuments ist ein Fehler aufgetreten. Die {entities} wurden nicht importiert. Bitte überprüfen Sie die Daten auf Korrektheit.}
-        other {Beim Hochladen des Excel-Dokuments sind Fehler aufgetreten. Die {entities} wurden nicht importiert. Bitte überprüfen Sie die Daten auf Korrektheit.}
+        =1 {Beim Verarbeiten des Excel-Dokuments ist ein Fehler aufgetreten. Die {entities} wurden nicht importiert. Bitte überprüfen Sie die Daten auf Korrektheit.}
+        other {Beim Verarbeiten des Excel-Dokuments sind Fehler aufgetreten. Die {entities} wurden nicht importiert. Bitte überprüfen Sie die Daten auf Korrektheit.}
     }
 excel.import.errors.checklist.hint: "Markieren Sie die unten stehenden Fehler als erledigt, sobald Sie diese im Excel-Dokument behoben haben. Alternativ können Sie auch direkt zum {entities}-Import zurückkehren."
 existing: "vorhanden"
@@ -3425,6 +3427,7 @@ statements.import: "Stellungnahmen importieren"
 statements.import.error.line.summary: "In Zeile {lineNr}:"
 statements.import.error.document.summary: "Im Dokument {doc} traten folgende Fehler auf:"
 statements.import.error.document.unexpected: "Im Dokument {doc} trat ein Fehler auf. Bitte überprüfen Sie die Daten auf Korrektheit."
+statements.import.error.property.constraint.violation: "Beim Import der Stellungnahme aus Zeile {lineNumber} der Excel Datei ist folgender Fehler aufgetreten: {message}."
 statements.import.hint: "Dateien, die gerade von anderen Nutzer*innen bearbeitet werden, sind unten nicht dargestellt."
 statements.imported.by.status: "Importierte Stellungnahmen nach Status"
 statements.imported.none: "Sie haben noch keine Stellungnahmen importiert."
