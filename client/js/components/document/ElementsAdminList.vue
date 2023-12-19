@@ -48,12 +48,12 @@
     <dp-loading v-if="isLoading" />
     <dp-tree-list
       v-else
+      ref="treeList"
       :branch-identifier="isBranch"
       :draggable="canDrag"
       :on-move="onMove"
       :options="treeListOptions"
       :tree-data="treeData"
-      ref="treeList"
       @draggable:change="saveNewSort"
       @node-selection-change="nodeSelectionChange"
       @tree:change="updateTreeData">
@@ -168,6 +168,7 @@ export default {
     buildTree (sortField = 'index') {
       const elementsCopy = JSON.parse(JSON.stringify(Object.values(this.elements)))
       const tree = this.listToTree(elementsCopy)
+
       this.treeData = this.sortRecursive(tree, sortField)
     },
 
@@ -209,6 +210,7 @@ export default {
         if (hasOwnProp(node, 'children')) {
           return this.findNodeById(node.children, nodeId)
         }
+
         return null
       }, null)
     },
@@ -282,6 +284,7 @@ export default {
       this.selectedFiles = selected
         .filter(node => node.nodeType === 'leaf')
         .map(el => el.nodeId)
+
       this.selectedElements = selected
         .filter(node => node.nodeType === 'branch')
         .map(el => el.nodeId)
@@ -308,15 +311,17 @@ export default {
      * @param action {Object<elementId, newIndex, parentId>}
      */
     saveNewSort ({ elementId, newIndex, parentId }) {
-      // Find the node the element has being moved into
+      // Find the node the element has been moved into
       const parentNode = this.findNodeById(this.treeData, parentId)
-      // On the root level, treeData represents the children
-      const children = parentId ? parentNode.children : this.treeData
+      const isRootLevel = !parentId
+      const elementSiblings = isRootLevel ? this.treeData : parentNode.children
       // Find the element that is directly following the moved element (only folders, no files)
-      const nextChild = children.filter(node => node.type === 'elements')[newIndex + 1]
+      const nextSibling = elementSiblings.filter(node => node.type === 'elements')[newIndex + 1]
       // Either send the index of the element that is being "pushed down" or undefined (if the moved element is the last item)
-      const index = nextChild ? nextChild.attributes.index : null
+      const index = nextSibling ? nextSibling.attributes.index : null
+
       this.canDrag = false
+
       dpRpc('planningCategoryList.reorder', {
         elementId: elementId,
         newIndex: index,
@@ -329,9 +334,11 @@ export default {
            * with those values to rebuild the hierarchy with the correct indexes.
            */
           const elementsMap = response.data[0].result
+
           for (const id in elementsMap) {
             const storeElement = this.elements[id]
             const mapElement = elementsMap[id]
+
             if (typeof storeElement !== 'undefined') {
               this.setElement({
                 ...storeElement,
@@ -343,6 +350,7 @@ export default {
               })
             }
           }
+
           this.buildTree()
           this.canDrag = true
           dplan.notify.confirm(Translator.trans('confirm.saved'))
@@ -378,7 +386,7 @@ export default {
     },
 
     /**
-     * Updates the tree structure that respresents the draggable ui.
+     * Updates the tree structure that represents the draggable ui.
      * @param updatedSort {Object<newOrder,nodeId>}
      */
     updateTreeData (updatedSort) {
