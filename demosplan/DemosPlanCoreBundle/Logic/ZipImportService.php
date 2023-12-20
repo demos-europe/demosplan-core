@@ -30,8 +30,8 @@ use Webmozart\Assert\InvalidArgumentException;
 use ZipArchive;
 
 use function is_string;
-
 use function Symfony\Component\String\u;
+
 use const DIRECTORY_SEPARATOR;
 
 class ZipImportService
@@ -41,6 +41,7 @@ class ZipImportService
     private const IMPORT_FILE_TYPES_TO_NOT_BE_SAVED = [
         'xlsx',
     ];
+
     public function __construct(
         private readonly CurrentContextProvider $currentContextProvider,
         private readonly LoggerInterface $logger,
@@ -53,6 +54,7 @@ class ZipImportService
 
     /**
      * @return array<string, File|SplFileInfo> // Filehash => File || FileName => SplFileInfo
+     *
      * @throws InvalidDataException
      * @throws InvalidArgumentException
      */
@@ -66,7 +68,6 @@ class ZipImportService
             if ($this->finder->hasResults()) {
                 /** @var SplFileInfo $file */
                 foreach ($this->finder as $file) {
-
                     $extension = $file->getExtension();
                     $fileNameParts = explode('_', $file->getFilename());
 
@@ -80,17 +81,16 @@ class ZipImportService
 
                     if (in_array($extension, self::IMPORT_FILE_TYPES_TO_NOT_BE_SAVED, true)) {
                         $fileMap[$fileHash] = $file;
-                        } else {
-
-                            $fileMap[$fileHash] = $this->fileService->saveTemporaryFile(
-                                $file->getRealPath(),
-                                $file->getFilename(),
-                                null,
-                                $procedureId,
-                                FileService::VIRUSCHECK_ASYNC,
-                                $this->fileService->createHash()
-                            );
-                        }
+                    } else {
+                        $fileMap[$fileHash] = $this->fileService->saveTemporaryFile(
+                            $file->getRealPath(),
+                            $file->getFilename(),
+                            null,
+                            $procedureId,
+                            FileService::VIRUSCHECK_ASYNC,
+                            $this->fileService->createHash()
+                        );
+                    }
                 }
             }
 
@@ -113,7 +113,6 @@ class ZipImportService
 
             throw new DemosException('statement import failed');
         }
-
     }
 
     /**
@@ -194,9 +193,7 @@ class ZipImportService
         $tmpDir = DemosPlanPath::getTemporaryPath($user->getId().'/'.$procedureId.'/'.$tempFileFolder);
 
         if (!is_dir($tmpDir) && !mkdir($tmpDir, 0777, true) && !is_dir($tmpDir)) {
-            throw new InvalidDataException(
-                'The filename does not exists or is not a directory. Directory was not created'
-            );
+            throw new InvalidDataException('The filename does not exists or is not a directory. Directory was not created');
         }
 
         return $tmpDir;
