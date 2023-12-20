@@ -133,8 +133,8 @@ class ZipImportService
 
                 $fileInfo = pathinfo($filenameOrig);
 
-                $filename = u($fileInfo['basename'])->ascii()->replace(' ', '_');
-                $dirname = u($fileInfo['dirname'])->ascii()->replace(' ', '_');
+                $filename = u($fileInfo['basename'])->ascii()->replace(' ', '_')->toString();
+                $dirname = u($fileInfo['dirname'])->ascii()->replace(' ', '_')->toString();
 
                 $user = $this->currentContextProvider->getCurrentUser();
                 $extractDir = $this->getStatementAttachmentImportDir($procedureId, $tempFileFolder, $user);
