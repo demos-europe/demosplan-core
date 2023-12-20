@@ -32,6 +32,7 @@ use ZipArchive;
 
 use function is_string;
 
+use function Symfony\Component\String\u;
 use const DIRECTORY_SEPARATOR;
 
 class ZipImportService
@@ -134,9 +135,8 @@ class ZipImportService
 
                 $fileInfo = pathinfo($filenameOrig);
 
-                // T5659 only filter filenames for bad chars, do not translit
-                $filename = Utf8::filter($fileInfo['basename']);
-                $dirname = Utf8::filter($fileInfo['dirname']);
+                $filename = u($fileInfo['basename'])->ascii()->replace(' ', '_');
+                $dirname = u($fileInfo['dirname'])->ascii()->replace(' ', '_');
 
                 $user = $this->currentContextProvider->getCurrentUser();
                 $extractDir = $this->getStatementAttachmentImportDir($procedureId, $tempFileFolder, $user);
