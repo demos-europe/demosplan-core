@@ -153,7 +153,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
                 $statement[self::PUBLIC_STATEMENT] = $publicStatement;
 
                 $generatedOriginalStatement = $this->createNewOriginalStatement($statement, count($this->generatedStatements), $line, $currentWorksheetTitle);
-                //no validation of $generatedOriginalStatement?
+                // no validation of $generatedOriginalStatement?
 
                 $generatedStatement = $this->createCopy($generatedOriginalStatement);
 
