@@ -232,7 +232,7 @@ abstract class AbstractStatementResourceType extends DplanResourceType
             $this->createToManyRelationship($this->files)
                 ->readable(false, function (Statement $statement): ?array {
                     // files need to be fetched via Filecontainer
-                    $files = $this->fileService->getEntityFiles(Statement::class, $statement->getId(), 'file');
+                    $files = $this->fileService->getEntityFiles(Statement::class, $statement->getParentId(), 'file');
                     if (0 === count($files)) {
                         return null;
                     }
