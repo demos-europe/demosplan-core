@@ -413,9 +413,12 @@ export default {
 
       externalApi(url)
         .then(response => {
+          return response.text()
+        })
+        .then(text => {
           this.serviceType = hasWMTSType ? 'wmts' : 'wms'
           parser = this.serviceType === 'wmts' ? new WMTSCapabilities() : new WMSCapabilities()
-          this.currentCapabilities = parser.read(response.data)
+          this.currentCapabilities = parser.read(text)
 
           if (this.currentCapabilities !== null) {
             this.version = this.currentCapabilities.version
