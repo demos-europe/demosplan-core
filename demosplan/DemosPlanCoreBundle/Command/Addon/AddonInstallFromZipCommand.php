@@ -75,7 +75,7 @@ class AddonInstallFromZipCommand extends CoreCommand
         );
 
         $this->addOption('reinstall', '', InputOption::VALUE_NONE, 'Re-install an addon (useful for debugging)');
-        $this->addOption('enable', '', InputOption::VALUE_NONE, 'Immediately enable addon during installation');
+        $this->addOption('no-enable', '', InputOption::VALUE_NONE, 'Do not immediately enable addon during installation');
         $this->addOption('local', '', InputOption::VALUE_NONE, 'Only use locally available addons, do not connect GitHub');
         $this->addOption('force-download', '', InputOption::VALUE_NONE, 'Force download repository from GitHub');
         $this->addOption('folder', '', InputOption::VALUE_REQUIRED, 'Folder to read addon zips from', 'addonZips');
@@ -90,7 +90,7 @@ class AddonInstallFromZipCommand extends CoreCommand
         $output = new SymfonyStyle($input, $output);
 
         $reinstall = $input->getOption('reinstall');
-        $enable = $input->getOption('enable');
+        $enable = !$input->getOption('no-enable');
         $path = $input->getArgument('path');
         $folder = $input->getOption('folder');
 
