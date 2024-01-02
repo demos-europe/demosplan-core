@@ -84,7 +84,7 @@ uiComponent('layout.table', {
                 <th class="text-{{ col.direction|default('left') }}">{{ col.title|trans }}</th>
             {% endfor %}
             {% if actions is defined %}
-                <th class="width-40">{{ 'actions'|trans }}</th>
+                <th class="w-6">{{ 'actions'|trans }}</th>
             {% endif %}
         </tr>
     </thead>
@@ -130,7 +130,7 @@ uiComponent('layout.table', {
                 {% endfor %}
                 {% if actions is defined %}
                     {# show linked icons #}
-                    <td class="{{ 'width-40 text-center'|prefixClass(omitPrefix) }}">
+                    <td class="{{ 'w-6 text-center'|prefixClass(omitPrefix) }}">
                         {% for action in actions %}
                             {{ uiComponent('link', {
                                 text: "<i class=\"fa " ~ action.icon ~ "\" title=\"" ~ action.title|trans ~ "\"></i>",

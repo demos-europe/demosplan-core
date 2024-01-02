@@ -84,8 +84,8 @@
           <div
             class="c-actionmenu__menu overflow-hidden"
             role="menu">
-            <div class="max-height-500 overflow-y-auto">
-              <label class="lbl--text u-pl-0_5 u-mb-0_25 width-200 border--bottom">
+            <div class="max-h-13 overflow-y-auto">
+              <label class="lbl--text u-pl-0_5 u-mb-0_25 w-10 border--bottom">
                 <input
                   type="checkbox"
                   checked
@@ -94,7 +94,7 @@
               </label>
               <label
                 v-for="(filterField, idx) in filteredFields"
-                class="lbl--text u-pl-0_5 u-mb-0_25 width-200"
+                class="lbl--text u-pl-0_5 u-mb-0_25 w-10"
                 :key="idx">
                 <input
                   type="checkbox"
@@ -110,7 +110,7 @@
 
     <!-- Table -->
     <dp-data-table
-      class="width-100p font-size-5 overflow-x-hidden relative u-pb"
+      class="w-full font-size-5 overflow-x-hidden relative u-pb"
       ref="dataTable"
       has-sticky-header
       :header-fields="headerFields"

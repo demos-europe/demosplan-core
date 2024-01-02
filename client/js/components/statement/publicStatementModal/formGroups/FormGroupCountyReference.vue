@@ -26,7 +26,7 @@
       v-if="hasPermission('field_statement_location')"
       :class="[
         statement.location_is_set === 'county' ? prefixClass('bg-color--grey-light-2') : '',
-        prefixClass('c-statement__formblock layout__item height-90 height-auto-lap-down u-1-of-1-palm u-3-of-10')
+        prefixClass('c-statement__formblock layout__item sm:h-8 u-1-of-1-palm u-3-of-10')
       ]"
       ref="mapStatementRadio">
       <dp-radio
@@ -60,7 +60,7 @@
       :class="[
         statement.location_is_set === 'notLocated' ? prefixClass('bg-color--grey-light-2') : '',
         loggedIn ? prefixClass('u-1-of-3') : prefixClass('u-2-of-10'),
-        prefixClass('c-statement__formblock layout__item height-90 height-auto-lap-down u-1-of-1-palm')
+        prefixClass('c-statement__formblock layout__item sm:h-8 u-1-of-1-palm')
       ]">
       <dp-radio
         id="locationNone"

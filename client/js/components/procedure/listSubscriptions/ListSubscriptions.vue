@@ -24,7 +24,7 @@
     <div class="flex space-inline-s">
       <dp-autocomplete
         v-if="dplan.settings.useOpenGeoDb"
-        class="u-nojs-hide inline-block width-250 bg-color--white"
+        class="u-nojs-hide inline-block w-11 bg-color--white"
         height="32px"
         label="value"
         :options="postalCodeOptions"

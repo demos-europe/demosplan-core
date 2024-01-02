@@ -3,7 +3,7 @@
 </p>
 <fieldset class="{{ 'toggle-group-location block'|prefixClass }}" role="radiogroup" aria-labelledby="statementMapReference" aria-required="true" id="locationFieldset">
     {% if hasPermission('field_statement_location') %}
-        <div class="{{ ('c-statement__formblock layout__item u-1-of-1-palm height-90 height-auto-lap-down ' ~ (loggedin ? 'u-1-of-3' : 'u-3-of-10'))|prefixClass }}" data-toggle-id="locationCountryOrga">
+        <div class="{{ ('c-statement__formblock layout__item u-1-of-1-palm sm:h-8 ' ~ (loggedin ? 'u-1-of-3' : 'u-3-of-10'))|prefixClass }}" data-toggle-id="locationCountryOrga">
 
             <label for="locationCountryOrga" class="{{ 'u-mb-0_5 weight--normal'|prefixClass }}">
                 <input
@@ -32,7 +32,7 @@
         </div>
     {% endif %}
 
-    <div class="{{ ('c-statement__formblock layout__item u-1-of-1-palm height-90 height-auto-lap-down ' ~ (loggedin ? 'u-1-of-3' : 'u-2-of-10'))|prefixClass }}" data-toggle-id="locationNotLocated">
+    <div class="{{ ('c-statement__formblock layout__item u-1-of-1-palm sm:h-8 ' ~ (loggedin ? 'u-1-of-3' : 'u-2-of-10'))|prefixClass }}" data-toggle-id="locationNotLocated">
 
         <label for="locationNotLocated" class="{{ 'u-mb-0 weight--normal'|prefixClass }}">
             <input

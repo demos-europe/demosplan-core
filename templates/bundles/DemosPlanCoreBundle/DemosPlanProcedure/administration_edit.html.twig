@@ -202,7 +202,7 @@
                                 <input id="{{ form.agencyMainEmailAddress.vars.id }}"
                                        name="agencyMainEmailAddress[fullAddress]"
                                        value="{{ form.agencyMainEmailAddress.vars.value.fullAddress }}"
-                                       class="o-form__control-input width-100p"
+                                       class="o-form__control-input w-full"
                                        type="email"
                                        required>
                             </div>
@@ -332,7 +332,7 @@
                                 } %}
                                 {# Bei textareas muss der Inhalt ohne Leerzeichen zwischen den Tags stehen, sonst werden die Leerzeichen ausgegeben und multiplizieren sich im Frontend. #}
                                 <textarea
-                                    class="o-form__control-textarea height-60"
+                                    class="o-form__control-textarea h-7"
                                     id="r_desc"
                                     name="r_desc">
                                     {%- if proceduresettings.desc is defined %}
@@ -438,7 +438,7 @@
                                         </p>
                                         <input
                                             id="r_legalNotice"
-                                            class="o-form__control-input width-100p"
+                                            class="o-form__control-input w-full"
                                             name="r_legalNotice"
                                             type="text"
                                             maxlength="250"
@@ -695,7 +695,7 @@
                                             data-counter="counter"
                                             data-cy="procedureName"
                                             maxlength="200"
-                                            class="o-form__control-input width-100p"
+                                            class="o-form__control-input w-full"
                                             name="r_name"
                                             type="text"
                                             value="{{ proceduresettings.name|default( "notspecified"|trans ) }}">
@@ -721,7 +721,7 @@
                                         data-counter="counter_oeb"
                                         maxlength="200"
                                         data-cy="procedureExternalName"
-                                        class="o-form__control-input width-100p"
+                                        class="o-form__control-input w-full"
                                         type="text"
                                         value="{{ proceduresettings.externalName|default( "notspecified"|trans ) }}"
                                         name="r_externalName">
@@ -753,7 +753,7 @@
                                     <p class="u-mt-0_25 u-mb-0_25"><strong>{{ 'preview'|trans }}:</strong></p>
                                     <p
                                         id="shortUrl_preview"
-                                        class="inline-block u-mt-0 u-mb-0_25 break-words max-width-100p"
+                                        class="inline-block u-mt-0 u-mb-0_25 break-words max-w-full"
                                         data-shorturl="{{ templateVars.shortUrlPath }}/">
                                         {{ templateVars.shortUrlPath }}/{{ templateVars.inData.r_shortUrl|default }}
                                     </p>
@@ -1007,7 +1007,7 @@
                                                     {{ "postalcode"|trans }}
                                                     {# Atm broken (was not reimplemented after removing jQuery autocomplete) #}
                                                     <input
-                                                        class="o-form__control-input width-100p js__locationName"
+                                                        class="o-form__control-input w-full js__locationName"
                                                         type="text"
                                                         value="{% if proceduresettings.locationPostCode is defined %}{{ proceduresettings.locationPostCode }}{% else %}{{ "notspecified"|trans }}{% endif %}"
                                                         name="r_locationPostCode">
@@ -1015,7 +1015,7 @@
                                              --><label class="layout__item u-5-of-6 u-mb-0">
                                                     {{ "public.participation.location"|trans }}
                                                     <input
-                                                        class="o-form__control-input width-100p"
+                                                        class="o-form__control-input w-full"
                                                         type="text"
                                                         value="{% if proceduresettings.locationName is defined %}{{ proceduresettings.locationName }}{% else %}{{ "notspecified"|trans }}{% endif %}"
                                                         name="r_locationName">

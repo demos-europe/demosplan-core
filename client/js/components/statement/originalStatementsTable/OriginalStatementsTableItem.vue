@@ -16,12 +16,12 @@
       class="overflow-visible">
       <table :aria-label="Translator.trans('statement')">
         <colgroup>
-          <col class="width-10p">
-          <col class="width-10p text-left">
+          <col class="w-[10%]">
+          <col class="w-[10%] text-left">
           <col
             span="3"
-            class="width-25p">
-          <col class="width-5p text-right">
+            class="w-1/4">
+          <col class="w-[5%] text-right">
         </colgroup>
         <thead>
           <tr class="hide-visually">

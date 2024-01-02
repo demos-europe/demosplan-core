@@ -26,7 +26,7 @@
         }"
         name="r_locationPostCode"
         :value="locationPostalCode"
-        width="width--120" />
+        width="w-9" />
       <dp-input
         id="locationName"
         class="u-ml-0_25"
@@ -36,7 +36,7 @@
         }"
         name="r_locationName"
         :value="locationName"
-        width="width--120" />
+        width="w-9" />
       <dp-input
         id="municipalCode"
         class="u-ml-0_25"
@@ -46,7 +46,7 @@
         }"
         name="r_municipalCode"
         :value="municipalCode"
-        width="width--180" />
+        width="w-10" />
       <dp-input
         id="ars"
         class="u-ml-0_25"
@@ -56,7 +56,7 @@
         }"
         name="r_ars"
         :value="ars"
-        width="width--180" />
+        width="w-10" />
     </div>
   </div>
 </template>

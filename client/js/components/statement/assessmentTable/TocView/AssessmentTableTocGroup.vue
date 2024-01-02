@@ -10,7 +10,7 @@
 <template>
   <ul
     class="bg-color--grey-light-2"
-    :class="depth === 0 ? 'c-toc c-toc--level-0 height-100p overflow-x-auto u-ph u-pv-0_25' : 'c-toc--level-1'">
+    :class="depth === 0 ? 'c-toc c-toc--level-0 h-full overflow-x-auto u-ph u-pv-0_25' : 'c-toc--level-1'">
     <li
       v-for="(subgroup, idx) in group.subgroups"
       :key="`subGroup:${idx}`">

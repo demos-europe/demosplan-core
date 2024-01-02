@@ -20,7 +20,7 @@
       required
       id="customLatitude"
       v-model="latitudeValue"
-      class="c-ol-map__select width-120 u-mr">
+      class="c-ol-map__select w-9 u-mr">
 
     <label
       class="inline-block u-m-0"
@@ -33,7 +33,7 @@
       required
       id="customLongitude"
       v-model="longitudeValue"
-      class="c-ol-map__select width-120 u-mr">
+      class="c-ol-map__select w-9 u-mr">
 
     <button
       @click.prevent="addMarker"

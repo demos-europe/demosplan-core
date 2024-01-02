@@ -19,7 +19,7 @@
       @mouseover="toggleOpacityControl(true)"
       @mouseout="toggleOpacityControl(false)">
       <button
-        :class="prefixClass('btn--blank btn--focus width-16 text-left')"
+        :class="prefixClass('btn--blank btn--focus w-3 text-left')"
         :aria-label="layer.attributes.name + ' ' + statusAriaText"
         @focus="toggleOpacityControl(true)"
         @click.prevent.stop="toggleFromSelf(true)"
@@ -58,7 +58,7 @@
       v-if="contextualHelpText"
       v-tooltip="{
         content: contextualHelpText,
-        classes: prefixClass('width-350'),
+        classes: prefixClass('w-12'),
         boundariesElement: 'body',
         container: '#procedureDetailsMap'
       }"

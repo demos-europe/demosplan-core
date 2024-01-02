@@ -42,7 +42,7 @@ export default {
    */
   render (h, context) {
     const immediateComponent = {
-      template: `<div class='text-wrapper width-fit-content' data-cy='textWrapper'>${context.props.text}</div>`,
+      template: `<div class='text-wrapper w-fit' data-cy='textWrapper'>${context.props.text}</div>`,
       data () {
         return context.props.data
       }

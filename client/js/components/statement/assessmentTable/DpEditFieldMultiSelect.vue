@@ -21,7 +21,7 @@
           class="o-list o-list--csv"
           v-if="0 < selected.length">
           <li
-            class="o-list__item o-hellip max-width-100p"
+            class="o-list__item o-hellip max-w-full"
             v-for="item in selected"
             :key="item.id"
             v-text="item.name" />

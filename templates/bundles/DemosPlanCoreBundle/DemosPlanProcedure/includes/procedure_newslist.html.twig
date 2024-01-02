@@ -27,7 +27,7 @@
         {# pdf attachment #}
         {% if news.pdf is defined and news.pdf != '' %}
             <a
-                class="{{ 'font-size-smaller float-right max-width-100p'|prefixClass }}"
+                class="{{ 'font-size-smaller float-right max-w-full'|prefixClass }}"
                 target="_blank"
                 rel="noopener"
                 href="{{ path("core_file", { 'hash': news.pdf|getFile('hash') }) }}"

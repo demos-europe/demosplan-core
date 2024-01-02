@@ -10,7 +10,7 @@
 <template>
   <dp-modal
     ref="labelModal"
-    content-classes="width-600">
+    content-classes="w-14">
     <template>
       <h3>
         {{ Translator.trans('format') }}
@@ -18,7 +18,7 @@
       <div class="flex space-inline-s">
         <dp-select
           v-model="selectedLabel"
-          classes="width-300"
+          classes="w-12"
           name="labelSelect"
           placeholder="-"
           :options="labels" />

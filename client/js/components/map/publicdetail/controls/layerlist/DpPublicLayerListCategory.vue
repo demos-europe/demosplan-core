@@ -19,7 +19,7 @@
       ]">
       <span :class="prefixClass('c-map__group-item-controls')">
         <button
-          :class="prefixClass('btn--blank btn--focus width-16 text-left')"
+          :class="prefixClass('btn--blank btn--focus w-3 text-left')"
           :aria-label="group.attributes.name + ' ' + (isVisible ? Translator.trans('maplayer.category.hide') : Translator.trans('maplayer.category.show'))"
           @click="toggleFromSelf">
           <i
@@ -28,7 +28,7 @@
         </button>
         <button
           v-if="false === appearsAsLayer"
-          :class="prefixClass('btn--blank btn--focus width-16 text-left')"
+          :class="prefixClass('btn--blank btn--focus w-3 text-left')"
           :aria-label="group.attributes.name + ' ' + (unfolded ? Translator.trans('maplayer.category.close') : Translator.trans('maplayer.category.open'))"
           @click="fold">
           <i
@@ -48,7 +48,7 @@
         v-if="'' !== contextualHelp"
         v-tooltip="{
           content: contextualHelp,
-          classes: prefixClass('width-350'),
+          classes: prefixClass('w-12'),
           boundariesElement: 'body',
           container: '#procedureDetailsMap'
         }"

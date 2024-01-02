@@ -28,14 +28,14 @@
       </div>
     </div>
 
-    <div class="flex width-100p">
+    <div class="flex w-full">
       <dp-search-field
         input-width="u-1-of-2"
         @search="searchTerm => searchAdministrationProceduresList(searchTerm)"
         @reset="resetAdministrationProceduresList" />
 
       <dp-select
-        class="width-250 ml-auto"
+        class="w-11 ml-auto"
         :options="options"
         :selected="selectedSort"
         :show-placeholder="false"
@@ -218,18 +218,18 @@ export default {
           label: Translator.trans('name')
         },
         {
-          colClass: 'width-85',
+          colClass: 'w-8',
           field: 'count',
           isVisible: this.showStatementCount,
           label: Translator.trans('quantity')
         },
         {
-          colClass: 'width-200',
+          colClass: 'w-10',
           field: 'internalPhase',
           isVisible: this.showInternalPhases
         },
         {
-          colClass: this.showInternalPhases ? 'width-200' : 'u-1-of-4',
+          colClass: this.showInternalPhases ? 'w-10' : 'u-1-of-4',
           field: 'externalPhase',
           isVisible: true,
           label: !this.showInternalPhases && Translator.trans('procedure.public.phase')

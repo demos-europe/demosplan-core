@@ -119,7 +119,7 @@
               ref="recommendationModal"
               class="recommendation-modal"
               content-classes="u-2-of-3">
-              <div class="flex width-100p">
+              <div class="flex w-full">
                 <h3 class="u-mb">
                   {{ Translator.trans('segment.recommendation.insert.similar') }}
                 </h3>

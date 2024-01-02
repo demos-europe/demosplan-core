@@ -20,7 +20,7 @@
                 <label>
                     {{ "description"|trans }}
                     {# Bei textareas muss der Inhalt ohne Leerzeichen zwischen den Tags stehen, sonst werden die Leerzeichen ausgegeben und multiplizieren sich im Frontend. #}
-                    <textarea class="height-60" name="r_description" value="{{templateVars.request.r_title|default() }}">{{templateVars.request.r_description|default() }}</textarea>
+                    <textarea class="h-7" name="r_description" value="{{templateVars.request.r_title|default() }}">{{templateVars.request.r_description|default() }}</textarea>
                 </label>
 
                 <div class="text-right space-inline-s">
