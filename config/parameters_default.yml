@@ -148,6 +148,9 @@ parameters:
     piwik_site_id: "1"
     matomo_token: ""
 
+    # GitHub token may be used to download addons
+    github_token: '%env(GITHUB_TOKEN)%'
+
     # MySQL Default Settings
     database_driver: "pdo_mysql"
     database_host: "localhost"
