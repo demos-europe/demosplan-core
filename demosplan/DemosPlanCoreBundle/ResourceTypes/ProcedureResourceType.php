@@ -35,7 +35,7 @@ use EDT\PathBuilding\End;
  * @property-read OrgaResourceType                    $invitedOrganisations
  * @property-read OrgaResourceType                    $orga                         Do not expose! Alias usage only.
  * @property-read OrgaResourceType                    $organisation                 Do not expose! Alias usage only.
- * @property-read ProcedureTypeResourceType           $type
+ * @property-read ProcedureTypeResourceType           $procedureType
  * @property-read ProcedureUiDefinitionResourceType   $procedureUiDefinition
  * @property-read StatementFormDefinitionResourceType $statementFormDefinition
  * @property-read UserResourceType                    $authorizedUsers
@@ -175,7 +175,7 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
         }
 
         if ($this->currentUser->hasPermission('area_procedure_type_edit')) {
-            $properties[] = $this->createToOneRelationship($this->type)->readable()->sortable()->filterable();
+            $properties[] = $this->createToOneRelationship($this->procedureType)->readable()->sortable()->filterable();
             $properties[] = $this->createToOneRelationship($this->procedureUiDefinition)->readable()->sortable()->filterable();
             $properties[] = $this->createToOneRelationship($this->statementFormDefinition)->readable()->sortable()->filterable();
         }
