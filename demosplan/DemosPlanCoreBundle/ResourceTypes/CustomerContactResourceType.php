@@ -45,7 +45,7 @@ class CustomerContactResourceType extends DplanResourceType
     protected function getProperties(): array
     {
         $properties = [
-            $this->createAttribute($this->id)->readable(true),
+            $this->createIdentifier()->readable(),
             $this->createAttribute($this->title)->readable()->updatable()->initializable(),
             $this->createAttribute($this->phoneNumber)->readable()->updatable()->initializable(),
             $this->createAttribute($this->text)->readable()->updatable()->initializable(),

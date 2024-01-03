@@ -50,7 +50,7 @@ class CustomerLoginSupportContactResourceType extends DplanResourceType
         $customerCondition = $this->conditionFactory->propertyHasValue($currentCustomerId, Paths::supportContact()->customer);
 
         $properties = [
-            $this->createAttribute($this->id)->readable(true),
+            $this->createIdentifier()->readable(),
             $this->createAttribute($this->title)->readable()->initializable()->updatable([$customerCondition]),
             $this->createAttribute($this->phoneNumber)->readable()->initializable()->updatable([$customerCondition]),
             $this->createAttribute($this->text)->readable()->initializable()->updatable([$customerCondition]),
