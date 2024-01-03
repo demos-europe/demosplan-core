@@ -60,6 +60,7 @@ class AssessmentExportOptions implements JsonSerializable, Jsonable
         'docx',
         'pdf',
         'xlsx',
+        'zip',
     ];
 
     /**
@@ -103,7 +104,7 @@ class AssessmentExportOptions implements JsonSerializable, Jsonable
 
             $optionsFiles[] = DemosPlanPath::getConfigPath('statement/assessment_export_options.yml');
 
-            $optionsYaml = collect($optionsFiles)->map(static fn($filename) => file_exists($filename) ? file_get_contents($filename) : null)->filter(static fn($yaml) => null !== $yaml && is_string($yaml))->all();
+            $optionsYaml = collect($optionsFiles)->map(static fn ($filename) => file_exists($filename) ? file_get_contents($filename) : null)->filter(static fn ($yaml) => null !== $yaml && is_string($yaml))->all();
 
             $coreOptions = [];
             $projectOptions = [];

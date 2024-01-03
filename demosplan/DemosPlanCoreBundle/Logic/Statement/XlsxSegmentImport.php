@@ -40,7 +40,16 @@ class XlsxSegmentImport
      */
     private $createdSegments;
 
-    public function __construct(private readonly CurrentUserInterface $currentUser, private readonly EntityManagerInterface $entityManager, private readonly EventDispatcherPostInterface $eventDispatcher, private readonly ExcelImporter $xlsxSegmentImporter, private readonly LoggerInterface $logger, private readonly SegmentRepository $segmentRepository, private readonly StatementRepository $statementRepository, private readonly StatementService $statementService)
+    public function __construct(
+        private readonly CurrentUserInterface $currentUser,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly EventDispatcherPostInterface $eventDispatcher,
+        private readonly ExcelImporter $xlsxSegmentImporter,
+        private readonly LoggerInterface $logger,
+        private readonly SegmentRepository $segmentRepository,
+        private readonly StatementRepository $statementRepository,
+        private readonly StatementService $statementService
+    )
     {
     }
 

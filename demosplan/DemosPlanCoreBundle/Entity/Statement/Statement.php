@@ -813,7 +813,12 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * @ORM\Column(name="_st_submit_type", type="string", nullable=false)
      */
     #[Assert\NotBlank(groups: [Statement::IMPORT_VALIDATION], message: 'statement.import.invalidSubmitTypeBlank')]
-    protected $submitType = 'system';
+    #[Assert\Choice(
+        choices: StatementInterface::SUBMIT_TYPES,
+        message: 'statement.invalid.submit.type',
+        groups: ['Default', StatementInterface::IMPORT_VALIDATION]
+    )]
+    protected $submitType = StatementInterface::SUBMIT_TYPE_SYSTEM;
 
     /**
      * This field is transformed during elasticsearch populate
