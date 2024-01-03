@@ -36,7 +36,9 @@
           :text="Translator.trans('procedure.share_statements.bulk.share')" />
       </dp-bulk-edit-header>
       <div class="flex space-inline-xs">
-        <dp-flyout :align="'left'">
+        <dp-flyout
+          ref="flyout"
+          :align="'left'">
           <template v-slot:trigger>
             {{ Translator.trans('export.verb') }}
             <i
@@ -44,13 +46,13 @@
               aria-hidden="true" />
           </template>
           <a
-            :href="exportRoute('dplan_statement_segments_export')"
-            rel="noopener">
+            href="#"
+            @click="showHintAndDoExport('dplan_statement_segments_export')">
             {{ Translator.trans('export.statements.docx') }}
           </a>
           <a
-            :href="exportRoute('dplan_statement_segments_export_packaged')"
-            rel="noopener">
+            href="#"
+            @click="showHintAndDoExport('dplan_statement_segments_export_packaged')">
             {{ Translator.trans('export.statements.zip') }}
           </a>
           <a
@@ -535,7 +537,7 @@ export default {
         window.location.href = Routing.generate('dplan_drafts_list_edit', { statementId: statementId, procedureId: this.procedureId })
       }
 
-      if (!isStatementClaimed || isStatementClaimedByOtherUser && dpconfirm(Translator.trans('warning.statement.needLock.generic'))) {
+      if (!isStatementClaimed || (isStatementClaimedByOtherUser && dpconfirm(Translator.trans('warning.statement.needLock.generic')))) {
         this.claimStatement(statementId)
           .then(() => {
             window.location.href = Routing.generate('dplan_drafts_list_edit', { statementId: statementId, procedureId: this.procedureId })
@@ -866,6 +868,13 @@ export default {
       } else {
         this.allItemsCount = data.meta.pagination.total
       }
+    },
+
+    showHintAndDoExport (route) {
+      if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
+        window.location.href = this.exportRoute(route)
+      }
+      this.$refs.flyout.toggle()
     },
 
     triggerStatementDeletion (id) {
