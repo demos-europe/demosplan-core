@@ -125,7 +125,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
     /**
      * Generates statements from incoming excel document, including validation.
-     * This method does not persist or flush the generated Statements.
+     * This method does not flush the generated Statements and does not persist nor flush the original statements.
      */
     public function process(SplFileInfo $workbook): void
     {

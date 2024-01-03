@@ -1006,6 +1006,12 @@ services:
         tags:
             - { name: "dplan.assessment.table.exporter" }
 
+    # Zip Exporter
+    demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableZipExporter:
+        lazy: true
+        tags:
+            - { name: "dplan.assessment.table.exporter" }
+
     # DOCX Exporter
     demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableDocxExporter:
         lazy: true
@@ -1030,6 +1036,14 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\XlsResponseGenerator:
         arguments:
             $supportedTypes: "%file.formats.xls%"
+        tags:
+            - { name: "dplan.file.response.generator" }
+
+    # ZIP Response Generator
+    demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\ZipResponseGenerator:
+        arguments:
+            $logger: '@monolog.logger.dplan'
+            $supportedTypes: "%file.formats.zip%"
         tags:
             - { name: "dplan.file.response.generator" }
 
@@ -1343,7 +1357,6 @@ services:
     # HEY YOU, YES YOU! STOP! Please follow the alphabetical order and
     # do NOT just add new code to the end of this file.
 
-    # TODO: This line needs to be removed when the fix is implemented, for now this enables the usage of addons.
     DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface: '@demosplan\DemosPlanCoreBundle\Permissions\Permissions'
 
     DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiResourceTypeService'

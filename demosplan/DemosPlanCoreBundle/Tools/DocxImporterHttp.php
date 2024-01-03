@@ -17,6 +17,7 @@ use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mime\Part\DataPart;
 use Symfony\Component\Mime\Part\Multipart\FormDataPart;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -40,7 +41,7 @@ class DocxImporterHttp implements DocxImporterInterface
             $formData = new FormDataPart($formFields);
             $url = $this->parameterBag->get('docx_importer_route').'/docx/import';
 
-            $response = $this->httpClient->request('POST', $url, [
+            $response = $this->httpClient->request(Request::METHOD_POST, $url, [
                 'headers' => $formData->getPreparedHeaders()->toArray(),
                 'body'    => $formData->bodyToIterable(),
             ]);

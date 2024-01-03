@@ -685,7 +685,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     }
 
     /**
-     * @param ArrayCollection $elements
+     * @param Collection<int, Elements> $elements
      */
     public function setElements($elements)
     {

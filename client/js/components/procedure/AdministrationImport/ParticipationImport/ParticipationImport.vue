@@ -22,12 +22,12 @@ All rights reserved
         :value="csrfToken">
 
       <dp-upload-files
-        allowed-file-types="xls"
+        allowed-file-types="zip"
         :basic-auth="dplan.settings.basicAuth"
         :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
         :max-file-size="100 * 1024 * 1024/* 100 MiB */"
         needs-hidden-input
-        :translations="{ dropHereOr: Translator.trans('form.button.upload.file.allowed.formats', { browse: '{browse}', allowedFormats: '.xls, .xlsx, .ods', maxUploadSize: '100 MB' }) }"
+        :translations="{ dropHereOr: Translator.trans('form.button.upload.zip', { browse: '{browse}', maxUploadSize: '100 MB' }) }"
         :tus-endpoint="dplan.paths.tusEndpoint"
         @file-remove="removeFileIds"
         @upload-success="setFileIds" />

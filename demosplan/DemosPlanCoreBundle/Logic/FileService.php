@@ -452,9 +452,9 @@ class FileService extends CoreService implements FileServiceInterface
      * @param string $fileId
      * @param string $fileString
      */
-    public function addStatementFileContainer($entityId, $fileId, $fileString): ?FileContainer
+    public function addStatementFileContainer($entityId, $fileId, $fileString, bool $flush = true): ?FileContainer
     {
-        return $this->addFileContainer($entityId, Statement::class, $fileId, $fileString);
+        return $this->addFileContainer($entityId, Statement::class, $fileId, $fileString, $flush);
     }
 
     /**
@@ -466,7 +466,7 @@ class FileService extends CoreService implements FileServiceInterface
      *
      * @return FileContainer|null
      */
-    public function addFileContainer($entityId, string $entityClass, $fileId, $fileString)
+    public function addFileContainer($entityId, string $entityClass, $fileId, $fileString, bool $flush = true)
     {
         try {
             $fileContainer = new FileContainer();
@@ -481,7 +481,7 @@ class FileService extends CoreService implements FileServiceInterface
                 return null;
             }
 
-            return $this->fileContainerRepository->addObject($fileContainer);
+            return $this->fileContainerRepository->addObject($fileContainer, $flush);
         } catch (Exception) {
             return null;
         }
@@ -730,10 +730,8 @@ class FileService extends CoreService implements FileServiceInterface
 
     /**
      * Generate a unique name for the file.
-     *
-     * @return string
      */
-    public function createHash()
+    public function createHash(): string
     {
         return md5(uniqid('', true));
     }
