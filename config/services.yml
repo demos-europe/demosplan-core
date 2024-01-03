@@ -1340,6 +1340,9 @@ services:
     EDT\JsonApi\Requests\UpdateRequest: ~
     EDT\JsonApi\Requests\DeletionRequest: ~
 
+    EDT\Querying\Contracts\PropertyAccessorInterface:
+        alias: '@EDT\DqlQuerying\PropertyAccessors\Iso8601PropertyAccessor'
+
     demosplan\DemosPlanCoreBundle\Command\ClassGenerator\EntityCompanionGeneratorCommand:
         arguments:
             $resourceTypes: !tagged dplan.resourceType
