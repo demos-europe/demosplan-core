@@ -113,7 +113,7 @@ class DraftStatementService extends CoreService
      */
     protected $statementValidator;
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface
+     * @var MessageBagInterface
      */
     private $messageBag;
 
