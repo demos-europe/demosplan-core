@@ -154,14 +154,8 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Events\DailyMaintenanceEventInterface:
         class: demosplan\DemosPlanCoreBundle\Event\DailyMaintenanceEvent
 
-    DemosEurope\DemosplanAddon\Contracts\Events\AfterResourceCreationEventInterface:
-        class: demosplan\DemosPlanCoreBundle\Event\AfterResourceCreationEvent
-
     DemosEurope\DemosplanAddon\Contracts\Events\IsFileDirectlyAccessibleEventInterface:
         class: demosplan\DemosPlanCoreBundle\Event\IsFileDirectlyAccessibleEvent
-
-    DemosEurope\DemosplanAddon\Contracts\Events\AfterResourceUpdateEventInterface:
-        class: demosplan\DemosPlanCoreBundle\Event\AfterResourceUpdateEvent
 
     DemosEurope\DemosplanAddon\Contracts\Events\IsFileAvailableEventInterface:
         class: demosplan\DemosPlanCoreBundle\Event\IsFileAvailableEvent

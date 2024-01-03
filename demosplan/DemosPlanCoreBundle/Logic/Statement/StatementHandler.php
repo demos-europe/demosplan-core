@@ -350,22 +350,12 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         return $this->draftStatementService->addDraftStatement($statement);
     }
 
-    /**
-     * Get Statement by Id.
-     *
-     * @param string $id
-     */
     public function getStatement($id): ?Statement
     {
         return $this->statementService->getStatement($id);
     }
 
     /**
-     * Definitely get Statement by Id.
-     * ToImprove: I would prefer to rename "$this->getStatement()" to "$this->getStatementOrNull()", so that this method
-     *            could only be named "getStatement", but that would be a larger refactoring. This is a first step on
-     *            that path making the change easy.
-     *
      * @throws StatementNotFoundException
      */
     public function getStatementWithCertainty(string $statementId): Statement
@@ -3185,16 +3175,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         return $result;
     }
 
-    /**
-     * Updates a Statement-Object without create a report entry!
-     *
-     * @param Statement $statement
-     * @param bool      $ignoreAssignment
-     * @param bool      $ignoreCluster
-     * @param bool      $ignoreOriginal
-     *
-     * @return statement|false|null - If successful: the updated Statement as object will be returned
-     */
     public function updateStatementObject($statement, $ignoreAssignment = false, $ignoreCluster = false, $ignoreOriginal = false)
     {
         return $this->statementService->updateStatement($statement, $ignoreAssignment, $ignoreCluster, $ignoreOriginal);

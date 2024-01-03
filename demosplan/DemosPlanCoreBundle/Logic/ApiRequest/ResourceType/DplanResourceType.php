@@ -39,7 +39,7 @@ abstract class DplanResourceType extends DoctrineResourceType
      */
     protected function getConfig(string $class): MagicResourceConfigBuilder
     {
-        return new $class($this->getEntityClass(), $this->propertyBuilderFactory);
+        return new $class($this->getEntityClass(), $this->getPropertyBuilderFactory());
     }
 
     public function getTypeName(): string

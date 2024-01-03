@@ -29,9 +29,6 @@ class ExternalFileSaver implements ExternalFileSaverInterface
     {
     }
 
-    /**
-     * @throws Throwable
-     */
     public function save(string $url, ?string $procedureId = null): File
     {
         $response = $this->httpClient->request('GET', $url);
