@@ -268,7 +268,6 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 ->updatable([$simpleStatementCondition], function (Statement $statement, array $rawJson): array {
                     $encodedJson = Json::encode($rawJson);
                     $statement->setDraftsListJson($encodedJson);
-                    $this->resourceTypeService->validateObject($statement, [Statement::DRAFT_JSON_VALIDATION_GROUP]);
 
                     return [];
                 })
