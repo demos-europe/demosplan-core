@@ -137,6 +137,11 @@ export default {
     }
   },
 
+  emits: [
+    'updating-filters',
+    'update-selected'
+  ],
+
   data () {
     return {
       isUpdating: false,

@@ -148,6 +148,10 @@ export default {
     }
   },
 
+  emits: [
+    'statement:moveToProcedure'
+  ],
+
   data () {
     return {
       isLoading: true,

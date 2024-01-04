@@ -55,6 +55,10 @@ export default {
     }
   },
 
+  emits: [
+    'layer-list:unfolded'
+  ],
+
   data () {
     return {
       unfolded: false

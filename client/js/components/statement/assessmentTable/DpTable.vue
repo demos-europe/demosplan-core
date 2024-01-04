@@ -396,6 +396,10 @@ export default {
     }
   },
 
+  emits: [
+    'assessment-table-loaded'
+  ],
+
   data () {
     return {
       filterHash: this.initFilterHash,

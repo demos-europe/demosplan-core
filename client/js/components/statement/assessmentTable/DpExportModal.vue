@@ -402,6 +402,10 @@ export default {
     }
   },
 
+  emits: [
+    'submit'
+  ],
+
   data () {
     const options = this.options
     const data = {}
