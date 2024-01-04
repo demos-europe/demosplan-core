@@ -24,11 +24,10 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Throwable;
 
 /**
- * Class VirusCheckHttp uses https://github.com/benzino77/clamav-rest-api to check for viruses
+ * Class VirusCheckHttp uses https://github.com/benzino77/clamav-rest-api to check for viruses.
  */
 class VirusCheckHttp implements VirusCheckInterface
 {
-
     public function __construct(
         private readonly HttpClientInterface $httpClient,
         private readonly LoggerInterface $logger,
@@ -36,10 +35,8 @@ class VirusCheckHttp implements VirusCheckInterface
     ) {
     }
 
-
     public function hasVirus(File $file): bool
     {
-
         try {
             $url = $this->parameterBag->get('avscan_url').'/api/v1/scan';
 
@@ -49,7 +46,7 @@ class VirusCheckHttp implements VirusCheckInterface
             $formData = new FormDataPart($formFields);
             $response = $this->httpClient->request('POST', $url, [
                 'headers' => $formData->getPreparedHeaders()->toArray(),
-                'body' => $formData->bodyToIterable(),
+                'body'    => $formData->bodyToIterable(),
             ]);
             if (200 !== $response->getStatusCode()) {
                 $this->logger->error('Error in virusCheck:', [$response->getStatusCode(), $response->getContent(false)]);
@@ -71,11 +68,9 @@ class VirusCheckHttp implements VirusCheckInterface
             }
 
             return true === $scanResult['is_infected'];
-
         } catch (Throwable $e) {
             $this->logger->error('Error in virusCheck:', [$e]);
             throw new Exception($e->getMessage());
         }
-
     }
 }
