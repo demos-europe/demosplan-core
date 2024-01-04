@@ -262,7 +262,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
         path: '/verfahren/export',
         name: 'DemosPlan_procedures_export',
         options: ['expose' => true],
-        methods: ['GET']
+        methods: ['POST']
     )]
     public function exportProceduresAction(ExportService $exportService, Request $request): Response
     {
