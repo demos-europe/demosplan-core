@@ -55,20 +55,35 @@ class EmailAddressRepository extends FluentRepository implements EmailAddressRep
     /**
      * Checks if any EmailAddress entities are not referenced anymore and if so deletes them.
      *
+     * The parameter $emailIds contain emails ids which used in one or many addons and which have to be
+     * not removed while deleting orphan emails.
+     *
      * @return int the number of deletions
      */
-    public function deleteOrphanEmailAddresses(): int
+    public function deleteOrphanEmailAddresses(array $emailIds): int
     {
         $connection = $this->getEntityManager()->getConnection();
 
-        return $connection->exec(
-            'DELETE e'
-            .' FROM email_address AS e'
-            .' LEFT JOIN procedure_agency_extra_email_address  AS p  ON p.email_address_id = e.id'
-            .' LEFT JOIN maillane_allowed_sender_email_address AS m  ON m.email_address_id = e.id'
-            .' WHERE p.procedure_id   IS NULL'
-            .' AND   m.procedure_id   IS NULL'
-        );
+        $emailIdsCount = count($emailIds);
+        if (0 === $emailIdsCount) {
+            return $connection->exec(
+                'DELETE e'
+                .' FROM email_address AS e'
+                .' LEFT JOIN procedure_agency_extra_email_address  AS p  ON p.email_address_id = e.id'
+                .' WHERE p.procedure_id   IS NULL'
+            );
+        } else {
+            $emailIdsString = array_fill(0, $emailIdsCount, '?');
+            $emailIdsString = implode(',', $emailIdsString);
+
+            return $connection->executeStatement(
+                'DELETE e'
+                .' FROM email_address AS e'
+                .' LEFT JOIN procedure_agency_extra_email_address  AS p  ON p.email_address_id = e.id'
+                .' WHERE p.procedure_id   IS NULL'
+                .' AND e.id NOT IN ('.$emailIdsString.')', $emailIds
+            );
+        }
     }
 
     /**
