@@ -262,7 +262,7 @@ export default {
 
     exportProcedures (event) {
       if (dpconfirm(Translator.trans('check.entries.marked.export'))) {
-        this.$refs.procedureForm.method = 'get'
+        this.$refs.procedureForm.method = 'post'
         this.$refs.procedureForm.action = Routing.generate('DemosPlan_procedures_export')
       } else {
         event.preventDefault()
