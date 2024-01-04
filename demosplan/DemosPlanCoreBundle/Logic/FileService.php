@@ -347,10 +347,10 @@ class FileService extends CoreService implements FileServiceInterface
     public function saveTemporaryFile(
         string $filePath,
         string $fileName,
-        ?string $userId = null,
-        ?string $procedureId = null,
+        string $userId = null,
+        string $procedureId = null,
         ?string $virencheck = FileService::VIRUSCHECK_SYNC,
-        ?string $hash = null
+        string $hash = null
     ): File {
         $dplanFile = new File();
         $symfonyFile = new \Symfony\Component\HttpFoundation\File\File($filePath);
@@ -612,7 +612,7 @@ class FileService extends CoreService implements FileServiceInterface
      * @throws InvalidDataException
      * @throws Throwable
      */
-    public function copyByFileString($fileString, ?string $procedureId = null): ?File
+    public function copyByFileString($fileString, string $procedureId = null): ?File
     {
         $file = $this->getFileInfoFromFileString($fileString);
 
@@ -624,7 +624,7 @@ class FileService extends CoreService implements FileServiceInterface
      *
      * @throws InvalidDataException|Throwable
      */
-    public function copy(?string $hash, ?string $targetProcedureId = null): ?File
+    public function copy(?string $hash, string $targetProcedureId = null): ?File
     {
         $fileToCopy = $this->get($hash);
         if (!$fileToCopy instanceof File) {
@@ -731,7 +731,7 @@ class FileService extends CoreService implements FileServiceInterface
      *
      * @return string
      */
-    protected function moveFile(\Symfony\Component\HttpFoundation\File\File $file, $path = '', ?string $existingHash = null)
+    protected function moveFile(\Symfony\Component\HttpFoundation\File\File $file, $path = '', string $existingHash = null)
     {
         // Generate a unique name for the file before saving it
         $hash = $existingHash ?? $this->createHash();
@@ -781,7 +781,6 @@ class FileService extends CoreService implements FileServiceInterface
 
                 throw new VirusFoundException();
             }
-
         } catch (Exception $e) {
             $fs = new DemosFilesystem();
             $fs->remove($file->getPathname());
@@ -876,8 +875,6 @@ class FileService extends CoreService implements FileServiceInterface
      * Gib einen lesbaren MimeType aus.
      *
      * @param string $value
-     *
-     * @return mixed
      */
     protected function convertMimeType($value)
     {
@@ -984,8 +981,6 @@ class FileService extends CoreService implements FileServiceInterface
 
     /**
      * Given a SingleDocument (array format) returns its corresponding File id.
-     *
-     * @return mixed
      *
      * @throws Exception
      */
