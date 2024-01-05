@@ -1363,12 +1363,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "2b0d881a0e807dc9319f417d8ecc70f3505af478"
+                "reference": "3af65b54dc29d885456922423118fc4c7cdda6f1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/2b0d881a0e807dc9319f417d8ecc70f3505af478",
-                "reference": "2b0d881a0e807dc9319f417d8ecc70f3505af478",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/3af65b54dc29d885456922423118fc4c7cdda6f1",
+                "reference": "3af65b54dc29d885456922423118fc4c7cdda6f1",
                 "shasum": ""
             },
             "require": {
@@ -1414,24 +1414,24 @@
             "support": {
                 "source": "https://github.com/demos-europe/demosplan-addon/tree/f_update_edt_0_18_0"
             },
-            "time": "2024-01-04T13:31:52+00:00"
+            "time": "2024-01-04T16:34:11+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
-            "version": "0.24.30",
+            "version": "0.24.31",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/edt-access-definitions.git",
-                "reference": "e98c1d0d5ccf03996570ecaf880f45a7f6a30cd2"
+                "reference": "5190c9ae62e62d721332b92144a5216d0cb5c4ee"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/edt-access-definitions/zipball/e98c1d0d5ccf03996570ecaf880f45a7f6a30cd2",
-                "reference": "e98c1d0d5ccf03996570ecaf880f45a7f6a30cd2",
+                "url": "https://api.github.com/repos/demos-europe/edt-access-definitions/zipball/5190c9ae62e62d721332b92144a5216d0cb5c4ee",
+                "reference": "5190c9ae62e62d721332b92144a5216d0cb5c4ee",
                 "shasum": ""
             },
             "require": {
-                "demos-europe/edt-queries": "^0.24.30",
+                "demos-europe/edt-queries": "^0.24.31",
                 "pagerfanta/pagerfanta": "^2.7",
                 "php": "^8.1",
                 "thecodingmachine/safe": "^2.4.0"
@@ -1460,27 +1460,27 @@
             ],
             "description": "Tools to regulate access to entities and their properties.",
             "support": {
-                "source": "https://github.com/demos-europe/edt-access-definitions/tree/0.24.30"
+                "source": "https://github.com/demos-europe/edt-access-definitions/tree/0.24.31"
             },
-            "time": "2023-12-21T18:39:51+00:00"
+            "time": "2024-01-05T11:21:20+00:00"
         },
         {
             "name": "demos-europe/edt-dql",
-            "version": "0.24.30",
+            "version": "0.24.31",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/edt-dql.git",
-                "reference": "1eed51e8011c8bc75c11e79c5949efba387973ce"
+                "reference": "c72b4490223b5cbf864698ea01ca6f7b65fc5e53"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/edt-dql/zipball/1eed51e8011c8bc75c11e79c5949efba387973ce",
-                "reference": "1eed51e8011c8bc75c11e79c5949efba387973ce",
+                "url": "https://api.github.com/repos/demos-europe/edt-dql/zipball/c72b4490223b5cbf864698ea01ca6f7b65fc5e53",
+                "reference": "c72b4490223b5cbf864698ea01ca6f7b65fc5e53",
                 "shasum": ""
             },
             "require": {
-                "demos-europe/edt-paths": "^0.24.30",
-                "demos-europe/edt-queries": "^0.24.30",
+                "demos-europe/edt-paths": "^0.24.31",
+                "demos-europe/edt-queries": "^0.24.31",
                 "doctrine/orm": "^2.5",
                 "nette/php-generator": "^4.0",
                 "php": "^8.1",
@@ -1510,26 +1510,26 @@
             ],
             "description": "Extension for demos-europe/edt-queries to use Doctrine ORM as data source.",
             "support": {
-                "source": "https://github.com/demos-europe/edt-dql/tree/0.24.30"
+                "source": "https://github.com/demos-europe/edt-dql/tree/0.24.31"
             },
-            "time": "2023-12-21T18:39:49+00:00"
+            "time": "2024-01-05T11:21:24+00:00"
         },
         {
             "name": "demos-europe/edt-extra",
-            "version": "0.24.30",
+            "version": "0.24.31",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/edt-extra.git",
-                "reference": "baabd14161682256722b852548f707c46bb1e346"
+                "reference": "901856e0f6a802b1ba53c6d8105d017df04d22d0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/edt-extra/zipball/baabd14161682256722b852548f707c46bb1e346",
-                "reference": "baabd14161682256722b852548f707c46bb1e346",
+                "url": "https://api.github.com/repos/demos-europe/edt-extra/zipball/901856e0f6a802b1ba53c6d8105d017df04d22d0",
+                "reference": "901856e0f6a802b1ba53c6d8105d017df04d22d0",
                 "shasum": ""
             },
             "require": {
-                "demos-europe/edt-jsonapi": "^0.24.30",
+                "demos-europe/edt-jsonapi": "^0.24.31",
                 "php": "^8.1",
                 "thecodingmachine/safe": "^2.4.0"
             },
@@ -1557,28 +1557,28 @@
             ],
             "description": "Extension for edt-queries containing various convenience and use-case specific functionality.",
             "support": {
-                "source": "https://github.com/demos-europe/edt-extra/tree/0.24.30"
+                "source": "https://github.com/demos-europe/edt-extra/tree/0.24.31"
             },
-            "time": "2023-12-21T18:39:52+00:00"
+            "time": "2024-01-05T11:21:23+00:00"
         },
         {
             "name": "demos-europe/edt-jsonapi",
-            "version": "0.24.30",
+            "version": "0.24.31",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/edt-jsonapi.git",
-                "reference": "bbb356702a8c7c4783a0c0897568ab9f376ae925"
+                "reference": "a73fe4388fa94a40bc9f8b0614cd5fac744d6956"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/edt-jsonapi/zipball/bbb356702a8c7c4783a0c0897568ab9f376ae925",
-                "reference": "bbb356702a8c7c4783a0c0897568ab9f376ae925",
+                "url": "https://api.github.com/repos/demos-europe/edt-jsonapi/zipball/a73fe4388fa94a40bc9f8b0614cd5fac744d6956",
+                "reference": "a73fe4388fa94a40bc9f8b0614cd5fac744d6956",
                 "shasum": ""
             },
             "require": {
                 "cebe/php-openapi": "^1.5",
-                "demos-europe/edt-access-definitions": "^0.24.30",
-                "demos-europe/edt-queries": "^0.24.30",
+                "demos-europe/edt-access-definitions": "^0.24.31",
+                "demos-europe/edt-queries": "^0.24.31",
                 "doctrine/collections": "^1.5",
                 "ext-json": "*",
                 "league/fractal": "^0.19",
@@ -1616,26 +1616,26 @@
             "description": "Expose Doctrine entities as JSON:API resources.",
             "support": {
                 "issues": "https://github.com/demos-europe/edt-jsonapi/issues",
-                "source": "https://github.com/demos-europe/edt-jsonapi/tree/0.24.30"
+                "source": "https://github.com/demos-europe/edt-jsonapi/tree/0.24.31"
             },
-            "time": "2023-12-21T18:39:52+00:00"
+            "time": "2024-01-05T11:21:24+00:00"
         },
         {
             "name": "demos-europe/edt-paths",
-            "version": "0.24.30",
+            "version": "0.24.31",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/edt-paths.git",
-                "reference": "1601a68a6b4ade9225643baae20a3d34853e298b"
+                "reference": "2a517f221ef480e7b23dd40c3691fd6986af724a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/edt-paths/zipball/1601a68a6b4ade9225643baae20a3d34853e298b",
-                "reference": "1601a68a6b4ade9225643baae20a3d34853e298b",
+                "url": "https://api.github.com/repos/demos-europe/edt-paths/zipball/2a517f221ef480e7b23dd40c3691fd6986af724a",
+                "reference": "2a517f221ef480e7b23dd40c3691fd6986af724a",
                 "shasum": ""
             },
             "require": {
-                "demos-europe/edt-queries": "^0.24.30",
+                "demos-europe/edt-queries": "^0.24.31",
                 "nikic/php-parser": "^4.14",
                 "php": "^8.1",
                 "phpdocumentor/reflection-docblock": "^5.1.0",
@@ -1666,13 +1666,13 @@
             ],
             "description": "Tools to create paths between entities and entity properties.",
             "support": {
-                "source": "https://github.com/demos-europe/edt-paths/tree/0.24.30"
+                "source": "https://github.com/demos-europe/edt-paths/tree/0.24.31"
             },
-            "time": "2023-12-21T18:39:49+00:00"
+            "time": "2024-01-05T11:21:23+00:00"
         },
         {
             "name": "demos-europe/edt-queries",
-            "version": "0.24.30",
+            "version": "0.24.31",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/edt-queries.git",
@@ -1714,7 +1714,7 @@
             ],
             "description": "Eases querying entities via property paths.",
             "support": {
-                "source": "https://github.com/demos-europe/edt-queries/tree/0.24.30"
+                "source": "https://github.com/demos-europe/edt-queries/tree/0.24.31"
             },
             "time": "2023-12-12T10:37:09+00:00"
         },
@@ -9716,16 +9716,16 @@
         },
         {
             "name": "phpstan/phpdoc-parser",
-            "version": "1.24.5",
+            "version": "1.25.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpdoc-parser.git",
-                "reference": "fedf211ff14ec8381c9bf5714e33a7a552dd1acc"
+                "reference": "bd84b629c8de41aa2ae82c067c955e06f1b00240"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/fedf211ff14ec8381c9bf5714e33a7a552dd1acc",
-                "reference": "fedf211ff14ec8381c9bf5714e33a7a552dd1acc",
+                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/bd84b629c8de41aa2ae82c067c955e06f1b00240",
+                "reference": "bd84b629c8de41aa2ae82c067c955e06f1b00240",
                 "shasum": ""
             },
             "require": {
@@ -9757,9 +9757,9 @@
             "description": "PHPDoc parser with support for nullable, intersection and generic types",
             "support": {
                 "issues": "https://github.com/phpstan/phpdoc-parser/issues",
-                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.24.5"
+                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.25.0"
             },
-            "time": "2023-12-16T09:33:33+00:00"
+            "time": "2024-01-04T17:06:16+00:00"
         },
         {
             "name": "phpstan/phpstan",
