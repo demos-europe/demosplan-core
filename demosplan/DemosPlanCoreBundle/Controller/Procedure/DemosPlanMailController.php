@@ -50,7 +50,7 @@ class DemosPlanMailController extends BaseController
         $mailsCount = $submitterService->getStatementMailAddressesCountForProcedure($procedureId);
 
         $formOptions = [
-            'csrf_protection'    => false,
+            'csrf_protection'    => true,
             'allow_extra_fields' => false,
         ];
 
