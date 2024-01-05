@@ -418,7 +418,7 @@ export default {
         .then(text => {
           this.serviceType = hasWMTSType ? 'wmts' : 'wms'
           parser = this.serviceType === 'wmts' ? new WMTSCapabilities() : new WMSCapabilities()
-          this.currentCapabilities = parser.read(text)
+          this.currentCapabilities = parser.read(capabilities)
 
           if (this.currentCapabilities !== null) {
             this.version = this.currentCapabilities.version
