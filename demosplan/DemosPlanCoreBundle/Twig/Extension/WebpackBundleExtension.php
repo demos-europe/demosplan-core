@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
@@ -43,6 +44,8 @@ class WebpackBundleExtension extends ExtensionBase
     /**
      * The webpack manifest.
      *
+     * This is the combination of `dplan.manifest.json` and `styles.manifest.json`.
+     *
      * @var array
      */
     protected $dplanManifest = [];
@@ -59,8 +62,11 @@ class WebpackBundleExtension extends ExtensionBase
      */
     private function loadManifests()
     {
-        $this->loadManifest('dplan');
-        $this->loadManifest('legacy');
+        $dplanManifest = $this->loadManifest('dplan');
+        $stylesManifest = $this->loadManifest('styles');
+        $this->dplanManifest = array_merge($dplanManifest, $stylesManifest);
+
+        $this->legacyManifest = $this->loadManifest('legacy');
     }
 
     private function areManifestsLoaded(): bool
@@ -176,7 +182,12 @@ class WebpackBundleExtension extends ExtensionBase
         return sprintf($tagTemplate, $this->formatBundlePath($bundleSrc), $dataBundle);
     }
 
-    protected function loadManifest(string $manifest): void
+    /**
+     * @param string $manifest
+     * @return array<string,string> A webpack manifest
+     * @throws JsonException
+     */
+    protected function loadManifest(string $manifest): array
     {
         $manifestFile = DemosPlanPath::getProjectPath("web/{$manifest}.manifest.json");
 
@@ -201,10 +212,7 @@ ERR);
             }
         }
 
-        $manifestVar = "{$manifest}Manifest";
-        if (property_exists($this, $manifestVar)) {
-            $this->$manifestVar = $manifestArray;
-        }
+        return $manifestArray
     }
 
     protected function getBundleAndRelatedChunkSplits(string $bundleName, string $manifest): Collection

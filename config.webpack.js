@@ -111,6 +111,31 @@ const bundlesConfig = merge(baseConfig, {
   ]
 })
 
+const stylesConfig = merge(baseConfig, {
+  name: 'styles',
+  entry: () => {
+    return {
+      style: config.stylesEntryPoint,
+      'style-public': config.publicStylesEntryPoint,
+      'demosplan-ui': './client/css/index.css',
+    }
+  },
+  output: {
+    path: config.projectRoot + '/web/js/bundles',
+    publicPath: config.urlPathPrefix + '/js/bundles/'
+  },
+  devtool: (config.isProduction) ? false : 'eval',
+  optimization: optimization(),
+  plugins: [
+    new DefinePlugin({
+      URL_PATH_PREFIX: JSON.stringify(config.urlPathPrefix) // Path prefix for dynamically generated urls
+    }),
+    new WebpackManifestPlugin({
+      fileName: '../../styles.manifest.json'
+    })
+  ]
+})
+
 const legacyBundlesConfig = {
   mode: 'production',
   name: 'legacy-bundles',
@@ -140,5 +165,6 @@ const legacyBundlesConfig = {
 
 module.exports = [
   bundlesConfig,
-  legacyBundlesConfig
+  legacyBundlesConfig,
+  stylesConfig
 ]
