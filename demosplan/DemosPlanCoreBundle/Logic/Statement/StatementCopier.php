@@ -508,25 +508,28 @@ class StatementCopier extends CoreService
         bool $createReport = true,
         bool $copyOnCreateStatement = false,
     ): Statement {
+        if ($statement->getFiles()) {
+            $newStatement = $this->copyStatementObjectWithinProcedure(
+                $statement,
+                $createReport,
+                $copyOnCreateStatement,
+                false //do not flush to avoid constraints at this point
+            );
 
-        $newStatement = $this->copyStatementObjectWithinProcedure(
-            $statement,
-            $createReport,
-            $copyOnCreateStatement,
-            false //do not flush to avoid constraints at this point
-        );
+            if (!$statement instanceof Statement) {
+                throw new CopyException('error on copying original statement');
+            }
 
-        if (!$statement instanceof Statement) {
-            throw new CopyException('error on copying original statement');
+            // persist to get an ID for the FileContainer copying below
+            $this->getDoctrine()->getManager()->persist($newStatement);
+
+
+            $this->statementService->addFilesToCopiedStatement($newStatement, $statement->getId());
+
+            return $newStatement;
+        } else {
+            return $this->copyStatementObjectWithinProcedure($statement);
         }
-
-        // persist to get an ID for the FileContainer copying below
-        $this->getDoctrine()->getManager()->persist($newStatement);
-
-
-        $this->statementService->addFilesToCopiedStatement($newStatement, $statement->getId());
-
-        return $newStatement;
     }
 
     /**

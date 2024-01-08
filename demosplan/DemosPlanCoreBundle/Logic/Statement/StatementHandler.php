@@ -3019,11 +3019,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     public function createNonOriginalStatement(array $originalStatementData, Statement $newOriginalStatement): Statement
     {
         $fieldsForUpdateStatement = $this->extractFieldsForUpdateStatement($originalStatementData);
-        if ($newOriginalStatement->getFiles()) {
-            $copyOfStatement = $this->statementCopier->copyStatementObjectWithinProcedureWithRelatedFiles($newOriginalStatement, false, true);
-        } else {
-            $copyOfStatement = $this->statementCopier->copyStatementObjectWithinProcedure($newOriginalStatement, false, true);
-        }
+        $copyOfStatement = $this->statementCopier->copyStatementObjectWithinProcedureWithRelatedFiles($newOriginalStatement, false, true);
         // Some values should only be set on copied statement instead of OriginalStatement itself:
         $this->createVotesOnCreateStatement(
             $copyOfStatement,
