@@ -11,11 +11,11 @@
  * This is the entrypoint for administration_member_list.html.twig
  */
 import { addFormHiddenField, removeFormHiddenField } from '../../lib/core/libs/FormActions'
-import { DpTooltipIcon } from '@demos-europe/demosplan-ui'
+import { DpContextualHelp } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {
-  DpTooltipIcon
+  DpContextualHelp
 }
 
 initialize(components).then(() => {

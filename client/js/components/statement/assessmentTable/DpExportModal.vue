@@ -345,6 +345,17 @@
           </p>
         </div>
 
+        <!-- Zip -->
+        <div
+          v-if="options.zip"
+          class="tab-content"
+          :class="activeTab('zip')"
+          role="tabpanel">
+          <p class="lbl__hint u-ml-0_75 u-mb-0">
+            {{ Translator.trans('explanation.export.statements.zip', { hasSelectedElements: hasSelectedElements }) }}
+          </p>
+        </div>
+
         <button
           type="button"
           class="btn btn--primary submitBtn"
@@ -371,6 +382,12 @@ export default {
       required: false,
       type: String,
       default: ''
+    },
+
+    hasSelectedElements: {
+      required: false,
+      type: Boolean,
+      default: false
     },
 
     //  Export options that define which formats / fields to display

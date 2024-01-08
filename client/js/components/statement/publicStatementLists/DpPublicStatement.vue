@@ -168,8 +168,8 @@
         {{ paragraph }}
       </div>
     </div>
-  </div>
-  <div class="u-1-of-2 u-1-of-1-palm c-public-statement__content-container">
+  </div><!--
+--><div class="u-1-of-2 u-1-of-1-palm c-public-statement__content-container">
     <div class="u-1-of-1 c-public-statement__content-item">
       <template v-if="hasPermission('field_statement_location')">
         <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
@@ -231,7 +231,7 @@
         {{ Translator.trans('statementtext') }}
       </div>
       <div
-        class="break-words"
+        class="c-styled-html"
         v-cleanhtml="text" />
     </div>
   </dp-table-card>

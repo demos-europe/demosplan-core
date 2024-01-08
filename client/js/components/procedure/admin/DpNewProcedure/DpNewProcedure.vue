@@ -32,10 +32,6 @@
       type="hidden"
       name="r_publicParticipationPublicationEnabled"
       value="1">
-    <input
-      name="_token"
-      type="hidden"
-      :value="csrfToken">
 
     <template v-if="hasPermission('feature_use_plis')">
       <input

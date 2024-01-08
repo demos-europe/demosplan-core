@@ -1,10 +1,13 @@
 <script>
+import { h, resolveComponent } from 'vue'
 import { DpLoading } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'TextContentRenderer',
 
-  functional: true,
+  components: {
+    DpLoading
+  },
 
   props: {
     text: {
@@ -12,7 +15,7 @@ export default {
       default: ''
     },
 
-    data: {
+    dataText: {
       type: Object,
       default: () => ({})
     }
@@ -40,15 +43,17 @@ export default {
    * @param context
    * @return {*}
    */
-  render (h, context) {
+  render () {
     const immediateComponent = {
-      template: `<div class='text-wrapper width-fit-content' data-cy='textWrapper'>${context.props.text}</div>`,
+      template: `<div class='text-wrapper width-fit-content' data-cy='textWrapper'>${this.text}</div>`,
       data () {
-        return context.props.data
+        return this.dataText
       }
     }
 
-    return (context.props.text)
+    const DpLoading = resolveComponent('dp-loading')
+
+    return (this.text)
       ? h(immediateComponent)
       : h(DpLoading, { props: { isLoading: true } })
   }

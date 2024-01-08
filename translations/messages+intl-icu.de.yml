@@ -658,7 +658,12 @@ confirm.statements.marked.numbertext: |
     }
 confirm.statements.marked.released: "Die markierten Stellungnahmen wurden an Ihre Koordination freigegeben. Die Stellungnahmen müssen von Ihrer Koordination anschließend noch aus dem Ordner \"Freigaben der Organisation\" an den Verfahrensträger eingereicht werden."
 confirm.statements.marked.submitted: "Die markierten Stellungnahmen wurden eingereicht."
-confirm.statements.imported.from.xlsx: "{count} Stellungnahmen wurden aus {fileName} importiert."
+confirm.statements.imported.from.files.xlsx.format: |
+    {count, plural,
+            =0 {Es wurde keine Stellungnahme aus {fileName} importiert.}
+            =1 {Es wurde eine Stellungnahme aus {fileName} importiert.}
+            other {Es wurden {numbers} Stellungnahmen aus {fileName} importiert.}
+    }
 confirm.story.created: "Die Userstory wurde angelegt."
 confirm.story.deleted: "Die Userstory wurde gelöscht."
 confirm.story.updated: "Die Userstory wurde aktualisiert."
@@ -1150,6 +1155,7 @@ error.featureinfo.failed: "Die Sachdaten können derzeit nicht abgerufen werden"
 error.featureinfourl.global.updated: "Die globale Sachdaten-URL konnte nicht erfolgreich verändert werden."
 error.fileupload.mimetype: "Der von Ihnen hochgeladene Dateityp ist nicht erlaubt. Beim Upload der Datei ist ein Fehler aufgetreten."
 error.fileupload: "Beim Upload der Datei ist ein Fehler aufgetreten."
+error.file.could.not.be.read: "Es ist ein Fehler beim Verarbeiten der Datei(en) aufgetreten."
 error.file.notFound: "Die Datei {fileName} konnte nicht gefunden werden."
 error.fragment.assignment.assigned: "Der Datensatz konnte nicht erfolgreich zugewiesen werden."
 error.fragment.assignment.changed: "Die Zuweisung des Datensatzes wurde nicht erfolgreich geändert."
@@ -1277,6 +1283,22 @@ error.statement.submit.nowriteaccess: "In dem Verfahren können derzeit keine St
 error.statement.submit.phase: "In der aktuellen Phase des Verfahrens können keine Stellungnahmen eingereicht werden."
 error.statement.update: "Beim Aktualisieren der Stellungnahme ist ein Fehler aufgetreten."
 error.statements.marked.submitted: "Die Stellungnahmen konnten nicht eingereicht werden!"
+error.statements.zip.export: "Das ZIP-Archiv konnte nicht erstellt werden."
+error.statements.zip.export.column.missing: "In der XLSX-Datei konnte die Spalte für die Referenzen auf weitere Anhänge nicht gefüllt werden."
+error.statements.zip.export.generic.xlsx: "Die XLSX-Datei konnte dem ZIP-Archiv nicht hinzugefügt werden."
+error.statements.zip.export.incomplete.xlsx: "Die generierte XLSX-Datei war unvollständig. Export abgebrochen."
+error.statements.zip.export.generic.attachment: |
+    {count, plural,
+    =1 { Beim Hinzufügen eines Anhangs ist ein unbekannter Fehler aufgetreten.}
+    other { Beim Hinzufügen eines Anhangs sind # unbekannte Fehler aufgetreten.}
+    }
+error.statments.zip.export.attachment: |
+    {count, plural,
+    =1 { Ein Anhang konnte dem ZIP-Archiv nicht hinzugefügt werden.}
+    other { # Anhänge konnten dem ZIP-Archiv nicht hinzugefügt werden.}
+    }
+error.statements.zip.export.attachments.not.addable: 'Es konnten dem ZIP-Archiv keine Anhänge hinzugefügt werden. Export abgebrochen.'
+error.statements.zip.import.contains.error.textfile: 'Es wurde versucht, ein fehlerhaft erstelltes ZIP-Archiv zu importieren. Bitte versuchen Sie das Zip-Archiv zu ersetzen.'
 error.survey.votes.publication: "Die Veröffentlichung der Antwort konnte nicht verändert werden."
 error.tag.notfound: "Das Schlagwort konnte nicht gefunden werden."
 error.topic.notfound: "Das Thema wurde nicht gefunden. Möglicherweise wurde es zwischenzeitlich gelöscht."
@@ -1313,11 +1335,12 @@ error.internal: "Ein interner Fehler ist aufgetreten"
 # evaluation used?
 evaluating: "Auswertung"
 evaluation: "Auswertung"
+evaluation.assessment.table.export: "Auswertung_Abwaegungstabelle_Export"
 example.file: "Beispieldatei"
 excel.import.error: |
     {count, plural,
-        =1 {Beim Hochladen des Excel-Dokuments ist ein Fehler aufgetreten. Die {entities} wurden nicht importiert. Bitte überprüfen Sie die Daten auf Korrektheit.}
-        other {Beim Hochladen des Excel-Dokuments sind Fehler aufgetreten. Die {entities} wurden nicht importiert. Bitte überprüfen Sie die Daten auf Korrektheit.}
+        =1 {Beim Verarbeiten des Excel-Dokuments ist ein Fehler aufgetreten. Die {entities} wurden nicht importiert. Bitte überprüfen Sie die Daten auf Korrektheit.}
+        other {Beim Verarbeiten des Excel-Dokuments sind Fehler aufgetreten. Die {entities} wurden nicht importiert. Bitte überprüfen Sie die Daten auf Korrektheit.}
     }
 excel.import.errors.checklist.hint: "Markieren Sie die unten stehenden Fehler als erledigt, sobald Sie diese im Excel-Dokument behoben haben. Alternativ können Sie auch direkt zum {entities}-Import zurückkehren."
 existing: "vorhanden"
@@ -1351,7 +1374,16 @@ explanation.export.disabled.viewMode: "Die Exporte mit Datensätzen sind in der 
 explanation.export.docx: "Es werden die Daten entsprechend der Auswahl in den Grundeinstellungen exportiert. Bei diesem Export werden ausschließlich Stellungnahmen exportiert."
 explanation.export.potentialAreas: "Es werden die Begründungen zu den Stellungnahmen mit Potenzialflächen exportiert."
 explanation.export.projectlogin: "Bitte melden Sie sich bei {projectName} an, um das Archiv herunterzuladen."
-explanation.export.statements: "Exportiert ausgewählte Stellungnahmen mit allen Daten als XLSX."
+explanation.export.statements: |
+    {hasSelectedElements, select,
+        true {Exportiert ausgewählte Stellungnahmen mit allen Daten als XLSX.}
+        other {Exportiert alle Stellungnahmen mit allen Daten als XLSX.}
+    }
+explanation.export.statements.zip: |
+    {hasSelectedElements, select,
+        true {Exportiert ausgewählte Stellungnahmen mit allen Daten und Anhängen als ZIP-Archiv für den Import in das Einwendungsmanagement (EWM).}
+        other {Exportiert alle Stellungnahmen mit allen Daten und Anhängen als ZIP-Archiv für den Import in das Einwendungsmanagement (EWM).}
+    }
 explanation.export.statementsAndFragments: "Es wird die Stellungnahme exportiert, wenn kein Datensatz vorhanden ist."
 explanation.export.topicsAndTags: "Es werden die Begründungen zu den Stellungnahmen mit Themen und Schlagworten exportiert."
 explanation.feedback.email: "An die hinterlegte E-Mail-Adresse erhalten Sie die Bestätigung Ihrer Stellungnahme und eine Information, sobald die Ergebnisse der Online-Beteiligung vorliegen."
@@ -1543,6 +1575,7 @@ export.potentialAreas: "Potenzialflächen"
 export.settings.hint: "Wählen Sie aus, welche Daten im Export der Stellungnahmen in der Abwägungstabelle enthalten sein sollen. Die Einstellungen betreffen nur den DOCX-Export \"Querformat\"."
 export.statements.zip: "Stellungnahmen als einzelne DOCX-Dateien"
 export.statements.docx: "Stellungnahmen in einer DOCX-Datei"
+export.statements.hint: "Achtung: Falls weitere Einreichende zu einer Stellungnahme hinzugefügt wurden, werden diese auch im DOCX-Export aufgeführt."
 export.statements.xlsx: "Stellungnahmen in einer XLSX-Datei"
 export.structure: "Gliederung des Exports"
 export.topicsAndTags: "Themen und Schlagworte"
@@ -1553,6 +1586,7 @@ export.type: "Art des Exports"
 export.verb: "Exportieren"
 export.xls: "XLS"
 export.xlsx: "XLSX"
+export.zip: "ZIP"
 exported.on: "Exportiert am {date} um {time} Uhr."
 
 extern: "Extern"
@@ -3083,6 +3117,8 @@ statement.assignment.assigned: "Bearbeitet durch: {name} ({organisation})"
 statement.assignment.override: "Stellungnahme mir zuweisen"
 statement.assignment.release: "Stellungnahme freigeben"
 statement.assignment.unassigned: "Aktuell nicht in Bearbeitung"
+statement.attachments.reference: "Referenzen auf Anhänge"
+statement.original.attachment.reference: "Originalanhang"
 statement.change.failed: "Änderung der Stellungnahme fehlgeschlagen"
 statement.pdfs.checkable.now: |
     {count, plural,
@@ -3289,7 +3325,7 @@ statement.participate.hint: "Starten Sie hier Ihre Stellung&shy;nahme."
 statement.participate.resume.hint: "Eine angefangene Stellungnahme können Sie hier wiederfinden und bearbeiten."
 statement.participate.resume: "Reden Sie weiter..."
 statement.participate: "Reden Sie mit!"
-statement.participation.import: "Hier kann der Export aus den demos-Beteiligungslösungen in EWM importiert werden. Übernommen werden hierbei die Einreichendendaten, der Stellungnahmetext, die zugehörige ID und Eingangsnummer, Einreichungs-und Verfassungsdatum, sowie eine eventuell hinzugefügte Notiz."
+statement.participation.import: "Hier kann der Export aus den demos-Beteiligungslösungen in EWM importiert werden. Übernommen werden hierbei die Einreichendendaten, der Stellungnahmetext, die zugehörige ID und Eingangsnummer, Einreichungs-und Verfassungsdatum, sowie eine eventuell hinzugefügte Notiz und weitere Anhänge."
 statement.possible: "Stellungnahme möglich"
 statement.priority.a: "A-Punkt"
 statement.priority.b: "B-Punkt"
@@ -3391,6 +3427,7 @@ statements.import: "Stellungnahmen importieren"
 statements.import.error.line.summary: "In Zeile {lineNr}:"
 statements.import.error.document.summary: "Im Dokument {doc} traten folgende Fehler auf:"
 statements.import.error.document.unexpected: "Im Dokument {doc} trat ein Fehler auf. Bitte überprüfen Sie die Daten auf Korrektheit."
+statements.import.error.property.constraint.violation: "Beim Import der Stellungnahme aus Zeile {lineNumber} der Excel Datei ist folgender Fehler aufgetreten: {message}."
 statements.import.hint: "Dateien, die gerade von anderen Nutzer*innen bearbeitet werden, sind unten nicht dargestellt."
 statements.imported.by.status: "Importierte Stellungnahmen nach Status"
 statements.imported.none: "Sie haben noch keine Stellungnahmen importiert."
@@ -3965,6 +4002,7 @@ warning.statement.delete: |
         =1 { Eine Stellungnahme wurde nicht gefunden. Wurde sie möglicherweise bereits gelöscht?}
         other { # Stellungnahmen wurden nicht gefunden. Wurden sie möglicherweise bereits gelöscht?}
     }
+warning.statement.in.segmentation.cannot.be.edited: "Der Stellungnahmetext kann nicht mehr bearbeitet werden, da die Stellungnahme bereits aufgeteilt wird."
 warning.statement.move: "Stellungnahme konnte nicht verschoben werden."
 warning.statement.needLock.generic: "Diese Stellungnahme ist zur Zeit in Bearbeitung. Um sie zu bearbeiten, müssen Sie diese zunächst für sich beanspruchen."
 warning.statement.needLock: "Die Stellungnahme {externId} ist zur Zeit niemandem zugewiesen. Um Ihre Änderungen speichern zu können, müssen Sie die Bearbeitung zunächst für sich beanspruchen."

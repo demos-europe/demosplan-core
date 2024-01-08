@@ -62,7 +62,12 @@ class StatementImportTest extends FunctionalTestCase
         $testFile = $this->getFileReference('statements_as_xlsx');
         $fileHash = $testFile->getHash();
         $file = $this->fileService->getFileInfo($fileHash);
-        $this->sut->importFromFile($file);
+        $fileInfo = new \Symfony\Component\Finder\SplFileInfo(
+            $file->getAbsolutePath(),
+            '',
+            $file->getHash()
+        );
+        $this->sut->importFromFile($fileInfo);
 
         static::assertFalse($this->sut->hasErrors());
         static::assertCount(4, $this->sut->getCreatedStatements());
@@ -88,7 +93,12 @@ class StatementImportTest extends FunctionalTestCase
         $testFile = $this->getFileReference('statements_as_xlsx');
         $fileHash = $testFile->getHash();
         $file = $this->fileService->getFileInfo($fileHash);
-        $this->sut->importFromFile($file);
+        $fileInfo = new \Symfony\Component\Finder\SplFileInfo(
+            $file->getAbsolutePath(),
+            '',
+            $file->getHash()
+        );
+        $this->sut->importFromFile($fileInfo);
 
         static::assertFalse($this->sut->hasErrors());
         static::assertCount(4, $this->sut->getCreatedStatements());
@@ -105,8 +115,12 @@ class StatementImportTest extends FunctionalTestCase
         $testFile = $this->getFileReference('statements_as_xlsx_including_an_error');
         $fileHash = $testFile->getHash();
         $file = $this->fileService->getFileInfo($fileHash);
-
-        $this->sut->importFromFile($file);
+        $fileInfo = new \Symfony\Component\Finder\SplFileInfo(
+            $file->getAbsolutePath(),
+            '',
+            $file->getHash()
+        );
+        $this->sut->importFromFile($fileInfo);
 
         static::assertTrue($this->sut->hasErrors());
         static::assertCount(8, $this->sut->getErrorsAsArray());

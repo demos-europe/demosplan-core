@@ -26,7 +26,7 @@
       <h3 class="font-size-medium">
         {{ Translator.trans('worksheet') }}: {{ worksheet }}
       </h3>
-      <ul class="u-mt-0_5 u-mb border-color--grey-light-1 border-radius--6">
+      <ul class="u-mt-0_5 u-mb border-color--grey-light-1 rounded-lg">
         <li
           v-for="error in errorsByWorksheet(worksheet)"
           :key="`error:${error.id}`"

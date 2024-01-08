@@ -242,7 +242,7 @@ export default {
           procedureId: this.procedureId,
           include: ['assignee', 'statements'].join()
         }),
-        data: JSON.stringify(payload)
+        data: payload
       })
         .then(checkResponse)
         .then(response => {
