@@ -1341,6 +1341,7 @@ services:
     EDT\JsonApi\Requests\CreationRequest: ~
     EDT\JsonApi\Requests\UpdateRequest: ~
     EDT\JsonApi\Requests\DeletionRequest: ~
+    EDT\JsonApi\Validation\SortValidator: ~
 
     EDT\Querying\Contracts\PropertyAccessorInterface: '@EDT\DqlQuerying\PropertyAccessors\Iso8601PropertyAccessor'
 
