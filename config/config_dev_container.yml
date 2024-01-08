@@ -15,7 +15,7 @@ parameters:
 
     is_shared_folder: true
 
-    mailer_dsn: "smtp://mailhog:1025"
+    mailer_dsn: "smtp://mailpit:1025"
 
     https_only: false
 

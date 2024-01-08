@@ -657,6 +657,36 @@ export default {
     },
 
     getItemsByPage (page) {
+      const statementFields = [
+        // Attributes:
+        'authoredDate',
+        'authorName',
+        'externId',
+        'isSubmittedByCitizen',
+        'initialOrganisationCity',
+        'initialOrganisationDepartmentName',
+        'initialOrganisationHouseNumber',
+        'initialOrganisationName',
+        'initialOrganisationPostalCode',
+        'initialOrganisationStreet',
+        'internId',
+        'isCitizen',
+        'memo',
+        'submitDate',
+        'submitName',
+        'submitType',
+        'submitterEmailAddress',
+        'synchronized',
+        'text',
+        'textIsTruncated',
+        // Relationships:
+        'assignee',
+        'attachments',
+        'segments'
+      ]
+      if (hasPermission('area_statement_segmentation')) {
+        statementFields.push('segmentDraftList')
+      }
       this.fetchStatements({
         page: {
           number: page,
@@ -682,33 +712,7 @@ export default {
           'attachments.file'
         ].join(),
         fields: {
-          Statement: [
-            // Attributes:
-            'authoredDate',
-            'authorName',
-            'externId',
-            'isSubmittedByCitizen',
-            'initialOrganisationCity',
-            'initialOrganisationDepartmentName',
-            'initialOrganisationHouseNumber',
-            'initialOrganisationName',
-            'initialOrganisationPostalCode',
-            'initialOrganisationStreet',
-            'internId',
-            'isCitizen',
-            'memo',
-            'submitDate',
-            'submitName',
-            'submitType',
-            'submitterEmailAddress',
-            'synchronized',
-            'text',
-            'textIsTruncated',
-            // Relationships:
-            'assignee',
-            'attachments',
-            'segments'
-          ].join(),
+          Statement: statementFields.join(),
           File: [
             'hash'
           ].join(),
