@@ -774,12 +774,12 @@ export default {
 
   components: {
     DpClaim,
-    DpFragmentList: () => import(/* webpackChunkName: "dp-fragment-list" */ './DpFragmentList'),
-    DpItemRow,
     DpEditFieldMultiSelect,
     DpEditFieldSingleSelect,
-    DpLoading,
+    DpFragmentList: () => import(/* webpackChunkName: "dp-fragment-list" */ './DpFragmentList'),
     DpFragmentsSwitcher: () => import(/* webpackChunkName: "dp-fragments-switcher" */ './DpFragmentsSwitcher'),
+    DpItemRow,
+    DpLoading,
     EditableText,
     TableCardFlyoutMenu,
     VPopover
