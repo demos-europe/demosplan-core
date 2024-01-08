@@ -3020,7 +3020,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     {
         $fieldsForUpdateStatement = $this->extractFieldsForUpdateStatement($originalStatementData);
         $copyOfStatement = $this->statementCopier->copyStatementObjectWithinProcedureWithRelatedFiles($newOriginalStatement, false, true);
-
         // Some values should only be set on copied statement instead of OriginalStatement itself:
         $this->createVotesOnCreateStatement(
             $copyOfStatement,
