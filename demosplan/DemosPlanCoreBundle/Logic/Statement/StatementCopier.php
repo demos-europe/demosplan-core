@@ -526,7 +526,7 @@ class StatementCopier extends CoreService
 
             return $newStatement;
         } else {
-            return $this->copyStatementObjectWithinProcedure($statement);
+            return $this->copyStatementObjectWithinProcedure($statement, false, true);
         }
     }
 
