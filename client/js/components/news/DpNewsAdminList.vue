@@ -135,17 +135,19 @@ export default {
   },
 
   methods: {
-    changeManualsort (val) {
+    changeManualsort (event) {
       const listBackup = [...this.list]
-      this.list.splice(val.moved.newIndex, 0, this.list.splice(val.moved.oldIndex, 1)[0])
+      const removedItem = this.list.splice(event.oldIndex, 1)[0]
+      this.list.splice(event.newIndex, 0, removedItem)
 
       this.updateList()
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
         })
-        .catch(() => {
+        .catch(error => {
           // Reset optimistically triggered sort on error
           this.list = listBackup
+          console.error(error)
           dplan.notify.error(Translator.trans('error.api.generic'))
         })
     },
@@ -185,7 +187,7 @@ export default {
       })
 
       this.updateList()
-        .then(() => {
+        .then(response => {
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
         })
         .catch(() => {
@@ -194,8 +196,10 @@ export default {
             if (item.id === id) {
               item.enabled = !value
             }
+
             return item
           })
+
           dplan.notify.error(Translator.trans('error.api.generic'))
         })
     },
@@ -205,6 +209,7 @@ export default {
         manualsort: this.list.map(el => el.ident).toString(', '),
         r_enable: this.list.filter(el => el.enabled).map(el => el.ident)
       }
+
       return makeFormPost(payload, this.updateRoute)
     },
 
