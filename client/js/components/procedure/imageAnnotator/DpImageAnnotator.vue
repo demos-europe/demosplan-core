@@ -462,7 +462,7 @@ export default {
       this.isLoading = true
 
       // Step 1: get first page to be annotated
-      const url = Routing.generate('api_resource_list', { procedureId: window.dplan.procedureId, resourceType: 'AnnotatedStatementPdfPage' })
+      const url = Routing.generate('api_resource_list', { resourceType: 'AnnotatedStatementPdfPage' })
       const params = {
         filter: {
           annotatedStatementPdf: {
@@ -478,6 +478,7 @@ export default {
             }
           }
         },
+        procedureId: window.dplan.procedureId,
         page: {
           size: 1
         },

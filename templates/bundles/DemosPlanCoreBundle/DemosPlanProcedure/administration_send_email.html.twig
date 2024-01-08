@@ -7,7 +7,7 @@
     action="{{ path('dplan_procedure_mail_send_all_submitters_send', {'procedureId': templateVars.procedureId}) }}"
     method="post"
     data-dp-validate>
-    {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+    <input type="hidden" name="_token" value="{{ templateVars.form._token.vars.value }}" />
 
     <fieldset>
         <legend>

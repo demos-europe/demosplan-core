@@ -76,11 +76,12 @@
     <dp-export-modal
       v-if="hasPermission('feature_assessmenttable_export')"
       ref="exportModal"
-      :procedure-id="procedureId"
+      :current-table-sort="sort.value || ''"
+      :has-selected-elements="selectedElementsLength > 0"
       :options="assessmentExportOptions"
+      :procedure-id="procedureId"
       view="assessment_table"
       :view-mode="viewMode"
-      :current-table-sort="sort.value || ''"
       @submit="resetStatementSelection" />
 
     <consolidate-modal

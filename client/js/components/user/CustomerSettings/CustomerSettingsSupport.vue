@@ -12,7 +12,7 @@
         <p v-text="contact.attributes.eMailAddress" />
         <div v-html="contact.attributes.text" />
         <dp-badge
-          class="color--white border-radius-extra-large whitespace--nowrap bg-color--grey u-mt-0_125"
+          class="color--white rounded-full whitespace--nowrap bg-color--grey u-mt-0_125"
           size="smaller"
           :text="Translator.trans(contact.attributes.visible ? 'visible' : 'visible.not')" />
       </template>

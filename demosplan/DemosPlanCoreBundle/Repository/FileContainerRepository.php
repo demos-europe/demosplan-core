@@ -102,12 +102,14 @@ class FileContainerRepository extends FluentRepository implements ObjectInterfac
     /**
      * @param FileContainer $entity
      */
-    public function addObject($entity): FileContainer
+    public function addObject($entity, bool $flush = true): FileContainer
     {
         try {
             $em = $this->getEntityManager();
             $em->persist($entity);
-            $em->flush();
+            if ($flush) {
+                $em->flush();
+            }
         } catch (Exception $e) {
             $this->logger->error('Add FileContainer failed: ', [$e]);
         }
