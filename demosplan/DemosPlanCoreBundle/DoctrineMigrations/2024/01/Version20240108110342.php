@@ -70,7 +70,7 @@ class Version20240108110342 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $this->addSql('UPDATE _procedure SET customer = NULL WHERE _p_master = 0 AND _p_id NOT IN (SELECT c._procedure FROM customer c WHERE c._procedure IS NOT NULL)');
+        $this->addSql('UPDATE _procedure SET customer = NULL WHERE master_template = 0 AND _p_id NOT IN (SELECT c._procedure FROM customer c WHERE c._procedure IS NOT NULL)');
     }
 
     private function setCustomerRelations(array $customerKommunes): void
