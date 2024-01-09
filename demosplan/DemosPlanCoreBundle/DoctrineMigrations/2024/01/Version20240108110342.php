@@ -51,11 +51,6 @@ class Version20240108110342 extends AbstractMigration
         // if there are procedures left without customer relation - try to set the leftovers with now rejected kommunes/Ahbs
         $rejectedCustomerKommunes = $this->selectCustomerKommunes('rejected');
         $this->setCustomerRelations($rejectedCustomerKommunes);
-
-
-
-//        echo var_dump($this->customerKommunes);
-
     }
 
     /**
@@ -65,7 +60,7 @@ class Version20240108110342 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $this->addSql('UPDATE _procedure SET customer = NULL WHERE _p_master = 0');
+        $this->addSql('UPDATE _procedure SET customer = NULL WHERE _p_master = 0 AND _p_id NOT IN (SELECT c._procedure FROM customer c WHERE c._procedure IS NOT NULL)');
     }
 
     private function setCustomerRelations(array $customerKommunes): void
@@ -136,7 +131,7 @@ class Version20240108110342 extends AbstractMigration
         // transform result into string
         $readableOutput = '';
         foreach ($resultingKommunes as $key => $customerShortens) {
-            $readableOutput .= $key.' - is "Kommune andOr Anhörungsbehörde" in customers: '.implode(', ', $customerShortens)."\n";
+            $readableOutput .= $key.' - is "Kommune or Anhörungsbehörde" in customers: '.implode(', ', $customerShortens)."\n";
         }
 
         return $readableOutput;
