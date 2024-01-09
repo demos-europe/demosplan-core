@@ -144,7 +144,7 @@ class DemosPlanAssessmentController extends BaseController
 
         return new RedirectResponse(
             $this->generateUrl('DemosPlan_procedure_dashboard',
-            ['procedure' => $procedureId]
+                ['procedure' => $procedureId]
             )
         );
     }
@@ -450,8 +450,6 @@ class DemosPlanAssessmentController extends BaseController
 
     /**
      * Save Filter params from Request to keep Filters between page loads e.g pager.
-     *
-     * @return mixed
      */
     protected function rememberFilters(Request $request)
     {
