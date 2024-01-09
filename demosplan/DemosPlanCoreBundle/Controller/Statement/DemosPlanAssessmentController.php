@@ -36,6 +36,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\SubmitterValueObje
 use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -110,33 +111,41 @@ class DemosPlanAssessmentController extends BaseController
     }
 
     /**
-     * @DplanPermissions("feature_statement_data_input_orga")
+     * @DplanPermissions("area_demosplan")
      *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_statement_orga_list', path: '/statement/manual/list/{procedureId}')]
     public function getOrgaStatementListAction(CurrentUserService $currentUser, StatementHandler $statementHandler, string $procedureId): Response
     {
-        $organisationId = $currentUser->getUser()->getOrganisationId();
-        $statements = $statementHandler->getStatementsOfProcedureAndOrganisation(
-            $procedureId,
-            $organisationId
-        );
+        if ($currentUser->hasPermission('feature_statement_data_input_orga')) {
+            $organisationId = $currentUser->getUser()->getOrganisationId();
+            $statements = $statementHandler->getStatementsOfProcedureAndOrganisation(
+                $procedureId,
+                $organisationId
+            );
 
-        $templateVars = [
-            'statements'  => $statements,
-            'count'       => is_countable($statements) ? count($statements) : 0,
-            'orgaId'      => $organisationId,
-            'procedureId' => $procedureId,
-        ];
+            $templateVars = [
+                'statements'  => $statements,
+                'count'       => is_countable($statements) ? count($statements) : 0,
+                'orgaId'      => $organisationId,
+                'procedureId' => $procedureId,
+            ];
 
-        return $this->renderTemplate(
-            '@DemosPlanCore/DemosPlanStatement/list_orga_statements.html.twig',
-            [
-                'templateVars' => $templateVars,
-                'title'        => 'statements',
-                'procedureId'  => $procedureId,
-            ]
+            return $this->renderTemplate(
+                '@DemosPlanCore/DemosPlanStatement/list_orga_statements.html.twig',
+                [
+                    'templateVars' => $templateVars,
+                    'title'        => 'statements',
+                    'procedureId'  => $procedureId,
+                ]
+            );
+        }
+
+        return new RedirectResponse(
+            $this->generateUrl('DemosPlan_procedure_dashboard',
+            ['procedure' => $procedureId]
+            )
         );
     }
 
