@@ -107,7 +107,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, DpButton, DpEditor, DpMultiselect } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpEditor, DpMultiselect } from '@demos-europe/demosplan-ui'
 import qs from 'qs'
 
 export default {
@@ -222,7 +222,6 @@ export default {
         data: qs.stringify(dataForRequest),
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
       })
-        .then(checkResponse)
         .then(response => {
           /*
            *  If fragment has been reassigned to planners by clicking 'fragment.update.complete.button',

@@ -127,7 +127,6 @@
 <script>
 import { Attribution, FullScreen, MousePosition, ScaleLine, Zoom } from 'ol/control'
 import {
-  checkResponse,
   deepMerge,
   dpApi,
   DpAutocomplete,
@@ -333,9 +332,7 @@ export default {
         method: 'get',
         url: Routing.generate(this.mapOptionsRoute, { procedureId: this.procedureId })
       })
-        .then(checkResponse)
         .then(response => response.data.attributes)
-        .catch(error => checkResponse(error.response))
     },
 
     panToCoordinate (coordinate) {

@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import { checkResponse, DpLoading, dpRpc, DpTab, DpTabs, hasAnyPermissions } from '@demos-europe/demosplan-ui'
+import { DpLoading, dpRpc, DpTab, DpTabs, hasAnyPermissions } from '@demos-europe/demosplan-ui'
 import AdministrationImportNone from './AdministrationImportNone'
 import ExcelImport from './ExcelImport/ExcelImport'
 import ParticipationImport from './ParticipationImport/ParticipationImport'
@@ -157,7 +157,6 @@ export default {
       }
 
       return dpRpc('addons.assets.load', params)
-        .then(response => checkResponse(response))
         .then(response => {
           const result = response[0].result
 

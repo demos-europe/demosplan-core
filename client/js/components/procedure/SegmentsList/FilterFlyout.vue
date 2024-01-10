@@ -157,7 +157,6 @@
 
 <script>
 import {
-  checkResponse,
   dataTableSearch,
   DpButton,
   DpFlyout,
@@ -380,7 +379,6 @@ export default {
       }
 
       return dpRpc('segments.facets.list', params, 'filterList')
-        .then(response => checkResponse(response))
         .then(response => {
           const result = (hasOwnProp(response, 0) && response[0].id === 'filterList') ? response[0].result : null
           const currentFilterType = result.data.find(type => type.attributes.path === this.path)

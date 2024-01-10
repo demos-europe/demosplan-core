@@ -207,7 +207,6 @@
 
 <script>
 import {
-  checkResponse,
   dpApi,
   DpButton,
   DpModal,
@@ -402,7 +401,6 @@ export default {
           resourceType: 'Cluster'
         })
       })
-        .then(checkResponse)
         .then(response => response.data)
     },
 

@@ -68,7 +68,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, DpLoading } from '@demos-europe/demosplan-ui'
+import { dpApi, DpLoading } from '@demos-europe/demosplan-ui'
 import DpVersionHistoryDay from './DpVersionHistoryDay'
 
 export default {
@@ -144,14 +144,12 @@ export default {
         method: 'get',
         url: Routing.generate(route, params)
       })
-        .then(response => checkResponse(response))
         .then(response => response)
         .then(response => {
           this.days = response.data
           this.times = response.included
           this.isLoading = false
         })
-        .catch(error => checkResponse(error.response))
     },
 
     updateVersionHistory (entityId, entityType) {
