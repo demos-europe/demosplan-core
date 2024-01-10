@@ -12,9 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Services\Breadcrumb;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Logic\CurrentContextProvider;
 use demosplan\DemosPlanCoreBundle\Logic\Help\HelpService;
-use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresRouterTrait;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresTranslatorTrait;
 use Doctrine\Common\Collections\Collection;
@@ -22,8 +20,6 @@ use Exception;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-
-use const ENT_QUOTES;
 
 class Breadcrumb
 {
@@ -57,20 +53,16 @@ class Breadcrumb
      * @var RequestStack
      */
     protected $requestStack;
-    protected CurrentContextProvider $currentContextProvider;
 
     public function __construct(
         private readonly HelpService $helpService,
         RouterInterface $router,
         TranslatorInterface $translator,
-        RequestStack $requestStack,
-        CurrentContextProvider $currentContextProvider,
-        private readonly Permissions $permissions
+        RequestStack $requestStack
     ) {
         $this->requestStack = $requestStack;
         $this->router = $router;
         $this->translator = $translator;
-        $this->currentContextProvider = $currentContextProvider;
     }
 
     /**
@@ -167,7 +159,9 @@ class Breadcrumb
                 }
                 /** @var Collection $dataInputOrganisations */
                 $dataInputOrganisations = $procedure['dataInputOrganisations'];
-                if (in_array(Role::PROCEDURE_DATA_INPUT, $this->userRoles, true) && $dataInputOrganisations->contains($user->getOrga())) {
+                if (in_array(Role::PROCEDURE_DATA_INPUT, $this->userRoles, true)
+                    && $dataInputOrganisations->contains($user->getOrga())
+                ) {
                     $route = $this->getRouter()->generate(
                         'DemosPlan_statement_orga_list',
                         ['procedureId' => $procedure['ident']]
