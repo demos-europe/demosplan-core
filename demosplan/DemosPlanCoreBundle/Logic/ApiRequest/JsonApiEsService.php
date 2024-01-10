@@ -274,6 +274,14 @@ class JsonApiEsService implements JsonApiEsServiceInterface
         }
         $searchParams = new SearchParams($searchParamArray);
 
-        return $this->getEsFilteredObjects($type, $prefilteredIdentifiers, $searchParams, [], true, $sortMethods, $pagination);
+        if (null === $pagination) {
+            $apiPagination = null;
+        } else {
+            $apiPagination = new APIPagination();
+            $apiPagination->setSize($pagination->getSize());
+            $apiPagination->setNumber($pagination->getNumber());
+        }
+
+        return $this->getEsFilteredObjects($type, $prefilteredIdentifiers, $searchParams, [], true, $sortMethods, $apiPagination);
     }
 }
