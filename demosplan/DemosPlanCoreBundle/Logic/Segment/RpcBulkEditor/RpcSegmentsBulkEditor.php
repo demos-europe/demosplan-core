@@ -119,17 +119,8 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                     $assignee = $this->extractAssignee($rpcRequest);
                     $workflowPlace = $this->extractWorkflowPlace($rpcRequest);
 
-                    foreach ($segments as $segment) {
-                        /* @var Segment $segment */
-                        $segment->addTags($addTagIds);
-                        $segment->removeTags($removeTagIds);
-                        if (null !== $assignee) {
-                            $segment->setAssignee($assignee);
-                        }
-                        if (null !== $workflowPlace) {
-                            $segment->setPlace($workflowPlace);
-                        }
-                    }
+                    $segments = $this->updateSegments($segments, $addTagIds, $removeTagIds, $assignee, $workflowPlace);
+
                     $resultSegments = [...$resultSegments, ...$segments];
                     $resultResponse[] = $this->generateMethodResult($rpcRequest);
                 } catch (InvalidArgumentException|InvalidSchemaException|UserNotAssignableException $e) {
@@ -147,6 +138,23 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 
             return $resultResponse;
         });
+    }
+
+    public function updateSegments($segments, $addTagIds, $removeTagIds, $assignee, $workflowPlace)
+    {
+        foreach ($segments as $segment) {
+            /* @var Segment $segment */
+            $segment->addTags($addTagIds);
+            $segment->removeTags($removeTagIds);
+            if (null !== $assignee) {
+                $segment->setAssignee($assignee);
+            }
+            if (null !== $workflowPlace) {
+                $segment->setPlace($workflowPlace);
+            }
+        }
+
+        return $segments;
     }
 
     /**
