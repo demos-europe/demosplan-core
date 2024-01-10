@@ -39,6 +39,7 @@ class BreadcrumbTwigExtension extends ExtensionBase
         // this is not the huge symfony container but a special small one
         // to avoid loading dependencies on every twig call
         // https://symfonycasts.com/screencast/symfony-doctrine/service-subscriber
+        /** @var Breadcrumb $breadcrumb */
         $breadcrumb = $this->container->get(Breadcrumb::class);
         $breadcrumb->setTitle($pageTitleKey);
 
