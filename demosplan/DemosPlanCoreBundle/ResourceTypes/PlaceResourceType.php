@@ -12,33 +12,31 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableDqlResourceTypeInterface;
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
-use DemosEurope\DemosplanAddon\Logic\ResourceChange;
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
+use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BasePlaceResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
-use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository;
+use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+use EDT\Wrapping\CreationDataInterface;
+use EDT\Wrapping\EntityDataInterface;
+use EDT\Wrapping\PropertyBehavior\FixedConstructorBehavior;
+use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 
 /**
  * @template-extends DplanResourceType<Place>
- *
- * @template-implements UpdatableDqlResourceTypeInterface<Place>
- * @template-implements CreatableDqlResourceTypeInterface<Place>
  *
  * @property-read End                   $name
  * @property-read End                   $description
  * @property-read End                   $sortIndex
  * @property-read ProcedureResourceType $procedure
  */
-final class PlaceResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface, CreatableDqlResourceTypeInterface
+final class PlaceResourceType extends DplanResourceType
 {
-    public function __construct(private readonly PlaceRepository $placeRepository, private readonly ValidatorInterface $validator)
-    {
+    public function __construct(
+        private readonly PlaceRepository $placeRepository
+    ) {
     }
 
     public static function getName(): string
@@ -71,100 +69,76 @@ final class PlaceResourceType extends DplanResourceType implements UpdatableDqlR
         )];
     }
 
-    public function isReferencable(): bool
+    public function isUpdateAllowed(): bool
     {
-        return true;
+        return $this->currentUser->hasAllPermissions(
+            'area_statement_segmentation',
+            'area_manage_segment_places'
+        );
     }
 
-    public function isDirectlyAccessible(): bool
+    protected function getProperties(): array|ResourceConfigBuilderInterface
     {
-        return true;
-    }
+        $configBuilder = $this->getConfig(BasePlaceResourceConfigBuilder::class);
 
-    protected function getProperties(): array
-    {
-        $id = $this->createAttribute($this->id)
+        $configBuilder->id
+            ->readable()
+            ->filterable()
+            ->sortable();
+        $configBuilder->name
+            ->readable(true)
+            ->filterable()
+            ->sortable()
+            ->updatable();
+        $configBuilder->description
+            ->readable()
+            ->updatable();
+        $configBuilder->sortIndex
             ->readable(true)
             ->filterable()
             ->sortable();
-        $name = $this->createAttribute($this->name)
-            ->readable(true)
-            ->filterable()
-            ->sortable();
-        $description = $this->createAttribute($this->description)
-            ->readable();
-        $sortIndex = $this->createAttribute($this->sortIndex)
-            ->readable(true)
-            ->filterable()
-            ->sortable();
+
         // allow filtering by procedure to limit places in facet dropdown
-        $procedure = $this->createToOneRelationship($this->procedure)->filterable();
+        $configBuilder->procedure
+            ->setRelationshipType($this->resourceTypeStore->getProcedureResourceType())
+            ->filterable();
 
         if ($this->currentUser->hasPermission('area_manage_segment_places')) {
-            $id->initializable(true);
-            $name->initializable();
-            $description->initializable(true);
+            $configBuilder->id->initializable(false, true);
+            $configBuilder->name->updatable()->initializable(false, null, true);
+            $configBuilder->description->updatable()->initializable(true);
         }
 
-        return [$id, $name, $description, $sortIndex, $procedure];
+        $configBuilder->addConstructorBehavior(
+            new FixedConstructorBehavior(
+                Paths::place()->procedure->getAsNamesInDotNotation(),
+                fn (CreationDataInterface $entityData): array => [$this->currentProcedureService->getProcedureWithCertainty(), []]
+            )
+        );
+        $configBuilder->addConstructorBehavior(
+            new FixedConstructorBehavior(
+                Paths::place()->sortIndex->getAsNamesInDotNotation(),
+                fn (CreationDataInterface $entityData): array => [
+                    $this->placeRepository->getMaxUsedIndex($this->currentProcedureService->getProcedureWithCertainty()->getId()) + 1,
+                    [Paths::place()->sortIndex->getAsNamesInDotNotation()],
+                ]
+            )
+        );
+        $configBuilder->addPostConstructorBehavior(
+            new FixedSetBehavior(function (Place $place, EntityDataInterface $entityData): array {
+                $procedure = $this->currentProcedureService->getProcedureWithCertainty();
+                $procedure->addSegmentPlace($place);
+
+                return [];
+            })
+        );
+
+        return $configBuilder;
     }
 
-    /**
-     * @param Place $object
-     */
-    public function updateObject(object $object, array $properties): ResourceChange
+    public function isCreateAllowed(): bool
     {
-        $updater = new PropertiesUpdater($properties);
-        $updater->ifPresent($this->name, $object->setName(...));
-        $updater->ifPresent($this->description, $object->setDescription(...));
-
-        $violations = $this->validator->validate($object);
-        if (0 !== $violations->count()) {
-            throw ViolationsException::fromConstraintViolationList($violations);
-        }
-
-        return new ResourceChange($object, $this, $properties);
-    }
-
-    public function getUpdatableProperties(object $updateTarget): array
-    {
-        if ($this->currentUser->hasPermission('area_manage_segment_places')) {
-            return $this->toProperties(
-                $this->name,
-                $this->description,
-            );
-        }
-
-        return [];
-    }
-
-    public function isCreatable(): bool
-    {
-        return $this->currentUser->hasPermission('area_manage_segment_places')
+        return $this->currentUser->hasAllPermissions('area_manage_segment_places', 'area_statement_segmentation')
             && $this->currentProcedureService->getProcedure();
-    }
-
-    public function createObject(array $properties): ResourceChange
-    {
-        $procedure = $this->currentProcedureService->getProcedureWithCertainty();
-        $name = $properties[$this->name->getAsNamesInDotNotation()];
-        $maxUsedIndex = $this->placeRepository->getMaxUsedIndex($procedure->getId());
-        $id = $properties[$this->id->getAsNamesInDotNotation()] ?? null;
-
-        $place = new Place($procedure, $name, $maxUsedIndex + 1, $id);
-        $procedure->addSegmentPlace($place);
-
-        $updater = new PropertiesUpdater($properties);
-        $updater->ifPresent($this->description, $place->setDescription(...));
-
-        $violations = $this->validator->validate($place);
-        if (0 !== $violations->count()) {
-            throw ViolationsException::fromConstraintViolationList($violations);
-        }
-
-        $change = new ResourceChange($place, $this, $properties);
-        $change->addEntityToPersist($place);
-
-        return $change;
     }
 }

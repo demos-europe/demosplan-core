@@ -219,7 +219,7 @@ export default {
           },
           relationships: {
             assignee: {
-              data: { type: 'user', id: this.currentUserId }
+              data: { type: 'User', id: this.currentUserId }
             },
             statements: {
               data: unclaimedElements

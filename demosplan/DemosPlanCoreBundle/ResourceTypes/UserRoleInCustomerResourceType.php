@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<UserRoleInCustomer>
@@ -44,21 +43,15 @@ final class UserRoleInCustomerResourceType extends DplanResourceType
         return [];
     }
 
-    public function isReferencable(): bool
-    {
-        return true;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
-    }
-
     protected function getProperties(): array
     {
-        return [
-            $this->createAttribute($this->id)->readable(true)->sortable()->filterable(),
-            $this->createToOneRelationship($this->customer)->readable()->sortable()->filterable(),
+        $properties = [
+            $this->createIdentifier()->readable()->sortable()->filterable(),
         ];
+        if ($this->resourceTypeStore->getCustomerResourceType()->isReferencable()) {
+            $properties[] = $this->createToOneRelationship($this->customer)->readable()->sortable()->filterable();
+        }
+
+        return $properties;
     }
 }

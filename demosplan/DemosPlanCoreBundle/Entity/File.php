@@ -284,13 +284,6 @@ class File extends CoreEntity implements UuidEntityInterface, FileInterface
         return $this;
     }
 
-    /**
-     * Get name.
-     *
-     * @deprecated use getFilename() instead
-     *
-     * @return string
-     */
     public function getName()
     {
         return $this->name;

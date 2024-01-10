@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<Procedure>
@@ -32,20 +31,10 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 final class ProcedureTemplateResourceType extends DplanResourceType
 {
-    public function isReferencable(): bool
-    {
-        return true;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
-    }
-
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true)->sortable()->filterable(),
+            $this->createIdentifier()->readable()->sortable()->filterable(),
             $this->createAttribute($this->agencyMainEmailAddress)->readable(true)->sortable()->filterable(),
             $this->createAttribute($this->description)->readable()->aliasedPath($this->desc),
             $this->createToManyRelationship($this->agencyExtraEmailAddresses)->readable()->filterable(),
@@ -75,7 +64,7 @@ final class ProcedureTemplateResourceType extends DplanResourceType
             // templates are never actual procedures
             $this->conditionFactory->propertyHasValue(true, $this->master),
             // the template must be either the unique master template or a "normal" template
-            $this->conditionFactory->anyConditionApplies($masterTemplateSubCondition, $normalTemplateSubCondition)
+            $this->conditionFactory->anyConditionApplies($masterTemplateSubCondition, $normalTemplateSubCondition),
         ];
     }
 

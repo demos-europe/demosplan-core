@@ -178,7 +178,7 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
             $this->statementResourceType->procedure->id
         );
 
-        return $this->statementResourceType->listEntities([$idCondition, $procedureCondition]);
+        return $this->statementResourceType->getEntities([$idCondition, $procedureCondition], []);
     }
 
     /**

@@ -118,7 +118,7 @@ export default {
       return {
         type: 'StatementAttachment',
         attributes: {
-          type: attachmentType
+          attachmentType: attachmentType
         },
         relationships: {
           statement: {

@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventDispatcher;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\BeforeResourceUpdateFlushEvent;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
-use demosplan\DemosPlanCoreBundle\Event\BeforeResourceUpdateFlushEvent;
 use demosplan\DemosPlanCoreBundle\EventSubscriber\BaseEventSubscriber;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementSegmentResourceType;
@@ -33,13 +33,13 @@ class StatementSegmentEventSubscriber extends BaseEventSubscriber
 
     public function saveChangeHistory(BeforeResourceUpdateFlushEvent $event): void
     {
-        $targetResourceType = $event->getResourceChange()->getTargetResourceType();
+        $targetResourceType = $event->getType();
         if (!$targetResourceType instanceof StatementSegmentResourceType) {
             return;
         }
 
         /** @var Segment $segment */
-        $segment = $event->getResourceChange()->getTargetResource();
+        $segment = $event->getEntity();
         $this->entityContentChangeService->saveEntityChanges($segment, Segment::class);
     }
 }

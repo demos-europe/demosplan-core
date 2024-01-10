@@ -1532,7 +1532,7 @@ export default {
 
       for (; i < l; i++) {
         layer = allLayers[i]
-        if (layer.attributes.type === type) {
+        if (layer.attributes.layerType === type) {
           layers.push(layer)
         }
       }

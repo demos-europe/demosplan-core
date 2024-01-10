@@ -403,6 +403,10 @@ export default {
       assignableUsersObject: 'items'
     }),
 
+    ...mapState('orga', {
+      orgaObject: 'items'
+    }),
+
     ...mapState('statement', {
       statementsObject: 'items',
       currentPage: 'currentPage',
@@ -485,7 +489,8 @@ export default {
     getAssignee (statement) {
       if (this.assigneeId(statement)) {
         const assignee = this.assignableUsersObject[this.assigneeId(statement)]
-        const assigneeOrga = assignee ? Object.values(assignee.rel('orga'))[0] : null
+        const assigneeOrga = assignee ? assignee.rel('orga') : null
+
         if (typeof assignee === 'undefined') {
           return {
             id: statement.relationships.assignee.data.id,
@@ -493,12 +498,15 @@ export default {
             orgaName: 'unbekannt'
           }
         }
+
         return {
           id: statement.relationships.assignee.data.id,
           name: `${assignee.attributes.firstname} ${assignee.attributes.lastname}`,
           orgaName: assigneeOrga ? assigneeOrga.attributes.name : ''
+
         }
       }
+
       return {
         id: '',
         name: '',
@@ -565,7 +573,7 @@ export default {
     claimStatement (statementId) {
       const statement = this.statementsObject[statementId]
       if (typeof statement !== 'undefined') {
-        const dataToUpdate = { ...statement, ...{ relationships: { ...statement.relationships, ...{ assignee: { data: { type: 'User', id: this.currentUserId } } } } } }
+        const dataToUpdate = { ...statement, ...{ relationships: { ...statement.relationships, ...{ assignee: { data: { type: 'Claim', id: this.currentUserId } } } } } }
         this.setStatement({ ...dataToUpdate, id: statementId, group: null })
 
         const payload = {
@@ -575,13 +583,14 @@ export default {
             relationships: {
               assignee: {
                 data: {
-                  type: 'User',
+                  type: 'Claim',
                   id: this.currentUserId
                 }
               }
             }
           }
         }
+
         return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: statementId }), {}, payload)
           .then(response => {
             dplan.notify.notify('confirm', Translator.trans('confirm.statement.assignment.assigned'))
@@ -613,7 +622,7 @@ export default {
 
     unclaimStatement (statementId) {
       const statement = this.statementsObject[statementId]
-      const dataToUpdate = { ...statement, ...{ relationships: { ...statement.relationships, ...{ assignee: { data: { type: 'User', id: null } } } } } }
+      const dataToUpdate = { ...statement, ...{ relationships: { ...statement.relationships, ...{ assignee: { data: { type: 'Claim', id: null } } } } } }
       this.setStatement({ ...dataToUpdate, id: statementId, group: null })
 
       const payload = {
