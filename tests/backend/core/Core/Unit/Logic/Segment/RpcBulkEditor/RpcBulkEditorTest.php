@@ -11,6 +11,7 @@
 namespace Tests\Core\Core\Unit\Logic\Segment\RpcBulkEditor;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadSegmentData;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\RpcBulkEditor\RpcSegmentsBulkEditor;
 use Tests\Base\RpcApiTest;
 
@@ -62,12 +63,12 @@ class RpcBulkEditorTest extends RpcApiTest
 
         $this->sut->updateSegments(array($segment1, $segment2), array(), array(), null, null);
 
-        static::assertEquals($user->getId(), $segment1->getAssignee()->getId());
-        static::assertEquals($user->getId(), $segment2->getAssignee()->getId());
+        static::assertNull($segment1->getAssignee());
+        static::assertNull($segment2->getAssignee());
 
     }
 
-    public function testExtractValidAssignee(): void {
+    public function testDetectValidAssignee(): void {
         $this->sut = $this->getContainer()->get(RpcSegmentsBulkEditor::class);
 
         $segment1 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_1);
@@ -96,14 +97,14 @@ class RpcBulkEditorTest extends RpcApiTest
             ]
         ];
 
-        $assignee = $this->sut->extractAssignee($rpcRequest);
+        $assignee = $this->sut->detectAssignee($rpcRequest);
 
         static::assertEquals($user->getId(),$assignee->getId());
 
 
     }
 
-    public function testExtractInvalidIdAssignee(): void {
+    public function testDetectInvalidIdAssignee(): void {
         $this->sut = $this->getContainer()->get(RpcSegmentsBulkEditor::class);
 
         $segment1 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_1);
@@ -112,6 +113,8 @@ class RpcBulkEditorTest extends RpcApiTest
 
         static::assertNull($segment1->getAssignee());
         static::assertNull($segment2->getAssignee());
+
+        static::expectException(UserNotFoundException::class);
 
         $rpcRequest = (object)[
             "jsonrpc" => "2.0",
@@ -132,13 +135,11 @@ class RpcBulkEditorTest extends RpcApiTest
             ]
         ];
 
-        $assignee = $this->sut->extractAssignee($rpcRequest);
-
-        static::assertNull($assignee);
+        $this->sut->detectAssignee($rpcRequest);
 
     }
 
-    /*public function testExtractNullAssignee(): void {
+    public function testDetectNullAssignee(): void {
         $this->sut = $this->getContainer()->get(RpcSegmentsBulkEditor::class);
 
         $segment1 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_1);
@@ -167,11 +168,11 @@ class RpcBulkEditorTest extends RpcApiTest
             ]
         ];
 
-        $assignee = $this->sut->extractAssignee($rpcRequest);
+        $assignee = $this->sut->detectAssignee($rpcRequest);
 
         static::assertNull($assignee);
 
-    }*/
+    }
 
 
 

@@ -116,7 +116,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                         $rpcRequest->params->removeTagIds,
                         $procedureId
                     );
-                    $assignee = $this->extractAssignee($rpcRequest);
+                    $assignee = $this->detectAssignee($rpcRequest);
                     $workflowPlace = $this->extractWorkflowPlace($rpcRequest);
 
                     $segments = $this->updateSegments($segments, $addTagIds, $removeTagIds, $assignee, $workflowPlace);
@@ -146,9 +146,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
             /* @var Segment $segment */
             $segment->addTags($addTagIds);
             $segment->removeTags($removeTagIds);
-            if (null !== $assignee) {
-                $segment->setAssignee($assignee);
-            }
+            $segment->setAssignee($assignee);
             if (null !== $workflowPlace) {
                 $segment->setPlace($workflowPlace);
             }
@@ -305,6 +303,32 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
         return $this->isValidAssigneeId($assigneeId)
             ? $this->userHandler->getSingleUser($assigneeId)
             : null;
+    }
+
+
+    /**
+     * @throws UserNotFoundException
+     */
+    public function detectAssignee(object $rpcRequest): ?User
+    {
+        $assigneeId = data_get($rpcRequest, 'params.assigneeId', '');
+
+        if (!$assigneeId) {
+            return null;
+        }
+
+        if (!$this->isValidAssigneeId($assigneeId)) {
+            throw new UserNotFoundException();
+        }
+
+        $user = $this->userHandler->getSingleUser($assigneeId);
+
+        if (!$user) {
+            throw new UserNotFoundException();
+        }
+
+        return $user;
+
     }
 
     private function extractAssigneeId(object $rpcRequest): string
