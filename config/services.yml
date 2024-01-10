@@ -427,7 +427,10 @@ services:
 
     EDT\JsonApi\RequestHandling\RequestTransformer: ~
 
-    EDT\JsonApi\RequestHandling\RequestConstraintFactory: ~
+    EDT\JsonApi\RequestHandling\RequestConstraintFactory:
+        arguments:
+            $attributeValidationDepth: 20
+            $attributeAllowAnythingBelowValidationDepth: true
 
     DemosEurope\DemosplanAddon\Contracts\ApiRequest\JsonApiEsServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService'
 
@@ -440,11 +443,11 @@ services:
         public: true
 
     demosplan\DemosPlanCoreBundle\Logic\MenuBuilder\MenuBuilder:
-            arguments:
-                $eventDispatcher: '@Symfony\Contracts\EventDispatcher\EventDispatcherInterface'
-                $factory: '@knp_menu.factory'
-            tags:
-                - { name: knp_menu.menu_builder, method: createSideMenu, alias: sidemenu } # The alias is what is used to retrieve the menu
+        arguments:
+            $eventDispatcher: '@Symfony\Contracts\EventDispatcher\EventDispatcherInterface'
+            $factory: '@knp_menu.factory'
+        tags:
+            - { name: knp_menu.menu_builder, method: createSideMenu, alias: sidemenu } # The alias is what is used to retrieve the menu
 
     demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDeciderInterface:
         '@demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDecider'
