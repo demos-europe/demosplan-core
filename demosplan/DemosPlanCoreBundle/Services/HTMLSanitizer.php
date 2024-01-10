@@ -90,6 +90,7 @@ class HTMLSanitizer
         $config->set('HTML.DefinitionID', 'dplan purifier');
         $config->set('HTML.DefinitionRev', 1);
         $config->set('Attr.AllowedFrameTargets', ['_blank']);
+        $config->set('Attr.AllowedRel', ['noopener noreferrer nofollow']);
         $config->set('Cache.SerializerPath', $this->cacheDirectory);
         $def = $config->maybeGetRawHTMLDefinition();
 
