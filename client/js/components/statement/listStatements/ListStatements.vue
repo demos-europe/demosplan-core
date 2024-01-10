@@ -280,7 +280,6 @@
 
 <script>
 import {
-  checkResponse,
   CleanHtml,
   dpApi,
   DpBulkEditHeader,
@@ -585,10 +584,6 @@ export default {
         }
         return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: statementId }), {}, payload)
           .then(response => {
-            checkResponse(response)
-            return response
-          })
-          .then(response => {
             dplan.notify.notify('confirm', Translator.trans('confirm.statement.assignment.assigned'))
 
             return response
@@ -633,7 +628,6 @@ export default {
         }
       }
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: statementId }), {}, payload)
-        .then(checkResponse)
         .catch((err) => {
           this.restoreStatementAction(statementId)
           console.error(err)
@@ -831,7 +825,6 @@ export default {
 
         dplan.notify.notify('warning', Translator.trans('procedure.share_statements.info.duration'))
         dpRpc('statement.procedure.sync', params)
-          .then(checkResponse)
           .then((response) => {
             /*
              * Error messages are displayed with "checkResponse", but we need to check for error here to, because
@@ -884,10 +877,6 @@ export default {
     triggerStatementDeletion (id) {
       if (window.confirm(Translator.trans('check.statement.delete'))) {
         this.deleteStatement(id)
-          .then(response => checkResponse(response, {
-            200: { type: 'confirm', text: 'confirm.statement.deleted' },
-            204: { type: 'confirm', text: 'confirm.statement.deleted' }
-          }))
       }
     },
 

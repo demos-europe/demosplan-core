@@ -251,7 +251,6 @@
 
 <script>
 import {
-  checkResponse,
   CleanHtml,
   dpApi,
   DpMultiselect,
@@ -488,7 +487,6 @@ export default {
       }
 
       dpRpc('segment.bulk.edit', params)
-        .then(checkResponse)
         .then((response) => {
           const rpcResult = this.getRpcResult(response)
 

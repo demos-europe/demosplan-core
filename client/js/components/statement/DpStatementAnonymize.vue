@@ -232,7 +232,6 @@
 
 <script>
 import {
-  checkResponse,
   CleanHtml,
   DpAnonymizeText,
   dpApi,
@@ -386,7 +385,6 @@ export default {
           'Content-Type': 'application/json; charset=utf-8'
         }
       })
-        .then(checkResponse)
         .then(() => {
           this.currentStep = 3
           this.busy = false
