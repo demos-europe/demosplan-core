@@ -89,7 +89,7 @@ class HTMLSanitizer
         $config = HTMLPurifier_Config::createDefault();
         $config->set('HTML.DefinitionID', 'dplan purifier');
         $config->set('HTML.DefinitionRev', 1);
-        $config->set('HTML.TargetBlank', true);
+        $config->set('Attr.AllowedFrameTargets', ['_blank']);
         $config->set('Cache.SerializerPath', $this->cacheDirectory);
         $def = $config->maybeGetRawHTMLDefinition();
 
