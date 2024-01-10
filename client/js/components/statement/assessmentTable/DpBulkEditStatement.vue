@@ -209,7 +209,6 @@
 
 <script>
 import {
-  checkResponse,
   dpApi,
   DpButton,
   DpMultiselect,
@@ -370,7 +369,6 @@ export default {
         }),
         data: JSON.stringify(payload)
       })
-        .then(checkResponse)
         .then(() => {
           this.mode = 'success'
           this.isLoading = false

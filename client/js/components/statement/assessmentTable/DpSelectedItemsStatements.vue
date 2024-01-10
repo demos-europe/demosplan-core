@@ -97,7 +97,6 @@
 
 <script>
 import {
-  checkResponse,
   dpApi,
   DpLoading,
   dpRpc,
@@ -238,7 +237,6 @@ export default {
         }),
         data: payload
       })
-        .then(checkResponse)
         .then(response => {
           const assignee = response.included.find(elem => elem.id === response.data.relationships.assignee.data.id)
           const orgaName = response.included.find(elem => elem.type === 'Claim').attributes.orgaName
@@ -277,7 +275,6 @@ export default {
 
       if (params.statementIds.length > 0) {
         dpRpc('statements.bulk.copy', params)
-          .then(checkResponse)
           .then((response) => {
             if (response[0].error) {
               dplan.notify.notify('error', Translator.trans('error.copy'))
