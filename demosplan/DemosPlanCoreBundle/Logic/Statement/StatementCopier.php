@@ -521,7 +521,6 @@ class StatementCopier extends CoreService
         $this->statementService->addFilesToCopiedStatement($newStatement, $statement->getId());
 
         return $newStatement;
-
     }
 
     /**
