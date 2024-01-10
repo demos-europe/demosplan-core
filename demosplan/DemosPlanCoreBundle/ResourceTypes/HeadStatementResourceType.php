@@ -12,13 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigBuilder;
 use Doctrine\Common\Collections\Collection;
-use EDT\Querying\Contracts\PathsBasedInterface;
+use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 
-/**
- * @property-read StatementResourceType $statements
- */
 final class HeadStatementResourceType extends AbstractStatementResourceType
 {
     public static function getName(): string
@@ -41,26 +40,28 @@ final class HeadStatementResourceType extends AbstractStatementResourceType
         return [];
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isGetAllowed(): bool
     {
         return false;
     }
 
-    public function isReferencable(): bool
+    public function isListAllowed(): bool
     {
-        return true;
+        return false;
     }
 
-    protected function getProperties(): array
+    protected function getProperties(): ResourceConfigBuilderInterface
     {
-        $properties = parent::getProperties();
-        $properties[] = $this->createToManyRelationship($this->statements, true)
-            ->readable(true, static fn(Statement $statement): Collection => $statement->getCluster());
-        $properties[] = $this->createAttribute($this->authorName)
-            ->readable(true)->filterable()->aliasedPath($this->meta->authorName);
-        $properties[] = $this->createAttribute($this->submitName)
-            ->readable(true)->filterable()->sortable()->aliasedPath($this->meta->submitName);
+        /** @var StatementResourceConfigBuilder $configBuilder */
+        $configBuilder = parent::getProperties();
+        $configBuilder->statements
+            ->setRelationshipType($this->getTypes()->getStatementResourceType())
+            ->readable(true, static fn (Statement $statement): Collection => $statement->getCluster(), true);
+        $configBuilder->authorName
+            ->readable(true)->filterable()->aliasedPath(Paths::statement()->meta->authorName);
+        $configBuilder->submitName
+            ->readable(true)->filterable()->sortable()->aliasedPath(Paths::statement()->meta->submitName);
 
-        return $properties;
+        return $configBuilder;
     }
 }

@@ -55,20 +55,10 @@ final class DepartmentResourceType extends DplanResourceType
         return [];
     }
 
-    public function isReferencable(): bool
-    {
-        return true;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
-    }
-
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true)->filterable()->sortable(),
+            $this->createIdentifier()->readable()->filterable()->sortable(),
             $this->createAttribute($this->name)->readable(true)->filterable()->sortable(),
         ];
     }

@@ -38,7 +38,7 @@ const presetStoreModules = {
           }
         }
       },
-      include: ['customer.branding', 'currentSlug', 'statusInCustomers'].join(),
+      include: ['branding', 'currentSlug', 'statusInCustomers'].join(),
       group: 'pending'
     }
   }]

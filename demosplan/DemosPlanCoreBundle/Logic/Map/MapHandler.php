@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Exception\AttachedChildException;
 use demosplan\DemosPlanCoreBundle\Exception\FunctionalLogicException;
 use demosplan\DemosPlanCoreBundle\Exception\GisLayerCategoryTreeTooDeepException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
+use demosplan\DemosPlanCoreBundle\Repository\MapRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -218,8 +219,9 @@ class MapHandler extends CoreHandler
 
         // logic from service:
         try {
-            $updatedGis = $this->entityManager->getRepository(GisLayer::class)
-                ->updateByArray($gisLayerData);
+            /** @var MapRepository $gisLayerRepository */
+            $gisLayerRepository = $this->entityManager->getRepository(GisLayer::class);
+            $updatedGis = $gisLayerRepository->updateByArray($gisLayerData);
 
             return $convertToLegacy ? $this->mapService->convertToLegacy($updatedGis) : $updatedGis;
         } catch (Exception $e) {

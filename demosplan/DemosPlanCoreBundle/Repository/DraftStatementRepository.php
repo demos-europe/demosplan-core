@@ -31,7 +31,10 @@ use Doctrine\ORM\ORMException;
 use Exception;
 use InvalidArgumentException;
 
-class DraftStatementRepository extends FluentRepository implements ArrayInterface
+/**
+ * @template-extends CoreRepository<DraftStatement>
+ */
+class DraftStatementRepository extends CoreRepository implements ArrayInterface
 {
     /**
      * Gib eine Liste der Versionen der Stellungnahme zurück.
@@ -185,8 +188,8 @@ class DraftStatementRepository extends FluentRepository implements ArrayInterfac
                 $em->getReference(SingleDocumentVersion::class, $data['documentId'])
             );
         }
-        if (!array_key_exists('document', $data) && array_key_exists('documentId', $data) &&
-            '' === $data['documentId']
+        if (!array_key_exists('document', $data) && array_key_exists('documentId', $data)
+            && '' === $data['documentId']
         ) {
             $entity->setDocument(null);
         }
@@ -252,8 +255,8 @@ class DraftStatementRepository extends FluentRepository implements ArrayInterfac
                 $em->getReference(ParagraphVersion::class, $data['paragraphId'])
             );
         }
-        if (!array_key_exists('paragraph', $data) && array_key_exists('paragraphId', $data) &&
-            '' === $data['paragraphId']
+        if (!array_key_exists('paragraph', $data) && array_key_exists('paragraphId', $data)
+            && '' === $data['paragraphId']
         ) {
             $entity->setParagraph(null);
         }

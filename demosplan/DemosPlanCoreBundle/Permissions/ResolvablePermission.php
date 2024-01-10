@@ -59,13 +59,13 @@ class ResolvablePermission
      * @param non-empty-string $label
      */
     public function __construct(#[Assert\NotBlank(normalizer: 'trim', allowNull: false)]
-    #[Assert\Type(type: 'string')]
-    #[Assert\Regex(pattern: '/^[a-z]+(_[a-z]+)*$/')]
-    private readonly string $name, #[Assert\NotBlank(normalizer: 'trim', allowNull: false)]
-    #[Assert\Type(type: 'string')]
-    private readonly string $label, #[Assert\NotNull]
-    #[Assert\Type(type: 'string')]
-    private readonly string $description, private readonly bool $exposed)
+        #[Assert\Type(type: 'string')]
+        #[Assert\Regex(pattern: '/^[a-z]+(_[a-z]+)*$/')]
+        private readonly string $name, #[Assert\NotBlank(normalizer: 'trim', allowNull: false)]
+        #[Assert\Type(type: 'string')]
+        private readonly string $label, #[Assert\NotNull]
+        #[Assert\Type(type: 'string')]
+        private readonly string $description, private readonly bool $exposed)
     {
         $now = Carbon::now();
         $this->setCreatedAt($now);
@@ -102,7 +102,7 @@ class ResolvablePermission
     }
 
     /**
-     * @param list<PermissionCondition>
+     * @param list<PermissionCondition> $conditions
      */
     public function setConditions(array $conditions): void
     {
