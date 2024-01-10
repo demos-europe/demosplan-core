@@ -51,7 +51,7 @@
         "enqueue/enqueue-bundle": "^0.10",
         "enqueue/fs": "^0.10",
         "erusev/parsedown": "^1.7",
-        "exercise/htmlpurifier-bundle": "^4.1",
+        "exercise/htmlpurifier-bundle": "^5.0",
         "fakerphp/faker": "^1.16",
         "friendsofsymfony/elastica-bundle": "^6",
         "friendsofsymfony/jsrouting-bundle": "^2.2.0",
