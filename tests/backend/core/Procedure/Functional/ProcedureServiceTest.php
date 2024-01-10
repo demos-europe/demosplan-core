@@ -13,6 +13,7 @@ namespace Tests\Core\Procedure\Functional;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadCustomerData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureTypeData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
@@ -2966,6 +2967,7 @@ Email:',
             'orgaName'     => $this->testProcedure->getOrga()->getName(),
             'logo'         => 'some:logodata:string',
             'shortUrl'     => 'myShortUrl',
+            'customer'     => $this->getCustomerReference(LoadCustomerData::DEMOS),
         ];
         $procedureRepository = $this->sut->getPublicProcedureRepository();
         $newProcedure = $procedureRepository->add($procedureData);

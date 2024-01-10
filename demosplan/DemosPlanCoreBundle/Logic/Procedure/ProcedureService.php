@@ -829,6 +829,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 $data['settings']['emailTitle'] =
                     $this->translator->trans('participation.invitation').': '.($data['name'] ?? '');
             }
+            // T34551 all procedures shall get a customer relation - defalt-customer-blueprint relations are set within the customer only
+            $data['customer'] = $this->customerService->getCurrentCustomer();
 
             // Wrap creation of procedure in a transaction to be able to validate the whole procedure
             // including subentities

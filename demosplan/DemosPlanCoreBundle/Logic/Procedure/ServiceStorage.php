@@ -360,21 +360,28 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'oldSlug');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'desc');
 
-        // T15644: in case of deselected customer master blue print, the key 'r_customerMasterBlueprint' will be missing:
+        $currentCustomer = $this->customerService->getCurrentCustomer();
+        $isMasterTemplate = $this->masterTemplateService->getMasterTemplate()->getId() === $currentProcedure->getId();
+        // do not set a customer for the masterTemplate
         $procedure['customer'] = null;
-        if (array_key_exists('r_customerMasterBlueprint', $data)) { // soll current customer gesetzt werden?
-            $currentCustomer = $this->customerService->getCurrentCustomer();
-            if ($currentCustomer->getId() !== $currentProcedure->getCustomerId()// ist cc noch nicht gesetzt?
-                && $this->procedureService->isCustomerMasterBlueprintExisting($currentCustomer->getId())) {
-                $this->messageBag->add(
-                    'warning',
-                    'customer.master.blueprint.already.exists',
-                    ['customerName' => $currentCustomer->getName()]
-                );
+        if (!$isMasterTemplate) {
+            $procedure['customer'] = $currentCustomer;
+            if (array_key_exists('r_customerMasterBlueprint', $data)) {
+                $currentCustomer->setDefaultProcedureBlueprint($currentProcedure);
+                $this->customerService->updateCustomer($currentCustomer);
             } else {
-                $procedure['customer'] = $currentCustomer;
+                // T15644 & T34551 if the key 'r_customerMasterBlueprint' is not set within the $data array,
+                // - the assumpten is tha the procedure shall not be the default-customer-blueprint
+                // if the procedure is currently the default-customer-blueprint uncheck it as requested
+                if ($isBlueprint) {
+                    if ($currentProcedure === $currentCustomer->getDefaultProcedureBlueprint()) {
+                        $currentCustomer->setDefaultProcedureBlueprint(null);
+                        $this->customerService->updateCustomer($currentCustomer);
+                    }
+                }
             }
         }
+
 
         // save authorizedUsers only if user can choose them in interface
         if ($this->globalConfig->hasProcedureUserRestrictedAccess() && $this->permissions->hasPermission('feature_procedure_user_restrict_access_edit')) {
