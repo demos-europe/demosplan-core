@@ -2435,7 +2435,7 @@
     namespace-emitter "^2.0.1"
     p-retry "^6.1.0"
 
-"@uppy/core@^3.0.1":
+"@uppy/core@^3.0.1", "@uppy/core@^3.8.0":
   version "3.8.0"
   resolved "https://registry.yarnpkg.com/@uppy/core/-/core-3.8.0.tgz#2697c48aab5ec777a86440237da939d7ff0ffe5d"
   integrity sha512-C93vVhid929+VLGjaD9CZOLJDg8GkEGMUGveFp3Tyo/wujiG+sB3fOF+c6TzKpzPLfNtVpskU1BnI7tZrq1LWw==
@@ -2443,20 +2443,6 @@
     "@transloadit/prettier-bytes" "0.0.9"
     "@uppy/store-default" "^3.2.0"
     "@uppy/utils" "^5.7.0"
-    lodash "^4.17.21"
-    mime-match "^1.0.2"
-    namespace-emitter "^2.0.1"
-    nanoid "^4.0.0"
-    preact "^10.5.13"
-
-"@uppy/core@^3.7.1":
-  version "3.7.1"
-  resolved "https://registry.yarnpkg.com/@uppy/core/-/core-3.7.1.tgz#4265616452c9be1e1eda52a65d22c770849079b1"
-  integrity sha512-P8JoDbDYyJ5ZX35+IfrDj2WupKvfEpYwoMgyjutaLhaT/+hmHoTivZpJV256eaZahJMTYrQlZmGfXy1LRByV3A==
-  dependencies:
-    "@transloadit/prettier-bytes" "0.0.9"
-    "@uppy/store-default" "^3.0.5"
-    "@uppy/utils" "^5.6.0"
     lodash "^4.17.21"
     mime-match "^1.0.2"
     namespace-emitter "^2.0.1"
@@ -2479,7 +2465,7 @@
     "@uppy/utils" "^5.5.2"
     preact "^10.5.13"
 
-"@uppy/store-default@^3.0.5", "@uppy/store-default@^3.2.0":
+"@uppy/store-default@^3.2.0":
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/@uppy/store-default/-/store-default-3.2.0.tgz#1f65206126f80e52bfa1de1ca1e58724cf2b47f8"
   integrity sha512-Y7t0peUG89ZKa30vM4qlRIC6uKxIfOANeMT9Nzjwcxvzz8l7es22jG3eAj9WF2F7YSu7xdsH8ODs6SIrJJ8gow==
@@ -2493,7 +2479,7 @@
     "@uppy/utils" "^5.7.0"
     tus-js-client "^3.0.0"
 
-"@uppy/utils@^5.4.3", "@uppy/utils@^5.5.2", "@uppy/utils@^5.6.0", "@uppy/utils@^5.7.0":
+"@uppy/utils@^5.4.3", "@uppy/utils@^5.5.2", "@uppy/utils@^5.7.0":
   version "5.7.0"
   resolved "https://registry.yarnpkg.com/@uppy/utils/-/utils-5.7.0.tgz#763c0f0d88eb15f457278713d6d676c1b58109c9"
   integrity sha512-AJj7gAx5YfMgyevwOxVdIP2h4Nw/O6h57wKA6gj+Lce6tMORcqzGt4yQiKBsrBI0bPyFWCbzA3vX5t0//1JCBA==
