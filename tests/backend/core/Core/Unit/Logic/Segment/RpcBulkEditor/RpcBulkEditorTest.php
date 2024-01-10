@@ -26,7 +26,7 @@ class RpcBulkEditorTest extends RpcApiTest
     }
 
 
-    public function testUpdateSegments(): void
+    public function testUpdateSegmentsWithNotNullAssignee(): void
     {
 
         $this->sut = $this->getContainer()->get(RpcSegmentsBulkEditor::class);
@@ -44,6 +44,26 @@ class RpcBulkEditorTest extends RpcApiTest
         static::assertEquals($user->getId(), $segment1->getAssignee()->getId());
         static::assertEquals($user->getId(), $segment2->getAssignee()->getId());
 
+    }
+
+    public function testUpdateSegmentsWithNullAssignee(): void
+    {
+
+        $this->sut = $this->getContainer()->get(RpcSegmentsBulkEditor::class);
+
+        $user = $this->loginTestUser();
+        $segment1 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_1);
+        $segment1->setAssignee($user);
+        $segment2 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_2);
+        $segment2->setAssignee($user);
+
+        static::assertEquals($user->getId(), $segment1->getAssignee()->getId());
+        static::assertEquals($user->getId(), $segment2->getAssignee()->getId());
+
+        $this->sut->updateSegments(array($segment1, $segment2), array(), array(), null, null);
+
+        static::assertEquals($user->getId(), $segment1->getAssignee()->getId());
+        static::assertEquals($user->getId(), $segment2->getAssignee()->getId());
 
     }
 
@@ -118,7 +138,7 @@ class RpcBulkEditorTest extends RpcApiTest
 
     }
 
-    public function testExtractNullAssignee(): void {
+    /*public function testExtractNullAssignee(): void {
         $this->sut = $this->getContainer()->get(RpcSegmentsBulkEditor::class);
 
         $segment1 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_1);
@@ -151,5 +171,8 @@ class RpcBulkEditorTest extends RpcApiTest
 
         static::assertNull($assignee);
 
-    }
+    }*/
+
+
+
 }
