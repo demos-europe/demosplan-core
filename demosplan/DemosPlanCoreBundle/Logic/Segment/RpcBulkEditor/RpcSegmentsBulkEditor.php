@@ -298,7 +298,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
     /**
      * @throws Exception
      */
-    private function extractAssignee(object $rpcRequest): ?User
+    public function extractAssignee(object $rpcRequest): ?User
     {
         $assigneeId = $this->extractAssigneeId($rpcRequest);
 
