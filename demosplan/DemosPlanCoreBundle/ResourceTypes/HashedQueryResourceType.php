@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<HashedQuery>
@@ -32,7 +31,7 @@ class HashedQueryResourceType extends DplanResourceType
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true),
+            $this->createIdentifier()->readable(),
             $this->createAttribute($this->hash)->readable(true),
         ];
     }
@@ -47,12 +46,12 @@ class HashedQueryResourceType extends DplanResourceType
         return $this->currentUser->hasPermission('area_admin_assessmenttable');
     }
 
-    public function isReferencable(): bool
+    public function isGetAllowed(): bool
     {
-        return true;
+        return false;
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isListAllowed(): bool
     {
         return false;
     }

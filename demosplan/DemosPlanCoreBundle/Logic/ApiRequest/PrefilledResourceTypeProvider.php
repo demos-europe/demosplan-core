@@ -12,24 +12,22 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
-use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
-use EDT\Wrapping\Contracts\Types\TypeInterface;
+use EDT\Querying\Contracts\EntityBasedInterface;
+use EDT\Wrapping\Contracts\Types\NamedTypeInterface;
 use EDT\Wrapping\TypeProviders\PrefilledTypeProvider;
+use Webmozart\Assert\Assert;
 
 /**
  * @template-extends PrefilledTypeProvider<ClauseFunctionInterface, OrderBySortMethodInterface>
  */
 class PrefilledResourceTypeProvider extends PrefilledTypeProvider
 {
-    protected function getIdentifier(TypeInterface $type): string
+    protected function getIdentifier(EntityBasedInterface $type): string
     {
-        if ($type instanceof ResourceTypeInterface) {
-            return $type::getName();
-        }
+        Assert::isInstanceOf($type, NamedTypeInterface::class);
 
-        throw new InvalidArgumentException('Expected ResourceTypeInterface, got '.$type::class);
+        return $type->getTypeName();
     }
 }

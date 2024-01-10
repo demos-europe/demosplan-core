@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<StatementFormDefinition>
@@ -49,7 +48,7 @@ final class StatementFormDefinitionResourceType extends DplanResourceType
         // connected to the given Procedure.
         return [
             $this->conditionFactory->propertyHasValue($currentProcedure->getId(), $this->procedure->id),
-            $this->conditionFactory->propertyIsNull($this->procedureType)
+            $this->conditionFactory->propertyIsNull($this->procedureType),
         ];
     }
 
@@ -68,20 +67,10 @@ final class StatementFormDefinitionResourceType extends DplanResourceType
         return 'StatementFormDefinition';
     }
 
-    public function isReferencable(): bool
-    {
-        return true;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
-    }
-
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true)->sortable()->filterable(),
+            $this->createIdentifier()->readable()->sortable()->filterable(),
             $this->createToOneRelationship($this->fieldDefinitions)->readable()->sortable()->filterable(),
             $this->createToManyRelationship($this->procedure)->readable()->sortable()->filterable(),
             $this->createToOneRelationship($this->procedureType)->readable()->sortable()->filterable(),

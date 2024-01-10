@@ -10,7 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
+use DemosEurope\DemosplanAddon\Contracts\ApiRequest\JsonApiEsServiceInterface;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Logger\ApiLoggerInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
@@ -36,6 +38,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\UserResourceType;
 use demosplan\DemosPlanCoreBundle\Response\EmptyResponse;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\JsonApi\RequestHandling\MessageFormatter;
 use EDT\JsonApi\RequestHandling\PaginatorFactory;
 use EDT\JsonApi\RequestHandling\UrlParameter;
 use EDT\JsonApi\Validation\FieldsValidator;
@@ -62,13 +65,14 @@ class DemosPlanUserAPIController extends APIController
 
     public function __construct(
         UserService $userService,
-        LoggerInterface $apiLogger,
+        ApiLoggerInterface $apiLogger,
         FieldsValidator $fieldsValidator,
         PrefilledTypeProvider $resourceTypeProvider,
         TranslatorInterface $translator,
         LoggerInterface $logger,
         GlobalConfigInterface $globalConfig,
         MessageBagInterface $messageBag,
+        MessageFormatter $messageFormatter,
         SchemaPathProcessor $schemaPathProcessor
     ) {
         parent::__construct(
@@ -79,7 +83,8 @@ class DemosPlanUserAPIController extends APIController
             $logger,
             $globalConfig,
             $messageBag,
-            $schemaPathProcessor
+            $schemaPathProcessor,
+            $messageFormatter
         );
 
         $this->userService = $userService;
@@ -144,7 +149,7 @@ class DemosPlanUserAPIController extends APIController
                 $sortMethodFactory->propertyAscending($userType->firstname),
             ];
 
-            $searchParams = SearchParams::createOptional($request->query->get('search', []));
+            $searchParams = SearchParams::createOptional($request->query->get(JsonApiEsServiceInterface::SEARCH, []));
             if (!$searchParams instanceof SearchParams) {
                 $listResult = $jsonApiActionService->listObjects($userType, $conditions, $sortMethods);
             } else {

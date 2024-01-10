@@ -18,7 +18,7 @@
         :key="layer.id"
         :layer="layer"
         :layer-type="layerType"
-        :visible="layer.attributes.type === 'overlay' ? layer.attributes.hasDefaultVisibility : (layer.id === firstActiveBaseLayerId)"
+        :visible="layer.attributes.layerType === 'overlay' ? layer.attributes.hasDefaultVisibility : (layer.id === firstActiveBaseLayerId)"
         :layer-groups-alternate-visibility="layerGroupsAlternateVisibility" />
       <dp-public-layer-list-category
         v-else
@@ -89,7 +89,7 @@ export default {
       let layer
       for (; i < l; i++) {
         layer = layers[i]
-        if (layer.attributes.hasDefaultVisibility && layer.attributes.type === 'base') {
+        if (layer.attributes.hasDefaultVisibility && layer.attributes.layerType === 'base') {
           return layer.id
         }
       }

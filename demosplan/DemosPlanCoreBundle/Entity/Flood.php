@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\FloodInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -20,7 +21,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\FloodRepository")
  */
-class Flood extends CoreEntity implements UuidEntityInterface
+class Flood extends CoreEntity implements UuidEntityInterface, FloodInterface
 {
     /**
      * @var string|null

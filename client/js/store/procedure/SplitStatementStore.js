@@ -392,9 +392,9 @@ const SplitStatementStore = {
         type: 'Statement',
         attributes: {}
       }
-      payload.attributes.segmentDraftList = JSON.stringify({
+      payload.attributes.segmentDraftList = {
         data: dataToSend
-      })
+      }
       return dpApi.patch(Routing.generate('api_resource_update', {
         resourceType: 'Statement',
         resourceId: state.statementId

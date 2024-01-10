@@ -149,21 +149,11 @@ final class OrgaResourceType extends DplanResourceType
         return true;
     }
 
-    public function isReferencable(): bool
-    {
-        return true;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
-    }
-
     protected function getProperties(): array
     {
         $statusInCustomers = $this->createToManyRelationship($this->statusInCustomers);
         $properties = [
-            $this->createAttribute($this->id)->sortable()->filterable()->readable(true),
+            $this->createIdentifier()->sortable()->filterable()->readable(),
             $this->createAttribute($this->name)->sortable()->filterable()->readable(true),
             $this->createAttribute($this->ccEmail2)->readable(true),
             $this->createAttribute($this->city)->readable(true, static fn (Orga $orga): string => $orga->getCity()),
@@ -188,8 +178,7 @@ final class OrgaResourceType extends DplanResourceType
             $this->createAttribute($this->submissionType)->readable(true, static fn (Orga $orga): string => $orga->getSubmissionType()),
             $this->createAttribute($this->types)->readable(true, fn (Orga $orga): array => $orga->getTypes($this->globalConfig->getSubdomain())),
             $this->createAttribute($this->registrationStatuses)->readable(true, $this->getRegistrationStatuses(...)),
-            $this->createToOneRelationship($this->currentSlug, true)->readable(true),
-            $this->createToManyRelationship($this->customers)->readable(false, static fn (Orga $orga): Collection => $orga->getCustomers()),
+            $this->createToOneRelationship($this->currentSlug)->readable(true, null, true),
             $this->createToManyRelationship($this->departments)->readable(false, static fn (Orga $orga): TightencoCollection => $orga->getDepartments()),
             $this->createAttribute($this->isPlanningOrganisation)->readable(true,
                 fn (Orga $orga): bool => $orga->hasType(OrgaType::MUNICIPALITY, $this->globalConfig->getSubdomain())
@@ -198,6 +187,10 @@ final class OrgaResourceType extends DplanResourceType
             ),
             $statusInCustomers,
         ];
+
+        if ($this->resourceTypeStore->getCustomerResourceType()->isReferencable()) {
+            $properties[] = $this->createToManyRelationship($this->customers)->readable(false, static fn (Orga $orga): Collection => $orga->getCustomers());
+        }
 
         if ($this->currentUser->hasPermission('feature_institution_tag_read')) {
             $properties[] = $this->createToManyRelationship($this->ownInstitutionTags)->readable()->filterable();

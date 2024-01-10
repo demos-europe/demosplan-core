@@ -215,7 +215,7 @@ class OzgKeycloakUserDataMapper
                 if (!$orgaTypeToAdd instanceof OrgaType) {
                     throw new AuthenticationException('needed OrgaType could not be loaded and therefore cant be added');
                 }
-                $existingOrga->addCustomerAndOrgaType($customer, $orgaTypeToAdd);
+                $existingOrga->addCustomerAndOrgaType($customer, $orgaTypeToAdd, OrgaStatusInCustomer::STATUS_ACCEPTED);
             }
         }
         $this->entityManager->persist($existingOrga);

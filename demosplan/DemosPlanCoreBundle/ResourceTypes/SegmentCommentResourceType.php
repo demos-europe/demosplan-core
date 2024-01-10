@@ -12,22 +12,23 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableDqlResourceTypeInterface;
-use DemosEurope\DemosplanAddon\Logic\ResourceChange;
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
+use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseSegmentCommentResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\SegmentComment;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
-use demosplan\DemosPlanCoreBundle\Logic\SegmentCommentFactory;
+use demosplan\DemosPlanCoreBundle\Repository\SegmentCommentRepository;
+use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 use EDT\Wrapping\Contracts\AccessException;
+use EDT\Wrapping\EntityDataInterface;
+use EDT\Wrapping\PropertyBehavior\Attribute\Factory\AttributeConstructorBehaviorFactory;
+use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
+use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\Factory\ToOneRelationshipConstructorBehaviorFactory;
+use Geocoder\Assert;
 
 /**
- * @template-implements CreatableDqlResourceTypeInterface<SegmentComment>
- *
  * @template-extends DplanResourceType<SegmentComment>
  *
  * @property-read UserResourceType             $submitter
@@ -36,10 +37,11 @@ use EDT\Wrapping\Contracts\AccessException;
  * @property-read End                          $creationDate
  * @property-read End                          $text
  */
-final class SegmentCommentResourceType extends DplanResourceType implements CreatableDqlResourceTypeInterface
+final class SegmentCommentResourceType extends DplanResourceType
 {
-    public function __construct(private readonly SegmentCommentFactory $segmentCommentFactory)
-    {
+    public function __construct(
+        protected readonly SegmentCommentRepository $segmentCommentRepository
+    ) {
     }
 
     public static function getName(): string
@@ -54,16 +56,6 @@ final class SegmentCommentResourceType extends DplanResourceType implements Crea
 
     public function isAvailable(): bool
     {
-        return $this->isReferencable() || $this->isDirectlyAccessible();
-    }
-
-    public function isReferencable(): bool
-    {
-        return $this->currentUser->hasPermission('feature_segment_comment_list_on_segment');
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
         return $this->currentUser->hasPermission('feature_segment_comment_create');
     }
 
@@ -73,76 +65,58 @@ final class SegmentCommentResourceType extends DplanResourceType implements Crea
         return [];
     }
 
-    public function isCreatable(): bool
+    public function isCreateAllowed(): bool
     {
-        return $this->isDirectlyAccessible();
+        return $this->currentUser->hasPermission('feature_segment_comment_create');
     }
 
-    public function createObject(array $properties): ResourceChange
+    protected function getProperties(): ResourceConfigBuilderInterface
     {
-        /** @var Segment $segment */
-        $segment = $properties[$this->segment->getAsNamesInDotNotation()];
-        /** @var User $user */
-        $user = $properties[$this->submitter->getAsNamesInDotNotation()];
-        /** @var Place $place */
-        $place = $properties[$this->place->getAsNamesInDotNotation()];
-        /** @var string $text */
-        $text = $properties[$this->text->getAsNamesInDotNotation()];
-
-        if ($this->currentUser->getUser()->getId() !== $user->getId()) {
-            throw new AccessException('Creating comments in the name of other users is not allowed.');
-        }
-
-        if ($segment->getPlace()->getId() !== $place->getId()) {
-            throw new AccessException('Segment must be in same place as comment on creation.');
-        }
-
-        $comment = $this->segmentCommentFactory->createSegmentComment($segment, $user, $place, $text);
-
-        $this->resourceTypeService->validateObject($comment);
-        $this->resourceTypeService->validateObject(
-            $segment,
-            [
-                ResourceTypeService::VALIDATION_GROUP_DEFAULT,
-                Segment::VALIDATION_GROUP_SEGMENT_MANDATORY,
-            ]
-        );
-
-        $resourceChange = new ResourceChange($comment, $this, $properties);
-        $resourceChange->addEntityToPersist($comment);
-
-        return $resourceChange;
-    }
-
-    protected function getProperties(): array
-    {
-        $creationDate = $this->createAttribute($this->creationDate);
-        $text = $this->createAttribute($this->text);
-        $submitter = $this->createToOneRelationship($this->submitter);
-        $place = $this->createToOneRelationship($this->place);
-        $segment = $this->createToOneRelationship($this->segment);
+        $configBuilder = $this->getConfig(BaseSegmentCommentResourceConfigBuilder::class);
+        $configBuilder->id->readable();
+        $configBuilder->submitter->setRelationshipType($this->resourceTypeStore->getUserResourceType());
+        $configBuilder->place->setRelationshipType($this->resourceTypeStore->getPlaceResourceType());
 
         if ($this->currentUser->hasPermission('feature_segment_comment_list_on_segment')) {
-            $creationDate->readable(false, fn(SegmentComment $comment): string => $this->formatDate($comment->getCreationDate()));
-            $text->readable();
-            $submitter->readable();
-            $place->readable();
+            $configBuilder->creationDate
+                ->readable(false, fn (SegmentComment $comment): string => $this->formatDate($comment->getCreationDate()));
+            $configBuilder->text->readable();
+            $configBuilder->submitter->readable();
+            $configBuilder->place->readable();
         }
 
-        if ($this->isCreatable()) {
-            $submitter->initializable();
-            $place->initializable();
-            $segment->initializable();
-            $text->initializable();
+        if ($this->isCreateAllowed()) {
+            // Creating comments in the name of other users is not allowed.
+            $currentUserCondition = $this->conditionFactory->propertyHasValue(
+                $this->currentUser->getUser()->getId(),
+                Paths::user()->id
+            );
+            $configBuilder->submitter->addConstructorBehavior(new ToOneRelationshipConstructorBehaviorFactory(null, [$currentUserCondition], null));
+            $configBuilder->place->addConstructorBehavior(new ToOneRelationshipConstructorBehaviorFactory(null, [], null));
+            $configBuilder->segment
+                ->setRelationshipType($this->resourceTypeStore->getStatementSegmentResourceType())
+                ->addConstructorBehavior(new ToOneRelationshipConstructorBehaviorFactory(null, [], null));
+            $configBuilder->text->addConstructorBehavior(new AttributeConstructorBehaviorFactory(null, null));
+            $configBuilder->addPostConstructorBehavior(new FixedSetBehavior(function (SegmentComment $segmentComment, EntityDataInterface $entityData): array {
+                $segment = $segmentComment->getSegment();
+                $segmentCommentPlace = $segmentComment->getPlace();
+                Assert::notNull($segmentCommentPlace);
+                $this->segmentCommentRepository->persistEntities([$segmentComment]);
+                $segment->addComment($segmentComment);
+
+                if ($segment->getPlace()->getId() !== $segmentCommentPlace->getId()) {
+                    throw new AccessException($this, 'Segment must be in same place as comment on creation.');
+                }
+
+                $this->resourceTypeService->validateObject(
+                    $segment,
+                    [ResourceTypeService::VALIDATION_GROUP_DEFAULT, Segment::VALIDATION_GROUP_SEGMENT_MANDATORY]
+                );
+
+                return [];
+            }));
         }
 
-        return [
-            $this->createAttribute($this->id)->readable(true),
-            $creationDate,
-            $text,
-            $submitter,
-            $place,
-            $segment,
-        ];
+        return $configBuilder;
     }
 }

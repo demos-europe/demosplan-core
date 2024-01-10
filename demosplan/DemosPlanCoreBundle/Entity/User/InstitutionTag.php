@@ -90,9 +90,9 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface, Institut
      */
     private $modificationDate;
 
-    public function __construct(string $title, Orga $owningOrganisation)
+    public function __construct(string $label, Orga $owningOrganisation)
     {
-        $this->label = $title;
+        $this->label = $label;
         $this->owningOrganisation = $owningOrganisation;
         $owningOrganisation->addOwnInstitutionTag($this);
         $this->taggedInstitutions = new ArrayCollection();

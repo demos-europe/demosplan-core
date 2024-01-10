@@ -17,6 +17,9 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ImmutableArrayInterface
 use Doctrine\ORM\NoResultException;
 use Exception;
 
+/**
+ * @template-extends CoreRepository<ProcedureSubscription>
+ */
 class ProcedureSubscriptionRepository extends CoreRepository implements ImmutableArrayInterface
 {
     /**

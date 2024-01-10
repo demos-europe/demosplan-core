@@ -10,11 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\Slug;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Exception;
 
+/**
+ * @template-extends FluentRepository<Slug>
+ */
 class SlugRepository extends FluentRepository implements ObjectInterface
 {
     /**
