@@ -156,8 +156,8 @@ class ServiceStorage implements ProcedureServiceStorageInterface
 
         // check for mandatory fields which should be programmatically added
         $mandatoryFields = ['orgaId', 'orgaName', 'r_copymaster'];
-        if (array_key_exists('r_copymaster', $data) &&
-            $this->masterTemplateService->getMasterTemplateId() !== $data['r_copymaster']) {
+        if (array_key_exists('r_copymaster', $data)
+            && $this->masterTemplateService->getMasterTemplateId() !== $data['r_copymaster']) {
             // r_procedure_type is only required if an actual procedure is created,
             // procedure blueprints do not need a procedure type.
             if (!array_key_exists('r_master', $data) || 'true' !== $data['r_master']) {
@@ -403,6 +403,9 @@ class ServiceStorage implements ProcedureServiceStorageInterface
                 $this->messageBag->add('warning', 'procedure.legalnotice.cleared');
             }
         }
+
+        //        $procedure['phaseCount'] =
+
         if (array_key_exists('r_startdate', $data) && '----' != $data['r_startdate']) {
             $procedure['startDate'] = $data['r_startdate'];
         }
@@ -441,8 +444,8 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'locationPostCode');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'publicParticipationContact');
 
-        if ($this->permissions->hasPermission('feature_procedure_categories_edit') &&
-            array_key_exists('r_procedure_categories', $data)) {
+        if ($this->permissions->hasPermission('feature_procedure_categories_edit')
+            && array_key_exists('r_procedure_categories', $data)) {
             // if empty string, reset categories
             if ('' === $data['r_procedure_categories']) {
                 $data['r_procedure_categories'] = [];
@@ -462,6 +465,9 @@ class ServiceStorage implements ProcedureServiceStorageInterface
                 $procedure['publicParticipation'] = false;
             }
         }
+
+        $procedure['publicParticipationPhaseCount'] = array_key_exists('r_publicParticipationPhaseCount', $data) ?
+            $data['r_publicParticipationPhaseCount'] : 1;
 
         if (array_key_exists('r_publicParticipationStartDate', $data) && '----' !== $data['r_publicParticipationStartDate']) {
             $procedure['publicParticipationStartDate'] = $data['r_publicParticipationStartDate'];

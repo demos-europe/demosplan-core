@@ -154,6 +154,13 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     protected $phase = '';
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="p_phase_count", type="integer", nullable=false)
+     */
+    protected $phaseCount = 1;
+
+    /**
      * Readable Phase name.
      *
      * @var string
@@ -261,6 +268,13 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * @ORM\Column(name="_p_public_participation_phase", type="string", length=20, nullable=false)
      */
     protected $publicParticipationPhase = '';
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="_p_public_participation_phase_count", type="integer", nullable=false)
+     */
+    protected $publicParticipationPhaseCount = 1;
 
     /**
      * Readable publicParticipationPhase name.
@@ -824,13 +838,9 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     }
 
     /**
-     * Set pPhase.
-     *
      * @param string $phase
-     *
-     * @return Procedure
      */
-    public function setPhase($phase)
+    public function setPhase($phase): self
     {
         $this->phase = $phase;
 
@@ -2301,5 +2311,25 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         if (!$this->segmentPlaces->contains($place)) {
             $this->segmentPlaces->add($place);
         }
+    }
+
+    public function getPhaseCount(): int
+    {
+        return $this->phaseCount;
+    }
+
+    public function setPhaseCount(int $phaseCount = 1): void
+    {
+        $this->phaseCount = $phaseCount;
+    }
+
+    public function getPublicParticipationPhaseCount(): int
+    {
+        return $this->publicParticipationPhaseCount;
+    }
+
+    public function setPublicParticipationPhaseCount(int $publicParticipationPhaseCount = 1): void
+    {
+        $this->publicParticipationPhaseCount = $publicParticipationPhaseCount;
     }
 }

@@ -491,7 +491,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         // return unique and not empty values
         return collect($filesToDelete)
             ->unique()
-            ->filter(fn($value) => !is_null($value) && 0 < mb_strlen((string) $value))
+            ->filter(fn ($value) => !is_null($value) && 0 < mb_strlen((string) $value))
             ->toArray();
     }
 
@@ -499,8 +499,6 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
      * Delete single Procedure.
      *
      * @param string $procedureId
-     *
-     * @return mixed
      *
      * @throws Exception
      */
@@ -633,6 +631,9 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         if (array_key_exists('phase', $data)) {
             $procedure->setPhase($data['phase']);
         }
+        if (array_key_exists('phaseCount', $data)) {
+            $procedure->setPhaseCount($data);
+        }
         if (array_key_exists('shortUrl', $data)) {
             $procedure->setShortUrl($data['shortUrl']);
         }
@@ -664,6 +665,9 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         }
         if (array_key_exists('publicParticipationPhase', $data)) {
             $procedure->setPublicParticipationPhase($data['publicParticipationPhase']);
+        }
+        if (array_key_exists('publicParticipationPhaseCount', $data)) {
+            $procedure->setPublicParticipationPhaseCount($data['publicParticipationPhaseCount']);
         }
         if (array_key_exists('publicParticipationPublicationEnabled', $data)) {
             $procedure->setPublicParticipationPublicationEnabled($data['publicParticipationPublicationEnabled']);
