@@ -270,7 +270,10 @@ export default {
             }
           },
           type: 'User'
-        },
+        }
+      }
+
+      const options = {
         options: {
           messages: {
             200: { type: 'confirm', text: 'info.user.updated' },
@@ -284,7 +287,7 @@ export default {
         this.resetCurrentDepartment()
       }
 
-      return dpApi.patch(url, {}, payload)
+      return dpApi.patch(url, {}, payload, options)
         .then(() => {
           this.$root.$emit('save-success')
           // Update department options
