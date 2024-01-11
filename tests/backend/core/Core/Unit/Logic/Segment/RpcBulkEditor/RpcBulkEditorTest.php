@@ -125,7 +125,7 @@ class RpcBulkEditorTest extends RpcApiTest
 
     public function testGetValidTags():void
     {
-        $this->sut = $this->getContainer()->get(RpcSegmentsBulkEditor::class);
+        $this->sut = $this->getContainer()->get(SegmentBulkEditorService::class);
 
         $procedure = $this->getProcedureReference(\demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData::TESTPROCEDURE);
         $tag1 = $procedure->getTags()->get(0);
@@ -139,7 +139,7 @@ class RpcBulkEditorTest extends RpcApiTest
 
     public function testGetInvalidTags():void
     {
-        $this->sut = $this->getContainer()->get(RpcSegmentsBulkEditor::class);
+        $this->sut = $this->getContainer()->get(SegmentBulkEditorService::class);
 
         $testTag1 = $this->getTagReference('testFixtureTag_1');
         $testTag2 = $this->getTagReference('testFixtureTag_2');
