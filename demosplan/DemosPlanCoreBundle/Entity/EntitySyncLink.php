@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\EntitySyncLinkInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use Doctrine\ORM\Mapping as ORM;
@@ -29,7 +30,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @template T of \DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface
  */
-class EntitySyncLink implements UuidEntityInterface
+class EntitySyncLink implements UuidEntityInterface, EntitySyncLinkInterface
 {
     /**
      * @var string|null

@@ -85,7 +85,7 @@ export default {
      */
     dpApi.get(Routing.generate('dplan_segments_list', { procedureId: this.procedureId }))
       .then(response => {
-        const redirectUrl = response.request.responseURL
+        const redirectUrl = response.url
         const splitUrl = redirectUrl.split('/')
         const queryHash = splitUrl[splitUrl.length - 1]
         const filterData = {

@@ -21,6 +21,9 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
 
+/**
+ * @template-extends CoreRepository<NotificationReceiver>
+ */
 class NotificationReceiverRepository extends CoreRepository implements ArrayInterface, ObjectInterface
 {
     /**
