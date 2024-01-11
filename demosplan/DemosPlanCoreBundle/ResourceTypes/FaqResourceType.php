@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Faq;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
@@ -86,23 +87,23 @@ class FaqResourceType extends DplanResourceType
             $this->createAttribute($this->enabled)->readable(true)->updatable([$faqUpdateCondition]),
             $this->createAttribute($this->title)->readable(true),
             $this->createAttribute($this->invitableInstitutionVisible)
-                ->readable(true, fn (Faq $faq): bool => $faq->hasRoleGroupCode(Role::GPSORG))
+                ->readable(true, fn (Faq $faq): bool => $faq->hasRoleGroupCode(RoleInterface::GPSORG))
                 ->updatable([$faqUpdateCondition], function (Faq $faqEntity, mixed $newValue): array {
-                    $this->buildAddOrRemoveRoleGroupFunction($faqEntity, Role::GPSORG)($newValue);
+                    $this->buildAddOrRemoveRoleGroupFunction($faqEntity, RoleInterface::GPSORG)($newValue);
 
                     return [];
                 }),
             $this->createAttribute($this->publicVisible)
-                ->readable(true, fn (Faq $faq): bool => $faq->hasRoleGroupCode(Role::GGUEST))
+                ->readable(true, fn (Faq $faq): bool => $faq->hasRoleGroupCode(RoleInterface::GGUEST))
                 ->updatable([$faqUpdateCondition], function (Faq $faqEntity, mixed $newValue): array {
-                    $this->buildAddOrRemoveRoleGroupFunction($faqEntity, Role::GGUEST)($newValue);
+                    $this->buildAddOrRemoveRoleGroupFunction($faqEntity, RoleInterface::GGUEST)($newValue);
 
                     return [];
                 }),
             $this->createAttribute($this->fpVisible)
-                ->readable(true, fn (Faq $faq): bool => $faq->hasRoleGroupCode(Role::GLAUTH))
+                ->readable(true, fn (Faq $faq): bool => $faq->hasRoleGroupCode(RoleInterface::GLAUTH))
                 ->updatable([$faqUpdateCondition], function (Faq $faqEntity, mixed $newValue): array {
-                    $this->buildAddOrRemoveRoleGroupFunction($faqEntity, Role::GLAUTH)($newValue);
+                    $this->buildAddOrRemoveRoleGroupFunction($faqEntity, RoleInterface::GLAUTH)($newValue);
 
                     return [];
                 }),
