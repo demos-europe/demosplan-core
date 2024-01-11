@@ -5,11 +5,14 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 
 
 class SegmentBulkEditorService
 {
-    public function __construct(
+    public function __construct(protected UserHandler $userHandler
 
     ) {
 
@@ -29,6 +32,32 @@ class SegmentBulkEditorService
 
             return $segments;
         }
+
+    /**
+     * @throws UserNotFoundException
+     */
+    public function detectAssignee($assigneeId): ?User
+    {
+
+        if (!$assigneeId) {
+            return null;
+        }
+
+        $assigneeId = trim($assigneeId);
+
+        if (!$assigneeId) {
+            throw new UserNotFoundException();
+        }
+
+        $user = $this->userHandler->getSingleUser($assigneeId);
+
+        if (!$user) {
+            throw new UserNotFoundException();
+        }
+
+        return $user;
+
+    }
 
 
 }

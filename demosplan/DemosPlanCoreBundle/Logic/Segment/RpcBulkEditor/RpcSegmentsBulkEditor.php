@@ -117,7 +117,11 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                         $rpcRequest->params->removeTagIds,
                         $procedureId
                     );
-                    $assignee = $this->detectAssignee($rpcRequest);
+
+
+                    $assigneeId = data_get($rpcRequest, 'params.assigneeId', '') ?  : null;
+
+                    $assignee = $this->segmentBulkEditorService->detectAssignee($assigneeId);
                     $workflowPlace = $this->extractWorkflowPlace($rpcRequest);
 
                     $segments = $this->segmentBulkEditorService->updateSegments($segments, $addTagIds, $removeTagIds, $assignee, $workflowPlace);
@@ -294,30 +298,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
     }
 
 
-    /**
-     * @throws UserNotFoundException
-     */
-    public function detectAssignee(object $rpcRequest): ?User
-    {
-        $assigneeId = data_get($rpcRequest, 'params.assigneeId', '');
 
-        if (!$assigneeId) {
-            return null;
-        }
-
-        if (!$this->isValidAssigneeId($assigneeId)) {
-            throw new UserNotFoundException();
-        }
-
-        $user = $this->userHandler->getSingleUser($assigneeId);
-
-        if (!$user) {
-            throw new UserNotFoundException();
-        }
-
-        return $user;
-
-    }
 
     private function extractAssigneeId(object $rpcRequest): string
     {
