@@ -13,19 +13,15 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Exception;
-use EFrane\ConsoleAdditions\Batch\Batch;
-use Symfony\Component\Console\Command\Command;
 
-class ProcedureDeleter extends CoreService
+class ProcedureDeleterService
 {
     private array $procedureIds;
 
     private bool $isDryRun;
 
-    private bool $withoutRepopulate;
-
     public function __construct(
-        private readonly Connection $dbConnection,
+        private readonly Connection $dbConnection
     ) {
     }
 
@@ -39,15 +35,10 @@ class ProcedureDeleter extends CoreService
         $this->isDryRun = $isDryRun;
     }
 
-    public function setRepopulate(bool $withoutRepopulate = false)
-    {
-        $this->withoutRepopulate = $withoutRepopulate;
-    }
-
     /**
      * @throws Exception
      */
-    public function deleteProcedures(): int
+    public function deleteProcedures(): void
     {
         try {
             // start doctrine transaction
@@ -148,11 +139,6 @@ class ProcedureDeleter extends CoreService
 
             // commit all changes
             $this->dbConnection->commit();
-
-            // repopulate Elasticsearch
-           // $this->repopulateElasticsearch();
-
-            return Command::SUCCESS;
         } catch (Exception $e) {
             // rollback all changes
             $this->dbConnection->rollBack();
@@ -168,7 +154,7 @@ class ProcedureDeleter extends CoreService
      */
     private function processAllStatements(): void
     {
-        $statementIds = array_column($this->fetchFromTableByProcedures(['_st_id'], '_statement', '_p_id'), '_st_id');
+        $statementIds = array_column($this->fetchFromTableByParameter(['_st_id'], '_statement', '_p_id', $this->procedureIds), '_st_id');
 
         // delete statement meta
         $this->deleteStatementMeta($statementIds);
@@ -218,7 +204,7 @@ class ProcedureDeleter extends CoreService
      */
     private function processElements(): void
     {
-        $elementsData = $this->fetchFromTableByProcedures(['_e_file'], '_elements', '_p_id');
+        $elementsData = $this->fetchFromTableByParameter(['_e_file'], '_elements', '_p_id', $this->procedureIds);
 
         $this->deleteFiles(array_column($elementsData, '_e_file'));
         $this->deleteElements();
@@ -229,7 +215,7 @@ class ProcedureDeleter extends CoreService
      */
     private function processFormDefinitions(): void
     {
-        $formDefinitionsData = array_column($this->fetchFromTableByProcedures(['id'], 'statement_form_definition', 'procedure_id'), 'id');
+        $formDefinitionsData = array_column($this->fetchFromTableByParameter(['id'], 'statement_form_definition', 'procedure_id', $this->procedureIds), 'id');
 
         $this->deleteFieldDefinitions($formDefinitionsData);
         $this->deleteFormDefinitions($formDefinitionsData);
@@ -240,7 +226,7 @@ class ProcedureDeleter extends CoreService
      */
     private function processGisLayers(): void
     {
-        $gisCategoriesData = array_column($this->fetchFromTableByProcedures(['id'], 'gis_layer_category', 'procedure_id'), 'id');
+        $gisCategoriesData = array_column($this->fetchFromTableByParameter(['id'], 'gis_layer_category', 'procedure_id', $this->procedureIds), 'id');
 
         $this->deleteGisLayers($gisCategoriesData);
         $this->deleteGisCategories($gisCategoriesData);
@@ -251,7 +237,7 @@ class ProcedureDeleter extends CoreService
      */
     private function processTags(): void
     {
-        $tagTopicData = array_column($this->fetchFromTableByProcedures(['_tt_id'], '_tag_topic', '_p_id'), '_tt_id');
+        $tagTopicData = array_column($this->fetchFromTableByParameter(['_tt_id'], '_tag_topic', '_p_id', $this->procedureIds), '_tt_id');
 
         $this->deleteTags($tagTopicData);
         $this->deleteTagTopics();
@@ -262,7 +248,7 @@ class ProcedureDeleter extends CoreService
      */
     private function processImportEmails(): void
     {
-        $importEmailData = array_column($this->fetchFromTableByProcedures(['id'], 'statement_import_email', 'procedure_id'), 'id');
+        $importEmailData = array_column($this->fetchFromTableByParameter(['id'], 'statement_import_email', 'procedure_id', $this->procedureIds), 'id');
 
         $this->processImportEmailAttachments($importEmailData);
         $this->deleteImportEmailOriginalStatements($importEmailData);
@@ -275,7 +261,7 @@ class ProcedureDeleter extends CoreService
     private function processImportEmailAttachments(array $importEmailIds): void
     {
         if (!$this->doesTableExist('statement_import_email_attachments')) {
-            throw Exception::invalidTableName('statement_import_email_attachments');
+            throw new Exception("No table with the name 'statement_import_email_attachments' exists in this database. Data could not be fetched.");
         }
 
         $importEmailAttachmentQueryBuilder = $this->dbConnection->createQueryBuilder();
@@ -291,9 +277,12 @@ class ProcedureDeleter extends CoreService
         $this->deleteStatementImportEmailAttachments($importEmailIds);
     }
 
+    /**
+     * @throws Exception
+     */
     private function processPredefinedTexts(): void
     {
-        $predefinedTextCategoriesData = array_column($this->fetchFromTableByProcedures(['ptc_id'], '_predefined_texts_category', '_p_id'), 'ptc_id');
+        $predefinedTextCategoriesData = array_column($this->fetchFromTableByParameter(['ptc_id'], '_predefined_texts_category', '_p_id', $this->procedureIds), 'ptc_id');
 
         $this->deletePredefinedTextsCategoriesRelation($predefinedTextCategoriesData);
         $this->deletePredefinedTextsCategories();
@@ -301,9 +290,12 @@ class ProcedureDeleter extends CoreService
         $this->deleteBoilerplateGroup();
     }
 
+    /**
+     * @throws Exception
+     */
     private function processAnnotatedStatementPdfs(): void
     {
-        $annotatedStatementPdfData = $this->fetchFromTableByProcedures(['id', 'file'], 'annotated_statement_pdf', '_procedure');
+        $annotatedStatementPdfData = $this->fetchFromTableByParameter(['id', 'file'], 'annotated_statement_pdf', '_procedure', $this->procedureIds);
 
         $this->deleteAnnotatedStatementPdfPages(array_column($annotatedStatementPdfData, 'id'));
         $this->deleteAnnotatedStatementPdfs();
@@ -643,7 +635,7 @@ class ProcedureDeleter extends CoreService
     private function deleteReportEntriesByIdentifierAndType(string $identifierType, array $identifierArray): void
     {
         if (!$this->doesTableExist('_report_entries')) {
-            throw Exception::invalidTableName('_report_entries');
+            throw new Exception("No table with the name '_report_entries' exists in this database. Data could not be fetched.");
         }
 
         $deletionQueryBuilder = $this->dbConnection->createQueryBuilder();
@@ -667,7 +659,7 @@ class ProcedureDeleter extends CoreService
     private function deleteStatementEntityContentChange(array $identifierArray): void
     {
         if (!$this->doesTableExist('entity_content_change')) {
-            throw Exception::invalidTableName('entity_content_change');
+            throw new Exception("No table with the name 'entity_content_change' exists in this database. Data could not be fetched.");
         }
 
         $deletionQueryBuilder = $this->dbConnection->createQueryBuilder();
@@ -692,7 +684,7 @@ class ProcedureDeleter extends CoreService
     private function deleteFromTableByIdentifierArray(string $tableName, string $identifier, array $ids): void
     {
         if (!$this->doesTableExist($tableName)) {
-            throw Exception::invalidTableName($tableName);
+            throw new Exception("No table with the name $tableName exists in this database. Data could not be fetched.");
         }
 
         $deletionQueryBuilder = $this->dbConnection->createQueryBuilder();
@@ -711,29 +703,10 @@ class ProcedureDeleter extends CoreService
     /**
      * @throws Exception
      */
-    public function fetchFromTableByProcedures(array $targetColumns, string $tableName, string $identifier): array
-    {
-        if (!$this->doesTableExist($tableName)) {
-            throw Exception::invalidTableName($tableName);
-        }
-
-        $fetchQueryBuilder = $this->dbConnection->createQueryBuilder();
-        $fetchQueryBuilder
-            ->select(...$targetColumns)
-            ->from($tableName)
-            ->where($identifier.' IN (:idList)')
-            ->setParameter('idList', $this->procedureIds, ArrayParameterType::STRING);
-
-        return $fetchQueryBuilder->fetchAllAssociative();
-    }
-
-    /**
-     * @throws Exception
-     */
     public function fetchFromTableByParameter(array $targetColumns, string $tableName, string $identifier, array $parameter): array
     {
         if (!$this->doesTableExist($tableName)) {
-            throw Exception::invalidTableName($tableName);
+            throw new Exception("No table with the name $tableName exists in this database. Data could not be fetched.");
         }
 
         $fetchQueryBuilder = $this->dbConnection->createQueryBuilder();
@@ -769,21 +742,6 @@ class ProcedureDeleter extends CoreService
     private function doesTableExist(string $tableName): bool
     {
         return $this->dbConnection->createSchemaManager()->tablesExist([$tableName]);
-    }
-
-    private function repopulateElasticsearch(): void
-    {
-        if ($this->isDryRun || $this->withoutRepopulate) {
-            return;
-        }
-
-        $env = $this->parameterBag->get('kernel.environment');
-        $this->output->writeln("Repopulating ES with env: $env");
-
-        $repopulateEsCommand = 'dev' === $env ? 'dplan:elasticsearch:populate' : 'dplan:elasticsearch:populate -e prod --no-debug';
-        Batch::create($this->getApplication(), $this->output)
-            ->add($repopulateEsCommand)
-            ->run();
     }
 
     /**
