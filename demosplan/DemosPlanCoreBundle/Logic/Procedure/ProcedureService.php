@@ -1797,8 +1797,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
     public function isCustomerMasterBlueprintExisting(string $customerId): bool
     {
-        return
-            $this->customerService->findCustomerById($customerId)?->getDefaultProcedureBlueprint() instanceof Procedure;
+        return $this->customerService->findCustomerById($customerId)?->getDefaultProcedureBlueprint() instanceof Procedure;
     }
 
     /**
