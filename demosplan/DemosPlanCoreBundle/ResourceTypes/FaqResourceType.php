@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Faq;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
@@ -66,6 +67,20 @@ class FaqResourceType extends DplanResourceType
 
     protected function getProperties(): array
     {
+        $customerId = $this->currentCustomerService->getCurrentCustomer()->getId();
+
+        // ensure updates are done only to FAQ items in the current customer
+        $faqUpdateCondition = $this->conditionFactory->propertyHasValue(
+            $customerId,
+            Paths::faq()->faqCategory->customer->id
+        );
+
+        // ensure FAQ items are not moved into categories of different customers
+        $categoryUpdateRelationshipCondition = $this->conditionFactory->propertyHasValue(
+            $customerId,
+            Paths::faqCategory()->customer->id
+        );
+
         return [
             $this->createIdentifier()->readable(),
             $this->createAttribute($this->enabled)->readable(true)->updatable(),
@@ -91,6 +106,7 @@ class FaqResourceType extends DplanResourceType
 
                     return [];
                 }),
+            $this->createToOneRelationship($this->faqCategory)->updatable([$faqUpdateCondition], [$categoryUpdateRelationshipCondition]),
         ];
     }
 
