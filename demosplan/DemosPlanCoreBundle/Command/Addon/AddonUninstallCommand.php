@@ -10,16 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\Addon;
 
-use Composer\Package\Loader\ArrayLoader;
-use Composer\Package\PackageInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
-use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Addon\AddonInfo;
 use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
-use demosplan\DemosPlanCoreBundle\Addon\Composer\PackageInformation;
 use demosplan\DemosPlanCoreBundle\Addon\Registrator;
+use demosplan\DemosPlanCoreBundle\Command\Addon\Traits\AddonCommandTrait;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
-use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -28,10 +23,11 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
-use Symfony\Component\Filesystem\Filesystem;
 
 class AddonUninstallCommand extends CoreCommand
 {
+    use AddonCommandTrait;
+
     protected static $defaultName = 'dplan:addon:uninstall';
     protected static $defaultDescription = 'Uninstall installed addons';
 
@@ -113,58 +109,9 @@ class AddonUninstallCommand extends CoreCommand
 
         return self::SUCCESS;
     }
-    /**
-     * @throws JsonException
-     */
-    private function loadPackageDefinition(AddonInfo $addonInfo): PackageInterface
-    {
-        $loader = new ArrayLoader();
-        $installPath = $addonInfo->getInstallPath();
-        $composerJsonArray = Json::decodeToArray(file_get_contents($installPath.'/composer.json'));
-        if (!array_key_exists('version', $composerJsonArray)) {
-            $composerJsonArray['version'] = PackageInformation::UNDEFINED_VERSION;
-        }
 
-        return $loader->load($composerJsonArray);
-    }
-    /**
-     * @throws IOExceptionInterface
-     */
-    private function deleteDirectory(AddonInfo $addonInfo, SymfonyStyle $output): void
+    protected function getRegistrator(): Registrator
     {
-        $installPath = $addonInfo->getInstallPath();
-        $filesystem = new Filesystem();
-        // remove files in symlinked target if they exist
-        $symlinkedPath = $filesystem->readlink($installPath, true);
-        if (null !== $symlinkedPath) {
-            $filesystem->remove($symlinkedPath);
-        }
-        $filesystem->remove($installPath);
-        $output->info("Addon successfully deleted from cache directory.");
-    }
-
-    private function removeEntryInAddonsDefinition(AddonInfo $addonInfo, SymfonyStyle $output): void
-    {
-        $package = $this->loadPackageDefinition($addonInfo);
-        $this->registrator->remove($package);
-        $output->info("Addon entry in addons.yml deleted successfully.");
-    }
-
-    private function removeComposerPackage(AddonInfo $addonInfo, SymfonyStyle $output): void
-    {
-        $kernel = $this->getApplication()->getKernel();
-        $environment = $kernel->getEnvironment();
-        $activeProject = $this->getApplication()->getKernel()->getActiveProject();
-        $batchReturn = Batch::create($this->getApplication(), $output)
-            ->addShell(['composer', 'remove', $addonInfo->getName(), '--working-dir=addons'])
-            ->addShell(['composer', 'bin', 'addons', 'update', '-a', '-o', '--prefer-lowest'])
-            // do not warm up cache to avoid errors as the addon is still referenced in the container
-            ->addShell(["bin/{$activeProject}", 'cache:clear', '-e', $environment, '--no-warmup'])
-            ->run();
-
-        if (0 !== $batchReturn) {
-            throw new \RuntimeException('Composer remove failed');
-        }
-        $output->info("composer package removed successfully.");
+        return $this->registrator;
     }
 }

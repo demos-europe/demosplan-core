@@ -23,8 +23,10 @@ use Composer\Package\RootPackage;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Addon\AddonManifestCollection;
+use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\Addon\Composer\PackageInformation;
 use demosplan\DemosPlanCoreBundle\Addon\Registrator;
+use demosplan\DemosPlanCoreBundle\Command\Addon\Traits\AddonCommandTrait;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Exception\AddonException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
@@ -38,6 +40,8 @@ use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Yaml\Yaml;
@@ -52,6 +56,8 @@ use ZipArchive;
  */
 class AddonInstallFromZipCommand extends CoreCommand
 {
+    use AddonCommandTrait;
+
     protected static $defaultName = 'dplan:addon:install';
     protected static $defaultDescription = 'Installs an addon based on a given zip-file';
 
@@ -60,7 +66,7 @@ class AddonInstallFromZipCommand extends CoreCommand
     private string $addonsDirectory;
     private string $addonsCacheDirectory;
 
-    public function __construct(private readonly Registrator $installer, ParameterBagInterface $parameterBag, string $name = null)
+    public function __construct(private readonly AddonRegistry $registry, private readonly Registrator $registrator, ParameterBagInterface $parameterBag, string $name = null)
     {
         parent::__construct($parameterBag, $name);
     }
@@ -117,8 +123,10 @@ class AddonInstallFromZipCommand extends CoreCommand
 
         try {
             $packageDefinition = $this->loadPackageDefinition();
-
-            $this->checkReinstall($packageDefinition, $reinstall);
+            // todo throws error when installing same package twice without --reinstall
+            if (!$reinstall) {
+               $this->prepareInstall($input, $output, $packageDefinition);
+            }
 
             $this->addAddonToComposerRequire($packageDefinition);
         } catch (JsonException|AddonException $e) {
@@ -149,7 +157,7 @@ class AddonInstallFromZipCommand extends CoreCommand
 
         try {
             // If composer update went well, add the addon to the registry
-            $name = $this->installer->register($packageDefinition, $enable);
+            $name = $this->registrator->register($packageDefinition, $enable);
 
             $kernel = $this->getApplication()->getKernel();
             $environment = $kernel->getEnvironment();
@@ -315,11 +323,38 @@ class AddonInstallFromZipCommand extends CoreCommand
         }
     }
 
-    public function checkReinstall(PackageInterface $packageDefinition, bool $reinstall): void
+    public function prepareInstall(InputInterface $input, SymfonyStyle $output, PackageInterface $packageDefinition): void
     {
         $addons = AddonManifestCollection::load();
-        if (array_key_exists($packageDefinition->getName(), $addons) && !$reinstall) {
+        $addonName = $packageDefinition->getName();
+        if (!array_key_exists($addonName, $addons)) {
+
+            return;
+        }
+
+        $question = new ConfirmationQuestion('Addon already exists. Do you want to update or install chosen version anyhow? ');
+        if (!$this->getHelper('question')->ask($input, $output, $question)) {
             throw AddonException::alreadyInstalled();
         }
+
+        // when updating, remove existing version first
+        $this->removeExistingAddonVersion($output, $addonName);
+    }
+
+    private function removeExistingAddonVersion(SymfonyStyle $output, string $addonName): void
+    {
+        $addonsInfos = $this->registry->getAddonInfos();
+        $addonInfo = $addonsInfos[$addonName];
+        // remove entry in addons.yml
+        $this->removeEntryInAddonsDefinition($addonInfo, $output);
+        // remove files at install_path
+        $this->deleteDirectory($addonInfo, $output);
+        // remove from composer
+        $this->removeComposerPackage($addonInfo, $output, false);
+    }
+
+    protected function getRegistrator(): Registrator
+    {
+        return $this->registrator;
     }
 }
