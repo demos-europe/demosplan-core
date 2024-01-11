@@ -214,7 +214,6 @@ export default {
             'recommendation'
           ].join(),
           SegmentComment: [
-            'id',
             'creationDate',
             'text',
             'submitter',
