@@ -14,12 +14,10 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Workflow;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
-use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\ReorderEntityListByInteger;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
@@ -185,16 +183,9 @@ class RpcPlaceListReorder implements RpcMethodSolverInterface
     {
         $procedureCondition = $this->conditionFactory->propertyHasValue($procedureId, $this->placeResourceType->procedure->id);
         $sortMethod = $this->sortMethodFactory->propertyAscending(['sortIndex']);
-
-        if (!$this->placeResourceType instanceof UpdatableDqlResourceTypeInterface) {
-            throw new AccessDeniedException('Entity is not Updatable');
-        }
-
-        /** @var array<int, Place> $places */
-        $places = $this->placeResourceType->listEntities([$procedureCondition], [$sortMethod]);
+        $places = $this->placeResourceType->getEntities([$procedureCondition], [$sortMethod]);
 
         $result = new ArrayCollection();
-        /** @var Place $place */
         foreach ($places as $place) {
             $result->set($place->getSortIndex(), $place);
         }

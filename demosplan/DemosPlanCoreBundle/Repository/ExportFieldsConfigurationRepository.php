@@ -17,6 +17,9 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 
+/**
+ * @template-extends CoreRepository<ExportFieldsConfiguration>
+ */
 class ExportFieldsConfigurationRepository extends CoreRepository implements ObjectInterface
 {
     /**

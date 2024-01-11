@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Validator;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -29,7 +30,7 @@ class StatementValidator
      * @param Statement|DraftStatement $statement
      * @param string[]                 $validationGroups
      */
-    public function validate($statement, array $validationGroups = ['Default']): ConstraintViolationListInterface
+    public function validate($statement, array $validationGroups = [ResourceTypeService::VALIDATION_GROUP_DEFAULT]): ConstraintViolationListInterface
     {
         return $this->validator->validate($statement, null, $validationGroups);
     }

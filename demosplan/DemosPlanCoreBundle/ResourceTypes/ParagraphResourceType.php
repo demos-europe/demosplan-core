@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<Paragraph>
@@ -40,12 +39,12 @@ final class ParagraphResourceType extends DplanResourceType
         return $this->currentUser->hasPermission('field_procedure_documents');
     }
 
-    public function isReferencable(): bool
+    public function isGetAllowed(): bool
     {
-        return true;
+        return false;
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isListAllowed(): bool
     {
         return false;
     }
@@ -57,10 +56,14 @@ final class ParagraphResourceType extends DplanResourceType
 
     protected function getProperties(): array
     {
-        return [
-            $this->createAttribute($this->id)->readable(true)->filterable(),
+        $properties = [
+            $this->createIdentifier()->readable()->filterable(),
             $this->createAttribute($this->title)->readable(true)->sortable()->filterable(),
-            $this->createToOneRelationship($this->element)->readable(),
         ];
+        if ($this->currentUser->hasPermission('field_procedure_elements')) {
+            $properties[] = $this->createToOneRelationship($this->element)->readable();
+        }
+
+        return $properties;
     }
 }

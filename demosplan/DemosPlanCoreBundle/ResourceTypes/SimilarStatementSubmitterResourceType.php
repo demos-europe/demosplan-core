@@ -12,17 +12,17 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableDqlResourceTypeInterface;
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
-use DemosEurope\DemosplanAddon\Logic\ResourceChange;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
+use EDT\Wrapping\Contracts\ContentField;
+use EDT\Wrapping\CreationDataInterface;
+use EDT\Wrapping\PropertyBehavior\Attribute\Factory\AttributeConstructorBehaviorFactory;
+use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\Factory\RequiredToOneRelationshipConstructorBehaviorFactory;
+use Webmozart\Assert\Assert;
 
 /**
  * @template-extends DplanResourceType<ProcedurePerson>
@@ -36,24 +36,11 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  * @property-read StatementResourceType $similarStatements
  * @property-read ProcedureResourceType $procedure
  */
-final class SimilarStatementSubmitterResourceType extends DplanResourceType implements CreatableDqlResourceTypeInterface, UpdatableDqlResourceTypeInterface
+final class SimilarStatementSubmitterResourceType extends DplanResourceType
 {
-    public function __construct(private readonly StatementService $statementService)
-    {
-    }
-
-    public function createObject(array $properties): ResourceChange
-    {
-        $inputProcedure = $properties[$this->procedure->getAsNamesInDotNotation()];
-        $procedure = $this->currentProcedureService->getProcedure();
-        if (null === $procedure || !$inputProcedure instanceof Procedure || $inputProcedure->getId() !== $procedure->getId()) {
-            throw new InvalidArgumentException('Expected the procedure the user authorized for to be the same as the procedure the instance is to be created with.');
-        }
-
-        $change = $this->statementService->createPersonAndAddToStatementWithResourceType($properties);
-        $this->resourceTypeService->validateObject($change->getTargetResource());
-
-        return $change;
+    public function __construct(
+        private readonly ProcedureRepository $procedureRepository
+    ) {
     }
 
     public static function getName(): string
@@ -64,15 +51,41 @@ final class SimilarStatementSubmitterResourceType extends DplanResourceType impl
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true),
-            $this->createAttribute($this->fullName)->readable()->sortable()->initializable(),
-            $this->createAttribute($this->city)->readable()->initializable(true),
-            $this->createAttribute($this->streetName)->readable()->initializable(true),
-            $this->createAttribute($this->streetNumber)->readable()->initializable(true),
-            $this->createAttribute($this->postalCode)->readable()->initializable(true),
-            $this->createAttribute($this->emailAddress)->readable()->initializable(true),
-            $this->createAttribute($this->similarStatements)->initializable(true),
-            $this->createAttribute($this->procedure)->initializable(),
+            $this->createIdentifier()->readable(),
+            $this->createAttribute($this->fullName)->readable()->sortable()->updatable()
+                ->addConstructorBehavior(new AttributeConstructorBehaviorFactory(null, null)),
+            $this->createAttribute($this->city)->readable()->initializable(true)->updatable(),
+            $this->createAttribute($this->streetName)->readable()->initializable(true)->updatable(),
+            $this->createAttribute($this->streetNumber)->readable()->initializable(true)->updatable(),
+            $this->createAttribute($this->postalCode)->readable()->initializable(true)->updatable(),
+            $this->createAttribute($this->emailAddress)->readable()->initializable(true)->updatable(),
+            $this->createToManyRelationship($this->similarStatements)->initializable(
+                true,
+                function (ProcedurePerson $submitter, array $similarStatements): array {
+                    /** @var Statement $statement */
+                    foreach ($similarStatements as $statement) {
+                        $statement->getSimilarStatementSubmitters()->add($submitter);
+                    }
+                    $this->procedureRepository->persistEntities($similarStatements);
+
+                    return [];
+                }),
+            $this->createToOneRelationship($this->procedure)->addConstructorBehavior(new RequiredToOneRelationshipConstructorBehaviorFactory(
+                function (CreationDataInterface $entityData): array {
+                    $currentProcedure = $this->currentProcedureService->getProcedure();
+                    $toOneRelationships = $entityData->getToOneRelationships();
+                    $procedureRef = $toOneRelationships[$this->procedure->getAsNamesInDotNotation()];
+                    Assert::notNull($procedureRef);
+                    Assert::notNull($currentProcedure);
+                    $procedureId = $currentProcedure->getId();
+                    Assert::notNull($procedureId);
+                    if ($procedureRef != [ContentField::ID => $procedureId, ContentField::TYPE => ProcedureResourceType::getName()]) {
+                        throw new InvalidArgumentException('Expected the procedure the user authorized for to be the same as the procedure the instance is to be created with.');
+                    }
+
+                    return [$currentProcedure, []];
+                }
+            )),
         ];
     }
 
@@ -86,14 +99,9 @@ final class SimilarStatementSubmitterResourceType extends DplanResourceType impl
         return $this->currentUser->hasPermission('feature_similar_statement_submitter');
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isUpdateAllowed(): bool
     {
-        return true;
-    }
-
-    public function isReferencable(): bool
-    {
-        return true;
+        return $this->currentUser->hasPermission('feature_similar_statement_submitter');
     }
 
     protected function getAccessConditions(): array
@@ -108,34 +116,8 @@ final class SimilarStatementSubmitterResourceType extends DplanResourceType impl
         return [$this->conditionFactory->propertyHasValue($procedureId, $this->procedure->id)];
     }
 
-    /**
-     * @param ProcedurePerson $object
-     */
-    public function updateObject(object $object, array $properties): ResourceChange
+    public function isCreateAllowed(): bool
     {
-        $updater = new PropertiesUpdater($properties);
-        $updater->ifPresent($this->fullName, $object->setFullName(...));
-        $this->statementService->updatePersonEditableProperties($updater, $object);
-
-        $this->resourceTypeService->validateObject($object);
-
-        return new ResourceChange($object, $this, $properties);
-    }
-
-    public function getUpdatableProperties(object $updateTarget): array
-    {
-        return $this->toProperties(
-            $this->fullName,
-            $this->city,
-            $this->streetName,
-            $this->streetNumber,
-            $this->postalCode,
-            $this->emailAddress,
-        );
-    }
-
-    public function isCreatable(): bool
-    {
-        return true;
+        return $this->currentUser->hasPermission('feature_similar_statement_submitter');
     }
 }

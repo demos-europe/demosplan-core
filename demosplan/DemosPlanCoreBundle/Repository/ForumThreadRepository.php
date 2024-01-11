@@ -10,14 +10,17 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\NoResultException;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumThread;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Exception;
 
+/**
+ * @template-extends CoreRepository<ForumThread>
+ */
 class ForumThreadRepository extends CoreRepository implements ArrayInterface
 {
     /**
@@ -125,8 +128,6 @@ class ForumThreadRepository extends CoreRepository implements ArrayInterface
 
     /**
      * Ermittelt den Initial-Beitrag zu einem bestimmten Thread.
-     *
-     * @param ForumThread $thread, Thread dessen Initial-Beitrag ermittelt werden soll
      *
      * @return ForumEntry|null beitrag, mit dem ein besitmmter Thread eröffnet wurde
      *

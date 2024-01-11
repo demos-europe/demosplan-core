@@ -47,12 +47,12 @@ final class RoleResourceType extends DplanResourceType
         return true;
     }
 
-    public function isReferencable(): bool
+    public function isGetAllowed(): bool
     {
-        return true;
+        return false;
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isListAllowed(): bool
     {
         return false;
     }
@@ -70,8 +70,8 @@ final class RoleResourceType extends DplanResourceType
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)
-                ->readable(true)
+            $this->createIdentifier()
+                ->readable()
                 ->filterable()
                 ->sortable()
                 ->aliasedPath($this->ident),
