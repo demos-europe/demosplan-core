@@ -74,8 +74,7 @@ class ResourceServiceTest extends FunctionalTestCase
         /** @var CurrentProcedureService $currentProcedureService */
         $currentProcedureService = self::$container->get(CurrentProcedureService::class);
         $currentProcedureService->setProcedure($expected->getProcedure());
-
-        $actual = $this->statementResourceType->getEntityAsReadTarget($expected->getId());
+        $actual = $this->statementResourceType->getEntity($expected->getId());
 
         self::assertSame($expected, $actual);
     }
@@ -103,12 +102,12 @@ class ResourceServiceTest extends FunctionalTestCase
         self::assertFalse($expected->isDeleted());
         self::assertNull($expected->getHeadStatement());
 
-        $listResult = $this->statementResourceType->listEntities([
+        $listResult = $this->statementResourceType->getEntities([
             $this->conditionFactory->propertyHasValue(
                 $expected->getAuthorName(),
                 $this->statementResourceType->authorName
             ),
-        ]);
+        ], []);
 
         self::assertCount(1, $listResult);
         self::assertSame($expected, $listResult[0]);
@@ -131,8 +130,8 @@ class ResourceServiceTest extends FunctionalTestCase
         self::assertNotNull($masterToeb);
         self::assertFalse($expected->isDeleted());
 
-        $listResult = $this->orgaResourceType->listEntities(
-            [$this->conditionFactory->propertyIsNotNull($this->orgaResourceType->masterToeb)]
+        $listResult = $this->orgaResourceType->getEntities(
+            [$this->conditionFactory->propertyIsNotNull($this->orgaResourceType->masterToeb)], []
         );
 
         self::assertCount(1, $listResult);
@@ -159,8 +158,8 @@ class ResourceServiceTest extends FunctionalTestCase
 
         self::assertEmpty($expected->getSegmentsOfStatement());
 
-        $listResult = $this->statementResourceType->listEntities(
-            [$this->conditionFactory->propertyHasSize(0, $this->statementResourceType->segments)]
+        $listResult = $this->statementResourceType->getEntities(
+            [$this->conditionFactory->propertyHasSize(0, $this->statementResourceType->segments)], []
         );
 
         self::assertGreaterThan(1, $listResult);

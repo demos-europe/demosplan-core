@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\ManualListSortInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use Doctrine\ORM\Mapping as ORM;
@@ -21,7 +22,7 @@ use function is_string;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ManualListSortRepository")
  */
-class ManualListSort extends CoreEntity implements UuidEntityInterface
+class ManualListSort extends CoreEntity implements UuidEntityInterface, ManualListSortInterface
 {
     /**
      * @var string|null

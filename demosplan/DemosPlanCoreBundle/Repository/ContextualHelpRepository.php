@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
@@ -21,6 +22,9 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Exception;
 
+/**
+ * @template-extends FluentRepository<ContextualHelp>
+ */
 class ContextualHelpRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
     /**
@@ -181,6 +185,7 @@ class ContextualHelpRepository extends FluentRepository implements ArrayInterfac
                 $this->getEntityManager()->persist($help);
                 $this->getEntityManager()->flush();
             }
+
             // if no just return
             return true;
         }

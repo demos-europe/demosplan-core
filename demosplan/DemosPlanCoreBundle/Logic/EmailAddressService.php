@@ -32,10 +32,7 @@ class EmailAddressService extends CoreService
     public function deleteOrphanEmailAddresses(): int
     {
         $event = new GetEmailIdsEvent();
-        $this->eventDispatcher->dispatch(
-            $event,
-            GetEmailIdsEventInterface::class
-        );
+        $this->eventDispatcher->dispatch($event, GetEmailIdsEventInterface::class);
 
         $emailIds = $event->getEmailIds();
 
