@@ -113,6 +113,12 @@ class ProcedureToLegacyConverter extends CoreService
         $dataInputOrgaIds = $procedure->getDataInputOrgaIds();
         $authorizedUserIds = $procedure->getAuthorizedUserIds();
 
+        // T34551 changed the relation of procedure to customer.
+        // previously the procedure->customer relation was null Except for the default-customer-blueprint.
+        // Now only the customer holds the relation to its default-blueprint.
+        $customerToLegacy = $procedure->getId() === $procedure->getCustomer()?->getDefaultProcedureBlueprint()?->getId() ?
+            $procedure->getCustomer() : null;
+
         // explicitly define legacy procedure array to be able to optimize database calls
         // (e.g. avoid costly getOrganisationIds() call). More over there is no need to automatically
         // include new properties to the legacy array
@@ -127,7 +133,7 @@ class ProcedureToLegacyConverter extends CoreService
             'coordinate'                            => $procedure->getCoordinate(),
             'createdDate'                           => $procedure->getCreatedDate(),
             'currentSlug'                           => $procedure->getCurrentSlug(),
-            'customer'                              => $procedure->getCustomer(),
+            'customer'                              => $customerToLegacy,
             'dataInputOrganisations'                => $procedure->getDataInputOrganisations(),
             'dataInputOrgaIds'                      => $dataInputOrgaIds,
             'deleted'                               => $procedure->getDeleted(),
