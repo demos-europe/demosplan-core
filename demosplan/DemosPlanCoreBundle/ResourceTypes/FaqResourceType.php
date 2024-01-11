@@ -83,25 +83,25 @@ class FaqResourceType extends DplanResourceType
 
         return [
             $this->createIdentifier()->readable(),
-            $this->createAttribute($this->enabled)->readable(true)->updatable(),
+            $this->createAttribute($this->enabled)->readable(true)->updatable([$faqUpdateCondition]),
             $this->createAttribute($this->title)->readable(true),
             $this->createAttribute($this->invitableInstitutionVisible)
                 ->readable(true, fn (Faq $faq): bool => $faq->hasRoleGroupCode(Role::GPSORG))
-                ->updatable([], function (Faq $faqEntity, mixed $newValue): array {
+                ->updatable([$faqUpdateCondition], function (Faq $faqEntity, mixed $newValue): array {
                     $this->buildAddOrRemoveRoleGroupFunction($faqEntity, Role::GPSORG)($newValue);
 
                     return [];
                 }),
             $this->createAttribute($this->publicVisible)
                 ->readable(true, fn (Faq $faq): bool => $faq->hasRoleGroupCode(Role::GGUEST))
-                ->updatable([], function (Faq $faqEntity, mixed $newValue): array {
+                ->updatable([$faqUpdateCondition], function (Faq $faqEntity, mixed $newValue): array {
                     $this->buildAddOrRemoveRoleGroupFunction($faqEntity, Role::GGUEST)($newValue);
 
                     return [];
                 }),
             $this->createAttribute($this->fpVisible)
                 ->readable(true, fn (Faq $faq): bool => $faq->hasRoleGroupCode(Role::GLAUTH))
-                ->updatable([], function (Faq $faqEntity, mixed $newValue): array {
+                ->updatable([$faqUpdateCondition], function (Faq $faqEntity, mixed $newValue): array {
                     $this->buildAddOrRemoveRoleGroupFunction($faqEntity, Role::GLAUTH)($newValue);
 
                     return [];
