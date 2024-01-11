@@ -12,6 +12,7 @@ namespace Tests\Core\Core\Unit\Logic\Segment\RpcBulkEditor;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\ProdData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadSegmentData;
+use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadTagData;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\RpcBulkEditor\RpcSegmentsBulkEditor;
@@ -122,5 +123,30 @@ class RpcBulkEditorTest extends RpcApiTest
     }
 
 
+    public function testGetValidTags():void
+    {
+        $this->sut = $this->getContainer()->get(RpcSegmentsBulkEditor::class);
 
+        $procedure = $this->getProcedureReference(\demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData::TESTPROCEDURE);
+        $tag1 = $procedure->getTags()->get(0);
+        $tag2 = $procedure->getTags()->get(1);
+        $tags = $this->sut->getValidTags([$tag1, $tag2] , $procedure->getId());
+
+        static::assertContains($tag1, $tags);
+        static::assertContains($tag2, $tags);
+
+    }
+
+    public function testGetInvalidTags():void
+    {
+        $this->sut = $this->getContainer()->get(RpcSegmentsBulkEditor::class);
+
+        $testTag1 = $this->getTagReference('testFixtureTag_1');
+        $testTag2 = $this->getTagReference('testFixtureTag_2');
+        $procedure = $this->getProcedureReference(\demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData::TESTPROCEDURE);
+
+        static::expectException(InvalidArgumentException::class);
+        $tags = $this->sut->getValidTags([$testTag1, $testTag2] , $procedure->getId());
+
+    }
 }

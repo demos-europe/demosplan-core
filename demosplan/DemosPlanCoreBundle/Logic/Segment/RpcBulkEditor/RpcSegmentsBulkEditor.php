@@ -184,7 +184,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
      *
      * @throws InvalidArgumentException
      */
-    protected function getValidTags(array $tagIds, string $procedureId): array
+    public function getValidTags(array $tagIds, string $procedureId): array
     {
         $tags = $this->tagService->findByIds($tagIds);
         $this->tagValidator->validateTags($tagIds, $tags, $procedureId);
