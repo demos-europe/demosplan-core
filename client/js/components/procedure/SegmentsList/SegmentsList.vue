@@ -640,7 +640,6 @@ export default {
         data.searchPhrase = this.searchTerm
       }
       return dpApi.patch(url, {}, data)
-        .then(response => checkResponse(response))
         .then(response => {
           if (response) {
             this.updateQueryHashInURL(oldQueryHash, response)

@@ -835,10 +835,6 @@ export default {
         dplan.notify.notify('warning', Translator.trans('procedure.share_statements.info.duration'))
         dpRpc('statement.procedure.sync', params)
           .then((response) => {
-            /*
-             * Error messages are displayed with "checkResponse", but we need to check for error here to, because
-             * we also get 200 status with an error
-             */
             if (!response[0].error) {
               this.getItemsByPage(this.currentPage)
               this.resetSelection()

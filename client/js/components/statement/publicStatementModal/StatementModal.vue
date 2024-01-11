@@ -637,7 +637,6 @@
 
 <script>
 import {
-  checkResponse,
   CleanHtml,
   dpApi,
   DpCheckbox,
@@ -1020,7 +1019,6 @@ export default {
         method: 'GET',
         url: Routing.generate('DemosPlan_statement_get_ajax', { procedureId: this.procedureId, draftStatementId: this.draftStatementId })
       })
-        .then(checkResponse)
         .then(data => {
           const priorityAreaKey = data.draftStatement.statementAttributes.priorityAreaKey || ''
           const priorityAreaType = data.draftStatement.statementAttributes.priorityAreaType || ''

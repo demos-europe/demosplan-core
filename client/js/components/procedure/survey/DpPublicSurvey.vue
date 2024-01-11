@@ -165,7 +165,6 @@
 
 <script>
 import {
-  checkResponse,
   CleanHtml,
   dpApi,
   DpCheckbox,
@@ -290,7 +289,6 @@ export default {
       try {
         this.buttonBusy = true
         const response = await dpApi.post(Routing.generate('dplan_surveyvote_create'), {}, { data: body })
-        checkResponse(response)
         this.hasVoted = true
         this.buttonBusy = false
         this.votes = response.data.meta.votes
