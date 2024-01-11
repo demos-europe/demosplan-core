@@ -33,6 +33,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentBulkEditorService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
@@ -69,7 +70,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 
     final public const SEGMENTS_BULK_EDIT_METHOD = 'segment.bulk.edit';
 
-    public function __construct(protected CurrentProcedureService $currentProcedure, protected CurrentUserInterface $currentUser, protected LoggerInterface $logger, protected JsonSchemaValidator $jsonValidator, protected PlaceService $placeService, protected ProcedureService $procedureService, protected RpcErrorGenerator $errorGenerator, protected SegmentHandler $segmentHandler, protected SegmentValidator $segmentValidator, protected TagService $tagService, protected TagValidator $tagValidator, private readonly TransactionService $transactionService, protected UserHandler $userHandler)
+    public function __construct(protected CurrentProcedureService $currentProcedure, protected CurrentUserInterface $currentUser, protected LoggerInterface $logger, protected JsonSchemaValidator $jsonValidator, protected PlaceService $placeService, protected ProcedureService $procedureService, protected RpcErrorGenerator $errorGenerator, protected SegmentHandler $segmentHandler, protected SegmentValidator $segmentValidator, protected TagService $tagService, protected TagValidator $tagValidator, private readonly TransactionService $transactionService, protected UserHandler $userHandler, protected SegmentBulkEditorService $segmentBulkEditorService)
     {
     }
 
@@ -119,7 +120,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                     $assignee = $this->detectAssignee($rpcRequest);
                     $workflowPlace = $this->extractWorkflowPlace($rpcRequest);
 
-                    $segments = $this->updateSegments($segments, $addTagIds, $removeTagIds, $assignee, $workflowPlace);
+                    $segments = $this->segmentBulkEditorService->updateSegments($segments, $addTagIds, $removeTagIds, $assignee, $workflowPlace);
 
                     $resultSegments = [...$resultSegments, ...$segments];
                     $resultResponse[] = $this->generateMethodResult($rpcRequest);
@@ -140,20 +141,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
         });
     }
 
-    public function updateSegments($segments, $addTagIds, $removeTagIds, $assignee, $workflowPlace)
-    {
-        foreach ($segments as $segment) {
-            /* @var Segment $segment */
-            $segment->addTags($addTagIds);
-            $segment->removeTags($removeTagIds);
-            $segment->setAssignee($assignee);
-            if (null !== $workflowPlace) {
-                $segment->setPlace($workflowPlace);
-            }
-        }
 
-        return $segments;
-    }
 
     /**
      * @throws ORMException

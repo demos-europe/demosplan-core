@@ -13,6 +13,7 @@ namespace Tests\Core\Core\Unit\Logic\Segment\RpcBulkEditor;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadSegmentData;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\RpcBulkEditor\RpcSegmentsBulkEditor;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentBulkEditorService;
 use Tests\Base\RpcApiTest;
 
 class RpcBulkEditorTest extends RpcApiTest
@@ -30,7 +31,7 @@ class RpcBulkEditorTest extends RpcApiTest
     public function testUpdateSegmentsWithNotNullAssignee(): void
     {
 
-        $this->sut = $this->getContainer()->get(RpcSegmentsBulkEditor::class);
+        $this->sut = $this->getContainer()->get(SegmentBulkEditorService::class);
 
 
         $segment1 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_1);
@@ -50,7 +51,7 @@ class RpcBulkEditorTest extends RpcApiTest
     public function testUpdateSegmentsWithNullAssignee(): void
     {
 
-        $this->sut = $this->getContainer()->get(RpcSegmentsBulkEditor::class);
+        $this->sut = $this->getContainer()->get(SegmentBulkEditorService::class);
 
         $user = $this->loginTestUser();
         $segment1 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_1);
