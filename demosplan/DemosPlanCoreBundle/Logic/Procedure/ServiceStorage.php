@@ -156,8 +156,8 @@ class ServiceStorage implements ProcedureServiceStorageInterface
 
         // check for mandatory fields which should be programmatically added
         $mandatoryFields = ['orgaId', 'orgaName', 'r_copymaster'];
-        if (array_key_exists('r_copymaster', $data) &&
-            $this->masterTemplateService->getMasterTemplateId() !== $data['r_copymaster']) {
+        if (array_key_exists('r_copymaster', $data)
+            && $this->masterTemplateService->getMasterTemplateId() !== $data['r_copymaster']) {
             // r_procedure_type is only required if an actual procedure is created,
             // procedure blueprints do not need a procedure type.
             if (!array_key_exists('r_master', $data) || 'true' !== $data['r_master']) {
@@ -372,7 +372,6 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             }
         }
 
-
         // save authorizedUsers only if user can choose them in interface
         if ($this->globalConfig->hasProcedureUserRestrictedAccess() && $this->permissions->hasPermission('feature_procedure_user_restrict_access_edit')) {
             $procedure['authorizedUsers'] = [];
@@ -438,8 +437,8 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'locationPostCode');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'publicParticipationContact');
 
-        if ($this->permissions->hasPermission('feature_procedure_categories_edit') &&
-            array_key_exists('r_procedure_categories', $data)) {
+        if ($this->permissions->hasPermission('feature_procedure_categories_edit')
+            && array_key_exists('r_procedure_categories', $data)) {
             // if empty string, reset categories
             if ('' === $data['r_procedure_categories']) {
                 $data['r_procedure_categories'] = [];
