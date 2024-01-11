@@ -2006,11 +2006,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return $customer->getSubdomain();
     }
 
-    public function isCustomerMasterBlueprint(): bool
-    {
-        return $this->master && null !== $this->customer;
-    }
-
     /**
      * @return Customer|null
      */
@@ -2029,20 +2024,9 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     /**
      * @param CustomerInterface|null $customer
-     * @param bool                   $handleBothSites
      */
-    public function setCustomer($customer, $handleBothSites = true): Procedure
+    public function setCustomer($customer): Procedure
     {
-        if ($handleBothSites) {
-            if (null === $customer && null !== $this->customer) {
-                $this->customer->setDefaultProcedureBlueprint(null);
-            }
-
-            if (null !== $customer) {
-                $customer->setDefaultProcedureBlueprint($this);
-            }
-        }
-
         $this->customer = $customer;
 
         return $this;

@@ -196,16 +196,6 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             ];
         }
 
-        // check if an MMPB is already existing for customer in case of customer is set
-        if (array_key_exists('customer', $data)
-            && $data['customer'] instanceof Customer
-            && $this->procedureService->isCustomerMasterBlueprintExisting($data['customer']->getId())
-        ) {
-            $this->messageBag->add(
-                'warning', 'customer.master.blueprint.already.exists',
-                ['customerName' => $data['customer']->getName()]);
-        }
-
         if (array_key_exists('r_name', $data)) {
             $procedureData['name'] = $data['r_name'];
             $procedureData['externalName'] = $data['r_name'];

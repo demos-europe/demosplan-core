@@ -32,6 +32,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSubscription;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
+use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -829,15 +830,35 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 $data['settings']['emailTitle'] =
                     $this->translator->trans('participation.invitation').': '.($data['name'] ?? '');
             }
-            // T34551 all procedures shall get a customer relation - defalt-customer-blueprint relations are set within the customer only
-            $data['customer'] = $this->customerService->getCurrentCustomer();
-
+            // T34551 all procedures shall get a customer relation
+            // - defalt-customer-blueprint relations are set within the customer only
+            // if a customer is given inside the procedure related $data array then
+            // that signals the procedure should be used as the default-customer-blueprint.
+            $setProcedureAsDefaultCustomerBlueprint = false;
+            if (array_key_exists('custoemr', $data) && $data['customer'] instanceof Customer) {
+                $setProcedureAsDefaultCustomerBlueprint = true;
+            } else {
+                $data['customer'] = $this->customerService->getCurrentCustomer();
+            }
             // Wrap creation of procedure in a transaction to be able to validate the whole procedure
             // including subentities
             $doctrineConnection = $this->entityManager->getConnection();
             $doctrineConnection->beginTransaction();
 
             $newProcedure = $this->procedureRepository->add($data);
+
+            if ($setProcedureAsDefaultCustomerBlueprint) {
+                $customer = $data['customer'];
+                if ($this->isCustomerMasterBlueprintExisting($customer->getId())) {
+                    $this->messageBag->add(
+                        'warning',
+                        'customer.master.blueprint.changed',
+                        ['customerName' => $customer->getName()]
+                    );
+                }
+                $customer->setDefaultProcedureBlueprint($newProcedure);
+                $this->customerService->updateCustomer($customer);
+            }
 
             /** @var string|null $blueprintId */
             $blueprintId = $data['copymaster'] ?? null;
@@ -1781,7 +1802,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
     public function isCustomerMasterBlueprintExisting(string $customerId): bool
     {
-        return $this->procedureRepository->findOneBy(['deleted' => false, 'customer' => $customerId]) instanceof Procedure;
+        return
+            $this->customerService->findCustomerById($customerId)?->getDefaultProcedureBlueprint() instanceof Procedure;
     }
 
     /**
@@ -2120,7 +2142,9 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             // T15644: T23583:
             // overwrite authorized users in case of used blueprint is a master-blueprint,
             // to avoid authorizing creators of masterblueprint to this new procedure:
-            if ($blueprint->isMasterTemplate() || $blueprint->isCustomerMasterBlueprint()) {
+            if ($blueprint->isMasterTemplate()
+                || $blueprint->getId() === $blueprint->getCustomer()?->getDefaultProcedureBlueprint()?->getId()
+            ) {
                 $newProcedure->setAuthorizedUsers([$currentUser]);
             }
         }

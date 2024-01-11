@@ -102,7 +102,8 @@ class ProcedureToLegacyConverter extends CoreService
     {
         $nonPlanningOfficeOrganisationIds = $this->procedureRepository->getInvitedOrgaIds($procedure->getId());
         $planningOfficeIds = $this->procedureRepository->getPlanningOfficeIds($procedure->getId());
-        $isCustomerMasterBlueprint = $procedure->isCustomerMasterBlueprint();
+        $isCustomerMasterBlueprint =
+            $procedure->getId() === $procedure->getCustomer()?->getDefaultProcedureBlueprint()?->getId();
         $planningOfficeOrganisations = collect($procedure->getPlanningOffices())
             ->transform(static fn(Orga $orga) => [
                 'ident'     => $orga->getId(),
