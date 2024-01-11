@@ -10,14 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
+use DemosEurope\DemosplanAddon\Contracts\ApiRequest\ApiListResultInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\ValueObject\Filters\AggregationFilterType;
-use EDT\JsonApi\RequestHandling\ApiListResultInterface;
 use Pagerfanta\Pagerfanta;
 
 /**
- * @template O of \DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface
- *
- * @template-implements ApiListResultInterface<O>
+ * @template O of UuidEntityInterface
  *
  * @method array|null getFacets()
  * @method int        getResultCount()

@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Report;
 
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
@@ -22,11 +23,10 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\RegisterInvitationReportEntryRes
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementReportEntryResourceType;
 use EDT\JsonApi\RequestHandling\PaginatorFactory;
-use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
-use EDT\Wrapping\Contracts\AccessException;
 use Exception;
 use League\Fractal\Resource\Collection;
 use Symfony\Component\Routing\Annotation\Route;
+use Webmozart\Assert\Assert;
 
 class DemosPlanReportAPIController extends APIController
 {
@@ -59,13 +59,8 @@ class DemosPlanReportAPIController extends APIController
             default               => ReportEntryResourceType::getName(),
         };
 
-        $resourceType = $this->resourceTypeProvider->requestType($resourceTypeName)
-            ->instanceOf(ResourceTypeInterface::class)
-            ->getInstanceOrThrow();
-
-        if (!$resourceType->isAvailable()) {
-            throw AccessException::typeNotAvailable($resourceType);
-        }
+        $resourceType = $this->resourceTypeProvider->getTypeByIdentifier($resourceTypeName);
+        Assert::isInstanceOf($resourceType, JsonApiResourceTypeInterface::class);
 
         $pagination = $paginationParser->parseApiPaginationProfile(
             $this->request->query->get('page', []),

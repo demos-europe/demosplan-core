@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<FaqCategory>
@@ -43,12 +42,12 @@ class FaqCategoryResourceType extends DplanResourceType
         return false;
     }
 
-    public function isReferencable(): bool
+    public function isGetAllowed(): bool
     {
         return false;
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isListAllowed(): bool
     {
         return false;
     }

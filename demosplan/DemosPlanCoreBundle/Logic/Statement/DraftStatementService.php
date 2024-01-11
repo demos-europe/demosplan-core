@@ -113,7 +113,7 @@ class DraftStatementService extends CoreService
      */
     protected $statementValidator;
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface
+     * @var MessageBagInterface
      */
     private $messageBag;
 
@@ -743,7 +743,7 @@ class DraftStatementService extends CoreService
         }
 
         /** @var DraftStatement $draftStatement */
-        $draftStatement = $this->draftStatementRepository->executeAndFlushInTransaction(function () use ($data): DraftStatement {
+        $draftStatement = $this->draftStatementRepository->executeAndFlushInTransaction(function ($em) use ($data): DraftStatement {
             // Create and use versions of paragraph and Element
             $data = $this->getEntityVersions($data);
             $draftStatement = $this->draftStatementRepository->add($data);

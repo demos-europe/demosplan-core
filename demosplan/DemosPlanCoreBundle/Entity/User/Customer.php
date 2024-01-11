@@ -202,7 +202,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     /**
      * @var Collection<int, SupportContact>
      *
-     * @ORM\OneToMany(targetEntity="SupportContact", mappedBy="customer")
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\SupportContact", mappedBy="customer")
      */
     #[Assert\Valid]
     protected Collection $contacts;

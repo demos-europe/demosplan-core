@@ -109,11 +109,7 @@ class TagService extends CoreService
      */
     public function createTagTopic($title, Procedure $procedure, bool $persistAndFlush = true): TagTopic
     {
-        $titleCount = $this->tagTopicRepository->count(['procedure' => $procedure, 'title' => $title]);
-        if (0 !== $titleCount) {
-            throw DuplicatedTagTopicTitleException::createFromTitleAndProcedureId($title, $procedure->getId());
-        }
-
+        $this->assertTitleNotDuplicated($title, $procedure);
         $toCreate = new TagTopic($title, $procedure);
 
         if (!$persistAndFlush) {
@@ -121,6 +117,19 @@ class TagService extends CoreService
         }
 
         return $this->tagTopicRepository->addObject($toCreate);
+    }
+
+    /**
+     * @param string $title
+     *
+     * @throws DuplicatedTagTopicTitleException
+     */
+    public function assertTitleNotDuplicated($title, Procedure $procedure): void
+    {
+        $titleCount = $this->tagTopicRepository->count(['procedure' => $procedure, 'title' => $title]);
+        if (0 !== $titleCount) {
+            throw DuplicatedTagTopicTitleException::createFromTitleAndProcedureId($title, $procedure->getId());
+        }
     }
 
     /**

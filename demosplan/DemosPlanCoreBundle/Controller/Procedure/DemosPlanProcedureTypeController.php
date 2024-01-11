@@ -129,14 +129,9 @@ class DemosPlanProcedureTypeController extends BaseController
         string $procedureTypeId,
         TranslatorInterface $translator
     ): Response {
-        if (!$procedureTypeResourceType->isAvailable()) {
-            throw AccessException::typeNotAvailable($procedureTypeResourceType);
-        }
-
         // List of ProcedureTypes
         $procedureTypes = $procedureTypeService->getAllProcedureTypes();
-        /** @var ProcedureType $procedureTypeEntity */
-        $procedureTypeEntity = $procedureTypeResourceType->getEntityAsReadTarget($procedureTypeId);
+        $procedureTypeEntity = $procedureTypeResourceType->getEntity($procedureTypeId);
         $procedureTypeResource = $entityWrapperFactory->createWrapper($procedureTypeEntity, $procedureTypeResourceType);
 
         $template = '@DemosPlanCore/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
@@ -187,11 +182,10 @@ class DemosPlanProcedureTypeController extends BaseController
         string $procedureTypeId,
         TranslatorInterface $translator
     ): Response {
-        if (!$procedureTypeResourceType->isAvailable()) {
-            throw AccessException::typeNotAvailable($procedureTypeResourceType);
+        if (!$procedureTypeResourceType->isGetAllowed()) {
+            throw AccessException::typeNotDirectlyAccessible($procedureTypeResourceType);
         }
-
-        $procedureTypeEntity = $procedureTypeResourceType->getEntityAsReadTarget($procedureTypeId);
+        $procedureTypeEntity = $procedureTypeResourceType->getEntity($procedureTypeId);
         $procedureTypeResource = $wrapperFactory->createWrapper($procedureTypeEntity, $procedureTypeResourceType);
 
         $template = '@DemosPlanCore/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
@@ -262,6 +256,9 @@ class DemosPlanProcedureTypeController extends BaseController
             false,
         );
 
+        if (!$procedureTypeResourceType->isGetAllowed()) {
+            throw AccessException::typeNotDirectlyAccessible($procedureTypeResourceType);
+        }
         // adds needed field definitions, behavior definition and ID to request form
         $request = $procedureTypeService->addMissingRequestData($request);
 
@@ -326,7 +323,7 @@ class DemosPlanProcedureTypeController extends BaseController
         }
 
         $template = '@DemosPlanCore/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
-        $procedureTypes = $procedureTypeResourceType->listEntities([]);
+        $procedureTypes = $procedureTypeResourceType->getEntities([], []);
 
         // in case of invalid data or an exception
         return $this->renderTemplate(
@@ -367,11 +364,10 @@ class DemosPlanProcedureTypeController extends BaseController
         ResourcePersister $resourcePersister,
         string $procedureTypeId
     ) {
-        if (!$procedureTypeResourceType->isAvailable()) {
-            throw AccessException::typeNotAvailable($procedureTypeResourceType);
+        if (!$procedureTypeResourceType->isGetAllowed() || !$procedureTypeResourceType->isUpdateAllowed()) {
+            throw AccessException::typeNotDirectlyAccessible($procedureTypeResourceType);
         }
-
-        $procedureTypeEntity = $procedureTypeResourceType->getEntityAsReadTarget($procedureTypeId);
+        $procedureTypeEntity = $procedureTypeResourceType->getEntity($procedureTypeId);
         $procedureTypeResource = $wrapperFactory->createWrapper($procedureTypeEntity, $procedureTypeResourceType);
 
         $form = $this->getForm(
@@ -398,7 +394,7 @@ class DemosPlanProcedureTypeController extends BaseController
                     $formData
                 );
 
-                $procedureType = $procedureTypeResourceType->getEntityByTypeIdentifier($procedureTypeId);
+                $procedureType = $procedureTypeResourceType->getEntity($procedureTypeId);
 
                 // @improve: use symfony forms mapping capabilities to map fields automatically
                 $procedureTypeResourceChange = $resourcePersister->updateBackingObjectWithEntity(
@@ -407,7 +403,7 @@ class DemosPlanProcedureTypeController extends BaseController
                     $procedureTypeResourceProperties['procedureTypeProperties']
                 );
 
-                $procedureUiDefinition = $procedureUiDefinitionResourceType->getEntityByTypeIdentifier(
+                $procedureUiDefinition = $procedureUiDefinitionResourceType->getEntity(
                     $procedureType->getProcedureUiDefinition()->getId()
                 );
 
@@ -417,7 +413,7 @@ class DemosPlanProcedureTypeController extends BaseController
                     $procedureTypeResourceProperties['procedureUiDefinitionProperties']
                 );
 
-                $procedureBehaviorDefinition = $procedureBehaviorDefinitionResourceType->getEntityByTypeIdentifier(
+                $procedureBehaviorDefinition = $procedureBehaviorDefinitionResourceType->getEntity(
                     $procedureType->getProcedureBehaviorDefinition()->getId()
                 );
 

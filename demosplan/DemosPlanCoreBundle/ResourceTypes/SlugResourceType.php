@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\Entity\Slug;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<Slug>
@@ -39,14 +38,14 @@ final class SlugResourceType extends DplanResourceType
         return true;
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isGetAllowed(): bool
     {
         return false;
     }
 
-    public function isReferencable(): bool
+    public function isListAllowed(): bool
     {
-        return true;
+        return false;
     }
 
     protected function getAccessConditions(): array
@@ -57,7 +56,7 @@ final class SlugResourceType extends DplanResourceType
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true),
+            $this->createIdentifier()->readable(),
             $this->createAttribute($this->name)->readable(true),
         ];
     }

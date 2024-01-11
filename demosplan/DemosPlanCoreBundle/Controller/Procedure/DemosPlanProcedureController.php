@@ -105,6 +105,7 @@ use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Wrapping\Contracts\AccessException;
+use EDT\Wrapping\Contracts\WrapperFactoryInterface;
 use Exception;
 use InvalidArgumentException;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -2776,12 +2777,8 @@ class DemosPlanProcedureController extends BaseController
             return $templateVars;
         }
 
-        if (!$this->procedureTypeResourceType->isAvailable()) {
-            throw AccessException::typeNotAvailable($this->procedureTypeResourceType);
-        }
-
         $nameSorting = $this->sortMethodFactory->propertyAscending($this->procedureTypeResourceType->name);
-        $templateVars['procedureTypes'] = $this->procedureTypeResourceType->listEntities([], [$nameSorting]);
+        $templateVars['procedureTypes'] = $this->procedureTypeResourceType->getEntities([], [$nameSorting]);
 
         return $templateVars;
     }

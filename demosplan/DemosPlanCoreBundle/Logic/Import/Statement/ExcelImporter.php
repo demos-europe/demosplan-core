@@ -153,6 +153,8 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
                 $statement[self::PUBLIC_STATEMENT] = $publicStatement;
 
                 $generatedOriginalStatement = $this->createNewOriginalStatement($statement, count($this->generatedStatements), $line, $currentWorksheetTitle);
+                // no validation of $generatedOriginalStatement?
+
                 $generatedStatement = $this->createCopy($generatedOriginalStatement);
 
                 $constraints = $this->statementValidator->validate($generatedStatement, [Statement::IMPORT_VALIDATION]);
@@ -623,7 +625,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
         $matchingTags = $this->tagResourceType->listPrefilteredEntities($this->generatedTags, [$titleCondition]);
         if ([] === $matchingTags) {
-            $matchingTags = $this->tagResourceType->listEntities([$titleCondition]);
+            $matchingTags = $this->tagResourceType->getEntities([$titleCondition], []);
         }
 
         return $matchingTags[0] ?? null;
