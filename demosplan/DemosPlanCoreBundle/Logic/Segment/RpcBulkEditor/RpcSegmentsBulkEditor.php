@@ -112,8 +112,8 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                     $this->updateRecommendations($segments, $recommendationTextEdit, $procedureId, $entityType, $methodCallTime);
 
                     // update entities with new tags, workflowPlace and assignee
-                    $addTagIds = $this->getValidTags($rpcRequest->params->addTagIds, $procedureId);
-                    $removeTagIds = $this->getValidTags(
+                    $addTagIds = $this->segmentBulkEditorService->getValidTags($rpcRequest->params->addTagIds, $procedureId);
+                    $removeTagIds = $this->segmentBulkEditorService->getValidTags(
                         $rpcRequest->params->removeTagIds,
                         $procedureId
                     );
@@ -172,25 +172,6 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
         return $result;
     }
 
-
-    /**
-     * Given an array of tag ids and a procedureId returns the corresponding list of tag
-     * entities, validating that every id finds a match in a tag and that they all belong to the
-     * procedure.
-     *
-     * @param array<int, string> $tagIds
-     *
-     * @return array<int, Tag>
-     *
-     * @throws InvalidArgumentException
-     */
-    public function getValidTags(array $tagIds, string $procedureId): array
-    {
-        $tags = $this->tagService->findByIds($tagIds);
-        $this->tagValidator->validateTags($tagIds, $tags, $procedureId);
-
-        return $tags;
-    }
 
     public function supports(string $method): bool
     {

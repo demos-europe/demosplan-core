@@ -5,17 +5,20 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\EntityValidator\SegmentValidator;
+use demosplan\DemosPlanCoreBundle\EntityValidator\TagValidator;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 
 
 class SegmentBulkEditorService
 {
-    public function __construct(protected UserHandler $userHandler, protected SegmentHandler $segmentHandler, protected SegmentValidator $segmentValidator
+    public function __construct(protected UserHandler $userHandler, protected SegmentHandler $segmentHandler, protected SegmentValidator $segmentValidator, protected TagService $tagService, protected TagValidator $tagValidator
 
     ) {
 
@@ -80,6 +83,25 @@ class SegmentBulkEditorService
         $this->segmentValidator->validateSegments($segmentIds, $segments, $procedureId);
 
         return $segments;
+    }
+
+    /**
+     * Given an array of tag ids and a procedureId returns the corresponding list of tag
+     * entities, validating that every id finds a match in a tag and that they all belong to the
+     * procedure.
+     *
+     * @param array<int, string> $tagIds
+     *
+     * @return array<int, Tag>
+     *
+     * @throws InvalidArgumentException
+     */
+    public function getValidTags(array $tagIds, string $procedureId): array
+    {
+        $tags = $this->tagService->findByIds($tagIds);
+        $this->tagValidator->validateTags($tagIds, $tags, $procedureId);
+
+        return $tags;
     }
 
 
