@@ -184,7 +184,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
      *
      * @throws InvalidArgumentException
      */
-    protected function getValidSegments(array $segmentIds, $procedureId): array
+    public function getValidSegments(array $segmentIds, $procedureId): array
     {
         $segments = $this->segmentHandler->findByIds($segmentIds);
         $this->segmentValidator->validateSegments($segmentIds, $segments, $procedureId);

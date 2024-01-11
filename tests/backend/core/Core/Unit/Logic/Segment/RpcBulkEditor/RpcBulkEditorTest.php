@@ -10,7 +10,9 @@
 
 namespace Tests\Core\Core\Unit\Logic\Segment\RpcBulkEditor;
 
+use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\ProdData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadSegmentData;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\RpcBulkEditor\RpcSegmentsBulkEditor;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentBulkEditorService;
@@ -90,6 +92,32 @@ class RpcBulkEditorTest extends RpcApiTest
         $this->sut = $this->getContainer()->get(SegmentBulkEditorService::class);
         $assignee = $this->sut->detectAssignee(null);
         static::assertNull($assignee);
+
+    }
+
+    public function testGetValidSegments()
+    {
+        $this->sut = $this->getContainer()->get(RpcSegmentsBulkEditor::class);
+
+        $procedure = $this->getProcedureReference(\demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData::TESTPROCEDURE);
+        $segment1 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_1);
+        $segment2 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_2);
+        $segments = $this->sut->getValidSegments([$segment1->getId(), $segment2->getId()] , $procedure->getId());
+
+        static::assertContains($segment1, $segments);
+        static::assertContains($segment2, $segments);
+
+    }
+
+    public function testGetInValidSegments()
+    {
+        $this->sut = $this->getContainer()->get(RpcSegmentsBulkEditor::class);
+
+        $segment1 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_1);
+        $segment2 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_2);
+        $invalidProcedureId = "123";
+        static::expectException(InvalidArgumentException::class);
+        $segments = $this->sut->getValidSegments([$segment1->getId(), $segment2->getId()] , $invalidProcedureId);
 
     }
 
