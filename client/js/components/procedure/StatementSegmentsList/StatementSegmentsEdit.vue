@@ -241,7 +241,7 @@ export default {
     },
 
     claimSegment (segment) {
-      const dataToUpdate = { ...segment, ...{ relationships: { ...segment.relationships, ...{ assignee: { data: { type: 'User', id: this.currentUser.id } } } } } }
+      const dataToUpdate = { ...segment, ...{ relationships: { ...segment.relationships, ...{ assignee: { data: { type: 'AssignableUser', id: this.currentUser.id } } } } } }
       this.setSegment({ ...dataToUpdate, id: segment.id, group: null })
 
       const payload = {
@@ -251,7 +251,7 @@ export default {
           relationships: {
             assignee: {
               data: {
-                type: 'User',
+                type: 'AssignableUser',
                 id: this.currentUser.id
               }
             }
