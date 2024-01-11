@@ -99,7 +99,7 @@ class SegmentController extends BaseController
                 'statementId'                => $statementId,
                 'statementExternId'          => $statement->getExternId(),
                 'title'                      => 'segments.recommendations.create',
-                'templateVars' => [
+                'templateVars'               => [
                     'isSourceAndCoupledProcedure' => $isSourceAndCoupledProcedure,
                 ],
             ]
