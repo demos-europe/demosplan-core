@@ -105,7 +105,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                 try {
                     $this->validateRpcRequest($rpcRequest);
                     $segmentIds = $rpcRequest->params->segmentIds;
-                    $segments = $this->getValidSegments($segmentIds, $procedureId);
+                    $segments =  $this->segmentBulkEditorService->getValidSegments($segmentIds, $procedureId);
 
                     // update texts directly in database for performance reasons
                     $recommendationTextEdit = $rpcRequest->params->recommendationTextEdit;
@@ -172,25 +172,6 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
         return $result;
     }
 
-    /**
-     * Given an array of segment ids and a procedureId returns the corresponding list of
-     * segment entities, validating that every id finds a match in a Segment and that they all
-     * belong to the procedure.
-     *
-     * @param array<int, string> $segmentIds
-     * @param string             $procedureId
-     *
-     * @return array<int, Segment>
-     *
-     * @throws InvalidArgumentException
-     */
-    public function getValidSegments(array $segmentIds, $procedureId): array
-    {
-        $segments = $this->segmentHandler->findByIds($segmentIds);
-        $this->segmentValidator->validateSegments($segmentIds, $segments, $procedureId);
-
-        return $segments;
-    }
 
     /**
      * Given an array of tag ids and a procedureId returns the corresponding list of tag

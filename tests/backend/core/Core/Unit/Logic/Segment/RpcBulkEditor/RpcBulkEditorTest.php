@@ -97,7 +97,7 @@ class RpcBulkEditorTest extends RpcApiTest
 
     public function testGetValidSegments()
     {
-        $this->sut = $this->getContainer()->get(RpcSegmentsBulkEditor::class);
+        $this->sut = $this->getContainer()->get(SegmentBulkEditorService::class);
 
         $procedure = $this->getProcedureReference(\demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData::TESTPROCEDURE);
         $segment1 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_1);
@@ -109,9 +109,9 @@ class RpcBulkEditorTest extends RpcApiTest
 
     }
 
-    public function testGetInValidSegments()
+    public function testGetInvalidSegments()
     {
-        $this->sut = $this->getContainer()->get(RpcSegmentsBulkEditor::class);
+        $this->sut = $this->getContainer()->get(SegmentBulkEditorService::class);
 
         $segment1 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_1);
         $segment2 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_2);
