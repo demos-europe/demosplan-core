@@ -18,6 +18,9 @@ use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ImmutableArrayInterface;
 use Exception;
 
+/**
+ * @template-extends CoreRepository<InstitutionMail>
+ */
 class InstitutionMailRepository extends CoreRepository implements ImmutableArrayInterface
 {
     /**

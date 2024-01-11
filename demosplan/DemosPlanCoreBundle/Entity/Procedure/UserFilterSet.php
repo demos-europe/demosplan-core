@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserFilterSetInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -22,7 +23,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\UserFilterSetRepository")
  */
-class UserFilterSet extends CoreEntity implements UuidEntityInterface
+class UserFilterSet extends CoreEntity implements UuidEntityInterface, UserFilterSetInterface
 {
     /**
      * Unique identification of the GisLayerCategory entry.

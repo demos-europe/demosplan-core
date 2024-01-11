@@ -26,7 +26,10 @@ use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
 use Exception;
 
-class ContentRepository extends FluentRepository implements ArrayInterface
+/**
+ * @template-extends CoreRepository<GlobalContent>
+ */
+class ContentRepository extends CoreRepository implements ArrayInterface
 {
     public function getNewsListByRoles(array $roles): array
     {

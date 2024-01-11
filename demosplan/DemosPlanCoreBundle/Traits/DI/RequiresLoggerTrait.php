@@ -15,15 +15,9 @@ use Symfony\Contracts\Service\Attribute\Required;
 
 trait RequiresLoggerTrait
 {
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
+    protected ?LoggerInterface $logger = null;
 
-    /**
-     * @return LoggerInterface
-     */
-    public function getLogger()
+    public function getLogger(): LoggerInterface
     {
         return $this->logger;
     }

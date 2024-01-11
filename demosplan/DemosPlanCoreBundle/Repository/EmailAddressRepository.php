@@ -13,7 +13,10 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 use DemosEurope\DemosplanAddon\Contracts\Repositories\EmailAddressRepositoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 
-class EmailAddressRepository extends FluentRepository implements EmailAddressRepositoryInterface
+/**
+ * @template-extends CoreRepository<EmailAddress>
+ */
+class EmailAddressRepository extends CoreRepository implements EmailAddressRepositoryInterface
 {
     /**
      * @param string[] $inputEmailAddressStrings
@@ -52,14 +55,6 @@ class EmailAddressRepository extends FluentRepository implements EmailAddressRep
         return $foundEmailAddressEntity;
     }
 
-    /**
-     * Checks if any EmailAddress entities are not referenced anymore and if so deletes them.
-     *
-     * The parameter $emailIds contain emails ids which used in one or many addons and which have to be
-     * not removed while deleting orphan emails.
-     *
-     * @return int the number of deletions
-     */
     public function deleteOrphanEmailAddresses(array $emailIds): int
     {
         $connection = $this->getEntityManager()->getConnection();

@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Statistics\MatomoApi;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use JsonException;
 use JsonSchema\Exception\InvalidSchemaException;
 use stdClass;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;

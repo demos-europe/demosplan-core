@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<GisLayerCategory>
@@ -49,12 +48,12 @@ final class GisLayerCategoryResourceType extends DplanResourceType
         return true;
     }
 
-    public function isReferencable(): bool
+    public function isGetAllowed(): bool
     {
-        return true;
+        return $this->currentUser->hasPermission('area_map_participation_area');
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isListAllowed(): bool
     {
         return $this->currentUser->hasPermission('area_map_participation_area');
     }
@@ -67,7 +66,7 @@ final class GisLayerCategoryResourceType extends DplanResourceType
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true)->sortable()->filterable(),
+            $this->createIdentifier()->readable()->sortable()->filterable(),
             $this->createAttribute($this->name)->readable(true)->sortable()->filterable(),
             $this->createAttribute($this->layerWithChildrenHidden)->readable(true)->sortable()->filterable(),
             $this->createAttribute($this->treeOrder)->readable(true)->sortable()->filterable(),
@@ -82,9 +81,9 @@ final class GisLayerCategoryResourceType extends DplanResourceType
              * Keep these as a default include because these relationships are recursive and currently not easily
              * manageable in the FE with the actual - correct - available includes syntax.
              */
-            $this->createToManyRelationship($this->categories, true)
-                ->readable(true)->sortable()->filterable()->aliasedPath($this->children),
-            $this->createToManyRelationship($this->gisLayers, true)->readable(true)->sortable()->filterable(),
+            $this->createToManyRelationship($this->categories)
+                ->readable(true, null, true)->sortable()->filterable()->aliasedPath($this->children),
+            $this->createToManyRelationship($this->gisLayers)->readable(true, null, true)->sortable()->filterable(),
         ];
     }
 }

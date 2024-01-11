@@ -12,26 +12,23 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableDqlResourceTypeInterface;
-use DemosEurope\DemosplanAddon\Logic\ResourceChange;
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\GlobalContent;
 use demosplan\DemosPlanCoreBundle\Entity\ManualListSort;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Repository\ManualListSortRepository;
+use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\GlobalContentResourceConfigBuilder;
 use EDT\Querying\Contracts\PathException;
+use EDT\Wrapping\EntityDataInterface;
+use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 
 /**
  * @template-extends AbstractNewsResourceType<GlobalContent>
  *
- * @template-implements DeletableDqlResourceTypeInterface<GlobalContent>
- * @template-implements CreatableDqlResourceTypeInterface<GlobalContent>
- *
  * @property-read GlobalNewsCategoryResourceType $categories
  */
-final class GlobalNewsResourceType extends AbstractNewsResourceType implements DeletableDqlResourceTypeInterface, CreatableDqlResourceTypeInterface
+final class GlobalNewsResourceType extends AbstractNewsResourceType
 {
     public function __construct(private readonly ManualListSortRepository $manualListSortRepository)
     {
@@ -47,22 +44,9 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType implements D
         return $this->ident->getAsNames();
     }
 
-    /**
-     * @param GlobalContent $entity
-     *
-     * @throws UserNotFoundException
-     */
-    public function delete(object $entity): ResourceChange
+    public function isDeleteAllowed(): bool
     {
-        $resourceChange = new ResourceChange($entity, $this, []);
-        $resourceChange->addEntityToDelete($entity);
-
-        return $resourceChange;
-    }
-
-    public function getRequiredDeletionPermissions(): array
-    {
-        return ['area_admin_globalnews'];
+        return $this->currentUser->hasPermission('area_admin_globalnews');
     }
 
     public function getEntityClass(): string
@@ -78,16 +62,6 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType implements D
         return $this->currentUser->hasPermission('area_admin_globalnews');
     }
 
-    public function isReferencable(): bool
-    {
-        return false;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
-    }
-
     /**
      * @throws PathException
      */
@@ -96,94 +70,85 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType implements D
         return [$this->conditionFactory->propertyHasValue(false, $this->deleted)];
     }
 
-    /**
-     * @throws UserNotFoundException
-     */
-    public function isCreatable(): bool
+    public function isCreateAllowed(): bool
     {
         return $this->currentUser->hasPermission('area_admin_globalnews');
     }
 
-    public function createObject(array $properties): ResourceChange
-    {
-        $news = $this->createGlobalNews($properties);
-        $this->resourceTypeService->validateObject(
-            $news,
-            [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP]
-        );
-
-        $change = new ResourceChange($news, $this, $properties);
-
-        $manualListSort = $this->manualListSortRepository->findOneBy([
-            'pId'       => GlobalContent::PROCEDURE_ID_GLOBAL,
-            'context'   => GlobalContent::CONTEXT_GLOBAL_NEWS,
-            'namespace' => GlobalContent::NAMESPACE_NEWS,
-        ]);
-        if (null !== $manualListSort) {
-            // to update the manual sort list we need the news ID and thus need to flush the news first
-            $this->manualListSortRepository->persistEntities([$news]);
-            $this->manualListSortRepository->flushEverything();
-
-            $this->updateManualListSort($manualListSort, $news);
-            $this->resourceTypeService->validateObject($manualListSort);
-        } else {
-            // if no manual sort list to update exists we can set the news up to be persisted by the engine as usual
-            $change->addEntityToPersist($news);
-        }
-
-        return $change;
-    }
-
     /**
      * @throws UserNotFoundException
      */
-    protected function getProperties(): array
+    protected function getProperties(): GlobalContentResourceConfigBuilder
     {
-        $properties = [
-            $this->createAttribute($this->id)->readable(true)->aliasedPath($this->ident),
-        ];
+        $configBuilder = $this->getConfig(GlobalContentResourceConfigBuilder::class);
+        $configBuilder->id->readable()->aliasedPath($this->ident);
 
         if ($this->currentUser->hasPermission('area_admin_globalnews')) {
-            $properties[] = $this->createToManyRelationship($this->categories)->initializable();
-            $properties = array_merge($properties, $this->getInitializableNewsProperties());
+            $configBuilder->title->initializable();
+            $configBuilder->description->initializable();
+            $configBuilder->text->initializable();
+            $configBuilder->roles
+                ->setRelationshipType($this->resourceTypeStore->getRoleResourceType())
+                ->initializable();
+            $configBuilder->enabled->initializable();
+            $configBuilder->categories
+                ->setRelationshipType($this->resourceTypeStore->getGlobalNewsCategoryResourceType())
+                ->initializable();
+            $configBuilder->pictureTitle->initializable(true)->aliasedPath(Paths::globalContent()->pictitle);
+            $configBuilder->pdfTitle->initializable(true)->aliasedPath(Paths::globalContent()->pdftitle);
+            $configBuilder->picture
+                ->setRelationshipType($this->resourceTypeStore->getFileResourceType())
+                ->initializable(true, static function (GlobalContent $news, ?File $pictureFile): array {
+                    if (null === $pictureFile) {
+                        $news->setPicture('');
+                        $news->setPictitle('');
+                    } else {
+                        $news->setPicture($pictureFile->getFileString());
+                    }
+
+                    return [];
+                });
+            $configBuilder->pdf
+                ->setRelationshipType($this->resourceTypeStore->getFileResourceType())
+                ->initializable(true, static function (GlobalContent $news, ?File $pdfFile): array {
+                    if (null === $pdfFile) {
+                        $news->setPdf('');
+                        $news->setPdftitle('');
+                    } else {
+                        $news->setPdf($pdfFile->getFileString());
+                    }
+
+                    return [];
+                });
+            $configBuilder->addPostConstructorBehavior(new FixedSetBehavior(
+                function (GlobalContent $news, EntityDataInterface $entityData): array {
+                    $news->setType(GlobalContent::TYPE_NEWS);
+
+                    $manualListSort = $this->manualListSortRepository->findOneBy([
+                        'pId'       => GlobalContent::PROCEDURE_ID_GLOBAL,
+                        'context'   => GlobalContent::CONTEXT_GLOBAL_NEWS,
+                        'namespace' => GlobalContent::NAMESPACE_NEWS,
+                    ]);
+                    $this->manualListSortRepository->persistEntities([$news]);
+                    if (null !== $manualListSort) {
+                        // to update the manual sort list we need the news ID and thus need to flush the news first
+                        $this->manualListSortRepository->flushEverything();
+
+                        $this->updateManualListSort($manualListSort, $news);
+                        $this->resourceTypeService->validateObject($manualListSort);
+                    }
+
+                    return [];
+                }
+            ));
         }
 
-        return $properties;
+        return $configBuilder;
     }
 
-    private function createGlobalNews(array $properties): GlobalContent
+    public function getUpdateValidationGroups(): array
     {
-        $news = new GlobalContent();
-        $updater = new PropertiesUpdater($properties);
-        $updater->ifPresent($this->title, $news->setTitle(...));
-        $updater->ifPresent($this->description, $news->setDescription(...));
-        $updater->ifPresent($this->text, $news->setText(...));
-        $updater->ifPresent($this->pictureTitle, $news->setPictitle(...));
-        $updater->ifPresent($this->pdfTitle, $news->setPdftitle(...));
-        $updater->ifPresent($this->enabled, $news->setEnabled(...));
-        $updater->ifPresent($this->roles, $news->setRolesCollection(...));
-        $updater->ifPresent($this->categories, $news->setCategoriesCollection(...));
-        $updater->ifPresent($this->pdf, static function (?File $pdfFile) use ($news): void {
-            if (null === $pdfFile) {
-                $news->setPdf('');
-                $news->setPdftitle('');
-            } else {
-                $news->setPdf($pdfFile->getFileString());
-            }
-        });
-        $updater->ifPresent($this->picture, static function (?File $pictureFile) use ($news): void {
-            if (null === $pictureFile) {
-                $news->setPicture('');
-                $news->setPictitle('');
-            } else {
-                $news->setPicture($pictureFile->getFileString());
-            }
-        });
-
-        $news->setType(GlobalContent::TYPE_NEWS);
-        $news->setDeleted(false);
-
-        return $news;
+        return [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP];
     }
 
     /**
