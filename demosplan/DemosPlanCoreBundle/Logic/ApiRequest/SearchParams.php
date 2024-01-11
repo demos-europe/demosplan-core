@@ -12,7 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
+use DemosEurope\DemosplanAddon\Contracts\ApiRequest\JsonApiEsServiceInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+
+use function array_key_exists;
 
 // @improve T21985
 /**
@@ -26,12 +29,12 @@ class SearchParams
     /**
      * @var string|null
      */
-    private $searchPhrase = null;
+    private $searchPhrase;
 
     /**
-     * @var array<int,string>|null
+     * @var array<int,non-empty-string>|null
      */
-    private $fieldsToSearch = null;
+    private $fieldsToSearch;
 
     /**
      * The identifier for the facet is used as both key and value.
@@ -41,19 +44,19 @@ class SearchParams
     private $facetKeys = [];
 
     /**
-     * @param array<string,mixed> $searchParams
+     * @param array{value?: string, fieldsToSearch?: array<int,non-empty-string>, facetKeys?: array<string, string>} $searchParams
      */
-    protected function __construct(array $searchParams)
+    public function __construct(array $searchParams)
     {
         foreach ($searchParams as $key => $value) {
             switch ($key) {
-                case 'value':
+                case JsonApiEsServiceInterface::VALUE:
                     $this->searchPhrase = $value;
                     break;
-                case 'fieldsToSearch':
+                case JsonApiEsServiceInterface::FIELDS_TO_SEARCH:
                     $this->fieldsToSearch = $value;
                     break;
-                case 'facetKeys':
+                case JsonApiEsServiceInterface::FACET_KEYS:
                     $this->facetKeys = $value;
                     break;
                 default:
@@ -62,9 +65,12 @@ class SearchParams
         }
     }
 
+    /**
+     * @param array{value?: string, fieldsToSearch?: array<int,string>, facetKeys?: array<string, string>} $searchParams
+     */
     public static function createOptional(array $searchParams): ?self
     {
-        if ([] === $searchParams || (array_key_exists('value', $searchParams) && '' === $searchParams['value'])) {
+        if ([] === $searchParams || (array_key_exists(JsonApiEsServiceInterface::VALUE, $searchParams) && '' === $searchParams[JsonApiEsServiceInterface::VALUE])) {
             return null;
         }
 

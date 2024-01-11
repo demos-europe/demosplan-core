@@ -162,7 +162,7 @@ import { mapActions, mapState } from 'vuex'
 import DpOrganisationListItem from './DpOrganisationListItem'
 
 const orgaFields = {
-  StatusInCustomer: [
+  OrgaStatusInCustomer: [
     'customer',
     'status'
   ].join(),
@@ -197,9 +197,6 @@ const orgaFields = {
     'street',
     'submissionType',
     'types'
-  ].join(),
-  CurrentSlug: [
-    'name'
   ].join()
 }
 
@@ -497,7 +494,7 @@ export default {
     this.pendingOrganisationList({
       include: ['currentSlug', 'orgasInCustomer.customer'].join()
     }).then(() => {
-      this.getItemsByPage()
+      this.getItemsByPage(1)
     }).then(() => {
       this.pendingOrgs = this.pendingOrganisations || {}
     })

@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureProposalInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\File;
@@ -27,7 +28,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedureProposalRepository")
  */
-class ProcedureProposal extends CoreEntity implements UuidEntityInterface
+class ProcedureProposal extends CoreEntity implements UuidEntityInterface, ProcedureProposalInterface
 {
     final public const STATUS = [
         'new'                                 => 'new',

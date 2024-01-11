@@ -335,7 +335,7 @@ const LayersStore = {
     gisLayerList: state => type => {
       if (typeof state.apiData.included === 'undefined') return []
       return state.apiData.included.filter(current => {
-        const putInList = (type) ? (type === current.attributes.type) : true
+        const putInList = (type) ? (type === current.attributes.layerType) : true
         return (current.type === 'GisLayer' && putInList)
       }).sort((a, b) => (a.attributes.mapOrder).toString().padEnd(21, '0') - (b.attributes.mapOrder).toString().padEnd(21, '0'))
     },
@@ -371,6 +371,7 @@ const LayersStore = {
      */
     elementListForLayerSidebar: state => (categoryId, type, withCategories) => {
       //  Return if there is no data
+      console.log('here')
       if (typeof state.apiData.data === 'undefined') {
         return []
       }
@@ -382,8 +383,8 @@ const LayersStore = {
 
       //  Filter api response by layer type + categories
       const elementList = state.apiData.included.filter(current => {
-        //  Only GisLayer has an attributes.type so this one will be false for categories + contextual help
-        const putLayerInList = (type === current.attributes.type)
+        //  Only GisLayer has an attributes.layerType so this one will be false for categories + contextual help
+        const putLayerInList = (type === current.attributes.layerType)
 
         //  Check if categories should be included and this one is a category
         const putCategoriesInList = (withCategories === true) ? (current.type === 'GisLayerCategory') : false

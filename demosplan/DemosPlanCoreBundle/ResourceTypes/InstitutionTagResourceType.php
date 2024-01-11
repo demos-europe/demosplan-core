@@ -12,20 +12,22 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableDqlResourceTypeInterface;
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
-use DemosEurope\DemosplanAddon\Logic\ResourceChange;
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
+use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseInstitutionTagResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Repository\InstitutionTagRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
+use EDT\Wrapping\CreationDataInterface;
+use EDT\Wrapping\EntityDataInterface;
+use EDT\Wrapping\PropertyBehavior\Attribute\Factory\AttributeConstructorBehaviorFactory;
+use EDT\Wrapping\PropertyBehavior\FixedConstructorBehavior;
+use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -33,36 +35,77 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @template-extends DplanResourceType<InstitutionTag>
  *
- * @template-implements UpdatableDqlResourceTypeInterface<InstitutionTag>
- *
  * @property-read End                     $label
  * @property-read OrgaResourceType        $taggedInstitutions
  * @property-read OrgaResourceType        $owningOrganisation
  */
-class InstitutionTagResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface, DeletableDqlResourceTypeInterface, CreatableDqlResourceTypeInterface
+class InstitutionTagResourceType extends DplanResourceType
 {
-    public function __construct(private readonly ValidatorInterface $validator)
-    {
+    public function __construct(
+        private readonly ValidatorInterface $validator,
+        private readonly InstitutionTagRepository $institutionTagRepository
+    ) {
     }
 
     protected function getProperties(): array
     {
-        $id = $this->createAttribute($this->id)
-            ->readable(true)
-            ->filterable();
-        $label = $this->createAttribute($this->label);
-        $taggedInstitutions = $this->createToManyRelationship($this->taggedInstitutions);
+        $configBuilder = $this->getConfig(BaseInstitutionTagResourceConfigBuilder::class);
+        $configBuilder->id->readable()->filterable();
+        $configBuilder->label->updatable();
+        $configBuilder->taggedInstitutions
+            ->setRelationshipType($this->resourceTypeStore->getOrgaResourceType())
+            ->updatable([], [],
+                function (InstitutionTag $tag, array $taggedInstitutions): array {
+                    $taggingViolations = $this->updateTaggedInstitutions(new ArrayCollection($taggedInstitutions), $tag);
+                    if (0 !== $taggingViolations->count()) {
+                        throw ViolationsException::fromConstraintViolationList($taggingViolations);
+                    }
+
+                    return [];
+                }
+            );
         if ($this->currentUser->hasPermission('feature_institution_tag_read')) {
-            $label->readable()->filterable()->sortable();
-            $taggedInstitutions->readable()->filterable()->sortable();
+            $configBuilder->label->readable()->filterable()->sortable();
+            $configBuilder->taggedInstitutions->readable()->filterable()->sortable();
         }
 
         if ($this->currentUser->hasPermission('feature_institution_tag_create')) {
-            $label->initializable();
-            $taggedInstitutions->initializable(true);
+            $configBuilder->label->addConstructorBehavior(new AttributeConstructorBehaviorFactory(null, null));
+            $configBuilder->taggedInstitutions->initializable(true, function (InstitutionTag $tag, array $institutions): array {
+                $institutionsCollection = new ArrayCollection($institutions);
+                $tag->setTaggedInstitutions($institutionsCollection);
+                $institutionsCollection->map(function (Orga $institutionToBeTagged) use ($tag): void {
+                    $institutionToBeTagged->addAssignedTag($tag);
+
+                    $this->resourceTypeService->validateObject($institutionToBeTagged);
+                });
+
+                return [];
+            });
+            $configBuilder->addConstructorBehavior(
+                new FixedConstructorBehavior(
+                    Paths::institutionTag()->owningOrganisation->getAsNamesInDotNotation(),
+                    function (CreationDataInterface $entityData): array {
+                        $owner = $this->currentUser->getUser()->getOrga();
+                        if (null === $owner) {
+                            throw new InvalidArgumentException('No organisation found for current user.');
+                        }
+
+                        return [$owner, []];
+                    }
+                )
+            );
+            $configBuilder->addPostConstructorBehavior(new FixedSetBehavior(function (InstitutionTag $institutionTag, EntityDataInterface $entityData): array {
+                $owner = $institutionTag->getOwningOrganisation();
+                $owner->addOwnInstitutionTag($institutionTag);
+                $this->resourceTypeService->validateObject($owner);
+                $this->institutionTagRepository->persistEntities([$institutionTag]);
+
+                return [];
+            }));
         }
 
-        return [$id, $label, $taggedInstitutions];
+        return $configBuilder;
     }
 
     public static function getName(): string
@@ -85,17 +128,9 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
         );
     }
 
-    public function isReferencable(): bool
+    public function isUpdateAllowed(): bool
     {
-        return $this->currentUser->hasAnyPermissions(
-            'feature_institution_tag_read',
-            'feature_institution_tag_update',
-        );
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
+        return $this->currentUser->hasPermission('feature_institution_tag_update');
     }
 
     protected function getAccessConditions(): array
@@ -112,121 +147,42 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
         )];
     }
 
-    /**
-     * @param InstitutionTag $tag
-     */
-    public function updateObject(object $tag, array $properties): ResourceChange
-    {
-        $violations = new ConstraintViolationList([]);
-        $updater = new PropertiesUpdater($properties);
-        $updater->ifPresent($this->label, $tag->setLabel(...));
-        $updater->ifPresent($this->taggedInstitutions, function (Collection $taggedInstitutions) use ($tag, $violations) {
-            $taggingViolations = $this->updateTaggedInstitutions($taggedInstitutions, $tag);
-            $violations->addAll($taggingViolations);
-        });
-
-        $violations->addAll($this->validator->validate($tag));
-        if (0 !== $violations->count()) {
-            throw ViolationsException::fromConstraintViolationList($violations);
-        }
-
-        return new ResourceChange($tag, $this, $properties);
-    }
-
-    public function getUpdatableProperties(object $updateTarget): array
-    {
-        if (!$this->currentUser->hasPermission('feature_institution_tag_update')) {
-            return [];
-        }
-
-        return $this->toProperties(
-            $this->label,
-            $this->taggedInstitutions,
-        );
-    }
-
-    public function isCreatable(): bool
+    public function isCreateAllowed(): bool
     {
         return $this->currentUser->hasPermission('feature_institution_tag_create');
     }
 
-    /**
-     * @throws UserNotFoundException
-     */
-    public function createObject(array $properties): ResourceChange
+    public function deleteEntity(string $entityIdentifier): void
     {
-        $owner = $this->currentUser->getUser()->getOrga();
-        if (null === $owner) {
-            throw new InvalidArgumentException('No organisation found for current user.');
-        }
+        $this->getTransactionService()->executeAndFlushInTransaction(
+            function () use ($entityIdentifier): void {
+                $tag = $this->getEntity($entityIdentifier);
+                $owningOrganisation = $tag->getOwningOrganisation();
+                $owningOrganisation->removeOwnInstitutionTag($tag);
+                $violations = $this->validator->validate($owningOrganisation);
 
-        $label = $properties[$this->label->getAsNamesInDotNotation()];
+                $tag->getTaggedInstitutions()->forAll(
+                    function (int $key, Orga $taggedInstitution) use ($tag, $violations): bool {
+                        $taggedInstitution->removeAssignedTag($tag);
+                        $institutionViolations = $this->validator->validate($taggedInstitution);
+                        $violations->addAll($institutionViolations);
 
-        $tag = new InstitutionTag($label, $owner);
-        $owner->addOwnInstitutionTag($tag);
+                        return true;
+                    }
+                );
 
-        $updater = new PropertiesUpdater($properties);
-        $institutionViolationLists = [];
-        $updater->ifPresent(
-            $this->taggedInstitutions,
-            function (Collection $institutions) use ($tag, &$institutionViolationLists): void {
-                $tag->setTaggedInstitutions($institutions);
-                $institutions->forAll(function (int $key, Orga $institutionToBeTagged) use ($tag, &$institutionViolationLists): bool {
-                    $institutionToBeTagged->addAssignedTag($tag);
-                    $institutionViolationLists[] = $this->validator->validate($institutionToBeTagged);
+                if (0 !== $violations->count()) {
+                    throw ViolationsException::fromConstraintViolationList($violations);
+                }
 
-                    return true;
-                });
+                parent::deleteEntity($entityIdentifier);
             }
         );
-
-        $violations = $this->validator->validate($owner);
-        $violations->addAll($this->validator->validate($tag));
-        foreach ($institutionViolationLists as $institutionViolationList) {
-            $violations->addAll($institutionViolationList);
-        }
-        if (0 !== $violations->count()) {
-            throw ViolationsException::fromConstraintViolationList($violations);
-        }
-
-        $change = new ResourceChange($tag, $this, $properties);
-        $change->addEntityToPersist($tag);
-
-        return $change;
     }
 
-    /**
-     * @param InstitutionTag $tag
-     */
-    public function delete(object $tag): ResourceChange
+    public function isDeleteAllowed(): bool
     {
-        $owningOrganisation = $tag->getOwningOrganisation();
-        $owningOrganisation->removeOwnInstitutionTag($tag);
-        $violations = $this->validator->validate($owningOrganisation);
-
-        $tag->getTaggedInstitutions()->forAll(
-            function (int $key, Orga $taggedInstitution) use ($tag, $violations): bool {
-                $taggedInstitution->removeAssignedTag($tag);
-                $institutionViolations = $this->validator->validate($taggedInstitution);
-                $violations->addAll($institutionViolations);
-
-                return true;
-            }
-        );
-
-        if (0 !== $violations->count()) {
-            throw ViolationsException::fromConstraintViolationList($violations);
-        }
-
-        $resourceChange = new ResourceChange($tag, $this, []);
-        $resourceChange->addEntityToDelete($tag);
-
-        return $resourceChange;
-    }
-
-    public function getRequiredDeletionPermissions(): array
-    {
-        return ['feature_institution_tag_delete'];
+        return $this->currentUser->hasPermission('feature_institution_tag_delete');
     }
 
     /**

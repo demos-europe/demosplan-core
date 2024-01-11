@@ -10,10 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Traits\RepositoryLegacyShizzle;
 use Exception;
 
+/**
+ * @template-extends FluentRepository<HashedQuery>
+ */
 class HashedQueryRepository extends FluentRepository
 {
     use RepositoryLegacyShizzle;

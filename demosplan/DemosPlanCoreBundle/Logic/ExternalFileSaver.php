@@ -18,7 +18,6 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Throwable;
 
 use function file_put_contents;
 use function uniqid;
@@ -29,10 +28,7 @@ class ExternalFileSaver implements ExternalFileSaverInterface
     {
     }
 
-    /**
-     * @throws Throwable
-     */
-    public function save(string $url, ?string $procedureId = null): File
+    public function save(string $url, string $procedureId = null): File
     {
         $response = $this->httpClient->request('GET', $url);
         $imageContent = $response->getContent();

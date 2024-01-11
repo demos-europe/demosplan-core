@@ -10,6 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-class StatementAttachmentRepository extends FluentRepository
+use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
+
+/**
+ * @template-extends CoreRepository<StatementAttachment>
+ */
+class StatementAttachmentRepository extends CoreRepository
 {
 }

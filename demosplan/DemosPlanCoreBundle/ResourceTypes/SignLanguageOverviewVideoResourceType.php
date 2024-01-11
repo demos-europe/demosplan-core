@@ -13,29 +13,34 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\VideoInterface;
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableDqlResourceTypeInterface;
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
-use DemosEurope\DemosplanAddon\Logic\ResourceChange;
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
+use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseVideoResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Entity\Video;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Repository\VideoRepository;
 use EDT\PathBuilding\End;
+use EDT\Wrapping\CreationDataInterface;
+use EDT\Wrapping\EntityDataInterface;
+use EDT\Wrapping\PropertyBehavior\Attribute\Factory\AttributeConstructorBehaviorFactory;
+use EDT\Wrapping\PropertyBehavior\FixedConstructorBehavior;
+use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
+use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\Factory\ToOneRelationshipConstructorBehaviorFactory;
 
 /**
  * @template-extends DplanResourceType<Video>
- *
- * @template-implements  CreatableDqlResourceTypeInterface<Video>
- * @template-implements UpdatableDqlResourceTypeInterface<Video>
- * @template-implements DeletableDqlResourceTypeInterface<Video>
  *
  * @property-read End $title
  * @property-read End $description
  * @property-read CustomerResourceType $customerContext
  * @property-read FileResourceType $file
  */
-class SignLanguageOverviewVideoResourceType extends DplanResourceType implements CreatableDqlResourceTypeInterface, UpdatableDqlResourceTypeInterface, DeletableDqlResourceTypeInterface
+class SignLanguageOverviewVideoResourceType extends DplanResourceType
 {
+    public function __construct(
+        protected readonly VideoRepository $videoRepository
+    ) {
+    }
+
     public static function getName(): string
     {
         return 'SignLanguageOverviewVideo';
@@ -51,14 +56,9 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType implements
         return $this->currentUser->hasPermission('field_sign_language_overview_video_edit');
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isUpdateAllowed(): bool
     {
-        return true;
-    }
-
-    public function isReferencable(): bool
-    {
-        return true;
+        return $this->currentUser->hasPermission('field_sign_language_overview_video_edit');
     }
 
     protected function getAccessConditions(): array
@@ -81,105 +81,80 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType implements
 
     protected function getProperties(): array
     {
-        return [
-            $this->createAttribute($this->id)->readable(true),
-            $this->createAttribute($this->title)->readable()->initializable(),
-            $this->createAttribute($this->description)->readable()->initializable(),
-            $this->createToOneRelationship($this->file)->readable()->initializable(),
-        ];
-    }
-
-    public function isCreatable(): bool
-    {
-        return true;
-    }
-
-    public function createObject(array $properties): ResourceChange
-    {
-        $customer = $this->currentCustomerService->getCurrentCustomer();
-
-        $video = new Video(
-            $this->currentUser->getUser(),
-            $customer,
-            $properties[$this->file->getAsNamesInDotNotation()],
-            $properties[$this->title->getAsNamesInDotNotation()],
-            $properties[$this->description->getAsNamesInDotNotation()]
-        );
-
-        $resourceChange = new ResourceChange($video, $this, $properties);
-
-        // until the FE supports multiple sign language videos we automatically remove the old one when a new one is created
-        /** @var Video $oldVideo */
-        foreach ($customer->getSignLanguageOverviewVideos() as $oldVideo) {
-            $customer->removeSignLanguageOverviewVideo($oldVideo);
-            $resourceChange->addEntityToDelete($oldVideo);
-        }
-
-        $customer->addSignLanguageOverviewVideo($video);
-
-        $this->resourceTypeService->validateObject($video);
-        $this->resourceTypeService->validateObject($customer);
-
-        $resourceChange->addEntityToPersist($video);
-        $resourceChange->addEntityToPersist($customer);
-
-        return $resourceChange;
-    }
-
-    /**
-     * @param Video $object
-     */
-    public function updateObject(object $object, array $properties): ResourceChange
-    {
-        $updater = new PropertiesUpdater($properties);
-        $updater->ifPresent($this->title, $object->setTitle(...));
-        $updater->ifPresent($this->description, $object->setDescription(...));
-
-        $resourceChange = new ResourceChange($object, $this, $properties);
-        $resourceChange->addEntityToPersist($object);
-
-        return $resourceChange;
-    }
-
-    /**
-     * @param Video $updateTarget
-     */
-    public function getUpdatableProperties(object $updateTarget): array
-    {
+        // ensure update of title and description is only allowed
+        // if the video has one of the following IDs
         $currentCustomerVideoIds = $this->currentCustomerService->getCurrentCustomer()
             ->getSignLanguageOverviewVideos()
             ->map(fn (VideoInterface $video): ?string => $video->getId())
-            ->filter(fn (?string $videoId): bool => null !== $videoId);
+            ->filter(fn (?string $videoId): bool => null !== $videoId)
+            ->getValues();
+        $customerCondition = $this->conditionFactory->propertyHasAnyOfValues($currentCustomerVideoIds, Paths::video()->id);
 
-        if (!$currentCustomerVideoIds->contains($updateTarget->getId())) {
-            return [];
-        }
+        $configBuilder = $this->getConfig(BaseVideoResourceConfigBuilder::class);
 
-        return $this->toProperties(
-            $this->title,
-            $this->description
+        $configBuilder->id->readable();
+        $configBuilder->title->readable()->updatable([$customerCondition])->addConstructorBehavior(
+            new AttributeConstructorBehaviorFactory(null, null)
+        );
+        $configBuilder->description->readable()->updatable([$customerCondition])->addConstructorBehavior(
+            new AttributeConstructorBehaviorFactory(null, null));
+        $configBuilder->file
+            ->setRelationshipType($this->resourceTypeStore->getFileResourceType())
+            ->readable()->addConstructorBehavior(
+                new ToOneRelationshipConstructorBehaviorFactory(null, [], null)
+            );
+        $configBuilder->addConstructorBehavior(new FixedConstructorBehavior(
+            Paths::video()->uploader->getAsNamesInDotNotation(),
+            fn (CreationDataInterface $entityData): array => [$this->currentUser->getUser(), []]
+        ));
+        $configBuilder->addConstructorBehavior(new FixedConstructorBehavior(
+            Paths::video()->customerContext->getAsNamesInDotNotation(),
+            fn (CreationDataInterface $entityData): array => [$this->currentCustomerService->getCurrentCustomer(), []]
+        ));
+        $configBuilder->addPostConstructorBehavior(new FixedSetBehavior(
+            function (Video $newVideo, EntityDataInterface $entityData): array {
+                $customer = $this->currentCustomerService->getCurrentCustomer();
+
+                // until the FE supports multiple sign language videos we automatically remove the old one when a new one is created
+                $oldVideos = $customer->getSignLanguageOverviewVideos();
+                foreach ($oldVideos as $oldVideo) {
+                    $customer->removeSignLanguageOverviewVideo($oldVideo);
+                }
+                $this->videoRepository->persistAndDelete([], $oldVideos->getValues());
+
+                $customer->addSignLanguageOverviewVideo($newVideo);
+                $this->resourceTypeService->validateObject($newVideo);
+                $this->resourceTypeService->validateObject($customer);
+                $this->videoRepository->persistEntities([$newVideo]);
+
+                return [];
+            }
+        ));
+
+        return $configBuilder;
+    }
+
+    public function isCreateAllowed(): bool
+    {
+        return $this->currentUser->hasPermission('field_sign_language_overview_video_edit');
+    }
+
+    public function deleteEntity(string $entityIdentifier): void
+    {
+        $this->getTransactionService()->executeAndFlushInTransaction(
+            function () use ($entityIdentifier): void {
+                $entity = $this->getEntity($entityIdentifier);
+                $customer = $this->currentCustomerService->getCurrentCustomer();
+                $customer->removeSignLanguageOverviewVideo($entity);
+                $this->resourceTypeService->validateObject($customer);
+
+                parent::deleteEntity($entityIdentifier);
+            }
         );
     }
 
-    /**
-     * @param Video $entity
-     */
-    public function delete(object $entity): ResourceChange
+    public function isDeleteAllowed(): bool
     {
-        $customer = $this->currentCustomerService->getCurrentCustomer();
-        $customer->removeSignLanguageOverviewVideo($entity);
-
-        $this->resourceTypeService->validateObject($customer);
-
-        $resourceChange = new ResourceChange($entity, $this, []);
-        $resourceChange->addEntityToDelete($entity);
-        $resourceChange->addEntityToPersist($customer);
-
-        return $resourceChange;
-    }
-
-    public function getRequiredDeletionPermissions(): array
-    {
-        return ['field_sign_language_overview_video_edit'];
+        return $this->currentUser->hasPermission('field_sign_language_overview_video_edit');
     }
 }
