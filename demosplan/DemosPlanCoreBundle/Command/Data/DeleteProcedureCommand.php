@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
-use demosplan\DemosPlanCoreBundle\Logic\ProcedureDeleter;
-use Doctrine\ORM\EntityManagerInterface;
+use demosplan\DemosPlanCoreBundle\Logic\ProcedureDeleterService;
+use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -29,8 +29,11 @@ class DeleteProcedureCommand extends CoreCommand
     protected static $defaultName = 'dplan:procedure:delete';
     protected static $defaultDescription = 'Deletes a procedure including all related content like statements, tags, News, etc.';
 
-    public function __construct(ParameterBagInterface $parameterBag, private readonly ProcedureDeleter $procedureDeleter, string $name = null)
-    {
+    public function __construct(
+        ParameterBagInterface                    $parameterBag,
+        private readonly ProcedureDeleterService $procedureDeleter,
+        string                                   $name = null
+    ) {
         parent::__construct($parameterBag, $name);
     }
 
@@ -61,24 +64,23 @@ class DeleteProcedureCommand extends CoreCommand
     {
         $output = new SymfonyStyle($input, $output);
 
-        //dd($input->getOption('dry-run'), $input->getOption('without-repopulate'));
-
         $procedureIds = $input->getArgument('procedureIds');
         $procedureIds = explode(",", $procedureIds);
-
-       try {
-            $retrievedProceduresIds = array_column($this->procedureDeleter->fetchFromTableByParameter(['_p_id'], '_procedure', '_p_id', $procedureIds),'_p_id');
-       } catch (Exception $exception) {
+        try {
+            $retrievedProceduresIds = array_column(
+                $this->procedureDeleter->fetchFromTableByParameter(['_p_id'], '_procedure', '_p_id', $procedureIds),
+                '_p_id'
+            );
+        } catch (Exception $exception) {
             $output->error('could not retrieve procedures '.$exception);
 
             return Command::FAILURE;
-       }
+        }
 
         $missedIdsArray = array_diff($procedureIds, $retrievedProceduresIds);
         if (count($missedIdsArray) !== 0) {
-            $missedIds = implode(' ', $missedIdsArray);
-            $output->warning("Matching procedures not found for ids $missedIds");
-            //$output->confirm('do you want to continue and delete the existing procedures', true);
+            $missedIdsString = implode(' ', $missedIdsArray);
+            $output->warning("Matching procedures not found for ids $missedIdsString");
         }
 
         if (count($retrievedProceduresIds) === 0) {
@@ -90,19 +92,40 @@ class DeleteProcedureCommand extends CoreCommand
         $isDryRun = (bool) $input->getOption('dry-run');
         $this->procedureDeleter->setIsDryRun($isDryRun);
         $withoutRepopulate = (bool) $input->getOption('without-repopulate');
-        $this->procedureDeleter->setRepopulate($withoutRepopulate);
-
-        $output->info("Procedures ids to delete: ".implode(',', $retrievedProceduresIds));
-        $output->info("Dry-run: $isDryRun");
 
         try {
-            return $this->procedureDeleter->deleteProcedures();
+            $output->info("Procedures ids to delete: ".implode(',', $retrievedProceduresIds));
+            $output->info("Dry-run: $isDryRun");
+
+            $this->procedureDeleter->deleteProcedures();
+
+            // repopulate Elasticsearch
+            if ($isDryRun && $withoutRepopulate) {
+                $this->repopulateElasticsearch($output);
+            }
         } catch (Exception $exception) {
-            $output = new SymfonyStyle($input, $output);
             $output->error('Rolled back transaction '.$exception->getMessage());
             $output->error($exception->getTraceAsString());
 
             return Command::FAILURE;
         }
+
+        $output->info('procedures with ids '.implode(",", $retrievedProceduresIds).' are deleted successfully');
+
+        return Command::SUCCESS;
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function repopulateElasticsearch(OutputInterface $output): void
+    {
+        $env = $this->parameterBag->get('kernel.environment');
+        $output->writeln("Repopulating ES with env: $env");
+
+        $repopulateEsCommand = 'dev' === $env ? 'dplan:elasticsearch:populate' : 'dplan:elasticsearch:populate -e prod --no-debug';
+        Batch::create($this->getApplication(), $output)
+            ->add($repopulateEsCommand)
+            ->run();
     }
 }
