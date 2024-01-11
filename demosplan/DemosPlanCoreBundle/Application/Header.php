@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Application;
 
 /**
  * Should be lowercase.
+ *
  * @see https://httpwg.org/specs/rfc7540.html#HttpHeaders
  */
 class Header
