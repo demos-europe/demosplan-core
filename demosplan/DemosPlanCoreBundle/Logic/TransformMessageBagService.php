@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use Throwable;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -18,6 +17,7 @@ use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\RouterInterface;
+use Throwable;
 use Tightenco\Collect\Support\Collection;
 
 class TransformMessageBagService
@@ -45,8 +45,8 @@ class TransformMessageBagService
         $this->messageBag->get()->each(function (Collection $messages, $severity) {
             $messages->each(function ($message) use ($severity) {
                 // dev messages should only be shown in dev environment
-                if (DemosPlanKernel::ENVIRONMENT_DEV === $severity &&
-                    DemosPlanKernel::ENVIRONMENT_DEV !== $this->env) {
+                if (DemosPlanKernel::ENVIRONMENT_DEV === $severity
+                    && DemosPlanKernel::ENVIRONMENT_DEV !== $this->env) {
                     return;
                 }
                 if ($message instanceof LinkMessageSerializable) {
@@ -74,19 +74,19 @@ class TransformMessageBagService
                 return DemosPlanKernel::ENVIRONMENT_DEV === $this->env;
             })
             ->mapWithKeys(
-            function (Collection $messages, string $severity) {
-                $convertedMessages = $messages->map(
-                    function (MessageSerializable $message) {
-                        if ($message instanceof LinkMessageSerializable) {
-                            $message->prepareUrl($this->router);
+                function (Collection $messages, string $severity) {
+                    $convertedMessages = $messages->map(
+                        function (MessageSerializable $message) {
+                            if ($message instanceof LinkMessageSerializable) {
+                                $message->prepareUrl($this->router);
+                            }
+
+                            return $message->getText();
                         }
+                    )->toArray();
 
-                        return $message->getText();
-                    }
-                )->toArray();
-
-                return [$severity => $convertedMessages];
-            }
-        )->toArray();
+                    return [$severity => $convertedMessages];
+                }
+            )->toArray();
     }
 }

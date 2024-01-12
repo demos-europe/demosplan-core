@@ -153,7 +153,7 @@ class HTMLFragmentSlicer
 
             $this->remainingList
                 ->filter(
-                    fn($nodeCheck) => is_a($nodeCheck, DOMNode::class)
+                    fn ($nodeCheck) => is_a($nodeCheck, DOMNode::class)
                 )
                 ->each(
                     function (DOMNode $node) use ($parser) {

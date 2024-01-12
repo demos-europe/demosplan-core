@@ -10,8 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Types;
 
-
-enum UserFlagKey : string
+enum UserFlagKey: string
 {
     case ASSIGNED_TASK_NOTIFICATION = 'assignedTaskNotification';
     case DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED = 'draftStatementSubmissionReminderEnabled';

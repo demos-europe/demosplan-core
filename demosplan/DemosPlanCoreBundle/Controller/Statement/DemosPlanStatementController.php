@@ -75,7 +75,6 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementListFilter
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Exception;
 use RuntimeException;
-use SplFileInfo;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -92,6 +91,7 @@ use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
+
 use function explode;
 
 /**
@@ -2379,7 +2379,6 @@ class DemosPlanStatementController extends BaseController
                 return $this->createErrorResponse($procedureId, $importer->getErrorsAsArray());
             }
         } catch (Exception) {
-
             return $this->redirectToRoute(
                 'DemosPlan_procedure_import',
                 ['procedureId' => $procedureId]
@@ -2439,6 +2438,7 @@ class DemosPlanStatementController extends BaseController
             }
         } catch (Throwable $e) {
             $this->logger->error('Something went wrong importing Statements from zip', ['exception' => $e]);
+
             return $this->redirectToRoute(
                 'DemosPlan_procedure_import',
                 ['procedureId' => $procedureId]
@@ -2535,7 +2535,7 @@ class DemosPlanStatementController extends BaseController
         $this->getMessageBag()->addChoice(
             'confirm',
             'confirm.statements.imported.from.files.xlsx.format',
-            ['count' => $numberOfCreatedStatements, 'fileName' => implode(', ', $fileNames), 'numbers' => (string)$numberOfCreatedStatements]
+            ['count' => $numberOfCreatedStatements, 'fileName' => implode(', ', $fileNames), 'numbers' => (string) $numberOfCreatedStatements]
         );
         $route = 'dplan_procedure_statement_list';
         // Change redirect target if data input user
