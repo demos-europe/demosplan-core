@@ -37,8 +37,6 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Traversable;
 use Webmozart\Assert\Assert;
 
-use function get_class;
-
 /**
  * FIXME: this command should be automatically executed. Approaches may be using the "cache warmer" or coupling it to a doctrine:diff execution.
  *

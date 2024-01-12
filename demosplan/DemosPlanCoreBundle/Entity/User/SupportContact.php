@@ -93,8 +93,7 @@ class SupportContact extends CoreEntity implements UuidEntityInterface, SupportC
          * @ORM\Column(name="visible", type="boolean", options={"default":false})
          */
         private bool $visible = false
-    )
-    {
+    ) {
     }
 
     public function getId(): ?string

@@ -10,9 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Services;
 
-use Exception;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Repository\CustomerRepository;
+use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 

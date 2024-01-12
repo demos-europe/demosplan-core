@@ -23,7 +23,7 @@ use Tests\Base\FunctionalTestCase;
 class UserHandlerTest extends FunctionalTestCase
 {
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\User\UserHandler
+     * @var UserHandler
      */
     protected $sut;
 
