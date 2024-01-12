@@ -18,7 +18,7 @@ services:
 
 when@prod:
     sentry:
-        dsn: '%env(SENTRY_DSN)%'
+        dsn: '%sentry_dsn%'
         options:
             attach_stacktrace: true
             release: '%demosplan.project_name%@%project_version%'
