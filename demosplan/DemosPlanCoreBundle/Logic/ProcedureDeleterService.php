@@ -178,25 +178,13 @@ class ProcedureDeleterService
      */
     private function processStatementAttachments(array $statementIds, $isDryRun): void
     {
-        if (!$this->queriesService->doesTableExist('statement_attachment')) {
-            throw new Exception("No table with the name 'statement_attachment' exists in this database. Data could not be fetched.");
-        }
-
-        $dbConnection = $this->queriesService->getConnection();
-        $statementAttachmentQueryBuilder = $dbConnection->createQueryBuilder();
-        $statementAttachmentQueryBuilder
-            ->select('id', 'file_id')
-            ->from('statement_attachment')
-            ->where('statement_id IN (:idList)')
-            ->setParameter('idList', $statementIds, ArrayParameterType::STRING);
-
-        $attachmentData = $statementAttachmentQueryBuilder->fetchAllAssociative();
+        $attachmentData = $this->queriesService->fetchFromTableByParameter(['id', 'file_id'], 'statement_attachment', 'statement_id', $statementIds);
 
         // delete files first
         $this->deleteFiles(array_column($attachmentData, 'file_id'), $isDryRun);
 
         // delete attachments
-        $this->deleteStatementAttachment(array_column($attachmentData, 'id'));
+        $this->deleteStatementAttachment(array_column($attachmentData, 'id'), $isDryRun);
     }
 
     /**
@@ -260,22 +248,10 @@ class ProcedureDeleterService
      */
     private function processImportEmailAttachments(array $importEmailIds, bool $isDryRun): void
     {
-        if (!$this->queriesService->doesTableExist('statement_import_email_attachments')) {
-            throw new Exception("No table with the name 'statement_import_email_attachments' exists in this database. Data could not be fetched.");
-        }
-
-        $dbConnection = $this->queriesService->getConnection();
-        $importEmailAttachmentQueryBuilder = $dbConnection->createQueryBuilder();
-        $importEmailAttachmentQueryBuilder
-            ->select('file_id')
-            ->from('statement_import_email_attachments')
-            ->where('statement_import_email_id IN (:idList)')
-            ->setParameter('idList', $importEmailIds, ArrayParameterType::STRING);
-
-        $attachmentData = array_column($importEmailAttachmentQueryBuilder->fetchAllAssociative(), 'file_id');
+        $attachmentData = $this->queriesService->fetchFromTableByParameter(['file_id'], 'statement_import_email_attachments', 'statement_import_email_id', $importEmailIds);
 
         $this->deleteFiles($attachmentData, $isDryRun);
-        $this->deleteStatementImportEmailAttachments($importEmailIds);
+        $this->deleteStatementImportEmailAttachments($importEmailIds, $isDryRun);
     }
 
     /**
@@ -524,9 +500,9 @@ class ProcedureDeleterService
     /**
      * @throws Exception
      */
-    private function deleteStatementImportEmailAttachments(array $importEmailIds): void
+    private function deleteStatementImportEmailAttachments(array $importEmailIds, bool $isDryRun): void
     {
-        $this->queriesService->deleteFromTableByIdentifierArray('statement_import_email_attachments', 'statement_import_email_id', $importEmailIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('statement_import_email_attachments', 'statement_import_email_id', $importEmailIds, $isDryRun);
     }
 
     /**
@@ -588,9 +564,9 @@ class ProcedureDeleterService
     /**
      * @throws Exception
      */
-    private function deleteStatementAttachment(array $statementIds): void
+    private function deleteStatementAttachment(array $statementIds, bool $isDryRun): void
     {
-        $this->queriesService->deleteFromTableByIdentifierArray('statement_attachment', 'statement_id', $statementIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('statement_attachment', 'statement_id', $statementIds, $isDryRun);
     }
 
     /**
