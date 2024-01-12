@@ -26,19 +26,9 @@ class DemosPlanArrayAdapter extends ArrayAdapter
     /**
      * @return int
      */
-    public function getNbResults()
+    public function getNbResults(): int
     {
         return $this->nbResults;
     }
 
-    /**
-     * @param int $offset
-     * @param int $length
-     *
-     * @return array|Traversable
-     */
-    public function getSlice($offset, $length)
-    {
-        return $this->getArray();
-    }
 }
