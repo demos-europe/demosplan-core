@@ -88,7 +88,7 @@ class BoilerplateType extends AbstractType implements DataMapperInterface
      *
      * @param BoilerplateVO $data
      */
-    public function mapDataToForms($data, Traversable $forms)
+    public function mapDataToForms($data, iterable $forms)
     {
         $forms = \iterator_to_array($forms);
         /* @var FormInterface[] $forms */
@@ -104,7 +104,7 @@ class BoilerplateType extends AbstractType implements DataMapperInterface
      *
      * @param BoilerplateVO $boilerplateVO
      */
-    public function mapFormsToData(Traversable $forms, &$boilerplateVO)
+    public function mapFormsToData(iterable $forms, &$boilerplateVO)
     {
         $forms = \iterator_to_array($forms);
         /** @var FormInterface[] $forms */

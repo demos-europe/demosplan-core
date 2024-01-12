@@ -24,6 +24,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 class AddonBuildFrontendCommand extends CoreCommand
 {
     protected static $defaultName = 'dplan:addon:build-frontend';
+    protected static $defaultDescription = 'Build frontend assets for an addon';
 
     public function __construct(private readonly AddonRegistry $registry, ParameterBagInterface $parameterBag, string $name = null)
     {
@@ -32,7 +33,6 @@ class AddonBuildFrontendCommand extends CoreCommand
 
     protected function configure()
     {
-        $this->setDescription('Build frontend assets for an addon');
         $this->addArgument('addon-name', InputArgument::OPTIONAL, 'Addon name, du\'h.');
     }
 
