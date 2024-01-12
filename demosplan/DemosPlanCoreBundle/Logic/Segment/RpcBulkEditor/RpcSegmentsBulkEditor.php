@@ -282,7 +282,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
      * @throws ORMException
      * @throws UserNotFoundException
      */
-    private function updateRecommendations(array $segments, ?object $recommendationTextEdit, string $procedureId, string $entityType, DateTime $updateTime): void
+    public function updateRecommendations(array $segments, ?object $recommendationTextEdit, string $procedureId, string $entityType, DateTime $updateTime): void
     {
         if (null === $recommendationTextEdit) {
             return;

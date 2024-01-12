@@ -10,13 +10,17 @@
 
 namespace Tests\Core\Core\Unit\Logic\Segment\RpcBulkEditor;
 
+use DateTime;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\ProdData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadSegmentData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadTagData;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\RpcBulkEditor\RpcSegmentsBulkEditor;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentBulkEditorService;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Tests\Base\RpcApiTest;
 
 class RpcBulkEditorTest extends RpcApiTest
@@ -149,4 +153,55 @@ class RpcBulkEditorTest extends RpcApiTest
         $tags = $this->sut->getValidTags([$testTag1, $testTag2] , $procedure->getId());
 
     }
+
+    public function testUpdateRecommendation(): void
+    {
+
+        $this->sut = $this->getContainer()->get(RpcSegmentsBulkEditor::class);
+
+        $procedure = $this->getProcedureReference(\demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData::TESTPROCEDURE);
+        $segment1 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_1);
+        $segment2 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_2);
+        $entityManager = $this->getContainer()->get(EntityManagerInterface::class);
+        $entityType = $entityManager->getClassMetadata(Segment::class)->getName();
+        $methodCallTime = new DateTime();
+        $recommendationTextEdit = (object) array (
+            "text" => 'My Text',
+            "attach" =>  false
+        );
+
+        $this->sut->updateRecommendations([$segment1, $segment2], $recommendationTextEdit, $procedure->getId(), $entityType, $methodCallTime);
+
+        static::assertEquals( "'" . $recommendationTextEdit->text . "'", $segment1->getRecommendation() );
+        static::assertEquals( "'" . $recommendationTextEdit->text . "'", $segment2->getRecommendation() );
+
+    }
+
+    public function testAttachUpdateRecommendation(): void
+    {
+
+        $this->sut = $this->getContainer()->get(RpcSegmentsBulkEditor::class);
+
+        $procedure = $this->getProcedureReference(\demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData::TESTPROCEDURE);
+        $segment1 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_1);
+        $segment2 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_2);
+        $recommendationText1 = $segment1->getRecommendation();
+        $recommendationText2 = $segment2->getRecommendation();
+        $entityManager = $this->getContainer()->get(EntityManagerInterface::class);
+        $entityType = $entityManager->getClassMetadata(Segment::class)->getName();
+        $methodCallTime = new DateTime();
+        $recommendationTextEdit = (object) array (
+            "text" => 'My Text',
+            "attach" =>  true
+        );
+
+        $this->sut->updateRecommendations([$segment1, $segment2], $recommendationTextEdit, $procedure->getId(), $entityType, $methodCallTime);
+        $methodCallTime = new DateTime();
+        static::assertEquals( $recommendationText1 . "'" . $recommendationTextEdit->text . "'", $segment1->getRecommendation() );
+        static::assertEquals( $recommendationText2 . "'" . $recommendationTextEdit->text . "'", $segment2->getRecommendation() );
+
+
+    }
+
+
 }
