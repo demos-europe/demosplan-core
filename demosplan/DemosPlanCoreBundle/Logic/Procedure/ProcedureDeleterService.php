@@ -8,11 +8,10 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanCoreBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use Doctrine\DBAL\ArrayParameterType;
-use Doctrine\DBAL\Connection;
 use Exception;
 
 class ProcedureDeleterService
