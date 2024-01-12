@@ -896,6 +896,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
 
         $statementTestTagsBulkEdit1 = new Statement();
         $statementTestTagsBulkEdit1->setProcedure($testProcedure);
+        $statementTestTagsBulkEdit1->setOriginal($statementOrig);
         $statementTestTagsBulkEdit1->setExternId('stmBulkEdit1');
         $statementTestTagsBulkEdit1->setPhase('participation');
         $statementTestTagsBulkEdit1->setPublicVerified(Statement::PUBLICATION_PENDING);

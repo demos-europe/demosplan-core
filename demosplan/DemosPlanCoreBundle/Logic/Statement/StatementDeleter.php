@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Consultation\ConsultationTokenService;
@@ -25,6 +26,7 @@ use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
+use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Doctrine\DBAL\Connection;
@@ -45,7 +47,8 @@ class StatementDeleter extends CoreService
         private readonly ReportService $reportService,
         private readonly MessageBagInterface $messageBag,
         private readonly EntityContentChangeService $entityContentChangeService,
-        private readonly StatementService $statementService
+        private readonly StatementService $statementService,
+        private readonly EntitySyncLinkRepository $entitySyncLinkRepository
     ) {
     }
 
@@ -63,6 +66,37 @@ class StatementDeleter extends CoreService
         $statement = $this->statementAttachmentService->deleteOriginalAttachment($statement);
 
         return $this->statementService->updateStatementObject($statement);
+    }
+
+    /**
+     * @throws OptimisticLockException
+     * @throws UserNotFoundException
+     * @throws ORMException
+     * @throws Exception
+     */
+    private function deleteOriginalStatement(Statement $originalStatement): void
+    {
+        if (!$originalStatement->isOriginal()) {
+            throw new InvalidArgumentException('Given original-Statement is actually not an original statement.');
+        }
+
+        if (!$originalStatement->getChildren()->isEmpty()) {
+            throw new InvalidArgumentException('Original-Statement to delete still has children.');
+        }
+        $forReport = clone $originalStatement;
+
+        $this->deleteStatementObject(
+            $originalStatement,
+            true,
+            true
+        );
+
+        $entry = $this->statementReportEntryFactory->createDeletionEntry($forReport);
+        $this->reportService->persistAndFlushReportEntries($entry);
+        $this->logger->info(
+            'generate report of deleteStatement(). ReportID: ',
+            ['identifier' => $entry->getIdentifier()]
+        );
     }
 
     /**
@@ -99,11 +133,18 @@ class StatementDeleter extends CoreService
             // placeholders (even originalSTN) are allowed to delete:
             $lockedBecauseOfOriginal = $statement->isOriginal() && !$ignoreOriginal;
 
+            // T27971:
+            $lockedBySync = null !== $this->entitySyncLinkRepository
+                    ->findOneBy(['class' => Statement::class, 'sourceId' => $statement->getId()])
+                || null !== $this->entitySyncLinkRepository
+                    ->findOneBy(['class' => Statement::class, 'targetId' => $statement->getId()]);
+
             $allowedToDelete =
                 !$lockedByAssignmentOfRelatedFragments
                 && !$lockedByAssignment
                 && !$lockedByCluster
-                && !$lockedBecauseOfOriginal;
+                && !$lockedBecauseOfOriginal
+                && !$lockedBySync;
 
             if ($allowedToDelete) {
                 try {
@@ -113,7 +154,6 @@ class StatementDeleter extends CoreService
                     }
 
                     $doctrineConnection->beginTransaction();
-                    $forReport = clone $statement;
 
                     $attachedFileIdents = \collect($statement->getAttachments())
                         ->map(static fn (StatementAttachment $attachment): string => $attachment->getFile()->getIdent());
@@ -123,10 +163,14 @@ class StatementDeleter extends CoreService
                     // add report:
                     try {
                         if (true === $deleted) {
-                            $this->emptyInternIdOfOriginalInCaseOfDeleteLastChild($statement);
-                            $entry = $this->statementReportEntryFactory->createDeletionEntry($forReport);
-                            $this->reportService->persistAndFlushReportEntries($entry);
-                            $this->logger->info('generate report of deleteStatement(). ReportID: ', ['identifier' => $entry->getIdentifier()]);
+                            $originalStatement = $statement->getOriginal();
+                            if ($originalStatement instanceof Statement) {
+                                if ($this->permissions->hasPermission('feature_auto_delete_original_statement')
+                                    && $originalStatement->getChildren()->isEmpty()
+                                ) {
+                                    $this->deleteOriginalStatement($originalStatement);
+                                }
+                            }
                         }
                     } catch (Exception $e) {
                         $this->getLogger()->warning('Add Report in deleteStatement() failed Message: ', [$e]);
@@ -183,6 +227,15 @@ class StatementDeleter extends CoreService
                         ['externId' => $statement->getExternId()]
                     );
                 }
+
+                if ($lockedBySync) {
+                    $this->getLogger()
+                        ->warning("Statement {$statementId} was not deleted, because of locked by related synced statement.");
+                    $this->messageBag->add(
+                        'warning', 'warning.delete.statement.synced', // add transkey
+                        ['externId' => $statement->getExternId()]
+                    );
+                }
             }
 
             return $success;
@@ -191,20 +244,6 @@ class StatementDeleter extends CoreService
             $doctrineConnection->rollBack();
 
             return false;
-        }
-    }
-
-    /**
-     * @throws \Exception
-     */
-    private function emptyInternIdOfOriginalInCaseOfDeleteLastChild(Statement $statement): void
-    {
-        if ($this->permissions->hasPermission('feature_auto_delete_original_statement')) {
-            $original = $statement->getOriginal();
-            if (0 === $original->getChildren()->count()) {
-                $original->setInternId(null);
-                $this->statementService->updateStatementObject($original);
-            }
         }
     }
 }

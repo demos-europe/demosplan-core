@@ -1173,7 +1173,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     }
 
     /**
-     * @return Statement
+     * @return Statement|null
      */
     public function getOriginal()
     {
