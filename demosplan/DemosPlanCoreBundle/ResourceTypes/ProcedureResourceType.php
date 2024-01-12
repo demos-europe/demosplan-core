@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\ProcedureResourceTypeInterface;
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PhasePermissionsetLoader;
@@ -144,7 +145,10 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
         // procedure resources can never have the deleted state
         $undeletedCondition = $this->conditionFactory->propertyHasValue(false, $this->deleted);
         // only procedure templates are tied to a customer
-        $customerCondition = $this->conditionFactory->propertyIsNull($this->customer);
+        $customerCondition = $this->conditionFactory->propertyHasValue(
+            $this->customerService->getCurrentCustomer()->getId(),
+            Paths::procedure()->customer->id
+        );
 
         return [
             $noBlueprintCondition,
