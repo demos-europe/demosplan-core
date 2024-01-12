@@ -40,8 +40,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\Yaml\Yaml;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 use ZipArchive;
 
 /**
@@ -61,8 +61,12 @@ class AddonInstallFromZipCommand extends CoreCommand
     private string $addonsDirectory;
     private string $addonsCacheDirectory;
 
-    public function __construct(private readonly Registrator $installer, ParameterBagInterface $parameterBag, string $name = null)
-    {
+    public function __construct(
+        private readonly HttpClientInterface $httpClient,
+        private readonly Registrator $installer,
+        ParameterBagInterface $parameterBag,
+        string $name = null
+    ) {
         parent::__construct($parameterBag, $name);
     }
 
@@ -99,7 +103,7 @@ class AddonInstallFromZipCommand extends CoreCommand
                 if ($input->getOption('local')) {
                     $path = $this->getPathFromZip($input, $output, $folder);
                 } else {
-                    $path = $this->loadFromGithub($input, $output, $folder);
+                    $path = $this->loadFromApiRepository($input, $output, $folder);
                 }
             } catch (Exception $e) {
                 $output->error($e->getMessage());
@@ -340,57 +344,56 @@ class AddonInstallFromZipCommand extends CoreCommand
         return $this->getHelper('question')->ask($input, $output, $question);
     }
 
-    private function loadFromGithub(InputInterface $input, SymfonyStyle $output, mixed $folder): string
+    private function loadFromApiRepository(InputInterface $input, SymfonyStyle $output, mixed $folder): string
     {
-        $client = HttpClient::create();
+
+        $addonRepositoryUrl = $this->parameterBag->get('addon_repository_url');
         try {
-            $ghToken = $this->parameterBag->get('github_token');
+            $addonRepositoryToken = $this->parameterBag->get('addon_repository_token');
         } catch (Exception) {
-            throw new RuntimeException('You need to set an environment variable GITHUB_TOKEN to access GitHub. You may use the option --local to only use locally available addons.');
+            throw new RuntimeException('You need to set an environment variable ADDON_REPOSITORY_TOKEN to access the addon repository. You may use the option --local to only use locally available addons.');
         }
-        $ghOptions = [
+        $addonRepositoryOptions = [
             'headers' => [
-                'Accept'               => 'application/vnd.github.v3+json',
-                'X-GitHub-Api-Version' => '2022-11-28',
-                'Authorization'        => 'Bearer '.$ghToken,
+                'Authorization'        => 'Bearer '.$addonRepositoryToken,
             ],
         ];
-        // might be loaded dynamically by repository labels once
-        $availableAddons = [
-            'demosplan-addon-bimschg-antrag',
-            'demosplan-addon-datasheets-sh',
-            'demosplan-addon-demospipes',
-            'demosplan-addon-flood-control',
-            'demosplan-addon-maillane',
-            'demosplan-addon-segment-oracle',
-            'demosplan-addon-xbeteiligung-async',
-        ];
-        $question = new ChoiceQuestion('Which addon do you want to install? ', $availableAddons);
-        $repo = $this->getHelper('question')->ask($input, $output, $question);
-        $ghUrl = 'https://api.github.com/repos/demos-europe/'.$repo.'/tags';
-        $existingTagsResponse = $client->request('GET', $ghUrl, $ghOptions);
-        if (404 === $existingTagsResponse->getStatusCode()) {
-            throw new RuntimeException('Could not access repository. Did you create a GitHub personal access token?');
+
+        // fetch a list of available repositories
+        $repositoryListUrl = sprintf('%s/api/list', $addonRepositoryUrl);
+        $existingReposResponse = $this->httpClient->request('GET', $repositoryListUrl, $addonRepositoryOptions);
+        if (401 === $existingReposResponse->getStatusCode()) {
+            throw new RuntimeException('Could not access repository. Did you purchase an addon repository personal access token?');
         }
+        $existingTagsContent = $existingReposResponse->getContent(false);
+        try {
+            $availableAddons = Json::decodeToArray($existingTagsContent);
+        } catch (JsonException $exception) {
+            throw new RuntimeException('Could not decode response from repository. ' .
+                $exception->getMessage() .' Response was '. $existingTagsContent);
+        }
+        $repoQuestion = new ChoiceQuestion('Which addon do you want to install? ', $availableAddons);
+        $repo = $this->getHelper('question')->ask($input, $output, $repoQuestion);
+
+        // fetch a list of available tags
+        $tagsUrl = sprintf('%s/api/list/tags/%s', $addonRepositoryUrl, $repo);
+        $existingTagsResponse = $this->httpClient->request('GET', $tagsUrl, $addonRepositoryOptions);
         $existingTagsContent = $existingTagsResponse->getContent(false);
         $tags = collect(Json::decodeToArray($existingTagsContent))->filter(function ($tag) {
             return !str_contains($tag['name'], 'rc');
         })->map(function ($tag) {
             return $tag['name'];
         })->toArray();
+        $tagQuestion = new ChoiceQuestion('Which tag do you want to install? ', $tags);
+        $tag = $this->getHelper('question')->ask($input, $output, $tagQuestion);
 
-        $question = new ChoiceQuestion('Which tag do you want to install? ', $tags);
-        $tag = $this->getHelper('question')->ask($input, $output, $question);
-
-        // tags are prefixed with v, but the zip file in GitHub is not
+        // tags are prefixed with v, but the zip file is not
         $path = DemosPlanPath::getRootPath($folder).'/'.$repo.'-'.str_replace('v', '', $tag).'.zip';
         if (file_exists($path) && !$input->getOption('force-download')) {
             $output->info('File '.$path.' already exists, skipping download. You may use the --force-download option to force a download.');
         } else {
-            // url is hardcoded by purpose as the zip otherwise extracts to a folder containing the hash, not the tag
-            // which makes it harder to recognize the installed addon version
-            $zipUrl = 'https://github.com/demos-europe/'.$repo.'/archive/refs/tags/'.$tag.'.zip';
-            $zipResponse = $client->request('GET', $zipUrl, $ghOptions);
+            $zipUrl = sprintf('%s/api/get/%s/%s', $addonRepositoryUrl, $repo, $tag);
+            $zipResponse = $this->httpClient->request('GET', $zipUrl, $addonRepositoryOptions);
 
             $zipContent = $zipResponse->getContent(false);
             file_put_contents($path, $zipContent);
