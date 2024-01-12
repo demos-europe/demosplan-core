@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureDeleterService;
+use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
 use Symfony\Component\Console\Command\Command;
@@ -32,6 +33,7 @@ class DeleteProcedureCommand extends CoreCommand
     public function __construct(
         ParameterBagInterface                    $parameterBag,
         private readonly ProcedureDeleterService $procedureDeleter,
+        private readonly SqlQueriesService $queriesService,
         string                                   $name = null
     ) {
         parent::__construct($parameterBag, $name);
@@ -68,11 +70,11 @@ class DeleteProcedureCommand extends CoreCommand
         $procedureIds = explode(",", $procedureIds);
         try {
             $retrievedProceduresIds = array_column(
-                $this->procedureDeleter->fetchFromTableByParameter(['_p_id'], '_procedure', '_p_id', $procedureIds),
+                $this->queriesService->fetchFromTableByParameter(['_p_id'], '_procedure', '_p_id', $procedureIds),
                 '_p_id'
             );
         } catch (Exception $exception) {
-            $output->error('could not retrieve procedures '.$exception);
+            $output->error('could not retrieve procedure(s) '.$exception);
 
             return Command::FAILURE;
         }
@@ -80,27 +82,26 @@ class DeleteProcedureCommand extends CoreCommand
         $missedIdsArray = array_diff($procedureIds, $retrievedProceduresIds);
         if (count($missedIdsArray) !== 0) {
             $missedIdsString = implode(' ', $missedIdsArray);
-            $output->warning("Matching procedures not found for ids $missedIdsString");
+            $output->warning("Matching procedure(s) not found for id(s) $missedIdsString");
         }
 
         if (count($retrievedProceduresIds) === 0) {
-            $output->info('no procedure found to delete');
+            $output->info('no procedure(s) found to delete');
 
             return Command::FAILURE;
         }
-        $this->procedureDeleter->setProcedureIds($retrievedProceduresIds);
         $isDryRun = (bool) $input->getOption('dry-run');
-        $this->procedureDeleter->setIsDryRun($isDryRun);
         $withoutRepopulate = (bool) $input->getOption('without-repopulate');
 
         try {
-            $output->info("Procedures ids to delete: ".implode(',', $retrievedProceduresIds));
+            $output->info("Procedure id(s) to delete: ".implode(',', $retrievedProceduresIds));
             $output->info("Dry-run: $isDryRun");
 
-            $this->procedureDeleter->deleteProcedures();
+            $this->procedureDeleter->deleteProcedures($retrievedProceduresIds, $isDryRun);
 
             // repopulate Elasticsearch
             if ($isDryRun && $withoutRepopulate) {
+                $output->info('Repopulate Elasticsearch');
                 $this->repopulateElasticsearch($output);
             }
         } catch (Exception $exception) {
@@ -110,7 +111,7 @@ class DeleteProcedureCommand extends CoreCommand
             return Command::FAILURE;
         }
 
-        $output->info('procedures with ids '.implode(",", $retrievedProceduresIds).' are deleted successfully');
+        $output->info('procedure(s) with id(s) '.implode(",", $retrievedProceduresIds).' are deleted successfully');
 
         return Command::SUCCESS;
     }
