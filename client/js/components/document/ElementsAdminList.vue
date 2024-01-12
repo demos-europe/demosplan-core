@@ -54,7 +54,7 @@
       :on-move="onMove"
       :options="treeListOptions"
       :tree-data="treeData"
-      @draggable:change="saveNewSort"
+      @end="(event, item, parentId) => saveNewSort(event, item, parentId)"
       @node-selection-change="nodeSelectionChange"
       @tree:change="updateTreeData">
       <template v-slot:header="">
@@ -308,33 +308,36 @@ export default {
      * Persist new sort order.
      * The parentId is used to save sort across branches.
      *
-     * @param action {Object<elementId, newIndex, parentId>}
+     * @param event
+     * @param {Object} item
+     * @param {Object} item.attributes
+     * @param {String} item.id
+     * @param {String} item.type
+     * @param {String} parentId
      */
-    saveNewSort ({ elementId, newIndex, parentId }) {
-      // Find the node the element has been moved into
-      const parentNode = this.findNodeById(this.treeData, parentId)
-      const isRootLevel = !parentId
-      const elementSiblings = isRootLevel ? this.treeData : parentNode.children
-      // Find the element that is directly following the moved element (only folders, no files)
-      const nextSibling = elementSiblings.filter(node => node.type === 'elements')[newIndex + 1]
-      // Either send the index of the element that is being "pushed down" or undefined (if the moved element is the last item)
-      const index = nextSibling ? nextSibling.attributes.index : null
+    saveNewSort (event, item, parentId ) {
+      const { newIndex } = event
+      const elementId = item.id
+
+      // if item hasn't been moved, do nothing
+      if (newIndex === item.attributes.index) {
+        return
+      }
 
       this.canDrag = false
 
       dpRpc('planningCategoryList.reorder', {
         elementId: elementId,
-        newIndex: index,
+        newIndex: newIndex,
         parentId: parentId
       })
-        .then((response) => {
+        .then(response => {
           /*
            * The response of the rpc should be an object with the elementIds as key
            * and the updated { index, parentId } as value. The store is then updated
            * with those values to rebuild the hierarchy with the correct indexes.
            */
           const elementsMap = response.data[0].result
-
           for (const id in elementsMap) {
             const storeElement = this.elements[id]
             const mapElement = elementsMap[id]
@@ -355,7 +358,8 @@ export default {
           this.canDrag = true
           dplan.notify.confirm(Translator.trans('confirm.saved'))
         })
-        .catch(() => {
+        .catch(error => {
+          console.error(error)
           dplan.notify.error(Translator.trans('error.changes.not.saved'))
         })
     },
