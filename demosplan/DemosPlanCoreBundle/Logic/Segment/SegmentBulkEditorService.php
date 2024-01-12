@@ -4,6 +4,8 @@
 declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
+use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -14,11 +16,12 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
+use Doctrine\ORM\ORMException;
 
 
 class SegmentBulkEditorService
 {
-    public function __construct(protected UserHandler $userHandler, protected SegmentHandler $segmentHandler, protected SegmentValidator $segmentValidator, protected TagService $tagService, protected TagValidator $tagValidator
+    public function __construct(protected UserHandler $userHandler, protected CurrentUserInterface $currentUser, protected SegmentHandler $segmentHandler, protected SegmentValidator $segmentValidator, protected TagService $tagService, protected TagValidator $tagValidator
 
     ) {
 
@@ -102,6 +105,40 @@ class SegmentBulkEditorService
         $this->tagValidator->validateTags($tagIds, $tags, $procedureId);
 
         return $tags;
+    }
+
+    /**
+     * Update texts directly in database for performance reasons.
+     *
+     * @param array<int, Segment> $segments
+     *
+     * @throws ORMException
+     * @throws UserNotFoundException
+     */
+    public function updateRecommendations(array $segments, ?object $recommendationTextEdit, string $procedureId, string $entityType, DateTime $updateTime): void
+    {
+        if (null === $recommendationTextEdit) {
+            return;
+        }
+
+        /** @var string $recommendationText */
+        $recommendationText = $recommendationTextEdit->text;
+        /** @var bool $attach */
+        $attach = $recommendationTextEdit->attach;
+
+        if ($attach && '' === $recommendationText) {
+            return;
+        }
+
+        $this->segmentHandler->editSegmentRecommendations(
+            $segments,
+            $procedureId,
+            $recommendationText,
+            $attach,
+            $this->currentUser->getUser(),
+            $entityType,
+            $updateTime
+        );
     }
 
 

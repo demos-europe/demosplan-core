@@ -109,7 +109,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 
                     // update texts directly in database for performance reasons
                     $recommendationTextEdit = $rpcRequest->params->recommendationTextEdit;
-                    $this->updateRecommendations($segments, $recommendationTextEdit, $procedureId, $entityType, $methodCallTime);
+                    $this->segmentBulkEditorService->updateRecommendations($segments, $recommendationTextEdit, $procedureId, $entityType, $methodCallTime);
 
                     // update entities with new tags, workflowPlace and assignee
                     $addTagIds = $this->segmentBulkEditorService->getValidTags($rpcRequest->params->addTagIds, $procedureId);
@@ -274,37 +274,4 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
         return '' !== $assigneeId;
     }
 
-    /**
-     * Update texts directly in database for performance reasons.
-     *
-     * @param array<int, Segment> $segments
-     *
-     * @throws ORMException
-     * @throws UserNotFoundException
-     */
-    public function updateRecommendations(array $segments, ?object $recommendationTextEdit, string $procedureId, string $entityType, DateTime $updateTime): void
-    {
-        if (null === $recommendationTextEdit) {
-            return;
-        }
-
-        /** @var string $recommendationText */
-        $recommendationText = $recommendationTextEdit->text;
-        /** @var bool $attach */
-        $attach = $recommendationTextEdit->attach;
-
-        if ($attach && '' === $recommendationText) {
-            return;
-        }
-
-        $this->segmentHandler->editSegmentRecommendations(
-            $segments,
-            $procedureId,
-            $recommendationText,
-            $attach,
-            $this->currentUser->getUser(),
-            $entityType,
-            $updateTime
-        );
-    }
 }

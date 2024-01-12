@@ -157,7 +157,7 @@ class RpcBulkEditorTest extends RpcApiTest
     public function testUpdateRecommendation(): void
     {
 
-        $this->sut = $this->getContainer()->get(RpcSegmentsBulkEditor::class);
+        $this->sut = $this->getContainer()->get(SegmentBulkEditorService::class);
 
         $procedure = $this->getProcedureReference(\demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData::TESTPROCEDURE);
         $segment1 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_1);
@@ -180,7 +180,7 @@ class RpcBulkEditorTest extends RpcApiTest
     public function testAttachUpdateRecommendation(): void
     {
 
-        $this->sut = $this->getContainer()->get(RpcSegmentsBulkEditor::class);
+        $this->sut = $this->getContainer()->get(SegmentBulkEditorService::class);
 
         $procedure = $this->getProcedureReference(\demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData::TESTPROCEDURE);
         $segment1 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_1);
