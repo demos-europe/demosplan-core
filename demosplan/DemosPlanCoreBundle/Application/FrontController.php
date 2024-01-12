@@ -40,7 +40,7 @@ use function set_time_limit;
 final class FrontController
 {
     /**
-     * This resembles config/bootstrap.php in a classic Symfony application. Should be updated to Runtime Component
+     * This resembles config/bootstrap.php in a classic Symfony application. Should be updated to Runtime Component.
      */
     public static function bootstrap(): void
     {
