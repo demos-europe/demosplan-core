@@ -66,6 +66,8 @@ class DeleteProcedureCommand extends CoreCommand
     {
         $output = new SymfonyStyle($input, $output);
 
+        $isDryRun = (bool) $input->getOption('dry-run');
+        $withoutRepopulate = (bool) $input->getOption('without-repopulate');
         $procedureIds = $input->getArgument('procedureIds');
         $procedureIds = explode(',', $procedureIds);
         try {
@@ -90,8 +92,6 @@ class DeleteProcedureCommand extends CoreCommand
 
             return Command::FAILURE;
         }
-        $isDryRun = (bool) $input->getOption('dry-run');
-        $withoutRepopulate = (bool) $input->getOption('without-repopulate');
 
         try {
             $output->info('Procedure id(s) to delete: '.implode(',', $retrievedProceduresIds));
