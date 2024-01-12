@@ -119,9 +119,15 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                     );
 
 
-                    $assigneeId = data_get($rpcRequest, 'params.assigneeId', '') ?  : null;
+                    $assigneeId = data_get($rpcRequest, 'params.assigneeId', 'UNKNOWN');
 
-                    $assignee = $this->segmentBulkEditorService->detectAssignee($assigneeId);
+                    if ($assigneeId !== 'UNKNOWN') {
+                        $assignee = $this->segmentBulkEditorService->detectAssignee($assigneeId);
+                    } else {
+                        $assignee = 'UNKNOWN';
+                    }
+
+
                     $workflowPlace = $this->extractWorkflowPlace($rpcRequest);
 
                     $segments = $this->segmentBulkEditorService->updateSegments($segments, $addTagIds, $removeTagIds, $assignee, $workflowPlace);
