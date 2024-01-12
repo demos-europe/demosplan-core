@@ -78,9 +78,7 @@ export default {
   data () {
     return {
       options: {
-        branchesSelectable: false,
-        leavesSelectable: false,
-        dragLeaves: true
+        dragLeaves: true,
       },
       treeListData: null,
       categories: null,
