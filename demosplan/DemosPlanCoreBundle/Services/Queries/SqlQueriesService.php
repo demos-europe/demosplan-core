@@ -29,7 +29,7 @@ class SqlQueriesService extends CoreService
     /**
      * @throws Exception
      */
-    public function deleteFromTableByIdentifierArray(string $tableName, string $identifier, array $ids, bool $isDryRun = false): void
+    public function deleteFromTableByIdentifierArray(string $tableName, string $identifier, array $ids, bool $isDryRun): void
     {
         if (!$this->doesTableExist($tableName)) {
             throw new Exception("No table with the name $tableName exists in this database. Data could not be fetched.");
