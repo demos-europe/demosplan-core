@@ -21,6 +21,7 @@ class ProcedureDeleterService
         private readonly SqlQueriesService $queriesService
     ) {
     }
+
     /**
      * @throws Exception
      */
@@ -75,7 +76,7 @@ class ProcedureDeleterService
             // delete para docs
             $this->deleteParaDocs($procedureIds, $isDryRun);
 
-             // delete para docs versions
+            // delete para docs versions
             $this->deleteParaDocVersions($procedureIds, $isDryRun);
 
             // delete procedure doctrine orgas

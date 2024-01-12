@@ -17,7 +17,8 @@ use Exception;
 
 class SqlQueriesService extends CoreService
 {
-    public function __construct(private readonly Connection $dbConnection) {
+    public function __construct(private readonly Connection $dbConnection)
+    {
     }
 
     public function getConnection(): Connection
@@ -68,6 +69,7 @@ class SqlQueriesService extends CoreService
 
     /**
      * This is necessary to even allow us to delete all tables individually.
+     *
      * @throws Exception
      */
     public function deactivateForeignKeyChecks(): void

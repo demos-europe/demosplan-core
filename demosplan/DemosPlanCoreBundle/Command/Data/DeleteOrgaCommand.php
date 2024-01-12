@@ -1,9 +1,18 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureDeleter;
+use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -11,7 +20,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Doctrine\DBAL\Exception;
 
 class DeleteOrgaCommand extends CoreCommand
 {
@@ -52,21 +60,21 @@ class DeleteOrgaCommand extends CoreCommand
 
         $orgaIds = $input->getArgument('orgaIds');
         try {
-            $orgasProceduresIds = $this->procedureDeleter->fetchFromTableByParameter(['_p_id'], '_procedure', '_o_id', explode(",", $orgaIds));
+            $orgasProceduresIds = $this->procedureDeleter->fetchFromTableByParameter(['_p_id'], '_procedure', '_o_id', explode(',', $orgaIds));
         } catch (Exception $e) {
-            $output->error("could not retrieve procedures Ids");
+            $output->error('could not retrieve procedures Ids');
         }
 
-        //$this->procedureDeleter->setProcedureIds($orgasProceduresIds);
+        // $this->procedureDeleter->setProcedureIds($orgasProceduresIds);
         $isDryRun = (bool) $input->getOption('dry-run');
-        //$this->procedureDeleter->setIsDryRun($isDryRun);
+        // $this->procedureDeleter->setIsDryRun($isDryRun);
         $withoutRepopulate = (bool) $input->getOption('without-repopulate');
-        //$this->procedureDeleter->setRepopulate($withoutRepopulate);
+        // $this->procedureDeleter->setRepopulate($withoutRepopulate);
 
         $output->info("Organisations ids to delete: $orgasProceduresIds");
         $output->info("Dry-run: $isDryRun");
 
-        //return $this->procedureDeleter->deleteProcedures();
+        // return $this->procedureDeleter->deleteProcedures();
         return 1;
     }
 }

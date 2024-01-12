@@ -31,10 +31,10 @@ class DeleteProcedureCommand extends CoreCommand
     protected static $defaultDescription = 'Deletes a procedure including all related content like statements, tags, News, etc.';
 
     public function __construct(
-        ParameterBagInterface                    $parameterBag,
+        ParameterBagInterface $parameterBag,
         private readonly ProcedureDeleterService $procedureDeleter,
         private readonly SqlQueriesService $queriesService,
-        string                                   $name = null
+        string $name = null
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -67,7 +67,7 @@ class DeleteProcedureCommand extends CoreCommand
         $output = new SymfonyStyle($input, $output);
 
         $procedureIds = $input->getArgument('procedureIds');
-        $procedureIds = explode(",", $procedureIds);
+        $procedureIds = explode(',', $procedureIds);
         try {
             $retrievedProceduresIds = array_column(
                 $this->queriesService->fetchFromTableByParameter(['_p_id'], '_procedure', '_p_id', $procedureIds),
@@ -80,12 +80,12 @@ class DeleteProcedureCommand extends CoreCommand
         }
 
         $missedIdsArray = array_diff($procedureIds, $retrievedProceduresIds);
-        if (count($missedIdsArray) !== 0) {
+        if (0 !== count($missedIdsArray)) {
             $missedIdsString = implode(' ', $missedIdsArray);
             $output->warning("Matching procedure(s) not found for id(s) $missedIdsString");
         }
 
-        if (count($retrievedProceduresIds) === 0) {
+        if (0 === count($retrievedProceduresIds)) {
             $output->info('no procedure(s) found to delete');
 
             return Command::FAILURE;
@@ -94,7 +94,7 @@ class DeleteProcedureCommand extends CoreCommand
         $withoutRepopulate = (bool) $input->getOption('without-repopulate');
 
         try {
-            $output->info("Procedure id(s) to delete: ".implode(',', $retrievedProceduresIds));
+            $output->info('Procedure id(s) to delete: '.implode(',', $retrievedProceduresIds));
             $output->info("Dry-run: $isDryRun");
 
             $this->procedureDeleter->deleteProcedures($retrievedProceduresIds, $isDryRun);
@@ -111,7 +111,7 @@ class DeleteProcedureCommand extends CoreCommand
             return Command::FAILURE;
         }
 
-        $output->info('procedure(s) with id(s) '.implode(",", $retrievedProceduresIds).' are deleted successfully');
+        $output->info('procedure(s) with id(s) '.implode(',', $retrievedProceduresIds).' are deleted successfully');
 
         return Command::SUCCESS;
     }
