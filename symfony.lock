@@ -538,12 +538,6 @@
     "php-http/promise": {
         "version": "1.1.0"
     },
-    "php-parallel-lint/php-console-color": {
-        "version": "v0.3"
-    },
-    "php-parallel-lint/php-console-highlighter": {
-        "version": "v0.5"
-    },
     "phpdocumentor/reflection-common": {
         "version": "2.2.0"
     },
