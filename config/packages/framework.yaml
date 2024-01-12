@@ -1,18 +1,27 @@
+# see https://symfony.com/doc/current/reference/configuration/framework.html
 framework:
     assets: ~
-    #esi:             ~
-    secret:          '%secret%'
-    form:            ~
+    #esi: true
+    secret: '%env(APP_SECRET)%'
+    form: ~
     csrf_protection: ~
-    validation:      { enable_annotations: true }
+    validation: { enable_annotations: true }
     trusted_hosts: ~
+    #csrf_protection: true
+
+    # Enables session support. Note that the session will ONLY be started if you read or write from it.
+    # Remove or comment this section to explicitly disable session support.
     session:
         handler_id: 'demosplan\DemosPlanCoreBundle\Logic\SessionHandler'
-        cookie_samesite: 'lax'
-        #save_path: '%kernel.project_dir%/var/sessions/%kernel.environment%'
-    fragments:       ~
-    http_method_override: true
+        cookie_secure: auto
+        cookie_samesite: lax
+        storage_factory_id: session.storage.factory.native
 
+    fragments:       ~
+    #fragments: true
+    http_method_override: false
+    php_errors:
+        log: true
     http_client:
         default_options:
             max_redirects: 7
@@ -20,4 +29,10 @@ framework:
 
     request:
         formats:
-            jsonapi: ['application/vnd.api+json']
+            jsonapi: [ 'application/vnd.api+json' ]
+
+when@test:
+    framework:
+        test: true
+        session:
+            storage_factory_id: session.storage.factory.mock_file
