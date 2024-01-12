@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\Addon;
 
+use RuntimeException;
 use Composer\Package\Loader\ArrayLoader;
 use Composer\Package\PackageInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
@@ -163,7 +164,7 @@ class AddonUninstallCommand extends CoreCommand
             ->run();
 
         if (0 !== $batchReturn) {
-            throw new \RuntimeException('Composer remove failed');
+            throw new RuntimeException('Composer remove failed');
         }
         $output->info("composer package removed successfully.");
     }

@@ -28,7 +28,7 @@ class CachingYamlPermissionCollection implements PermissionCollectionInterface
      * @param non-empty-string $path
      * @param non-empty-string $cacheKey
      */
-    public function __construct(private readonly CacheInterface $cache, private readonly LoggerInterface $logger, private readonly string $path, private string $cacheKey, private readonly GlobalConfig $globalConfig)
+    public function __construct(private readonly CacheInterface $cache, private readonly LoggerInterface $logger, private readonly string $path, private readonly string $cacheKey, private readonly GlobalConfig $globalConfig)
     {
     }
 

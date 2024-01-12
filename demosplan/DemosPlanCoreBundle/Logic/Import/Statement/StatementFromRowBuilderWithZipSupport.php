@@ -77,7 +77,7 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
             return null;
         }
 
-        $fileHashes = explode(', ', $cell->getValue());
+        $fileHashes = explode(', ', (string) $cell->getValue());
         $statement = $this->baseStatementFromRowBuilder->statement;
 
         /**

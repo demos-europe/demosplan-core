@@ -166,10 +166,10 @@ class UserServiceTest extends FunctionalTestCase
             'gender'                               => 'female',
             'login'                                => 'myLogin',
             'password'                             => md5('myPassword'),
-            UserFlagKey::IS_NEW_USER               => true,
-            UserFlagKey::PROFILE_COMPLETED         => false,
-            UserFlagKey::ACCESS_CONFIRMED          => false,
-            UserFlagKey::WANTS_FORUM_NOTIFICATIONS => false,
+            UserFlagKey::IS_NEW_USER->value               => true,
+            UserFlagKey::PROFILE_COMPLETED->value         => false,
+            UserFlagKey::ACCESS_CONFIRMED->value          => false,
+            UserFlagKey::WANTS_FORUM_NOTIFICATIONS->value => false,
         ];
         $user = $this->sut->addUser($data);
         static::assertTrue($user->isNewUser());
@@ -232,10 +232,10 @@ class UserServiceTest extends FunctionalTestCase
             'gender'                               => 'female',
             'login'                                => 'myLogin',
             'password'                             => md5('myPassword'),
-            UserFlagKey::IS_NEW_USER               => true,
-            UserFlagKey::PROFILE_COMPLETED         => false,
-            UserFlagKey::ACCESS_CONFIRMED          => false,
-            UserFlagKey::WANTS_FORUM_NOTIFICATIONS => false,
+            UserFlagKey::IS_NEW_USER->value               => true,
+            UserFlagKey::PROFILE_COMPLETED->value         => false,
+            UserFlagKey::ACCESS_CONFIRMED->value          => false,
+            UserFlagKey::WANTS_FORUM_NOTIFICATIONS->value => false,
             'address'                              => $this->testAddress,
         ];
         $user = $this->sut->addUser($data);

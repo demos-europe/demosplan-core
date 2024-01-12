@@ -412,7 +412,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             if (is_numeric($tagTitlesString)) {
                 $tagTitlesString = (string) $tagTitlesString;
             }
-            $tagTitles = explode(',', $tagTitlesString);
+            $tagTitles = explode(',', (string) $tagTitlesString);
 
             foreach ($tagTitles as $tagTitle) {
                 $matchingTag = $this->getMatchingTag($tagTitle, $procedureId);

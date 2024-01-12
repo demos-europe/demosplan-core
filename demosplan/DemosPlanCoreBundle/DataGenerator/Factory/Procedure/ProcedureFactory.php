@@ -39,12 +39,9 @@ use Zenstruck\Foundry\RepositoryProxy;
  */
 class ProcedureFactory extends ModelFactory
 {
-    private GlobalConfigInterface $globalConfig;
-
-    public function __construct(GlobalConfigInterface $globalConfig)
+    public function __construct(private readonly GlobalConfigInterface $globalConfig)
     {
         parent::__construct();
-        $this->globalConfig = $globalConfig;
     }
 
     protected function getDefaults(): array

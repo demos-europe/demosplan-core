@@ -132,24 +132,6 @@ class ConsultationToken implements UuidEntityInterface, ConsultationTokenInterfa
      */
     private $modificationDate;
 
-    /**
-     * The connection to the statement the token was created for.
-     *
-     * The value of this property should be considered final.
-     *
-     * We need the reference to the {@link Statement} in the assessment table to provide
-     * the user with a link to its detail view.
-     *
-     * @var Statement|null the source statement or `null` if the statement was deleted
-     *
-     * @IsNotOriginalStatementConstraint
-     *
-     * @ORM\OneToOne(targetEntity=Statement::class)
-     *
-     * @ORM\JoinColumn(referencedColumnName="_st_id", nullable=true)
-     */
-    private ?Statement $statement;
-
     public function __construct(
         /**
          * The human readable token given to users to submit statements during the special
@@ -162,7 +144,23 @@ class ConsultationToken implements UuidEntityInterface, ConsultationTokenInterfa
         #[Assert\NotBlank]
         #[Assert\Regex('/^\w{8}$/')]
         private string $token,
-        Statement $statement,
+        /**
+         * The connection to the statement the token was created for.
+         *
+         * The value of this property should be considered final.
+         *
+         * We need the reference to the {@link Statement} in the assessment table to provide
+         * the user with a link to its detail view.
+         *
+         * @var Statement|null the source statement or `null` if the statement was deleted
+         *
+         * @IsNotOriginalStatementConstraint
+         *
+         * @ORM\OneToOne(targetEntity=Statement::class)
+         *
+         * @ORM\JoinColumn(referencedColumnName="_st_id", nullable=true)
+         */
+        private ?Statement $statement,
         /**
          * Determines if this token entry was created manually by the user in the UI, in which
          * case it is `true`. The alternative would be that this instance was created automatically
@@ -174,8 +172,7 @@ class ConsultationToken implements UuidEntityInterface, ConsultationTokenInterfa
          */
         private bool $manuallyCreated
     ) {
-        $this->statement = $statement;
-        $this->originalStatement = $statement->getOriginal();
+        $this->originalStatement = $this->statement->getOriginal();
     }
 
     public function getId(): ?string

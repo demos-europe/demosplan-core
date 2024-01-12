@@ -172,7 +172,7 @@ class HTMLFragmentSlicer
                         }
                     }
                 );
-        } catch (RuntimeException $e) {
+        } catch (RuntimeException) {
             // TODO: create proper exception?
             // TODO: Log failure with reasonable context (original fragment?) to debug
 

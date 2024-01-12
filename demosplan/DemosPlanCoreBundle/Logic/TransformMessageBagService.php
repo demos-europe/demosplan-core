@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use Throwable;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -22,7 +23,7 @@ use Tightenco\Collect\Support\Collection;
 class TransformMessageBagService
 {
     private FlashBagInterface $flashBag;
-    private string $env;
+    private readonly string $env;
 
     public function __construct(
         KernelInterface $kernel,
@@ -34,7 +35,7 @@ class TransformMessageBagService
         try {
             // in some cases like console commands, the request stack is not available
             $this->flashBag = $requestStack->getSession()->getFlashBag();
-        } catch (\Throwable) {
+        } catch (Throwable) {
             $this->flashBag = new FlashBag();
         }
     }

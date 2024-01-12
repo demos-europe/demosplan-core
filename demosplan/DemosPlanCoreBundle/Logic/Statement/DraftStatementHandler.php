@@ -773,7 +773,7 @@ class DraftStatementHandler extends CoreHandler
         foreach ($draftStatements as $draftStatement) {
             $user = $draftStatement->getUser();
             // only for users, who has enabled notification for unsubmitted draft statements:
-            if ($user->getFlag(UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED)) {
+            if ($user->getFlag(UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED->value)) {
                 $procedures[$draftStatement->getProcedureId()]['procedure'] = $draftStatement->getProcedure();
                 $procedures[$draftStatement->getProcedureId()]['users'][$draftStatement->getUId()]['user'] = $user;
                 $procedures[$draftStatement->getProcedureId()]['users'][$draftStatement->getUId()]['draftStatements'][] = $draftStatement->getUser();

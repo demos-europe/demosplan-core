@@ -159,7 +159,7 @@ abstract class BaseController extends AbstractController
         if (1004 === $e->getCode()) {
             try {
                 $this->getMessageBag()->add('warning', 'warning.login.failed');
-            } catch (MessageBagException $e) {
+            } catch (MessageBagException) {
                 $this->getLogger()->warning('Could not add Message to message bag');
             }
 

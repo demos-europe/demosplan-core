@@ -620,7 +620,7 @@ class StatementCopier extends CoreService
             return $newStatement;
         } catch (CopyException $e) {
             throw $e;
-        } catch (ClusterStatementCopyNotImplementedException $e) {
+        } catch (ClusterStatementCopyNotImplementedException) {
             return false;
         } catch (Exception $e) {
             $this->getLogger()->error('Could not copy statement ', [$e]);

@@ -28,7 +28,7 @@ use Webmozart\Assert\Assert;
 
 class StatementSpreadsheetImporterWithZipSupport extends StatementSpreadsheetImporter
 {
-    private ?array $fileMap;
+    private ?array $fileMap = null;
     public function __construct(
         CurrentProcedureService $currentProcedureService,
         CurrentUserService $currentUser,
@@ -63,8 +63,8 @@ class StatementSpreadsheetImporterWithZipSupport extends StatementSpreadsheetImp
         [$baseColumns, $builder] = parent::getColumnMapping();
         $builder = $this->getStatementFromRowBuilder($builder);
         // add new columns
-        $baseColumns['Referenzen auf Anhänge'] = [$builder, 'setFileReferences'];
-        $baseColumns['Originalanhang'] = [$builder, 'setOriginalFileReferences'];
+        $baseColumns['Referenzen auf Anhänge'] = $builder->setFileReferences(...);
+        $baseColumns['Originalanhang'] = $builder->setOriginalFileReferences(...);
 
         return [$baseColumns, $builder];
     }

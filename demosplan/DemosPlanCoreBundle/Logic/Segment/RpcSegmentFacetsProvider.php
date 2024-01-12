@@ -32,11 +32,9 @@ use stdClass;
 class RpcSegmentFacetsProvider implements RpcMethodSolverInterface
 {
     private const FACET_LIST_METHOD = 'segments.facets.list';
-    private readonly DrupalFilterParser $filterParser;
 
-    public function __construct(private readonly ApiResourceService $resourceService, private readonly CurrentUserInterface $currentUser, DrupalFilterParser $drupalFilterParser, private readonly JsonApiActionService $jsonApiActionService, private readonly RpcErrorGenerator $errorGenerator, private readonly StatementSegmentResourceType $segmentResourceType)
+    public function __construct(private readonly ApiResourceService $resourceService, private readonly CurrentUserInterface $currentUser, private readonly DrupalFilterParser $filterParser, private readonly JsonApiActionService $jsonApiActionService, private readonly RpcErrorGenerator $errorGenerator, private readonly StatementSegmentResourceType $segmentResourceType)
     {
-        $this->filterParser = $drupalFilterParser;
     }
 
     public function supports(string $method): bool

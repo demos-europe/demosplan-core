@@ -112,10 +112,6 @@ class DraftStatementService extends CoreService
      * @var StatementValidator
      */
     protected $statementValidator;
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
 
     public function __construct(
         CurrentUserInterface $currentUser,
@@ -130,7 +126,7 @@ class DraftStatementService extends CoreService
         FileService $fileService,
         private readonly ManualListSorter $manualListSorter,
         MapService $serviceMap,
-        MessageBagInterface $messageBag,
+        private readonly MessageBagInterface $messageBag,
         private readonly NotificationReceiverRepository $notificationReceiverRepository,
         OrgaService $orgaService,
         ParagraphService $paragraphService,
@@ -149,7 +145,6 @@ class DraftStatementService extends CoreService
         $this->currentUser = $currentUser;
         $this->elementsService = $elementsService;
         $this->fileService = $fileService;
-        $this->messageBag = $messageBag;
         $this->orgaService = $orgaService;
         $this->paragraphService = $paragraphService;
         $this->serviceImporter = $serviceImporter;

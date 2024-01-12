@@ -36,7 +36,7 @@ use const DIRECTORY_SEPARATOR;
 
 class ZipImportService
 {
-    private Finder $finder;
+    private readonly Finder $finder;
     private const ZIP_CONTAINS_ERROR_TXT_FILE = 'File is not valid. It contains an errors.txt file indicating a faulty export';
     private const IMPORT_FILE_TYPES_TO_NOT_BE_SAVED = [
         'xlsx',
@@ -108,7 +108,7 @@ class ZipImportService
             $this->messageBag->add(
                 'error',
                 $this->translator->trans('error.file.could.not.be.read'),
-                ['files' => implode(array_keys($fileMap))]
+                ['files' => implode('', array_keys($fileMap))]
             );
 
             throw new DemosException('statement import failed');

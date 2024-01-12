@@ -48,7 +48,7 @@ class ResourceLinkageFactory
             throw new InvalidArgumentException('expected JSON object with \'data\' as only field containing an array');
         }
 
-        array_map([$this, 'validateItem'], $requestJson[ContentField::DATA]);
+        array_map($this->validateItem(...), $requestJson[ContentField::DATA]);
 
         return $requestJson;
     }

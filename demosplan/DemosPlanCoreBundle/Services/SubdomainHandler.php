@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Services;
 
+use Exception;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Repository\CustomerRepository;
 use Psr\Log\LoggerInterface;
@@ -52,7 +53,7 @@ class SubdomainHandler implements SubdomainHandlerInterface
             $this->logger->debug('Customer found', [$customer->getSubdomain()]);
 
             return $urlSubdomain;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->info('Customer not found, using default customer', [$e->getMessage()]);
         }
 

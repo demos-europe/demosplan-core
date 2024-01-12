@@ -31,7 +31,7 @@ class DeleteProcedureCommand extends CoreCommand
     protected static $defaultName = 'dplan:procedure:delete';
     protected static $defaultDescription = 'Deletes a procedure including all related content like statements, tags, News, etc.';
 
-    private Connection $dbConnection;
+    private readonly Connection $dbConnection;
     private string $procedureId;
     private bool $isDryRun;
     private bool $withoutRepopulate;

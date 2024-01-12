@@ -1045,7 +1045,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     {
         // Simply checks each permission individually for now.
         // Optimizations may be implemented in the future.
-        array_map([$this, 'requirePermission'], $permissionIdentifiers);
+        array_map($this->requirePermission(...), $permissionIdentifiers);
     }
 
     public function isPermissionEnabled($permissionIdentifier): bool

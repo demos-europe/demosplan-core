@@ -66,7 +66,7 @@ class DocxImporterRabbitmq implements DocxImporterInterface
 
             if ('' != $replies['import']) {
                 $this->logger->info(
-                    'Incoming message size:'.strlen($replies['import'])
+                    'Incoming message size:'.strlen((string) $replies['import'])
                 );
             }
 
