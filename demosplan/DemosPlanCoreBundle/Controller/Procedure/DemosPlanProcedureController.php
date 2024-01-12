@@ -104,8 +104,6 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use EDT\Wrapping\Contracts\AccessException;
-use EDT\Wrapping\Contracts\WrapperFactoryInterface;
 use Exception;
 use InvalidArgumentException;
 use Symfony\Component\Form\FormFactoryInterface;
