@@ -27,7 +27,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 use Symfony\Component\Validator\Constraint;
-use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Range;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -289,7 +288,6 @@ class StatementFromRowBuilder extends AbstractStatementFromRowBuilder
         $newStatementMeta->setSubmitOrgaId($this->importingUser->getOrganisationId());
         $newOriginalStatement->setPhase($this->procedure->getPhase());
         $newOriginalStatement->setPublicVerified(Statement::PUBLICATION_NO_CHECK_SINCE_NOT_ALLOWED);
-
 
         $violations = $this->findOrCreatePlanningCategory($newOriginalStatement);
         if (0 !== $violations->count()) {
