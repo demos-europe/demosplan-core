@@ -346,7 +346,6 @@ class AddonInstallFromZipCommand extends CoreCommand
 
     private function loadFromApiRepository(InputInterface $input, SymfonyStyle $output, mixed $folder): string
     {
-
         $addonRepositoryUrl = $this->parameterBag->get('addon_repository_url');
         try {
             $addonRepositoryToken = $this->parameterBag->get('addon_repository_token');
@@ -369,8 +368,7 @@ class AddonInstallFromZipCommand extends CoreCommand
         try {
             $availableAddons = Json::decodeToArray($existingTagsContent);
         } catch (JsonException $exception) {
-            throw new RuntimeException('Could not decode response from repository. ' .
-                $exception->getMessage() .' Response was '. $existingTagsContent);
+            throw new RuntimeException('Could not decode response from repository. '.$exception->getMessage().' Response was '.$existingTagsContent);
         }
         $repoQuestion = new ChoiceQuestion('Which addon do you want to install? ', $availableAddons);
         $repo = $this->getHelper('question')->ask($input, $output, $repoQuestion);
