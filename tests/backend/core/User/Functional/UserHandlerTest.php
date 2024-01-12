@@ -91,7 +91,7 @@ class UserHandlerTest extends FunctionalTestCase
         static::assertNotNull($userToWipe->getLastname());
         static::assertNotNull($userToWipe->getPassword());
 
-        static::assertEquals('myLoginString', $userToWipe->getUsername());
+        static::assertEquals('myLoginString', $userToWipe->getUserIdentifier());
 
         static::assertNotEmpty($userToWipe->getEmail());
         static::assertNotEmpty($userToWipe->getSalt());
@@ -140,7 +140,7 @@ class UserHandlerTest extends FunctionalTestCase
         static::assertTrue(is_array($wipedUser->getRoles()));
         static::assertCount(0, $wipedUser->getRoles());
 
-        static::assertEquals('', $wipedUser->getUsername());
+        static::assertEquals('', $wipedUser->getUserIdentifier());
         static::assertEquals($departmentId, $wipedUser->getDepartment()->getId());
         static::assertEquals($orgaId, $wipedUser->getOrga()->getId());
 

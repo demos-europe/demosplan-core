@@ -721,7 +721,7 @@ class RemoveUserDataCommand extends CoreCommand
             if (null !== $entityContentChange->getUserId()) {
                 $userOfChange = $this->userService->getSingleUser($entityContentChange->getUserId());
                 if ($userOfChange instanceof User) {
-                    $nameToUse = $userOfChange->getUsername();
+                    $nameToUse = $userOfChange->getUserIdentifier();
                 }
             }
 
