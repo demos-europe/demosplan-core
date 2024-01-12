@@ -17,25 +17,10 @@ use Exception;
 
 class ProcedureDeleterService
 {
-    private array $procedureIds;
-
-    private bool $isDryRun;
-
     public function __construct(
         private readonly SqlQueriesService $queriesService
     ) {
     }
-
-  /*  public function setProcedureIds(array $procedureIds)
-    {
-        $this->procedureIds = $procedureIds;
-    }
-
-    public function setIsDryRun(bool $isDryRun)
-    {
-        $this->isDryRun = $isDryRun;
-    }*/
-
     /**
      * @throws Exception
      */
