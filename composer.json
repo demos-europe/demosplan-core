@@ -70,7 +70,7 @@
         "maennchen/zipstream-php": "2.4",
         "masterminds/html5": "^2.2",
         "myclabs/php-enum": "^1.7",
-        "nelmio/security-bundle": "^2.4",
+        "nelmio/security-bundle": "^3.1",
         "nesbot/carbon": "^2.0.0",
         "openlss/lib-array2xml": "^1",
         "patchwork/utf8": "^1.3",
