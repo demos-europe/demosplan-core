@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Document;
 
+use Doctrine\Persistence\ManagerRegistry;
 use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Logger\ApiLoggerInterface;
@@ -53,7 +54,8 @@ class DemosPlanDocumentDashboardAPIController extends APIController
         GlobalConfigInterface $globalConfig,
         MessageBagInterface $messageBag,
         MessageFormatter $messageFormatter,
-        SchemaPathProcessor $schemaPathProcessor
+        SchemaPathProcessor $schemaPathProcessor,
+        private ManagerRegistry $managerRegistry
     ) {
         parent::__construct(
             $apiLogger,
@@ -159,7 +161,7 @@ class DemosPlanDocumentDashboardAPIController extends APIController
         }
 
         /** @var ProcedureRepository $procedureRepository */
-        $procedureRepository = $this->getDoctrine()->getRepository(Procedure::class);
+        $procedureRepository = $this->managerRegistry->getRepository(Procedure::class);
         $procedure->setSettings($procedureSettings);
         $updatedProcedure = $procedureRepository->updateObject($procedure);
         // always update elasticsearch as changes that where made only in

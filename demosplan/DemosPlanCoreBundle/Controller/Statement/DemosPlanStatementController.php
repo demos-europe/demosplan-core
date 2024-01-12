@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use Symfony\Component\Finder\SplFileInfo;
 use BadMethodCallException;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
@@ -2456,7 +2457,7 @@ class DemosPlanStatementController extends BaseController
         XlsxStatementImport $importer
     ): void {
         if ($fileInfo instanceof FileInfo) {
-            $fileInfo = new \Symfony\Component\Finder\SplFileInfo(
+            $fileInfo = new SplFileInfo(
                 $fileInfo->getAbsolutePath(),
                 '',
                 $fileInfo->getHash()
