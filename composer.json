@@ -95,7 +95,7 @@
         "symfony/expression-language": "5.*.*",
         "symfony/filesystem": "5.*.*",
         "symfony/finder": "5.*.*",
-        "symfony/flex": "^1.13",
+        "symfony/flex": "^2",
         "symfony/form": "5.4.19",
         "symfony/http-client": "5.*.*",
         "symfony/http-foundation": "5.*.*",

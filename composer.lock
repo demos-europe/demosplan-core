@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b3fbe27c490a00fc13f863ac2ee53bec",
+    "content-hash": "274007c0d74d2b877e5ccbb5a6f87fbc",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -13161,7 +13161,7 @@
         },
         {
             "name": "symfony/flex",
-            "version": "v1.21.5",
+            "version": "v2.4.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/flex.git",
@@ -13206,7 +13206,7 @@
             "description": "Composer plugin for Symfony",
             "support": {
                 "issues": "https://github.com/symfony/flex/issues",
-                "source": "https://github.com/symfony/flex/tree/v1.21.5"
+                "source": "https://github.com/symfony/flex/tree/v2.4.3"
             },
             "funding": [
                 {
