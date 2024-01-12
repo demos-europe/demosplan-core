@@ -140,8 +140,8 @@ class DemosPlanProcedureAPIController extends APIController
     /**
      * Returns a JSON with the available filters for the assessment table.
      *
-     *
      * @DplanPermissions("area_admin_assessmenttable")
+     *
      * @return APIResponse
      */
     #[Route(path: '/api/1.0/procedures/{procedureId}/statementemptyfilters', methods: ['GET'], name: 'dp_api_procedure_get_statement_empty_filters', options: ['expose' => true])]

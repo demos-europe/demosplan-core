@@ -86,7 +86,7 @@ class DefaultTwigVariablesService
                         return false;
                     }
                 )->flatMap(
-                    static fn(ResolvablePermission $permission) => [$permission->getName() => true]
+                    static fn (ResolvablePermission $permission) => [$permission->getName() => true]
                 ));
         }
 
