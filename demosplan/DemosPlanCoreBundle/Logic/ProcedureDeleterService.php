@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Exception;
@@ -21,11 +22,11 @@ class ProcedureDeleterService
     private bool $isDryRun;
 
     public function __construct(
-        private readonly Connection $dbConnection
+        private readonly SqlQueriesService $queriesService
     ) {
     }
 
-    public function setProcedureIds(array $procedureIds)
+  /*  public function setProcedureIds(array $procedureIds)
     {
         $this->procedureIds = $procedureIds;
     }
@@ -33,115 +34,127 @@ class ProcedureDeleterService
     public function setIsDryRun(bool $isDryRun)
     {
         $this->isDryRun = $isDryRun;
-    }
+    }*/
 
     /**
      * @throws Exception
      */
-    public function deleteProcedures(): void
+    public function deleteProcedures(array $procedureIds, bool $isDryRun): void
     {
         try {
             // start doctrine transaction
-            $this->dbConnection->beginTransaction();
+            $this->queriesService->beginTransaction();
 
             // deactivate foreign key checks
-            $this->deactivateForeignKeyChecks();
+            $this->queriesService->deactivateForeignKeyChecks();
 
             // delete all statements and connected entities
-            $this->processAllStatements();
+            $this->processAllStatements($procedureIds, $isDryRun);
 
             // delete all annotated statement pdfs -> pages -> files
-            $this->processAnnotatedStatementPdfs();
+            $this->processAnnotatedStatementPdfs($procedureIds, $isDryRun);
 
             // delete procedure elements -> files
-            $this->processElements();
+            $this->processElements($procedureIds, $isDryRun);
 
             // Procedure Behavior Definition
-            $this->deleteBehaviorDefinitions();
+            $this->deleteBehaviorDefinitions($procedureIds, $isDryRun);
 
             // Procedure UI Definition
-            $this->deleteUiDefinitions();
+            $this->deleteUiDefinitions($procedureIds, $isDryRun);
 
             // form definitions -> field definitions
-            $this->processFormDefinitions();
+            $this->processFormDefinitions($procedureIds, $isDryRun);
 
             // delete gis layers
-            $this->processGisLayers();
+            $this->processGisLayers($procedureIds, $isDryRun);
 
             // delete procedure news
-            $this->deleteProcedureNews();
+            $this->deleteProcedureNews($procedureIds, $isDryRun);
 
             // delete tag topics -> tags
-            $this->processTags();
+            $this->processTags($procedureIds, $isDryRun);
 
             // delete predefined text categories -> predefined texts
-            $this->processPredefinedTexts();
+            $this->processPredefinedTexts($procedureIds, $isDryRun);
 
             // delete draft statements
-            $this->deleteDraftStatements();
+            $this->deleteDraftStatements($procedureIds, $isDryRun);
 
             // delete draft statement versions
-            $this->deleteDraftStatementsVersions();
+            $this->deleteDraftStatementsVersions($procedureIds, $isDryRun);
 
             // delete institutions mails
-            $this->deleteInstitutionsMails();
+            $this->deleteInstitutionsMails($procedureIds, $isDryRun);
 
             // delete para docs
-            $this->deleteParaDocs();
+            $this->deleteParaDocs($procedureIds, $isDryRun);
 
              // delete para docs versions
-            $this->deleteParaDocVersions();
+            $this->deleteParaDocVersions($procedureIds, $isDryRun);
 
             // delete procedure doctrine orgas
-            $this->deleteProcedureOrgaDoctrines();
+            $this->deleteProcedureOrgaDoctrines($procedureIds, $isDryRun);
+
+            // delete single docs
+            $this->deleteSingleDocs($procedureIds, $isDryRun);
+
+            // delete single docs versions
+            $this->deleteSingleDocVersions($procedureIds, $isDryRun);
+
+            // delete manual list sorts
+            $this->deleteManualListSorts($procedureIds, $isDryRun);
+
+            // delete procedure plannungoffices
+            $this->deletepProcedurePlannungOffices($procedureIds, $isDryRun);
 
             // delete import_emails -> attachments
-            $this->processImportEmails();
+            $this->processImportEmails($procedureIds, $isDryRun);
 
             // delete hashed queries
-            $this->deleteHashedQueries();
+            $this->deleteHashedQueries($procedureIds, $isDryRun);
 
             // delete workflow places
-            $this->deleteWorkflowPlaces();
+            $this->deleteWorkflowPlaces($procedureIds, $isDryRun);
 
             // delete procedure_settings
-            $this->deleteProcedureSettings();
+            $this->deleteProcedureSettings($procedureIds, $isDryRun);
 
             // settings
-            $this->deleteSettings();
+            $this->deleteSettings($procedureIds, $isDryRun);
 
             // export fields configuration
-            $this->deleteExportFieldsConfiguration();
+            $this->deleteExportFieldsConfiguration($procedureIds, $isDryRun);
 
             // maillane connection
-            $this->deleteMaillaneConnection();
+            $this->deleteMaillaneConnection($procedureIds, $isDryRun);
 
             // procedure_settings_allowed_segment_procedures
-            $this->deleteProcedureSettingsAllowedSegmentProcedures();
+            $this->deleteProcedureSettingsAllowedSegmentProcedures($procedureIds, $isDryRun);
 
             // procedure_slug
-            $this->deleteProcedureSlug();
+            $this->deleteProcedureSlug($procedureIds, $isDryRun);
 
             // procedure_user
-            $this->deleteProcedureUser();
+            $this->deleteProcedureUser($procedureIds, $isDryRun);
 
             // delete remaining procedure files
-            $this->deleteFromTableByIdentifierArray('_files', 'procedure_id', $this->procedureIds);
+            $this->queriesService->deleteFromTableByIdentifierArray('_files', 'procedure_id', $procedureIds, $isDryRun);
 
             // delete procedure report entries
-            $this->deleteReportEntriesByIdentifierAndType('procedure', $this->procedureIds);
+            $this->deleteReportEntriesByIdentifierAndType($procedureIds, $isDryRun);
 
             // delete procedure itself
-            $this->deleteProcedure();
+            $this->deleteProcedure($procedureIds, $isDryRun);
 
             // reactivate foreign key checks
-            $this->activateForeignKeyChecks();
+            $this->queriesService->activateForeignKeyChecks();
 
             // commit all changes
-            $this->dbConnection->commit();
+            $this->queriesService->commitTransaction();
         } catch (Exception $e) {
             // rollback all changes
-            $this->dbConnection->rollBack();
+            $this->queriesService->rollbackTransaction();
             throw $e;
         }
     }
@@ -152,38 +165,39 @@ class ProcedureDeleterService
      *
      * @throws Exception
      */
-    private function processAllStatements(): void
+    private function processAllStatements(array $procedureIds, bool $isDryRun): void
     {
-        $statementIds = array_column($this->fetchFromTableByParameter(['_st_id'], '_statement', '_p_id', $this->procedureIds), '_st_id');
+        $statementIds = array_column($this->queriesService->fetchFromTableByParameter(['_st_id'], '_statement', '_p_id', $procedureIds), '_st_id');
 
         // delete statement meta
-        $this->deleteStatementMeta($statementIds);
+        $this->deleteStatementMeta($statementIds, $isDryRun);
         // delete statement attachment -> files
-        $this->processStatementAttachments($statementIds);
+        $this->processStatementAttachments($statementIds, $isDryRun);
         // remove all tags from statements to prepare for later tag deletion
-        $this->deleteTagsFromStatements($statementIds);
+        $this->deleteTagsFromStatements($statementIds, $isDryRun);
         // delete similar statement submitter
-        $this->deleteSimilarStatementSubmitters($statementIds);
+        $this->deleteSimilarStatementSubmitters($statementIds, $isDryRun);
         // delete statement gdpr consent
-        $this->deleteGdprConsent($statementIds);
+        $this->deleteGdprConsent($statementIds, $isDryRun);
         // delete entity content changes
-        $this->deleteStatementEntityContentChange($statementIds);
+        $this->deleteStatementEntityContentChange($statementIds, $isDryRun);
         // delete report entries related to statements
-        $this->deleteReportEntriesByIdentifierAndType('statement', $statementIds);
+        $this->deleteReportEntriesByIdentifierAndType($statementIds, $isDryRun);
         // delete statements
-        $this->deleteFromTableByIdentifierArray('_statement', '_p_id', $this->procedureIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('_statement', '_p_id', $procedureIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function processStatementAttachments(array $statementIds): void
+    private function processStatementAttachments(array $statementIds, $isDryRun): void
     {
-        if (!$this->doesTableExist('statement_attachment')) {
+        if (!$this->queriesService->doesTableExist('statement_attachment')) {
             throw new Exception("No table with the name 'statement_attachment' exists in this database. Data could not be fetched.");
         }
 
-        $statementAttachmentQueryBuilder = $this->dbConnection->createQueryBuilder();
+        $dbConnection = $this->queriesService->getConnection();
+        $statementAttachmentQueryBuilder = $dbConnection->createQueryBuilder();
         $statementAttachmentQueryBuilder
             ->select('id', 'file_id')
             ->from('statement_attachment')
@@ -193,7 +207,7 @@ class ProcedureDeleterService
         $attachmentData = $statementAttachmentQueryBuilder->fetchAllAssociative();
 
         // delete files first
-        $this->deleteFiles(array_column($attachmentData, 'file_id'));
+        $this->deleteFiles(array_column($attachmentData, 'file_id'), $isDryRun);
 
         // delete attachments
         $this->deleteStatementAttachment(array_column($attachmentData, 'id'));
@@ -202,69 +216,70 @@ class ProcedureDeleterService
     /**
      * @throws Exception
      */
-    private function processElements(): void
+    private function processElements(array $procedureIds, bool $isDryRun): void
     {
-        $elementsData = $this->fetchFromTableByParameter(['_e_file'], '_elements', '_p_id', $this->procedureIds);
+        $elementsData = $this->queriesService->fetchFromTableByParameter(['_e_file'], '_elements', '_p_id', $procedureIds);
 
-        $this->deleteFiles(array_column($elementsData, '_e_file'));
-        $this->deleteElements();
+        $this->deleteFiles(array_column($elementsData, '_e_file'), $isDryRun);
+        $this->deleteElements($procedureIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function processFormDefinitions(): void
+    private function processFormDefinitions(array $procedureIds, bool $isDryRun): void
     {
-        $formDefinitionsData = array_column($this->fetchFromTableByParameter(['id'], 'statement_form_definition', 'procedure_id', $this->procedureIds), 'id');
+        $formDefinitionsData = array_column($this->queriesService->fetchFromTableByParameter(['id'], 'statement_form_definition', 'procedure_id', $procedureIds), 'id');
 
-        $this->deleteFieldDefinitions($formDefinitionsData);
-        $this->deleteFormDefinitions($formDefinitionsData);
+        $this->deleteFieldDefinitions($formDefinitionsData, $isDryRun);
+        $this->deleteFormDefinitions($formDefinitionsData, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function processGisLayers(): void
+    private function processGisLayers($procedureIds, bool $isDryRun): void
     {
-        $gisCategoriesData = array_column($this->fetchFromTableByParameter(['id'], 'gis_layer_category', 'procedure_id', $this->procedureIds), 'id');
+        $gisCategoriesData = array_column($this->queriesService->fetchFromTableByParameter(['id'], 'gis_layer_category', 'procedure_id', $procedureIds), 'id');
 
-        $this->deleteGisLayers($gisCategoriesData);
-        $this->deleteGisCategories($gisCategoriesData);
+        $this->deleteGisLayers($gisCategoriesData, $isDryRun);
+        $this->deleteGisCategories($gisCategoriesData, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function processTags(): void
+    private function processTags(array $procedureIds, bool $isDryRun): void
     {
-        $tagTopicData = array_column($this->fetchFromTableByParameter(['_tt_id'], '_tag_topic', '_p_id', $this->procedureIds), '_tt_id');
+        $tagTopicData = array_column($this->queriesService->fetchFromTableByParameter(['_tt_id'], '_tag_topic', '_p_id', $procedureIds), '_tt_id');
 
-        $this->deleteTags($tagTopicData);
-        $this->deleteTagTopics();
+        $this->deleteTags($tagTopicData, $isDryRun);
+        $this->deleteTagTopics($procedureIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function processImportEmails(): void
+    private function processImportEmails(array $procedureIds, bool $isDryRun): void
     {
-        $importEmailData = array_column($this->fetchFromTableByParameter(['id'], 'statement_import_email', 'procedure_id', $this->procedureIds), 'id');
+        $importEmailData = array_column($this->queriesService->fetchFromTableByParameter(['id'], 'statement_import_email', 'procedure_id', $procedureIds), 'id');
 
-        $this->processImportEmailAttachments($importEmailData);
-        $this->deleteImportEmailOriginalStatements($importEmailData);
-        $this->deleteStatementImportEmails($importEmailData);
+        $this->processImportEmailAttachments($importEmailData, $isDryRun);
+        $this->deleteImportEmailOriginalStatements($importEmailData, $isDryRun);
+        $this->deleteStatementImportEmails($importEmailData, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function processImportEmailAttachments(array $importEmailIds): void
+    private function processImportEmailAttachments(array $importEmailIds, bool $isDryRun): void
     {
-        if (!$this->doesTableExist('statement_import_email_attachments')) {
+        if (!$this->queriesService->doesTableExist('statement_import_email_attachments')) {
             throw new Exception("No table with the name 'statement_import_email_attachments' exists in this database. Data could not be fetched.");
         }
 
-        $importEmailAttachmentQueryBuilder = $this->dbConnection->createQueryBuilder();
+        $dbConnection = $this->queriesService->getConnection();
+        $importEmailAttachmentQueryBuilder = $dbConnection->createQueryBuilder();
         $importEmailAttachmentQueryBuilder
             ->select('file_id')
             ->from('statement_import_email_attachments')
@@ -273,216 +288,251 @@ class ProcedureDeleterService
 
         $attachmentData = array_column($importEmailAttachmentQueryBuilder->fetchAllAssociative(), 'file_id');
 
-        $this->deleteFiles($attachmentData);
+        $this->deleteFiles($attachmentData, $isDryRun);
         $this->deleteStatementImportEmailAttachments($importEmailIds);
     }
 
     /**
      * @throws Exception
      */
-    private function processPredefinedTexts(): void
+    private function processPredefinedTexts(array $procedureIds, bool $isDryRun): void
     {
-        $predefinedTextCategoriesData = array_column($this->fetchFromTableByParameter(['ptc_id'], '_predefined_texts_category', '_p_id', $this->procedureIds), 'ptc_id');
+        $predefinedTextCategoriesData = array_column($this->queriesService->fetchFromTableByParameter(['ptc_id'], '_predefined_texts_category', '_p_id', $procedureIds), 'ptc_id');
 
-        $this->deletePredefinedTextsCategoriesRelation($predefinedTextCategoriesData);
-        $this->deletePredefinedTextsCategories();
-        $this->deletePredefinedTexts();
-        $this->deleteBoilerplateGroup();
+        $this->deletePredefinedTextsCategoriesRelation($predefinedTextCategoriesData, $isDryRun);
+        $this->deletePredefinedTextsCategories($procedureIds, $isDryRun);
+        $this->deletePredefinedTexts($procedureIds, $isDryRun);
+        $this->deleteBoilerplateGroup($procedureIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function processAnnotatedStatementPdfs(): void
+    private function processAnnotatedStatementPdfs(array $procedureIds, bool $isDryRun): void
     {
-        $annotatedStatementPdfData = $this->fetchFromTableByParameter(['id', 'file'], 'annotated_statement_pdf', '_procedure', $this->procedureIds);
+        $annotatedStatementPdfData = $this->queriesService->fetchFromTableByParameter(['id', 'file'], 'annotated_statement_pdf', '_procedure', $procedureIds);
 
-        $this->deleteAnnotatedStatementPdfPages(array_column($annotatedStatementPdfData, 'id'));
-        $this->deleteAnnotatedStatementPdfs();
-        $this->deleteFiles(array_column($annotatedStatementPdfData, 'file'));
-    }
-
-    private function deleteWorkflowPlaces(): void
-    {
-        $this->deleteFromTableByIdentifierArray('workflow_place', 'procedure_id', $this->procedureIds);
+        $this->deleteAnnotatedStatementPdfPages(array_column($annotatedStatementPdfData, 'id'), $isDryRun);
+        $this->deleteAnnotatedStatementPdfs($procedureIds, $isDryRun);
+        $this->deleteFiles(array_column($annotatedStatementPdfData, 'file'), $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteProcedureSettings(): void
+    private function deleteWorkflowPlaces(array $procedureIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('_procedure_settings', '_p_id', $this->procedureIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('workflow_place', 'procedure_id', $procedureIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteProcedureUser(): void
+    private function deleteProcedureSettings(array $procedureIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('procedure_user', 'procedure_id', $this->procedureIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('_procedure_settings', '_p_id', $procedureIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteProcedureSlug(): void
+    private function deleteProcedureUser(array $procedureIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('procedure_slug', 'p_id', $this->procedureIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('procedure_user', 'procedure_id', $procedureIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteSettings(): void
+    private function deleteProcedureSlug(array $procedureIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('_settings', '_s_procedure_id', $this->procedureIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('procedure_slug', 'p_id', $procedureIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteExportFieldsConfiguration(): void
+    private function deleteSettings(array $procedureIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('export_fields_configuration', 'procedure_id', $this->procedureIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('_settings', '_s_procedure_id', $procedureIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteMaillaneConnection(): void
+    private function deleteExportFieldsConfiguration(array $procedureIds, $isDryRun): void
     {
-        if ($this->CheckColumnInTable('maillane_connection', 'procedure_id')) {
-            $this->deleteFromTableByIdentifierArray('maillane_connection', 'procedure_id', $this->procedureIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('export_fields_configuration', 'procedure_id', $procedureIds, $isDryRun);
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteMaillaneConnection(array $procedureIds, bool $isDryRun): void
+    {
+        if ($this->queriesService->CheckColumnInTable('maillane_connection', 'procedure_id')) {
+            $this->queriesService->deleteFromTableByIdentifierArray('maillane_connection', 'procedure_id', $procedureIds, $isDryRun);
         }
     }
 
     /**
      * @throws Exception
      */
-    private function deleteProcedureSettingsAllowedSegmentProcedures(): void
+    private function deleteProcedureSettingsAllowedSegmentProcedures(array $procedureIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('procedure_settings_allowed_segment_procedures', 'procedure__p_id', $this->procedureIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('procedure_settings_allowed_segment_procedures', 'procedure__p_id', $procedureIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteUiDefinitions(): void
+    private function deleteUiDefinitions(array $procedureIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('procedure_ui_definition', 'procedure_id', $this->procedureIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('procedure_ui_definition', 'procedure_id', $procedureIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteBehaviorDefinitions(): void
+    private function deleteBehaviorDefinitions(array $procedureIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('procedure_behavior_definition', 'procedure_id', $this->procedureIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('procedure_behavior_definition', 'procedure_id', $procedureIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteProcedure(): void
+    private function deleteProcedure(array $procedureIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('_procedure', '_p_id', $this->procedureIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('_procedure', '_p_id', $procedureIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteDraftStatements(): void
+    private function deleteDraftStatements(array $procedureIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('_draft_statement', '_p_id', $this->procedureIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('_draft_statement', '_p_id', $procedureIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteDraftStatementsVersions(): void
+    private function deleteDraftStatementsVersions(array $procedureIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('_draft_statement_versions', '_p_id', $this->procedureIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('_draft_statement_versions', '_p_id', $procedureIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteInstitutionsMails(): void
+    private function deleteInstitutionsMails(array $procedureIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('institution_mail', '_p_id', $this->procedureIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('institution_mail', '_p_id', $procedureIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteParaDocs(): void
+    private function deleteParaDocs(array $procedureIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('_para_doc', '_p_id', $this->procedureIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('_para_doc', '_p_id', $procedureIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteParaDocVersions(): void
+    private function deleteParaDocVersions(array $procedureIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('_para_doc_version', '_p_id', $this->procedureIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('_para_doc_version', '_p_id', $procedureIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteProcedureOrgaDoctrines(): void
+    private function deleteProcedureOrgaDoctrines(array $procedureIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('_procedure_orga_doctrine', '_p_id', $this->procedureIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('_procedure_orga_doctrine', '_p_id', $procedureIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteAnnotatedStatementPdfPages(array $annotatedStatementPdfIds): void
+    private function deleteSingleDocs(array $procedureIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('annotated_statement_pdf_page', 'annotated_statement_pdf', $annotatedStatementPdfIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('_single_doc', '_p_id', $procedureIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteAnnotatedStatementPdfs(): void
+    private function deleteSingleDocVersions(array $procedureIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('annotated_statement_pdf', '_procedure', $this->procedureIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('_single_doc_version', '_p_id', $procedureIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deletePredefinedTextsCategoriesRelation(array $predefinedCategoryIds): void
+    private function deleteManualListSorts(array $procedureIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('predefined_texts_categories', '_ptc_id', $predefinedCategoryIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('_manual_list_sort', '_p_id', $procedureIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deletePredefinedTextsCategories(): void
+    private function deletepProcedurePlannungOffices(array $procedureIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('_predefined_texts_category', '_p_id', $this->procedureIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('procedure_planningoffices', '_p_id', $procedureIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deletePredefinedTexts(): void
+    private function deleteAnnotatedStatementPdfPages(array $annotatedStatementPdfIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('_predefined_texts', '_p_id', $this->procedureIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('annotated_statement_pdf_page', 'annotated_statement_pdf', $annotatedStatementPdfIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteBoilerplateGroup(): void
+    private function deleteAnnotatedStatementPdfs(array $procedureIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('boilerplate_group', 'procedure_id', $this->procedureIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('annotated_statement_pdf', '_procedure', $procedureIds, $isDryRun);
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deletePredefinedTextsCategoriesRelation(array $predefinedCategoryIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray('predefined_texts_categories', '_ptc_id', $predefinedCategoryIds, $isDryRun);
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deletePredefinedTextsCategories(array $procedureIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray('_predefined_texts_category', '_p_id', $procedureIds, $isDryRun);
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deletePredefinedTexts(array $procedureIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray('_predefined_texts', '_p_id', $procedureIds, $isDryRun);
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteBoilerplateGroup(array $procedureIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray('boilerplate_group', 'procedure_id', $procedureIds, $isDryRun);
     }
 
     /**
@@ -490,63 +540,63 @@ class ProcedureDeleterService
      */
     private function deleteStatementImportEmailAttachments(array $importEmailIds): void
     {
-        $this->deleteFromTableByIdentifierArray('statement_import_email_attachments', 'statement_import_email_id', $importEmailIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('statement_import_email_attachments', 'statement_import_email_id', $importEmailIds);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteImportEmailOriginalStatements(array $importEmailIds): void
+    private function deleteImportEmailOriginalStatements(array $importEmailIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('statement_import_email_original_statements', 'statement_import_email_id', $importEmailIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('statement_import_email_original_statements', 'statement_import_email_id', $importEmailIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteStatementImportEmails(array $importEmailIds): void
+    private function deleteStatementImportEmails(array $importEmailIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('statement_import_email', 'id', $importEmailIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('statement_import_email', 'id', $importEmailIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteHashedQueries(): void
+    private function deleteHashedQueries(array $procedureIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('hashed_query', 'procedure_id', $this->procedureIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('hashed_query', 'procedure_id', $procedureIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteTags(array $tagTopicIds): void
+    private function deleteTags(array $tagTopicIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('_tag', '_tt_id', $tagTopicIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('_tag', '_tt_id', $tagTopicIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteTagTopics(): void
+    private function deleteTagTopics(array $procedureIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('_tag_topic', '_p_id', $this->procedureIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('_tag_topic', '_p_id', $procedureIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteProcedureNews(): void
+    private function deleteProcedureNews(array $procedureIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('_news', '_p_id', $this->procedureIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('_news', '_p_id', $procedureIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteStatementMeta(array $statementIds): void
+    private function deleteStatementMeta(array $statementIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('_statement_meta', '_st_id', $statementIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('_statement_meta', '_st_id', $statementIds, $isDryRun);
     }
 
     /**
@@ -554,115 +604,100 @@ class ProcedureDeleterService
      */
     private function deleteStatementAttachment(array $statementIds): void
     {
-        $this->deleteFromTableByIdentifierArray('statement_attachment', 'statement_id', $statementIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('statement_attachment', 'statement_id', $statementIds);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteFiles(array $fileIds): void
+    private function deleteFiles(array $fileIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('_files', '_f_ident', $fileIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('_files', '_f_ident', $fileIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteTagsFromStatements(array $statementIds): void
+    private function deleteTagsFromStatements(array $statementIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('_statement_tag', '_st_id', $statementIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('_statement_tag', '_st_id', $statementIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteSimilarStatementSubmitters(array $statementIds): void
+    private function deleteSimilarStatementSubmitters(array $statementIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('similar_statement_submitter', 'statement_id', $statementIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('similar_statement_submitter', 'statement_id', $statementIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteElements(): void
+    private function deleteElements(array $procedureIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('_elements', '_p_id', $this->procedureIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('_elements', '_p_id', $procedureIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteFieldDefinitions(array $formDefinitionIds): void
+    private function deleteFieldDefinitions(array $formDefinitionIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('statement_field_definition', 'statement_form_definition_id', $formDefinitionIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('statement_field_definition', 'statement_form_definition_id', $formDefinitionIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteFormDefinitions(array $formDefinitionIds): void
+    private function deleteFormDefinitions(array $formDefinitionIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('statement_form_definition', 'id', $formDefinitionIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('statement_form_definition', 'id', $formDefinitionIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteGisLayers(array $gisCategoryIds): void
+    private function deleteGisLayers(array $gisCategoryIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('_gis', 'category_id', $gisCategoryIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('_gis', 'category_id', $gisCategoryIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteGisCategories(array $gisCategoryIds): void
+    private function deleteGisCategories(array $gisCategoryIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('gis_layer_category', 'id', $gisCategoryIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('gis_layer_category', 'id', $gisCategoryIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteGdprConsent(array $statementIds): void
+    private function deleteGdprConsent(array $statementIds, bool $isDryRun): void
     {
-        $this->deleteFromTableByIdentifierArray('gdpr_consent', 'statement_id', $statementIds);
+        $this->queriesService->deleteFromTableByIdentifierArray('gdpr_consent', 'statement_id', $statementIds, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteReportEntriesByIdentifierAndType(string $identifierType, array $identifierArray): void
+    private function deleteReportEntriesByIdentifierAndType(array $identifierArray, bool $isDryRun): void
     {
-        if (!$this->doesTableExist('_report_entries')) {
-            throw new Exception("No table with the name '_report_entries' exists in this database. Data could not be fetched.");
-        }
-
-        $deletionQueryBuilder = $this->dbConnection->createQueryBuilder();
-        $deletionQueryBuilder
-            ->delete('_report_entries')
-            ->where('_re_identifier_type = :identifierType')
-            ->andWhere('_re_identifier IN (:idList)')
-            ->setParameter('identifierType', $identifierType)
-            ->setParameter('idList', $identifierArray, ArrayParameterType::STRING);
-
-        if ($this->isDryRun) {
-            return;
-        }
-
-        $deletionQueryBuilder->executeStatement();
+        $this->queriesService->deleteFromTableByIdentifierArray('_report_entries', '_re_identifier', $identifierArray, $isDryRun);
     }
 
     /**
      * @throws Exception
      */
-    private function deleteStatementEntityContentChange(array $identifierArray): void
+    private function deleteStatementEntityContentChange(array $identifierArray, bool $isDryRun): void
     {
-        if (!$this->doesTableExist('entity_content_change')) {
+        if (!$this->queriesService->doesTableExist('entity_content_change')) {
             throw new Exception("No table with the name 'entity_content_change' exists in this database. Data could not be fetched.");
         }
 
-        $deletionQueryBuilder = $this->dbConnection->createQueryBuilder();
+        $dbConnection = $this->queriesService->getConnection();
+        $deletionQueryBuilder = $dbConnection->createQueryBuilder();
         $deletionQueryBuilder
             ->delete('entity_content_change')
             ->where('entity_type = :identifierType1 OR entity_type = :identifierType2')
@@ -671,94 +706,10 @@ class ProcedureDeleterService
             ->setParameter('identifierType2', 'demosplan\DemosPlanCoreBundle\Entity\Statement\Statement')
             ->setParameter('idList', $identifierArray, ArrayParameterType::STRING);
 
-        if ($this->isDryRun) {
+        if ($isDryRun) {
             return;
         }
 
         $deletionQueryBuilder->executeStatement();
-    }
-
-    /**
-     * @throws Exception
-     */
-    private function deleteFromTableByIdentifierArray(string $tableName, string $identifier, array $ids): void
-    {
-        if (!$this->doesTableExist($tableName)) {
-            throw new Exception("No table with the name $tableName exists in this database. Data could not be fetched.");
-        }
-
-        $deletionQueryBuilder = $this->dbConnection->createQueryBuilder();
-        $deletionQueryBuilder
-            ->delete($tableName)
-            ->where($identifier.' IN (:idList)')
-            ->setParameter('idList', $ids, ArrayParameterType::STRING);
-
-        if ($this->isDryRun) {
-            return;
-        }
-
-        $deletionQueryBuilder->executeStatement();
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function fetchFromTableByParameter(array $targetColumns, string $tableName, string $identifier, array $parameter): array
-    {
-        if (!$this->doesTableExist($tableName)) {
-            throw new Exception("No table with the name $tableName exists in this database. Data could not be fetched.");
-        }
-
-        $fetchQueryBuilder = $this->dbConnection->createQueryBuilder();
-        $fetchQueryBuilder
-            ->select(...$targetColumns)
-            ->from($tableName)
-            ->where($identifier.' IN (:idList)')
-            ->setParameter('idList', $parameter, ArrayParameterType::STRING);
-
-        return $fetchQueryBuilder->fetchAllAssociative();
-    }
-
-    /**
-     * This is necessary to even allow us to delete all tables individually.
-     * @throws Exception
-     */
-    private function deactivateForeignKeyChecks(): void
-    {
-        $this->dbConnection->executeStatement('SET foreign_key_checks = 0;');
-    }
-
-    /**
-     * @throws Exception
-     */
-    private function activateForeignKeyChecks(): void
-    {
-        $this->dbConnection->executeStatement('SET foreign_key_checks = 1;');
-    }
-
-    /**
-     * @throws Exception
-     */
-    private function doesTableExist(string $tableName): bool
-    {
-        return $this->dbConnection->createSchemaManager()->tablesExist([$tableName]);
-    }
-
-    /**
-     * @throws Exception
-     */
-    private function CheckColumnInTable(string $tableName, string $columnName): bool
-    {
-        if (!$this->doesTableExist($tableName)) {
-            throw new Exception("No table with the name $tableName exists in this database. Data could not be fetched.");
-        }
-
-        $tableColumns = $this->dbConnection->createSchemaManager()->listTableColumns($tableName);
-
-        if (in_array($columnName, $tableColumns)) {
-            return true;
-        }
-
-        return false;
     }
 }
