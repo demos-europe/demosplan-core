@@ -16,6 +16,5 @@ class OrgaDeleterService extends CoreService
 {
     public function deleteOrganisations(array $orgaIds, bool $isDryRub): void
     {
-
     }
 }

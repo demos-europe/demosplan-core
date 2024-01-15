@@ -1,10 +1,17 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Logic\Orga\OrgaDeleterService;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeleterService;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
@@ -22,10 +29,10 @@ class DeleteOrgaCommand extends CoreCommand
     protected static $defaultDescription = 'Deletes an organisation including all related content like procedure, statements, tags, News, etc.';
 
     public function __construct(
-        ParameterBagInterface               $parameterBag,
+        ParameterBagInterface $parameterBag,
         private readonly OrgaDeleterService $orgaDeleter,
-        private readonly SqlQueriesService  $queriesService,
-        string                              $name = null
+        private readonly SqlQueriesService $queriesService,
+        string $name = null
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -88,9 +95,8 @@ class DeleteOrgaCommand extends CoreCommand
             $output->info('Organisations id(s) to delete: '.implode(',', $retrievedOrgaIds));
             $output->info("Dry-run: $isDryRun");
 
-            //$this->procedureDeleter->deleteProcedures($retrievedOrgaIds, $isDryRun);
+            // $this->procedureDeleter->deleteProcedures($retrievedOrgaIds, $isDryRun);
             $this->orgaDeleter->deleteOrganisations($retrievedOrgaIds, $isDryRun);
-
 
             // repopulate Elasticsearch
             if ($isDryRun && $withoutRepopulate) {
