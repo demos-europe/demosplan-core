@@ -30,9 +30,10 @@ return static function (RectorConfig $rectorConfig): void {
 //        SetList::CODE_QUALITY,
 //        SymfonyLevelSetList::UP_TO_SYMFONY_44,
         // SymfonyLevelSetList::UP_TO_SYMFONY_54,
+         SymfonyLevelSetList::UP_TO_SYMFONY_60,
         // LevelSetList::UP_TO_PHP_53,
 //        LevelSetList::UP_TO_PHP_74,
-        LevelSetList::UP_TO_PHP_81,
+        //LevelSetList::UP_TO_PHP_81,
         // TwigLevelSetList::UP_TO_TWIG_240,
         // SensiolabsSetList::ANNOTATIONS_TO_ATTRIBUTES,
         // PHPUnitLevelSetList::UP_TO_PHPUNIT_90,
@@ -42,6 +43,7 @@ return static function (RectorConfig $rectorConfig): void {
         TypedPropertyFromAssignsRector::class,
         MixedTypeRector::class,
         __DIR__.'/../../config/bundles.php',
+        __DIR__.'/../../demosplan/DemosPlanCoreBundle/DependencyInjection/Configuration/FormOptionsTreeBuilder.php',
     ]);
     // $rectorConfig->paths([__DIR__ . '/../../demosplan']);
 
@@ -52,7 +54,7 @@ return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->autoloadPaths([__DIR__.'/../../vendor/autoload.php']);
     $rectorConfig->importNames();
     $rectorConfig->disableParallel();
-    // $rectorConfig->parallel(seconds: 180, jobSize: 10);
+    //$rectorConfig->parallel(processTimeout: 280, jobSize: 10);
     // Path to phpstan with extensions, that PHPSTan in Rector uses to determine types
     $rectorConfig->phpstanConfig(__DIR__.'/../../vendor/phpstan/phpstan-symfony/extension.neon');
 };
