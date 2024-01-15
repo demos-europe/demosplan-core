@@ -718,7 +718,6 @@ export default {
           File: [
             'hash'
           ].join()
-          // Segments are no longer counted.
         }
       }).then((data) => {
         /**
