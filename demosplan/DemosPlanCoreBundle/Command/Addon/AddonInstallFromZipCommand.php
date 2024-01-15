@@ -104,9 +104,9 @@ class AddonInstallFromZipCommand extends CoreCommand
             try {
                 if ($input->getOption('local')) {
                     $path = $this->getPathFromZip($input, $output, $folder);
-                } else if ($input->getOption('github')) {
+                } elseif ($input->getOption('github')) {
                     $path = $this->loadFromGithub($input, $output, $folder);
-                } else if ($input->getOption('repos')) {
+                } elseif ($input->getOption('repos')) {
                     $path = $this->loadFromApiRepository($input, $output, $folder);
                 } else {
                     $path = $this->getPathFromZip($input, $output, $folder);
@@ -418,8 +418,8 @@ class AddonInstallFromZipCommand extends CoreCommand
         $ghReposUrl = 'https://api.github.com/orgs/demos-europe/repos?per_page=100';
         $availableRepositories = $this->fetchRepositories($ghOptions, $ghReposUrl);
         $availableAddons = collect($availableRepositories)->filter(function ($repo) {
-                return str_contains($repo['name'], 'demosplan-addon-');
-            })
+            return str_contains($repo['name'], 'demosplan-addon-');
+        })
             ->map(function ($repo) {
                 return $repo['name'];
             })
@@ -462,9 +462,7 @@ class AddonInstallFromZipCommand extends CoreCommand
         $repositories = [];
         $existingReposResponse = $this->httpClient->request('GET', $githubUrl, $ghOptions);
         if (404 === $existingReposResponse->getStatusCode()) {
-            throw new RuntimeException(
-                'Could not access repository. Did you create a GitHub personal access token?'
-            );
+            throw new RuntimeException('Could not access repository. Did you create a GitHub personal access token?');
         }
         $existingReposContent = $existingReposResponse->getContent(false);
         $repositories = array_merge($repositories, JSON::decodeToArray($existingReposContent));
@@ -478,18 +476,16 @@ class AddonInstallFromZipCommand extends CoreCommand
             }
         }
 
-        return  array_merge($repositories, $nextRepositories ?? []);
+        return array_merge($repositories, $nextRepositories ?? []);
     }
 
     private function askTag(string $existingTagsContent, InputInterface $input, SymfonyStyle $output): mixed
     {
         $tags = collect(Json::decodeToArray($existingTagsContent))->filter(
-            function ($tag)
-            {
+            function ($tag) {
                 return !str_contains($tag['name'], 'rc');
             }
-        )->map(function ($tag)
-        {
+        )->map(function ($tag) {
             return $tag['name'];
         })->toArray();
 
@@ -498,6 +494,7 @@ class AddonInstallFromZipCommand extends CoreCommand
             $tags
         );
         $tag = $this->getHelper('question')->ask($input, $output, $question);
+
         return $tag;
     }
 }
