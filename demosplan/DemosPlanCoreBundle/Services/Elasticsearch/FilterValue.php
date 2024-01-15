@@ -20,7 +20,6 @@ class FilterValue
     protected $label;
     /** @var bool */
     protected $selected = false;
-    /** @var Filter */
 
     /**
      * @param string $key

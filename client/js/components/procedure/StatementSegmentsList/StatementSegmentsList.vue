@@ -306,7 +306,7 @@ export default {
           return {
             hash: file.attributes.hash,
             filename: file.attributes.filename,
-            type: attachment.attributes.type
+            type: attachment.attributes.attachmentType
           }
         })
       } else {
@@ -334,7 +334,7 @@ export default {
 
       if (currentAssigneeId) {
         const assignee = this.assignableUsersObject[currentAssigneeId] || { attributes: {} }
-        const assigneeOrga = assignee.rel ? Object.values(assignee.rel('orga'))[0] : null
+        const assigneeOrga = assignee.rel ? assignee.rel('orga') : null
 
         return {
           id: currentAssigneeId,
@@ -449,7 +449,7 @@ export default {
           relationships: {
             assignee: {
               data: {
-                type: 'User',
+                type: 'Claim',
                 id: this.currentUser.id
               }
             }
@@ -529,7 +529,7 @@ export default {
           StatementAttachment: [
             'id',
             'file',
-            'type'
+            'attachmentType'
           ].join(),
           File: [
             'hash',
@@ -572,7 +572,7 @@ export default {
             ...this.statements[this.statement.id].relationships,
             assignee: {
               data: {
-                type: 'User',
+                type: 'Claim',
                 id: claimingStatement ? this.currentUser.id : null
               }
             }

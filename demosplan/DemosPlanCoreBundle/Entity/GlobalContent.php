@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\GlobalContentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\News\NewsHandler;
@@ -27,7 +28,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ContentRepository")
  */
-class GlobalContent extends CoreEntity implements UuidEntityInterface
+class GlobalContent extends CoreEntity implements UuidEntityInterface, GlobalContentInterface
 {
     final public const NEW_GLOBAL_NEWS_VALIDATION_GROUP = 'new_global_news';
     final public const TYPE_NEWS = 'news';

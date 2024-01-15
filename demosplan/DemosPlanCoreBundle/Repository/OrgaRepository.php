@@ -36,6 +36,9 @@ use Doctrine\ORM\QueryBuilder;
 use Exception;
 use Faker\Provider\Uuid;
 
+/**
+ * @template-extends SluggedRepository<Orga>
+ */
 class OrgaRepository extends SluggedRepository implements ArrayInterface
 {
     /**

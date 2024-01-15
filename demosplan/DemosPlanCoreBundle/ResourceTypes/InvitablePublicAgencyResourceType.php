@@ -20,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathException;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<Orga>
@@ -51,16 +50,6 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
             'area_main_procedures',
             'area_admin_invitable_institution'
         );
-    }
-
-    public function isReferencable(): bool
-    {
-        return false;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
     }
 
     /**
@@ -115,7 +104,7 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true),
+            $this->createIdentifier()->readable(),
             $this->createAttribute($this->legalName)->readable(true)->aliasedPath($this->name),
             $this->createAttribute($this->competenceDescription)->readable(
                 true,

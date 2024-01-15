@@ -12,11 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
 
 /**
- * @template T of object
+ * @template T of EntityInterface
  *
  * @template-extends DplanResourceType<T>
  *
@@ -34,18 +35,4 @@ use EDT\PathBuilding\End;
  */
 abstract class AbstractNewsResourceType extends DplanResourceType
 {
-    protected function getInitializableNewsProperties(): array
-    {
-        return [
-            $this->createAttribute($this->title)->initializable(),
-            $this->createAttribute($this->description)->initializable(),
-            $this->createAttribute($this->text)->initializable(),
-            $this->createAttribute($this->enabled)->initializable(),
-            $this->createAttribute($this->pictureTitle)->initializable(true),
-            $this->createAttribute($this->pdfTitle)->initializable(true),
-            $this->createAttribute($this->picture)->initializable(true),
-            $this->createAttribute($this->pdf)->initializable(true),
-            $this->createToOneRelationship($this->roles)->initializable(),
-        ];
-    }
 }

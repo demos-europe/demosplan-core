@@ -25,12 +25,16 @@ use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\Querying\Utilities\Reindexer;
 use Exception;
 
 use function array_key_exists;
 use function collect;
 
-class ElementsRepository extends FluentRepository implements ArrayInterface, ObjectInterface
+/**
+ * @template-extends CoreRepository<Elements>
+ */
+class ElementsRepository extends CoreRepository implements ArrayInterface, ObjectInterface
 {
     /**
      * @var PermissionsInterface
@@ -41,9 +45,10 @@ class ElementsRepository extends FluentRepository implements ArrayInterface, Obj
         DqlConditionFactory $dqlConditionFactory,
         ManagerRegistry $registry,
         PermissionsInterface $permissions,
+        Reindexer $reindexer,
         SortMethodFactory $sortMethodFactory
     ) {
-        parent::__construct($dqlConditionFactory, $registry, $sortMethodFactory, Elements::class);
+        parent::__construct($dqlConditionFactory, $registry, $reindexer, $sortMethodFactory, Elements::class);
 
         $this->permissions = $permissions;
     }
@@ -290,8 +295,8 @@ class ElementsRepository extends FluentRepository implements ArrayInterface, Obj
             $entity->setParent($this->get($data['parent']));
         }
 
-        if (array_key_exists('permission', $data) &&
-            null !== $data['permission']) {
+        if (array_key_exists('permission', $data)
+            && null !== $data['permission']) {
             $entity->setPermission($data['permission']);
         }
 
@@ -373,8 +378,6 @@ class ElementsRepository extends FluentRepository implements ArrayInterface, Obj
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @throws Exception
      */
     public function updateObject($entity)
@@ -405,7 +408,7 @@ class ElementsRepository extends FluentRepository implements ArrayInterface, Obj
         $paragraphs = $paragraphRepository->findBy(['procedure' => $procedureId]);
         $documents = $documentRepository->findBy(['procedure' => $procedureId]);
         $elementIdsWithParagraphsOrDocuments = array_map(
-            static fn($paragraphOrDocument) =>
+            static fn ($paragraphOrDocument) =>
                 /* @var Paragraph|SingleDocument $paragraphOrDocument */
                 $paragraphOrDocument->getElement()->getId(),
             [...$paragraphs, ...$documents]
@@ -425,7 +428,7 @@ class ElementsRepository extends FluentRepository implements ArrayInterface, Obj
         $elements = $queryBuilder->getQuery()->getResult();
 
         return array_map(
-            static fn(Elements $element) => $element->getId(),
+            static fn (Elements $element) => $element->getId(),
             $this->filterElementsByPermissions($elements)
         );
     }

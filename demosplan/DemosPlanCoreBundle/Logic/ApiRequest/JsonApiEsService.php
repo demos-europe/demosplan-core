@@ -12,7 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
+use DemosEurope\DemosplanAddon\Contracts\ApiRequest\ApiListResultInterface;
+use DemosEurope\DemosplanAddon\Contracts\ApiRequest\JsonApiEsServiceInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Facet\FacetFactory;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
@@ -22,10 +25,12 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use demosplan\DemosPlanCoreBundle\ValueObject\ApiListResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\APIPagination;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\Querying\Pagination\PagePagination;
 use EDT\Querying\Utilities\Iterables;
 use Elastica\Index;
+use Webmozart\Assert\Assert;
 
-class JsonApiEsService
+class JsonApiEsService implements JsonApiEsServiceInterface
 {
     use ElasticsearchQueryTrait;
 
@@ -174,7 +179,7 @@ class JsonApiEsService
             // all entities corresponding to the IDs from Doctrine and re-apply the scored
             // sorting from the Elasticsearch result.
             if ($requireEntities) {
-                $entities = $resourceType->listEntities([$condition]);
+                $entities = $resourceType->getEntities([$condition], []);
                 $entities = $this->useIdAsKey($entities);
                 $entities = self::sortAndFilterByKeys($esIds, $entities);
                 $entities = array_values($entities);
@@ -184,7 +189,7 @@ class JsonApiEsService
             // entities corresponding to the IDs from Doctrine with the requested
             // sorting. The sorting of the Elasticsearch result doesn't matter.
             if ($requireEntities) {
-                $entities = $resourceType->listEntities([$condition], $sortMethods);
+                $entities = $resourceType->getEntities([$condition], $sortMethods);
             }
         } else {
             // With pagination but without scored sorting, we need to fetch all
@@ -249,5 +254,35 @@ class JsonApiEsService
         return collect($entities)
             ->mapWithKeys(static fn (UuidEntityInterface $entity): array => [$entity->getId() => $entity])
             ->all();
+    }
+
+    public function optimisticallyGetEsFilteredObjects(
+        JsonApiResourceTypeInterface $type,
+        array $prefilteredIdentifiers,
+        string $searchValue,
+        ?array $fieldsToSearch,
+        array $sortMethods,
+        ?PagePagination $pagination
+    ): ApiListResultInterface {
+        Assert::isInstanceOf($type, ReadableEsResourceTypeInterface::class);
+
+        $searchParamArray = [
+            JsonApiEsServiceInterface::VALUE => $searchValue,
+        ];
+        if (null !== $fieldsToSearch) {
+            $searchParamArray[JsonApiEsServiceInterface::FIELDS_TO_SEARCH] = $fieldsToSearch;
+        }
+        $searchParams = new SearchParams($searchParamArray);
+
+        if (null === $pagination) {
+            $apiPagination = null;
+        } else {
+            $apiPagination = new APIPagination();
+            $apiPagination->setSize($pagination->getSize());
+            $apiPagination->setNumber($pagination->getNumber());
+            $apiPagination->lock();
+        }
+
+        return $this->getEsFilteredObjects($type, $prefilteredIdentifiers, $searchParams, [], true, $sortMethods, $apiPagination);
     }
 }

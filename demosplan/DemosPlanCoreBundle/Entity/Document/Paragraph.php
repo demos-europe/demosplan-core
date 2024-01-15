@@ -66,7 +66,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface, ParagraphInte
     protected $parent;
 
     /**
-     * @var ParagraphInterface[]
+     * @var Collection<int, ParagraphInterface>
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph", mappedBy="parent")
      *

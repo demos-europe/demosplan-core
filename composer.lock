@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f49bec52b3f3c56213443aa810e3d4c0",
+    "content-hash": "b3fbe27c490a00fc13f863ac2ee53bec",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -1359,25 +1359,26 @@
         },
         {
             "name": "demos-europe/demosplan-addon",
-            "version": "v0.14",
+            "version": "v0.17",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "54d7c957778dda2b3caa7b8e8d3e7203b2451a7a"
+                "reference": "8f4eee587418881fd92ef7f65c2da957086a54b0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/54d7c957778dda2b3caa7b8e8d3e7203b2451a7a",
-                "reference": "54d7c957778dda2b3caa7b8e8d3e7203b2451a7a",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/8f4eee587418881fd92ef7f65c2da957086a54b0",
+                "reference": "8f4eee587418881fd92ef7f65c2da957086a54b0",
                 "shasum": ""
             },
             "require": {
                 "composer-plugin-api": "^2.0",
-                "demos-europe/edt-dql": "^0.16.0",
-                "demos-europe/edt-jsonapi": "^0.16.0",
-                "demos-europe/edt-paths": "^0.16.0",
+                "demos-europe/edt-dql": "^0.24.0",
+                "demos-europe/edt-jsonapi": "^0.24.0",
+                "demos-europe/edt-paths": "^0.24.0",
                 "doctrine/doctrine-bundle": "^2",
                 "league/fractal": "^0.19",
+                "nesbot/carbon": "^2.0.0",
                 "php": "^8.1",
                 "ramsey/uuid": "^4",
                 "sensio/framework-extra-bundle": "^6.1",
@@ -1392,7 +1393,12 @@
             },
             "require-dev": {
                 "composer/composer": "^2.1",
-                "phpstan/phpstan": "^1.9"
+                "ergebnis/phpstan-rules": "^2.0",
+                "phpstan/phpstan": "^1.9",
+                "phpstan/phpstan-deprecation-rules": "^1.1",
+                "phpstan/phpstan-strict-rules": "^1.4.2",
+                "phpstan/phpstan-webmozart-assert": "^1.2",
+                "thecodingmachine/phpstan-strict-rules": "^1.0"
             },
             "type": "package",
             "autoload": {
@@ -1406,40 +1412,40 @@
             ],
             "description": "This is the base package for all demosplan addons",
             "support": {
-                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.14"
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.17"
             },
-            "time": "2024-01-04T09:24:17+00:00"
+            "time": "2024-01-11T07:38:52+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
-            "version": "0.16.1",
+            "version": "0.24.36",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/edt-access-definitions.git",
-                "reference": "f162243545e3f5f2cdf3769535916111a40bc3ec"
+                "reference": "ef8c24969550eace5a20dfeb727ebdc5f0bb3df9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/edt-access-definitions/zipball/f162243545e3f5f2cdf3769535916111a40bc3ec",
-                "reference": "f162243545e3f5f2cdf3769535916111a40bc3ec",
+                "url": "https://api.github.com/repos/demos-europe/edt-access-definitions/zipball/ef8c24969550eace5a20dfeb727ebdc5f0bb3df9",
+                "reference": "ef8c24969550eace5a20dfeb727ebdc5f0bb3df9",
                 "shasum": ""
             },
             "require": {
-                "demos-europe/edt-queries": "^0.16.1",
-                "php": "^7.4 || ^8.0",
-                "thecodingmachine/safe": "^1.3.3"
+                "demos-europe/edt-queries": "^0.24.36",
+                "pagerfanta/pagerfanta": "^2.7",
+                "php": "^8.1",
+                "thecodingmachine/safe": "^2.4.0"
             },
             "conflict": {
-                "demos-europe/edt-dql": "<0.16.1",
-                "demos-europe/edt-extra": "<0.16.1",
-                "demos-europe/edt-jsonapi": "<0.16.1",
-                "demos-europe/edt-paths": "<0.16.1"
+                "demos-europe/edt-dql": "<0.17.1",
+                "demos-europe/edt-extra": "<0.17.1",
+                "demos-europe/edt-jsonapi": "<0.17.1",
+                "demos-europe/edt-paths": "<0.17.1"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "EDT\\Wrapping\\": "src/Wrapping/",
-                    "EDT\\Querying\\ObjectProviders\\": "src/Querying/ObjectProviders/"
+                    "EDT\\Wrapping\\": "src/Wrapping/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -1454,37 +1460,37 @@
             ],
             "description": "Tools to regulate access to entities and their properties.",
             "support": {
-                "source": "https://github.com/demos-europe/edt-access-definitions/tree/0.16.1"
+                "source": "https://github.com/demos-europe/edt-access-definitions/tree/0.24.36"
             },
-            "time": "2022-11-15T19:51:43+00:00"
+            "time": "2024-01-10T09:06:44+00:00"
         },
         {
             "name": "demos-europe/edt-dql",
-            "version": "0.16.1",
+            "version": "0.24.36",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/edt-dql.git",
-                "reference": "0835c9492b2fc62ecd64cce65e118d1e657829e3"
+                "reference": "136fac24fe7e73f73172e34dc041d02564366e06"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/edt-dql/zipball/0835c9492b2fc62ecd64cce65e118d1e657829e3",
-                "reference": "0835c9492b2fc62ecd64cce65e118d1e657829e3",
+                "url": "https://api.github.com/repos/demos-europe/edt-dql/zipball/136fac24fe7e73f73172e34dc041d02564366e06",
+                "reference": "136fac24fe7e73f73172e34dc041d02564366e06",
                 "shasum": ""
             },
             "require": {
-                "demos-europe/edt-queries": "^0.16.1",
+                "demos-europe/edt-paths": "^0.24.36",
+                "demos-europe/edt-queries": "^0.24.36",
                 "doctrine/orm": "^2.5",
-                "php": "^7.4 || ^8.0"
+                "nette/php-generator": "^4.0",
+                "php": "^8.1",
+                "symfony/cache": "^5"
             },
             "conflict": {
-                "demos-europe/edt-access-definitions": "<0.16.1",
-                "demos-europe/edt-extra": "<0.16.1",
-                "demos-europe/edt-jsonapi": "<0.16.1",
-                "demos-europe/edt-paths": "<0.16.1"
-            },
-            "require-dev": {
-                "doctrine/cache": "^1.11"
+                "demos-europe/edt-access-definitions": "<0.17.1",
+                "demos-europe/edt-extra": "<0.17.1",
+                "demos-europe/edt-jsonapi": "<0.17.1",
+                "demos-europe/edt-paths": "<0.17.1"
             },
             "type": "library",
             "autoload": {
@@ -1504,34 +1510,34 @@
             ],
             "description": "Extension for demos-europe/edt-queries to use Doctrine ORM as data source.",
             "support": {
-                "source": "https://github.com/demos-europe/edt-dql/tree/0.16.1"
+                "source": "https://github.com/demos-europe/edt-dql/tree/0.24.36"
             },
-            "time": "2022-11-15T19:51:48+00:00"
+            "time": "2024-01-10T09:06:48+00:00"
         },
         {
             "name": "demos-europe/edt-extra",
-            "version": "0.16.1",
+            "version": "0.24.36",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/edt-extra.git",
-                "reference": "ae971b8068fb7cc5305a249f192490a010606d35"
+                "reference": "b311913200b3e8dc0ca9874eefb44c663a8a3b22"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/edt-extra/zipball/ae971b8068fb7cc5305a249f192490a010606d35",
-                "reference": "ae971b8068fb7cc5305a249f192490a010606d35",
+                "url": "https://api.github.com/repos/demos-europe/edt-extra/zipball/b311913200b3e8dc0ca9874eefb44c663a8a3b22",
+                "reference": "b311913200b3e8dc0ca9874eefb44c663a8a3b22",
                 "shasum": ""
             },
             "require": {
-                "demos-europe/edt-jsonapi": "^0.16.1",
-                "php": "^7.4 || ^8.0",
-                "thecodingmachine/safe": "^1.3.3"
+                "demos-europe/edt-jsonapi": "^0.24.36",
+                "php": "^8.1",
+                "thecodingmachine/safe": "^2.4.0"
             },
             "conflict": {
-                "demos-europe/edt-access-definitions": "<0.16.1",
-                "demos-europe/edt-dql": "<0.16.1",
-                "demos-europe/edt-paths": "<0.16.1",
-                "demos-europe/edt-queries": "<0.16.1"
+                "demos-europe/edt-access-definitions": "<0.17.1",
+                "demos-europe/edt-dql": "<0.17.1",
+                "demos-europe/edt-paths": "<0.17.1",
+                "demos-europe/edt-queries": "<0.17.1"
             },
             "type": "library",
             "autoload": {
@@ -1551,41 +1557,41 @@
             ],
             "description": "Extension for edt-queries containing various convenience and use-case specific functionality.",
             "support": {
-                "source": "https://github.com/demos-europe/edt-extra/tree/0.16.1"
+                "source": "https://github.com/demos-europe/edt-extra/tree/0.24.36"
             },
-            "time": "2022-11-15T19:51:46+00:00"
+            "time": "2024-01-10T09:06:46+00:00"
         },
         {
             "name": "demos-europe/edt-jsonapi",
-            "version": "0.16.1",
+            "version": "0.24.36",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/edt-jsonapi.git",
-                "reference": "69cee7c1baa916d8a6f3ab7b76be2b39e8ca5ee4"
+                "reference": "a8486d95bbff19d8df262a00eae9f1618cde1683"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/edt-jsonapi/zipball/69cee7c1baa916d8a6f3ab7b76be2b39e8ca5ee4",
-                "reference": "69cee7c1baa916d8a6f3ab7b76be2b39e8ca5ee4",
+                "url": "https://api.github.com/repos/demos-europe/edt-jsonapi/zipball/a8486d95bbff19d8df262a00eae9f1618cde1683",
+                "reference": "a8486d95bbff19d8df262a00eae9f1618cde1683",
                 "shasum": ""
             },
             "require": {
                 "cebe/php-openapi": "^1.5",
-                "demos-europe/edt-access-definitions": "^0.16.1",
-                "demos-europe/edt-queries": "^0.16.1",
+                "demos-europe/edt-access-definitions": "^0.24.36",
+                "demos-europe/edt-queries": "^0.24.36",
                 "doctrine/collections": "^1.5",
+                "ext-json": "*",
                 "league/fractal": "^0.19",
-                "pagerfanta/pagerfanta": "^2.7",
-                "php": "^7.4 || ^8.0",
+                "php": "^8.1",
                 "psr/log": "^1.1.4",
                 "symfony/http-foundation": "^5.3.7,<6",
                 "symfony/routing": "^5.3,<6",
                 "symfony/validator": "5.*.*"
             },
             "conflict": {
-                "demos-europe/edt-dql": "<0.16.1",
-                "demos-europe/edt-extra": "<0.16.1",
-                "demos-europe/edt-paths": "<0.16.1"
+                "demos-europe/edt-dql": "<0.17.1",
+                "demos-europe/edt-extra": "<0.17.1",
+                "demos-europe/edt-paths": "<0.17.1"
             },
             "type": "library",
             "autoload": {
@@ -1610,37 +1616,36 @@
             "description": "Expose Doctrine entities as JSON:API resources.",
             "support": {
                 "issues": "https://github.com/demos-europe/edt-jsonapi/issues",
-                "source": "https://github.com/demos-europe/edt-jsonapi/tree/0.16.1"
+                "source": "https://github.com/demos-europe/edt-jsonapi/tree/0.24.36"
             },
-            "time": "2022-11-15T19:51:47+00:00"
+            "time": "2024-01-10T09:06:48+00:00"
         },
         {
             "name": "demos-europe/edt-paths",
-            "version": "0.16.1",
+            "version": "0.24.36",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/edt-paths.git",
-                "reference": "30d9beaa407889a7d4c6b44578edd0c42e877056"
+                "reference": "79d22d78b946461f3c69d42967ec2bd3ef8dcbb7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/edt-paths/zipball/30d9beaa407889a7d4c6b44578edd0c42e877056",
-                "reference": "30d9beaa407889a7d4c6b44578edd0c42e877056",
+                "url": "https://api.github.com/repos/demos-europe/edt-paths/zipball/79d22d78b946461f3c69d42967ec2bd3ef8dcbb7",
+                "reference": "79d22d78b946461f3c69d42967ec2bd3ef8dcbb7",
                 "shasum": ""
             },
             "require": {
-                "demos-europe/edt-queries": "^0.16.1",
-                "nette/php-generator": "^3.5",
+                "demos-europe/edt-queries": "^0.24.36",
                 "nikic/php-parser": "^4.14",
-                "php": "^7.4 || ^8.0",
+                "php": "^8.1",
                 "phpdocumentor/reflection-docblock": "^5.1.0",
-                "thecodingmachine/safe": "^1.3.3"
+                "thecodingmachine/safe": "^2.4.0"
             },
             "conflict": {
-                "demos-europe/edt-access-definitions": "<0.16.1",
-                "demos-europe/edt-dql": "<0.16.1",
-                "demos-europe/edt-extra": "<0.16.1",
-                "demos-europe/edt-jsonapi": "<0.16.1"
+                "demos-europe/edt-access-definitions": "<0.17.1",
+                "demos-europe/edt-dql": "<0.17.1",
+                "demos-europe/edt-extra": "<0.17.1",
+                "demos-europe/edt-jsonapi": "<0.17.1"
             },
             "type": "library",
             "autoload": {
@@ -1661,34 +1666,34 @@
             ],
             "description": "Tools to create paths between entities and entity properties.",
             "support": {
-                "source": "https://github.com/demos-europe/edt-paths/tree/0.16.1"
+                "source": "https://github.com/demos-europe/edt-paths/tree/0.24.36"
             },
-            "time": "2022-11-15T19:51:49+00:00"
+            "time": "2024-01-10T09:06:49+00:00"
         },
         {
             "name": "demos-europe/edt-queries",
-            "version": "0.16.1",
+            "version": "0.24.36",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/edt-queries.git",
-                "reference": "0817bcc29ae297cf6c00c15affe0f4694190e9a6"
+                "reference": "83b491076b0e6d2f4a3528419e21d2feaa46ea2b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/edt-queries/zipball/0817bcc29ae297cf6c00c15affe0f4694190e9a6",
-                "reference": "0817bcc29ae297cf6c00c15affe0f4694190e9a6",
+                "url": "https://api.github.com/repos/demos-europe/edt-queries/zipball/83b491076b0e6d2f4a3528419e21d2feaa46ea2b",
+                "reference": "83b491076b0e6d2f4a3528419e21d2feaa46ea2b",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.4 || ^8.0",
+                "php": "^8.1",
                 "webmozart/assert": "^1.11"
             },
             "conflict": {
-                "demos-europe/edt-access-definitions": "<0.16.1",
-                "demos-europe/edt-dql": "<0.16.1",
-                "demos-europe/edt-extra": "<0.16.1",
-                "demos-europe/edt-jsonapi": "<0.16.1",
-                "demos-europe/edt-paths": "<0.16.1"
+                "demos-europe/edt-access-definitions": "<0.17.1",
+                "demos-europe/edt-dql": "<0.17.1",
+                "demos-europe/edt-extra": "<0.17.1",
+                "demos-europe/edt-jsonapi": "<0.17.1",
+                "demos-europe/edt-paths": "<0.17.1"
             },
             "type": "library",
             "autoload": {
@@ -1709,9 +1714,9 @@
             ],
             "description": "Eases querying entities via property paths.",
             "support": {
-                "source": "https://github.com/demos-europe/edt-queries/tree/0.16.1"
+                "source": "https://github.com/demos-europe/edt-queries/tree/0.24.36"
             },
-            "time": "2022-11-15T19:51:49+00:00"
+            "time": "2024-01-05T20:58:24+00:00"
         },
         {
             "name": "doctrine/annotations",
@@ -7613,47 +7618,52 @@
         },
         {
             "name": "nelmio/security-bundle",
-            "version": "v2.12.0",
+            "version": "v3.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nelmio/NelmioSecurityBundle.git",
-                "reference": "dc8b8c3ee5c64715486e1e3947f83f4169f4374f"
+                "reference": "da7cc88ae338c6b8370c45c2e5fec88d24f5595d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nelmio/NelmioSecurityBundle/zipball/dc8b8c3ee5c64715486e1e3947f83f4169f4374f",
-                "reference": "dc8b8c3ee5c64715486e1e3947f83f4169f4374f",
+                "url": "https://api.github.com/repos/nelmio/NelmioSecurityBundle/zipball/da7cc88ae338c6b8370c45c2e5fec88d24f5595d",
+                "reference": "da7cc88ae338c6b8370c45c2e5fec88d24f5595d",
                 "shasum": ""
             },
             "require": {
-                "paragonie/random_compat": "~1.0|~2.0|~9.99.99",
-                "php": ">5.4",
-                "symfony/framework-bundle": "~2.3|~v3.0|~4.0|~5.0|~6.0",
-                "symfony/security-core": "~2.3|~3.0|~4.0|~5.0|~6.0",
-                "symfony/security-csrf": "~2.3|~3.0|~4.0|~5.0|~6.0",
-                "symfony/security-http": "~2.3|~3.0|~4.0|~5.0|~6.0",
-                "symfony/yaml": "~2.3|~3.0|~4.0|~5.0|~6.0",
+                "php": "^7.4 || ^8.0",
+                "symfony/framework-bundle": "^5.4 || ^6.3 || ^7.0",
+                "symfony/http-kernel": "^5.4 || ^6.3 || ^7.0",
+                "symfony/security-core": "^5.4 || ^6.3 || ^7.0",
+                "symfony/security-csrf": "^5.4 || ^6.3 || ^7.0",
+                "symfony/security-http": "^5.4 || ^6.3 || ^7.0",
+                "symfony/yaml": "^5.4 || ^6.3 || ^7.0",
                 "ua-parser/uap-php": "^3.4.4"
             },
             "require-dev": {
-                "doctrine/cache": "^1.0",
-                "psr/cache": "^1.0",
-                "symfony/phpunit-bridge": "^5.0.5|^6.0",
-                "twig/twig": "^1.38|^2.10|^3.0"
+                "phpstan/phpstan": "^1.4",
+                "phpstan/phpstan-deprecation-rules": "^1.0",
+                "phpstan/phpstan-phpunit": "^1.0",
+                "phpstan/phpstan-strict-rules": "^1.1",
+                "phpstan/phpstan-symfony": "^1.1",
+                "phpunit/phpunit": "^9.5",
+                "psr/cache": "^1.0 || ^2.0 || ^3.0",
+                "symfony/browser-kit": "^5.4 || ^6.3 || ^7.0",
+                "symfony/cache": "^5.4 || ^6.3 || ^7.0",
+                "symfony/phpunit-bridge": "^6.3 || ^7.0",
+                "symfony/twig-bundle": "^5.4 || ^6.3 || ^7.0",
+                "twig/twig": "^2.10 || ^3.0"
             },
             "type": "symfony-bundle",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.11.x-dev"
+                    "dev-master": "3.x-dev"
                 }
             },
             "autoload": {
                 "psr-4": {
-                    "Nelmio\\SecurityBundle\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
+                    "Nelmio\\SecurityBundle\\": "src/"
+                }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -7675,9 +7685,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nelmio/NelmioSecurityBundle/issues",
-                "source": "https://github.com/nelmio/NelmioSecurityBundle/tree/v2.12.0"
+                "source": "https://github.com/nelmio/NelmioSecurityBundle/tree/v3.1.0"
             },
-            "time": "2022-02-23T06:10:58+00:00"
+            "time": "2023-12-03T08:44:55+00:00"
         },
         {
             "name": "nesbot/carbon",
@@ -7788,35 +7798,36 @@
         },
         {
             "name": "nette/php-generator",
-            "version": "v3.6.9",
+            "version": "v4.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nette/php-generator.git",
-                "reference": "d31782f7bd2ae84ad06f863391ec3fb77ca4d0a6"
+                "reference": "abc0e79b2d02d4b8aba5933765b90df3f610c143"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nette/php-generator/zipball/d31782f7bd2ae84ad06f863391ec3fb77ca4d0a6",
-                "reference": "d31782f7bd2ae84ad06f863391ec3fb77ca4d0a6",
+                "url": "https://api.github.com/repos/nette/php-generator/zipball/abc0e79b2d02d4b8aba5933765b90df3f610c143",
+                "reference": "abc0e79b2d02d4b8aba5933765b90df3f610c143",
                 "shasum": ""
             },
             "require": {
-                "nette/utils": "^3.1.2",
-                "php": ">=7.2 <8.3"
+                "nette/utils": "^3.2.9 || ^4.0",
+                "php": "8.0 - 8.3"
             },
             "require-dev": {
+                "jetbrains/phpstorm-attributes": "dev-master",
                 "nette/tester": "^2.4",
-                "nikic/php-parser": "^4.13",
-                "phpstan/phpstan": "^0.12",
+                "nikic/php-parser": "^4.15",
+                "phpstan/phpstan": "^1.0",
                 "tracy/tracy": "^2.8"
             },
             "suggest": {
-                "nikic/php-parser": "to use ClassType::withBodiesFrom() & GlobalFunction::withBodyFrom()"
+                "nikic/php-parser": "to use ClassType::from(withBodies: true) & ClassType::fromCode()"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.6-dev"
+                    "dev-master": "4.1-dev"
                 }
             },
             "autoload": {
@@ -7840,7 +7851,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🐘 Nette PHP Generator: generates neat PHP code for you. Supports new PHP 8.1 features.",
+            "description": "🐘 Nette PHP Generator: generates neat PHP code for you. Supports new PHP 8.3 features.",
             "homepage": "https://nette.org",
             "keywords": [
                 "code",
@@ -7850,35 +7861,36 @@
             ],
             "support": {
                 "issues": "https://github.com/nette/php-generator/issues",
-                "source": "https://github.com/nette/php-generator/tree/v3.6.9"
+                "source": "https://github.com/nette/php-generator/tree/v4.1.2"
             },
-            "time": "2022-10-04T11:49:47+00:00"
+            "time": "2023-10-29T22:57:32+00:00"
         },
         {
             "name": "nette/utils",
-            "version": "v3.2.10",
+            "version": "v4.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nette/utils.git",
-                "reference": "a4175c62652f2300c8017fb7e640f9ccb11648d2"
+                "reference": "a9d127dd6a203ce6d255b2e2db49759f7506e015"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nette/utils/zipball/a4175c62652f2300c8017fb7e640f9ccb11648d2",
-                "reference": "a4175c62652f2300c8017fb7e640f9ccb11648d2",
+                "url": "https://api.github.com/repos/nette/utils/zipball/a9d127dd6a203ce6d255b2e2db49759f7506e015",
+                "reference": "a9d127dd6a203ce6d255b2e2db49759f7506e015",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.2 <8.4"
+                "php": ">=8.0 <8.4"
             },
             "conflict": {
-                "nette/di": "<3.0.6"
+                "nette/finder": "<3",
+                "nette/schema": "<1.2.2"
             },
             "require-dev": {
                 "jetbrains/phpstorm-attributes": "dev-master",
-                "nette/tester": "~2.0",
+                "nette/tester": "^2.5",
                 "phpstan/phpstan": "^1.0",
-                "tracy/tracy": "^2.3"
+                "tracy/tracy": "^2.9"
             },
             "suggest": {
                 "ext-gd": "to use Image",
@@ -7886,13 +7898,12 @@
                 "ext-intl": "to use Strings::webalize(), toAscii(), normalize() and compare()",
                 "ext-json": "to use Nette\\Utils\\Json",
                 "ext-mbstring": "to use Strings::lower() etc...",
-                "ext-tokenizer": "to use Nette\\Utils\\Reflection::getUseStatements()",
-                "ext-xml": "to use Strings::length() etc. when mbstring is not available"
+                "ext-tokenizer": "to use Nette\\Utils\\Reflection::getUseStatements()"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.2-dev"
+                    "dev-master": "4.0-dev"
                 }
             },
             "autoload": {
@@ -7936,9 +7947,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nette/utils/issues",
-                "source": "https://github.com/nette/utils/tree/v3.2.10"
+                "source": "https://github.com/nette/utils/tree/v4.0.3"
             },
-            "time": "2023-07-30T15:38:18+00:00"
+            "time": "2023-10-29T21:02:13+00:00"
         },
         {
             "name": "nikic/php-parser",
@@ -9697,16 +9708,16 @@
         },
         {
             "name": "phpstan/phpdoc-parser",
-            "version": "1.24.5",
+            "version": "1.25.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpdoc-parser.git",
-                "reference": "fedf211ff14ec8381c9bf5714e33a7a552dd1acc"
+                "reference": "bd84b629c8de41aa2ae82c067c955e06f1b00240"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/fedf211ff14ec8381c9bf5714e33a7a552dd1acc",
-                "reference": "fedf211ff14ec8381c9bf5714e33a7a552dd1acc",
+                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/bd84b629c8de41aa2ae82c067c955e06f1b00240",
+                "reference": "bd84b629c8de41aa2ae82c067c955e06f1b00240",
                 "shasum": ""
             },
             "require": {
@@ -9738,22 +9749,22 @@
             "description": "PHPDoc parser with support for nullable, intersection and generic types",
             "support": {
                 "issues": "https://github.com/phpstan/phpdoc-parser/issues",
-                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.24.5"
+                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.25.0"
             },
-            "time": "2023-12-16T09:33:33+00:00"
+            "time": "2024-01-04T17:06:16+00:00"
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.10.50",
+            "version": "1.10.55",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "06a98513ac72c03e8366b5a0cb00750b487032e4"
+                "reference": "9a88f9d18ddf4cf54c922fbeac16c4cb164c5949"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/06a98513ac72c03e8366b5a0cb00750b487032e4",
-                "reference": "06a98513ac72c03e8366b5a0cb00750b487032e4",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/9a88f9d18ddf4cf54c922fbeac16c4cb164c5949",
+                "reference": "9a88f9d18ddf4cf54c922fbeac16c4cb164c5949",
                 "shasum": ""
             },
             "require": {
@@ -9802,7 +9813,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-12-13T10:59:42+00:00"
+            "time": "2024-01-08T12:32:40+00:00"
         },
         {
             "name": "predis/predis",
@@ -9867,16 +9878,16 @@
         },
         {
             "name": "proj4php/proj4php",
-            "version": "2.0.13",
+            "version": "2.0.14",
             "source": {
                 "type": "git",
                 "url": "https://github.com/proj4php/proj4php.git",
-                "reference": "17f2a5eea4f587f46ad7d0c62a4855d6b734ac69"
+                "reference": "56101a421c0d5d05652abd7fba22466cb6bad92b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/proj4php/proj4php/zipball/17f2a5eea4f587f46ad7d0c62a4855d6b734ac69",
-                "reference": "17f2a5eea4f587f46ad7d0c62a4855d6b734ac69",
+                "url": "https://api.github.com/repos/proj4php/proj4php/zipball/56101a421c0d5d05652abd7fba22466cb6bad92b",
+                "reference": "56101a421c0d5d05652abd7fba22466cb6bad92b",
                 "shasum": ""
             },
             "require": {
@@ -9925,9 +9936,9 @@
             ],
             "support": {
                 "issues": "https://github.com/proj4php/proj4php/issues",
-                "source": "https://github.com/proj4php/proj4php/tree/2.0.13"
+                "source": "https://github.com/proj4php/proj4php/tree/2.0.14"
             },
-            "time": "2023-05-10T04:07:19+00:00"
+            "time": "2024-01-08T18:41:31+00:00"
         },
         {
             "name": "psr/cache",
@@ -17545,39 +17556,46 @@
         },
         {
             "name": "thecodingmachine/safe",
-            "version": "v1.3.3",
+            "version": "v2.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thecodingmachine/safe.git",
-                "reference": "a8ab0876305a4cdaef31b2350fcb9811b5608dbc"
+                "reference": "3115ecd6b4391662b4931daac4eba6b07a2ac1f0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thecodingmachine/safe/zipball/a8ab0876305a4cdaef31b2350fcb9811b5608dbc",
-                "reference": "a8ab0876305a4cdaef31b2350fcb9811b5608dbc",
+                "url": "https://api.github.com/repos/thecodingmachine/safe/zipball/3115ecd6b4391662b4931daac4eba6b07a2ac1f0",
+                "reference": "3115ecd6b4391662b4931daac4eba6b07a2ac1f0",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.2"
+                "php": "^8.0"
             },
             "require-dev": {
-                "phpstan/phpstan": "^0.12",
+                "phpstan/phpstan": "^1.5",
+                "phpunit/phpunit": "^9.5",
                 "squizlabs/php_codesniffer": "^3.2",
-                "thecodingmachine/phpstan-strict-rules": "^0.12"
+                "thecodingmachine/phpstan-strict-rules": "^1.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "0.1-dev"
+                    "dev-master": "2.2.x-dev"
                 }
             },
             "autoload": {
                 "files": [
                     "deprecated/apc.php",
+                    "deprecated/array.php",
+                    "deprecated/datetime.php",
                     "deprecated/libevent.php",
+                    "deprecated/misc.php",
+                    "deprecated/password.php",
                     "deprecated/mssql.php",
                     "deprecated/stats.php",
+                    "deprecated/strings.php",
                     "lib/special_cases.php",
+                    "deprecated/mysqli.php",
                     "generated/apache.php",
                     "generated/apcu.php",
                     "generated/array.php",
@@ -17598,6 +17616,7 @@
                     "generated/fpm.php",
                     "generated/ftp.php",
                     "generated/funchand.php",
+                    "generated/gettext.php",
                     "generated/gmp.php",
                     "generated/gnupg.php",
                     "generated/hash.php",
@@ -17607,7 +17626,6 @@
                     "generated/image.php",
                     "generated/imap.php",
                     "generated/info.php",
-                    "generated/ingres-ii.php",
                     "generated/inotify.php",
                     "generated/json.php",
                     "generated/ldap.php",
@@ -17616,20 +17634,14 @@
                     "generated/mailparse.php",
                     "generated/mbstring.php",
                     "generated/misc.php",
-                    "generated/msql.php",
                     "generated/mysql.php",
-                    "generated/mysqli.php",
-                    "generated/mysqlndMs.php",
-                    "generated/mysqlndQc.php",
                     "generated/network.php",
                     "generated/oci8.php",
                     "generated/opcache.php",
                     "generated/openssl.php",
                     "generated/outcontrol.php",
-                    "generated/password.php",
                     "generated/pcntl.php",
                     "generated/pcre.php",
-                    "generated/pdf.php",
                     "generated/pgsql.php",
                     "generated/posix.php",
                     "generated/ps.php",
@@ -17640,7 +17652,6 @@
                     "generated/sem.php",
                     "generated/session.php",
                     "generated/shmop.php",
-                    "generated/simplexml.php",
                     "generated/sockets.php",
                     "generated/sodium.php",
                     "generated/solr.php",
@@ -17663,13 +17674,13 @@
                     "generated/zip.php",
                     "generated/zlib.php"
                 ],
-                "psr-4": {
-                    "Safe\\": [
-                        "lib/",
-                        "deprecated/",
-                        "generated/"
-                    ]
-                }
+                "classmap": [
+                    "lib/DateTime.php",
+                    "lib/DateTimeImmutable.php",
+                    "lib/Exceptions/",
+                    "deprecated/Exceptions/",
+                    "generated/Exceptions/"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -17678,9 +17689,9 @@
             "description": "PHP core functions that throw exceptions instead of returning FALSE on error",
             "support": {
                 "issues": "https://github.com/thecodingmachine/safe/issues",
-                "source": "https://github.com/thecodingmachine/safe/tree/v1.3.3"
+                "source": "https://github.com/thecodingmachine/safe/tree/v2.5.0"
             },
-            "time": "2020-10-28T17:51:34+00:00"
+            "time": "2023-04-05T11:54:14+00:00"
         },
         {
             "name": "tightenco/collect",
@@ -18177,43 +18188,42 @@
         },
         {
             "name": "willdurand/js-translation-bundle",
-            "version": "5.1.0",
+            "version": "6.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/willdurand/BazingaJsTranslationBundle.git",
-                "reference": "820a1fa45b9c84c262606e77bc9cadd1c8ad5953"
+                "reference": "11e717d9baf2ecb34b355986a2225d70c015d7fc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/willdurand/BazingaJsTranslationBundle/zipball/820a1fa45b9c84c262606e77bc9cadd1c8ad5953",
-                "reference": "820a1fa45b9c84c262606e77bc9cadd1c8ad5953",
+                "url": "https://api.github.com/repos/willdurand/BazingaJsTranslationBundle/zipball/11e717d9baf2ecb34b355986a2225d70c015d7fc",
+                "reference": "11e717d9baf2ecb34b355986a2225d70c015d7fc",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.2.5",
-                "symfony/console": "~4.4|~5.0|~6.0",
-                "symfony/finder": "~4.4|~5.0|~6.0",
-                "symfony/framework-bundle": "~4.4|~5.0|~6.0",
-                "symfony/intl": "~4.4|~5.0|~6.0",
-                "symfony/translation": "~4.4|~5.0|~6.0",
-                "symfony/twig-bundle": "~4.4|~5.0|~6.0"
+                "symfony/console": "~4.4|~5.0|~6.0|~7.0",
+                "symfony/finder": "~4.4|~5.0|~6.0|~7.0",
+                "symfony/framework-bundle": "~4.4|~5.0|~6.0|~7.0",
+                "symfony/intl": "~4.4|~5.0|~6.0|~7.0",
+                "symfony/translation": "~4.4|~5.0|~6.0|~7.0",
+                "symfony/twig-bundle": "~4.4|~5.0|~6.0|~7.0"
             },
             "replace": {
                 "willdurand/expose-translation-bundle": "2.5.*"
             },
             "require-dev": {
                 "phpunit/phpunit": "^4.8|~5.7|~6.5|~8",
-                "symfony/asset": "~4.4|~5.0|~6.0",
-                "symfony/browser-kit": "~4.4|~5.0|~6.0",
-                "symfony/filesystem": "~4.4|~5.0|~6.0",
-                "symfony/phpunit-bridge": "^5.0|^6.0",
-                "symfony/twig-bundle": "~4.4|~5.0|~6.0",
-                "symfony/yaml": "~4.4|~5.0|~6.0"
+                "symfony/asset": "~4.4|~5.0|~6.0|~7.0",
+                "symfony/browser-kit": "~4.4|~5.0|~6.0|~7.0",
+                "symfony/filesystem": "~4.4|~5.0|~6.0|~7.0",
+                "symfony/phpunit-bridge": "^5.0|^6.0|~7.0",
+                "symfony/yaml": "~4.4|~5.0|~6.0|~7.0"
             },
             "type": "symfony-bundle",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.7-dev"
+                    "dev-master": "6.x-dev"
                 }
             },
             "autoload": {
@@ -18239,9 +18249,9 @@
             ],
             "support": {
                 "issues": "https://github.com/willdurand/BazingaJsTranslationBundle/issues",
-                "source": "https://github.com/willdurand/BazingaJsTranslationBundle/tree/5.1.0"
+                "source": "https://github.com/willdurand/BazingaJsTranslationBundle/tree/6.0.0"
             },
-            "time": "2023-07-03T21:26:41+00:00"
+            "time": "2023-12-18T18:25:51+00:00"
         },
         {
             "name": "willdurand/jsonp-callback-validator",
@@ -19170,21 +19180,22 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v3.45.0",
+            "version": "v3.46.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer.git",
-                "reference": "c0daa33cb2533cd73f48dde1c70c2afa3e7953b5"
+                "reference": "be6831c9af1740470d2a773119b9273f8ac1c3d2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/c0daa33cb2533cd73f48dde1c70c2afa3e7953b5",
-                "reference": "c0daa33cb2533cd73f48dde1c70c2afa3e7953b5",
+                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/be6831c9af1740470d2a773119b9273f8ac1c3d2",
+                "reference": "be6831c9af1740470d2a773119b9273f8ac1c3d2",
                 "shasum": ""
             },
             "require": {
                 "composer/semver": "^3.4",
                 "composer/xdebug-handler": "^3.0.3",
+                "ext-filter": "*",
                 "ext-json": "*",
                 "ext-tokenizer": "*",
                 "php": "^7.4 || ^8.0",
@@ -19248,7 +19259,7 @@
             ],
             "support": {
                 "issues": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/issues",
-                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.45.0"
+                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.46.0"
             },
             "funding": [
                 {
@@ -19256,7 +19267,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-12-30T02:07:07+00:00"
+            "time": "2024-01-03T21:38:46+00:00"
         },
         {
             "name": "goetas-webservices/xsd-reader",
@@ -19419,43 +19430,43 @@
         },
         {
             "name": "liip/functional-test-bundle",
-            "version": "4.10.0",
+            "version": "4.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/liip/LiipFunctionalTestBundle.git",
-                "reference": "5658b8a2781e12c2d195a83111e171d659f1fdf9"
+                "reference": "124c7a6d40a96bbbedaf874bce92cd1989e3190a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/liip/LiipFunctionalTestBundle/zipball/5658b8a2781e12c2d195a83111e171d659f1fdf9",
-                "reference": "5658b8a2781e12c2d195a83111e171d659f1fdf9",
+                "url": "https://api.github.com/repos/liip/LiipFunctionalTestBundle/zipball/124c7a6d40a96bbbedaf874bce92cd1989e3190a",
+                "reference": "124c7a6d40a96bbbedaf874bce92cd1989e3190a",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.4 || ^8.0",
                 "phpunit/phpunit": "^9.6 || ^10.0",
-                "symfony/browser-kit": "^4.4 || ^5.1 || ^6.0",
-                "symfony/framework-bundle": "^4.4 || ^5.1 || ^6.0"
+                "symfony/browser-kit": "^5.4 || ^6.4 || ^7.0",
+                "symfony/framework-bundle": "^5.4 || ^6.4 || ^7.0"
             },
             "conflict": {
                 "symfony/framework-bundle": "4.3.0"
             },
             "require-dev": {
                 "doctrine/annotations": "^1.3 || ^2.0",
-                "doctrine/doctrine-bundle": "^2.1",
+                "doctrine/doctrine-bundle": "^2.11",
                 "doctrine/orm": "^2.7",
                 "ext-json": "*",
-                "monolog/monolog": "~1.11",
-                "symfony/css-selector": "^4.4 || ^5.1 || ^6.0",
-                "symfony/doctrine-bridge": "^4.4 || ^5.1 || ^6.0",
-                "symfony/form": "^4.4 || ^5.1 || ^6.0",
-                "symfony/http-kernel": "^4.4 || ^5.1 || ^6.0",
+                "monolog/monolog": "^1.25.1 || ^2.0 || ^3.0",
+                "symfony/css-selector": "^5.4 || ^6.4 || ^7.0",
+                "symfony/doctrine-bridge": "^5.4 || ^6.4 || ^7.0",
+                "symfony/form": "^5.4 || ^6.4 || ^7.0",
+                "symfony/http-kernel": "^5.4 || ^6.4 || ^7.0",
                 "symfony/monolog-bundle": "^3.4",
-                "symfony/security-bundle": "^4.4 || ^5.1 || ^6.0",
-                "symfony/twig-bundle": "^4.4 || ^5.1 || ^6.0",
-                "symfony/validator": "^4.4 || ^5.1 || ^6.0",
-                "symfony/yaml": "^4.4 || ^5.1 || ^6.0",
-                "twig/twig": "^2.0 || ^3.0"
+                "symfony/security-bundle": "^5.4 || ^6.4 || ^7.0",
+                "symfony/twig-bundle": "^5.4 || ^6.4 || ^7.0",
+                "symfony/validator": "^5.4 || ^6.4 || ^7.0",
+                "symfony/yaml": "^5.4 || ^6.4 || ^7.0",
+                "twig/twig": "^2.0 || ^3.8"
             },
             "suggest": {
                 "doctrine/annotations": "Required to use the @QueryCount(…) annotation",
@@ -19493,9 +19504,9 @@
             ],
             "support": {
                 "issues": "https://github.com/liip/LiipFunctionalTestBundle/issues",
-                "source": "https://github.com/liip/LiipFunctionalTestBundle/tree/4.10.0"
+                "source": "https://github.com/liip/LiipFunctionalTestBundle/tree/4.11.0"
             },
-            "time": "2023-05-14T22:03:34+00:00"
+            "time": "2024-01-07T17:56:16+00:00"
         },
         {
             "name": "liip/test-fixtures-bundle",
@@ -20032,16 +20043,16 @@
         },
         {
             "name": "phpstan/phpstan-symfony",
-            "version": "1.3.6",
+            "version": "1.3.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan-symfony.git",
-                "reference": "34b3c43684834f6a20aa51af8d455480d9de8b88"
+                "reference": "ef7db637be9b85fa00278fc3477ac66abe8eb7d1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan-symfony/zipball/34b3c43684834f6a20aa51af8d455480d9de8b88",
-                "reference": "34b3c43684834f6a20aa51af8d455480d9de8b88",
+                "url": "https://api.github.com/repos/phpstan/phpstan-symfony/zipball/ef7db637be9b85fa00278fc3477ac66abe8eb7d1",
+                "reference": "ef7db637be9b85fa00278fc3477ac66abe8eb7d1",
                 "shasum": ""
             },
             "require": {
@@ -20098,9 +20109,9 @@
             "description": "Symfony Framework extensions and rules for PHPStan",
             "support": {
                 "issues": "https://github.com/phpstan/phpstan-symfony/issues",
-                "source": "https://github.com/phpstan/phpstan-symfony/tree/1.3.6"
+                "source": "https://github.com/phpstan/phpstan-symfony/tree/1.3.7"
             },
-            "time": "2023-12-22T11:22:34+00:00"
+            "time": "2024-01-10T21:54:42+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -20591,21 +20602,21 @@
         },
         {
             "name": "rector/rector",
-            "version": "0.18.13",
+            "version": "0.19.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rectorphp/rector.git",
-                "reference": "f8011a76d36aa4f839f60f3b4f97707d97176618"
+                "reference": "503f4ead06b3892bd106f67f3c86d4e36c94423d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rectorphp/rector/zipball/f8011a76d36aa4f839f60f3b4f97707d97176618",
-                "reference": "f8011a76d36aa4f839f60f3b4f97707d97176618",
+                "url": "https://api.github.com/repos/rectorphp/rector/zipball/503f4ead06b3892bd106f67f3c86d4e36c94423d",
+                "reference": "503f4ead06b3892bd106f67f3c86d4e36c94423d",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.2|^8.0",
-                "phpstan/phpstan": "^1.10.35"
+                "phpstan/phpstan": "^1.10.52"
             },
             "conflict": {
                 "rector/rector-doctrine": "*",
@@ -20635,7 +20646,7 @@
             ],
             "support": {
                 "issues": "https://github.com/rectorphp/rector/issues",
-                "source": "https://github.com/rectorphp/rector/tree/0.18.13"
+                "source": "https://github.com/rectorphp/rector/tree/0.19.0"
             },
             "funding": [
                 {
@@ -20643,7 +20654,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-12-20T16:08:01+00:00"
+            "time": "2024-01-09T00:49:06+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -22598,8 +22609,5 @@
         "ext-zlib": "*"
     },
     "platform-dev": [],
-    "platform-overrides": {
-        "php": "8.1"
-    },
     "plugin-api-version": "2.6.0"
 }
