@@ -1,7 +1,14 @@
 <?php
 
-
 declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
@@ -19,40 +26,36 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use Doctrine\ORM\ORMException;
 
-
 class SegmentBulkEditorService
 {
     public function __construct(protected UserHandler $userHandler, protected CurrentUserInterface $currentUser, protected SegmentHandler $segmentHandler, protected SegmentValidator $segmentValidator, protected TagService $tagService, protected TagValidator $tagValidator
-
     ) {
-
     }
 
-        public function updateSegments($segments, $addTagIds, $removeTagIds, $assignee, $workflowPlace)
-        {
-            foreach ($segments as $segment) {
-                /* @var Segment $segment */
-                $segment->addTags($addTagIds);
-                $segment->removeTags($removeTagIds);
+    public function updateSegments($segments, $addTagIds, $removeTagIds, $assignee, $workflowPlace)
+    {
+        foreach ($segments as $segment) {
+            /* @var Segment $segment */
+            $segment->addTags($addTagIds);
+            $segment->removeTags($removeTagIds);
 
-                if ('UNKNOWN' !== $assignee) {
-                    $segment->setAssignee($assignee);
-                }
-
-                if (null !== $workflowPlace) {
-                    $segment->setPlace($workflowPlace);
-                }
+            if ('UNKNOWN' !== $assignee) {
+                $segment->setAssignee($assignee);
             }
 
-            return $segments;
+            if (null !== $workflowPlace) {
+                $segment->setPlace($workflowPlace);
+            }
         }
+
+        return $segments;
+    }
 
     /**
      * @throws UserNotFoundException
      */
     public function detectAssignee($assigneeId): ?User
     {
-
         if (!$assigneeId) {
             return null;
         }
@@ -70,7 +73,6 @@ class SegmentBulkEditorService
         }
 
         return $user;
-
     }
 
     /**
@@ -145,6 +147,4 @@ class SegmentBulkEditorService
             $updateTime
         );
     }
-
-
 }
