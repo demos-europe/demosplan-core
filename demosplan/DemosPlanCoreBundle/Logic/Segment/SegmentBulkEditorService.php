@@ -4,6 +4,7 @@
 declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
+
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
