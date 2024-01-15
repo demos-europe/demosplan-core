@@ -81,6 +81,8 @@ class AddonInstallFromZipCommand extends CoreCommand
         $this->addOption('reinstall', '', InputOption::VALUE_NONE, 'Re-install an addon (useful for debugging)');
         $this->addOption('no-enable', '', InputOption::VALUE_NONE, 'Do not immediately enable addon during installation');
         $this->addOption('local', '', InputOption::VALUE_NONE, 'Only use locally available addons, do not connect GitHub');
+        $this->addOption('github', '', InputOption::VALUE_NONE, 'Directly load addons from GitHub');
+        $this->addOption('repos', '', InputOption::VALUE_NONE, 'Call demosplan addon repository');
         $this->addOption('force-download', '', InputOption::VALUE_NONE, 'Force download repository from GitHub');
         $this->addOption('folder', '', InputOption::VALUE_REQUIRED, 'Folder to read addon zips from', 'addonZips');
     }
@@ -102,8 +104,12 @@ class AddonInstallFromZipCommand extends CoreCommand
             try {
                 if ($input->getOption('local')) {
                     $path = $this->getPathFromZip($input, $output, $folder);
-                } else {
+                } else if ($input->getOption('github')) {
+                    $path = $this->loadFromGithub($input, $output, $folder);
+                } else if ($input->getOption('repos')) {
                     $path = $this->loadFromApiRepository($input, $output, $folder);
+                } else {
+                    $path = $this->getPathFromZip($input, $output, $folder);
                 }
             } catch (Exception $e) {
                 $output->error($e->getMessage());
@@ -377,13 +383,7 @@ class AddonInstallFromZipCommand extends CoreCommand
         $tagsUrl = sprintf('%s/api/list/tags/%s', $addonRepositoryUrl, $repo);
         $existingTagsResponse = $this->httpClient->request('GET', $tagsUrl, $addonRepositoryOptions);
         $existingTagsContent = $existingTagsResponse->getContent(false);
-        $tags = collect(Json::decodeToArray($existingTagsContent))->filter(function ($tag) {
-            return !str_contains($tag['name'], 'rc');
-        })->map(function ($tag) {
-            return $tag['name'];
-        })->toArray();
-        $tagQuestion = new ChoiceQuestion('Which tag do you want to install? ', $tags);
-        $tag = $this->getHelper('question')->ask($input, $output, $tagQuestion);
+        $tag = $this->askTag($existingTagsContent, $input, $output);
 
         // tags are prefixed with v, but the zip file is not
         $path = DemosPlanPath::getRootPath($folder).'/'.$repo.'-'.str_replace('v', '', $tag).'.zip';
@@ -398,5 +398,106 @@ class AddonInstallFromZipCommand extends CoreCommand
         }
 
         return $path;
+    }
+
+    private function loadFromGithub(InputInterface $input, SymfonyStyle $output, mixed $folder): string
+    {
+        try {
+            $ghToken = $this->parameterBag->get('github_token');
+        } catch (Exception) {
+            throw new RuntimeException('You need to set an environment variable GITHUB_TOKEN to access GitHub. You may use the option --local to only use locally available addons.');
+        }
+        $ghOptions = [
+            'headers' => [
+                'Accept'               => 'application/vnd.github.v3+json',
+                'X-GitHub-Api-Version' => '2022-11-28',
+                'Authorization'        => 'Bearer '.$ghToken,
+            ],
+        ];
+
+        $ghReposUrl = 'https://api.github.com/orgs/demos-europe/repos?per_page=100';
+        $availableRepositories = $this->fetchRepositories($ghOptions, $ghReposUrl);
+        $availableAddons = collect($availableRepositories)->filter(function ($repo) {
+                return str_contains($repo['name'], 'demosplan-addon-');
+            })
+            ->map(function ($repo) {
+                return $repo['name'];
+            })
+            ->sortBy(function ($repo) {
+                return $repo;
+            })
+            ->values()
+            ->toArray();
+        $question = new ChoiceQuestion('Which addon do you want to install? ', $availableAddons);
+        $repo = $this->getHelper('question')->ask($input, $output, $question);
+
+        // fetch a list of available tags
+        $ghUrl = 'https://api.github.com/repos/demos-europe/'.$repo.'/tags';
+        $existingTagsResponse = $this->httpClient->request('GET', $ghUrl, $ghOptions);
+        if (404 === $existingTagsResponse->getStatusCode()) {
+            throw new RuntimeException('Could not access repository. Did you create a GitHub personal access token?');
+        }
+        $existingTagsContent = $existingTagsResponse->getContent(false);
+        $tag = $this->askTag($existingTagsContent, $input, $output);
+
+        // tags are prefixed with v, but the zip file in GitHub is not
+        $path = DemosPlanPath::getRootPath($folder).'/'.$repo.'-'.str_replace('v', '', $tag).'.zip';
+        if (file_exists($path) && !$input->getOption('force-download')) {
+            $output->info('File '.$path.' already exists, skipping download. You may use the --force-download option to force a download.');
+        } else {
+            // url is hardcoded by purpose as the zip otherwise extracts to a folder containing the hash, not the tag
+            // which makes it harder to recognize the installed addon version
+            $zipUrl = 'https://github.com/demos-europe/'.$repo.'/archive/refs/tags/'.$tag.'.zip';
+            $zipResponse = $this->httpClient->request('GET', $zipUrl, $ghOptions);
+
+            $zipContent = $zipResponse->getContent(false);
+            file_put_contents($path, $zipContent);
+        }
+
+        return $path;
+    }
+
+    private function fetchRepositories(array $ghOptions, string $githubUrl): array
+    {
+        $repositories = [];
+        $existingReposResponse = $this->httpClient->request('GET', $githubUrl, $ghOptions);
+        if (404 === $existingReposResponse->getStatusCode()) {
+            throw new RuntimeException(
+                'Could not access repository. Did you create a GitHub personal access token?'
+            );
+        }
+        $existingReposContent = $existingReposResponse->getContent(false);
+        $repositories = array_merge($repositories, JSON::decodeToArray($existingReposContent));
+        if (array_key_exists('link', $existingReposResponse->getHeaders())) {
+            $links = explode(',', $existingReposResponse->getHeaders()['link'][0]);
+            foreach ($links as $link) {
+                if (str_contains($link, 'rel="next"')) {
+                    $nextLink = str_replace(['<', '>', 'rel="next"'], '', $link);
+                    $nextRepositories = $this->fetchRepositories($ghOptions, $nextLink);
+                }
+            }
+        }
+
+        return  array_merge($repositories, $nextRepositories ?? []);
+    }
+
+    private function askTag(string $existingTagsContent, InputInterface $input, SymfonyStyle $output): mixed
+    {
+        $tags = collect(Json::decodeToArray($existingTagsContent))->filter(
+            function ($tag)
+            {
+                return !str_contains($tag['name'], 'rc');
+            }
+        )->map(function ($tag)
+        {
+            return $tag['name'];
+        })->toArray();
+
+        $question = new ChoiceQuestion(
+            'Which tag do you want to install? ',
+            $tags
+        );
+        $tag = $this->getHelper('question')->ask($input, $output, $question);
+        return $tag;
     }
 }
