@@ -105,7 +105,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                 try {
                     $this->validateRpcRequest($rpcRequest);
                     $segmentIds = $rpcRequest->params->segmentIds;
-                    $segments =  $this->segmentBulkEditorService->getValidSegments($segmentIds, $procedureId);
+                    $segments = $this->segmentBulkEditorService->getValidSegments($segmentIds, $procedureId);
 
                     // update texts directly in database for performance reasons
                     $recommendationTextEdit = $rpcRequest->params->recommendationTextEdit;
@@ -118,15 +118,13 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                         $procedureId
                     );
 
-
                     $assigneeId = data_get($rpcRequest, 'params.assigneeId', 'UNKNOWN');
 
-                    if ($assigneeId !== 'UNKNOWN') {
+                    if ('UNKNOWN' !== $assigneeId) {
                         $assignee = $this->segmentBulkEditorService->detectAssignee($assigneeId);
                     } else {
                         $assignee = 'UNKNOWN';
                     }
-
 
                     $workflowPlace = $this->extractWorkflowPlace($rpcRequest);
 
@@ -150,8 +148,6 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
             return $resultResponse;
         });
     }
-
-
 
     /**
      * @throws ORMException
@@ -177,7 +173,6 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 
         return $result;
     }
-
 
     public function supports(string $method): bool
     {
@@ -265,9 +260,6 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
             : null;
     }
 
-
-
-
     private function extractAssigneeId(object $rpcRequest): string
     {
         return data_get($rpcRequest, 'params.assigneeId', '');
@@ -279,5 +271,4 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 
         return '' !== $assigneeId;
     }
-
 }
