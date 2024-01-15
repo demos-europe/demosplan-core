@@ -118,10 +118,10 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                         $procedureId
                     );
 
-
-                    $assigneeId = data_get($rpcRequest, 'params.assigneeId', 'UNKNOWN');
-
-                    if ($assigneeId !== 'UNKNOWN') {
+                    // Check if the key exists
+                    if (property_exists($rpcRequest->params, 'assigneeId')) {
+                        // Get the value using data_get
+                        $assigneeId = $rpcRequest->params->assigneeId;
                         $assignee = $this->segmentBulkEditorService->detectAssignee($assigneeId);
                     } else {
                         $assignee = 'UNKNOWN';

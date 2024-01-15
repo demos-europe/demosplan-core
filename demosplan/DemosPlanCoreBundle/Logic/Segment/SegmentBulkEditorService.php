@@ -33,7 +33,11 @@ class SegmentBulkEditorService
                 /* @var Segment $segment */
                 $segment->addTags($addTagIds);
                 $segment->removeTags($removeTagIds);
-                $segment->setAssignee($assignee);
+
+                if ('UNKNOWN' !== $assignee) {
+                    $segment->setAssignee($assignee);
+                }
+
                 if (null !== $workflowPlace) {
                     $segment->setPlace($workflowPlace);
                 }
