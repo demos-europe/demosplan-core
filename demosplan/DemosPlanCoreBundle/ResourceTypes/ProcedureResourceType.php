@@ -65,8 +65,12 @@ use EDT\PathBuilding\End;
  */
 final class ProcedureResourceType extends DplanResourceType implements ProcedureResourceTypeInterface
 {
-    public function __construct(private readonly PhasePermissionsetLoader $phasePermissionsetLoader, private readonly DraftStatementService $draftStatementService, private readonly ProcedureAccessEvaluator $accessEvaluator, private readonly ProcedureExtension $procedureExtension)
-    {
+    public function __construct(
+        private readonly PhasePermissionsetLoader $phasePermissionsetLoader,
+        private readonly DraftStatementService $draftStatementService,
+        private readonly ProcedureAccessEvaluator $accessEvaluator,
+        private readonly ProcedureExtension $procedureExtension
+    ) {
     }
 
     public function getEntityClass(): string
@@ -145,8 +149,8 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
         // procedure resources can never have the deleted state
         $undeletedCondition = $this->conditionFactory->propertyHasValue(false, $this->deleted);
         // only procedure templates are tied to a customer
-        $customerCondition = $this->conditionFactory->propertyHasValue(
-            $this->customerService->getCurrentCustomer()->getId(),
+        $customerCondition = $this->conditionFactory-> propertyHasValue(
+            $this->currentCustomerService->getCurrentCustomer()->getId(),
             Paths::procedure()->customer->id
         );
 

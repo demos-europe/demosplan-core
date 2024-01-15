@@ -603,7 +603,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             //      template : true AND array_key_exists('customer', $filters) : true
             //      template : false AND array_key_exists('customer', $filters) : false
             $shallLimitProcedureTemplatesToCustomer = $template && array_key_exists('customer', $filters);
-            $filterConditions[] = $this->convertFiltersToConditions(
+            $filterConditions = $this->convertFiltersToConditions(
                 $filters,
                 $search,
                 $excludeArchived,
@@ -2587,11 +2587,13 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 Paths::procedure()->customer->id
             );
             if (!$this->permissions->hasPermission('feature_admin_customer_master_procedure_template')) {
-                // Just exclude the default-customer-blueprint
-                $conditions[] = $this->conditionFactory->propertyHasNotValue(
-                    $this->customerService->getCurrentCustomer()->getDefaultProcedureBlueprint()->getId(),
-                    Paths::procedure()->id
-                );
+                // Just exclude the default-customer-blueprint if exists
+                if (null !== $this->customerService->getCurrentCustomer()->getDefaultProcedureBlueprint()) {
+                    $conditions[] = $this->conditionFactory->propertyHasNotValue(
+                        $this->customerService->getCurrentCustomer()->getDefaultProcedureBlueprint()->getId(),
+                        Paths::procedure()->id
+                    );
+                }
             }
         }
 
