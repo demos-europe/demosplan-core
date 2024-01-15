@@ -129,7 +129,7 @@ class ProcedureDeleterService
             // delete procedure report entries
             $this->deleteReportEntriesByIdentifierAndType($procedureIds, $isDryRun);
 
-            // delete procedure itself
+            // delete procedures
             $this->deleteProcedure($procedureIds, $isDryRun);
 
             // reactivate foreign key checks
