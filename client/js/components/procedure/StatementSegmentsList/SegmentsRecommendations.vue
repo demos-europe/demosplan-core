@@ -201,7 +201,6 @@ export default {
         ].join(),
         fields: {
           StatementSegment: [
-            'id',
             'tags',
             'text',
             'assignee',
