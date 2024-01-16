@@ -489,6 +489,10 @@ class AddonInstallFromZipCommand extends CoreCommand
             return $tag['name'];
         })->toArray();
 
+        if (0 === count($tags)) {
+            throw new RuntimeException('No tags found for this repository. Please install the addon via --local');
+        }
+
         $question = new ChoiceQuestion(
             'Which tag do you want to install? ',
             $tags
