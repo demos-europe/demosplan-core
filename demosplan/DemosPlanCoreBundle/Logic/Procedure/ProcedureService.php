@@ -2148,9 +2148,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             // T15644: T23583:
             // overwrite authorized users in case of used blueprint is a master-blueprint,
             // to avoid authorizing creators of masterblueprint to this new procedure:
-            if ($blueprint->isMasterTemplate()
-                || $blueprint->getId() === $blueprint->getCustomer()?->getDefaultProcedureBlueprint()?->getId()
-            ) {
+            if ($blueprint->isMasterTemplate() || $blueprint->isCustomerMasterBlueprint()) {
                 $newProcedure->setAuthorizedUsers([$currentUser]);
             }
         }

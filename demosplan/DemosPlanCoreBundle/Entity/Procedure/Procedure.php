@@ -2006,6 +2006,12 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return $customer->getSubdomain();
     }
 
+    public function isCustomerMasterBlueprint(): bool
+    {
+        // the customer holds the reference to the default-customer-blueprint
+        return $this->getId() === $this->getCustomer()?->getDefaultProcedureBlueprint()?->getId();
+    }
+
     /**
      * @return Customer|null
      */
