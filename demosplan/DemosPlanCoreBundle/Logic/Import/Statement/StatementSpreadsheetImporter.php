@@ -30,7 +30,6 @@ use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Webmozart\Assert\Assert;
 
 use function array_key_exists;
 
@@ -111,6 +110,7 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
             'Verfahrensschritt'             => null,
             'Art der Einreichung'           => null,
         ];
+
         return [$callBackMap, $builder];
     }
 
@@ -194,7 +194,7 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
                 $usedExternIds[$externId] = $externId;
                 $usedInternIds[$internId] = $internId;
 
-                /**
+                /*
                  * At this point the original Statement has been build including the file-references.
                  * File-references are persisted inside the { @link FileContainer } but were not flushed yet.
                  * Flushing the FileContainer needs to be done now - as the previously persisted original Statement is
