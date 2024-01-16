@@ -31,11 +31,9 @@ class PrePersistUniqueInternIdConstraintValidator extends ConstraintValidator
     {
         $value = $this->validateType($value, $constraint);
 
-        $occupiedInSavedEntities = $this->isIdOccupiedInSavedEntities($value);
         $occupiedByLoadedEntities = $this->isIdOccupiedByLoadedEntities($value->getInternId(false), $value);
-        if ($occupiedInSavedEntities || $occupiedByLoadedEntities) {
+        if ($occupiedByLoadedEntities) {
             $this->context->buildViolation($constraint->message)
-                ->setParameter('{{ internId }}', $value->getInternId())
                 ->addViolation();
         }
     }
@@ -78,16 +76,5 @@ class PrePersistUniqueInternIdConstraintValidator extends ConstraintValidator
         }
 
         return false;
-    }
-
-    /**
-     * @return bool true in case of $internId is already used, otherwise false
-     */
-    private function isIdOccupiedInSavedEntities(Statement $value): bool
-    {
-        return !$this->statementService->isInternIdUniqueForProcedure(
-            $value->getInternId(false),
-            $value->getProcedureId()
-        );
     }
 }

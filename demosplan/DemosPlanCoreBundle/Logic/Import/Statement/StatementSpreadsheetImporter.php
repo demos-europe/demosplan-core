@@ -147,6 +147,7 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
             ?? throw new MissingPostParameterException('Current procedure is missing.');
 
         $usedExternIds = $this->statementService->getExternIdsInUse($currentProcedure->getId());
+        $usedInternIds = $this->statementService->getInternIdsInUse($currentProcedure->getId());
 
         // loop through all rows and (if valid) create corresponding original statements and statement copies
         [$columnCallbacks, $builder] = $this->getColumnCallbacks($headIterator);
@@ -176,13 +177,22 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
             $originalStatementOrViolations = $builder->buildStatementAndReset();
             if ($originalStatementOrViolations instanceof Statement) {
                 $externId = $originalStatementOrViolations->getExternId();
+                $internId = $originalStatementOrViolations->getInternId(false);
                 if (array_key_exists($externId, $usedExternIds)) {
                     // skip statements with existing extern IDs
                     $this->skippedStatements[$externId] = ($this->skippedStatements[$externId] ?? 0) + 1;
 
                     continue;
                 }
+                if (array_key_exists($internId, $usedInternIds)) {
+                    // skip statements with existing intern IDs
+                    $this->skippedStatements[$internId] = ($this->skippedStatements[$internId] ?? 0) + 1;
+
+                    continue;
+                }
+
                 $usedExternIds[$externId] = $externId;
+                $usedInternIds[$internId] = $internId;
 
                 /**
                  * At this point the original Statement has been build including the file-references.
