@@ -847,7 +847,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             // if a customer is given inside the procedure related $data array then
             // that signals the procedure should be used as the default-customer-blueprint.
             $setProcedureAsDefaultCustomerBlueprint = false;
-            if (array_key_exists('custoemr', $data) && $data['customer'] instanceof Customer) {
+            if (array_key_exists('customer', $data) && $data['customer'] instanceof Customer) {
                 $setProcedureAsDefaultCustomerBlueprint = true;
             } else {
                 $data['customer'] = $this->customerService->getCurrentCustomer();
