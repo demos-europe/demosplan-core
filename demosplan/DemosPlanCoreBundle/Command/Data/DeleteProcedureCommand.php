@@ -31,10 +31,10 @@ class DeleteProcedureCommand extends CoreCommand
     protected static $defaultDescription = 'Deletes a procedure including all related content like statements, tags, News, etc.';
 
     public function __construct(
-        ParameterBagInterface              $parameterBag,
-        private readonly ProcedureDeleter  $procedureDeleter,
+        ParameterBagInterface $parameterBag,
+        private readonly ProcedureDeleter $procedureDeleter,
         private readonly SqlQueriesService $queriesService,
-        string                             $name = null
+        string $name = null
     ) {
         parent::__construct($parameterBag, $name);
     }
