@@ -15,6 +15,7 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeleter;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
+use Doctrine\DBAL\Schema\SchemaException;
 use Exception;
 
 class OrgaDeleter extends CoreService
@@ -61,10 +62,19 @@ class OrgaDeleter extends CoreService
             $this->deleteOrgaUserDoctrine($orgaIds, $isDryRun);
 
             // delete progression userstory votes
-            // $this->deleteOrgaInstitutionTag($orgaIds, $isDryRun);
+             $this->deleteOrgaInstitutionTag($orgaIds, $isDryRun);
 
             // delete institution tag und orga institution tag
             $this->deleteProgressionUserStoryVotes($orgaIds, $isDryRun);
+
+            // delete orga settings
+            $this->deleteSettings($orgaIds, $isDryRun);
+
+            // delete procedure orga doctrine
+            $this->deleteProcedureOrgaDoctrine($orgaIds, $isDryRun);
+
+            // delete orga report entries
+            $this->deleteReportEntries($orgaIds, $isDryRun);
 
             $orgasProcedureIds = Collect($this->procedureRepository->findBy(['orga' => $orgaIds]))->map(
                 static fn (Procedure $procedure): string => $procedure->getId()
@@ -72,6 +82,9 @@ class OrgaDeleter extends CoreService
 
             // delete procedures
             $this->procedureDeleter->deleteProcedures($orgasProcedureIds->toArray(), $isDryRun);
+
+            // delete organisations
+            $this->deleteOrgas($orgaIds, $isDryRun);
 
             // reactivate foreign key checks
             $this->queriesService->activateForeignKeyChecks();
@@ -152,9 +165,42 @@ class OrgaDeleter extends CoreService
     /**
      * @throws Exception
      */
+    private function deleteSettings(array $orgaIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray('_settings', '_s_orga_id', $orgaIds, $isDryRun);
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteProcedureOrgaDoctrine(array $orgaIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray('_procedure_orga_doctrine', '_o_id', $orgaIds, $isDryRun);
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteReportEntries(array $orgaIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray('_report_entries', '_re_identifier', $orgaIds, $isDryRun);
+    }
+
+    /**
+     * @throws Exception
+     * @throws SchemaException
+     */
     private function deleteOrgaInstitutionTag(array $orgaIds, bool $isDryRun): void
     {
         $this->queriesService->deleteFromTableByIdentifierArray('institution_tag', 'owning_organisation_id', $orgaIds, $isDryRun);
         $this->queriesService->deleteFromTableByIdentifierArray('orga_institution_tag', 'orga__o_id', $orgaIds, $isDryRun);
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteOrgas(array $orgaIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray('_orga', '_o_id', $orgaIds, $isDryRun);
     }
 }
