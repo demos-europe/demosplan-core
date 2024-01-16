@@ -195,8 +195,6 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 $entity = $this->getEntity($entityIdentifier);
                 $success = $this->statementDeleter->deleteStatementObject($entity);
                 Assert::true($success, "Deletion of statement failed for the given ID '$entityIdentifier'");
-
-                parent::deleteEntity($entityIdentifier);
             }
         );
     }
