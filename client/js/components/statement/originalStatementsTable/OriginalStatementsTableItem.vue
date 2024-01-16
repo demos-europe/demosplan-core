@@ -243,7 +243,7 @@ export default {
       let elementTitle = ''
       const element = this.statement.elementId ? this.elements.find((el) => el.id === this.statement.elementId) : null
 
-      if (element && hasOwnProp(element, 'title')) {
+      if (element && element.title !== '') {
         elementTitle = element.title
         if (hasOwnProp(this.statement, 'document') && this.statement.document.title !== '') {
           elementTitle += ` / ${this.statement.document.title}`
