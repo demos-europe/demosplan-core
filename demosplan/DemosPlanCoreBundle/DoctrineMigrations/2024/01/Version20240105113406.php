@@ -21,7 +21,7 @@ class Version20240105113406 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'refs TT34551: Remove unique-constraint for procedures - customer
+        return 'refs T34551: Remove unique-constraint for procedures - customer
         regardless of collation';
     }
 

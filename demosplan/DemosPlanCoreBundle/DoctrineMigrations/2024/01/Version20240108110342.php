@@ -21,12 +21,7 @@ class Version20240108110342 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'refs T34551: alters the property customer for the procedure table
-            This property was used to indicate a blueprint that is just for a specific customer
-            Now this property shall indicate that the procedure is owned by an organisation within this customer
-            This is necessary to determine all customer related activity.
-            The logic to filter a customer-blueprint has to be adjusted to check the additional property _p_master
-            as the customer will always be set now';
+        return 'refs T34551: alter property customer within the procedure table to determine customer related activity';
     }
 
     /**
@@ -35,6 +30,13 @@ class Version20240108110342 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->abortIfNotMysql();
+
+        // alters the property customer for the procedure table
+        // This property was used to indicate a blueprint that is just for a specific customer
+        // Now this property shall indicate that the procedure is owned by an organisation within this customer
+        // This is necessary to determine all customer related activity.
+        // The logic to filter a customer-blueprint has to be adjusted to check the additional property _p_master
+        // as the customer will always be set now
 
         // The assumption is that every organisation exists only once as a "Kommune".
         // Because only a "Kommune" can create procedures
