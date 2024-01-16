@@ -148,6 +148,12 @@ parameters:
     piwik_site_id: "1"
     matomo_token: ""
 
+    # GitHub token may be used to download addons directly from github
+    github_token: '%env(GITHUB_TOKEN)%'
+    # addon repository is used to install addons. A token needs to be acquired
+    addon_repository_token: '%env(ADDON_REPOSITORY_TOKEN)%'
+    addon_repository_url: 'https://addons.demos-plan.de'
+
     # MySQL Default Settings
     database_driver: "pdo_mysql"
     database_host: "localhost"
