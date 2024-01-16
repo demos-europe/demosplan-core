@@ -361,7 +361,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
                 $this->customerService->updateCustomer($currentCustomer);
             } else {
                 // T15644 & T34551 if the key 'r_customerMasterBlueprint' is not set within the $data array,
-                // - the assumpten is tha the procedure shall not be the default-customer-blueprint
+                // - the assumption is that the procedure shall not be the default-customer-blueprint
                 // if the procedure is currently the default-customer-blueprint uncheck it as requested
                 if ($isBlueprint) {
                     if ($currentProcedure === $currentCustomer->getDefaultProcedureBlueprint()) {
