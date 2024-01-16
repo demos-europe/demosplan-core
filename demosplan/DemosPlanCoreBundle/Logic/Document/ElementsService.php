@@ -193,7 +193,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
         return collect(array_merge($mapCategories, $hiddenByConfigCategories))->map(
             fn ($element) =>
                 /* @var Elements $element */
-                $element->getId()
+            $element->getId()
         )->toArray();
     }
 
@@ -948,6 +948,11 @@ class ElementsService extends CoreService implements ElementsServiceInterface
      *                               = Name of the kind of related document which type we want to determine here.
      * @param string $documentTitle  statement.document(singleDocumentVersion).title
      * @param string $paragraphTitle statement.paragraph(paragraphVersion).title
+     *
+     * @return string|ConstraintViolationListInterface|null
+     *                                                      ConstraintViolationListInterface in case of the combination of the incoming titles are illicit.
+     *                                                      Name of the found system category type if found one.
+     *                                                      Null if the combination of incoming titles are allowed but no system-category-type matched.
      */
     public function guessSystemCategoryType(
         string $elementTitle,
@@ -984,6 +989,10 @@ class ElementsService extends CoreService implements ElementsServiceInterface
 
     /**
      * Tries to guess the type of the planning document category with the document(elements) title only.
+     *
+     * @return string|ConstraintViolationListInterface|null
+     *                                                      ConstraintViolationListInterface if given title is empty.
+     *                                                      System-category-title if appropriate one was found, otherwise null.
      */
     private function findSystemCategoryTypeTitleBasedOfTitle(string $title
     ): null|string|ConstraintViolationListInterface {
