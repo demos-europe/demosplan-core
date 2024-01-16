@@ -1328,6 +1328,11 @@ services:
         arguments:
             $propertyAccessor: '@EDT\DqlQuerying\PropertyAccessors\Iso8601PropertyAccessor'
             $typeResolver: '@EDT\JsonApi\ApiDocumentation\AttributeTypeResolver'
+            $identifierByDefaultSortable: true
+            $attributesByDefaultSortable: true
+            $toOneRelationshipsByDefaultSortable: true
+            # logically problematic, understand the implications before setting this to true (https://github.com/demos-europe/edt/issues/45)
+            $toManyRelationshipsByDefaultSortable: false
 
     EDT\PathBuilding\DocblockPropertyByTraitEvaluator:
         arguments:
