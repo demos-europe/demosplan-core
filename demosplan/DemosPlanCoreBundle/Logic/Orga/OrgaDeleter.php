@@ -61,7 +61,7 @@ class OrgaDeleter extends CoreService
             $this->deleteOrgaUserDoctrine($orgaIds, $isDryRun);
 
             // delete progression userstory votes
-           // $this->deleteOrgaInstitutionTag($orgaIds, $isDryRun);
+            // $this->deleteOrgaInstitutionTag($orgaIds, $isDryRun);
 
             // delete institution tag und orga institution tag
             $this->deleteProgressionUserStoryVotes($orgaIds, $isDryRun);
