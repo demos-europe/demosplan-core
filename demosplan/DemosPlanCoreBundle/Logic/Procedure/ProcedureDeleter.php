@@ -14,7 +14,7 @@ use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use Doctrine\DBAL\ArrayParameterType;
 use Exception;
 
-class ProcedureDeleterService
+class ProcedureDeleter
 {
     public function __construct(
         private readonly SqlQueriesService $queriesService

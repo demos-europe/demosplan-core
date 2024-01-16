@@ -11,7 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
-use demosplan\DemosPlanCoreBundle\Logic\Orga\OrgaDeleterService;
+use demosplan\DemosPlanCoreBundle\Logic\Orga\OrgaDeleter;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeleter;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
@@ -29,10 +30,10 @@ class DeleteOrgaCommand extends CoreCommand
     protected static $defaultDescription = 'Deletes an organisation including all related content like procedure, statements, tags, News, etc.';
 
     public function __construct(
-        ParameterBagInterface $parameterBag,
-        private readonly OrgaDeleterService $orgaDeleter,
+        ParameterBagInterface              $parameterBag,
+        private readonly OrgaDeleter       $orgaDeleter,
         private readonly SqlQueriesService $queriesService,
-        string $name = null
+        string                             $name = null
     ) {
         parent::__construct($parameterBag, $name);
     }

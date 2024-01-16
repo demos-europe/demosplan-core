@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeleterService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeleter;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
@@ -31,10 +31,10 @@ class DeleteProcedureCommand extends CoreCommand
     protected static $defaultDescription = 'Deletes a procedure including all related content like statements, tags, News, etc.';
 
     public function __construct(
-        ParameterBagInterface $parameterBag,
-        private readonly ProcedureDeleterService $procedureDeleter,
+        ParameterBagInterface              $parameterBag,
+        private readonly ProcedureDeleter  $procedureDeleter,
         private readonly SqlQueriesService $queriesService,
-        string $name = null
+        string                             $name = null
     ) {
         parent::__construct($parameterBag, $name);
     }
