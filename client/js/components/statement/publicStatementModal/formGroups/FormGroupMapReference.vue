@@ -35,6 +35,7 @@
         id="locationPoint"
         name="r_location"
         class="u-mb-0_25"
+        data-cy="formGroupMap:statementMapReference"
         :checked="isLocationSelected"
         @change="() => { const location = (statement.r_location_priority_area_key !== '' ? 'priority_area' :'point'); setStatementData({r_location: 'point', location_is_set: location})}"
         :label="{
@@ -110,7 +111,7 @@
         }"
         name="r_location"
         class="u-mb-0_25"
-        data-cy="notLocated"
+        data-cy="formGroupMap:notLocated"
         :checked="statement.r_location === 'notLocated'"
         @change="() => { setStatementData({r_location: 'notLocated', location_is_set: 'notLocated'}) }"
         value="notLocated" />
