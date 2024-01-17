@@ -100,7 +100,7 @@ class DeleteProcedureCommand extends CoreCommand
             $this->procedureDeleter->deleteProcedures($retrievedProceduresIds, $isDryRun);
 
             // repopulate Elasticsearch
-            if ($isDryRun && $withoutRepopulate) {
+            if (!$isDryRun && !$withoutRepopulate) {
                 $output->info('Repopulate Elasticsearch');
                 $this->repopulateElasticsearch($output);
             }
