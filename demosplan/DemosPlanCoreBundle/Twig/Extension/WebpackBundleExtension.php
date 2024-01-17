@@ -59,12 +59,21 @@ class WebpackBundleExtension extends ExtensionBase
 
     /**
      * Initially load manifests.
+     * @throws JsonException
      */
-    private function loadManifests()
+    private function loadManifests(): void
     {
         $dplanManifest = $this->loadManifest('dplan');
         $stylesManifest = $this->loadManifest('styles');
-        $this->dplanManifest = array_merge($dplanManifest, $stylesManifest);
+
+        // Atm the styles manifest contains several js entries which would replace
+        // the $dplanManifest equivalents which leads to resolve errors in the frontend.
+        $cssIdentifier = '.css';
+        $trimmedStylesManifest = array_filter($stylesManifest, function ($key, $value) use ($cssIdentifier) {
+            return (str_contains($key, $cssIdentifier)) && (str_contains($value, $cssIdentifier));
+        }, ARRAY_FILTER_USE_BOTH);
+
+        $this->dplanManifest = array_merge($dplanManifest, $trimmedStylesManifest);
 
         $this->legacyManifest = $this->loadManifest('legacy');
     }
