@@ -676,7 +676,6 @@ export default {
         'submitName',
         'submitType',
         'submitterEmailAddress',
-        'synchronized',
         'text',
         'textIsTruncated',
         // Relationships:
@@ -684,6 +683,9 @@ export default {
         'attachments',
         'segments'
       ]
+      if (this.isSourceAndCoupledProcedure) {
+        statementFields.push('synchronized')
+      }
       if (hasPermission('area_statement_segmentation')) {
         statementFields.push('segmentDraftList')
       }
@@ -715,10 +717,6 @@ export default {
           Statement: statementFields.join(),
           File: [
             'hash'
-          ].join(),
-          // Segments are only counted, no data needed here.
-          StatementSegment: [
-            'id'
           ].join()
         }
       }).then((data) => {

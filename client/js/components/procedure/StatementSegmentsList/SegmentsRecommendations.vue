@@ -201,7 +201,6 @@ export default {
         ].join(),
         fields: {
           StatementSegment: [
-            'id',
             'tags',
             'text',
             'assignee',
@@ -214,7 +213,6 @@ export default {
             'recommendation'
           ].join(),
           SegmentComment: [
-            'id',
             'creationDate',
             'text',
             'submitter',

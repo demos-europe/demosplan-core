@@ -2860,6 +2860,9 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         }
     }
 
+    /**
+     * Used on create a manual statement.
+     */
     public function newStatement(array $data, bool $isDataInput = false)
     {
         // tackle legacy structure
