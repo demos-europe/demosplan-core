@@ -18,7 +18,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
+use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -61,7 +61,7 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
      *
      * @ORM\JoinColumn(name="_tt_id", referencedColumnName="_tt_id", nullable = false)
      */
-    #[Assert\NotNull(groups: ['Default', 'segments_import'])]
+    #[Assert\NotNull(groups: [ResourceTypeService::VALIDATION_GROUP_DEFAULT, 'segments_import'])]
     #[Assert\Type(groups: ['segments_import'], type: 'demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic')]
     protected $topic;
 
@@ -70,7 +70,7 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
      *
      * @ORM\Column(name="_t_title", type="string", length=255, nullable=false)
      */
-    #[Assert\NotBlank(groups: ['Default', 'segments_import'], message: 'Tag title may not be empty.')]
+    #[Assert\NotBlank(groups: [ResourceTypeService::VALIDATION_GROUP_DEFAULT, 'segments_import'], message: 'Tag title may not be empty.')]
     protected $title = '';
 
     /**

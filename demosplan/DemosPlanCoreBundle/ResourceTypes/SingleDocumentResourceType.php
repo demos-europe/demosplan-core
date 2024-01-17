@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentService;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<SingleDocument>
@@ -51,12 +50,12 @@ final class SingleDocumentResourceType extends DplanResourceType
         return $this->currentUser->hasPermission('field_procedure_documents');
     }
 
-    public function isReferencable(): bool
+    public function isGetAllowed(): bool
     {
-        return true;
+        return false;
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isListAllowed(): bool
     {
         return false;
     }
@@ -76,13 +75,13 @@ final class SingleDocumentResourceType extends DplanResourceType
 
         if ($this->currentUser->hasPermission('field_procedure_documents')) {
             $properties = array_merge($properties, [
-                $this->createAttribute($this->id)->readable(true)->filterable(),
+                $this->createIdentifier()->readable()->filterable(),
                 $this->createAttribute($this->parentId)
                     ->readable(true)->filterable()->sortable()->aliasedPath($this->element->id),
                 $this->createAttribute($this->title)
                     ->readable(true)->filterable()->sortable(),
                 $this->createAttribute($this->fileInfo)
-                    ->readable(true, fn(SingleDocument $document): array => $this->singleDocumentService->getSingleDocumentInfo($document)),
+                    ->readable(true, fn (SingleDocument $document): array => $this->singleDocumentService->getSingleDocumentInfo($document)),
                 $this->createAttribute($this->index)->readable(true)->aliasedPath($this->order),
             ]);
         }

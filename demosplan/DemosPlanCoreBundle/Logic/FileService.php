@@ -52,11 +52,6 @@ class FileService extends CoreService implements FileServiceInterface
     final public const INVALID_FILENAME_CHARS = ['%', '&', ':'];
 
     /**
-     * Die Datei wird nach dem Upload zum FileService direkt auf Viren geprüft.
-     */
-    final public const VIRUSCHECK_SYNC = 'sync';
-
-    /**
      * Die Datei wird nach dem Upload zum FileService nicht direkt auf Viren geprüft.
      */
     final public const VIRUSCHECK_ASYNC = 'async';
@@ -329,17 +324,15 @@ class FileService extends CoreService implements FileServiceInterface
     }
 
     /**
-     * Save a temporary file as regular file by its path.
-     *
      * @throws VirusFoundException|Throwable
      */
     public function saveTemporaryFile(
         string $filePath,
         string $fileName,
-        ?string $userId = null,
-        ?string $procedureId = null,
-        ?string $virencheck = FileService::VIRUSCHECK_SYNC,
-        ?string $hash = null
+        string $userId = null,
+        string $procedureId = null,
+        ?string $virencheck = FileServiceInterface::VIRUSCHECK_SYNC,
+        string $hash = null
     ): File {
         $dplanFile = new File();
         $symfonyFile = new \Symfony\Component\HttpFoundation\File\File($filePath);
@@ -369,7 +362,7 @@ class FileService extends CoreService implements FileServiceInterface
      *
      * @throws Throwable
      */
-    public function saveUploadedFile(UploadedFile $symfonyFile, $userId = null, $virencheck = FileService::VIRUSCHECK_SYNC): File
+    public function saveUploadedFile(UploadedFile $symfonyFile, $userId = null, $virencheck = FileServiceInterface::VIRUSCHECK_SYNC): File
     {
         $dplanFile = new File();
         $dplanFile->setMimetype($symfonyFile->getClientMimeType());
@@ -459,9 +452,9 @@ class FileService extends CoreService implements FileServiceInterface
      * @param string $fileId
      * @param string $fileString
      */
-    public function addStatementFileContainer($entityId, $fileId, $fileString): ?FileContainer
+    public function addStatementFileContainer($entityId, $fileId, $fileString, bool $flush = true): ?FileContainer
     {
-        return $this->addFileContainer($entityId, Statement::class, $fileId, $fileString);
+        return $this->addFileContainer($entityId, Statement::class, $fileId, $fileString, $flush);
     }
 
     /**
@@ -473,7 +466,7 @@ class FileService extends CoreService implements FileServiceInterface
      *
      * @return FileContainer|null
      */
-    public function addFileContainer($entityId, string $entityClass, $fileId, $fileString)
+    public function addFileContainer($entityId, string $entityClass, $fileId, $fileString, bool $flush = true)
     {
         try {
             $fileContainer = new FileContainer();
@@ -488,7 +481,7 @@ class FileService extends CoreService implements FileServiceInterface
                 return null;
             }
 
-            return $this->fileContainerRepository->addObject($fileContainer);
+            return $this->fileContainerRepository->addObject($fileContainer, $flush);
         } catch (Exception) {
             return null;
         }
@@ -605,7 +598,7 @@ class FileService extends CoreService implements FileServiceInterface
      * @throws InvalidDataException
      * @throws Throwable
      */
-    public function copyByFileString($fileString, ?string $procedureId = null): ?File
+    public function copyByFileString($fileString, string $procedureId = null): ?File
     {
         $file = $this->getFileInfoFromFileString($fileString);
 
@@ -617,7 +610,7 @@ class FileService extends CoreService implements FileServiceInterface
      *
      * @throws InvalidDataException|Throwable
      */
-    public function copy(?string $hash, ?string $targetProcedureId = null): ?File
+    public function copy(?string $hash, string $targetProcedureId = null): ?File
     {
         $fileToCopy = $this->get($hash);
         if (!$fileToCopy instanceof File) {
@@ -724,7 +717,7 @@ class FileService extends CoreService implements FileServiceInterface
      *
      * @return string
      */
-    protected function moveFile(\Symfony\Component\HttpFoundation\File\File $file, $path = '', ?string $existingHash = null)
+    protected function moveFile(\Symfony\Component\HttpFoundation\File\File $file, $path = '', string $existingHash = null)
     {
         // Generate a unique name for the file before saving it
         $hash = $existingHash ?? $this->createHash();
@@ -737,10 +730,8 @@ class FileService extends CoreService implements FileServiceInterface
 
     /**
      * Generate a unique name for the file.
-     *
-     * @return string
      */
-    public function createHash()
+    public function createHash(): string
     {
         return md5(uniqid('', true));
     }
@@ -899,8 +890,6 @@ class FileService extends CoreService implements FileServiceInterface
      * Gib einen lesbaren MimeType aus.
      *
      * @param string $value
-     *
-     * @return mixed
      */
     protected function convertMimeType($value)
     {
@@ -968,11 +957,6 @@ class FileService extends CoreService implements FileServiceInterface
         return $this->fileRepository->findBy(['ident' => $fileIds]);
     }
 
-    /**
-     * @param string $fileId
-     *
-     * @return File|null
-     */
     public function getFileById($fileId)
     {
         return $this->fileRepository->findOneBy(['ident' => $fileId]);
@@ -1007,8 +991,6 @@ class FileService extends CoreService implements FileServiceInterface
 
     /**
      * Given a SingleDocument (array format) returns its corresponding File id.
-     *
-     * @return mixed
      *
      * @throws Exception
      */

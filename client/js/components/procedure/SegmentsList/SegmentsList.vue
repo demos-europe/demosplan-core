@@ -354,6 +354,10 @@ export default {
       assignableUsersObject: 'items'
     }),
 
+    ...mapState('orga', {
+      orgaObject: 'items'
+    }),
+
     ...mapState('statementSegment', {
       segmentsObject: 'items'
     }),
@@ -478,8 +482,6 @@ export default {
             'attachments',
             'authoredDate',
             'authorName',
-            'formattedAuthoredDate',
-            'formattedSubmitDate',
             'isSubmittedByCitizen',
             'initialOrganisationDepartmentName',
             'initialOrganisationName',
@@ -488,14 +490,13 @@ export default {
             'initialOrganisationPostalCode',
             'initialOrganisationCity',
             'internId',
-            'location',
             'memo',
             'submitDate',
             'submitName',
             'submitType'
           ].join(),
           Tag: 'title',
-          StatementAttachment: ['file', 'type'].join(),
+          StatementAttachment: ['file', 'attachmentType'].join(),
           File: 'hash'
         }
       }
@@ -553,7 +554,7 @@ export default {
     getOriginalPdfAttachmentHashBySegment (segment) {
       const parentStatement = segment.rel('parentStatement')
       if (parentStatement.hasRelationship('attachments')) {
-        const originalAttachment = Object.values(parentStatement.relationships.attachments.list()).filter(attachment => attachment.attributes.type === 'source_statement')[0]
+        const originalAttachment = Object.values(parentStatement.relationships.attachments.list()).filter(attachment => attachment.attributes.attachmentType === 'source_statement')[0]
         if (originalAttachment) {
           return originalAttachment.rel('file').attributes.hash
         }

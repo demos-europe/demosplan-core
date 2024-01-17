@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
 use demosplan\DemosPlanCoreBundle\Entity\PlatformFaqCategory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -20,6 +21,9 @@ use Doctrine\ORM\ORMException;
 use Exception;
 use UnexpectedValueException;
 
+/**
+ * @template-extends FluentRepository<FaqCategory>
+ */
 class FaqCategoryRepository extends FluentRepository
 {
     /**

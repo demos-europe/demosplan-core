@@ -57,11 +57,11 @@
           <li v-if="!statement.attributes.synchronized">
             <dp-claim
               class="o-flyout__trigger u-ph-0_25 line-height--2"
-              entity-type="statement"
               :assigned-id="currentAssignee.id"
               :assigned-name="currentAssignee.name"
               :assigned-organisation="currentAssignee.orgaName"
               :current-user-id="currentUser.id"
+              entity-type="statement"
               :is-loading="isLoading"
               :label="Translator.trans(`${currentUser.id === currentAssignee.id ? 'assigned' : 'assign'}`)"
               @click="toggleClaimStatement" />
@@ -89,17 +89,17 @@
                   <span class="block weight--bold">{{ Translator.trans('original.pdf') }}</span>
                   <statement-meta-attachments-link
                     v-if="originalAttachment.hash"
-                    :attachment="originalAttachment"
                     class="block whitespace-normal u-mr-0_75"
+                    :attachment="originalAttachment"
                     :procedure-id="procedureId" />
                   <span
                     v-if="additionalAttachments.length > 0"
                     class="block weight--bold">{{ Translator.trans('more.attachments') }}</span>
                   <statement-meta-attachments-link
                     v-for="attachment in additionalAttachments"
-                    :key="attachment.hash"
-                    :attachment="attachment"
                     class="block whitespace-normal u-mr-0_75"
+                    :attachment="attachment"
+                    :key="attachment.hash"
                     :procedure-id="procedureId" />
                 </div>
               </template>
@@ -135,22 +135,23 @@
         v-if="showInfobox && statement"
         :attachments="filteredAttachments"
         :current-user-id="currentUser.id"
+        :editable="editable"
         :statement="statement"
         :submit-type-options="submitTypeOptions"
-        :editable="editable"
         @close="showInfobox = false"
         @save="(statement) => saveStatement(statement)"
         @input="checkStatementClaim" />
       <segments-recommendations
         v-if="currentAction === 'addRecommendation' && hasPermission('feature_segment_recommendation_edit')"
         :current-user="currentUser"
-        :statement-id="statementId"
-        :procedure-id="procedureId" />
+        :procedure-id="procedureId"
+        :statement-id="statementId" />
       <statement-segments-edit
         v-else-if="currentAction === 'editText'"
-        :editable="editable"
-        :statement-id="statementId"
         :current-user="currentUser"
+        :editable="editable"
+        :segment-draft-list="this.statement.attributes.segmentDraftList"
+        :statement-id="statementId"
         @statement-text-updated="checkStatementClaim"
         @save-statement="saveStatement" />
     </div>
@@ -209,6 +210,16 @@ export default {
       required: true
     },
 
+    /**
+     * If inside a source procedure that is already coupled, HEARING_AUTHORITY_ADMIN users may copy statements to the
+     * respective target procedure, while HEARING_AUTHORITY_WORKER users may see which statements are synchronized.
+     */
+    isSourceAndCoupledProcedure: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
     procedureId: {
       type: String,
       required: true
@@ -241,6 +252,7 @@ export default {
     return {
       currentAction: 'addRecommendation',
       isLoading: false,
+      segmentDraftList: '',
       // Add key to meta box to rerender the component in case the save request fails and the data is store in set back to initial values
       showInfobox: false,
       statementClaimChecked: false,
@@ -304,7 +316,7 @@ export default {
           return {
             hash: file.attributes.hash,
             filename: file.attributes.filename,
-            type: attachment.attributes.type
+            type: attachment.attributes.attachmentType
           }
         })
       } else {
@@ -332,7 +344,7 @@ export default {
 
       if (currentAssigneeId) {
         const assignee = this.assignableUsersObject[currentAssigneeId] || { attributes: {} }
-        const assigneeOrga = assignee.rel ? Object.values(assignee.rel('orga'))[0] : null
+        const assigneeOrga = assignee.rel ? assignee.rel('orga') : null
 
         return {
           id: currentAssigneeId,
@@ -447,7 +459,7 @@ export default {
           relationships: {
             assignee: {
               data: {
-                type: 'User',
+                type: 'Claim',
                 id: this.currentUser.id
               }
             }
@@ -474,6 +486,40 @@ export default {
     },
 
     getStatement () {
+      const statementFields = [
+        'assignee',
+        'attachments',
+        'similarStatementSubmitters',
+        'authoredDate',
+        'authorName',
+        'files',
+        'fullText',
+        'isSubmittedByCitizen',
+        'initialOrganisationCity',
+        'initialOrganisationDepartmentName',
+        'initialOrganisationHouseNumber',
+        'initialOrganisationName',
+        'initialOrganisationPostalCode',
+        'initialOrganisationStreet',
+        'internId',
+        'isManual',
+        'memo',
+        'recommendation',
+        'segmentDraftList',
+        'submitDate',
+        'submitName',
+        'submitType',
+        'submitterEmailAddress'
+      ]
+
+      if (this.isSourceAndCoupledProcedure) {
+        statementFields.push('synchronized')
+      }
+
+      if (hasPermission('area_statement_segmentation')) {
+        statementFields.push('segmentDraftList')
+      }
+
       return this.getStatementAction({
         id: this.statementId,
         include: [
@@ -484,31 +530,7 @@ export default {
           'similarStatementSubmitters'
         ].join(),
         fields: {
-          Statement: [
-            'assignee',
-            'attachments',
-            'similarStatementSubmitters',
-            'authoredDate',
-            'authorName',
-            'files',
-            'fullText',
-            'isSubmittedByCitizen',
-            'initialOrganisationCity',
-            'initialOrganisationDepartmentName',
-            'initialOrganisationHouseNumber',
-            'initialOrganisationName',
-            'initialOrganisationPostalCode',
-            'initialOrganisationStreet',
-            'internId',
-            'isManual',
-            'memo',
-            'recommendation',
-            'submitDate',
-            'submitName',
-            'submitType',
-            'submitterEmailAddress',
-            'synchronized'
-          ].join(),
+          Statement: statementFields.join(),
           SimilarStatementSubmitter: [
             'city',
             'emailAddress',
@@ -518,9 +540,8 @@ export default {
             'streetNumber'
           ].join(),
           StatementAttachment: [
-            'id',
             'file',
-            'type'
+            'attachmentType'
           ].join(),
           File: [
             'hash',
@@ -563,7 +584,7 @@ export default {
             ...this.statements[this.statement.id].relationships,
             assignee: {
               data: {
-                type: 'User',
+                type: 'Claim',
                 id: claimingStatement ? this.currentUser.id : null
               }
             }

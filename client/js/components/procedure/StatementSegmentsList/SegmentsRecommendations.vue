@@ -158,7 +158,7 @@ export default {
      * @return {Promise<*>}
      */
     claimStatement () {
-      const dataToUpdate = { ...this.statement, ...{ relationships: { ...this.statement.relationships, ...{ assignee: { data: { type: 'User', id: this.currentUser.id } } } } } }
+      const dataToUpdate = { ...this.statement, ...{ relationships: { ...this.statement.relationships, ...{ assignee: { data: { type: 'Claim', id: this.currentUser.id } } } } } }
       this.setStatement({ ...dataToUpdate, id: this.statementId, group: null })
 
       const payload = {
@@ -168,7 +168,7 @@ export default {
           relationships: {
             assignee: {
               data: {
-                type: 'User',
+                type: 'Claim',
                 id: this.currentUser.id
               }
             }
@@ -201,7 +201,6 @@ export default {
         ].join(),
         fields: {
           StatementSegment: [
-            'id',
             'tags',
             'text',
             'assignee',
@@ -214,7 +213,6 @@ export default {
             'recommendation'
           ].join(),
           SegmentComment: [
-            'id',
             'creationDate',
             'text',
             'submitter',

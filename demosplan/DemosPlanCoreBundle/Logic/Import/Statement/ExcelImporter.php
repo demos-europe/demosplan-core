@@ -125,7 +125,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
     /**
      * Generates statements from incoming excel document, including validation.
-     * This method does not persist or flush the generated Statements.
+     * This method does not flush the generated Statements and does not persist nor flush the original statements.
      */
     public function process(SplFileInfo $workbook): void
     {
@@ -153,6 +153,8 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
                 $statement[self::PUBLIC_STATEMENT] = $publicStatement;
 
                 $generatedOriginalStatement = $this->createNewOriginalStatement($statement, count($this->generatedStatements), $line, $currentWorksheetTitle);
+                // no validation of $generatedOriginalStatement?
+
                 $generatedStatement = $this->createCopy($generatedOriginalStatement);
 
                 $constraints = $this->statementValidator->validate($generatedStatement, [Statement::IMPORT_VALIDATION]);
@@ -623,7 +625,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
         $matchingTags = $this->tagResourceType->listPrefilteredEntities($this->generatedTags, [$titleCondition]);
         if ([] === $matchingTags) {
-            $matchingTags = $this->tagResourceType->listEntities([$titleCondition]);
+            $matchingTags = $this->tagResourceType->getEntities([$titleCondition], []);
         }
 
         return $matchingTags[0] ?? null;

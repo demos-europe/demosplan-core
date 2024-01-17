@@ -12,30 +12,33 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableDqlResourceTypeInterface;
-use DemosEurope\DemosplanAddon\Logic\ResourceChange;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseTagTopicResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
+use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
+use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
+use EDT\Wrapping\EntityDataInterface;
+use EDT\Wrapping\PropertyBehavior\Attribute\Factory\AttributeConstructorBehaviorFactory;
+use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
+use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\Factory\ToOneRelationshipConstructorBehaviorFactory;
 
 /**
  * @template-extends DplanResourceType<TagTopic>
  *
- * @template-implements CreatableDqlResourceTypeInterface<TagTopic>
- *
- * @property-read End $id
  * @property-read End $title
  * @property-read ProcedureResourceType $procedure
  * @property-read TagResourceType $tags
  */
-final class TagTopicResourceType extends DplanResourceType implements CreatableDqlResourceTypeInterface
+final class TagTopicResourceType extends DplanResourceType
 {
-    public function __construct(private readonly TagService $tagService)
-    {
+    public function __construct(
+        private readonly TagService $tagService,
+        protected TagTopicRepository $tagTopicRepository
+    ) {
     }
 
     public function getEntityClass(): string
@@ -70,58 +73,53 @@ final class TagTopicResourceType extends DplanResourceType implements CreatableD
         )];
     }
 
-    public function isCreatable(): bool
+    public function isCreateAllowed(): bool
     {
         return $this->currentUser->hasPermission('feature_json_api_tag_topic_create');
     }
 
-    public function createObject(array $properties): ResourceChange
+    protected function getProperties(): ResourceConfigBuilderInterface
     {
-        /** @var Procedure $procedure */
-        $procedure = $properties[$this->procedure->getAsNamesInDotNotation()];
-        /** @var string $title */
-        $title = $properties[$this->title->getAsNamesInDotNotation()];
+        $configBuilder = $this->getConfig(BaseTagTopicResourceConfigBuilder::class);
 
-        if ($procedure->getId() !== $this->currentProcedureService->getProcedureIdWithCertainty()) {
-            throw new BadRequestException('Contradicting request');
-        }
+        $configBuilder->id->readable()->sortable()->filterable();
 
-        if (!$this->currentUser->getPermissions()->ownsProcedure()) {
-            throw new BadRequestException('Access denied');
-        }
+        $configBuilder->title->readable(true)->sortable()->filterable()
+            ->addConstructorBehavior(new AttributeConstructorBehaviorFactory(null, null));
 
-        $tagTopic = $this->tagService->createTagTopic($title, $procedure, false);
-        $procedure->addTagTopic($tagTopic);
+        $configBuilder->procedure
+            ->setRelationshipType($this->resourceTypeStore->getProcedureResourceType())
+            ->readable()->sortable()->filterable()
+            ->addConstructorBehavior(new ToOneRelationshipConstructorBehaviorFactory(null, [], null));
 
-        $this->resourceTypeService->validateObject($tagTopic);
-        $this->resourceTypeService->validateObject($procedure, [
-            Procedure::VALIDATION_GROUP_DEFAULT,
-            Procedure::VALIDATION_GROUP_MANDATORY_PROCEDURE,
-        ]);
+        $configBuilder->tags
+            ->setRelationshipType($this->resourceTypeStore->getTagResourceType())
+            ->readable()->sortable()->filterable();
 
-        $resourceChange = new ResourceChange($tagTopic, $this, $properties);
-        $resourceChange->addEntityToPersist($tagTopic);
+        $configBuilder->addPostConstructorBehavior(
+            new FixedSetBehavior(function (TagTopic $tagTopic, EntityDataInterface $entityData): array {
+                $procedure = $tagTopic->getProcedure();
+                $title = $tagTopic->getTitle();
+                if ($procedure->getId() !== $this->currentProcedureService->getProcedureIdWithCertainty()) {
+                    throw new BadRequestException('Contradicting request');
+                }
 
-        return $resourceChange;
-    }
+                if (!$this->currentUser->getPermissions()->ownsProcedure()) {
+                    throw new BadRequestException('Access denied');
+                }
 
-    public function isReferencable(): bool
-    {
-        return true;
-    }
+                $this->tagService->assertTitleNotDuplicated($title, $procedure);
+                $procedure->addTagTopic($tagTopic);
+                $this->resourceTypeService->validateObject($procedure, [
+                    ProcedureInterface::VALIDATION_GROUP_DEFAULT,
+                    ProcedureInterface::VALIDATION_GROUP_MANDATORY_PROCEDURE,
+                ]);
+                $this->tagTopicRepository->persistEntities([$tagTopic]);
 
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
-    }
+                return [];
+            })
+        );
 
-    protected function getProperties(): array
-    {
-        return [
-            $this->createAttribute($this->id)->readable(true)->sortable()->filterable(),
-            $this->createAttribute($this->title)->readable(true)->sortable()->filterable()->initializable(),
-            $this->createToOneRelationship($this->procedure)->readable()->sortable()->filterable()->initializable(),
-            $this->createToManyRelationship($this->tags)->readable()->sortable()->filterable(),
-        ];
+        return $configBuilder;
     }
 }

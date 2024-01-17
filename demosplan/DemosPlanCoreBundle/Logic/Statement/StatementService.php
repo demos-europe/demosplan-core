@@ -19,7 +19,6 @@ use DemosEurope\DemosplanAddon\Contracts\Events\StatementUpdatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\StatementServiceInterface;
-use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
@@ -90,7 +89,6 @@ use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
-use demosplan\DemosPlanCoreBundle\Repository\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
@@ -562,7 +560,11 @@ class StatementService extends CoreService implements StatementServiceInterface
             $this->statementAttributeRepository->copyStatementAttributes($draftStatement, $originalStatement);
 
             // Create a statement copy for the assessment table
-            $assessableStatement = $this->statementCopier->copyStatementObjectWithinProcedure($originalStatement, false);
+            $assessableStatement = $this->statementCopier->copyStatementObjectWithinProcedureWithRelatedFiles(
+                $originalStatement,
+                false,
+                true
+            );
 
             $assessableStatement = $this->postSubmitDraftStatement($assessableStatement, $draftStatement);
 
@@ -603,34 +605,6 @@ class StatementService extends CoreService implements StatementServiceInterface
         }
 
         return $statement;
-    }
-
-    /**
-     * @param array<string, mixed> $properties
-     */
-    public function createPersonAndAddToStatementWithResourceType(array $properties): ResourceChange
-    {
-        $procedure = $properties[$this->similarStatementSubmitterResourceType->procedure->getAsNamesInDotNotation()];
-        $fullName = $properties[$this->similarStatementSubmitterResourceType->fullName->getAsNamesInDotNotation()];
-
-        $submitter = new ProcedurePerson($fullName, $procedure);
-        $change = new ResourceChange($submitter, $this->similarStatementSubmitterResourceType, $properties);
-        $change->addEntityToPersist($submitter);
-
-        $updater = new PropertiesUpdater($properties);
-        $this->updatePersonEditableProperties($updater, $submitter);
-        $updater->ifPresent(
-            $this->similarStatementSubmitterResourceType->similarStatements,
-            static function (Collection $similarStatements) use ($change, $submitter): void {
-                /** @var Statement $statement */
-                foreach ($similarStatements as $statement) {
-                    $statement->getSimilarStatementSubmitters()->add($submitter);
-                }
-                $change->addEntitiesToPersist($similarStatements->getValues());
-            }
-        );
-
-        return $change;
     }
 
     public function updatePersonEditableProperties(PropertiesUpdater $updater, ProcedurePerson $person): void
@@ -1066,18 +1040,6 @@ class StatementService extends CoreService implements StatementServiceInterface
         return $rParams;
     }
 
-    /**
-     * Will execute various checks and generate an EntityContentChange entry.
-     *
-     * @see https://yaits.demos-deutschland.de/w/demosplan/functions/at_detail_view/ Wiki: Detailseite Stellungnahme/Stellungnahmengruppe
-     *
-     * @param Statement $updatedStatement Statement as object
-     * @param bool      $ignoreAssignment Determines if a assignment statement will be updated regardless
-     * @param bool      $ignoreCluster    Determines if a clustered statement will be updated regardless
-     * @param bool      $ignoreOriginal
-     *
-     * @return statement|false|null if successful: the updated Statement object
-     */
     public function updateStatementFromObject($updatedStatement, $ignoreAssignment = false, $ignoreCluster = false, $ignoreOriginal = false)
     {
         return $this->updateStatement($updatedStatement, $ignoreAssignment, $ignoreCluster, $ignoreOriginal);
@@ -1652,11 +1614,6 @@ class StatementService extends CoreService implements StatementServiceInterface
         return $this->convertToLegacy($statement);
     }
 
-    /**
-     * Get a specific statement as object.
-     *
-     * @param string $statementId identifies the statement
-     */
     public function getStatement($statementId): ?Statement
     {
         try {
@@ -4554,7 +4511,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             $this->statementResourceType->procedure->id
         );
 
-        return $this->statementResourceType->listEntities([$condition]);
+        return $this->statementResourceType->getEntities([$condition], []);
     }
 
     public function addMissingSortKeys($sort, string $defaultPropertyName, string $defaultDirection): ToBy

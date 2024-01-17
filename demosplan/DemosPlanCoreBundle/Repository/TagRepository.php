@@ -18,7 +18,10 @@ use Doctrine\ORM\Query\Expr\Join;
 use Exception;
 use Webmozart\Assert\Assert;
 
-class TagRepository extends FluentRepository implements ObjectInterface
+/**
+ * @template-extends CoreRepository<Tag>
+ */
+class TagRepository extends CoreRepository implements ObjectInterface
 {
     /**
      * Get Entity by Id.

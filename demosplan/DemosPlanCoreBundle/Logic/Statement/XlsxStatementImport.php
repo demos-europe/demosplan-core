@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualOriginalStatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Statement\StatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
+use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
 use demosplan\DemosPlanCoreBundle\Exception\RowAwareViolationsException;
 use demosplan\DemosPlanCoreBundle\Exception\UnexpectedWorksheetNameException;
 use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\AbstractStatementSpreadsheetImporter;
@@ -30,7 +31,7 @@ use Symfony\Component\Finder\SplFileInfo;
 class XlsxStatementImport
 {
     /**
-     * @var array
+     * @var list<Statement>
      */
     private $createdStatements = [];
 
@@ -54,13 +55,15 @@ class XlsxStatementImport
      *
      * @param FileInfo $file Hands over basic information about the file
      *
-     * @throws Exception
      * @throws RowAwareViolationsException
-     * @throws ConnectionException|UnexpectedWorksheetNameException
+     * @throws ConnectionException
+     * @throws \Doctrine\DBAL\Driver\Exception
+     * @throws MissingDataException
+     * @throws UnexpectedWorksheetNameException
+     * @throws Exception
      */
-    public function importFromFile(FileInfo $file): void
+    public function importFromFile(SplFileInfo $fileInfo): void
     {
-        $fileInfo = new SplFileInfo($file->getAbsolutePath(), '', $file->getHash());
         $this->createdStatements = [];
 
         // allow to rollback all in case of error
@@ -77,9 +80,8 @@ class XlsxStatementImport
             }
 
             foreach ($generatedStatements as $statement) {
-                $this->statementRepository->addObject($statement);
-
                 try {
+                    $this->statementRepository->addObject($statement);
                     $statementArray = $this->statementService->convertToLegacy($statement);
                     $this->statementService->addReportNewStatement($statementArray);
                 } catch (Exception $exception) {
@@ -121,5 +123,13 @@ class XlsxStatementImport
     public function getErrorsAsArray(): array
     {
         return $this->xlsxStatementImporter->getErrorsAsArray();
+    }
+
+    /**
+     * @return array<non-empty-string, int<0, max>>
+     */
+    public function getSkippedStatements(): array
+    {
+        return $this->xlsxStatementImporter->getSkippedStatements();
     }
 }
