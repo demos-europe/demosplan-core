@@ -114,9 +114,6 @@ class SegmentRepository extends CoreRepository
             return;
         }
 
-        // wrap the given text in quotes so the DB handles it as string instead of an expression
-        $recommendationText = "'$recommendationText'";
-
         $qb = $this->getEntityManager()->createQueryBuilder();
         $value = $attach
             ? $qb->expr()->concat('segment.recommendation', ':recommendationText')
