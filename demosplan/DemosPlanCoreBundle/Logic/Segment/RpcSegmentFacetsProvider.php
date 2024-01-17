@@ -80,7 +80,7 @@ class RpcSegmentFacetsProvider implements RpcMethodSolverInterface
                 $jsonArray = $this->resourceService->getFractal()->createData($item)->toArray();
                 $jsonArray['meta']['count'] = $apiListResult->getResultCount();
 
-                /**
+                /*
                  * When the user selects a filter, the BE uses ElasticSearch facets to create the filters and answers back the FE with the given filter id and the property selected = true (see here demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Facet\FacetFactory.php method createAggregationFilterItems)
                  * When filtering for assignee NULL, there is no id, consequently there is not Facet for this filter.
                  * Because NULL filters lack an id, the BE can't inform the FE that this filter (assignee == NULL) has been selected.
