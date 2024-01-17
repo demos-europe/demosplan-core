@@ -117,7 +117,7 @@ const stylesConfig = merge(baseConfig, {
     return {
       style: config.stylesEntryPoint,
       'style-public': config.publicStylesEntryPoint,
-      'demosplan-ui': './client/css/index.css',
+      'demosplan-ui': './client/css/index.css'
     }
   },
   output: {

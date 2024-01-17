@@ -212,7 +212,7 @@ ERR);
             }
         }
 
-        return $manifestArray
+        return $manifestArray;
     }
 
     protected function getBundleAndRelatedChunkSplits(string $bundleName, string $manifest): Collection
