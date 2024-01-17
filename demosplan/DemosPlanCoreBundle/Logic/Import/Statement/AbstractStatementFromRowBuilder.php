@@ -1,5 +1,14 @@
 <?php
+
 declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
@@ -11,7 +20,9 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
 abstract class AbstractStatementFromRowBuilder
 {
     protected StatementInterface $statement;
-    public function __construct(){
+
+    public function __construct()
+    {
         $this->statement = new Statement();
     }
 
@@ -52,6 +63,7 @@ abstract class AbstractStatementFromRowBuilder
     abstract public function setMemo(Cell $cell): ?ConstraintViolationListInterface;
 
     abstract public function setFeedback(Cell $cell): ?ConstraintViolationListInterface;
+
     abstract public function setNumberOfAnonymVotes(Cell $cell): ?ConstraintViolationListInterface;
 
     /**
@@ -59,5 +71,4 @@ abstract class AbstractStatementFromRowBuilder
      * due to invalid values/state of the statement.
      */
     abstract public function buildStatementAndReset(): StatementInterface|ConstraintViolationListInterface;
-
 }
