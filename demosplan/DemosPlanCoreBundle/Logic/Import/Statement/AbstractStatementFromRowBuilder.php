@@ -17,48 +17,37 @@ abstract class AbstractStatementFromRowBuilder
 
     abstract public function setExternId(Cell $cell): ?ConstraintViolationListInterface;
 
-
     abstract public function setText(Cell $cell): ?ConstraintViolationListInterface;
-
 
     abstract public function setPlanningDocumentCategoryTitle(Cell $cell): ?ConstraintViolationListInterface;
 
-
     abstract public function setOrgaName(Cell $cell): ?ConstraintViolationListInterface;
-
 
     abstract public function setDepartmentName(Cell $cell): ?ConstraintViolationListInterface;
 
-
     abstract public function setAuthorName(Cell $cell): ?ConstraintViolationListInterface;
-
 
     abstract public function setSubmitterName(Cell $cell): ?ConstraintViolationListInterface;
 
-
     abstract public function setSubmiterEmailAddress(Cell $cell): ?ConstraintViolationListInterface;
-
 
     abstract public function setSubmitterStreetName(Cell $cell): ?ConstraintViolationListInterface;
 
-
     abstract public function setSubmitterHouseNumber(Cell $cell): ?ConstraintViolationListInterface;
-
 
     abstract public function setSubmitterPostalCode(Cell $cell): ?ConstraintViolationListInterface;
 
-
     abstract public function setSubmitterCity(Cell $cell): ?ConstraintViolationListInterface;
-
 
     abstract public function setSubmitDate(Cell $cell): ?ConstraintViolationListInterface;
 
-
     abstract public function setAuthoredDate(Cell $cell): ?ConstraintViolationListInterface;
-
 
     abstract public function setInternId(Cell $cell): ?ConstraintViolationListInterface;
 
+    abstract public function getInternId(): ?string;
+
+    abstract public function getExternId(): string;
 
     abstract public function setMemo(Cell $cell): ?ConstraintViolationListInterface;
 

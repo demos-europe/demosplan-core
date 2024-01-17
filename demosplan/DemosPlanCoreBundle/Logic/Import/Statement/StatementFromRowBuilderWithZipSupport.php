@@ -19,6 +19,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuilder
 {
+    protected Cell $fileReferences;
+
     public function __construct(
         private readonly ValidatorInterface $validator,
         protected readonly array $fileMap,
@@ -69,15 +71,15 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
         return null;
     }
 
-    public function setFileReferences(Cell $cell): ?ConstraintViolationListInterface
+    public function handleFileReferences(): ?ConstraintViolationListInterface
     {
         // early return in case no file-reference is found
-        $cellValue = $cell->getValue();
+        $cellValue = $this->fileReferences->getValue();
         if (null === $cellValue || '' === $cellValue) {
             return null;
         }
 
-        $fileHashes = explode(', ', $cell->getValue());
+        $fileHashes = explode(', ', $cellValue);
         $statement = $this->baseStatementFromRowBuilder->statement;
 
         /**
@@ -197,6 +199,16 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
         return $this->baseStatementFromRowBuilder->setInternId($cell);
     }
 
+    public function getInternId(): ?string
+    {
+        return $this->baseStatementFromRowBuilder->getInternId();
+    }
+
+    public function getExternId(): string
+    {
+        return $this->baseStatementFromRowBuilder->getExternId();
+    }
+
     public function setMemo(Cell $cell): ?ConstraintViolationListInterface
     {
         return $this->baseStatementFromRowBuilder->setMemo($cell);
@@ -212,8 +224,17 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
        return $this->baseStatementFromRowBuilder->setNumberOfAnonymVotes($cell);
     }
 
+    public function setFileReferences(Cell $cell): ?ConstraintViolationListInterface
+    {
+        $this->fileReferences = $cell;
+
+        return null;
+    }
+
     public function buildStatementAndReset(): StatementInterface|ConstraintViolationListInterface
     {
+        $this->handleFileReferences();
+
         return $this->baseStatementFromRowBuilder->buildStatementAndReset();
     }
 }
