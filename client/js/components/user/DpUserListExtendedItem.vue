@@ -274,11 +274,9 @@ export default {
       }
 
       const options = {
-        options: {
-          messages: {
-            200: { type: 'confirm', text: 'info.user.updated' },
-            204: { type: 'confirm', text: 'info.user.updated' }
-          }
+        messages: {
+          200: { type: 'confirm', text: 'info.user.updated' },
+          204: { type: 'confirm', text: 'info.user.updated' }
         }
       }
 
