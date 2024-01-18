@@ -33,7 +33,12 @@ $config
                     '=>' => 'align',
                 ],
             ],
-            'phpdoc_summary' => false,
+            'phpdoc_line_span' => [
+                'const'    => 'multi', // 'single' or 'multi'
+                'property' => 'multi', // 'single' or 'multi'
+                'method'   => 'multi',  // 'single' or 'multi'
+            ],
+
             'global_namespace_import' => true,
             'phpdoc_no_alias_tag'     => [
                 'replacements' => ['type' => 'var', 'link' => 'see'],
