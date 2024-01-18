@@ -958,7 +958,8 @@ class ElementsService extends CoreService implements ElementsServiceInterface
         string $elementTitle,
         string $documentTitle,
         string $paragraphTitle
-    ): null|string|ConstraintViolationListInterface {
+    ): null|string|ConstraintViolationListInterface
+    {
         if ('' !== $documentTitle) {
             $violations = $this->validator->validate($paragraphTitle, new Blank(
                 ['message' => 'statement.categoryType.already.defined.by.give.document']
@@ -976,7 +977,8 @@ class ElementsService extends CoreService implements ElementsServiceInterface
                 ['message' => 'statement.categoryType.already.defined.by.given.paragraph']
             ));
 
-            if (0 !== $violations->count()) {
+            if (0 !== $violations->count())
+            {
                 return $violations;
             }
 
