@@ -1,5 +1,4 @@
 name: Format (PHP)
-
 on:
     pull_request:
         paths:
@@ -7,73 +6,9 @@ on:
             - '.php-cs-fixer.php'
             - '!lib/**'
 jobs:
-  cancel:
-    name: 'Cancel Previous Runs'
-    runs-on: ubuntu-latest
-    timeout-minutes: 3
-    steps:
-      - uses: styfle/cancel-workflow-action@0.11.0
-        with:
-          workflow_id: "php-cs-fixer"
-          access_token: ${{ secrets.GITHUB_TOKEN }}
-
-  php-cs-fixer:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.head_ref }}
-
-      - name: Cache php dependencies
-        uses: actions/cache@v3.0.11
-        with:
-          path: |
-                ~/.composer/cache
-                vendor
-          key: ${{ runner.os }}-build-php-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-                  ${{ runner.os }}-build-php-${{ hashFiles('**/composer.lock') }}
-
-      - name: Setup PHP with composer v2
-        uses: shivammathur/setup-php@v2
-        with:
-            php-version: '8.1'
-            extensions: gd soap sockets zip
-            tools: composer:v2
-
-      - name: Install composer dependencies
-        run: |
-            composer --version
-            composer install --no-interaction
-
-      - name: Get list of changed files
-        uses: tj-actions/changed-files@v39
-        id: files
-
-      - name: Print Changed Files
-        run: |
-          echo "${{ steps.files.outputs.all_changed_files }}"
-          CHANGED_COUNT=$(echo "${{ steps.files.outputs.all_changed_files }}" | wc -w)
-          echo "Number of changed files: $CHANGED_COUNT"
-
-      - name: Run php-cs-fixer
-        run: "vendor/bin/php-cs-fixer --version"
-
-      - name: Run php-cs-fixer
-        if: steps.files.outputs.all_changed_files_count > 0
-        run: "vendor/bin/php-cs-fixer fix --config .php-cs-fixer.php ${{ steps.files.outputs.all_changed_files }}"
-
-
-      - name: Configure git
-        run: |
-            git config  user.email ${{ secrets.GPG_EMAIL }}
-            git config  user.name "Demos-CI"
-
-      - name: Commit
-        run: |
-            if ! git diff --exit-code; then
-            git pull
-            git add .
-            git commit -m "style: Apply php-cs-fixer" --no-gpg-sign
-            git push
-            fi
+  call:
+    uses: demos-europe/demosplan-workflows/.github/workflows/php-cs-fixer.yml@main
+    with:
+        gpg_user_name: Demos-CI
+    secrets:
+        gpg_email: ${{ secrets.DEVOPS_GPG_EMAIL }}
