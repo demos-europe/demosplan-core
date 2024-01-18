@@ -137,7 +137,7 @@
     },
     "require-dev": {
         "escapestudios/symfony2-coding-standard": "^3.4",
-        "friendsofphp/php-cs-fixer": "^3.47.1",
+        "friendsofphp/php-cs-fixer": "^v3.0",
         "goetas-webservices/xsd2php": "^0.4",
         "liip/functional-test-bundle": "^4",
         "liip/test-fixtures-bundle": "^2.0.1",
