@@ -28,6 +28,8 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
 {
     protected Cell $fileReferences;
 
+    protected Cell $originalFileReferences;
+
     public function __construct(
         private readonly ValidatorInterface $validator,
         protected readonly array $fileMap,
@@ -39,10 +41,10 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
         parent::__construct();
     }
 
-    public function setOriginalFileReferences(Cell $cell): ?ConstraintViolationListInterface
+    protected function handleOriginalFileReferences(): ?ConstraintViolationListInterface
     {
         // early return in case no file-reference is found
-        $cellValue = $cell->getValue();
+        $cellValue = $this->originalFileReferences->getValue();
         if (null === $cellValue || '' === $cellValue) {
             return null;
         }
@@ -78,7 +80,15 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
         return null;
     }
 
-    public function handleFileReferences(): ?ConstraintViolationListInterface
+    public function setOriginalFileReferences(Cell $cell): ?ConstraintViolationListInterface
+    {
+        $this->originalFileReferences = $cell;
+
+        return null;
+    }
+
+
+    protected function handleFileReferences(): ?ConstraintViolationListInterface
     {
         // early return in case no file-reference is found
         $cellValue = $this->fileReferences->getValue();
@@ -240,6 +250,7 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
     public function buildStatementAndReset(): StatementInterface|ConstraintViolationListInterface
     {
         $this->handleFileReferences();
+        $this->handleOriginalFileReferences();
 
         return $this->baseStatementFromRowBuilder->buildStatementAndReset();
     }

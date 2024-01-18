@@ -71,4 +71,10 @@ abstract class AbstractStatementFromRowBuilder
      * due to invalid values/state of the statement.
      */
     abstract public function buildStatementAndReset(): StatementInterface|ConstraintViolationListInterface;
+
+
+    public function reset() :void
+    {
+        $this->statement = new Statement();
+    }
 }

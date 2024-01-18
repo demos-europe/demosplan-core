@@ -315,7 +315,7 @@ class StatementFromRowBuilder extends AbstractStatementFromRowBuilder
         }
 
         // reset builder state
-        $this->statement = new Statement();
+        $this->reset();
 
         return $newOriginalStatement;
     }
