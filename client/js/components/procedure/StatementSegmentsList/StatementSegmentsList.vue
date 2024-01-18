@@ -210,6 +210,16 @@ export default {
       required: true
     },
 
+    /**
+     * If inside a source procedure that is already coupled, HEARING_AUTHORITY_ADMIN users may copy statements to the
+     * respective target procedure, while HEARING_AUTHORITY_WORKER users may see which statements are synchronized.
+     */
+    isSourceAndCoupledProcedure: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
     procedureId: {
       type: String,
       required: true
@@ -499,9 +509,12 @@ export default {
         'submitDate',
         'submitName',
         'submitType',
-        'submitterEmailAddress',
-        'synchronized'
+        'submitterEmailAddress'
       ]
+
+      if (this.isSourceAndCoupledProcedure) {
+        statementFields.push('synchronized')
+      }
 
       if (hasPermission('area_statement_segmentation')) {
         statementFields.push('segmentDraftList')
@@ -527,7 +540,6 @@ export default {
             'streetNumber'
           ].join(),
           StatementAttachment: [
-            'id',
             'file',
             'attachmentType'
           ].join(),
