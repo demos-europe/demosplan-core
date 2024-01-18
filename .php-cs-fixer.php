@@ -33,6 +33,7 @@ $config
                     '=>' => 'align',
                 ],
             ],
+            'phpdoc_annotation_without_dot' => false,
             'global_namespace_import' => true,
             'phpdoc_no_alias_tag'     => [
                 'replacements' => ['type' => 'var', 'link' => 'see'],
