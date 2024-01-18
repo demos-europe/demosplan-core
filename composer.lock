@@ -4520,7 +4520,7 @@
                 "doctrine/orm": "^2.8",
                 "doctrine/phpcr-odm": "^1.4",
                 "ergebnis/composer-normalize": "^2.28",
-                "friendsofphp/php-cs-fixer": "3.47.1",
+                "friendsofphp/php-cs-fixer": "^3.0",
                 "jackalope/jackalope-doctrine-dbal": "^1.2",
                 "jms/serializer": "^3.8",
                 "jms/serializer-bundle": "^3.5 || ^4.0",
