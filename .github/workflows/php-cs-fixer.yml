@@ -57,7 +57,7 @@ jobs:
           echo "Number of changed files: $CHANGED_COUNT"
 
       - name: Run php-cs-fixer
-        run: "vendor/bin/php-cs-fixer --version}}"
+        run: {{"vendor/bin/php-cs-fixer --version}}"
 
       - name: Run php-cs-fixer
         if: steps.files.outputs.all_changed_files_count > 0
