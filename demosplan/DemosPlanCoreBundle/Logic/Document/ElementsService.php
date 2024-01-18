@@ -193,7 +193,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
         return collect(array_merge($mapCategories, $hiddenByConfigCategories))->map(
             fn ($element) =>
                 /* @var Elements $element */
-            $element->getId()
+                $element->getId()
         )->toArray();
     }
 
