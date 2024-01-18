@@ -87,7 +87,6 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
         return null;
     }
 
-
     protected function handleFileReferences(): ?ConstraintViolationListInterface
     {
         // early return in case no file-reference is found

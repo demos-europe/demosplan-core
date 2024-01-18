@@ -72,8 +72,7 @@ abstract class AbstractStatementFromRowBuilder
      */
     abstract public function buildStatementAndReset(): StatementInterface|ConstraintViolationListInterface;
 
-
-    public function reset() :void
+    public function reset(): void
     {
         $this->statement = new Statement();
     }
