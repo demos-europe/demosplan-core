@@ -249,7 +249,7 @@ export default {
           condition: {
             path: this.path,
             value: id,
-            operator: id === "unassigned"? "IS NULL" : this.operator
+            operator: id === 'unassigned' ? 'IS NULL' : this.operator
           }
         }
       })
