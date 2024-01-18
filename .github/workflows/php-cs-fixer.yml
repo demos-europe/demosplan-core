@@ -1,14 +1,11 @@
-on:
-  workflow_call:
-    inputs:
-      gpg_user_name:
-        description: 'username for gpg signing'
-        required: true
-        type: string
-    secrets:
-      GPG_EMAIL:
-        required: true
+name: Format (PHP)
 
+on:
+    pull_request:
+        paths:
+            - '**.php'
+            - '.php-cs-fixer.php'
+            - '!lib/**'
 jobs:
   cancel:
     name: 'Cancel Previous Runs'
