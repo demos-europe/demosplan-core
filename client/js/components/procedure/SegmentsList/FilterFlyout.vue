@@ -403,8 +403,18 @@ export default {
             })
 
             // If the current filter is assignee, display amount of Segments that have assignee as null. That is given by the field missingResourcesSum
-            if (result.data[0].attributes.path === 'assignee') {
-              this.$set(this.itemsObject, "unassigned", { attributes: { count: result.data[0].attributes.missingResourcesSum , label: Translator.trans('not.assigned'), ungrouped : true,  selected: result.meta['unassigned_selected']} , id: "unassigned", type: "AggregationFilterItem", ungrouped : true})
+             if (result.data[0].attributes.path === 'assignee') {
+              this.$set(this.itemsObject, 'unassigned', {
+                attributes: {
+                  count: result.data[0].attributes.missingResourcesSum,
+                  label: Translator.trans('not.assigned'),
+                  ungrouped: true,
+                  selected: result.meta.unassigned_selected
+                },
+                id: 'unassigned',
+                type: 'AggregationFilterItem',
+                ungrouped: true
+              })
             }
           }
         })
