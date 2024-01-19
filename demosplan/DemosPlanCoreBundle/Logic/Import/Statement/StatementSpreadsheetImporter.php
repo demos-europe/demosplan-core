@@ -179,13 +179,13 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
             if (null !== $internId && array_key_exists($internId, $usedInternIds)) {
                 // skip statements with existing intern IDs
                 $this->skippedStatements[$internId] = ($this->skippedStatements[$internId] ?? 0) + 1;
-                $builder->reset();
+                $builder->resetStatement();
                 continue;
             }
             if (array_key_exists($externId, $usedExternIds)) {
                 // skip statements with existing extern IDs
                 $this->skippedStatements[$externId] = ($this->skippedStatements[$externId] ?? 0) + 1;
-                $builder->reset();
+                $builder->resetStatement();
                 continue;
             }
 
