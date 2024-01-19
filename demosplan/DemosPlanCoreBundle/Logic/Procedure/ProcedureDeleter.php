@@ -331,9 +331,7 @@ class ProcedureDeleter
      */
     private function deleteMaillaneConnection(array $procedureIds, bool $isDryRun): void
     {
-        if ($this->queriesService->CheckColumnInTable('maillane_connection', 'procedure_id')) {
-            $this->queriesService->deleteFromTableByIdentifierArray('maillane_connection', 'procedure_id', $procedureIds, $isDryRun);
-        }
+        $this->queriesService->deleteFromTableByIdentifierArray('maillane_connection', 'procedure_id', $procedureIds, $isDryRun);
     }
 
     /**
