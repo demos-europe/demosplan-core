@@ -171,7 +171,7 @@
           </span>
         </template>
         <template v-slot:flyout="rowData">
-          <dp-flyout>
+          <dp-flyout data-cy="segmentsList:flyoutEditMenu">
             <a
               :href="Routing.generate('dplan_statement_segments_list', {
                 action: 'editText',

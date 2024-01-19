@@ -47,6 +47,7 @@
 <template>
   <dp-flyout
     align="left"
+    :data-cy="label"
     :padded="false"
     @open="handleOpen"
     @close="handleClose"

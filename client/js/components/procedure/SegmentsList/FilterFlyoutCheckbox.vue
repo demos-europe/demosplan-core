@@ -10,6 +10,7 @@
 <template>
   <li>
     <input
+      :data-cy="option.attributes.label"
       :id="`${instance}_id_${option.id}`"
       :checked="checked"
       :name="`${instance}_name_${option.id}`"
