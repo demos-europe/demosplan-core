@@ -63,6 +63,7 @@
       </dp-bulk-edit-header>
       <div class="u-mt text-right">
         <dp-column-selector
+          data-cy="segmentsList:selectableColumns"
           :initial-selection="currentSelection"
           :selectable-columns="selectableColumns"
           @selection-changed="setCurrentSelection"
