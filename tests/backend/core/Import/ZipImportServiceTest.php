@@ -77,7 +77,7 @@ class ZipImportServiceTest extends FunctionalTestCase
         self::arrayHasKey('953c76bfb58346089b8e432becf6c334');
         self::arrayHasKey('d76a37894e17304f2955b24a3689ab68');
         self::arrayHasKey('abd6bcf0d057a37b39efeb8b9e38cb85');
-        self::arrayHasKey('Abwägungstabelle-24-11-2023-08');
+        self::arrayHasKey('Abwagungstabelle-24-11-2023-08_14');
         self::arrayHasKey('e63f309f5abf0d9bd667245fcdceb9bf');
         self::arrayHasKey('e92462e3be16c8ed8131c1fc7fc95a94');
 
@@ -86,7 +86,7 @@ class ZipImportServiceTest extends FunctionalTestCase
         self::assertInstanceOf(File::class, $resultArray['abd6bcf0d057a37b39efeb8b9e38cb85']);
         self::assertInstanceOf(File::class, $resultArray['e63f309f5abf0d9bd667245fcdceb9bf']);
         self::assertInstanceOf(File::class, $resultArray['e92462e3be16c8ed8131c1fc7fc95a94']);
-        self::assertInstanceOf(SplFileInfo::class, $resultArray['Abwägungstabelle-24-11-2023-08']);
+        self::assertInstanceOf(SplFileInfo::class, $resultArray['Abwagungstabelle-24-11-2023-08']);
     }
 
     //This test takes the Abwaegungstabelle_Export_Error_Testfile.zip which contains an error.txt file, causing an InvalidArgumentException
