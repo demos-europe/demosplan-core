@@ -14,6 +14,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -93,7 +94,7 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
         // early return in case no file-reference is found
         $cellValue = $this->fileReferences->getValue();
         if (!is_string($cellValue)) {
-            return null;
+            throw new InvalidArgumentException('Value of Cell should be String');
         }
         if (null === $cellValue || '' === $cellValue) {
             return null;
