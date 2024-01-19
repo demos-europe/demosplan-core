@@ -242,7 +242,7 @@ export default {
 
         categoryCpy.relationships.faq.data = categoryCpy.relationships.faq.data.filter(item => item.id !== this.faqItem.id)
 
-        this.updateCategory({ ...categoryCpy, id: categoryCpy.id, group: null })
+        this.updateCategory({ ...categoryCpy, id: categoryCpy.id })
 
         const deleteAction = () => {
           return this.deleteFaq(this.faqItem.id).then(() => {
