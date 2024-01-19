@@ -318,10 +318,14 @@ export default {
         }
       }
 
-      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: this.statementId }), {}, { data: payload })
-        .then(() => {
-          dplan.notify.notify('confirm', Translator.trans('confirm.entry.deleted'))
-        })
+      const options = {
+        messages: {
+          200: { type: 'confirm', text: 'confirm.entry.deleted' },
+          400: { type: 'error', text: 'error.entry.deleted' }
+        }
+      }
+
+      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: this.statementId }), {}, { data: payload }, options)
         .catch((e) => console.error(e))
       this.resetFormFields()
     },
