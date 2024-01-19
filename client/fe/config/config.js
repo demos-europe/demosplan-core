@@ -7,7 +7,6 @@
  * All rights reserved
  */
 
-const glob = require('glob')
 const path = require('path')
 
 class Config {
@@ -40,24 +39,16 @@ class Config {
     const clientBundlesPath = path.resolve(__dirname, this.relativeRoot) + '/client/js/bundles'
     this.clientBundleGlob = clientBundlesPath + '/**/*.js'
 
-    this.cssPurge = {
-      /**
-       * Especially when larger changes to either this config, or the set of available css classes
-       * are made, it may be advisable to set PurgeCSS to always run. Under normal circumstances,
-       * this enabled flag should typically just be `enabled: this.isProduction`.
-       */
-      enabled: true,
-      paths: [
-        `projects/${project}/**/*.vue`,
-        `projects/${project}/**/*.html.twig`,
-        'templates/**/*.html.twig',
-        'demosplan/**/*.vue',
-        'demosplan/**/*.js',
-        'demosplan/**/*.js.twig',
-        'client/**/*.js',
-        'client/**/*.vue',
-        ...glob.sync('node_modules/@demos-europe/demosplan-ui/dist/**/*.js', { nodir: true })
+    this.purgeCss = {
+      // These are all places where purgeCss will look for code which contains css selectors.
+      content: [
+        'addons/vendor/demos-europe/demosplan-addon-*/client/**/*.{js,vue}',
+        'client/**/*.{js,vue}',
+        '{demosplan,templates}/**/*.html.twig',
+        'node_modules/@demos-europe/demosplan-ui/dist/**/*.js',
+        `projects/${project}/**/*.{vue,html.twig}`
       ],
+      // These are css selectors that may be generated dynamically, or otherwise go unnoticed.
       safelist: {
         standard: [
           /-(leave|enter|appear)(-(to|from|active)|)$/,
@@ -75,11 +66,7 @@ class Config {
           /ol-.+/,
           /plyr-.+/,
           /uppy-.+/,
-          /^color-.+/,
-          /tabs-component.*/
-        ],
-        deep: [
-          /split-statement/
+          /^color-.+/
         ],
         greedy: [
           /tooltip/,
@@ -101,12 +88,6 @@ class Config {
         'has-tooltip'
       ]
     }
-
-    /*
-     * This.staticScripts = [
-     *   'node_modules/jquery/dist/jquery.min.js'
-     * ]
-     */
   }
 }
 
