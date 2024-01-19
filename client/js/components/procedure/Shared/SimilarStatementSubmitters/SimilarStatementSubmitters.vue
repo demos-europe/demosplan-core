@@ -407,15 +407,19 @@ export default {
         attributes: this.getSimilarStatementSubmitterAttributes(index)
       }
 
-      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'SimilarStatementSubmitter', resourceId: this.listEntries[index].id }), {}, { data: payload })
+      const options = {
+        messages: {
+          200: { type: 'confirm', text: 'confirm.entry.updated' },
+          400: { type: 'error', text: 'error.entry.updated' }
+        }
+      }
+
+      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'SimilarStatementSubmitter', resourceId: this.listEntries[index].id }), {}, { data: payload }, options)
         .then(() => {
           // Update local state - similarStatementSubmitter.
           this.setSimilarStatementSubmitter(payload)
-          dplan.notify.notify('confirm', Translator.trans('confirm.entry.updated'))
         })
-        .catch(() => {
-          dplan.notify.notify('error', Translator.trans('error.entry.updated'))
-        })
+        .catch((e) => console.error(e))
     }
   },
 
