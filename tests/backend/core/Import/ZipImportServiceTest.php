@@ -31,44 +31,14 @@ class ZipImportServiceTest extends FunctionalTestCase
         parent::setUp();
         $this->sut = $this->getContainer()->get(ZipImportService::class);
         $this->testProcedure = ProcedureFactory::createOne();
-        $this->fileService = $this->getContainer()->get(FileServiceInterface::class);
-        $this->finder = Finder::create();
-    }
-
-    private function getFile($filename): ?FileInfo {
-        $currentDirectoryPath = DemosPlanPath::getTestPath('backend/core/Import');
-        $this->finder->files()->in($currentDirectoryPath)->name($filename);
-
-        if ($this->finder->hasResults()) {
-            /** @var SplFileInfo $file */
-            foreach ($this->finder as $file) {
-                if ($filename === $file->getFilename()) {
-
-//                    echo var_dump($file->getFilename());
-
-                    $fileInfo = new FileInfo(
-                        $this->fileService->createHash(),
-                        $file->getFilename(),
-                        $file->getSize(),
-                        'application/zip',
-                        $file->getPath(),
-                        $file->getRealPath(),
-                        $this->testProcedure->object()
-                    );
-                    return $fileInfo;
-                }
-            }
-        }
-
-        return null;
     }
 
     public function testCreateFileMapFromZip(): void
     {
         $splFileInfo = new SplFileInfo(
-            $this->getFile("Abwaegungstabelle_Export_Testfile.zip")->getAbsolutePath(),
+            $this->getFile('backend/core/Import', "Abwaegungstabelle_Export_Testfile.zip", 'application/zip', $this->testProcedure->object())->getAbsolutePath(),
             '',
-            $this->getFile("Abwaegungstabelle_Export_Testfile.zip")->getHash()
+            $this->getFile('backend/core/Import', "Abwaegungstabelle_Export_Testfile.zip", 'application/zip', $this->testProcedure->object())->getHash()
         );
 
         $resultArray = $this->sut->createFileMapFromZip($splFileInfo, $this->testProcedure->getId());
@@ -96,9 +66,9 @@ class ZipImportServiceTest extends FunctionalTestCase
         $this->expectException(DemosException::class);
 
         $splFileInfo = new SplFileInfo(
-            $this->getFile("Abwaegungstabelle_Export_Error_Testfile.zip")->getAbsolutePath(),
+            $this->getFile('backend/core/Import', "Abwaegungstabelle_Export_Error_Testfile.zip", 'application/zip', $this->testProcedure->object())->getAbsolutePath(),
             '',
-            $this->getFile("Abwaegungstabelle_Export_Error_Testfile.zip")->getHash()
+            $this->getFile('backend/core/Import', "Abwaegungstabelle_Export_Error_Testfile.zip", 'application/zip', $this->testProcedure->object())->getHash()
         );
 
         $resultArray = $this->sut->createFileMapFromZip($splFileInfo, $this->testProcedure->getId());
@@ -111,7 +81,7 @@ class ZipImportServiceTest extends FunctionalTestCase
         $splFileInfo = new SplFileInfo(
             '../../../../../../../..',
             '',
-            $this->getFile("Abwaegungstabelle_Export_Testfile.zip")->getHash()
+            $this->getFile('backend/core/Import', "Abwaegungstabelle_Export_Testfile.zip", 'application/zip', $this->testProcedure->object())->getHash()
         );
         $resultArray = $this->sut->createFileMapFromZip($splFileInfo, $this->testProcedure->getId());
     }
@@ -119,9 +89,9 @@ class ZipImportServiceTest extends FunctionalTestCase
     public function testExtractZipToTempFolder(): void
     {
         $splFileInfo = new SplFileInfo(
-            $this->getFile("Abwaegungstabelle_Export_Testfile.zip")->getAbsolutePath(),
+            $this->getFile('backend/core/Import', "Abwaegungstabelle_Export_Testfile.zip", 'application/zip', $this->testProcedure->object())->getAbsolutePath(),
             '',
-            $this->getFile("Abwaegungstabelle_Export_Testfile.zip")->getHash()
+            $this->getFile('backend/core/Import', "Abwaegungstabelle_Export_Testfile.zip", 'application/zip', $this->testProcedure->object())->getHash()
         );
 
         $result = $this->sut->extractZipToTempFolder($splFileInfo, $this->testProcedure->getId());
@@ -140,7 +110,7 @@ class ZipImportServiceTest extends FunctionalTestCase
         $splFileInfo = new SplFileInfo(
             '../../../../../../../..',
             '',
-            $this->getFile("Abwaegungstabelle_Export_Testfile.zip")->getHash()
+            $this->getFile('backend/core/Import', "Abwaegungstabelle_Export_Testfile.zip", 'application/zip', $this->testProcedure->object())->getHash()
         );
 
         $result = $this->sut->extractZipToTempFolder($splFileInfo, $this->testProcedure->getId());
@@ -152,7 +122,7 @@ class ZipImportServiceTest extends FunctionalTestCase
 
         $result = $this->sut->getStatementAttachmentImportDir(
             $this->testProcedure->getId(),
-            $this->getFile("Abwaegungstabelle_Export_Testfile.zip")->getFileName(),
+            $this->getFile('backend/core/Import', "Abwaegungstabelle_Export_Testfile.zip", 'application/zip', $this->testProcedure->object())->getFileName(),
             $user
         );
 
