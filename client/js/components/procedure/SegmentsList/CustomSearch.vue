@@ -17,6 +17,7 @@
         @enter="$emit('search', currentSearchTerm)" />
       <dp-flyout
         align="left"
+        data-cy="customSearch:searchCustomLimitFields"
         class="u-top-0 u-right-0 absolute"
         :has-menu="false"
         :padded="false">
