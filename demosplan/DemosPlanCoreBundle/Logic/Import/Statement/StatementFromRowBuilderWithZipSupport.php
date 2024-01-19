@@ -46,7 +46,7 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
     protected function handleOriginalFileReferences(): ?ConstraintViolationListInterface
     {
         // early return in case no file-reference is found
-        $cellValue = $this->originalFileReferences->getValue();
+        $cellValue = $this->originalFileReferences->getValue() || null;
         if (null === $cellValue || '' === $cellValue) {
             return null;
         }
@@ -82,7 +82,7 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
         return null;
     }
 
-    public function setOriginalFileReferences(Cell $cell): ?ConstraintViolationListInterface
+    public function setOriginalFileReferences(?Cell $cell): ?ConstraintViolationListInterface
     {
         $this->originalFileReferences = $cell;
 
@@ -92,7 +92,7 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
     protected function handleFileReferences(): ?ConstraintViolationListInterface
     {
         // early return in case no file-reference is found
-        $cellValue = $this->fileReferences->getValue();
+        $cellValue = $this->fileReferences->getValue() || null;
         if (!is_string($cellValue)) {
             throw new InvalidArgumentException('Value of Cell should be String');
         }
@@ -244,7 +244,7 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
         return $this->baseStatementFromRowBuilder->setNumberOfAnonymVotes($cell);
     }
 
-    public function setFileReferences(Cell $cell): ?ConstraintViolationListInterface
+    public function setFileReferences(?Cell $cell): ?ConstraintViolationListInterface
     {
         $this->fileReferences = $cell;
 
