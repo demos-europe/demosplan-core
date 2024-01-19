@@ -91,6 +91,9 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
     {
         // early return in case no file-reference is found
         $cellValue = $this->fileReferences->getValue();
+        if (!is_string($cellValue)) {
+            return null;
+        }
         if (null === $cellValue || '' === $cellValue) {
             return null;
         }
