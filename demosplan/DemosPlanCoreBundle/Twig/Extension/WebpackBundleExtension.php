@@ -59,6 +59,7 @@ class WebpackBundleExtension extends ExtensionBase
 
     /**
      * Initially load manifests.
+     *
      * @throws JsonException
      */
     private function loadManifests(): void
@@ -70,7 +71,7 @@ class WebpackBundleExtension extends ExtensionBase
         // the $dplanManifest equivalents which leads to resolve errors in the frontend.
         $cssIdentifier = '.css';
         $trimmedStylesManifest = array_filter($stylesManifest, function ($key, $value) use ($cssIdentifier) {
-            return (str_contains($key, $cssIdentifier)) && (str_contains($value, $cssIdentifier));
+            return str_contains($key, $cssIdentifier) && str_contains($value, $cssIdentifier);
         }, ARRAY_FILTER_USE_BOTH);
 
         $this->dplanManifest = array_merge($dplanManifest, $trimmedStylesManifest);
@@ -114,7 +115,7 @@ class WebpackBundleExtension extends ExtensionBase
         $this->loadManifestsIfRequired();
 
         return collect($bundles)->map(
-            fn($bundleName) => $this->webpackBundle($bundleName, $legacy)
+            fn ($bundleName) => $this->webpackBundle($bundleName, $legacy)
         )
             ->implode("\n");
     }
@@ -192,8 +193,8 @@ class WebpackBundleExtension extends ExtensionBase
     }
 
     /**
-     * @param string $manifest
      * @return array<string,string> A webpack manifest
+     *
      * @throws JsonException
      */
     protected function loadManifest(string $manifest): array
@@ -229,10 +230,10 @@ ERR);
         return collect($this->$manifest)
             ->keys()
             ->filter(
-                static fn($possibleBundleName) => str_contains((string) $possibleBundleName, $bundleName)
+                static fn ($possibleBundleName) => str_contains((string) $possibleBundleName, $bundleName)
             )
             ->map(
-                fn($relatedBundleName) => $this->{$manifest}[$relatedBundleName]
+                fn ($relatedBundleName) => $this->{$manifest}[$relatedBundleName]
             );
     }
 
