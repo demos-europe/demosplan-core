@@ -320,6 +320,11 @@ class StatementFromRowBuilder extends AbstractStatementFromRowBuilder
         return $newOriginalStatement;
     }
 
+    public function resetStatement(): StatementInterface|ConstraintViolationListInterface
+    {
+        return $this->statement = new Statement();
+    }
+
     /**
      * Handles three cases
      * * empty cell: use the current date

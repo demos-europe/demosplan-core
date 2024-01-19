@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
@@ -255,5 +256,10 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
         $this->handleOriginalFileReferences();
 
         return $this->baseStatementFromRowBuilder->buildStatementAndReset();
+    }
+
+    public function resetStatement(): StatementInterface|ConstraintViolationListInterface
+    {
+        return $this->statement = new Statement();
     }
 }
