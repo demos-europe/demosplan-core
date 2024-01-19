@@ -245,8 +245,8 @@ class FunctionalTestCase extends WebTestCase
         }
         $entityDate = strtotime(date('Y-m-d', $timestamp));
 
-        return $this->isTimestamp($timestamp) &&
-            $currentDate == $entityDate;
+        return $this->isTimestamp($timestamp)
+            && $currentDate == $entityDate;
     }
 
     /**
@@ -258,10 +258,10 @@ class FunctionalTestCase extends WebTestCase
      */
     public function isTimestamp($timestamp)
     {
-        return null !== $timestamp &&
-                is_numeric($timestamp) &&
-                !is_string($timestamp) &&
-                (0 < $timestamp);
+        return null !== $timestamp
+                && is_numeric($timestamp)
+                && !is_string($timestamp)
+                && (0 < $timestamp);
     }
 
     /**
@@ -681,9 +681,6 @@ class FunctionalTestCase extends WebTestCase
      * indirectly via public methods.
      *
      * @param array{class-string|object,string} $classAndMethod
-     * @param mixed $args
-     *
-     * @return mixed
      *
      * @throws ReflectionException
      */
@@ -697,7 +694,8 @@ class FunctionalTestCase extends WebTestCase
         return $method->invoke($this->sut, ...$args);
     }
 
-    protected function getFile($testPath, $filename, $contentType, $procedure): ?FileInfo {
+    protected function getFile($testPath, $filename, $contentType, $procedure): ?FileInfo
+    {
         $fileService = $this->getContainer()->get(FileServiceInterface::class);
         $finder = Finder::create();
         $currentDirectoryPath = DemosPlanPath::getTestPath($testPath);
@@ -707,8 +705,7 @@ class FunctionalTestCase extends WebTestCase
             /** @var SplFileInfo $file */
             foreach ($finder as $file) {
                 if ($filename === $file->getFilename()) {
-
-//                    echo var_dump($file->getFilename());
+                    //                    echo var_dump($file->getFilename());
 
                     $fileInfo = new FileInfo(
                         $fileService->createHash(),
@@ -719,6 +716,7 @@ class FunctionalTestCase extends WebTestCase
                         $file->getRealPath(),
                         $procedure
                     );
+
                     return $fileInfo;
                 }
             }
