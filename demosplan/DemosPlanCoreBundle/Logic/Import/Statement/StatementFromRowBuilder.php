@@ -320,7 +320,7 @@ class StatementFromRowBuilder extends AbstractStatementFromRowBuilder
         return $newOriginalStatement;
     }
 
-    public function resetStatement(): StatementInterface|ConstraintViolationListInterface
+    public function resetStatement(): StatementInterface
     {
         return $this->statement = new Statement();
     }

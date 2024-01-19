@@ -93,9 +93,6 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
     {
         // early return in case no file-reference is found
         $cellValue = $this->fileReferences->getValue() || null;
-        if (!is_string($cellValue)) {
-            throw new InvalidArgumentException('Value of Cell should be String');
-        }
         if (null === $cellValue || '' === $cellValue) {
             return null;
         }
@@ -259,7 +256,7 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
         return $this->baseStatementFromRowBuilder->buildStatementAndReset();
     }
 
-    public function resetStatement(): StatementInterface|ConstraintViolationListInterface
+    public function resetStatement(): StatementInterface
     {
         return $this->statement = new Statement();
     }
