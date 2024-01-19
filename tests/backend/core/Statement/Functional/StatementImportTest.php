@@ -137,10 +137,9 @@ class StatementImportTest extends FunctionalTestCase
         static::assertCount($countBefore + 0, $generatedStatementsAfter);
     }
 
-    //Test if the statements in the provided .xlsx file have an internID that already exists in the database. If they do, avoid importing them and ensure no error is generated.
+    // Test if the statements in the provided .xlsx file have an internID that already exists in the database. If they do, avoid importing them and ensure no error is generated.
     public function testSkipDuplicateInternalIdStatements(): void
     {
-
         $statementSpreadsheetImporter = new StatementSpreadsheetImporter(
             $this->getContainer()->get(CurrentProcedureService::class),
             $this->getContainer()->get(CurrentUserService::class),
@@ -156,11 +155,11 @@ class StatementImportTest extends FunctionalTestCase
 
         $countStatementsBeforeImport = $this->countEntries(Statement::class);
 
-        //This .xlsx file contains 2 statements that have internId ("Eingangsnummer") existing already in DB.
+        // This .xlsx file contains 2 statements that have internId ("Eingangsnummer") existing already in DB.
         $splFileInfo = new SplFileInfo(
-            $this->getFile("dde7f809d7eea51123456799cae3a3bb_intern_id.xlsx")->getAbsolutePath(),
+            $this->getFile('dde7f809d7eea51123456799cae3a3bb_intern_id.xlsx')->getAbsolutePath(),
             '',
-            $this->getFile("dde7f809d7eea51123456799cae3a3bb_intern_id.xlsx")->getHash()
+            $this->getFile('dde7f809d7eea51123456799cae3a3bb_intern_id.xlsx')->getHash()
         );
 
         $statementSpreadsheetImporter->process($splFileInfo);
@@ -169,12 +168,12 @@ class StatementImportTest extends FunctionalTestCase
         static::assertCount(0, $this->sut->getCreatedStatements());
         $generatedStatementsAfterImport = $this->getEntries(Statement::class);
 
-        //Expect same amount of statements as none were imported
+        // Expect same amount of statements as none were imported
         static::assertCount($countStatementsBeforeImport, $generatedStatementsAfterImport);
     }
 
-
-    private function getFile($filename): ?FileInfo {
+    private function getFile($filename): ?FileInfo
+    {
         $finder = Finder::create();
         $currentDirectoryPath = DemosPlanPath::getTestPath('backend/core/Statement/Functional/res');
         $finder->files()->in($currentDirectoryPath)->name($filename);
@@ -183,8 +182,6 @@ class StatementImportTest extends FunctionalTestCase
             /** @var SplFileInfo $file */
             foreach ($finder as $file) {
                 if ($filename === $file->getFilename()) {
-
-
                     $fileInfo = new FileInfo(
                         $this->fileService->createHash(),
                         $file->getFilename(),
@@ -194,6 +191,7 @@ class StatementImportTest extends FunctionalTestCase
                         $file->getRealPath(),
                         null
                     );
+
                     return $fileInfo;
                 }
             }
@@ -201,5 +199,4 @@ class StatementImportTest extends FunctionalTestCase
 
         return null;
     }
-
 }
