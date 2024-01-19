@@ -18,13 +18,22 @@ use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\AbstractStatementSpreadsheetImporter;
+use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\StatementSpreadsheetImporter;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxStatementImport;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\FunctionalTestCase;
 
 class StatementImportTest extends FunctionalTestCase
@@ -127,4 +136,70 @@ class StatementImportTest extends FunctionalTestCase
         $generatedStatementsAfter = $this->getEntries(Statement::class);
         static::assertCount($countBefore + 0, $generatedStatementsAfter);
     }
+
+    //Test if the statements in the provided .xlsx file have an internID that already exists in the database. If they do, avoid importing them and ensure no error is generated.
+    public function testSkipDuplicateInternalIdStatements(): void
+    {
+
+        $statementSpreadsheetImporter = new StatementSpreadsheetImporter(
+            $this->getContainer()->get(CurrentProcedureService::class),
+            $this->getContainer()->get(CurrentUserService::class),
+            $this->getContainer()->get(ElementsService::class),
+            $this->getContainer()->get(OrgaService::class),
+            $this->getContainer()->get(StatementCopier::class),
+            $this->getContainer()->get(StatementService::class),
+            $this->getContainer()->get(TranslatorInterface::class),
+            $this->getContainer()->get(ValidatorInterface::class),
+            $this->getContainer()->get(EntityManagerInterface::class)
+        );
+        $this->setProcedureAndLogin();
+
+        $countStatementsBeforeImport = $this->countEntries(Statement::class);
+
+        //This .xlsx file contains 2 statements that have internId ("Eingangsnummer") existing already in DB.
+        $splFileInfo = new SplFileInfo(
+            $this->getFile("dde7f809d7eea51123456799cae3a3bb_intern_id.xlsx")->getAbsolutePath(),
+            '',
+            $this->getFile("dde7f809d7eea51123456799cae3a3bb_intern_id.xlsx")->getHash()
+        );
+
+        $statementSpreadsheetImporter->process($splFileInfo);
+
+        static::assertFalse($this->sut->hasErrors());
+        static::assertCount(0, $this->sut->getCreatedStatements());
+        $generatedStatementsAfterImport = $this->getEntries(Statement::class);
+
+        //Expect same amount of statements as none were imported
+        static::assertCount($countStatementsBeforeImport, $generatedStatementsAfterImport);
+    }
+
+
+    private function getFile($filename): ?FileInfo {
+        $finder = Finder::create();
+        $currentDirectoryPath = DemosPlanPath::getTestPath('backend/core/Statement/Functional/res');
+        $finder->files()->in($currentDirectoryPath)->name($filename);
+
+        if ($finder->hasResults()) {
+            /** @var SplFileInfo $file */
+            foreach ($finder as $file) {
+                if ($filename === $file->getFilename()) {
+
+
+                    $fileInfo = new FileInfo(
+                        $this->fileService->createHash(),
+                        $file->getFilename(),
+                        $file->getSize(),
+                        'xlsx',
+                        $file->getPath(),
+                        $file->getRealPath(),
+                        null
+                    );
+                    return $fileInfo;
+                }
+            }
+        }
+
+        return null;
+    }
+
 }
