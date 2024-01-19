@@ -150,6 +150,7 @@ export default {
           this.times = response.included
           this.isLoading = false
         })
+        .catch((e) => console.error(e))
     },
 
     updateVersionHistory (entityId, entityType) {

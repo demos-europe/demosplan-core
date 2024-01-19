@@ -235,6 +235,7 @@ export default {
         })
       })
         .then(response => response)
+        .catch((e) => console.error(e))
     }
   }
 }
