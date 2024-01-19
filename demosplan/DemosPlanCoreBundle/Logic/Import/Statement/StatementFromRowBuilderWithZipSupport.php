@@ -26,9 +26,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuilder
 {
-    protected Cell $fileReferences;
+    protected ?Cell $fileReferences;
 
-    protected Cell $originalFileReferences;
+    protected ?Cell $originalFileReferences;
 
     public function __construct(
         private readonly ValidatorInterface $validator,
