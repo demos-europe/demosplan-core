@@ -575,7 +575,7 @@ export default {
       const statement = this.statementsObject[statementId]
       if (typeof statement !== 'undefined') {
         const dataToUpdate = { ...statement, ...{ relationships: { ...statement.relationships, ...{ assignee: { data: { type: 'Claim', id: this.currentUserId } } } } } }
-        this.setStatement({ ...dataToUpdate, id: statementId, group: null })
+        this.setStatement({ ...dataToUpdate, id: statementId })
 
         const payload = {
           data: {
@@ -628,7 +628,7 @@ export default {
     unclaimStatement (statementId) {
       const statement = this.statementsObject[statementId]
       const dataToUpdate = { ...statement, ...{ relationships: { ...statement.relationships, ...{ assignee: { data: { type: 'Claim', id: null } } } } } }
-      this.setStatement({ ...dataToUpdate, id: statementId, group: null })
+      this.setStatement({ ...dataToUpdate, id: statementId })
 
       const payload = {
         data: {

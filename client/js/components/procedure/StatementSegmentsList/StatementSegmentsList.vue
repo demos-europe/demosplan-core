@@ -472,7 +472,7 @@ export default {
         .then(() => {
           const dataToUpdate = this.setDataToUpdate(true)
 
-          this.setStatement({ ...dataToUpdate, id: this.statement.id, group: null })
+          this.setStatement({ ...dataToUpdate, id: this.statement.id })
           dplan.notify.notify('confirm', Translator.trans('confirm.statement.assignment.assigned'))
         })
         .catch((err) => {
@@ -665,7 +665,7 @@ export default {
         .then(() => {
           const dataToUpdate = this.setDataToUpdate()
 
-          this.setStatement({ ...dataToUpdate, id: this.statement.id, group: null })
+          this.setStatement({ ...dataToUpdate, id: this.statement.id })
           dplan.notify.notify('confirm', Translator.trans('confirm.statement.assignment.unassigned'))
         })
         .catch((err) => {
