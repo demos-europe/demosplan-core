@@ -99,8 +99,7 @@
 import {
   dpApi,
   DpLoading,
-  dpRpc,
-  handleResponseMessages
+  dpRpc
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { v4 as uuid } from 'uuid'
@@ -253,10 +252,7 @@ export default {
             currentUserId: this.currentUserId
           }))
         })
-        .catch(error => {
-          console.log(error)
-          handleResponseMessages(error.response.data.meta)
-        })
+        .catch((e) => console.error(e))
         .then(() => { this.loading = false })
     },
 
