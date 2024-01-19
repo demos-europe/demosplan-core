@@ -523,6 +523,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             ->select('statement.internId')
             ->from(Statement::class, 'statement')
             ->where('statement.procedure = :procedureId')
+            ->andWhere('statement.internId IS NOT NULL')
             ->setParameter('procedureId', $procedureId)
             ->getQuery();
         $internIds = array_column($query->getScalarResult(), 'internId');
