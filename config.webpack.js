@@ -27,7 +27,8 @@ const baseConfig = {
   context: config.absoluteRoot,
   output: {
     filename: './[name].[contenthash:6].js',
-    chunkFilename: './[name].[contenthash:6].js'
+    chunkFilename: './[name].[contenthash:6].js',
+    clean: true
   },
   devtool: (config.isProduction) ? false : 'eval',
   plugins: (() => {
@@ -122,7 +123,19 @@ const stylesConfig = merge(baseConfig, {
   },
   output: {
     path: config.projectRoot + '/web/js/bundles',
-    publicPath: config.urlPathPrefix + '/js/bundles/'
+    publicPath: config.urlPathPrefix + '/js/bundles/',
+    clean: {
+      /*
+       * As the styles are emitted into the same output directory as
+       * JS assets, we want tp prevent the "clean" option from erasing
+       * everything. Instead, only style.[hash].js and style-public.[hash].js
+       * should be replaced.
+       * See https://webpack.js.org/configuration/output/#outputclean
+       */
+      keep (asset) {
+        return !/style\.|style-public\./.test(asset)
+      }
+    }
   },
   devtool: (config.isProduction) ? false : 'eval',
   optimization: optimization(),
