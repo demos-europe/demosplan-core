@@ -322,9 +322,7 @@ export default {
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.entry.deleted'))
         })
-        .catch(() => {
-          dplan.notify.notify('error', Translator.trans('error.entry.deleted'))
-        })
+        .catch((e) => console.error(e))
       this.resetFormFields()
     },
 

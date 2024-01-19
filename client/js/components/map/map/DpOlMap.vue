@@ -333,6 +333,7 @@ export default {
         url: Routing.generate(this.mapOptionsRoute, { procedureId: this.procedureId })
       })
         .then(response => response.data.attributes)
+        .catch((e) => console.error(e))
     },
 
     panToCoordinate (coordinate) {

@@ -176,8 +176,9 @@ export default {
           this.actions.setEnabled.success = (hasOwnProp(response, 0) && hasOwnProp(response[0], 'result'))
           this.actions.setEnabled.elementsCount = (hasOwnProp(response, 0) && response[0]?.result)
         })
-        .catch(() => {
+        .catch((e) => {
           this.actions.setEnabled.success = false
+          console.error(e)
         })
         .finally(() => {
           // Always delete saved selection to ensure that no action is processed more than one time

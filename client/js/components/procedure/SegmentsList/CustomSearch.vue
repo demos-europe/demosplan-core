@@ -200,9 +200,7 @@ export default {
           })
           this.isLoading = false
         })
-        .catch(() => {
-          console.log('error')
-        })
+        .catch((e) => console.error(e))
     },
 
     setMaxHeight () {

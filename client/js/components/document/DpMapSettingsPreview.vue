@@ -404,7 +404,7 @@ export default {
           this.previousValues.planstatus = this.planstatus
           this.isPlanStatusEditing = false
         })
-        .catch(() => dplan.notify.error(Translator.trans('error.api.generic')))
+        .catch((e) => console.error(e))
     },
 
     updateIsMapEnabled () {
@@ -428,7 +428,7 @@ export default {
           this.previousValues.isMapEnabled = this.isMapEnabled
           this.isMapStatusEditing = false
         })
-        .catch(() => dplan.notify.error(Translator.trans('error.api.generic')))
+        .catch((e) => console.error(e))
     },
 
     updatePlanningArea () {
@@ -481,7 +481,7 @@ export default {
             this.planningAreaOptions = response.data.data.attributes.availablePlanningAreas
           }
         })
-        .catch(e => true)
+        .catch((e) => console.error(e))
     }
   },
 
