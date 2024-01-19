@@ -11,6 +11,7 @@
 import {
   dpApi,
   DpButton,
+  DpContextualHelp,
   DpDateRangePicker,
   DpDatetimePicker,
   DpEditor,
@@ -30,6 +31,7 @@ export default {
     AddonWrapper,
     AutoSwitchProcedurePhaseForm: () => import(/* webpackChunkName: "auto-switch-procedure-phase-form" */ '@DpJs/components/procedure/basicSettings/AutoSwitchProcedurePhaseForm'),
     DpButton,
+    DpContextualHelp,
     DpDateRangePicker,
     DpDatetimePicker,
     DpEditor,
