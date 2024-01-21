@@ -36,7 +36,7 @@ class FileController extends BaseController
     public function fileAction(FileService $fileService, string $hash)
     {
         try {
-            return $this->prepareResponseWithHash($fileService, $hash);
+            return $this->prepareResponseWithHash($fileService, $hash, true);
         } catch (Exception $e) {
             $this->getLogger()->info('Could not serve file: ', [$e]);
             throw new NotFoundHttpException();
