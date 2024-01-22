@@ -17,7 +17,9 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\AbstractStatementSpreadsheetImporter;
 use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\StatementSpreadsheetImporter;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
@@ -26,11 +28,8 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxStatementImport;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -51,9 +50,10 @@ class StatementImportTest extends FunctionalTestCase
     {
         parent::setUp();
 
+        //StatementSpreadsheetImporter is passed as parameter as AbstractStatementSpreadsheetImporter throws an error when executing the test
         $this->sut = new XlsxStatementImport(
             $this->createMock(EventDispatcherPostInterface::class),
-            $this->createMock(AbstractStatementSpreadsheetImporter::class),
+            $this->createMock(StatementSpreadsheetImporter::class),
             $this->createMock(LoggerInterface::class),
             $this->createMock(StatementRepository::class),
             $this->createMock(StatementService::class),
@@ -157,9 +157,9 @@ class StatementImportTest extends FunctionalTestCase
 
         // This .xlsx file contains 2 statements that have internId ("Eingangsnummer") existing already in DB.
         $splFileInfo = new SplFileInfo(
-            $this->getFile('dde7f809d7eea51123456799cae3a3bb_intern_id.xlsx')->getAbsolutePath(),
+            $this->getFile('backend/core/Statement/Functional/res', "dde7f809d7eea51123456799cae3a3bb_intern_id.xlsx", 'xlsx', null)->getAbsolutePath(),
             '',
-            $this->getFile('dde7f809d7eea51123456799cae3a3bb_intern_id.xlsx')->getHash()
+            $this->getFile('backend/core/Statement/Functional/res', "dde7f809d7eea51123456799cae3a3bb_intern_id.xlsx", 'xlsx', null)->getHash()
         );
 
         $statementSpreadsheetImporter->process($splFileInfo);
@@ -170,33 +170,5 @@ class StatementImportTest extends FunctionalTestCase
 
         // Expect same amount of statements as none were imported
         static::assertCount($countStatementsBeforeImport, $generatedStatementsAfterImport);
-    }
-
-    private function getFile($filename): ?FileInfo
-    {
-        $finder = Finder::create();
-        $currentDirectoryPath = DemosPlanPath::getTestPath('backend/core/Statement/Functional/res');
-        $finder->files()->in($currentDirectoryPath)->name($filename);
-
-        if ($finder->hasResults()) {
-            /** @var SplFileInfo $file */
-            foreach ($finder as $file) {
-                if ($filename === $file->getFilename()) {
-                    $fileInfo = new FileInfo(
-                        $this->fileService->createHash(),
-                        $file->getFilename(),
-                        $file->getSize(),
-                        'xlsx',
-                        $file->getPath(),
-                        $file->getRealPath(),
-                        null
-                    );
-
-                    return $fileInfo;
-                }
-            }
-        }
-
-        return null;
     }
 }
