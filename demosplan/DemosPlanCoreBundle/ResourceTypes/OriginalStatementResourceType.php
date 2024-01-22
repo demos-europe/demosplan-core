@@ -24,8 +24,6 @@ use EDT\PathBuilding\End;
  * @template-extends DplanResourceType<StatementInterface>
  *
  * @property-read ProcedureResourceType $procedure
- * @property-read StatementResourceType $statements
- * @property-read StatementResourceType $statementsCreatedFromOriginal
  * @property-read StatementResourceType $original
  * @property-read End                   $deleted
  * @property-read StatementResourceType $headStatement
@@ -67,12 +65,12 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
         ];
     }
 
-    public function isReferencable(): bool
+    public function isGetAllowed(): bool
     {
-        return true;
+        return $this->currentUser->hasPermission('feature_json_api_original_statement');
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isListAllowed(): bool
     {
         return $this->currentUser->hasPermission('feature_json_api_original_statement');
     }
@@ -80,7 +78,7 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true)->filterable(),
+            $this->createIdentifier()->readable()->filterable(),
         ];
     }
 }

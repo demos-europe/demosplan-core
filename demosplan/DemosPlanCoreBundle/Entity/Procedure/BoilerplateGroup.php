@@ -67,7 +67,7 @@ class BoilerplateGroup extends CoreEntity implements UuidEntityInterface, Boiler
     protected $procedure;
 
     /**
-     * @var Collection<int, BoilerplateInterface
+     * @var Collection<int, BoilerplateInterface>
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate", mappedBy = "group")
      *

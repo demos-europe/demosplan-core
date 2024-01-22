@@ -21,6 +21,9 @@ use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query\Expr\Join;
 use Exception;
 
+/**
+ * @template-extends CoreRepository<EntityContentChange>
+ */
 class EntityContentChangeRepository extends CoreRepository implements ImmutableObjectInterface
 {
     /**
@@ -57,8 +60,6 @@ class EntityContentChangeRepository extends CoreRepository implements ImmutableO
 
     /**
      * Get a descending list of EntityContentChange Objects.
-     *
-     * @return mixed
      *
      * @throws Exception
      */
@@ -265,7 +266,7 @@ class EntityContentChangeRepository extends CoreRepository implements ImmutableO
 
         $segments = array_merge($editedSegments, $uneditedSegments);
 
-        usort($segments, static fn(Segment $a, Segment $b): int => strcmp($a->getAssigneeId(), $b->getAssigneeId()));
+        usort($segments, static fn (Segment $a, Segment $b): int => strcmp($a->getAssigneeId(), $b->getAssigneeId()));
 
         return $segments;
     }

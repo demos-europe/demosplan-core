@@ -286,7 +286,7 @@ class ProcedureTypeServiceTest extends FunctionalTestCase
 
         /** @var ProcedureTypeResourceType $procedureTypeResourceType */
         $procedureTypeResourceType = self::$container->get(ProcedureTypeResourceType::class);
-        $procedureTypes = $procedureTypeResourceType->listEntities([], []);
+        $procedureTypes = $procedureTypeResourceType->getEntities([], []);
         static::assertCount($this->countEntries(ProcedureType::class), $procedureTypes);
     }
 

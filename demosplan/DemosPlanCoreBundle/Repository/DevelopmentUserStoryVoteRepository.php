@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentRelease;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentUserStory;
@@ -20,6 +21,9 @@ use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Doctrine\ORM\EntityNotFoundException;
 
+/**
+ * @template-extends FluentRepository<DevelopmentUserStoryVote>
+ */
 class DevelopmentUserStoryVoteRepository extends FluentRepository implements ArrayInterface
 {
     /**

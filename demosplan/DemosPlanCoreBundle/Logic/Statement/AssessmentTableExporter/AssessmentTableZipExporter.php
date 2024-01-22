@@ -165,7 +165,7 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
     }
 
     /**
-     * @param array<int, array<int, File> $files
+     * @param array<int, array<int, File>> $files
      *
      * @throws AssessmentTableZipExportException
      */

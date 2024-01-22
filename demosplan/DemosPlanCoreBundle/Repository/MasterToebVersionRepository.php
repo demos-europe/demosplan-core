@@ -11,7 +11,11 @@
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\User\MasterToebVersion;
 
+/**
+ * @template-extends CoreRepository<MasterToebVersion>
+ */
 class MasterToebVersionRepository extends CoreRepository
 {
     /**

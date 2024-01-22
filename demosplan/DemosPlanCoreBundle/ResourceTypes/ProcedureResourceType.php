@@ -35,7 +35,7 @@ use EDT\PathBuilding\End;
  * @property-read OrgaResourceType                    $invitedOrganisations
  * @property-read OrgaResourceType                    $orga                         Do not expose! Alias usage only.
  * @property-read OrgaResourceType                    $organisation                 Do not expose! Alias usage only.
- * @property-read ProcedureTypeResourceType           $type
+ * @property-read ProcedureTypeResourceType           $procedureType
  * @property-read ProcedureUiDefinitionResourceType   $procedureUiDefinition
  * @property-read StatementFormDefinitionResourceType $statementFormDefinition
  * @property-read UserResourceType                    $authorizedUsers
@@ -153,16 +153,6 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
         ];
     }
 
-    public function isReferencable(): bool
-    {
-        return true;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
-    }
-
     protected function getProperties(): array
     {
         $external = $this->currentUser->getUser()->isPublicUser();
@@ -170,10 +160,10 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
         $owningOrganisation = $this->createToOneRelationship($this->owningOrganisation)->aliasedPath($this->orga);
         $invitedOrganisations = $this->createToManyRelationship($this->invitedOrganisations)->aliasedPath($this->organisation);
         $properties = [
-            $this->createAttribute($this->id)->readable(true)->sortable()->filterable(),
+            $this->createIdentifier()->readable()->sortable()->filterable(),
             $this->createAttribute($this->name)->readable(true, fn (Procedure $procedure): ?string => !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
                 ? $procedure->getName()
-                : null, true)->sortable()->filterable(),
+                : null)->sortable()->filterable(),
             $owningOrganisation,
             $invitedOrganisations,
         ];
@@ -185,7 +175,7 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
         }
 
         if ($this->currentUser->hasPermission('area_procedure_type_edit')) {
-            $properties[] = $this->createToOneRelationship($this->type)->readable()->sortable()->filterable();
+            $properties[] = $this->createToOneRelationship($this->procedureType)->readable()->sortable()->filterable();
             $properties[] = $this->createToOneRelationship($this->procedureUiDefinition)->readable()->sortable()->filterable();
             $properties[] = $this->createToOneRelationship($this->statementFormDefinition)->readable()->sortable()->filterable();
         }

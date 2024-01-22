@@ -20,6 +20,9 @@ use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 
+/**
+ * @template-extends CoreRepository<GdprConsent>
+ */
 class GdprConsentRepository extends CoreRepository implements ObjectInterface
 {
     /**

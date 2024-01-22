@@ -12,15 +12,15 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Facet;
 
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
 use demosplan\DemosPlanCoreBundle\ValueObject\Filters\AggregationFilterGroup;
 use demosplan\DemosPlanCoreBundle\ValueObject\Filters\AggregationFilterItem;
 use demosplan\DemosPlanCoreBundle\ValueObject\Filters\AggregationFilterType;
-use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
-use EDT\Wrapping\Contracts\AccessException;
 use Enqueue\Util\UUID;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tightenco\Collect\Support\Collection;
+use Webmozart\Assert\Assert;
 
 use function collect;
 
@@ -33,12 +33,12 @@ class FacetFactory
     }
 
     /**
-     * @param array<string, FacetInterface>                   $facetDefinitions
+     * @param array<string, FacetInterface<object>>           $facetDefinitions
      * @param array<string,array<int,array<string,mixed>>>    $aggregationBuckets
      * @param array<string,int>                               $missingResourcesSums
      * @param array<string,array<string,array<string,mixed>>> $rawFilter
      *
-     * @return array<int,AggregationFilterType>|null return an empty array if no facets exist
+     * @return array<int,AggregationFilterType> return an empty array if no facets exist
      */
     public function getFacets(array $facetDefinitions, array $aggregationBuckets, array $missingResourcesSums, array $rawFilter): array
     {
@@ -77,28 +77,18 @@ class FacetFactory
     private function createAggregationFilterGroups(GroupedFacetInterface $facetDefinition, array $itemCounts, array $rawFilter): Collection
     {
         $resourceType = $facetDefinition->getGroupsResourceType();
-        $resourceType = $this->resourceTypeProvider->requestType($resourceType)
-            ->instanceOf(ResourceTypeInterface::class)
-            ->getInstanceOrThrow();
-
-        if (!$resourceType->isAvailable()) {
-            throw AccessException::typeNotAvailable($resourceType);
-        }
+        $resourceType = $this->resourceTypeProvider->getTypeByIdentifier($resourceType);
+        Assert::isInstanceOf($resourceType, JsonApiResourceTypeInterface::class);
 
         $groupsLoadConditions = $facetDefinition->getGroupsLoadConditions();
 
         // load the groups to be shown in the facet
-        $groups = collect($resourceType->listEntities($groupsLoadConditions));
+        $groups = collect($resourceType->getEntities($groupsLoadConditions, []));
 
         // create mapping from items to their 'selected' state
         $flattedItems = $groups->flatMap(function (object $group) use ($facetDefinition): Collection {
-            $itemResourceType = $this->resourceTypeProvider->requestType($facetDefinition->getItemsResourceType())
-                ->instanceOf(ResourceTypeInterface::class)
-                ->getInstanceOrThrow();
-
-            if (!$itemResourceType->isAvailable()) {
-                throw AccessException::typeNotAvailable($itemResourceType);
-            }
+            $itemResourceType = $this->resourceTypeProvider->getTypeByIdentifier($facetDefinition->getItemsResourceType());
+            Assert::isInstanceOf($itemResourceType, JsonApiResourceTypeInterface::class);
 
             return collect($itemResourceType->listPrefilteredEntities($facetDefinition->getGroupItems($group), []));
         });
@@ -128,9 +118,9 @@ class FacetFactory
     }
 
     /**
-     * @template I
+     * @template I of object
      *
-     * @param FacetInterface<I,object>                        $facetDefinition
+     * @param FacetInterface<I>                               $facetDefinition
      * @param array<string,array<string,array<string,mixed>>> $rawFilter
      * @param Collection<int,I>                               $items
      *
@@ -168,27 +158,18 @@ class FacetFactory
     }
 
     /**
+     * @param FacetInterface<object>                          $facetDefinition
      * @param array<string,int>                               $itemCount
-     * @param array<string,bool>                              $selections mapping from the item IDs
-     *                                                                    to the boolean if the
-     *                                                                    corresponding aggregation
-     *                                                                    item is selected in the
-     *                                                                    UI
      * @param array<string,array<string,array<string,mixed>>> $rawFilter
      *
      * @return Collection<string,AggregationFilterItem>
      */
     private function createAggregationFilterRootItems(FacetInterface $facetDefinition, array $itemCount, array $rawFilter): Collection
     {
-        $itemsResourceType = $this->resourceTypeProvider->requestType($facetDefinition->getItemsResourceType())
-            ->instanceOf(ResourceTypeInterface::class)
-            ->getInstanceOrThrow();
+        $itemsResourceType = $this->resourceTypeProvider->getTypeByIdentifier($facetDefinition->getItemsResourceType());
+        Assert::isInstanceOf($itemsResourceType, JsonApiResourceTypeInterface::class);
 
-        if (!$itemsResourceType->isAvailable()) {
-            throw AccessException::typeNotAvailable($itemsResourceType);
-        }
-
-        $items = $itemsResourceType->listEntities(
+        $items = $itemsResourceType->getEntities(
             $facetDefinition->getRootItemsLoadConditions(),
             $facetDefinition->getItemsSortMethods()
         );
@@ -198,43 +179,37 @@ class FacetFactory
     }
 
     /**
-     * @template G of object
+     * @template TGroup of object
      *
-     * @param FacetInterface<object,G> $facetDefinition
-     * @param G                        $group
-     * @param array<string,int>        $itemCounts      mapping from the item IDs to the corresponding
-     *                                                  facet count
-     * @param array<string,bool>       $selections      mapping from the item IDs to the boolean if the
-     *                                                  corresponding aggregation item is selected in
-     *                                                  the UI
+     * @param GroupedFacetInterface<object, TGroup> $facetDefinition
+     * @param TGroup                                $group
+     * @param array<string,int>                     $itemCounts      mapping from the item IDs to the corresponding
+     *                                                               facet count
+     * @param array<string,bool>                    $selections      mapping from the item IDs to the boolean if the
+     *                                                               corresponding aggregation item is selected in
+     *                                                               the UI
      *
      * @return Collection<string,AggregationFilterItem>
      */
     private function createAggregationFilterGroupItems(FacetInterface $facetDefinition, object $group, array $itemCounts, array $selections): Collection
     {
-        $itemResourceType = $this->resourceTypeProvider->requestType($facetDefinition->getItemsResourceType())
-            ->instanceOf(ResourceTypeInterface::class)
-            ->getInstanceOrThrow();
-
-        if (!$itemResourceType->isAvailable()) {
-            throw AccessException::typeNotAvailable($itemResourceType);
-        }
-
+        $itemResourceType = $this->resourceTypeProvider->getTypeByIdentifier($facetDefinition->getItemsResourceType());
+        Assert::isInstanceOf($itemResourceType, JsonApiResourceTypeInterface::class);
         $items = $itemResourceType->listPrefilteredEntities($facetDefinition->getGroupItems($group), []);
 
         return $this->createAggregationFilterItems($facetDefinition, $items, $itemCounts, $selections);
     }
 
     /**
-     * @template I of object
+     * @template TItem of object
      *
-     * @param FacetInterface<I,object> $facetDefinition
-     * @param array<int,I>             $items
-     * @param array<string,int>        $itemCounts      mapping from the item IDs to the corresponding
-     *                                                  facet count
-     * @param array<string,bool>       $selections      mapping from the item IDs to the boolean if the
-     *                                                  corresponding aggregation item is selected in
-     *                                                  the UI
+     * @param FacetInterface<TItem> $facetDefinition
+     * @param array<int,TItem>      $items
+     * @param array<string,int>     $itemCounts      mapping from the item IDs to the corresponding
+     *                                               facet count
+     * @param array<string,bool>    $selections      mapping from the item IDs to the boolean if the
+     *                                               corresponding aggregation item is selected in
+     *                                               the UI
      *
      * @return Collection<string,AggregationFilterItem>
      */

@@ -514,7 +514,7 @@ export default {
       if (hasAnyPermissions(['feature_json_api_tag', 'area_statement_segmentation', 'feature_statements_tag'])) {
         includes.push('tags')
         statementFields.push('tags')
-        fields.Tag = 'name'
+        fields.Tag = 'title'
       }
 
       return dpApi({
@@ -604,7 +604,7 @@ export default {
             ].join(),
             StatementAttachment: [
               'file',
-              'type'
+              'attachmentType'
             ].join()
           },
           include: includes.join(',')

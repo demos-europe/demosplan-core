@@ -60,6 +60,9 @@ use function array_key_exists;
 use function array_merge;
 use function array_unique;
 
+/**
+ * @template-extends SluggedRepository<Procedure>
+ */
 class ProcedureRepository extends SluggedRepository implements ArrayInterface, ObjectInterface
 {
     /**
@@ -491,7 +494,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         // return unique and not empty values
         return collect($filesToDelete)
             ->unique()
-            ->filter(fn($value) => !is_null($value) && 0 < mb_strlen((string) $value))
+            ->filter(fn ($value) => !is_null($value) && 0 < mb_strlen((string) $value))
             ->toArray();
     }
 
@@ -499,8 +502,6 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
      * Delete single Procedure.
      *
      * @param string $procedureId
-     *
-     * @return mixed
      *
      * @throws Exception
      */

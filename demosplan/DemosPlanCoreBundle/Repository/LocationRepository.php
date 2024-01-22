@@ -23,6 +23,9 @@ use proj4php\Point;
 use proj4php\Proj;
 use proj4php\Proj4php;
 
+/**
+ * @template-extends CoreRepository<Location>
+ */
 class LocationRepository extends CoreRepository implements ImmutableObjectInterface
 {
     /**

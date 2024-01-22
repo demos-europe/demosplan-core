@@ -22,11 +22,11 @@ class PropertyUpdateAccessException extends AccessException implements PropertyU
     {
         $propertyList = implode(',', $availableProperties);
 
-        return new self("No property '$property' is available for the type '{$type::getName()}'. Available properties are: $propertyList");
+        return new self($type, "No property '$property' is available for the type '{$type->getTypeName()}'. Available properties are: $propertyList");
     }
 
-    public static function intPropertyKey(int $propertyName): self
+    public static function intPropertyKey(ResourceTypeInterface $type, int $propertyName): self
     {
-        return new self("Property name must be a string, not an integer. Received '$propertyName'.");
+        return new self($type, "Property name must be a string, not an integer. Received '$propertyName'.");
     }
 }

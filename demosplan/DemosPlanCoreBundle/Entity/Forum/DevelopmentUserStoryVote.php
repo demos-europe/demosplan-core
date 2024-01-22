@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Forum;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\DevelopmentUserStoryVoteInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -23,7 +24,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\DevelopmentUserStoryVoteRepository")
  */
-class DevelopmentUserStoryVote extends CoreEntity implements UuidEntityInterface
+class DevelopmentUserStoryVote extends CoreEntity implements UuidEntityInterface, DevelopmentUserStoryVoteInterface
 {
     /**
      * @var string|null
