@@ -391,7 +391,6 @@ export default {
         })
         .catch(() => {
           this.busy = false
-          dplan.notify.error(Translator.trans('error.api.generic'))
         })
     }
   }
