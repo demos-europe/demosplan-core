@@ -50,7 +50,7 @@ class StatementImportTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        //StatementSpreadsheetImporter is passed as parameter as AbstractStatementSpreadsheetImporter throws an error when executing the test
+        // StatementSpreadsheetImporter is passed as parameter as AbstractStatementSpreadsheetImporter throws an error when executing the test
         $this->sut = new XlsxStatementImport(
             $this->createMock(EventDispatcherPostInterface::class),
             $this->createMock(StatementSpreadsheetImporter::class),
@@ -157,9 +157,9 @@ class StatementImportTest extends FunctionalTestCase
 
         // This .xlsx file contains 2 statements that have internId ("Eingangsnummer") existing already in DB.
         $splFileInfo = new SplFileInfo(
-            $this->getFile('backend/core/Statement/Functional/res', "dde7f809d7eea51123456799cae3a3bb_intern_id.xlsx", 'xlsx', null)->getAbsolutePath(),
+            $this->getFile('backend/core/Statement/Functional/res', 'dde7f809d7eea51123456799cae3a3bb_intern_id.xlsx', 'xlsx', null)->getAbsolutePath(),
             '',
-            $this->getFile('backend/core/Statement/Functional/res', "dde7f809d7eea51123456799cae3a3bb_intern_id.xlsx", 'xlsx', null)->getHash()
+            $this->getFile('backend/core/Statement/Functional/res', 'dde7f809d7eea51123456799cae3a3bb_intern_id.xlsx', 'xlsx', null)->getHash()
         );
 
         $statementSpreadsheetImporter->process($splFileInfo);
