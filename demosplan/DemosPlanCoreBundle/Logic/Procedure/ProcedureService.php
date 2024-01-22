@@ -45,7 +45,6 @@ use demosplan\DemosPlanCoreBundle\Exception\CriticalConcernException;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
-use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
@@ -2041,7 +2040,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      * Will copy Boilerplates including related Boilerplatecategories and also copy emtpy Categories.
      *
      * @param string    $blueprintId  - The ID of the blueprint procedure
-     * @param procedure $newProcedure - The new created procedure object
+     * @param Procedure $newProcedure - The new created procedure object
      *
      * @throws Exception
      */
@@ -2319,7 +2318,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      * @param string $title       - Title of BoilerplateGroup to create
      * @param string $procedureId - Procedure which BoilerplateGroup to create belongs to
      *
-     * @return boilerplateGroup - Created BoilerplateGroup
+     * @return BoilerplateGroup - Created BoilerplateGroup
      *
      * @throws Exception
      */
