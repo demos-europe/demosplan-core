@@ -5967,16 +5967,16 @@
         },
         {
             "name": "jmikola/geojson",
-            "version": "1.1.2",
+            "version": "1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jmikola/geojson.git",
-                "reference": "3699d2be8961f2c2f20b33041b6f0608d2cf4332"
+                "reference": "e28f3855bb61a91aab32b74c176d76dd0b5658d7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jmikola/geojson/zipball/3699d2be8961f2c2f20b33041b6f0608d2cf4332",
-                "reference": "3699d2be8961f2c2f20b33041b6f0608d2cf4332",
+                "url": "https://api.github.com/repos/jmikola/geojson/zipball/e28f3855bb61a91aab32b74c176d76dd0b5658d7",
+                "reference": "e28f3855bb61a91aab32b74c176d76dd0b5658d7",
                 "shasum": ""
             },
             "require": {
@@ -6020,9 +6020,9 @@
             ],
             "support": {
                 "issues": "https://github.com/jmikola/geojson/issues",
-                "source": "https://github.com/jmikola/geojson/tree/1.1.2"
+                "source": "https://github.com/jmikola/geojson/tree/1.2.0"
             },
-            "time": "2023-02-20T01:27:38+00:00"
+            "time": "2023-12-04T17:19:43+00:00"
         },
         {
             "name": "jms/metadata",
