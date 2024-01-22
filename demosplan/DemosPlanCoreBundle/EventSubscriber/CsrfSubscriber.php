@@ -36,7 +36,7 @@ class CsrfSubscriber implements EventSubscriberInterface
         }
 
         $tokenId = $request->request->get('_token');
-        if($request->headers->has('x-csrf-token')) {
+        if ($request->headers->has('x-csrf-token')) {
             $tokenId = $request->headers->get('x-csrf-token');
         }
 
