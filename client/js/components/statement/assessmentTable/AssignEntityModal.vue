@@ -128,9 +128,7 @@ export default {
 
       //  Fire action from store
       this.$store.dispatch(`${this.entityType}/setAssigneeAction`, this.actionParams)
-        .catch(() => {
-          dplan.notify.notify('error', Translator.trans('error.api.generic'))
-        })
+        .catch((e) => console.error(e))
         .finally(() => {
           this.toggleModal()
           this.loading = false
