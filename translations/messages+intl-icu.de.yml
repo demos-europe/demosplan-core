@@ -1237,6 +1237,7 @@ error.save.email: "Die E-Mail-Adresse konnte nicht gespeichert werden."
 error.save.organisation: "Leider ist beim Speichern der Organisation {organisationName} ein Fehler aufgetreten."
 error.save.organisation.slug.bulk: "Der gleiche Direktlink zu Verfahren kann nicht für mehrere Organisationen verwendet werden"
 error.savedFilterSet.deleted: "Die Filterkombination konnte nicht gelöscht werden."
+error.split_statement.segments: "Aufgrund von fehlerhaften Daten können keine von KI vorgeschlagenenen Abschnitte angezeigt werden."
 error.statement.anonymize: "Ihre Daten konnten nicht von der Stellungnahme {externId} entfernt werden."
 error.statement.already.segmented: "Diese Stellungnahme wurde bereits aufgeteilt"
 error.statement.assignment.assigned: "Die Stellungnahme konnte nicht erfolgreich zugewiesen werden."
@@ -4002,6 +4003,7 @@ warning.statement.delete: |
         =1 { Eine Stellungnahme wurde nicht gefunden. Wurde sie möglicherweise bereits gelöscht?}
         other { # Stellungnahmen wurden nicht gefunden. Wurden sie möglicherweise bereits gelöscht?}
     }
+warning.statement.in.segmentation.cannot.be.edited: "Der Stellungnahmetext kann nicht mehr bearbeitet werden, da die Stellungnahme bereits aufgeteilt wird."
 warning.statement.move: "Stellungnahme konnte nicht verschoben werden."
 warning.statement.needLock.generic: "Diese Stellungnahme ist zur Zeit in Bearbeitung. Um sie zu bearbeiten, müssen Sie diese zunächst für sich beanspruchen."
 warning.statement.needLock: "Die Stellungnahme {externId} ist zur Zeit niemandem zugewiesen. Um Ihre Änderungen speichern zu können, müssen Sie die Bearbeitung zunächst für sich beanspruchen."

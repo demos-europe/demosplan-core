@@ -12,45 +12,19 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use const DEBUG_BACKTRACE_IGNORE_ARGS;
-
 use demosplan\DemosPlanCoreBundle\Exception\ValueObjectException;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 use EDT\Querying\Contracts\PaginationException;
 use EDT\Querying\Contracts\PathException;
-use EDT\Querying\Contracts\PropertyAccessorInterface;
 use EDT\Querying\Contracts\SortException;
-use EDT\Querying\Utilities\ConditionEvaluator;
-use EDT\Wrapping\Contracts\Types\TransferableTypeInterface;
-use EDT\Wrapping\Utilities\PropertyReader;
 use EDT\Wrapping\WrapperFactories\WrapperObject;
-use EDT\Wrapping\WrapperFactories\WrapperObjectFactory;
 
 use function strlen;
 
+use const DEBUG_BACKTRACE_IGNORE_ARGS;
+
 class TwigableWrapperObject extends WrapperObject
 {
-    protected object $backingObject;
-
-    public function __construct(
-        object $object,
-        PropertyReader $propertyReader,
-        TransferableTypeInterface $type,
-        PropertyAccessorInterface $propertyAccessor,
-        ConditionEvaluator $conditionEvaluator,
-        WrapperObjectFactory $wrapperFactory
-    ) {
-        parent::__construct(
-            $object,
-            $propertyReader,
-            $type,
-            $propertyAccessor,
-            $conditionEvaluator,
-            $wrapperFactory
-        );
-        $this->backingObject = $object;
-    }
-
     /**
      * @return mixed|void|null
      *

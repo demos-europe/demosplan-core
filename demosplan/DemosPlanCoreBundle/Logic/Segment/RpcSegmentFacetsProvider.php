@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
+use DemosEurope\DemosplanAddon\Contracts\ApiRequest\JsonApiEsServiceInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
@@ -63,8 +64,8 @@ class RpcSegmentFacetsProvider implements RpcMethodSolverInterface
                     : $searchPhrase;
 
                 $searchParams = SearchParams::createOptional([
-                    'value'         => $searchPhrase,
-                    'facetKeys'     => [$facetKey => $facetKey],
+                    JsonApiEsServiceInterface::VALUE      => $searchPhrase,
+                    JsonApiEsServiceInterface::FACET_KEYS => [$facetKey => $facetKey],
                 ]);
                 $apiListResult = $this->jsonApiActionService->searchObjects(
                     $this->segmentResourceType,

@@ -413,7 +413,7 @@ area_search_submitter_in_procedures:
         Planners may need to find all statements of a person in all (or some) procedures they have access to.
         There already was a search tool to find statements in a specific procedure
         by different criteria, including the submitters name. To keep the implementation
-        simple (and not duplicate the procedure specific search) this new search over multiple procuderes is limited
+        simple (and not duplicate the procedure specific search) this new search over multiple procedures is limited
         to the submitters name and will not result in a list of statements but in a list
         of procedures where the submitter name was found in a statement. The user can then
         search in each listed procedure using the procedure specific search to get the actual statements.
@@ -2304,7 +2304,7 @@ feature_user_delete:
     label: 'delete user'
     loginRequired: true
 feature_user_edit:
-    description: 'allows the user to create a new user'
+    description: 'allows the user to edit a user'
     expose: true
     label: 'edit user'
     loginRequired: true

@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateCategory;
@@ -25,6 +26,9 @@ use Doctrine\ORM\ORMException;
 use Exception;
 use InvalidArgumentException;
 
+/**
+ * @template-extends FluentRepository<Boilerplate>
+ */
 class BoilerplateRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
     /**

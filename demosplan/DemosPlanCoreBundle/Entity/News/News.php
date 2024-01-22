@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\News;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\NewsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\AllRolesInGroupPresentConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\DateInFutureConstraint;
@@ -29,7 +30,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\NewsRepository")
  */
-class News extends CoreEntity implements UuidEntityInterface
+class News extends CoreEntity implements UuidEntityInterface, NewsInterface
 {
     final public const MANUAL_SORT_NAMESPACE = 'news';
     final public const NEW_PROCEDURE_NEWS_VALIDATION_GROUP = 'newProcedureNews';
@@ -601,9 +602,6 @@ class News extends CoreEntity implements UuidEntityInterface
         $this->determinedToSwitch = $determinedToSwitch;
     }
 
-    /**
-     * @return bool
-     */
     public function getDesignatedState(): ?bool
     {
         return $this->designatedState;

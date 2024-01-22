@@ -27,11 +27,10 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use Doctrine\ORM\NoResultException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\Querying\Utilities\Reindexer;
 use Exception;
 use LogicException;
 use RuntimeException;
@@ -40,7 +39,10 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Tightenco\Collect\Support\Collection;
 
-class UserRepository extends FluentRepository implements ArrayInterface, ObjectInterface, PasswordUpgraderInterface
+/**
+ * @template-extends CoreRepository<User>
+ */
+class UserRepository extends CoreRepository implements ArrayInterface, ObjectInterface, PasswordUpgraderInterface
 {
     /**
      * Number of seconds to cache the login list in dev mode.
@@ -52,9 +54,10 @@ class UserRepository extends FluentRepository implements ArrayInterface, ObjectI
         DqlConditionFactory $dqlConditionFactory,
         ManagerRegistry $registry,
         SortMethodFactory $sortMethodFactory,
+        Reindexer $reindexer,
         string $entityClass
     ) {
-        parent::__construct($dqlConditionFactory, $registry, $sortMethodFactory, $entityClass);
+        parent::__construct($dqlConditionFactory, $registry, $reindexer, $sortMethodFactory, $entityClass);
     }
 
     /**
@@ -461,7 +464,7 @@ class UserRepository extends FluentRepository implements ArrayInterface, ObjectI
             /** @var User $user */
             $user = $this->find($userId);
 
-//          wipeData:
+            //          wipeData:
             $user->setGender(null);
             $user->setTitle(null);
             $user->setFirstname(null);

@@ -31,7 +31,6 @@ class VirusCheckRabbitmq implements VirusCheckInterface
     ) {
     }
 
-
     public function hasVirus(File $file): bool
     {
         $payload = [
@@ -65,7 +64,6 @@ class VirusCheckRabbitmq implements VirusCheckInterface
             }
 
             $this->logger->warning('File could not be checked. Response: '.DemosPlanTools::varExport($replies, true));
-
         } catch (AMQPTimeoutException $e) {
             $this->logger->error('Error in virusCheck:', [$e]);
             throw new TimeoutException($e->getMessage());

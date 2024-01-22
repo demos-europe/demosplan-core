@@ -17,13 +17,18 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use EDT\ConditionFactory\ConditionFactoryInterface;
+use EDT\ConditionFactory\ConditionGroupFactoryInterface;
 use EDT\Querying\Contracts\FunctionInterface;
 use Psr\Log\LoggerInterface;
 
 class OwnsProcedureConditionFactory
 {
-    public function __construct(private readonly ConditionFactoryInterface $conditionFactory, private readonly GlobalConfigInterface $globalConfig, private readonly LoggerInterface $logger, private readonly Procedure $procedure)
-    {
+    public function __construct(
+        private readonly ConditionFactoryInterface&ConditionGroupFactoryInterface $conditionFactory,
+        private readonly GlobalConfigInterface $globalConfig,
+        private readonly LoggerInterface $logger,
+        private readonly Procedure $procedure
+    ) {
     }
 
     /**

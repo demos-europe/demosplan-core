@@ -12,22 +12,18 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableDqlResourceTypeInterface;
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
-use DemosEurope\DemosplanAddon\Logic\ResourceChange;
+use DemosEurope\DemosplanAddon\Contracts\Events\BeforeResourceCreateFlushEvent;
 use demosplan\DemosPlanCoreBundle\Entity\User\SupportContact;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanCoreBundle\Logic\EmailAddressService;
+use demosplan\DemosPlanCoreBundle\Repository\EmailAddressRepository;
+use demosplan\DemosPlanCoreBundle\Repository\SupportContactRepository;
+use EDT\JsonApi\RequestHandling\ModifiedEntity;
 use EDT\PathBuilding\End;
+use EDT\Wrapping\CreationDataInterface;
+use Exception;
 use Webmozart\Assert\Assert;
 
 /**
- * @template-implements UpdatableDqlResourceTypeInterface<SupportContact>
- * @template-implements CreatableDqlResourceTypeInterface<SupportContact>
- * @template-implements DeletableDqlResourceTypeInterface<SupportContact>
- *
  * @template-extends DplanResourceType<SupportContact>
  *
  * @property-read End                      $supportType
@@ -38,32 +34,36 @@ use Webmozart\Assert\Assert;
  * @property-read End                      $eMailAddress
  * @property-read CustomerResourceType     $customer
  */
-class CustomerContactResourceType extends DplanResourceType implements CreatableDqlResourceTypeInterface, DeletableDqlResourceTypeInterface, UpdatableDqlResourceTypeInterface
+class CustomerContactResourceType extends DplanResourceType
 {
     public function __construct(
-        protected readonly EmailAddressService $emailAddressService
+        protected readonly EmailAddressRepository $emailAddressRepository,
+        protected readonly SupportContactRepository $supportContactRepository
     ) {
     }
 
     protected function getProperties(): array
     {
         $properties = [
-            $this->createAttribute($this->id)->readable(true),
-            $this->createAttribute($this->title)->readable()->initializable(),
-            $this->createAttribute($this->phoneNumber)->readable()->initializable(),
-            $this->createAttribute($this->text)->readable()->initializable(),
-            $this->createAttribute($this->eMailAddress)->readable()->initializable(),        ];
+            $this->createIdentifier()->readable(),
+            $this->createAttribute($this->title)->readable()->updatable()->initializable(),
+            $this->createAttribute($this->phoneNumber)->readable()->updatable()->initializable(),
+            $this->createAttribute($this->text)->readable()->updatable()->initializable(),
+            $this->createAttribute($this->eMailAddress)
+                ->readable()
+                ->updatable()
+                ->initializable(),
+        ];
 
         if ($this->hasManagementPermission()) {
-            $properties[] = $this->createAttribute($this->visible)->readable()->filterable()->initializable();
+            $properties[] = $this->createAttribute($this->visible)
+                ->readable()
+                ->updatable()
+                ->filterable()
+                ->initializable();
         }
 
         return $properties;
-    }
-
-    public function isReferencable(): bool
-    {
-        return true;
     }
 
     protected function getAccessConditions(): array
@@ -101,111 +101,84 @@ class CustomerContactResourceType extends DplanResourceType implements Creatable
         return true;
     }
 
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
-    }
-
     public static function getName(): string
     {
         return 'CustomerContact';
     }
 
-    public function createObject(array $properties): ResourceChange
+    public function createEntity(CreationDataInterface $entityData): ModifiedEntity
     {
-        $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
+        try {
+            return $this->getTransactionService()->executeAndFlushInTransaction(
+                function () use ($entityData): ModifiedEntity {
+                    $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
+                    $attributes = $entityData->getAttributes();
 
-        // create support contact
-        $contact = new SupportContact(
-            SupportContact::SUPPORT_CONTACT_TYPE_DEFAULT,
-            $properties[$this->title->getAsNamesInDotNotation()],
-            $properties[$this->phoneNumber->getAsNamesInDotNotation()],
-            $properties[$this->eMailAddress->getAsNamesInDotNotation()],
-            $properties[$this->text->getAsNamesInDotNotation()],
-            $currentCustomer,
-            $properties[$this->visible->getAsNamesInDotNotation()],
-        );
+                    // create support contact
+                    $contact = new SupportContact(
+                        SupportContact::SUPPORT_CONTACT_TYPE_DEFAULT,
+                        $attributes[$this->title->getAsNamesInDotNotation()],
+                        $attributes[$this->phoneNumber->getAsNamesInDotNotation()],
+                        $attributes[$this->eMailAddress->getAsNamesInDotNotation()],
+                        $attributes[$this->text->getAsNamesInDotNotation()],
+                        $currentCustomer,
+                        $attributes[$this->visible->getAsNamesInDotNotation()],
+                    );
 
-        // update customer
-        $currentCustomer->getContacts()->add($contact);
+                    // update customer
+                    $currentCustomer->getContacts()->add($contact);
 
-        // validate entities
-        $this->resourceTypeService->validateObject($contact);
-        $this->resourceTypeService->validateObject($currentCustomer);
+                    // validate entities
+                    $this->resourceTypeService->validateObject($contact);
+                    $this->resourceTypeService->validateObject($currentCustomer);
 
-        // build resource change
-        $change = new ResourceChange($contact, $this, $properties);
-        $change->addEntityToPersist($contact);
+                    // persist created entities
+                    $this->supportContactRepository->persistEntities([$contact]);
 
-        return $change;
+                    $this->eventDispatcher->dispatch(new BeforeResourceCreateFlushEvent($this, $contact));
+
+                    return new ModifiedEntity($contact, []);
+                }
+            );
+        } catch (Exception $exception) {
+            $this->addCreationErrorMessage([]);
+
+            throw $exception;
+        }
     }
 
-    public function isCreatable(): bool
+    public function isCreateAllowed(): bool
     {
         return $this->hasManagementPermission();
     }
 
-    /**
-     * @param SupportContact $entity
-     */
-    public function delete(object $entity): ResourceChange
+    public function deleteEntity(string $entityIdentifier): void
     {
-        $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
-        Assert::same($entity->getCustomer(), $currentCustomer);
+        $this->getTransactionService()->executeAndFlushInTransaction(
+            function () use ($entityIdentifier) {
+                $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
+                $entity = $this->getEntity($entityIdentifier);
+                Assert::same($entity->getCustomer(), $currentCustomer);
+                $currentCustomer->getContacts()->removeElement($entity);
+                $this->resourceTypeService->validateObject($currentCustomer);
 
-        $currentCustomer->getContacts()->removeElement($entity);
-        $this->resourceTypeService->validateObject($currentCustomer);
-
-        $change = new ResourceChange($entity, $this, []);
-        $change->addEntityToDelete($entity);
-
-        return $change;
-    }
-
-    public function getRequiredDeletionPermissions(): array
-    {
-        return ['feature_customer_support_contact_administration'];
-    }
-
-    public function getUpdatableProperties(object $updateTarget): array
-    {
-        if (!$this->hasManagementPermission()) {
-            return [];
-        }
-
-        return $this->toProperties(
-            $this->title,
-            $this->phoneNumber,
-            $this->eMailAddress,
-            $this->text,
-            $this->visible
+                parent::deleteEntity($entityIdentifier);
+            }
         );
     }
 
-    /**
-     * @param SupportContact $contact
-     */
-    public function updateObject(object $contact, array $properties): ResourceChange
+    public function isDeleteAllowed(): bool
     {
-        $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
-        Assert::same($contact->getCustomer(), $currentCustomer);
-
-        $resourceChange = new ResourceChange($contact, $this, $properties);
-
-        $updater = new PropertiesUpdater($properties);
-        $updater->ifPresent($this->title, $contact->setTitle(...));
-        $updater->ifPresent($this->phoneNumber, $contact->setPhoneNumber(...));
-        $updater->ifPresent($this->eMailAddress, $contact->setEMailAddress(...));
-        $updater->ifPresent($this->text, $contact->setText(...));
-        $updater->ifPresent($this->visible, $contact->setVisible(...));
-
-        $this->resourceTypeService->validateObject($contact);
-
-        return $resourceChange;
+        return $this->hasManagementPermission();
     }
 
     protected function hasManagementPermission(): bool
     {
         return $this->currentUser->hasPermission('feature_customer_support_contact_administration');
+    }
+
+    public function isUpdateAllowed(): bool
+    {
+        return $this->hasManagementPermission();
     }
 }

@@ -74,12 +74,7 @@ final class FileResourceType extends DplanResourceType implements FileResourceTy
         return [$this->conditionFactory->propertyHasValue(false, $this->deleted)];
     }
 
-    public function isReferencable(): bool
-    {
-        return true;
-    }
-
-    public function isDirectlyAccessible(): bool
+    protected function isDirectlyAccessible(): bool
     {
         $event = new IsFileDirectlyAccessibleEvent();
         $this->eventDispatcher->dispatch($event, IsFileDirectlyAccessibleEventInterface::class);
@@ -90,11 +85,21 @@ final class FileResourceType extends DplanResourceType implements FileResourceTy
         );
     }
 
+    public function isGetAllowed(): bool
+    {
+        return $this->isDirectlyAccessible();
+    }
+
+    public function isListAllowed(): bool
+    {
+        return $this->isDirectlyAccessible();
+    }
+
     protected function getProperties(): array
     {
         // The 'id' property exists in File, but it is (completely?) null
         // The actual ID is stored in 'ident', hence we need to use an alias here.
-        $id = $this->createAttribute($this->id)->readable(true)->aliasedPath($this->ident);
+        $id = $this->createIdentifier()->readable()->aliasedPath($this->ident);
         $hash = $this->createAttribute($this->hash);
         $filename = $this->createAttribute($this->filename);
         $created = $this->createAttribute($this->created);

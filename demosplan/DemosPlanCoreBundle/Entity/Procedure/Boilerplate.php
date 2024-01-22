@@ -319,7 +319,7 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
     /**
      * Returns this Boilerplate's categories.
      *
-     * @return ArrayCollection[BoilerplateCategory]
+     * @return Collection<int,BoilerplateCategoryInterface>
      */
     public function getCategories()
     {

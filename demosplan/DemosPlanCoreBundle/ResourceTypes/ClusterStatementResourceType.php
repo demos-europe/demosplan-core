@@ -12,9 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigBuilder;
+use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @property-read End $assignee @deprecated refactor frontend and backend to use a relationship instead
@@ -43,14 +45,14 @@ final class ClusterStatementResourceType extends AbstractStatementResourceType
         return $this->currentUser->hasPermission('feature_statement_cluster');
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isGetAllowed(): bool
     {
         return $this->currentUser->hasPermission('area_admin_assessmenttable');
     }
 
-    public function isReferencable(): bool
+    public function isListAllowed(): bool
     {
-        return true;
+        return $this->currentUser->hasPermission('area_admin_assessmenttable');
     }
 
     public function getAccessConditions(): array
@@ -69,7 +71,7 @@ final class ClusterStatementResourceType extends AbstractStatementResourceType
             $this->conditionFactory->propertyIsNull($this->headStatement),
             // statement placeholders are not considered actual statement resources
             $this->conditionFactory->propertyIsNull($this->movedStatement),
-            $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id)
+            $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id),
         ];
     }
 
@@ -80,49 +82,39 @@ final class ClusterStatementResourceType extends AbstractStatementResourceType
         ];
     }
 
-    protected function getProperties(): array
+    protected function getProperties(): array|ResourceConfigBuilderInterface
     {
         if (!$this->currentUser->hasPermission('feature_statement_cluster')) {
-            return [
-                $this->createAttribute($this->id)->readable(true),
-            ];
+            $configBuilder = $this->getConfig(StatementResourceConfigBuilder::class);
+            $configBuilder->id->readable();
+
+            return $configBuilder;
         }
 
-        $properties = parent::getProperties();
-        $additionalProperties = [
-            $this->createAttribute($this->documentParentId)
-                ->readable(true, static fn(Statement $statement): ?string => $statement->getDocumentParentId()),
-            $this->createAttribute($this->documentTitle)
-                ->readable(true, static fn(Statement $statement): ?string => $statement->getDocumentTitle()),
-            $this->createAttribute($this->elementId)
-                ->readable(true)->aliasedPath($this->element->id),
-            $this->createAttribute($this->elementTitle)
-                ->readable(true)->aliasedPath($this->element->title),
-            $this->createAttribute($this->originalId)
-                ->readable(true)->aliasedPath($this->original->id),
-            $this->createAttribute($this->paragraphParentId)
-                ->readable(true)->aliasedPath($this->paragraph->paragraph->id),
-            $this->createAttribute($this->paragraphTitle)
-                ->readable(true)->aliasedPath($this->paragraph->title),
-            $this->createAttribute($this->assignee)
-                ->readable(true, static function (Statement $statement): ?array {
-                    $assignee = $statement->getAssignee();
-                    if (null === $assignee) {
-                        return null;
-                    }
+        /** @var StatementResourceConfigBuilder $configBuilder */
+        $configBuilder = parent::getProperties();
+        $configBuilder->documentParentId
+            ->readable(true, static fn (Statement $statement): ?string => $statement->getDocumentParentId());
+        $configBuilder->documentTitle
+            ->readable(true, static fn (Statement $statement): ?string => $statement->getDocumentTitle());
+        $configBuilder->elementId
+            ->readable(true)->aliasedPath(Paths::statement()->element->id);
+        $configBuilder->elementTitle
+            ->readable(true)->aliasedPath(Paths::statement()->element->title);
+        $configBuilder->originalId
+            ->readable(true)->aliasedPath(Paths::statement()->original->id);
+        $configBuilder->paragraphParentId
+            ->readable(true)->aliasedPath(Paths::statement()->paragraph->paragraph->id);
+        $configBuilder->paragraphTitle
+            ->readable(true)->aliasedPath(Paths::statement()->paragraph->title);
+        $configBuilder->assignee
+            ->setRelationshipType($this->resourceTypeStore->getClaimResourceType())
+            ->readable(true);
+        $configBuilder->authorName
+            ->readable(true)->filterable()->aliasedPath(Paths::statement()->meta->authorName);
+        $configBuilder->submitName
+            ->readable(true)->filterable()->sortable()->aliasedPath(Paths::statement()->meta->submitName);
 
-                    return [
-                        'id'       => $assignee->getId(),
-                        'name'     => $assignee->getName(),
-                        'orgaName' => $assignee->getOrgaName(),
-                    ];
-                }),
-            $this->createAttribute($this->authorName)
-                ->readable(true)->filterable()->aliasedPath($this->meta->authorName),
-            $this->createAttribute($this->submitName)
-                ->readable(true)->filterable()->sortable()->aliasedPath($this->meta->submitName),
-        ];
-
-        return [...$properties, ...$additionalProperties];
+        return $configBuilder;
     }
 }

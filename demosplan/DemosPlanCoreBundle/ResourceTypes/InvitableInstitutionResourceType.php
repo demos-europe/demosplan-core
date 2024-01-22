@@ -12,23 +12,17 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
-use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<Orga>
- *
- * @template-implements UpdatableDqlResourceTypeInterface<Orga>
  *
  * @property-read End                              $name
  * @property-read End                              $createdDate
@@ -37,7 +31,7 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  * @property-read UserResourceType                 $users
  * @property-read OrgaStatusInCustomerResourceType $statusInCustomers
  */
-final class InvitableInstitutionResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface
+final class InvitableInstitutionResourceType extends DplanResourceType
 {
     public static function getName(): string
     {
@@ -54,15 +48,21 @@ final class InvitableInstitutionResourceType extends DplanResourceType implement
         return true;
     }
 
-    public function isReferencable(): bool
-    {
-        return true;
-    }
-
-    public function isDirectlyAccessible(): bool
+    public function isGetAllowed(): bool
     {
         return $this->currentUser->hasPermission('feature_institution_tag_assign')
             || $this->currentUser->hasPermission('feature_institution_tag_read');
+    }
+
+    public function isListAllowed(): bool
+    {
+        return $this->currentUser->hasPermission('feature_institution_tag_assign')
+            || $this->currentUser->hasPermission('feature_institution_tag_read');
+    }
+
+    public function isUpdateAllowed(): bool
+    {
+        return $this->currentUser->hasPermission('feature_institution_tag_assign');
     }
 
     protected function getAccessConditions(): array
@@ -92,40 +92,13 @@ final class InvitableInstitutionResourceType extends DplanResourceType implement
 
     protected function getProperties(): array
     {
-        $allowedProperties = [];
-        $allowedProperties[] = $this->createAttribute($this->id)->readable(true);
+        $assignedTags = $this->createToManyRelationship($this->assignedTags);
+        $allowedProperties = [$assignedTags];
+        $allowedProperties[] = $this->createIdentifier()->readable();
 
-        if ($this->currentUser->hasPermission('feature_institution_tag_assign')
-            || $this->currentUser->hasPermission('feature_institution_tag_read')
-        ) {
-            $allowedProperties[] = $this->createAttribute($this->name)->readable(true);
-            $allowedProperties[] = $this->createAttribute($this->createdDate)->readable(true)->sortable();
-            $allowedProperties[] = $this->createToManyRelationship($this->assignedTags)->readable(true)->filterable();
-        }
-
-        return $allowedProperties;
-    }
-
-    public function getUpdatableProperties(object $updateTarget): array
-    {
-        if ($this->currentUser->hasPermission('feature_institution_tag_assign')) {
-            return $this->toProperties(
-                $this->assignedTags
-            );
-        }
-
-        return [];
-    }
-
-    /**
-     * @param Orga $institution
-     */
-    public function updateObject(object $institution, array $properties): ResourceChange
-    {
-        $updater = new PropertiesUpdater($properties);
-        $updater->ifPresent(
-            $this->assignedTags,
-            function (Collection $newAssignedTags) use ($institution): void {
+        if ($this->currentUser->hasPermission('feature_institution_tag_update')) {
+            $assignedTags->updatable([], [], function (Orga $institution, array $newAssignedTags): array {
+                $newAssignedTags = new ArrayCollection($newAssignedTags);
                 $currentlyAssignedTags = $institution->getAssignedTags();
 
                 // removed tags
@@ -149,9 +122,19 @@ final class InvitableInstitutionResourceType extends DplanResourceType implement
                 }
 
                 $this->resourceTypeService->validateObject($institution);
-            }
-        );
 
-        return new ResourceChange($institution, $this, $properties);
+                return [];
+            });
+        }
+
+        if ($this->currentUser->hasPermission('feature_institution_tag_assign')
+            || $this->currentUser->hasPermission('feature_institution_tag_read')
+        ) {
+            $allowedProperties[] = $this->createAttribute($this->name)->readable(true);
+            $allowedProperties[] = $this->createAttribute($this->createdDate)->readable(true)->sortable();
+            $assignedTags->readable(true)->filterable();
+        }
+
+        return $allowedProperties;
     }
 }

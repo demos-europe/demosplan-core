@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\EntityContentChangeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -20,7 +21,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository")
  */
-class EntityContentChange extends CoreEntity implements UuidEntityInterface
+class EntityContentChange extends CoreEntity implements UuidEntityInterface, EntityContentChangeInterface
 {
     /**
      * @var string|null

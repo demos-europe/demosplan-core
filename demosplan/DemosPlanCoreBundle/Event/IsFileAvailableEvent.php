@@ -17,7 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\Events\IsFileAvailableEventInterface;
 class IsFileAvailableEvent extends DPlanEvent implements IsFileAvailableEventInterface
 {
     /**
-     * @param bool
+     * @var bool
      */
     private $isFileAvailable = false;
 

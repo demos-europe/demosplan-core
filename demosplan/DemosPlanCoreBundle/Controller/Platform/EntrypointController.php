@@ -159,7 +159,7 @@ class EntrypointController extends BaseController
     {
         // there is in practise only one customerLoginSupport entity for each customer
         // therefore it is ok to pass the first entry of the array via reset($array)
-        $loginSupportEntities = $customerLoginSupportContactResourceType->listEntities([]);
+        $loginSupportEntities = $customerLoginSupportContactResourceType->getEntities([], []);
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanUser/login_idp_error.html.twig',

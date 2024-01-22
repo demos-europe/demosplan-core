@@ -478,7 +478,7 @@ class DocxExporter
     /**
      * @param array<int,array<string,mixed>> $statements
      *
-     * @return array<
+     * @return array<int, string>
      */
     protected function getSelectedFragmentIdsOfStatements(array $statements): array
     {
@@ -1642,7 +1642,6 @@ class DocxExporter
     }
 
     /**
-     * @param array $procedure
      * @param array $rowStyleLocation
      * @param array $cellRowContinue
      * @param Table $assessmentTable
@@ -1759,7 +1758,7 @@ class DocxExporter
      * @param array             $fStyle
      * @param array             $pStyle
      *
-     * @return Closure
+     * @return callable(string, string, string=): void
      */
     protected function containerAddTextFunctionConstructor($cell, $fStyle, $pStyle): callable
     {
@@ -1783,8 +1782,6 @@ class DocxExporter
     }
 
     /**
-     * @param StatementEntityGroup<Statement> $groupStructure
-     *
      * @throws Exception
      */
     protected function renderStatementsInGroup(
@@ -1966,8 +1963,6 @@ class DocxExporter
      * If it becomes more common accross projects it can be renamed to distinguish it from other
      * exports doing similar but nonetheless different things. Ideally the method name
      * would reflect what it does instead for whom.
-     *
-     * @param StatementEntityGroup<Statement> $groupStructure
      *
      * @throws \PhpOffice\PhpWord\Exception\Exception
      * @throws Exception

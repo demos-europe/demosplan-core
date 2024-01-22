@@ -131,7 +131,7 @@
                   :text="Translator.trans('segment.oracle.tooltip')" />
                 <dp-badge
                   v-if="activeId === 'oracleRec'"
-                  class="absolute right-12"
+                  class="absolute right-4"
                   size="smaller"
                   :text="Translator.trans('segment.oracle.beta')"
                   v-tooltip="Translator.trans('segment.oracle.beta.tooltip')" />
@@ -464,7 +464,7 @@ export default {
       if (this.segment?.relationships?.assignee?.data?.id && this.segment.relationships.assignee.data.id !== '') {
         const assignee = this.assignableUserItems[this.segment.relationships.assignee.data.id]
         const name = `${assignee.attributes.firstname} ${assignee.attributes.lastname}`
-        const orga = assignee ? Object.values(assignee.rel('orga'))[0] : ''
+        const orga = assignee ? assignee.rel('orga') : ''
 
         return { id: this.segment.relationships.assignee.data.id, name: name, orgaName: orga ? orga.attributes.name : '' }
       } else {
@@ -571,7 +571,7 @@ export default {
           }
         }
       }
-      this.setSegment({ ...dataToUpdate, id: this.segment.id, group: null })
+      this.setSegment({ ...dataToUpdate, id: this.segment.id})
 
       const payload = {
         data: {
@@ -637,7 +637,7 @@ export default {
             comments: comments
           }
         }
-        this.setSegment({ ...segmentWithComments, id: this.segment.id, group: null })
+        this.setSegment({ ...segmentWithComments, id: this.segment.id })
       }
     },
 
@@ -768,7 +768,7 @@ export default {
           // Reset recommendation text in store (segment might have been in edit mode with some changes)
           dataToUpdate.attributes.recommendation = this.$store.state.statementSegment.initial[this.segment.id].attributes.recommendation
           // Set segment in store, without the assignee and with resetted recommendation
-          this.setSegment({ ...dataToUpdate, id: this.segment.id, group: null })
+          this.setSegment({ ...dataToUpdate, id: this.segment.id })
           this.claimLoading = false
           this.selectedAssignee = { id: '', name: '' }
         })
@@ -822,12 +822,12 @@ export default {
         relationships: relations
       }
 
-      this.setSegment({ ...updated, id: this.segment.id, group: null })
+      this.setSegment({ ...updated, id: this.segment.id })
     },
 
     updateSegment (key, val) {
       const updated = { ...this.segment, ...{ attributes: { ...this.segment.attributes, ...{ [key]: val } } } }
-      this.setSegment({ ...updated, id: this.segment.id, group: null })
+      this.setSegment({ ...updated, id: this.segment.id })
     }
   },
 

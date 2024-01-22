@@ -779,7 +779,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             );
 
         /** @var Elements[] $elements */
-        $elements = $this->elementResourceType->listEntities([$condition]);
+        $elements = $this->elementResourceType->getEntities([$condition], []);
 
         foreach ($elements as $element) {
             $element->setDesignatedSwitchDate($designatedSwitchDateTime);
@@ -791,9 +791,11 @@ class ElementsService extends CoreService implements ElementsServiceInterface
     /**
      * Kopiert alle Elements (Planunterlagenkategorien) von einem Verfahren in ein anderes.
      *
+     * @return array<string, string>
+     *
      * @throws Exception
      */
-    public function copy(string $sourceProcedureId, Procedure $destinationProcedure): ?array
+    public function copy(string $sourceProcedureId, Procedure $destinationProcedure): array
     {
         $entityManager = $this->entityManager;
 

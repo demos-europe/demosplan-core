@@ -71,7 +71,7 @@ class HTMLSanitizer
             ->merge($additionalAllowedTags)
             ->flatMap(
                 // format as tags, as strip_tags() needs tags formatted as "<a>"
-                static fn($tagName) => ["<{$tagName}>"]
+                static fn ($tagName) => ["<{$tagName}>"]
             )
             ->implode('');
 
@@ -89,6 +89,8 @@ class HTMLSanitizer
         $config = HTMLPurifier_Config::createDefault();
         $config->set('HTML.DefinitionID', 'dplan purifier');
         $config->set('HTML.DefinitionRev', 1);
+        $config->set('Attr.AllowedFrameTargets', ['_blank']);
+        $config->set('Attr.AllowedRel', ['noopener noreferrer nofollow']);
         $config->set('Cache.SerializerPath', $this->cacheDirectory);
         $def = $config->maybeGetRawHTMLDefinition();
 
