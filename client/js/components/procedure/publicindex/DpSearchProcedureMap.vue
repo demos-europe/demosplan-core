@@ -12,7 +12,7 @@
     <div :class="prefixClass('c-proceduresearch__search-wrapper layout__item flex')">
       <dp-autocomplete
         v-if="dplan.settings.useOpenGeoDb"
-        data-cy="procedureSearch"
+        data-cy="searchProcedureMapForm:procedureSearch"
         name="search"
         id="procedure_search"
         :class="prefixClass('c-proceduresearch__search-field')"
@@ -49,7 +49,7 @@
 
       <button
         type="button"
-        data-cy="procedureSearchSubmit"
+        data-cy="searchProcedureMapForm:procedureSearchSubmit"
         :class="prefixClass('c-proceduresearch__search-btn btn btn--primary weight--bold')"
         @click.prevent="form.search = currentAutocompleteSearch; submitForm();">
         {{ Translator.trans('searching') }}
@@ -59,6 +59,7 @@
     <div :class="prefixClass('layout__item u-mb-0_75')">
       <button
         type="reset"
+        data-cy="searchProcedureMapForm:resetToDefault"
         :disabled="form.search === '' && isDefaultFilter"
         :class="prefixClass('c-proceduresearch__reset-btn')"
         @click.prevent="resetAndSubmit">
@@ -90,6 +91,7 @@
      --><div :class="prefixClass('layout__item u-1-of-1 u-mb')">
           <select
             id="sort"
+            data-cy="searchProcedureMapForm:sort"
             name="sort"
             :class="prefixClass('o-form__control-select')"
             @change="setValueAndSubmitForm($event, 'sort')"
@@ -164,6 +166,7 @@
             :ref="'filter_' + idx"
             :id="filter.name"
             :name="filter.name"
+            :data-cy="'searchProcedureMapForm:' + filter.name"
             :class="prefixClass('o-form__control-select')"
             @change="setValueAndSubmitForm($event, filter.name)">
             <option value="">

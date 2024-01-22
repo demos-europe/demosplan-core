@@ -159,7 +159,7 @@ export default {
      */
     claimStatement () {
       const dataToUpdate = { ...this.statement, ...{ relationships: { ...this.statement.relationships, ...{ assignee: { data: { type: 'Claim', id: this.currentUser.id } } } } } }
-      this.setStatement({ ...dataToUpdate, id: this.statementId, group: null })
+      this.setStatement({ ...dataToUpdate, id: this.statementId })
 
       const payload = {
         data: {
