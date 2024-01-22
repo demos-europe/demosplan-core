@@ -133,7 +133,7 @@ export default {
       })
         // Refetch invitable institutions list to ensure that invited institutions are not displayed anymore
         .then(() => {
-          this.getInstitutions({ procedureId: this.procedureId })
+          this.getInstitutions()
             .then(() => {
               dplan.notify.notify('confirm', Translator.trans('confirm.invitable_institutions.added'))
               this.$refs.dataTable.updateFields()
