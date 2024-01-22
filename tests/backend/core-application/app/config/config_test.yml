@@ -18,7 +18,6 @@ parameters:
     advancedsearchservice_index_name_prefix: 'core_test'
     email_bouncefile_path: "%kernel.cache_dir%"
 
-    kernel.secret: 'testsecret'
     database_name: 'test'
     database_host: ''
     database_user: ''

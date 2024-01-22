@@ -34,6 +34,5 @@ framework:
 when@test:
     framework:
         test: true
-        secret: null # avoid error for unused secret during test cache clear
         session:
             storage_factory_id: session.storage.factory.mock_file
