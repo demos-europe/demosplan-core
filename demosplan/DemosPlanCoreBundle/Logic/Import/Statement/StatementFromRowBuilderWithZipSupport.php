@@ -1,7 +1,14 @@
 <?php
 
-namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
+namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
@@ -53,7 +60,7 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
         $statement = $this->baseStatementFromRowBuilder->statement;
         /** @var File $fileEntity */
         $fileEntity = $this->fileMap[$cellValue];
-        /**
+        /*
          * The statement has to be persisted now in order to get an id.
          * This id needs to be used to persist a new { @link StatementAttachment }.
          * The StatementAttachment can not be flushed at this point as the also persisted statement
@@ -77,10 +84,10 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
             return null;
         }
 
-        $fileHashes = explode(', ', $cell->getValue());
+        $fileHashes = explode(', ', (string) $cell->getValue());
         $statement = $this->baseStatementFromRowBuilder->statement;
 
-        /**
+        /*
          * The statement has to be persisted now in order to get an id.
          * This id needs to be used to persist a new fileContainer.
          * The fileContainer can not be flushed at this point as the also persisted statement
@@ -90,7 +97,6 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
 
         $violations = new ConstraintViolationList();
         foreach ($fileHashes as $fileMapKey) {
-
             $newViolations = $this->validator->validate(
                 $fileMapKey,
                 new Choice(
@@ -209,7 +215,7 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
 
     public function setNumberOfAnonymVotes(Cell $cell): ?ConstraintViolationListInterface
     {
-       return $this->baseStatementFromRowBuilder->setNumberOfAnonymVotes($cell);
+        return $this->baseStatementFromRowBuilder->setNumberOfAnonymVotes($cell);
     }
 
     public function buildStatementAndReset(): StatementInterface|ConstraintViolationListInterface

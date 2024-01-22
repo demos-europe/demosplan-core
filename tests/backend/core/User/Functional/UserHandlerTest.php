@@ -23,7 +23,7 @@ use Tests\Base\FunctionalTestCase;
 class UserHandlerTest extends FunctionalTestCase
 {
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\User\UserHandler
+     * @var UserHandler
      */
     protected $sut;
 
@@ -156,7 +156,7 @@ class UserHandlerTest extends FunctionalTestCase
         /** @var User $testUser */
         $testUser = $this->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
         $user = $this->sut->setAccessConfirmed($testUser);
-        self::assertTrue($user->getFlag(UserFlagKey::ACCESS_CONFIRMED));
+        self::assertTrue($user->getFlag(UserFlagKey::ACCESS_CONFIRMED->value));
         self::assertEquals($testUser->getId(), $user->getId());
     }
 

@@ -1092,7 +1092,7 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\Segment\RpcSegmentFacetsProvider:
         lazy: true
         arguments:
-            $drupalFilterParser: '@EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser'
+            $filterParser: '@EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser'
 
     demosplan\DemosPlanCoreBundle\StoredQuery\QuerySegment:
         parent: demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery
