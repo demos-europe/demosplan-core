@@ -13,7 +13,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -21,6 +20,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotNull;
+use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -45,7 +45,7 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
     protected function handleOriginalFileReferences(): ?ConstraintViolationListInterface
     {
         // early return in case no file-reference is found
-        $cellValue = $this->originalFileReferences->getValue() || null;
+        $cellValue = $this->originalFileReferences?->getValue();
         if (null === $cellValue || '' === $cellValue) {
             return null;
         }
@@ -57,6 +57,15 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
                 message: 'statement.import.invalidFileReference'
             )
         );
+
+        $isStringViolation = $this->validator->validate(
+            $cellValue,
+            new Type(
+                type: "string",
+                message: 'statement.import.invalidFileReference'
+            )
+        );
+        $violations->addAll($isStringViolation);
 
         if (0 !== $violations->count()) {
             return $violations;
@@ -91,9 +100,24 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
     protected function handleFileReferences(): ?ConstraintViolationListInterface
     {
         // early return in case no file-reference is found
-        $cellValue = $this->fileReferences->getValue() || null;
+        $cellValue = $this->fileReferences?->getValue();
         if (null === $cellValue || '' === $cellValue) {
             return null;
+        }
+
+        $violations = new ConstraintViolationList();
+
+        $isStringViolation = $this->validator->validate(
+            $cellValue,
+            new Type(
+                type: "string",
+                message: 'statement.import.invalidFileReference'
+            )
+        );
+        $violations->addAll($isStringViolation);
+
+        if (0 !== $violations->count()) {
+            return $violations;
         }
 
         $fileHashes = explode(', ', $cellValue);
@@ -107,7 +131,6 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
          */
         $this->entityManager->persist($statement);
 
-        $violations = new ConstraintViolationList();
         foreach ($fileHashes as $fileMapKey) {
             $newViolations = $this->validator->validate(
                 $fileMapKey,
@@ -249,8 +272,15 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
 
     public function buildStatementAndReset(): StatementInterface|ConstraintViolationListInterface
     {
-        $this->handleFileReferences();
-        $this->handleOriginalFileReferences();
+        $violations1 = $this->handleFileReferences();
+        if (null !== $violations1 && 0 !== $violations1->count()) {
+            return $violations1;
+        }
+
+        $violations2 = $this->handleOriginalFileReferences();
+        if (null !== $violations2 && 0 !== $violations2->count()) {
+            return $violations2;
+        }
 
         return $this->baseStatementFromRowBuilder->buildStatementAndReset();
     }
