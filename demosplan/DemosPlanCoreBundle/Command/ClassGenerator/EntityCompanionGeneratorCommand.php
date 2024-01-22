@@ -37,8 +37,6 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Traversable;
 use Webmozart\Assert\Assert;
 
-use function get_class;
-
 /**
  * FIXME: this command should be automatically executed. Approaches may be using the "cache warmer" or coupling it to a doctrine:diff execution.
  *
@@ -149,7 +147,7 @@ class EntityCompanionGeneratorCommand extends CoreCommand
                 $pathClasses,
                 $pathEntryPointClassName,
                 $pathClassNamespace,
-                [$this, 'pathClassToMethodName']
+                $this->pathClassToMethodName(...)
             );
             $this->overwriteFile($pathClassOutputDirectory, $pathEntryPointClassName, (string) $entryPointClass);
             $output->writeln("Generated path entry point class `$pathEntryPointClassName` into `$pathClassOutputDirectory`.");
@@ -157,7 +155,7 @@ class EntityCompanionGeneratorCommand extends CoreCommand
             // generate resource type quick access
             $resourceTypes = [];
             foreach ($this->resourceTypes as $resourceType) {
-                $resourceTypes[] = ClassOrInterfaceType::fromFqcn(get_class($resourceType));
+                $resourceTypes[] = ClassOrInterfaceType::fromFqcn($resourceType::class);
             }
             $output->writeln('Found '.count($resourceTypes).' resource type classes.');
             $typeHolder = $this->typeHolderGenerator->generateTypeHolder(

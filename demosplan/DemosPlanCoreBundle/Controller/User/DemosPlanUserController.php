@@ -105,8 +105,8 @@ class DemosPlanUserController extends BaseController
             }
         }
         // Kommune oder Planungsbüro
-        if (in_array(OrgaType::MUNICIPALITY, $orga->getTypes($subdomain), true) ||
-            in_array(OrgaType::PLANNING_AGENCY, $orga->getTypes($subdomain), true)) {
+        if (in_array(OrgaType::MUNICIPALITY, $orga->getTypes($subdomain), true)
+            || in_array(OrgaType::PLANNING_AGENCY, $orga->getTypes($subdomain), true)) {
             $this->getLogger()->info('Welcomepage is ', ['types' => $orga->getTypes($subdomain)]);
         }
 
@@ -207,16 +207,16 @@ class DemosPlanUserController extends BaseController
 
             // Update User
             $data = [
-                'email'                        => $user->getEmail(), // Pflichtfeld beim Update
-                'firstname'                    => $user->getFirstname(), // Pflichtfeld beim Update
-                'lastname'                     => $user->getLastname(), // Pflichtfeld beim Update
-                UserFlagKey::IS_NEW_USER       => false,
-                UserFlagKey::PROFILE_COMPLETED => true,
-                UserFlagKey::ACCESS_CONFIRMED  => true,
+                'email'                               => $user->getEmail(), // Pflichtfeld beim Update
+                'firstname'                           => $user->getFirstname(), // Pflichtfeld beim Update
+                'lastname'                            => $user->getLastname(), // Pflichtfeld beim Update
+                UserFlagKey::IS_NEW_USER->value       => false,
+                UserFlagKey::PROFILE_COMPLETED->value => true,
+                UserFlagKey::ACCESS_CONFIRMED->value  => true,
             ];
 
             if ($requestPost->has('newsletter')) {
-                $data[UserFlagKey::SUBSCRIBED_TO_NEWSLETTER] = 'on';
+                $data[UserFlagKey::SUBSCRIBED_TO_NEWSLETTER->value] = 'on';
             }
 
             $user = $userHandler->updateUser($user->getId(), $data);

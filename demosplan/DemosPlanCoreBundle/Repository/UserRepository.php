@@ -307,23 +307,23 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
 
     protected function generateObjectValuesForUserFlagFields(User $user, array $data)
     {
-        $userFlagFields = collect(UserFlagKey::values());
+        $userFlagFields = collect(UserFlagKey::cases());
 
         $userFlagFields->each(
             static function (UserFlagKey $userFlagKey) use ($user, $data) {
-                if (array_key_exists($userFlagKey->getValue(), $data)) {
-                    $fieldSetterMethod = sprintf('set%s', ucfirst($userFlagKey->getValue()));
+                if (array_key_exists($userFlagKey->value, $data)) {
+                    $fieldSetterMethod = sprintf('set%s', ucfirst($userFlagKey->value));
 
                     // todo: change this field name so that we can use setEntityFlagField...
-                    if (UserFlagKey::ACCESS_CONFIRMED === $userFlagKey->getValue()) {
+                    if (UserFlagKey::ACCESS_CONFIRMED->value === $userFlagKey->value) {
                         $fieldSetterMethod = 'setAccessConfirmed';
                     }
 
                     if (!method_exists($user, $fieldSetterMethod)) {
-                        throw new LogicException("Cannot set field value on unknown field {$userFlagKey->getValue()}");
+                        throw new LogicException("Cannot set field value on unknown field {$userFlagKey->value}");
                     }
 
-                    $user->$fieldSetterMethod((int) $data[$userFlagKey->getValue()]);
+                    $user->$fieldSetterMethod((int) $data[$userFlagKey->value]);
                 }
             }
         );

@@ -168,10 +168,10 @@ class SegmentController extends BaseController
                     $route,
                     compact('procedureId')
                 );
-            } catch (MissingDataException $e) {
+            } catch (MissingDataException) {
                 $this->getMessageBag()->add('error', 'error.missing.data',
                     ['%fileName%' => $fileName]);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $this->getMessageBag()->add(
                     'error',
                     'statements.import.error.document.unexpected',

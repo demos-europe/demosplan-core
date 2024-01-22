@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
 use demosplan\DemosPlanCoreBundle\Entity\File;
@@ -28,7 +36,8 @@ use Webmozart\Assert\Assert;
 
 class StatementSpreadsheetImporterWithZipSupport extends StatementSpreadsheetImporter
 {
-    private ?array $fileMap;
+    private ?array $fileMap = null;
+
     public function __construct(
         CurrentProcedureService $currentProcedureService,
         CurrentUserService $currentUser,
@@ -63,8 +72,8 @@ class StatementSpreadsheetImporterWithZipSupport extends StatementSpreadsheetImp
         [$baseColumns, $builder] = parent::getColumnMapping();
         $builder = $this->getStatementFromRowBuilder($builder);
         // add new columns
-        $baseColumns['Referenzen auf Anhänge'] = [$builder, 'setFileReferences'];
-        $baseColumns['Originalanhang'] = [$builder, 'setOriginalFileReferences'];
+        $baseColumns['Referenzen auf Anhänge'] = $builder->setFileReferences(...);
+        $baseColumns['Originalanhang'] = $builder->setOriginalFileReferences(...);
 
         return [$baseColumns, $builder];
     }
@@ -87,8 +96,7 @@ class StatementSpreadsheetImporterWithZipSupport extends StatementSpreadsheetImp
         Assert::minCount($this->fileMap, 1, 'Zip file does not contain any Files');
         $xlsFiles = array_filter(
             $this->fileMap,
-            static fn (File|SplFileInfo $entry): bool =>
-                $entry instanceof SplFileInfo && $entry->getExtension() === 'xlsx'
+            static fn (File|SplFileInfo $entry): bool => $entry instanceof SplFileInfo && 'xlsx' === $entry->getExtension()
         );
         Assert::count($xlsFiles, 1, 'Only %d xls File per Zip supported, got %d');
 
