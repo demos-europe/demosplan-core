@@ -176,10 +176,13 @@ export default {
         }
       }
 
-      return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: this.statementId }), {}, payload)
-        .then(() => {
-          dplan.notify.notify('confirm', Translator.trans('confirm.statement.assignment.assigned'))
-        })
+      const options = {
+        messages: {
+          200: { type: 'confirm', text: 'confirm.statement.assignment.assigned' }
+        }
+      }
+
+      return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: this.statementId }), {}, payload, options)
         .catch((err) => {
           // Restore statement in store in case request failed
           this.restoreStatementAction(this.statementId)
