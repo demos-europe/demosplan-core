@@ -9878,16 +9878,16 @@
         },
         {
             "name": "proj4php/proj4php",
-            "version": "2.0.14",
+            "version": "2.0.15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/proj4php/proj4php.git",
-                "reference": "56101a421c0d5d05652abd7fba22466cb6bad92b"
+                "reference": "96c1647c610497d74ad0e2330dfd0c389796f856"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/proj4php/proj4php/zipball/56101a421c0d5d05652abd7fba22466cb6bad92b",
-                "reference": "56101a421c0d5d05652abd7fba22466cb6bad92b",
+                "url": "https://api.github.com/repos/proj4php/proj4php/zipball/96c1647c610497d74ad0e2330dfd0c389796f856",
+                "reference": "96c1647c610497d74ad0e2330dfd0c389796f856",
                 "shasum": ""
             },
             "require": {
@@ -9936,9 +9936,9 @@
             ],
             "support": {
                 "issues": "https://github.com/proj4php/proj4php/issues",
-                "source": "https://github.com/proj4php/proj4php/tree/2.0.14"
+                "source": "https://github.com/proj4php/proj4php/tree/2.0.15"
             },
-            "time": "2024-01-08T18:41:31+00:00"
+            "time": "2024-01-20T19:24:49+00:00"
         },
         {
             "name": "psr/cache",
