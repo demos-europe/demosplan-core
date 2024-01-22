@@ -362,12 +362,20 @@ export default {
           relationships: this.payloadRelationships
         }
       }
+
+      const options = {
+        messages: {
+          400: { type: 'error', text: 'statement.change.failed' }
+        }
+      }
+
       return dpApi({
         method: 'POST',
         url: Routing.generate('dplan_assessment_table_assessment_table_statement_bulk_edit_api_action', {
           procedureId: this.procedureId
         }),
-        data: JSON.stringify(payload)
+        data: JSON.stringify(payload),
+        options: options
       })
         .then(() => {
           this.mode = 'success'
@@ -377,7 +385,6 @@ export default {
           this.isLoading = false
           this.mode = 'confirm'
           this.isError = true
-          dplan.notify.error(Translator.trans('statement.change.failed'))
         })
     },
 
