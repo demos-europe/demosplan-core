@@ -140,8 +140,7 @@ class AddonUninstallCommand extends CoreCommand
             $filesystem->remove($symlinkedPath);
         }
         $filesystem->remove($installPath);
-        $output->info("Addon cache directory deleted successfully.");
-
+        $output->info("Addon successfully deleted from cache directory.");
     }
 
     private function removeEntryInAddonsDefinition(AddonInfo $addonInfo, SymfonyStyle $output): void

@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\Querying\Utilities\Reindexer;
 use Elastica\Index;
 use Elastica\Query;
 use Elastica\Query\BoolQuery;
@@ -54,6 +55,7 @@ class FragmentElasticsearchRepository extends CoreRepository
         ManagerRegistry $registry,
         GlobalConfigInterface $globalConfig,
         LoggerInterface $logger,
+        Reindexer $reindexer,
         TranslatorInterface $translator,
         SortMethodFactory $sortMethodFactory,
         ElementsService $elementsService,
@@ -67,7 +69,7 @@ class FragmentElasticsearchRepository extends CoreRepository
         $this->elementsService = $elementsService;
         $this->paragraphService = $paragraphService;
 
-        parent::__construct($conditionFactory, $registry, $sortMethodFactory, $entityClass);
+        parent::__construct($conditionFactory, $registry, $reindexer, $sortMethodFactory, $entityClass);
     }
 
     /**

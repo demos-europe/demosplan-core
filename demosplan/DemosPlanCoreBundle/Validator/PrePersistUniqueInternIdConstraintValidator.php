@@ -27,15 +27,12 @@ class PrePersistUniqueInternIdConstraintValidator extends ConstraintValidator
     {
     }
 
-    /**
-     * @param mixed $value
-     */
     public function validate($value, Constraint $constraint): void
     {
         $value = $this->validateType($value, $constraint);
 
         $occupiedInSavedEntities = $this->isIdOccupiedInSavedEntities($value);
-        $occupiedByLoadedEntities = $this->isIdOccupiedByLoadedEntities($value->getInternId(), $value);
+        $occupiedByLoadedEntities = $this->isIdOccupiedByLoadedEntities($value->getInternId(false), $value);
         if ($occupiedInSavedEntities || $occupiedByLoadedEntities) {
             $this->context->buildViolation($constraint->message)
                 ->setParameter('{{ internId }}', $value->getInternId())
@@ -70,7 +67,7 @@ class PrePersistUniqueInternIdConstraintValidator extends ConstraintValidator
         if (\array_key_exists(Statement::class, $identityMap)) {
             $occupyingStatements = array_filter(
                 $identityMap[Statement::class],
-                static fn(Statement $statement) => !($statement instanceof Segment)
+                static fn (Statement $statement) => !($statement instanceof Segment)
                     && !$statement->isOriginal()
                     && $internId === $statement->getInternId()
                     && $statement->getId() !== $excludeStatement->getId()
@@ -89,7 +86,7 @@ class PrePersistUniqueInternIdConstraintValidator extends ConstraintValidator
     private function isIdOccupiedInSavedEntities(Statement $value): bool
     {
         return !$this->statementService->isInternIdUniqueForProcedure(
-            $value->getInternId(),
+            $value->getInternId(false),
             $value->getProcedureId()
         );
     }

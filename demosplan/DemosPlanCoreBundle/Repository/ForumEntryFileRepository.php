@@ -10,10 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use Doctrine\ORM\NoResultException;
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\TransactionRequiredException;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntryFile;
@@ -21,7 +17,14 @@ use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\TransactionRequiredException;
 
+/**
+ * @template-extends CoreRepository<ForumEntryFile>
+ */
 class ForumEntryFileRepository extends CoreRepository implements ArrayInterface
 {
     /**

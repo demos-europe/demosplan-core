@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\EntityValidator;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -53,7 +54,7 @@ class TagValidator
      *
      * @param string[] $validationGroups
      */
-    public function validate(Tag $tag, array $validationGroups = ['Default']): ConstraintViolationListInterface
+    public function validate(Tag $tag, array $validationGroups = [ResourceTypeService::VALIDATION_GROUP_DEFAULT]): ConstraintViolationListInterface
     {
         return $this->validator->validate($tag, null, $validationGroups);
     }

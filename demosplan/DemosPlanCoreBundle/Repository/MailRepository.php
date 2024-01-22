@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\MailAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\MailSend;
 use demosplan\DemosPlanCoreBundle\Entity\MailTemplate;
@@ -17,6 +18,9 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ImmutableArrayInterface
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ImmutableObjectInterface;
 use Exception;
 
+/**
+ * @template-extends FluentRepository<MailSend>
+ */
 class MailRepository extends FluentRepository implements ImmutableArrayInterface, ImmutableObjectInterface
 {
     /**
@@ -149,8 +153,6 @@ class MailRepository extends FluentRepository implements ImmutableArrayInterface
      * Replace placeholder.
      *
      * @param string $string
-     *
-     * @return mixed
      */
     public function replacePlaceholder($string, array $placeholder)
     {
@@ -179,8 +181,6 @@ class MailRepository extends FluentRepository implements ImmutableArrayInterface
 
     /**
      * @param MailSend $entity
-     *
-     * @return MailSend
      *
      * @throws Exception
      */

@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Repositories\GisLayerCategoryRepositoryInterface;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
@@ -28,6 +29,9 @@ use Exception;
 use Faker\Provider\Uuid;
 use InvalidArgumentException;
 
+/**
+ * @template-extends FluentRepository<GisLayerCategory>
+ */
 class GisLayerCategoryRepository extends FluentRepository implements ArrayInterface, ObjectInterface, GisLayerCategoryRepositoryInterface
 {
     /**

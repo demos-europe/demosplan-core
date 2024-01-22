@@ -30,63 +30,67 @@ transpiledModules = transpiledModules.concat(
   ].map(nodeModule => resolveDir('node_modules/' + nodeModule))
 )
 
-const postcssPresetEnv = require('postcss-preset-env')
+const postcssPrefixSelector = require('postcss-prefix-selector')({
+  prefix: config.cssPrefix,
+  exclude: [
+    ...config.cssPrefixExcludes.defaultExcludePatterns,
+    ...config.cssPrefixExcludes.externalClassPrefixes
+  ],
+  transform (prefix, selector) {
+    selector = selector.split(' ').map((selector) => {
+      if (selector[0] !== '.') {
+        // We only want to prefix classes
+        return selector
+      }
+
+      // Patch OpenLayers & Tooltips, which got excluded by a too aggressive regex
+      if (selector.match(/\.([\w-_]-ol-[\w-_]+)/) || selector.match(/\.(o-tooltip[\w-_]*)/)) {
+        return prefix + selector.substring(1)
+      }
+
+      return prefix + selector.substring(1)
+    }).join(' ')
+
+    return selector
+  },
+  ignoreFiles: [/.+style\.scss/]
+})
+const tailwindCss = require('tailwindcss')
+const postcssFlexbugsFixes = require('postcss-flexbugs-fixes')
+/*
+ * The focus-visible pseudo class is disabled, as demosPlan does not polyfill :focus-visible. It can either not be
+ * ignored because it conflicts with the way that :focus-visible is used within the `keyboard-focus` scss mixin.
+ */
+const postcssPresetEnv = require('postcss-preset-env')({
+  features: {
+    'focus-visible-pseudo-class': false
+  }
+})
+const postcssPurgeCss = require('@fullhuman/postcss-purgecss')({
+  ...config.purgeCss,
+  defaultExtractor (content) {
+    const contentWithoutStyleBlocks = content.replace(/<style[^]+?<\/style>/gi, '')
+    return contentWithoutStyleBlocks.match(/[A-Za-z0-9-_/:]*[A-Za-z0-9-_/.[\]%]+/g) || []
+  }
+})
+const autoprefixer = require('autoprefixer') // The autoprefixer must run after postcss-prefix-selector
 
 const postCssPlugins = [
-  require('postcss-prefix-selector')({
-    prefix: config.cssPrefix,
-    exclude: [
-      ...config.cssPrefixExcludes.defaultExcludePatterns,
-      ...config.cssPrefixExcludes.externalClassPrefixes
-    ],
-    transform (prefix, selector) {
-      selector = selector.split(' ').map((selector) => {
-        if (selector[0] !== '.') {
-          // We only want to prefix classes
-          return selector
-        }
-
-        // Patch OpenLayers & Tooltips, which got excluded by a too aggressive regex
-        if (selector.match(/\.([\w-_]-ol-[\w-_]+)/) || selector.match(/\.(o-tooltip[\w-_]*)/)) {
-          return prefix + selector.substring(1)
-        }
-
-        return prefix + selector.substring(1)
-      }).join(' ')
-
-      return selector
-    },
-    ignoreFiles: [/.+style\.scss/]
-  }),
-  require('tailwindcss'),
-  require('postcss-flexbugs-fixes'),
-  /*
-   * The focus-visible pseudo class is disabled, as demosPlan does not polyfill :focus-visible. It can either not be
-   * ignored because it conflicts with the way that :focus-visible is used within the `keyboard-focus` scss mixin.
-   */
-  postcssPresetEnv({
-    features: {
-      'focus-visible-pseudo-class': false
-    }
-  }),
-  // The autoprefixer must run after postcss-prefix-selector
-  require('autoprefixer')
+  postcssPrefixSelector,
+  tailwindCss,
+  postcssFlexbugsFixes,
+  postcssPresetEnv,
+  postcssPurgeCss,
+  autoprefixer
 ]
 
-if (config.cssPurge.enabled) {
-  const purgeCss = [
-    '@fullhuman/postcss-purgecss',
-    {
-      content: config.cssPurge.paths,
-      defaultExtractor (content) {
-        const contentWithoutStyleBlocks = content.replace(/<style[^]+?<\/style>/gi, '')
-        return contentWithoutStyleBlocks.match(/[A-Za-z0-9-_/:]*[A-Za-z0-9-_/.[\]%]+/g) || []
-      },
-      safelist: config.cssPurge.safelist
-    }
-  ]
-  postCssPlugins.splice(-2, 0, purgeCss)
-}
+const postCssPluginsWithoutPurgeCss = [
+  postcssPrefixSelector,
+  tailwindCss,
+  postcssFlexbugsFixes,
+  postcssPresetEnv,
+  autoprefixer
+]
 
 /**
  * Module Rules for Webpack
@@ -143,8 +147,11 @@ const moduleRules =
             postcssOptions: (loaderContext) => {
               // Do not pass 3rd party css through postCss in dev mode to gain some speed
               const skipPostCss = /node_modules/.test(loaderContext.resourcePath) && config.isProduction === false
+              // Do not purge styles that are already purged by tailwindcss postcss plugin
+              const tailwindProcessed = /client\/css\/index\.css/.test(loaderContext.resourcePath)
+
               return {
-                plugins: skipPostCss ? [] : postCssPlugins
+                plugins: skipPostCss ? [] : tailwindProcessed ? postCssPluginsWithoutPurgeCss : postCssPlugins
               }
             },
             sourceMap: false

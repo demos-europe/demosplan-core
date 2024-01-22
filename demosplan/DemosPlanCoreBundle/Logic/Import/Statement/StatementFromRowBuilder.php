@@ -27,7 +27,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 use Symfony\Component\Validator\Constraint;
-use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Range;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -283,17 +282,17 @@ class StatementFromRowBuilder extends AbstractStatementFromRowBuilder
         $gdprConsent->setStatement($newOriginalStatement);
         $newOriginalStatement->setGdprConsent($gdprConsent);
 
-        $violations = $this->findOrCreatePlanningCategory($newOriginalStatement);
-        if (0 !== $violations->count()) {
-            return $violations;
-        }
-
         // set other static values
         $newOriginalStatement->setManual();
         $newOriginalStatement->setProcedure($this->procedure);
         $newStatementMeta->setSubmitOrgaId($this->importingUser->getOrganisationId());
         $newOriginalStatement->setPhase($this->procedure->getPhase());
         $newOriginalStatement->setPublicVerified(Statement::PUBLICATION_NO_CHECK_SINCE_NOT_ALLOWED);
+
+        $violations = $this->findOrCreatePlanningCategory($newOriginalStatement);
+        if (0 !== $violations->count()) {
+            return $violations;
+        }
 
         // validate
         $violations = $this->validator->validate(

@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
-use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
@@ -19,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\CouldNotDeleteAddressesOfDepartmentException;
@@ -28,7 +28,6 @@ use demosplan\DemosPlanCoreBundle\Exception\CouldNotWipeDepartmentException;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicateGwIdException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\NullPointerException;
 use demosplan\DemosPlanCoreBundle\Exception\UserAlreadyExistsException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
@@ -56,13 +55,13 @@ use Doctrine\ORM\ORMException;
 use DOMDocument;
 use Exception;
 use LSS\XML2Array;
-use ReflectionException;
 use RuntimeException;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tightenco\Collect\Support\Collection as IlluminateCollection;
+
 use function array_key_exists;
 
 class UserService extends CoreService implements UserServiceInterface
@@ -217,20 +216,6 @@ class UserService extends CoreService implements UserServiceInterface
         return null;
     }
 
-    /**
-     * In order to enable login via login OR email, we need to be sure the found user is the right one.
-     * In the database model the field email of a user is not unique!
-     * Solution is first look for user with incoming string as login.
-     * If no one was found, looking for user with incoming string as email.
-     * In case of more than one user was found, login will fail.
-     *
-     * @param string $loginOrEmail - The incoming email address or login, which we need to find a distinct user
-     *
-     * @return User|false - User in case of a distinct user entry was found, otherwise false
-     *
-     * @throws ReflectionException
-     * @throws MessageBagException
-     */
     public function findDistinctUserByEmailOrLogin($loginOrEmail)
     {
         $user = $this->userRepository->findOneBy(['login' => $loginOrEmail, 'deleted' => false]);
@@ -635,8 +620,6 @@ class UserService extends CoreService implements UserServiceInterface
     }
 
     /**
-     * @return mixed
-     *
      * @throws ORMException
      * @throws OptimisticLockException
      */
@@ -693,9 +676,9 @@ class UserService extends CoreService implements UserServiceInterface
     public function getSortedLegacyDepartmentsWithoutDefaultDepartment(Orga $orga): array
     {
         $sortedDepartments = $this->sortByName($orga->getDepartments());
-        $filteredDepartments = array_filter($sortedDepartments, fn(Department $department): bool => $this->isNotDefaultDepartment($department));
+        $filteredDepartments = array_filter($sortedDepartments, fn (Department $department): bool => $this->isNotDefaultDepartment($department));
 
-        return array_map(fn($object): ?array => $this->entityHelper->toArray($object), $filteredDepartments);
+        return array_map(fn ($object): ?array => $this->entityHelper->toArray($object), $filteredDepartments);
     }
 
     /**
@@ -935,7 +918,7 @@ class UserService extends CoreService implements UserServiceInterface
     protected function getRoleNames(User $user): array
     {
         $userRoles = $user->getDplanroles();
-        $userRoleNames = $userRoles->map(static fn(Role $role): string => $role->getName())->toArray();
+        $userRoleNames = $userRoles->map(static fn (Role $role): string => $role->getName())->toArray();
 
         // sort the roles to generate the same array key for the same roles
         $userRoleNames = array_unique($userRoleNames);
@@ -972,11 +955,11 @@ class UserService extends CoreService implements UserServiceInterface
 
             // display only users of current Customer
             if ($customer instanceof Customer) {
-                $users = collect($users)->filter(static fn(User $user) => null !== $user->getOrga() && $user->getOrga()->getCustomers()->contains($customer))->all();
+                $users = collect($users)->filter(static fn (User $user) => null !== $user->getOrga() && $user->getOrga()->getCustomers()->contains($customer))->all();
             }
 
             // never show internal Citizen user
-            return collect($users)->filter(static fn(User $user) => User::ANONYMOUS_USER_ID !== $user->getId())->all();
+            return collect($users)->filter(static fn (User $user) => User::ANONYMOUS_USER_ID !== $user->getId())->all();
         } catch (Exception $e) {
             $this->logger->error('Fehler bei der Abfrage der Userlist: ', [$e]);
 
@@ -1163,7 +1146,7 @@ class UserService extends CoreService implements UserServiceInterface
      *
      * @param string $userId - Indicates the user whose draftStatements will be deleted
      *
-     * @return bool|User - The wiped User if all operations are successful, otherwise false
+     * @return bool `true` if all operations are successful, otherwise `false`
      */
     public function deleteDraftStatementsOfUser($userId): bool
     {
@@ -1420,7 +1403,7 @@ class UserService extends CoreService implements UserServiceInterface
     {
         return collect($statementsOrFragments)
             ->transform(
-                static fn($fragmentOrStatement) => [
+                static fn ($fragmentOrStatement) => [
                     'id'         => $fragmentOrStatement['id'],
                     'assigneeId' => $fragmentOrStatement['assignee']['uId'] ?? null,
                 ]
@@ -1459,7 +1442,7 @@ class UserService extends CoreService implements UserServiceInterface
     {
         $unsortedDepartments = $departments->getIterator();
         $unsortedDepartments->uasort(
-            static fn(Department $department1, Department $department2) => strcmp((string) $department1->getName(), (string) $department2->getName())
+            static fn (Department $department1, Department $department2) => strcmp((string) $department1->getName(), (string) $department2->getName())
         );
 
         return iterator_to_array($unsortedDepartments);
@@ -1478,7 +1461,7 @@ class UserService extends CoreService implements UserServiceInterface
             ->map(
                 static function (User $user) {
                     $roles = collect($user->getDplanroles())->map(
-                        static fn(Role $role) => $role->getName()
+                        static fn (Role $role) => $role->getName()
                     )->implode(', ');
 
                     $testUser = new TestUserValueObject();
@@ -1520,7 +1503,7 @@ class UserService extends CoreService implements UserServiceInterface
                     $userAttributes = $userArray['USERDATA']['HHGW']['@attributes'];
                     $roleString = 'Bürger';
                     if (array_key_exists('ROLES', $userArray['USERDATA'])) {
-                        $roleString = collect($userArray['USERDATA']['ROLES'])->transform(static fn($roleArray) => $roleArray['@attributes']['ROLENAME'] ?? $roleArray['ROLENAME'] ?? 'Default')
+                        $roleString = collect($userArray['USERDATA']['ROLES'])->transform(static fn ($roleArray) => $roleArray['@attributes']['ROLENAME'] ?? $roleArray['ROLENAME'] ?? 'Default')
                         ->implode(', ');
                     }
                     $testUser = new TestUserValueObject();

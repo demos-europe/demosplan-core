@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Grouping;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\ArraySorterInterface;
@@ -178,7 +179,7 @@ abstract class EntityGrouper
      *
      * @return int number of times the given entity was added to a group
      */
-    protected function fillEntityIntoGroupStructure(EntityGroupInterface $group, CoreEntity $entity, array $entityFieldsToUse, array $stopGroupingForKeys = []): int
+    protected function fillEntityIntoGroupStructure(EntityGroupInterface $group, CoreEntity&EntityInterface $entity, array $entityFieldsToUse, array $stopGroupingForKeys = []): int
     {
         if (0 === count($entityFieldsToUse)) {
             // if we do not have any fields to use as keys from the entity

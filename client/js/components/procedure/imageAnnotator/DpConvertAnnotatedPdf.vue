@@ -183,7 +183,7 @@ export default {
   methods: {
     async getInitialData () {
       this.isLoading = true
-      const url = Routing.generate('api_resource_list', { procedureId: this.procedureId, resourceType: 'AnnotatedStatementPdf' })
+      const url = Routing.generate('api_resource_list', { resourceType: 'AnnotatedStatementPdf' })
       const params = {
         filter: {
           annotatedStatementPdf: {
@@ -193,6 +193,7 @@ export default {
             }
           }
         },
+        procedureId: this.procedureId,
         page: {
           size: 1
         },

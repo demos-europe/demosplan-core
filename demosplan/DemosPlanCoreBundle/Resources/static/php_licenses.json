@@ -357,7 +357,7 @@
     {
         "license": "BSD-3-Clause",
         "package": "squizlabs/php_codesniffer",
-        "website": "https://github.com/squizlabs/PHP_CodeSniffer"
+        "website": "https://github.com/PHPCSStandards/PHP_CodeSniffer"
     },
     {
         "license": "MIT",

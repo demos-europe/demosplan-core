@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\SupportContactInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\SupportContactConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
@@ -26,7 +27,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\SupportContactRepository")
  */
 #[SupportContactConstraint]
-class SupportContact extends CoreEntity implements UuidEntityInterface
+class SupportContact extends CoreEntity implements UuidEntityInterface, SupportContactInterface
 {
     use TimestampableEntity;
 

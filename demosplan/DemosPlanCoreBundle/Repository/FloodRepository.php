@@ -17,6 +17,9 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ImmutableObjectInterfac
 use Exception;
 use UnexpectedValueException;
 
+/**
+ * @template-extends CoreRepository<Flood>
+ */
 class FloodRepository extends CoreRepository implements ImmutableArrayInterface, ImmutableObjectInterface
 {
     /**

@@ -17,7 +17,10 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 
-class TagTopicRepository extends FluentRepository implements ObjectInterface
+/**
+ * @template-extends CoreRepository<TagTopic>
+ */
+class TagTopicRepository extends CoreRepository implements ObjectInterface
 {
     /**
      * Get Entity by Id.

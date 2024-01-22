@@ -13,40 +13,17 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
-use EDT\Querying\Contracts\PropertyAccessorInterface;
-use EDT\Querying\Utilities\ConditionEvaluator;
 use EDT\Wrapping\Contracts\Types\TransferableTypeInterface;
-use EDT\Wrapping\Utilities\PropertyReader;
 use EDT\Wrapping\WrapperFactories\WrapperObject;
-use EDT\Wrapping\WrapperFactories\WrapperObjectFactory;
 
 /**
  * Service to wrap entities into an object that prevents access to properties not allowed by the
  * corresponding {@link ResourceTypeInterface}.
  */
-class EntityWrapperFactory extends WrapperObjectFactory
+class EntityWrapperFactory
 {
-    public function __construct(
-        protected PropertyReader $propertyReader,
-        protected ConditionEvaluator $conditionEvaluator,
-        protected PropertyAccessorInterface $propertyAccessor
-    ) {
-        parent::__construct(
-            $this->propertyReader,
-            $this->propertyAccessor,
-            $this->conditionEvaluator
-        );
-    }
-
     public function createWrapper(object $object, TransferableTypeInterface $type): WrapperObject
     {
-        return new TwigableWrapperObject(
-            $object,
-            $this->propertyReader,
-            $type,
-            $this->propertyAccessor,
-            $this->conditionEvaluator,
-            $this
-        );
+        return new TwigableWrapperObject($object, $type);
     }
 }
