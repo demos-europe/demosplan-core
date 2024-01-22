@@ -125,7 +125,6 @@
     "babel-plugin-dynamic-import-webpack": "^1.1.0",
     "caniuse-lite": "^1.0.30001576",
     "chalk": "4.1.2",
-    "clean-webpack-plugin": "^4.0.0",
     "cli-progress": "^3.12.0",
     "commander": "^11.1.0",
     "copy-webpack-plugin": "^11.0.0",
