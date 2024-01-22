@@ -433,9 +433,6 @@ parameters:
 
 
     ## Bobhh
-    # #refactor: Could soon be deleted when procedures in bobhh are always created via cockpit
-    lgv_plis_base_url: ''
-    lgv_xplanbox_base_url: ''
     # #refactor: could be removed, intranet user may use internet now
     gateway_url_intern: ''
     xplan_layer_base_url: ''

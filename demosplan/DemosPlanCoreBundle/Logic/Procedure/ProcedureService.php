@@ -192,7 +192,6 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         Permissions $permissions,
         private readonly PhasePermissionsetLoader $phasePermissionsetLoader,
         private readonly PlaceRepository $placeRepository,
-        private readonly Plis $plis,
         private readonly PrepareReportFromProcedureService $prepareReportFromProcedureService,
         private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
         private readonly ProcedureElasticsearchRepository $procedureElasticsearchRepository,
@@ -376,89 +375,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $inData['customer'] = $this->customerService->getCurrentCustomer();
         }
 
-        if ($this->currentUser->hasAllPermissions('feature_use_plis', 'feature_use_xplanbox')) {
-            // bei nonJS ist r_name nicht vorhanden
-            $hasName = \array_key_exists('r_name', $inData) && 0 < \strlen((string) $inData['r_name']);
-
-            // set publicProcedureParticipationEnabled flag to false
-            $inData['r_publicParticipationPublicationEnabled'] = 0;
-
-            try {
-                if (!$hasName) {
-                    $inData = $this->checkProcedureDataNoJS($inData);
-                }
-            } catch (Exception) {
-                // Probleme beim LGV, Verfahren sollen auch ohne Startkartenausschnitt angelegt werden können
-            }
-        }
-
         return $inData;
-    }
-
-    /**
-     * May add the `plisProcedures` field to the given array depending on the current permission.
-     *
-     * @param array<string, mixed> $templateVars
-     *
-     * @return array<string, mixed> the given array, potentially enriched with `plisProcedures`
-     *
-     * @throws UserNotFoundException
-     */
-    public function setPlisInTemplateVars(array $templateVars): array
-    {
-        if ($this->currentUser->hasPermission('feature_use_plis')) {
-            // Frage die LGV PLIS-Datenbank ab, was für Verfahren angelegt sind
-            try {
-                $templateVars['plisProcedures'] = $this->plis->getLgvPlisProcedureList();
-            } catch (Exception) {
-                $templateVars['plisProcedures'] = [];
-            }
-        }
-
-        return $templateVars;
-    }
-
-    /**
-     * Überprüfe, ob die notwendigen Infos Planungsanlass und Startkartenausschnitt gesetzt sind
-     * und rufe sie ggf ab.
-     *
-     * @param array<string, mixed> $inData
-     *
-     * @throws Exception
-     */
-    protected function checkProcedureDataNoJS(array $inData): array
-    {
-        if (\array_key_exists('r_name', $inData) && '' === $inData['r_name']) {
-            $planungsanlass = $this->plis->getLgvPlisPlanningcause(
-                $inData['r_plisId']
-            );
-            if (isset($planungsanlass['planungsanlass'])) {
-                $inData['r_externalDesc'] = $planungsanlass['planungsanlass'];
-            }
-            $procedureList = $this->plis->getLgvPlisProcedureList();
-            $inData['r_name'] = $this->getPlisProcedureName($procedureList, $inData);
-        }
-
-        return $inData;
-    }
-
-    /**
-     * @param array<int, array{procedureName: string, uuid: string}> $procedureList
-     * @param array<string, mixed>                                   $inData
-     *
-     * @throws MessageBagException
-     */
-    protected function getPlisProcedureName(array $procedureList, array $inData): string
-    {
-        foreach ($procedureList as $procedure) {
-            if ($procedure['uuid'] == $inData['r_plisId']) {
-                return $procedure['procedureName'];
-            }
-        }
-
-        $this->messageBag->add('error', 'error.plis.no.procedure');
-
-        throw new Exception('Kein Verfahren zur PlisId '.$inData['r_plisId'].' gefunden');
     }
 
     protected function getElementsService(): ElementsService

@@ -11,7 +11,6 @@
  * This is the entrypoint for administration_new.html.twig
  */
 
-import CreateProcedure from '@DpJs/lib/procedure/CreateProcedure'
 import DpNewProcedure from '@DpJs/components/procedure/admin/DpNewProcedure/DpNewProcedure'
 import { initialize } from '@DpJs/InitVue'
 import NewProcedure from '@DpJs/store/procedure/NewProcedure'
@@ -32,8 +31,4 @@ initialize(components, stores)
         form.querySelector('[type="submit"]').removeAttribute('disabled')
       }
     })
-
-    if (hasPermission('feature_use_plis')) {
-      CreateProcedure()
-    }
   })

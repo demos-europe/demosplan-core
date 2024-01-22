@@ -9,7 +9,6 @@
 
 <script>
 import {
-  dpApi,
   DpButton,
   DpDateRangePicker,
   DpDatetimePicker,
@@ -106,12 +105,6 @@ export default {
       default: () => []
     },
 
-    plisId: {
-      required: false,
-      type: String,
-      default: ''
-    },
-
     procedureExternalDesc: {
       required: false,
       type: String,
@@ -121,7 +114,6 @@ export default {
 
   data () {
     return {
-      isLoadingPlisData: false,
       selectedAgencies: this.initAgencies,
       selectedDataInputOrgas: this.initDataInputOrgas,
       selectedAuthUsers: this.initAuthUsers,
@@ -150,17 +142,6 @@ export default {
   },
 
   methods: {
-    getDataPlis (plisId, routeName) {
-      return dpApi({
-        method: 'get',
-        responseType: 'json',
-        url: Routing.generate(routeName, { uuid: plisId })
-      })
-        .then(data => {
-          return data.data
-        })
-    },
-
     selectAllAuthUsers () {
       this.selectedAuthUsers = this.authorizedUsersOptions
     },

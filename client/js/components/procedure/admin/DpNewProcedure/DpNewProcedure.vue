@@ -32,48 +32,13 @@
       type="hidden"
       name="r_publicParticipationPublicationEnabled"
       value="1">
-
-    <template v-if="hasPermission('feature_use_plis')">
-      <input
-        type="hidden"
-        name="r_name"
-        value="">
-      <input
-        type="hidden"
-        name="r_externalDesc"
-        value="">
-      <input
-        type="hidden"
-        name="r_mapExtent"
-        value="">
-    </template>
     <fieldset>
       <legend
         class="hide-visually"
         v-text="Translator.trans('procedure.data')" />
 
       <addon-wrapper hook-name="procedure.fields" />
-
-      <template v-if="hasPermission('feature_use_plis')">
-        <dp-form-row class="u-mb-0_75">
-          <dp-select
-            id="r_plisId"
-            :label="{ text: Translator.trans('name'), hint: Translator.trans('explanation.plis.procedurename') }"
-            name="r_plisId"
-            :options="plisNameOptions" />
-        </dp-form-row>
-        <dl>
-          <dt
-            v-text="Translator.trans('public.participation.desc')"
-            class="weight--bold" />
-          <dd
-            id="js__plisPlanungsanlass"
-            class="u-m-0" />
-        </dl>
-      </template>
-      <dp-form-row
-        class="u-mb-0_75"
-        v-else>
+      <dp-form-row class="u-mb-0_75">
         <dp-input
           data-cy="newProcedureTitle"
           id="r_name"
@@ -173,11 +138,6 @@
           :required="hasPermission('field_required_procedure_end_date')"
           :calendars-after="2"
           enforce-plausible-dates />
-
-        <p
-          v-if="hasPermission('feature_use_plis')"
-          class="hide-visually flash"
-          id="js__statusBox" />
       </div>
 
       <div
@@ -265,12 +225,6 @@ export default {
       type: String,
       required: false,
       default: () => ''
-    },
-
-    plisNameOptions: {
-      type: Array,
-      required: false,
-      default: () => []
     },
 
     procedureTemplateHint: {

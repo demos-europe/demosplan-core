@@ -601,7 +601,6 @@ class DemosPlanProcedureController extends BaseController
                 'r_master',
                 'r_mapExtent',
                 'r_name',
-                'r_plisId',
                 'r_procedure_type',
                 'r_publicParticipationContact',
                 'r_startdate',
@@ -729,7 +728,6 @@ class DemosPlanProcedureController extends BaseController
         );
 
         $templateVars['breadcrumb'] = $breadcrumb;
-        $templateVars = $this->procedureService->setPlisInTemplateVars($templateVars);
 
         // Formulardaten verarbeiten
         $inData = $this->prepareIncomingData($request, 'new');
@@ -830,7 +828,6 @@ class DemosPlanProcedureController extends BaseController
         );
 
         $templateVars['breadcrumb'] = $breadcrumb;
-        $templateVars = $this->procedureService->setPlisInTemplateVars($templateVars);
 
         // Formulardaten verarbeiten
         $inData = $this->prepareIncomingData($request, 'new');

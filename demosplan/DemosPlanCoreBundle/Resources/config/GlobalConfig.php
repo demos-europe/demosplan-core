@@ -494,10 +494,6 @@ class GlobalConfig implements GlobalConfigInterface
 
     // Bobhh
     /** @var string */
-    protected $lgvPlisBaseUrl;
-    /** @var string */
-    protected $lgvXplanboxBaseUrl;
-    /** @var string */
     protected $gatewayURLintern;
     // End Bobhh
 
@@ -771,8 +767,6 @@ class GlobalConfig implements GlobalConfigInterface
         // project specific params
 
         // Bobhh
-        $this->lgvPlisBaseUrl = $parameterBag->get('lgv_plis_base_url');
-        $this->lgvXplanboxBaseUrl = $parameterBag->get('lgv_xplanbox_base_url');
         $this->xPlanLayerBaseUrl = $parameterBag->get('xplan_layer_base_url');
         $this->gatewayURLintern = $parameterBag->get('gateway_url_intern');
 
@@ -1598,16 +1592,6 @@ class GlobalConfig implements GlobalConfigInterface
     public function isProdMode(): bool
     {
         return 'prod' === $this->getKernelEnvironment();
-    }
-
-    public function getLgvPlisBaseUrl(): string
-    {
-        return $this->lgvPlisBaseUrl;
-    }
-
-    public function getLgvXplanboxBaseUrl(): string
-    {
-        return $this->lgvXplanboxBaseUrl;
     }
 
     public function getXPlanLayerBaseUrl(): string
