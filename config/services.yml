@@ -674,6 +674,13 @@ services:
             - [ 'setClient', [ '@old_sound_rabbit_mq.demos_plan_import_rpc' ]]
 
     demosplan\DemosPlanCoreBundle\Tools\PdfCreatorInterface: '@demosplan\DemosPlanCoreBundle\Tools\PdfCreatorRabbitmq'
+
+    demosplan\DemosPlanCoreBundle\Tools\VirusCheckRabbitmq:
+        calls:
+            - [ 'setClient', [ '@old_sound_rabbit_mq.demos_plan_import_rpc' ]]
+
+    demosplan\DemosPlanCoreBundle\Tools\VirusCheckInterface: '@demosplan\DemosPlanCoreBundle\Tools\VirusCheckRabbitmq'
+
     demosplan\DemosPlanCoreBundle\Logic\Document\ElementHandler:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
         lazy: true
