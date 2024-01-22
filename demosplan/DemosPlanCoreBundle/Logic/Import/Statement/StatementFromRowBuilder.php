@@ -282,17 +282,17 @@ class StatementFromRowBuilder extends AbstractStatementFromRowBuilder
         $gdprConsent->setStatement($newOriginalStatement);
         $newOriginalStatement->setGdprConsent($gdprConsent);
 
-        $violations = $this->findOrCreatePlanningCategory($newOriginalStatement);
-        if (0 !== $violations->count()) {
-            return $violations;
-        }
-
         // set other static values
         $newOriginalStatement->setManual();
         $newOriginalStatement->setProcedure($this->procedure);
         $newStatementMeta->setSubmitOrgaId($this->importingUser->getOrganisationId());
         $newOriginalStatement->setPhase($this->procedure->getPhase());
         $newOriginalStatement->setPublicVerified(Statement::PUBLICATION_NO_CHECK_SINCE_NOT_ALLOWED);
+
+        $violations = $this->findOrCreatePlanningCategory($newOriginalStatement);
+        if (0 !== $violations->count()) {
+            return $violations;
+        }
 
         // validate
         $violations = $this->validator->validate(

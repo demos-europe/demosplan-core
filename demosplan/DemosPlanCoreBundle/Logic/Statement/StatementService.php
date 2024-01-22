@@ -560,7 +560,11 @@ class StatementService extends CoreService implements StatementServiceInterface
             $this->statementAttributeRepository->copyStatementAttributes($draftStatement, $originalStatement);
 
             // Create a statement copy for the assessment table
-            $assessableStatement = $this->statementCopier->copyStatementObjectWithinProcedure($originalStatement, false);
+            $assessableStatement = $this->statementCopier->copyStatementObjectWithinProcedureWithRelatedFiles(
+                $originalStatement,
+                false,
+                true
+            );
 
             $assessableStatement = $this->postSubmitDraftStatement($assessableStatement, $draftStatement);
 
