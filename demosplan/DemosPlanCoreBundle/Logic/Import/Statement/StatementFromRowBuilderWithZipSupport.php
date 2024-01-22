@@ -61,7 +61,7 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
         $isStringViolation = $this->validator->validate(
             $cellValue,
             new Type(
-                type: "string",
+                type: 'string',
                 message: 'statement.import.invalidFileReference'
             )
         );
@@ -110,7 +110,7 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
         $isStringViolation = $this->validator->validate(
             $cellValue,
             new Type(
-                type: "string",
+                type: 'string',
                 message: 'statement.import.invalidFileReference'
             )
         );
