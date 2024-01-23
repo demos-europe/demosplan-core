@@ -279,7 +279,7 @@
         {% if hasPermission('field_organisation_paper_copy_spec') %}
             {{ uiComponent('form.row', { elements: [{
                 label: { text: 'copies.kind'|trans, hint: 'explanation.organisation.copies.kind'|trans|wysiwyg },
-                control: { value: organisation.paperCopySpec|default, name: organisation.ident|default ~ ':paperCopySpec', height: '90' },
+                control: { value: organisation.paperCopySpec|default, name: organisation.ident|default ~ ':paperCopySpec', height: '8' },
                 type: 'textarea',
                 id: 'orga_paperCopySpec',
             }] }) }}
@@ -288,7 +288,7 @@
         {% if hasPermission('field_organisation_competence') %}
             {{ uiComponent('form.row', { elements: [{
                 label: { text: 'competence.explanation'|trans, hint: 'explanation.organisation.competence'|trans },
-                control: { value: organisation.competence|default, name: organisation.ident|default ~ ':competence', height: '90' },
+                control: { value: organisation.competence|default, name: organisation.ident|default ~ ':competence', height: '8' },
                 type: 'textarea',
                 id: 'orga_competence',
             }] }) }}
