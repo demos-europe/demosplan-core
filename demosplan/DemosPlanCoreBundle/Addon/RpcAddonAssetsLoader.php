@@ -19,12 +19,16 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
 use Exception;
 use JsonSchema\Exception\InvalidSchemaException;
+use Psr\Log\LoggerInterface;
 use stdClass;
 
 class RpcAddonAssetsLoader implements RpcMethodSolverInterface
 {
-    public function __construct(private readonly FrontendAssetProvider $assetProvider, private readonly RpcErrorGenerator $errorGenerator)
-    {
+    public function __construct(
+        private readonly FrontendAssetProvider $assetProvider,
+        private readonly LoggerInterface $logger,
+        private readonly RpcErrorGenerator $errorGenerator
+    ) {
     }
 
     public function supports(string $method): bool
@@ -48,11 +52,14 @@ class RpcAddonAssetsLoader implements RpcMethodSolverInterface
                 $addonsAssetsData = $this->assetProvider->getFrontendClassesForHook($hookName);
 
                 $resultResponse[] = $this->generateMethodResult($rpcRequest, $addonsAssetsData);
-            } catch (InvalidArgumentException|InvalidSchemaException) {
+            } catch (InvalidArgumentException|InvalidSchemaException $exception) {
+                $this->logger->error($exception);
                 $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
-            } catch (AccessDeniedException) {
+            } catch (AccessDeniedException $exception) {
+                $this->logger->error($exception);
                 $resultResponse[] = $this->errorGenerator->accessDenied($rpcRequest);
-            } catch (Exception) {
+            } catch (Exception $exception) {
+                $this->logger->error($exception);
                 $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
             }
         }
