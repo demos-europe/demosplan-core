@@ -485,9 +485,12 @@ class AddonInstallFromZipCommand extends CoreCommand
             function ($tag) {
                 return !str_contains($tag['name'], 'rc');
             }
-        )->map(function ($tag) {
-            return $tag['name'];
-        })->toArray();
+            )->map(function ($tag) {
+                return $tag['name'];
+            })
+            ->reverse()
+            ->values()
+            ->toArray();
 
         if (0 === count($tags)) {
             throw new RuntimeException('No tags found for this repository. Please install the addon via --local');
@@ -497,8 +500,6 @@ class AddonInstallFromZipCommand extends CoreCommand
             'Which tag do you want to install? ',
             $tags
         );
-        $tag = $this->getHelper('question')->ask($input, $output, $question);
-
-        return $tag;
+        return $this->getHelper('question')->ask($input, $output, $question);
     }
 }
