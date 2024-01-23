@@ -285,8 +285,8 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
         return $this->baseStatementFromRowBuilder->buildStatementAndReset();
     }
 
-    public function resetStatement(): StatementInterface
+    public function resetStatement(): void
     {
-        return $this->statement = new Statement();
+        $this->statement = new Statement();
     }
 }

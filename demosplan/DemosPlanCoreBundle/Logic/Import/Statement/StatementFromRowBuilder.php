@@ -320,9 +320,9 @@ class StatementFromRowBuilder extends AbstractStatementFromRowBuilder
         return $newOriginalStatement;
     }
 
-    public function resetStatement(): StatementInterface
+    public function resetStatement(): void
     {
-        return $this->statement = new Statement();
+        $this->statement = new Statement();
     }
 
     /**
