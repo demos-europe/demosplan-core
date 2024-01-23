@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Addon\AddonAutoloading;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCache;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
+use LogicException;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\ErrorHandler\Debug;
@@ -40,30 +41,12 @@ use function set_time_limit;
 final class FrontController
 {
     /**
-     * This resembles config/bootstrap.php in a classic Symfony application.
+     * This resembles public/index.php in a classic Symfony application.
      */
     public static function bootstrap(): void
     {
-        // Load cached env vars if the .env.local.php file exists
-        // Run "composer dump-env prod" to create it (requires symfony/flex >=1.2)
-        $cachedEnvFilename = DemosPlanPath::getRootPath('.env.local.php');
-        if (file_exists($cachedEnvFilename) && is_array($env = @include $cachedEnvFilename) && (!isset($env['APP_ENV']) || ($_SERVER['APP_ENV'] ?? $_ENV['APP_ENV'] ?? $env['APP_ENV']) === $env['APP_ENV'])) {
-            (new Dotenv())->populate($env);
-        } else {
-            // load all the .env files
-            (new Dotenv())->loadEnv(DemosPlanPath::getRootPath('.env'));
-        }
 
-        /* @noinspection AdditionOperationOnArraysInspection */
-        $_SERVER += $_ENV;
-
-        $_SERVER['APP_ENV'] = $_ENV['APP_ENV'] = ($_SERVER['APP_ENV'] ?? $_ENV['APP_ENV'] ?? null) ?: 'dev';
-        $_SERVER['APP_DEBUG'] ??= $_ENV['APP_DEBUG'] ?? 'prod' !== $_SERVER['APP_ENV'];
-        $_SERVER['APP_DEBUG'] = $_ENV['APP_DEBUG'] = (int) $_SERVER['APP_DEBUG'] || filter_var($_SERVER['APP_DEBUG'], FILTER_VALIDATE_BOOLEAN) ? '1' : '0';
-
-        if ($_SERVER['APP_DEBUG']) {
-            umask(0000);
-        }
+        (new Dotenv())->bootEnv(DemosPlanPath::getRootPath('.env'));
 
         // Add the Addon autoloader to the spl autoload stack
         AddonAutoloading::register();
@@ -76,21 +59,41 @@ final class FrontController
      */
     public static function console(string $activeProject, bool $deprecatedFrontcontroller = false): void
     {
-        set_time_limit(0);
-
-        $input = new ArgvInput();
-        $env = $input->getParameterOption(['--env', '-e'], getenv('SYMFONY_ENV') ?: 'dev', true);
-        $debug = '0' !== getenv('SYMFONY_DEBUG') && !$input->hasParameterOption('--no-debug', true) && 'prod' !== $env;
-
-        if ($debug) {
-            umask(0000);
-
-            Debug::enable();
+        if (!in_array(PHP_SAPI, ['cli', 'phpdbg', 'embed'], true)) {
+            echo 'Warning: The console should be invoked via the CLI version of PHP, not the '.PHP_SAPI.' SAPI'.PHP_EOL;
         }
 
-        self::bootstrap();
+        set_time_limit(0);
 
-        $kernel = new DemosPlanKernel($activeProject, $env, $debug);
+        require DemosPlanPath::getRootPath('vendor/autoload.php');
+
+        if (!class_exists(ConsoleApplication::class) || !class_exists(Dotenv::class)) {
+            throw new LogicException('You need to add "symfony/framework-bundle" and "symfony/dotenv" as Composer dependencies.');
+        }
+
+        $input = new ArgvInput();
+        if (null !== $env = $input->getParameterOption(['--env', '-e'], null, true)) {
+            putenv('APP_ENV='.$_SERVER['APP_ENV'] = $_ENV['APP_ENV'] = $env);
+        }
+
+        if ($input->hasParameterOption('--no-debug', true)) {
+            putenv('APP_DEBUG='.$_SERVER['APP_DEBUG'] = $_ENV['APP_DEBUG'] = '0');
+        }
+
+        (new Dotenv())->bootEnv(DemosPlanPath::getRootPath('.env'));
+
+        if ($_SERVER['APP_DEBUG']) {
+            umask(0000);
+
+            if (class_exists(Debug::class)) {
+                Debug::enable();
+            }
+        }
+
+        // Add the Addon autoloader to the spl autoload stack
+        AddonAutoloading::register();
+
+        $kernel = new DemosPlanKernel($activeProject, $_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
         $application = new ConsoleApplication($kernel, $deprecatedFrontcontroller);
 
         $application->run($input);

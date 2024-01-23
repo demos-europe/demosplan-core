@@ -3,7 +3,7 @@
 parameters:
     locale: "de"
     salt: "JddLn]@xP.NmGGW@&pkv?cBW,tZc5@/GaAENL?/_N@pY,%2z},CZEmnCE(E_RsGRR?+*N}*# UgRS,j[)gkELxS)2wk2@B_v]?r@q,7hS(Za?9]R{*"
-    secret: "IAmOnlyTheDefaultSecretSoChangeMeInProjects"
+    #secret: "IAmOnlyTheDefaultSecretSoChangeMeInProjects"
 
     # logging strategy for monolog, can be either "rotating_file" or "stream"
     logging_strategy: "rotating_file"
