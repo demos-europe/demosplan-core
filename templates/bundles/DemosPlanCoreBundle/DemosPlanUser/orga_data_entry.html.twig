@@ -314,7 +314,7 @@
         {% if hasPermission('field_data_protection_text_customized_edit_orga') %}
             {{ uiComponent('form.row', { elements: [{
                 label: { text: 'data.protection.notes'|trans, hint: 'customer.data.protection.explanation'|trans },
-                control: { hiddenInput: organisation.ident|default ~ ':data_protection', headings: [3,4] },
+                control: { hiddenInput: organisation.ident|default ~ ':data_protection', headings: [3,4], linkButton: true },
                 id: 'orga_data_protection',
                 type: 'editor',
                 value: organisation.dataProtection|default,
@@ -324,7 +324,7 @@
         {% if hasPermission('field_imprint_text_customized_edit_orga') %}
             {{ uiComponent('form.row', { elements: [{
                 label: { text: 'imprint'|trans, hint: 'organisation.imprint.hint'|trans },
-                control: { name: 'data_protection', hiddenInput: organisation.ident|default ~ ':imprint', headings: [3,4] },
+                control: { name: 'data_protection', hiddenInput: organisation.ident|default ~ ':imprint', headings: [3,4], linkButton: true },
                 id: 'orga_imprint',
                 type: 'editor',
                 value: organisation.imprint|default,
