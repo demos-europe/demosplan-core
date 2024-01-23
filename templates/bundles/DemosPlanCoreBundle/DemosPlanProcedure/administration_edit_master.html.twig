@@ -104,7 +104,7 @@
             <label>
                 {{ "internalnote"|trans }}
                 {# Bei textareas muss der Inhalt ohne Leerzeichen zwischen den Tags stehen, sonst werden die Leerzeichen ausgegeben und multiplizieren sich im Frontend. #}
-                <textarea class="height-60" name="r_desc">{% if proceduresettings.desc is defined %}{{ proceduresettings.desc }}{% else %}{{ "notspecified"|trans }}{% endif %}</textarea>
+                <textarea class="h-7" name="r_desc">{% if proceduresettings.desc is defined %}{{ proceduresettings.desc }}{% else %}{{ "notspecified"|trans }}{% endif %}</textarea>
             </label>
 
             <div class="u-mb flow-root">

@@ -17,7 +17,7 @@
 
       <!-- modal content -->
       <div
-        class="c-tabs__modal u-ph-0 u-pb-0 u-mv-0 height--auto"
+        class="c-tabs__modal u-ph-0 u-pb-0 u-mv-0 h-auto"
         :style="{ minHeight: minHeight + 'px' }"
         ref="exportModalContent">
         <div
