@@ -165,6 +165,9 @@ parameters:
     # route to tex2pdf service without trailing slash
     tex2pdf_url: ""
 
+    # virus scan service url without trailing slash
+    avscan_url: ""
+
     #RabbitMQ setting like amqp://:@localhost:5672/%2f
     rabbitmq_dsn: "%env(string:RABBITMQ_DSN)%"
     rabbitmq_routing_disabled: false

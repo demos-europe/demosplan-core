@@ -43,7 +43,7 @@ class SamlUserFactory implements SamlUserFactoryInterface
         if ($username instanceof SamlTokenInterface) {
             trigger_deprecation('hslavich/oneloginsaml-bundle', '2.1', 'Usage of %s is deprecated.', SamlTokenInterface::class);
 
-            [$username, $attributes] = [$username->getUsername(), $username->getAttributes()];
+            [$username, $attributes] = [$username->getUserIdentifier(), $username->getAttributes()];
         }
 
         // At this state the login attempt may be from different Identity Providers (IdP).
@@ -117,7 +117,7 @@ class SamlUserFactory implements SamlUserFactoryInterface
         $users = $orga->getUsers();
 
         // return the orga default user
-        $user = $users->filter(fn(User $user) => User::DEFAULT_ORGA_USER_NAME === $user->getLastname());
+        $user = $users->filter(fn (User $user) => User::DEFAULT_ORGA_USER_NAME === $user->getLastname());
 
         if (1 === $user->count()) {
             return $user->first();

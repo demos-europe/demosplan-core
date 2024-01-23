@@ -241,16 +241,15 @@ export default {
 
     element () {
       let elementTitle = ''
+      const element = this.statement.elementId ? this.elements.find((el) => el.id === this.statement.elementId) : null
 
-      if (hasOwnProp(this.statement, 'elements') && this.statement.elements.title !== '') {
-        elementTitle = this.statement.elements.title
+      if (element && element.title !== '') {
+        elementTitle = element.title
         if (hasOwnProp(this.statement, 'document') && this.statement.document.title !== '') {
           elementTitle += ` / ${this.statement.document.title}`
         }
       } else {
-        const element = this.statement.elementId ? this.elements.find((el) => el.id === this.statement.elementId) : null
-
-        elementTitle = element ? element.title : Translator.trans('notspecified')
+        elementTitle = Translator.trans('notspecified')
       }
 
       if (hasOwnProp(this.statement, 'paragraph')) {
