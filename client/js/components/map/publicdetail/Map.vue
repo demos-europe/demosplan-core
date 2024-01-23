@@ -834,7 +834,7 @@ export default {
           //  Add progress indicator (.o-spinner on same element required)
           $popup.find('#popupContent h3').addClass(this.prefixClass('is-progress'))
 
-          dpApi.get(Routing.generate('DemosPlan_map_get_feature_info', { procedure: this.procedureId }), getData)
+          dpApi.get(Routing.generate('DemosPlan_map_get_feature_info', { procedure: this.procedureId }), getData, { serialize: true })
             .then(response => {
               if (response.data.code === 100 && response.data.success) {
                 if (response.data.body !== null) {
