@@ -17,6 +17,8 @@
  */
 import { dpApi } from '@demos-europe/demosplan-ui'
 
+const saveBtn = document.getElementById('saveBtn')
+
 const setWarningForUnsetBounds = () => {
   const statusBox = document.querySelector('#js__statusBox')
 
@@ -27,7 +29,7 @@ const setWarningForUnsetBounds = () => {
   statusBox.classList.remove('flash-confirm')
   statusBox.classList.add('flash-warning')
   // Enable save-button
-  document.getElementById('saveBtn').removeAttribute('disabled')
+  saveBtn.removeAttribute('disabled')
 }
 
 const setConfirmForBounds = function (data) {
@@ -40,7 +42,7 @@ const setConfirmForBounds = function (data) {
   statusBox.classList.remove('flash-warning')
   statusBox.classList.add('flash-confirm')
   // Enable save-button
-  document.getElementById('saveBtn').removeAttribute('disabled')
+  saveBtn.removeAttribute('disabled')
 }
 
 function getXplanboxBounds (procedureName) {
@@ -93,12 +95,13 @@ export default function CreateProcedure () {
         url: Routing.generate('DemosPlan_plis_get_procedure', { uuid: selectedOption.value })
       })
         .then(data => {
-          if (data.data.code === 100 && data.data.success === true) {
+          const dataResponse = JSON.parse(data.data)
+          if (dataResponse.code === 100 && dataResponse.success === true) {
             planningCauseSelect.classList.remove('lbl__hint', 'flash-error', 'u-p-0_25', 'u-mt-0_25')
-            const planungsanlassText = data.data.procedure.planungsanlass
+            const planningOccasionText = dataResponse.procedure.planungsanlass
 
-            planningCauseSelect.innerHTML = planungsanlassText.replace(/\n/g, '<br>')
-            document.querySelector('input[name="r_externalDesc"]').setAttribute('value', planungsanlassText)
+            planningCauseSelect.innerHTML = planningOccasionText.replace(/\n/g, '<br>')
+            document.querySelector('input[name="r_externalDesc"]').setAttribute('value', planningOccasionText)
             const elt = document.querySelector('select[name="r_plisId"]')
             getXplanboxBounds(elt.options[elt.selectedIndex].text)
           } else {
