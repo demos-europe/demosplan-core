@@ -45,7 +45,6 @@ final class FrontController
      */
     public static function bootstrap(): void
     {
-
         (new Dotenv())->bootEnv(DemosPlanPath::getRootPath('.env'));
 
         // Add the Addon autoloader to the spl autoload stack

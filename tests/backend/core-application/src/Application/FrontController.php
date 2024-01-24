@@ -29,7 +29,6 @@ class FrontController
      */
     public static function console()
     {
-
         if (!in_array(PHP_SAPI, ['cli', 'phpdbg', 'embed'], true)) {
             echo 'Warning: The console should be invoked via the CLI version of PHP, not the '.PHP_SAPI.' SAPI'.PHP_EOL;
         }
@@ -65,8 +64,5 @@ class FrontController
         $application = new ConsoleApplication($kernel, false);
 
         $application->run($input);
-
-
-
     }
 }
