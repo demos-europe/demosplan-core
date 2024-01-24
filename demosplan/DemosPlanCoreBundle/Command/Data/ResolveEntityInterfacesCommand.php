@@ -90,7 +90,7 @@ class ResolveEntityInterfacesCommand extends CoreCommand
 
         }
 
-
+        //$this->updateYamlDoctrineFile($entities);
 
         $output->writeln([
             'Command ResolveEntityInterfacesCommand finish',
@@ -102,6 +102,16 @@ class ResolveEntityInterfacesCommand extends CoreCommand
 
     }
 
+    private function updateYamlDoctrineFile($entities)
+    {
 
+        $doctrineFile = DemosPlanPath::getConfigPath('packages/doctrine.yaml');
+        $yaml = Yaml::parse(file_get_contents($doctrineFile));
+        $srcData = $yaml['doctrine']['orm']['resolve_target_entities'];
+        $yaml['doctrine']['orm']['resolve_target_entities'] = $entities;
+        $new_yaml = Yaml::dump($yaml, 5);
+        file_put_contents($doctrineFile, $new_yaml);
+
+    }
 
 }
