@@ -112,10 +112,9 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
             $this->createIdentifier()->readable(),
             $this->createAttribute($this->legalName)->readable(true)->aliasedPath($this->name),
             $this->createAttribute($this->participationFeedbackEmailAddress)->readable()->aliasedPath(Paths::orga()->email2),
-            $this->createToOneRelationship($this->locationContacts)->readable(),
+            $this->createToOneRelationship($this->locationContacts)->readable()->aliasedPath(Paths::orga()->addresses),
         ];
 
-        // FIXME: is it ok to wrap this in a permission check now? Or does the FE need to be adjusted?
         if ($this->currentUser->hasPermission('field_organisation_competence')) {
             $properties[] = $this->createAttribute($this->competenceDescription)->readable(
                 true,
