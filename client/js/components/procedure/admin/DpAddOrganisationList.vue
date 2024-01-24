@@ -16,11 +16,77 @@
       class="u-mt-0_5"
       :header-fields="headerFields"
       :table-items="rowItems"
+      is-expandable
       is-selectable
       :items-per-page-options="itemsPerPageOptions"
       :default-sort-order="sortOrder"
       @items-selected="setSelectedItems"
       :init-items-per-page="itemsPerPage">
+      <template v-slot:expandedContent="{ participationFeedbackEmailAddress, locationContacts, ccEmailAddresses }">
+        <div class="lg:w-2/3 lg:flex pt-4">
+          <dl class="layout__item">
+            <dt class="color--grey">
+              {{ Translator.trans('address') }}:
+            </dt>
+            <dd
+              v-if="locationContacts.street"
+              class="ml-0">
+              {{ locationContacts.street }}
+            </dd>
+            <dd
+              v-if="locationContacts.postalCode"
+              class="ml-0">
+              {{ locationContacts.postalCode }}
+            </dd>
+            <dd
+              v-if="locationContacts.city"
+              class="ml-0">
+              {{ locationContacts.city }}
+            </dd>
+            <dd
+              v-if="!locationContacts.street && !locationContacts.city && !locationContacts.postalCode"
+              class="ml-0">
+              {{ Translator.trans('notspecified') }}
+            </dd>
+          </dl>
+          <dl class="layout__item">
+            <dt class="color--grey">
+              {{ Translator.trans('phone') }}
+            </dt>
+            <dd
+              v-if="locationContacts.phone"
+              class="ml-0">
+              {{ locationContacts.phone }}
+            </dd>
+            <dd
+              v-else
+              class="ml-0">
+              {{ Translator.trans('notspecified') }}
+            </dd>
+            <dt class="color--grey mt-2">
+              {{ Translator.trans('email.participation') }}
+            </dt>
+            <dd
+              v-if="participationFeedbackEmailAddress"
+              class="ml-0">
+              {{ participationFeedbackEmailAddress }}
+            </dd>
+            <dd
+              v-else
+              class="ml-0">
+              {{ Translator.trans('no.participation.email') }}
+            </dd>
+            <template v-if="ccEmailAddresses">
+              <dt class="color--grey mt-2">
+                {{ Translator.trans('email.cc.participation') }}:
+              </dt>
+              <dd class="ml-0">
+                {{ ccEmailAddresses }}
+              </dd>
+            </template>
+          </dl>
+        </div>
+      </template>
       <template v-slot:footer>
         <div class="u-pt-0_5">
           <div class="u-1-of-3 inline-block">
@@ -29,8 +95,8 @@
               v-if="selectedItems.length">
               {{ selectedItems.length }} {{ (selectedItems.length === 1 && Translator.trans('entry.selected')) || Translator.trans('entries.selected') }}
             </span>
-          </div><!--
-       --><div class="u-2-of-3 text-right inline-block space-inline-s">
+          </div>
+          <div class="u-2-of-3 text-right inline-block space-inline-s">
             <dp-button
               data-cy="addPublicAgency"
               :text="Translator.trans('invitable_institution.add')"
@@ -40,7 +106,7 @@
               class="btn btn--secondary">
               {{ Translator.trans('abort.and.back') }}
             </a>
-        </div>
+          </div>
         </div>
       </template>
     </dp-data-table-extended>
@@ -86,16 +152,29 @@ export default {
   },
 
   computed: {
-    ...mapState('invitableToeb', ['items']),
+    ...mapState('institutionLocationContact', {
+      institutionLocationContactItems: 'items'
+    }),
+
+    ...mapState('invitableToeb', {
+      invitableToebItems: 'items'
+    }),
 
     rowItems () {
-      return Object.values(this.items).reduce((acc, item) => {
+      return Object.values(this.invitableToebItems).reduce((acc, item) => {
+        const locationContactId = item.relationships.locationContacts.data[0].id
+        const locationContact = this.getLocationContactById(locationContactId)
+
         return [
           ...acc,
           ...[
             {
               id: item.id,
-              ...item.attributes
+              ...item.attributes,
+              locationContacts: {
+                id: locationContact.id,
+                ...locationContact.attributes
+              }
             }
           ]
         ]
@@ -107,10 +186,6 @@ export default {
     ...mapActions('invitableToeb', {
       getInstitutions: 'list'
     }),
-
-    setSelectedItems (selectedItems) {
-      this.selectedItems = selectedItems
-    },
 
     addPublicInterestBodies (publicAgenciesIds) {
       if (publicAgenciesIds.length === 0) {
@@ -133,7 +208,7 @@ export default {
       })
         // Refetch invitable institutions list to ensure that invited institutions are not displayed anymore
         .then(() => {
-          this.getInstitutions()
+          this.getInstitutionList()
             .then(() => {
               dplan.notify.notify('confirm', Translator.trans('confirm.invitable_institutions.added'))
               this.$refs.dataTable.updateFields()
@@ -147,11 +222,41 @@ export default {
         .catch(() => {
           dplan.notify.error(Translator.trans('warning.invitable_institution.not.added'))
         })
+    },
+
+    getInstitutionList () {
+      return this.getInstitutions({
+        include: ['locationContacts'].join(),
+        fields: {
+          InvitableToeb: [
+            'legalName',
+            'competenceDescription',
+            'ccEmailAddresses',
+            'participationFeedbackEmailAddress',
+            'locationContacts',
+            'contactPerson'
+          ].join(),
+          InstitutionLocationContact: [
+            'street',
+            'postalcode',
+            'city',
+            'phone'
+          ].join()
+        }
+      })
+    },
+
+    getLocationContactById (id) {
+      return Object.values(this.institutionLocationContactItems).find(el => el.id === id)
+    },
+
+    setSelectedItems (selectedItems) {
+      this.selectedItems = selectedItems
     }
   },
 
   mounted () {
-    this.getInstitutions({ procedureId: this.procedureId })
+    this.getInstitutionList()
       .then(() => { this.isLoading = false })
   }
 }

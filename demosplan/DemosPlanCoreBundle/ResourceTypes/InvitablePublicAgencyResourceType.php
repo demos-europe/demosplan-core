@@ -112,7 +112,7 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
             $this->createIdentifier()->readable(),
             $this->createAttribute($this->legalName)->readable(true)->aliasedPath($this->name),
             $this->createAttribute($this->participationFeedbackEmailAddress)->readable()->aliasedPath(Paths::orga()->email2),
-            $this->createToOneRelationship($this->locationContacts)->readable()->aliasedPath(Paths::orga()->addresses),
+            $this->createToManyRelationship($this->locationContacts)->readable()->aliasedPath(Paths::orga()->addresses),
         ];
 
         if ($this->currentUser->hasPermission('field_organisation_competence')) {
