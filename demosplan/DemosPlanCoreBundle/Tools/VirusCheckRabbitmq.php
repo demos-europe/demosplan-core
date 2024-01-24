@@ -48,7 +48,7 @@ class VirusCheckRabbitmq implements VirusCheckInterface
 
             // send request
             $this->logger->info('Path of file for virusCheck: '.$file->getRealPath().', with routingKey: '.$routingKey);
-            $this->client->addRequest($msg, 'virusCheckDemosPlanLocal', 'virusCheck', $routingKey, 10);
+            $this->client->addRequest($msg, 'virusCheckDemosPlanLocal', 'virusCheck', $routingKey, 300);
 
             $replies = $this->client->getReplies();
 
