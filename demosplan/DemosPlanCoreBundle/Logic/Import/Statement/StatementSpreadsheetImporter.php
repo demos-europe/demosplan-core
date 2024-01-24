@@ -30,7 +30,6 @@ use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Webmozart\Assert\Assert;
 
 use function array_key_exists;
 
@@ -54,7 +53,7 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
      * `null` values indicate (currently) missing support for the corresponding column, while still allowing it to
      * be present in the input file. Such columns should be simply ignored.
      *
-     * @return array{array<string, callable(Cell): ConstraintViolationListInterface|null>, StatementFromRowBuilder}
+     * @return array{array<string, callable(Cell): ConstraintViolationListInterface|null>, AbstractStatementFromRowBuilder}
      */
     protected function getColumnCallbacks(RowCellIterator $actualColumnNames): array
     {
@@ -111,6 +110,7 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
             'Verfahrensschritt'             => null,
             'Art der Einreichung'           => null,
         ];
+
         return [$callBackMap, $builder];
     }
 
@@ -147,6 +147,7 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
             ?? throw new MissingPostParameterException('Current procedure is missing.');
 
         $usedExternIds = $this->statementService->getExternIdsInUse($currentProcedure->getId());
+        $usedInternIds = $this->statementService->getInternIdsInUse($currentProcedure->getId());
 
         // loop through all rows and (if valid) create corresponding original statements and statement copies
         [$columnCallbacks, $builder] = $this->getColumnCallbacks($headIterator);
@@ -172,19 +173,29 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
                 array_diff($violationLists, [null])
             );
 
+            $internId = $builder->getInternId();
+            $externId = $builder->getExternId();
+
+            if (null !== $internId && array_key_exists($internId, $usedInternIds)) {
+                // skip statements with existing intern IDs
+                $this->skippedStatements[$internId] = ($this->skippedStatements[$internId] ?? 0) + 1;
+                $builder->resetStatement();
+                continue;
+            }
+            if (array_key_exists($externId, $usedExternIds)) {
+                // skip statements with existing extern IDs
+                $this->skippedStatements[$externId] = ($this->skippedStatements[$externId] ?? 0) + 1;
+                $builder->resetStatement();
+                continue;
+            }
+
+            $usedExternIds[$externId] = $externId;
+            $usedInternIds[$internId] = $internId;
+
             // create the original statement and its copy if valid
             $originalStatementOrViolations = $builder->buildStatementAndReset();
             if ($originalStatementOrViolations instanceof Statement) {
-                $externId = $originalStatementOrViolations->getExternId();
-                if (array_key_exists($externId, $usedExternIds)) {
-                    // skip statements with existing extern IDs
-                    $this->skippedStatements[$externId] = ($this->skippedStatements[$externId] ?? 0) + 1;
-
-                    continue;
-                }
-                $usedExternIds[$externId] = $externId;
-
-                /**
+                /*
                  * At this point the original Statement has been build including the file-references.
                  * File-references are persisted inside the { @link FileContainer } but were not flushed yet.
                  * Flushing the FileContainer needs to be done now - as the previously persisted original Statement is
