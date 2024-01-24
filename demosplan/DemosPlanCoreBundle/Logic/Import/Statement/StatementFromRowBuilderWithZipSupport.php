@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
+use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
@@ -27,9 +28,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuilder
 {
-    protected ?Cell $fileReferences;
+    protected ?Cell $fileReferences = null;
 
-    protected ?Cell $originalFileReferences;
+    protected ?Cell $originalFileReferences = null;
 
     public function __construct(
         private readonly ValidatorInterface $validator,
@@ -90,7 +91,7 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
         return null;
     }
 
-    public function setOriginalFileReferences(?Cell $cell): ?ConstraintViolationListInterface
+    public function setOriginalFileReferences(Cell $cell): ?ConstraintViolationListInterface
     {
         $this->originalFileReferences = $cell;
 
@@ -150,7 +151,10 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
                     $fileEntity->getFileString(),
                     false
                 );
-                $violations = $this->validator->validate($fileContainer, [new NotNull()]);
+                $violations = $this->validator->validate(
+                    $fileContainer,
+                    [new Type(FileContainer::class), new NotNull()]
+                );
             }
 
             $violations->addAll($newViolations);
@@ -263,7 +267,7 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
         return $this->baseStatementFromRowBuilder->setNumberOfAnonymVotes($cell);
     }
 
-    public function setFileReferences(?Cell $cell): ?ConstraintViolationListInterface
+    public function setFileReferences(Cell $cell): ?ConstraintViolationListInterface
     {
         $this->fileReferences = $cell;
 
@@ -273,13 +277,18 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
     public function buildStatementAndReset(): StatementInterface|ConstraintViolationListInterface
     {
         $violations1 = $this->handleFileReferences();
-        if (null !== $violations1 && 0 !== $violations1->count()) {
-            return $violations1;
+        $violations2 = $this->handleOriginalFileReferences();
+
+        $violations = new ConstraintViolationList();
+        if (null !== $violations1) {
+            $violations->addAll($violations1);
+        }
+        if (null !== $violations2) {
+            $violations->addAll($violations2);
         }
 
-        $violations2 = $this->handleOriginalFileReferences();
-        if (null !== $violations2 && 0 !== $violations2->count()) {
-            return $violations2;
+        if (0 !== $violations->count()) {
+            return $violations;
         }
 
         return $this->baseStatementFromRowBuilder->buildStatementAndReset();
