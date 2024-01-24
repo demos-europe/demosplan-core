@@ -305,17 +305,17 @@ export default {
       dpApi.get(url, params, { serialize: true })
         .then(response => {
           response.data.data.forEach(el => this.items.push({
-            creationDate: formatDate(el.attributes.creationDate.date),
-            creationDateRaw: el.attributes.creationDate.date,
+            creationDate: formatDate(el.attributes.creationDate),
+            creationDateRaw: el.attributes.creationDate,
             name: el.attributes.name,
             externalName: el.attributes.externalName,
-            externalEndDate: formatDate(el.attributes.externalEndDate.date),
+            externalEndDate: formatDate(el.attributes.externalEndDate),
             externalPhase: el.attributes.externalPhaseTranslationKey,
-            externalStartDate: formatDate(el.attributes.externalStartDate.date),
+            externalStartDate: formatDate(el.attributes.externalStartDate),
             id: el.id,
-            internalEndDate: formatDate(el.attributes.internalEndDate.date),
+            internalEndDate: formatDate(el.attributes.internalEndDate),
             internalPhase: el.attributes.internalPhaseTranslationKey,
-            internalStartDate: formatDate(el.attributes.internalStartDate.date),
+            internalStartDate: formatDate(el.attributes.internalStartDate),
             originalStatementsCount: el.attributes.originalStatementsCount,
             statementsCount: el.attributes.statementsCount
           }))
