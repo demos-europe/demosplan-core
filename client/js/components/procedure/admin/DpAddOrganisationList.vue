@@ -208,7 +208,7 @@ export default {
       })
         // Refetch invitable institutions list to ensure that invited institutions are not displayed anymore
         .then(() => {
-          this.getInstitutionList()
+          this.getInstitutionsWithContacts()
             .then(() => {
               dplan.notify.notify('confirm', Translator.trans('confirm.invitable_institutions.added'))
               this.$refs.dataTable.updateFields()
@@ -224,24 +224,36 @@ export default {
         })
     },
 
-    getInstitutionList () {
+    getInstitutionsWithContacts () {
+      const invitableToebFields = [
+        'legalName',
+        'participationFeedbackEmailAddress',
+        'locationContacts'
+      ]
+
+      const locationContactFields = ['street', 'postalcode', 'city']
+
+      if (hasPermission('field_organisation_email2_cc')) {
+        invitableToebFields.push('ccEmailAddresses')
+      }
+
+      if (hasPermission('field_organisation_contact_person')) {
+        invitableToebFields.push('contactPerson')
+      }
+
+      if (hasPermission('field_organisation_competence')) {
+        invitableToebFields.push('competenceDescription')
+      }
+
+      if (hasPermission('field_organisation_phone')) {
+        locationContactFields.push('phone')
+      }
+
       return this.getInstitutions({
         include: ['locationContacts'].join(),
         fields: {
-          InvitableToeb: [
-            'legalName',
-            'competenceDescription',
-            'ccEmailAddresses',
-            'participationFeedbackEmailAddress',
-            'locationContacts',
-            'contactPerson'
-          ].join(),
-          InstitutionLocationContact: [
-            'street',
-            'postalcode',
-            'city',
-            'phone'
-          ].join()
+          InvitableToeb: invitableToebFields.join(),
+          InstitutionLocationContact: locationContactFields.join()
         }
       })
     },
@@ -256,7 +268,7 @@ export default {
   },
 
   mounted () {
-    this.getInstitutionList()
+    this.getInstitutionsWithContacts()
       .then(() => { this.isLoading = false })
   }
 }
