@@ -26,7 +26,7 @@
         <div class="lg:w-2/3 lg:flex pt-4">
           <dl class="layout__item">
             <dt class="color--grey">
-              {{ Translator.trans('address') }}:
+              {{ Translator.trans('address') }}
             </dt>
             <dd
               v-if="locationContacts.street"
