@@ -63,11 +63,18 @@ class ProcedureDeleter
             // delete predefined text categories -> predefined texts
             $this->processPredefinedTexts($procedureIds, $isDryRun);
 
-            // delete draft statements
-            $this->deleteDraftStatements($procedureIds, $isDryRun);
-
+            // delete draft statements attributes
+            // ATTENTION
+            // the order matters here as we need to query the draftStatementIds in order to delete the attributes
+            $this->deleteDraftStatementAttributes($procedureIds, $isDryRun);
+            // delete draft statements Files
+            // ATTENTION
+            // the order matters here as we need to query the draftStatementIds in order to delete the files
+            $this->deleteDraftStatementsFiles($procedureIds, $isDryRun);
             // delete draft statement versions
             $this->deleteDraftStatementsVersions($procedureIds, $isDryRun);
+            // delete draft statements
+            $this->deleteDraftStatements($procedureIds, $isDryRun);
 
             // delete institutions mails
             $this->deleteInstitutionsMails($procedureIds, $isDryRun);
@@ -154,6 +161,30 @@ class ProcedureDeleter
     {
         $statementIds = array_column($this->queriesService->fetchFromTableByParameter(['_st_id'], '_statement', '_p_id', $procedureIds), '_st_id');
 
+        // delete statement likes
+        $this->deleteStatementLikes($statementIds, $isDryRun);
+        // delete statement import email original statement
+        $this->deleteStatementImportEmailOriginalStatement($statementIds, $isDryRun);
+        // delete statement fragment and relations
+        $this->deleteStatementFragmentAndRelations($statementIds, $isDryRun);
+        // delete original statement anonymizations
+        $this->deleteOriginalStatementAnonymizations($statementIds, $isDryRun);
+        // delete gdpr consent revoke token statements
+        $this->deleteGdprConsentRevokeTokenStatements($statementIds, $isDryRun);
+        // delete consultation token
+        $this->deleteConsultationTokens($statementIds, $isDryRun);
+        // delete statement votes
+        $this->deleteStatementVotes($statementIds, $isDryRun);
+        // delete statement version fields
+        $this->deleteStatementVersionFields($statementIds, $isDryRun);
+        // delete statement priority areas
+        $this->deleteStatementPriorityAreas($statementIds, $isDryRun);
+        // delete statement municipalities
+        $this->deleteStatementMunicipalities($statementIds, $isDryRun);
+        // delete statement county
+        $this->deleteStatementCounties($statementIds, $isDryRun);
+        // delete statement attributes
+        $this->deleteStatementAttributes($statementIds, $isDryRun);
         // delete statement meta
         $this->deleteStatementMeta($statementIds, $isDryRun);
         // delete statement attachment -> files
@@ -377,6 +408,62 @@ class ProcedureDeleter
     /**
      * @throws Exception
      */
+    private function deleteDraftStatementsFiles(array $procedureIds, bool $isDryRun): void
+    {
+        $draftStatementIds = array_column(
+            $this->queriesService->fetchFromTableByParameter(
+                ['_ds_id'],
+                '_draft_statement',
+                '_p_id',
+                $procedureIds
+            ),
+            '_ds_id'
+        );
+        $fileIds = array_column(
+            $this->queriesService->fetchFromTableByParameter(
+                ['file_id'],
+                'draft_statement_file',
+                'draft_statement_id',
+                $draftStatementIds
+            ),
+            'file_id'
+        );
+
+        $this->deleteFiles($fileIds, $isDryRun);
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            'draft_statement_file',
+            'draft_statement_id',
+            $draftStatementIds,
+            $isDryRun
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteDraftStatementAttributes($procedureIds, bool $isDryRun): void
+    {
+        $draftStatementIds = array_column(
+            $this->queriesService->fetchFromTableByParameter(
+                ['_ds_id'],
+                '_draft_statement',
+                '_p_id',
+                $procedureIds
+            ),
+            '_ds_id'
+        );
+
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            '_statement_attribute',
+            '_sta_ds_id',
+            $draftStatementIds,
+            $isDryRun
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
     private function deleteDraftStatementsVersions(array $procedureIds, bool $isDryRun): void
     {
         $this->queriesService->deleteFromTableByIdentifierArray('_draft_statement_versions', '_p_id', $procedureIds, $isDryRun);
@@ -548,6 +635,229 @@ class ProcedureDeleter
     private function deleteProcedureNews(array $procedureIds, bool $isDryRun): void
     {
         $this->queriesService->deleteFromTableByIdentifierArray('_news', '_p_id', $procedureIds, $isDryRun);
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteStatementLikes(array $statementIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray('statement_likes', 'st_id', $statementIds, $isDryRun);
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteStatementImportEmailOriginalStatement(array $statementIds, bool $isDryRun): void
+    {
+        $statementImportEmailIds = array_column(
+            $this->queriesService->fetchFromTableByParameter(
+                ['statement_import_email_id'],
+                'statement_import_email_original_statements',
+                'original_statement_id',
+                $statementIds
+            ),
+            'statement_import_email_id'
+        );
+        $fileIds = array_column(
+            $this->queriesService->fetchFromTableByParameter(
+                ['file_id'],
+                'statement_import_email_attachments',
+                'statement_import_email_id',
+                $statementImportEmailIds
+            ),
+            'file_id'
+        );
+
+        $this->deleteFiles($fileIds, $isDryRun);
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            'statement_import_email_attachments',
+            'statement_import_email_id',
+            $statementImportEmailIds,
+            $isDryRun
+        );
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            'statement_import_email',
+            'id',
+            $statementImportEmailIds,
+            $isDryRun
+        );
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            'statement_import_email_original_statement',
+            'original_statement_id',
+            $statementIds,
+            $isDryRun
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteStatementFragmentAndRelations(array $statementIds, bool $isDryRun): void
+    {
+        $statementFragmentIds = array_column(
+            $this->queriesService->fetchFromTableByParameter(
+                ['sf_id'],
+                'statement_fragment',
+                'statement_id',
+                $statementIds
+            ),
+            'sf_id'
+        );
+
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            '_statement_fragment_county',
+            'sf_id',
+            $statementFragmentIds,
+            $isDryRun
+        );
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            '_statement_fragment_municipality',
+            'sf_id',
+            $statementFragmentIds,
+            $isDryRun
+        );
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            '_statement_fragment_priority_area',
+            'sf_id',
+            $statementFragmentIds,
+            $isDryRun
+        );
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            'statement_fragment_tag',
+            'sf_id',
+            $statementFragmentIds,
+            $isDryRun
+        );
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            'statement_fragment_version',
+            'statement_fragment_id',
+            $statementFragmentIds,
+            $isDryRun
+        );
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            'statement_fragment',
+            'statement_id',
+            $statementIds,
+            $isDryRun
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteOriginalStatementAnonymizations(array $statementIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            'original_statement_anonymization',
+            'statement_id',
+            $statementIds,
+            $isDryRun
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteGdprConsentRevokeTokenStatements(array $statementIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            'gdpr_consent_revoke_token_statements',
+            'statement_id',
+            $statementIds,
+            $isDryRun
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteConsultationTokens(array $statementIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            'consultation_token',
+            'statement_id',
+            $statementIds,
+            $isDryRun
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteStatementVotes(array $statementIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            '_statement_votes',
+            '_st_id',
+            $statementIds,
+            $isDryRun
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteStatementVersionFields(array $statementIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            '_statement_version_fields',
+            '_st_id',
+            $statementIds,
+            $isDryRun
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteStatementPriorityAreas(array $statementIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            '_statement_priority_area',
+            '_st_id',
+            $statementIds,
+            $isDryRun
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteStatementMunicipalities(array $statementIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            '_statement_municipality',
+            '_st_id',
+            $statementIds,
+            $isDryRun
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteStatementCounties(array $statementIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            '_statement_county',
+            '_st_id',
+            $statementIds,
+            $isDryRun
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteStatementAttributes(array $statementIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            '_statement_attribute',
+            '_sta_st_id',
+            $statementIds,
+            $isDryRun
+        );
     }
 
     /**
