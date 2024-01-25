@@ -54,7 +54,7 @@
               {{ Translator.trans('phone') }}
             </dt>
             <dd
-              v-if="hasOwnProp(locationContacts,'phone') && locationContacts.phone"
+              v-if="locationContacts.hasOwnProperty('phone') && locationContacts.phone"
               class="ml-0">
               {{ locationContacts.phone }}
             </dd>
@@ -122,7 +122,7 @@
 </template>
 
 <script>
-import { dpApi, DpButton, DpDataTableExtended, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpDataTableExtended } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 
 export default {
@@ -268,10 +268,6 @@ export default {
 
     getLocationContactById (id) {
       return Object.values(this.institutionLocationContactItems).find(el => el.id === id)
-    },
-
-    hasOwnProp (obj, prop) {
-      return hasOwnProp(obj, prop)
     },
 
     setSelectedItems (selectedItems) {
