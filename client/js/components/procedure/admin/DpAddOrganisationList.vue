@@ -241,21 +241,24 @@ export default {
 
       const locationContactFields = ['street', 'postalcode', 'city']
 
-      if (hasPermission('field_organisation_email2_cc')) {
-        invitableToebFields.push('ccEmailAddresses')
-      }
+      const permissionChecksToeb = [
+        { permission: 'field_organisation_email2_cc', value: 'ccEmailAddresses' },
+        { permission: 'field_organisation_contact_person', value: 'contactPerson' },
+        { permission: 'field_organisation_competence', value: 'competenceDescription'}
+      ]
 
-      if (hasPermission('field_organisation_contact_person')) {
-        invitableToebFields.push('contactPerson')
-      }
-
-      if (hasPermission('field_organisation_competence')) {
-        invitableToebFields.push('competenceDescription')
-      }
-
-      if (hasPermission('field_organisation_phone')) {
-        locationContactFields.push('phone')
-      }
+      const permissionChecksContact = [
+        { permission: 'field_organisation_phone', value: 'phone' }
+      ]
+      
+     return this.getInstitutions({
+        include: ['locationContacts'].join(),
+        fields: {
+          InvitableToeb: this.invitableToebFields.concat(this.returnArrayofValues(permissionChecksToeb)).join(),
+          InstitutionLocationContact: this.locationContactFields.concat(this.returnArrayofValues(permissionChecksContact)).join()
+        }
+      })
+      
 
       return this.getInstitutions({
         include: ['locationContacts'].join(),
