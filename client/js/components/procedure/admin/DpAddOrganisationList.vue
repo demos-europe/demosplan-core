@@ -22,7 +22,7 @@
       :default-sort-order="sortOrder"
       @items-selected="setSelectedItems"
       :init-items-per-page="itemsPerPage">
-      <template v-slot:expandedContent="{ participationFeedbackEmailAddress, locationContacts, ccEmailAddresses }">
+      <template v-slot:expandedContent="{ participationFeedbackEmailAddress, locationContacts, ccEmailAddresses, contactPerson }">
         <div class="lg:w-2/3 lg:flex pt-4">
           <dl class="layout__item">
             <dt class="color--grey">
@@ -54,7 +54,7 @@
               {{ Translator.trans('phone') }}
             </dt>
             <dd
-              v-if="locationContacts.phone"
+              v-if="hasOwnProp(locationContacts,'phone') && locationContacts.phone"
               class="ml-0">
               {{ locationContacts.phone }}
             </dd>
@@ -82,6 +82,14 @@
               </dt>
               <dd class="ml-0">
                 {{ ccEmailAddresses }}
+              </dd>
+            </template>
+            <template v-if="contactPerson">
+              <dt class="color--grey mt-2">
+                {{ Translator.trans('contact.person') }}:
+              </dt>
+              <dd class="ml-0">
+                {{ contactPerson }}
               </dd>
             </template>
           </dl>
@@ -114,7 +122,7 @@
 </template>
 
 <script>
-import { dpApi, DpButton, DpDataTableExtended } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpDataTableExtended, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 
 export default {
@@ -136,7 +144,7 @@ export default {
       required: false,
       default: () => [
         { field: 'legalName', label: Translator.trans('invitable_institution') },
-        { field: 'competenceDescription', label: Translator.trans('competence.explanation') }
+        ...hasPermission('field_organisation_competence') ? [{ field: 'competenceDescription', label: Translator.trans('competence.explanation') }] : []
       ]
     }
   },
@@ -260,6 +268,10 @@ export default {
 
     getLocationContactById (id) {
       return Object.values(this.institutionLocationContactItems).find(el => el.id === id)
+    },
+
+    hasOwnProp (obj, prop) {
+      return hasOwnProp(obj, prop)
     },
 
     setSelectedItems (selectedItems) {
