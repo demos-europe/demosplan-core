@@ -324,9 +324,9 @@ export default {
   data () {
     return {
       viewModes: [
-        { type: 'view_mode_default', label: 'assessmenttable.view.mode.default', sort: 'bla' },
-        { type: 'view_mode_tag', label: 'assessmenttable.view.mode.tags' },
-        { type: 'view_mode_elements', label: 'assessmenttable.view.mode.elements' }
+        { type: 'view_mode_default', label: 'assessmenttable.view.mode.default', sort: '' },
+        { type: 'view_mode_tag', label: 'assessmenttable.view.mode.tags', sort: '' },
+        { type: 'view_mode_elements', label: 'assessmenttable.view.mode.elements', sort: '' }
       ]
     }
   },
