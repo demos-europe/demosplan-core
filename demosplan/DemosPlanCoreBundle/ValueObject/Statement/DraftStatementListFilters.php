@@ -96,8 +96,6 @@ class DraftStatementListFilters extends ValueObject
     /**
      * Ignore that ValueObject is not locked.
      * We need to modify on filter change.
-     *
-     * @return mixed
      */
     protected function getProperty(?string $name)
     {
