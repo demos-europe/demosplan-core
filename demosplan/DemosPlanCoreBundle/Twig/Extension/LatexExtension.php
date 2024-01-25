@@ -673,7 +673,7 @@ class LatexExtension extends ExtensionBase
             $text
         );
 
-//        $text = str_replace(['<s>', '</s>'], ['<del>', '</del>'], $text);
+        $text = str_replace(['<s>', '</s>'], ['<del>', '</del>'], $text);
 
         return $text;
     }
