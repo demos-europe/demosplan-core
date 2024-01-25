@@ -450,7 +450,7 @@ export default {
     },
 
     /**
-     * Toggle 'Gliederung' view (e.g. ordered by tags or elements).
+     * Toggle 'Gliederung' view (e.g. ordered by tags or elements)
      * @param {String} mode
      */
     toggleViewMode (mode) {
