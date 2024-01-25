@@ -3,11 +3,6 @@
 
 {# Helper that is only used in "Wizard" mode in administration_edit view in conjunction with .o-wizard. Remove as soon as possible. #}
 {% if showPlainHint|default(false) == true %}
-    <span
-        class="inline-block font-size-small u-mb-0_5"
-        data-wizard-tooltip-plain>
-        {{ helpText|wysiwyg }}
-    </span>
 {% endif %}
 
 <i
@@ -20,11 +15,9 @@
 <noscript>
     <span
         tabindex="0"
-        class="{{ 'o-tooltip'|prefixClass(omitPrefix) }} {{ cssClasses|default('o-tooltip--question-circle')|prefixClass(omitPrefix) }}"
         aria-label="{{ 'contextual.help'|trans }}"
         aria-describedby="{{ contextualHelpId }}">
         <span
-            class="{{ 'o-tooltip__content'|prefixClass(omitPrefix) }}"
             aria-hidden="true"
             id="{{ contextualHelpId }}"
             role="tooltip">

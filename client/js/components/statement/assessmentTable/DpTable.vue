@@ -545,6 +545,7 @@ export default {
     },
 
     handleSortChange (newVal) {
+      console.log(newVal, 'option')
       this.setProperty({
         prop: 'sort',
         val: newVal

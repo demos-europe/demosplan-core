@@ -154,7 +154,7 @@
               role="menuitem"
               data-actionmenu-menuitem
               tabindex="-1"
-              @click.prevent="toggleViewMode(mode.type)">
+              @click.prevent="$emit('handle-sort-change', mode.sort)">
               {{ Translator.trans(mode.label) }}
             </button>
           </div>
@@ -251,10 +251,10 @@
               role="menu">
               <button
                 v-for="(option, i) in sortingOptions"
-                :key="`${option.value}:${i}`"
+                :key="`${ option.value }:${ i }`"
                 class="c-actionmenu__menuitem"
-                :class="{'is-active': option.value === sort.value}"
-                :data-cy="`assessmentTableFilter:${option.label}`"
+                :class="{ 'is-active': option.value === sort.value }"
+                :data-cy="`assessmentTableFilter:${ option.label }`"
                 data-actionmenu-menuitem
                 role="menuitem"
                 tabindex="-1"
@@ -324,7 +324,7 @@ export default {
   data () {
     return {
       viewModes: [
-        { type: 'view_mode_default', label: 'assessmenttable.view.mode.default' },
+        { type: 'view_mode_default', label: 'assessmenttable.view.mode.default', sort: 'bla' },
         { type: 'view_mode_tag', label: 'assessmenttable.view.mode.tags' },
         { type: 'view_mode_elements', label: 'assessmenttable.view.mode.elements' }
       ]

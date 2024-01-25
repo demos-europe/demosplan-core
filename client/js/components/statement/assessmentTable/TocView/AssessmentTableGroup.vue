@@ -11,7 +11,7 @@
   <li class="c-at-item">
     <a
       class="o-link--offset"
-      :id="`viewMode_${elementId}`" />
+      :id="`viewMode_${ elementId }`" />
 
     <component
       v-if="depth > 0 && depth < 6"
@@ -101,6 +101,10 @@ export default {
       'addToSelectionAction',
       'removeFromSelectionAction'
     ])
+  },
+
+  mounted () {
+    console.log(JSON.parse(JSON.stringify(this.statementIds)), 'statementIds')
   }
 }
 </script>
