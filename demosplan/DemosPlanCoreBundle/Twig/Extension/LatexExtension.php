@@ -219,13 +219,7 @@ class LatexExtension extends ExtensionBase
                 '<u>\\1</u>',
                 $text
             );
-
-            // Durchstreichungen behandeln
-            $text = preg_replace(
-                '/<span style=\"text-decoration\: line\-through\;\">(.*)<\/span>/Usi',
-                '<del>\\1</del>',
-                $text
-            );
+            $text = $this->handleCrossedOut($text);
 
             // Alle Tag-Parameter killen
             $text = preg_replace(
@@ -668,5 +662,19 @@ class LatexExtension extends ExtensionBase
         }
 
         return '';
+    }
+
+    public function handleCrossedOut(string $text): string
+    {
+        // Durchstreichungen behandeln
+        $text = preg_replace(
+            '/<span style=\"text-decoration\: line\-through\;\">(.*)<\/span>/Usi',
+            '<del>\\1</del>',
+            $text
+        );
+
+//        $text = str_replace(['<s>', '</s>'], ['<del>', '</del>'], $text);
+
+        return $text;
     }
 }

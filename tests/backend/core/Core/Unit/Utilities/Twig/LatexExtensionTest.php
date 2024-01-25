@@ -451,4 +451,18 @@ class LatexExtensionTest extends UnitTestCase
         self::assertCount(2, $partsExpectedToBeEqual);
         self::assertSame($partsExpectedToBeEqual[0], $partsExpectedToBeEqual[1]);
     }
+
+    public function testHandleCrossedOut(): void
+    {
+        $text = '<p>test</p><p></p><p><strong>bold</strong></p><p><em>kursiv</em></p><p><u>unterstrichen</u></p><p><s>durchgestrichen</s></p><p><mark title="markierter Text">markiert</mark></p><p><dp-obscure>geschwärzt</dp-obscure></p>';
+
+        self::assertStringContainsString('<s>', $text);
+        self::assertStringContainsString('</s>', $text);
+
+        $handledText = $this->sut->handleCrossedOut($text);
+
+        self::assertStringNotContainsString('<s>', $handledText);
+        self::assertStringNotContainsString('</s>', $handledText);
+
+    }
 }
