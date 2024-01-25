@@ -345,7 +345,7 @@ class AddonInstallFromZipCommand extends CoreCommand
             throw new RuntimeException("No Addon zips found in Folder {$folder}");
         }
 
-        $question = new ChoiceQuestion('Which addon do you want to install? ', $zips);
+        $question = new ChoiceQuestion('Which addon do you want to install? When you want to install the addon directly via GitHub use --github ', $zips);
 
         return $this->getHelper('question')->ask($input, $output, $question);
     }

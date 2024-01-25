@@ -262,7 +262,7 @@ class EditorService extends CoreService
             }
         }
 
-        return implode($textImageElementArray);
+        return implode('', $textImageElementArray);
     }
 
     /**

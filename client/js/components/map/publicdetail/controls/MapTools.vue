@@ -23,7 +23,7 @@
           tabindex="0"
           v-tooltip="{
             content: Translator.trans('maptools.explanation'),
-            classes: 'width-350',
+            classes: 'w-12',
             boundariesElement: 'body',
             container: '#procedureDetailsMap'
           }" />
