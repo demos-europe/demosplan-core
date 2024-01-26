@@ -195,7 +195,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             ->map(
                 fn ($element) =>
                     /* @var Elements $element */
-                $element->getId()
+                    $element->getId()
             )
             ->toArray();
     }
