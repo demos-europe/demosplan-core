@@ -12,7 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\AssessmentTable;
 
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use TypeError;
-use function array_key_exists;
 
 /**
  * Class KeysAtEndSorter
