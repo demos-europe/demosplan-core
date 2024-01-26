@@ -190,11 +190,14 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             $this->getTopElements($procedureId, [], ['title' => $hiddenTitlesArray, 'deleted' => [false]]);
 
         // return IDs only:
-        return collect(array_merge($mapCategories, $hiddenByConfigCategories))->map(
-            fn ($element) =>
-                /* @var Elements $element */
+        return collect(array_merge($mapCategories, $hiddenByConfigCategories))
+            ->sort(fn($elementA, $elementB) => strcasecmp($elementA->getTitle(),$elementB->getTitle()))
+            ->map(
+                fn ($element) =>
+                    /* @var Elements $element */
                 $element->getId()
-        )->toArray();
+            )
+            ->toArray();
     }
 
     /**
