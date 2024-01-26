@@ -724,13 +724,13 @@ class ProcedureDeleter
     private function deleteProcedureCoupleTokens(array $procedureIds, bool $isDryRun): void
     {
         $this->queriesService->deleteFromTableByIdentifierArray(
-            'procedure_orga_datainput',
+            'procedure_couple_token',
             'source_procedure_id',
             $procedureIds,
             $isDryRun
         );
         $this->queriesService->deleteFromTableByIdentifierArray(
-            'procedure_orga_datainput',
+            'procedure_couple_token',
             'target_procedure_id',
             $procedureIds,
             $isDryRun
@@ -833,7 +833,7 @@ class ProcedureDeleter
             $isDryRun
         );
         $this->queriesService->deleteFromTableByIdentifierArray(
-            'statement_import_email_original_statement',
+            'statement_import_email_original_statements',
             'original_statement_id',
             $statementIds,
             $isDryRun
