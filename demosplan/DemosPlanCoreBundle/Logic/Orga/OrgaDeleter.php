@@ -83,7 +83,8 @@ class OrgaDeleter extends CoreService
             // handles tables with orga_ids as well as procedureIds like:
             // procedure_planningoffices, procedure_orga_datainput, institution_mail, _draft_statement_versions
             $this->procedureDeleter->deleteProcedures($orgasProcedureIds->toArray(), $isDryRun);
-
+            // deactivate the foreign key checks again - as the procedureDeleter has re-activated them
+            $this->queriesService->deactivateForeignKeyChecks();
             // delete organisations
             $this->deleteOrgas($orgaIds, $isDryRun);
 
