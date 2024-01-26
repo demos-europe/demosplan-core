@@ -252,8 +252,8 @@ export default {
       return this.getInstitutions({
         include: ['locationContacts'].join(),
         fields: {
-          InvitableToeb: this.invitableToebFields.concat(this.returnArrayofValues(permissionChecksToeb)).join(),
-          InstitutionLocationContact: this.locationContactFields.concat(this.returnArrayofValues(permissionChecksContact)).join()
+          InvitableToeb: this.invitableToebFields.concat(this.returnPermissionChecksValuesArray(permissionChecksToeb)).join(),
+          InstitutionLocationContact: this.locationContactFields.concat(this.returnPermissionChecksValuesArray(permissionChecksContact)).join()
         }
       })
     },
@@ -262,7 +262,7 @@ export default {
       return this.institutionLocationContactItems[id]
     },
 
-    returnArrayofValues (permissionChecks) {
+    returnPermissionChecksValuesArray (permissionChecks) {
       return permissionChecks.reduce((acc, check) => {
         if (hasPermission(check.permission)) {
           acc.push(check.value)
