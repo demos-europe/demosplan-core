@@ -79,8 +79,9 @@ class OrgaDeleter extends CoreService
             $orgasProcedureIds = Collect($this->procedureRepository->findBy(['orga' => $orgaIds]))->map(
                 static fn (Procedure $procedure): string => $procedure->getId()
             );
-
             // delete procedures
+            // handles tables with orga_ids as well as procedureIds like:
+            // procedure_planningoffices, procedure_orga_datainput, institution_mail, _draft_statement_versions
             $this->procedureDeleter->deleteProcedures($orgasProcedureIds->toArray(), $isDryRun);
 
             // delete organisations

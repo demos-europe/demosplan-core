@@ -103,8 +103,32 @@ class ProcedureDeleter
             // delete import_emails -> attachments
             $this->processImportEmails($procedureIds, $isDryRun);
 
+            // delete user filter sets
+            $this->deleteUserFilterSets($procedureIds, $isDryRun);
+
             // delete hashed queries
             $this->deleteHashedQueries($procedureIds, $isDryRun);
+
+            // delete surveys and their votes
+            $this->deleteSurveysAndVotes($procedureIds, $isDryRun);
+
+            // delete procedure-category relations
+            $this->deleteProcedureCategoryRelation($procedureIds, $isDryRun);
+
+            // delete procedure persons
+            $this->deleteProcedurePersons($procedureIds, $isDryRun);
+
+            // delete procedure Oata-input-orga relations
+            $this->deleteProcedureDataInputOrgaRelations($procedureIds, $isDryRun);
+
+            // delete procedure couple tokens
+            $this->deleteProcedureCoupleTokens($procedureIds, $isDryRun);
+
+            // delete procedure agency extra email addresses
+            $this->deleteProcedureAgencyExtraEmailAddresses($procedureIds, $isDryRun);
+
+            // delete notification receivers
+            $this->deleteProcedureNotificationReceivers($procedureIds, $isDryRun);
 
             // delete workflow places
             $this->deleteWorkflowPlaces($procedureIds, $isDryRun);
@@ -118,7 +142,7 @@ class ProcedureDeleter
             // export fields configuration
             $this->deleteExportFieldsConfiguration($procedureIds, $isDryRun);
 
-            // maillane connection
+            // maillane connection fixme does this table exist in all projects?
             $this->deleteMaillaneConnection($procedureIds, $isDryRun);
 
             // procedure_settings_allowed_segment_procedures
@@ -608,9 +632,135 @@ class ProcedureDeleter
     /**
      * @throws Exception
      */
+    private function deleteUserFilterSets(array $procedureIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            'user_filter_set',
+            'procedure_id',
+            $procedureIds,
+            $isDryRun
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
     private function deleteHashedQueries(array $procedureIds, bool $isDryRun): void
     {
         $this->queriesService->deleteFromTableByIdentifierArray('hashed_query', 'procedure_id', $procedureIds, $isDryRun);
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteSurveysAndVotes(array $procedureIds, bool $isDryRun): void
+    {
+        $surveyIds = array_column(
+            $this->queriesService->fetchFromTableByParameter(
+                ['id'],
+                'survey',
+                'p_id',
+                $procedureIds
+            ),
+            'id'
+        );
+
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            'survey_vote',
+            'survey_id',
+            $surveyIds,
+            $isDryRun
+        );
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            'survey',
+            'p_id',
+            $procedureIds,
+            $isDryRun
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteProcedureCategoryRelation(array $procedureIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            'procedure_procedure_category_doctrine',
+            'procedure_id',
+            $procedureIds,
+            $isDryRun
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteProcedurePersons(array $procedureIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            'procedure_person',
+            'procedure_id',
+            $procedureIds,
+            $isDryRun
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteProcedureDataInputOrgaRelations(array $procedureIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            'procedure_orga_datainput',
+            '_p_id',
+            $procedureIds,
+            $isDryRun
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteProcedureCoupleTokens(array $procedureIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            'procedure_orga_datainput',
+            'source_procedure_id',
+            $procedureIds,
+            $isDryRun
+        );
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            'procedure_orga_datainput',
+            'target_procedure_id',
+            $procedureIds,
+            $isDryRun
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteProcedureAgencyExtraEmailAddresses(array $procedureIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            'procedure_agency_extra_email_address',
+            'procedure_id',
+            $procedureIds,
+            $isDryRun
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteProcedureNotificationReceivers(array $procedureIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            'notification_receiver',
+            'procedure_id',
+            $procedureIds,
+            $isDryRun
+        );
     }
 
     /**
