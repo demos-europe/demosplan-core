@@ -151,9 +151,15 @@ export default {
 
   data () {
     return {
+      invitableToebFields: [
+        'legalName',
+        'participationFeedbackEmailAddress',
+        'locationContacts'
+      ],
       isLoading: true,
       itemsPerPageOptions: [10, 50, 100, 200],
       itemsPerPage: 50,
+      locationContactFields: ['street', 'postalcode', 'city'],
       sortOrder: { key: 'legalName', direction: 1 },
       selectedItems: []
     }
@@ -233,44 +239,36 @@ export default {
     },
 
     getInstitutionsWithContacts () {
-      const invitableToebFields = [
-        'legalName',
-        'participationFeedbackEmailAddress',
-        'locationContacts'
-      ]
-
-      const locationContactFields = ['street', 'postalcode', 'city']
-
       const permissionChecksToeb = [
         { permission: 'field_organisation_email2_cc', value: 'ccEmailAddresses' },
         { permission: 'field_organisation_contact_person', value: 'contactPerson' },
-        { permission: 'field_organisation_competence', value: 'competenceDescription'}
+        { permission: 'field_organisation_competence', value: 'competenceDescription' }
       ]
 
       const permissionChecksContact = [
         { permission: 'field_organisation_phone', value: 'phone' }
       ]
-      
-     return this.getInstitutions({
+
+      return this.getInstitutions({
         include: ['locationContacts'].join(),
         fields: {
           InvitableToeb: this.invitableToebFields.concat(this.returnArrayofValues(permissionChecksToeb)).join(),
           InstitutionLocationContact: this.locationContactFields.concat(this.returnArrayofValues(permissionChecksContact)).join()
         }
       })
-      
-
-      return this.getInstitutions({
-        include: ['locationContacts'].join(),
-        fields: {
-          InvitableToeb: invitableToebFields.join(),
-          InstitutionLocationContact: locationContactFields.join()
-        }
-      })
     },
 
     getLocationContactById (id) {
-      return Object.values(this.institutionLocationContactItems).find(el => el.id === id)
+      return this.institutionLocationContactItems[id]
+    },
+
+    returnArrayofValues (permissionChecks) {
+      return permissionChecks.reduce((acc, check) => {
+        if (hasPermission(check.permission)) {
+          acc.push(check.value)
+        }
+        return acc
+      }, [])
     },
 
     setSelectedItems (selectedItems) {
