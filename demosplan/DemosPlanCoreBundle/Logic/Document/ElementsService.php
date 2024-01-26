@@ -191,7 +191,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
 
         // return IDs only:
         return collect(array_merge($mapCategories, $hiddenByConfigCategories))
-            ->sort(fn($elementA, $elementB) => strcasecmp($elementA->getTitle(),$elementB->getTitle()))
+            ->sort(fn ($elementA, $elementB) => strcasecmp($elementA->getTitle(), $elementB->getTitle()))
             ->map(
                 fn ($element) =>
                     /* @var Elements $element */
