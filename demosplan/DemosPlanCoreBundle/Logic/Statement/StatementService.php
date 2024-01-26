@@ -2243,6 +2243,10 @@ class StatementService extends CoreService implements StatementServiceInterface
 
         $noManualSortElementsIds = $this->serviceElements->getHiddenElementsIdsForProcedureId($procedureId);
 
+        $this->statementEntityGrouper->sortSubgroupsAtAllLayers(
+            $group,
+            new TitleGroupsSorter()
+        );
         // sorting only needed if there are elements to be moved to the end
         if (0 < count($noManualSortElementsIds)) {
             // sort hidden elements to end: sort elements not manually sortable in the admin list (because hidden) at the end
