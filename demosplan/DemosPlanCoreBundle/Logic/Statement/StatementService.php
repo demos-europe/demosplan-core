@@ -1254,8 +1254,8 @@ class StatementService extends CoreService implements StatementServiceInterface
     /**
      * Determines if one of the fields which only can be modified on a manual statement, should be updated.
      *
-     * @param statement|array $statement        - Statement as array or object
-     * @param statement       $currentStatement - current unmodified statement object, to compare with incoming update data
+     * @param Statement|array $statement        - Statement as array or object
+     * @param Statement       $currentStatement - current unmodified statement object, to compare with incoming update data
      *
      * @return bool - true if one of the 'critical' fields should be updated, otherwise false
      */
@@ -2243,8 +2243,12 @@ class StatementService extends CoreService implements StatementServiceInterface
 
         $noManualSortElementsIds = $this->serviceElements->getHiddenElementsIdsForProcedureId($procedureId);
 
+        $this->statementEntityGrouper->sortSubgroupsAtAllLayers(
+            $group,
+            new TitleGroupsSorter()
+        );
         // sorting only needed if there are elements to be moved to the end
-        if (0 < count($noManualSortElementsIds)) {
+        if ($noManualSortElementsIds) {
             // sort hidden elements to end: sort elements not manually sortable in the admin list (because hidden) at the end
             // the sorting is applied to all layers but only the elements layer will be affected as
             // the other two layers do not contain groups with element IDs

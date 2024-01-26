@@ -46,13 +46,15 @@ class KeysAtEndSorter implements ArraySorterInterface
         if (0 === count($array)) {
             return $array;
         }
-        foreach ($this->keys as $key) {
-            if (array_key_exists($key, $array)) {
-                $toBePlacedLast = $array[$key];
-                unset($array[$key]);
-                $array[$key] = $toBePlacedLast;
-            }
-        }
+        // Sort array keys based on their position in $this->keys
+        uksort($array, function ($a, $b) {
+            $posA = array_search($a, $this->keys);
+            $posB = array_search($b, $this->keys);
+
+            // If both keys are in $this->keys, compare their positions
+            // If only one key is in $this->keys, prioritize moving it to the end
+            return ($posA && $posB) ? $posA - $posB : ($posB ? -1 : 0);
+        });
 
         return $array;
     }
