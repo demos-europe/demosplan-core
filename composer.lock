@@ -1359,16 +1359,16 @@
         },
         {
             "name": "demos-europe/demosplan-addon",
-            "version": "v0.17",
+            "version": "v0.21",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "8f4eee587418881fd92ef7f65c2da957086a54b0"
+                "reference": "acf012b37c7141a2ebc85296c34b901ecc322fe4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/8f4eee587418881fd92ef7f65c2da957086a54b0",
-                "reference": "8f4eee587418881fd92ef7f65c2da957086a54b0",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/acf012b37c7141a2ebc85296c34b901ecc322fe4",
+                "reference": "acf012b37c7141a2ebc85296c34b901ecc322fe4",
                 "shasum": ""
             },
             "require": {
@@ -1377,17 +1377,32 @@
                 "demos-europe/edt-jsonapi": "^0.24.0",
                 "demos-europe/edt-paths": "^0.24.0",
                 "doctrine/doctrine-bundle": "^2",
-                "league/fractal": "^0.19",
                 "nesbot/carbon": "^2.0.0",
                 "php": "^8.1",
                 "ramsey/uuid": "^4",
-                "sensio/framework-extra-bundle": "^6.1",
+                "symfony/cache": "5.*.*",
+                "symfony/config": "5.*.*",
+                "symfony/console": "5.*.*",
                 "symfony/dependency-injection": "5.*.*",
+                "symfony/error-handler": "5.*.*",
+                "symfony/event-dispatcher": "5.*.*",
+                "symfony/filesystem": "5.*.*",
+                "symfony/finder": "5.*.*",
+                "symfony/framework-bundle": "5.*.*",
                 "symfony/http-foundation": "5.*.*",
+                "symfony/http-kernel": "5.*.*",
+                "symfony/password-hasher": "5.*.*",
+                "symfony/process": "5.*.*",
+                "symfony/property-access": "5.*.*",
+                "symfony/property-info": "5.*.*",
                 "symfony/security-bundle": "5.*.*",
                 "symfony/security-core": "5.*.*",
+                "symfony/security-csrf": "5.*.*",
                 "symfony/stopwatch": "5.*.*",
+                "symfony/string": "5.*.*",
                 "symfony/validator": "5.*.*",
+                "symfony/var-dumper": "5.*.*",
+                "symfony/var-exporter": "5.*.*",
                 "symfony/yaml": "5.*.*",
                 "tightenco/collect": "~8.83.0"
             },
@@ -1401,6 +1416,11 @@
                 "thecodingmachine/phpstan-strict-rules": "^1.0"
             },
             "type": "package",
+            "extra": {
+                "symfony": {
+                    "require": "5.4.*"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "DemosEurope\\DemosplanAddon\\": "src/"
@@ -1412,9 +1432,9 @@
             ],
             "description": "This is the base package for all demosplan addons",
             "support": {
-                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.17"
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.21"
             },
-            "time": "2024-01-11T07:38:52+00:00"
+            "time": "2024-01-23T08:45:42+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
@@ -1466,25 +1486,25 @@
         },
         {
             "name": "demos-europe/edt-dql",
-            "version": "0.24.38",
+            "version": "0.24.41",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/edt-dql.git",
-                "reference": "70de73357b39961f959d78ea85c1e4f26b3a2ff6"
+                "reference": "81acbcccf24f38352e6a9a3cae8262d1f6e4b664"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/edt-dql/zipball/70de73357b39961f959d78ea85c1e4f26b3a2ff6",
-                "reference": "70de73357b39961f959d78ea85c1e4f26b3a2ff6",
+                "url": "https://api.github.com/repos/demos-europe/edt-dql/zipball/81acbcccf24f38352e6a9a3cae8262d1f6e4b664",
+                "reference": "81acbcccf24f38352e6a9a3cae8262d1f6e4b664",
                 "shasum": ""
             },
             "require": {
-                "demos-europe/edt-paths": "^0.24.38",
-                "demos-europe/edt-queries": "^0.24.38",
+                "demos-europe/edt-paths": "^0.24.41",
+                "demos-europe/edt-queries": "^0.24.41",
                 "doctrine/orm": "^2.5",
                 "nette/php-generator": "^4.0",
                 "php": "^8.1",
-                "symfony/cache": "^5"
+                "symfony/cache": "^5 || ^6"
             },
             "conflict": {
                 "demos-europe/edt-access-definitions": "<0.17.1",
@@ -1510,9 +1530,9 @@
             ],
             "description": "Extension for demos-europe/edt-queries to use Doctrine ORM as data source.",
             "support": {
-                "source": "https://github.com/demos-europe/edt-dql/tree/0.24.38"
+                "source": "https://github.com/demos-europe/edt-dql/tree/0.24.41"
             },
-            "time": "2024-01-12T12:49:35+00:00"
+            "time": "2024-01-17T07:49:56+00:00"
         },
         {
             "name": "demos-europe/edt-extra",
@@ -1622,20 +1642,20 @@
         },
         {
             "name": "demos-europe/edt-paths",
-            "version": "0.24.38",
+            "version": "0.24.41",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/edt-paths.git",
-                "reference": "ddd6d4817a15466d400cfcf4a722b6c6dc847391"
+                "reference": "7b473b4349c4de58f9495210c0c49fe3fa43ee0b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/edt-paths/zipball/ddd6d4817a15466d400cfcf4a722b6c6dc847391",
-                "reference": "ddd6d4817a15466d400cfcf4a722b6c6dc847391",
+                "url": "https://api.github.com/repos/demos-europe/edt-paths/zipball/7b473b4349c4de58f9495210c0c49fe3fa43ee0b",
+                "reference": "7b473b4349c4de58f9495210c0c49fe3fa43ee0b",
                 "shasum": ""
             },
             "require": {
-                "demos-europe/edt-queries": "^0.24.38",
+                "demos-europe/edt-queries": "^0.24.41",
                 "nikic/php-parser": "^4.14",
                 "php": "^8.1",
                 "phpdocumentor/reflection-docblock": "^5.1.0",
@@ -1666,9 +1686,9 @@
             ],
             "description": "Tools to create paths between entities and entity properties.",
             "support": {
-                "source": "https://github.com/demos-europe/edt-paths/tree/0.24.38"
+                "source": "https://github.com/demos-europe/edt-paths/tree/0.24.41"
             },
-            "time": "2024-01-12T12:49:30+00:00"
+            "time": "2024-01-17T07:49:56+00:00"
         },
         {
             "name": "demos-europe/edt-queries",
@@ -2134,16 +2154,16 @@
         },
         {
             "name": "doctrine/dbal",
-            "version": "3.7.2",
+            "version": "3.7.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/dbal.git",
-                "reference": "0ac3c270590e54910715e9a1a044cc368df282b2"
+                "reference": "ce594cbc39a4866c544f1a970d285ff0548221ad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/dbal/zipball/0ac3c270590e54910715e9a1a044cc368df282b2",
-                "reference": "0ac3c270590e54910715e9a1a044cc368df282b2",
+                "url": "https://api.github.com/repos/doctrine/dbal/zipball/ce594cbc39a4866c544f1a970d285ff0548221ad",
+                "reference": "ce594cbc39a4866c544f1a970d285ff0548221ad",
                 "shasum": ""
             },
             "require": {
@@ -2159,14 +2179,14 @@
                 "doctrine/coding-standard": "12.0.0",
                 "fig/log-test": "^1",
                 "jetbrains/phpstorm-stubs": "2023.1",
-                "phpstan/phpstan": "1.10.42",
+                "phpstan/phpstan": "1.10.56",
                 "phpstan/phpstan-strict-rules": "^1.5",
-                "phpunit/phpunit": "9.6.13",
+                "phpunit/phpunit": "9.6.15",
                 "psalm/plugin-phpunit": "0.18.4",
                 "slevomat/coding-standard": "8.13.1",
-                "squizlabs/php_codesniffer": "3.7.2",
-                "symfony/cache": "^5.4|^6.0",
-                "symfony/console": "^4.4|^5.4|^6.0",
+                "squizlabs/php_codesniffer": "3.8.1",
+                "symfony/cache": "^5.4|^6.0|^7.0",
+                "symfony/console": "^4.4|^5.4|^6.0|^7.0",
                 "vimeo/psalm": "4.30.0"
             },
             "suggest": {
@@ -2227,7 +2247,7 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/dbal/issues",
-                "source": "https://github.com/doctrine/dbal/tree/3.7.2"
+                "source": "https://github.com/doctrine/dbal/tree/3.7.3"
             },
             "funding": [
                 {
@@ -2243,7 +2263,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-11-19T08:06:58+00:00"
+            "time": "2024-01-21T07:53:09+00:00"
         },
         {
             "name": "doctrine/deprecations",
@@ -7691,16 +7711,16 @@
         },
         {
             "name": "nesbot/carbon",
-            "version": "2.72.1",
+            "version": "2.72.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/briannesbitt/Carbon.git",
-                "reference": "2b3b3db0a2d0556a177392ff1a3bf5608fa09f78"
+                "reference": "3e7edc41b58d65509baeb0d4a14c8fa41d627130"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/2b3b3db0a2d0556a177392ff1a3bf5608fa09f78",
-                "reference": "2b3b3db0a2d0556a177392ff1a3bf5608fa09f78",
+                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/3e7edc41b58d65509baeb0d4a14c8fa41d627130",
+                "reference": "3e7edc41b58d65509baeb0d4a14c8fa41d627130",
                 "shasum": ""
             },
             "require": {
@@ -7794,20 +7814,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-12-08T23:47:49+00:00"
+            "time": "2024-01-19T00:21:53+00:00"
         },
         {
             "name": "nette/php-generator",
-            "version": "v4.1.2",
+            "version": "v4.1.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nette/php-generator.git",
-                "reference": "abc0e79b2d02d4b8aba5933765b90df3f610c143"
+                "reference": "08ab9bff22ae34fe4e1d2fe8ba16b3770ea2459f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nette/php-generator/zipball/abc0e79b2d02d4b8aba5933765b90df3f610c143",
-                "reference": "abc0e79b2d02d4b8aba5933765b90df3f610c143",
+                "url": "https://api.github.com/repos/nette/php-generator/zipball/08ab9bff22ae34fe4e1d2fe8ba16b3770ea2459f",
+                "reference": "08ab9bff22ae34fe4e1d2fe8ba16b3770ea2459f",
                 "shasum": ""
             },
             "require": {
@@ -7817,7 +7837,7 @@
             "require-dev": {
                 "jetbrains/phpstorm-attributes": "dev-master",
                 "nette/tester": "^2.4",
-                "nikic/php-parser": "^4.15",
+                "nikic/php-parser": "^4.18 || ^5.0",
                 "phpstan/phpstan": "^1.0",
                 "tracy/tracy": "^2.8"
             },
@@ -7861,22 +7881,22 @@
             ],
             "support": {
                 "issues": "https://github.com/nette/php-generator/issues",
-                "source": "https://github.com/nette/php-generator/tree/v4.1.2"
+                "source": "https://github.com/nette/php-generator/tree/v4.1.3"
             },
-            "time": "2023-10-29T22:57:32+00:00"
+            "time": "2024-01-18T17:44:20+00:00"
         },
         {
             "name": "nette/utils",
-            "version": "v4.0.3",
+            "version": "v4.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nette/utils.git",
-                "reference": "a9d127dd6a203ce6d255b2e2db49759f7506e015"
+                "reference": "d3ad0aa3b9f934602cb3e3902ebccf10be34d218"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nette/utils/zipball/a9d127dd6a203ce6d255b2e2db49759f7506e015",
-                "reference": "a9d127dd6a203ce6d255b2e2db49759f7506e015",
+                "url": "https://api.github.com/repos/nette/utils/zipball/d3ad0aa3b9f934602cb3e3902ebccf10be34d218",
+                "reference": "d3ad0aa3b9f934602cb3e3902ebccf10be34d218",
                 "shasum": ""
             },
             "require": {
@@ -7947,9 +7967,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nette/utils/issues",
-                "source": "https://github.com/nette/utils/tree/v4.0.3"
+                "source": "https://github.com/nette/utils/tree/v4.0.4"
             },
-            "time": "2023-10-29T21:02:13+00:00"
+            "time": "2024-01-17T16:50:36+00:00"
         },
         {
             "name": "nikic/php-parser",
