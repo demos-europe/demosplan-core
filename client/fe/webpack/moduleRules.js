@@ -70,7 +70,7 @@ const postcssPurgeCss = require('@fullhuman/postcss-purgecss')({
   ...config.purgeCss,
   defaultExtractor (content) {
     const contentWithoutStyleBlocks = content.replace(/<style[^]+?<\/style>/gi, '')
-    return contentWithoutStyleBlocks.match(/[A-Za-z0-9-_/:]*[A-Za-z0-9-_/.[\]]+/g) || []
+    return contentWithoutStyleBlocks.match(/[A-Za-z0-9-_/:]*[A-Za-z0-9-_/.[\]%]+/g) || []
   }
 })
 const autoprefixer = require('autoprefixer') // The autoprefixer must run after postcss-prefix-selector
