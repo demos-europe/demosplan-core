@@ -39,7 +39,7 @@ class ParagraphOrderSorter implements ArraySorterInterface
     }
 
     /**
-     * @throws InvalidArgumentException if no {@link Paragraph} was found for the given ID.
+     * @throws InvalidArgumentException if no {@link Paragraph} was found for the given ID
      */
     protected function getParagraphOrder(string $paragraphId): int
     {
