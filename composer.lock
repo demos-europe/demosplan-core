@@ -1359,16 +1359,16 @@
         },
         {
             "name": "demos-europe/demosplan-addon",
-            "version": "v0.22",
+            "version": "v0.17",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "f425fe74a2de1e45f90968162c750d2f8782c8b3"
+                "reference": "8f4eee587418881fd92ef7f65c2da957086a54b0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/f425fe74a2de1e45f90968162c750d2f8782c8b3",
-                "reference": "f425fe74a2de1e45f90968162c750d2f8782c8b3",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/8f4eee587418881fd92ef7f65c2da957086a54b0",
+                "reference": "8f4eee587418881fd92ef7f65c2da957086a54b0",
                 "shasum": ""
             },
             "require": {
@@ -1377,32 +1377,17 @@
                 "demos-europe/edt-jsonapi": "^0.24.0",
                 "demos-europe/edt-paths": "^0.24.0",
                 "doctrine/doctrine-bundle": "^2",
+                "league/fractal": "^0.19",
                 "nesbot/carbon": "^2.0.0",
                 "php": "^8.1",
                 "ramsey/uuid": "^4",
-                "symfony/cache": "5.*.*",
-                "symfony/config": "5.*.*",
-                "symfony/console": "5.*.*",
+                "sensio/framework-extra-bundle": "^6.1",
                 "symfony/dependency-injection": "5.*.*",
-                "symfony/error-handler": "5.*.*",
-                "symfony/event-dispatcher": "5.*.*",
-                "symfony/filesystem": "5.*.*",
-                "symfony/finder": "5.*.*",
-                "symfony/framework-bundle": "5.*.*",
                 "symfony/http-foundation": "5.*.*",
-                "symfony/http-kernel": "5.*.*",
-                "symfony/password-hasher": "5.*.*",
-                "symfony/process": "5.*.*",
-                "symfony/property-access": "5.*.*",
-                "symfony/property-info": "5.*.*",
                 "symfony/security-bundle": "5.*.*",
                 "symfony/security-core": "5.*.*",
-                "symfony/security-csrf": "5.*.*",
                 "symfony/stopwatch": "5.*.*",
-                "symfony/string": "5.*.*",
                 "symfony/validator": "5.*.*",
-                "symfony/var-dumper": "5.*.*",
-                "symfony/var-exporter": "5.*.*",
                 "symfony/yaml": "5.*.*",
                 "tightenco/collect": "~8.83.0"
             },
@@ -1416,11 +1401,6 @@
                 "thecodingmachine/phpstan-strict-rules": "^1.0"
             },
             "type": "package",
-            "extra": {
-                "symfony": {
-                    "require": "5.4.*"
-                }
-            },
             "autoload": {
                 "psr-4": {
                     "DemosEurope\\DemosplanAddon\\": "src/"
@@ -1432,9 +1412,9 @@
             ],
             "description": "This is the base package for all demosplan addons",
             "support": {
-                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.22"
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.17"
             },
-            "time": "2024-01-29T09:43:32+00:00"
+            "time": "2024-01-11T07:38:52+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
@@ -22629,5 +22609,5 @@
         "ext-zlib": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }
