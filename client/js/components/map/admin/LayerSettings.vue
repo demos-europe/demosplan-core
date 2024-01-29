@@ -425,13 +425,9 @@ export default {
             this.serviceType === 'wmts' ? this.extractDataFromWMTSCapabilities() : this.extractDataFromWMSCapabilities()
           }
         })
-        .catch(err => {
+        .catch(() => {
           dplan.notify.error(Translator.trans('maplayer.capabilities.fetch.error'))
-
-          if (err.code === 'ERR_NETWORK') {
-            dplan.notify.notify('warning', Translator.trans('maplayer.capabilities.fetch.warning.cors.policy'))
-          }
-
+          dplan.notify.notify('warning', Translator.trans('maplayer.capabilities.fetch.warning.cors.policy'))
           this.clearSelections()
         })
         .finally(() => {
