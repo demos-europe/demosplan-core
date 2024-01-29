@@ -809,7 +809,7 @@ customer.branding.logo.hint: "(wird im Kopfbereich der Seite angezeigt)"
 customer.data: "Nutzerbezogene Daten"
 customer.data.protection.explanation: "Der hier eingegebene Text wird an die Datenschutzhinweise der Plattform angehängt."
 customer.imprint.explanation: "Bitte geben Sie hier einen Text für das Impressum ein. Diese Eingabe ist verpflichtend. Der Text wird neben den Anbieter-Informationen unter <a href=\"{url}\"><strong>{url}</strong></a> angezeigt."
-customer.master.blueprint.already.exists: "Blaupause konnte nicht als Plattform-Blaupause gespeichert werden, da bereits eine  Plattform-Blaupause für den Mandanten {customerName} existiert."
+customer.master.blueprint.changed: "Die Blaupause ersetzt die bisherige Plattform-Blaupause, da bereits eine Plattform-Blaupause für den Mandanten {customerName} existierte."
 customer.settings: "Plattform-Einstellungen"
 customer.settings.update.mail.default.subject: "Aktualisierung der Datenschutzbestimmungen und der Nutzungsbedingungen"
 customer.settings.update.mail.default.text: |
