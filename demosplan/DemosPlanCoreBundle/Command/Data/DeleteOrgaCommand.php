@@ -33,7 +33,7 @@ class DeleteOrgaCommand extends CoreCommand
         ParameterBagInterface $parameterBag,
         private readonly OrgaDeleter $orgaDeleter,
         private readonly SqlQueriesService $queriesService,
-        string $name = null
+        ?string $name = null
     ) {
         parent::__construct($parameterBag, $name);
     }
