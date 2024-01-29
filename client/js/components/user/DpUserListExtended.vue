@@ -184,15 +184,11 @@ export default {
     fetchOrganisations () {
       const url = Routing.generate('api_resource_list', { resourceType: 'Orga' })
       return dpApi.get(url, {
-        include: 'masterToeb,departments',
-        'fields[Department]': [
-          'name'
-        ].join(),
-        'fields[Orga]': [
-          'departments',
-          'masterToeb',
-          'name'
-        ].join()
+        include: ['departments', 'orga', 'masterToeb'].join(),
+        fields: {
+          Departments: ['name'].join(),
+          Orga: ['departments', 'masterToeb', 'name'].join()
+        }
       })
         .then((response) => {
           if (hasOwnProp(response.data, 'data')) {
