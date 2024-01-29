@@ -555,7 +555,6 @@ class ProcedureDeleter
      *
      * Planning offices and procedures share a manyToMany relation and therefore we have to delete these relations
      * from both sides { @see OrgaDeleter::deleteProcedurePlannungOffices() }
-     *
      */
     private function deleteProcedurePlannungOffices(array $procedureIds, bool $isDryRun): void
     {

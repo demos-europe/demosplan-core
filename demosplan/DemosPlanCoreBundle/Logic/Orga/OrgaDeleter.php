@@ -105,7 +105,6 @@ class OrgaDeleter extends CoreService
      *
      * Planning offices and procedures share a manyToMany relation and therefore we have to delete these relations
      * from both sides { @see ProcedureDeleter::deleteProcedurePlannungOffices() }
-     *
      */
     private function deleteProcedurePlannungOffices(array $orgaIds, bool $isDryRun): void
     {
