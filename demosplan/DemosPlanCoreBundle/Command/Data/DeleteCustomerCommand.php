@@ -14,19 +14,17 @@ use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Logic\Customer\CustomerDeleter;
 use demosplan\DemosPlanCoreBundle\Repository\CustomerRepository;
-use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
+use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use RuntimeException;
 
 class DeleteCustomerCommand extends CoreCommand
 {
@@ -39,7 +37,7 @@ class DeleteCustomerCommand extends CoreCommand
         private readonly CustomerRepository $customerRepository,
         private readonly CustomerDeleter $customerDeleter,
         private readonly QuestionHelper $helper = new QuestionHelper(),
-        ?string $name = null
+        string $name = null
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -62,6 +60,7 @@ class DeleteCustomerCommand extends CoreCommand
             false
         );
     }
+
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         try {
@@ -115,7 +114,7 @@ class DeleteCustomerCommand extends CoreCommand
 
         $chosenCustomer = array_filter(
             $availableCustomers,
-            static fn(Customer $customer): bool => $customer->getSubdomain().' id: '.$customer->getId() === $answer
+            static fn (Customer $customer): bool => $customer->getSubdomain().' id: '.$customer->getId() === $answer
         );
         $chosenCustomer = reset($chosenCustomer);
         if (false === $chosenCustomer instanceof Customer) {
