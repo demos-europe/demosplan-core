@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
+use demosplan\DemosPlanCoreBundle\Logic\Orga\OrgaDeleter;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use Doctrine\DBAL\ArrayParameterType;
 use Exception;
@@ -98,7 +99,7 @@ class ProcedureDeleter
             $this->deleteManualListSorts($procedureIds, $isDryRun);
 
             // delete procedure plannungoffices
-            $this->deletepProcedurePlannungOffices($procedureIds, $isDryRun);
+            $this->deleteProcedurePlannungOffices($procedureIds, $isDryRun);
 
             // delete import_emails -> attachments
             $this->processImportEmails($procedureIds, $isDryRun);
@@ -551,8 +552,11 @@ class ProcedureDeleter
 
     /**
      * @throws Exception
+     *
+     * Planning offices and procedures share a manyToMany relation and therefore we have to delete these relations
+     * from both sides { @see OrgaDeleter::deleteProcedurePlannungOffices() }
      */
-    private function deletepProcedurePlannungOffices(array $procedureIds, bool $isDryRun): void
+    private function deleteProcedurePlannungOffices(array $procedureIds, bool $isDryRun): void
     {
         $this->queriesService->deleteFromTableByIdentifierArray('procedure_planningoffices', '_p_id', $procedureIds, $isDryRun);
     }
