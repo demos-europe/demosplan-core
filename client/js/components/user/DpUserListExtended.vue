@@ -49,6 +49,7 @@
       <dp-user-list-extended-item
         v-for="(user, id) in users"
         :key="user.id"
+        :all-departments="departments"
         :all-organisations="organisations"
         :user="user"
         @delete="deleteSingelUser(user.id)"
@@ -108,14 +109,12 @@ export default {
       ],
       isFiltered: false,
       isLoading: true,
-      organisations: []
+      organisations: [],
+      departments: []
     }
   },
 
   computed: {
-    ...mapState('department', {
-      departments: 'items'
-    }),
     ...mapState('role', {
       roles: 'items'
     }),
@@ -202,12 +201,27 @@ export default {
         })
         .catch(e => console.error(e))
     },
+    fetchDepartments () {
+      const url = Routing.generate('api_resource_list', { resourceType: 'Department' })
+      return dpApi.get(url, {
+        include: 'masterToeb,departments',
+        'fields[Department]': [
+          'name'
+        ].join()
+      })
+        .then((response) => {
+          if (hasOwnProp(response.data, 'data')) {
+            this.departments = response.data.data
+          }
+        })
+        .catch(e => console.error(e))
+    },
 
     /**
      * Fetch users and their relationships
      */
     fetchResources () {
-      const reqs = [this.departmentList(), this.fetchOrganisations(), this.roleList()]
+      const reqs = [this.departmentList(), this.fetchOrganisations(), this.fetchDepartments(), this.roleList()]
       Promise.all(reqs)
         .then(() => {
           this.getUsersByPage()

@@ -108,6 +108,11 @@ export default {
   },
 
   props: {
+    allDepartments: {
+      type: Array,
+      required: true
+    },
+
     allOrganisations: {
       type: Array,
       required: true
@@ -145,27 +150,22 @@ export default {
     ...mapState('department', {
       departmentsList: 'items'
     }),
+
     getOrgaId () {
       return this.user?.relationships?.orga.data?.id
     },
 
     initialUserDepartment () {
-      const dep = this.user.relationships.department.get()
-      if (Object.keys(dep).length > 0) {
-        return {
-          id: dep.id,
-          title: dep.attributes.name
-        }
+      return {
+        id: this.user?.relationships?.orga.data?.id,
+        title: this.getDepartmentName()
       }
-      return {}
     },
 
     initialUserOrganisation () {
-      const orgaName = this.getOrgaName()
-
       return {
         id: this.user?.relationships?.orga.data?.id,
-        title: orgaName
+        title: this.getOrgaName()
       }
     },
 
@@ -229,6 +229,11 @@ export default {
       // Set component state
       this.setAvailableOrganisations(convertedOrgs)
       this.setAvailableDepartments()
+    },
+
+    getDepartmentName () {
+      const department = this.allDepartments.find(el => el.id === this.user?.relationships?.department.data?.id)
+      return department.attributes?.name
     },
 
     getOrgaName () {
