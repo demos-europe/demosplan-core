@@ -62,7 +62,7 @@
             ref="newAssignee"
             v-model="options.newAssignee.value"
             :allow-empty="false"
-            class="u-mb width-450"
+            class="u-mb w-13"
             :custom-label="option => `${option.name} ${option.id === currentUserId ? '(Sie)' : ''}`"
             :options="users"
             track-by="id"

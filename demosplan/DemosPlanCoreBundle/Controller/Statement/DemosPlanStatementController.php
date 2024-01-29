@@ -75,7 +75,6 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementListFilter
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Exception;
 use RuntimeException;
-use SplFileInfo;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -92,6 +91,7 @@ use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
+
 use function explode;
 
 /**
@@ -99,20 +99,10 @@ use function explode;
  */
 class DemosPlanStatementController extends BaseController
 {
-    private NameGenerator $nameGenerator;
-
     private const STATEMENT_IMPORT_ENCOUNTERED_ERRORS = 'statement import failed';
 
-    public function __construct(private readonly CurrentProcedureService $currentProcedureService,
-        private readonly CurrentUserService $currentUser,
-        private readonly DraftStatementHandler $draftStatementHandler,
-        private readonly DraftStatementService $draftStatementService,
-        private readonly Environment $twig,
-        private readonly MailService $mailService,
-        private readonly PermissionsInterface $permissions,
-        NameGenerator $nameGenerator
-    ) {
-        $this->nameGenerator = $nameGenerator;
+    public function __construct(private readonly CurrentProcedureService $currentProcedureService, private readonly CurrentUserService $currentUser, private readonly DraftStatementHandler $draftStatementHandler, private readonly DraftStatementService $draftStatementService, private readonly Environment $twig, private readonly MailService $mailService, private readonly PermissionsInterface $permissions, private readonly NameGenerator $nameGenerator)
+    {
     }
 
     /**
@@ -2375,7 +2365,7 @@ class DemosPlanStatementController extends BaseController
         try {
             // recreate uploaded array
             $uploads = explode(',', (string) $requestPost['uploadedFiles']);
-            $files = array_map([$fileService, 'getFileInfo'], $uploads);
+            $files = array_map($fileService->getFileInfo(...), $uploads);
             $importer = $importerFactory->createXlsxStatementImporter($excelImporter);
             $fileNames = [];
             $statementCount = 0;
@@ -2388,8 +2378,7 @@ class DemosPlanStatementController extends BaseController
             if ($importer->hasErrors()) {
                 return $this->createErrorResponse($procedureId, $importer->getErrorsAsArray());
             }
-        } catch (Exception $e) {
-
+        } catch (Exception) {
             return $this->redirectToRoute(
                 'DemosPlan_procedure_import',
                 ['procedureId' => $procedureId]
@@ -2430,7 +2419,7 @@ class DemosPlanStatementController extends BaseController
         try {
             // recreate uploaded array
             $uploads = explode(',', (string) $requestPost['uploadedFiles']);
-            $files = array_map([$fileService, 'getFileInfo'], $uploads);
+            $files = array_map($fileService->getFileInfo(...), $uploads);
             $importer = $importerFactory->createXlsxStatementImporter($excelImporter);
             $fileNames = [];
             $statementsCount = 0;
@@ -2449,6 +2438,7 @@ class DemosPlanStatementController extends BaseController
             }
         } catch (Throwable $e) {
             $this->logger->error('Something went wrong importing Statements from zip', ['exception' => $e]);
+
             return $this->redirectToRoute(
                 'DemosPlan_procedure_import',
                 ['procedureId' => $procedureId]
@@ -2489,7 +2479,7 @@ class DemosPlanStatementController extends BaseController
                 $this->getMessageBag()->add('error', $error);
             }
             throw new DemosException(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS);
-        } catch (MissingDataException $e) {
+        } catch (MissingDataException) {
             $this->getMessageBag()->add(
                 'error',
                 'error.missing.data',
@@ -2545,7 +2535,7 @@ class DemosPlanStatementController extends BaseController
         $this->getMessageBag()->addChoice(
             'confirm',
             'confirm.statements.imported.from.files.xlsx.format',
-            ['count' => $numberOfCreatedStatements, 'fileName' => implode(', ', $fileNames), 'numbers' => (string)$numberOfCreatedStatements]
+            ['count' => $numberOfCreatedStatements, 'fileName' => implode(', ', $fileNames), 'numbers' => (string) $numberOfCreatedStatements]
         );
         $route = 'dplan_procedure_statement_list';
         // Change redirect target if data input user

@@ -16,12 +16,12 @@
       class="overflow-visible">
       <table :aria-label="Translator.trans('statement')">
         <colgroup>
-          <col class="width-10p">
-          <col class="width-10p text-left">
+          <col class="w-[10%]">
+          <col class="w-[10%] text-left">
           <col
             span="3"
-            class="width-25p">
-          <col class="width-5p text-right">
+            class="w-1/4">
+          <col class="w-[5%] text-right">
         </colgroup>
         <thead>
           <tr class="hide-visually">
@@ -241,16 +241,15 @@ export default {
 
     element () {
       let elementTitle = ''
+      const element = this.statement.elementId ? this.elements.find((el) => el.id === this.statement.elementId) : null
 
-      if (hasOwnProp(this.statement, 'elements') && this.statement.elements.title !== '') {
-        elementTitle = this.statement.elements.title
+      if (element && element.title !== '') {
+        elementTitle = element.title
         if (hasOwnProp(this.statement, 'document') && this.statement.document.title !== '') {
           elementTitle += ` / ${this.statement.document.title}`
         }
       } else {
-        const element = this.statement.elementId ? this.elements.find((el) => el.id === this.statement.elementId) : null
-
-        elementTitle = element ? element.title : Translator.trans('notspecified')
+        elementTitle = Translator.trans('notspecified')
       }
 
       if (hasOwnProp(this.statement, 'paragraph')) {

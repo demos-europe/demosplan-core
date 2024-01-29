@@ -1,11 +1,19 @@
 <?php
 
-namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
+namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
-use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
+use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -13,12 +21,17 @@ use Doctrine\ORM\EntityManagerInterface;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotNull;
+use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuilder
 {
+    protected ?Cell $fileReferences = null;
+
+    protected ?Cell $originalFileReferences = null;
+
     public function __construct(
         private readonly ValidatorInterface $validator,
         protected readonly array $fileMap,
@@ -30,10 +43,10 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
         parent::__construct();
     }
 
-    public function setOriginalFileReferences(Cell $cell): ?ConstraintViolationListInterface
+    protected function handleOriginalFileReferences(): ?ConstraintViolationListInterface
     {
         // early return in case no file-reference is found
-        $cellValue = $cell->getValue();
+        $cellValue = $this->originalFileReferences?->getValue();
         if (null === $cellValue || '' === $cellValue) {
             return null;
         }
@@ -46,6 +59,15 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
             )
         );
 
+        $isStringViolation = $this->validator->validate(
+            $cellValue,
+            new Type(
+                type: 'string',
+                message: 'statement.import.invalidFileReference'
+            )
+        );
+        $violations->addAll($isStringViolation);
+
         if (0 !== $violations->count()) {
             return $violations;
         }
@@ -53,7 +75,7 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
         $statement = $this->baseStatementFromRowBuilder->statement;
         /** @var File $fileEntity */
         $fileEntity = $this->fileMap[$cellValue];
-        /**
+        /*
          * The statement has to be persisted now in order to get an id.
          * This id needs to be used to persist a new { @link StatementAttachment }.
          * The StatementAttachment can not be flushed at this point as the also persisted statement
@@ -69,18 +91,40 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
         return null;
     }
 
-    public function setFileReferences(Cell $cell): ?ConstraintViolationListInterface
+    public function setOriginalFileReferences(Cell $cell): ?ConstraintViolationListInterface
+    {
+        $this->originalFileReferences = $cell;
+
+        return null;
+    }
+
+    protected function handleFileReferences(): ?ConstraintViolationListInterface
     {
         // early return in case no file-reference is found
-        $cellValue = $cell->getValue();
+        $cellValue = (string)$this->fileReferences?->getValue();
         if (null === $cellValue || '' === $cellValue) {
             return null;
         }
 
-        $fileHashes = explode(', ', $cell->getValue());
+        $violations = new ConstraintViolationList();
+
+        $isStringViolation = $this->validator->validate(
+            $cellValue,
+            new Type(
+                type: 'string',
+                message: 'statement.import.invalidFileReference'
+            )
+        );
+        $violations->addAll($isStringViolation);
+
+        if (0 !== $violations->count()) {
+            return $violations;
+        }
+
+        $fileHashes = explode(', ', $cellValue);
         $statement = $this->baseStatementFromRowBuilder->statement;
 
-        /**
+        /*
          * The statement has to be persisted now in order to get an id.
          * This id needs to be used to persist a new fileContainer.
          * The fileContainer can not be flushed at this point as the also persisted statement
@@ -88,9 +132,7 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
          */
         $this->entityManager->persist($statement);
 
-        $violations = new ConstraintViolationList();
         foreach ($fileHashes as $fileMapKey) {
-
             $newViolations = $this->validator->validate(
                 $fileMapKey,
                 new Choice(
@@ -109,7 +151,10 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
                     $fileEntity->getFileString(),
                     false
                 );
-                $violations = $this->validator->validate($fileContainer, [new NotNull()]);
+                $violations = $this->validator->validate(
+                    $fileContainer,
+                    [new Type(FileContainer::class), new NotNull()]
+                );
             }
 
             $violations->addAll($newViolations);
@@ -197,6 +242,16 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
         return $this->baseStatementFromRowBuilder->setInternId($cell);
     }
 
+    public function getInternId(): ?string
+    {
+        return $this->baseStatementFromRowBuilder->getInternId();
+    }
+
+    public function getExternId(): string
+    {
+        return $this->baseStatementFromRowBuilder->getExternId();
+    }
+
     public function setMemo(Cell $cell): ?ConstraintViolationListInterface
     {
         return $this->baseStatementFromRowBuilder->setMemo($cell);
@@ -209,11 +264,38 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
 
     public function setNumberOfAnonymVotes(Cell $cell): ?ConstraintViolationListInterface
     {
-       return $this->baseStatementFromRowBuilder->setNumberOfAnonymVotes($cell);
+        return $this->baseStatementFromRowBuilder->setNumberOfAnonymVotes($cell);
+    }
+
+    public function setFileReferences(Cell $cell): ?ConstraintViolationListInterface
+    {
+        $this->fileReferences = $cell;
+
+        return null;
     }
 
     public function buildStatementAndReset(): StatementInterface|ConstraintViolationListInterface
     {
+        $violations1 = $this->handleFileReferences();
+        $violations2 = $this->handleOriginalFileReferences();
+
+        $violations = new ConstraintViolationList();
+        if (null !== $violations1) {
+            $violations->addAll($violations1);
+        }
+        if (null !== $violations2) {
+            $violations->addAll($violations2);
+        }
+
+        if (0 !== $violations->count()) {
+            return $violations;
+        }
+
         return $this->baseStatementFromRowBuilder->buildStatementAndReset();
+    }
+
+    public function resetStatement(): void
+    {
+        $this->statement = new Statement();
     }
 }
