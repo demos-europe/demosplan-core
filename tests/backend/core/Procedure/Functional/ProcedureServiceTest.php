@@ -3388,7 +3388,7 @@ Email:',
      * The idea is, that a cronjob will switch the external phase of the procedure
      * to the designatedPhase on the given date.
      *
-     * @param procedure     $procedure            - procedure, whose external designated phase and designated date will be set
+     * @param Procedure     $procedure            - procedure, whose external designated phase and designated date will be set
      * @param DateTime|null $designatedSwitchDate
      * @param string|null   $designatedPhase
      *
@@ -3418,7 +3418,7 @@ Email:',
      * The cronjob will switch the phase of the procedure
      * to the designatedPhase on the given date.
      *
-     * @param procedure     $procedure            - procedure, whose internal designated phase and designated date will be set
+     * @param Procedure     $procedure            - procedure, whose internal designated phase and designated date will be set
      * @param DateTime|null $designatedSwitchDate
      * @param string|null   $designatedPhase
      *
