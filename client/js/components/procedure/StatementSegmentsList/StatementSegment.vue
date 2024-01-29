@@ -119,7 +119,7 @@
               ref="recommendationModal"
               class="recommendation-modal"
               content-classes="u-2-of-3">
-              <div class="flex width-100p">
+              <div class="flex w-full">
                 <h3 class="u-mb">
                   {{ Translator.trans('segment.recommendation.insert.similar') }}
                 </h3>
@@ -570,7 +570,7 @@ export default {
           }
         }
       }
-      this.setSegment({ ...dataToUpdate, id: this.segment.id, group: null })
+      this.setSegment({ ...dataToUpdate, id: this.segment.id})
 
       const payload = {
         data: {
@@ -635,7 +635,7 @@ export default {
             comments: comments
           }
         }
-        this.setSegment({ ...segmentWithComments, id: this.segment.id, group: null })
+        this.setSegment({ ...segmentWithComments, id: this.segment.id })
       }
     },
 
@@ -765,7 +765,7 @@ export default {
           // Reset recommendation text in store (segment might have been in edit mode with some changes)
           dataToUpdate.attributes.recommendation = this.$store.state.statementSegment.initial[this.segment.id].attributes.recommendation
           // Set segment in store, without the assignee and with resetted recommendation
-          this.setSegment({ ...dataToUpdate, id: this.segment.id, group: null })
+          this.setSegment({ ...dataToUpdate, id: this.segment.id })
           this.claimLoading = false
           this.selectedAssignee = { id: '', name: '' }
         })
@@ -819,12 +819,12 @@ export default {
         relationships: relations
       }
 
-      this.setSegment({ ...updated, id: this.segment.id, group: null })
+      this.setSegment({ ...updated, id: this.segment.id })
     },
 
     updateSegment (key, val) {
       const updated = { ...this.segment, ...{ attributes: { ...this.segment.attributes, ...{ [key]: val } } } }
-      this.setSegment({ ...updated, id: this.segment.id, group: null })
+      this.setSegment({ ...updated, id: this.segment.id })
     }
   },
 

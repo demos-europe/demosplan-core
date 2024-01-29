@@ -19,7 +19,6 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Test\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Traversable;
 
 class BoilerplateType extends AbstractType implements DataMapperInterface
 {
@@ -84,11 +83,9 @@ class BoilerplateType extends AbstractType implements DataMapperInterface
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @param BoilerplateVO $data
      */
-    public function mapDataToForms($data, Traversable $forms)
+    public function mapDataToForms($data, iterable $forms)
     {
         $forms = \iterator_to_array($forms);
         /* @var FormInterface[] $forms */
@@ -100,11 +97,9 @@ class BoilerplateType extends AbstractType implements DataMapperInterface
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @param BoilerplateVO $boilerplateVO
      */
-    public function mapFormsToData(Traversable $forms, &$boilerplateVO)
+    public function mapFormsToData(iterable $forms, &$boilerplateVO)
     {
         $forms = \iterator_to_array($forms);
         /** @var FormInterface[] $forms */

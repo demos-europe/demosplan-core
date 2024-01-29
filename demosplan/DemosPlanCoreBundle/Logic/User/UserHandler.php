@@ -543,7 +543,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         // Notiere, dass mail verschickt wurde
         $this->logger->info("Invitation mail of type '{$type}' was sent to user {$user->getId()}");
         if ('new' === $type) {
-            $this->userService->updateUser($user->getId(), [UserFlagKey::INVITED => true]);
+            $this->userService->updateUser($user->getId(), [UserFlagKey::INVITED->value => true]);
         }
 
         return $user;
@@ -644,38 +644,38 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         // prüfe den status der Checkboxen
 
         // set Newsletter
-        if (array_key_exists(UserFlagKey::SUBSCRIBED_TO_NEWSLETTER, $data)) {
-            $data[UserFlagKey::SUBSCRIBED_TO_NEWSLETTER] = 'on' === $data[UserFlagKey::SUBSCRIBED_TO_NEWSLETTER];
+        if (array_key_exists(UserFlagKey::SUBSCRIBED_TO_NEWSLETTER->value, $data)) {
+            $data[UserFlagKey::SUBSCRIBED_TO_NEWSLETTER->value] = 'on' === $data[UserFlagKey::SUBSCRIBED_TO_NEWSLETTER->value];
         } else {
-            $data[UserFlagKey::SUBSCRIBED_TO_NEWSLETTER] = false;
+            $data[UserFlagKey::SUBSCRIBED_TO_NEWSLETTER->value] = false;
         }
 
         // ignore status in case an external newsletterservice is used
         if ($this->permissions->hasPermission('feature_alternative_newsletter')) {
-            $data[UserFlagKey::SUBSCRIBED_TO_NEWSLETTER] = false;
+            $data[UserFlagKey::SUBSCRIBED_TO_NEWSLETTER->value] = false;
         }
 
-        if (array_key_exists(UserFlagKey::WANTS_FORUM_NOTIFICATIONS, $data)) {
-            $data[UserFlagKey::WANTS_FORUM_NOTIFICATIONS] = 'on' === $data[UserFlagKey::WANTS_FORUM_NOTIFICATIONS];
+        if (array_key_exists(UserFlagKey::WANTS_FORUM_NOTIFICATIONS->value, $data)) {
+            $data[UserFlagKey::WANTS_FORUM_NOTIFICATIONS->value] = 'on' === $data[UserFlagKey::WANTS_FORUM_NOTIFICATIONS->value];
         } else {
-            $data[UserFlagKey::WANTS_FORUM_NOTIFICATIONS] = false;
+            $data[UserFlagKey::WANTS_FORUM_NOTIFICATIONS->value] = false;
         }
 
-        if (array_key_exists(UserFlagKey::NO_USER_TRACKING, $data)) {
-            $data[UserFlagKey::NO_USER_TRACKING] = 'on' === $data[UserFlagKey::NO_USER_TRACKING];
+        if (array_key_exists(UserFlagKey::NO_USER_TRACKING->value, $data)) {
+            $data[UserFlagKey::NO_USER_TRACKING->value] = 'on' === $data[UserFlagKey::NO_USER_TRACKING->value];
         } else {
-            $data[UserFlagKey::NO_USER_TRACKING] = false;
+            $data[UserFlagKey::NO_USER_TRACKING->value] = false;
         }
 
-        $data[UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED] =
-            array_key_exists(UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED, $data)
-            && 'on' === $data[UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED];
+        $data[UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED->value] =
+            array_key_exists(UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED->value, $data)
+            && 'on' === $data[UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED->value];
 
         // Sets notifications for newly assigned tasks
-        if (array_key_exists(UserFlagKey::ASSIGNED_TASK_NOTIFICATION, $data)) {
-            $data[UserFlagKey::ASSIGNED_TASK_NOTIFICATION] = 'on' === $data[UserFlagKey::ASSIGNED_TASK_NOTIFICATION];
+        if (array_key_exists(UserFlagKey::ASSIGNED_TASK_NOTIFICATION->value, $data)) {
+            $data[UserFlagKey::ASSIGNED_TASK_NOTIFICATION->value] = 'on' === $data[UserFlagKey::ASSIGNED_TASK_NOTIFICATION->value];
         } else {
-            $data[UserFlagKey::ASSIGNED_TASK_NOTIFICATION] = false;
+            $data[UserFlagKey::ASSIGNED_TASK_NOTIFICATION->value] = false;
         }
 
         // make user editing work with unset department

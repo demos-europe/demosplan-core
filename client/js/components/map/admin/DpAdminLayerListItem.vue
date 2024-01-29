@@ -28,7 +28,7 @@
     :id="layer.id">
     <div class="c-at-item__row-icon layout__item u-pl-0">
       <i
-        class="fa fa-bars handle width-20 cursor-grab"
+        class="fa fa-bars handle w-[20px] cursor-grab"
         :title="Translator.trans('move')" />
     </div><!--
  --><div

@@ -113,7 +113,7 @@
           </div>
         </template>
         <template v-slot:submitter="rowData">
-          <ul class="o-list max-width-350">
+          <ul class="o-list max-w-12">
             <li
               v-if="statementsObject[rowData.relationships.parentStatement.data.id].attributes.authorName !== ''"
               class="o-list__item o-hellip--nowrap">
@@ -323,7 +323,7 @@ export default {
       },
       headerFieldsAvailable: [
         { field: 'externId', label: Translator.trans('id') },
-        { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'width-100' },
+        { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'w-8' },
         { field: 'submitter', label: Translator.trans('submitter') },
         { field: 'address', label: Translator.trans('address') },
         { field: 'text', label: Translator.trans('text') },
@@ -481,8 +481,6 @@ export default {
             'attachments',
             'authoredDate',
             'authorName',
-            'formattedAuthoredDate',
-            'formattedSubmitDate',
             'isSubmittedByCitizen',
             'initialOrganisationDepartmentName',
             'initialOrganisationName',
@@ -491,7 +489,6 @@ export default {
             'initialOrganisationPostalCode',
             'initialOrganisationCity',
             'internId',
-            'location',
             'memo',
             'submitDate',
             'submitName',

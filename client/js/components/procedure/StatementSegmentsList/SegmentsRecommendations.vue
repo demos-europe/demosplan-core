@@ -29,7 +29,7 @@
         <div class="segment-list-col--l weight--bold text-right">
           {{ Translator.trans('segment.recommendation') }}
         </div>
-        <div class="segment-list-col--m width-160" />
+        <div class="segment-list-col--m w-10" />
       </div>
 
       <!-- info that statement has not been segmented yet -->
@@ -159,7 +159,7 @@ export default {
      */
     claimStatement () {
       const dataToUpdate = { ...this.statement, ...{ relationships: { ...this.statement.relationships, ...{ assignee: { data: { type: 'Claim', id: this.currentUser.id } } } } } }
-      this.setStatement({ ...dataToUpdate, id: this.statementId, group: null })
+      this.setStatement({ ...dataToUpdate, id: this.statementId })
 
       const payload = {
         data: {
@@ -203,7 +203,6 @@ export default {
         ].join(),
         fields: {
           StatementSegment: [
-            'id',
             'tags',
             'text',
             'assignee',
@@ -216,7 +215,6 @@ export default {
             'recommendation'
           ].join(),
           SegmentComment: [
-            'id',
             'creationDate',
             'text',
             'submitter',

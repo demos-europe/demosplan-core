@@ -11,7 +11,8 @@ const config = {
     './demosplan/plugins/**/Resources/**/*.twig',
     './node_modules/@demos-europe/demosplan-ui/dist/*.js',
     './projects/**/templates/**/*.twig',
-    './templates/bundles/DemosPlanCoreBundle/**/*.twig'
+    './templates/bundles/DemosPlanCoreBundle/**/*.twig',
+    './addons/vendor/demos-europe/demosplan-addon-*/client/**/*.{js,vue}'
   ]
 }
 

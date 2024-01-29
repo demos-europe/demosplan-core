@@ -130,7 +130,7 @@
           type="text"
           id="groupName"
           name="groupName"
-          class="width-100p"
+          class="w-full"
           style="height: 28px"
           v-model="groupName">
 

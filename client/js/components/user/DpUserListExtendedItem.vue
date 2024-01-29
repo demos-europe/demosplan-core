@@ -18,7 +18,7 @@
         :class="{ 'u-pb-0_5 border--bottom': isOpen }"
         class="cursor-pointer"
         @click="handleToggle">
-        <div class="width-20 u-pv-0_25 inline-block">
+        <div class="w-[20px] u-pv-0_25 inline-block">
           <input
             type="checkbox"
             :id="`selected` + user.id"
