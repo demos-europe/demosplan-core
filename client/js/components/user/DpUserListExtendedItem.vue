@@ -214,11 +214,10 @@ export default {
      * Find options for organisation select
      */
     findAvailableOrganisations () {
+      // eslint-disable-next-line array-callback-return
       const filteredOrgas = this.allOrganisations.filter(org => {
         if (this.isInstitution) {
           return org.relationships.masterToeb.data !== null
-        } else {
-          return org.relationships.masterToeb.data === null
         }
       })
       const allDeps = Object.values(this.departmentsList)
@@ -237,8 +236,8 @@ export default {
     },
 
     getOrgaName () {
-      const orga = this.allOrganisations.find(el => el.id === this.user?.relationships?.orga.data?.id)
-      return orga.attributes?.name
+      const orga = this.allOrganisations.find(el => el.id === this.user?.relationships?.orga?.data?.id)
+      return orga?.attributes?.name ?? ''
     },
 
     handleToggle () {
