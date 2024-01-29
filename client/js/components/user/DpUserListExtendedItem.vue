@@ -171,7 +171,7 @@ export default {
 
     isInstitution () {
       const currentOrg = this.allOrganisations.find(org => org.id === this.currentOrganisation.id)
-      return currentOrg ? currentOrg.relationships.masterToeb.data !== null : false
+      return currentOrg ? currentOrg.relationships?.masterToeb?.data !== null : false
     }
   },
 
@@ -216,9 +216,11 @@ export default {
     findAvailableOrganisations () {
       // eslint-disable-next-line array-callback-return
       const filteredOrgas = this.allOrganisations.filter(org => {
-        if (this.isInstitution) {
-          return org.relationships.masterToeb.data !== null
+        if (this.isInstitution && org.relationships?.masterToeb?.data) {
+          return true
         }
+
+        return false
       })
       const allDeps = Object.values(this.departmentsList)
 
@@ -303,7 +305,7 @@ export default {
      * @param deps {Array}
      */
     setAvailableDepartments () {
-      this.availableDepartments = this.currentOrganisation.departments.length > 0 ? this.currentOrganisation.departments : []
+      this.availableDepartments = this.currentOrganisation?.departments?.length > 0 ? this.currentOrganisation?.departments : []
     },
 
     /**
