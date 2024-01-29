@@ -30,7 +30,6 @@ class PrePersistUniqueInternIdConstraintValidator extends ConstraintValidator
     public function validate($value, Constraint $constraint): void
     {
         $value = $this->validateType($value, $constraint);
-
         $occupiedInSavedEntities = $this->isIdOccupiedInSavedEntities($value);
         $occupiedByLoadedEntities = $this->isIdOccupiedByLoadedEntities($value->getInternId(false), $value);
         if ($occupiedInSavedEntities || $occupiedByLoadedEntities) {
