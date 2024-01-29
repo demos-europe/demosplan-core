@@ -80,7 +80,13 @@ class DeleteCustomerCommand extends CoreCommand
                 $output->info('run without-es-repopulate');
             }
 
-            $this->customerDeleter->deleteCustomer($customerId);
+            $possiblyOrphanedOrgas = $this->customerDeleter->deleteCustomer($customerId, $isDryRun);
+            if (0 < count($possiblyOrphanedOrgas)) {
+                $output->info(
+                    'The Orgas with id(s) have no orga-type present for any customer: '
+                    .implode(', ', $possiblyOrphanedOrgas)
+                );
+            }
             if (!$withoutRepopulate && !$isDryRun) {
                 $this->repopulateElasticsearch($output);
             }
