@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Services\Queries;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Exception;
 
 class SqlQueriesService extends CoreService
@@ -32,7 +33,9 @@ class SqlQueriesService extends CoreService
     public function deleteFromTableByIdentifierArray(string $tableName, string $identifier, array $ids, bool $isDryRun): void
     {
         if (!$this->doesTableExist($tableName)) {
-            throw new Exception("No table with the name $tableName exists in this database. Data could not be fetched.");
+            echo "No table with the name $tableName exists in this database. Data could not be fetched.";
+
+            return;
         }
 
         $deletionQueryBuilder = $this->dbConnection->createQueryBuilder();
@@ -54,7 +57,9 @@ class SqlQueriesService extends CoreService
     public function fetchFromTableByParameter(array $targetColumns, string $tableName, string $identifier, array $parameter): array
     {
         if (!$this->doesTableExist($tableName)) {
-            throw new Exception("No table with the name $tableName exists in this database. Data could not be fetched.");
+            echo "No table with the name $tableName exists in this database. Data could not be fetched.";
+
+            return [];
         }
 
         $fetchQueryBuilder = $this->dbConnection->createQueryBuilder();
@@ -74,7 +79,9 @@ class SqlQueriesService extends CoreService
      */
     public function deactivateForeignKeyChecks(): void
     {
-        $this->dbConnection->executeStatement('SET foreign_key_checks = 0;');
+        if (!$this->dbConnection->getDatabasePlatform() instanceof SqlitePlatform) {
+            $this->dbConnection->executeStatement('SET foreign_key_checks = 0;');
+        }
     }
 
     /**
@@ -82,7 +89,9 @@ class SqlQueriesService extends CoreService
      */
     public function activateForeignKeyChecks(): void
     {
-        $this->dbConnection->executeStatement('SET foreign_key_checks = 1;');
+        if (!$this->dbConnection->getDatabasePlatform() instanceof SqlitePlatform) {
+            $this->dbConnection->executeStatement('SET foreign_key_checks = 1;');
+        }
     }
 
     /**

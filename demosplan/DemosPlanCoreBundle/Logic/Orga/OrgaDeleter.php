@@ -83,8 +83,8 @@ class OrgaDeleter extends CoreService
             // handles tables with orga_ids as well as procedureIds like:
             // procedure_planningoffices, procedure_orga_datainput, institution_mail, _draft_statement_versions
             $this->procedureDeleter->deleteProcedures($orgasProcedureIds->toArray(), $isDryRun);
-            // deactivate the foreign key checks again - as the procedureDeleter has re-activated them
-            $this->queriesService->deactivateForeignKeyChecks();
+
+            $this->deleteProcedurePlannungOffices($orgaIds, $isDryRun);
             // delete organisations
             $this->deleteOrgas($orgaIds, $isDryRun);
 
@@ -98,6 +98,23 @@ class OrgaDeleter extends CoreService
             $this->queriesService->rollbackTransaction();
             throw $e;
         }
+    }
+
+    /**
+     * @throws Exception
+     *
+     * Planning offices and procedures share a manyToMany relation and therefore we have to delete these relations
+     * from both sides { @see ProcedureDeleter::deleteProcedurePlannungOffices() }
+     *
+     */
+    private function deleteProcedurePlannungOffices(array $orgaIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            'procedure_planningoffices',
+            '_o_id',
+            $orgaIds,
+            $isDryRun
+        );
     }
 
     /**
