@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\AssessmentTable;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\EntityGroupInterface;
+use InvalidArgumentException;
 use Webmozart\Assert\Assert;
 
 /**
@@ -38,7 +39,7 @@ class ParagraphOrderSorter implements ArraySorterInterface
     }
 
     /**
-     * @return int `0`, if no {@link Paragraph} was found for the given ID
+     * @throws InvalidArgumentException if no {@link Paragraph} was found for the given ID.
      */
     protected function getParagraphOrder(string $paragraphId): int
     {
