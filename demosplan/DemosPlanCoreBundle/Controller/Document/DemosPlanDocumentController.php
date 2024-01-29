@@ -1026,7 +1026,6 @@ class DemosPlanDocumentController extends BaseController
         Breadcrumb $breadcrumb,
         CurrentProcedureService $currentProcedureService,
         ElementHandler $elementHandler,
-        FileService $fileService,
         FileUploadService $fileUploadService,
         ParagraphService $paragraphService,
         Request $request,

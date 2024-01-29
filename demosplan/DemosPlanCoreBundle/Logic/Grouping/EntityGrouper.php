@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\ArraySorterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+use Webmozart\Assert\Assert;
 use function array_shift;
 use function count;
 use function is_countable;
@@ -80,6 +81,26 @@ abstract class EntityGrouper
         $group->setSubgroups($sortedSubgroups);
         foreach ($sortedSubgroups as $subgroup) {
             $this->sortSubgroupsAtAllLayers($subgroup, $sorter);
+        }
+    }
+
+    /**
+     * @param EntityGroupInterface<T> $group
+     * @param ArraySorterInterface<EntityGroupInterface<T>> $sorter
+     * @param int<0, max> $depth `0` denotes the immediate subgroups of the given group
+     */
+    public function sortSubgroupsAtDepth(EntityGroupInterface $group, ArraySorterInterface $sorter, int $depth): void
+    {
+        Assert::greaterThanEq($depth, 0);
+
+        if (0 < $depth) {
+            foreach ($group->getSubgroups() as $subgroup) {
+                $this->sortSubgroupsAtDepth($subgroup, $sorter, $depth - 1);
+            }
+        } else {
+            $unsortedSubgroups = $group->getSubgroups();
+            $sortedSubgroups = $sorter->sortArray($unsortedSubgroups);
+            $group->setSubgroups($sortedSubgroups);
         }
     }
 
