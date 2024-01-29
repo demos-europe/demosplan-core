@@ -29,15 +29,15 @@
         </div><!--
      --><div
           class="layout__item u-1-of-4 u-pv-0_25">
-          {{ user.attributes.firstname }} {{ user.attributes.lastname }}
+          {{ user.attributes?.firstname }} {{ user.attributes?.lastname }}
         </div><!--
      --><div
           class="break-words layout__item u-1-of-4 u-pv-0_25">
-          {{ user.attributes.login }}
+          {{ user.attributes?.login }}
         </div><!--
      --><div
         class="layout__item u-1-of-4 u-ml-0_25 u-pv-0_25">
-          {{ user.attributes.email }}
+          {{ user.attributes?.email }}
         </div><!--
       --><div class="text-right layout__item u-ml-0_5 u-1-of-5 u-pv-0_25">
             <button
@@ -145,6 +145,9 @@ export default {
     ...mapState('department', {
       departmentsList: 'items'
     }),
+    getOrgaId () {
+      return this.user?.relationships?.orga.data?.id
+    },
 
     initialUserDepartment () {
       const dep = this.user.relationships.department.get()
@@ -158,16 +161,12 @@ export default {
     },
 
     initialUserOrganisation () {
-      const orga = this.user.relationships.orga.get()
+      const orgaName = this.getOrgaName()
 
-      if (Object.keys(orga).length > 0) {
-        return {
-          id: orga.id,
-          title: orga.attributes.name
-        }
+      return {
+        id: this.user?.relationships?.orga.data?.id,
+        title: orgaName
       }
-
-      return {}
     },
 
     isInstitution () {
@@ -196,7 +195,7 @@ export default {
       return organisations.map(org => {
         org.departments = org.relationships.departments.data
           .filter(dep => typeof departments.find(el => el.id === dep.id) !== 'undefined')
-          .map(dep => ({ id: dep.id, title: departments.find(el => el.id === dep.id).attributes.name }))
+          .map(dep => ({ id: dep.id, title: departments.find(el => el.id === dep.id).attributes?.name }))
           .sort((a, b) => a.title.localeCompare(b.title, 'de', { sensitivity: 'base' }))
         // Set component state for current org
         if (org.id === this.currentOrganisation.id) {
@@ -206,7 +205,7 @@ export default {
           }
         }
         // Convert to required format
-        return { id: org.id, title: org.attributes.name, departments: org.departments }
+        return { id: org.id, title: org.attributes?.name, departments: org.departments }
       })
         .sort((a, b) => a.title.localeCompare(b.title, 'de', { sensitivity: 'base' }))
     },
@@ -230,6 +229,11 @@ export default {
       // Set component state
       this.setAvailableOrganisations(convertedOrgs)
       this.setAvailableDepartments()
+    },
+
+    getOrgaName () {
+      const orga = this.allOrganisations.find(el => el.id === this.user?.relationships?.orga.data?.id)
+      return orga.attributes?.name
     },
 
     handleToggle () {
