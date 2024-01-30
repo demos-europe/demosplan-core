@@ -43,7 +43,7 @@
             v-if="isLoading === false">
             <dp-checkbox
               v-for="({label, value}, i) in fields"
-              :data-cy="'customSearch:' + label"
+              :data-cy="'customSearch:' + value"
               :id="value"
               :key="i"
               :checked="selectedFields.includes(value)"
