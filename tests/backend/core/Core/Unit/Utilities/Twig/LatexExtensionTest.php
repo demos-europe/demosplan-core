@@ -431,8 +431,8 @@ class LatexExtensionTest extends UnitTestCase
 
     public function testKeyWordReplacement(): void
     {
-        $html = LatexExtension::HTMLTOREPLACE;
-        $latex = LatexExtension::REPLACEBYLATEX;
+        $html = array_keys(LatexExtension::HTML_TO_LATEX);
+        $latex = LatexExtension::HTML_TO_LATEX;
 
         self::assertCount(count($html), $latex);
 
