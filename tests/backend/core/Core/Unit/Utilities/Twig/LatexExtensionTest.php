@@ -431,8 +431,8 @@ class LatexExtensionTest extends UnitTestCase
 
     public function testKeyWordReplacement(): void
     {
-        $html = LatexExtension::HTMLTOREPLACE;
-        $latex = LatexExtension::REPLACEBYLATEX;
+        $html = array_keys(LatexExtension::HTML_TO_LATEX);
+        $latex = LatexExtension::HTML_TO_LATEX;
 
         self::assertCount(count($html), $latex);
 
@@ -450,5 +450,33 @@ class LatexExtensionTest extends UnitTestCase
         $partsExpectedToBeEqual = preg_replace($pattern, '', [$ul, $ol]);
         self::assertCount(2, $partsExpectedToBeEqual);
         self::assertSame($partsExpectedToBeEqual[0], $partsExpectedToBeEqual[1]);
+    }
+
+    public function testStrikeTagReplacement(): void
+    {
+        $text = '<p>test</p><p></p><p><strong>bold</strong></p><p><em>kursiv</em></p><p><u>unterstrichen</u></p><p><s>durchgestrichen</s></p><p><mark title="markierter Text">markiert</mark></p><p><dp-obscure>geschwärzt</dp-obscure></p>';
+
+        self::assertStringContainsString('<s>', $text);
+        self::assertStringContainsString('</s>', $text);
+        self::assertStringNotContainsString('<del>', $text);
+        self::assertStringNotContainsString('</del>', $text);
+
+        $handledText = $this->sut->latexFilter($text);
+
+        self::assertStringContainsString('\sout{', $handledText);
+    }
+
+    public function testDeletionTagReplacement(): void
+    {
+        $text = '<p>test</p><p></p><p><strong>bold</strong></p><p><em>kursiv</em></p><p><u>unterstrichen</u></p><p><del>durchgestrichen</del></p><p><mark title="markierter Text">markiert</mark></p><p><dp-obscure>geschwärzt</dp-obscure></p>';
+
+        self::assertStringNotContainsString('<s>', $text);
+        self::assertStringNotContainsString('</s>', $text);
+        self::assertStringContainsString('<del>', $text);
+        self::assertStringContainsString('</del>', $text);
+
+        $handledText = $this->sut->latexFilter($text);
+
+        self::assertStringContainsString('\sout{', $handledText);
     }
 }
