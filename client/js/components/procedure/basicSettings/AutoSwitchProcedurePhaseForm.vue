@@ -239,7 +239,6 @@ export default {
       this.setSelectedPhase()
 
       if (hasPermission('feature_auto_switch_to_procedure_end_phase')) {
-        console.log('permission is true')
         this.autoSwitchPhase = this.isParticipationPhaseSelected
       }
     },
