@@ -186,10 +186,10 @@ export default {
       return dpApi.get(url, {
         include: ['departments', 'orga', 'masterToeb'].join(),
         fields: {
-          Departments: ['name'].join(),
-          Orga: ['departments', 'masterToeb', 'name'].join()
+          Orga: ['departments', 'masterToeb', 'name'].join(),
+          MasterToeb: ['id'].join()
         }
-      })
+      }, { serialize: true })
         .then((response) => {
           if (hasOwnProp(response.data, 'data')) {
             this.organisations = response.data.data
@@ -197,6 +197,7 @@ export default {
         })
         .catch(e => console.error(e))
     },
+
     fetchDepartments () {
       const url = Routing.generate('api_resource_list', { resourceType: 'Department' })
       return dpApi.get(url, {
