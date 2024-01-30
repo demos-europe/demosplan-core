@@ -196,7 +196,16 @@ export default {
      * @return {boolean}
      */
     isParticipationPhaseSelected () {
-      const participationPhases = ['participation', 'earlyparticipation', 'anotherparticipation']
+      const participationPhases = [
+        'earlyparticipation',
+        'anotherearlyparticipation',
+        'participation',
+        'anotherparticipation',
+        'externalearlyparticipation',
+        'anotherexternalearlyparticipation',
+        'externalparticipation'
+      ]
+
       return participationPhases.includes(this.selectedCurrentPhase)
     },
 
@@ -230,6 +239,7 @@ export default {
       this.setSelectedPhase()
 
       if (hasPermission('feature_auto_switch_to_procedure_end_phase')) {
+        console.log('permission is true')
         this.autoSwitchPhase = this.isParticipationPhaseSelected
       }
     },
