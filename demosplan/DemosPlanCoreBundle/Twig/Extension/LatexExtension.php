@@ -223,7 +223,13 @@ class LatexExtension extends ExtensionBase
                 '<u>\\1</u>',
                 $text
             );
-            $text = $this->handleCrossedOut($text);
+
+            // Durchstreichungen behandeln
+            $text = preg_replace(
+                '/<span style=\"text-decoration\: line\-through\;\">(.*)<\/span>/Usi',
+                '<del>\\1</del>',
+                $text
+            );
 
             // Alle Tag-Parameter killen
             $text = preg_replace(
@@ -250,8 +256,7 @@ class LatexExtension extends ExtensionBase
 
             $text = str_replace("\r", '', $text);
 
-            // Latex-Umbau fixme
-            $text = str_replace(self::HTMLTOREPLACE, self::REPLACEBYLATEX, $text);
+            // Latex-Umbau(self::HTMLTOREPLACE, self::REPLACEBYLATEX, $text);
             if (false !== stripos($text, '<table')) {
                 $text = $this->processTable($text);
             }
