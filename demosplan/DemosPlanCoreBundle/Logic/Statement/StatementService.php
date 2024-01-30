@@ -1265,7 +1265,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      * Determines if one of the fields which only can be modified on a manual statement, should be updated.
      *
      * @param statement|array $statement        - Statement as array or object
-     * @param statement       $currentStatement - current unmodified statement object, to compare with incoming update data
+     * @param Statement       $currentStatement - current unmodified statement object, to compare with incoming update data
      *
      * @return bool - true if one of the 'critical' fields should be updated, otherwise false
      */

@@ -71,7 +71,7 @@ class StatementImportTest extends FunctionalTestCase
         $testFile = $this->getFileReference('statements_as_xlsx');
         $fileHash = $testFile->getHash();
         $file = $this->fileService->getFileInfo($fileHash);
-        $fileInfo = new \Symfony\Component\Finder\SplFileInfo(
+        $fileInfo = new SplFileInfo(
             $file->getAbsolutePath(),
             '',
             $file->getHash()
@@ -102,7 +102,7 @@ class StatementImportTest extends FunctionalTestCase
         $testFile = $this->getFileReference('statements_as_xlsx');
         $fileHash = $testFile->getHash();
         $file = $this->fileService->getFileInfo($fileHash);
-        $fileInfo = new \Symfony\Component\Finder\SplFileInfo(
+        $fileInfo = new SplFileInfo(
             $file->getAbsolutePath(),
             '',
             $file->getHash()
@@ -124,7 +124,7 @@ class StatementImportTest extends FunctionalTestCase
         $testFile = $this->getFileReference('statements_as_xlsx_including_an_error');
         $fileHash = $testFile->getHash();
         $file = $this->fileService->getFileInfo($fileHash);
-        $fileInfo = new \Symfony\Component\Finder\SplFileInfo(
+        $fileInfo = new SplFileInfo(
             $file->getAbsolutePath(),
             '',
             $file->getHash()
