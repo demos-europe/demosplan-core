@@ -64,8 +64,7 @@
           <dp-details
             v-for="explanation in explanations"
             :key="explanation.title"
-            :summary="explanation.title"
-            :data-cy="'customSearch:' + explanation.title">
+            :summary="explanation.title">
             <span v-html="explanation.description" />
           </dp-details>
         </div>
