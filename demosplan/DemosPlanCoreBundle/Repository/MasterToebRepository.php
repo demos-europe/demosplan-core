@@ -263,9 +263,9 @@ class MasterToebRepository extends FluentRepository implements ArrayInterface
             foreach ($draftStatements as $draftStatement) {
                 $entityManager->remove($draftStatement);
             }
-             $statements = $entityManager
-                 ->getRepository(Statement::class)
-                 ->findBy(['organisation' => $organisationId]);
+            $statements = $entityManager
+                ->getRepository(Statement::class)
+                ->findBy(['organisation' => $organisationId]);
             foreach ($statements as $statement) {
                 $entityManager->remove($statement);
             }

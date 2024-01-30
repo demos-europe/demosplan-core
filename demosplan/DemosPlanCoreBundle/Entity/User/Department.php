@@ -137,12 +137,14 @@ class Department extends CoreEntity implements UuidEntityInterface, DepartmentIn
 
     /**
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementVersion", mappedBy="department")
+     *
      * @ORM\JoinColumn(name="_d_id", referencedColumnName="_d_id", onDelete="CASCADE")
      */
     protected $draftStatementVersions;
 
     /**
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement", mappedBy="department")
+     *
      * @ORM\JoinColumn(name="_d_id", referencedColumnName="_d_id", onDelete="RESTRICT")
      */
     protected $draftStatement;
