@@ -452,17 +452,31 @@ class LatexExtensionTest extends UnitTestCase
         self::assertSame($partsExpectedToBeEqual[0], $partsExpectedToBeEqual[1]);
     }
 
-    public function testHandleCrossedOut(): void
+    public function testSTagReplacement(): void
     {
         $text = '<p>test</p><p></p><p><strong>bold</strong></p><p><em>kursiv</em></p><p><u>unterstrichen</u></p><p><s>durchgestrichen</s></p><p><mark title="markierter Text">markiert</mark></p><p><dp-obscure>geschwärzt</dp-obscure></p>';
 
         self::assertStringContainsString('<s>', $text);
         self::assertStringContainsString('</s>', $text);
+        self::assertStringNotContainsString('<del>', $text);
+        self::assertStringNotContainsString('</del>', $text);
 
-        $handledText = $this->sut->handleCrossedOut($text);
+        $handledText = $this->sut->latexFilter($text);
 
-        self::assertStringNotContainsString('<s>', $handledText);
-        self::assertStringNotContainsString('</s>', $handledText);
+        self::assertStringContainsString('\sout{', $handledText);
+    }
 
+    public function testDelTagReplacement(): void
+    {
+        $text = '<p>test</p><p></p><p><strong>bold</strong></p><p><em>kursiv</em></p><p><u>unterstrichen</u></p><p><del>durchgestrichen</del></p><p><mark title="markierter Text">markiert</mark></p><p><dp-obscure>geschwärzt</dp-obscure></p>';
+
+        self::assertStringNotContainsString('<s>', $text);
+        self::assertStringNotContainsString('</s>', $text);
+        self::assertStringContainsString('<del>', $text);
+        self::assertStringContainsString('</del>', $text);
+
+        $handledText = $this->sut->latexFilter($text);
+
+        self::assertStringContainsString('\sout{', $handledText);
     }
 }
