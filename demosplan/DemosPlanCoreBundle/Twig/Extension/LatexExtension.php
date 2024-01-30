@@ -39,6 +39,7 @@ class LatexExtension extends ExtensionBase
         ']',
         '<u>',
         '<del>',
+        '<s>',
         '<i>',
         '<em>',
         '<strong>',
@@ -46,6 +47,7 @@ class LatexExtension extends ExtensionBase
         '<ins>',
         '</u>',
         '</del>',
+        '</s>',
         '</i>',
         '</em>',
         '</strong>',
@@ -87,11 +89,13 @@ class LatexExtension extends ExtensionBase
         '\rbrack~',
         '\uline{',
         '\sout{',
+        '\sout{',
         '{\itshape ',
         '{\itshape ',
         '{\bfseries ',
         '{\bfseries ',
         '',
+        '}',
         '}',
         '}',
         '}',
@@ -231,7 +235,7 @@ class LatexExtension extends ExtensionBase
             // Alle anderen Tags beseitigen
             $text = strip_tags(
                 $text,
-                '<p><table><tr><td><tcs2><tcs><tcs3><tcs4><tcs5><tcs6><th><br><ol><strike><u><del><i><ol><ul><li><b><strong><em><span><ins>'
+                '<p><table><tr><td><tcs2><tcs><tcs3><tcs4><tcs5><tcs6><th><br><ol><strike><u><s><del><i><ol><ul><li><b><strong><em><span><ins>'
             );
 
             // remove <ins> title attribute
@@ -246,7 +250,7 @@ class LatexExtension extends ExtensionBase
 
             $text = str_replace("\r", '', $text);
 
-            // Latex-Umbau
+            // Latex-Umbau fixme
             $text = str_replace(self::HTMLTOREPLACE, self::REPLACEBYLATEX, $text);
             if (false !== stripos($text, '<table')) {
                 $text = $this->processTable($text);
@@ -664,17 +668,4 @@ class LatexExtension extends ExtensionBase
         return '';
     }
 
-    public function handleCrossedOut(string $text): string
-    {
-        // Durchstreichungen behandeln
-        $text = preg_replace(
-            '/<span style=\"text-decoration\: line\-through\;\">(.*)<\/span>/Usi',
-            '<del>\\1</del>',
-            $text
-        );
-
-        $text = str_replace(['<s>', '</s>'], ['<del>', '</del>'], $text);
-
-        return $text;
-    }
 }
