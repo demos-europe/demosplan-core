@@ -69,7 +69,6 @@ class ProcedureDeleterTest extends FunctionalTestCase
 
         $totalAmountOfProceduresBeforeDeletion = $this->countEntries(Procedure::class);
 
-
         $this->sut->deleteProcedures($ids, false);
 
         static::assertSame($totalAmountOfProceduresBeforeDeletion - 2, $this->countEntries(Procedure::class));

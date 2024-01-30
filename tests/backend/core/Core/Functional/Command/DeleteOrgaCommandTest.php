@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace backend\core\Core\Functional\Command;
 
 use demosplan\DemosPlanCoreBundle\Application\ConsoleApplication;
@@ -42,8 +50,8 @@ class DeleteOrgaCommandTest extends FunctionalTestCase
     {
         $commandTester = $this->executeCommand('');
         $output = $commandTester->getDisplay();
-        $warningString = "Matching organisation(s) not found for id(s)";
-        $infoString = "no organisation(s) found to delete";
+        $warningString = 'Matching organisation(s) not found for id(s)';
+        $infoString = 'no organisation(s) found to delete';
 
         $this->assertStringContainsString($warningString, $output);
         $this->assertStringContainsString($infoString, $output);
@@ -62,7 +70,7 @@ class DeleteOrgaCommandTest extends FunctionalTestCase
         $application = new ConsoleApplication($kernel, false);
 
         $orgaDeleter = $this->getMock(OrgaDeleter::class);
-        $orgaDeleter->method('deleteOrganisations')->willReturnCallback(function ($param):void {});
+        $orgaDeleter->method('deleteOrganisations')->willReturnCallback(function ($param): void {});
 
         $application->add(new DeleteOrgaCommand(
             $this->createMock(ParameterBagInterface::class),
@@ -70,7 +78,6 @@ class DeleteOrgaCommandTest extends FunctionalTestCase
             $this->queriesService,
             null
         ));
-
 
         $command = $application->find(DeleteOrgaCommand::getDefaultName());
         $commandTester = new CommandTester($command);
@@ -85,7 +92,7 @@ class DeleteOrgaCommandTest extends FunctionalTestCase
         $application = new ConsoleApplication($kernel, false);
 
         $orgaDeleter = $this->getMock(OrgaDeleter::class);
-        $orgaDeleter->method('deleteOrganisations')->willReturnCallback(function ($param):void {});
+        $orgaDeleter->method('deleteOrganisations')->willReturnCallback(function ($param): void {});
 
         $application->add(new DeleteOrgaCommand(
             $this->createMock(ParameterBagInterface::class),
@@ -93,7 +100,6 @@ class DeleteOrgaCommandTest extends FunctionalTestCase
             $this->queriesService,
             null
         ));
-
 
         $command = $application->find(DeleteOrgaCommand::getDefaultName());
         $commandTester = new CommandTester($command);

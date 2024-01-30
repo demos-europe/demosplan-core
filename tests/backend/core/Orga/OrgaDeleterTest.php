@@ -10,12 +10,9 @@
 
 namespace backend\core\Orga;
 
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\OrgaFactory;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Logic\Orga\OrgaDeleter;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeleter;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use Tests\Base\FunctionalTestCase;
 use Zenstruck\Foundry\Proxy;
@@ -71,7 +68,6 @@ class OrgaDeleterTest extends FunctionalTestCase
         $this->assertEquals(count(array_intersect($ids, $entriesIds)), 2);
 
         $totalAmountOfOrgasBeforeDeletion = $this->countEntries(Orga::class);
-
 
         $this->sut->deleteOrganisations($ids, false);
 

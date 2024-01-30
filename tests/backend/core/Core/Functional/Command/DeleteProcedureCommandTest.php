@@ -52,8 +52,8 @@ class DeleteProcedureCommandTest extends FunctionalTestCase
     {
         $commandTester = $this->executeCommand('');
         $output = $commandTester->getDisplay();
-        $warningString = "Matching procedure(s) not found for id(s)";
-        $infoString = "no procedure(s) found to delete";
+        $warningString = 'Matching procedure(s) not found for id(s)';
+        $infoString = 'no procedure(s) found to delete';
 
         $this->assertStringContainsString($warningString, $output);
         $this->assertStringContainsString($infoString, $output);
@@ -72,7 +72,7 @@ class DeleteProcedureCommandTest extends FunctionalTestCase
         $application = new ConsoleApplication($kernel, false);
 
         $procedureDeleter = $this->getMock(ProcedureDeleter::class);
-        $procedureDeleter->method('deleteProcedures')->willReturnCallback(function ($param):void {});
+        $procedureDeleter->method('deleteProcedures')->willReturnCallback(function ($param): void {});
 
         $application->add(new DeleteProcedureCommand(
             $this->createMock(ParameterBagInterface::class),
@@ -80,7 +80,6 @@ class DeleteProcedureCommandTest extends FunctionalTestCase
             $this->queriesService,
             null
         ));
-
 
         $command = $application->find(DeleteProcedureCommand::getDefaultName());
         $commandTester = new CommandTester($command);
@@ -95,7 +94,7 @@ class DeleteProcedureCommandTest extends FunctionalTestCase
         $application = new ConsoleApplication($kernel, false);
 
         $procedureDeleter = $this->getMock(ProcedureDeleter::class);
-        $procedureDeleter->method('deleteProcedures')->willReturnCallback(function ($param):void {});
+        $procedureDeleter->method('deleteProcedures')->willReturnCallback(function ($param): void {});
 
         $application->add(new DeleteProcedureCommand(
             $this->createMock(ParameterBagInterface::class),
@@ -103,7 +102,6 @@ class DeleteProcedureCommandTest extends FunctionalTestCase
             $this->queriesService,
             null
         ));
-
 
         $command = $application->find(DeleteProcedureCommand::getDefaultName());
         $commandTester = new CommandTester($command);
