@@ -267,14 +267,12 @@ class AddonInstallFromZipCommand extends CoreCommand
         $this->zipCachePath = DemosPlanPath::getRootPath(Registrator::ADDON_CACHE_DIRECTORY.$pathInfo->getBasename('.zip').'/');
     }
 
-
     private function setDevelopPaths(string $path): void
     {
         // do not use realpath as we need the path within the container
         $this->zipSourcePath = $path;
         $pathInfo = new SplFileInfo($path);
         $this->zipCachePath = DemosPlanPath::getRootPath(Registrator::ADDON_CACHE_DIRECTORY.$pathInfo->getBasename().'/');
-
     }
 
     /**
@@ -528,7 +526,7 @@ class AddonInstallFromZipCommand extends CoreCommand
             throw new RuntimeException("No folder {$folder} found. To develop addons locally, create a folder {$folder} and put your addons in there.");
         }
 
-        $localAddons = glob($addonDevFolder . '/*');
+        $localAddons = glob($addonDevFolder.'/*');
         if (!is_array($localAddons) || 0 === count($localAddons)) {
             throw new RuntimeException("No local addons found in folder {$folder}. Please check out the demosplan-addon-* repositories into this folder.");
         }
@@ -547,5 +545,4 @@ class AddonInstallFromZipCommand extends CoreCommand
         $this->addonsDirectory = DemosPlanPath::getRootPath(Registrator::ADDON_DIRECTORY);
         $this->addonsCacheDirectory = DemosPlanPath::getRootPath(Registrator::ADDON_CACHE_DIRECTORY);
     }
-
 }
