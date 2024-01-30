@@ -1265,7 +1265,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      * Determines if one of the fields which only can be modified on a manual statement, should be updated.
      *
      * @param statement|array $statement        - Statement as array or object
-     * @param statement       $currentStatement - current unmodified statement object, to compare with incoming update data
+     * @param Statement       $currentStatement - current unmodified statement object, to compare with incoming update data
      *
      * @return bool - true if one of the 'critical' fields should be updated, otherwise false
      */
@@ -2417,10 +2417,10 @@ class StatementService extends CoreService implements StatementServiceInterface
     {
         return \collect($rParams)->filter(
             static function ($value, string $key) {
-                if ($key === 'r_submitterEmailAddress') {
-                    return str_starts_with($key, 'r_') && ((\is_string($value)) || ((\is_array($value) && 0 < count($value))));
+                if ('r_submitterEmailAddress' === $key) {
+                    return str_starts_with($key, 'r_') && (\is_string($value) || (\is_array($value) && 0 < count($value)));
                 } else {
-                    return str_starts_with($key, 'r_') && ((\is_string($value) && $value !== '' ) || ((\is_array($value) && 0 < count($value))));
+                    return str_starts_with($key, 'r_') && ((\is_string($value) && '' !== $value) || (\is_array($value) && 0 < count($value)));
                 }
             }
         )->mapWithKeys(
