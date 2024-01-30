@@ -247,8 +247,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedure->setDeletedDate($currentDate);
             $procedure->setClosedDate($currentDate);
             $procedure->setAuthorizedUsers([]);
-            // avoid handling of customer site to, to avoid detaching customer from masterBlueprint
-            $procedure->setCustomer(null, false);
+            $procedure->setCustomer($data['customer']);
             // When a procedure is created we may get an empty string as its description
             // ('interne Notiz') from the FE. In this case we want to keep the current description
             // we already copied from the procedure template at this point.

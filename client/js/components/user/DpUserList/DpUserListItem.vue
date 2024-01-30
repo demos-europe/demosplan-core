@@ -264,7 +264,7 @@ export default {
     },
 
     updateUser (payload) {
-      this.setItem({ group: null, ...payload })
+      this.setItem({ ...payload })
     }
   }
 }

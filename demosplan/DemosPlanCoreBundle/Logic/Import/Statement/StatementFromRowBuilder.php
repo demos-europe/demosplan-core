@@ -242,6 +242,16 @@ class StatementFromRowBuilder extends AbstractStatementFromRowBuilder
         return null;
     }
 
+    public function getInternId(): ?string
+    {
+        return $this->statement->getInternId();
+    }
+
+    public function getExternId(): string
+    {
+        return $this->statement->getExternId();
+    }
+
     public function setNumberOfAnonymVotes(Cell $cell): ?ConstraintViolationListInterface
     {
         $this->statement->setNumberOfAnonymVotes($cell->getValue() ?? 0);
@@ -305,9 +315,14 @@ class StatementFromRowBuilder extends AbstractStatementFromRowBuilder
         }
 
         // reset builder state
-        $this->statement = new Statement();
+        $this->resetStatement();
 
         return $newOriginalStatement;
+    }
+
+    public function resetStatement(): void
+    {
+        $this->statement = new Statement();
     }
 
     /**
@@ -335,7 +350,7 @@ class StatementFromRowBuilder extends AbstractStatementFromRowBuilder
             // so we validate the expected integer for at least technical validity
             $violations = $this->validator->validate($value, new Range([
                 'min'               => 1,
-                'max'               => 2958465,
+                'max'               => 2_958_465,
                 'notInRangeMessage' => 'The value {{ value }} is not a valid Excel date.',
             ]));
             if (0 === $violations->count()) {

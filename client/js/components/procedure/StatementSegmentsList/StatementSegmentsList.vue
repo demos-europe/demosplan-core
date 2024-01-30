@@ -85,7 +85,7 @@
                 </span>
               </template>
               <template v-if="statement">
-                <div class="overflow-x-scroll break-words max-height-500 max-width-600 width-max-content">
+                <div class="overflow-x-scroll break-words max-h-13 max-w-14 w-max">
                   <span class="block weight--bold">{{ Translator.trans('original.pdf') }}</span>
                   <statement-meta-attachments-link
                     v-if="originalAttachment.hash"
@@ -472,7 +472,7 @@ export default {
         .then(() => {
           const dataToUpdate = this.setDataToUpdate(true)
 
-          this.setStatement({ ...dataToUpdate, id: this.statement.id, group: null })
+          this.setStatement({ ...dataToUpdate, id: this.statement.id })
           dplan.notify.notify('confirm', Translator.trans('confirm.statement.assignment.assigned'))
         })
         .catch((err) => {
@@ -665,7 +665,7 @@ export default {
         .then(() => {
           const dataToUpdate = this.setDataToUpdate()
 
-          this.setStatement({ ...dataToUpdate, id: this.statement.id, group: null })
+          this.setStatement({ ...dataToUpdate, id: this.statement.id })
           dplan.notify.notify('confirm', Translator.trans('confirm.statement.assignment.unassigned'))
         })
         .catch((err) => {

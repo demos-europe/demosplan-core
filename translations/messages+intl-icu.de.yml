@@ -385,6 +385,7 @@ check.fragment.delete: "Sind Sie sicher, dass Sie den Datensatz löschen möchte
 check.fragment.save: "Wenn Sie die Bearbeitung dieses Datensatzes abschliessen, können Sie die Bearbeitung nicht wieder aufnehmen."
 check.item.delete: "Sind Sie sicher, dass Sie dieses Element löschen möchten?"
 check.items.marked.delete: "Sind Sie sicher, dass Sie alle markierten Elemente löschen möchten?"
+check.mastertoeb.delete: "Sind Sie sicher, dass Sie diesen Eintrag löschen möchten?"
 check.mail.result: >-
     Sind Sie sicher, dass Sie die Informationen über das Abwägungsergebnis versenden möchten?
     {sentTo}
@@ -809,7 +810,7 @@ customer.branding.logo.hint: "(wird im Kopfbereich der Seite angezeigt)"
 customer.data: "Nutzerbezogene Daten"
 customer.data.protection.explanation: "Der hier eingegebene Text wird an die Datenschutzhinweise der Plattform angehängt."
 customer.imprint.explanation: "Bitte geben Sie hier einen Text für das Impressum ein. Diese Eingabe ist verpflichtend. Der Text wird neben den Anbieter-Informationen unter <a href=\"{url}\"><strong>{url}</strong></a> angezeigt."
-customer.master.blueprint.already.exists: "Blaupause konnte nicht als Plattform-Blaupause gespeichert werden, da bereits eine  Plattform-Blaupause für den Mandanten {customerName} existiert."
+customer.master.blueprint.changed: "Die Blaupause ersetzt die bisherige Plattform-Blaupause, da bereits eine Plattform-Blaupause für den Mandanten {customerName} existierte."
 customer.settings: "Plattform-Einstellungen"
 customer.settings.update.mail.default.subject: "Aktualisierung der Datenschutzbestimmungen und der Nutzungsbedingungen"
 customer.settings.update.mail.default.text: |
@@ -1926,6 +1927,7 @@ invitable_institution.list.show.text: "Die Organisation wird in der landesweiten
 invitable_institution.master.gatewayGroup: "GW-Gruppe"
 invitable_institution.master.merge: "Institutionen zusammenführen"
 invitable_institution.master.organisations.new: "Neu angelegte Organisationen"
+invitable_institutions.master.organisations.master_toeb_list: "Eintrag aus Master-TöB-Liste"
 invitable_institution.master.report.nounread: "Keine Änderungen seit dem letzten Protokollaufruf."
 invitable_institution.master.report.unread: "Neue Änderungen von Institutionen in ihren Organisationen"
 invitable_institution.master.report: "Änderungen Master-TöB-Liste"

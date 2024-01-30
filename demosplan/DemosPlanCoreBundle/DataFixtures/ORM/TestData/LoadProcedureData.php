@@ -464,6 +464,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         $procedure->setProcedureUiDefinition($this->getReference(LoadProcedureUiDefinitionData::PROCEDURE_TESTPROCEDURE));
         $procedure->setStatementFormDefinition($this->getReference(LoadStatementFormDefinitionData::PROCEDURE_TESTPROCEDURE));
         $this->manager->persist($procedure);
+        $customer->setDefaultProcedureBlueprint($procedure);
 
         // related entities
         $this->loadTestProcedureNews($procedure);

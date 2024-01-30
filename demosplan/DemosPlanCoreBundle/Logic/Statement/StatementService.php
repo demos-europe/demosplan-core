@@ -396,7 +396,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             } elseif (\array_key_exists('county', $data['statementAttributes']) && 0 < \strlen((string) $data['statementAttributes']['county'])) {
                 try {
                     $attrRepo->addCounty($statement, $data['statementAttributes']['county']);
-                } catch (Exception $e) {
+                } catch (Exception) {
                     $attrRepo->removeCounty($statement);
                 }
             }
@@ -718,6 +718,16 @@ class StatementService extends CoreService implements StatementServiceInterface
     public function getExternIdsInUse(string $procedureId): array
     {
         return $this->statementRepository->getExternIdsInUse($procedureId);
+    }
+
+    /**
+     * @param non-empty-string $procedureId
+     *
+     * @return array<non-empty-string, non-empty-string>
+     */
+    public function getInternIdsInUse(string $procedureId): array
+    {
+        return $this->statementRepository->getInternIdsInUse($procedureId);
     }
 
     /**
@@ -1827,7 +1837,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                     // Legacy wird der Paragraph und nicht ParagraphVersion zurückgegeben!
                     $parentParagraph = $statement['paragraph']->getParagraph();
                     $statement['paragraph'] = $this->entityHelper->toArray($parentParagraph);
-                } catch (Exception $e) {
+                } catch (Exception) {
                     // Einige alte Einträge verweisen möcglicherweise noch nicht auf eine ParagraphVersion
                     $this->logger->error(
                         'No ParagraphVersion found for Id '.DemosPlanTools::varExport($statement['paragraph']->getId(), true)

@@ -242,7 +242,7 @@ export default {
 
     claimSegment (segment) {
       const dataToUpdate = { ...segment, ...{ relationships: { ...segment.relationships, ...{ assignee: { data: { type: 'AssignableUser', id: this.currentUser.id } } } } } }
-      this.setSegment({ ...dataToUpdate, id: segment.id, group: null })
+      this.setSegment({ ...dataToUpdate, id: segment.id })
 
       const payload = {
         data: {
@@ -356,7 +356,7 @@ export default {
           const dataToUpdate = JSON.parse(JSON.stringify(segment))
           delete dataToUpdate.relationships.assignee
           // Set segment in store without the assignee
-          this.setSegment({ ...dataToUpdate, id: segment.id, group: null })
+          this.setSegment({ ...dataToUpdate, id: segment.id })
           this.claimLoading = null
         })
         .catch((err) => {

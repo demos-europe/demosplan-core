@@ -27,7 +27,7 @@
             icon="settings" />
         </template>
         <!-- Checkboxes to specify in which fields to search -->
-        <div class="space-stack-s space-inset-s width-600">
+        <div class="space-stack-s space-inset-s w-14">
           <div class="flex">
             <span
               class="weight--bold"
@@ -59,7 +59,7 @@
         <hr class="border--top u-m-0">
         <!-- Explanation of search options and special characters -->
         <div
-          class="space-stack-xs space-inset-s width-600 overflow-y-auto"
+          class="space-stack-xs space-inset-s w-14 overflow-y-auto"
           :style="maxHeight">
           <dp-details
             v-for="explanation in explanations"
