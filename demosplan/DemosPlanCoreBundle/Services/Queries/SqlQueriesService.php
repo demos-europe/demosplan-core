@@ -57,7 +57,7 @@ class SqlQueriesService extends CoreService
     public function fetchFromTableByParameter(array $targetColumns, string $tableName, string $identifier, array $parameter): array
     {
         if (!$this->doesTableExist($tableName)) {
-            echo "No table with the name $tableName exists in this database. Data could not be fetched.";
+            echo "No table with the name $tableName exists in this database. Data could not be fetched. \n";
 
             return [];
         }
