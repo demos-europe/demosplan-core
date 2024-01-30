@@ -13,13 +13,12 @@ namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Exception;
-
-use function preg_quote;
-use function preg_replace;
-
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Twig\TwigFilter;
+
+use function preg_quote;
+use function preg_replace;
 
 /**
  * Wysiwyg-Editor.
@@ -31,55 +30,54 @@ class LatexExtension extends ExtensionBase
      */
     protected $fileService;
 
-
     final public const HTML_TO_LATEX = [
-        '\\' => '\textbackslash~',
-        '{' => '\{',
-        '}' => '\}',
-        '[' => '\lbrack~',
-        ']' => '\rbrack~',
-        '<u>' => '\uline{',
-        '</u>' => '}',
-        '<del>' => '\sout{',
-        '</del>' => '}',
-        '<s>' => '\sout{',
-        '</s>' => '}',
-        '<i>' => '{\itshape ',
-        '</i>' => '}',
-        '<em>' => '{\itshape ',
-        '</em>' => '}',
-        '<strong>' => '{\bfseries ',
+        '\\'        => '\textbackslash~',
+        '{'         => '\{',
+        '}'         => '\}',
+        '['         => '\lbrack~',
+        ']'         => '\rbrack~',
+        '<u>'       => '\uline{',
+        '</u>'      => '}',
+        '<del>'     => '\sout{',
+        '</del>'    => '}',
+        '<s>'       => '\sout{',
+        '</s>'      => '}',
+        '<i>'       => '{\itshape ',
+        '</i>'      => '}',
+        '<em>'      => '{\itshape ',
+        '</em>'     => '}',
+        '<strong>'  => '{\bfseries ',
         '</strong>' => '}',
-        '<b>' => '{\bfseries ',
-        '</b>' => '}',
-        '<ins>' => '',
-        '<ul>' => '\begin{itemize}[leftmargin=0.5cm,rightmargin=\dimexpr\linewidth-7cm-\leftmargin\relax]',
-        '</ul>' => '\end{itemize}',
-        '<ol>' => '\begin{enumerate}[leftmargin=0.5cm,rightmargin=\dimexpr\linewidth-7cm-\leftmargin\relax]',
-        '</ol>' => '\end{enumerate}',
-        '<li>' => '\item ',
-        '</li>' => '',
-        '´' => '\textquoteright ',
-        '`' => '\textquoteleft ',
-        '&' => '\&',
-        '$' => '\$',
-        '<span>' => '',
-        '</span>' => '',
-        "' " => '\textquoteright~',
-        "'" => '\textquoteright ',
-        '&#039; ' => '\textquoteright~',
-        '&#039;' => '\textquoteright ',
-        '§' => '\S~',
-        '" ' => '\dq~',
-        '"' => '\dq ',
-        '#' => '\#',
-        '_' => '\_',
-        '€' => '\texteuro~',
-        '%' => '\%',
-        '^' => '\textasciicircum~',
-        '█' => '\ding{122}',
-        '­' => '\-',
-        '</ins>' => '',
+        '<b>'       => '{\bfseries ',
+        '</b>'      => '}',
+        '<ins>'     => '',
+        '<ul>'      => '\begin{itemize}[leftmargin=0.5cm,rightmargin=\dimexpr\linewidth-7cm-\leftmargin\relax]',
+        '</ul>'     => '\end{itemize}',
+        '<ol>'      => '\begin{enumerate}[leftmargin=0.5cm,rightmargin=\dimexpr\linewidth-7cm-\leftmargin\relax]',
+        '</ol>'     => '\end{enumerate}',
+        '<li>'      => '\item ',
+        '</li>'     => '',
+        '´'         => '\textquoteright ',
+        '`'         => '\textquoteleft ',
+        '&'         => '\&',
+        '$'         => '\$',
+        '<span>'    => '',
+        '</span>'   => '',
+        "' "        => '\textquoteright~',
+        "'"         => '\textquoteright ',
+        '&#039; '   => '\textquoteright~',
+        '&#039;'    => '\textquoteright ',
+        '§'         => '\S~',
+        '" '        => '\dq~',
+        '"'         => '\dq ',
+        '#'         => '\#',
+        '_'         => '\_',
+        '€'         => '\texteuro~',
+        '%'         => '\%',
+        '^'         => '\textasciicircum~',
+        '█'         => '\ding{122}',
+        '­'         => '\-',
+        '</ins>'    => '',
     ];
 
     public function __construct(ContainerInterface $container, FileService $serviceFile, private readonly LoggerInterface $logger)
@@ -264,8 +262,6 @@ class LatexExtension extends ExtensionBase
      * Process Table.
      *
      * @param string $text
-     *
-     * @return mixed
      */
     public function processTable($text)
     {
@@ -624,5 +620,4 @@ class LatexExtension extends ExtensionBase
 
         return '';
     }
-
 }
