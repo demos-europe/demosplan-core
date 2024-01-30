@@ -452,7 +452,7 @@ class LatexExtensionTest extends UnitTestCase
         self::assertSame($partsExpectedToBeEqual[0], $partsExpectedToBeEqual[1]);
     }
 
-    public function testSTagReplacement(): void
+    public function testStrikeTagReplacement(): void
     {
         $text = '<p>test</p><p></p><p><strong>bold</strong></p><p><em>kursiv</em></p><p><u>unterstrichen</u></p><p><s>durchgestrichen</s></p><p><mark title="markierter Text">markiert</mark></p><p><dp-obscure>geschwärzt</dp-obscure></p>';
 
@@ -466,7 +466,7 @@ class LatexExtensionTest extends UnitTestCase
         self::assertStringContainsString('\sout{', $handledText);
     }
 
-    public function testDelTagReplacement(): void
+    public function testDeletionTagReplacement(): void
     {
         $text = '<p>test</p><p></p><p><strong>bold</strong></p><p><em>kursiv</em></p><p><u>unterstrichen</u></p><p><del>durchgestrichen</del></p><p><mark title="markierter Text">markiert</mark></p><p><dp-obscure>geschwärzt</dp-obscure></p>';
 
