@@ -44,7 +44,7 @@
         </div>
         <dp-button
           class="ml-auto"
-          data-cy="segmentsList:reset"
+          data-cy="segmentsList:resetFilter"
           variant="outline"
           @click="resetQuery"
           v-tooltip="Translator.trans('search.filter.reset')"
