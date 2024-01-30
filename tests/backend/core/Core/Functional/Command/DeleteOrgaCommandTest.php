@@ -33,13 +33,9 @@ class DeleteOrgaCommandTest extends FunctionalTestCase
         $id = $this->testOrga->getId();
         $commandTester = $this->executeCommand($id);
         $output = $commandTester->getDisplay();
-        //var_dump($output);
-        $successString = "organisation(s) with id(s) $id are    \\n    \n   deleted";
-        var_dump(preg_match('/(.*)organisation\(s\) with id\(s\)(.*)deleted/',$output));
-        self::assertTrue(preg_match('/organisation\(s\) with id\(s\)(.*)deleted/',$output));
+        $successString = "organisation(s) with id(s) $id are deleted";
 
-        //$this->assertStringContainsString($successString, $output);
-        //$this->assertMatchesRegularExpression('/organisation\(s\) with id\(s\)(.*)deleted/', $output);
+        $this->assertStringContainsString($successString, $output);
     }
 
     public function testNoFoundMatchingOrga()
