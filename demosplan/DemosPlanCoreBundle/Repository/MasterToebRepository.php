@@ -13,6 +13,9 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 use DateTime;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementVersion;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\MasterToeb;
 use demosplan\DemosPlanCoreBundle\Entity\User\MasterToebVersion;
@@ -245,6 +248,26 @@ class MasterToebRepository extends FluentRepository implements ArrayInterface
                 );
                 $masterToebOrga->addUser($singleOrgaUser);
                 $masterToebDepartment->addUser($singleOrgaUser);
+            }
+
+            $draftStatementVersions = $entityManager
+                ->getRepository(DraftStatementVersion::class)
+                ->findBy(['organisation' => $organisationId]);
+            foreach ($draftStatementVersions as $draftStatementVersion) {
+                $entityManager->remove($draftStatementVersion);
+            }
+
+            $draftStatements = $entityManager
+                ->getRepository(DraftStatement::class)
+                ->findBy(['organisation' => $organisationId]);
+            foreach ($draftStatements as $draftStatement) {
+                $entityManager->remove($draftStatement);
+            }
+             $statements = $entityManager
+                 ->getRepository(Statement::class)
+                 ->findBy(['organisation' => $organisationId]);
+            foreach ($statements as $statement) {
+                $entityManager->remove($statement);
             }
 
             $entityManager->persist($masterToebOrga);

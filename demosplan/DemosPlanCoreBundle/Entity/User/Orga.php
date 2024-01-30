@@ -303,6 +303,11 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
      */
     protected $procedureInvitations;
     /**
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", mappedBy="organisation")
+     * @ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", onDelete="RESTRICT")
+     */
+    protected $statement;
+    /**
      * Virtual property for statement submissionType saved in Settings.
      *
      * @var string
