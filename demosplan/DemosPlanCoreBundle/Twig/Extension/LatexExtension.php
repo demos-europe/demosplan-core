@@ -256,7 +256,8 @@ class LatexExtension extends ExtensionBase
 
             $text = str_replace("\r", '', $text);
 
-            // Latex-Umbau(self::HTMLTOREPLACE, self::REPLACEBYLATEX, $text);
+            // Latex-Umbau
+            $text = str_replace(self::HTMLTOREPLACE, self::REPLACEBYLATEX, $text);
             if (false !== stripos($text, '<table')) {
                 $text = $this->processTable($text);
             }
