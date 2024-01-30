@@ -673,6 +673,7 @@ class MasterToebRepository extends FluentRepository implements ArrayInterface
 
     /**
      * Checks if an organisation has already submitted draftStatements or statements.
+     *
      * @throws SubmittedStatementsOnMergeOrganisationsException
      */
     protected function checkIfOrgaHasSubmittedStatements(string $organisationId): void

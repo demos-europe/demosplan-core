@@ -88,6 +88,7 @@ class DemosPlanMasterToebController extends BaseController
         $response = [
             'code'    => 100,
             'success' => true, ];
+
         // return result as JSON
         return new Response(Json::encode($response));
     }
@@ -150,6 +151,7 @@ class DemosPlanMasterToebController extends BaseController
             'code'              => 100,
             'success'           => true,
             'hasNewReportEntry' => $hasNewReportEntry, ];
+
         // return result as JSON
         return new JsonResponse($response);
     }
@@ -199,6 +201,7 @@ class DemosPlanMasterToebController extends BaseController
                     'code'    => 101,
                     'success' => true, ];
             }
+
             // return result as JSON
             return new Response(Json::encode($response));
         } catch (HttpException $e) {
@@ -213,6 +216,7 @@ class DemosPlanMasterToebController extends BaseController
                     // return default result as JSON
                     return $this->handleAjaxError($e);
             }
+
             // return result as JSON
             return new Response(Json::encode($response));
         }
@@ -235,6 +239,7 @@ class DemosPlanMasterToebController extends BaseController
         $response = [
             'code'    => 100,
             'success' => true, ];
+
         // return result as JSON
         return new Response(Json::encode($response));
     }
