@@ -200,10 +200,10 @@ export default {
     fetchDepartments () {
       const url = Routing.generate('api_resource_list', { resourceType: 'Department' })
       return dpApi.get(url, {
-        include: 'masterToeb,departments',
-        'fields[Department]': [
-          'name'
-        ].join()
+        include: 'departments',
+        fields: {
+          Department: ['name'].join()
+        }
       })
         .then((response) => {
           if (hasOwnProp(response.data, 'data')) {
