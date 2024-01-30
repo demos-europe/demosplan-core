@@ -40,6 +40,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use ZipArchive;
@@ -85,6 +86,7 @@ class AddonInstallFromZipCommand extends CoreCommand
         $this->addOption('repos', '', InputOption::VALUE_NONE, 'Call demosplan addon repository');
         $this->addOption('force-download', '', InputOption::VALUE_NONE, 'Force download repository from GitHub');
         $this->addOption('folder', '', InputOption::VALUE_REQUIRED, 'Folder to read addon zips from', 'addonZips');
+        $this->addOption('develop', 'd', InputOption::VALUE_NONE, 'Install local addon repository');
     }
 
     /**
@@ -100,16 +102,25 @@ class AddonInstallFromZipCommand extends CoreCommand
         $path = $input->getArgument('path');
         $folder = $input->getOption('folder');
 
+        $this->setGlobalPaths();
+
         if (null === $path) {
             try {
                 if ($input->getOption('local')) {
                     $path = $this->getPathFromZip($input, $output, $folder);
+                    $this->setZipPaths($path);
                 } elseif ($input->getOption('github')) {
                     $path = $this->loadFromGithub($input, $output, $folder);
+                    $this->setZipPaths($path);
                 } elseif ($input->getOption('repos')) {
                     $path = $this->loadFromApiRepository($input, $output, $folder);
+                    $this->setZipPaths($path);
+                } elseif ($input->getOption('develop')) {
+                    $path = $this->getPathFromLocalDevelopment($input, $output, $folder);
+                    $this->setDevelopPaths($path);
                 } else {
                     $path = $this->getPathFromZip($input, $output, $folder);
+                    $this->setZipPaths($path);
                 }
             } catch (Exception $e) {
                 $output->error($e->getMessage());
@@ -118,7 +129,6 @@ class AddonInstallFromZipCommand extends CoreCommand
             }
         }
 
-        $this->setPaths($path);
         try {
             $this->initializeAddonsInfrastructure();
         } catch (JsonException|RuntimeException $e) {
@@ -248,17 +258,23 @@ class AddonInstallFromZipCommand extends CoreCommand
     }
 
     /**
-     * Sets all necessary paths for the command.
+     * Sets zip paths for the command.
      */
-    private function setPaths(string $path): void
+    private function setZipPaths(string $path): void
     {
-        $this->addonsDirectory = DemosPlanPath::getRootPath(Registrator::ADDON_DIRECTORY);
-        $this->addonsCacheDirectory = DemosPlanPath::getRootPath(Registrator::ADDON_CACHE_DIRECTORY);
         $this->zipSourcePath = realpath($path);
-
         $pathInfo = new SplFileInfo($path);
-
         $this->zipCachePath = DemosPlanPath::getRootPath(Registrator::ADDON_CACHE_DIRECTORY.$pathInfo->getBasename('.zip').'/');
+    }
+
+
+    private function setDevelopPaths(string $path): void
+    {
+        // do not use realpath as we need the path within the container
+        $this->zipSourcePath = $path;
+        $pathInfo = new SplFileInfo($path);
+        $this->zipCachePath = DemosPlanPath::getRootPath(Registrator::ADDON_CACHE_DIRECTORY.$pathInfo->getBasename().'/');
+
     }
 
     /**
@@ -503,4 +519,33 @@ class AddonInstallFromZipCommand extends CoreCommand
 
         return $this->getHelper('question')->ask($input, $output, $question);
     }
+
+    private function getPathFromLocalDevelopment(InputInterface $input, SymfonyStyle $output, mixed $folder): string
+    {
+        $fs = new Filesystem();
+        $addonDevFolder = DemosPlanPath::getRootPath('addonDev');
+        if (!file_exists($addonDevFolder)) {
+            throw new RuntimeException("No folder {$folder} found. To develop addons locally, create a folder {$folder} and put your addons in there.");
+        }
+
+        $localAddons = glob($addonDevFolder . '/*');
+        if (!is_array($localAddons) || 0 === count($localAddons)) {
+            throw new RuntimeException("No local addons found in folder {$folder}. You may define them in your .defaults.yml");
+        }
+        $question = new ChoiceQuestion('Which addon do you want to install from your local development environment?', $localAddons);
+        $path = $this->getHelper('question')->ask($input, $output, $question);
+
+        // create symlink from cache to addonsDev
+        $addonFolder = explode('/', $path)[count(explode('/', $path)) - 1];
+        $fs->symlink($path, $this->addonsCacheDirectory.'/'.$addonFolder);
+
+        return $path;
+    }
+
+    private function setGlobalPaths(): void
+    {
+        $this->addonsDirectory = DemosPlanPath::getRootPath(Registrator::ADDON_DIRECTORY);
+        $this->addonsCacheDirectory = DemosPlanPath::getRootPath(Registrator::ADDON_CACHE_DIRECTORY);
+    }
+
 }
