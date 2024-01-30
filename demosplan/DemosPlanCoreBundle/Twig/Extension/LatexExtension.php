@@ -262,8 +262,6 @@ class LatexExtension extends ExtensionBase
      * Process Table.
      *
      * @param string $text
-     *
-     * @return mixed
      */
     public function processTable($text)
     {
