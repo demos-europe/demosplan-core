@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace Tests\CoreApplication\Application;
 
 use demosplan\DemosPlanCoreBundle\Application\ConsoleApplication;
-use Exception;
 use demosplan\DemosPlanCoreBundle\Application\FrontController as BasicFrontController;
+use Exception;
 
 class FrontController
 {
