@@ -56,7 +56,7 @@ final class FrontController
      *
      * @throws Exception
      */
-    public static function console(string $activeProject, bool $deprecatedFrontcontroller = false): void
+    public static function bootstrapConsole(): ArgvInput
     {
         if (!in_array(PHP_SAPI, ['cli', 'phpdbg', 'embed'], true)) {
             echo 'Warning: The console should be invoked via the CLI version of PHP, not the '.PHP_SAPI.' SAPI'.PHP_EOL;
@@ -88,6 +88,13 @@ final class FrontController
                 Debug::enable();
             }
         }
+
+        return $input;
+    }
+
+    public static function console(string $activeProject, bool $deprecatedFrontcontroller = false): void
+    {
+        $input = self::bootstrapConsole();
 
         // Add the Addon autoloader to the spl autoload stack
         AddonAutoloading::register();
