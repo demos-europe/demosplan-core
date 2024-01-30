@@ -411,15 +411,7 @@ export default {
           this.isLoading = false
           this.mode = 'confirm'
           this.isError = true
-          // Display error messages from response
-          const errorMeta = error.response.data.meta
-          if (hasOwnProp(errorMeta, 'messages')) {
-            for (const type in errorMeta.messages) {
-              for (const message in errorMeta.messages[type]) {
-                dplan.notify.notify(type, Translator.trans(errorMeta.messages[type][message]))
-              }
-            }
-          }
+          console.error(error)
         })
     },
 
