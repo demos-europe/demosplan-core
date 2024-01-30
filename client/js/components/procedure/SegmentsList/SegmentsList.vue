@@ -31,7 +31,7 @@
           </span>
           <filter-flyout
             v-for="filter in filters"
-            :data-cy="'segmentsList:' + filter.labelTranslationKey"
+            :data-cy="`segmentsListFilter:${filter.labelTranslationKey}`"
             :initial-query="queryIds"
             :key="`filter_${filter.labelTranslationKey}`"
             :additional-query-params="{ searchPhrase: searchTerm }"
