@@ -530,7 +530,7 @@ class AddonInstallFromZipCommand extends CoreCommand
 
         $localAddons = glob($addonDevFolder . '/*');
         if (!is_array($localAddons) || 0 === count($localAddons)) {
-            throw new RuntimeException("No local addons found in folder {$folder}. You may define them in your .defaults.yml");
+            throw new RuntimeException("No local addons found in folder {$folder}. Please check out the demosplan-addon-* repositories into this folder.");
         }
         $question = new ChoiceQuestion('Which addon do you want to install from your local development environment?', $localAddons);
         $path = $this->getHelper('question')->ask($input, $output, $question);
