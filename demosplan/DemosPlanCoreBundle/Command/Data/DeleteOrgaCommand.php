@@ -96,7 +96,6 @@ class DeleteOrgaCommand extends CoreCommand
             $output->info('Organisations id(s) to delete: '.implode(',', $retrievedOrgaIds));
             $output->info("Dry-run: $isDryRun");
 
-            // $this->procedureDeleter->deleteProcedures($retrievedOrgaIds, $isDryRun);
             $this->orgaDeleter->deleteOrganisations($retrievedOrgaIds, $isDryRun);
 
             // repopulate Elasticsearch
