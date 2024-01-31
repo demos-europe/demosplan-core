@@ -41,7 +41,7 @@ class DeleteOrgaCommandTest extends FunctionalTestCase
         $id = $this->testOrga->getId();
         $commandTester = $this->executeCommand($id);
         $output = $commandTester->getDisplay();
-        $successString = "organisation(s) with id(s) $id are deleted";
+        $successString = "orga(s) with id(s) $id are deleted";
 
         $this->assertStringContainsString($successString, $output);
     }

@@ -12,7 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Logic\Orga\OrgaDeleter;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeleter;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
@@ -96,7 +95,6 @@ class DeleteOrgaCommand extends CoreCommand
             $output->info('Organisations id(s) to delete: '.implode(',', $retrievedOrgaIds));
             $output->info("Dry-run: $isDryRun");
 
-            // $this->procedureDeleter->deleteProcedures($retrievedOrgaIds, $isDryRun);
             $this->orgaDeleter->deleteOrganisations($retrievedOrgaIds, $isDryRun);
 
             // repopulate Elasticsearch
@@ -111,7 +109,7 @@ class DeleteOrgaCommand extends CoreCommand
             return Command::FAILURE;
         }
 
-        $output->info('organisation(s) with id(s) '.implode(',', $retrievedOrgaIds).' are deleted successfully');
+        $output->info('orga(s) with id(s) '.implode(',', $retrievedOrgaIds).' are deleted successfully');
 
         return Command::SUCCESS;
     }

@@ -10,7 +10,7 @@
 
 namespace backend\core\Orga;
 
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\OrgaFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Logic\Orga\OrgaDeleter;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
