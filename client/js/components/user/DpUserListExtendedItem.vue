@@ -155,6 +155,17 @@ export default {
       return this.user?.relationships?.orga.data?.id
     },
 
+    isInstitution () {
+      const currentOrg = this.allOrganisations.find(org => org.id === this.currentOrganisation.id)
+      return currentOrg ? currentOrg.relationships?.masterToeb?.data !== null : false
+    }
+  },
+
+  methods: {
+    ...mapActions('user', {
+      saveUserAction: 'save'
+    }),
+
     initialUserDepartment () {
       return {
         id: this.user?.relationships?.orga.data?.id,
@@ -168,17 +179,6 @@ export default {
         title: this.getOrgaName()
       }
     },
-
-    isInstitution () {
-      const currentOrg = this.allOrganisations.find(org => org.id === this.currentOrganisation.id)
-      return currentOrg ? currentOrg.relationships?.masterToeb?.data !== null : false
-    }
-  },
-
-  methods: {
-    ...mapActions('user', {
-      saveUserAction: 'save'
-    }),
 
     /**
      * - add departments to organisations
@@ -317,8 +317,8 @@ export default {
     },
 
     setInitialUserData () {
-      this.currentOrganisation = this.initialUserOrganisation
-      this.currentDepartment = this.initialUserDepartment
+      this.currentOrganisation = this.initialUserOrganisation()
+      this.currentDepartment = this.initialUserDepartment()
     },
 
     /**
