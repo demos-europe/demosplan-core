@@ -27,7 +27,7 @@
       v-if="isMapEnabled && hasPermission('area_map_participation_area')"
       :class="[
         isLocationSelected ? prefixClass('bg-color--grey-light-2') : '',
-        prefixClass('c-statement__formblock layout__item height-90 height-auto-lap-down u-3-of-10 u-1-of-1-palm'),
+        prefixClass('c-statement__formblock layout__item sm:h-8 u-3-of-10 u-1-of-1-palm'),
         highlighted.location ? prefixClass('animation--bg-highlight-grey--light-2') : ''
       ]"
       ref="mapStatementRadio">
@@ -67,7 +67,7 @@
       v-if="hasPermission('field_statement_county')"
       :class="[
         statement.r_location === 'county' ? 'bg-color--grey-light-2' : '',
-        'c-statement__formblock layout__item height-90 height-auto-lap-down u-3-of-10 u-1-of-1-palm'
+        'c-statement__formblock layout__item sm:h-8 u-3-of-10 u-1-of-1-palm'
       ]">
       <dp-radio
         id="locationcounty"
@@ -102,7 +102,7 @@
       :class="[
         statement.r_location === 'notLocated' ? prefixClass('bg-color--grey-light-2') : '',
         loggedIn ? prefixClass('u-1-of-3') : prefixClass('u-2-of-10'),
-        prefixClass('c-statement__formblock layout__item height-90 height-auto-lap-down u-1-of-1-palm')
+        prefixClass('c-statement__formblock layout__item sm:h-8 u-1-of-1-palm')
       ]">
       <dp-radio
         id="locationNone"

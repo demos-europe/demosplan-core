@@ -465,7 +465,7 @@ class AddonInstallFromZipCommand extends CoreCommand
             throw new RuntimeException('Could not access repository. Did you create a GitHub personal access token?');
         }
         $existingReposContent = $existingReposResponse->getContent(false);
-        $repositories = array_merge($repositories, JSON::decodeToArray($existingReposContent));
+        $repositories = array_merge($repositories, Json::decodeToArray($existingReposContent));
         if (array_key_exists('link', $existingReposResponse->getHeaders())) {
             $links = explode(',', $existingReposResponse->getHeaders()['link'][0]);
             foreach ($links as $link) {
@@ -487,7 +487,10 @@ class AddonInstallFromZipCommand extends CoreCommand
             }
         )->map(function ($tag) {
             return $tag['name'];
-        })->toArray();
+        })
+            ->reverse()
+            ->values()
+            ->toArray();
 
         if (0 === count($tags)) {
             throw new RuntimeException('No tags found for this repository. Please install the addon via --local');
@@ -497,8 +500,7 @@ class AddonInstallFromZipCommand extends CoreCommand
             'Which tag do you want to install? ',
             $tags
         );
-        $tag = $this->getHelper('question')->ask($input, $output, $question);
 
-        return $tag;
+        return $this->getHelper('question')->ask($input, $output, $question);
     }
 }

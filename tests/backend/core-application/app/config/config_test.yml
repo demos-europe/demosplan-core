@@ -22,6 +22,7 @@ parameters:
     database_host: ''
     database_user: ''
     database_password: ''
+    secret: "IAmOnlyTheDefaultSecretSoChangeMeInProjects"
 
     roles_allowed:
         - !php/const demosplan\DemosPlanCoreBundle\Entity\User\Role::BOARD_MODERATOR
