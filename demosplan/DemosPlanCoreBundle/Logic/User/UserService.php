@@ -55,6 +55,7 @@ use Doctrine\ORM\ORMException;
 use DOMDocument;
 use Exception;
 use LSS\XML2Array;
+use Pagerfanta\Pagerfanta;
 use RuntimeException;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -1039,11 +1040,9 @@ class UserService extends CoreService implements UserServiceInterface
     /**
      * Liste der InvitableInstitutionsichtbarkeitenänderungen anfordern.
      *
-     * @return DemosPlanPaginator
-     *
      * @throws Exception
      */
-    public function getInvitableInstitutionShowlistChanges()
+    public function getInvitableInstitutionShowlistChanges(): Pagerfanta
     {
         try {
             return $this->reportService->getInvitableInstitutionShowlistChanges();
