@@ -2419,7 +2419,13 @@ class StatementService extends CoreService implements StatementServiceInterface
     public function collectRequest(array $rParams): array
     {
         return \collect($rParams)->filter(
-            static fn ($value, string $key) => str_starts_with($key, 'r_') && ((\is_string($value) && '' !== $value) || (\is_array($value) && 0 < count($value)))
+            static function ($value, string $key) {
+                if ('r_submitterEmailAddress' === $key) {
+                    return str_starts_with($key, 'r_') && (\is_string($value) || (\is_array($value) && 0 < count($value)));
+                } else {
+                    return str_starts_with($key, 'r_') && ((\is_string($value) && '' !== $value) || (\is_array($value) && 0 < count($value)));
+                }
+            }
         )->mapWithKeys(
             static function ($stringOrArrayValue, string $key) {
                 // Use substr without r_ as key
