@@ -149,7 +149,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="_p_phase", type="string", length=50, nullable=false)
+     * @ORM\Column(name="_p_phase", type="string", nullable=false)
      */
     protected $phase = '';
 
@@ -258,7 +258,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="_p_public_participation_phase", type="string", length=20, nullable=false)
+     * @ORM\Column(name="_p_public_participation_phase", type="string", nullable=false)
      */
     protected $publicParticipationPhase = '';
 
