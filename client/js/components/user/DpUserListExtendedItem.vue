@@ -212,15 +212,15 @@ export default {
 
     /**
      * Find options for organisation select
+     * filteredOrgas returns an array which are institutions and which belongs to masterToeb
      */
     findAvailableOrganisations () {
-      // eslint-disable-next-line array-callback-return
       const filteredOrgas = this.allOrganisations.filter(org => {
-        if (this.isInstitution && org.relationships?.masterToeb?.data) {
-          return true
+        if (this.isInstitution) {
+          return org.relationships?.masterToeb?.data !== null
+        } else {
+          return org.relationships?.masterToeb?.data === null
         }
-
-        return false
       })
       const allDeps = Object.values(this.departmentsList)
 
