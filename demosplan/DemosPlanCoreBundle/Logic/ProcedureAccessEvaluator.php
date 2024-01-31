@@ -22,6 +22,7 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\PathException;
 use Psr\Log\LoggerInterface;
+
 use function in_array;
 
 class ProcedureAccessEvaluator

@@ -49,7 +49,8 @@ class OwnsProcedureConditionFactory
         private readonly GlobalConfigInterface $globalConfig,
         private readonly LoggerInterface $logger,
         private readonly User|Procedure $userOrProcedure
-    ) {}
+    ) {
+    }
 
     /**
      * The organisation of the user must be set as planning office in the procedure.
@@ -66,6 +67,7 @@ class OwnsProcedureConditionFactory
         if ($this->userOrProcedure instanceof User) {
             $user = $this->userOrProcedure;
             $organisationId = $user->getOrganisationId();
+
             return $this->conditionFactory->propertyHasStringAsMember($organisationId, ['planningOffices']);
         }
 
@@ -143,7 +145,7 @@ class OwnsProcedureConditionFactory
                     ],
                     ['roleInCustomers', 'role', 'code']
                 ),
-                $this->isUserInCustomer($customer)
+                $this->isUserInCustomer($customer),
             ];
         } else {
             $ownsOrgaRoleCondition = [$this->conditionFactory->false()];
@@ -176,7 +178,7 @@ class OwnsProcedureConditionFactory
                     RoleInterface::PRIVATE_PLANNING_AGENCY,
                     ['roleInCustomers', 'role', 'code']
                 ),
-                $this->isUserInCustomer($customer)
+                $this->isUserInCustomer($customer),
             ];
         } else {
             $planningAgencyOwnsProcedure = [$this->conditionFactory->false()];

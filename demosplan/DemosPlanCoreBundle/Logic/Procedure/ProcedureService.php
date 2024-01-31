@@ -2084,7 +2084,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      * Will copy Boilerplates including related Boilerplatecategories and also copy emtpy Categories.
      *
      * @param string    $blueprintId  - The ID of the blueprint procedure
-     * @param procedure $newProcedure - The new created procedure object
+     * @param Procedure $newProcedure - The new created procedure object
      *
      * @throws Exception
      */
@@ -2362,7 +2362,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      * @param string $title       - Title of BoilerplateGroup to create
      * @param string $procedureId - Procedure which BoilerplateGroup to create belongs to
      *
-     * @return boilerplateGroup - Created BoilerplateGroup
+     * @return BoilerplateGroup - Created BoilerplateGroup
      *
      * @throws Exception
      */
