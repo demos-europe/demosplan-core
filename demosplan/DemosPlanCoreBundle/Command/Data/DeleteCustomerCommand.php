@@ -149,6 +149,5 @@ class DeleteCustomerCommand extends CoreCommand
                 ->add($repopulateEsCommand)
                 ->run();
         }
-
     }
 }

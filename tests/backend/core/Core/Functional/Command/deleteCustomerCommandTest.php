@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace Tests\Core\Core\Functional\Command;
 
 use demosplan\DemosPlanCoreBundle\Application\ConsoleApplication;
@@ -22,15 +30,16 @@ class deleteCustomerCommandTest extends FunctionalTestCase
     private array $customers;
 
     private array $orphanedOrgaIds;
+
     public function setUp(): void
     {
         parent::setUp();
-        $this->customerDeleterMock =  $this->getMock(CustomerDeleter::class);
+        $this->customerDeleterMock = $this->getMock(CustomerDeleter::class);
         $this->customerDeleterMock->method('beginTransactionAndDisableForeignKeyChecks')->willReturn(null);
         $this->customerDeleterMock->method('commitTransactionAndEnableForeignKeyChecks')->willReturn(null);
         $this->customerDeleterMock->method('rollBackTransaction')->willReturn(null);
         $this->customerDeleterMock->method('deleteCustomer')->willReturn($this->orphanedOrgaIds);
-        $this->parameterBagInterfaceMock =  $this->createMock(ParameterBagInterface::class);
+        $this->parameterBagInterfaceMock = $this->createMock(ParameterBagInterface::class);
         $this->customerRepositoryMock = $this->createMock(CustomerRepository::class);
         $this->questionHelperMock = $this->createMock(QuestionHelper::class);
         $this->customers = $this->getEntries(Customer::class);
@@ -70,5 +79,4 @@ class deleteCustomerCommandTest extends FunctionalTestCase
 
         return $commandTester;
     }
-
 }
