@@ -385,6 +385,7 @@ check.fragment.delete: "Sind Sie sicher, dass Sie den Datensatz löschen möchte
 check.fragment.save: "Wenn Sie die Bearbeitung dieses Datensatzes abschliessen, können Sie die Bearbeitung nicht wieder aufnehmen."
 check.item.delete: "Sind Sie sicher, dass Sie dieses Element löschen möchten?"
 check.items.marked.delete: "Sind Sie sicher, dass Sie alle markierten Elemente löschen möchten?"
+check.mastertoeb.delete: "Sind Sie sicher, dass Sie diesen Eintrag löschen möchten?"
 check.mail.result: >-
     Sind Sie sicher, dass Sie die Informationen über das Abwägungsergebnis versenden möchten?
     {sentTo}
@@ -1204,6 +1205,7 @@ error.orga.register.request: "Beim Anlegen der Organisation ist ein Fehler aufge
 error.organisation.duplicated.slug: "Der Direktlink zu Verfahren mit der Endung {slug} ist bereits vergeben."
 error.organisation.invalid: "In den Daten der Organisation sind folgende Felder ungültig: {fields}. Bitte korrigieren Sie diese Werte, um Änderungen speichern zu können."
 error.organisation.cssvars.invalid: "Die eingetragenen CSS-Variablen sind ungültig. Es dürfen nur ausgewählte Variablen mit gültigen Farbwerten verwendet werden."
+error.organisation.merge.statements.existing: "Die neue Organisation hat bereits Stellungnahmen angelegt und/oder eingereicht und kann daher nicht mit einem bestehenden Eintrag zusammengeführt werden."
 error.organisation.not.created: "Die neue Organisation konnte nicht gespeichert werden"
 error.organisation.not.deleted: "Die ausgewählte Organisation konnte nicht gelöscht werden"
 error.organisation.not.existent: "Ausgewählte Organisation wurde nicht gefunden"
@@ -1926,6 +1928,7 @@ invitable_institution.list.show.text: "Die Organisation wird in der landesweiten
 invitable_institution.master.gatewayGroup: "GW-Gruppe"
 invitable_institution.master.merge: "Institutionen zusammenführen"
 invitable_institution.master.organisations.new: "Neu angelegte Organisationen"
+invitable_institutions.master.organisations.master_toeb_list: "Eintrag aus Master-TöB-Liste"
 invitable_institution.master.report.nounread: "Keine Änderungen seit dem letzten Protokollaufruf."
 invitable_institution.master.report.unread: "Neue Änderungen von Institutionen in ihren Organisationen"
 invitable_institution.master.report: "Änderungen Master-TöB-Liste"

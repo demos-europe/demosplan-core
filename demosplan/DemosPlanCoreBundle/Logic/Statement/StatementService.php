@@ -66,6 +66,7 @@ use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\ClusterCitizenInstitutio
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\KeysAtEndSorter;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\KeysAtStartSorter;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\ParagraphOrderSorter;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\TitleGroupsSorter;
 use demosplan\DemosPlanCoreBundle\Logic\Consultation\ConsultationTokenService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
@@ -172,9 +173,6 @@ class StatementService extends CoreService implements StatementServiceInterface
     /** @var PriorityAreaService */
     protected $priorityAreaService;
 
-    /** @var ParagraphService */
-    protected $paragraphService;
-
     /** @var ElementsService */
     protected $serviceElements;
 
@@ -245,7 +243,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         HashedQueryService $filterSetService,
         JsonApiPaginationParser $paginationParser,
         private readonly MessageBagInterface $messageBag,
-        ParagraphService $paragraphService,
+        protected ParagraphService $paragraphService,
         PermissionsInterface $permissions,
         PriorityAreaService $priorityAreaService,
         private readonly ProcedureRepository $procedureRepository,
@@ -281,7 +279,6 @@ class StatementService extends CoreService implements StatementServiceInterface
         $this->entityContentChangeService = $entityContentChangeService;
         $this->filterSetService = $filterSetService;
         $this->paginationParser = $paginationParser;
-        $this->paragraphService = $paragraphService;
         $this->permissions = $permissions;
         $this->priorityAreaService = $priorityAreaService;
         $this->procedureService = $procedureService;
@@ -2251,8 +2248,14 @@ class StatementService extends CoreService implements StatementServiceInterface
             ['getElementId' => $notDividableGroupKeys]
         );
 
-        $noManualSortElementsIds = $this->serviceElements->getHiddenElementsIdsForProcedureId($procedureId);
+        // sort the paragraphs by their order
+        $this->statementEntityGrouper->sortSubgroupsAtDepth(
+            $group,
+            new ParagraphOrderSorter($this->paragraphService),
+            2
+        );
 
+        $noManualSortElementsIds = $this->serviceElements->getHiddenElementsIdsForProcedureId($procedureId);
         // sorting only needed if there are elements to be moved to the end
         if (0 < count($noManualSortElementsIds)) {
             // sort hidden elements to end: sort elements not manually sortable in the admin list (because hidden) at the end
