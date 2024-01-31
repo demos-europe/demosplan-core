@@ -117,6 +117,8 @@ class DeleteProcedureCommand extends CoreCommand
         } catch (Exception $exception) {
             $output->error('An Error occurred repopulating Elasticsearch: '.$exception->getMessage());
             $output->error($exception->getTraceAsString());
+
+            return Command::FAILURE;
         }
 
         $output->info('procedure(s) with id(s) '.implode(',', $retrievedProceduresIds).' are deleted successfully');

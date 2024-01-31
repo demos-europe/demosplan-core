@@ -113,6 +113,8 @@ class DeleteOrgaCommand extends CoreCommand
         } catch (Exception $exception) {
             $output->error('An Error occurred repopulating Elasticsearch: '.$exception->getMessage());
             $output->error($exception->getTraceAsString());
+
+            return Command::FAILURE;
         }
 
         $output->info('orga(s) with id(s) '.implode(',', $retrievedOrgaIds).' are deleted successfully');
