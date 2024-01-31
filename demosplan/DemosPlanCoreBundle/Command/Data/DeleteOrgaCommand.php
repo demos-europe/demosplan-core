@@ -110,7 +110,7 @@ class DeleteOrgaCommand extends CoreCommand
             return Command::FAILURE;
         }
 
-        $output->info('organisation(s) with id(s) '.implode(',', $retrievedOrgaIds).' are deleted successfully');
+        $output->info('orga(s) with id(s) '.implode(',', $retrievedOrgaIds).' are deleted successfully');
 
         return Command::SUCCESS;
     }
