@@ -10,10 +10,10 @@
 <template>
   <div
     ref="contentArea"
-    class="u-mt-0_5">
+    class="mt-2">
     <dp-data-table-extended
       ref="dataTable"
-      class="u-mt-0_5"
+      class="mt-2"
       :header-fields="headerFields"
       :table-items="rowItems"
       is-expandable
@@ -24,7 +24,7 @@
       :init-items-per-page="itemsPerPage">
       <template v-slot:expandedContent="{ participationFeedbackEmailAddress, locationContacts, ccEmailAddresses, contactPerson }">
         <div class="lg:w-2/3 lg:flex pt-4">
-          <dl class="px-4 w-100">
+          <dl class="pl-4 w-full">
             <dt class="color--grey">
               {{ Translator.trans('address') }}
             </dt>
@@ -49,7 +49,7 @@
               {{ Translator.trans('notspecified') }}
             </dd>
           </dl>
-          <dl class="px-4 w-100">
+          <dl class="pl-4 w-full">
             <dt class="color--grey">
               {{ Translator.trans('phone') }}
             </dt>
@@ -96,15 +96,15 @@
         </div>
       </template>
       <template v-slot:footer>
-        <div class="u-pt-0_5">
-          <div class="u-1-of-3 inline-block">
+        <div class="pt-2">
+          <div class="w-1/3 inline-block">
             <span
               class="weight--bold line-height--1_6"
               v-if="selectedItems.length">
               {{ selectedItems.length }} {{ (selectedItems.length === 1 && Translator.trans('entry.selected')) || Translator.trans('entries.selected') }}
             </span>
           </div>
-          <div class="u-2-of-3 text-right inline-block space-inline-s">
+          <div class="w-2/3 text-right inline-block space-x-2">
             <dp-button
               data-cy="addPublicAgency"
               :text="Translator.trans('invitable_institution.add')"
