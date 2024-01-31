@@ -20,12 +20,19 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathException;
 use Psr\Log\LoggerInterface;
+use function in_array;
 
 class ProcedureAccessEvaluator
 {
-    public function __construct(private readonly DqlConditionFactory $conditionFactory, private readonly CustomerService $currentCustomerProvider, private readonly EntityFetcher $entityFetcher, private readonly GlobalConfigInterface $globalConfig, private readonly LoggerInterface $logger)
-    {
+    public function __construct(
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly CustomerService $currentCustomerProvider,
+        private readonly EntityFetcher $entityFetcher,
+        private readonly GlobalConfigInterface $globalConfig,
+        private readonly LoggerInterface $logger
+    ) {
     }
 
     /**
@@ -36,15 +43,14 @@ class ProcedureAccessEvaluator
      * Planungsbüros dem Verfahren zugewiesen, ownen sie das Verfahren auch.
      * ```.
      *
+     * This implementation of this method is duplicated from {@link ProcedureAccessEvaluator::getOwnsProcedureCondition()}. Its
+     * (only) advantage is that it provides logging output, instead of executing all conditions at once, potentially
+     * increasing the debugging difficulty.
+     *
      * **Keep in sync with {@link ProcedureAccessEvaluator::getOwnsProcedureCondition}.**
      */
     public function isOwningProcedure(User $user, Procedure $procedure): bool
     {
-        // procedure is deleted
-        if ($procedure->isDeleted()) {
-            return false;
-        }
-
         $ownsProcedureConditionFactory = new OwnsProcedureConditionFactory(
             $this->conditionFactory,
             $this->globalConfig,
@@ -52,8 +58,15 @@ class ProcedureAccessEvaluator
             $procedure
         );
 
+        // procedure must not be deleted
+        $undeletedProcedureCondition = $ownsProcedureConditionFactory->isUndeletedProcedure();
+        if (!$this->entityFetcher->objectMatches($user, $undeletedProcedureCondition)) {
+            return false;
+        }
+
+        // user must be in current customer
         $currentCustomer = $this->currentCustomerProvider->getCurrentCustomer();
-        $inCurrentCustomer = $ownsProcedureConditionFactory->isInCustomer($currentCustomer);
+        $inCurrentCustomer = $ownsProcedureConditionFactory->isUserInCustomer($currentCustomer);
 
         // user owns via their organisation or was manually set
         $orgaOwnsProcedure = $this->conditionFactory->false();
@@ -87,31 +100,40 @@ class ProcedureAccessEvaluator
     }
 
     /**
+     * Compiles a list of conditions to check if a procedure or procedure template is owned by the given user.
+     *
+     * A procedure is owned a user if all conditions in the returned list match the procedure/user respectively.
+     *
+     * If {@link GlobalConfigInterface::hasProcedureUserRestrictedAccess} is set to `false`
+     * then the user must be in the organisation that created the procedure.
+     *
+     * If {@link GlobalConfigInterface::hasProcedureUserRestrictedAccess} is set to `true`
+     * then the user must either be authorized {@link OwnsProcedureConditionFactory::isAuthorizedViaPlanningAgency()
+     * via their planning agency} or manually **regardless of their role**.
+     *
      * Applies the same logic as {@link ProcedureAccessEvaluator::isOwningProcedure()}
-     * but bundles it into a single condition that can be executed against {@link User} entities.
+     * but bundles it into a list of conditions that can be executed against {@link User} entities if a
+     * {@link Procedure} was given and against {@link Procedure} entities if a {@link User} was given.
      * Because of this bundling this method is missing most of the logging
      * during the evaluation of a user.
      *
-     * **Keep in sync with {@link ProcedureAccessEvaluator::isOwningProcedure()}.**
+     * **Keep in sync with {@link ProcedureAccessEvaluator::isOwningProcedure()}**
      *
-     * @return FunctionInterface<bool>
+     * @return list<FunctionInterface<bool>>
+     *
+     * @throws PathException
      */
-    public function getOwnsProcedureCondition(Procedure $procedure): FunctionInterface
+    public function getOwnsProcedureConditions(Procedure|User $userOrProcedure, bool $template): array
     {
-        // procedure is deleted
-        if ($procedure->isDeleted()) {
-            return $this->conditionFactory->false();
-        }
-
         $ownsProcedureConditionFactory = new OwnsProcedureConditionFactory(
             $this->conditionFactory,
             $this->globalConfig,
             $this->logger,
-            $procedure
+            $userOrProcedure
         );
 
         $currentCustomer = $this->currentCustomerProvider->getCurrentCustomer();
-        $inCurrentCustomer = $ownsProcedureConditionFactory->isInCustomer($currentCustomer);
+        $inCurrentCustomer = $ownsProcedureConditionFactory->isUserInCustomer($currentCustomer);
 
         // user owns via their organisation or was manually set
         $orgaOwnsProcedure = $this->conditionFactory->allConditionsApply(
@@ -127,11 +149,15 @@ class ProcedureAccessEvaluator
             $ownsProcedureConditionFactory->isAuthorizedViaPlanningAgency()
         );
 
-        // user owns via owning organisation or planning agency
-        return $this->conditionFactory->anyConditionApplies(
-            $orgaOwnsProcedure,
-            $planningAgencyOwnsProcedure
-        );
+        return [
+            $ownsProcedureConditionFactory->isEitherTemplateOrProcedure($template),
+            $ownsProcedureConditionFactory->isUndeletedProcedure(),
+            // user owns via owning organisation or planning agency
+            $this->conditionFactory->anyConditionApplies(
+                $orgaOwnsProcedure,
+                $planningAgencyOwnsProcedure
+            ),
+        ];
     }
 
     /**

@@ -1551,6 +1551,13 @@ class User implements SamlUserInterface, AddonUserInterface
             ->map(static fn (UserRoleInCustomerInterface $roleInCustomer) => $roleInCustomer->getCustomer())->toArray();
     }
 
+    public function isConnectedToCustomerId(string $customerId): bool
+    {
+        return $this->roleInCustomers
+            ->map(static fn (UserRoleInCustomerInterface $roleInCustomer): ?string => $roleInCustomer->getCustomer()?->getId())
+            ->contains($customerId);
+    }
+
     /**
      * Retrieve all customers that the user is associated with directly. This is only the case for customer users.
      *

@@ -616,47 +616,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      */
     public function getAdminProcedureConditions(bool $template, User $user): array
     {
-        $conditions = [];
-        $conditions[] = $this->conditionFactory->propertyHasValue(false, ['deleted']);
-
-        $organisationId = $user->getOrganisationId();
-
-        // Planning agencies ("Planungsbüro") get the list of procedures they are
-        // authorized for (enabled via field_procedure_adjustments_planning_agency).
-        $planningAgencyCondition = $this->conditionFactory->false();
-        if ($user->hasRole(Role::PRIVATE_PLANNING_AGENCY)) {
-            $planningAgencyCondition = $this->conditionFactory->propertyHasStringAsMember($organisationId, ['planningOffices']);
-        }
-
-        $orgaOwnsProcedureCondition = $this->conditionFactory->false();
-        $authorizedUserCondition = $this->conditionFactory->true();
-        // CUSTOMER_MASTER_USER is not able to see this whole list, but in
-        // ProcedureAccessEvaluator::isOwningProcedure we also test for this role,
-        // so it is included here just to be on-par with that method.
-        if ($user->hasRole(Role::CUSTOMER_MASTER_USER)
-            || $user->isHearingAuthority()
-            || $user->isPlanningAgency()
-        ) {
-            // Planning agencies are allowed to see any procedure created by a user of their orga.
-            $orgaOwnsProcedureCondition = $this->conditionFactory->propertyHasValue($organisationId, ['orga']);
-
-            // If enabled via globalConfig, Planning agencies can be authorized user-wise.
-            if ($this->globalConfig->hasProcedureUserRestrictedAccess()) {
-                $authorizedUserCondition = $this->conditionFactory->propertyHasStringAsMember($user->getId(), ['authorizedUsers']);
-            }
-        }
-
-        $conditions[] = $this->conditionFactory->anyConditionApplies(
-            $planningAgencyCondition,
-            $this->conditionFactory->allConditionsApply(
-                $orgaOwnsProcedureCondition,
-                $authorizedUserCondition
-            )
-        );
-
-        $conditions[] = $this->conditionFactory->propertyHasValue($template, ['master']);
-
-        return $conditions;
+        return $this->procedureAccessEvaluator->getOwnsProcedureConditions($user, $template);
     }
 
     /**
