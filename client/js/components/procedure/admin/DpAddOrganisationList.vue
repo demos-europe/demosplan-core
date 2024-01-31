@@ -24,7 +24,7 @@
       :init-items-per-page="itemsPerPage">
       <template v-slot:expandedContent="{ participationFeedbackEmailAddress, locationContacts, ccEmailAddresses, contactPerson }">
         <div class="lg:w-2/3 lg:flex pt-4">
-          <dl class="layout__item">
+          <dl class="px-4 w-100">
             <dt class="color--grey">
               {{ Translator.trans('address') }}
             </dt>
@@ -49,7 +49,7 @@
               {{ Translator.trans('notspecified') }}
             </dd>
           </dl>
-          <dl class="layout__item">
+          <dl class="px-4 w-100">
             <dt class="color--grey">
               {{ Translator.trans('phone') }}
             </dt>
