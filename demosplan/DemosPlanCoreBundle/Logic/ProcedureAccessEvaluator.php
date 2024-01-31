@@ -66,20 +66,19 @@ class ProcedureAccessEvaluator
 
         // user must be in current customer
         $currentCustomer = $this->currentCustomerProvider->getCurrentCustomer();
-        $inCurrentCustomer = $ownsProcedureConditionFactory->isUserInCustomer($currentCustomer);
 
         // user owns via their organisation or was manually set
         $orgaOwnsProcedure = $this->conditionFactory->false();
-        $procedureAccessingRole = $ownsProcedureConditionFactory->hasProcedureAccessingRole();
-        if ($this->entityFetcher->objectMatchesAll($user, [$procedureAccessingRole, $inCurrentCustomer])) {
+        $procedureAccessingRole = $ownsProcedureConditionFactory->hasProcedureAccessingRole($currentCustomer);
+        if ($this->entityFetcher->objectMatchesAll($user, $procedureAccessingRole)) {
             $this->logger->debug('User is FP*');
             $orgaOwnsProcedure = $ownsProcedureConditionFactory->isAuthorizedViaOrgaOrManually();
         }
 
         // user has planning agency role in current customer and owns via owning planning agency organisation
         $planningAgencyOwnsProcedure = $this->conditionFactory->false();
-        $privatePlanningAgency = $ownsProcedureConditionFactory->hasPlanningAgencyRole();
-        if ($this->entityFetcher->objectMatchesAll($user, [$privatePlanningAgency, $inCurrentCustomer])) {
+        $privatePlanningAgency = $ownsProcedureConditionFactory->hasPlanningAgencyRole($currentCustomer);
+        if ($this->entityFetcher->objectMatchesAll($user, $privatePlanningAgency)) {
             $this->logger->debug('Permissions → User has role RMOPPO');
             $planningAgencyOwnsProcedure = $ownsProcedureConditionFactory->isAuthorizedViaPlanningAgency();
         }
@@ -133,20 +132,17 @@ class ProcedureAccessEvaluator
         );
 
         $currentCustomer = $this->currentCustomerProvider->getCurrentCustomer();
-        $inCurrentCustomer = $ownsProcedureConditionFactory->isUserInCustomer($currentCustomer);
 
         // user owns via their organisation or was manually set
         $orgaOwnsProcedure = $this->conditionFactory->allConditionsApply(
-            $inCurrentCustomer,
-            $ownsProcedureConditionFactory->hasProcedureAccessingRole(),
-            $ownsProcedureConditionFactory->isAuthorizedViaOrgaOrManually()
+            $ownsProcedureConditionFactory->isAuthorizedViaOrgaOrManually(),
+            ...$ownsProcedureConditionFactory->hasProcedureAccessingRole($currentCustomer),
         );
 
         // user has planning agency role in current customer and owns via owning planning agency organisation
         $planningAgencyOwnsProcedure = $this->conditionFactory->allConditionsApply(
-            $inCurrentCustomer,
-            $ownsProcedureConditionFactory->hasPlanningAgencyRole(),
-            $ownsProcedureConditionFactory->isAuthorizedViaPlanningAgency()
+            $ownsProcedureConditionFactory->isAuthorizedViaPlanningAgency(),
+            ...$ownsProcedureConditionFactory->hasPlanningAgencyRole($currentCustomer),
         );
 
         return [

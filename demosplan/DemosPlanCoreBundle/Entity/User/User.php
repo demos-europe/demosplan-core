@@ -801,9 +801,9 @@ class User implements SamlUserInterface, AddonUserInterface
         return $this->hasAnyOfRoles($plannerRoles);
     }
 
-    public function isHearingAuthority(): bool
+    public function isHearingAuthority(Customer $customer = null): bool
     {
-        return $this->hasAnyOfRoles([RoleInterface::HEARING_AUTHORITY_ADMIN, RoleInterface::HEARING_AUTHORITY_WORKER]);
+        return $this->hasAnyOfRoles([RoleInterface::HEARING_AUTHORITY_ADMIN, RoleInterface::HEARING_AUTHORITY_WORKER], $customer);
     }
 
     /**
@@ -814,9 +814,9 @@ class User implements SamlUserInterface, AddonUserInterface
         return $this->hasAnyOfRoles([RoleInterface::HEARING_AUTHORITY_ADMIN, RoleInterface::PLANNING_AGENCY_ADMIN]);
     }
 
-    public function isPlanningAgency(): bool
+    public function isPlanningAgency(Customer $customer = null): bool
     {
-        return $this->hasAnyOfRoles([RoleInterface::PLANNING_AGENCY_ADMIN, RoleInterface::PLANNING_AGENCY_WORKER]);
+        return $this->hasAnyOfRoles([RoleInterface::PLANNING_AGENCY_ADMIN, RoleInterface::PLANNING_AGENCY_WORKER], $customer);
     }
 
     public function isPublicAgency(): bool
@@ -1467,10 +1467,10 @@ class User implements SamlUserInterface, AddonUserInterface
         return in_array($role, $this->getDplanRolesArray($customer));
     }
 
-    public function hasAnyOfRoles(array $roles): bool
+    public function hasAnyOfRoles(array $roles, Customer $customer = null): bool
     {
         foreach ($roles as $role) {
-            if ($this->hasRole($role)) {
+            if ($this->hasRole($role, $customer)) {
                 return true;
             }
         }

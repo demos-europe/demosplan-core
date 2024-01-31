@@ -109,23 +109,22 @@ class OwnsProcedureConditionFactory
     /**
      * Returns a condition to match users having the roles to theoretically own a procedure.
      *
-     * @return FunctionInterface<bool>
+     * @return list<FunctionInterface<bool>>
      */
-    public function hasProcedureAccessingRole(): FunctionInterface
+    public function hasProcedureAccessingRole(Customer $customer): array
     {
         if ($this->userOrProcedure instanceof User) {
             $user = $this->userOrProcedure;
-            $userHasRole = $user->hasRole(RoleInterface::CUSTOMER_MASTER_USER)
-                || $user->isHearingAuthority()
-                || $user->isPlanningAgency();
+            $userHasRole = $user->hasRole(RoleInterface::CUSTOMER_MASTER_USER, $customer)
+                || $user->isHearingAuthority($customer)
+                || $user->isPlanningAgency($customer);
 
             return $userHasRole
-                ? $this->conditionFactory->true()
-                : $this->conditionFactory->false();
+                ? [$this->conditionFactory->true()]
+                : [$this->conditionFactory->false()];
         }
 
         $procedure = $this->userOrProcedure;
-        $ownsOrgaRoleCondition = $this->conditionFactory->false();
 
         if (null !== $procedure->getOrgaId()) {
             $this->logger->debug('Permissions: Check whether orga owns procedure');
@@ -133,16 +132,21 @@ class OwnsProcedureConditionFactory
 
             // Fachplaner admin oder Fachplaner Sachbearbeiter oder Plattform-Admin oder AHB-Admin
 
-            $ownsOrgaRoleCondition = $this->conditionFactory->propertyHasAnyOfValues(
-                [
-                    RoleInterface::CUSTOMER_MASTER_USER,
-                    RoleInterface::PLANNING_AGENCY_ADMIN,
-                    RoleInterface::PLANNING_AGENCY_WORKER,
-                    RoleInterface::HEARING_AUTHORITY_ADMIN,
-                    RoleInterface::HEARING_AUTHORITY_WORKER,
-                ],
-                ['roleInCustomers', 'role', 'code']
-            );
+            $ownsOrgaRoleCondition = [
+                $this->conditionFactory->propertyHasAnyOfValues(
+                    [
+                        RoleInterface::CUSTOMER_MASTER_USER,
+                        RoleInterface::PLANNING_AGENCY_ADMIN,
+                        RoleInterface::PLANNING_AGENCY_WORKER,
+                        RoleInterface::HEARING_AUTHORITY_ADMIN,
+                        RoleInterface::HEARING_AUTHORITY_WORKER,
+                    ],
+                    ['roleInCustomers', 'role', 'code']
+                ),
+                $this->isUserInCustomer($customer)
+            ];
+        } else {
+            $ownsOrgaRoleCondition = [$this->conditionFactory->false()];
         }
 
         return $ownsOrgaRoleCondition;
@@ -151,27 +155,31 @@ class OwnsProcedureConditionFactory
     /**
      * The user must have the {@link RoleInterface::PRIVATE_PLANNING_AGENCY} role.
      *
-     * @return FunctionInterface<bool>
+     * @return list<FunctionInterface<bool>>
      */
-    public function hasPlanningAgencyRole(): FunctionInterface
+    public function hasPlanningAgencyRole(Customer $customer): array
     {
         if ($this->userOrProcedure instanceof User) {
-            return $this->userOrProcedure->hasRole(RoleInterface::PRIVATE_PLANNING_AGENCY)
-                ? $this->conditionFactory->true()
-                : $this->conditionFactory->false();
+            return $this->userOrProcedure->hasRole(RoleInterface::PRIVATE_PLANNING_AGENCY, $customer)
+                ? [$this->conditionFactory->true()]
+                : [$this->conditionFactory->false()];
         }
 
         $procedure = $this->userOrProcedure;
-        $planningAgencyOwnsProcedure = $this->conditionFactory->false();
 
         if (0 < count($procedure->getPlanningOfficesIds())) {
             $this->logger->debug('Procedure has PlanningOffices');
 
             // ist es ein PLanungsbüro?
-            $planningAgencyOwnsProcedure = $this->conditionFactory->propertyHasValue(
-                RoleInterface::PRIVATE_PLANNING_AGENCY,
-                ['roleInCustomers', 'role', 'code']
-            );
+            $planningAgencyOwnsProcedure = [
+                $this->conditionFactory->propertyHasValue(
+                    RoleInterface::PRIVATE_PLANNING_AGENCY,
+                    ['roleInCustomers', 'role', 'code']
+                ),
+                $this->isUserInCustomer($customer)
+            ];
+        } else {
+            $planningAgencyOwnsProcedure = [$this->conditionFactory->false()];
         }
 
         return $planningAgencyOwnsProcedure;
@@ -186,7 +194,9 @@ class OwnsProcedureConditionFactory
         Assert::notNull($customerId);
 
         if ($this->userOrProcedure instanceof User) {
-            return $this->userOrProcedure->isConnectedToCustomerId($customerId)
+            $user = $this->userOrProcedure;
+
+            return $user->isConnectedToCustomerId($customerId)
                 ? $this->conditionFactory->true()
                 : $this->conditionFactory->false();
         }
