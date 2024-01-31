@@ -15,26 +15,23 @@ use Tests\Base\FunctionalTestCase;
 
 class deleteCustomerCommandTest extends FunctionalTestCase
 {
-    private MockObject $parameterBagInterfaceMock;
-    private MockObject $customerRepositoryMock;
-    private MockObject $customerDeleterMock;
-    private MockObject $questionHelperMock;
-    private array $customers;
+    private ?MockObject $parameterBagInterfaceMock;
+    private ?MockObject $customerRepositoryMock;
+    private ?MockObject $customerDeleterMock;
+    private ?MockObject $questionHelperMock;
+    private ?array $customers;
 
-    private array $orphanedOrgaIds;
+    private ?array $orphanedOrgaIds;
     public function setUp(): void
     {
         parent::setUp();
         $this->customerDeleterMock =  $this->getMock(CustomerDeleter::class);
-        $this->customerDeleterMock->method('beginTransactionAndDisableForeignKeyChecks')->willReturn(null);
-        $this->customerDeleterMock->method('commitTransactionAndEnableForeignKeyChecks')->willReturn(null);
-        $this->customerDeleterMock->method('rollBackTransaction')->willReturn(null);
-        $this->customerDeleterMock->method('deleteCustomer')->willReturn($this->orphanedOrgaIds);
-        $this->parameterBagInterfaceMock =  $this->createMock(ParameterBagInterface::class);
+        $this->parameterBagInterfaceMock = $this->createMock(ParameterBagInterface::class);
         $this->customerRepositoryMock = $this->createMock(CustomerRepository::class);
         $this->questionHelperMock = $this->createMock(QuestionHelper::class);
         $this->customers = $this->getEntries(Customer::class);
         $this->orphanedOrgaIds = ['TestID_1', 'TestID_2', 'TestID_3', 'TestID_4', 'TestID_5'];
+        $this->customerDeleterMock->method('deleteCustomer')->willReturn($this->orphanedOrgaIds);
     }
 
     public function testCommandSuccessfull(): void
@@ -43,7 +40,7 @@ class deleteCustomerCommandTest extends FunctionalTestCase
         $this->customerRepositoryMock->method('findAll')->willReturn($this->customers);
         /** @var Customer $customer */
         $customer = reset($this->customers);
-        $this->questionHelperMock->method('ask')->willReturn($customer->getId());
+        $this->questionHelperMock->method('ask')->willReturn($customer->getSubdomain().' id: '.$customer->getId());
         $commandTester = $this->executeCommand();
         $output = $commandTester->getDisplay();
 
@@ -58,7 +55,8 @@ class deleteCustomerCommandTest extends FunctionalTestCase
             new DeleteCustomerCommand(
                 $this->parameterBagInterfaceMock,
                 $this->customerRepositoryMock,
-                $this->customerDeleterMock
+                $this->customerDeleterMock,
+                $this->questionHelperMock
             )
         );
 
