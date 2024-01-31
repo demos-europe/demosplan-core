@@ -368,7 +368,7 @@ export default {
         url: Routing.generate('dplan_assessment_table_assessment_table_statement_bulk_edit_api_action', {
           procedureId: this.procedureId
         }),
-        data: JSON.stringify(payload)
+        data: payload
       })
         .then(checkResponse)
         .then(() => {

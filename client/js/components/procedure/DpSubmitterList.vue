@@ -24,6 +24,7 @@
 
       <dp-column-selector
         class="ml-auto"
+        data-cy="submitterList:selectableColumns"
         :initial-selection="currentSelection"
         :selectable-columns="selectableColumns"
         @selection-changed="setCurrentSelection"
