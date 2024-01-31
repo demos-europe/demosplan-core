@@ -98,7 +98,6 @@ class DeleteOrgaCommand extends CoreCommand
             $this->orgaDeleter->beginTransactionAndDisableForeignKeyChecks();
             $this->orgaDeleter->deleteOrganisations($retrievedOrgaIds, $isDryRun);
             $this->orgaDeleter->commitTransactionAndEnableForeignKeyChecks();
-
         } catch (Exception $exception) {
             $output->error('Rolled back transaction '.$exception->getMessage());
             $output->error($exception->getTraceAsString());

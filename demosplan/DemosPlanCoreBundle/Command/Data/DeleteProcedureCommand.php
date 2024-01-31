@@ -100,7 +100,6 @@ class DeleteProcedureCommand extends CoreCommand
             $this->procedureDeleter->beginTransactionAndDisableForeignKeyChecks();
             $this->procedureDeleter->deleteProcedures($retrievedProceduresIds, $isDryRun);
             $this->procedureDeleter->commitTransactionAndEnableForeignKeyChecks();
-
         } catch (Exception $exception) {
             // rollback all changes
             $this->queriesService->rollbackTransaction();
