@@ -97,18 +97,27 @@ class DeleteProcedureCommand extends CoreCommand
             $output->info('Procedures id(s) to delete: '.implode(',', $retrievedProceduresIds));
             $output->info("Dry-run: $isDryRun");
 
+            $this->procedureDeleter->beginTransactionAndDisableForeignKeyChecks();
             $this->procedureDeleter->deleteProcedures($retrievedProceduresIds, $isDryRun);
+            $this->procedureDeleter->commitTransactionAndEnableForeignKeyChecks();
 
+        } catch (Exception $exception) {
+            // rollback all changes
+            $this->queriesService->rollbackTransaction();
+            $output->error('Rolled back transaction '.$exception->getMessage());
+            $output->error($exception->getTraceAsString());
+
+            return Command::FAILURE;
+        }
+        try {
             // repopulate Elasticsearch
             if (!$isDryRun && !$withoutRepopulate) {
                 $output->info('Repopulate Elasticsearch');
                 $this->repopulateElasticsearch($output);
             }
         } catch (Exception $exception) {
-            $output->error('Rolled back transaction '.$exception->getMessage());
+            $output->error('An Error occurred repopulating Elasticsearch: '.$exception->getMessage());
             $output->error($exception->getTraceAsString());
-
-            return Command::FAILURE;
         }
 
         $output->info('procedure(s) with id(s) '.implode(',', $retrievedProceduresIds).' are deleted successfully');

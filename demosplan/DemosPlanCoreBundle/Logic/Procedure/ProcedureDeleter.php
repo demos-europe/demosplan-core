@@ -27,153 +27,157 @@ class ProcedureDeleter
      */
     public function deleteProcedures(array $procedureIds, bool $isDryRun): void
     {
-        try {
-            // start doctrine transaction
-            $this->queriesService->beginTransaction();
+        // delete all statements and connected entities
+        $this->processAllStatements($procedureIds, $isDryRun);
 
-            // deactivate foreign key checks
-            $this->queriesService->deactivateForeignKeyChecks();
+        // delete all annotated statement pdfs -> pages -> files
+        $this->processAnnotatedStatementPdfs($procedureIds, $isDryRun);
 
-            // delete all statements and connected entities
-            $this->processAllStatements($procedureIds, $isDryRun);
+        // delete procedure elements -> files
+        $this->processElements($procedureIds, $isDryRun);
 
-            // delete all annotated statement pdfs -> pages -> files
-            $this->processAnnotatedStatementPdfs($procedureIds, $isDryRun);
+        // Procedure Behavior Definition
+        $this->deleteBehaviorDefinitions($procedureIds, $isDryRun);
 
-            // delete procedure elements -> files
-            $this->processElements($procedureIds, $isDryRun);
+        // Procedure UI Definition
+        $this->deleteUiDefinitions($procedureIds, $isDryRun);
 
-            // Procedure Behavior Definition
-            $this->deleteBehaviorDefinitions($procedureIds, $isDryRun);
+        // form definitions -> field definitions
+        $this->processFormDefinitions($procedureIds, $isDryRun);
 
-            // Procedure UI Definition
-            $this->deleteUiDefinitions($procedureIds, $isDryRun);
+        // delete gis layers
+        $this->processGisLayers($procedureIds, $isDryRun);
 
-            // form definitions -> field definitions
-            $this->processFormDefinitions($procedureIds, $isDryRun);
+        // delete procedure news
+        $this->deleteProcedureNews($procedureIds, $isDryRun);
 
-            // delete gis layers
-            $this->processGisLayers($procedureIds, $isDryRun);
+        // delete tag topics -> tags
+        $this->processTags($procedureIds, $isDryRun);
 
-            // delete procedure news
-            $this->deleteProcedureNews($procedureIds, $isDryRun);
+        // delete predefined text categories -> predefined texts
+        $this->processPredefinedTexts($procedureIds, $isDryRun);
 
-            // delete tag topics -> tags
-            $this->processTags($procedureIds, $isDryRun);
+        // delete draft statements attributes
+        // ATTENTION
+        // the order matters here as we need to query the draftStatementIds in order to delete the attributes
+        $this->deleteDraftStatementAttributes($procedureIds, $isDryRun);
+        // delete draft statements Files
+        // ATTENTION
+        // the order matters here as we need to query the draftStatementIds in order to delete the files
+        $this->deleteDraftStatementsFiles($procedureIds, $isDryRun);
+        // delete draft statement versions
+        $this->deleteDraftStatementsVersions($procedureIds, $isDryRun);
+        // delete draft statements
+        $this->deleteDraftStatements($procedureIds, $isDryRun);
 
-            // delete predefined text categories -> predefined texts
-            $this->processPredefinedTexts($procedureIds, $isDryRun);
+        // delete institutions mails
+        $this->deleteInstitutionsMails($procedureIds, $isDryRun);
 
-            // delete draft statements attributes
-            // ATTENTION
-            // the order matters here as we need to query the draftStatementIds in order to delete the attributes
-            $this->deleteDraftStatementAttributes($procedureIds, $isDryRun);
-            // delete draft statements Files
-            // ATTENTION
-            // the order matters here as we need to query the draftStatementIds in order to delete the files
-            $this->deleteDraftStatementsFiles($procedureIds, $isDryRun);
-            // delete draft statement versions
-            $this->deleteDraftStatementsVersions($procedureIds, $isDryRun);
-            // delete draft statements
-            $this->deleteDraftStatements($procedureIds, $isDryRun);
+        // delete para docs
+        $this->deleteParaDocs($procedureIds, $isDryRun);
 
-            // delete institutions mails
-            $this->deleteInstitutionsMails($procedureIds, $isDryRun);
+        // delete para docs versions
+        $this->deleteParaDocVersions($procedureIds, $isDryRun);
 
-            // delete para docs
-            $this->deleteParaDocs($procedureIds, $isDryRun);
+        // delete procedure doctrine orgas
+        $this->deleteProcedureOrgaDoctrines($procedureIds, $isDryRun);
 
-            // delete para docs versions
-            $this->deleteParaDocVersions($procedureIds, $isDryRun);
+        // delete single docs
+        $this->deleteSingleDocs($procedureIds, $isDryRun);
 
-            // delete procedure doctrine orgas
-            $this->deleteProcedureOrgaDoctrines($procedureIds, $isDryRun);
+        // delete single docs versions
+        $this->deleteSingleDocVersions($procedureIds, $isDryRun);
 
-            // delete single docs
-            $this->deleteSingleDocs($procedureIds, $isDryRun);
+        // delete manual list sorts
+        $this->deleteManualListSorts($procedureIds, $isDryRun);
 
-            // delete single docs versions
-            $this->deleteSingleDocVersions($procedureIds, $isDryRun);
+        // delete procedure plannungoffices
+        $this->deleteProcedurePlannungOffices($procedureIds, $isDryRun);
 
-            // delete manual list sorts
-            $this->deleteManualListSorts($procedureIds, $isDryRun);
+        // delete import_emails -> attachments
+        $this->processImportEmails($procedureIds, $isDryRun);
 
-            // delete procedure plannungoffices
-            $this->deleteProcedurePlannungOffices($procedureIds, $isDryRun);
+        // delete user filter sets
+        $this->deleteUserFilterSets($procedureIds, $isDryRun);
 
-            // delete import_emails -> attachments
-            $this->processImportEmails($procedureIds, $isDryRun);
+        // delete hashed queries
+        $this->deleteHashedQueries($procedureIds, $isDryRun);
 
-            // delete user filter sets
-            $this->deleteUserFilterSets($procedureIds, $isDryRun);
+        // delete surveys and their votes
+        $this->deleteSurveysAndVotes($procedureIds, $isDryRun);
 
-            // delete hashed queries
-            $this->deleteHashedQueries($procedureIds, $isDryRun);
+        // delete procedure-category relations
+        $this->deleteProcedureCategoryRelation($procedureIds, $isDryRun);
 
-            // delete surveys and their votes
-            $this->deleteSurveysAndVotes($procedureIds, $isDryRun);
+        // delete procedure persons
+        $this->deleteProcedurePersons($procedureIds, $isDryRun);
 
-            // delete procedure-category relations
-            $this->deleteProcedureCategoryRelation($procedureIds, $isDryRun);
+        // delete procedure Oata-input-orga relations
+        $this->deleteProcedureDataInputOrgaRelations($procedureIds, $isDryRun);
 
-            // delete procedure persons
-            $this->deleteProcedurePersons($procedureIds, $isDryRun);
+        // delete procedure couple tokens
+        $this->deleteProcedureCoupleTokens($procedureIds, $isDryRun);
 
-            // delete procedure Oata-input-orga relations
-            $this->deleteProcedureDataInputOrgaRelations($procedureIds, $isDryRun);
+        // delete procedure agency extra email addresses
+        $this->deleteProcedureAgencyExtraEmailAddresses($procedureIds, $isDryRun);
 
-            // delete procedure couple tokens
-            $this->deleteProcedureCoupleTokens($procedureIds, $isDryRun);
+        // delete notification receivers
+        $this->deleteProcedureNotificationReceivers($procedureIds, $isDryRun);
 
-            // delete procedure agency extra email addresses
-            $this->deleteProcedureAgencyExtraEmailAddresses($procedureIds, $isDryRun);
+        // delete workflow places
+        $this->deleteWorkflowPlaces($procedureIds, $isDryRun);
 
-            // delete notification receivers
-            $this->deleteProcedureNotificationReceivers($procedureIds, $isDryRun);
+        // delete procedure_settings
+        $this->deleteProcedureSettings($procedureIds, $isDryRun);
 
-            // delete workflow places
-            $this->deleteWorkflowPlaces($procedureIds, $isDryRun);
+        // settings
+        $this->deleteSettings($procedureIds, $isDryRun);
 
-            // delete procedure_settings
-            $this->deleteProcedureSettings($procedureIds, $isDryRun);
+        // export fields configuration
+        $this->deleteExportFieldsConfiguration($procedureIds, $isDryRun);
 
-            // settings
-            $this->deleteSettings($procedureIds, $isDryRun);
+        // maillane connection fixme does this table exist in all projects?
+        $this->deleteMaillaneConnection($procedureIds, $isDryRun);
 
-            // export fields configuration
-            $this->deleteExportFieldsConfiguration($procedureIds, $isDryRun);
+        // procedure_settings_allowed_segment_procedures
+        $this->deleteProcedureSettingsAllowedSegmentProcedures($procedureIds, $isDryRun);
 
-            // maillane connection fixme does this table exist in all projects?
-            $this->deleteMaillaneConnection($procedureIds, $isDryRun);
+        // procedure_slug
+        $this->deleteProcedureSlug($procedureIds, $isDryRun);
 
-            // procedure_settings_allowed_segment_procedures
-            $this->deleteProcedureSettingsAllowedSegmentProcedures($procedureIds, $isDryRun);
+        // procedure_user
+        $this->deleteProcedureUser($procedureIds, $isDryRun);
 
-            // procedure_slug
-            $this->deleteProcedureSlug($procedureIds, $isDryRun);
+        // delete remaining procedure files
+        $this->queriesService->deleteFromTableByIdentifierArray('_files', 'procedure_id', $procedureIds, $isDryRun);
 
-            // procedure_user
-            $this->deleteProcedureUser($procedureIds, $isDryRun);
+        // delete procedure report entries
+        $this->deleteReportEntriesByIdentifierAndType($procedureIds, $isDryRun);
 
-            // delete remaining procedure files
-            $this->queriesService->deleteFromTableByIdentifierArray('_files', 'procedure_id', $procedureIds, $isDryRun);
+        // delete procedures
+        $this->deleteProcedure($procedureIds, $isDryRun);
+    }
 
-            // delete procedure report entries
-            $this->deleteReportEntriesByIdentifierAndType($procedureIds, $isDryRun);
+    /**
+     * @throws Exception
+     */
+    public function beginTransactionAndDisableForeignKeyChecks(): void
+    {
+        // deactivate foreign key checks
+        $this->queriesService->deactivateForeignKeyChecks();
+        // start doctrine transaction
+        $this->queriesService->beginTransaction();
+    }
 
-            // delete procedures
-            $this->deleteProcedure($procedureIds, $isDryRun);
-
-            // reactivate foreign key checks
-            $this->queriesService->activateForeignKeyChecks();
-
-            // commit all changes
-            $this->queriesService->commitTransaction();
-        } catch (Exception $e) {
-            // rollback all changes
-            $this->queriesService->rollbackTransaction();
-            throw $e;
-        }
+    /**
+     * @throws Exception
+     */
+    public function commitTransactionAndEnableForeignKeyChecks(): void
+    {
+        // commit all changes
+        $this->queriesService->commitTransaction();
+        // reactivate foreign key checks
+        $this->queriesService->activateForeignKeyChecks();
     }
 
     /**
