@@ -218,6 +218,8 @@ class ProcedureDeleter
         $this->deleteStatementMeta($statementIds, $isDryRun);
         // delete statement attachment -> files
         $this->processStatementAttachments($statementIds, $isDryRun);
+        // delete additional attachments -> file container
+        $this->processAdditionalAttachments($statementIds, $isDryRun);
         // remove all tags from statements to prepare for later tag deletion
         $this->deleteTagsFromStatements($statementIds, $isDryRun);
         // delete similar statement submitter
@@ -230,6 +232,34 @@ class ProcedureDeleter
         $this->deleteReportEntriesByIdentifierAndType($statementIds, $isDryRun);
         // delete statements
         $this->queriesService->deleteFromTableByIdentifierArray('_statement', '_p_id', $procedureIds, $isDryRun);
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function processAdditionalAttachments(array $statementIds, bool $isDryRun): void
+    {
+        $fileIds = array_column(
+            $this->queriesService->fetchFromTableByParameter(
+                ['file_id'],
+                'file_container',
+                'entity_id',
+                $statementIds
+            ),
+            'file_id'
+        );
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            '_files',
+            '_f_ident',
+            $fileIds,
+            $isDryRun
+        );
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            'file_container',
+            'entity_id',
+            $statementIds,
+            $isDryRun
+        );
     }
 
     /**
