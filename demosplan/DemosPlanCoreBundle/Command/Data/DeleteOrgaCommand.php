@@ -12,7 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Logic\Orga\OrgaDeleter;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeleter;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
