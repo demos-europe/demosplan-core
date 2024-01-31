@@ -32,72 +32,76 @@ class OrgaDeleter extends CoreService
      */
     public function deleteOrganisations(array $orgaIds, bool $isDryRun): void
     {
-        try {
-            // start doctrine transaction
-            $this->queriesService->beginTransaction();
+        // delete orga slugs
+        $this->deleteOrgaSlug($orgaIds, $isDryRun);
 
-            // deactivate foreign key checks
-            $this->queriesService->deactivateForeignKeyChecks();
+        // delete organisations address book entry
+        $this->deleteAddressBookEntry($orgaIds, $isDryRun);
 
-            // delete orga slugs
-            $this->deleteOrgaSlug($orgaIds, $isDryRun);
+        // delete relation customer orga orga type
+        $this->deleteRelationCustomerOrgaOrgaType($orgaIds, $isDryRun);
 
-            // delete organisations address book entry
-            $this->deleteAddressBookEntry($orgaIds, $isDryRun);
+        // delete elements orga doctrine. This relation table seems not to be anymore used, all related Data will
+        // be anyway removed.
+        $this->deleteElementsOrgaDoctrine($orgaIds, $isDryRun);
 
-            // delete relation customer orga orga type
-            $this->deleteRelationCustomerOrgaOrgaType($orgaIds, $isDryRun);
+        // delete organisation addresses doctrine
+        $this->deleteOrgaAddressDoctrine($orgaIds, $isDryRun);
 
-            // delete elements orga doctrine. This relation table seems not to be anymore used, all related Data will
-            // be anyway removed.
-            $this->deleteElementsOrgaDoctrine($orgaIds, $isDryRun);
+        // delete organisation department doctrine
+        $this->deleteOrgaDepartmentDoctrine($orgaIds, $isDryRun);
 
-            // delete organisation addresses doctrine
-            $this->deleteOrgaAddressDoctrine($orgaIds, $isDryRun);
+        // delete organisation user doctrine
+        $this->deleteOrgaUserDoctrine($orgaIds, $isDryRun);
 
-            // delete organisation department doctrine
-            $this->deleteOrgaDepartmentDoctrine($orgaIds, $isDryRun);
+        // delete institution tag and orga institution tag
+        $this->deleteOrgaInstitutionTag($orgaIds, $isDryRun);
 
-            // delete organisation user doctrine
-            $this->deleteOrgaUserDoctrine($orgaIds, $isDryRun);
+        // delete progression userstory votes
+        $this->deleteProgressionUserStoryVotes($orgaIds, $isDryRun);
 
-            // delete institution tag and orga institution tag
-            $this->deleteOrgaInstitutionTag($orgaIds, $isDryRun);
+        // delete orga settings
+        $this->deleteSettings($orgaIds, $isDryRun);
 
-            // delete progression userstory votes
-            $this->deleteProgressionUserStoryVotes($orgaIds, $isDryRun);
+        // delete procedure orga doctrine
+        $this->deleteProcedureOrgaDoctrine($orgaIds, $isDryRun);
 
-            // delete orga settings
-            $this->deleteSettings($orgaIds, $isDryRun);
+        // delete orga report entries
+        $this->deleteReportEntries($orgaIds, $isDryRun);
 
-            // delete procedure orga doctrine
-            $this->deleteProcedureOrgaDoctrine($orgaIds, $isDryRun);
+        $orgasProcedureIds = Collect($this->procedureRepository->findBy(['orga' => $orgaIds]))->map(
+            static fn (Procedure $procedure): string => $procedure->getId()
+        );
+        // delete procedures
+        // handles tables with orga_ids as well as procedureIds like:
+        // procedure_planningoffices, procedure_orga_datainput, institution_mail, _draft_statement_versions
+        $this->procedureDeleter->deleteProcedures($orgasProcedureIds->toArray(), $isDryRun);
 
-            // delete orga report entries
-            $this->deleteReportEntries($orgaIds, $isDryRun);
+        $this->deleteProcedurePlannungOffices($orgaIds, $isDryRun);
+        // delete organisations
+        $this->deleteOrgas($orgaIds, $isDryRun);
+    }
 
-            $orgasProcedureIds = Collect($this->procedureRepository->findBy(['orga' => $orgaIds]))->map(
-                static fn (Procedure $procedure): string => $procedure->getId()
-            );
-            // delete procedures
-            // handles tables with orga_ids as well as procedureIds like:
-            // procedure_planningoffices, procedure_orga_datainput, institution_mail, _draft_statement_versions
-            $this->procedureDeleter->deleteProcedures($orgasProcedureIds->toArray(), $isDryRun);
+    /**
+     * @throws Exception
+     */
+    public function beginTransactionAndDisableForeignKeyChecks(): void
+    {
+        // deactivate foreign key checks
+        $this->queriesService->deactivateForeignKeyChecks();
+        // start doctrine transaction
+        $this->queriesService->beginTransaction();
+    }
 
-            $this->deleteProcedurePlannungOffices($orgaIds, $isDryRun);
-            // delete organisations
-            $this->deleteOrgas($orgaIds, $isDryRun);
-
-            // reactivate foreign key checks
-            $this->queriesService->activateForeignKeyChecks();
-
-            // commit all changes
-            $this->queriesService->commitTransaction();
-        } catch (Exception $e) {
-            // rollback all changes
-            $this->queriesService->rollbackTransaction();
-            throw $e;
-        }
+    /**
+     * @throws Exception
+     */
+    public function commitTransactionAndEnableForeignKeyChecks(): void
+    {
+        // commit all changes
+        $this->queriesService->commitTransaction();
+        // reactivate foreign key checks
+        $this->queriesService->activateForeignKeyChecks();
     }
 
     /**

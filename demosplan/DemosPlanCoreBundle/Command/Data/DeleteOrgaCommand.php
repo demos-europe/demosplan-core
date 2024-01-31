@@ -95,15 +95,23 @@ class DeleteOrgaCommand extends CoreCommand
             $output->info('Organisations id(s) to delete: '.implode(',', $retrievedOrgaIds));
             $output->info("Dry-run: $isDryRun");
 
+            $this->orgaDeleter->beginTransactionAndDisableForeignKeyChecks();
             $this->orgaDeleter->deleteOrganisations($retrievedOrgaIds, $isDryRun);
+            $this->orgaDeleter->commitTransactionAndEnableForeignKeyChecks();
+        } catch (Exception $exception) {
+            $output->error('Rolled back transaction '.$exception->getMessage());
+            $output->error($exception->getTraceAsString());
 
+            return Command::FAILURE;
+        }
+        try {
             // repopulate Elasticsearch
             if (!$isDryRun && !$withoutRepopulate) {
                 $output->info('Repopulate Elasticsearch');
                 $this->repopulateElasticsearch($output);
             }
         } catch (Exception $exception) {
-            $output->error('Rolled back transaction '.$exception->getMessage());
+            $output->error('An Error occurred repopulating Elasticsearch: '.$exception->getMessage());
             $output->error($exception->getTraceAsString());
 
             return Command::FAILURE;
