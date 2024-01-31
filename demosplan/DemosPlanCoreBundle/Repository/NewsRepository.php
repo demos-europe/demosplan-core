@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\ManualListSort;
 use demosplan\DemosPlanCoreBundle\Entity\News\News;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
@@ -20,9 +19,9 @@ use Doctrine\ORM\NoResultException;
 use Exception;
 
 /**
- * @template-extends FluentRepository<News>
+ * @template-extends CoreRepository<News>
  */
-class NewsRepository extends FluentRepository implements ArrayInterface
+class NewsRepository extends CoreRepository implements ArrayInterface
 {
     /**
      * Get a news entry from DB by id.
