@@ -32,59 +32,73 @@ class CustomerDeleter extends CoreService
      */
     public function deleteCustomer(string $customerId, bool $isDryRun): array
     {
-        try {
-            // start doctrine transaction
-            $this->queriesService->beginTransaction();
+        // get and delete customer related procedures
+        $customerProcedureIds = array_map(
+            static fn (Procedure $procedure): string => $procedure->getId(),
+            $this->procedureRepository->findBy(['customer' => $customerId])
+        );
+        $this->procedureDeleter->deleteProcedures($customerProcedureIds, $isDryRun);
 
-            // get and delete customer related procedures
-            $customerProcedureIds = array_map(
-                static fn (Procedure $procedure): string => $procedure->getId(),
-                $this->procedureRepository->findBy(['customer' => $customerId])
-            );
-            $this->procedureDeleter->deleteProcedures($customerProcedureIds, $isDryRun);
+        // delete customer videos
+        $this->deleteCustomerVideos($customerId, $isDryRun);
 
-            // deactivate foreign key checks
-            $this->queriesService->deactivateForeignKeyChecks();
+        // delete sign language overview video
+        $this->deleteCustomerSignLanguageOverviewVideo($customerId, $isDryRun);
 
-            // delete customer videos
-            $this->deleteCustomerVideos($customerId, $isDryRun);
+        // delete customer support_contacts
+        $this->deleteCustoemrSupportContacts($customerId, $isDryRun);
 
-            // delete sign language overview video
-            $this->deleteCustomerSignLanguageOverviewVideo($customerId, $isDryRun);
+        // delete faq categories
+        $this->deleteFaqCategories($customerId, $isDryRun);
 
-            // delete customer support_contacts
-            $this->deleteCustoemrSupportContacts($customerId, $isDryRun);
+        // delete customer counties
+        $this->deleteCustomerCounties($customerId, $isDryRun);
 
-            // delete faq categories
-            $this->deleteFaqCategories($customerId, $isDryRun);
+        // delete role-user-customer relations
+        $this->deleteFromRoleUserCustomer($customerId, $isDryRun);
 
-            // delete customer counties
-            $this->deleteCustomerCounties($customerId, $isDryRun);
+        // collect possibly orphaned orgas - orgas with no orgaType for no customer
+        $possiblyOrphanedOrgas = $this->collectPossibleOrgaOrphans($customerId);
 
-            // delete role-user-customer relations
-            $this->deleteFromRoleUserCustomer($customerId, $isDryRun);
+        // delete customer-orga-orgaType relations
+        $this->deleteCustoemrOrgaOrgaTypeRelations($customerId, $isDryRun);
 
-            // collect possibly orphaned orgas - orgas with no orgaType for no customer
-            $possiblyOrphanedOrgas = $this->collectPossibleOrgaOrphans($customerId);
+        // delete customer
+        $this->deleteFromCustomerTable($customerId, $isDryRun);
 
-            // delete customer-orga-orgaType relations
-            $this->deleteCustoemrOrgaOrgaTypeRelations($customerId, $isDryRun);
+        return $possiblyOrphanedOrgas;
+    }
 
-            // delete customer
-            $this->deleteFromCustomerTable($customerId, $isDryRun);
+    /**
+     * @throws Exception
+     */
+    public function beginTransactionAndDisableForeignKeyChecks(): void
+    {
+        // deactivate foreign key checks
+        $this->queriesService->deactivateForeignKeyChecks();
+        // start doctrine transaction
+        $this->queriesService->beginTransaction();
+    }
 
-            // reactivate foreign key checks
-            $this->queriesService->activateForeignKeyChecks();
+    /**
+     * @throws Exception
+     */
+    public function commitTransactionAndEnableForeignKeyChecks(): void
+    {
+        // commit all changes
+        $this->queriesService->commitTransaction();
+        // reactivate foreign key checks
+        $this->queriesService->activateForeignKeyChecks();
+    }
 
-            // commit all changes
-            $this->queriesService->commitTransaction();
-
-            return $possiblyOrphanedOrgas;
-        } catch (Exception $e) {
-            // rollback all changes
-            $this->queriesService->rollbackTransaction();
-            throw $e;
-        }
+    /**
+     * @throws Exception
+     */
+    public function rollBackTransaction(): void
+    {
+        $this->queriesService->rollbackTransaction();
+        // reactivate foreign key checks
+        $this->queriesService->activateForeignKeyChecks();
     }
 
     /**

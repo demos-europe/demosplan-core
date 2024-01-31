@@ -63,46 +63,54 @@ class DeleteCustomerCommand extends CoreCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $output = new SymfonyStyle($input, $output);
+        $isDryRun = $input->getOption('dry-run');
+        $isDryRun = null === $isDryRun || is_string($isDryRun);
+        $withoutRepopulate = $input->getOption('without-repopulate');
+        $withoutRepopulate = null === $withoutRepopulate || is_string($withoutRepopulate);
+        // get the available customers
+        $customerId = $this->askCustomerToDelete($input, $output);
+        $output->info('Customer id to delete: '.$customerId);
+        if ($isDryRun) {
+            $output->info('run with option dry-run');
+        }
+        if ($withoutRepopulate) {
+            $output->info('run without-es-repopulate');
+        }
+
         try {
-            $output = new SymfonyStyle($input, $output);
-            $isDryRun = $input->getOption('dry-run');
-            $isDryRun = null === $isDryRun || is_string($isDryRun);
-            $withoutRepopulate = $input->getOption('without-repopulate');
-            $withoutRepopulate = null === $withoutRepopulate || is_string($withoutRepopulate);
-            // get the available customers
-            $customerId = $this->askCustomerToDelete($input, $output);
-            $output->info('Customer id to delete: '.$customerId);
-            if ($isDryRun) {
-                $output->info('run with option dry-run');
-            }
-            if ($withoutRepopulate) {
-                $output->info('run without-es-repopulate');
-            }
-
+            $this->customerDeleter->beginTransactionAndDisableForeignKeyChecks();
             $possiblyOrphanedOrgas = $this->customerDeleter->deleteCustomer($customerId, $isDryRun);
-            if (0 < count($possiblyOrphanedOrgas)) {
-                $output->info(
-                    "The Orgas with id(s) have no orga-type present for any customer\n"
-                    .'- you can copy the following output if you want to delete them:'
-                );
-                $output->text(
-                    'dplan:organisation:delete '.implode(',', $possiblyOrphanedOrgas)
-                );
-            }
-            if (!$withoutRepopulate && !$isDryRun) {
-                $this->repopulateElasticsearch($output);
-            }
-
-            return Command::SUCCESS;
-        } catch (Exception $e) {
-            // Print Exception
-            $output->writeln(
-                'Something went wrong with the exception: '.$e->getMessage(),
-                OutputInterface::VERBOSITY_VERBOSE
-            );
+            $this->customerDeleter->commitTransactionAndEnableForeignKeyChecks();
+        } catch (Exception $exception) {
+            $this->customerDeleter->rollBackTransaction();
+            $output->error('Rolled back transaction '.$exception->getMessage());
+            $output->error($exception->getTraceAsString());
 
             return Command::FAILURE;
         }
+        if (0 < count($possiblyOrphanedOrgas)) {
+            $output->info(
+                "The Orgas with id(s) have no orga-type present for any customer\n"
+                .'- you can copy the following output if you want to delete them:'
+            );
+            $output->text(
+                'dplan:organisation:delete '.implode(',', $possiblyOrphanedOrgas)
+            );
+        }
+        try {
+            if (!$withoutRepopulate && !$isDryRun) {
+                $this->repopulateElasticsearch($output);
+            }
+        } catch (Exception $exception) {
+            // Print Exception
+            $output->error('An Error occurred repopulating Elasticsearch: '.$exception->getMessage());
+            $output->error($exception->getTraceAsString());
+
+            return Command::FAILURE;
+        }
+
+        return Command::SUCCESS;
     }
 
     private function askCustomerToDelete(InputInterface $input, OutputInterface $output): string
