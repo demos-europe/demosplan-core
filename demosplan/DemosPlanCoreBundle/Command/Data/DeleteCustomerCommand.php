@@ -83,10 +83,10 @@ class DeleteCustomerCommand extends CoreCommand
             if (0 < count($possiblyOrphanedOrgas)) {
                 $output->info(
                     "The Orgas with id(s) have no orga-type present for any customer\n"
-                    ."- you can copy the following output if you want to delete them:"
+                    .'- you can copy the following output if you want to delete them:'
                 );
                 $output->text(
-                    "dplan:organisation:delete ".implode(',', $possiblyOrphanedOrgas)
+                    'dplan:organisation:delete '.implode(',', $possiblyOrphanedOrgas)
                 );
             }
             if (!$withoutRepopulate && !$isDryRun) {
