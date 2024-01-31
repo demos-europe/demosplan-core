@@ -144,8 +144,11 @@ class DeleteCustomerCommand extends CoreCommand
         $output->writeln("Repopulating ES with env: $env");
 
         $repopulateEsCommand = 'dev' === $env ? 'dplan:elasticsearch:populate' : 'dplan:elasticsearch:populate -e prod --no-debug';
-        Batch::create($this->getApplication(), $output)
-            ->add($repopulateEsCommand)
-            ->run();
+        if ('test' !== $env) {
+            Batch::create($this->getApplication(), $output)
+                ->add($repopulateEsCommand)
+                ->run();
+        }
+
     }
 }
