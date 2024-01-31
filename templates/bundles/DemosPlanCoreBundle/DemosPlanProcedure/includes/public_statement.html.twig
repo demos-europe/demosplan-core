@@ -22,6 +22,7 @@
                     {% else %}
                         <a
                             class="{{ 'u-mb-0_5 u-mt-0_25 btn btn--primary float-right'|prefixClass }}"
+                            data-cy="publicStatement:statementVote"
                             title="{{ 'statement.vote.description'|trans }}"
                             aria-label="{{ 'statement'|trans }} {{ statement.externId|default }} {{ 'statement.vote.description'|trans }}"
                             href="{{ path('DemosPlan_statement_public_vote', {'statementID': statement.ident, 'procedure': procedure}) }}">
