@@ -200,8 +200,9 @@ final class OrgaResourceType extends DplanResourceType
             $properties[] = $this->createToOneRelationship($this->branding)->readable();
         }
 
-
+        if ($this->currentUser->hasPermission('feature_mastertoeblist')) {
             $properties[] = $this->createToOneRelationship($this->masterToeb)->sortable()->filterable()->readable();
+        }
 
         // OrgaStatusInCustomer @organisation-list filtering for orga
         if ($this->currentUser->hasPermission('area_organisations')) {
