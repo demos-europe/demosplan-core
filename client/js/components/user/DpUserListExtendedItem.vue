@@ -261,6 +261,11 @@ export default {
     },
 
     saveUser () {
+      // If currently selected department doesn't match current orga, reset to 'Keine Abteilung' or first option of current orga
+      if (typeof this.currentOrganisation.departments.find(dep => dep.id === this.currentDepartment.id) === 'undefined') {
+        this.resetCurrentDepartment()
+      }
+
       const url = Routing.generate('api_resource_update', { resourceType: 'User', resourceId: this.user.id })
       const payload = {
         data: {
@@ -283,16 +288,8 @@ export default {
         }
       }
 
-      // If currently selected department doesn't match current orga, reset to 'Keine Abteilung' or first option of current orga
-      if (typeof this.currentOrganisation.departments.find(dep => dep.id === this.currentDepartment.id) === 'undefined') {
-        this.resetCurrentDepartment()
-      }
-
       return dpApi.patch(url, {}, payload)
-        .then(response => checkResponse(response, {
-          200: { type: 'confirm', text: 'info.user.updated' },
-          204: { type: 'confirm', text: 'info.user.updated' }
-        }))
+        .then(checkResponse)
         .then(() => {
           this.$root.$emit('save-success')
           // Update department options
