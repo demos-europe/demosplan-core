@@ -108,7 +108,7 @@ class OwnsProcedureConditionFactory
         $relevantRoles = [
             RoleInterface::CUSTOMER_MASTER_USER,
             ...User::PLANNING_AGENCY_ROLES,
-            ...User::HEARING_AUTHORITY_ROLES
+            ...User::HEARING_AUTHORITY_ROLES,
         ];
 
         if ($this->userOrProcedure instanceof User) {
@@ -125,7 +125,7 @@ class OwnsProcedureConditionFactory
             $this->logger->debug('Permissions: Check whether orga owns procedure');
             $ownsOrgaRoleCondition = [
                 $this->conditionFactory->propertyHasAnyOfValues($relevantRoles, ['roleInCustomers', 'role', 'code']),
-                $this->isUserInCustomer($customer)
+                $this->isUserInCustomer($customer),
             ];
         } else {
             $ownsOrgaRoleCondition = [$this->conditionFactory->false()];
@@ -157,7 +157,7 @@ class OwnsProcedureConditionFactory
             // ist es ein PLanungsbüro?
             $planningAgencyOwnsProcedure = [
                 $this->conditionFactory->propertyHasValue($relevantRole, ['roleInCustomers', 'role', 'code']),
-                $this->isUserInCustomer($customer)
+                $this->isUserInCustomer($customer),
             ];
         } else {
             $planningAgencyOwnsProcedure = [$this->conditionFactory->false()];
