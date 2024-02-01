@@ -31,6 +31,7 @@
           </span>
           <filter-flyout
             v-for="filter in filters"
+            :data-cy="`segmentsListFilter:${filter.labelTranslationKey}`"
             :initial-query="queryIds"
             :key="`filter_${filter.labelTranslationKey}`"
             :additional-query-params="{ searchPhrase: searchTerm }"
@@ -43,6 +44,7 @@
         </div>
         <dp-button
           class="ml-auto"
+          data-cy="segmentsList:resetFilter"
           variant="outline"
           @click="resetQuery"
           v-tooltip="Translator.trans('search.filter.reset')"
@@ -61,6 +63,7 @@
       </dp-bulk-edit-header>
       <div class="u-mt text-right">
         <dp-column-selector
+          data-cy="segmentsList:selectableColumns"
           :initial-selection="currentSelection"
           :selectable-columns="selectableColumns"
           @selection-changed="setCurrentSelection"
@@ -168,7 +171,7 @@
           </span>
         </template>
         <template v-slot:flyout="rowData">
-          <dp-flyout>
+          <dp-flyout data-cy="segmentsList:flyoutEditMenu">
             <a
               :href="Routing.generate('dplan_statement_segments_list', {
                 action: 'editText',
@@ -176,6 +179,7 @@
                 segment: rowData.id,
                 statementId: rowData.relationships.parentStatement.data.id
               })"
+              data-cy="segmentsList:edit"
               rel="noopener">
               {{ Translator.trans('edit') }}
             </a>
@@ -186,6 +190,7 @@
                 segment: rowData.id,
                 statementId: rowData.relationships.parentStatement.data.id
               })"
+              data-cy="segmentsList:segmentsRecommendationsCreate"
               rel="noopener">
               {{ Translator.trans('segments.recommendations.create') }}
             </a>
@@ -193,13 +198,14 @@
             <button
               type="button"
               class="btn--blank o-link--default"
-              @click.prevent="showVersionHistory(rowData.id, rowData.attributes.externId)"
-              data-cy="segmentVersionHistory">
+              data-cy="segmentsList:segmentVersionHistory"
+              @click.prevent="showVersionHistory(rowData.id, rowData.attributes.externId)">
               {{ Translator.trans('history') }}
             </button>
             <a
               v-if="hasPermission('feature_read_source_statement_via_api')"
               :class="{'is-disabled': getOriginalPdfAttachmentHashBySegment(rowData) === null}"
+              data-cy="segmentsList:originalPDF"
               target="_blank"
               :href="Routing.generate('core_file_procedure', { hash: getOriginalPdfAttachmentHashBySegment(rowData), procedureId: procedureId })"
               rel="noopener noreferrer">
