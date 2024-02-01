@@ -75,11 +75,6 @@ final class UserResourceType extends DplanResourceType implements UserResourceTy
     public function isUpdateAllowed(): bool
     {
         return $this->currentUser->hasAllPermissions(
-            'feature_user_edit',
-            // only allow writing of properties if users can be moved from one
-            // orga/department to another (which is currently only needed if the
-            // feature_mastertoeblist permission is enabled)
-            'feature_mastertoeblist'
         );
     }
 
