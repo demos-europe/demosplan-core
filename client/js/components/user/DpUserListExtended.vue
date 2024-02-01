@@ -56,7 +56,7 @@
         :is-open="expandedCardId === id"
         @card:toggle="setExpandedCardId(id)"
         @item:selected="dpToggleOne"
-        :selected="hasOwnProp(itemSelections, user.id) && itemSelections[user.id] === true" />
+        :selected="Object.hasOwn(itemSelections, user.id) && itemSelections[user.id] === true" />
     </ul>
 
     <!-- pager -->
@@ -74,8 +74,7 @@ import {
   debounce,
   dpApi, DpButton,
   DpLoading,
-  dpSelectAllMixin,
-  hasOwnProp
+  dpSelectAllMixin
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import DpTableCardListHeader from '@DpJs/components/user/DpTableCardList/DpTableCardListHeader'
@@ -129,6 +128,7 @@ export default {
     },
 
     selectedItems () {
+      // The prop `itemSelections` and the method `dpToggleOne` are from `dpSelectAllMixin`
       return Object.keys(this.users).filter(id => this.itemSelections[id])
     }
   },
@@ -150,10 +150,8 @@ export default {
         return
       }
 
+      dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
       return this.deleteUser(id)
-        .then(() => {
-          this.deleteUserFromSelection(id)
-        })
     },
 
     deleteUsers (ids) {
@@ -162,19 +160,9 @@ export default {
       }
 
       ids.map(id => {
+        dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
         return this.deleteUser(id)
-          .then(() => {
-            this.deleteUserFromSelection(id)
-          })
       })
-    },
-
-    /**
-     * Remove deleted item from itemSelections
-     */
-    deleteUserFromSelection (id) {
-      Vue.delete(this.itemSelections, id)
-      dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
     },
 
     /**
@@ -191,9 +179,7 @@ export default {
         }
       }, { serialize: true })
         .then((response) => {
-          if (hasOwnProp(response.data, 'data')) {
-            this.organisations = response.data.data
-          }
+          this.organisations = response?.data?.data ?? {}
         })
         .catch(e => console.error(e))
     },
@@ -207,9 +193,7 @@ export default {
         }
       })
         .then((response) => {
-          if (hasOwnProp(response.data, 'data')) {
-            this.departments = response.data.data
-          }
+          this.departments = response?.data?.data ?? {}
         })
         .catch(e => console.error(e))
     },
@@ -283,10 +267,6 @@ export default {
       this.getFilteredUsers()
       this.isFiltered = true
       this.setExpandedCardId('')
-    },
-
-    hasOwnProp (obj, prop) {
-      return hasOwnProp(obj, prop)
     },
 
     resetSearch () {
