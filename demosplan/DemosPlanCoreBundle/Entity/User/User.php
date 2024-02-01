@@ -51,6 +51,9 @@ use function in_array;
  */
 class User implements SamlUserInterface, AddonUserInterface
 {
+    public const HEARING_AUTHORITY_ROLES = [RoleInterface::HEARING_AUTHORITY_ADMIN, RoleInterface::HEARING_AUTHORITY_WORKER];
+    public const PLANNING_AGENCY_ROLES = [RoleInterface::PLANNING_AGENCY_ADMIN, RoleInterface::PLANNING_AGENCY_WORKER];
+    public const PUBLIC_AGENCY_ROLES = [RoleInterface::PUBLIC_AGENCY_COORDINATION, RoleInterface::PUBLIC_AGENCY_WORKER];
     /**
      * @var string|null
      *
@@ -803,7 +806,7 @@ class User implements SamlUserInterface, AddonUserInterface
 
     public function isHearingAuthority(Customer $customer = null): bool
     {
-        return $this->hasAnyOfRoles([RoleInterface::HEARING_AUTHORITY_ADMIN, RoleInterface::HEARING_AUTHORITY_WORKER], $customer);
+        return $this->hasAnyOfRoles(self::HEARING_AUTHORITY_ROLES, $customer);
     }
 
     /**
@@ -816,17 +819,12 @@ class User implements SamlUserInterface, AddonUserInterface
 
     public function isPlanningAgency(Customer $customer = null): bool
     {
-        return $this->hasAnyOfRoles([RoleInterface::PLANNING_AGENCY_ADMIN, RoleInterface::PLANNING_AGENCY_WORKER], $customer);
+        return $this->hasAnyOfRoles(self::PLANNING_AGENCY_ROLES, $customer);
     }
 
     public function isPublicAgency(): bool
     {
-        $publicAgencyRoles = [
-            RoleInterface::PUBLIC_AGENCY_COORDINATION,
-            RoleInterface::PUBLIC_AGENCY_WORKER,
-        ];
-
-        return $this->hasAnyOfRoles($publicAgencyRoles);
+        return $this->hasAnyOfRoles(self::PUBLIC_AGENCY_ROLES);
     }
 
     /**
