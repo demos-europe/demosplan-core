@@ -1752,30 +1752,29 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
      *
      * @param string $organisationId Indicates the organisation whose data will be wiped
      *
-     * @return orga|bool The wiped organisation if all operations are successful, otherwise false
+     * @return orga|array The wiped organisation if all operations are successful, otherwise false
      *
      * @throws MessageBagException
      */
     public function wipeOrganisationData(string $organisationId)
     {
+        $errors = [];
         $requiredRelationsAreSolved = true;
 
         $organisation = $this->orgaHandler->getOrga($organisationId);
         if (!$organisation instanceof Orga) {
-            $this->getMessageBag()->add('error', 'error.delete.organisation.not.found');
-
-            return false;
+            $errors[] = 'error.delete.organisation.not.found';
         }
 
         // related Entities, which have do be solved, before wiping organisation:
         if (false === $organisation->getProcedures()->isEmpty()) {
             $requiredRelationsAreSolved = false;
-            $this->getMessageBag()->add('error', 'error.delete.organisation.related.procedure');
+            $errors[] = 'error.delete.organisation.related.procedure';
         }
 
         if (!$organisation->getUsers()->isEmpty()) {
             $requiredRelationsAreSolved = false;
-            $this->getMessageBag()->add('error', 'error.delete.organisation.related.user');
+            $errors[] = 'error.delete.organisation.related.user';
         }
 
         // if one of the related departments have a user, return false
@@ -1784,7 +1783,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         foreach ($departments as $department) {
             if ($requiredRelationsAreSolved && !$department->getUsers()->isEmpty()) {
                 $requiredRelationsAreSolved = false;
-                $this->getMessageBag()->add('error', 'error.delete.organisation.related.departments');
+                $errors[] = 'error.delete.organisation.related.departments';
             }
         }
 
@@ -1802,11 +1801,16 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                 && $successfulDeletedMasterToebs
                 && $successfulDeletedMasterToebMail
                 && $successfulDeletedDepartments) {
-                return $this->orgaService->wipeOrganisation($organisationId);
+                $result = $this->orgaService->wipeOrganisation($organisationId);
+                if ($result instanceof Orga) {
+                    return $result;
+                }
             }
+        } else {
+            $errors[] = 'error.organisation.not.deleted';
         }
 
-        return false;
+        return $errors;
     }
 
     /**

@@ -255,8 +255,17 @@ class DemosPlanOrganisationAPIController extends APIController
     {
         $orgaId = $id;
         try {
-            $isOrgaDeleted = $userHandler->wipeOrganisationData($orgaId);
-            if ($isOrgaDeleted) {
+            $result = $userHandler->wipeOrganisationData($orgaId);
+
+            if (is_array($result)) {
+                // Handle errors here
+                foreach ($result as $error) {
+                    $this->messageBag->add('error', $error);
+                }
+
+                return $this->renderEmpty(Response::HTTP_UNAUTHORIZED);
+            } else {
+                // Handle successful wipe
                 $this->messageBag->addChoice(
                     'confirm',
                     'confirm.orga.deleted',
@@ -265,10 +274,6 @@ class DemosPlanOrganisationAPIController extends APIController
 
                 return $this->renderEmpty();
             }
-
-            $this->messageBag->add('error', 'error.organisation.not.deleted');
-
-            return $this->renderEmpty(Response::HTTP_UNAUTHORIZED);
         } catch (Exception $e) {
             return $this->handleApiError($e);
         }
