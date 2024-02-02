@@ -101,7 +101,7 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
     protected function handleFileReferences(): ?ConstraintViolationListInterface
     {
         // early return in case no file-reference is found
-        $cellValue = $this->fileReferences?->getValue();
+        $cellValue = (string)$this->fileReferences?->getValue();
         if (null === $cellValue || '' === $cellValue) {
             return null;
         }

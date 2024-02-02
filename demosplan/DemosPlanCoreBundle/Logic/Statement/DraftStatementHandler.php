@@ -203,9 +203,9 @@ class DraftStatementHandler extends CoreHandler
                     false
                 );
                 // continue if user does not want to get mails
-                if (is_array($userSettings) &&
-                    1 === count($userSettings) &&
-                    false === $userSettings[0]->getContentBool()) {
+                if (is_array($userSettings)
+                    && 1 === count($userSettings)
+                    && false === $userSettings[0]->getContentBool()) {
                     continue;
                 }
                 // by default coordinator gets mails, if not explicitly denied
@@ -773,7 +773,7 @@ class DraftStatementHandler extends CoreHandler
         foreach ($draftStatements as $draftStatement) {
             $user = $draftStatement->getUser();
             // only for users, who has enabled notification for unsubmitted draft statements:
-            if ($user->getFlag(UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED)) {
+            if ($user->getFlag(UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED->value)) {
                 $procedures[$draftStatement->getProcedureId()]['procedure'] = $draftStatement->getProcedure();
                 $procedures[$draftStatement->getProcedureId()]['users'][$draftStatement->getUId()]['user'] = $user;
                 $procedures[$draftStatement->getProcedureId()]['users'][$draftStatement->getUId()]['draftStatements'][] = $draftStatement->getUser();

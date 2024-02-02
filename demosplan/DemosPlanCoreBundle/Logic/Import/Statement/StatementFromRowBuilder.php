@@ -350,7 +350,7 @@ class StatementFromRowBuilder extends AbstractStatementFromRowBuilder
             // so we validate the expected integer for at least technical validity
             $violations = $this->validator->validate($value, new Range([
                 'min'               => 1,
-                'max'               => 2958465,
+                'max'               => 2_958_465,
                 'notInRangeMessage' => 'The value {{ value }} is not a valid Excel date.',
             ]));
             if (0 === $violations->count()) {

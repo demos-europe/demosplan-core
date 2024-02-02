@@ -29,7 +29,7 @@
         <div class="segment-list-col--l weight--bold text-right">
           {{ Translator.trans('segment.recommendation') }}
         </div>
-        <div class="segment-list-col--m width-160" />
+        <div class="segment-list-col--m w-10" />
       </div>
 
       <!-- info that statement has not been segmented yet -->
