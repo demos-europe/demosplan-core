@@ -23,6 +23,10 @@ use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -36,41 +40,50 @@ class AddonResolveTargetEntity implements CompilerPassInterface
     public function process(ContainerBuilder $container)
     {
 
-       $definition = $container->findDefinition('doctrine.orm.listeners.resolve_target_entity');
+
+        $definition = $container->findDefinition('doctrine.orm.listeners.resolve_target_entity');
+        $corePath = DemosPlanPath::getRootPath('demosplan/DemosPlanCoreBundle/Entity');
 
 
-        $definition->addMethodCall('addResolveTargetEntity', array(
-            ProcedureInterface::class,
-            Procedure::class,
-            array(),
-        ));
+        $iterator = new RecursiveDirectoryIterator($corePath);
 
 
-        $definition->addMethodCall('addResolveTargetEntity', array(
-            StatementInterface::class,
-            Statement::class,
-            array(),
-        ));
+        foreach (new RecursiveIteratorIterator($iterator) as  $filename) {
+            $classNameWithoutExtension = pathinfo($filename->getFilename(), \PATHINFO_FILENAME);
+            $classNameRaw = $filename->getPath() . '/' . $classNameWithoutExtension;
 
-        $definition->addMethodCall('addResolveTargetEntity', array(
-            UserInterface::class,
-            User::class,
-            array(),
-        ));
+            if (!is_dir($classNameRaw)) {
+                $className = str_replace(DemosPlanPath::getRootPath(), '', $classNameRaw);
+                $className = str_replace('/', '\\', $className);
 
 
-        $definition->addMethodCall('addResolveTargetEntity', array(
-            EmailAddressInterface::class,
-            EmailAddress::class,
-            array(),
-        ));
+                $reflectionClass = new \ReflectionClass($className);
+                $interfaces = $reflectionClass->getInterfaces();
+                foreach ($interfaces as $interface) {
+                    if ($interface->getNamespaceName() === 'DemosEurope\DemosplanAddon\Contracts\Entities' && str_contains($interface->getShortName(), $reflectionClass->getShortName())) {
 
-        $definition->addMethodCall('addResolveTargetEntity', array(
-            FileInterface::class,
-            File::class,
-            array(),
-        ));
+                        $interfaceName = $interface->getNamespaceName() . '\\' . $interface->getShortName();
+                        $entityName = $reflectionClass->getNamespaceName() . '\\' . $reflectionClass->getShortName();
+                        $this->addResolveTargetEntityMethodCalls($definition, $interfaceName, $entityName);
+
+                    }
+                }
+            }
+
+        }
 
         $definition->addTag('doctrine.event_subscriber', array('connection' => 'dplan'));
     }
+
+    private function addResolveTargetEntityMethodCalls($definition, $interface, $entity)
+    {
+        $definition->addMethodCall('addResolveTargetEntity', array(
+            $interface,
+            $entity,
+            array(),
+        ));
+    }
+
+
+
 }
