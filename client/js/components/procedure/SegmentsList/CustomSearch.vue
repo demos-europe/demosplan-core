@@ -17,6 +17,7 @@
         @enter="$emit('search', currentSearchTerm)" />
       <dp-flyout
         align="left"
+        data-cy="customSearch:searchCustomLimitFields"
         class="u-top-0 u-right-0 absolute"
         :has-menu="false"
         :padded="false">
@@ -33,6 +34,7 @@
               v-text="Translator.trans('search.custom.limit_fields')" />
             <button
               class="btn--blank o-link--default ml-auto"
+              data-cy="customSearch:searchCustomToggleAll"
               v-text="Translator.trans('search.custom.toggle_all')"
               @click="toggleAllFields(selectedFields.length < fields.length)" />
           </div>
@@ -41,6 +43,7 @@
             v-if="isLoading === false">
             <dp-checkbox
               v-for="({label, value}, i) in fields"
+              :data-cy="'customSearch:' + value"
               :id="value"
               :key="i"
               :checked="selectedFields.includes(value)"
@@ -69,6 +72,7 @@
     </div>
     <dp-button
       :text="Translator.trans('searching')"
+      data-cy="customSearch:searching"
       @click="$emit('search', currentSearchTerm)" />
   </div>
 </template>
