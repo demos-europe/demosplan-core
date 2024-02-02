@@ -381,8 +381,8 @@ class DynamicTransformerTest extends JsonApiTest
     }
 
     /**
-     * @param array<non-empty-string, AttributeReadabilityInterface> $attributes
-     * @param array<non-empty-string, ToOneRelationshipReadabilityInterface> $toOneRelationships
+     * @param array<non-empty-string, AttributeReadabilityInterface>          $attributes
+     * @param array<non-empty-string, ToOneRelationshipReadabilityInterface>  $toOneRelationships
      * @param array<non-empty-string, ToManyRelationshipReadabilityInterface> $toManyRelationships
      */
     private function createDynamicTransformer(
@@ -406,7 +406,7 @@ class DynamicTransformerTest extends JsonApiTest
                 $toOneRelationships,
                 $toManyRelationships,
                 $idReadability,
-            ))
+            )),
         ]);
 
         return new DynamicTransformer(
