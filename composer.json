@@ -67,7 +67,7 @@
         "league/fractal": "^0.19",
         "league/html-to-markdown": "^5.0",
         "lexik/jwt-authentication-bundle": "^2.8",
-        "lcobucci/clock": "3.1.0",
+        "lcobucci/clock": "3.0.0",
         "maennchen/zipstream-php": "2.4",
         "masterminds/html5": "^2.2",
         "myclabs/php-enum": "^1.7",
