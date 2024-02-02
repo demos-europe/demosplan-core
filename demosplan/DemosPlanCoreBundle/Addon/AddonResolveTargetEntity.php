@@ -12,19 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Addon;
 
-
-use DemosEurope\DemosplanAddon\Contracts\Entities\EmailAddressInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
-use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
-use demosplan\DemosPlanCoreBundle\Entity\File;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
@@ -48,6 +36,8 @@ class AddonResolveTargetEntity implements CompilerPassInterface
 
         $iterator = new RecursiveDirectoryIterator($corePath);
 
+        //Go through the files on the Core Entity folder. In case it is a class, detect if any of its interfaces belongs to AddOn middle layer
+        //If so, then add it to resolveTargetEntity method call
         foreach (new RecursiveIteratorIterator($iterator) as  $filename) {
             $classNameWithoutExtension = pathinfo($filename->getFilename(), \PATHINFO_FILENAME);
             $classNameRaw = $filename->getPath() . '/' . $classNameWithoutExtension;
