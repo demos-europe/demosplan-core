@@ -1763,6 +1763,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
 
         $organisation = $this->orgaHandler->getOrga($organisationId);
         if (!$organisation instanceof Orga) {
+            $requiredRelationsAreSolved = false;
             $errors[] = 'error.delete.organisation.not.found';
         }
 
