@@ -67,10 +67,12 @@
             v-text="Translator.trans('public.participation.desc')"
             class="weight--bold" />
           <dd
+            v-text="Translator.trans('planningcause.select.hint')"
             id="js__plisPlanungsanlass"
-            class="u-m-0" />
+            class="u-m-0 lbl__hint" />
         </dl>
       </template>
+
       <dp-form-row
         class="u-mb-0_75"
         v-else>
