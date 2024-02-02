@@ -27,8 +27,7 @@ class AddonResolveTargetEntity implements CompilerPassInterface
     private const CORE_ENTITY_DIRECTORY = 'demosplan/DemosPlanCoreBundle/Entity';
     private const ADDON_INTERFACE_DIRECTORY = 'DemosEurope\DemosplanAddon\Contracts\Entities';
 
-
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         $definition = $container->findDefinition('doctrine.orm.listeners.resolve_target_entity');
         $corePath = DemosPlanPath::getRootPath(self::CORE_ENTITY_DIRECTORY);
@@ -57,11 +56,9 @@ class AddonResolveTargetEntity implements CompilerPassInterface
                 }
             }
         }
-
-        $definition->addTag('doctrine.event_subscriber', array('connection' => 'dplan'));
     }
 
-    private function addResolveTargetEntityMethodCalls($definition, $interface, $entity)
+    private function addResolveTargetEntityMethodCalls($definition, $interface, $entity): void
     {
         $definition->addMethodCall('addResolveTargetEntity', array(
             $interface,
