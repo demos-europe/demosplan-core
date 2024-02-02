@@ -36,32 +36,29 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 class AddonResolveTargetEntity implements CompilerPassInterface
 {
 
+    private const CORE_ENTITY_DIRECTORY = 'demosplan/DemosPlanCoreBundle/Entity';
+    private const ADDON_INTERFACE_DIRECTORY = 'DemosEurope\DemosplanAddon\Contracts\Entities';
+
 
     public function process(ContainerBuilder $container)
     {
-
-
         $definition = $container->findDefinition('doctrine.orm.listeners.resolve_target_entity');
-        $corePath = DemosPlanPath::getRootPath('demosplan/DemosPlanCoreBundle/Entity');
+        $corePath = DemosPlanPath::getRootPath(self::CORE_ENTITY_DIRECTORY);
 
 
         $iterator = new RecursiveDirectoryIterator($corePath);
-
 
         foreach (new RecursiveIteratorIterator($iterator) as  $filename) {
             $classNameWithoutExtension = pathinfo($filename->getFilename(), \PATHINFO_FILENAME);
             $classNameRaw = $filename->getPath() . '/' . $classNameWithoutExtension;
 
             if (!is_dir($classNameRaw)) {
-                $className = str_replace(DemosPlanPath::getRootPath(), '', $classNameRaw);
-                $className = str_replace('/', '\\', $className);
-
-
+                $className = str_replace(array(DemosPlanPath::getRootPath(), '/'), array('', '\\'), $classNameRaw);
                 $reflectionClass = new \ReflectionClass($className);
                 $interfaces = $reflectionClass->getInterfaces();
                 foreach ($interfaces as $interface) {
-                    if ($interface->getNamespaceName() === 'DemosEurope\DemosplanAddon\Contracts\Entities' && str_contains($interface->getShortName(), $reflectionClass->getShortName())) {
 
+                    if ($interface->getNamespaceName() === self::ADDON_INTERFACE_DIRECTORY && str_contains($interface->getShortName(), $reflectionClass->getShortName())) {
                         $interfaceName = $interface->getNamespaceName() . '\\' . $interface->getShortName();
                         $entityName = $reflectionClass->getNamespaceName() . '\\' . $reflectionClass->getShortName();
                         $this->addResolveTargetEntityMethodCalls($definition, $interfaceName, $entityName);
@@ -69,7 +66,6 @@ class AddonResolveTargetEntity implements CompilerPassInterface
                     }
                 }
             }
-
         }
 
         $definition->addTag('doctrine.event_subscriber', array('connection' => 'dplan'));
@@ -83,7 +79,4 @@ class AddonResolveTargetEntity implements CompilerPassInterface
             array(),
         ));
     }
-
-
-
 }
