@@ -150,8 +150,10 @@ export default {
         return
       }
 
-      dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
       return this.deleteUser(id)
+        .then(() => {
+          dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
+        })
     },
 
     deleteUsers (ids) {
@@ -160,8 +162,10 @@ export default {
       }
 
       ids.map(id => {
-        dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
         return this.deleteUser(id)
+          .then(() => {
+            dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
+          })
       })
     },
 

@@ -289,7 +289,10 @@ export default {
       }
 
       return dpApi.patch(url, {}, payload)
-        .then(checkResponse)
+        .then(checkResponse, {
+          200: { type: 'confirm', text: 'info.user.updated' },
+          204: { type: 'confirm', text: 'info.user.updated' }
+        })
         .then(() => {
           this.$root.$emit('save-success')
           // Update department options
