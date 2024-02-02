@@ -311,12 +311,13 @@ class DynamicTransformerTest extends JsonApiTest
         $procedure = new Procedure();
         $procedure->setName('My Procedure');
 
-        $inputData = new stdClass();
-        $inputData->id = 'abc';
-        $inputData->a = 1;
-        $inputData->b = 2;
-        $inputData->c = 3;
-        $inputData->procedure = $procedure;
+        $inputData = new class ($procedure) implements EntityInterface {
+            public $a = 1;
+            public $b = 2;
+            public $c = 3;
+            public function __construct(public $procedure) {}
+            public function getId() { return ''; }
+        };
 
         return $inputData;
     }
