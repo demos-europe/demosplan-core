@@ -13,6 +13,9 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 use DateTime;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementVersion;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\MasterToeb;
 use demosplan\DemosPlanCoreBundle\Entity\User\MasterToebVersion;
@@ -22,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
+use demosplan\DemosPlanCoreBundle\Exception\SubmittedStatementsOnMergeOrganisationsException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\ORMException;
@@ -246,6 +250,8 @@ class MasterToebRepository extends FluentRepository implements ArrayInterface
                 $masterToebOrga->addUser($singleOrgaUser);
                 $masterToebDepartment->addUser($singleOrgaUser);
             }
+
+            $this->checkIfOrgaHasSubmittedStatements($organisationId);
 
             $entityManager->persist($masterToebOrga);
             $entityManager->persist($masterToebDepartment);
@@ -663,5 +669,33 @@ class MasterToebRepository extends FluentRepository implements ArrayInterface
         }
 
         return $entity;
+    }
+
+    /**
+     * Checks if an organisation has already submitted draftStatements or statements.
+     *
+     * @throws SubmittedStatementsOnMergeOrganisationsException
+     */
+    protected function checkIfOrgaHasSubmittedStatements(string $organisationId): void
+    {
+        $entityManager = $this->getEntityManager();
+
+        $draftStatementVersions = $entityManager
+            ->getRepository(DraftStatementVersion::class)
+            ->findBy(['organisation' => $organisationId]);
+
+        $draftStatements = $entityManager
+            ->getRepository(DraftStatement::class)
+            ->findBy(['organisation' => $organisationId]);
+
+        $statements = $entityManager
+            ->getRepository(Statement::class)
+            ->findBy(['organisation' => $organisationId]);
+
+        $statementCount = count($draftStatementVersions) + count($draftStatements) + count($statements);
+
+        if ($statementCount > 0) {
+            throw new SubmittedStatementsOnMergeOrganisationsException("Tried to merge organisations, expected no statements, got $statementCount.");
+        }
     }
 }

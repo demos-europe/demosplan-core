@@ -11,6 +11,7 @@
 namespace Tests\Base;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\FileServiceInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -34,6 +35,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Doctrine\Common\DataFixtures\ReferenceRepository;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\ORM\EntityManager;
@@ -47,6 +49,8 @@ use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionObject;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -241,8 +245,8 @@ class FunctionalTestCase extends WebTestCase
         }
         $entityDate = strtotime(date('Y-m-d', $timestamp));
 
-        return $this->isTimestamp($timestamp) &&
-            $currentDate == $entityDate;
+        return $this->isTimestamp($timestamp)
+            && $currentDate == $entityDate;
     }
 
     /**
@@ -254,10 +258,10 @@ class FunctionalTestCase extends WebTestCase
      */
     public function isTimestamp($timestamp)
     {
-        return null !== $timestamp &&
-                is_numeric($timestamp) &&
-                !is_string($timestamp) &&
-                (0 < $timestamp);
+        return null !== $timestamp
+                && is_numeric($timestamp)
+                && !is_string($timestamp)
+                && (0 < $timestamp);
     }
 
     /**
@@ -677,9 +681,6 @@ class FunctionalTestCase extends WebTestCase
      * indirectly via public methods.
      *
      * @param array{class-string|object,string} $classAndMethod
-     * @param mixed $args
-     *
-     * @return mixed
      *
      * @throws ReflectionException
      */
@@ -691,5 +692,36 @@ class FunctionalTestCase extends WebTestCase
         $method->setAccessible(true);
 
         return $method->invoke($this->sut, ...$args);
+    }
+
+    protected function getFile($testPath, $filename, $contentType, $procedure): ?FileInfo
+    {
+        $fileService = $this->getContainer()->get(FileServiceInterface::class);
+        $finder = Finder::create();
+        $currentDirectoryPath = DemosPlanPath::getTestPath($testPath);
+        $finder->files()->in($currentDirectoryPath)->name($filename);
+
+        if ($finder->hasResults()) {
+            /** @var SplFileInfo $file */
+            foreach ($finder as $file) {
+                if ($filename === $file->getFilename()) {
+                    //                    echo var_dump($file->getFilename());
+
+                    $fileInfo = new FileInfo(
+                        $fileService->createHash(),
+                        $file->getFilename(),
+                        $file->getSize(),
+                        $contentType,
+                        $file->getPath(),
+                        $file->getRealPath(),
+                        $procedure
+                    );
+
+                    return $fileInfo;
+                }
+            }
+        }
+
+        return null;
     }
 }

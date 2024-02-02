@@ -105,7 +105,7 @@
             name="departmentsList">
             {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
-            <div class="u-mt u-mb-0_5 layout">
+            <div class="u-mt u-mb-0_5 layout flex">
                 {% if hasPermission('feature_department_delete') %}
                     <div class="layout__item u-3-of-7">
                         <input
@@ -123,19 +123,18 @@
                     </div><!--
               -->{% endif %}<!--
               --><div class="text-right layout__item {% if hasPermission('feature_department_delete') %}u-4-of-7 {% endif %}space-inline-s">
-                    <button type="submit" class="btn btn--primary" name="manageDepartments" value="saveAll">
+                    <button type="submit" class="btn btn--primary mb-1.5" name="manageDepartments" value="saveAll">
                         {{ 'save.all.changes'|trans }}
                     </button><!--
 
                   -->{% if hasPermission('feature_department_delete') %}<!--
                       --><button
                             type="submit"
-                            class="btn btn--warning"
+                            class="btn btn--warning mb-1.5"
                             data-cy="deleteSelectedItem"
                             name="manageDepartments"
                             data-form-actions-confirm-value="deleteSelected"
-                            data-form-actions-confirm="{{ 'check.entries.marked.delete'|trans }}"
-                        >
+                            data-form-actions-confirm="{{ 'check.entries.marked.delete'|trans }}">
                             {{ 'departments.marked.delete'|trans }}
                         </button><!--
                   -->{% endif %}<!--
