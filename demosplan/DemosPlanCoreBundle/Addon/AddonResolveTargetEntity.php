@@ -17,6 +17,7 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 
 /**
  * Handles connecting AddOn interfaces with their corresponding CoreEntities
@@ -58,11 +59,21 @@ class AddonResolveTargetEntity implements CompilerPassInterface
         }
     }
 
-    private function addResolveTargetEntityMethodCalls($definition, $interface, $entity): void
+    /**
+     * ResolveTargetEntity is a Doctrine utility that enables to map the targetEntity defined in each Addon Entity to an entity defined in Core.
+     * ResolveTargetEntity intercepts the Doctrine calls that define the targetEntity, and rewrites that targetEntity (which is an Interface)
+     * at runtime with the concrete specified class (which is an entity in Core)
+     *
+     * @param Definition $definition
+     * @param string $interfaceName
+     * @param string $entityName
+     * @return void
+     */
+    private function addResolveTargetEntityMethodCalls($definition, $interfaceName, $entityName): void
     {
         $definition->addMethodCall('addResolveTargetEntity', array(
-            $interface,
-            $entity,
+            $interfaceName, //Resolve from: Interface in AddOn
+            $entityName, //Resolve to: Entity in Core
             array(),
         ));
     }
