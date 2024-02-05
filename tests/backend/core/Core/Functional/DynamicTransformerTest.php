@@ -104,7 +104,7 @@ class DynamicTransformerTest extends JsonApiTest
                 'included' => [
                     0 => [
                         'type'       => 'Procedure',
-                        'id'         => 'xzy',
+                        'id'         => 'xyz',
                         'attributes' => [
                             'name'                   => 'My Procedure',
                             'agencyMainEmailAddress' => null,
@@ -321,7 +321,7 @@ class DynamicTransformerTest extends JsonApiTest
 
             public function getId()
             {
-                return '';
+                return 'xyz';
             }
         };
 
