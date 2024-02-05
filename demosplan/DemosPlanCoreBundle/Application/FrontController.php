@@ -110,19 +110,21 @@ final class FrontController
      *
      * @throws Exception
      */
-    public static function web(string $activeProject, bool $debug = false): void
+    public static function web(?string $activeProject = null, bool $debug = false): void
     {
         self::bootstrap();
 
-        $environment = 'prod';
+        // when env var is defined it should win above parameter
+        $debug = filter_var($_ENV['APP_DEBUG'], FILTER_VALIDATE_BOOL) ?? $debug;
+        $project = $activeProject ?? $_ENV['ACTIVE_PROJECT'] ?? 'core';
+        $environment = $_ENV['APP_ENV'] ?? 'prod';
         if ($debug) {
             umask(0000);
-            $environment = 'dev';
             Debug::enable();
         }
 
         /** @var DemosPlanKernel|HttpCache $kernel */
-        $kernel = new DemosPlanKernel($activeProject, $environment, $debug);
+        $kernel = new DemosPlanKernel($project, $environment, $debug);
         $kernel = new HttpCache($kernel);
 
         // When using the HttpCache, you need to call the
