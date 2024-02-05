@@ -102,7 +102,7 @@ class ProcedureAccessEvaluator
     /**
      * Compiles a list of conditions to check if a procedure or procedure template is owned by the given user.
      *
-     * A procedure is owned a user if all conditions in the returned list match the procedure/user respectively.
+     * A procedure is owned by a user if all conditions in the returned list match the procedure/user respectively.
      *
      * If {@link GlobalConfigInterface::hasProcedureUserRestrictedAccess} is set to `false`
      * then the user must be in the organisation that created the procedure.
