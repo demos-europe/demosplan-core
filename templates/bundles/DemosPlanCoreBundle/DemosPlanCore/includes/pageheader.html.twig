@@ -27,7 +27,7 @@
                     {% if link_caption|default != '' %}
                         <a
                             class="{{ 'c-pageheader__link'|prefixClass }}"
-                            data-cy="backTo"
+                            data-cy="pageHeader:backTo"
                             href="{{ link }}">
                             <i class="{{ 'fa fa-angle-left'|prefixClass }}" aria-hidden="true"></i> {{ link_caption|default }}
                         </a>
@@ -41,6 +41,7 @@
                             class="{{ 'c-pageheader__link u-ml-0_75'|prefixClass }}"
                             target="_blank"
                             rel="noopener"
+                            data-cy="pageHeader:procedureExport"
                             href="{{ path('DemosPlan_procedure_export', { 'procedure': procedure }) }}">
                             <i class="{{ 'fa fa-download'|prefixClass }}" aria-hidden="true"></i>
                             <span class="{{ 'u-ml-0_25'|prefixClass }}">{{ "procedure.export"|trans }}</span>
