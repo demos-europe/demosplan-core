@@ -13,9 +13,8 @@ declare(strict_types=1);
 namespace Tests\CoreApplication\Application;
 
 use demosplan\DemosPlanCoreBundle\Application\ConsoleApplication;
+use demosplan\DemosPlanCoreBundle\Application\FrontController as BasicFrontController;
 use Exception;
-use Symfony\Component\Console\Input\ArgvInput;
-use Symfony\Component\ErrorHandler\Debug;
 
 class FrontController
 {
@@ -26,16 +25,9 @@ class FrontController
      */
     public static function console()
     {
-        set_time_limit(0);
+        $input = BasicFrontController::bootstrapConsole();
 
-        $input = new ArgvInput();
-        $debug = '0' !== getenv('SYMFONY_DEBUG') && !$input->hasParameterOption('--no-debug', true);
-
-        if ($debug) {
-            Debug::enable();
-        }
-
-        $kernel = new DemosPlanTestKernel(DemosPlanTestKernel::TEST_PROJECT_NAME, 'test', $debug);
+        $kernel = new DemosPlanTestKernel(DemosPlanTestKernel::TEST_PROJECT_NAME, 'test', (bool) $_SERVER['APP_DEBUG']);
         $application = new ConsoleApplication($kernel, false);
 
         $application->run($input);

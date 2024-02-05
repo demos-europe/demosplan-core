@@ -36,6 +36,10 @@ class CsrfSubscriber implements EventSubscriberInterface
         }
 
         $tokenId = $request->request->get('_token');
+        if ($request->headers->has('x-csrf-token')) {
+            $tokenId = $request->headers->get('x-csrf-token');
+        }
+
         if (null === $tokenId) {
             $this->messageBag->add('dev', 'error.csrf.missing', ['uri' => $request->getRequestUri()]);
             $this->logger->info('CSRF token missing', ['uri' => $request->getRequestUri()]);
@@ -44,6 +48,7 @@ class CsrfSubscriber implements EventSubscriberInterface
         }
 
         $token = $this->csrfTokenManager->getToken($tokenId);
+
         if ($token instanceof CsrfToken && $this->csrfTokenManager->isTokenValid($token)) {
             // all clear, token is set and valid
             return;

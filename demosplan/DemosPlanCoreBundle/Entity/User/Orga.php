@@ -170,8 +170,6 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     #[Assert\Email(message: 'email.address.invalid')]
     protected $email2;
     /**
-     * This property is unused.
-     *
      * @var string|null
      *
      * @ORM\Column(name="_o_contact_person", type="string", length=256, nullable=true)

@@ -68,7 +68,7 @@
             name="controls" />
           <div :class="prefixClass('float-right')">
             <dp-autocomplete
-              :class="prefixClass('u-mb inline-block width-250 bg-color--white')"
+              :class="prefixClass('u-mb inline-block w-11 bg-color--white')"
               v-if="_options.autoSuggest.enabled"
               :options="autoCompleteOptions"
               :route-generator="(searchString) => {
