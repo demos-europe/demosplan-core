@@ -196,7 +196,16 @@ export default {
      * @return {boolean}
      */
     isParticipationPhaseSelected () {
-      const participationPhases = ['participation', 'earlyparticipation', 'anotherparticipation']
+      const participationPhases = [
+        'earlyparticipation',
+        'anotherearlyparticipation',
+        'participation',
+        'anotherparticipation',
+        'externalearlyparticipation',
+        'anotherexternalearlyparticipation',
+        'externalparticipation'
+      ]
+
       return participationPhases.includes(this.selectedCurrentPhase)
     },
 
