@@ -73,7 +73,7 @@
 </template>
 
 <script>
-import { dpApi, DpBulkEditHeader, DpDataTable, makeFormPost } from '@demos-europe/demosplan-ui'
+import { checkResponse, dpApi, DpBulkEditHeader, DpDataTable, makeFormPost } from '@demos-europe/demosplan-ui'
 import DpNewsItemStatus from './DpNewsItemStatus'
 
 export default {
@@ -185,6 +185,7 @@ export default {
       })
 
       this.updateList()
+        .then(checkResponse)
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
         })
