@@ -97,8 +97,8 @@ class DemosPlanOrganisationAPIController extends APIController
         JsonApiPaginationParser $paginationParser
     ) {
         try {
-            if ($permissions->hasPermission('area_organisations_view_of_customer') ||
-                $permissions->hasPermission('area_manage_orgas_all')
+            if ($permissions->hasPermission('area_organisations_view_of_customer')
+                || $permissions->hasPermission('area_manage_orgas_all')
             ) {
                 $currentCustomer = $customerHandler->getCurrentCustomer();
                 $orgaList = $orgaService->getOrgasInCustomer($currentCustomer);
