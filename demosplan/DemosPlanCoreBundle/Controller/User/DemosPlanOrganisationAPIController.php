@@ -97,8 +97,8 @@ class DemosPlanOrganisationAPIController extends APIController
         JsonApiPaginationParser $paginationParser
     ) {
         try {
-            if ($permissions->hasPermission('area_organisations_view_of_customer') ||
-                $permissions->hasPermission('area_manage_orgas_all')
+            if ($permissions->hasPermission('area_organisations_view_of_customer')
+                || $permissions->hasPermission('area_manage_orgas_all')
             ) {
                 $currentCustomer = $customerHandler->getCurrentCustomer();
                 $orgaList = $orgaService->getOrgasInCustomer($currentCustomer);
@@ -255,20 +255,24 @@ class DemosPlanOrganisationAPIController extends APIController
     {
         $orgaId = $id;
         try {
-            $isOrgaDeleted = $userHandler->wipeOrganisationData($orgaId);
-            if ($isOrgaDeleted) {
-                $this->messageBag->addChoice(
-                    'confirm',
-                    'confirm.orga.deleted',
-                    ['count' => 1]
-                );
+            $result = $userHandler->wipeOrganisationData($orgaId);
 
-                return $this->renderEmpty();
+            if (is_array($result)) {
+                // Handle errors here
+                foreach ($result as $error) {
+                    $this->messageBag->add('error', $error);
+                }
+
+                return $this->renderEmpty(Response::HTTP_UNAUTHORIZED);
             }
+            // Handle successful wipe
+            $this->messageBag->addChoice(
+                'confirm',
+                'confirm.orga.deleted',
+                ['count' => 1]
+            );
 
-            $this->messageBag->add('error', 'error.organisation.not.deleted');
-
-            return $this->renderEmpty(Response::HTTP_UNAUTHORIZED);
+            return $this->renderEmpty();
         } catch (Exception $e) {
             return $this->handleApiError($e);
         }
