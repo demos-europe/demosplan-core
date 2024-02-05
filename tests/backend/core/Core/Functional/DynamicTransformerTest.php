@@ -23,7 +23,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType;
 use EDT\JsonApi\OutputHandling\DynamicTransformer;
 use EDT\JsonApi\RequestHandling\MessageFormatter;
-use EDT\Querying\Contracts\EntityBasedInterface;
 use EDT\Wrapping\Contracts\Types\TransferableTypeInterface;
 use EDT\Wrapping\PropertyBehavior\Attribute\AttributeReadabilityInterface;
 use EDT\Wrapping\PropertyBehavior\Identifier\CallbackIdentifierReadability;
@@ -401,7 +400,7 @@ class DynamicTransformerTest extends JsonApiTest
         $apiLogger = new ApiLogger($globalConfig, $this->logger, $this->messageBag);
         $type = $this->getMock(TransferableTypeInterface::class, [
             MockMethodDefinition::withReturnValue('getTypeName', DynamicTransformerTest::TYPE),
-            MockMethodDefinition::withReturnValue('getEntityClass', EntityBasedInterface::class),
+            MockMethodDefinition::withReturnValue('getEntityClass', EntityInterface::class),
             MockMethodDefinition::withReturnValue('getReadability', new ResourceReadability(
                 $attributes,
                 $toOneRelationships,
