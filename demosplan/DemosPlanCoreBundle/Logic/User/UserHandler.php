@@ -1766,53 +1766,50 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             $requiredRelationsAreSolved = false;
             $errors[] = 'error.delete.organisation.not.found';
         }
-
-        // related Entities, which have do be solved, before wiping organisation:
-        if (false === $organisation->getProcedures()->isEmpty()) {
-            $requiredRelationsAreSolved = false;
-            $errors[] = 'error.delete.organisation.related.procedure';
-        }
-
-        if (!$organisation->getUsers()->isEmpty()) {
-            $requiredRelationsAreSolved = false;
-            $errors[] = 'error.delete.organisation.related.user';
-        }
-
-        // if one of the related departments have a user, return false
-        /** @var Department[] $departments */
-        $departments = $organisation->getDepartments();
-        foreach ($departments as $department) {
-            if ($requiredRelationsAreSolved && !$department->getUsers()->isEmpty()) {
+        if ($organisation instanceof Orga) {
+            // related Entities, which have do be solved, before wiping organisation:
+            if (false === $organisation->getProcedures()->isEmpty()) {
                 $requiredRelationsAreSolved = false;
-                $errors[] = 'error.delete.organisation.related.departments';
+                $errors[] = 'error.delete.organisation.related.procedure';
             }
-        }
 
-        if ($requiredRelationsAreSolved) {
-            $successfulDeletedDepartments = $this->wipeDepartmentsOfOrga($organisation);
-            $successfulDeletedAddresses = $this->orgaService->deleteAddressesOfOrga($organisationId);
-            $successfulDeletedDraftStatements = $this->draftStatementService->deleteDraftStatementsOfOrga($organisationId);
-            $successfulRemovedSettings = $this->contentService->deleteSettingsOfOrga($organisationId);
-            $successfulDeletedMasterToebs = $this->masterToebService->detachMasterToebOfOrga($organisationId);
-            $successfulDeletedMasterToebMail = $this->procedureService->deleteInstitutionMailOfOrga($organisationId);
+            if (!$organisation->getUsers()->isEmpty()) {
+                $requiredRelationsAreSolved = false;
+                $errors[] = 'error.delete.organisation.related.user';
+            }
 
-            if ($successfulRemovedSettings
-                && $successfulDeletedAddresses
-                && $successfulDeletedDraftStatements
-                && $successfulDeletedMasterToebs
-                && $successfulDeletedMasterToebMail
-                && $successfulDeletedDepartments) {
-                $result = $this->orgaService->wipeOrganisation($organisationId);
-                if ($result instanceof Orga) {
-                    return $result;
-                } else {
+            // if one of the related departments have a user, return false
+            /** @var Department[] $departments */
+            $departments = $organisation->getDepartments();
+            foreach ($departments as $department) {
+                if ($requiredRelationsAreSolved && !$department->getUsers()->isEmpty()) {
+                    $requiredRelationsAreSolved = false;
+                    $errors[] = 'error.delete.organisation.related.departments';
+                }
+            }
+
+            if ($requiredRelationsAreSolved) {
+                $successfulDeletedDepartments = $this->wipeDepartmentsOfOrga($organisation);
+                $successfulDeletedAddresses = $this->orgaService->deleteAddressesOfOrga($organisationId);
+                $successfulDeletedDraftStatements = $this->draftStatementService->deleteDraftStatementsOfOrga($organisationId);
+                $successfulRemovedSettings = $this->contentService->deleteSettingsOfOrga($organisationId);
+                $successfulDeletedMasterToebs = $this->masterToebService->detachMasterToebOfOrga($organisationId);
+                $successfulDeletedMasterToebMail = $this->procedureService->deleteInstitutionMailOfOrga($organisationId);
+
+                if ($successfulRemovedSettings
+                    && $successfulDeletedAddresses
+                    && $successfulDeletedDraftStatements
+                    && $successfulDeletedMasterToebs
+                    && $successfulDeletedMasterToebMail
+                    && $successfulDeletedDepartments) {
+                    $result = $this->orgaService->wipeOrganisation($organisationId);
+                    if ($result instanceof Orga) {
+                        return $result;
+                    }
                     $errors[] = 'error.delete.organisation.not.found';
                 }
-            } else {
                 $errors[] = 'error.organisation.not.deleted';
             }
-        } else {
-            $errors[] = 'error.organisation.not.deleted';
         }
 
         return $errors;
