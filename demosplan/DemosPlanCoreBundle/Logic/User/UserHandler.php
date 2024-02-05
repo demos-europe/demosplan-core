@@ -1805,7 +1805,11 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                 $result = $this->orgaService->wipeOrganisation($organisationId);
                 if ($result instanceof Orga) {
                     return $result;
+                } else {
+                    $errors[] = 'error.delete.organisation.not.found';
                 }
+            } else {
+                $errors[] = 'error.organisation.not.deleted';
             }
         } else {
             $errors[] = 'error.organisation.not.deleted';
