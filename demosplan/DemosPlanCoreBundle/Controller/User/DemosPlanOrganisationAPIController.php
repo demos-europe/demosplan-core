@@ -264,16 +264,15 @@ class DemosPlanOrganisationAPIController extends APIController
                 }
 
                 return $this->renderEmpty(Response::HTTP_UNAUTHORIZED);
-            } else {
-                // Handle successful wipe
-                $this->messageBag->addChoice(
-                    'confirm',
-                    'confirm.orga.deleted',
-                    ['count' => 1]
-                );
-
-                return $this->renderEmpty();
             }
+            // Handle successful wipe
+            $this->messageBag->addChoice(
+                'confirm',
+                'confirm.orga.deleted',
+                ['count' => 1]
+            );
+
+            return $this->renderEmpty();
         } catch (Exception $e) {
             return $this->handleApiError($e);
         }

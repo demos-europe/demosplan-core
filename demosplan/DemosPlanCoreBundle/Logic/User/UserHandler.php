@@ -1752,7 +1752,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
      *
      * @param string $organisationId Indicates the organisation whose data will be wiped
      *
-     * @return orga|array The wiped organisation if all operations are successful, otherwise false
+     * @return orga|array The wiped organisation if all operations are successful, otherwise errors
      *
      * @throws MessageBagException
      */
