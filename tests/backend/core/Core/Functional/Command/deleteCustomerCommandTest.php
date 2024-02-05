@@ -30,6 +30,7 @@ class deleteCustomerCommandTest extends FunctionalTestCase
     private ?array $customers;
     private ?array $orphanedOrgaIds;
     private const ENV = 'test';
+
     public function setUp(): void
     {
         parent::setUp();
