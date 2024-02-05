@@ -33,15 +33,14 @@
     <form class="push--top" id="userlist" action="{{ path('DemosPlan_user_admin') }}" method="post" novalidate>
         {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
-        {% if hasPermission('feature_user_edit') %}
+        {% if hasPermission('feature_user_list_extended') %}
+            <dp-user-list-extended class="u-mb-2">
+            </dp-user-list-extended>
+        {% elseif hasPermission('feature_user_edit')  %}
             <dp-user-list
                 preset-user-orga-id="{{ currentUser.orga.id }}"
                 project-name="{{ projectName }}">
             </dp-user-list>
-        {% endif %}
-        {% if hasPermission('feature_user_edit') == false and hasPermission('feature_user_delete') %}
-            <dp-user-list-extended class="u-mb-2">
-            </dp-user-list-extended>
         {% endif %}
     </form>
 {% endblock %}
