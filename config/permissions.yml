@@ -2319,6 +2319,12 @@ feature_user_list:
     expose: true
     label: 'fetch users from the API route.'
     loginRequired: true
+# Only needed for user list in one specific project
+feature_user_list_extended:
+    description: 'Allows the current user to fetch an extended list of users the current user is allowed to see from the JSON:API route.'
+    expose: true
+    label: 'fetch extended list of users from the API route.'
+    loginRequired: true
 feature_xplan_defaultlayers:
     label: 'Benutze vordefinierte XPlanLayer'
     loginRequired: true
