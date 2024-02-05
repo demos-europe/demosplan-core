@@ -348,13 +348,17 @@ class DemosPlanUserController extends BaseController
 
         // get User settings
         $templateVars['emailNotificationReleasedStatement'] = false;
+        // by default coordinator gets mails, if not explicitly denied
+        if ($user->hasRole(Role::PUBLIC_AGENCY_COORDINATION)) {
+            $templateVars['emailNotificationReleasedStatement'] = true;
+        }
 
         $settings = $contentService->getSettings(
             'emailNotificationReleasedStatement',
             SettingsFilter::whereUser($user)->lock(),
             false
         );
-        // by default coordinator gets mails, if not explicitly denied
+
         if (is_array($settings) && 1 === count($settings)) {
             $templateVars['emailNotificationReleasedStatement'] = $settings[0]->getContentBool();
         }

@@ -18,11 +18,11 @@ parameters:
     advancedsearchservice_index_name_prefix: 'core_test'
     email_bouncefile_path: "%kernel.cache_dir%"
 
-    kernel.secret: 'testsecret'
     database_name: 'test'
     database_host: ''
     database_user: ''
     database_password: ''
+    secret: "IAmOnlyTheDefaultSecretSoChangeMeInProjects"
 
     roles_allowed:
         - !php/const demosplan\DemosPlanCoreBundle\Entity\User\Role::BOARD_MODERATOR
