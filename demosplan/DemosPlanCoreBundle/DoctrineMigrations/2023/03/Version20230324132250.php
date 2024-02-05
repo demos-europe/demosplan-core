@@ -33,6 +33,8 @@ class Version20230324132250 extends AbstractMigration
         $this->abortIfNotMysql();
         $this->addSql('SET foreign_key_checks = 0;');
         $aiApiUserId = Uuid::uuid();
+        // ensure that field is nullable as this is not the case in all projects
+        $this->addSql('ALTER TABLE _user MODIFY alternative_login_password CHAR(255) NULL');
         $this->addSql('INSERT INTO _user SET
               _u_id = :user_id,
               _u_dm_id = NULL,

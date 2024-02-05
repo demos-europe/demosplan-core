@@ -1173,7 +1173,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     }
 
     /**
-     * @return Statement
+     * @return Statement|null
      */
     public function getOriginal()
     {
@@ -2583,8 +2583,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     {
         if (null === $this->paragraphParentId && $this->paragraph instanceof ParagraphVersion) {
             $parentId = null;
-            if ($this->paragraph->getParagraph() instanceof Paragraph) {
-                $parentId = $this->paragraph->getParagraph()->getId();
+            $parentParagraph = $this->paragraph->getParagraph();
+            if ($parentParagraph instanceof Paragraph) {
+                $parentId = $parentParagraph->getId();
             }
             $this->paragraphParentId = $parentId;
         }

@@ -13,7 +13,7 @@
       <dp-checkbox
         v-if="selectable"
         id="selectAll"
-        class="inline-block width-20 u-pv-0_25"
+        class="inline-block w-[20px] u-pv-0_25"
         @change="val => $emit('select-all', val)" /><!--
     --><div
         class="layout__item weight--bold u-pv-0_5"

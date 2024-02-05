@@ -149,7 +149,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="_p_phase", type="string", length=50, nullable=false)
+     * @ORM\Column(name="_p_phase", type="string", nullable=false)
      */
     protected $phase = '';
 
@@ -258,7 +258,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="_p_public_participation_phase", type="string", length=20, nullable=false)
+     * @ORM\Column(name="_p_public_participation_phase", type="string", nullable=false)
      */
     protected $publicParticipationPhase = '';
 
@@ -515,7 +515,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      *
      * @var Customer
      *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer", inversedBy="defaultProcedureBlueprint", cascade={"remove", "persist"})
+     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
      *
      * @ORM\JoinColumn(name="customer", referencedColumnName="_c_id", nullable=true)
      */
@@ -2008,7 +2008,8 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     public function isCustomerMasterBlueprint(): bool
     {
-        return $this->master && null !== $this->customer;
+        // the customer holds the reference to the default-customer-blueprint
+        return $this->getId() === $this->getCustomer()?->getDefaultProcedureBlueprint()?->getId();
     }
 
     /**
@@ -2029,20 +2030,9 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     /**
      * @param CustomerInterface|null $customer
-     * @param bool                   $handleBothSites
      */
-    public function setCustomer($customer, $handleBothSites = true): Procedure
+    public function setCustomer($customer): Procedure
     {
-        if ($handleBothSites) {
-            if (null === $customer && null !== $this->customer) {
-                $this->customer->setDefaultProcedureBlueprint(null);
-            }
-
-            if (null !== $customer) {
-                $customer->setDefaultProcedureBlueprint($this);
-            }
-        }
-
         $this->customer = $customer;
 
         return $this;
