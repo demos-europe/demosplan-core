@@ -69,23 +69,25 @@
       class="layout c-at-item__row u-pl-1_5 u-mr u-1-of-1">
       <dd class="layout__item u-pr u-1-of-2">
         <dp-edit-field-single-select
-          label="Organisation"
-          field-key="organisation"
           :entity-id="user.id"
+          field-key="organisation"
+          label="Organisation"
           :label-grid-cols="4"
           :options="availableOrganisations"
+          :readonly="!hasPermission('feature_user_edit')"
           :value="currentOrganisation"
           @field:input="(val) => updateRelationship('currentOrganisation', val)"
           @field:save="saveUser" />
       </dd><!--
    --><dd class="layout__item u-1-of-2">
         <dp-edit-field-single-select
-          label="Abteilung"
           ref="departmentSelect"
-          field-key="department"
           :entity-id="user.id"
+          field-key="department"
+          label="Abteilung"
           :label-grid-cols="4"
           :options="availableDepartments"
+          :readonly="!hasPermission('feature_user_edit')"
           :value="currentDepartment"
           @field:input="(val) => updateRelationship('currentDepartment', val)"
           @field:save="saveUser" />
