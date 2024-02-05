@@ -86,7 +86,7 @@
         data-cy="department"
         :disabled="noOrgaSelected"
         :label="{
-          hint: localUser.relationships.orga.data.id ? '' : Translator.trans('organisation.select.first'),
+          hint: localUser.relationships.orga?.data?.id ? '' : Translator.trans('organisation.select.first'),
           text: Translator.trans('department')
         }"
         :options="departmentSelectOptions"
@@ -323,7 +323,7 @@ export default {
      * Fetch organisation of user or, in DpCreateItem, of currently logged-in user
      */
     fetchCurrentOrganisation () {
-      const orgaId = this.user.relationships.orga && this.user.relationships.orga.data.id
+      const orgaId = this.user.relationships.orga?.data?.id
         ? this.user.relationships.orga.data.id
         : this.presetUserOrgaId
       if (orgaId !== '') {

@@ -212,10 +212,7 @@ export const VuexApiRoutes = [
   {
     module: 'invitableToeb',
     action: 'list',
-    url: '/1.0/procedure/{procedureId}/InvitableToeb',
-    parameters: [
-      'procedureId'
-    ]
+    url: '/2.0/InvitableToeb'
   },
   {
     module: 'invitableInstitution',

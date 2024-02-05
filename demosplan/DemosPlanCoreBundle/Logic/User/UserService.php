@@ -44,7 +44,6 @@ use demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRoleInCustomerRepository;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\TestUserValueObject;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\CustomerResourceInterface;
@@ -55,6 +54,7 @@ use Doctrine\ORM\ORMException;
 use DOMDocument;
 use Exception;
 use LSS\XML2Array;
+use Pagerfanta\Pagerfanta;
 use RuntimeException;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -1039,11 +1039,9 @@ class UserService extends CoreService implements UserServiceInterface
     /**
      * Liste der InvitableInstitutionsichtbarkeitenänderungen anfordern.
      *
-     * @return DemosPlanPaginator
-     *
      * @throws Exception
      */
-    public function getInvitableInstitutionShowlistChanges()
+    public function getInvitableInstitutionShowlistChanges(): Pagerfanta
     {
         try {
             return $this->reportService->getInvitableInstitutionShowlistChanges();

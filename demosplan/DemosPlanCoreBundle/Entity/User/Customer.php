@@ -113,7 +113,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      *
      * @var ProcedureInterface
      *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", mappedBy="customer")
+     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", cascade={"remove"})
      *
      * @ORM\JoinColumn(name="_procedure", referencedColumnName="_p_id", nullable=true)
      */
