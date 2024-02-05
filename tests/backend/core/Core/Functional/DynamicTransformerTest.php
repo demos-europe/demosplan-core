@@ -96,7 +96,7 @@ class DynamicTransformerTest extends JsonApiTest
                         'procedure' => [
                             'data' => [
                                 'type' => 'Procedure',
-                                'id'   => '',
+                                'id'   => 'xyz',
                             ],
                         ],
                     ],
@@ -104,7 +104,7 @@ class DynamicTransformerTest extends JsonApiTest
                 'included' => [
                     0 => [
                         'type'       => 'Procedure',
-                        'id'         => '',
+                        'id'         => 'xzy',
                         'attributes' => [
                             'name'                   => 'My Procedure',
                             'agencyMainEmailAddress' => null,
