@@ -101,7 +101,7 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
     protected function handleFileReferences(): ?ConstraintViolationListInterface
     {
         // early return in case no file-reference is found
-        $cellValue = (string)$this->fileReferences?->getValue();
+        $cellValue = (string) $this->fileReferences?->getValue();
         if (null === $cellValue || '' === $cellValue) {
             return null;
         }
@@ -121,7 +121,7 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
             return $violations;
         }
 
-        $fileHashes = explode(', ', $cellValue);
+        $fileHashes = explode(', ', (string) $cellValue);
         $statement = $this->baseStatementFromRowBuilder->statement;
 
         /*
