@@ -60,7 +60,7 @@ class ProcedureAccessEvaluator
         );
 
         // procedure must not be deleted
-        $undeletedProcedureCondition = $ownsProcedureConditionFactory->isUndeletedProcedure();
+        $undeletedProcedureCondition = $ownsProcedureConditionFactory->isNotDeletedProcedure();
         if (!$this->entityFetcher->objectMatches($user, $undeletedProcedureCondition)) {
             return false;
         }
@@ -148,7 +148,7 @@ class ProcedureAccessEvaluator
 
         return [
             $ownsProcedureConditionFactory->isEitherTemplateOrProcedure($template),
-            $ownsProcedureConditionFactory->isUndeletedProcedure(),
+            $ownsProcedureConditionFactory->isNotDeletedProcedure(),
             // user owns via owning organisation or planning agency
             $this->conditionFactory->anyConditionApplies(
                 $orgaOwnsProcedure,

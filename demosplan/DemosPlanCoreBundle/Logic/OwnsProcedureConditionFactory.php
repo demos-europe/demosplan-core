@@ -244,7 +244,7 @@ class OwnsProcedureConditionFactory
      *
      * @throws PathException
      */
-    public function isUndeletedProcedure(): ClauseFunctionInterface
+    public function isNotDeletedProcedure(): ClauseFunctionInterface
     {
         if ($this->userOrProcedure instanceof User) {
             return $this->conditionFactory->propertyHasValue(false, ['deleted']);
