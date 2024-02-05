@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Logic\Customer\CustomerDeleter;
 use demosplan\DemosPlanCoreBundle\Repository\CustomerRepository;
 use PHPUnit\Framework\MockObject\MockObject;
+use RuntimeException;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -109,7 +110,7 @@ class deleteCustomerCommandTest extends FunctionalTestCase
         $customer = reset($this->customers);
         $this->questionHelperMock->method('ask')->willReturn($customer->getSubdomain().' id: NOT_FOUND');
 
-        self::expectException(\RuntimeException::class);
+        self::expectException(RuntimeException::class);
         self::expectExceptionMessage('Given customer is not available.');
 
         $this->executeCommand(
