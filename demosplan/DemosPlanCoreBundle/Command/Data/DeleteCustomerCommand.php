@@ -25,12 +25,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use function is_string;
 
 class DeleteCustomerCommand extends CoreCommand
 {
     protected static $defaultName = 'dplan:customer:delete';
     protected static $defaultDescription =
         'Deletes a customer including all related content like procedure, orgaTypes, statements, tags, News, etc.';
+    public const OPTION_DRY_RUN = 'dry-run';
+    public const OPTION_WITHOUT_ES_REPOPULATE = 'without-repopulate';
 
     public function __construct(
         ParameterBagInterface $parameterBag,
@@ -45,7 +48,7 @@ class DeleteCustomerCommand extends CoreCommand
     public function configure(): void
     {
         $this->addOption(
-            'dry-run',
+            self::OPTION_DRY_RUN,
             '',
             InputOption::VALUE_OPTIONAL,
             'Initiates a dry run with verbose output to see what would happen.',
@@ -53,7 +56,7 @@ class DeleteCustomerCommand extends CoreCommand
         );
 
         $this->addOption(
-            'without-repopulate',
+            self::OPTION_WITHOUT_ES_REPOPULATE,
             'wrp',
             InputOption::VALUE_OPTIONAL,
             'Ignores repopulating the ES. This should only be used for debugging purposes!',
@@ -64,10 +67,12 @@ class DeleteCustomerCommand extends CoreCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $output = new SymfonyStyle($input, $output);
-        $isDryRun = $input->getOption('dry-run');
-        $isDryRun = null === $isDryRun || is_string($isDryRun);
-        $withoutRepopulate = $input->getOption('without-repopulate');
-        $withoutRepopulate = null === $withoutRepopulate || is_string($withoutRepopulate);
+        $isDryRun = $input->getOption(self::OPTION_DRY_RUN);
+        $isDryRun = null === $isDryRun || is_string($isDryRun) || true === $isDryRun;
+        $withoutRepopulate = $input->getOption(self::OPTION_WITHOUT_ES_REPOPULATE);
+        $withoutRepopulate = null === $withoutRepopulate
+            || is_string($withoutRepopulate)
+            || true === $withoutRepopulate;
         // get the available customers
         $customerId = $this->askCustomerToDelete($input, $output);
         $output->info('Customer id to delete: '.$customerId);
