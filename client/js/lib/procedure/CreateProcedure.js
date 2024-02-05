@@ -17,8 +17,6 @@
  */
 import { dpApi } from '@demos-europe/demosplan-ui'
 
-const saveBtn = document.getElementById('saveBtn')
-
 const setWarningForUnsetBounds = () => {
   const statusBox = document.querySelector('#js__statusBox')
 
@@ -29,7 +27,7 @@ const setWarningForUnsetBounds = () => {
   statusBox.classList.remove('flash-confirm')
   statusBox.classList.add('flash-warning')
   // Enable save-button
-  saveBtn.removeAttribute('disabled')
+  document.getElementById('saveBtn').removeAttribute('disabled')
 }
 
 const setConfirmForBounds = function (data) {
@@ -42,7 +40,7 @@ const setConfirmForBounds = function (data) {
   statusBox.classList.remove('flash-warning')
   statusBox.classList.add('flash-confirm')
   // Enable save-button
-  saveBtn.removeAttribute('disabled')
+  document.getElementById('saveBtn').removeAttribute('disabled')
 }
 
 function getXplanboxBounds (procedureName) {
@@ -66,6 +64,7 @@ function getXplanboxBounds (procedureName) {
 
 export default function CreateProcedure () {
   const statusBox = document.getElementById('js__statusBox')
+  const saveBtn = document.getElementById('saveBtn')
 
   /*
    * @improve T15008
@@ -74,8 +73,6 @@ export default function CreateProcedure () {
   saveBtn.setAttribute('disabled', true)
 
   const planningCauseSelect = document.getElementById('js__plisPlanungsanlass')
-  planningCauseSelect.innerText = Translator.trans('planningcause.select.hint')
-  planningCauseSelect.classList.add('lbl__hint')
 
   //  Get plis data from BE
   const plisSelect = document.querySelector('select[name="r_plisId"]')
