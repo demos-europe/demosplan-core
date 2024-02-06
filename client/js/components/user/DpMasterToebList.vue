@@ -460,6 +460,21 @@ export default {
       this.selectedItems = items
     },
 
+    sortItems (items) {
+      return items.sort((a, b) => {
+        if (a[this.sortOrder.key] === null || typeof a[this.sortOrder.key] === 'undefined') {
+          return this.sortOrder.direction
+        }
+
+        if (b[this.sortOrder.key] === null || typeof b[this.sortOrder.key] === 'undefined') {
+          return this.sortOrder.direction * -1
+        }
+
+        return String(a[this.sortOrder.key])
+          .localeCompare(String(b[this.sortOrder.key]), 'de', { sensitivity: 'base' }) * this.sortOrder.direction
+      })
+    },
+
     toggleAllCols (ev) {
       Object.keys(this.filters).forEach(key => { this.filters[key] = ev.target.checked })
     },
@@ -560,29 +575,10 @@ export default {
     },
 
     updateFields () {
-      let sortedList = this.currentItems
+      const sortedItems = this.sortItems(this.currentItems)
 
-      // Sort by selected col
-      sortedList.sort((a, b) => {
-        /*
-         * In JS is `null > 'string' === null < 'string'`
-         * so we have to do such weired stuff
-         */
-        if (a[this.sortOrder.key] === null || typeof a[this.sortOrder.key] === 'undefined') {
-          return this.sortOrder.direction * 1
-        }
-        if (b[this.sortOrder.key] === null || typeof b[this.sortOrder.key] === 'undefined') {
-          return this.sortOrder.direction * -1
-        }
+      this.rowItems = sortedItems.filter(item => this.searchedItems[item.ident] === 'in' && this.filteredItems[item.ident] === 'in')
 
-        return String(a[this.sortOrder.key])
-          .localeCompare(String(b[this.sortOrder.key]), 'de', { sensitivity: 'base' }) * this.sortOrder.direction
-      })
-
-      // Apply filters and search term
-      sortedList = sortedList.filter(item => this.searchedItems[item.ident] === 'in' && this.filteredItems[item.ident] === 'in')
-
-      this.rowItems = sortedList
       this.$nextTick(() => {
         if (this.isEditable) this.addCellIdsAndFields(this.dataTableElement.getElementsByTagName('tbody')[0], this.onPageItems)
       })
