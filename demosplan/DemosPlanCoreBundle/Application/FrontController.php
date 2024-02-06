@@ -70,6 +70,9 @@ final class FrontController
             throw new LogicException('You need to add "symfony/framework-bundle" and "symfony/dotenv" as Composer dependencies.');
         }
 
+        (new Dotenv())->bootEnv(DemosPlanPath::getRootPath('.env'));
+
+        // explicitly set the environment if provided in command
         $input = new ArgvInput();
         if (null !== $env = $input->getParameterOption(['--env', '-e'], null, true)) {
             putenv('APP_ENV='.$_SERVER['APP_ENV'] = $_ENV['APP_ENV'] = $env);
@@ -78,8 +81,6 @@ final class FrontController
         if ($input->hasParameterOption('--no-debug', true)) {
             putenv('APP_DEBUG='.$_SERVER['APP_DEBUG'] = $_ENV['APP_DEBUG'] = '0');
         }
-
-        (new Dotenv())->bootEnv(DemosPlanPath::getRootPath('.env'));
 
         if ($_SERVER['APP_DEBUG']) {
             umask(0000);

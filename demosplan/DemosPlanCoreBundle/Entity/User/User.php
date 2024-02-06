@@ -51,6 +51,9 @@ use function in_array;
  */
 class User implements SamlUserInterface, AddonUserInterface
 {
+    public const HEARING_AUTHORITY_ROLES = [RoleInterface::HEARING_AUTHORITY_ADMIN, RoleInterface::HEARING_AUTHORITY_WORKER];
+    public const PLANNING_AGENCY_ROLES = [RoleInterface::PLANNING_AGENCY_ADMIN, RoleInterface::PLANNING_AGENCY_WORKER];
+    public const PUBLIC_AGENCY_ROLES = [RoleInterface::PUBLIC_AGENCY_COORDINATION, RoleInterface::PUBLIC_AGENCY_WORKER];
     /**
      * @var string|null
      *
@@ -801,9 +804,9 @@ class User implements SamlUserInterface, AddonUserInterface
         return $this->hasAnyOfRoles($plannerRoles);
     }
 
-    public function isHearingAuthority(): bool
+    public function isHearingAuthority(Customer $customer = null): bool
     {
-        return $this->hasAnyOfRoles([RoleInterface::HEARING_AUTHORITY_ADMIN, RoleInterface::HEARING_AUTHORITY_WORKER]);
+        return $this->hasAnyOfRoles(self::HEARING_AUTHORITY_ROLES, $customer);
     }
 
     /**
@@ -814,19 +817,14 @@ class User implements SamlUserInterface, AddonUserInterface
         return $this->hasAnyOfRoles([RoleInterface::HEARING_AUTHORITY_ADMIN, RoleInterface::PLANNING_AGENCY_ADMIN]);
     }
 
-    public function isPlanningAgency(): bool
+    public function isPlanningAgency(Customer $customer = null): bool
     {
-        return $this->hasAnyOfRoles([RoleInterface::PLANNING_AGENCY_ADMIN, RoleInterface::PLANNING_AGENCY_WORKER]);
+        return $this->hasAnyOfRoles(self::PLANNING_AGENCY_ROLES, $customer);
     }
 
     public function isPublicAgency(): bool
     {
-        $publicAgencyRoles = [
-            RoleInterface::PUBLIC_AGENCY_COORDINATION,
-            RoleInterface::PUBLIC_AGENCY_WORKER,
-        ];
-
-        return $this->hasAnyOfRoles($publicAgencyRoles);
+        return $this->hasAnyOfRoles(self::PUBLIC_AGENCY_ROLES);
     }
 
     /**
@@ -1467,10 +1465,10 @@ class User implements SamlUserInterface, AddonUserInterface
         return in_array($role, $this->getDplanRolesArray($customer));
     }
 
-    public function hasAnyOfRoles(array $roles): bool
+    public function hasAnyOfRoles(array $roles, Customer $customer = null): bool
     {
         foreach ($roles as $role) {
-            if ($this->hasRole($role)) {
+            if ($this->hasRole($role, $customer)) {
                 return true;
             }
         }
@@ -1549,6 +1547,13 @@ class User implements SamlUserInterface, AddonUserInterface
     {
         return $this->roleInCustomers
             ->map(static fn (UserRoleInCustomerInterface $roleInCustomer) => $roleInCustomer->getCustomer())->toArray();
+    }
+
+    public function isConnectedToCustomerId(string $customerId): bool
+    {
+        return $this->roleInCustomers
+            ->map(static fn (UserRoleInCustomerInterface $roleInCustomer): ?string => $roleInCustomer->getCustomer()?->getId())
+            ->contains($customerId);
     }
 
     /**
