@@ -2183,8 +2183,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         string $procedureId,
         array $statementsIds,
         array $fragmentIds
-    ): StatementEntityGroup
-    {
+    ): StatementEntityGroup {
         $statements = $this->getStatementsByIds($statementsIds);
         $fragments = $this->statementFragmentRepository->getFragmentsById($fragmentIds);
         $entities = \array_merge($statements, $fragments);

@@ -39,7 +39,6 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Statement\ValuedLabel;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Exception;
 use PhpOffice\PhpWord\Element\AbstractContainer;
-use PhpOffice\PhpWord\Element\Cell;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\PhpWord;

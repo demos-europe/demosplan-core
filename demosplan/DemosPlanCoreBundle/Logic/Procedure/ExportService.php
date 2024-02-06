@@ -78,7 +78,7 @@ class ExportService
     protected $procedureOutput;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\News\ServiceOutput NewsOutput
+     * @var NewsOutput NewsOutput
      */
     protected $newsOutput;
 
@@ -488,8 +488,7 @@ class ExportService
         string $procedureId,
         string $procedureName,
         ZipStream $zip
-    ): ZipStream
-    {
+    ): ZipStream {
         $rParams = [
             'filters' => ['original' => 'IS NULL'],
             'request' => ['limit' => 1_000_000],

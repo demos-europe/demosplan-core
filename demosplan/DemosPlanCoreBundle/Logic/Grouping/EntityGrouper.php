@@ -205,8 +205,7 @@ abstract class EntityGrouper
         CoreEntity&EntityInterface $entity,
         array $entityFieldsToUse,
         array $stopGroupingForKeys = []
-    ): int
-    {
+    ): int {
         if (0 === count($entityFieldsToUse)) {
             // if we do not have any fields to use as keys from the entity
             // then we just add the entity to the given array
