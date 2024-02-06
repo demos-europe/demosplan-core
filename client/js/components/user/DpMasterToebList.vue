@@ -405,11 +405,11 @@ export default {
     },
 
     possiblyInsertDeletion (items) {
-      let returnItems = items
       if (this.isEditable) {
-        returnItems = returnItems.map(item => ({ ...{ deletion: 'delete' }, ...item }))
+        return items.map(item => ({ ...{ deletion: 'delete' }, ...item }))
       }
-      return returnItems
+
+      return items
     },
 
     removeOrga (ident) {
