@@ -488,14 +488,15 @@ export default {
      * @returns {string}
      */
     transformValue (value, field) {
-      let returnVal = value
       if (value === null || typeof value === 'undefined' || value === false) {
-        returnVal = '-'
+        return '-'
       }
+
       if (this.boolToStringFields.includes(field)) {
-        returnVal = value ? 'x' : ''
+        return 'x'
       }
-      return returnVal
+
+      return value
     },
 
     /**
