@@ -94,7 +94,7 @@
               </label>
               <label
                 v-for="(filterField, idx) in filteredFields"
-                :key="idx"
+                :key="`${filterField}-${idx}`"
                 class="lbl--text u-pl-0_5 u-mb-0_25 w-10">
                 <input
                   v-model="filters[filterField.field]"
