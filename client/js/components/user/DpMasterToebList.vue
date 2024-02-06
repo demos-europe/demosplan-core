@@ -488,12 +488,13 @@ export default {
      * @returns {string}
      */
     transformValue (value, field) {
-      if (value === null || typeof value === 'undefined' || value === false) {
-        return '-'
+      if (this.boolToStringFields.includes(field)) {
+        return value ? 'x' : ''
       }
 
-      if (this.boolToStringFields.includes(field)) {
-        return 'x'
+      if (value === null || typeof value === 'undefined' || value === false) {
+        return '-'
+
       }
 
       return value
