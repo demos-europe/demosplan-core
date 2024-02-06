@@ -51,12 +51,12 @@ function transformHTMLPositionsToProsemirrorPositions (segments, initialText, al
   const PROSEMIRROR_NODE_SIZE = 1
   const PROSEMIRROR_MARK_SIZE = 0
 
-  const allowedNodeTags = allowedNodes || ['p', 'div', 'img', 'ol', 'ul', 'li']
+  const allowedNodeTags = allowedNodes || ['p', 'div', 'img', 'ol', 'ul', 'li', 'br']
   const nodeGroup = allowedNodeTags.join('|')
   const nodeRegex = new RegExp(`</?(${nodeGroup}).*?>`, 'ig')
   const allowedMarkTags = allowedMarks || ['strong', 'span', 'a', 'b', 'em', 'i', 'del', 'ins']
   const markGroup = allowedMarkTags.join('|')
-  const markRegex = new RegExp(`</?(${markGroup}).*?>`, 'ig')
+  const markRegex = new RegExp(`</?(?!br)(${markGroup}).*?>`, 'ig')
   const entitiesRegex = /&(#[0-9]+|[a-z]+);/g
 
   // We construct a flat array of positions to easily run calculations later.

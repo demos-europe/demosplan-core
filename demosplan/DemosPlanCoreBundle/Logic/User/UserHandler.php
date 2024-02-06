@@ -1752,61 +1752,67 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
      *
      * @param string $organisationId Indicates the organisation whose data will be wiped
      *
-     * @return orga|bool The wiped organisation if all operations are successful, otherwise false
+     * @return orga|array The wiped organisation if all operations are successful, otherwise errors
      *
      * @throws MessageBagException
      */
     public function wipeOrganisationData(string $organisationId)
     {
+        $errors = [];
         $requiredRelationsAreSolved = true;
 
         $organisation = $this->orgaHandler->getOrga($organisationId);
         if (!$organisation instanceof Orga) {
-            $this->getMessageBag()->add('error', 'error.delete.organisation.not.found');
-
-            return false;
-        }
-
-        // related Entities, which have do be solved, before wiping organisation:
-        if (false === $organisation->getProcedures()->isEmpty()) {
             $requiredRelationsAreSolved = false;
-            $this->getMessageBag()->add('error', 'error.delete.organisation.related.procedure');
+            $errors[] = 'error.delete.organisation.not.found';
         }
-
-        if (!$organisation->getUsers()->isEmpty()) {
-            $requiredRelationsAreSolved = false;
-            $this->getMessageBag()->add('error', 'error.delete.organisation.related.user');
-        }
-
-        // if one of the related departments have a user, return false
-        /** @var Department[] $departments */
-        $departments = $organisation->getDepartments();
-        foreach ($departments as $department) {
-            if ($requiredRelationsAreSolved && !$department->getUsers()->isEmpty()) {
+        if ($organisation instanceof Orga) {
+            // related Entities, which have do be solved, before wiping organisation:
+            if (false === $organisation->getProcedures()->isEmpty()) {
                 $requiredRelationsAreSolved = false;
-                $this->getMessageBag()->add('error', 'error.delete.organisation.related.departments');
+                $errors[] = 'error.delete.organisation.related.procedure';
+            }
+
+            if (!$organisation->getUsers()->isEmpty()) {
+                $requiredRelationsAreSolved = false;
+                $errors[] = 'error.delete.organisation.related.user';
+            }
+
+            // if one of the related departments have a user, return false
+            /** @var Department[] $departments */
+            $departments = $organisation->getDepartments();
+            foreach ($departments as $department) {
+                if ($requiredRelationsAreSolved && !$department->getUsers()->isEmpty()) {
+                    $requiredRelationsAreSolved = false;
+                    $errors[] = 'error.delete.organisation.related.departments';
+                }
+            }
+
+            if ($requiredRelationsAreSolved) {
+                $successfulDeletedDepartments = $this->wipeDepartmentsOfOrga($organisation);
+                $successfulDeletedAddresses = $this->orgaService->deleteAddressesOfOrga($organisationId);
+                $successfulDeletedDraftStatements = $this->draftStatementService->deleteDraftStatementsOfOrga($organisationId);
+                $successfulRemovedSettings = $this->contentService->deleteSettingsOfOrga($organisationId);
+                $successfulDeletedMasterToebs = $this->masterToebService->detachMasterToebOfOrga($organisationId);
+                $successfulDeletedMasterToebMail = $this->procedureService->deleteInstitutionMailOfOrga($organisationId);
+
+                if ($successfulRemovedSettings
+                    && $successfulDeletedAddresses
+                    && $successfulDeletedDraftStatements
+                    && $successfulDeletedMasterToebs
+                    && $successfulDeletedMasterToebMail
+                    && $successfulDeletedDepartments) {
+                    $result = $this->orgaService->wipeOrganisation($organisationId);
+                    if ($result instanceof Orga) {
+                        return $result;
+                    }
+                    $errors[] = 'error.delete.organisation.not.found';
+                }
+                $errors[] = 'error.organisation.not.deleted';
             }
         }
 
-        if ($requiredRelationsAreSolved) {
-            $successfulDeletedDepartments = $this->wipeDepartmentsOfOrga($organisation);
-            $successfulDeletedAddresses = $this->orgaService->deleteAddressesOfOrga($organisationId);
-            $successfulDeletedDraftStatements = $this->draftStatementService->deleteDraftStatementsOfOrga($organisationId);
-            $successfulRemovedSettings = $this->contentService->deleteSettingsOfOrga($organisationId);
-            $successfulDeletedMasterToebs = $this->masterToebService->detachMasterToebOfOrga($organisationId);
-            $successfulDeletedMasterToebMail = $this->procedureService->deleteInstitutionMailOfOrga($organisationId);
-
-            if ($successfulRemovedSettings
-                && $successfulDeletedAddresses
-                && $successfulDeletedDraftStatements
-                && $successfulDeletedMasterToebs
-                && $successfulDeletedMasterToebMail
-                && $successfulDeletedDepartments) {
-                return $this->orgaService->wipeOrganisation($organisationId);
-            }
-        }
-
-        return false;
+        return $errors;
     }
 
     /**

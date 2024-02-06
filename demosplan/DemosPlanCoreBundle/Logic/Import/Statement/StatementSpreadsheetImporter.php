@@ -195,7 +195,7 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
             // create the original statement and its copy if valid
             $originalStatementOrViolations = $builder->buildStatementAndReset();
             if ($originalStatementOrViolations instanceof Statement) {
-                /**
+                /*
                  * At this point the original Statement has been build including the file-references.
                  * File-references are persisted inside the { @link FileContainer } but were not flushed yet.
                  * Flushing the FileContainer needs to be done now - as the previously persisted original Statement is
