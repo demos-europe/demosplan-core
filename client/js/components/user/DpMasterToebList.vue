@@ -551,22 +551,18 @@ export default {
       }
     },
 
-    updateOrga (ident, updatedField, status) {
-      this.updatedItems = this.updatedItems.map(item => {
-        let newItem = item
+    updateItems (items, ident, updatedField) {
+      return items.map(item => {
         if (item.ident === ident) {
-          newItem = { ...newItem, ...updatedField }
+          return { ...item, ...updatedField }
         }
-        return newItem
+        return item
       })
+    },
 
-      this.rowItems = this.rowItems.map(item => {
-        let newItem = item
-        if (item.ident === ident) {
-          newItem = { ...newItem, ...updatedField }
-        }
-        return newItem
-      })
+    updateOrga (ident, updatedField, status) {
+      this.updatedItems = this.updateItems(this.updatedItems, ident, updatedField)
+      this.rowItems = this.updateItems(this.rowItems, ident, updatedField)
 
       if (status === 'confirm') {
         const fieldName = this.fields.filter(el => el.field === Object.keys(updatedField)[0])[0].value
