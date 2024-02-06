@@ -92,17 +92,17 @@ class JsonApiActionService
      */
     public function searchObjects(
         ReadableEsResourceTypeInterface $type,
-        SearchParams $searchParams,
-        array $conditions,
-        array $sortMethods = [],
-        array $filterAsArray = [],
-        bool $requireEntities = true,
-        APIPagination $pagination = null
+        SearchParams                    $searchParams,
+        array                           $conditions,
+        array                           $sortMethods = [],
+        array                           $selections = [],
+        bool                            $requireEntities = true,
+        APIPagination                   $pagination = null
     ): ApiListResult {
         // we do not need to apply any sorting here, because it needs to be applied later
         $entityIdentifiers = $type->listEntityIdentifiers($conditions, []);
 
-        return $this->jsonApiEsService->getEsFilteredObjects($type, $entityIdentifiers, $searchParams, $filterAsArray, $requireEntities, $sortMethods, $pagination);
+        return $this->jsonApiEsService->getEsFilteredObjects($type, $entityIdentifiers, $searchParams, $selections, $requireEntities, $sortMethods, $pagination);
     }
 
     /**

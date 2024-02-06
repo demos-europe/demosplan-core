@@ -127,12 +127,12 @@ class JsonApiEsService implements JsonApiEsServiceInterface
      */
     public function getEsFilteredObjects(
         ReadableEsResourceTypeInterface $resourceType,
-        array $prefilteredIdentifiers,
-        SearchParams $searchParams,
-        array $rawFilter,
-        bool $requireEntities,
-        array $sortMethods,
-        ?APIPagination $pagination
+        array                           $prefilteredIdentifiers,
+        SearchParams                    $searchParams,
+        array                           $selections,
+        bool                            $requireEntities,
+        array                           $sortMethods,
+        ?APIPagination                  $pagination
     ): ApiListResult {
         $scoredSort = [] === $sortMethods;
         $elasticsearchResult = $this->getEsFilteredResult(
@@ -153,7 +153,8 @@ class JsonApiEsService implements JsonApiEsServiceInterface
             $missingResourcesSums = $elasticsearchResult['aggregationsMissing'] ?? [];
             $facetDefinitions = $resourceType->getFacetDefinitions();
             $facetDefinitions = array_intersect_key($facetDefinitions, $facetKeys);
-            $facets = $this->facetFactory->getFacets($facetDefinitions, $aggregationBuckets, $missingResourcesSums, $rawFilter);
+            //cata + christian todo
+            $facets = $this->facetFactory->getFacets($facetDefinitions, $aggregationBuckets, $missingResourcesSums, $selections);
         }
 
         // get additional information

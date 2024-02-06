@@ -36,20 +36,20 @@ class FacetFactory
      * @param array<string, FacetInterface<object>>           $facetDefinitions
      * @param array<string,array<int,array<string,mixed>>>    $aggregationBuckets
      * @param array<string,int>                               $missingResourcesSums
-     * @param array<string,array<string,array<string,mixed>>> $rawFilter
+     * @param array<string,array<string,array<string,mixed>>> $selections
      *
      * @return array<int,AggregationFilterType> return an empty array if no facets exist
      */
-    public function getFacets(array $facetDefinitions, array $aggregationBuckets, array $missingResourcesSums, array $rawFilter): array
+    public function getFacets(array $facetDefinitions, array $aggregationBuckets, array $missingResourcesSums, array $selections): array
     {
         return collect($facetDefinitions)
-            ->map(function (FacetInterface $facetDefinition, string $bucketKey) use ($aggregationBuckets, $missingResourcesSums, $rawFilter): AggregationFilterType {
+            ->map(function (FacetInterface $facetDefinition, string $bucketKey) use ($aggregationBuckets, $missingResourcesSums, $selections): AggregationFilterType {
                 $targetBucket = $aggregationBuckets[$bucketKey] ?? [];
                 $missingResourcesSum = $missingResourcesSums[$bucketKey] ?? 0;
                 $itemCounts = $this->createItemCountMapping($targetBucket);
-                $aggregationItems = $this->createAggregationFilterRootItems($facetDefinition, $itemCounts, $rawFilter)->all();
+                $aggregationItems = $this->createAggregationFilterRootItems($facetDefinition, $itemCounts, $selections)->all();
                 $aggregationGroups = ($facetDefinition instanceof GroupedFacetInterface)
-                    ? $this->createAggregationFilterGroups($facetDefinition, $itemCounts, $rawFilter)->all()
+                    ? $this->createAggregationFilterGroups($facetDefinition, $itemCounts, $selections)->all()
                     : [];
                 $facetNameTranslationKey = $facetDefinition->getFacetNameTranslationKey();
                 $facetName = $this->translator->trans($facetNameTranslationKey);
@@ -147,6 +147,7 @@ class FacetFactory
                 $condition = $conditionOrGroup['condition'];
                 $operator = $condition['operator'] ?? '=';
                 // @improve: T20649
+                //maybe for improvement cata todo
                 $usedInContainsOperator = 'ARRAY_CONTAINS_VALUE' === $operator || 'CONTAINS' === $operator || '=' === $operator;
                 if ($usedInContainsOperator && $condition['value'] === $itemId) {
                     return true;
