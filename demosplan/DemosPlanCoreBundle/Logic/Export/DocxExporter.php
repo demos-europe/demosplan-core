@@ -928,30 +928,37 @@ class DocxExporter
     }
 
     /**
+     * Used for non original statement and more?!
+     * For OriginalStatements AssessmentTableServiceOutput::addHtml is used
+     *
      * @param Cell    $cell
      * @param string  $text
      * @param array[] $styles
      *
      * @return string
      */
-    protected function addHtml($cell, $text, $styles)
+    public function addHtml($cell, $text, $styles)
     {
         if ('' === $text) {
             return '';
         }
         try {
-            $text = $this->replaceTags($text);
+            $text = self::replaceTags($text);
             Html::addHtml($cell, $text, false);
         } catch (Exception $e) {
             $this->getLogger()->warning('Could not parse HTML in Export', [$e, $text, $e->getTraceAsString()]);
             // fallback: print with html tags
-            $cell->addText($text, $styles['textStyleStatementDetails'], $styles['textStyleStatementDetailsParagraphStyles']);
+            $cell->addText(
+                $text,
+                $styles['textStyleStatementDetails'],
+                $styles['textStyleStatementDetailsParagraphStyles']
+            );
         }
 
         return '';
     }
 
-    private function replaceTags(string $text): string
+    private static function replaceTags(string $text): string
     {
         $replacements = [
             // phpword breaks when self closing tags are not closed

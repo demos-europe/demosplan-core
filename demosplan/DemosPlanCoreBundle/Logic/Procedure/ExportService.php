@@ -484,7 +484,11 @@ class ExportService
         return $zip;
     }
 
-    public function addAssessmentTableOriginalToZip(string $procedureId, string $procedureName, ZipStream $zip): ZipStream
+    public function addAssessmentTableOriginalToZip(
+        string $procedureId,
+        string $procedureName,
+        ZipStream $zip
+    ): ZipStream
     {
         $rParams = [
             'filters' => ['original' => 'IS NULL'],

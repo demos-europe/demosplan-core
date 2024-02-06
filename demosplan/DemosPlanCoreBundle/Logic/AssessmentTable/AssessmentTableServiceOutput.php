@@ -374,7 +374,7 @@ class AssessmentTableServiceOutput
             } else {
                 $section->addText($this->translator->trans('statement'), $boldFontSetting, ['align' => Jc::CENTER]);
                 $section->addTextBreak();
-                $this->addHtml($section, $presentableOriginalStatement->getStatementText(), []);
+                $this->docxExporter->addHtml($section, $presentableOriginalStatement->getStatementText(), []);
 
                 if ($this->permissions->hasPermission('feature_statement_gdpr_consent')) {
                     if ($presentableOriginalStatement->getGdprConsentRevoked()) {
@@ -746,32 +746,6 @@ class AssessmentTableServiceOutput
         }
 
         return '<img height="'.$height.'" width="'.$width.'" src="'.$imageFile.'"/>';
-    }
-
-    /**
-     * @param Cell    $cell
-     * @param string  $text
-     * @param array[] $styles
-     *
-     * @return string
-     */
-    protected function addHtml($cell, $text, $styles)
-    {
-        if ('' === $text) {
-            return '';
-        }
-        try {
-            // phpword breaks when self closing tags are not closed
-            // as only br as "void-elememt" is allowed use specific regex
-            $text = preg_replace('/<(\s)*br(\s)*>/i', '<br/>', $text);
-            Html::addHtml($cell, $text, false);
-        } catch (Exception $e) {
-            $this->logger->warning('Could not parse HTML in Export', [$e, $text, $e->getTraceAsString()]);
-            // fallback: print with html tags
-            $cell->addText($text, $styles['textStyleStatementDetails'], $styles['textStyleStatementDetailsParagraphStyles']);
-        }
-
-        return '';
     }
 
     /**
