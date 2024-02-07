@@ -647,7 +647,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     /**
      * @var Collection<int, Place>
      *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Workflow\Place", mappedBy="procedure")
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Workflow\Place", mappedBy="procedure", cascade={"persist"})
      */
     private $segmentPlaces;
 
