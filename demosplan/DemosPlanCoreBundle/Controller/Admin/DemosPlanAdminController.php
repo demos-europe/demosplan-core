@@ -48,8 +48,6 @@ class DemosPlanAdminController extends BaseController
      * @param string $part
      * @param string $format
      *
-     * @return Response
-     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_statistics', path: '/statistik', defaults: ['format' => 'html', 'part' => 'all'])]
@@ -67,17 +65,17 @@ class DemosPlanAdminController extends BaseController
     ): ?Response {
         $templateVars = [];
 
-/*        $data = [
-            'CUstomerId' => [
-                'name' => Custonername
-                'Orgas' => [
-                    OrgaId => [
-                        'OrgaName' => name
-                        'proceduresCreated' => count
+        /*        $data = [
+                    'CUstomerId' => [
+                        'name' => Custonername
+                        'Orgas' => [
+                            OrgaId => [
+                                'OrgaName' => name
+                                'proceduresCreated' => count
+                            ]
+                ]
                     ]
-        ]
-            ]
-        ]:*/
+                ]:*/
 
         // procedureList does not contain blueprints
         $procedureList = $procedureService->getProcedureFullList();
@@ -109,10 +107,10 @@ class DemosPlanAdminController extends BaseController
                 $orga = $procedureData['orga'];
                 if (null !== $customerId) {
                     if (array_key_exists($orga->getId(), $allCustomers[$customerId]['orgas'])) {
-                        $allCustomers[$customerId]['orgas'][$orga->getId()]['proceduresCreated']++;
+                        ++$allCustomers[$customerId]['orgas'][$orga->getId()]['proceduresCreated'];
                     } else {
                         $allCustomers[$customerId]['orgas'][$orga->getId()] = [
-                            'orgaName' => $orga->getName(),
+                            'orgaName'          => $orga->getName(),
                             'proceduresCreated' => 1,
                         ];
                     }
