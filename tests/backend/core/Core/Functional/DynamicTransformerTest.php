@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType;
 use EDT\JsonApi\OutputHandling\DynamicTransformer;
+use EDT\JsonApi\OutputTransformation\PropertyDefinitionInterface;
 use EDT\JsonApi\RequestHandling\MessageFormatter;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use League\Fractal\Manager;
