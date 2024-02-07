@@ -6,6 +6,5 @@ use Tests\Base\FunctionalTestCase;
 
 class CustomerDeleterTest extends FunctionalTestCase
 {
-    private
 
 }

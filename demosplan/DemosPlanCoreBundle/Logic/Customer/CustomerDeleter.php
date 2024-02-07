@@ -11,7 +11,6 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Customer;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeleter;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
@@ -38,6 +37,9 @@ class CustomerDeleter extends CoreService
             $this->procedureRepository->findBy(['customer' => $customerId])
         );
         $this->procedureDeleter->deleteProcedures($customerProcedureIds, $isDryRun);
+
+        // delete branding as brandings are unique to customers
+        $this->deleteCustomerUniqueBrandingIfExists($customerId, $isDryRun);
 
         // delete customer videos
         $this->deleteCustomerVideos($customerId, $isDryRun);
@@ -133,6 +135,50 @@ class CustomerDeleter extends CoreService
         }
 
         return $possibleOrgaOrphans;
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteCustomerUniqueBrandingIfExists(string $customerId, bool $isDryRun): void
+    {
+        $brandingIdUniqueArray = array_column(
+            $this->queriesService->fetchFromTableByParameter(
+                ['branding_id'],
+                'customer',
+                '_c_id',
+                [$customerId]
+            ),
+            'branding_id'
+        );
+        if (0 < count($brandingIdUniqueArray)) {
+            // get branding logo fileId
+            $fileIds = array_column(
+                $this->queriesService->fetchFromTableByParameter(
+                    ['logo'],
+                    'branding',
+                    'id',
+                    $brandingIdUniqueArray
+                ),
+                'logo'
+            );
+            if (0 < count($fileIds)) {
+                // delete logo if present
+                $this->queriesService->deleteFromTableByIdentifierArray(
+                    '_files',
+                    '_f_ident',
+                    $fileIds,
+                    $isDryRun
+                );
+            }
+            // delete branding if present
+            $this->queriesService->deleteFromTableByIdentifierArray(
+                'branding',
+                'id',
+                $brandingIdUniqueArray,
+                $isDryRun
+            );
+        }
     }
 
     /**
