@@ -527,6 +527,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $procedureList = [];
             foreach ($procedures as $procedure) {
                 $procedureList[$procedure->getId()] = $this->procedureToLegacyConverter->convertToLegacy($procedure);
+                $procedureList[$procedure->getId()]['customer'] = $procedure->getCustomer()?->getId();
             }
 
             return $this->procedureToLegacyConverter->toLegacyResult($procedureList, $search)->toArray();

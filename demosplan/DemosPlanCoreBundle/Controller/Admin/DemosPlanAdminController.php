@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Admin;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
@@ -65,7 +66,26 @@ class DemosPlanAdminController extends BaseController
     ): ?Response {
         $templateVars = [];
 
+/*        $data = [
+            'CUstomerId' => [
+                'name' => Custonername
+                'Orgas' => [
+                    OrgaId => [
+                        'OtgaName' => name
+                        'Anzahl der Verfahren' => count
+                    ]
+        ]
+            ]
+        ]:*/
+
         $procedureList = $procedureService->getProcedureFullList();
+
+        // T36299 track procedures created by organisation within any given customer
+        $allCustomers = $customerProvider->getAllCustomers();
+        $allCustomers = array_combine(
+            array_map(static fn (Customer $customer): string => $customer->getId(), $allCustomers),
+            array_map(static fn (Customer $customer): array => ['customerName' => $customer->getName(), 'Orgas' => []], $allCustomers)
+        );
 
         // Verfahrensschritte
         $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
@@ -79,6 +99,11 @@ class DemosPlanAdminController extends BaseController
 
         if ($procedureList['total'] > 0) {
             foreach ($procedureList['result'] as $procedureData) {
+                $customerId = $procedureData['customer'];
+                $orgaId = $procedureData['orga']->getId();
+                $orgaName = $procedureData['orga']->getName();
+                $orgaData = [ $orgaId => [ 'orgaName' => $orgaName], 'Anzahl der Verfahren' => 1];
+
                 $procedureData['phaseName'] = $this->globalConfig->getPhaseNameWithPriorityInternal($procedureData['phase']);
                 $procedureData['publicParticipationPhaseName'] = $this->globalConfig->getPhaseNameWithPriorityExternal($procedureData['publicParticipationPhase']);
                 $procedureData['statementStatistic'] = $globalStatementStatistic->getStatisticDataForProcedure($procedureData['id']);
