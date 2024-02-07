@@ -14,6 +14,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
@@ -71,20 +72,24 @@ class DemosPlanAdminController extends BaseController
                 'name' => Custonername
                 'Orgas' => [
                     OrgaId => [
-                        'OtgaName' => name
-                        'Anzahl der Verfahren' => count
+                        'OrgaName' => name
+                        'proceduresCreated' => count
                     ]
         ]
             ]
         ]:*/
 
+        // procedureList does not contain blueprints
         $procedureList = $procedureService->getProcedureFullList();
 
         // T36299 track procedures created by organisation within any given customer
         $allCustomers = $customerProvider->getAllCustomers();
         $allCustomers = array_combine(
             array_map(static fn (Customer $customer): string => $customer->getId(), $allCustomers),
-            array_map(static fn (Customer $customer): array => ['customerName' => $customer->getName(), 'Orgas' => []], $allCustomers)
+            array_map(
+                static fn (Customer $customer): array => ['customerName' => $customer->getName(), 'orgas' => []],
+                $allCustomers
+            )
         );
 
         // Verfahrensschritte
@@ -100,9 +105,20 @@ class DemosPlanAdminController extends BaseController
         if ($procedureList['total'] > 0) {
             foreach ($procedureList['result'] as $procedureData) {
                 $customerId = $procedureData['customer'];
-                $orgaId = $procedureData['orga']->getId();
-                $orgaName = $procedureData['orga']->getName();
-                $orgaData = [ $orgaId => [ 'orgaName' => $orgaName], 'Anzahl der Verfahren' => 1];
+                /** @var Orga $orga */
+                $orga = $procedureData['orga'];
+                if (null !== $customerId) {
+                    if (array_key_exists($orga->getId(), $allCustomers[$customerId]['orgas'])) {
+                        $allCustomers[$customerId]['orgas'][$orga->getId()]['proceduresCreated']++;
+                    } else {
+                        $allCustomers[$customerId]['orgas'][$orga->getId()] = [
+                            'orgaName' => $orga->getName(),
+                            'proceduresCreated' => 1,
+                        ];
+                    }
+                    // restore customerToLegacy behaviour
+                    $procedureData['customer'] = null;
+                }
 
                 $procedureData['phaseName'] = $this->globalConfig->getPhaseNameWithPriorityInternal($procedureData['phase']);
                 $procedureData['publicParticipationPhaseName'] = $this->globalConfig->getPhaseNameWithPriorityExternal($procedureData['publicParticipationPhase']);
@@ -122,7 +138,7 @@ class DemosPlanAdminController extends BaseController
                 }
             }
         }
-
+        $templateVars['orgaInCustomerProcedureCreatedCount'] = $allCustomers;
         $templateVars['internalPhases'] = $internalPhases;
         $templateVars['externalPhases'] = $externalPhases;
 
