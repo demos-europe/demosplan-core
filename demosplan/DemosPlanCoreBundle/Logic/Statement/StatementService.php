@@ -2179,8 +2179,11 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @throws Exception
      */
-    public function createElementsGroupStructure(string $procedureId, array $statementsIds, array $fragmentIds): StatementEntityGroup
-    {
+    public function createElementsGroupStructure(
+        string $procedureId,
+        array $statementsIds,
+        array $fragmentIds
+    ): StatementEntityGroup {
         $statements = $this->getStatementsByIds($statementsIds);
         $fragments = $this->statementFragmentRepository->getFragmentsById($fragmentIds);
         $entities = \array_merge($statements, $fragments);

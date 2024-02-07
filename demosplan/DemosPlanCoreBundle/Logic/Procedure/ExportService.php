@@ -78,7 +78,7 @@ class ExportService
     protected $procedureOutput;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\News\ServiceOutput NewsOutput
+     * @var NewsOutput NewsOutput
      */
     protected $newsOutput;
 
@@ -484,8 +484,11 @@ class ExportService
         return $zip;
     }
 
-    public function addAssessmentTableOriginalToZip(string $procedureId, string $procedureName, ZipStream $zip): ZipStream
-    {
+    public function addAssessmentTableOriginalToZip(
+        string $procedureId,
+        string $procedureName,
+        ZipStream $zip
+    ): ZipStream {
         $rParams = [
             'filters' => ['original' => 'IS NULL'],
             'request' => ['limit' => 1_000_000],
