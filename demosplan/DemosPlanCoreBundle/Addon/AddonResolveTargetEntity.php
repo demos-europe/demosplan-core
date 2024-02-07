@@ -57,6 +57,7 @@ class AddonResolveTargetEntity implements CompilerPassInterface
                 }
             }
         }
+        $definition->addTag('doctrine.event_subscriber', array('connection' => 'dplan'));
     }
 
     /**
