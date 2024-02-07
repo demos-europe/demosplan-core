@@ -19,10 +19,10 @@ use Zenstruck\Foundry\Proxy;
 
 class CustomerDeleterTest extends FunctionalTestCase
 {
-    /** @var array<int, Customer|Proxy>|null $testCustoemrs */
+    /** @var array<int, Customer|Proxy>|null */
     private ?array $testCustomers;
     private null|Customer|Proxy $testCustomerToDelete;
-    /** @var CustomerDeleter $sut */
+    /** @var CustomerDeleter */
     protected $sut;
     private ?SqlQueriesService $queriesService = null;
 
@@ -63,5 +63,4 @@ class CustomerDeleterTest extends FunctionalTestCase
         );
         self::assertCount(0, $match, 'CustomerFixture still found in Database');
     }
-
 }
