@@ -66,19 +66,6 @@ class DemosPlanAdminController extends BaseController
         $format
     ): ?Response {
         $templateVars = [];
-
-/*        $data = [
-            'CUstomerId' => [
-                'name' => Custonername
-                'Orgas' => [
-                    OrgaId => [
-                        'OrgaName' => name
-                        'proceduresCreated' => count
-                    ]
-        ]
-            ]
-        ]:*/
-
         // procedureList does not contain blueprints
         $procedureList = $procedureService->getProcedureFullList();
 
