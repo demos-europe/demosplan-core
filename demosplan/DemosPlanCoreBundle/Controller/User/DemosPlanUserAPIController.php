@@ -160,7 +160,7 @@ class DemosPlanUserAPIController extends APIController
             foreach ($users as $key => $user) {
                 $aiApiUsers = $this->userService->getSingleUser($user->getId())->getRoleInCustomers()->getValues();
                 foreach ($aiApiUsers as $aiApiUser) {
-                    if ($aiApiUser->getRole()->getCode() === RoleInterface::API_AI_COMMUNICATOR) {
+                    if (RoleInterface::API_AI_COMMUNICATOR === $aiApiUser->getRole()->getCode()) {
                         unset($users[$key]);
                     }
                 }
