@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
+use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
@@ -77,6 +79,8 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             $this->conditionFactory->propertyHasValue(false, $this->deleted),
             // never show internal Citizen user
             $this->conditionFactory->propertyHasNotValue(User::ANONYMOUS_USER_ID, $this->id),
+            // never show ApiAiUser
+            $this->conditionFactory->propertyHasNotValue( AiApiUser::AI_API_USER_ID, $this->id),
         ];
 
         // when user has more role besides RMOPSM s/he may be able to administer
