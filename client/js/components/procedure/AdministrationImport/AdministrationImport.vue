@@ -188,9 +188,7 @@ export default {
     if (hasPermission('feature_import_statement_pdf')) {
       promises.push(this.loadComponents('import.tabs'))
     }
-    Promise.allSettled([
-      promises
-    ])
+    Promise.allSettled(promises)
       .then(() => {
         this.allComponentsLoaded = true
         this.setActiveTabId()
