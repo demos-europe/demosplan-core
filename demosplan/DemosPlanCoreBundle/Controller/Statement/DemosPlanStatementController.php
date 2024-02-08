@@ -75,6 +75,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementListFilter
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Exception;
 use RuntimeException;
+use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -2456,7 +2457,7 @@ class DemosPlanStatementController extends BaseController
         XlsxStatementImport $importer
     ): void {
         if ($fileInfo instanceof FileInfo) {
-            $fileInfo = new \Symfony\Component\Finder\SplFileInfo(
+            $fileInfo = new SplFileInfo(
                 $fileInfo->getAbsolutePath(),
                 '',
                 $fileInfo->getHash()

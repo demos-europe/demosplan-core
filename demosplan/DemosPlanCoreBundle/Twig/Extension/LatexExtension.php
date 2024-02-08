@@ -42,6 +42,8 @@ class LatexExtension extends ExtensionBase
         '</del>'    => '}',
         '<s>'       => '\sout{',
         '</s>'      => '}',
+        '<mark title="markierter Text">'       => '\colorbox{yellow}{',
+        '</mark>'      => '}',
         '<i>'       => '{\itshape ',
         '</i>'      => '}',
         '<em>'      => '{\itshape ',
@@ -190,7 +192,7 @@ class LatexExtension extends ExtensionBase
             // Alle anderen Tags beseitigen
             $text = strip_tags(
                 $text,
-                '<p><table><tr><td><tcs2><tcs><tcs3><tcs4><tcs5><tcs6><th><br><ol><strike><u><s><del><i><ol><ul><li><b><strong><em><span><ins>'
+                '<p><table><tr><td><tcs2><tcs><tcs3><tcs4><tcs5><tcs6><th><br><ol><strike><u><s><del><i><ol><ul><li><b><strong><em><span><ins><mark>'
             );
 
             // remove <ins> title attribute
@@ -262,6 +264,8 @@ class LatexExtension extends ExtensionBase
      * Process Table.
      *
      * @param string $text
+     *
+     * @return mixed
      */
     public function processTable($text)
     {
