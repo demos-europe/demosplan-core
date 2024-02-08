@@ -30,6 +30,7 @@ use demosplan\DemosPlanCoreBundle\Logic\MessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Transformers\Document\DocumentDashboardTransformer;
+use Doctrine\Persistence\ManagerRegistry;
 use EDT\JsonApi\RequestHandling\MessageFormatter;
 use EDT\JsonApi\Validation\FieldsValidator;
 use EDT\Wrapping\TypeProviders\PrefilledTypeProvider;
@@ -53,7 +54,8 @@ class DemosPlanDocumentDashboardAPIController extends APIController
         GlobalConfigInterface $globalConfig,
         MessageBagInterface $messageBag,
         MessageFormatter $messageFormatter,
-        SchemaPathProcessor $schemaPathProcessor
+        SchemaPathProcessor $schemaPathProcessor,
+        private ManagerRegistry $managerRegistry
     ) {
         parent::__construct(
             $apiLogger,
@@ -159,7 +161,7 @@ class DemosPlanDocumentDashboardAPIController extends APIController
         }
 
         /** @var ProcedureRepository $procedureRepository */
-        $procedureRepository = $this->getDoctrine()->getRepository(Procedure::class);
+        $procedureRepository = $this->managerRegistry->getRepository(Procedure::class);
         $procedure->setSettings($procedureSettings);
         $updatedProcedure = $procedureRepository->updateObject($procedure);
         // always update elasticsearch as changes that where made only in

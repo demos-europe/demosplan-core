@@ -1205,6 +1205,7 @@ error.orga.register.request: "Beim Anlegen der Organisation ist ein Fehler aufge
 error.organisation.duplicated.slug: "Der Direktlink zu Verfahren mit der Endung {slug} ist bereits vergeben."
 error.organisation.invalid: "In den Daten der Organisation sind folgende Felder ungültig: {fields}. Bitte korrigieren Sie diese Werte, um Änderungen speichern zu können."
 error.organisation.cssvars.invalid: "Die eingetragenen CSS-Variablen sind ungültig. Es dürfen nur ausgewählte Variablen mit gültigen Farbwerten verwendet werden."
+error.organisation.merge.statements.existing: "Die neue Organisation hat bereits Stellungnahmen angelegt und/oder eingereicht und kann daher nicht mit einem bestehenden Eintrag zusammengeführt werden."
 error.organisation.not.created: "Die neue Organisation konnte nicht gespeichert werden"
 error.organisation.not.deleted: "Die ausgewählte Organisation konnte nicht gelöscht werden"
 error.organisation.not.existent: "Ausgewählte Organisation wurde nicht gefunden"

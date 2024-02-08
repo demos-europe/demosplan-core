@@ -970,7 +970,7 @@ class UserServiceTest extends FunctionalTestCase
         static::assertFalse($wipedUser->getNewsletter());
         static::assertFalse($wipedUser->isIntranet());
 
-        static::assertEquals('', $wipedUser->getUsername());
+        static::assertEquals('', $wipedUser->getUserIdentifier());
         static::assertEquals($departmentId, $wipedUser->getDepartment()->getId());
         static::assertEquals($orgaId, $wipedUser->getOrga()->getId());
         static::assertNull($wipedUser->getFirstname());

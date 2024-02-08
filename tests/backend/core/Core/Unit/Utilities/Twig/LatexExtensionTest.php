@@ -479,4 +479,16 @@ class LatexExtensionTest extends UnitTestCase
 
         self::assertStringContainsString('\sout{', $handledText);
     }
+
+    public function testHighlightTagReplacement(): void
+    {
+        $text = '<p><strong>bold</strong></p> <p><em>kursiv</em></p> <p><em><u>kusrivunterstrichen</u></em></p> <p><u>unterstrichen</u></p> <p><s>durchgestrichen</s></p> <p><mark title="markierter Text">markiert</mark></p> <p><mark title="markierter Text"><strong>boldmarkiert</strong></mark></p> <p><dp-obscure>geschwärzt</dp-obscure></p> ';
+
+        self::assertStringContainsString('<mark title="markierter Text">', $text);
+        self::assertStringContainsString('</mark>', $text);
+
+        $handledText = $this->sut->latexFilter($text);
+
+        self::assertStringContainsString('\colorbox{yellow}{', $handledText);
+    }
 }
