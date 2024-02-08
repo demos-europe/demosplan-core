@@ -1364,10 +1364,10 @@
   resolved "https://registry.yarnpkg.com/@csstools/selector-specificity/-/selector-specificity-3.0.0.tgz#798622546b63847e82389e473fd67f2707d82247"
   integrity sha512-hBI9tfBtuPIi885ZsZ32IMEU/5nlZH/KOVYJCOh7gyMxaVLGmLedYqFN6Ui1LXkI8JlC8IsuC0rF0btcRZKd5g==
 
-"@demos-europe/demosplan-ui@^0.3.5":
-  version "0.3.5"
-  resolved "https://registry.yarnpkg.com/@demos-europe/demosplan-ui/-/demosplan-ui-0.3.5.tgz#fa4bb0af3a0e0db2accc13ad8246d844df8e3f63"
-  integrity sha512-sf1daP3XxR4NWKMYmZ8GO9mKVDGRLoMOBp1wy7FdvcJUaNgeno/nW1RP0sjfbcb2tAIVIADsxWN8S64jhCKSpg==
+"@demos-europe/demosplan-ui@^0.3.6":
+  version "0.3.6"
+  resolved "https://registry.yarnpkg.com/@demos-europe/demosplan-ui/-/demosplan-ui-0.3.6.tgz#a83b630a7b5574ecf0bff34784a60c38e641dadf"
+  integrity sha512-mu0sZLYzmw/b+NG4u/ocQM1nKTQSjHg9kV0ReCtUAKxI51/jh+FEu2jYsuZKtHyPX+t9/jI6iQnUxpzAhHUX4A==
   dependencies:
     "@braintree/sanitize-url" "^7.0.0"
     "@floating-ui/dom" "^1.4.5"
@@ -4258,15 +4258,10 @@ domhandler@^5.0.2, domhandler@^5.0.3:
   dependencies:
     domelementtype "^2.3.0"
 
-dompurify@^3.0.0:
+dompurify@^3.0.0, dompurify@^3.0.6:
   version "3.0.8"
   resolved "https://registry.yarnpkg.com/dompurify/-/dompurify-3.0.8.tgz#e0021ab1b09184bc8af7e35c7dd9063f43a8a437"
   integrity sha512-b7uwreMYL2eZhrSCRC4ahLTeZcPZxSmYfmcQGXGkXiZSNW1X85v+SDM5KsWcpivIiUBH47Ji7NtyUdpLeF5JZQ==
-
-dompurify@^3.0.6:
-  version "3.0.6"
-  resolved "https://registry.yarnpkg.com/dompurify/-/dompurify-3.0.6.tgz#925ebd576d54a9531b5d76f0a5bef32548351dae"
-  integrity sha512-ilkD8YEnnGh1zJ240uJsW7AzE+2qpbOUYjacomn3AvJ6J4JhKGSZ2nh4wUIXPZrEPppaCLx5jFe8T89Rk8tQ7w==
 
 domutils@^3.0.1:
   version "3.1.0"
