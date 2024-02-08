@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -40,18 +48,18 @@ final class CustomerFactory extends ModelFactory
     protected function getDefaults(): array
     {
         return [
-            'accessibilityExplanation' => self::faker()->text(),
-            'baseLayerLayers' => self::faker()->text(4096),
-            'baseLayerUrl' => self::faker()->text(4096),
-            'dataProtection' => self::faker()->text(65535),
-            'imprint' => self::faker()->text(65535),
-            'mapAttribution' => self::faker()->text(4096),
-            'name' => self::faker()->text(50),
+            'accessibilityExplanation'            => self::faker()->text(),
+            'baseLayerLayers'                     => self::faker()->text(4096),
+            'baseLayerUrl'                        => self::faker()->text(4096),
+            'dataProtection'                      => self::faker()->text(65535),
+            'imprint'                             => self::faker()->text(65535),
+            'mapAttribution'                      => self::faker()->text(4096),
+            'name'                                => self::faker()->text(50),
             'overviewDescriptionInSimpleLanguage' => self::faker()->text(),
-            'signLanguageOverviewDescription' => self::faker()->text(),
-            'subdomain' => self::faker()->text(50),
-            'termsOfUse' => self::faker()->text(65535),
-            'xplanning' => self::faker()->text(65535),
+            'signLanguageOverviewDescription'     => self::faker()->text(),
+            'subdomain'                           => self::faker()->text(50),
+            'termsOfUse'                          => self::faker()->text(65535),
+            'xplanning'                           => self::faker()->text(65535),
         ];
     }
 
