@@ -12,7 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
 use DemosEurope\DemosplanAddon\Contracts\ApiRequest\JsonApiEsServiceInterface;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Logger\ApiLoggerInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
@@ -157,14 +156,6 @@ class DemosPlanUserAPIController extends APIController
                 $listResult = $jsonApiActionService->searchObjects($userType, $searchParams, $conditions, $sortMethods);
             }
             $users = $listResult->getList();
-            foreach ($users as $key => $user) {
-                $aiApiUsers = $this->userService->getSingleUser($user->getId())->getRoleInCustomers()->getValues();
-                foreach ($aiApiUsers as $aiApiUser) {
-                    if (RoleInterface::API_AI_COMMUNICATOR === $aiApiUser->getRole()->getCode()) {
-                        unset($users[$key]);
-                    }
-                }
-            }
 
             $adapter = new ArrayAdapter($users);
             $paginator = new DemosPlanPaginator($adapter);
