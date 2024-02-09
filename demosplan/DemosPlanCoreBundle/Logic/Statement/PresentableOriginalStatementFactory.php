@@ -126,7 +126,7 @@ class PresentableOriginalStatementFactory
         }
         $data->setOptionals($optionals);
 
-        $text = $this->editorService->handleObscureTags($statement->getText(), false);
+        $text = $this->editorService->handleObscureTags($statement->getText());
         $data->setStatementText($text);
 
         $movedToProcedureName = $statement->getMovedToProcedureName();
