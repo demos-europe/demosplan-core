@@ -127,6 +127,8 @@
         "symfony/var-exporter": "5.*.*",
         "symfony/yaml": "5.*.*",
         "tightenco/collect": "~8.83.0",
+        "ueberdosis/html-to-prosemirror": "^1.2",
+        "ueberdosis/prosemirror-to-html": "^2.1",
         "wgirhad/geophp": "^3.0",
         "willdurand/geocoder-bundle": "^5.16",
         "willdurand/js-translation-bundle": "~6.0",
