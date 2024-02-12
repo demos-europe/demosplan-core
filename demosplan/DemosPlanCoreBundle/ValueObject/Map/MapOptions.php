@@ -43,7 +43,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
  * @method        setDefaultProjection(array $defaultProjection)
  * @method string getBaseLayerProjection()
  * @method        setBaseLayerProjection(string $baseLayerProjection)
- * @method        getCopyright(string $copyright)
+ * @method        getCopyright()
  * @method        setCopyright(string $copyright)
  */
 class MapOptions extends ValueObject
