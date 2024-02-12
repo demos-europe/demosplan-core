@@ -440,6 +440,8 @@ export default {
     this.centerX = (this.maxExtent[0] + this.maxExtent[2]) / 2
     this.centerY = (this.maxExtent[1] + this.maxExtent[3]) / 2
 
+    this.options.defaultAttribution =  mapOptions.copyright
+
     // Initial view values that can be defined in options object
     if (this._options.initialExtent.length > 0) {
       this.initialExtent = this._options.initialExtent
