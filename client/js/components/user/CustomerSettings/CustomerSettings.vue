@@ -249,7 +249,7 @@ import CustomerSettingsBranding from './CustomerSettingsBranding'
 import CustomerSettingsLoginSupport from './CustomerSettingsLoginSupport'
 import CustomerSettingsSection from './CustomerSettingsSection'
 import CustomerSettingsSignLanguageVideo from './CustomerSettingsSignLanguageVideo'
-import CustomerSettingsSupport from './CustomerSettingsSupport'
+import CustomerLoginSupportContact from './CustomerLoginSupportContact'
 
 export default {
   name: 'CustomerSettings',
@@ -261,7 +261,7 @@ export default {
     CustomerSettingsMap: () => import('./CustomerSettingsMap'),
     CustomerSettingsSection,
     CustomerSettingsSignLanguageVideo,
-    CustomerSettingsSupport,
+    CustomerLoginSupportContact,
     DpLabel,
     DpLoading,
     DpEditor: async () => {
@@ -467,7 +467,7 @@ export default {
 
       if (hasPermission('feature_customer_support_contact_administration')) {
         this.requestIncludes.push('customerContacts')
-        this.addAttributesToField('CustomerSettingsSupport', ['title', 'text', 'phoneNumber', 'eMailAddress', 'visible'])
+        this.addAttributesToField('CustomerLoginSupportContact', ['title', 'text', 'phoneNumber', 'eMailAddress', 'visible'])
         this.addAttributesToField('Customer', ['customerContacts'])
       }
 
