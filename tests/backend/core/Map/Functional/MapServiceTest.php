@@ -324,7 +324,7 @@ class MapServiceTest extends FunctionalTestCase
     }
 
     /**
-     * Test that copyright saved in procedureSettings is retrieved when getting GetMapOptions
+     * Test that copyright saved in procedureSettings is retrieved when getting GetMapOptions.
      */
     public function testGetMapOptions()
     {
