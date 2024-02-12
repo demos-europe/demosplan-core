@@ -10,6 +10,7 @@
 
 namespace Tests\Core\Map\Functional;
 
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureSettingsFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
@@ -320,5 +321,16 @@ class MapServiceTest extends FunctionalTestCase
         $hash = array_pop($parts);
         $this->checkId($hash);
         self::assertSame("Map_$draftStatementOrStatementId.png", implode(':', $parts));
+    }
+
+    /**
+     * Test that copyright saved in procedureSettings is retrieved when getting GetMapOptions
+     */
+    public function testGetMapOptions()
+    {
+        $procedureSettings = ProcedureSettingsFactory::createOne();
+        $procedure = $procedureSettings->getProcedure();
+        $mapOptions = $this->sut->getMapOptions($procedure->getId());
+        self::assertSame($procedureSettings->getCopyright(), $mapOptions->getCopyright());
     }
 }
