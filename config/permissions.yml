@@ -1649,6 +1649,11 @@ feature_require_locality_confirmation:
     expose: false
     label: 'Submission of draft statements as statements requires to confirm the locality'
     loginRequired: true
+feature_require_procedure_contact_person:
+    description: 'When a procedure be created, in diplanbeteiligung should contact person be required, therefore field should be empty otherwise be k.A'
+    expose: false
+    lable: 'Allows to set contact person without use default value'
+    loginRequired: true
 feature_screenshot_map_nonpublic_printlayers:
     description: 'Enables having a gislayer which is not published but is used only as print/export layer.'
     label: 'Include GisLayers that are not enabled, but marked as print in map screenshots'
