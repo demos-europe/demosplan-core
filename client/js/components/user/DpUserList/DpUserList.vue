@@ -42,30 +42,11 @@
       class="u-ml u-mt" />
     <!-- List of all items -->
     <div
-      class="layout u-mb"
+      class="layout"
       v-if="false === isLoading">
-      <div class="u-mt">
-      <!--Button row --><!--
-     --><div class="text-right float-right inline-block u-4-of-7 u-mb-0_5">
-          <button
-            class="btn btn--primary inline"
-            value="inviteSelected"
-            name="manageUsers"
-            type="submit">
-            {{ Translator.trans('user.marked.invite') }}
-          </button>
-
-          <button
-            v-if="hasPermission('feature_user_delete') || true"
-            class="btn btn--warning inline"
-            type="button"
-            data-cy="deleteSelectedItems"
-            @click="deleteItems(selectedItems)">
-            {{ deleteSelectedUsersLabel }}
-          </button>
-        </div><!--
-   --><!-- 'Select all'-Checkbox --><!--
-     --><div class="layout__item u-3-of-7 inline-block">
+      <div class="u-mt flex">
+        <!-- 'Select all'-Checkbox -->
+        <div class="layout__item u-3-of-7">
           <input
             type="checkbox"
             id="select_all"
@@ -78,6 +59,25 @@
             class="cursor-pointer btn-icns inline-block">
             {{ Translator.trans('select.all.on.page') }}
           </label>
+        </div>
+        <!--Button row -->
+        <div class="text-right u-4-of-7 u-mb-0_5">
+          <button
+            class="btn btn--primary mb-1.5"
+            value="inviteSelected"
+            name="manageUsers"
+            type="submit">
+            {{ Translator.trans('user.marked.invite') }}
+          </button>
+
+          <button
+            v-if="hasPermission('feature_user_delete') || true"
+            class="btn btn--warning mb-1.5"
+            type="button"
+            data-cy="deleteSelectedItems"
+            @click="deleteItems(selectedItems)">
+            {{ deleteSelectedUsersLabel }}
+          </button>
         </div>
       </div>
     </div>

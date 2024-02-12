@@ -44,7 +44,6 @@ use demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRoleInCustomerRepository;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\TestUserValueObject;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\CustomerResourceInterface;
@@ -55,6 +54,7 @@ use Doctrine\ORM\ORMException;
 use DOMDocument;
 use Exception;
 use LSS\XML2Array;
+use Pagerfanta\Pagerfanta;
 use RuntimeException;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -276,36 +276,36 @@ class UserService extends CoreService implements UserServiceInterface
     public function addUser($data): User
     {
         try {
-            if (!array_key_exists(UserFlagKey::IS_NEW_USER, $data)) {
-                $data[UserFlagKey::IS_NEW_USER] = true;
+            if (!array_key_exists(UserFlagKey::IS_NEW_USER->value, $data)) {
+                $data[UserFlagKey::IS_NEW_USER->value] = true;
             }
 
-            if (!array_key_exists(UserFlagKey::PROFILE_COMPLETED, $data)) {
-                $data[UserFlagKey::PROFILE_COMPLETED] = false;
+            if (!array_key_exists(UserFlagKey::PROFILE_COMPLETED->value, $data)) {
+                $data[UserFlagKey::PROFILE_COMPLETED->value] = false;
             }
 
-            if (!array_key_exists(UserFlagKey::ACCESS_CONFIRMED, $data)) {
-                $data[UserFlagKey::ACCESS_CONFIRMED] = false;
+            if (!array_key_exists(UserFlagKey::ACCESS_CONFIRMED->value, $data)) {
+                $data[UserFlagKey::ACCESS_CONFIRMED->value] = false;
             }
 
-            if (!array_key_exists(UserFlagKey::INVITED, $data)) {
-                $data[UserFlagKey::INVITED] = false;
+            if (!array_key_exists(UserFlagKey::INVITED->value, $data)) {
+                $data[UserFlagKey::INVITED->value] = false;
             }
 
-            if (!array_key_exists(UserFlagKey::NO_USER_TRACKING, $data)) {
-                $data[UserFlagKey::NO_USER_TRACKING] = false;
+            if (!array_key_exists(UserFlagKey::NO_USER_TRACKING->value, $data)) {
+                $data[UserFlagKey::NO_USER_TRACKING->value] = false;
             }
 
-            if (!array_key_exists(UserFlagKey::SUBSCRIBED_TO_NEWSLETTER, $data)) {
-                $data[UserFlagKey::SUBSCRIBED_TO_NEWSLETTER] = false;
+            if (!array_key_exists(UserFlagKey::SUBSCRIBED_TO_NEWSLETTER->value, $data)) {
+                $data[UserFlagKey::SUBSCRIBED_TO_NEWSLETTER->value] = false;
             }
 
-            if (!array_key_exists(UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED, $data)) {
-                $data[UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED] = true;
+            if (!array_key_exists(UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED->value, $data)) {
+                $data[UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED->value] = true;
             }
 
-            if (!array_key_exists(UserFlagKey::WANTS_FORUM_NOTIFICATIONS, $data)) {
-                $data[UserFlagKey::WANTS_FORUM_NOTIFICATIONS] = false;
+            if (!array_key_exists(UserFlagKey::WANTS_FORUM_NOTIFICATIONS->value, $data)) {
+                $data[UserFlagKey::WANTS_FORUM_NOTIFICATIONS->value] = false;
             }
 
             $data['customer'] = $this->customerService->getCurrentCustomer();
@@ -1039,11 +1039,9 @@ class UserService extends CoreService implements UserServiceInterface
     /**
      * Liste der InvitableInstitutionsichtbarkeitenänderungen anfordern.
      *
-     * @return DemosPlanPaginator
-     *
      * @throws Exception
      */
-    public function getInvitableInstitutionShowlistChanges()
+    public function getInvitableInstitutionShowlistChanges(): Pagerfanta
     {
         try {
             return $this->reportService->getInvitableInstitutionShowlistChanges();

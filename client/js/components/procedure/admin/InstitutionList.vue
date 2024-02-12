@@ -21,7 +21,7 @@
       :items="institutionList"
       class="u-mt-2">
       <template v-slot:institution="rowData">
-        <ul class="o-list max-width-350">
+        <ul class="o-list max-w-12">
           <li>
             {{ rowData.institution }}
           </li>

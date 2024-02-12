@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
-use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
@@ -292,7 +292,7 @@ abstract class AbstractStatementResourceType extends DplanResourceType
             ->readable()->aliasedPath(Paths::statement()->fragments);
         $configBuilder->document
             ->setRelationshipType($this->resourceTypeStore->getSingleDocumentResourceType())
-            ->readable(false, static function (Statement $statement): ?SingleDocument {
+            ->readable(false, static function (Statement $statement): ?SingleDocumentInterface {
                 $documentVersion = $statement->getDocument();
                 if (null === $documentVersion) {
                     return null;

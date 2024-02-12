@@ -74,7 +74,7 @@
             class="o-link"
             :class="{'color-status-complete-text': link.done()}">
             <i
-              class="width-20"
+              class="w-[20px]"
               :class="{'fa fa-check color-status-complete-fill': link.done(), 'fa fa-plus': !link.done()}"
               aria-hidden="true" />{{ link.done() ? Translator.trans(link.labelDone) : Translator.trans(link.label) }}
           </a>

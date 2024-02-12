@@ -38,7 +38,7 @@ logs
 /.env.local
 /.env.local.php
 /.env.*.local
-/demosplan/DemosPlanCoreBundle/Resources/config/secrets/prod/prod.decrypt.private.php
+/config/secrets/prod/prod.decrypt.private.php
 /public/bundles/
 /var/
 /vendor/

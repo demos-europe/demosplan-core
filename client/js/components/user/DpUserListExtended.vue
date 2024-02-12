@@ -49,13 +49,14 @@
       <dp-user-list-extended-item
         v-for="(user, id) in users"
         :key="user.id"
+        :all-departments="departments"
         :all-organisations="organisations"
         :user="user"
         @delete="deleteSingelUser(user.id)"
         :is-open="expandedCardId === id"
         @card:toggle="setExpandedCardId(id)"
         @item:selected="dpToggleOne"
-        :selected="hasOwnProp(itemSelections, user.id) && itemSelections[user.id] === true" />
+        :selected="Object.hasOwn(itemSelections, user.id) && itemSelections[user.id] === true" />
     </ul>
 
     <!-- pager -->
@@ -73,8 +74,7 @@ import {
   debounce,
   dpApi, DpButton,
   DpLoading,
-  dpSelectAllMixin,
-  hasOwnProp
+  dpSelectAllMixin
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
@@ -109,14 +109,12 @@ export default {
       ],
       isFiltered: false,
       isLoading: true,
-      organisations: []
+      organisations: [],
+      departments: []
     }
   },
 
   computed: {
-    ...mapState('department', {
-      departments: 'items'
-    }),
     ...mapState('role', {
       roles: 'items'
     }),
@@ -131,6 +129,7 @@ export default {
     },
 
     selectedItems () {
+      // The prop `itemSelections` and the method `dpToggleOne` are from `dpSelectAllMixin`
       return Object.keys(this.users).filter(id => this.itemSelections[id])
     }
   },
@@ -154,7 +153,7 @@ export default {
 
       return this.deleteUser(id)
         .then(() => {
-          this.deleteUserFromSelection(id)
+          dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
         })
     },
 
@@ -166,17 +165,9 @@ export default {
       ids.map(id => {
         return this.deleteUser(id)
           .then(() => {
-            this.deleteUserFromSelection(id)
+            dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
           })
       })
-    },
-
-    /**
-     * Remove deleted item from itemSelections
-     */
-    deleteUserFromSelection (id) {
-      Vue.delete(this.itemSelections, id)
-      dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
     },
 
     /**
@@ -186,20 +177,28 @@ export default {
     fetchOrganisations () {
       const url = Routing.generate('api_resource_list', { resourceType: 'Orga' })
       return dpApi.get(url, {
-        include: 'masterToeb,departments',
-        'fields[Department]': [
-          'name'
-        ].join(),
-        'fields[Orga]': [
-          'departments',
-          'masterToeb',
-          'name'
-        ].join()
+        include: ['departments', 'orga', 'masterToeb'].join(),
+        fields: {
+          Orga: ['departments', 'masterToeb', 'name'].join(),
+          MasterToeb: ['id'].join()
+        }
+      }, { serialize: true })
+        .then((response) => {
+          this.organisations = response?.data?.data ?? {}
+        })
+        .catch(e => console.error(e))
+    },
+
+    fetchDepartments () {
+      const url = Routing.generate('api_resource_list', { resourceType: 'Department' })
+      return dpApi.get(url, {
+        include: 'departments',
+        fields: {
+          Department: ['name'].join()
+        }
       })
         .then((response) => {
-          if (hasOwnProp(response.data, 'data')) {
-            this.organisations = response.data.data
-          }
+          this.departments = response?.data?.data ?? {}
         })
         .catch(e => console.error(e))
     },
@@ -208,7 +207,7 @@ export default {
      * Fetch users and their relationships
      */
     fetchResources () {
-      const reqs = [this.departmentList(), this.fetchOrganisations(), this.roleList()]
+      const reqs = [this.departmentList(), this.fetchOrganisations(), this.fetchDepartments(), this.roleList()]
       Promise.all(reqs)
         .then(() => {
           this.getUsersByPage()
@@ -273,10 +272,6 @@ export default {
       this.getFilteredUsers()
       this.isFiltered = true
       this.setExpandedCardId('')
-    },
-
-    hasOwnProp (obj, prop) {
-      return hasOwnProp(obj, prop)
     },
 
     resetSearch () {

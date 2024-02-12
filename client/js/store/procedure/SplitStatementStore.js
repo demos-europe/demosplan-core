@@ -229,8 +229,8 @@ const SplitStatementStore = {
               for (let j = i + 1; j < segments.length; j++) {
                 // Check for overlap
                 if (
-                  (segments[i].charStart >= segments[j].charStart && segments[i].charStart <= segments[j].charEnd) ||
-                  (segments[j].charStart >= segments[i].charStart && segments[j].charStart <= segments[i].charEnd)
+                  (segments[i].charStart > segments[j].charStart && segments[i].charStart < segments[j].charEnd) ||
+                  (segments[j].charStart > segments[i].charStart && segments[j].charStart < segments[i].charEnd)
                 ) {
                   // Overlapping segments found
                   segments = []

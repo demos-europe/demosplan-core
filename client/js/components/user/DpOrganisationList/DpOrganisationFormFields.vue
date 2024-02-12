@@ -28,7 +28,7 @@
           v-if="canEdit('name')"
           type="text"
           :id="organisation.id + ':orgaName'"
-          class="width-100p u-mb-0_5 block"
+          class="w-full u-mb-0_5 block"
           style="height: 27px;"
           data-cy="orgaName"
           @input="emitOrganisationUpdate"
@@ -51,7 +51,7 @@
           v-if="canEdit('street')"
           type="text"
           :id="organisation.id + 'addressStreet'"
-          class="width-100p u-mb-0_5"
+          class="w-full u-mb-0_5"
           style="height: 27px;"
           data-cy="addressStreet"
           @input="emitOrganisationUpdate"
@@ -80,7 +80,7 @@
           v-if="canEdit('houseNumber')"
           type="text"
           :id="organisation.id + 'addressHouseNumber'"
-          class="width-100p u-mb-0_5"
+          class="w-full u-mb-0_5"
           style="height: 27px;"
           data-cy="addressJouseNumber"
           @input="emitOrganisationUpdate"
@@ -103,7 +103,7 @@
               v-if="canEdit('postalcode')"
               type="text"
               :id="organisation.id + ':addressPostalCode'"
-              class="width-100p"
+              class="w-full"
               style="height: 27px;"
               data-cy="addressPostalCode"
               pattern="^[0-9]{5}$"
@@ -130,7 +130,7 @@
               v-if="canEdit('city')"
               type="text"
               :id="organisation.id + ':addressCity'"
-              class="width-100p"
+              class="w-full"
               style="height: 27px;"
               data-cy="addressCity"
               @input="emitOrganisationUpdate"
@@ -160,7 +160,7 @@
           v-if="canEdit('phone')"
           type="text"
           :id="organisation.id + ':addressPhone'"
-          class="width-100p u-mb-0_5"
+          class="w-full u-mb-0_5"
           style="height: 27px;"
           data-cy="addressPhone"
           @input="emitOrganisationUpdate"
@@ -329,7 +329,7 @@
         </p>
         <input
           v-if="canEdit('slug')"
-          class="width-100p inline u-mb-0_5 u-1-of-3 organisationSlug"
+          class="w-full inline u-mb-0_5 u-1-of-3 organisationSlug"
           style="height: 27px;"
           type="text"
           :data-organisation-id="organisation.id"
@@ -559,7 +559,7 @@
           v-cleanhtml="Translator.trans('explanation.organisation.copies.kind')" />
 
         <textarea
-          class="height-130"
+          class="h-9"
           data-cy="copiesKind"
           @input="emitOrganisationUpdate"
           v-model="localOrganisation.attributes.copySpec" />
@@ -574,7 +574,7 @@
       </p>
 
       <textarea
-        class="height-130"
+        class="h-9"
         data-cy="competence"
         @input="emitOrganisationUpdate"
         v-model="localOrganisation.attributes.competence" />
@@ -631,7 +631,7 @@
             {{ Translator.trans('reason.change') }}*
           </span>
           <textarea
-            class="height-130"
+            class="h-9"
             data-cy="listShowChange"
             @input="emitOrganisationUpdate"
             :name="organisation.id + ':showlistChangeReason'"

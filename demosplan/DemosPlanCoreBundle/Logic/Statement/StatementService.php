@@ -66,6 +66,7 @@ use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\ClusterCitizenInstitutio
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\KeysAtEndSorter;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\KeysAtStartSorter;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\ParagraphOrderSorter;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\TitleGroupsSorter;
 use demosplan\DemosPlanCoreBundle\Logic\Consultation\ConsultationTokenService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
@@ -172,9 +173,6 @@ class StatementService extends CoreService implements StatementServiceInterface
     /** @var PriorityAreaService */
     protected $priorityAreaService;
 
-    /** @var ParagraphService */
-    protected $paragraphService;
-
     /** @var ElementsService */
     protected $serviceElements;
 
@@ -245,7 +243,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         HashedQueryService $filterSetService,
         JsonApiPaginationParser $paginationParser,
         private readonly MessageBagInterface $messageBag,
-        ParagraphService $paragraphService,
+        protected ParagraphService $paragraphService,
         PermissionsInterface $permissions,
         PriorityAreaService $priorityAreaService,
         private readonly ProcedureRepository $procedureRepository,
@@ -281,7 +279,6 @@ class StatementService extends CoreService implements StatementServiceInterface
         $this->entityContentChangeService = $entityContentChangeService;
         $this->filterSetService = $filterSetService;
         $this->paginationParser = $paginationParser;
-        $this->paragraphService = $paragraphService;
         $this->permissions = $permissions;
         $this->priorityAreaService = $priorityAreaService;
         $this->procedureService = $procedureService;
@@ -396,7 +393,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             } elseif (\array_key_exists('county', $data['statementAttributes']) && 0 < \strlen((string) $data['statementAttributes']['county'])) {
                 try {
                     $attrRepo->addCounty($statement, $data['statementAttributes']['county']);
-                } catch (Exception $e) {
+                } catch (Exception) {
                     $attrRepo->removeCounty($statement);
                 }
             }
@@ -560,7 +557,11 @@ class StatementService extends CoreService implements StatementServiceInterface
             $this->statementAttributeRepository->copyStatementAttributes($draftStatement, $originalStatement);
 
             // Create a statement copy for the assessment table
-            $assessableStatement = $this->statementCopier->copyStatementObjectWithinProcedure($originalStatement, false);
+            $assessableStatement = $this->statementCopier->copyStatementObjectWithinProcedureWithRelatedFiles(
+                $originalStatement,
+                false,
+                true
+            );
 
             $assessableStatement = $this->postSubmitDraftStatement($assessableStatement, $draftStatement);
 
@@ -714,6 +715,16 @@ class StatementService extends CoreService implements StatementServiceInterface
     public function getExternIdsInUse(string $procedureId): array
     {
         return $this->statementRepository->getExternIdsInUse($procedureId);
+    }
+
+    /**
+     * @param non-empty-string $procedureId
+     *
+     * @return array<non-empty-string, non-empty-string>
+     */
+    public function getInternIdsInUse(string $procedureId): array
+    {
+        return $this->statementRepository->getInternIdsInUse($procedureId);
     }
 
     /**
@@ -1251,7 +1262,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      * Determines if one of the fields which only can be modified on a manual statement, should be updated.
      *
      * @param statement|array $statement        - Statement as array or object
-     * @param statement       $currentStatement - current unmodified statement object, to compare with incoming update data
+     * @param Statement       $currentStatement - current unmodified statement object, to compare with incoming update data
      *
      * @return bool - true if one of the 'critical' fields should be updated, otherwise false
      */
@@ -1823,7 +1834,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                     // Legacy wird der Paragraph und nicht ParagraphVersion zurückgegeben!
                     $parentParagraph = $statement['paragraph']->getParagraph();
                     $statement['paragraph'] = $this->entityHelper->toArray($parentParagraph);
-                } catch (Exception $e) {
+                } catch (Exception) {
                     // Einige alte Einträge verweisen möcglicherweise noch nicht auf eine ParagraphVersion
                     $this->logger->error(
                         'No ParagraphVersion found for Id '.DemosPlanTools::varExport($statement['paragraph']->getId(), true)
@@ -2168,8 +2179,11 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @throws Exception
      */
-    public function createElementsGroupStructure(string $procedureId, array $statementsIds, array $fragmentIds): StatementEntityGroup
-    {
+    public function createElementsGroupStructure(
+        string $procedureId,
+        array $statementsIds,
+        array $fragmentIds
+    ): StatementEntityGroup {
         $statements = $this->getStatementsByIds($statementsIds);
         $fragments = $this->statementFragmentRepository->getFragmentsById($fragmentIds);
         $entities = \array_merge($statements, $fragments);
@@ -2237,8 +2251,14 @@ class StatementService extends CoreService implements StatementServiceInterface
             ['getElementId' => $notDividableGroupKeys]
         );
 
-        $noManualSortElementsIds = $this->serviceElements->getHiddenElementsIdsForProcedureId($procedureId);
+        // sort the paragraphs by their order
+        $this->statementEntityGrouper->sortSubgroupsAtDepth(
+            $group,
+            new ParagraphOrderSorter($this->paragraphService),
+            2
+        );
 
+        $noManualSortElementsIds = $this->serviceElements->getHiddenElementsIdsForProcedureId($procedureId);
         // sorting only needed if there are elements to be moved to the end
         if (0 < count($noManualSortElementsIds)) {
             // sort hidden elements to end: sort elements not manually sortable in the admin list (because hidden) at the end
@@ -2402,7 +2422,13 @@ class StatementService extends CoreService implements StatementServiceInterface
     public function collectRequest(array $rParams): array
     {
         return \collect($rParams)->filter(
-            static fn ($value, string $key) => str_starts_with($key, 'r_') && ((\is_string($value) && '' !== $value) || (\is_array($value) && 0 < count($value)))
+            static function ($value, string $key) {
+                if ('r_submitterEmailAddress' === $key) {
+                    return str_starts_with($key, 'r_') && (\is_string($value) || (\is_array($value) && 0 < count($value)));
+                } else {
+                    return str_starts_with($key, 'r_') && ((\is_string($value) && '' !== $value) || (\is_array($value) && 0 < count($value)));
+                }
+            }
         )->mapWithKeys(
             static function ($stringOrArrayValue, string $key) {
                 // Use substr without r_ as key

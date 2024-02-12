@@ -62,7 +62,7 @@
      --><div class="layout__item u-1-of-12 text-right">
             <i
               class="fa fa-link u-mr-0_5"
-              v-tooltip="{ content: Translator.trans('explanation.gislayer.visibilitygroup'), classes: 'max-width-none' }" />
+              v-tooltip="{ content: Translator.trans('explanation.gislayer.visibilitygroup'), classes: 'max-w-none' }" />
         </div><!--
 
      --><div class="layout__item u-1-of-12 text-right">

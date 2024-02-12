@@ -23,7 +23,7 @@ use Tightenco\Collect\Support\Collection;
 class TransformMessageBagService
 {
     private FlashBagInterface $flashBag;
-    private string $env;
+    private readonly string $env;
 
     public function __construct(
         KernelInterface $kernel,

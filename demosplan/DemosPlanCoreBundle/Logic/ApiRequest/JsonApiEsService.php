@@ -280,6 +280,7 @@ class JsonApiEsService implements JsonApiEsServiceInterface
             $apiPagination = new APIPagination();
             $apiPagination->setSize($pagination->getSize());
             $apiPagination->setNumber($pagination->getNumber());
+            $apiPagination->lock();
         }
 
         return $this->getEsFilteredObjects($type, $prefilteredIdentifiers, $searchParams, [], true, $sortMethods, $apiPagination);

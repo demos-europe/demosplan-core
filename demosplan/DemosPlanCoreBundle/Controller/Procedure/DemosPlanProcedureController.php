@@ -59,7 +59,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureCategoryService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput as ProcedureServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceStorage;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
@@ -188,7 +187,7 @@ class DemosPlanProcedureController extends BaseController
      * @throws MessageBagException
      */
     #[Route(path: '/plan/{slug}', name: 'core_procedure_slug')]
-    public function procedureSlugAction(CurrentUserInterface $currentUser, ServiceOutput $procedureOutput, string $slug = '')
+    public function procedureSlugAction(CurrentUserInterface $currentUser, ProcedureServiceOutput $procedureOutput, string $slug = '')
     {
         try {
             $slugify = new Slugify();
@@ -1687,7 +1686,7 @@ class DemosPlanProcedureController extends BaseController
                                 $savedStatement->getExternId(),
                                 $currentProcedureService->getProcedureWithCertainty()
                             );
-                    } catch (GdprConsentRequiredException $e) {
+                    } catch (GdprConsentRequiredException) {
                         $this->getMessageBag()->add('warning', 'warning.gdpr.consent');
 
                         return $this->redirectToRoute('DemosPlan_procedure_public_detail', ['procedureId' => $procedureId]);
@@ -1719,7 +1718,7 @@ class DemosPlanProcedureController extends BaseController
                     // Benachrichtige das Template, dass ein Emailversand erwünscht war
                     $templateVars['wantsEmail'] = true;
                 }
-            } catch (ValidatorException $e) {
+            } catch (ValidatorException) {
                 // Werte ins Template übergeben
                 $templateVars['request'] = $requestPost;
             } catch (ViolationsException $e) {

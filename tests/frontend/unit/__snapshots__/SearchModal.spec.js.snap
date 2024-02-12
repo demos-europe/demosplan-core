@@ -2,7 +2,7 @@
 
 exports[`SearchModal renders the correct markup for activated field_statement_municipality 1`] = `
 "<div class=\\"flex\\"><label class=\\"relative u-m-0\\"><button data-cy=\\"searchAssessmentWordButton\\" class=\\"btn-icns fa fa-search c-at__controls-input-button\\"></button>
-    <dp-input-stub autocomplete=\\"\\" datacounter=\\"\\" datacy=\\"searchAssessmentWordField\\" datadpvalidateerror=\\"\\" datadpvalidateerrorfieldname=\\"\\" datadpvalidateif=\\"\\" datadpvalidateshouldequal=\\"\\" hasicon=\\"true\\" id=\\"searchterm\\" label=\\"[object Object]\\" name=\\"search_word2\\" pattern=\\"\\" placeholder=\\"searchterm\\" preventdefaultonenter=\\"true\\" type=\\"text\\" value=\\"\\" width=\\"width-350\\" aria-label=\\"search.assessment.table\\"></dp-input-stub>
+    <dp-input-stub autocomplete=\\"\\" datacounter=\\"\\" datacy=\\"searchAssessmentWordField\\" datadpvalidateerror=\\"\\" datadpvalidateerrorfieldname=\\"\\" datadpvalidateif=\\"\\" datadpvalidateshouldequal=\\"\\" hasicon=\\"true\\" id=\\"searchterm\\" label=\\"[object Object]\\" name=\\"search_word2\\" pattern=\\"\\" placeholder=\\"searchterm\\" preventdefaultonenter=\\"true\\" type=\\"text\\" value=\\"\\" width=\\"w-12\\" aria-label=\\"search.assessment.table\\"></dp-input-stub>
   </label> <button type=\\"button\\" data-cy=\\"searchAdvanced\\" class=\\"btn--blank o-link--default inline-block u-m-0 u-p-0 u-ml-0_5\\">
     search.advanced
   </button>
@@ -21,7 +21,7 @@ exports[`SearchModal renders the correct markup for activated field_statement_mu
       <h3 class=\\"u-mt-0_25\\">
         search.in
       </h3>
-      <div class=\\"max-height-300 width-100p align-top overflow-auto u-mb\\">
+      <div class=\\"max-h-12 w-full align-top overflow-auto u-mb\\">
         <div class=\\"layout--flush\\">
           <dp-checkbox-stub datacy=\\"\\" datadpvalidateerrorfieldname=\\"\\" id=\\"statementText\\" label=\\"[object Object]\\" name=\\"search_fields[]\\" valuetosend=\\"1\\" class=\\"layout__item u-1-of-2\\"></dp-checkbox-stub>
           <dp-checkbox-stub datacy=\\"\\" datadpvalidateerrorfieldname=\\"\\" id=\\"authorName\\" label=\\"[object Object]\\" name=\\"search_fields[]\\" valuetosend=\\"1\\" class=\\"layout__item u-1-of-2\\"></dp-checkbox-stub>
@@ -52,7 +52,7 @@ exports[`SearchModal renders the correct markup for activated field_statement_mu
 
 exports[`SearchModal renders the correct markup with deactivated feature_statements_tag and feature_statement_fragments_tag 1`] = `
 "<div class=\\"flex\\"><label class=\\"relative u-m-0\\"><button data-cy=\\"searchAssessmentWordButton\\" class=\\"btn-icns fa fa-search c-at__controls-input-button\\"></button>
-    <dp-input-stub autocomplete=\\"\\" datacounter=\\"\\" datacy=\\"searchAssessmentWordField\\" datadpvalidateerror=\\"\\" datadpvalidateerrorfieldname=\\"\\" datadpvalidateif=\\"\\" datadpvalidateshouldequal=\\"\\" hasicon=\\"true\\" id=\\"searchterm\\" label=\\"[object Object]\\" name=\\"search_word2\\" pattern=\\"\\" placeholder=\\"searchterm\\" preventdefaultonenter=\\"true\\" type=\\"text\\" value=\\"\\" width=\\"width-350\\" aria-label=\\"search.assessment.table\\"></dp-input-stub>
+    <dp-input-stub autocomplete=\\"\\" datacounter=\\"\\" datacy=\\"searchAssessmentWordField\\" datadpvalidateerror=\\"\\" datadpvalidateerrorfieldname=\\"\\" datadpvalidateif=\\"\\" datadpvalidateshouldequal=\\"\\" hasicon=\\"true\\" id=\\"searchterm\\" label=\\"[object Object]\\" name=\\"search_word2\\" pattern=\\"\\" placeholder=\\"searchterm\\" preventdefaultonenter=\\"true\\" type=\\"text\\" value=\\"\\" width=\\"w-12\\" aria-label=\\"search.assessment.table\\"></dp-input-stub>
   </label> <button type=\\"button\\" data-cy=\\"searchAdvanced\\" class=\\"btn--blank o-link--default inline-block u-m-0 u-p-0 u-ml-0_5\\">
     search.advanced
   </button>
@@ -71,7 +71,7 @@ exports[`SearchModal renders the correct markup with deactivated feature_stateme
       <h3 class=\\"u-mt-0_25\\">
         search.in
       </h3>
-      <div class=\\"max-height-300 width-100p align-top overflow-auto u-mb\\">
+      <div class=\\"max-h-12 w-full align-top overflow-auto u-mb\\">
         <div class=\\"layout--flush\\">
           <dp-checkbox-stub datacy=\\"\\" datadpvalidateerrorfieldname=\\"\\" id=\\"statementText\\" label=\\"[object Object]\\" name=\\"search_fields[]\\" valuetosend=\\"1\\" class=\\"layout__item u-1-of-2\\"></dp-checkbox-stub>
           <dp-checkbox-stub datacy=\\"\\" datadpvalidateerrorfieldname=\\"\\" id=\\"authorName\\" label=\\"[object Object]\\" name=\\"search_fields[]\\" valuetosend=\\"1\\" class=\\"layout__item u-1-of-2\\"></dp-checkbox-stub>
