@@ -39,6 +39,7 @@ class MapOptionsTransformer extends BaseTransformer
             'availableProjections'          => $mapOptions->getAvailableProjections(),
             'defaultProjection'             => $mapOptions->getDefaultProjection(),
             'baseLayerProjection'           => $mapOptions->getBaseLayerProjection(),
+            'copyright'                     => $mapOptions->getCopyright(),
         ];
     }
 }
