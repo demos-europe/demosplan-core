@@ -73,7 +73,7 @@
         <select
           id="r_target_procedure"
           name="r_target_procedure"
-          class="width-100p u-mb"
+          class="w-full u-mb"
           v-model="selectedProcedureId">
           <option value="">
             -

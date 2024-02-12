@@ -228,7 +228,7 @@ export default {
     },
 
     updateOrganisation (payload) {
-      this.setItem({ ...payload, id: payload.id, group: null })
+      this.setItem({ ...payload, id: payload.id })
     }
   }
 }

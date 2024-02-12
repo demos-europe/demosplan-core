@@ -47,6 +47,7 @@
 <template>
   <dp-flyout
     align="left"
+    :data-cy="label"
     :padded="false"
     @open="handleOpen"
     @close="handleClose"
@@ -67,8 +68,7 @@
     </template>
 
     <div
-      style="min-width: 300px;"
-      class="border--bottom u-p-0_5">
+      class="min-w-12 border--bottom u-p-0_5">
       <dp-resettable-input
         :id="`searchField_${path}`"
         :input-attributes="{ placeholder: Translator.trans('search.list'), type: 'search' }"
@@ -83,7 +83,7 @@
     <div v-else>
       <div
         :style="maxHeight"
-        class="width-100p border--bottom overflow-y-scroll u-p-0_5">
+        class="w-full border--bottom overflow-y-scroll u-p-0_5">
         <ul
           v-if="getUngroupedItems().length"
           class="o-list line-height--1_6">

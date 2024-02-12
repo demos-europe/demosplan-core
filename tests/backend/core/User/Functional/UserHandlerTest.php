@@ -23,7 +23,7 @@ use Tests\Base\FunctionalTestCase;
 class UserHandlerTest extends FunctionalTestCase
 {
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\User\UserHandler
+     * @var UserHandler
      */
     protected $sut;
 
@@ -91,7 +91,7 @@ class UserHandlerTest extends FunctionalTestCase
         static::assertNotNull($userToWipe->getLastname());
         static::assertNotNull($userToWipe->getPassword());
 
-        static::assertEquals('myLoginString', $userToWipe->getUsername());
+        static::assertEquals('myLoginString', $userToWipe->getUserIdentifier());
 
         static::assertNotEmpty($userToWipe->getEmail());
         static::assertNotEmpty($userToWipe->getSalt());
@@ -140,7 +140,7 @@ class UserHandlerTest extends FunctionalTestCase
         static::assertTrue(is_array($wipedUser->getRoles()));
         static::assertCount(0, $wipedUser->getRoles());
 
-        static::assertEquals('', $wipedUser->getUsername());
+        static::assertEquals('', $wipedUser->getUserIdentifier());
         static::assertEquals($departmentId, $wipedUser->getDepartment()->getId());
         static::assertEquals($orgaId, $wipedUser->getOrga()->getId());
 
@@ -156,7 +156,7 @@ class UserHandlerTest extends FunctionalTestCase
         /** @var User $testUser */
         $testUser = $this->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
         $user = $this->sut->setAccessConfirmed($testUser);
-        self::assertTrue($user->getFlag(UserFlagKey::ACCESS_CONFIRMED));
+        self::assertTrue($user->getFlag(UserFlagKey::ACCESS_CONFIRMED->value));
         self::assertEquals($testUser->getId(), $user->getId());
     }
 

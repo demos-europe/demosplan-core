@@ -115,7 +115,7 @@
             submitDate,
             submitName
           }">
-          <ul class="o-list max-width-350">
+          <ul class="o-list max-w-12">
             <li
               v-if="authorName !== '' || submitName !== ''"
               class="o-list__item o-hellip--nowrap">
@@ -364,7 +364,7 @@ export default {
       },
       headerFields: [
         { field: 'externId', label: Translator.trans('id') },
-        { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'width-100' },
+        { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'w-8' },
         { field: 'meta', label: Translator.trans('submitter.invitable_institution') },
         { field: 'text', label: Translator.trans('text') },
         { field: 'segmentsCount', label: Translator.trans('segments') }
@@ -575,7 +575,7 @@ export default {
       const statement = this.statementsObject[statementId]
       if (typeof statement !== 'undefined') {
         const dataToUpdate = { ...statement, ...{ relationships: { ...statement.relationships, ...{ assignee: { data: { type: 'Claim', id: this.currentUserId } } } } } }
-        this.setStatement({ ...dataToUpdate, id: statementId, group: null })
+        this.setStatement({ ...dataToUpdate, id: statementId })
 
         const payload = {
           data: {
@@ -628,7 +628,7 @@ export default {
     unclaimStatement (statementId) {
       const statement = this.statementsObject[statementId]
       const dataToUpdate = { ...statement, ...{ relationships: { ...statement.relationships, ...{ assignee: { data: { type: 'Claim', id: null } } } } } }
-      this.setStatement({ ...dataToUpdate, id: statementId, group: null })
+      this.setStatement({ ...dataToUpdate, id: statementId })
 
       const payload = {
         data: {
@@ -676,7 +676,6 @@ export default {
         'submitName',
         'submitType',
         'submitterEmailAddress',
-        'synchronized',
         'text',
         'textIsTruncated',
         // Relationships:
@@ -684,6 +683,9 @@ export default {
         'attachments',
         'segments'
       ]
+      if (this.isSourceAndCoupledProcedure) {
+        statementFields.push('synchronized')
+      }
       if (hasPermission('area_statement_segmentation')) {
         statementFields.push('segmentDraftList')
       }
@@ -715,10 +717,6 @@ export default {
           Statement: statementFields.join(),
           File: [
             'hash'
-          ].join(),
-          // Segments are only counted, no data needed here.
-          StatementSegment: [
-            'id'
           ].join()
         }
       }).then((data) => {
@@ -738,7 +736,7 @@ export default {
     getOriginalPdfAttachmentHash (el) {
       if (el.hasRelationship('attachments')) {
         const originalAttachment = Object.values(el.relationships.attachments.list())
-          .filter(attachment => attachment.attributes.type === 'source_statement')
+          .filter(attachment => attachment.attributes.attachmentType === 'source_statement')
         if (originalAttachment.length === 1) {
           return originalAttachment[0].relationships.file.get().attributes.hash
         }

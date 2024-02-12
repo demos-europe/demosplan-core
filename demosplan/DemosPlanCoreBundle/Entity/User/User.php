@@ -51,6 +51,9 @@ use function in_array;
  */
 class User implements SamlUserInterface, AddonUserInterface
 {
+    public const HEARING_AUTHORITY_ROLES = [RoleInterface::HEARING_AUTHORITY_ADMIN, RoleInterface::HEARING_AUTHORITY_WORKER];
+    public const PLANNING_AGENCY_ROLES = [RoleInterface::PLANNING_AGENCY_ADMIN, RoleInterface::PLANNING_AGENCY_WORKER];
+    public const PUBLIC_AGENCY_ROLES = [RoleInterface::PUBLIC_AGENCY_COORDINATION, RoleInterface::PUBLIC_AGENCY_WORKER];
     /**
      * @var string|null
      *
@@ -698,7 +701,7 @@ class User implements SamlUserInterface, AddonUserInterface
      */
     public function getNoPiwik(): bool
     {
-        return $this->getFlagValue(UserFlagKey::NO_USER_TRACKING);
+        return $this->getFlagValue(UserFlagKey::NO_USER_TRACKING->value);
     }
 
     /**
@@ -707,22 +710,22 @@ class User implements SamlUserInterface, AddonUserInterface
     public function setNoPiwik($noPiwik)
     {
         // set Piwikflag
-        $this->setFlagValue(UserFlagKey::NO_USER_TRACKING, $noPiwik);
+        $this->setFlagValue(UserFlagKey::NO_USER_TRACKING->value, $noPiwik);
     }
 
     public function getAssignedTaskNotification(): bool
     {
-        return $this->getFlagValue(UserFlagKey::ASSIGNED_TASK_NOTIFICATION);
+        return $this->getFlagValue(UserFlagKey::ASSIGNED_TASK_NOTIFICATION->value);
     }
 
     public function setAssignedTaskNotification(bool $assignedTaskNotification)
     {
-        $this->setFlagValue(UserFlagKey::ASSIGNED_TASK_NOTIFICATION, $assignedTaskNotification);
+        $this->setFlagValue(UserFlagKey::ASSIGNED_TASK_NOTIFICATION->value, $assignedTaskNotification);
     }
 
     public function getNewsletter(): bool
     {
-        return $this->getFlagValue(UserFlagKey::SUBSCRIBED_TO_NEWSLETTER);
+        return $this->getFlagValue(UserFlagKey::SUBSCRIBED_TO_NEWSLETTER->value);
     }
 
     /**
@@ -730,12 +733,12 @@ class User implements SamlUserInterface, AddonUserInterface
      */
     public function setNewsletter($newsletter)
     {
-        $this->setFlagValue(UserFlagKey::SUBSCRIBED_TO_NEWSLETTER, $newsletter);
+        $this->setFlagValue(UserFlagKey::SUBSCRIBED_TO_NEWSLETTER->value, $newsletter);
     }
 
     public function isNewUser(): bool
     {
-        return $this->getFlagValue(UserFlagKey::IS_NEW_USER);
+        return $this->getFlagValue(UserFlagKey::IS_NEW_USER->value);
     }
 
     /**
@@ -743,7 +746,7 @@ class User implements SamlUserInterface, AddonUserInterface
      */
     public function setNewUser($newUser)
     {
-        $this->setFlagValue(UserFlagKey::IS_NEW_USER, $newUser);
+        $this->setFlagValue(UserFlagKey::IS_NEW_USER->value, $newUser);
     }
 
     public function isIntranet(): bool
@@ -761,7 +764,7 @@ class User implements SamlUserInterface, AddonUserInterface
 
     public function isProfileCompleted(): bool
     {
-        return $this->getFlagValue(UserFlagKey::PROFILE_COMPLETED);
+        return $this->getFlagValue(UserFlagKey::PROFILE_COMPLETED->value);
     }
 
     /**
@@ -769,7 +772,7 @@ class User implements SamlUserInterface, AddonUserInterface
      */
     public function setProfileCompleted($profileCompleted)
     {
-        $this->setFlagValue(UserFlagKey::PROFILE_COMPLETED, $profileCompleted);
+        $this->setFlagValue(UserFlagKey::PROFILE_COMPLETED->value, $profileCompleted);
     }
 
     /**
@@ -801,9 +804,9 @@ class User implements SamlUserInterface, AddonUserInterface
         return $this->hasAnyOfRoles($plannerRoles);
     }
 
-    public function isHearingAuthority(): bool
+    public function isHearingAuthority(Customer $customer = null): bool
     {
-        return $this->hasAnyOfRoles([RoleInterface::HEARING_AUTHORITY_ADMIN, RoleInterface::HEARING_AUTHORITY_WORKER]);
+        return $this->hasAnyOfRoles(self::HEARING_AUTHORITY_ROLES, $customer);
     }
 
     /**
@@ -814,19 +817,14 @@ class User implements SamlUserInterface, AddonUserInterface
         return $this->hasAnyOfRoles([RoleInterface::HEARING_AUTHORITY_ADMIN, RoleInterface::PLANNING_AGENCY_ADMIN]);
     }
 
-    public function isPlanningAgency(): bool
+    public function isPlanningAgency(Customer $customer = null): bool
     {
-        return $this->hasAnyOfRoles([RoleInterface::PLANNING_AGENCY_ADMIN, RoleInterface::PLANNING_AGENCY_WORKER]);
+        return $this->hasAnyOfRoles(self::PLANNING_AGENCY_ROLES, $customer);
     }
 
     public function isPublicAgency(): bool
     {
-        $publicAgencyRoles = [
-            RoleInterface::PUBLIC_AGENCY_COORDINATION,
-            RoleInterface::PUBLIC_AGENCY_WORKER,
-        ];
-
-        return $this->hasAnyOfRoles($publicAgencyRoles);
+        return $this->hasAnyOfRoles(self::PUBLIC_AGENCY_ROLES);
     }
 
     /**
@@ -839,7 +837,7 @@ class User implements SamlUserInterface, AddonUserInterface
 
     public function getForumNotification(): bool
     {
-        return $this->getFlagValue(UserFlagKey::WANTS_FORUM_NOTIFICATIONS);
+        return $this->getFlagValue(UserFlagKey::WANTS_FORUM_NOTIFICATIONS->value);
     }
 
     /**
@@ -847,12 +845,12 @@ class User implements SamlUserInterface, AddonUserInterface
      */
     public function setForumNotification($forumNotification)
     {
-        $this->setFlagValue(UserFlagKey::WANTS_FORUM_NOTIFICATIONS, $forumNotification);
+        $this->setFlagValue(UserFlagKey::WANTS_FORUM_NOTIFICATIONS->value, $forumNotification);
     }
 
     public function isAccessConfirmed(): bool
     {
-        return $this->getFlagValue(UserFlagKey::ACCESS_CONFIRMED);
+        return $this->getFlagValue(UserFlagKey::ACCESS_CONFIRMED->value);
     }
 
     /**
@@ -860,12 +858,12 @@ class User implements SamlUserInterface, AddonUserInterface
      */
     public function setAccessConfirmed($accessConfirmed)
     {
-        $this->setFlagValue(UserFlagKey::ACCESS_CONFIRMED, $accessConfirmed);
+        $this->setFlagValue(UserFlagKey::ACCESS_CONFIRMED->value, $accessConfirmed);
     }
 
     public function isInvited(): bool
     {
-        return $this->getFlagValue(UserFlagKey::INVITED);
+        return $this->getFlagValue(UserFlagKey::INVITED->value);
     }
 
     /**
@@ -873,7 +871,7 @@ class User implements SamlUserInterface, AddonUserInterface
      */
     public function setInvited($invited)
     {
-        $this->setFlagValue(UserFlagKey::INVITED, $invited);
+        $this->setFlagValue(UserFlagKey::INVITED->value, $invited);
     }
 
     /**
@@ -1467,10 +1465,10 @@ class User implements SamlUserInterface, AddonUserInterface
         return in_array($role, $this->getDplanRolesArray($customer));
     }
 
-    public function hasAnyOfRoles(array $roles): bool
+    public function hasAnyOfRoles(array $roles, Customer $customer = null): bool
     {
         foreach ($roles as $role) {
-            if ($this->hasRole($role)) {
+            if ($this->hasRole($role, $customer)) {
                 return true;
             }
         }
@@ -1532,12 +1530,12 @@ class User implements SamlUserInterface, AddonUserInterface
 
     public function getDraftStatementSubmissionReminderEnabled(): bool
     {
-        return $this->getFlagValue(UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED);
+        return $this->getFlagValue(UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED->value);
     }
 
     public function setDraftStatementSubmissionReminderEnabled(bool $draftStatementSubmissionReminderEnabled)
     {
-        $this->setFlagValue(UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED, $draftStatementSubmissionReminderEnabled);
+        $this->setFlagValue(UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED->value, $draftStatementSubmissionReminderEnabled);
     }
 
     /**
@@ -1549,6 +1547,13 @@ class User implements SamlUserInterface, AddonUserInterface
     {
         return $this->roleInCustomers
             ->map(static fn (UserRoleInCustomerInterface $roleInCustomer) => $roleInCustomer->getCustomer())->toArray();
+    }
+
+    public function isConnectedToCustomerId(string $customerId): bool
+    {
+        return $this->roleInCustomers
+            ->map(static fn (UserRoleInCustomerInterface $roleInCustomer): ?string => $roleInCustomer->getCustomer()?->getId())
+            ->contains($customerId);
     }
 
     /**

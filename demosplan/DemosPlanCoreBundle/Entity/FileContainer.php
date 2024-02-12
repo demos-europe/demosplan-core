@@ -91,7 +91,7 @@ class FileContainer extends CoreEntity implements UuidEntityInterface, FileConta
     protected $fileString;
 
     /**
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\File")
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\File", cascade={"persist"})
      *
      * @ORM\JoinColumn(name="file_id", referencedColumnName="_f_ident", nullable=false, onDelete="CASCADE")
      */

@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Addon\Registrator;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
+use RuntimeException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -59,7 +60,7 @@ class AddonUninstallCommand extends CoreCommand
         $addonsInfos = $this->registry->getAddonInfos();
 
         if (empty($addonsInfos)) {
-            $output->info("No addons installed, nothing to uninstall");
+            $output->info('No addons installed, nothing to uninstall');
 
             return self::SUCCESS;
         }
@@ -75,7 +76,7 @@ class AddonUninstallCommand extends CoreCommand
             $name = $this->getHelper('question')->ask($input, $output, $question);
         }
 
-        if(!array_key_exists($name, $addonsInfos)) {
+        if (!array_key_exists($name, $addonsInfos)) {
             $output->error("Addon $name not found");
 
             return self::FAILURE;
@@ -92,15 +93,14 @@ class AddonUninstallCommand extends CoreCommand
             $this->deleteDirectory($addonInfo, $output);
             // run composer remove <name>
             $this->removeComposerPackage($addonInfo, $output);
-
         } catch (IOExceptionInterface $e) {
-            $output->error("An error occurred while deleting the directory at ".
-                $e->getPath().": ".$e->getMessage().".");
+            $output->error('An error occurred while deleting the directory at '.
+                $e->getPath().': '.$e->getMessage().'.');
 
             return self::FAILURE;
         } catch (JsonException $e) {
-            $output->error("An error occurred while loading the package definition: ".
-                $e->getMessage().".");
+            $output->error('An error occurred while loading the package definition: '.
+                $e->getMessage().'.');
 
             return self::FAILURE;
         } catch (Exception $e) {
@@ -113,6 +113,7 @@ class AddonUninstallCommand extends CoreCommand
 
         return self::SUCCESS;
     }
+
     /**
      * @throws JsonException
      */
@@ -127,6 +128,7 @@ class AddonUninstallCommand extends CoreCommand
 
         return $loader->load($composerJsonArray);
     }
+
     /**
      * @throws IOExceptionInterface
      */
@@ -140,14 +142,14 @@ class AddonUninstallCommand extends CoreCommand
             $filesystem->remove($symlinkedPath);
         }
         $filesystem->remove($installPath);
-        $output->info("Addon successfully deleted from cache directory.");
+        $output->info('Addon successfully deleted from cache directory.');
     }
 
     private function removeEntryInAddonsDefinition(AddonInfo $addonInfo, SymfonyStyle $output): void
     {
         $package = $this->loadPackageDefinition($addonInfo);
         $this->registrator->remove($package);
-        $output->info("Addon entry in addons.yml deleted successfully.");
+        $output->info('Addon entry in addons.yml deleted successfully.');
     }
 
     private function removeComposerPackage(AddonInfo $addonInfo, SymfonyStyle $output): void
@@ -163,8 +165,8 @@ class AddonUninstallCommand extends CoreCommand
             ->run();
 
         if (0 !== $batchReturn) {
-            throw new \RuntimeException('Composer remove failed');
+            throw new RuntimeException('Composer remove failed');
         }
-        $output->info("composer package removed successfully.");
+        $output->info('composer package removed successfully.');
     }
 }

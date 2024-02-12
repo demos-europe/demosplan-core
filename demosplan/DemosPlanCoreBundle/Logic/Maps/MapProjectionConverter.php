@@ -56,28 +56,23 @@ class MapProjectionConverter
         $i = 0;
         foreach ($features as $feature) {
             if (null !== $geometry = data_get($feature, 'geometry')) {
-                switch ($geometry->type) {
-                    case 'Polygon':
-                        $newCoordinates = $this->convertPolygon(
-                            $geometry->coordinates,
-                            $currentProjection,
-                            $newProjection
-                        );
-                        break;
-                    case 'Point':
-                        $newCoordinates = $this->convertPoint(
-                            $geometry->coordinates,
-                            $currentProjection,
-                            $newProjection
-                        );
-                        break;
-                    default:
-                        $newCoordinates = $this->convertLinear(
-                            $geometry->coordinates,
-                            $currentProjection,
-                            $newProjection
-                        );
-                }
+                $newCoordinates = match ($geometry->type) {
+                    'Polygon' => $this->convertPolygon(
+                        $geometry->coordinates,
+                        $currentProjection,
+                        $newProjection
+                    ),
+                    'Point' => $this->convertPoint(
+                        $geometry->coordinates,
+                        $currentProjection,
+                        $newProjection
+                    ),
+                    default => $this->convertLinear(
+                        $geometry->coordinates,
+                        $currentProjection,
+                        $newProjection
+                    ),
+                };
                 $result->features[$i]->geometry->coordinates = $newCoordinates;
             }
             ++$i;

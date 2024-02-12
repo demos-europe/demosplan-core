@@ -29,7 +29,7 @@
           :label="Translator.trans('assign.for.editing')"
         >
           <dp-multiselect
-            class="width-300"
+            class="w-12"
             id="assignSegment"
             :disabled="!hasSegments"
             :options="assignableUsers"
@@ -44,7 +44,7 @@
           id="selectAssignPlaceAction"
           :label="Translator.trans('segments.bulk.edit.place.add')">
           <dp-multiselect
-            class="width-300"
+            class="w-12"
             id="assignPlace"
             :disabled="!hasPlaces"
             :options="places"

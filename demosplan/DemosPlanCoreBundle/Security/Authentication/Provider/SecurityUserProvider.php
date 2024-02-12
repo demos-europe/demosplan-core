@@ -40,7 +40,7 @@ class SecurityUserProvider implements UserProviderInterface, PasswordUpgraderInt
         // as the SecurityUser is only meant to be used during Authentication.
         // In {@DemosPlanResponseListener::transformTokenUserObjectToSecurityUserObject()} we
         // transform the User object to a SecurityUser object to save it between requests.
-        return $this->loadUserByLogin($user->getUsername());
+        return $this->loadUserByLogin($user->getUserIdentifier());
     }
 
     public function supportsClass(string $class): bool

@@ -156,6 +156,7 @@ class RemoveUserDataCommand extends CoreCommand
         $projectName = strtoupper($this->parameterBag->get('project_name'));
         if ('BOBHH' === $projectName || 'BOPHH' === $projectName) {
             $this->output->writeln('This command is not supported for the current project');
+
             // in case of this command should be workable for HH too.
             // _master_toeb
             // _master_toeb_versions
@@ -721,7 +722,7 @@ class RemoveUserDataCommand extends CoreCommand
             if (null !== $entityContentChange->getUserId()) {
                 $userOfChange = $this->userService->getSingleUser($entityContentChange->getUserId());
                 if ($userOfChange instanceof User) {
-                    $nameToUse = $userOfChange->getUsername();
+                    $nameToUse = $userOfChange->getUserIdentifier();
                 }
             }
 

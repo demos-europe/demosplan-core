@@ -15,7 +15,8 @@
         v-text="Translator.trans('attachment.original')" />
       <statement-meta-attachments-link
         v-if="attachments.originalAttachment.hash"
-        :attachment="attachments.originalAttachment" />
+        :attachment="attachments.originalAttachment"
+        :procedure-id="procedureId" />
       <p
         v-else
         class="color--grey"

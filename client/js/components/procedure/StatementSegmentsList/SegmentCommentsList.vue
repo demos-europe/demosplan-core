@@ -20,7 +20,7 @@
       <div>
         <dp-button
           v-if="segment"
-          class="width-100p u-mt u-mb"
+          class="w-full u-mt u-mb"
           data-cy="addCommentToSegment"
           @click="toggleForm"
           :text="Translator.trans('comment.add.to_segment', { segmentExternId: segment.attributes.externId })"

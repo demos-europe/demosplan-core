@@ -45,7 +45,7 @@ export default {
    */
   render () {
     const immediateComponent = {
-      template: `<div class='text-wrapper width-fit-content' data-cy='textWrapper'>${this.text}</div>`,
+      template: `<div class='text-wrapper w-fit' data-cy='textWrapper'>${this.text}</div>`,
       data () {
         return this.dataText
       }

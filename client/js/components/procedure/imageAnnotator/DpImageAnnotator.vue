@@ -20,7 +20,7 @@
           :labels="selectElementLabels"
           @set-label="setLabel" />
         <dp-sticky-element>
-          <div class="u-ml width-300">
+          <div class="u-ml w-12">
             <p
               class="weight--bold">
               {{ Translator.trans('tool.active') }}
