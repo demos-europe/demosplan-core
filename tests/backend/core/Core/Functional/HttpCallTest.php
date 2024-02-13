@@ -1,10 +1,20 @@
 <?php
+
 declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace Tests\Core\Core\Functional;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpClient\Response\MockResponse;
@@ -12,10 +22,9 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class HttpCallTest extends TestCase
 {
-
     public function testRequestThrowsExceptionIfPathNotSet(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         $httpClient = $this->createMock(HttpClientInterface::class);
         $logger = $this->createMock(LoggerInterface::class);
@@ -59,9 +68,9 @@ class HttpCallTest extends TestCase
                 $method,
                 $path,
                 [
-                    'body' => $data,
+                    'body'    => $data,
                     'headers' => ['Content-Type' => 'application/json'], // Assuming content type is set
-                    'proxy' => $expected,
+                    'proxy'   => $expected,
                 ]
             )
             ->willReturn(new MockResponse('Response content'));
