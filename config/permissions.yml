@@ -1161,7 +1161,7 @@ feature_new_statement_form:
     label: 'Stell. verf. Formular anzeigen'
     loginRequired: true
     parent: feature_statement
-feature_not_show_notice_comment_release_draft_statement:
+feature_show_notice_draft_statement:
     description: 'some project with Gateway as a project type (diplanbeteiligung) should not be show not for submitter in statement public'
     expose: false
     label: 'note show'
