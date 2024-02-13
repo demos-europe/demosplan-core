@@ -249,7 +249,7 @@ import CustomerSettingsBranding from './CustomerSettingsBranding'
 import CustomerSettingsLoginSupport from './CustomerSettingsLoginSupport'
 import CustomerSettingsSection from './CustomerSettingsSection'
 import CustomerSettingsSignLanguageVideo from './CustomerSettingsSignLanguageVideo'
-import CustomerLoginSupportContact from './CustomerLoginSupportContact'
+import CustomerLoginSupportContact from './CustomerSettingsSupport.vue'
 
 export default {
   name: 'CustomerSettings',

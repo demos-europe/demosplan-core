@@ -94,7 +94,7 @@ const emptyCustomer = {
   visible: false
 }
 export default {
-  name: 'CustomerLoginSupportContact',
+  name: 'CustomerSettingsSupport',
 
   components: {
     DpBadge,
