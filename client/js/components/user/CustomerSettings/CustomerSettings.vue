@@ -249,7 +249,7 @@ import CustomerSettingsBranding from './CustomerSettingsBranding'
 import CustomerSettingsLoginSupport from './CustomerSettingsLoginSupport'
 import CustomerSettingsSection from './CustomerSettingsSection'
 import CustomerSettingsSignLanguageVideo from './CustomerSettingsSignLanguageVideo'
-import CustomerLoginSupportContact from './CustomerSettingsSupport.vue'
+import CustomerSettingsSupport from './CustomerSettingsSupport'
 
 export default {
   name: 'CustomerSettings',
@@ -261,7 +261,7 @@ export default {
     CustomerSettingsMap: () => import('./CustomerSettingsMap'),
     CustomerSettingsSection,
     CustomerSettingsSignLanguageVideo,
-    CustomerLoginSupportContact,
+    CustomerSettingsSupport,
     DpLabel,
     DpLoading,
     DpEditor: async () => {
