@@ -73,6 +73,27 @@ class SqlQueriesService extends CoreService
     }
 
     /**
+     * @throws Exception
+     */
+    public function fetchFromTableByExcludedParameter(array $targetColumns, string $tableName, string $identifier, array $parameter): array
+    {
+        if (!$this->doesTableExist($tableName)) {
+            echo "No table with the name $tableName exists in this database. Data could not be fetched.";
+
+            return [];
+        }
+
+        $fetchQueryBuilder = $this->dbConnection->createQueryBuilder();
+        $fetchQueryBuilder
+            ->select(...$targetColumns)
+            ->from($tableName)
+            ->where($identifier.' NOT IN (:idList)')
+            ->setParameter('idList', $parameter, ArrayParameterType::STRING);
+
+        return $fetchQueryBuilder->fetchAllAssociative();
+    }
+
+    /**
      * This is necessary to even allow us to delete all tables individually.
      *
      * @throws Exception
