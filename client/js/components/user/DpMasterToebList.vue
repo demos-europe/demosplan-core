@@ -16,68 +16,68 @@
     <dp-sticky-element
       v-if="isMounted"
       ref="header"
-      :observe-context="false"
-      :class="{'u-1-of-1': isFullscreen}">
+      :class="{'u-1-of-1': isFullscreen}"
+      :observe-context="false">
       <div
         class="text-right"
         :class="{'u-pb-0_5': isFullscreen, 'u-pv-0_5': !isFullscreen}">
         <button
           class="btn--blank color-main u-mt-0_125 u-mr-0_75"
-          type="button"
-          @click="() => fullscreen()"
+          aria-expanded="false"
           aria-haspopup="true"
-          aria-role="navigation"
           :aria-label="Translator.trans('editor.fullscreen')"
-          aria-expanded="false">
+          aria-role="navigation"
+          type="button"
+          @click="() => fullscreen()">
           <i
             class="fa fa-arrows-alt"
             aria-hidden="true" />
           {{ fullscreenText }}
         </button>
         <a
-          class="btn--blank u-mt-0_125 u-mr-0_75"
           v-if="hasPermission('area_manage_mastertoeblist') || hasPermission('area_use_mastertoeblist')"
+          class="btn--blank u-mt-0_125 u-mr-0_75"
           :href="Routing.generate('DemosPlan_user_mastertoeblist_export')">
           {{ Translator.trans('export') }}
         </a>
         <!-- responsible for adding new master toeb organisations, should only be displayed if a user may edit organisations -->
         <dp-new-master-toeb
-          class="inline"
           v-if="isEditable"
-          :fields="filteredFields"
+          class="inline"
           :bool-to-string-fields="boolToStringFields"
+          :fields="filteredFields"
           @orga-added="insertOrga" /><!--
      --><dp-invite-master-toeb
-          class="inline"
           v-if="isEditable === false"
-          :selected-toeb-ids="selectedItems"
-          :procedure-id="procedureId" />
+          class="inline"
+          :procedure-id="procedureId"
+          :selected-toeb-ids="selectedItems" />
       </div>
       <div class="flex u-pb-0_5">
         <!-- Search field -->
         <input
-          class="o-form__control-input u-mr-0_5"
-          type="text"
-          :placeholder="Translator.trans('search')"
           v-model="searchString"
+          class="o-form__control-input u-mr-0_5"
+          :placeholder="Translator.trans('search')"
+          type="text"
           @input="searchItems">
         <dp-filter-master-toeb
           v-if="isEditable === false"
-          @items-filtered="setFilteredItems"
           class="inline"
+          :fields="fields"
           :items="currentItems"
-          :fields="fields" />
+          @items-filtered="setFilteredItems" />
         <!-- dropdown to select cols to be shown/hidden -->
         <div
           class="c-actionmenu o-page__switcher-menu"
           data-actionmenu>
           <button
             class="btn--blank color-main c-actionmenu__trigger"
-            type="button"
+            aria-expanded="false"
             aria-haspopup="true"
-            aria-role="navigation"
             :aria-label="Translator.trans('table.cols.hide')"
-            aria-expanded="false">
+            aria-role="navigation"
+            type="button">
             {{ Translator.trans('table.cols.hide') }}
             <i class="fa fa-caret-down u-ml-0_25" />
           </button>
@@ -87,18 +87,18 @@
             <div class="max-h-13 overflow-y-auto">
               <label class="lbl--text u-pl-0_5 u-mb-0_25 w-10 border--bottom">
                 <input
-                  type="checkbox"
                   checked
+                  type="checkbox"
                   @change="toggleAllCols">
                 {{ Translator.trans('aria.select.all') }}
               </label>
               <label
                 v-for="(filterField, idx) in filteredFields"
-                class="lbl--text u-pl-0_5 u-mb-0_25 w-10"
-                :key="idx">
+                :key="`${filterField}-${idx}`"
+                class="lbl--text u-pl-0_5 u-mb-0_25 w-10">
                 <input
-                  type="checkbox"
                   v-model="filters[filterField.field]"
+                  type="checkbox"
                   @change="updateFields()">
                 {{ filterField.value }}
               </label>
@@ -118,38 +118,38 @@
       :items="onPageItems"
       :search-string="searchString"
       track-by="oId"
-      @items-selected="setSelectedItems"
-      v-scroller>
+      v-scroller
+      @items-selected="setSelectedItems">
       <template
         v-for="headerField in headerFields"
         v-slot:[headerField.field]="rowData">
         <dp-update-mastertoeb
           v-if="headerField.field !== 'deletion'"
           :key="headerField.field"
-          :value="transformValue(rowData[headerField.field], headerField.field)"
-          :is-editing="editModeElementId === rowData.ident && editModeElementField === headerField.field" />
+          :is-editing="editModeElementId === rowData.ident && editModeElementField === headerField.field"
+          :value="transformValue(rowData[headerField.field], headerField.field)" />
         <dp-delete-master-toeb
-          :key="headerField.field"
           v-if="headerField.field === 'deletion' && isEditable"
+          :key="headerField.field"
           :orga-id="rowData.ident"
           @orga-deleted="removeOrga" />
       </template>
       <template
         v-for="headerField in headerFields"
-        v-slot:[`header-${headerField.field}`]="headerData">
+        v-slot:[`header-${headerField.field}`]>
         <div
           v-if="headerField.field !== 'deletion'"
           :key="headerField.field"
           class="whitespace-nowrap u-pr-0_5 relative">
           <button
             class="btn--blank u-top-0 u-right-0 absolute"
-            @click="setOrder(headerData.field)"
-            type="button">
+            type="button"
+            @click="setOrder(headerField.field)">
             <i
               class="fa"
-              :class="(headerData.field === sortOrder.key) ? (sortOrder.direction === 1 ? 'fa-sort-up color-highlight' : 'fa-sort-down color-highlight') : 'fa-sort color--grey'" />
+              :class="(headerField.field === sortOrder.key) ? (sortOrder.direction === 1 ? 'fa-sort-up color-highlight' : 'fa-sort-down color-highlight') : 'fa-sort color--grey'" />
           </button>
-          {{ headerData.value }}
+          {{ headerField.value }}
         </div>
         <i
           v-if="headerField.field === 'deletion'"
@@ -162,9 +162,9 @@
     <!-- Sticky Footer below table - the u-1-of-1 is just a hack to not have to refresh sticky when going into fullscreen -->
     <dp-sticky-element
       v-if="isMounted"
-      direction="bottom"
       ref="footer"
-      class="c-mastertoeb__footer">
+      class="c-mastertoeb__footer"
+      direction="bottom">
       <!-- The scrollBar element serves as a "custom" horizontal scrollbar by forcing its child to be the same width as the dataTable -->
       <div
         ref="scrollBar"
@@ -182,10 +182,10 @@
           @page-change="handlePageChange" />
         <dp-select-page-item-count
           class="inline"
-          @changed-count="setPageItemCount"
-          :page-count-options="itemsPerPageOptions"
           :current-item-count="itemsPerPage"
-          :translations="{ pagerElementsPerPage: Translator.trans('pager.per.page') }" />
+          :label-text="Translator.trans('pager.per.page')"
+          :page-count-options="itemsPerPageOptions"
+          @changed-count="setPageItemCount" />
       </div>
     </dp-sticky-element>
   </div>
@@ -289,25 +289,25 @@ export default {
     return {
       boolToStringFields: ['documentRoughAgreement', 'documentAgreement', 'documentNotice', 'documentAssessment'],
       currentPage: 1,
-      editModeElementId: '',
+      deletedItems: {},
       editModeElementField: '',
+      editModeElementId: '',
+      filteredItems: {},
       filters: this.fields.reduce((obj, item) => {
         obj[item.field] = true
         return obj
       }, {}),
-      itemsPerPageOptions: [10, 50, 100, 200],
-      itemsPerPage: 50,
-      updatedItems: this.possiblyInsertDeletion(this.items),
-      rowItems: this.possiblyInsertDeletion(this.items),
-      sortOrder: { key: 'orgaName', direction: 1 },
-      searchString: '',
       isFullscreen: false,
       isHighlighted: '',
       isMounted: false,
-      selectedItems: [],
-      filteredItems: {},
+      itemsPerPageOptions: [10, 50, 100, 200],
+      itemsPerPage: 50,
+      rowItems: this.possiblyInsertDeletion(this.items),
       searchedItems: {},
-      deletedItems: {}
+      searchString: '',
+      selectedItems: [],
+      sortOrder: { key: 'orgaName', direction: 1 },
+      updatedItems: this.possiblyInsertDeletion(this.items)
     }
   },
 
@@ -347,6 +347,55 @@ export default {
   },
 
   methods: {
+    /**
+     * This method adds ids and fields to each cell as a data attribute. This is needed for later use in the event listener.
+     * The row index is set as a safety check to see later if there haven't been any shifts between cells and their
+     * corresponding items in this.onPageItems.
+     * @param table
+     * @param currentItems
+     */
+    addCellIdsAndFields (table, currentItems) {
+      const rows = Array.prototype.slice.call(table.getElementsByTagName('tr'))
+      rows.forEach((row, idx) => {
+        row.setAttribute('data-index', idx)
+        this.addCellAttributes(Array.prototype.slice.call(row.children), currentItems[idx])
+      })
+    },
+
+    addCellAttributes (row, item) {
+      row.forEach((cell, idx) => {
+        cell.setAttribute('data-ident', item.ident)
+        cell.setAttribute('data-field', this.headerFields[idx].field)
+      })
+    },
+
+    checkForUnreadChanges () {
+      // Check if there are unseen changes in the mastertöb list
+      dpApi.get(Routing.generate('DemosPlan_user_mastertoeblist_has_new_reportentry_ajax', { userId: this.userId }))
+        .then(data => {
+          if (data.code === 100 && data.success === true && data.hasNewReportEntry === true) {
+            // @todo find a more solid way to detect the target.
+            document.querySelector('.fa-bell').classList.add('color-status-failed-fill')
+          }
+        })
+    },
+
+    fullscreen () {
+      toggleFullscreen(this.$el)
+    },
+
+    generateItemMap (items) {
+      return items.reduce((acc, item) => {
+        acc[item.ident] = 'in'
+        return acc
+      }, {})
+    },
+
+    handlePageChange (page) {
+      this.currentPage = page
+      this.updateFields()
+    },
+
     insertOrga (orga) {
       // Include new orgas by default although they might not be within the searched or filtered items
       this.searchedItems[orga.ident] = 'in'
@@ -355,35 +404,18 @@ export default {
       this.updateFields()
     },
 
+    possiblyInsertDeletion (items) {
+      if (this.isEditable) {
+        return items.map(item => ({ ...{ deletion: 'delete' }, ...item }))
+      }
+
+      return items
+    },
+
     removeOrga (ident) {
       // Mark item as deleted
       this.deletedItems = { ...this.deletedItems, ...{ [ident]: true } }
       this.updateFields()
-    },
-
-    updateOrga (ident, updatedField, status) {
-      this.updatedItems = this.updatedItems.map(item => {
-        let newItem = item
-        if (item.ident === ident) {
-          newItem = { ...newItem, ...updatedField }
-        }
-        return newItem
-      })
-
-      this.rowItems = this.rowItems.map(item => {
-        let newItem = item
-        if (item.ident === ident) {
-          newItem = { ...newItem, ...updatedField }
-        }
-        return newItem
-      })
-
-      if (status === 'confirm') {
-        const fieldName = this.fields.filter(el => el.field === Object.keys(updatedField)[0])[0].value
-        dplan.notify.notify(status, Translator.trans('confirm.field.changes.saved', { fieldName: fieldName }))
-      } else {
-        dplan.notify.notify(status, Translator.trans('error.api.generic'))
-      }
     },
 
     searchItems () {
@@ -403,43 +435,8 @@ export default {
       this.updateFields()
     },
 
-    generateItemMap (items) {
-      return items.reduce((acc, item) => {
-        acc[item.ident] = 'in'
-        return acc
-      }, {})
-    },
-
-    setSelectedItems (items) {
-      this.selectedItems = items
-    },
-
-    /**
-     * This method maps null and boolean values to their predefined display counterparts. Values in boolToStringFields need
-     * to be represented as 'x' (true)/ '' (false). Null values should be displayed as '-'
-     *
-     * @param value {string|boolean|null}
-     * @param field {string}
-     * @returns {string}
-     */
-    transformValue (value, field) {
-      let returnVal = value
-      if (value === null || typeof value === 'undefined' || value === false) {
-        returnVal = '-'
-      }
-      if (this.boolToStringFields.includes(field)) {
-        returnVal = value ? 'x' : ''
-      }
-      return returnVal
-    },
-
-    fullscreen () {
-      toggleFullscreen(this.$el)
-    },
-
-    handlePageChange (page) {
-      this.currentPage = page
-      this.updateFields()
+    setIsFullscreen () {
+      this.isFullscreen = isActiveFullScreen()
     },
 
     setOrder (field) {
@@ -453,40 +450,22 @@ export default {
       this.updateFields()
     },
 
-    possiblyInsertDeletion (items) {
-      let returnItems = items
-      if (this.isEditable) {
-        returnItems = returnItems.map(item => ({ ...{ deletion: 'delete' }, ...item }))
-      }
-      return returnItems
-    },
-
-    toggleAllCols (ev) {
-      Object.keys(this.filters).forEach(key => { this.filters[key] = ev.target.checked })
-    },
-
-    setIsFullscreen () {
-      this.isFullscreen = isActiveFullScreen()
-    },
-
     setPageItemCount (count) {
       this.itemsPerPage = count
       this.currentPage = this.currentPage > this.totalPages ? this.totalPages : this.currentPage
       this.updateFields()
     },
 
-    updateFields () {
-      let sortedList = this.currentItems
+    setSelectedItems (items) {
+      this.selectedItems = items
+    },
 
-      // Sort by selected col
-      sortedList.sort((a, b) => {
-        /*
-         * In JS is `null > 'string' === null < 'string'`
-         * so we have to do such weired stuff
-         */
+    sortItems (items) {
+      return items.sort((a, b) => {
         if (a[this.sortOrder.key] === null || typeof a[this.sortOrder.key] === 'undefined') {
-          return this.sortOrder.direction * 1
+          return this.sortOrder.direction
         }
+
         if (b[this.sortOrder.key] === null || typeof b[this.sortOrder.key] === 'undefined') {
           return this.sortOrder.direction * -1
         }
@@ -494,54 +473,31 @@ export default {
         return String(a[this.sortOrder.key])
           .localeCompare(String(b[this.sortOrder.key]), 'de', { sensitivity: 'base' }) * this.sortOrder.direction
       })
+    },
 
-      // Apply filters and search term
-      sortedList = sortedList.filter(item => this.searchedItems[item.ident] === 'in' && this.filteredItems[item.ident] === 'in')
-
-      this.rowItems = sortedList
-      this.$nextTick(() => {
-        if (this.isEditable) this.addCellIdsAndFields(this.dataTableElement.getElementsByTagName('tbody')[0], this.onPageItems)
-      })
+    toggleAllCols (ev) {
+      Object.keys(this.filters).forEach(key => { this.filters[key] = ev.target.checked })
     },
 
     /**
-     * Adjust the width of the inner element of the footer scrollbar to the width of the Table.
+     * This method maps null and boolean values to their predefined display counterparts. Values in boolToStringFields need
+     * to be represented as 'x' (true)/ '' (false). Null values should be displayed as '-'
+     *
+     * @param value {string|boolean|null}
+     * @param field {string}
+     * @returns {string}
      */
-    updateScrollbarWidth () {
-      this.scrollbar.firstChild.setAttribute('style', 'width:' + window.getComputedStyle(this.dataTableElement).width + ';height:1px;')
-    },
+    transformValue (value, field) {
+      if (this.boolToStringFields.includes(field)) {
+        return value ? 'x' : ''
+      }
 
-    checkForUnreadChanges () {
-      // Check if there are unseen changes in the mastertöb list
-      dpApi.get(Routing.generate('DemosPlan_user_mastertoeblist_has_new_reportentry_ajax', { userId: this.userId }))
-        .then(data => {
-          if (data.code === 100 && data.success === true && data.hasNewReportEntry === true) {
-            // @todo find a more solid way to detect the target.
-            document.querySelector('.fa-bell').classList.add('color-status-failed-fill')
-          }
-        })
-    },
+      if (value === null || typeof value === 'undefined' || value === false) {
+        return '-'
 
-    addCellAttributes (row, item) {
-      row.forEach((cell, idx) => {
-        cell.setAttribute('data-ident', item.ident)
-        cell.setAttribute('data-field', this.headerFields[idx].field)
-      })
-    },
+      }
 
-    /**
-     * This method adds ids and fields to each cell as a data attribute. This is needed for later use in the event listener.
-     * The row index is set as a safety check to see later if there haven't been any shifts between cells and their
-     * corresponding items in this.onPageItems.
-     * @param table
-     * @param currentItems
-     */
-    addCellIdsAndFields (table, currentItems) {
-      const rows = Array.prototype.slice.call(table.getElementsByTagName('tr'))
-      rows.forEach((row, idx) => {
-        row.setAttribute('data-index', idx)
-        this.addCellAttributes(Array.prototype.slice.call(row.children), currentItems[idx])
-      })
+      return value
     },
 
     /**
@@ -593,6 +549,44 @@ export default {
       } else if (this.editModeElementId === 0) {
         dplan.notify.error(Translator.trans('error.api.generic'))
       }
+    },
+
+    updateItems (items, ident, updatedField) {
+      return items.map(item => {
+        if (item.ident === ident) {
+          return { ...item, ...updatedField }
+        }
+        return item
+      })
+    },
+
+    updateOrga (ident, updatedField, status) {
+      this.updatedItems = this.updateItems(this.updatedItems, ident, updatedField)
+      this.rowItems = this.updateItems(this.rowItems, ident, updatedField)
+
+      if (status === 'confirm') {
+        const fieldName = this.fields.filter(el => el.field === Object.keys(updatedField)[0])[0].value
+        dplan.notify.notify(status, Translator.trans('confirm.field.changes.saved', { fieldName: fieldName }))
+      } else {
+        dplan.notify.notify(status, Translator.trans('error.api.generic'))
+      }
+    },
+
+    updateFields () {
+      const sortedItems = this.sortItems(this.currentItems)
+
+      this.rowItems = sortedItems.filter(item => this.searchedItems[item.ident] === 'in' && this.filteredItems[item.ident] === 'in')
+
+      this.$nextTick(() => {
+        if (this.isEditable) this.addCellIdsAndFields(this.dataTableElement.getElementsByTagName('tbody')[0], this.onPageItems)
+      })
+    },
+
+    /**
+     * Adjust the width of the inner element of the footer scrollbar to the width of the Table.
+     */
+    updateScrollbarWidth () {
+      this.scrollbar.firstChild.setAttribute('style', 'width:' + window.getComputedStyle(this.dataTableElement).width + ';height:1px;')
     }
   },
 
