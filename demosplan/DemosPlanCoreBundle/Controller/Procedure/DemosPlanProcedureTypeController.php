@@ -44,7 +44,7 @@ class DemosPlanProcedureTypeController extends BaseController
 {
     /**
      *  this temporary id is needed to bypass a validation within the resource type before the entity gets persisted
-     *  and a proper id gets set
+     *  and a proper id gets set.
      */
     public const ID_VALIDATION_BYPASS = 'n/a';
 
@@ -245,7 +245,6 @@ class DemosPlanProcedureTypeController extends BaseController
         if (!$procedureTypeResourceType->isAvailable()) {
             throw AccessException::typeNotAvailable($procedureTypeResourceType);
         }
-
 
         $statementFormDefinition = new StatementFormDefinition();
         $procedureBehaviorDefinition = new ProcedureBehaviorDefinition();
