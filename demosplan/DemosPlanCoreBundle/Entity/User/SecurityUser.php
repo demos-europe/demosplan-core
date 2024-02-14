@@ -22,7 +22,7 @@ final class SecurityUser implements UserInterface, EquatableInterface, PasswordA
     private readonly string $id;
     private readonly ?string $email;
     private readonly ?string $password;
-    private readonly array  $roles;
+    private readonly array $roles;
     private readonly ?string $login;
     private readonly ?string $salt;
 
