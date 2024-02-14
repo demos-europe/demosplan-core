@@ -17,10 +17,10 @@
       'fullscreen-row': isFullscreenRow
     }">
     <div
+      v-if="icon"
       class="layout__item u-pl-0 c-at-item__row-icon color--grey"
       :title="Translator.trans(title)">
       <i
-        v-if="icon"
         aria-hidden="true"
         class="fa"
         :class="icon" />

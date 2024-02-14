@@ -12,7 +12,7 @@ namespace backend\core\Core\Functional\Command;
 
 use demosplan\DemosPlanCoreBundle\Application\ConsoleApplication;
 use demosplan\DemosPlanCoreBundle\Command\Data\DeleteOrgaCommand;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\OrgaFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Logic\Orga\OrgaDeleter;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;

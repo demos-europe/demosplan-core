@@ -28,7 +28,7 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Factory\PercentageDistributionFactoryInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\Factory\PercentageDistributionFactory'
 
-    DemosEurope\DemosplanAddon\Contracts\Services\ServiceStorageInterface:
+    DemosEurope\DemosplanAddon\Contracts\Services\ProcedureServiceStorageInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceStorage'
 
     DemosEurope\DemosplanAddon\Contracts\Services\SingleDocumentServiceInterface:
