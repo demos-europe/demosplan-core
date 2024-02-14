@@ -163,6 +163,7 @@
             v-text="Translator.trans('video')" />
         <customer-settings-sign-language-video
           v-if="!isLoadingSignLanguageOverviewVideo"
+          :current-customer-id="this.currentCustomerId"
           :sign-language-overview-video="signLanguageOverviewVideo"
           :sign-language-overview-description="customer.signLanguageOverviewDescription"
           @created="fetchCustomerData"

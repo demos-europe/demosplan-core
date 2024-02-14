@@ -109,6 +109,11 @@ export default {
   mixins: [dpValidateMixin],
 
   props: {
+    currentCustomerId: {
+      type: String,
+      required: true
+    },
+
     signLanguageOverviewVideo: {
       required: false,
       type: Object,
@@ -168,7 +173,7 @@ export default {
 
     saveSignLanguageVideo () {
       this.isBusy = true
-      this.saveSignLanguage()
+      this.saveSignLanguageOverviewDescription()
       this.saveVideo()
         .then(() => {
           this.$emit('created')
@@ -185,12 +190,13 @@ export default {
         .then(() => this.$emit('deleted'))
     },
 
-    saveSignLanguage () {
+    saveSignLanguageOverviewDescription () {
       const payload = {
         id: this.currentCustomerId,
         type: 'Customer',
         attributes: {
-          ...this.customerList[this.currentCustomerId].attributes
+          ...this.customerList[this.currentCustomerId].attributes,
+          signLanguageOverviewDescription: this.signLanguageOverviewDescription
         }
       }
       this.updateCustomer(payload)
