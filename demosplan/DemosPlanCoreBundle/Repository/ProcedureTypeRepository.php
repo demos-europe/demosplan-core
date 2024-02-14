@@ -17,9 +17,9 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 
 /**
- * @template-extends FluentRepository<ProcedureType>
+ * @template-extends CoreRepository<ProcedureType>
  */
-class ProcedureTypeRepository extends FluentRepository implements ObjectInterface
+class ProcedureTypeRepository extends CoreRepository implements ObjectInterface
 {
     /**
      * @param ProcedureType $procedureType
