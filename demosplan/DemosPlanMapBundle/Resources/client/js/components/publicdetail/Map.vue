@@ -1111,6 +1111,9 @@ export default {
           allPrintLayers.forEach(printLayer => {
             const printLayerName = printLayer.getProperties().name
             const source = printLayer.getSource()
+            if (source === null) {
+              return
+            }
             const tileUrlFunction = source.getTileUrlFunction()
             const tileGrid = source.getTileGrid()
             const tileSize = tileGrid.getTileSize()
