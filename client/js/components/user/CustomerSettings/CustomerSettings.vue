@@ -400,8 +400,7 @@ export default {
 
           this.customer = {
             ...this.customer,
-            imprint: currentData.imprint ?? '',
-            dataProtection: currentData.dataProtection ?? ''
+            ...currentData
           }
           this.branding.logoHash = fileHash
         })
@@ -496,12 +495,12 @@ export default {
       }
     },
 
-    resetProperty(property) {
+    resetProperty (property) {
       const currentCustomer = this.customerList[this.currentCustomerId]
       this.customer[property] = currentCustomer.attributes[property]
     },
 
-    saveSettings(property) {
+    saveSettings (property) {
       this.isBusy = true
       const payload = {
         id: this.currentCustomerId,
