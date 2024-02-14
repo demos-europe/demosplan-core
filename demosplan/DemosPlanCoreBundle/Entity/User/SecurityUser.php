@@ -22,7 +22,7 @@ final class SecurityUser implements UserInterface, EquatableInterface, PasswordA
     private readonly string $id;
     private readonly ?string $email;
     private readonly ?string $password;
-    private readonly array  $roles;
+    private readonly array $roles;
     private readonly ?string $login;
     private readonly ?string $salt;
 
@@ -68,7 +68,11 @@ final class SecurityUser implements UserInterface, EquatableInterface, PasswordA
 
     public function isEqualTo(UserInterface $user): bool
     {
-        if ($this->getRoles() !== $user->getRoles()) {
+        $userRoles = $user->getRoles();
+        $thisRoles = $this->getRoles();
+        sort($userRoles);
+        sort($thisRoles);
+        if ($thisRoles !== $userRoles) {
             return false;
         }
 
