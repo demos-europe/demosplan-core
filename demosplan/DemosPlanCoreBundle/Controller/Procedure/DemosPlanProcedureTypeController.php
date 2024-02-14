@@ -43,6 +43,12 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class DemosPlanProcedureTypeController extends BaseController
 {
     /**
+     *  this temporary id is needed to bypass a validation within the resource type before the entity gets persisted
+     *  and a proper id gets set
+     */
+    public const ID_VALIDATION_BYPASS = 'n/a';
+
+    /**
      * @DplanPermissions({"area_procedure_type_edit"})
      *
      * @throws QueryException
@@ -240,13 +246,21 @@ class DemosPlanProcedureTypeController extends BaseController
             throw AccessException::typeNotAvailable($procedureTypeResourceType);
         }
 
+
+        $statementFormDefinition = new StatementFormDefinition();
+        $procedureBehaviorDefinition = new ProcedureBehaviorDefinition();
+        $procedureUiDefinition = new ProcedureUiDefinition();
+        $statementFormDefinition->setId(self::ID_VALIDATION_BYPASS);
+        $procedureBehaviorDefinition->setId(self::ID_VALIDATION_BYPASS);
+        $procedureUiDefinition->setId(self::ID_VALIDATION_BYPASS);
         $procedureTypeEntity = new ProcedureType(
             '',
             '',
-            new StatementFormDefinition(),
-            new ProcedureBehaviorDefinition(),
-            new ProcedureUiDefinition(),
+            $statementFormDefinition,
+            $procedureBehaviorDefinition,
+            $procedureUiDefinition,
         );
+        $procedureTypeEntity->setId(self::ID_VALIDATION_BYPASS);
         $procedureTypeResource = $wrapperFactory->createWrapper($procedureTypeEntity, $procedureTypeResourceType);
 
         $form = $this->getForm(
@@ -278,6 +292,7 @@ class DemosPlanProcedureTypeController extends BaseController
 
                 // UI definition changes
                 $newUiDefinitionEntity = new ProcedureUiDefinition();
+                $newUiDefinitionEntity->setId(self::ID_VALIDATION_BYPASS);
                 $procedureTypeService->updateProcedureUiDefinition(
                     $newUiDefinitionEntity,
                     $procedureTypeResourceProperties['procedureUiDefinitionProperties']
@@ -285,6 +300,7 @@ class DemosPlanProcedureTypeController extends BaseController
 
                 // behavior definition changes
                 $newBehaviorDefinitionEntity = new ProcedureBehaviorDefinition();
+                $newBehaviorDefinitionEntity->setId(self::ID_VALIDATION_BYPASS);
                 $procedureTypeService->updateProcedureBehaviorDefinition(
                     $newBehaviorDefinitionEntity,
                     $procedureTypeResourceProperties['procedureBehaviorDefinitionProperties']
@@ -292,6 +308,7 @@ class DemosPlanProcedureTypeController extends BaseController
 
                 // Form + Field Definition changes
                 $newFormDefinitionEntity = new StatementFormDefinition();
+                $newFormDefinitionEntity->setId(self::ID_VALIDATION_BYPASS);
                 foreach ($procedureTypeResourceProperties['fieldDefinitions'] as $key => $fieldDefinition) {
                     $statementFieldDefinitionProperties = $procedureTypeService->toKeyedValues(
                         $fieldDefinition,
