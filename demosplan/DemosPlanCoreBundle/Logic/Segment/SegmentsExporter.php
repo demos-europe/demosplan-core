@@ -78,14 +78,17 @@ class SegmentsExporter
 
     public function addSimilarStatementSubmitters(Section $section, Statement $statement): void
     {
-        $similarStatementSubmittersText = $this->translator->trans('segments.export.statement.similar.submitters', ['similarSubmitters' => $this->getSimilarStatementSubmitters($statement)]);
-        $section->addText(
-            $similarStatementSubmittersText,
-            $this->styles['globalFont'],
-            $this->styles['globalSection']
-        );
+        $similarStatementSubmitters = $this->getSimilarStatementSubmitters($statement);
+        if ($similarStatementSubmitters !== '') {
+            $similarStatementSubmittersText = $this->translator->trans('segments.export.statement.similar.submitters', ['similarSubmitters' => $similarStatementSubmitters]);
+            $section->addText(
+                $similarStatementSubmittersText,
+                $this->styles['globalFont'],
+                $this->styles['globalSection']
+            );
 
-        $section->addTextBreak(2);
+            $section->addTextBreak(2);
+        }
     }
 
     protected function addHeader(Section $section, Procedure $procedure): void
