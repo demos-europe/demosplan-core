@@ -833,7 +833,10 @@
                                 {% if hasPermission('field_procedure_contact_person') %}
                                     <div class="u-mb">
                                         <label class="inline-block u-mb-0" for="r_publicParticipationContact">
-                                            {{ 'public.participation.contact'|trans }}<span aria-hidden="true">*</span>
+                                            {{ 'public.participation.contact'|trans }}<!--
+                                            {% if hasPermission('feature_require_procedure_contact_person') %}
+                                                --><span aria-hidden="true">*</span>
+                                            {% endif %}
                                         </label>
                                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                             helpText: 'text.procedure.edit.external.contact_person'|trans,
@@ -847,11 +850,11 @@
                                         <dp-editor
                                             id="r_publicParticipationContact"
                                             hidden-input="r_publicParticipationContact"
+                                            {% if hasPermission('feature_require_procedure_contact_person') %}required{% endif %}
                                             data-cy="publicParticipationContact"
                                             :toolbar-items="{ listButtons: false }"
                                             :maxlength="2000"
-                                            value="{{ proceduresettings.publicParticipationContact|default((hasPermission('feature_require_procedure_contact_person') ? '' : 'notspecified')|trans ) }}"
-                                            required>
+                                            value="{{ proceduresettings.publicParticipationContact|default((hasPermission('feature_require_procedure_contact_person') ? '' : 'notspecified')|trans ) }}">
                                         </dp-editor>
                                     </div>
                                 {% endif %}
