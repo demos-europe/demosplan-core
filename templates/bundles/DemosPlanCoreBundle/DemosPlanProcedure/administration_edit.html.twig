@@ -850,7 +850,8 @@
                                             data-cy="publicParticipationContact"
                                             :toolbar-items="{ listButtons: false }"
                                             :maxlength="2000"
-                                            value="{{ proceduresettings.publicParticipationContact|default( "notspecified"|trans ) }}">
+                                            value="{{ proceduresettings.publicParticipationContact|default((hasPermission('feature_require_procedure_contact_person') ? '' : 'notspecified')|trans ) }}"
+                                            required>
                                         </dp-editor>
                                     </div>
                                 {% endif %}
