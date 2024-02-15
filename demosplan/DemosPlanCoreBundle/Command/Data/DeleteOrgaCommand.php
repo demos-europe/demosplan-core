@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of the package demosplan.
  *
@@ -13,7 +11,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeleter;
+use demosplan\DemosPlanCoreBundle\Logic\Orga\OrgaDeleter;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
@@ -25,14 +23,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
-class DeleteProcedureCommand extends CoreCommand
+class DeleteOrgaCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:procedure:delete';
-    protected static $defaultDescription = 'Deletes a procedure including all related content like statements, tags, News, etc.';
+    protected static $defaultName = 'dplan:organisation:delete';
+    protected static $defaultDescription = 'Deletes an organisation including all related content like procedure, statements, tags, News, etc.';
 
     public function __construct(
         ParameterBagInterface $parameterBag,
-        private readonly ProcedureDeleter $procedureDeleter,
+        private readonly OrgaDeleter $orgaDeleter,
         private readonly SqlQueriesService $queriesService,
         string $name = null
     ) {
@@ -42,9 +40,9 @@ class DeleteProcedureCommand extends CoreCommand
     public function configure(): void
     {
         $this->addArgument(
-            'procedureIds',
+            'orgaIds',
             InputArgument::REQUIRED,
-            'The IDs of the procedures you want to delete.'
+            'The IDs of the organisations you want to delete.'
         );
 
         $this->addOption(
@@ -68,40 +66,39 @@ class DeleteProcedureCommand extends CoreCommand
 
         $isDryRun = (bool) $input->getOption('dry-run');
         $withoutRepopulate = (bool) $input->getOption('without-repopulate');
-        $procedureIds = $input->getArgument('procedureIds');
-        $procedureIds = explode(',', $procedureIds);
+        $orgaIds = $input->getArgument('orgaIds');
+        $orgaIds = explode(',', $orgaIds);
         try {
-            $retrievedProceduresIds = array_column(
-                $this->queriesService->fetchFromTableByParameter(['_p_id'], '_procedure', '_p_id', $procedureIds),
-                '_p_id'
+            $retrievedOrgaIds = array_column(
+                $this->queriesService->fetchFromTableByParameter(['_o_id'], '_orga', '_o_id', $orgaIds),
+                '_o_id'
             );
         } catch (Exception $exception) {
-            $output->error('could not retrieve procedure(s) '.$exception);
+            $output->error('could not retrieve organisation(s) '.$exception);
 
             return Command::FAILURE;
         }
 
-        $missedIdsArray = array_diff($procedureIds, $retrievedProceduresIds);
+        $missedIdsArray = array_diff($orgaIds, $retrievedOrgaIds);
         if (0 !== count($missedIdsArray)) {
             $missedIdsString = implode(' ', $missedIdsArray);
-            $output->warning("Matching procedure(s) not found for id(s) $missedIdsString");
+            $output->warning("Matching organisation(s) not found for id(s) $missedIdsString");
         }
 
-        if (0 === count($retrievedProceduresIds)) {
-            $output->info('no procedure(s) found to delete');
+        if (0 === count($retrievedOrgaIds)) {
+            $output->info('no organisation(s) found to delete');
 
             return Command::FAILURE;
         }
 
         try {
-            $output->info('Procedures id(s) to delete: '.implode(',', $retrievedProceduresIds));
+            $output->info('Organisations id(s) to delete: '.implode(',', $retrievedOrgaIds));
             $output->info("Dry-run: $isDryRun");
 
-            $this->procedureDeleter->beginTransactionAndDisableForeignKeyChecks();
-            $this->procedureDeleter->deleteProcedures($retrievedProceduresIds, $isDryRun);
-            $this->procedureDeleter->commitTransactionAndEnableForeignKeyChecks();
+            $this->orgaDeleter->beginTransactionAndDisableForeignKeyChecks();
+            $this->orgaDeleter->deleteOrganisations($retrievedOrgaIds, $isDryRun);
+            $this->orgaDeleter->commitTransactionAndEnableForeignKeyChecks();
         } catch (Exception $exception) {
-            // rollback all changes
             $this->queriesService->rollbackTransaction();
             $output->error('Rolled back transaction '.$exception->getMessage());
             $output->error($exception->getTraceAsString());
@@ -121,7 +118,7 @@ class DeleteProcedureCommand extends CoreCommand
             return Command::FAILURE;
         }
 
-        $output->info('procedure(s) with id(s) '.implode(',', $retrievedProceduresIds).' are deleted successfully');
+        $output->info('orga(s) with id(s) '.implode(',', $retrievedOrgaIds).' are deleted successfully');
 
         return Command::SUCCESS;
     }

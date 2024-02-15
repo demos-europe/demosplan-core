@@ -1161,6 +1161,11 @@ feature_new_statement_form:
     label: 'Stell. verf. Formular anzeigen'
     loginRequired: true
     parent: feature_statement
+feature_show_notice_draft_statement:
+    description: 'some project with Gateway as a project type (diplanbeteiligung) should not be shown for the submitter in the public statement'
+    expose: false
+    label: 'note show'
+    loginRequired: true
 feature_notification_citizen_statement_submitted:
     label: 'Benachrichtigung an den Bürger bei eingereichten Stellungnahmen'
     loginRequired: true
