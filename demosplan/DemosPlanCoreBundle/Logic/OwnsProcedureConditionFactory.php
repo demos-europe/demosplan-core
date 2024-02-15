@@ -68,6 +68,7 @@ class OwnsProcedureConditionFactory
 
         return [
             $this->userOwnsProcedureViaOrgaOfUserThatCreatedTheProcedure(),
+            $this->procedureOrgaIdNotNull(),
             ...$this->hasProcedureAccessingRole($customer),
         ];
     }
@@ -88,6 +89,7 @@ class OwnsProcedureConditionFactory
 
         return [
             $this->userIsExplicitlyAuthorized(),
+            $this->procedureOrgaIdNotNull(),
             ...$this->hasProcedureAccessingRole($customer),
         ];
     }
@@ -123,8 +125,25 @@ class OwnsProcedureConditionFactory
 
         return [
             $this->isAuthorizedViaPlanningAgency(),
+            $this->procedureOrgaIdNotNull(),
             ...$this->hasProcedureAccessingRole($customer),
         ];
+    }
+
+    /**
+     * @return ClauseFunctionInterface<bool>
+     */
+    protected function procedureOrgaIdNotNull(): ClauseFunctionInterface
+    {
+        if ($this->userOrProcedure instanceof User) {
+            return $this->conditionFactory->propertyIsNotNull(['orga', 'id']);
+        }
+
+        $procedure = $this->userOrProcedure;
+
+        return null === $procedure->getOrgaId()
+            ? $this->conditionFactory->false()
+            : $this->conditionFactory->true();
     }
 
     /**
