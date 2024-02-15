@@ -115,8 +115,6 @@ export default {
 
   mounted () {
     this.fetchCustomerContactsData()
-    console.log('contacts:', this.contacts)
-    setTimeout(() => console.log('contacts:', this.contacts), 1000)
   }
 }
 </script>
