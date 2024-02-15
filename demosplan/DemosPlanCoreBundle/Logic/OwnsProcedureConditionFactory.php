@@ -63,7 +63,7 @@ class OwnsProcedureConditionFactory
     public function isAuthorizedViaCreatingOrga(Customer $customer): array
     {
         if (!$this->globalConfig->isProcedureAuthorizationViaCreatingOrgaEnabled()) {
-            return $this->conditionFactory->false();
+            return [$this->conditionFactory->false()];
         }
 
         return [
@@ -83,7 +83,7 @@ class OwnsProcedureConditionFactory
     public function isAuthorizedViaExplicitUserList(Customer $customer): array
     {
         if (!$this->globalConfig->isProcedureAuthorizationViaExplicitUserListEnabled()) {
-            return $this->conditionFactory->false();
+            return [$this->conditionFactory->false()];
         }
 
         return [
@@ -118,7 +118,7 @@ class OwnsProcedureConditionFactory
     public function isAuthorizedViaPlanningAgencyPlannerRole(Customer $customer): array
     {
         if (!$this->globalConfig->isProcedureAuthorizationViaPlannerInExplicitPlanningAgencyListEnabled()) {
-            return $this->conditionFactory->false();
+            return [$this->conditionFactory->false()];
         }
 
         return [
