@@ -1162,7 +1162,7 @@ feature_new_statement_form:
     loginRequired: true
     parent: feature_statement
 feature_show_notice_draft_statement:
-    description: 'some project with Gateway as a project type (diplanbeteiligung) should not be show not for submitter in statement public'
+    description: 'some project with Gateway as a project type (diplanbeteiligung) should not be shown for the submitter in the public statement'
     expose: false
     label: 'note show'
     loginRequired: true
