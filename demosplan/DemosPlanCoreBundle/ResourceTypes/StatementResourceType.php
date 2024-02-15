@@ -32,6 +32,7 @@ use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigB
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryStatement;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
+use Doctrine\Common\Collections\ArrayCollection;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
@@ -404,7 +405,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 [$simpleStatementCondition],
                 [],
                 static function (Statement $statement, array $newValue): array {
-                    $statement->setSimilarStatementSubmitters($newValue);
+                    $statement->setSimilarStatementSubmitters(new ArrayCollection($newValue));
 
                     return [];
                 }
