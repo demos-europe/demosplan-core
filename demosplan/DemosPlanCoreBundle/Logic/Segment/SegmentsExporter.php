@@ -79,7 +79,7 @@ class SegmentsExporter
     public function addSimilarStatementSubmitters(Section $section, Statement $statement): void
     {
         $similarStatementSubmitters = $this->getSimilarStatementSubmitters($statement);
-        if ($similarStatementSubmitters !== '') {
+        if ('' !== $similarStatementSubmitters) {
             $similarStatementSubmittersText = $this->translator->trans('segments.export.statement.similar.submitters', ['similarSubmitters' => $similarStatementSubmitters]);
             $section->addText(
                 $similarStatementSubmittersText,
