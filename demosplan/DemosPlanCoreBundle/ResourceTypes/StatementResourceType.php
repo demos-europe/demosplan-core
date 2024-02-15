@@ -374,7 +374,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         // always updatable if access to type and instances was granted
         $configBuilder->assignee
             ->setRelationshipType($this->resourceTypeStore->getClaimResourceType())
-            ->updatable([$simpleStatementCondition, $manualStatementCondition]);
+            ->updatable([$simpleStatementCondition]);
 
         if ($this->currentUser->hasPermission('field_statement_memo')) {
             $configBuilder->memo->updatable([$simpleStatementCondition]);
