@@ -10,6 +10,7 @@
 
 namespace Tests\Core\Map\Functional;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureSettingsFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -324,13 +325,23 @@ class MapServiceTest extends FunctionalTestCase
     }
 
     /**
-     * Test that copyright saved in procedureSettings is retrieved when getting GetMapOptions.
+     * Test that certain fields are retrieved from config and others from procedureSettings when getting GetMapOptions.
      */
     public function testGetMapOptions()
     {
+
+        $config = $this->getContainer()->get(GlobalConfigInterface::class);
         $procedureSettings = ProcedureSettingsFactory::createOne();
         $procedure = $procedureSettings->getProcedure();
         $mapOptions = $this->sut->getMapOptions($procedure->getId());
-        self::assertSame($procedureSettings->getCopyright(), $mapOptions->getCopyright());
+
+        //Test that certain fields are coming from config
+        self::assertSame($config->getMapAdminBaselayer(), $mapOptions->getBaseLayer());
+
+        //Test that certain fields are coming procedureSettings
+        $procedureSettingsMapExtent = explode(",", $procedureSettings->getMapExtent());
+        $procedureSettingsMapExtent = array_map('floatval', $procedureSettingsMapExtent);
+
+        self::assertSame($procedureSettingsMapExtent, $mapOptions->getProcedureInitialExtent());
     }
 }
