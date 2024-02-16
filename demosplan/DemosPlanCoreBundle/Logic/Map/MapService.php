@@ -771,8 +771,6 @@ class MapService extends CoreService
         $mapOptions->setAvailableProjections($config->getMapAvailableProjections());
         $mapOptions->setDefaultProjection($config->getMapDefaultProjection());
 
-        $mapOptions->setCopyright($procedureSettings->getCopyright());
-
         $mapOptions->setId($procedureId);
 
         $mapOptions->lock();

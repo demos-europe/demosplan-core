@@ -95,7 +95,7 @@
 
         <!-- Default layer -->
         <dp-ol-map-layer
-          :attributions="_options?.defaultAttribution"
+          :attributions="options?.defaultAttribution"
           :url="baselayer"
           :layers="baselayerLayers"
           :projection="baseLayerProjection"
@@ -439,8 +439,6 @@ export default {
 
     this.centerX = (this.maxExtent[0] + this.maxExtent[2]) / 2
     this.centerY = (this.maxExtent[1] + this.maxExtent[3]) / 2
-
-    this._options.defaultAttribution = this.options?.defaultAttribution || mapOptions.copyright
 
     // Initial view values that can be defined in options object
     if (this._options.initialExtent.length > 0) {
