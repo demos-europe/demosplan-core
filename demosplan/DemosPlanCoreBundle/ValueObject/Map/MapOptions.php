@@ -91,5 +91,4 @@ class MapOptions extends ValueObject
      * @var string
      */
     protected $baseLayerProjection;
-
 }
