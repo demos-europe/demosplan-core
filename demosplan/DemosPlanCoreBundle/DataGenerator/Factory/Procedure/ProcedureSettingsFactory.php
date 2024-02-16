@@ -46,8 +46,7 @@ final class ProcedureSettingsFactory extends ModelFactory
     {
         return [
             'procedure' => ProcedureFactory::new(),
-            'mapExtent' => self::faker()->randomFloat() . ',' . self::faker()->randomFloat() . ',' . self::faker()->randomFloat() . ',' . self::faker()->randomFloat() ,
-
+            'mapExtent' => self::faker()->randomFloat().','.self::faker()->randomFloat().','.self::faker()->randomFloat().','.self::faker()->randomFloat(),
         ];
     }
 
