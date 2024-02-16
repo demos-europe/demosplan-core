@@ -329,17 +329,16 @@ class MapServiceTest extends FunctionalTestCase
      */
     public function testGetMapOptions()
     {
-
         $config = $this->getContainer()->get(GlobalConfigInterface::class);
         $procedureSettings = ProcedureSettingsFactory::createOne();
         $procedure = $procedureSettings->getProcedure();
         $mapOptions = $this->sut->getMapOptions($procedure->getId());
 
-        //Test that certain fields are coming from config
+        // Test that certain fields are coming from config
         self::assertSame($config->getMapAdminBaselayer(), $mapOptions->getBaseLayer());
 
-        //Test that certain fields are coming procedureSettings
-        $procedureSettingsMapExtent = explode(",", $procedureSettings->getMapExtent());
+        // Test that certain fields are coming procedureSettings
+        $procedureSettingsMapExtent = explode(',', $procedureSettings->getMapExtent());
         $procedureSettingsMapExtent = array_map('floatval', $procedureSettingsMapExtent);
 
         self::assertSame($procedureSettingsMapExtent, $mapOptions->getProcedureInitialExtent());
