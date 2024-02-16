@@ -467,7 +467,7 @@ export default {
 
       if (hasPermission('feature_customer_support_contact_administration')) {
         this.requestIncludes.push('customerContacts')
-        this.addAttributesToField('CustomerSettingsSupport', ['title', 'text', 'phoneNumber', 'eMailAddress', 'visible'])
+        this.addAttributesToField('CustomerLoginSupportContact', ['title', 'text', 'phoneNumber', 'eMailAddress', 'visible'])
         this.addAttributesToField('Customer', ['customerContacts'])
       }
 
