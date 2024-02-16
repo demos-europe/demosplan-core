@@ -28,7 +28,7 @@ class MapServiceTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut =  $this->getContainer()->get(MapService::class);
+        $this->sut = $this->getContainer()->get(MapService::class);
     }
 
     public function testGetGisLayerListValueStructure()
