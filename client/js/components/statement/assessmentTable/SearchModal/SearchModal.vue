@@ -85,6 +85,7 @@
           <div class="layout--flush">
             <dp-checkbox
               v-for="checkbox in filterCheckBoxesItems"
+              :data-cy="`searchModal:${checkbox.id}`"
               :id="checkbox.id"
               :key="'checkbox_' + checkbox.id"
               v-model="checkbox.checked"
