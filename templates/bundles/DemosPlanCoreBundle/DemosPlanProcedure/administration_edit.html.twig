@@ -598,6 +598,7 @@
                                             endDate: 'administrationEditForm:publicParticipationEndDate',
                                             startDate: 'administrationEditForm:publicParticipationStartDate'
                                         }"
+                                        data-dp-validate-error-fieldname="{{ "period.public"|trans }}"
                                         start-id="r_publicParticipationStartDate"
                                         start-name="r_publicParticipationStartDate"
                                         start-value="{{  proceduresettings.publicParticipationStartDate|default|dplanDate }}"
@@ -848,6 +849,7 @@
                                             id="r_publicParticipationContact"
                                             hidden-input="r_publicParticipationContact"
                                             data-cy="publicParticipationContact"
+                                            data-dp-validate-error-fieldname="{{ 'public.participation.contact'|trans }}"
                                             :toolbar-items="{ listButtons: false }"
                                             :maxlength="2000"
                                             value="{{ proceduresettings.publicParticipationContact|default((hasPermission('feature_require_procedure_contact_person') ? '' : 'notspecified')|trans ) }}"
@@ -1182,6 +1184,7 @@
                                                 type="email"
                                                 required
                                                 data-dp-validate-if="#sendMailsToCounties"
+                                                data-dp-validate-error-fieldname="{{ 'email.address'|trans }}"
                                                 value="{{ receiver.email|default }}"
                                             >
                                         </div>
