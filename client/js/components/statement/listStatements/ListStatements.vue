@@ -21,7 +21,7 @@
         <dp-button
           class="ml-auto"
           variant="outline"
-          data-cy="listStatement:searchReset"
+          data-cy="listStatements:searchReset"
           :href="Routing.generate('dplan_procedure_statement_list', { procedureId: procedureId })"
           :disabled="searchValue === ''"
           :text="Translator.trans('search.reset')" />
