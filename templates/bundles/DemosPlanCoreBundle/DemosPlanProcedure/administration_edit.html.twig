@@ -850,11 +850,11 @@
                                         <dp-editor
                                             id="r_publicParticipationContact"
                                             hidden-input="r_publicParticipationContact"
-                                            {% if hasPermission('feature_require_procedure_contact_person') %}required{% endif %}
                                             data-cy="publicParticipationContact"
                                             :toolbar-items="{ listButtons: false }"
                                             :maxlength="2000"
-                                            value="{{ proceduresettings.publicParticipationContact|default((hasPermission('feature_require_procedure_contact_person') ? '' : 'notspecified')|trans ) }}">
+                                            value="{{ proceduresettings.publicParticipationContact|default((hasPermission('feature_require_procedure_contact_person') ? '' : 'notspecified')|trans ) }}"
+                                            {% if hasPermission('feature_require_procedure_contact_person') %}required{% endif %}>
                                         </dp-editor>
                                     </div>
                                 {% endif %}
