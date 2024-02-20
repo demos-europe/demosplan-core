@@ -23,6 +23,7 @@ All rights reserved
       {{ phoneNumber }}
     </a>
     <p
+      class="break-words"
       v-if="email"
       v-text="email" />
     <template v-if="reachability.officeHours">
