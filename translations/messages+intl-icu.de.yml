@@ -2062,7 +2062,7 @@ logo.delete: "Logo löschen"
 logo.upload.new: "Neues Logo hochladen"
 logout: "Abmelden"
 # map.attribution.default supports both {linkImprint} and {currentYear} placeholders.
-map.attribution.default: "Lizenzrechtliche Angaben im <a href=\"{linkImprint}\">Impressum</a>"
+map.attribution.default: "© basemap.de / BKG {currentYear}"
 map.attribution.exports: "© basemap.de BKG (www.basemap.de) / LVermGeo SH (www.LVermGeoSH.schleswig-holstein.de)"
 map.attribution: "Copyright-Vermerk"
 map.attribution.hint: "Der Copyright-Vermerk bzw. die Quellengabe wird in einer Leiste unterhalb der Karte angezeigt."
