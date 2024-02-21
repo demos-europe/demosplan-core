@@ -37,7 +37,7 @@ final class Version20240220142305 extends AbstractMigration
         SET g._g_print = 1
         WHERE g._g_url like :basemapGisUrl
         AND g._g_name = :basemapGisName
-        AND (p._p_id IN (SELECT _procedure FROM customer) OR p.is_master = 1 OR p._p_master = 1)',
+        AND (p._p_id IN (SELECT _procedure FROM customer) OR p.master_template = 1 OR p._p_master = 1)',
             [
                 'basemapGisUrl' => self::BASEMAP_GIS_URL,
                 'basemapGisName' => self::BASEMAP_GIS_NAME,
