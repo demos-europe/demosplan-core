@@ -2,6 +2,14 @@
 
 declare(strict_types=1);
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace Application\Migrations;
 
 use Doctrine\DBAL\Exception;
@@ -11,7 +19,6 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-
 final class Version20240220142305 extends AbstractMigration
 {
     private const BASEMAP_GIS_URL = 'https://sgx.geodatenzentrum.de/wms_basemapde%';
@@ -39,11 +46,10 @@ final class Version20240220142305 extends AbstractMigration
         AND g._g_name = :basemapGisName
         AND (p._p_id IN (SELECT _procedure FROM customer) OR p.master_template = 1 OR p._p_master = 1)',
             [
-                'basemapGisUrl' => self::BASEMAP_GIS_URL,
+                'basemapGisUrl'  => self::BASEMAP_GIS_URL,
                 'basemapGisName' => self::BASEMAP_GIS_NAME,
             ]
         );
-
     }
 
     /**
