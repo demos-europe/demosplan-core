@@ -598,6 +598,7 @@
                                             endDate: 'administrationEditForm:publicParticipationEndDate',
                                             startDate: 'administrationEditForm:publicParticipationStartDate'
                                         }"
+                                        data-dp-validate-error-fieldname="{{ "period.public"|trans }}"
                                         start-id="r_publicParticipationStartDate"
                                         start-name="r_publicParticipationStartDate"
                                         start-value="{{  proceduresettings.publicParticipationStartDate|default|dplanDate }}"
@@ -834,6 +835,9 @@
                                     <div class="u-mb">
                                         <label class="inline-block u-mb-0" for="r_publicParticipationContact">
                                             {{ 'public.participation.contact'|trans }}
+                                            {%- if hasPermission('feature_require_procedure_contact_person') -%}
+                                                <span aria-hidden="true">*</span>
+                                            {%- endif -%}
                                         </label>
                                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                             helpText: 'text.procedure.edit.external.contact_person'|trans,
@@ -848,10 +852,11 @@
                                             id="r_publicParticipationContact"
                                             hidden-input="r_publicParticipationContact"
                                             data-cy="publicParticipationContact"
+                                            data-dp-validate-error-fieldname="{{ 'public.participation.contact'|trans }}"
                                             :toolbar-items="{ listButtons: false }"
                                             :maxlength="2000"
                                             value="{{ proceduresettings.publicParticipationContact|default((hasPermission('feature_require_procedure_contact_person') ? '' : 'notspecified')|trans ) }}"
-                                            required>
+                                            {% if hasPermission('feature_require_procedure_contact_person') %}required{% endif %}>
                                         </dp-editor>
                                     </div>
                                 {% endif %}
@@ -1182,6 +1187,7 @@
                                                 type="email"
                                                 required
                                                 data-dp-validate-if="#sendMailsToCounties"
+                                                data-dp-validate-error-fieldname="{{ 'email.address'|trans }}"
                                                 value="{{ receiver.email|default }}"
                                             >
                                         </div>
