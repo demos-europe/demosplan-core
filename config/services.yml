@@ -389,7 +389,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\MailService:
         arguments:
-            $logger: '@monolog.logger.dplan_mail'
             $mailer: '@demosplan\DemosPlanCoreBundle\Logic\TestMailer'
         lazy: true
 
@@ -1206,10 +1205,7 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\User\UserMapper: ~
 
-    demosplan\DemosPlanCoreBundle\Logic\User\UserMapperDataportGateway:
-        lazy: true
-        arguments:
-            $logger: '@monolog.logger.dplan_gateway'
+    demosplan\DemosPlanCoreBundle\Logic\User\UserMapperDataportGateway: ~
 
     demosplan\DemosPlanCoreBundle\Logic\User\UserMapperDataportGatewaySH:
         lazy: true
