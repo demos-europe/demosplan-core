@@ -21,6 +21,7 @@ use PhpOffice\PhpWord\Exception\Exception;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+
 use function Symfony\Component\String\u;
 
 class ExportReportService extends CoreService
