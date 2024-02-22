@@ -14500,16 +14500,16 @@
         },
         {
             "name": "symfony/polyfill-apcu",
-            "version": "v1.28.0",
+            "version": "v1.29.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-apcu.git",
-                "reference": "c6c2c0f5f4cb0b100c5dfea807ef5cd27bbe9899"
+                "reference": "948ebf15d68f714c976d6791931fe38f0610cff4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-apcu/zipball/c6c2c0f5f4cb0b100c5dfea807ef5cd27bbe9899",
-                "reference": "c6c2c0f5f4cb0b100c5dfea807ef5cd27bbe9899",
+                "url": "https://api.github.com/repos/symfony/polyfill-apcu/zipball/948ebf15d68f714c976d6791931fe38f0610cff4",
+                "reference": "948ebf15d68f714c976d6791931fe38f0610cff4",
                 "shasum": ""
             },
             "require": {
@@ -14517,9 +14517,6 @@
             },
             "type": "library",
             "extra": {
-                "branch-alias": {
-                    "dev-main": "1.28-dev"
-                },
                 "thanks": {
                     "name": "symfony/polyfill",
                     "url": "https://github.com/symfony/polyfill"
@@ -14557,7 +14554,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-apcu/tree/v1.28.0"
+                "source": "https://github.com/symfony/polyfill-apcu/tree/v1.29.0"
             },
             "funding": [
                 {
@@ -14573,7 +14570,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-01-26T09:26:14+00:00"
+            "time": "2024-01-29T20:11:03+00:00"
         },
         {
             "name": "symfony/polyfill-ctype",
