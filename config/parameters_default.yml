@@ -208,20 +208,8 @@ parameters:
     cache_doctrine: "filesystem"
 
     # Logging
-    # #refactor: Loglevels could be squeezed to symfony_loglevel only
-    symfony_loglevel: "INFO"
-    frontend_loglevel: "INFO"
-    mailservice_loglevel: "INFO"
-    importer_loglevel: "INFO"
-    gatewayservice_loglevel: "INFO"
+    symfony_loglevel: "info"
     demosplan_main_logfile: "dplan.log"
-    demosplan_frontend_logfile: "frontend.log"
-    demosplan_call_logfile: "servicecall.log"
-    demosplan_request_logfile: "request.log"
-    demosplan_mail_logfile: "mail.log"
-    demosplan_ids_logfile: "ids.log"
-    lgv_local_debug: "INFO"
-    lgv_logfile: "lgv.log"
 
     # Keep update logs instead of overwriting them
     keep_update_logfiles: false

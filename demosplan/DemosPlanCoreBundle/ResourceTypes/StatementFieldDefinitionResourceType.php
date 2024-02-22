@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFieldDefinition;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 
 /**
@@ -82,7 +83,7 @@ final class StatementFieldDefinitionResourceType extends DplanResourceType
         return 'StatementFieldDefinition';
     }
 
-    protected function getProperties(): array
+    protected function getProperties(): array|ResourceConfigBuilderInterface
     {
         return [
             $this->createIdentifier()->readable()->sortable()->filterable(),

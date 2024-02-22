@@ -42,7 +42,7 @@ about.introduction: >-
 
     <p>Eine bundesweite Übersicht über alle raumbezogenen Planwerke und formalen Beteiligungsverfahren des Baugesetzbuches
     sowie perspektivisch der Raumordnung und Planfeststellung finden Sie in unserem
-    <a class="o-link--external" href="https://portal.demo.diplanung.de/" target="_blank" rel="noopener">DiPlanPortal</a>.
+    <a class="o-link--external" href="{diplanportalurl}" target="_blank" rel="noopener">DiPlanPortal</a>.
     </p>
 
     <p>DiPlanBeteiligung ist als freie Software unter der Open-Source-Lizenz für die Europäische Union
