@@ -26,12 +26,7 @@ final class Version20240220142305 extends AbstractMigration
 
     public function getDescription(): string
     {
-        return 'refs T17533: Update _g_print setting for gislayer (which use basemap) of blueprints.
-        - Gislayer of blueprints having this criteria are updated:
-
-        a) default masterblueprint
-        b) blueprints created by users
-        c) masterblueprints set by the user (which replace the default masterblueprint)';
+        return 'refs T17533: Update _g_print setting for gislayer (which use basemap) of only default masterblueprints.';
     }
 
     public function up(Schema $schema): void
@@ -41,10 +36,10 @@ final class Version20240220142305 extends AbstractMigration
         $this->addSql(
             'UPDATE _gis as g
         INNER JOIN _procedure AS p ON g._p_id = p._p_id
-        SET g._g_print = 1
+        SET g._g_print = 1, g.default_visibility = 1, g.enabled = 1
         WHERE g._g_url like :basemapGisUrl
         AND g._g_name = :basemapGisName
-        AND (p._p_id IN (SELECT _procedure FROM customer) OR p.master_template = 1 OR p._p_master = 1)',
+        AND p.master_template = 1',
             [
                 'basemapGisUrl'  => self::BASEMAP_GIS_URL,
                 'basemapGisName' => self::BASEMAP_GIS_NAME,

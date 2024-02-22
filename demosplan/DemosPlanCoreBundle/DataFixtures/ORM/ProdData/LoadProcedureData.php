@@ -93,8 +93,9 @@ class LoadProcedureData extends ProdFixture implements DependentFixtureInterface
         $gisLayer->setUrl('https://sgx.geodatenzentrum.de/wms_basemapde');
         $gisLayer->setLayers('de_basemapde_web_raster_farbe');
         $gisLayer->setType('base');
-        $gisLayer->setPrint(1);
+        $gisLayer->setPrint(true);
         $gisLayer->setEnabled(true);
+        $gisLayer->setDefaultVisibility(true);
         $gisLayer->setProcedureId($procedureMaster->getId());
         $gisLayer->setCategory($gisLayerCategoryMaster);
         $manager->persist($gisLayer);
