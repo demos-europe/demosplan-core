@@ -25,7 +25,7 @@ class StatementBulkEditTransformer extends BaseTransformer
 {
     /** @var string */
     protected $type = 'StatementBulkEdit';
-    /** @var array */
+
     protected array $availableIncludes = ['assignee', 'statements'];
     /** @var UserService */
     protected $userService;
