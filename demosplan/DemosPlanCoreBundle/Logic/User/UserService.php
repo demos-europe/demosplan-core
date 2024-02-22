@@ -551,6 +551,8 @@ class UserService extends CoreService implements UserServiceInterface
             try {
                 $data['name'] = $orga->getName();
                 $this->orgaService->addReport($orga->getId(), $data, $showListBefore);
+            } catch (ViolationsException $e) {
+                $this->logger->warning('Add Report in updateOrga() failed due to Violation: ', [$e, $e->getViolationsAsStrings()]);
             } catch (Exception $e) {
                 $this->logger->warning('Add Report in updateOrga() failed Message: ', [$e]);
             }
