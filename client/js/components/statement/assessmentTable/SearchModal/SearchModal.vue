@@ -80,18 +80,19 @@
         {{ Translator.trans('search.in') }}
       </h3>
 
-      <div class="max-h-12 w-full align-top overflow-auto u-mb">
-        <div class="layout--flush">
-          <dp-checkbox
-            v-for="checkbox in filterCheckBoxesItems"
-            :id="checkbox.id"
-            :key="'checkbox_' + checkbox.id"
-            v-model="checkbox.checked"
-            class="layout__item u-1-of-2"
-            :label="{
-              text: Translator.trans(checkbox.label)
-            }"
-            name="search_fields[]" />
+        <div class="max-h-12 w-full align-top overflow-auto u-mb">
+          <div class="layout--flush">
+            <dp-checkbox
+              v-for="checkbox in filterCheckBoxesItems"
+              :data-cy="`searchModal:${checkbox.id}`"
+              :id="checkbox.id"
+              :key="'checkbox_' + checkbox.id"
+              v-model="checkbox.checked"
+              class="layout__item u-1-of-2"
+              :label="{
+                text: Translator.trans(checkbox.label)
+              }"
+              name="search_fields[]" />
 
           <!-- department is added as hidden field when organisation is selected -->
           <input

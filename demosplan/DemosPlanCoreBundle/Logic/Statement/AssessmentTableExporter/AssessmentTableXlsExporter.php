@@ -439,7 +439,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
                 }
 
                 $formattedStatement[$attributeKey] =
-                    $this->editorService->handleObscureTags($formattedStatement[$attributeKey], $anonymous);
+                    $this->editorService->handleObscureTags((string) $formattedStatement[$attributeKey], $anonymous);
             }
 
             if (!$pushed) {

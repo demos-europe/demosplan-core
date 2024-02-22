@@ -145,7 +145,7 @@ class CustomerLoginSupportContactResourceType extends DplanResourceType
         }
     }
 
-    public function isCreatable(): bool
+    public function isCreateAllowed(): bool
     {
         return $this->hasManagementPermission();
     }
