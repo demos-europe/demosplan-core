@@ -23,12 +23,12 @@ exports[`SearchModal renders the correct markup for activated field_statement_mu
       </h3>
       <div class=\\"max-h-12 w-full align-top overflow-auto u-mb\\">
         <div class=\\"layout--flush\\">
-          <dp-checkbox-stub datacy=\\"\\" datadpvalidateerrorfieldname=\\"\\" id=\\"statementText\\" label=\\"[object Object]\\" name=\\"search_fields[]\\" valuetosend=\\"1\\" class=\\"layout__item u-1-of-2\\"></dp-checkbox-stub>
-          <dp-checkbox-stub datacy=\\"\\" datadpvalidateerrorfieldname=\\"\\" id=\\"authorName\\" label=\\"[object Object]\\" name=\\"search_fields[]\\" valuetosend=\\"1\\" class=\\"layout__item u-1-of-2\\"></dp-checkbox-stub>
-          <dp-checkbox-stub datacy=\\"\\" datadpvalidateerrorfieldname=\\"\\" id=\\"statementId\\" label=\\"[object Object]\\" name=\\"search_fields[]\\" valuetosend=\\"1\\" class=\\"layout__item u-1-of-2\\"></dp-checkbox-stub>
-          <dp-checkbox-stub datacy=\\"\\" datadpvalidateerrorfieldname=\\"\\" id=\\"internId\\" label=\\"[object Object]\\" name=\\"search_fields[]\\" valuetosend=\\"1\\" class=\\"layout__item u-1-of-2\\"></dp-checkbox-stub>
-          <dp-checkbox-stub datacy=\\"\\" datadpvalidateerrorfieldname=\\"\\" id=\\"municipalitiesNames\\" label=\\"[object Object]\\" name=\\"search_fields[]\\" valuetosend=\\"1\\" class=\\"layout__item u-1-of-2\\"></dp-checkbox-stub>
-          <dp-checkbox-stub datacy=\\"\\" datadpvalidateerrorfieldname=\\"\\" id=\\"consideration\\" label=\\"[object Object]\\" name=\\"search_fields[]\\" valuetosend=\\"1\\" class=\\"layout__item u-1-of-2\\"></dp-checkbox-stub>
+          <dp-checkbox-stub datacy=\\"searchModal:statementText\\" datadpvalidateerrorfieldname=\\"\\" id=\\"statementText\\" label=\\"[object Object]\\" name=\\"search_fields[]\\" valuetosend=\\"1\\" class=\\"layout__item u-1-of-2\\"></dp-checkbox-stub>
+          <dp-checkbox-stub datacy=\\"searchModal:authorName\\" datadpvalidateerrorfieldname=\\"\\" id=\\"authorName\\" label=\\"[object Object]\\" name=\\"search_fields[]\\" valuetosend=\\"1\\" class=\\"layout__item u-1-of-2\\"></dp-checkbox-stub>
+          <dp-checkbox-stub datacy=\\"searchModal:statementId\\" datadpvalidateerrorfieldname=\\"\\" id=\\"statementId\\" label=\\"[object Object]\\" name=\\"search_fields[]\\" valuetosend=\\"1\\" class=\\"layout__item u-1-of-2\\"></dp-checkbox-stub>
+          <dp-checkbox-stub datacy=\\"searchModal:internId\\" datadpvalidateerrorfieldname=\\"\\" id=\\"internId\\" label=\\"[object Object]\\" name=\\"search_fields[]\\" valuetosend=\\"1\\" class=\\"layout__item u-1-of-2\\"></dp-checkbox-stub>
+          <dp-checkbox-stub datacy=\\"searchModal:municipalitiesNames\\" datadpvalidateerrorfieldname=\\"\\" id=\\"municipalitiesNames\\" label=\\"[object Object]\\" name=\\"search_fields[]\\" valuetosend=\\"1\\" class=\\"layout__item u-1-of-2\\"></dp-checkbox-stub>
+          <dp-checkbox-stub datacy=\\"searchModal:consideration\\" datadpvalidateerrorfieldname=\\"\\" id=\\"consideration\\" label=\\"[object Object]\\" name=\\"search_fields[]\\" valuetosend=\\"1\\" class=\\"layout__item u-1-of-2\\"></dp-checkbox-stub>
           <!---->
           <!---->
           <!---->
@@ -73,11 +73,11 @@ exports[`SearchModal renders the correct markup with deactivated feature_stateme
       </h3>
       <div class=\\"max-h-12 w-full align-top overflow-auto u-mb\\">
         <div class=\\"layout--flush\\">
-          <dp-checkbox-stub datacy=\\"\\" datadpvalidateerrorfieldname=\\"\\" id=\\"statementText\\" label=\\"[object Object]\\" name=\\"search_fields[]\\" valuetosend=\\"1\\" class=\\"layout__item u-1-of-2\\"></dp-checkbox-stub>
-          <dp-checkbox-stub datacy=\\"\\" datadpvalidateerrorfieldname=\\"\\" id=\\"authorName\\" label=\\"[object Object]\\" name=\\"search_fields[]\\" valuetosend=\\"1\\" class=\\"layout__item u-1-of-2\\"></dp-checkbox-stub>
-          <dp-checkbox-stub datacy=\\"\\" datadpvalidateerrorfieldname=\\"\\" id=\\"statementId\\" label=\\"[object Object]\\" name=\\"search_fields[]\\" valuetosend=\\"1\\" class=\\"layout__item u-1-of-2\\"></dp-checkbox-stub>
-          <dp-checkbox-stub datacy=\\"\\" datadpvalidateerrorfieldname=\\"\\" id=\\"internId\\" label=\\"[object Object]\\" name=\\"search_fields[]\\" valuetosend=\\"1\\" class=\\"layout__item u-1-of-2\\"></dp-checkbox-stub>
-          <dp-checkbox-stub datacy=\\"\\" datadpvalidateerrorfieldname=\\"\\" id=\\"consideration\\" label=\\"[object Object]\\" name=\\"search_fields[]\\" valuetosend=\\"1\\" class=\\"layout__item u-1-of-2\\"></dp-checkbox-stub>
+          <dp-checkbox-stub datacy=\\"searchModal:statementText\\" datadpvalidateerrorfieldname=\\"\\" id=\\"statementText\\" label=\\"[object Object]\\" name=\\"search_fields[]\\" valuetosend=\\"1\\" class=\\"layout__item u-1-of-2\\"></dp-checkbox-stub>
+          <dp-checkbox-stub datacy=\\"searchModal:authorName\\" datadpvalidateerrorfieldname=\\"\\" id=\\"authorName\\" label=\\"[object Object]\\" name=\\"search_fields[]\\" valuetosend=\\"1\\" class=\\"layout__item u-1-of-2\\"></dp-checkbox-stub>
+          <dp-checkbox-stub datacy=\\"searchModal:statementId\\" datadpvalidateerrorfieldname=\\"\\" id=\\"statementId\\" label=\\"[object Object]\\" name=\\"search_fields[]\\" valuetosend=\\"1\\" class=\\"layout__item u-1-of-2\\"></dp-checkbox-stub>
+          <dp-checkbox-stub datacy=\\"searchModal:internId\\" datadpvalidateerrorfieldname=\\"\\" id=\\"internId\\" label=\\"[object Object]\\" name=\\"search_fields[]\\" valuetosend=\\"1\\" class=\\"layout__item u-1-of-2\\"></dp-checkbox-stub>
+          <dp-checkbox-stub datacy=\\"searchModal:consideration\\" datadpvalidateerrorfieldname=\\"\\" id=\\"consideration\\" label=\\"[object Object]\\" name=\\"search_fields[]\\" valuetosend=\\"1\\" class=\\"layout__item u-1-of-2\\"></dp-checkbox-stub>
           <!---->
           <!---->
           <!---->
