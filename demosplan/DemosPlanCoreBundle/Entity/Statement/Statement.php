@@ -2521,7 +2521,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
             $this->paragraphTitle = $this->paragraph->getTitle();
         }
 
-        return trim($this->paragraphTitle);
+        return trim($this->paragraphTitle ?? '');
     }
 
     /**
@@ -2569,7 +2569,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
             $this->paragraphParentTitle = $parentTitle;
         }
 
-        return trim($this->paragraphParentTitle);
+        return trim($this->paragraphParentTitle ?? '');
     }
 
     /**
@@ -2585,7 +2585,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
             $this->documentParentTitle = $documentTitle;
         }
 
-        return trim($this->documentParentTitle);
+        return trim($this->documentParentTitle ?? '');
     }
 
     /**
