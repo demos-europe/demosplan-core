@@ -29,7 +29,8 @@
         @node-selection-change="nodeSelectionChange"
         :tree-data="recursiveElements"
         :branch-identifier="isBranch()"
-        :options="treeListOptions">
+        :options="treeListOptions"
+        leaf-only>
         <template v-slot:header="">
           <span class="color--grey">Dokumente des Verfahrens</span>
         </template>
@@ -104,13 +105,16 @@ export default {
     }),
 
     buttonLabel () {
-      let buttonLabel
-      if (this.selectedFiles.length > 0 && this.selectedFiles.length !== this.allFiles.length) {
-        buttonLabel = `Ausgewählte Dokumente herunterladen (Zip, ca. ${this.accumulatedFileSize(this.selectedFiles)})`
-      } else {
-        buttonLabel = `Alle Dokumente herunterladen (Zip, ca. ${this.accumulatedFileSize(this.allFiles)})`
-      }
-      return buttonLabel
+      return 'Hier sollte man über die Optimierung nachdenken, weil es viel kostet'
+      /*
+       *Let buttonLabel
+       *if (this.selectedFiles.length > 0 && this.selectedFiles.length !== this.allFiles.length) {
+       *buttonLabel = `Ausgewählte Dokumente herunterladen (Zip, ca. ${this.accumulatedFileSize2(this.selectedFiles)})`
+       *} else {
+       *buttonLabel = `Alle Dokumente herunterladen (Zip, ca. ${this.accumulatedFileSize(this.allFiles)})`
+       *}
+       *return buttonLabel
+       */
     },
 
     formAction () {
@@ -154,8 +158,7 @@ export default {
     },
 
     nodeSelectionChange (selected) {
-      const selectedFilesIds = selected.filter(node => node.nodeType === 'leaf').map(el => el.nodeId)
-      this.selectedFiles = this.allFiles.filter(file => selectedFilesIds.includes(file.id))
+      this.selectedFiles = selected
     },
 
     /*
