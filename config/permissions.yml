@@ -1161,6 +1161,11 @@ feature_new_statement_form:
     label: 'Stell. verf. Formular anzeigen'
     loginRequired: true
     parent: feature_statement
+feature_show_notice_draft_statement:
+    description: 'some project with Gateway as a project type (diplanbeteiligung) should not be shown for the submitter in the public statement'
+    expose: false
+    label: 'note show'
+    loginRequired: true
 feature_notification_citizen_statement_submitted:
     label: 'Benachrichtigung an den Bürger bei eingereichten Stellungnahmen'
     loginRequired: true
@@ -1648,6 +1653,11 @@ feature_require_locality_confirmation:
         to was configured for.
     expose: false
     label: 'Submission of draft statements as statements requires to confirm the locality'
+    loginRequired: true
+feature_require_procedure_contact_person:
+    description: 'When a procedure be created, in diplanbeteiligung should contact person be required, therefore field should be empty otherwise be k.A'
+    expose: false
+    lable: 'Allows to set contact person without use default value'
     loginRequired: true
 feature_screenshot_map_nonpublic_printlayers:
     description: 'Enables having a gislayer which is not published but is used only as print/export layer.'

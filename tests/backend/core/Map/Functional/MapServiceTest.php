@@ -10,6 +10,8 @@
 
 namespace Tests\Core\Map\Functional;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureSettingsFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
@@ -26,7 +28,7 @@ class MapServiceTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(MapService::class);
+        $this->sut = $this->getContainer()->get(MapService::class);
     }
 
     public function testGetGisLayerListValueStructure()
@@ -320,5 +322,25 @@ class MapServiceTest extends FunctionalTestCase
         $hash = array_pop($parts);
         $this->checkId($hash);
         self::assertSame("Map_$draftStatementOrStatementId.png", implode(':', $parts));
+    }
+
+    /**
+     * Test that certain fields are retrieved from config and others from procedureSettings when getting GetMapOptions.
+     */
+    public function testGetMapOptions()
+    {
+        $config = $this->getContainer()->get(GlobalConfigInterface::class);
+        $procedureSettings = ProcedureSettingsFactory::createOne();
+        $procedure = $procedureSettings->getProcedure();
+        $mapOptions = $this->sut->getMapOptions($procedure->getId());
+
+        // Test that certain fields are coming from config
+        self::assertSame($config->getMapAdminBaselayer(), $mapOptions->getBaseLayer());
+
+        // Test that certain fields are coming procedureSettings
+        $procedureSettingsMapExtent = explode(',', $procedureSettings->getMapExtent());
+        $procedureSettingsMapExtent = array_map('floatval', $procedureSettingsMapExtent);
+
+        self::assertSame($procedureSettingsMapExtent, $mapOptions->getProcedureInitialExtent());
     }
 }
