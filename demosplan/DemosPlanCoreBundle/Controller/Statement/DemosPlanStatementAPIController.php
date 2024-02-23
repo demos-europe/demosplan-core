@@ -423,27 +423,27 @@ class DemosPlanStatementAPIController extends APIController
             // use high magic number to get all entries
             // do not log views for planning agencies, this would be wrong (as not all
             // statements have been displayed and creates a performance issue)
-            $allStatements = $statementService->getStatementsByProcedureId(
-                // maybe retrievable from the session? (related to @improve T12984)
-                $procedureId,
-                [],
-                null,
-                '',
-                100000,
-                1,
-                [],
-                false,
-                1,
-                false
-            );
-            $meta['statementAssignments'] = $userService->getAssigneeIds($allStatements->getResult());
+//            $allStatements = $statementService->getStatementsByProcedureId(//weg
+//                // maybe retrievable from the session? (related to @improve T12984)
+//                $procedureId,
+//                [],
+//                null,
+//                '',
+//                100000,
+//                1,
+//                [],
+//                false,
+//                1,
+//                false
+//            );
+            $meta['statementAssignments'] = [];
 
             // same holds true for StatementFragments
-            $allStatementFragments = $statementFragmentService->getStatementFragmentsProcedure(
-                $procedureId,
-                100000
-            );
-            $meta['fragmentAssignments'] = $userService->getAssigneeIds($allStatementFragments->getResult());
+//            $allStatementFragments = $statementFragmentService->getStatementFragmentsProcedure(
+//                $procedureId,
+//                100000
+//            );
+            $meta['fragmentAssignments'] = [];
             $meta['filterHash'] = $filterSetHash;
 
             /** @var AssessmentTableQuery $storedQuery */
