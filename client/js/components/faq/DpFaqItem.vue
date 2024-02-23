@@ -93,6 +93,11 @@ export default {
     parentId: {
       type: String,
       required: true
+    },
+
+    transformedCategoriesData: {
+      type: Array,
+      required: true
     }
   },
 
@@ -114,10 +119,10 @@ export default {
 
   computed: {
     ...mapState('faq', {
-      faqItems: 'items'
+      faqItems: state => state.items
     }),
     ...mapState('faqCategory', {
-      faqCategories: 'items'
+      faqCategories: state => state.items
     }),
 
     currentParentItem () {
@@ -126,7 +131,7 @@ export default {
 
     itemEnabled: {
       get () {
-        return this.faqItems[this.faqItem.id].attributes.enabled
+        return this.faqItems[this.faqItem.id]?.attributes?.enabled
       },
 
       set (val) {

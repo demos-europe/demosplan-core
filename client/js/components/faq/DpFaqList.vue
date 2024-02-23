@@ -41,6 +41,7 @@
       </template>
       <template v-slot:leaf="{ nodeElement, parentId }">
         <dp-faq-item
+          :transformed-categories-data="this.transformCategoryData(this.faqCategories)"
           :available-group-options="availableGroupOptions"
           :faq-item="nodeElement"
           :parent-id="parentId" />
@@ -193,6 +194,7 @@ export default {
   },
 
   mounted () {
+    console.log(this.transformCategoryData(this.faqCategories))
     this.categoryList().then(() => {
       this.isLoading = false
     })
