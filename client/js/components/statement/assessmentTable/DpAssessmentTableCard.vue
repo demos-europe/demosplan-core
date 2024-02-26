@@ -318,7 +318,7 @@
               <dd
                 v-if="hasPermission('field_statement_status')"
                 class="layout--flush layout__item"
-                :class="hasPermission('field_statement_priority') ? 'border--right u-pr-0_5 u-3-of-6' : 'u-1-of-1'">
+                :class="hasPermission('field_statement_priority') ? 'border--right u-3-of-6' : 'u-1-of-1'">
                 <dp-edit-field-single-select
                   label="Status"
                   field-key="status"
