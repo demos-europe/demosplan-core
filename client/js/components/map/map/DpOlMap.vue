@@ -278,12 +278,14 @@ export default {
      * @return void
      */
     defineExtent (mapOptions) {
-      if (this._options.procedureExtent && mapOptions.procedureMaxExtent && mapOptions.procedureMaxExtent.length > 0) {
-        this.maxExtent = mapOptions.procedureMaxExtent
-      } else if (mapOptions.procedureDefaultMaxExtent && mapOptions.procedureDefaultMaxExtent.length > 0) {
-        this.maxExtent = mapOptions.procedureDefaultMaxExtent
-      } else {
-        this.maxExtent = mapOptions.defaultMapExtent
+      this.maxExtent = mapOptions.defaultMapExtent
+
+      if (this._options.procedureExtent !== false) {
+        if (mapOptions.procedureMaxExtent && mapOptions.procedureMaxExtent.length > 0) {
+          this.maxExtent = mapOptions.procedureMaxExtent
+        } else if (mapOptions.procedureDefaultMaxExtent && mapOptions.procedureDefaultMaxExtent.length > 0) {
+          this.maxExtent = mapOptions.procedureDefaultMaxExtent
+        }
       }
     },
 
