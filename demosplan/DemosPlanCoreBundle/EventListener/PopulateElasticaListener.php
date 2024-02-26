@@ -63,5 +63,9 @@ class PopulateElasticaListener
         $settings->set(['max_result_window' => 1_000_000]);
 
         $this->logger->info('postIndexPopulate ES Index. Set refresh interval to 500');
+
+        // increase max clause count to avoid problems with large queries
+        $settings->set(['max_clause_count' => 4096]);
+        $this->logger->info('postIndexPopulate ES Index. Set max_clause_count to 4096');
     }
 }
