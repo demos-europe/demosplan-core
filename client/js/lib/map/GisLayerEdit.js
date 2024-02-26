@@ -44,7 +44,7 @@ export default () => {
     }
   })
 
-  const elementsHiddenForBase = [
+  const elementsHiddenForBaseMap = [
     {
       node: document.querySelector('input[name="r_user_toggle_visibility"]'),
       defaultValue: true
@@ -57,7 +57,7 @@ export default () => {
 
   // Check if base layer and disable user toggling on load
   if (document.querySelector('input[name="r_type"][value="base"]').checked) {
-    elementsHiddenForBase.forEach((element) => {
+    elementsHiddenForBaseMap.forEach((element) => {
       disableNode(element.node, element.defaultValue)
     })
   }
@@ -94,11 +94,11 @@ export default () => {
   function handleUserToggle (e) {
     const radioVal = e.target.value
     if (radioVal === 'base') {
-      elementsHiddenForBase.forEach((element) => {
+      elementsHiddenForBaseMap.forEach((element) => {
         disableNode(element.node, element.defaultValue)
       })
     } else {
-      elementsHiddenForBase.forEach((element) => {
+      elementsHiddenForBaseMap.forEach((element) => {
         enableNode(element.node)
       })
     }
