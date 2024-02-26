@@ -21,6 +21,7 @@
         <dp-button
           class="ml-auto"
           variant="outline"
+          data-cy="listStatements:searchReset"
           :href="Routing.generate('dplan_procedure_statement_list', { procedureId: procedureId })"
           :disabled="searchValue === ''"
           :text="Translator.trans('search.reset')" />
@@ -38,6 +39,7 @@
       <div class="flex space-inline-xs">
         <dp-flyout
           ref="flyout"
+          data-cy="listStatements:export"
           :align="'left'">
           <template v-slot:trigger>
             {{ Translator.trans('export.verb') }}
@@ -46,11 +48,13 @@
               aria-hidden="true" />
           </template>
           <a
+            data-cy="listStatements:exportStatementsDocx"
             href="#"
             @click="showHintAndDoExport('dplan_statement_segments_export')">
             {{ Translator.trans('export.statements.docx') }}
           </a>
           <a
+            data-cy="listStatements:exportStatementsZip"
             href="#"
             @click="showHintAndDoExport('dplan_statement_segments_export_packaged')">
             {{ Translator.trans('export.statements.zip') }}
@@ -58,6 +62,7 @@
           <a
             v-if="hasPermission('feature_admin_assessmenttable_export_statement_generic_xlsx')"
             :href="exportRoute('dplan_statement_xls_export')"
+            data-cy="listStatements:exportStatementsXlsx"
             rel="noopener">
             {{ Translator.trans('export.statements.xlsx') }}
           </a>
@@ -145,9 +150,10 @@
             v-cleanhtml="text" />
         </template>
         <template v-slot:flyout="{ assignee, id, originalPdf, segmentsCount, synchronized }">
-          <dp-flyout>
+          <dp-flyout data-cy="listStatements:statementActionsMenu">
             <button
               v-if="hasPermission('area_statement_segmentation')"
+              data-cy="listStatements:statementSplit"
               :class="`${(segmentsCount > 0 && segmentsCount !== '-') ? 'is-disabled' : '' } btn--blank o-link--default`"
               :disabled="segmentsCount > 0 && segmentsCount !== '-'"
               @click.prevent="handleStatementSegmentation(id, assignee, segmentsCount)"
@@ -155,12 +161,14 @@
               {{ Translator.trans('split') }}
             </button>
             <a
+              data-cy="listStatements:statementDetailsAndRecommendation"
               :href="Routing.generate('dplan_statement_segments_list', { statementId: id, procedureId: procedureId })"
               rel="noopener">
               {{ Translator.trans('statement.details_and_recommendation') }}
             </a>
             <a
               v-if="hasPermission('feature_read_source_statement_via_api')"
+              data-cy="listStatements:originalPDF"
               :class="{'is-disabled': originalPdf === null}"
               :href="Routing.generate('core_file_procedure', { hash: originalPdf, procedureId: procedureId })"
               rel="noreferrer noopener"
@@ -168,6 +176,7 @@
               {{ Translator.trans('original.pdf') }}
             </a>
             <button
+              data-cy="listStatements:statementDelete"
               :class="`${ !synchronized || assignee.id === currentUserId ? 'hover:underline--hover' : 'is-disabled' } btn--blank o-link--default`"
               :disabled="synchronized || assignee.id !== currentUserId"
               type="button"
