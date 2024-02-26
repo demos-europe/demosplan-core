@@ -371,7 +371,6 @@ const LayersStore = {
      */
     elementListForLayerSidebar: state => (categoryId, type, withCategories) => {
       //  Return if there is no data
-      console.log('here')
       if (typeof state.apiData.data === 'undefined') {
         return []
       }
