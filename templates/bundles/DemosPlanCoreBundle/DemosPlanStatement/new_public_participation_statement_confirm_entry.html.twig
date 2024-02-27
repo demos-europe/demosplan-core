@@ -56,7 +56,8 @@
                         rel="noopener"
                         href="{{ path("core_file", { 'hash': file|getFile('hash') }) }}" title="{{ file|getFile('name') }}">
                         {{ file|getFile('name') }}
-                    </a><br>
+                    </a>
+                    {% if not loop.last %}<span>,</span>{% endif %}
                 {% endfor %}
             {% endif %}
         </dd>
