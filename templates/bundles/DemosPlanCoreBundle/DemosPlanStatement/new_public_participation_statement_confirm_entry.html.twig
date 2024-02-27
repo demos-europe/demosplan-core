@@ -1,68 +1,68 @@
 <article>
-    <header class="{{ 'layout__item py-1'|prefixClass }}">
-        {% if statement.number is defined %}{{ statement.number }}{% endif %}
-
-        <span class="{{ 'font-size-smaller float-right'|prefixClass }}">
-			{% if statement.createdDate is defined %}{{ "date.created"|trans }}: {{ statement.createdDate|dplanDate("d.m.Y H:i") }}{% endif %}
-		</span>
-    </header>
-
-    <div class="flex flex-col md:flex-row">
-        <dl class="{{ 'grid grid-cols-8 w-full md:w-1/2 mb-0'|prefixClass }}">
-            <dt class="{{ 'col-start-1 mb-1 font-semibold'|prefixClass }}">
-                {{ "document"|trans }}:
-            </dt>
-             <dd class="{{ 'col-start-2 ml-7 md:ml-5 lg:ml-3'|prefixClass }}">
-                {{ statement.element.title|default() }} {% if statement.document.title is defined %}/ {{ statement.document.title }}{% endif %}
-            </dd>
-
-            {% if hasPermission('field_statement_location') %}
-                <dt class="{{ 'col-start-1 mb-1 weight--bold '|prefixClass }}">
-                    {{ "location"|trans }}:
-                </dt>
-                 <dd class="{{ 'col-start-2 ml-7 md:ml-5 lg:ml-3'|prefixClass }}">
-                    {% if statement.polygon|default != '' %}
-                        <button
-                            class="{{ 'btn--blank o-link--default'|prefixClass }}"
-                            type="button"
-                            @click.prevent.stop="(function(){$refs.mapModal.toggleModal({{ statement.polygon|convertLegacyPolygon|escape('html_attr') }})})()">
-                            {{ 'see'|trans }}
-                        </button>
-                    {% else %}
-                        {{ "notspecified"|trans }}
-                    {% endif %}
-                </dd>
+    {% if statement.number is defined %}
+        <header class="{{ 'layout__item'|prefixClass }}">
+            {{ statement.number }}
+            {% if statement.createdDate is defined %}
+                <span class="{{ 'font-size-smaller float-right'|prefixClass }}">
+                    {{ "date.created"|trans }}: {{ statement.createdDate|dplanDate("d.m.Y H:i") }}
+                </span>
             {% endif %}
-        </dl>
+        </header>
+    {% endif %}
 
-        <dl class="{{ 'grid grid-cols-8 w-full md:w-1/2 mb-0'|prefixClass }}">
-            {% if hasPermission('feature_documents_new_statement') %}
-                <dt class="{{ 'col-start-1 mb-1 font-semibold'|prefixClass }}">
-                    {{ "paragraph"|trans }}:
-                </dt>
-                <dd class="{{ 'col-start-2 ml-7 md:ml-1'|prefixClass }}">
-                    {% if statement.paragraph.title is defined %}{{ statement.paragraph.title|striptags|default() }}{% endif %}
-                </dd>
-            {% endif %}
-            <dt class="{{ 'col-start-1 weight--bold'|prefixClass }}">
-                {{ "file"|trans }}:
+    <dl class="{{ 'w-full md:w-1/3 mb-0'|prefixClass }}">
+        <dt class="{{ 'inline-block mb-3 mt-1 w-1/4 md:w-4/12 lg:w-1/4 font-semibold'|prefixClass }}">
+            {{ "document"|trans }}
+        </dt>
+         <dd class="{{ 'inline-block ml-0 w-3/4 md:w-7/12 lg:w-3/4'|prefixClass }}">
+            {{ statement.element.title|default() }} {% if statement.document.title is defined %}/ {{ statement.document.title }}{% endif %}
+        </dd>
+
+        {% if hasPermission('field_statement_location') %}
+            <dt class="{{ 'inline-block mb-3 w-1/4 md:w-4/12 lg:w-1/4 font-semibold'|prefixClass }}">
+                {{ "location"|trans }}
             </dt>
-            <dd class="{{ 'col-start-2 ml-7 md:ml-1'|prefixClass }}">
-                {% if statement.files|default([])|length > 0 %}
-                    {% for file in statement.files %}
-                        <a
-                            target="_blank"
-                            rel="noopener"
-                            href="{{ path("core_file", { 'hash': file|getFile('hash') }) }}" title="{{ file|getFile('name') }}">
-                            {{ file|getFile('name') }}
-                        </a><br>
-                    {% endfor %}
+             <dd class="{{ 'inline-block ml-0 w-3/4 md:w-7/12 lg:w-3/4'|prefixClass }}">
+                {% if statement.polygon|default != '' %}
+                    <button
+                        class="{{ 'btn--blank o-link--default'|prefixClass }}"
+                        type="button"
+                        @click.prevent.stop="(function(){$refs.mapModal.toggleModal({{ statement.polygon|convertLegacyPolygon|escape('html_attr') }})})()">
+                        {{ 'see'|trans }}
+                    </button>
+                {% else %}
+                    {{ "notspecified"|trans }}
                 {% endif %}
             </dd>
-        </dl>
-    </div>
+        {% endif %}
 
-    <div class="{{ 'layout__item u-11-of-12 u-pl-0 u-pt -'|prefixClass }}">
+        {% if hasPermission('feature_documents_new_statement') %}
+            <dt class="{{ 'inline-block mb-3 w-1/4 md:w-4/12 lg:w-1/4 font-semibold'|prefixClass }}">
+                {{ "paragraph"|trans }}
+            </dt>
+            <dd class="{{ 'inline-block ml-0 w-3/4 md:w-7/12 lg:w-3/4'|prefixClass }}">
+                {% if statement.paragraph.title is defined %}{{ statement.paragraph.title|striptags|default() }}{% endif %}
+            </dd>
+        {% endif %}
+
+        <dt class="{{ 'inline-block mb-3 w-1/4 md:w-4/12 lg:w-1/4 font-semibold'|prefixClass }}">
+            {{ "file"|trans }}
+        </dt>
+        <dd class="{{ 'inline-block align-top ml-0 w-3/4 md:w-7/12 lg:w-3/4'|prefixClass }}">
+            {% if statement.files|default([])|length > 0 %}
+                {% for file in statement.files %}
+                    <a
+                        target="_blank"
+                        rel="noopener"
+                        href="{{ path("core_file", { 'hash': file|getFile('hash') }) }}" title="{{ file|getFile('name') }}">
+                        {{ file|getFile('name') }}
+                    </a><br>
+                {% endfor %}
+            {% endif %}
+        </dd>
+    </dl>
+
+    <div class="{{ 'w-11/12 pl-0 pt-2'|prefixClass }}">
         {% if statement.rejectedReason is defined and statement.rejectedReason!='' %}
             <strong>
                 {{ "confirm.statement.rejected.reason"|trans }} "{{ statement.rejectedReason }}"
