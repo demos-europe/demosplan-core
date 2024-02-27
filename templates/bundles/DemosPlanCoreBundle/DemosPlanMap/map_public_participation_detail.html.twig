@@ -253,15 +253,17 @@
     {% set filtered_legends = all_layers|filter(layer => '//' in layer.url and (layer.legend|default|getFile('size')|length > 0 or layer.legend|default|getFile('mimeType')|length > 0)) %}
     {% set layers_with_legend_files = [] %}
     {% for layer in filtered_legends %}
-        {# Transform object to be consumable by vue component #}
-        {% set layers_with_legend_files = layers_with_legend_files|merge([{
-            name: layer.name,
-            legend: {
-                hash: layer.legend|getFile('hash'),
-                mimeType: layer.legend|getFile('mimeType'),
-                fileSize: layer.legend|getFile('size')
-            }
-        }]) %}
+        {% if layer.defaultVisibility == true %}
+            {# Transform object to be consumable by vue component #}
+            {% set layers_with_legend_files = layers_with_legend_files|merge([{
+                name: layer.name,
+                legend: {
+                    hash: layer.legend|getFile('hash'),
+                    mimeType: layer.legend|getFile('mimeType'),
+                    fileSize: layer.legend|getFile('size')
+                }
+            }]) %}
+        {%  endif %}
     {% endfor %}
     {% if false == display_legend_box %}
         {% set display_legend_box = layers_with_legend_files|length > 0 %}
