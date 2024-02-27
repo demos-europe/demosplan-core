@@ -1118,6 +1118,12 @@ export default {
             }
             const printLayerName = printLayer.getProperties().name
             const source = printLayer.getSource()
+
+            // This covers the edge case that a layer which is set as print layer is no longer valid.
+            if (source === null) {
+              return
+            }
+
             const tileUrlFunction = source.getTileUrlFunction()
             const tileGrid = source.getTileGrid()
             const tileSize = tileGrid.getTileSize()
