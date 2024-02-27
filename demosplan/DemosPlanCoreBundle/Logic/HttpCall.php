@@ -88,7 +88,7 @@ class HttpCall
 
         // set proxy
         if (true === $this->isProxyEnabled()) {
-            $proxy = $this->proxyHost.':'.$this->proxyPort;
+            $proxy = trim($this->proxyHost).':'.trim($this->proxyPort);
             $options['proxy'] = $proxy;
             $this->logger->info('Use Proxy', [$proxy]);
         }
