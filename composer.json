@@ -64,7 +64,7 @@
         "jms/serializer-bundle": "^5.2",
         "knplabs/knp-menu-bundle": "^3.2",
         "knpuniversity/oauth2-client-bundle": "^2.10",
-        "league/fractal": "^0.19",
+        "league/fractal": "^0.20",
         "league/html-to-markdown": "^5.0",
         "lexik/jwt-authentication-bundle": "^2.8",
         "maennchen/zipstream-php": "2.4",

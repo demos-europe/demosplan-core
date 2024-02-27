@@ -10,16 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 
 /**
- * @template-extends FluentRepository<ProcedureType>
+ * @template-extends CoreRepository<ProcedureType>
  */
-class ProcedureTypeRepository extends FluentRepository implements ObjectInterface
+class ProcedureTypeRepository extends CoreRepository implements ObjectInterface
 {
     /**
      * @param ProcedureType $procedureType

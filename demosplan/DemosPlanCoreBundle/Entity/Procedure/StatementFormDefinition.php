@@ -131,8 +131,10 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
         $orderNumber = 1;
 
         foreach ($fieldDefinitionsNames as $fieldDefinitionsName => $values) {
+            $statementFieldDefinition = new StatementFieldDefinition($fieldDefinitionsName, $this, $orderNumber, $values['enabled'], $values['required']);
+            $statementFieldDefinition->setId('n/a');
             $this->fieldDefinitions->add(
-                new StatementFieldDefinition($fieldDefinitionsName, $this, $orderNumber, $values['enabled'], $values['required'])
+                $statementFieldDefinition
             );
             ++$orderNumber;
         }
@@ -185,6 +187,11 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
     public function getId(): ?string
     {
         return $this->id;
+    }
+
+    public function setId(string $id): void
+    {
+        $this->id = $id;
     }
 
     public function getProcedure(): ?Procedure

@@ -21,7 +21,7 @@ class FaqCategoryTransformer extends BaseTransformer
 {
     protected $type = 'faq-category';
 
-    protected $defaultIncludes = ['faq'];
+    protected array $defaultIncludes = ['faq'];
 
     /** @var FaqHandler */
     protected $faqHandler;
