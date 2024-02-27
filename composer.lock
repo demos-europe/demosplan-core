@@ -1362,16 +1362,16 @@
         },
         {
             "name": "demos-europe/demosplan-addon",
-            "version": "v0.26",
+            "version": "v0.28",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "e4f5a2cba028ee7a49ba5f941fa0df92edd81570"
+                "reference": "c56998e2fe811eb6bc7c546614f25d78cc939f5a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/e4f5a2cba028ee7a49ba5f941fa0df92edd81570",
-                "reference": "e4f5a2cba028ee7a49ba5f941fa0df92edd81570",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/c56998e2fe811eb6bc7c546614f25d78cc939f5a",
+                "reference": "c56998e2fe811eb6bc7c546614f25d78cc939f5a",
                 "shasum": ""
             },
             "require": {
@@ -1435,9 +1435,9 @@
             ],
             "description": "This is the base package for all demosplan addons",
             "support": {
-                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.26"
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.28"
             },
-            "time": "2024-02-16T19:08:21+00:00"
+            "time": "2024-02-27T14:57:51+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
@@ -22620,5 +22620,5 @@
     "platform-overrides": {
         "php": "8.1.12"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.3.0"
 }
