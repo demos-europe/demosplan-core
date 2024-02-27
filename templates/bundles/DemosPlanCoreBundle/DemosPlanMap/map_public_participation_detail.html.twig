@@ -248,20 +248,23 @@
         {% set planPdf = { pdf: procedureSettings.planPDF, hash: procedureSettings.planPDF|getFile('hash'), mimeType: procedureSettings.planPDF|getFile('mimeType'), size: procedureSettings.planPDF|getFile('size','MB') } %}
     {% endif %}
 
-    {# Check whether there are layers with attached legend pdf files (feature_map_layer_legend_file) #}
+     Check whether there are layers with attached legend pdf files (feature_map_layer_legend_file)
     {% set all_layers = templateVars.baselayers.gislayerlist|default([])|merge(templateVars.overlays.gislayerlist|default([])) %}
     {% set filtered_legends = all_layers|filter(layer => '//' in layer.url and (layer.legend|default|getFile('size')|length > 0 or layer.legend|default|getFile('mimeType')|length > 0)) %}
     {% set layers_with_legend_files = [] %}
     {% for layer in filtered_legends %}
-        {# Transform object to be consumable by vue component #}
-        {% set layers_with_legend_files = layers_with_legend_files|merge([{
-            name: layer.name,
-            legend: {
-                hash: layer.legend|getFile('hash'),
-                mimeType: layer.legend|getFile('mimeType'),
-                fileSize: layer.legend|getFile('size')
-            }
-        }]) %}
+        {% if layer.defaultVisibility == true %}
+            {{ dump(layer.defaultVisibility) }}
+            Transform object to be consumable by vue component
+            {% set layers_with_legend_files = layers_with_legend_files|merge([{
+                name: layer.name,
+                legend: {
+                    hash: layer.legend|getFile('hash'),
+                    mimeType: layer.legend|getFile('mimeType'),
+                    fileSize: layer.legend|getFile('size')
+                }
+            }]) %}
+        {%  endif %}
     {% endfor %}
     {% if false == display_legend_box %}
         {% set display_legend_box = layers_with_legend_files|length > 0 %}
