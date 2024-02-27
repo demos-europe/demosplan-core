@@ -93,11 +93,6 @@ export default {
     parentId: {
       type: String,
       required: true
-    },
-
-    transformedCategoriesData: {
-      type: Array,
-      required: true
     }
   },
 
