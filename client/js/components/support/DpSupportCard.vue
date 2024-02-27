@@ -11,11 +11,11 @@ All rights reserved
   <section class="c-support__wrapper">
     <h4
       v-if="title"
-      class="u-mb-0_75 font-semibold font-size-large"
+      class="u-mb-0_75 font-semibold font-size-large break-word"
       v-text="title" />
     <a
       v-if="phoneNumber"
-      class="u-mt-0_25 inline-block font-semibold font-size-large color--black"
+      class="u-mt-0_25 inline-block font-semibold font-size-large color--black break-word"
       :href="`tel:${phoneNumber}`">
       <dp-icon
         class="inline-block"
@@ -30,17 +30,17 @@ All rights reserved
       <div
         v-if="reachability.service">
         <h4
-          class="u-mt-0_75 font-semibold"
+          class="u-mt-0_75 font-semibold break-word"
           v-text="reachability.service" />
         <p v-cleanhtml="reachability.officeHours" />
         <span
-          class="color--grey-light font-size-smaller"
+          class="color--grey-light font-size-smaller break-word"
           v-text="reachability.exception" />
       </div>
       <div
         v-else
         v-cleanhtml="reachability.officeHours"
-        class="u-mt-0_75 lg:mt-2" />
+        class="u-mt-0_75 lg:mt-2 break-word" />
     </template>
   </section>
 </template>
