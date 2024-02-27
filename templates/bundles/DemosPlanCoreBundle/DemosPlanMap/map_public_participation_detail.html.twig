@@ -254,7 +254,6 @@
     {% set layers_with_legend_files = [] %}
     {% for layer in filtered_legends %}
         {% if layer.defaultVisibility == true %}
-            {{ dump(layer.defaultVisibility) }}
             Transform object to be consumable by vue component
             {% set layers_with_legend_files = layers_with_legend_files|merge([{
                 name: layer.name,
