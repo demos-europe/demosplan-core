@@ -1,4 +1,4 @@
-import { createLocalVue, mount } from '@vue/test-utils'
+import { createLocalVue, mount, shallowMount } from '@vue/test-utils'
 // eslint-disable-next-line import/extensions,sort-imports
 import DpFaqItem from '../../../client/js/components/faq/DpFaqItem.vue'
 import Vuex from 'vuex'
@@ -9,37 +9,21 @@ localVue.use(Vuex)
 describe('DpFaqItem', () => {
   let store
   let wrapper
-  let faqCategoryModule, faqItemModule
+  let faqCategory, faq
 
   beforeEach(() => {
-    faqCategoryModule = {
-      namespaced: true,
-      state: {
-        items: {
-          1: 'Category A',
-          2: 'Category B'
-        }
-      }
-      // ... getters, actions, mutations, etc.
-    }
+    faqCategory = jest.fn()
 
-    faqItemModule = {
-      namespaced: true,
-      state: {
-        items: {
-          1: { id: 1, attributes: { title: 'Title 1', enabled: true } },
-          2: { id: 2, attributes: { title: 'Title 2', enabled: false } }
-        }
-      }
-      // ... getters, actions, mutations, etc.
-    }
+    faq = jest.fn()
 
     store = new Vuex.Store({
       modules: {
-        faq: faqItemModule,
-        faqCategory: faqCategoryModule
+        faqItems: faq,
+        faqCategories: faqCategory
       }
     })
+
+    store.dispatch = jest.fn()
 
     // Ensure dplan.notify.notify and dplan.notify.error are mocked if they are not globally available
     global.dplan = {
@@ -54,18 +38,19 @@ describe('DpFaqItem', () => {
       trans: jest.fn().mockImplementation(key => key) // Return the key for simplicity
     }
 
-    wrapper = mount(DpFaqItem, {
+    wrapper = shallowMount(DpFaqItem, {
       store,
+      localVue,
       propsData: {
         faqItem: {
-          id: '1',
+          id: 1,
           attributes: {
             title: 'hello',
             id: 1
           }
         },
+        parentId: 1,
         availableGroupOptions: ['a', 'b'],
-        parentId: '1',
         transformedCategoriesData: ['a', 'b']
       }
     })
