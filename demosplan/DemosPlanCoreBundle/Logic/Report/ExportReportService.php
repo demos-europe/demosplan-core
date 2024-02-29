@@ -22,6 +22,8 @@ use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+use function Symfony\Component\String\u;
+
 class ExportReportService extends CoreService
 {
     /** @var array */
@@ -177,7 +179,7 @@ class ExportReportService extends CoreService
 
         $userName = $reportEntry->getUserName();
         $userCell = $table->addCell($this->styles['userCellWidth']);
-        $userCell->addText($userName, $this->styles['baseFont']);
+        $userCell->addText(u($userName)->normalize()->toString(), $this->styles['baseFont']);
     }
 
     /**
