@@ -712,6 +712,7 @@
 
 <script>
 import { CleanHtml, DpDetails, DpEditor, DpLabel, DpTextArea, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { nextTick } from 'vue'
 
 export default {
   name: 'DpOrganisationFormFields',
@@ -948,7 +949,7 @@ export default {
      */
     emitOrganisationUpdate () {
       // NextTick is needed because the selects do not update the local user before the emitUserUpdate method is invoked
-      Vue.nextTick(() => {
+      nextTick(() => {
         this.$emit('organisation-update', this.localOrganisation)
       })
     },
