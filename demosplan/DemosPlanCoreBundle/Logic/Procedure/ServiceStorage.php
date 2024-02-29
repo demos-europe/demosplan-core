@@ -678,7 +678,9 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             $procedure['settings']['defaultLayer'] = $data['r_defaultLayer'];
         }
 
-        if (array_key_exists('r_copyright', $data)) {
+        if ($this->currentUser->hasPermission('area_admin_map_copyright') &&
+            array_key_exists('r_copyright', $data)
+        ) {
             $procedure['settings']['copyright'] = $data['r_copyright'];
         }
 

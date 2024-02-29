@@ -80,6 +80,10 @@ area_admin_map_description:
     label: 'Verwalten Planzeichenerkl.'
     loginRequired: true
     parent: area_admin
+area_admin_map_copyright:
+    label: "administrate procedure map copyright content"
+    loginRequired: tue
+    parent: area_admin
 area_admin_news:
     label: 'Verwalten Aktuelles'
     loginRequired: true

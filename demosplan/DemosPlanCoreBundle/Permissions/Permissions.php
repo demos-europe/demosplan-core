@@ -538,6 +538,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_admin_assessmenttable',  // Verwalten Abwaegungstabelle
                 'area_admin_dashboard',  // Übersichtsseite
                 'area_admin_map',  // Verwalten Planzeichnung
+                'area_admin_map_copyright',
                 'area_admin_map_description',  // Verwalten Planzeichenerklärung
                 'area_admin_news',  // Verwalten Aktuelles (im Verfahren)
                 'area_admin_paragraphed_document',  // Verwalten Begruendung + Textliche Festsettung/Verordnung

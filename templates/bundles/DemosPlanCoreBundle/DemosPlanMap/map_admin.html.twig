@@ -103,6 +103,7 @@
                 {{ 'map.attribution'|trans }}
             </label><!--
          --><div class="layout__item u-3-of-4">
+                {% if hasPermission('area_admin_map_copyright') %}
                 <input
                     name="r_copyright"
                     type="text"
@@ -112,6 +113,11 @@
                 <p class="lbl__hint">
                     {{ 'map.attribution.placeholder'|trans|wysiwyg('strong') }}
                 </p>
+                {% else %}
+                <p class="layout__item">
+                    {{ mapglobals.copyright }}
+                </p>
+                {% endif %}
             </div>
 
             {# Show only layers from one category simultaneously #}
