@@ -22,7 +22,6 @@ use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\JsonApi\PropertyConfig\Builder\AttributeConfigBuilderInterface;
 use EDT\JsonApi\PropertyConfig\Builder\ToManyRelationshipConfigBuilderInterface;
-use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
 
 /**
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $submitterEmailAddress @deprecated Move into StatementSubmitData resource type or something similar
@@ -62,7 +61,7 @@ use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $isManual
  * @property-read ToManyRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, Statement, File> $files @deprecated Use {@link StatementResourceType::$attachments} instead (needs implementation changes)
  * @property-read ToManyRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, Statement, Segment> $segments
- * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, Statement, Elements> $elements
+ * @property-read ToManyRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, Statement, Elements> $elements
  * @property-read ToManyRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, Statement, Elements> $paragraphOriginal
  * @property-read ToManyRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, Statement, StatementFragment> $fragmentsElements @deprecated Create a {@link StatementFragment} relationship instead
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $submitterPostalCode
