@@ -473,7 +473,7 @@ export default {
      */
     getStatementAction ({ commit, state, rootState }, data) {
       const includes = [
-        'element',
+        'elements',
         'paragraph',
         'document',
         'assignee',
