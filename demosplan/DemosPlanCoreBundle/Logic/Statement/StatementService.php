@@ -544,7 +544,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     public function submitDraftStatement(
         DraftStatement $draftStatement,
         $user,
-        NotificationReceiver $notificationReceiver = null,
+        ?NotificationReceiver $notificationReceiver = null,
         bool $gdprConsentReceived = false
     ) {
         try {
@@ -1770,7 +1770,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @return StatementLike|false
      */
-    public function addLike($statementId, User $user = null)
+    public function addLike($statementId, ?User $user = null)
     {
         try {
             $em = $this->getDoctrine()->getManager();
