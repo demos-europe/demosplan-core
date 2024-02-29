@@ -1737,6 +1737,13 @@ class StatementService extends CoreService implements StatementServiceInterface
             $newVote->setUser($user);
             $newVote->setFirstName($user->getFirstname());
             $newVote->setLastName($user->getLastname());
+            $fullName = $newVote->getFirstName().' '.$newVote->getLastName();
+            $newVote->setUserName($fullName);
+            $newVote->setUserCity($user->getCity());
+            $newVote->setDepartmentName($user->getDepartmentName());
+            $newVote->setOrganisationName($user->getOrgaName());
+            $newVote->setUserMail($user->getEmail());
+            $newVote->setUserPostcode($user->getPostalcode());
 
             $existingVotes = $statement->getVotes();
             $existingVotes->add($newVote);
