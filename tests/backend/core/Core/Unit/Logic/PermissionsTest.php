@@ -451,9 +451,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_procedure_get_base_data',
                     'feature_procedure_single_document_upload_zip',
                     'feature_statement_data_input_orga',
-                    'feature_statements_fragment_edit',
-                    'feature_statements_fragment_list',
-                    'feature_statements_fragment_vote',
                     'field_statement_public_allowed',
                 ],
                 'featuresDenied'                    => [
@@ -1380,7 +1377,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_mydata_password',
                     'area_portal_user',
                     'area_preferences',
-                    'area_statements_fragment',
                     'feature_admin_element_paragraph_import_docx',
                     'feature_admin_export_procedure',
                     'feature_json_api_get',
