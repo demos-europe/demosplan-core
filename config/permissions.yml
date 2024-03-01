@@ -1623,7 +1623,7 @@ feature_project_switcher:
     loginRequired: false
     parent: area_admin
 feature_profile_editable:
-    description: 'If enabled the user can his/her data edit'
+    description: 'If enabled the user can edit his/her data'
     label: 'Speichern/Abrechnen Formular anzeigen'
     loginRequired: true
 feature_public_consultation:
