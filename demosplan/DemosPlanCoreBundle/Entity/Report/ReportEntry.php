@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Report;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ReportEntryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
@@ -35,7 +36,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ReportRepository")
  */
-class ReportEntry extends CoreEntity implements UuidEntityInterface
+class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntryInterface
 {
     final public const GROUP_PROCEDURE = 'procedure';
     final public const GROUP_STATEMENT = 'statement';

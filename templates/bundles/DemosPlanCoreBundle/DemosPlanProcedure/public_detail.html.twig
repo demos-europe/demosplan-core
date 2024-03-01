@@ -67,10 +67,10 @@
         {% endif %}
 
         {{ parent() }}
-        <li class="{{ 'list-style-none u-nojs-show--inline-block'|prefixClass }}">
+        <li class="{{ 'u-nojs-show--inline-block'|prefixClass }}">
             <a href="#statementModalTitle">{{ 'jumpTo.statement'|trans }}</a>
         </li>
-        <li class="{{ 'list-style-none u-nojs-hide--inline-block'|prefixClass }}">
+        <li class="{{ 'u-nojs-hide--inline-block'|prefixClass }}">
             <a href="#" data-focus-statement-modal="{# This attribute is used as a hook to append an EventListener in the script block of this file #}">{{ 'jumpTo.statement'|trans }}</a>
         </li>
     {% endif %}

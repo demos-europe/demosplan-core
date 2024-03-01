@@ -67,7 +67,7 @@
 
                 {# Content of category.
                    This may be one file/video for categories of type 'paragraph' or many files/videos for categories of type 'file'. #}
-                <ul class="{{ 'elements__content list-style-none hide-empty u-mb-0'|prefixClass }}">
+                <ul class="{{ 'elements__content hide-empty'|prefixClass }}">
                     {%- apply spaceless %}
 
                         {% if element.category == 'paragraph' %}
@@ -83,7 +83,7 @@
                                         </dp-video-player>
                                     {% else %}
                                         {# Simple download link that is also read out by screen readers #}
-                                        <div class="{{ 'elements__file-name elements__grid-grow'|prefixClass }}">
+                                        <div class="{{ 'elements__file-name flow-root'|prefixClass }}">
                                             <a
                                                 class="{{ 'o-link--default break-words'|prefixClass }}"
                                                 target="_blank"
@@ -98,20 +98,19 @@
                                                     </span>
                                                 {% endif %}
                                             </a>
+                                            {# Additional download button to emphasize download action - hidden for screen readers #}
+                                            {% if element.file|getFile('mimeType') not in videoFormats %}
+                                                <a
+                                                    class="{{ 'elements__button btn btn--secondary btn--outline u-1-of-1-lap-down float-right'|prefixClass }}"
+                                                    target="_blank"
+                                                    rel="noopener"
+                                                    href="{{ path("core_file_procedure", { 'procedureId': procedure, 'hash': element.file|getFile('hash') }) }}"
+                                                    aria-hidden="true"
+                                                    tabindex="-1">
+                                                    {{ 'download'|trans }}
+                                                </a>
+                                            {% endif %}
                                         </div>
-
-                                        {# Additional download button to emphasize download action - hidden for screen readers #}
-                                        {% if element.file|getFile('mimeType') not in videoFormats %}
-                                            <a
-                                                class="{{ 'elements__button btn btn--secondary btn--outline u-1-of-1-lap-down'|prefixClass }}"
-                                                target="_blank"
-                                                rel="noopener"
-                                                href="{{ path("core_file_procedure", { 'procedureId': procedure, 'hash': element.file|getFile('hash') }) }}"
-                                                aria-hidden="true"
-                                                tabindex="-1">
-                                                {{ 'download'|trans }}
-                                            </a>
-                                        {% endif %}
                                     {% endif %}
                                 </li>
                             {% endif %}

@@ -220,7 +220,7 @@
           {{ Translator.trans('statementtext') }}
         </div>
         <div
-          class="break-words"
+          class="c-styled-html"
           v-cleanhtml="text" />
       </div>
     </template>
@@ -228,8 +228,9 @@
 </template>
 
 <script>
-import { CleanHtml, DpFlyout, DpInlineNotification, DpTableCard } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpFlyout, DpInlineNotification } from '@demos-europe/demosplan-ui'
 import DomPurify from 'dompurify'
+import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import { mapState } from 'vuex'
 
 export default {
@@ -327,6 +328,12 @@ export default {
       validator: (val) => typeof val === 'string' || Array.isArray(val) || val === null,
       default: null
     },
+
+    procedureId: {
+      type: String,
+      required: true
+    },
+
     rejectedReason: {
       type: [String, null],
       required: false,
@@ -398,7 +405,7 @@ export default {
 
   methods: {
     renderAttachments (attachments) {
-      const transformedAttachments = attachments.map(a => `<a href="${Routing.generate('core_file', { hash: a.hash })}">${a.name}</a>`)
+      const transformedAttachments = attachments.map(a => `<a href="${Routing.generate('core_file_procedure', { hash: a.hash, procedureId: this.procedureId })}">${a.name}</a>`)
       return transformedAttachments.length > 0 ? transformedAttachments.join(', ') : Translator.trans('notspecified')
     },
 

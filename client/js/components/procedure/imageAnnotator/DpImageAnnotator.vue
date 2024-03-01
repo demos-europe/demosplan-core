@@ -21,7 +21,7 @@
           @set-label="setLabel" />
         <dp-sticky-element>
           <template>
-            <div class="u-ml width-300">
+            <div class="u-ml w-12">
               <p
                 class="weight--bold">
                 {{ Translator.trans('tool.active') }}
@@ -81,7 +81,7 @@
                     :aria-label="Translator.trans('contextual.help')"
                     v-tooltip="{
                       content: Translator.trans('annotator.modify.explanation'),
-                      classes: 'u-z-super'
+                      classes: 'z-ultimate'
                     }"
                     class="fa fa-question-circle float-right u-mt-0_125" />
                 </p>
@@ -121,12 +121,12 @@
                 <div>
                   <dp-button
                     :busy="isSaving"
-                    class="width-250 u-mb-0_25"
+                    class="w-11 u-mb-0_25"
                     :disabled="documentLengthTotal === 0"
                     :text="buttonText"
                     @click="save" />
                   <dp-button
-                    class="width-250"
+                    class="w-11"
                     color="secondary"
                     :href="Routing.generate('DemosPlan_procedure_dashboard', { procedure: procedureId })"
                     :text="Translator.trans('abort')" />
@@ -464,7 +464,7 @@ export default {
       this.isLoading = true
 
       // Step 1: get first page to be annotated
-      const url = Routing.generate('api_resource_list', { procedureId: window.dplan.procedureId, resourceType: 'AnnotatedStatementPdfPage' })
+      const url = Routing.generate('api_resource_list', { resourceType: 'AnnotatedStatementPdfPage' })
       const params = {
         filter: {
           annotatedStatementPdf: {
@@ -480,6 +480,7 @@ export default {
             }
           }
         },
+        procedureId: window.dplan.procedureId,
         page: {
           size: 1
         },
@@ -706,10 +707,10 @@ export default {
     },
 
     redirect () {
-      if (hasPermission('area_admin_dashboard')) {
-        window.location.href = Routing.generate('DemosPlan_procedure_dashboard', { procedure: window.dplan.procedureId })
-      } else {
+      if (hasPermission('area_admin_import')) {
         window.location.href = Routing.generate('DemosPlan_procedure_import', { procedureId: window.dplan.procedureId })
+      } else {
+        window.location.href = Routing.generate('DemosPlan_procedure_dashboard', { procedure: window.dplan.procedureId })
       }
     },
 

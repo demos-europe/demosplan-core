@@ -7,6 +7,7 @@
     } %}
 
     <form class="layout--flush flow-root" action='{{ path('DemosPlan_statement_administration_tag',{'procedure': procedure, 'tag': tag}) }}' method="post" enctype="multipart/form-data" data-dp-validate>
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         {{ uiComponent('form.row', {
             elements: [

@@ -8,7 +8,7 @@
 
 {# set login url - override in bobhh which treats users from intranet differently #}
 {% block login_path %}
-    {{ setStaticVariable('login_path', gatewayURL) }}
+    {{ setLoginPath(gatewayURL) }}
 {% endblock login_path %}
 
 {% import "@DemosPlanCore/macros.html.twig" as partial %}
@@ -49,18 +49,18 @@
                 <nav class="{{ 'c-jumpnav'|prefixClass }}" aria-labelledby="jumpToLabel" tabindex="-1" role="navigation">
                     <span class="{{ 'hide-visually'|prefixClass }}" id="jumpToLabel" aria-hidden="true">{{ "jumpTo"|trans }}</span>
                     <ul class="{{ 'u-m-0 u-p-0'|prefixClass }}">
-                        <li class="{{ 'list-style-none'|prefixClass }}">
+                        <li>
                             <a href="#jumpNavigation">{{ 'jumpTo.mainNavigation'|trans }}</a>
                         </li>
-                        <li class="{{ 'list-style-none'|prefixClass }}">
+                        <li>
                             <a href="#jumpContent">{{ 'jumpTo.mainContent'|trans }}</a>
                         </li>
                         {% block a11y_jump_markers %}
                             {% if not loggedin %}
-                                <li class="{{ 'list-style-none u-nojs-show--inline-block'|prefixClass }}">
+                                <li class="{{ 'u-nojs-show--inline-block'|prefixClass }}">
                                     <a href="#loginLink">{{ 'jumpTo.login'|trans }}</a>
                                 </li>
-                                <li class="{{ 'list-style-none u-nojs-hide--inline-block'|prefixClass }}">
+                                <li class="{{ 'u-nojs-hide--inline-block'|prefixClass }}">
                                     <a
                                         href="#"
                                         @click="() => { document.getElementById('loginLink') ? document.getElementById('loginLink').focus() : null }">
@@ -79,7 +79,7 @@
                     {% include '@DemosPlanCore/DemosPlanCore/includes/base_oeb_header.html.twig' %}
                 {% endblock header %}
 
-                <main id="jumpContent" class="{{ 'o-page__main layout--flush flow-root'|prefixClass }}" role="main">
+                <main id="jumpContent" class="{{ 'o-page__main layout--flush'|prefixClass }}" role="main">
 
                     {% block maincontent_section %}
                         <section class="{{ 'layout__item'|prefixClass }} {% block base_mainsection_classes %}{% endblock base_mainsection_classes %}" {% block data_attrs %}{% endblock data_attrs %}>

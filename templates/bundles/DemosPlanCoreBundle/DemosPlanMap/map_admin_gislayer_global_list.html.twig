@@ -5,6 +5,7 @@
     <h1>{{ 'gislayer.global'|trans }}</h1>
 
     <form method="post" action="{{ path('DemosPlan_map_administration_gislayer_global') }}" name="gisLayerForm">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         <p>{{ 'explanation.gislayer.global.administration'|trans }}</p>
 
@@ -23,10 +24,10 @@
 
         <table class="c-table">
             <colgroup>
-                <col class="width-20">
+                <col class="w-3">
                 <col>
-                <col class="width-10p">
-                <col class="width-160">
+                <col class="w-[10%]">
+                <col class="w-10">
             </colgroup>
 
             <thead>
@@ -96,7 +97,7 @@
                 </label><!--
 
              --><div class="layout__item u-4-of-5 u-mb-0_5">
-                    <input id="r_featureInfoUrl" class="o-form__control-input width-100p" type="text" name="r_featureInfoUrl" value="{{ templateVars.featureInfoUrl.url()|default }}">
+                    <input id="r_featureInfoUrl" class="o-form__control-input w-full" type="text" name="r_featureInfoUrl" value="{{ templateVars.featureInfoUrl.url()|default }}">
 
                     <label class="weight--normal u-mb-0_5 u-mt-0_25">
                         <input type="checkbox" name="r_featureInfoUrlProxyEnabled" value="1" {% if templateVars.featureInfoUrl.isProxyEnabled|default == true %}checked="checked"{% endif %}>

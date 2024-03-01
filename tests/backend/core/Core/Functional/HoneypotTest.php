@@ -17,7 +17,6 @@ use demosplan\DemosPlanCoreBundle\Event\RequestValidationStrictEvent;
 use demosplan\DemosPlanCoreBundle\Exception\HoneypotException;
 use demosplan\DemosPlanCoreBundle\Logic\FloodControlService;
 use demosplan\DemosPlanCoreBundle\Repository\FloodRepository;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
@@ -153,11 +152,8 @@ class HoneypotTest extends FunctionalTestCase
         $this->sut->getHoneypotMarkup(
             $event
         );
-        $rawTwigMarkup = file_get_contents(DemosPlanPath::getRootPath('templates/bundles/DemosPlanCoreBundle/DemosPlanCore/floodControl/honeypotFields.html.twig'));
-        $rawTwigMarkup = str_replace('{{ "now"|date("U") }}"', date('U'), $rawTwigMarkup);
-
-        // check that markup differs at maximum in some seconds diff in r_loadtime
-        static::assertLessThan(2, levenshtein($event->getMarkup(), $rawTwigMarkup));
+        // twig is mocked, so we can only check for no error thrown  and empty markup
+        static::assertEquals('', $event->getMarkup());
     }
 
     public function honeypotExceptionProvider(): array

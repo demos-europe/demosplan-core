@@ -21,7 +21,10 @@ use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\ORMException;
 use Exception;
 
-class SingleDocumentRepository extends FluentRepository implements ArrayInterface
+/**
+ * @template-extends CoreRepository<SingleDocument>
+ */
+class SingleDocumentRepository extends CoreRepository implements ArrayInterface
 {
     /**
      * Add single document entry.

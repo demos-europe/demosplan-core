@@ -74,8 +74,6 @@ class PermissionsTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->permissions = $this->getPermissionsInstance();
-
         $testUser = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
         $procedure = [
             'orgaId'            => $this->userOrgaId,
@@ -117,7 +115,7 @@ class PermissionsTest extends FunctionalTestCase
      *
      * @throws Exception
      */
-    protected function getPermissionsInstance(): Permissions
+    protected function getPermissionsInstance(bool $ownsProcedure, bool $inviteOrgaForDataInput): Permissions
     {
         // reconfigure logger to send messages to STDERR instead of STDOUT
         $logger = new Logger('UnitTest');
@@ -135,7 +133,11 @@ class PermissionsTest extends FunctionalTestCase
         $customerService = static::$container->get(CustomerService::class);
         $addonRegistry = static::$container->get(AddonRegistry::class);
 
-        $procedureAccessEvaluator = self::$container->get(ProcedureAccessEvaluator::class);
+        $tokenMockMethods = [
+            new MockMethodDefinition('isOwningProcedure', $ownsProcedure),
+            new MockMethodDefinition('isAllowedAsDataInputOrga', $inviteOrgaForDataInput),
+        ];
+        $procedureAccessEvaluator = $this->getMock(ProcedureAccessEvaluator::class, $tokenMockMethods);
         /** @var Permissions $permissions */
         $permissions = (new ReflectionClass($permissionsClass))
             ->newInstance(
@@ -281,13 +283,10 @@ class PermissionsTest extends FunctionalTestCase
                     'area_admin_procedures',
                     'area_data_protection_text',
                     'area_demosplan',
-                    'area_globalnews',
                     'area_demosplan',
                     'area_mydata_password',
                     'area_portal_user',
                     'area_preferences',
-                    'feature_admin_assessmenttable_export_docx',
-                    'feature_admin_element_paragraph_import_docx',
                     'feature_admin_export_procedure',
                     'feature_assessmenttable_export',
                     'feature_assessmenttable_use_pager',
@@ -296,30 +295,21 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_json_api_get',
                     'feature_json_rpc_post',
                     'feature_map_search_location',
-                    'feature_map_use_plan_draw_pdf',
-                    'feature_map_use_plan_pdf',
-                    'feature_map_use_territory',
                     'feature_original_statements_export',
                     'feature_original_statements_use_pager',
                     'feature_procedure_change_phase',
-                    'feature_procedure_export_include_assessment_table',
-                    'feature_procedure_export_include_assessment_table_anonymous',
-                    'feature_procedure_export_include_assessment_table_original',
                     'feature_procedure_export_include_public_interest_bodies_member_list',
                     'feature_procedure_filter_external_orga_name',
                     'feature_procedure_get_base_data',
                     'feature_procedure_single_document_upload_zip',
                     'feature_procedure_sort_location',
                     'feature_procedure_sort_orga_name',
-                    'feature_public_index_map',
                     'feature_send_final_email_cc_to_self',
                     'feature_statement_data_input_orga',
                     'feature_statement_meta_house_number_export',
-                    'feature_statements_vote',
                     'field_procedure_name',
                     'field_statement_feedback',
                     'field_statement_phase',
-                    'field_statement_public_allowed',
                     'field_statement_recommendation',
                 ],
                 'featuresDenied'                    => [
@@ -456,13 +446,11 @@ class PermissionsTest extends FunctionalTestCase
                     'area_data_protection_text',
                     'area_demosplan',
                     'area_demosplan',
-                    'feature_admin_assessmenttable_export_docx',
                     'feature_admin_export_procedure',
                     'feature_json_api_get',
                     'feature_procedure_get_base_data',
                     'feature_procedure_single_document_upload_zip',
                     'feature_statement_data_input_orga',
-                    'field_statement_public_allowed',
                 ],
                 'featuresDenied'                    => [
                     'area_admin_faq',
@@ -785,7 +773,6 @@ class PermissionsTest extends FunctionalTestCase
                 'featuresAllowed'                   => [
                     'area_data_protection_text',
                     'area_demosplan',
-                    'area_globalnews',
                     'area_demosplan',
                     'area_manage_users',
                     'area_mydata',
@@ -794,7 +781,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_preferences',
                     'feature_orga_edit',
                     'feature_procedure_single_document_upload_zip',
-                    'feature_public_index_map',
                     'feature_user_add', // fixme: this permission was both here and in featuresDenied. Please check.
                     'feature_user_delete',
                     'feature_user_edit', // fixme: this permission was both here and in featuresDenied. Please check.
@@ -1009,21 +995,16 @@ class PermissionsTest extends FunctionalTestCase
                     'area_admin_procedures',
                     'area_data_protection_text',
                     'area_demosplan',
-                    'area_globalnews',
                     'area_demosplan',
                     'area_manage_orgadata',
                     'area_mydata_password',
                     'area_portal_user',
                     'area_preferences',
                     'feature_admin_export_procedure',
-                    'feature_map_use_plan_draw_pdf',
-                    'feature_map_use_plan_pdf',
-                    'feature_map_use_territory',
                     'feature_procedure_export_include_public_interest_bodies_member_list',
                     'feature_procedure_single_document_upload_zip',
                     'feature_procedure_sort_location',
                     'feature_procedure_sort_orga_name',
-                    'feature_public_index_map',
                     'field_statement_file',
                     'field_statement_recommendation',
                 ],
@@ -1109,7 +1090,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_manage_orgadata',
                     'feature_admin_export_procedure',
                     'feature_procedure_single_document_upload_zip',
-                    'field_statement_public_allowed',
                 ],
                 'featuresDenied'                    => [
                     'area_admin_dashboard',
@@ -1252,7 +1232,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_admin_export_procedure',
                     'feature_assessmenttable_use_pager',
                     'feature_procedure_single_document_upload_zip',
-                    'field_statement_public_allowed',
                 ],
                 'featuresDenied'                    => [
                     'area_admin_faq',
@@ -1320,7 +1299,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_demosplan',
                     'area_demosplan',
                     'area_manage_orgadata',
-                    'feature_admin_element_paragraph_import_docx',
                     'feature_admin_export_procedure',
                     'feature_procedure_change_phase',
                     'feature_procedure_get_base_data',
@@ -1393,26 +1371,19 @@ class PermissionsTest extends FunctionalTestCase
                     'area_admin_procedures',
                     'area_data_protection_text',
                     'area_demosplan',
-                    'area_globalnews',
                     'area_demosplan',
                     'area_mydata_organisation',
                     'area_mydata_password',
                     'area_portal_user',
                     'area_preferences',
-                    'feature_admin_element_paragraph_import_docx',
                     'feature_admin_export_procedure',
                     'feature_json_api_get',
-                    'feature_map_use_plan_draw_pdf',
-                    'feature_map_use_plan_pdf',
-                    'feature_map_use_territory',
                     'feature_procedure_export_include_public_interest_bodies_member_list',
                     'feature_procedure_single_document_upload_zip',
                     'feature_procedure_sort_location',
                     'feature_procedure_sort_orga_name',
-                    'feature_public_index_map',
                     'feature_statement_meta_house_number_export',
                     'field_statement_file',
-                    'field_statement_public_allowed',
                 ],
                 'featuresDenied'                    => [
                     'area_admin',
@@ -1697,13 +1668,11 @@ class PermissionsTest extends FunctionalTestCase
                 'featuresAllowed'                   => [
                     'area_data_protection_text',
                     'area_demosplan',
-                    'area_globalnews',
                     'area_demosplan',
                     'area_mydata_password',
                     'area_portal_user',
                     'feature_admin_export_procedure',
                     'feature_map_use_drawing_tools',
-                    'feature_map_use_territory',
                     'feature_participation_area_procedure_detail_map_use_baselayerbox',
                     'feature_procedure_export_include_statement_final_group',
                     'feature_procedure_export_include_statement_released',
@@ -1712,8 +1681,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_procedure_single_document_upload_zip',
                     'feature_procedure_sort_location',
                     'feature_procedure_sort_orga_name',
-                    'feature_procedures_count_released_drafts',
-                    'feature_public_index_map',
                     'feature_statements_vote_may_vote',
                     'field_statement_recommendation',
                 ],
@@ -1779,7 +1746,6 @@ class PermissionsTest extends FunctionalTestCase
                     'field_customer_accessibility_explanation_edit',
                     'field_organisation_agreement_showname',
                     'field_required_procedure_end_date',
-                    'field_statement_public_allowed',
                     'field_statement_submitter_email_address',
                     'field_statement_user_group',
                     'field_statement_user_organisation',
@@ -1937,8 +1903,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_procedure_single_document_upload_zip',
                     'feature_procedure_sort_location',
                     'feature_procedure_sort_orga_name',
-                    'feature_procedures_count_released_drafts',
-                    'feature_public_index_map',
                     'field_statement_recommendation',
                 ],
                 'featuresDenied'                    => [
@@ -1980,7 +1944,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_orga_registration',
                     'feature_plain_language',
                     'feature_procedure_all_orgas_invited',
-                    'feature_procedure_export_include_assessment_table',
                     'feature_procedure_export_include_assessment_table_anonymous',
                     'feature_procedure_export_include_assessment_table_original',
                     'feature_procedure_export_include_public_interest_bodies_member_list',
@@ -2003,7 +1966,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
-                    'field_statement_public_allowed',
                     'field_statement_submitter_email_address',
                     'field_statement_user_group',
                     'field_statement_user_organisation',
@@ -2151,14 +2113,12 @@ class PermissionsTest extends FunctionalTestCase
                     'area_admin_faq',
                     'area_data_protection_text',
                     'area_demosplan',
-                    'area_globalnews',
                     'area_demosplan',
                     'area_mydata',
                     'area_mydata_password',
                     'area_portal_user',
                     'feature_map_use_location_relation',
                     'feature_procedure_single_document_upload_zip',
-                    'feature_public_index_map',
                     'field_statement_recommendation',
                 ],
                 'featuresDenied'                    => [
@@ -2227,10 +2187,6 @@ class PermissionsTest extends FunctionalTestCase
                     // 'area_data_protection_text', #fixme see @improve T15495
                     'area_demosplan',
                     'area_demosplan',
-                    'area_globalnews',
-                    'area_map_participation_area',
-                    'area_news',
-                    'area_statements_public_published',
                     'feature_map_search_location',
                     'feature_map_use_location_relation',
                     'feature_participation_area_procedure_detail_map_use_baselayerbox',
@@ -2239,12 +2195,9 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_procedure_filter_external_public_participation_phase_permissionset',
                     'feature_procedure_sort_location',
                     'feature_procedure_sort_orga_name',
-                    'feature_public_index_map',
                     'feature_statement_public_allowed_needs_verification',
                     'field_statement_meta_city',
                     'field_statement_meta_postal_code',
-                    'field_statement_meta_street',
-                    'field_statement_public_allowed',
                 ],
                 'featuresDenied'                    => [
                     'area_accessibility_explanation',
@@ -2293,7 +2246,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_plain_language',
                     'feature_procedure_default_filter_extern',
                     'feature_procedure_default_filter_intern',
-                    'feature_procedure_export_include_assessment_table',
                     'feature_procedure_export_include_assessment_table_anonymous',
                     'feature_procedure_export_include_assessment_table_original',
                     'feature_procedure_export_include_public_interest_bodies_member_list',
@@ -2349,7 +2301,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_demosplan',
                     'area_mydata_password',
                     'area_portal_user',
-                    'area_preferences',
                     'feature_admin_export_procedure',
                     'feature_draft_statement_citizen_immediate_submit',
                     'feature_map_use_drawing_tools',
@@ -2357,13 +2308,10 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_procedure_export_include_public_statements',
                     'feature_procedure_filter_external_public_participation_phase',
                     'feature_procedure_filter_external_public_participation_phase_permissionset',
-                    'feature_public_index_map',
                     'feature_statement_public_allowed_needs_verification',
                     'feature_statements_vote_may_vote',
                     'field_statement_meta_city',
                     'field_statement_meta_postal_code',
-                    'field_statement_meta_street',
-                    'field_statement_public_allowed',
                     'field_statement_recommendation',
                 ],
                 'featuresDenied'                    => [
@@ -2404,7 +2352,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_plain_language',
                     'feature_procedure_default_filter_extern',
                     'feature_procedure_default_filter_intern',
-                    'feature_procedure_export_include_assessment_table',
                     'feature_procedure_export_include_assessment_table_anonymous',
                     'feature_procedure_export_include_assessment_table_original',
                     'feature_procedure_export_include_public_interest_bodies_member_list',
@@ -2415,7 +2362,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_procedure_legal_notice_write',
                     'feature_procedure_preview',
                     'feature_procedure_single_document_upload_zip',
-                    'feature_procedures_count_released_drafts',
                     'feature_procedures_located_by_maintenance_service',
                     'feature_procedures_mark_participated',
                     'feature_require_locality_confirmation',
@@ -2444,11 +2390,9 @@ class PermissionsTest extends FunctionalTestCase
                 'featuresAllowed'                   => [
                     'area_data_protection_text',
                     'area_demosplan',
-                    'area_globalnews',
                     'area_main_procedures',
                     'area_demosplan',
                     'area_mydata',
-                    'area_statements_public_published',
                     'feature_admin_export_procedure',
                     'feature_draft_statement_citizen_immediate_submit',
                     'feature_notification_citizen_statement_submitted',
@@ -2456,7 +2400,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_procedure_sort_orga_name',
                     'field_statement_meta_city',
                     'field_statement_meta_postal_code',
-                    'field_statement_meta_street',
                     'field_statement_recommendation',
                 ],
                 'featuresDenied'                    => [
@@ -2527,12 +2470,10 @@ class PermissionsTest extends FunctionalTestCase
                 'featuresAllowed'                   => [
                     'area_data_protection_text',
                     'area_demosplan',
-                    'area_globalnews',
                     'area_demosplan',
                     'area_mydata',
                     'area_statements_draft',
                     'area_statements_final',
-                    'area_statements_public_published',
                     'feature_admin_export_procedure',
                     'feature_documents_new_statement',
                     'feature_draft_statement_citizen_immediate_submit',
@@ -2542,7 +2483,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statements_final_email',
                     'field_statement_meta_city',
                     'field_statement_meta_postal_code',
-                    'field_statement_meta_street',
                 ],
                 'featuresDenied'                    => [
                     'area_accessibility_explanation',
@@ -2605,18 +2545,15 @@ class PermissionsTest extends FunctionalTestCase
                 'featuresAllowed'                   => [
                     'area_data_protection_text',
                     'area_demosplan',
-                    'area_globalnews',
                     'area_demosplan',
                     'area_mydata',
                     'area_statements_draft',
                     'area_statements_final',
-                    'area_statements_public_published',
                     'feature_admin_export_procedure',
                     'feature_statements_final_email',
                     'field_statement_file',
                     'field_statement_meta_city',
                     'field_statement_meta_postal_code',
-                    'field_statement_meta_street',
                 ],
                 'featuresDenied'                    => [
                     'area_accessibility_explanation',
@@ -2681,17 +2618,14 @@ class PermissionsTest extends FunctionalTestCase
                 'ownsProcedure'                     => false,
                 'isMember'                          => false,
                 'featuresAllowed'                   => [
-                    'area_admin_gislayer_global_edit',
                     'area_data_protection_text',
                     'area_demosplan',
                     'area_demosplan',
-                    'area_globalnews',
                     'area_mydata_password',
                     'area_portal_user',
                     'feature_orga_get',
                     'feature_procedure_report_public_phase',
                     'feature_procedure_single_document_upload_zip',
-                    'feature_public_index_map',
                     'feature_user_add', // fixme: this permission was both here and in featuresDenied. Please check.
                     'feature_user_delete',
                     'feature_user_edit', // fixme: this permission was both here and in featuresDenied. Please check.
@@ -2776,14 +2710,12 @@ class PermissionsTest extends FunctionalTestCase
                 'featuresAllowed'                   => [
                     'area_data_protection_text',
                     'area_demosplan',
-                    'area_globalnews',
                     'area_demosplan',
                     'area_mydata_password',
                     'area_portal_user',
                     'feature_forum_dev_release_edit',
                     'feature_forum_thread_edit',
                     'feature_procedure_single_document_upload_zip',
-                    'feature_public_index_map',
                     'field_statement_recommendation',
                 ],
                 'featuresDenied'                    => [
@@ -2847,7 +2779,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_data_protection_text',
                     'area_demosplan',
                     'feature_procedure_single_document_upload_zip',
-                    'feature_public_index_map',
                     'feature_statement_meta_house_number_export',
                     'field_organisation_email_reviewer_admin',
                     'field_statement_recommendation',
@@ -2988,7 +2919,6 @@ class PermissionsTest extends FunctionalTestCase
                     'field_statement_user_position',
                     'field_statement_user_state',
                     'role_participant',
-                    'field_statement_public_allowed',
                 ],
             ],
             'data input #2'                     => [
@@ -3084,7 +3014,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_mydata',
                     'area_statements_draft',
                     'area_statements_final',
-                    'area_statements_public_published',
                     'feature_admin_export_procedure',
                     'feature_documents_new_statement',
                     'feature_map_new_statement',
@@ -3224,6 +3153,7 @@ class PermissionsTest extends FunctionalTestCase
                 $inviteOrgaForDataInput
             );
 
+            $this->permissions = $this->getPermissionsInstance($ownsProcedure, $inviteOrgaForDataInput);
             $this->permissions->setProcedure($procedureMock);
             if (null !== $procedureMock) {
                 $procedureRepositoryMock = $this->setUpProcedureRepositoryForTestCase($procedureMock);
@@ -3257,7 +3187,6 @@ class PermissionsTest extends FunctionalTestCase
      * Create a mock testuser.
      *
      * @param array $testCase
-     * @param array $procedure
      *
      * @return User|PHPUnit_Framework_MockObject_MockObject
      */
@@ -3444,7 +3373,6 @@ class PermissionsTest extends FunctionalTestCase
     }
 
     /**
-     * @param array  $procedureArray
      * @param string $procedurePhase
      * @param array  $testCase
      * @param User   $user

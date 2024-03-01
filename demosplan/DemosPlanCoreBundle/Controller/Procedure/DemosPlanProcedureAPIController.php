@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Logger\ApiLoggerInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
@@ -34,6 +35,7 @@ use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;
 use demosplan\DemosPlanCoreBundle\Transformers\Procedure\AssessmentTableFilterTransformer;
 use demosplan\DemosPlanCoreBundle\Transformers\Procedure\ProcedureArrayTransformer;
 use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\AssessmentTableFilter;
+use EDT\JsonApi\RequestHandling\MessageFormatter;
 use EDT\JsonApi\Validation\FieldsValidator;
 use EDT\PathBuilding\PathBuildException;
 use EDT\Querying\Contracts\PropertyPathInterface;
@@ -50,7 +52,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class DemosPlanProcedureAPIController extends APIController
 {
     public function __construct(
-        LoggerInterface $apiLogger,
+        ApiLoggerInterface $apiLogger,
         private readonly ProcedureHandler $procedureHandler,
         FieldsValidator $fieldsValidator,
         PrefilledTypeProvider $resourceTypeProvider,
@@ -58,6 +60,7 @@ class DemosPlanProcedureAPIController extends APIController
         LoggerInterface $logger,
         GlobalConfigInterface $globalConfig,
         MessageBagInterface $messageBag,
+        MessageFormatter $messageFormatter,
         SchemaPathProcessor $schemaPathProcessor
     ) {
         parent::__construct(
@@ -68,7 +71,8 @@ class DemosPlanProcedureAPIController extends APIController
             $logger,
             $globalConfig,
             $messageBag,
-            $schemaPathProcessor
+            $schemaPathProcessor,
+            $messageFormatter
         );
     }
 
@@ -136,16 +140,11 @@ class DemosPlanProcedureAPIController extends APIController
     /**
      * Returns a JSON with the available filters for the assessment table.
      *
-     * @Route("/api/1.0/procedures/{procedureId}/statementemptyfilters",
-     *     methods={"GET"},
-     *     name="dp_api_procedure_get_statement_empty_filters",
-     *     options={"expose": true}
-     * )
-     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @return APIResponse
      */
+    #[Route(path: '/api/1.0/procedures/{procedureId}/statementemptyfilters', methods: ['GET'], name: 'dp_api_procedure_get_statement_empty_filters', options: ['expose' => true])]
     #[Route(path: '/api/1.0/procedures/{procedureId}/statementemptyfilters', methods: ['GET'], name: 'dp_api_procedure_get_statement_empty_filters', options: ['expose' => true])]
     public function getStatementEmptyFilterAction(StatementFilterHandler $statementFilterHandler)
     {

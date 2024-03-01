@@ -16,7 +16,6 @@ import initGlobalEventListener from './GlobalEventListener'
 import Pager from './Pager'
 import ToggleAnything from './ToggleAnything'
 import ToggleSideMenu from './ToggleSideMenu'
-import Tooltips from './Tooltips'
 import touchFriendlyUserbox from './touchFriendlyUserbox'
 
 export {
@@ -29,6 +28,5 @@ export {
   Pager,
   ToggleAnything,
   ToggleSideMenu,
-  Tooltips,
   touchFriendlyUserbox
 }

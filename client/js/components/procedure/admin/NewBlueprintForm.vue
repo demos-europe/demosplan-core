@@ -26,6 +26,10 @@
       type="hidden"
       name="r_master"
       value="true">
+    <input
+      name="_token"
+      type="hidden"
+      :value="csrfToken">
 
     <fieldset>
       <legend
@@ -186,6 +190,11 @@ export default {
     blueprintOptions: {
       type: Array,
       default: () => []
+    },
+
+    csrfToken: {
+      type: String,
+      required: true
     },
 
     initEmailAddresses: {

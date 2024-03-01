@@ -13,6 +13,9 @@ namespace demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadStatementAttributeData extends TestFixture
 {
     public function load(ObjectManager $manager): void

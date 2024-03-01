@@ -15,7 +15,8 @@
         v-text="Translator.trans('attachment.original')" />
       <statement-meta-attachments-link
         v-if="attachments.originalAttachment.hash"
-        :attachment="attachments.originalAttachment" />
+        :attachment="attachments.originalAttachment"
+        :procedure-id="procedureId" />
       <p
         v-else
         class="color--grey"
@@ -29,7 +30,9 @@
         <li
           v-for="attachment in attachments.additionalAttachments"
           :key="attachment.hash">
-          <statement-meta-attachments-link :attachment="attachment" />
+          <statement-meta-attachments-link
+            :attachment="attachment"
+            :procedure-id="procedureId" />
         </li>
       </ul>
       <p
@@ -38,13 +41,15 @@
         v-text="Translator.trans('none')" />
       <template v-if="editable">
         <dp-upload-files
-          :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
+          :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
           ref="uploadStatementAttachment"
           id="uploadStatementAttachment"
           name="uploadStatementAttachment"
           allowed-file-types="all"
+          :basic-auth="dplan.settings.basicAuth"
           :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
           :max-number-of-files="1000"
+          :tus-endpoint="dplan.paths.tusEndpoint"
           :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
           @file-remove="removeFileId"
           @upload-success="setFileId" />
@@ -88,6 +93,11 @@ export default {
       default: false
     },
 
+    procedureId: {
+      type: String,
+      required: true
+    },
+
     statementId: {
       type: String,
       required: true
@@ -109,7 +119,7 @@ export default {
       return {
         type: 'StatementAttachment',
         attributes: {
-          type: attachmentType
+          attachmentType: attachmentType
         },
         relationships: {
           statement: {

@@ -11,6 +11,7 @@
  * This is the entrypoint for administration_statement_segments_list.html.twig
  */
 import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
+import { hasPermission } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
 import SegmentSlidebar from '@DpJs/store/procedure/SegmentSlidebar'
 import SplitStatementStore from '@DpJs/store/procedure/SplitStatementStore'
@@ -21,9 +22,12 @@ const components = {
 }
 
 const stores = {
-  boilerplates: BoilerplatesStore,
   SegmentSlidebar,
   splitstatement: SplitStatementStore
+}
+
+if (hasPermission('area_admin_boilerplates')) {
+  stores.boilerplates = BoilerplatesStore
 }
 
 const apiStores = [

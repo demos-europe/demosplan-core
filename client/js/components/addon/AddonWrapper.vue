@@ -1,16 +1,8 @@
-<license>
-  (c) 2010-present DEMOS plan GmbH.
-
-  This file is part of the package demosplan,
-  for more information see the license file.
-
-  All rights reserved
-</license>
-
 <template>
   <div>
     <component
       :is="component"
+      :ref="refComponent"
       v-bind="addonProps"
     />
   </div>
@@ -24,6 +16,15 @@ export default {
 
   props: {
     /**
+     * The addonProps prop will be bound to the addon component to add props dynamically.
+     */
+    addonProps: {
+      type: Object,
+      required: false,
+      default: () => {}
+    },
+
+    /**
      * The hookName prop will be used to load an addon via the generic rpc route.
      */
     hookName: {
@@ -32,13 +33,10 @@ export default {
       default: ''
     },
 
-    /**
-     * The addonProps prop will be binded to the addon component to add props dynamically.
-     */
-    addonProps: {
-      type: Object,
+    refComponent: {
+      type: String,
       required: false,
-      default: () => {}
+      default: ''
     }
   },
 
@@ -59,7 +57,7 @@ export default {
             const addon = result[key]
             if (addon === undefined) {
               /*
-               * If for some reason we don't receive a valid info object from the backend
+               * If for some reason we don't receive a valid response object from the backend
                * we'll just skip it.
                */
               console.debug('Skipping addon hook response evaluation for ' + key)
@@ -70,8 +68,8 @@ export default {
             const content = addon.content[contentKey]
 
             /*
-             * While eval generally is a BADIDEA, we really need to evaluate the code we're
-             * adding dynamically to use the provided addon's script henceforth.
+             * While eval is generally a BAD IDEA, we really need to evaluate the code
+             * we're adding dynamically to use the provided addon's script from now on.
              */
             eval(content)
             this.$options.components[addon.entry] = window[addon.entry].default

@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\DateStringConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\MatchingFieldValueInSegments;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
@@ -32,11 +31,9 @@ use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingPostParameterException;
-use demosplan\DemosPlanCoreBundle\Exception\RowAwareViolationsException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UnexpectedWorksheetNameException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
@@ -44,24 +41,22 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\Workflow\PlaceService;
-use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\TagResourceType;
 use demosplan\DemosPlanCoreBundle\Validator\StatementValidator;
 use Doctrine\ORM\EntityManagerInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
-use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\ConstraintViolationListInterface;
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use UnexpectedValueException;
 
-class ExcelImporter extends CoreService
+class ExcelImporter extends AbstractStatementSpreadsheetImporter
 {
     private const SUBMIT_TYPE_EMAIL_TRANSLATED = 'E-Mail';
     private const SUBMIT_TYPE_LETTER_TRANSLATED = 'Brief';
@@ -93,79 +88,50 @@ class ExcelImporter extends CoreService
     final public const PUBLIC = 'Öffentlichkeit';
     final public const INSTITUTION = 'Institution';
 
-    private $notNullConstraint;
-
-    /**
-     * @var Statement[]
-     */
-    private $generatedStatements;
-
     /**
      * @var Segment[]
      */
-    private $generatedSegments;
-
-    /**
-     * {@link Tag} entities that do not yet exist in the database and were created during the import.
-     *
-     * @var array<int, Tag>
-     */
-    private $generatedTags = [];
-
-    /**
-     * @var ImportError[]
-     */
-    private $errors;
+    private $generatedSegments = [];
 
     public function __construct(
-        private readonly CurrentProcedureService $currentProcedureService,
-        private readonly CurrentUserInterface $currentUser,
+        CurrentProcedureService $currentProcedureService,
+        CurrentUserInterface $currentUser,
         private readonly DqlConditionFactory $conditionFactory,
         private readonly EntityManagerInterface $entityManager,
-        private readonly ElementsService $elementsService,
-        private readonly OrgaService $orgaService,
+        ElementsService $elementsService,
+        OrgaService $orgaService,
         private readonly PlaceService $placeService,
         private readonly SegmentValidator $segmentValidator,
-        private readonly StatementService $statementService,
+        StatementService $statementService,
         private readonly StatementValidator $statementValidator,
         private readonly TagResourceType $tagResourceType,
         private readonly TagService $tagService,
         private readonly TagValidator $tagValidator,
-        private readonly TranslatorInterface $translator,
-        private readonly ValidatorInterface $validator,
-        private readonly StatementCopier $statementCopier
+        TranslatorInterface $translator,
+        ValidatorInterface $validator,
+        StatementCopier $statementCopier
     ) {
-        $this->generatedStatements = [];
-        $this->generatedSegments = [];
-        $this->errors = [];
-
-        $this->notNullConstraint = new Assert\NotBlank(['message' => 'segment.import.error.metadata.statement.id']);
+        parent::__construct(
+            $currentProcedureService,
+            $currentUser,
+            $elementsService,
+            $orgaService,
+            $statementCopier,
+            $statementService,
+            $translator,
+            $validator
+        );
     }
 
     /**
      * Generates statements from incoming excel document, including validation.
-     * This method does not persist or flush the generated Statements.
-     *
-     * @param SplFileInfo $fileInfo identifies the excel file which contains the data of statements to create
-     *
-     * @throws CopyException
-     * @throws InvalidDataException
-     * @throws MissingPostParameterException
-     * @throws StatementElementNotFoundException
-     * @throws UserNotFoundException
-     * @throws RowAwareViolationsException
-     * @throws UnexpectedWorksheetNameException
-     * @throws MissingDataException
+     * This method does not flush the generated Statements and does not persist nor flush the original statements.
      */
-    public function process(SplFileInfo $fileInfo): void
+    public function process(SplFileInfo $workbook): void
     {
         $this->generatedStatements = [];
         $this->errors = [];
-        $worksheets = $this->extractWorksheets($fileInfo);
-
-        if (0 === count($worksheets)) {
-            throw new MissingDataException('No Worksheets found.');
-        }
+        $worksheets = $this->extractWorksheets($workbook, 1);
 
         foreach ($worksheets as $worksheet) {
             $currentWorksheetTitle = $worksheet->getTitle() ?? '';
@@ -185,7 +151,11 @@ class ExcelImporter extends CoreService
                 }
                 $statement = \array_combine($columnNames, $statement);
                 $statement[self::PUBLIC_STATEMENT] = $publicStatement;
-                $generatedStatement = $this->generateStatement($statement, count($this->generatedStatements), $line, $currentWorksheetTitle);
+
+                $generatedOriginalStatement = $this->createNewOriginalStatement($statement, count($this->generatedStatements), $line, $currentWorksheetTitle);
+                // no validation of $generatedOriginalStatement?
+
+                $generatedStatement = $this->createCopy($generatedOriginalStatement);
 
                 $constraints = $this->statementValidator->validate($generatedStatement, [Statement::IMPORT_VALIDATION]);
                 if (0 === $constraints->count()) {
@@ -261,7 +231,9 @@ class ExcelImporter extends CoreService
             }
 
             $statement[self::STATEMENT_TEXT] = implode(' ', array_column($correspondingSegments, 'Einwand'));
-            $generatedStatement = $this->generateStatement($statement, $result->getStatementCount(), $statementLine, $statementWorksheetTitle);
+
+            $generatedOriginalStatement = $this->createNewOriginalStatement($statement, $result->getStatementCount(), $statementLine, $statementWorksheetTitle);
+            $generatedStatement = $this->createCopy($generatedOriginalStatement);
 
             $violations = $this->statementValidator->validate($generatedStatement, [Statement::IMPORT_VALIDATION]);
             if (0 === $violations->count()) {
@@ -296,12 +268,12 @@ class ExcelImporter extends CoreService
         return $result;
     }
 
-    /**
-     * @return array<int, EntityInterface>
-     */
-    public function getGeneratedTags(): array
+    protected function validateSubmitType(string $inputSubmitType, int $line, string $worksheetTitle): void
     {
-        return $this->generatedTags;
+        $violations = $this->validator->validate($inputSubmitType, $this->getSubmitTypeConstraint($inputSubmitType));
+        if (0 !== $violations->count()) {
+            $this->addImportViolations($violations, $line, $worksheetTitle);
+        }
     }
 
     /**
@@ -354,11 +326,7 @@ class ExcelImporter extends CoreService
      */
     private function getSegmentImportWorksheets(SplFileInfo $fileInfo): array
     {
-        $worksheets = $this->extractWorksheets($fileInfo);
-
-        if (2 > count($worksheets)) {
-            throw new MissingDataException('Not all worksheets found.');
-        }
+        $worksheets = $this->extractWorksheets($fileInfo, 2);
 
         [$segmentsWorksheet, $metaDataWorksheet] = $worksheets;
 
@@ -376,21 +344,6 @@ class ExcelImporter extends CoreService
     private function getTitle(Worksheet $worksheet): string
     {
         return $worksheet->getTitle() ?? '';
-    }
-
-    private function replaceLineBreak($value)
-    {
-        return str_replace(["_x000D_\n", "\n"], '<br>', strval($value));
-    }
-
-    /**
-     * @return array<int, Worksheet>
-     */
-    private function extractWorksheets(SplFileInfo $fileInfo): array
-    {
-        $spreadsheet = IOFactory::load($fileInfo->getPathname());
-
-        return $spreadsheet->getAllSheets();
     }
 
     /**
@@ -417,34 +370,6 @@ class ExcelImporter extends CoreService
                 $input,
                 static fn ($field) => null !== $field && (!is_string($field) || '' !== trim($field))
             )
-        );
-    }
-
-    /**
-     * @param array $statementData  array which is holding the data of Statement to create
-     * @param int   $externIdOffset will be used to calculate next valid externId to ensure it being unique,
-     *                              because StatementRepository::getNextValidExternalIdForProcedure()
-     *                              only takes already persisted Statements and DraftStatements into account, it
-     *                              is necessary to add the number of already generated but not persisted
-     *                              to ensure getting a unique ID
-     *
-     * @throws CopyException
-     * @throws InvalidDataException
-     * @throws MissingPostParameterException
-     * @throws StatementElementNotFoundException
-     * @throws UserNotFoundException
-     *
-     * @see StatementRepository::getNextValidExternalIdForProcedure()
-     */
-    public function generateStatement(array $statementData, int $externIdOffset, int $line, string $currentWorksheetTitle): Statement
-    {
-        $generatedOriginalStatement = $this->createNewOriginalStatement($statementData, $externIdOffset, $line, $currentWorksheetTitle);
-
-        return $this->statementCopier->copyStatementObjectWithinProcedure(
-            $generatedOriginalStatement,
-            false,
-            true,
-            false
         );
     }
 
@@ -487,7 +412,7 @@ class ExcelImporter extends CoreService
             if (is_numeric($tagTitlesString)) {
                 $tagTitlesString = (string) $tagTitlesString;
             }
-            $tagTitles = explode(',', $tagTitlesString);
+            $tagTitles = explode(',', (string) $tagTitlesString);
 
             foreach ($tagTitles as $tagTitle) {
                 $matchingTag = $this->getMatchingTag($tagTitle, $procedureId);
@@ -518,16 +443,21 @@ class ExcelImporter extends CoreService
      * This method only support creation of a statement without extra relations like files, paragraphs, documents,
      * ...
      *
-     * @param array<string, mixed> $statementData
-     * @param int                  $offset        this is necessary to allow calculating correct unique externId of
-     *                                            procedure for current statement
+     * @param array<string, mixed> $statementData array which is holding the data of Statement to create
+     * @param int                  $offset        will be used to calculate next valid externId in the procedure for the current statement to ensure it being unique,
+     *                                            because StatementRepository::getNextValidExternalIdForProcedure()
+     *                                            only takes already persisted Statements and DraftStatements into account, it
+     *                                            is necessary to add the number of already generated but not persisted
+     *                                            to ensure getting a unique ID
      *
      * @throws InvalidDataException
      * @throws MissingPostParameterException
      * @throws StatementElementNotFoundException
      * @throws UserNotFoundException
+     *
+     * @see StatementRepository::getNextValidExternalIdForProcedure()
      */
-    private function createNewOriginalStatement(array $statementData, int $offset, int $line, string $currentWorksheetTitle): Statement
+    public function createNewOriginalStatement(array $statementData, int $offset, int $line, string $currentWorksheetTitle): Statement
     {
         $newOriginalStatement = new Statement();
         $newStatementMeta = new StatementMeta();
@@ -552,14 +482,15 @@ class ExcelImporter extends CoreService
 
         $newOriginalStatement->setManual();
 
-        $this->setSubmitType($statementData, $newOriginalStatement, $line, $currentWorksheetTitle);
+        $inputSubmitType = $statementData[self::SUBMIT_TYPE_COLUMN] ?? self::SUBMIT_TYPE_UNKNOWN_TRANSLATED_UC;
+        $this->setSubmitType($inputSubmitType, $newOriginalStatement, $line, $currentWorksheetTitle);
 
         $newOriginalStatement->setInternId($statementData['Eingangsnummer']);
         $newOriginalStatement->setMemo($statementData['Memo'] ?? '');
 
         // necessary to check incoming date-string:
         // use symfony forms + kleiner service um validator zu bauen um die folgene zeile zu vermeiden:
-//        $validator = Validation::createValidatorBuilder()->enableAnnotationMapping()->getValidator();
+        //        $validator = Validation::createValidatorBuilder()->enableAnnotationMapping()->getValidator();
         $violations = $this->validator->validate($statementData['Einreichungsdatum'], [new DateStringConstraint()]);
         if (0 === $violations->count()) {
             $newOriginalStatement->setSubmit(Carbon::parse($statementData['Einreichungsdatum'])->toDate());
@@ -567,7 +498,7 @@ class ExcelImporter extends CoreService
             $this->addImportViolations($violations, $line, $currentWorksheetTitle);
         }
 
-        $statementText = $this->getStatementText($statementData, $line, $currentWorksheetTitle);
+        $statementText = $this->getValidatedStatementText($statementData[self::STATEMENT_TEXT], $line, $currentWorksheetTitle);
         $newOriginalStatement->setText($statementText);
         $newOriginalStatement->setProcedure($currentProcedure);
         $newStatementMeta->setAuthorName($statementData['Name'] ?? '');
@@ -626,27 +557,6 @@ class ExcelImporter extends CoreService
     }
 
     /**
-     * Add error-entries from constraintValidations in reference to current line number.
-     */
-    public function addImportViolations(ConstraintViolationListInterface $errors, int $currentLineNumber, string $currentWorksheetTitle): void
-    {
-        // $currentLineNumber is the index of the statement/segment array derived from the xlsx. +2 is needed to
-        // compensate for arrays starting at 0 (while xslx tables start at 1) and also the first line being the headings
-        $currentLineNumber += 2;
-        foreach ($errors as $error) {
-            $this->errors[] = new ImportError($error, $currentLineNumber, $currentWorksheetTitle);
-        }
-    }
-
-    /**
-     * @return Statement[]
-     */
-    public function getGeneratedStatements(): array
-    {
-        return $this->generatedStatements;
-    }
-
-    /**
      * @return Segment[]
      */
     public function getGeneratedSegments(): array
@@ -654,33 +564,7 @@ class ExcelImporter extends CoreService
         return $this->generatedSegments;
     }
 
-    /**
-     * @return array<int, array>
-     */
-    public function getErrorsAsArray(): array
-    {
-        $errorArray = [];
-        foreach ($this->errors as $key => $error) {
-            $errorArray[] = $error->toArray($key);
-        }
-
-        return $errorArray;
-    }
-
-    /**
-     * @return array<int, ImportError>
-     */
-    public function getErrors(): array
-    {
-        return $this->errors;
-    }
-
-    public function hasErrors(): bool
-    {
-        return 0 !== count($this->errors);
-    }
-
-    private function getFirstRowOfWorksheet(Worksheet $worksheet): array
+    protected function getFirstRowOfWorksheet(Worksheet $worksheet): array
     {
         $rowData = $worksheet->rangeToArray('A1:'.$worksheet->getHighestColumn().'1');
 
@@ -706,27 +590,11 @@ class ExcelImporter extends CoreService
         return $miscTopic;
     }
 
-    private function setSubmitType(array $statementData, Statement $statement, int $line, string $worksheetTitle): void
+    protected function setSubmitType(string $inputSubmitType, Statement $statement, int $line, string $worksheetTitle): void
     {
-        $inputSubmitType = $statementData[self::SUBMIT_TYPE_COLUMN] ?? self::SUBMIT_TYPE_UNKNOWN_TRANSLATED_UC;
-        $translatedSubmitTypes = array_keys(self::SUBMIT_TYPE_MAPPING);
-        $violationMessage = $this->translator->trans(
-            'segments.import.error.submitType',
-            [
-                'translatedSubmitTypes' => implode(', ', array_diff($translatedSubmitTypes, [''])),
-                'value'                 => $inputSubmitType,
-            ]
-        );
-        $violations = $this->validator->validate($inputSubmitType, new Assert\Regex([
-            'pattern' => $this->getSubmitTypePattern(),
-            'message' => $violationMessage,
-        ]));
-        if (0 === $violations->count()) {
-            $mappedSubmitType = $this->mapSubmitType($inputSubmitType);
-            $statement->setSubmitType($mappedSubmitType);
-        } else {
-            $this->addImportViolations($violations, $line, $worksheetTitle);
-        }
+        $this->validateSubmitType($inputSubmitType, $line, $worksheetTitle);
+        $mappedSubmitType = $this->mapSubmitType($inputSubmitType);
+        $statement->setSubmitType($mappedSubmitType);
     }
 
     private function getSubmitTypePattern(): string
@@ -757,32 +625,39 @@ class ExcelImporter extends CoreService
 
         $matchingTags = $this->tagResourceType->listPrefilteredEntities($this->generatedTags, [$titleCondition]);
         if ([] === $matchingTags) {
-            $matchingTags = $this->tagResourceType->listEntities([$titleCondition]);
+            $matchingTags = $this->tagResourceType->getEntities([$titleCondition], []);
         }
 
         return $matchingTags[0] ?? null;
     }
 
-    /**
-     * @param array<string, mixed> $statementData
-     */
-    private function getStatementText(
-        array $statementData,
+    protected function getValidatedStatementText(
+        string $statementText,
         int $line,
         string $currentWorksheetTitle
     ): string {
-        $statementText = $statementData[self::STATEMENT_TEXT];
-
-        $violations = $this->validator->validate($statementText, new Assert\NotBlank(
-            null,
-            $this->translator->trans('error.text'),
-            false,
-            'trim'
-        ));
+        $violations = $this->validator->validate($statementText, $this->getStatementTextConstraint());
         if (0 !== $violations->count()) {
             $this->addImportViolations($violations, $line, $currentWorksheetTitle);
         }
 
         return $this->replaceLineBreak($statementText);
+    }
+
+    protected function getSubmitTypeConstraint(string $inputSubmitType): Constraint
+    {
+        $translatedSubmitTypes = array_keys(self::SUBMIT_TYPE_MAPPING);
+        $violationMessage = $this->translator->trans(
+            'segments.import.error.submitType',
+            [
+                'translatedSubmitTypes' => implode(', ', array_diff($translatedSubmitTypes, [''])),
+                'value'                 => $inputSubmitType,
+            ]
+        );
+
+        return new Regex([
+            'pattern' => $this->getSubmitTypePattern(),
+            'message' => $violationMessage,
+        ]);
     }
 }

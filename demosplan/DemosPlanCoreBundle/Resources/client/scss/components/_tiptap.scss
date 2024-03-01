@@ -65,6 +65,9 @@
     h1,
     h2,
     h3,
+    h4,
+    h5,
+    h6,
     p,
     ul,
     ol,
@@ -162,7 +165,7 @@
         & .button_submenu {
             position: absolute;
             display: inline-block;
-            z-index: $z-super;
+            z-index: $dp-z-flyout;
             min-width: 200px;
             border: 2px solid $dp-color-neutral-light-3;
             border-radius: 3px;
@@ -396,7 +399,7 @@
         position: fixed;
         left: 0;
         top: 0;
-        z-index: $z-fixed;
+        z-index: $dp-z-fixed;
 
         height: 100%;
         width: 100%;

@@ -168,6 +168,45 @@ import {
 import { mapActions, mapState } from 'vuex'
 import DpOrganisationListItem from './DpOrganisationListItem'
 
+const orgaFields = {
+  OrgaStatusInCustomer: [
+    'customer',
+    'status'
+  ].join(),
+  Customer: [
+    'name',
+    'subdomain'
+  ].join(),
+  Orga: [
+    'ccEmail2',
+    'city',
+    'competence',
+    'contactPerson',
+    'copy',
+    'copySpec',
+    'currentSlug',
+    'dataProtection',
+    'emailNotificationEndingPhase',
+    'emailNotificationNewStatement',
+    'email2',
+    'houseNumber',
+    'imprint',
+    'isPlanningOrganisation',
+    'name',
+    'participationEmail',
+    'phone',
+    'postalcode',
+    'registrationStatuses',
+    'reviewerEmail',
+    'showlist',
+    'showname',
+    'state',
+    'street',
+    'submissionType',
+    'types'
+  ].join()
+}
+
 export default {
   name: 'DpOrganisationList',
 
@@ -340,6 +379,14 @@ export default {
               memberOf: 'orgaType'
             }
           }
+
+          filterObject.orgaStatus = {
+            condition: {
+              path: 'statusInCustomers.status',
+              operator: '<>',
+              value: 'rejected'
+            }
+          }
         }
       })
       filterObject.orgaType = {
@@ -362,7 +409,8 @@ export default {
         },
         sort: 'name',
         filter: filterObject,
-        include: ['currentSlug', 'customers', 'statusInCustomers'].join()
+        fields: orgaFields,
+        include: ['currentSlug', 'statusInCustomers.customer', 'statusInCustomers'].join()
       })
         .then(() => { this.isLoading = false })
     },
@@ -374,6 +422,7 @@ export default {
         page: {
           number: page
         },
+        fields: orgaFields,
         sort: 'name',
         filter: {
           namefilter: {
@@ -384,7 +433,7 @@ export default {
             }
           }
         },
-        include: ['branding', 'currentSlug', 'customers', 'statusInCustomers'].join()
+        include: ['currentSlug', 'statusInCustomers.customer', 'statusInCustomers'].join()
       })
         .then(() => {
           this.pendingOrganisationsLoading = false
@@ -403,8 +452,9 @@ export default {
         page: {
           number: page
         },
+        fields: orgaFields,
         sort: 'name',
-        include: ['currentSlug', 'customers'].join()
+        include: ['currentSlug', 'orgasInCustomer.customer'].join()
       })
         .then(() => {
           this.pendingOrganisationsLoading = false
@@ -449,9 +499,9 @@ export default {
 
   mounted () {
     this.pendingOrganisationList({
-      include: ['currentSlug', 'customers'].join()
+      include: ['currentSlug', 'orgasInCustomer.customer'].join()
     }).then(() => {
-      this.getItemsByPage()
+      this.getItemsByPage(1)
     }).then(() => {
       this.pendingOrgs = this.pendingOrganisations || {}
     })
@@ -460,7 +510,7 @@ export default {
       this.isLoading = true
       this.pendingOrgs = {}
       this.pendingOrganisationList({
-        include: ['currentSlug', 'customers'].join()
+        include: ['currentSlug', 'orgasInCustomer.customer'].join()
       }).then(() => {
         this.getItemsByPage()
       })

@@ -5,7 +5,7 @@
 Hallo {{ templateVars.userFullName }},
 
 im Verfahren "{{ templateVars.procedureName|default('') }}" endet in {{ 'email.text.notification_for_unsubmitted_statement.end_days'|trans({ count: numberOfdays}) }} ({{ templateVars.endDate }}) eine Beteiligungsphase.
-Derzeit haben Sie dort {{ 'email.text.notification_for_unsubmitted_statement.statements'|trans({ count: numberOfdraftStatements })}}.
+Derzeit haben Sie dort {{ 'email.text.notification_for_unsubmitted_statement.statements'|trans({ count: numberOfdraftStatements })|spaceless }}.
 
 Bitte melden Sie sich auf {{ templateVars.projectName }} an und reichen Sie die Stellungnahmen unter nachfolgendem Link ein.
 

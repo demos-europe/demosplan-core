@@ -11,45 +11,17 @@
         heading: 'drawing.mapsection.define'|trans
     } %}
 
-    <dp-map-admin
-        inline-template
-        :selected-scales="JSON.parse('{{ selectedScales|json_encode|e('js', 'utf-8') }}')">
-        <form class="layout u-pt flow-root" action="{{ path('DemosPlan_map_administration_map',{'procedureId':procedure}) }}" method="post" name="configForm">
+    <dp-map-admin inline-template>
+        <form class="layout u-pb" action="{{ path('DemosPlan_map_administration_map',{'procedureId':procedure}) }}" method="post" name="configForm">
             <input type="hidden" name="action" value="mapglobals">
-
-            {# Select available scales for procedure #}
-            <label class="layout__item u-1-of-4 u-mb-0_5" for="r_scales">
-                {{ 'map.scales'|trans }}
-            </label><!--
-         --><div class="layout__item u-3-of-4 u-pl-0 u-mb">
-                <dp-multiselect
-                    v-model="scales"
-                    label="label"
-                    multiple
-                    :options="JSON.parse('{{ availableScales|json_encode|e('js', 'utf-8') }}')"
-                    track-by="value"
-                    @input="sortSelected('scales')">
-                    <template v-slot:option="{ props }">
-                        {% verbatim %}{{ props.option.label }}{% endverbatim %}
-                    </template>
-                    <template v-slot:tag="{ props }">
-                        <span class="multiselect__tag">
-                            {%  verbatim %}{{ props.option.label }}{%  endverbatim %}
-                            <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
-                            <input type="hidden" :value="props.option.value" name="r_scales[]"/>
-                        </span>
-                    </template>
-                </dp-multiselect>
-                <p class="lbl__hint u-mt-0_25">{{ 'map.scales.select.hint'|trans }}</p>
-            </div>
-
+            {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
             {# Value that is used to set the extent of map a.k.a. procedureMaxExtent #}
             <label class="layout__item u-1-of-4" for="bbox_of_project_epsg25832">
                 {{ "boundingbox"|trans }}
             </label><!--
          --><p
-                class="inline-block u-3-of-4"
+                class="layout__item u-3-of-4"
                 data-cy="boundingBox"
                 data-coordinates="bbox_of_project_epsg25832">
                 {% if mapOptions.procedureMaxExtent == mapOptions.procedureDefaultMaxExtent %}
@@ -63,15 +35,14 @@
                 name="r_boundingBox"
                 id="bbox_of_project_epsg25832"
                 value="{{ mapOptions.procedureMaxExtent|join(',') }}"
-                data-coordinates="bbox_of_project_epsg25832"
-            >
+                data-coordinates="bbox_of_project_epsg25832">
 
             {# Startkartenausschnitt #}
-            <label class="layout__item u-1-of-4" for="mapExtend_of_project_epsg25832">
+            <label class="layout__item u-1-of-4 u-mb-0_5" for="mapExtend_of_project_epsg25832">
                 {{ 'clipping'|trans }}
             </label><!--
          --><p
-                class="inline-block u-3-of-4"
+                class="layout__item u-3-of-4"
                 data-cy="mapExtend"
                 data-coordinates="mapExtend_of_project_epsg25832">
                 {% if mapOptions.procedureInitialExtent == mapOptions.procedureDefaultInitialExtent %}
@@ -85,17 +56,36 @@
                 name="r_mapExtent"
                 id="mapExtend_of_project_epsg25832"
                 data-coordinates="mapExtend_of_project_epsg25832"
-                value="{{ mapOptions.procedureInitialExtent|join(',') }}"
-            >
+                value="{{ mapOptions.procedureInitialExtent|join(',') }}">
+
+            <dp-map-view
+                class="layout__item u-1-of-1 u-pb"
+                default-attribution="{{ mapglobals.copyright }}"
+                procedure-id="{{ procedure }}"
+                procedure-coordinates="{{ templateVars.mapglobals.procedure.settings.coordinate }}"
+                procedure-territory="{{ templateVars.territory|default('{}') }}">
+            </dp-map-view>
+
+            {# Select available scales for procedure #}
+            <label class="layout__item u-1-of-4 u-mb-0_5" for="r_scales">
+                {{ 'map.scales'|trans }}
+            </label><!--
+        --><div class="layout__item u-3-of-4 u-mb-0_5">
+                <dp-map-admin-scales
+                    :available-scales="JSON.parse('{{ availableScales|json_encode|e('js', 'utf-8') }}')"
+                    :selected-scales="JSON.parse('{{ selectedScales|json_encode|e('js', 'utf-8') }}')"
+                    @change="value => areScalesSuitable = value">
+                </dp-map-admin-scales>
+            </div>
 
             {# Wenn keine globale Sachdatenabfragenurl definiert ist, kann sie hier eingetragen werden #}
             {% if mapglobals.featureInfoUrl.global|default == false %}
                 <label class="layout__item u-1-of-4" for="r_informationUrl">
                     {{ 'url.information'|trans }}
                 </label><!--
-             --><div class="layout__item u-3-of-4 u-pl-0 u-mb-0_5">
+             --><div class="layout__item u-3-of-4 u-mb-0_5">
                     <input
-                        class="o-form__control-input width-100p"
+                        class="o-form__control-input w-full"
                         type="text"
                         id="r_informationUrl"
                         name="r_informationUrl"
@@ -106,71 +96,58 @@
                 </div>
             {% endif %}
 
-            {# Copyrightvermerk #}
+            {# Copyright hint #}
             <label
                 class="layout__item u-1-of-4"
                 for="r_copyright">
                 {{ 'map.attribution'|trans }}
             </label><!--
-         --><div class="layout__item u-3-of-4 u-pl-0">
+         --><div class="layout__item u-3-of-4">
                 <input
                     name="r_copyright"
                     type="text"
                     id="r_copyright"
-                    class="o-form__control-input width-100p"
+                    class="o-form__control-input w-full"
                     value="{{ mapglobals.copyright }}">
                 <p class="lbl__hint">
                     {{ 'map.attribution.placeholder'|trans|wysiwyg('strong') }}
                 </p>
             </div>
 
+            {# Show only layers from one category simultaneously #}
             {% if hasPermission('feature_layer_groups_alternate_visibility') %}
-                {# Activate feature to show only layers from one category simultaneously #}
-                <div class="u-1-of-4 inline-block"></div>
-                <label for="r_enable_layer_groups_alternate_visibility" class="inline-block">
-                    <input
+                <div class="layout__item u-1-of-4"></div><!--
+             --><div class="layout__item u-3-of-4 u-mt-0_75">
+                    <dp-checkbox
                         id="r_enable_layer_groups_alternate_visibility"
-                        type="checkbox"
                         name="r_enable_layer_groups_alternate_visibility"
+                        :checked="{{ mapglobals.layerGroupsAlternateVisibility == 'true' ? 'true' : 'false' }}"
                         value="{{ mapglobals.layerGroupsAlternateVisibility|default }}"
-                        {{ mapglobals.layerGroupsAlternateVisibility == 'true' ? 'checked' : '' }}
-                    >
-                    {{ 'explanation.gislayer.layergroup.toggle.alternating.visibility'|trans }}
-                </label>
-                <div class="o-tooltip o-tooltip--question-circle inline-block">
-                    <div class="o-tooltip__content" aria-hidden="true">
-                        {{ 'explanation.gislayer.layergroup.toggle.alternating.visibility.extended'|trans }}
-                    </div>
+                        :label="{
+                            bold: true,
+                            hint: Translator.trans('explanation.gislayer.layergroup.toggle.alternating.visibility.extended'),
+                            text: Translator.trans('explanation.gislayer.layergroup.toggle.alternating.visibility')
+                        }">
+                    </dp-checkbox>
                 </div>
             {% endif %}
 
-
-            {% block mapadmin_actions %}{% endblock %}
-
-            <div class="layout__item u-1-of-1 u-pl u-pb">
-
-                <h2 class="u-mv">
-                    {{ 'map.editarea.title'|trans }}
-                </h2>
-
-                <div>
-                    <dp-map-view
-                        default-attribution="{{ mapglobals.copyright }}"
-                        procedure-id="{{ procedure }}"
-                        procedure-coordinates="{{ templateVars.mapglobals.procedure.settings.coordinate }}"
-                        procedure-territory="{{ templateVars.territory|default('{}') }}"
-                    >
-                    </dp-map-view>
-                </div>
-
-                <div class="text-right u-mt-0_5 space-inline-s">
-                    <input class="btn btn--primary" type="submit" name="saveConfig" value="{{ "save"|trans }}">
-                    <input class="btn btn--primary" type="submit" name="submit_item_return_button" value="{{ "save.and.return.to.list"|trans }}">
-                    <a class="btn btn--secondary" href="{{ path('DemosPlan_element_administration', {'procedure':procedure}) }}">
-                        {{ "abort"|trans }}
-                    </a>
-                </div>
-
+            <div class="layout__item u-1-of-1 text-right u-mt-0_5 space-inline-s">
+                <input
+                    class="btn btn--primary"
+                    :disabled="areScalesSuitable === false"
+                    type="submit"
+                    name="saveConfig"
+                    value="{{ "save"|trans }}">
+                <input
+                    class="btn btn--primary"
+                    :disabled="areScalesSuitable === false"
+                    type="submit"
+                    name="submit_item_return_button"
+                    value="{{ "save.and.return.to.list"|trans }}">
+                <a class="btn btn--secondary" href="{{ path('DemosPlan_element_administration', {'procedure':procedure}) }}">
+                    {{ "abort"|trans }}
+                </a>
             </div>
 
         </form>

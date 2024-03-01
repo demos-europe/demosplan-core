@@ -10,16 +10,17 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
+use DemosEurope\DemosplanAddon\Contracts\ApiRequest\JsonApiEsServiceInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\SearchParams;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
-use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementSegmentResourceType;
 use demosplan\DemosPlanCoreBundle\Services\ApiResourceService;
 use demosplan\DemosPlanCoreBundle\Transformers\Filters\AggregationFilterTypeTransformer;
@@ -31,11 +32,9 @@ use stdClass;
 class RpcSegmentFacetsProvider implements RpcMethodSolverInterface
 {
     private const FACET_LIST_METHOD = 'segments.facets.list';
-    private readonly DrupalFilterParser $filterParser;
 
-    public function __construct(private readonly ApiResourceService $resourceService, private readonly CurrentUserInterface $currentUser, DrupalFilterParser $drupalFilterParser, private readonly JsonApiActionService $jsonApiActionService, private readonly RpcErrorGenerator $errorGenerator, private readonly StatementSegmentResourceType $segmentResourceType)
+    public function __construct(private readonly ApiResourceService $resourceService, private readonly CurrentUserInterface $currentUser, private readonly DrupalFilterParser $filterParser, private readonly JsonApiActionService $jsonApiActionService, private readonly RpcErrorGenerator $errorGenerator, private readonly StatementSegmentResourceType $segmentResourceType)
     {
-        $this->filterParser = $drupalFilterParser;
     }
 
     public function supports(string $method): bool
@@ -43,7 +42,7 @@ class RpcSegmentFacetsProvider implements RpcMethodSolverInterface
         return self::FACET_LIST_METHOD === $method;
     }
 
-    public function execute(?Procedure $procedure, $rpcRequests): array
+    public function execute(?ProcedureInterface $procedure, $rpcRequests): array
     {
         $rpcRequests = is_object($rpcRequests)
             ? [$rpcRequests]
@@ -63,8 +62,8 @@ class RpcSegmentFacetsProvider implements RpcMethodSolverInterface
                     : $searchPhrase;
 
                 $searchParams = SearchParams::createOptional([
-                    'value'         => $searchPhrase,
-                    'facetKeys'     => [$facetKey => $facetKey],
+                    JsonApiEsServiceInterface::VALUE      => $searchPhrase,
+                    JsonApiEsServiceInterface::FACET_KEYS => [$facetKey => $facetKey],
                 ]);
                 $apiListResult = $this->jsonApiActionService->searchObjects(
                     $this->segmentResourceType,

@@ -148,14 +148,14 @@ export default {
       selectedFeatureId: [],
       layerNameOfSelectedFeature: '',
       disabled: true,
-      zIndexSuper: false,
+      zIndexUltimate: false,
       targets: Array.isArray(this.target) ? this.target : [this.target]
     }
   },
 
   computed: {
     tooltipClass () {
-      return this.zIndexSuper ? 'u-z-super' : ''
+      return this.zIndexUltimate ? 'z-ultimate' : ''
     },
 
     map () {
@@ -276,7 +276,7 @@ export default {
      * once it has been refactored to use an upto date version of v-tooltip.
      */
     if (this.getZIndex(this.$refs.rootElement) > 9999) {
-      this.zIndexSuper = true
+      this.zIndexUltimate = true
     }
   }
 }

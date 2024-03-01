@@ -130,7 +130,7 @@
           type="text"
           id="groupName"
           name="groupName"
-          class="width-100p"
+          class="w-full"
           style="height: 28px"
           v-model="groupName">
 
@@ -396,12 +396,20 @@ export default {
 
     // Get clusters in procedure to have the current assignee state in selectStatementCluster
     fetchClusters () {
-      return dpApi({
-        method: 'GET',
-        url: Routing.generate('api_resource_list', {
-          resourceType: 'Cluster'
-        })
-      })
+      const url = Routing.generate('api_resource_list', { resourceType: 'Cluster' })
+      const params = {
+        include: 'Claim',
+        fields: {
+          Cluster: [
+            'assignee'
+          ].join(),
+          Claim: [
+            'name',
+            'orgaName'
+          ].join()
+        }
+      }
+      return dpApi.get(url, params)
         .then(checkResponse)
         .then(response => response.data)
     },

@@ -1,0 +1,23 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS plan GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+.c-support {
+    &__wrapper {
+        padding: 30px;
+
+        background-color: $dp-color-white;
+
+        & > h2 {
+            margin: 0 0 20px 0;
+
+            color: $dp-color-black;
+            font-weight: $base-font-weight;
+        }
+    }
+}

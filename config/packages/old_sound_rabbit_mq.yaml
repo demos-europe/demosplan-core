@@ -2,7 +2,7 @@
 old_sound_rabbit_mq:
     connections:
         default:
-            url: '%env(string:default:rabbitmq_dsn:RABBITMQ_URL)%'
+            url: '%rabbitmq_dsn%'
             lazy:     true
             connection_timeout: 3
             read_write_timeout: 3

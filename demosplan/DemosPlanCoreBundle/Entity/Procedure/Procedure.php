@@ -149,7 +149,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="_p_phase", type="string", length=50, nullable=false)
+     * @ORM\Column(name="_p_phase", type="string", nullable=false)
      */
     protected $phase = '';
 
@@ -258,7 +258,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="_p_public_participation_phase", type="string", length=20, nullable=false)
+     * @ORM\Column(name="_p_public_participation_phase", type="string", nullable=false)
      */
     protected $publicParticipationPhase = '';
 
@@ -515,14 +515,14 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      *
      * @var Customer
      *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer", inversedBy="defaultProcedureBlueprint", cascade={"remove", "persist"})
+     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
      *
      * @ORM\JoinColumn(name="customer", referencedColumnName="_c_id", nullable=true)
      */
     protected $customer;
 
     /**
-     * @var ProcedureCategory[]
+     * @var Collection<int, ProcedureCategory>
      *
      * @ORM\ManyToMany(
      *      targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureCategory",
@@ -570,7 +570,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * Many procedureTypes have one procedure. This is the owning side.
      * (In Doctrine Many have to be the owning side in a ManyToOne relationship.)
      *
-     * @ORM\ManyToOne(targetEntity="ProcedureType", inversedBy="procedures")
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType", inversedBy="procedures")
      *
      * @ORM\JoinColumn(nullable=true)
      */
@@ -581,7 +581,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      *
      * @var StatementFormDefinition|null
      *
-     * @ORM\OneToOne(targetEntity="StatementFormDefinition", inversedBy="procedure", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition", inversedBy="procedure", cascade={"persist", "remove"})
      *
      * @ORM\JoinColumn(nullable=true)
      */
@@ -592,7 +592,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      *
      * @var ProcedureBehaviorDefinition|null
      *
-     * @ORM\OneToOne(targetEntity="ProcedureBehaviorDefinition", inversedBy="procedure", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition", inversedBy="procedure", cascade={"persist", "remove"})
      *
      * @ORM\JoinColumn(nullable=true)
      */
@@ -603,7 +603,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      *
      * @var ProcedureUiDefinition|null
      *
-     * @ORM\OneToOne(targetEntity="ProcedureUiDefinition", inversedBy="procedure", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition", inversedBy="procedure", cascade={"persist", "remove"})
      *
      * @ORM\JoinColumn(nullable=true)
      */
@@ -647,7 +647,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     /**
      * @var Collection<int, Place>
      *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Workflow\Place", mappedBy="procedure")
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Workflow\Place", mappedBy="procedure", cascade={"persist"})
      */
     private $segmentPlaces;
 
@@ -685,7 +685,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     }
 
     /**
-     * @param ArrayCollection $elements
+     * @param Collection<int, Elements> $elements
      */
     public function setElements($elements)
     {
@@ -1755,7 +1755,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     }
 
     /**
-     * @return ArrayCollection[Orga]
+     * @return Collection<int, Orga>
      */
     public function getDataInputOrganisations()
     {
@@ -2008,7 +2008,8 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     public function isCustomerMasterBlueprint(): bool
     {
-        return $this->master && null !== $this->customer;
+        // the customer holds the reference to the default-customer-blueprint
+        return $this->getId() === $this->getCustomer()?->getDefaultProcedureBlueprint()?->getId();
     }
 
     /**
@@ -2029,20 +2030,9 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     /**
      * @param CustomerInterface|null $customer
-     * @param bool                   $handleBothSites
      */
-    public function setCustomer($customer, $handleBothSites = true): Procedure
+    public function setCustomer($customer): Procedure
     {
-        if ($handleBothSites) {
-            if (null === $customer && null !== $this->customer) {
-                $this->customer->setDefaultProcedureBlueprint(null);
-            }
-
-            if (null !== $customer) {
-                $customer->setDefaultProcedureBlueprint($this);
-            }
-        }
-
         $this->customer = $customer;
 
         return $this;
@@ -2150,8 +2140,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * Returns first Survey in the list.
      *
      * @param string $surveyId
-     *
-     * @return Survey
      */
     public function getSurvey($surveyId): ?Survey
     {

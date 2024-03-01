@@ -162,8 +162,8 @@ services:
                 soft: -1
                 hard: -1
         restart: always
-    mailhog:
-        image: mailhog/mailhog
+    mailpit:
+        image: axllent/mailpit:latest
         networks:
             demosplan_development_network:
                 ipv4_address: 172.22.255.13

@@ -19,7 +19,7 @@
  * As per: csswizardry.com/2012/06/single-direction-margin-declarations
  */
 h1, h2, h3, h4, h5, h6,
-ul, ol, dl,
+dl,
 blockquote, p, address,
 hr,
 table,
@@ -38,7 +38,7 @@ pre,
  * Where `margin-left` is concerned we want to try and indent certain elements
  * by a consistent amount. Define that amount once,here.
  */
-ul, ol, dd,
+dd,
 %margin-left {
     margin-left: 2 * $inuit-base-spacing-unit;
     margin-left: math.div(2 * $inuit-base-spacing-unit, $inuit-base-font-size) * 1rem;

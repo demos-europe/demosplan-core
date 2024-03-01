@@ -279,7 +279,7 @@
         {% if hasPermission('field_organisation_paper_copy_spec') %}
             {{ uiComponent('form.row', { elements: [{
                 label: { text: 'copies.kind'|trans, hint: 'explanation.organisation.copies.kind'|trans|wysiwyg },
-                control: { value: organisation.paperCopySpec|default, name: organisation.ident|default ~ ':paperCopySpec', height: '90' },
+                control: { value: organisation.paperCopySpec|default, name: organisation.ident|default ~ ':paperCopySpec', height: '8' },
                 type: 'textarea',
                 id: 'orga_paperCopySpec',
             }] }) }}
@@ -288,7 +288,7 @@
         {% if hasPermission('field_organisation_competence') %}
             {{ uiComponent('form.row', { elements: [{
                 label: { text: 'competence.explanation'|trans, hint: 'explanation.organisation.competence'|trans },
-                control: { value: organisation.competence|default, name: organisation.ident|default ~ ':competence', height: '90' },
+                control: { value: organisation.competence|default, name: organisation.ident|default ~ ':competence', height: '8' },
                 type: 'textarea',
                 id: 'orga_competence',
             }] }) }}
@@ -314,7 +314,7 @@
         {% if hasPermission('field_data_protection_text_customized_edit_orga') %}
             {{ uiComponent('form.row', { elements: [{
                 label: { text: 'data.protection.notes'|trans, hint: 'customer.data.protection.explanation'|trans },
-                control: { hiddenInput: organisation.ident|default ~ ':data_protection', headings: [3,4] },
+                control: { hiddenInput: organisation.ident|default ~ ':data_protection', headings: [3,4], linkButton: true },
                 id: 'orga_data_protection',
                 type: 'editor',
                 value: organisation.dataProtection|default,
@@ -324,7 +324,7 @@
         {% if hasPermission('field_imprint_text_customized_edit_orga') %}
             {{ uiComponent('form.row', { elements: [{
                 label: { text: 'imprint'|trans, hint: 'organisation.imprint.hint'|trans },
-                control: { name: 'data_protection', hiddenInput: organisation.ident|default ~ ':imprint', headings: [3,4] },
+                control: { name: 'data_protection', hiddenInput: organisation.ident|default ~ ':imprint', headings: [3,4], linkButton: true },
                 id: 'orga_imprint',
                 type: 'editor',
                 value: organisation.imprint|default,

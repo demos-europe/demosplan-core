@@ -16,7 +16,7 @@
       <span>
         {{ createdDateTimeItem(comment.attributes.creationDate) }}
       </span>
-      <span class="u-ml-0_25 o-badge--small o-badge--light border-radius-extra-large">
+      <span class="u-ml-0_25 o-badge--small o-badge--light rounded-full">
         {{ place }}
       </span>
     </div>

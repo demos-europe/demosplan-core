@@ -83,7 +83,7 @@
           name="r_getEvaluation"
           :disabled="statement.r_useName === '0'"
           @change="val => setStatementData({r_getEvaluation: 'snailmail'})"
-          :checked="statement.r_getEvaluation === 'snailmail'"
+          :checked="statement.r_getEvaluation === 'snailmail' && statement.r_getFeedback === 'on'"
           :label="{
             text: Translator.trans('statement.form.personal.require_answer_post')
           }"
@@ -93,12 +93,12 @@
           v-show="statement.r_useName !== '0'"
           :class="prefixClass('layout__item u-1-of-1-palm u-1-of-2 u-mt-0_5 ')"
           :disabled="statement.r_useName === '0'"
-          :required="statement.r_getEvaluation === 'snailmail' && statement.r_useName !== '0'" /><!--
+          :required="statement.r_getFeedback === 'on' && statement.r_getEvaluation === 'snailmail' && statement.r_useName !== '0'" /><!--
      --><form-group-postal-and-city
           v-show="statement.r_useName !== '0'"
           :class="prefixClass('layout__item u-1-of-1-palm u-1-of-2 u-mt-0_5 ')"
           :disabled="statement.r_useName === '0'"
-          :required="statement.r_getEvaluation === 'snailmail' && statement.r_useName !== '0'" />
+          :required="statement.r_getFeedback === 'on' && statement.r_getEvaluation === 'snailmail' && statement.r_useName !== '0'" />
       </div>
     </div>
   </div>

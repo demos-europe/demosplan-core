@@ -12,16 +12,20 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
+use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 
 /**
- * @template-extends DplanResourceType<Statement>
+ * @template-extends DplanResourceType<StatementInterface>
  *
  * @property-read ProcedureResourceType $procedure
  * @property-read StatementResourceType $original
@@ -96,7 +100,7 @@ use EDT\PathBuilding\End;
  * @property-read End $anonymous
  * @property-read FileResourceType $files @deprecated Use {@link StatementResourceType::$attachments} instead (needs implementation changes)
  * @property-read TagResourceType $tags
- * @property-read PlanningDocumentCategoryResourceType $elements @deprecated Rename to 'element'
+ * @property-read PlanningDocumentCategoryResourceType $elements
  * @property-read PlanningDocumentCategoryResourceType $element
  * @property-read CountyResourceType $counties
  * @property-read StatementAttachmentResourceType $attachments
@@ -115,8 +119,10 @@ use EDT\PathBuilding\End;
  */
 abstract class AbstractStatementResourceType extends DplanResourceType
 {
-    public function __construct(private readonly FileService $fileService, private readonly HTMLSanitizer $htmlSanitizer)
-    {
+    public function __construct(
+        private readonly FileService $fileService,
+        private readonly HTMLSanitizer $htmlSanitizer
+    ) {
     }
 
     /**
@@ -125,177 +131,208 @@ abstract class AbstractStatementResourceType extends DplanResourceType
      *
      * some of the following relationships are (currently) only needed in the assessment table
      */
-    protected function getProperties(): array
+    protected function getProperties(): array|ResourceConfigBuilderInterface
     {
-        $submitterEmailAddress = $this->createAttribute($this->submitterEmailAddress)
-            ->readable(true, static fn(Statement $statement): ?string => $statement->getSubmitterEmailAddress());
-        $properties = [
-            $this->createAttribute($this->authoredDate)
-                ->aliasedPath($this->meta->authoredDate)->readable(true, fn(Statement $statement): ?string => $this->formatDate($statement->getMeta()->getAuthoredDateObject()), true),
-            $this->createAttribute($this->elementCategory)
-                ->readable(true)->aliasedPath($this->element->category),
-            $this->createAttribute($this->externId)->readable(true)->filterable()->sortable(),
-            $this->createAttribute($this->filteredFragmentsCount)
-                ->readable(true, static fn(Statement $statement): int => $statement->getFragmentsFilteredCount()),
-            $this->createAttribute($this->formerExternId)
-                ->readable(true)->aliasedPath($this->placeholderStatement->externId),
-            $this->createAttribute($this->fragmentsCount)
-                ->readable(true, static fn(Statement $statement): int => $statement->getFragments()->count()),
-            $this->createAttribute($this->id)->readable(true)->filterable(),
-            $this->createAttribute($this->internId)
-                ->readable(true)->filterable()->aliasedPath($this->original->internId),
-            $this->createAttribute($this->isCitizen)
-                ->readable(true, static fn(Statement $statement): bool => User::ANONYMOUS_USER_ORGA_NAME === $statement->getMeta()->getOrgaName()),
-            $this->createAttribute($this->isCluster)
-                ->readable(true)->aliasedPath($this->clusterStatement),
-            $this->createAttribute($this->likesNum)
-                ->readable(true, static fn(Statement $statement): int => $statement->getLikesNum()),
-            $this->createAttribute($this->movedFromProcedureId)
-                ->readable(true, static fn(Statement $statement): string => $statement->getMovedFromProcedureId() ?: ''),
-            $this->createAttribute($this->movedFromProcedureName)
-                ->readable(true, static fn(Statement $statement): string => $statement->getMovedFromProcedureName() ?: ''),
-            $this->createAttribute($this->movedStatementId)
-                ->readable(true)->aliasedPath($this->movedStatement->id),
-            $this->createAttribute($this->movedToProcedureId)
-                ->readable(true, static fn(Statement $statement): string => $statement->getMovedToProcedureId() ?: ''),
-            $this->createAttribute($this->movedToProcedureName)
-                ->readable(true, static fn(Statement $statement): string => $statement->getMovedToProcedureName() ?: ''),
-            $this->createAttribute($this->name)
-                ->readable(true, static fn(Statement $statement): string => $statement->getName()),
-            $this->createAttribute($this->initialOrganisationHouseNumber)
-                ->readable(true)->aliasedPath($this->meta->houseNumber),
-            $this->createAttribute($this->initialOrganisationStreet)
-                ->readable(true)->aliasedPath($this->meta->orgaStreet),
-            $this->createAttribute($this->initialOrganisationCity)
-                ->readable(true)->aliasedPath($this->meta->orgaCity),
-            $this->createAttribute($this->initialOrganisationDepartmentName)
-                ->readable(true)->aliasedPath($this->meta->orgaDepartmentName),
-            $this->createAttribute($this->initialOrganisationName)
-                ->readable(true)->sortable()->aliasedPath($this->meta->orgaName),
-            $this->createAttribute($this->initialOrganisationPostalCode)
-                ->readable(true)->aliasedPath($this->meta->orgaPostalCode),
-            $this->createAttribute($this->parentId)
-                ->readable(true)->aliasedPath($this->parent->id),
-            $this->createAttribute($this->phase)
-                ->readable(true, function (Statement $statement): string {
-                    $phase = $statement->getPhase();
-                    if (Statement::INTERNAL === $statement->getPublicStatement()) {
-                        $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
-                        $phase = $internalPhases[$phase]['name'] ?? '';
-                    } else {
-                        $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
-                        $phase = $externalPhases[$phase]['name'] ?? '';
-                    }
+        /** @var StatementResourceConfigBuilder $configBuilder */
+        $configBuilder = $this->getConfig(StatementResourceConfigBuilder::class);
 
-                    return $phase;
-                }),
-            $this->createAttribute($this->polygon)->readable(true),
-            $this->createAttribute($this->priority)->readable(true),
-            $this->createAttribute($this->procedureId)->readable(true)->aliasedPath($this->procedure->id),
-            $this->createAttribute($this->publicAllowed)
-                ->readable(true, static fn(Statement $statement): bool => $statement->getPublicAllowed()),
-            $this->createAttribute($this->publicVerified)->readable(true),
-            $this->createAttribute($this->publicVerifiedTranslation)
-                ->readable(true, static fn(Statement $statement): ?string => $statement->getPublicVerifiedTranslation()),
-            $this->createAttribute($this->recommendation)
-                ->readable(true, fn(Statement $statement): ?string => $this->htmlSanitizer->purify($statement->getRecommendationShort())),
-            $this->createAttribute($this->recommendationIsTruncated)
-                ->readable(true, static fn(Statement $statement): bool => $statement->getRecommendation() !== $statement->getRecommendationShort()),
-            $this->createAttribute($this->status)->readable(true),
-            $this->createAttribute($this->submitDate)
-                ->sortable()->aliasedPath($this->submit)->readable(true, fn(Statement $statement): ?string => $this->formatDate($statement->getSubmitObject()), true),
-            $submitterEmailAddress,
-            $this->createAttribute($this->submitType)->readable(true),
-            $this->createAttribute($this->text)
-                ->readable(true, fn(Statement $statement): ?string => $this->htmlSanitizer->purify($statement->getTextShort())),
-            $this->createAttribute($this->textIsTruncated)
-                ->readable(true, static fn(Statement $statement): bool => $statement->getText() !== $statement->getTextShort()),
-            $this->createAttribute($this->userGroup)
-                ->readable(true, static fn(Statement $statement): ?string => $statement->getMeta()->getUserGroup()),
-            $this->createAttribute($this->userOrganisation)
-                ->readable(true, static fn(Statement $statement): ?string => $statement->getMeta()->getUserOrganisation()),
-            $this->createAttribute($this->userPosition)
-                ->readable(true, static fn(Statement $statement): ?string => $statement->getMeta()->getUserPosition()),
-            $this->createAttribute($this->userState)
-                ->readable(true, static fn(Statement $statement): ?string => $statement->getMeta()->getUserState()),
-            $this->createAttribute($this->votePla)->readable(true),
-            $this->createAttribute($this->votesNum)
-                ->readable(true, static fn(Statement $statement): int => $statement->getVotesNum()),
-            $this->createAttribute($this->voteStk)->readable(true),
-            $this->createAttribute($this->fullText)
-                // add the large full text field only if it was requested
-                ->readable(false, fn(Statement $statement): string => $this->htmlSanitizer->purify($statement->getText())),
-            // keep `isManual` optional, as it may be removed when the resource type is splitted
-            $this->createAttribute($this->isManual)->readable()->aliasedPath($this->manual),
-            $this->createAttribute($this->numberOfAnonymVotes)->filterable(),
-            $this->createToManyRelationship($this->files)
-                ->readable(false, function (Statement $statement): ?array {
-                    // files need to be fetched via Filecontainer
-                    $files = $this->fileService->getEntityFiles(Statement::class, $statement->getId(), 'file');
-                    if (0 === count($files)) {
-                        return null;
-                    }
+        $configBuilder->id->readable()->filterable();
+        $configBuilder->submitterEmailAddress
+            ->readable(true, static fn (Statement $statement): ?string => $statement->getSubmitterEmailAddress());
+        $configBuilder->authoredDate
+            ->aliasedPath(Paths::statement()->meta->authoredDate)->readable(true, fn (Statement $statement): ?string => $this->formatDate($statement->getMeta()->getAuthoredDateObject()));
+        $configBuilder->elementCategory
+            ->readable(true)->aliasedPath(Paths::statement()->element->category);
+        $configBuilder->externId->readable(true)->filterable()->sortable();
+        $configBuilder->filteredFragmentsCount
+            ->readable(true, static fn (Statement $statement): int => $statement->getFragmentsFilteredCount());
+        $configBuilder->formerExternId
+            ->readable(true)->aliasedPath(Paths::statement()->placeholderStatement->externId);
+        $configBuilder->fragmentsCount
+            ->readable(true, static fn (Statement $statement): int => $statement->getFragments()->count());
+        $configBuilder->internId
+            ->readable(true)->filterable()->aliasedPath(Paths::statement()->original->internId);
+        $configBuilder->isCitizen
+            ->readable(true, static fn (Statement $statement): bool => User::ANONYMOUS_USER_ORGA_NAME === $statement->getMeta()->getOrgaName());
+        $configBuilder->isCluster
+            ->readable(true)->aliasedPath(Paths::statement()->clusterStatement);
+        $configBuilder->likesNum
+            ->readable(true, static fn (Statement $statement): int => $statement->getLikesNum());
+        $configBuilder->movedFromProcedureId
+            ->readable(true, static fn (Statement $statement): string => $statement->getMovedFromProcedureId() ?: '');
+        $configBuilder->movedFromProcedureName
+            ->readable(true, static fn (Statement $statement): string => $statement->getMovedFromProcedureName() ?: '');
+        $configBuilder->movedStatementId
+            ->readable(true)->aliasedPath(Paths::statement()->movedStatement->id);
+        $configBuilder->movedToProcedureId
+            ->readable(true, static fn (Statement $statement): string => $statement->getMovedToProcedureId() ?: '');
+        $configBuilder->movedToProcedureName
+            ->readable(true, static fn (Statement $statement): string => $statement->getMovedToProcedureName() ?: '');
+        $configBuilder->name
+            ->readable(true, static fn (Statement $statement): string => $statement->getName());
+        $configBuilder->initialOrganisationHouseNumber
+            ->readable(true)->aliasedPath(Paths::statement()->meta->houseNumber);
+        $configBuilder->initialOrganisationStreet
+            ->readable(true)->aliasedPath(Paths::statement()->meta->orgaStreet);
+        $configBuilder->initialOrganisationCity
+            ->readable(true)->aliasedPath(Paths::statement()->meta->orgaCity);
+        $configBuilder->initialOrganisationDepartmentName
+            ->readable(true)->aliasedPath(Paths::statement()->meta->orgaDepartmentName);
+        $configBuilder->initialOrganisationName
+            ->readable(true)->sortable()->aliasedPath(Paths::statement()->meta->orgaName);
+        $configBuilder->initialOrganisationPostalCode
+            ->readable(true)->aliasedPath(Paths::statement()->meta->orgaPostalCode);
+        $configBuilder->parentId
+            ->readable(true)->aliasedPath(Paths::statement()->parent->id);
+        $configBuilder->phase
+            ->readable(true, function (Statement $statement): string {
+                $phase = $statement->getPhase();
+                if (Statement::INTERNAL === $statement->getPublicStatement()) {
+                    $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
+                    $phase = $internalPhases[$phase]['name'] ?? '';
+                } else {
+                    $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
+                    $phase = $externalPhases[$phase]['name'] ?? '';
+                }
 
-                    return $files;
-                }),
-            $this->createToManyRelationship($this->cluster)->filterable(),
-            $this->createToOneRelationship($this->original)->filterable(),
-            $this->createToOneRelationship($this->organisation)->filterable(),
-            $this->createToOneRelationship($this->headStatement)->readable()->filterable(),
-            $this->createToManyRelationship($this->segments)->readable()->filterable()->aliasedPath($this->segmentsOfStatement),
-            $this->createToManyRelationship($this->tags)->readable(),
-            $this->createToManyRelationship($this->elements)->readable()->aliasedPath($this->element),
-            $this->createToManyRelationship($this->counties)->readable(),
-            $this->createToManyRelationship($this->attachments)->readable(),
-            $this->createToOneRelationship($this->paragraph)->readable(),
-            $this->createToOneRelationship($this->paragraphOriginal)->readable()->aliasedPath($this->paragraph->paragraph),
-            $this->createToManyRelationship($this->priorityAreas)->readable(),
-            $this->createToOneRelationship($this->procedure)->readable()->filterable(),
-            $this->createToManyRelationship($this->municipalities)->readable(),
-            $this->createToManyRelationship($this->fragmentsElements)->readable()->aliasedPath($this->fragments),
-            $this->createToOneRelationship($this->document)
-                ->readable(false, static function (Statement $statement): ?SingleDocument {
-                    $documentVersion = $statement->getDocument();
-                    if (null === $documentVersion) {
-                        return null;
-                    }
+                return $phase;
+            });
+        $configBuilder->polygon->readable(true);
+        $configBuilder->priority->readable(true);
+        $configBuilder->procedureId->readable(true)->aliasedPath(Paths::statement()->procedure->id);
+        $configBuilder->publicAllowed
+            ->readable(true, static fn (Statement $statement): bool => $statement->getPublicAllowed());
+        $configBuilder->publicVerified->readable(true);
+        $configBuilder->publicVerifiedTranslation
+            ->readable(true, static fn (Statement $statement): ?string => $statement->getPublicVerifiedTranslation());
+        $configBuilder->recommendation
+            ->readable(true, fn (Statement $statement): ?string => $this->htmlSanitizer->purify($statement->getRecommendationShort()));
+        $configBuilder->recommendationIsTruncated
+            ->readable(true, static fn (Statement $statement): bool => $statement->getRecommendation() !== $statement->getRecommendationShort());
+        $configBuilder->status->readable(true);
+        $configBuilder->submitDate
+            ->sortable()->aliasedPath(Paths::statement()->submit)->readable(true, fn (Statement $statement): ?string => $this->formatDate($statement->getSubmitObject()));
+        $configBuilder->submitType->readable(true);
+        $configBuilder->text
+            ->readable(true, fn (Statement $statement): ?string => $this->htmlSanitizer->purify($statement->getTextShort()));
+        $configBuilder->textIsTruncated
+            ->readable(true, static fn (Statement $statement): bool => $statement->getText() !== $statement->getTextShort());
+        $configBuilder->userGroup
+            ->readable(true, static fn (Statement $statement): ?string => $statement->getMeta()->getUserGroup());
+        $configBuilder->userOrganisation
+            ->readable(true, static fn (Statement $statement): ?string => $statement->getMeta()->getUserOrganisation());
+        $configBuilder->userPosition
+            ->readable(true, static fn (Statement $statement): ?string => $statement->getMeta()->getUserPosition());
+        $configBuilder->userState
+            ->readable(true, static fn (Statement $statement): ?string => $statement->getMeta()->getUserState());
+        $configBuilder->votePla->readable(true);
+        $configBuilder->votesNum
+            ->readable(true, static fn (Statement $statement): int => $statement->getVotesNum());
+        $configBuilder->voteStk->readable(true);
+        $configBuilder->fullText
+            // add the large full text field only if it was requested
+            ->readable(false, fn (Statement $statement): string => $this->htmlSanitizer->purify($statement->getText()));
+        // keep `isManual` optional, as it may be removed when the resource type is splitted
+        $configBuilder->isManual->readable()->aliasedPath(Paths::statement()->manual);
+        $configBuilder->numberOfAnonymVotes->filterable();
+        $configBuilder->files
+            ->setRelationshipType($this->resourceTypeStore->getFileResourceType())
+            // files need to be fetched via Filecontainer
+            ->readable(false, fn (Statement $statement): array => $this->fileService->getEntityFiles(
+                Statement::class,
+                $statement->getId(),
+                'file')
+            );
+        $configBuilder->cluster
+            ->setRelationshipType($this->resourceTypeStore->getStatementResourceType())
+            ->filterable();
+        $configBuilder->original
+            ->setRelationshipType($this->resourceTypeStore->getStatementResourceType())
+            ->filterable();
+        $configBuilder->organisation
+            ->setRelationshipType($this->resourceTypeStore->getOrgaResourceType())
+            ->filterable();
+        $configBuilder->headStatement
+            ->setRelationshipType($this->resourceTypeStore->getStatementResourceType())
+            ->readable()->filterable();
+        $configBuilder->segments
+            ->setRelationshipType($this->resourceTypeStore->getStatementSegmentResourceType())
+            ->readable()->filterable()->aliasedPath(Paths::statement()->segmentsOfStatement);
+        $configBuilder->tags
+            ->setRelationshipType($this->resourceTypeStore->getTagResourceType())
+            ->readable();
+        if ($this->currentUser->hasPermission('field_procedure_elements')) {
+            $configBuilder->elements
+                ->setRelationshipType($this->resourceTypeStore->getPlanningDocumentCategoryResourceType())
+                ->readable()->aliasedPath(Paths::statement()->element);
+        }
+        $configBuilder->counties
+            ->setRelationshipType($this->resourceTypeStore->getCountyResourceType())
+            ->readable();
+        $configBuilder->attachments
+            ->setRelationshipType($this->resourceTypeStore->getStatementAttachmentResourceType())
+            ->readable();
+        $configBuilder->paragraph
+            ->setRelationshipType($this->resourceTypeStore->getParagraphVersionResourceType())
+            ->readable();
+        $configBuilder->paragraphOriginal
+            ->setRelationshipType($this->resourceTypeStore->getParagraphResourceType())
+            ->readable()->aliasedPath(Paths::statement()->paragraph->paragraph);
+        $configBuilder->priorityAreas
+            ->setRelationshipType($this->resourceTypeStore->getPriorityAreaResourceType())
+            ->readable();
+        $configBuilder->procedure
+            ->setRelationshipType($this->resourceTypeStore->getProcedureResourceType())
+            ->readable()->filterable();
+        $configBuilder->municipalities
+            ->setRelationshipType($this->resourceTypeStore->getMunicipalityResourceType())
+            ->readable();
+        $configBuilder->fragmentsElements
+            ->setRelationshipType($this->resourceTypeStore->getStatementFragmentsElementsResourceType())
+            ->readable()->aliasedPath(Paths::statement()->fragments);
+        $configBuilder->document
+            ->setRelationshipType($this->resourceTypeStore->getSingleDocumentResourceType())
+            ->readable(false, static function (Statement $statement): ?SingleDocumentInterface {
+                $documentVersion = $statement->getDocument();
+                if (null === $documentVersion) {
+                    return null;
+                }
 
-                    return $documentVersion->getSingleDocument();
-                }),
-        ];
+                return $documentVersion->getSingleDocument();
+            });
 
         // this information is needed in FE to show a hint of this statement was given anonymously
         if ($this->currentUser->hasPermission('area_admin_assessmenttable')) {
-            $properties[] = $this->createAttribute($this->anonymous)->readable();
+            $configBuilder->anonymous->readable();
         }
 
         if ($this->currentUser->hasPermission('area_admin_consultations')) {
-            $properties[] = $this->createAttribute($this->submitterPostalCode)
-                ->readable(true)->aliasedPath($this->meta->orgaPostalCode);
-            $properties[] = $this->createAttribute($this->submitterCity)
-                ->readable(true)->aliasedPath($this->meta->orgaCity);
-            $properties[] = $this->createAttribute($this->submitterStreet)
-                ->readable(true)->aliasedPath($this->meta->orgaStreet);
-            $properties[] = $this->createAttribute($this->submitterHouseNumber)
-                ->readable(true)->aliasedPath($this->meta->houseNumber);
-            $submitterEmailAddress
+            $configBuilder->submitterPostalCode
+                ->readable(true)->aliasedPath(Paths::statement()->meta->orgaPostalCode);
+            $configBuilder->submitterCity
+                ->readable(true)->aliasedPath(Paths::statement()->meta->orgaCity);
+            $configBuilder->submitterStreet
+                ->readable(true)->aliasedPath(Paths::statement()->meta->orgaStreet);
+            $configBuilder->submitterHouseNumber
+                ->readable(true)->aliasedPath(Paths::statement()->meta->houseNumber);
+            $configBuilder->submitterEmailAddress
                 // if the statement was given anonymously, do not display the email-address
-                ->readable(true, static fn(Statement $statement): ?string => $statement->isAnonymous() ? null : $statement->getSubmitterEmailAddress());
+                ->readable(true, static fn (Statement $statement): ?string => $statement->isAnonymous() ? null : $statement->getSubmitterEmailAddress());
 
-            $properties[] = $this->createAttribute($this->initialOrganisationEmail)
-                ->readable()->sortable()->aliasedPath($this->meta->orgaEmail);
-            $properties[] = $this->createAttribute($this->submitterName)
+            $configBuilder->initialOrganisationEmail
+                ->readable()->sortable()->aliasedPath(Paths::statement()->meta->orgaEmail);
+            $configBuilder->submitterName
                 // for citizen statements the submitter name may be empty, hence we use
                 // the author name instead for such statements
-                ->readable(true, static fn(Statement $statement): ?string => $statement->isCreatedByCitizen()
+                ->readable(true, static fn (Statement $statement): ?string => $statement->isCreatedByCitizen()
                     ? $statement->getUserName()
                     : $statement->getMeta()->getSubmitName());
         }
 
         if ($this->currentUser->hasPermission('field_statement_memo')) {
-            $properties[] = $this->createAttribute($this->memo)->readable(true)->filterable();
+            $configBuilder->memo->readable(true)->filterable();
         }
 
-        return $properties;
+        return $configBuilder;
     }
 }

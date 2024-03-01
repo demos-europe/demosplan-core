@@ -381,10 +381,10 @@ class PrepareReportFromProcedureService extends CoreService
 
         foreach ($elementsList as $element) {
             switch ($element->getCategory()) {
-                case ElementsInterface::ELEMENTS_CATEGORY_PARAGRAPH:
+                case ElementsInterface::ELEMENT_CATEGORIES['paragraph']:
                     $paragraphs = $this->addParagraphReportToMessage($element, $paragraphs);
                     break;
-                case ElementsInterface::ELEMENTS_CATEGORY_FILE:
+                case ElementsInterface::ELEMENT_CATEGORIES['file']:
                     $elements = $this->addFileReportToMessage($element, $elements);
                     break;
                 default:
@@ -405,8 +405,8 @@ class PrepareReportFromProcedureService extends CoreService
 
     private function hasPhaseChanged(Procedure $sourceProcedure, Procedure $destinationProcedure): bool
     {
-        return 0 !== strcmp((string) $sourceProcedure->getPhase(), (string) $destinationProcedure->getPhase()) ||
-            0 !== strcmp((string) $sourceProcedure->getPublicParticipationPhase(), (string) $destinationProcedure->getPublicParticipationPhase());
+        return 0 !== strcmp((string) $sourceProcedure->getPhase(), (string) $destinationProcedure->getPhase())
+            || 0 !== strcmp((string) $sourceProcedure->getPublicParticipationPhase(), (string) $destinationProcedure->getPublicParticipationPhase());
     }
 
     /**

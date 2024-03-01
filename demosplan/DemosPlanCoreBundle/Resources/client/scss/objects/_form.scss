@@ -390,7 +390,7 @@ input.disabled {
             // search field and X icon is the same in the top, right, and bottom dimensions.
             // Icon height is set in DpIcon.vue
             &-reset {
-                $icon-height: 16px;
+                $icon-height: 20px;
                 top: calc(50% - (#{$icon-height} / 2));
                 right: calc((#{$element-height} - #{$icon-height}) / 2);
             }

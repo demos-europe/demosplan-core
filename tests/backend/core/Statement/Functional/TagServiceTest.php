@@ -222,4 +222,15 @@ class TagServiceTest extends FunctionalTestCase
 
         return $session;
     }
+
+    /**
+     * @throws DuplicatedTagTitleException
+     */
+    public function testCreateTagWithDuplicateTitle(): void
+    {
+        $testTag1 = TagFactory::createOne();
+        $testTopic1 = TagTopicFactory::createOne();
+        $this->expectException(DuplicatedTagTitleException::class);
+        $this->sut->createTag($testTag1->getTitle(), $testTopic1->object());
+    }
 }

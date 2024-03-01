@@ -243,14 +243,16 @@ export default {
         priorityAreas = { priorityAreas: statementAttributes.priorityAreaKey ? statementAttributes.priorityAreaKey : Translator.trans('notspecified') }
       }
 
-      let statementDocument = (element && element.title) || ''
-      statementDocument += document && document.title ? ` / ${document.title}` : ''
+      let statementDocument = element?.title || ''
+      if (document?.title) {
+        statementDocument += ` / ${document.title}`
+      }
 
       const statementParagraph = (paragraph && paragraph.title) || Translator.trans('notspecified')
       const text = statement.text
 
-      const transformedSubmitDate = submitted === false ? {} : { submittedDate: formatDate(submittedDate) }
-      const transformedCreatedDate = formatDate(createdDate)
+      const transformedSubmitDate = submitted === false ? {} : { submittedDate: formatDate(submittedDate, 'DD.MM.YYYY HH:mm') }
+      const transformedCreatedDate = formatDate(createdDate, 'DD.MM.YYYY HH:mm')
 
       const transformedPolygon = polygon === '' ? {} : JSON.parse(polygon)
 

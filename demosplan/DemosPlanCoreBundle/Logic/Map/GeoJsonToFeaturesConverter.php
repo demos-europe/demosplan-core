@@ -24,7 +24,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayerTile;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayerTilePosition;
 use Exception;
 use Faker\Provider\Uuid;
-use geoPHP;
+use geoPHP\geoPHP;
 use Intervention\Image\ImageManager;
 use Psr\Log\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
@@ -54,9 +54,13 @@ class GeoJsonToFeaturesConverter
         }
         $result = new Collection();
         foreach ($features as $feature) {
-            $geometry = geoPHP::load($feature, 'json');
             $viewport = $this->convertViewport($feature);
             $printLayers = $this->convertPrintLayers($feature);
+            // ensure that the geometry is a string as expected by geoPHP
+            if (is_a($feature, 'stdClass')) {
+                $feature = Json::encode($feature);
+            }
+            $geometry = geoPHP::load($feature, 'json');
             $result->add(new Feature($printLayers, $viewport, $geometry));
         }
 

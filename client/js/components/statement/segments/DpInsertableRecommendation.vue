@@ -1,33 +1,53 @@
 <license>
-  (c) 2010-present DEMOS plan GmbH.
+(c) 2010-present DEMOS plan GmbH.
 
-  This file is part of the package demosplan,
-  for more information see the license file.
+This file is part of the package demosplan,
+for more information see the license file.
 
-  All rights reserved
+All rights reserved
 </license>
 
 <template>
   <li class="flex items-start space-inline-xs u-pr-0_5">
-    <div class="min-width-m">
+    <div class="flex flex-nowrap">
+      <button
+        :aria-label="Translator.trans('segment.recommendation.paste')"
+        v-tooltip="{ boundariesElement: body, content: Translator.trans('segment.recommendation.paste'), classes: 'z-ultimate' }"
+        class="btn--blank color--grey"
+        @click="$emit('insert-recommendation')">
+        <i
+          class="fa fa-files-o color--grey"
+          aria-hidden="true" />
+      </button>
+    </div>
+    <div
+      v-if="fromOtherProcedure"
+      class="min-w-4">
       <i
-        v-if="fromOtherProcedure"
         v-tooltip="{
           boundariesElement: body,
-          content: Translator.trans('segment.recommendation.other.procedure') + ': ' + procedureName,
-          classes: 'u-z-super'
+          content: Translator.trans('segment.recommendation.other.procedure') + ': ' + procedureName ?? '',
+          classes: 'z-ultimate'
         }"
         :aria-label="Translator.trans('more.information')"
         class="fa fa-info-circle" />
     </div>
     <div
-      class="grow"
+      v-if="isContentRec"
+      class="flex flex-nowrap">
+      <dp-badge
+        class="color--white rounded-full whitespace--nowrap bg-color--grey u-mt-0_125"
+        size="smaller"
+        :text="Translator.trans('segment.oracle.score', { score: recommendationScore })" />
+    </div>
+    <div
+      class="flex-grow"
       v-cleanhtml="recommendationText" />
     <div class="flex flex-nowrap space-inline-s">
       <button
         class="btn--blank o-link--default"
         :aria-label="Translator.trans(isExpanded ? 'dropdown.close' : 'dropdown.open')"
-        v-tooltip="{ boundariesElement: body, content: Translator.trans(isExpanded ? 'dropdown.close' : 'dropdown.open'), classes: 'u-z-super' }"
+        v-tooltip="{ boundariesElement: body, content: Translator.trans(isExpanded ? 'dropdown.close' : 'dropdown.open'), classes: 'z-ultimate' }"
         v-if="canExpand"
         @click="toggleExpanded">
         <i
@@ -35,27 +55,22 @@
           class="fa"
           :class="isExpanded ? 'fa-angle-up' : 'fa-angle-down'" />
       </button>
-      <button
-        :aria-label="Translator.trans('segment.recommendation.paste')"
-        v-tooltip="{ boundariesElement: body, content: Translator.trans('segment.recommendation.paste'), classes: 'u-z-super' }"
-        class="btn--blank o-link--default"
-        @click="$emit('insert-recommendation')">
-        <i
-          class="fa fa-files-o"
-          aria-hidden="true" />
-      </button>
     </div>
   </li>
 </template>
 
 <script>
-import { CleanHtml, Tooltip } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpBadge, Tooltip } from '@demos-europe/demosplan-ui'
 
 // This number is used to shorten long texts.
 const SHORT_TEXT_CHAR_LENGTH = 300
 
 export default {
   name: 'DpInsertableRecommendation',
+
+  components: {
+    DpBadge
+  },
 
   directives: {
     cleanhtml: CleanHtml,
@@ -68,18 +83,30 @@ export default {
       required: true
     },
 
-    recommendation: {
-      type: String,
-      required: true
+    isContentRec: {
+      type: Boolean,
+      required: false,
+      default: false
     },
 
-    searchTerm: {
+    procedureName: {
       type: String,
       required: false,
       default: ''
     },
 
-    procedureName: {
+    recommendation: {
+      type: String,
+      required: true
+    },
+
+    recommendationScore: {
+      type: Number,
+      required: false,
+      default: 0
+    },
+
+    searchTerm: {
       type: String,
       required: false,
       default: ''

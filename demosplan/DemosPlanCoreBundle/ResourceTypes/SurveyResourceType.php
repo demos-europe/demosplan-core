@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<Survey>
@@ -45,12 +44,12 @@ final class SurveyResourceType extends DplanResourceType
         return $this->currentUser->hasPermission('area_survey');
     }
 
-    public function isReferencable(): bool
+    public function isGetAllowed(): bool
     {
-        return true;
+        return false;
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isListAllowed(): bool
     {
         return false;
     }
@@ -63,7 +62,7 @@ final class SurveyResourceType extends DplanResourceType
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true)->sortable()->filterable(),
+            $this->createIdentifier()->readable()->sortable()->filterable(),
             $this->createAttribute($this->description)->readable(true)->sortable()->filterable(),
             $this->createAttribute($this->endDate)->readable(true)->sortable()->filterable(),
             $this->createAttribute($this->startDate)->readable(true)->sortable()->filterable(),

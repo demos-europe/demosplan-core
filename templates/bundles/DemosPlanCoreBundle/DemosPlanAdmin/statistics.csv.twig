@@ -7,11 +7,13 @@
 {% endfor %}
 {% endif %}
 {% if part == 'organisation' %}
-"{{ "organisation"|trans }}","{{ "email.participation"|trans }}","{{ "user.name"|trans }}","{{ "user.logon"|trans }}","{{ "role.fpa"|trans }}","{{ "role.fpsb"|trans }}","{{ "role.tbko"|trans }}","{{ "role.tbsb"|trans }}","{{ "role.fppb"|trans }}"
+"{{ "organisation"|trans }}","{{ "email.participation"|trans }}","{{ "user.name"|trans }}","{{ "user.logon"|trans }}",{% if templateVars.allowedRoleCodeMap > 0 %}{% for availableRoleCode, availableRoleTransKey in templateVars.allowedRoleCodeMap %}"{{ availableRoleTransKey|trans }}",{% endfor %}{% endif %}
+
 {% for cnt in templateVars.orgaUsersList %}
 {% if cnt.users|length > 0 %}
 {% for user in cnt.users %}
-"{{ cnt.organisation.nameLegal }}","{{ cnt.organisation.email2 }}","{{ user.firstname }} {{ user.lastname }}","{{ user.login }}","{% for role in user.roles|default([]) %}{% if role == 'RMOPSA'%} x {% endif %}{% endfor %}","{% for role in user.roles|default([]) %}{% if role == 'RMOPSD'%} x {% endif %}{% endfor %}","{% for role in user.roles|default([]) %}{% if role == 'RPSOCO'%} x {% endif %}{% endfor %}","{% for role in user.roles|default([]) %}{% if role == 'RPSODE'%} x {% endif %}{% endfor %}","{% for role in user.roles|default([]) %}{% if role == 'RMOPPO'%} x {% endif %}{% endfor %}"
+"{{ cnt.organisation.nameLegal }}","{{ cnt.organisation.email2 }}","{{ user.firstname }} {{ user.lastname }}","{{ user.login }}",{% for roleCode in templateVars.allowedRoleCodeMap|keys %}{% if roleCode in user.roles|default([]) %} "x", {% else %} "", {% endif %}{% endfor %}
+
 {% endfor %}
 {% endif %}
 {% endfor %}

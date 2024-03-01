@@ -23,7 +23,7 @@
 
     // !!!!!!!!!!!! C + P from _actionmenu.scss !!!!!!!!!!!!!!
     .nojs & {
-        z-index: $z-fixed;
+        z-index: $dp-z-flyout;
 
         &:hover .c-flyout__content,
         .c-flyout__trigger:focus + .c-flyout__content {
@@ -42,7 +42,7 @@
         &:active,
         &.is-expanded,
         &__trigger:focus {
-            z-index: $z-fixed;
+            z-index: $dp-z-flyout;
 
             & .c-flyout__content {
                 display: block;
@@ -53,7 +53,7 @@
 
     &:hover,
     &.is-expanded {
-        z-index: $z-tooltip-super;
+        z-index: $dp-z-flyout;
     }
 
     //  pill-like trigger for flyout
@@ -121,7 +121,7 @@
         // The flyout is activated on :hover and via data-touch-flyout javascript hook.
         .c-flyout:hover &,
         .c-flyout.is-expanded & {
-            z-index: $z-tooltip-super;
+            z-index: $dp-z-flyout;
             right: 0;
 
             display: block;

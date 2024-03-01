@@ -20,6 +20,9 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadElementsData extends TestFixture implements DependentFixtureInterface
 {
     final public const TEST_ELEMENT_1 = 'testElement1';

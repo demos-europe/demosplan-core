@@ -15,6 +15,9 @@ use demosplan\DemosPlanCoreBundle\Exception\ExclusiveProcedureOrProcedureTypeExc
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadProcedureTypeData extends TestFixture implements DependentFixtureInterface
 {
     final public const _1 = 'testProcedureType1';

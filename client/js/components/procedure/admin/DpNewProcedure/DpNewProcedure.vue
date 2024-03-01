@@ -32,6 +32,7 @@
       type="hidden"
       name="r_publicParticipationPublicationEnabled"
       value="1">
+
     <template v-if="hasPermission('feature_use_plis')">
       <input
         type="hidden"
@@ -66,10 +67,12 @@
             v-text="Translator.trans('public.participation.desc')"
             class="weight--bold" />
           <dd
+            v-text="Translator.trans('planningcause.select.hint')"
             id="js__plisPlanungsanlass"
-            class="list-style-none" />
+            class="u-m-0 lbl__hint" />
         </dl>
       </template>
+
       <dp-form-row
         class="u-mb-0_75"
         v-else>
@@ -165,6 +168,10 @@
           start-name="r_startdate"
           end-id="enddate"
           end-name="r_enddate"
+          :data-cy="{
+            endDate: 'newProcedureForm:endDate',
+            startDate: 'newProcedureForm:startDate'
+          }"
           :required="hasPermission('field_required_procedure_end_date')"
           :calendars-after="2"
           enforce-plausible-dates />
@@ -249,6 +256,11 @@ export default {
       type: Array,
       required: false,
       default: () => ([])
+    },
+
+    csrfToken: {
+      type: String,
+      required: true
     },
 
     masterBlueprintId: {

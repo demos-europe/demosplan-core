@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\InstitutionMailInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -22,7 +23,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\InstitutionMailRepository")
  */
-class InstitutionMail extends CoreEntity implements UuidEntityInterface
+class InstitutionMail extends CoreEntity implements UuidEntityInterface, InstitutionMailInterface
 {
     /**
      * @var string|null

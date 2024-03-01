@@ -17,7 +17,7 @@
 
       <!-- modal content -->
       <div
-        class="c-tabs__modal u-ph-0 u-pb-0 u-mv-0 height--auto"
+        class="c-tabs__modal u-ph-0 u-pb-0 u-mv-0 h-auto"
         :style="{ minHeight: minHeight + 'px' }"
         ref="exportModalContent">
         <div
@@ -335,7 +335,7 @@
                   v-model="exportChoice.xlsx.exportType">
                 {{ Translator.trans('statements') }}
                 <p class="lbl__hint u-ml-0_75 u-mb-0">
-                  {{ Translator.trans('explanation.export.statements') }}
+                  {{ Translator.trans('explanation.export.statements', { hasSelectedElements: hasSelectedElements }) }}
                 </p>
               </label>
             </fieldset>
@@ -343,6 +343,17 @@
               class="u-ml-0_5 u-mt-2"
               v-if="!options.xlsx.anonymize && !options.xlsx.obscure && !options.xlsx.exportTypes && !options.xlsx.templates">
               {{ Translator.trans('explanation.export.anonymous') }}
+            </p>
+          </div>
+
+          <!-- Zip -->
+          <div
+            v-if="options.zip"
+            class="tab-content"
+            :class="activeTab('zip')"
+            role="tabpanel">
+            <p class="lbl__hint u-ml-0_75 u-mb-0">
+              {{ Translator.trans('explanation.export.statements.zip', { hasSelectedElements: hasSelectedElements }) }}
             </p>
           </div>
 
@@ -373,6 +384,12 @@ export default {
       required: false,
       type: String,
       default: ''
+    },
+
+    hasSelectedElements: {
+      required: false,
+      type: Boolean,
+      default: false
     },
 
     //  Export options that define which formats / fields to display

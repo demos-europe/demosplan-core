@@ -6,8 +6,8 @@
     <form
         action="{{ path('dplan_customer_mail_send_all_users') }}"
         method="post"
-        data-dp-validate
-    >
+        data-dp-validate>
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         <fieldset>
             <legend>
@@ -48,6 +48,7 @@
                     value="{{ 'customer.settings.update.mail.default.text'|trans({ termsOfUseUrl: urlBase ~ path('DemosPlan_misccontent_static_terms'), dataProtectionUrl: urlBase ~ path('DemosPlan_misccontent_static_dataprotection') }) }}">
                     <template v-slot:modal="modalProps">
                         <dp-boiler-plate-modal
+                            v-if="hasPermission('area_admin_boilerplates')"
                             ref="boilerPlateModal"
                             boiler-plate-type="email"
                             procedure-id="{{ procedure }}"
@@ -56,9 +57,10 @@
                     </template>
                     <template v-slot:button>
                         <button
+                            v-if="hasPermission('area_admin_boilerplates')"
                             class="{{ 'menubar__button'|prefixClass }}"
                             type="button"
-                            v-tooltip="'{{ 'boilerplate.insert'|trans }})'"
+                            v-tooltip="'{{ 'boilerplate.insert'|trans }}'"
                             @click.stop="$refs.boilerPlateModal.toggleModal()">
                             <i class="{{ 'fa fa-puzzle-piece'|prefixClass }}"></i>
                         </button>

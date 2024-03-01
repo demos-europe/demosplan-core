@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
@@ -18,6 +19,9 @@ use Exception;
 
 use function in_array;
 
+/**
+ * @template-extends FluentRepository<Role>
+ */
 class RoleRepository extends FluentRepository implements ImmutableObjectInterface
 {
     public function get($entityId)

@@ -118,7 +118,7 @@ $dp-nav-item-font-family:                   $headings-font-family !default;
                 // Showing + styling menu.
                 &:checked ~ .c-nav__menu {
                     position: absolute;
-                    z-index: $z-fixed;
+                    z-index: $dp-z-fixed;
 
                     display: block;
 

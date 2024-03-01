@@ -19,6 +19,9 @@ use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\Filesystem\Filesystem;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadFileData extends TestFixture implements DependentFixtureInterface
 {
     final public const PDF_TEST_FILE = 'testFile';

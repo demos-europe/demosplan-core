@@ -12,8 +12,8 @@
 <form
     name="selectEntriesForm"
     action="{{ path('DemosPlan_invite_unregistered_public_agency_email', {'procedureId': templateVars.procedure.id}) }}"
-    method="post"
->
+    method="post">
+    {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
     <p class="u-mt">
         {{ 'invitable_institutions.unregistered.invite.explanation'|trans({ projectName:projectName })|wysiwyg }}

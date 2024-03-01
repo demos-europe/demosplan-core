@@ -20,6 +20,7 @@ use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureUpdatedEventInterfa
 use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\ProcedureServiceInterface;
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Location;
@@ -32,6 +33,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSubscription;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
+use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -106,7 +108,6 @@ use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
 use ReflectionException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -596,7 +597,19 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         $excludeArchived = true
     ) {
         try {
-            $conditions = $this->convertFiltersToConditions($filters, $search, $user, $excludeArchived, $template);
+            $adminConditions = $this->getAdminProcedureConditions($template, $user);
+            // T34551 handle Customer template filter if set
+            // Only these combinations exist
+            //      template : true AND array_key_exists('customer', $filters) : true
+            //      template : false AND array_key_exists('customer', $filters) : false
+            $shallLimitProcedureTemplatesToCustomer = $template && array_key_exists('customer', $filters);
+            $filterConditions = $this->convertFiltersToConditions(
+                $filters,
+                $search,
+                $excludeArchived,
+                $shallLimitProcedureTemplatesToCustomer
+            );
+            $conditions = array_merge($adminConditions, $filterConditions);
             $sortMethods = $this->convertSortArrayToSortMethods($sort);
 
             $procedureList = $this->procedureRepository->getEntities($conditions, $sortMethods);
@@ -617,47 +630,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      */
     public function getAdminProcedureConditions(bool $template, User $user): array
     {
-        $conditions = [];
-        $conditions[] = $this->conditionFactory->propertyHasValue(false, ['deleted']);
-
-        $organisationId = $user->getOrganisationId();
-
-        // Planning agencies ("Planungsbüro") get the list of procedures they are
-        // authorized for (enabled via field_procedure_adjustments_planning_agency).
-        $planningAgencyCondition = $this->conditionFactory->false();
-        if ($user->hasRole(Role::PRIVATE_PLANNING_AGENCY)) {
-            $planningAgencyCondition = $this->conditionFactory->propertyHasStringAsMember($organisationId, ['planningOffices']);
-        }
-
-        $orgaOwnsProcedureCondition = $this->conditionFactory->false();
-        $authorizedUserCondition = $this->conditionFactory->true();
-        // CUSTOMER_MASTER_USER is not able to see this whole list, but in
-        // ProcedureAccessEvaluator::isOwningProcedure we also test for this role,
-        // so it is included here just to be on-par with that method.
-        if ($user->hasRole(Role::CUSTOMER_MASTER_USER)
-            || $user->isHearingAuthority()
-            || $user->isPlanningAgency()
-        ) {
-            // Planning agencies are allowed to see any procedure created by a user of their orga.
-            $orgaOwnsProcedureCondition = $this->conditionFactory->propertyHasValue($organisationId, ['orga']);
-
-            // If enabled via globalConfig, Planning agencies can be authorized user-wise.
-            if ($this->globalConfig->hasProcedureUserRestrictedAccess()) {
-                $authorizedUserCondition = $this->conditionFactory->propertyHasStringAsMember($user->getId(), ['authorizedUsers']);
-            }
-        }
-
-        $conditions[] = $this->conditionFactory->anyConditionApplies(
-            $planningAgencyCondition,
-            $this->conditionFactory->allConditionsApply(
-                $orgaOwnsProcedureCondition,
-                $authorizedUserCondition
-            )
-        );
-
-        $conditions[] = $this->conditionFactory->propertyHasValue($template, ['master']);
-
-        return $conditions;
+        return $this->procedureAccessEvaluator->getOwnsProcedureConditions($user, $template);
     }
 
     /**
@@ -829,13 +802,35 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 $data['settings']['emailTitle'] =
                     $this->translator->trans('participation.invitation').': '.($data['name'] ?? '');
             }
-
+            // T34551 all procedures shall get a customer relation
+            // - defalt-customer-blueprint relations are set within the customer only
+            // if a customer is given inside the procedure related $data array then
+            // that signals the procedure should be used as the default-customer-blueprint.
+            $setProcedureAsDefaultCustomerBlueprint = false;
+            if (array_key_exists('customer', $data) && $data['customer'] instanceof Customer) {
+                $setProcedureAsDefaultCustomerBlueprint = true;
+            } else {
+                $data['customer'] = $this->customerService->getCurrentCustomer();
+            }
             // Wrap creation of procedure in a transaction to be able to validate the whole procedure
             // including subentities
             $doctrineConnection = $this->entityManager->getConnection();
             $doctrineConnection->beginTransaction();
 
             $newProcedure = $this->procedureRepository->add($data);
+
+            if ($setProcedureAsDefaultCustomerBlueprint) {
+                $customer = $data['customer'];
+                if ($this->isCustomerMasterBlueprintExisting($customer->getId())) {
+                    $this->messageBag->add(
+                        'warning',
+                        'customer.master.blueprint.changed',
+                        ['customerName' => $customer->getName()]
+                    );
+                }
+                $customer->setDefaultProcedureBlueprint($newProcedure);
+                $this->customerService->updateCustomer($customer);
+            }
 
             /** @var string|null $blueprintId */
             $blueprintId = $data['copymaster'] ?? null;
@@ -1038,8 +1033,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     /**
      * Update eines Verfahren.
      *
-     * @param array   $data
-     * @param Session $session
+     * @param array $data
      *
      * @return array
      *
@@ -1103,8 +1097,6 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
     /**
      * Update of a procedure-object.
-     *
-     * @param User|null $user
      *
      * @return array|Procedure
      *
@@ -1299,8 +1291,6 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @param string $procedureId
      * @param bool   $useDistance
-     *
-     * @return mixed
      *
      * @throws Exception
      */
@@ -1779,7 +1769,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
     public function isCustomerMasterBlueprintExisting(string $customerId): bool
     {
-        return $this->procedureRepository->findOneBy(['deleted' => false, 'customer' => $customerId]) instanceof Procedure;
+        return $this->customerService->findCustomerById($customerId)?->getDefaultProcedureBlueprint() instanceof Procedure;
     }
 
     /**
@@ -2130,7 +2120,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      * Will copy Boilerplates including related Boilerplatecategories and also copy emtpy Categories.
      *
      * @param string    $blueprintId  - The ID of the blueprint procedure
-     * @param procedure $newProcedure - The new created procedure object
+     * @param Procedure $newProcedure - The new created procedure object
      *
      * @throws Exception
      */
@@ -2408,7 +2398,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      * @param string $title       - Title of BoilerplateGroup to create
      * @param string $procedureId - Procedure which BoilerplateGroup to create belongs to
      *
-     * @return boilerplateGroup - Created BoilerplateGroup
+     * @return BoilerplateGroup - Created BoilerplateGroup
      *
      * @throws Exception
      */
@@ -2533,12 +2523,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     private function convertFiltersToConditions(
         array $filters,
         $search,
-        User $user,
         $excludeArchived,
-        bool $template
+        bool $limitProcedureTemplatesToCustomer
     ): array {
-        $conditions = $this->getAdminProcedureConditions($template, $user);
-
+        $conditions = [];
         if (\is_string($search) && 0 < \strlen($search)) {
             $conditions[] = $this->conditionFactory->propertyHasStringContainingCaseInsensitiveValue(
                 $search,
@@ -2550,20 +2538,20 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $conditions[] = $this->conditionFactory->propertyHasAnyOfValues($filters['municipalCode'], ['municipalCode']);
         }
 
-        // use array_key_exists, because value of key 'customer' is null
-        if (\array_key_exists('customer', $filters)) {
-            // T15644 customer master procedure has customer set
-            if ($template &&
-                $this->permissions->hasPermission('feature_admin_customer_master_procedure_template')
-            ) {
-                $conditions[] = $this->conditionFactory->anyConditionApplies(
-                    $this->conditionFactory->propertyIsNull(['customer']),
-                    $this->conditionFactory->propertyHasValue($this->customerService->getCurrentCustomer()->getId(), ['customer'])
-                );
-            } elseif (null === $filters['customer']) {
-                $conditions[] = $this->conditionFactory->propertyIsNull(['customer']);
-            } else {
-                $conditions[] = $this->conditionFactory->propertyHasValue($filters['customer'], ['customer']);
+        if ($limitProcedureTemplatesToCustomer) {
+            // the condition to filter only blueprints has already been applied at this point.
+            $conditions[] = $this->conditionFactory->propertyHasValue(
+                $this->customerService->getCurrentCustomer()->getId(),
+                Paths::procedure()->customer->id
+            );
+            if (!$this->permissions->hasPermission('feature_admin_customer_master_procedure_template')) {
+                // Just exclude the default-customer-blueprint if exists
+                if (null !== $this->customerService->getCurrentCustomer()->getDefaultProcedureBlueprint()) {
+                    $conditions[] = $this->conditionFactory->propertyHasNotValue(
+                        $this->customerService->getCurrentCustomer()->getDefaultProcedureBlueprint()->getId(),
+                        Paths::procedure()->id
+                    );
+                }
             }
         }
 

@@ -10,23 +10,34 @@
 <template>
   <li>
     <input
-      type="checkbox"
-      :checked="checked"
-      @change="toggle"
+      :data-cy="`flyoutOption:${instance}:${option.id}`"
       :id="`${instance}_id_${option.id}`"
-      :name="`${instance}_name_${option.id}`">
+      :checked="checked"
+      :name="`${instance}_name_${option.id}`"
+      type="checkbox"
+      @change="toggle">
     <label
       :class="{'weight--normal': highlight === false }"
       class="inline-block u-m-0"
       :for="`${instance}_id_${option.id}`">
       {{ option.attributes.label }} <template v-if="showCount">({{ option.attributes.count }})</template>
     </label>
+    <dp-contextual-help
+      v-if="option.attributes.description && instance !=='itemsSelected'"
+      class="float-right mt-0.5"
+      :text="option.attributes.description" />
   </li>
 </template>
 
 <script>
+import { DpContextualHelp } from '@demos-europe/demosplan-ui'
+
 export default {
   name: 'FilterFlyoutCheckbox',
+
+  components: {
+    DpContextualHelp
+  },
 
   props: {
     checked: {

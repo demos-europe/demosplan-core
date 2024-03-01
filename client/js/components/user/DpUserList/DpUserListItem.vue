@@ -21,7 +21,7 @@
     <!-- Item header -->
     <template v-slot:header>
       <div class="flex items-start">
-        <div class="relative u-z-content-above u-mt-0_75">
+        <div class="relative z-above-zero u-mt-0_75">
           <input
             type="checkbox"
             :checked="selected"
@@ -116,8 +116,9 @@
 </template>
 
 <script>
-import { DpButtonRow, DpIcon, DpTableCard, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { DpButtonRow, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import DpUserFormFields from './DpUserFormFields'
 
 export default {
@@ -263,7 +264,7 @@ export default {
     },
 
     updateUser (payload) {
-      this.setItem({ group: null, ...payload })
+      this.setItem({ ...payload })
     }
   }
 }

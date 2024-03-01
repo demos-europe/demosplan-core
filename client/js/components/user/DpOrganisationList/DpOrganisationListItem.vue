@@ -70,7 +70,8 @@
 </template>
 
 <script>
-import { DpButtonRow, DpIcon, DpTableCard, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { DpButtonRow, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import { mapState } from 'vuex'
 
 export default {
@@ -224,7 +225,7 @@ export default {
     },
 
     updateOrganisation (payload) {
-      this.setItem({ ...payload, id: payload.id, group: null })
+      this.setItem({ ...payload, id: payload.id })
     }
   }
 }

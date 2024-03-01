@@ -318,7 +318,7 @@
               <dd
                 v-if="hasPermission('field_statement_status')"
                 class="layout--flush layout__item"
-                :class="hasPermission('field_statement_priority') ? 'border--right u-pr-0_5 u-3-of-6' : 'u-1-of-1'">
+                :class="hasPermission('field_statement_priority') ? 'border--right u-3-of-6' : 'u-1-of-1'">
                 <dp-edit-field-single-select
                   label="Status"
                   field-key="status"
@@ -371,8 +371,7 @@
                   @field:update="updateStatement"
                   @field:save="data => saveStatement(data, 'attribute', 'voteStk')"
                   ref="voteStk"
-                  :editable="isClaimed"
-                  :readonly="hasPermission('feature_statements_fragment_vote')" />
+                  :editable="isClaimed" />
               </dd><!--
              --><dd
                   v-if="hasPermission('field_statement_vote_pla') && hasPermission('feature_statements_fragment_vote')"
@@ -544,33 +543,56 @@
           <dp-item-row
             title="statement.text"
             class="u-pb-0 u-pt-0"
+            is-fullscreen-row
             :border-bottom="(statement.files.length > 0)">
-            <dl class="flex">
-              <!--
-                  Statement text
-                  With tiptap we can set obscure as prop always when the obscure button should be visible in the field,
-                  because the permission check (featureObscureText) takes place in tiptap
-                  -->
-              <tiptap-edit-text
-                class="u-pb-0_5 u-pr-0_5 u-pt-0_25 u-1-of-2 border--right"
-                title="statement"
-                :procedure-id="procedureId"
-                :initial-text="initText"
-                :entity-id="statement.id"
-                :editor-id="statement.id + '_statementText'"
-                :initial-is-shortened="statement.textIsTruncated || false"
-                full-text-fetch-route="dm_plan_assessment_get_statement_ajax"
-                field-key="text"
-                :editable="isClaimed"
-                edit-label="statement.edit"
-                mark
-                :obscure="hasPermission('feature_obscure_text')"
-                strikethrough
-                height-limit-element-label="statement"
-                @field:save="data => saveStatement(data, 'attribute', 'text')"
-                ref="text" /><!--
-                Recommendation text
-             --><tiptap-edit-text
+            <template>
+              <dp-claim
+                v-if="hasPermission('feature_statement_assignment')"
+                class="c-at-item__row-icon inline-block fullscreen-claim"
+                :assigned-id="(statement.assignee.id || '')"
+                :assigned-name="(statement.assignee.name || '')"
+                :assigned-organisation="(statement.assignee.orgaName || '')"
+                :current-user-id="currentUserId"
+                :current-user-name="currentUserName"
+                entity-type="statement"
+                :is-loading="updatingClaimState"
+                @click="updateClaim" />
+              <dl class="flex">
+                <!--
+                    Statement text
+                    With tiptap we can set obscure as prop always when the obscure button should be visible in the field,
+                    because the permission check (featureObscureText) takes place in tiptap
+                    -->
+                <dp-loading
+                  v-if="reloadStatementEditor"
+                  class="u-pb-0_5 u-pr-0_5 u-pt-0_25 u-1-of-2 border--right" />
+                <editable-text
+                  v-else
+                  class="u-pb-0_5 u-pr-0_5 u-pt-0_25 u-1-of-2 border--right"
+                  title="statement"
+                  :procedure-id="procedureId"
+                  :initial-text="initText"
+                  :entity-id="statement.id"
+                  :editor-id="statement.id + '_statementText'"
+                  :initial-is-shortened="statement.textIsTruncated || false"
+                  full-text-fetch-route="dm_plan_assessment_get_statement_ajax"
+                  field-key="text"
+                  :editable="isClaimed"
+                  edit-label="statement.edit"
+                  mark
+                  :obscure="hasPermission('feature_obscure_text')"
+                  strikethrough
+                  height-limit-element-label="statement"
+                  @field:save="data => saveStatement(data, 'attribute', 'text')"
+                  ref="text" />
+                <!--
+                  Recommendation text
+               -->
+                <dp-loading
+                  v-if="reloadRecommendationEditor"
+                  class="u-pb-0_5 u-pr-0_5 u-pt-0_25 u-1-of-2" />
+                <editable-text
+                  v-else
                   class="u-pb-0_25 u-pl-0_5 u-pt-0_25 u-1-of-2"
                   title="recommendation"
                   :procedure-id="procedureId"
@@ -597,8 +619,9 @@
                       class="fa fa-question-circle float-right u-pt-0_125"
                       aria-hidden="true" />
                   </template>
-                </tiptap-edit-text>
-            </dl>
+                </editable-text>
+              </dl>
+            </template>
           </dp-item-row><!--
          --><div
               v-if="statement.files.length > 0 || statement.sourceAttachment !== '' && hasOwnProp(statement.sourceAttachment, 'filename')"
@@ -615,7 +638,7 @@
                 <a
                   v-if="hasOwnProp(statement.sourceAttachment, 'filename') && hasPermission('feature_read_source_statement_via_api')"
                   class="u-pr-0_5 o-hellip border--right u-mr-0_5"
-                  :href="Routing.generate('core_file', { hash: statement.sourceAttachment.hash })"
+                  :href="Routing.generate('core_file_procedure', { hash: statement.sourceAttachment.hash, procedureId: procedureId })"
                   rel="noopener"
                   target="_blank"
                   :title="Translator.trans('attachment.original')">
@@ -626,7 +649,7 @@
                   v-for="file in statement.files"
                   :key="file.hash"
                   class="u-pr-0_5 o-hellip"
-                  :href="Routing.generate('core_file', { hash: file.hash })"
+                  :href="Routing.generate('core_file_procedure', { hash: file.hash, procedureId: procedureId })"
                   rel="noopener"
                   target="_blank"
                   :title="Translator.trans('attachments')">
@@ -649,6 +672,7 @@
           </div>
 
           <dp-fragment-list
+            :csrf-token="csrfToken"
             :procedure-id="procedureId"
             :statement-id="statement.id"
             :current-user-id="currentUserId"
@@ -735,32 +759,38 @@
 </template>
 
 <script>
-import { dpApi, formatDate, hasOwnProp, VPopover } from '@demos-europe/demosplan-ui'
+import { dpApi, DpLoading, formatDate, hasOwnProp, VPopover } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
 import DpClaim from '../DpClaim'
 import DpEditFieldMultiSelect from './DpEditFieldMultiSelect'
 import DpEditFieldSingleSelect from './DpEditFieldSingleSelect'
 import DpItemRow from './ItemRow'
+import EditableText from './EditableText'
 import TableCardFlyoutMenu from '@DpJs/components/statement/assessmentTable/TableCardFlyoutMenu'
-import TiptapEditText from './TiptapEditText'
 
 export default {
   name: 'DpAssessmentTableCard',
 
   components: {
     DpClaim,
-    DpFragmentList: () => import(/* webpackChunkName: "dp-fragment-list" */ './DpFragmentList'),
-    DpItemRow,
     DpEditFieldMultiSelect,
     DpEditFieldSingleSelect,
-    TiptapEditText,
+    DpFragmentList: () => import(/* webpackChunkName: "dp-fragment-list" */ './DpFragmentList'),
     DpFragmentsSwitcher: () => import(/* webpackChunkName: "dp-fragments-switcher" */ './DpFragmentsSwitcher'),
+    DpItemRow,
+    DpLoading,
+    EditableText,
     TableCardFlyoutMenu,
     VPopover
   },
 
   props: {
+    csrfToken: {
+      type: String,
+      required: true
+    },
+
     isSelected: {
       required: true,
       type: Boolean
@@ -788,7 +818,9 @@ export default {
       tab: this.$store.state.assessmentTable.currentTableView === 'fragments' ? 'fragments' : 'statement',
       updatingClaimState: false,
       fragmentsLoading: false,
-      placeholderStatementId: null
+      placeholderStatementId: null,
+      reloadRecommendationEditor: false,
+      reloadStatementEditor: false
     }
   },
 
@@ -846,7 +878,8 @@ export default {
     },
 
     publicVerifiedKeyIcon () {
-      let icon = 'fa-eye-slash color--grey'
+      let icon
+
       if (this.statement.publicVerified !== 'no_check_since_not_allowed' && this.statement.publicVerified !== 'no_check_permission_disabled') {
         switch (this.statement.publicVerified) {
           case 'publication_pending':
@@ -862,6 +895,7 @@ export default {
             icon = 'fa-eye-slash color--grey'
         }
       }
+
       return icon
     },
 
@@ -1063,6 +1097,14 @@ export default {
       return payload
     },
 
+    reloadEditorOnSave (fieldName, value) {
+      if (fieldName === 'text') {
+        this.reloadStatementEditor = value
+      } else if (fieldName === 'recommendation') {
+        this.reloadRecommendationEditor = value
+      }
+    },
+
     resetRelatedFields () {
       if (this.elementHasParagraphs && this.$refs.paragraph) {
         this.resetSelectedParagraph()
@@ -1090,6 +1132,7 @@ export default {
      * @param fieldName {String} - the name of the property as sent to BE
      */
     saveStatement (data, propType, fieldName) {
+      this.reloadEditorOnSave(fieldName, true)
       const payload = this.preparePayload(data, propType, fieldName)
       this.$emit('statement:updated')
       //  ##### Fire store action #####
@@ -1156,9 +1199,11 @@ export default {
 
         // Used in DpVersionHistory to update items in version history sidebar
         this.$root.$emit('entity:updated', this.statementId, 'statement')
+        this.reloadEditorOnSave(fieldName, false)
+
         return updatedField
       }).then(updatedField => {
-        this.$root.$emit('entityTextSaved:' + this.statementId, { entityId: this.statementId, field: updatedField }) // Used in TiptapEditText.vue to update short and full texts
+        this.$root.$emit('entityTextSaved:' + this.statementId, { entityId: this.statementId, field: updatedField }) // Used in EditableText.vue to update short and full texts
       })
     },
 

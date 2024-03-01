@@ -1,5 +1,7 @@
 {% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+
 {% if templateVars is defined %}
+
     {% if templateVars.title is defined %}
 	   {% set title = pageTitle(templateVars.title) %}
 	{% else %}
@@ -16,7 +18,6 @@
 {% else %}
 	{% set countPaperCopy = 0 %}
 {% endif %}
-
 
 {% block header %}
     {% include '@DemosPlanCore/DemosPlanCore/includes/base_header.html.twig' with { 'noNav': true } %}
@@ -38,7 +39,9 @@
 
                 {% if feedback.success_message is defined %}
                     <p class="flash flash-confirm">
-                        <i class="fa fa-check-circle" aria-hidden="true"></i>
+                        <i
+                            class="fa fa-check-circle"
+                            aria-hidden="true"></i>
                         {{ feedback.success_message }}
                     </p>
                 {% endif %}
@@ -46,18 +49,33 @@
                 {% if feedback.fail_message is defined %}
                     <p class="flash flash-error">
                         {% for message in feedback.fail_message %}
-                            <i class="fa fa-exclamation-circle" aria-hidden="true"></i> {{ message }}<br>
+                            <i
+                                class="fa fa-exclamation-circle"
+                                aria-hidden="true"></i>
+                            {{ message }}
+                            <br>
                         {% endfor %}
                     </p>
                 {% endif %}
 
-                <form id="newUser" method="post" action="{{ path("DemosPlan_user_complete_data") }}" data-dp-validate novalidate>
+                <form
+                    id="newUser"
+                    method="post"
+                    action="{{ path("DemosPlan_user_complete_data") }}"
+                    data-dp-validate novalidate>
+                    {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
-                    <h3 class="u-mt-2 u-mb-0_75">Nutzerbezogene Daten</h3>
+                    <h3 class="u-mt-2 u-mb-0_75">
+                        {{ "customer.data"|trans }}
+                    </h3>
 
                     <label class="u-mb-0_5">
                         {{ "email"|trans }}
-                        <input type="text" class="layout__item" value="{% if user is defined %}{{- user.email|default("-") -}}{% endif %}" disabled>
+                        <input
+                            type="text"
+                            class="layout__item"
+                            value="{% if user is defined %}{{- user.email|default("-") -}}{% endif %}"
+                            disabled>
                     </label>
 
                     {% if hasOneOfPermissions('feature_original_newsletter', 'feature_alternative_newsletter') %}
@@ -71,9 +89,19 @@
                                         Schulungen unserer Beteiligungsplattform. Sie können diesen Service in jedem Newsletter wieder abbestellen.
                                     </p>
 
-                                    <a class="o-link--external" target="_blank" href="https://seu2.cleverreach.com/f/265969-264771/" rel="noopener noreferrer">{{ 'newsletter.subscribe'|trans }}</a>
+                                    <a
+                                        class="o-link--external"
+                                        target="_blank"
+                                        href="https://seu2.cleverreach.com/f/265969-264771/"
+                                        rel="noopener noreferrer">
+                                        {{ 'newsletter.subscribe'|trans }}
+                                    </a>
+
                                 {% else %}
-                                    <input type="checkbox" name="newsletter" {{ user.wantsNewsletter is defined and user.wantsNewsletter == true? 'checked="true"' : '' }}>
+                                    <input
+                                        type="checkbox"
+                                        name="newsletter"
+                                        {{ user.wantsNewsletter is defined and user.wantsNewsletter == true? 'checked="true"' : '' }}>
                                     <p class="lbl--text inline">
                                         {{ "explanation.newsletter"|trans({ projectName:projectName })|wysiwyg }}
                                     </p>
@@ -88,20 +116,29 @@
                     {% set isInvitableInstitution = (user.isPublicAgency or constant('demosplan\\DemosPlanCoreBundle\\Entity\\User\\Role::ORGANISATION_ADMINISTRATION') in user.roles|default([]))? true : false %}
 
                     {% for item in user.roles|default([]) %}
+
                         {% if alreadyDisplayed == "false" %}
+
                             {% if item == "RMOPSM" or item == "RMOPSA" or item == "RPSOCO" or item == "RMOPPO" %}
                                 {% set alreadyDisplayed = "true" %}
 
-                                <h3 class="u-mt-2 u-mb-0_75">{{ "organisation.data"|trans }}</h3>
+                                <h3 class="u-mt-2 u-mb-0_75">
+                                    {{ "organisation.data"|trans }}
+                                </h3>
 
                                 <label class="u-mb-0_5">
                                     {{ "name.legal"|trans }}
-                                    <input type="text" class="layout__item" value="{% if orga is defined %}{{ orga.name|default("-") }}{% endif %}" disabled>
+                                    <input
+                                        type="text"
+                                        class="layout__item"
+                                        value="{% if orga is defined %}{{ orga.name|default("-") }}{% endif %}"
+                                        disabled>
                                 </label>
 
                                 {% if validation.errors is defined %}
                                     <p class="color-status-failed-text">
                                         {% for error in validation.errors %}
+
                                             {% if error.propertyPath == "email" %}
                                                 {{ error.message }}<br>
                                             {% endif %}
@@ -109,12 +146,12 @@
                                     </p>
                                 {% endif %}
 
-
                                 {% if isInvitableInstitution == true %}
 
                                     {% if validation.errors is defined %}
                                         <p class="color-status-failed-text">
                                             {% for error in validation.errors %}
+
                                                 {% if error.propertyPath == "email2" %}
                                                     {{ error.message }}<br>
                                                 {% endif %}
@@ -127,11 +164,15 @@
                                         <p class="lbl__hint u-mb-0_25">
                                             {{ "explanation.organisation.email"|trans|wysiwyg }}
                                         </p>
-                                        <input class="layout__item hard--left" type="email" name="email2" value="{{ orga.email2|default("") }}" required>
+                                        <input
+                                            class="layout__item hard--left"
+                                            type="email"
+                                            name="email2"
+                                            value="{{ orga.email2|default("") }}"
+                                            required>
                                     </label>
 
                                 {% endif %}
-
 
                                 {% block papercopy %}
 
@@ -141,7 +182,9 @@
                                             <p class="lbl--text u-mt-0_25">
                                                 <select name="paperCopy">
                                                     {% for i in 0..10 %}
-                                                        <option value="{{ i }}" {% if countPaperCopy == i %}selected="selected"{% endif %}>
+                                                        <option
+                                                            value="{{ i }}"
+                                                            {% if countPaperCopy == i %}selected="selected"{% endif %}>
                                                             {{ i }}
                                                         </option>
                                                     {% endfor %}
@@ -157,7 +200,11 @@
                                             <p class="lbl__hint u-mb-0_25">
                                                 Spezifizieren Sie über eine Eintragung in das folgende Textfeld, welche Unterlagen Sie wünschen. Beispiel: 2 x Planzeichnung.
                                             </p>
-                                            <textarea class="height-130" name="paperCopySpec">{{ orga.papercopyspec|default("") }}</textarea>
+                                            <textarea
+                                                class="h-9"
+                                                name="paperCopySpec">
+                                                {{ orga.papercopyspec|default("") }}
+                                            </textarea>
                                         </label>
                                     {% endif %}
 
@@ -167,9 +214,13 @@
                                             <p class="lbl__hint u-mb-0_25">
                                                 Falls Ihre Organisation nur unter bestimmten Bedingungen an einem Bauleitplanverfahren beteiligt werden soll, können Sie Ihre Zuständigkeit erläutern.
                                             </p>
-                                            <textarea class="height-130" name="competence">{{ orga.competence|default("") }}</textarea>
+                                            <textarea
+                                                class="h-9"
+                                                name="competence">
+                                                {{ orga.competence|default("") }}
+                                            </textarea>
                                         </label>
-                                    {%  endif %}
+                                    {% endif %}
 
                                 {% endblock papercopy %}
 
@@ -181,32 +232,45 @@
                                             <p class="lbl__hint u-mb-0_25">
                                                 Um allen Anwendern und Interessenten einen Überblick der Nutzergruppe von {{ projectName }} zu ermöglichen, werden öffentlich auf unserer Seite die Namen der teilnehmenden Organisationen aufgelistet. Auch Ihre Organisation wird aufgenommen, wenn Sie hier ein Häkchen setzen.
                                             </p>
-                                            <input type="checkbox" name="showname" value="1" {% if orga.showname == true %}checked="checked"{%  endif %}> <span class="lbl--text">Ich stimme der Veröffentlichung zu.</span>
+                                            <input
+                                                type="checkbox"
+                                                name="showname"
+                                                value="1"
+                                                {% if orga.showname == true %}
+                                                checked="checked"
+                                                {%  endif %}>
+                                            <span class="lbl--text">
+                                                Ich stimme der Veröffentlichung zu.
+                                            </span>
                                         </label>
-
                                     {% endblock %}
                                 {% endif %}
 
-                                <input type="hidden" name="oident" value="{{ orga.ident|default("") }}">
+                                <input
+                                    type="hidden"
+                                    name="oident"
+                                    value="{{ orga.ident|default("") }}">
                             {% endif %}
                         {% endif %}
                     {% endfor %}
 
                     <div class="text-right space-inline-s">
-                        <input class="btn btn--primary" type="submit" value="{{ "continue"|trans }}">
+                        <input
+                            class="btn btn--primary"
+                            type="submit"
+                            value="{{ "continue"|trans }}">
                         <a
                             class="btn btn--secondary"
                             href="{{ path('DemosPlan_user_logout') }}">
-                            <i class="fa fa-sign-out" aria-hidden="true"></i>
+                            <i
+                                class="fa fa-sign-out"
+                                aria-hidden="true"></i>
                             {{ "logout"|trans }}
                         </a>
                     </div>
-
                 </form>
-
             </div>
         {% endblock content %}
-
     {% endembed %}
 {% endblock component_part %}
 

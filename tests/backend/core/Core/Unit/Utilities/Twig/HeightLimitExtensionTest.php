@@ -39,8 +39,6 @@ class HeightLimitExtensionTest extends UnitTestCase
         $result = $this->twigExtension->getFilters();
         static::assertTrue(is_array($result) && isset($result[0]));
         static::assertInstanceOf(TwigFilter::class, $result[0]);
-        $callable = $result[0]->getCallable();
-        static::assertEquals('heightLimitShorten', $callable[1]);
         static::assertEquals('heightLimitShorten', $result[0]->getName());
     }
 

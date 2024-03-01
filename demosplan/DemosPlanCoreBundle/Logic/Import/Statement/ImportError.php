@@ -30,6 +30,9 @@ class ImportError
         return $this->lineNumber;
     }
 
+    /**
+     * @return array{id: int, currentWorksheet: string, lineNumber: int, message: string}
+     */
     public function toArray(int $key): array
     {
         return

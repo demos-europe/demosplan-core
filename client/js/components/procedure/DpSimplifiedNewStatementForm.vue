@@ -28,6 +28,11 @@
         type="hidden"
         name="r_ident"
         :value="procedureId">
+      <input
+        name="_token"
+        type="hidden"
+        :value="csrfToken">
+
       <div class="u-mb">
         <dp-accordion
           :title="Translator.trans('user.details')"
@@ -139,7 +144,7 @@
                     :size="5" />
                   <dp-input
                     id="r_orga_city"
-                    v-model="values.submitter.city"
+                    v-model="values.submitter.ort"
                     class="o-form__group-item"
                     name="r_orga_city"
                     :label="{
@@ -311,13 +316,15 @@
         <dp-upload-files
           class="u-mb"
           id="r_attachment_original"
-          :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
+          :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
           name="r_attachment_original"
           allowed-file-types="all"
+          :basic-auth="dplan.settings.basicAuth"
           :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
           :max-number-of-files="1"
           needs-hidden-input
-          :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }" />
+          :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
+          :tus-endpoint="dplan.paths.tusEndpoint" />
       </template>
       <dp-label
         :text="Translator.trans('more.attachments')"
@@ -328,11 +335,13 @@
         id="r_upload"
         name="r_upload"
         allowed-file-types="all"
-        :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
+        :basic-auth="dplan.settings.basicAuth"
+        :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
         :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
         :max-number-of-files="1000"
         needs-hidden-input
-        :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }" />
+        :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
+        :tus-endpoint="dplan.paths.tusEndpoint" />
 
       <!-- When used from annotated pdf view, a hidden input with annotatedStatementPdf.id has to be sent to BE -->
       <input
@@ -372,13 +381,13 @@ import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/Simila
 import { v4 as uuid } from 'uuid'
 
 const submitterProperties = {
-  city: '',
   date: '',
   department: '',
   email: '',
   institution: false,
   name: '',
   orga: '',
+  ort: '',
   plz: ''
 }
 
@@ -410,6 +419,11 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+
+    csrfToken: {
+      type: String,
+      required: true
     },
 
     currentProcedurePhase: {

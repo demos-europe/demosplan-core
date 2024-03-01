@@ -12,7 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Base;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
-use demosplan\DemosPlanCoreBundle\Cookie\PreviousRouteCookie;
 use demosplan\DemosPlanCoreBundle\Exception\EntityIdNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidPostDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
@@ -53,11 +52,6 @@ abstract class BaseController extends AbstractController
      * @var Logger
      */
     protected $logger;
-
-    /**
-     * @var array possible cookies
-     */
-    protected $allowedCookieNames = [PreviousRouteCookie::NAME];
 
     /**
      * @var MessageBagInterface
@@ -165,7 +159,7 @@ abstract class BaseController extends AbstractController
         if (1004 === $e->getCode()) {
             try {
                 $this->getMessageBag()->add('warning', 'warning.login.failed');
-            } catch (MessageBagException $e) {
+            } catch (MessageBagException) {
                 $this->getLogger()->warning('Could not add Message to message bag');
             }
 
@@ -338,7 +332,6 @@ abstract class BaseController extends AbstractController
         $type,
         $useCsrf = true,
         $allowExtraFields = false,
-        string $formName = null
     ): FormInterface {
         $formOptions = [
             'csrf_protection'    => $useCsrf,

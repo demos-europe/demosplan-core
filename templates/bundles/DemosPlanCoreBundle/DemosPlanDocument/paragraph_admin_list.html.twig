@@ -5,6 +5,7 @@
 
     {# paragraph settings for category: upload additional pdf #}
     <form name="planform" action="" method="post" enctype="multipart/form-data">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         <fieldset class="u-pb-0 u-mb-0_75">
             <legend class="u-mb-0_5">{{ "plandocument.file.attach"|trans }}</legend>
@@ -50,6 +51,7 @@
         <form name="begruendungForm" class="flow-root" enctype="multipart/form-data" method="post" action="">
 
             <input type="hidden" name="action" value="uploadImportFile">
+            {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
             <fieldset class="u-pb-0 u-mb-0_75">
                 <legend class="u-mb-0_5">{{ "plandocument.import.docx"|trans }}</legend>
@@ -90,6 +92,7 @@
     {% if templateVars.list.documentlist|length > 0 %}
         {# paragraph settings: list paragraphs #}
         <form class="u-mv" name="itemsForm" action="{{ path('DemosPlan_plandocument_administration_element', {'procedure':procedure, 'elementId':templateVars.procedureCurrentElementId}) }}" method="post">
+            {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
             <div class="flow-root u-mb-0_25">
                 <label class="o-link--default inline-block u-ml-0_25 u-mb-0 u-mr-0_5 align-middle line-height--2">
@@ -125,10 +128,10 @@
 
             <table class="c-table">
                 <colgroup>
-                    <col class="width-20">
+                    <col class="w-3">
                     <col>
-                    <col class="width-20">
-                    <col class="width-20">
+                    <col class="w-3">
+                    <col class="w-3">
                 </colgroup>
                 <thead>
                     <tr>

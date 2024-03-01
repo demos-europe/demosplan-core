@@ -25,12 +25,13 @@
           @change-fields="updateSearchFields"
           @search="updateSearchQuery"
           @reset="updateSearchQuery" />
-        <div class="flex bg-color--grey-light-2 border-radius-medium space-inline-xs">
+        <div class="flex bg-color--grey-light-2 rounded-md space-inline-xs">
           <span class="color--grey u-ml-0_5 line-height--2">
             {{ Translator.trans('filter') }}
           </span>
           <filter-flyout
             v-for="filter in filters"
+            :data-cy="`segmentsListFilter:${filter.labelTranslationKey}`"
             :initial-query="queryIds"
             :key="`filter_${filter.labelTranslationKey}`"
             :additional-query-params="{ searchPhrase: searchTerm }"
@@ -43,6 +44,7 @@
         </div>
         <dp-button
           class="ml-auto"
+          data-cy="segmentsList:resetFilter"
           variant="outline"
           @click="resetQuery"
           v-tooltip="Translator.trans('search.filter.reset')"
@@ -52,8 +54,7 @@
       <dp-bulk-edit-header
         class="layout__item u-12-of-12 u-mt-0_5"
         v-if="selectedItemsCount > 0"
-        :selected-items-count="selectedItemsCount"
-        :selection-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"
+        :selected-items-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"
         @reset-selection="resetSelection">
         <dp-button
           variant="outline"
@@ -62,6 +63,7 @@
       </dp-bulk-edit-header>
       <div class="u-mt text-right">
         <dp-column-selector
+          data-cy="segmentsList:selectableColumns"
           :initial-selection="currentSelection"
           :selectable-columns="selectableColumns"
           @selection-changed="setCurrentSelection"
@@ -114,7 +116,7 @@
           </div>
         </template>
         <template v-slot:submitter="rowData">
-          <ul class="o-list max-width-350">
+          <ul class="o-list max-w-12">
             <li
               v-if="statementsObject[rowData.relationships.parentStatement.data.id].attributes.authorName !== ''"
               class="o-list__item o-hellip--nowrap">
@@ -154,7 +156,7 @@
         <template v-slot:text="rowData">
           <div
             v-cleanhtml="rowData.attributes.text"
-            class="overflow-word-break" />
+            class="overflow-word-break c-styled-html" />
         </template>
         <template v-slot:recommendation="rowData">
           <div v-cleanhtml="rowData.attributes.recommendation !== '' ? rowData.attributes.recommendation : '-'" />
@@ -162,13 +164,14 @@
         <template v-slot:tags="rowData">
           <span
             :key="tag.id"
+            class="rounded-md"
             v-for="tag in getTagsBySegment(rowData.id)"
-            style="color: #63667e; background: #EBE9E9; border-radius: 4px; padding: 2px 4px; margin: 4px 2px; display: inline-block;">
+            style="color: #63667e; background: #EBE9E9; padding: 2px 4px; margin: 4px 2px; display: inline-block;">
             {{ tag.attributes.title }}
           </span>
         </template>
         <template v-slot:flyout="rowData">
-          <dp-flyout>
+          <dp-flyout data-cy="segmentsList:flyoutEditMenu">
             <a
               :href="Routing.generate('dplan_statement_segments_list', {
                 action: 'editText',
@@ -176,6 +179,7 @@
                 segment: rowData.id,
                 statementId: rowData.relationships.parentStatement.data.id
               })"
+              data-cy="segmentsList:edit"
               rel="noopener">
               {{ Translator.trans('edit') }}
             </a>
@@ -186,6 +190,7 @@
                 segment: rowData.id,
                 statementId: rowData.relationships.parentStatement.data.id
               })"
+              data-cy="segmentsList:segmentsRecommendationsCreate"
               rel="noopener">
               {{ Translator.trans('segments.recommendations.create') }}
             </a>
@@ -193,15 +198,16 @@
             <button
               type="button"
               class="btn--blank o-link--default"
-              @click.prevent="showVersionHistory(rowData.id, rowData.attributes.externId)"
-              data-cy="segmentVersionHistory">
+              data-cy="segmentsList:segmentVersionHistory"
+              @click.prevent="showVersionHistory(rowData.id, rowData.attributes.externId)">
               {{ Translator.trans('history') }}
             </button>
             <a
               v-if="hasPermission('feature_read_source_statement_via_api')"
               :class="{'is-disabled': getOriginalPdfAttachmentHashBySegment(rowData) === null}"
+              data-cy="segmentsList:originalPDF"
               target="_blank"
-              :href="Routing.generate('core_file', { hash: getOriginalPdfAttachmentHashBySegment(rowData) })"
+              :href="Routing.generate('core_file_procedure', { hash: getOriginalPdfAttachmentHashBySegment(rowData), procedureId: procedureId })"
               rel="noopener noreferrer">
               {{ Translator.trans('original.pdf') }}
             </a>
@@ -246,7 +252,9 @@ import {
   DpFlyout,
   DpLoading,
   DpPager,
+  dpRpc,
   DpStickyElement,
+  hasOwnProp,
   tableSelectAllItems,
   VPopover
 } from '@demos-europe/demosplan-ui'
@@ -322,7 +330,7 @@ export default {
       },
       headerFieldsAvailable: [
         { field: 'externId', label: Translator.trans('id') },
-        { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'width-100' },
+        { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'w-8' },
         { field: 'submitter', label: Translator.trans('submitter') },
         { field: 'address', label: Translator.trans('address') },
         { field: 'text', label: Translator.trans('text') },
@@ -350,6 +358,10 @@ export default {
 
     ...mapState('assignableUser', {
       assignableUsersObject: 'items'
+    }),
+
+    ...mapState('orga', {
+      orgaObject: 'items'
     }),
 
     ...mapState('statementSegment', {
@@ -476,8 +488,6 @@ export default {
             'attachments',
             'authoredDate',
             'authorName',
-            'formattedAuthoredDate',
-            'formattedSubmitDate',
             'isSubmittedByCitizen',
             'initialOrganisationDepartmentName',
             'initialOrganisationName',
@@ -486,14 +496,13 @@ export default {
             'initialOrganisationPostalCode',
             'initialOrganisationCity',
             'internId',
-            'location',
             'memo',
             'submitDate',
             'submitName',
             'submitType'
           ].join(),
           Tag: 'title',
-          StatementAttachment: ['file', 'type'].join(),
+          StatementAttachment: ['file', 'attachmentType'].join(),
           File: 'hash'
         }
       }
@@ -521,10 +530,7 @@ export default {
           // Get all segments (without pagination) to save them in localStorage for bulk editing
           this.fetchSegmentIds({
             filter: filter,
-            search: payload.search,
-            fields: {
-              StatementSegment: ['id'].join()
-            }
+            search: payload.search
           })
         })
         .finally(() => {
@@ -532,11 +538,14 @@ export default {
         })
     },
 
-    async fetchSegmentIds (payload) {
-      const response = await dpApi.get(Routing.generate('api_resource_list', { resourceType: 'StatementSegment' }), payload, { serialize: true })
-      const allSegments = response.data.data.map(segment => segment.id)
-      this.storeAllSegments(allSegments)
-      this.allItemsCount = allSegments.length
+    fetchSegmentIds (payload) {
+      return dpRpc('segment.load.id', payload)
+        .then(response => checkResponse(response))
+        .then(response => {
+          const allSegments = (hasOwnProp(response, 0) && response[0].result) ? response[0].result : []
+          this.storeAllSegments(allSegments)
+          this.allItemsCount = allSegments.length
+        })
     },
 
     getTagsBySegment (id) {
@@ -551,7 +560,7 @@ export default {
     getOriginalPdfAttachmentHashBySegment (segment) {
       const parentStatement = segment.rel('parentStatement')
       if (parentStatement.hasRelationship('attachments')) {
-        const originalAttachment = Object.values(parentStatement.relationships.attachments.list()).filter(attachment => attachment.attributes.type === 'source_statement')[0]
+        const originalAttachment = Object.values(parentStatement.relationships.attachments.list()).filter(attachment => attachment.attributes.attachmentType === 'source_statement')[0]
         if (originalAttachment) {
           return originalAttachment.rel('file').attributes.hash
         }

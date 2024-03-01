@@ -62,7 +62,7 @@
             ref="newAssignee"
             v-model="options.newAssignee.value"
             :allow-empty="false"
-            class="u-mb width-450"
+            class="u-mb w-13"
             :custom-label="option => `${option.name} ${option.id === currentUserId ? '(Sie)' : ''}`"
             :options="users"
             track-by="id"
@@ -97,6 +97,7 @@
             @input="updateRecommendationText">
             <template v-slot:modal="modalProps">
               <dp-boiler-plate-modal
+                v-if="hasPermission('area_admin_boilerplates')"
                 ref="boilerPlateModal"
                 boiler-plate-type="consideration"
                 :procedure-id="procedureId"
@@ -162,7 +163,7 @@
         </p>
 
         <div class="u-mt-0_5 u-mb border u-p-0_75">
-          <dp-text-wrapper :text="options.recommendation.value" />
+          <text-content-renderer :text="options.recommendation.value" />
         </div>
       </div>
 
@@ -212,11 +213,11 @@ import {
   dpApi,
   DpButton,
   DpMultiselect,
-  DpTextWrapper,
   prefixClassMixin
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapState } from 'vuex'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
+import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 import { v4 as uuid } from 'uuid'
 
 export default {
@@ -226,7 +227,7 @@ export default {
     DpBoilerPlateModal,
     DpMultiselect,
     DpButton,
-    DpTextWrapper,
+    TextContentRenderer,
     DpEditor: async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
@@ -343,7 +344,9 @@ export default {
     },
 
     openBoilerPlate () {
-      this.$refs.boilerPlateModal.toggleModal()
+      if (hasPermission('area_admin_boilerplates')) {
+        this.$refs.boilerPlateModal.toggleModal()
+      }
     },
 
     redirectToAssessmentTable () {
@@ -365,7 +368,7 @@ export default {
         url: Routing.generate('dplan_assessment_table_assessment_table_statement_bulk_edit_api_action', {
           procedureId: this.procedureId
         }),
-        data: JSON.stringify(payload)
+        data: payload
       })
         .then(checkResponse)
         .then(() => {

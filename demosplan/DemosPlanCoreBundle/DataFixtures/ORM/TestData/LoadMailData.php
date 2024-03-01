@@ -15,6 +15,9 @@ use demosplan\DemosPlanCoreBundle\Entity\MailSend;
 use demosplan\DemosPlanCoreBundle\Entity\MailTemplate;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadMailData extends TestFixture
 {
     public function load(ObjectManager $manager): void

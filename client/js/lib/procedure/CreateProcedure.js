@@ -64,6 +64,7 @@ function getXplanboxBounds (procedureName) {
 
 export default function CreateProcedure () {
   const statusBox = document.getElementById('js__statusBox')
+  const saveBtn = document.getElementById('saveBtn')
 
   /*
    * @improve T15008
@@ -72,8 +73,6 @@ export default function CreateProcedure () {
   saveBtn.setAttribute('disabled', true)
 
   const planningCauseSelect = document.getElementById('js__plisPlanungsanlass')
-  planningCauseSelect.innerText = Translator.trans('planningcause.select.hint')
-  planningCauseSelect.classList.add('lbl__hint')
 
   //  Get plis data from BE
   const plisSelect = document.querySelector('select[name="r_plisId"]')
@@ -93,12 +92,13 @@ export default function CreateProcedure () {
         url: Routing.generate('DemosPlan_plis_get_procedure', { uuid: selectedOption.value })
       })
         .then(data => {
-          if (data.data.code === 100 && data.data.success === true) {
+          const dataResponse = JSON.parse(data.data)
+          if (dataResponse.code === 100 && dataResponse.success === true) {
             planningCauseSelect.classList.remove('lbl__hint', 'flash-error', 'u-p-0_25', 'u-mt-0_25')
-            const planungsanlassText = data.data.procedure.planungsanlass
+            const planningOccasionText = dataResponse.procedure.planungsanlass
 
-            planningCauseSelect.innerHTML = planungsanlassText.replace(/\n/g, '<br>')
-            document.querySelector('input[name="r_externalDesc"]').setAttribute('value', planungsanlassText)
+            planningCauseSelect.innerHTML = planningOccasionText.replace(/\n/g, '<br>')
+            document.querySelector('input[name="r_externalDesc"]').setAttribute('value', planningOccasionText)
             const elt = document.querySelector('select[name="r_plisId"]')
             getXplanboxBounds(elt.options[elt.selectedIndex].text)
           } else {

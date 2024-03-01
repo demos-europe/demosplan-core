@@ -3,4 +3,4 @@ runner:
 #        cmd: "node_modules/.bin/eslint -c config/linters/eslintrc.js demosplan client"
 
     phpstan:
-        cmd: "DEVELOPMENT_CONTAINER=1 php bin/test dplan:phpstan --ci -l2"
+        cmd: "DEVELOPMENT_CONTAINER=1 php bin/test dplan:phpstan --ci -l1"

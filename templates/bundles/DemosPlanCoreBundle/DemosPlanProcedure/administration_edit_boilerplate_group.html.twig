@@ -15,6 +15,7 @@
         method="post"
         action="{{ path('DemosPlan_procedure_boilerplate_group_edit', {'procedure': procedure, 'boilerplateGroupId': form.vars.value.id|default('new')}) }}"
         data-dp-validate>
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         {# new group #}
         <label class="layout__item u-2-of-3 u-pl-0 u-pr">
@@ -24,7 +25,7 @@
                 {{ "new.group.create"|trans }}
             {% endif %}
             <input
-                class="layout__item height-28"
+                class="layout__item"
                 id="r_title"
                 name="r_title"
                 type="text"
@@ -42,10 +43,16 @@
                     {{ "abort"|trans }}
                 </a>
             {% else %}
-                <button class="btn btn--primary" name="r_createGroup">
+                <button
+                    class="btn btn--primary"
+                    data-cy="editBoilerplateGroupForm:createGroup"
+                    name="r_createGroup">
                     {{ "group.new"|trans }}
                 </button>
-                <a class="btn btn--secondary" href="{{ path('DemosPlan_procedure_boilerplate_list', {'procedure': procedure}) }}">
+                <a
+                    class="btn btn--secondary"
+                    data-cy="editBoilerplateGroupForm:abort"
+                    href="{{ path('DemosPlan_procedure_boilerplate_list', {'procedure': procedure}) }}">
                     {{ "abort"|trans }}
                 </a>
             {% endif %}

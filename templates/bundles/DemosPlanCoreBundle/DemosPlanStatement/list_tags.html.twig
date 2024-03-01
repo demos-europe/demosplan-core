@@ -11,6 +11,7 @@
         action="{{ path("DemosPlan_statement_administration_tags_edit", {'procedure':templateVars.procedure}) }}"
         method="post"
         name="tag_edit">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         {# global actions #}
         <div class="u-mb-0_5 u-nojs-hide--block">
@@ -42,10 +43,10 @@
 
             {# the second column adapts to available width while the other cols have a fixed width #}
             <colgroup>
-                <col class="width-40">
+                <col class="w-6">
                 <col class="">
-                <col class="width-120">
-                <col class="width-120">
+                <col class="w-9">
+                <col class="w-9">
             </colgroup>
 
             <thead>
@@ -76,10 +77,10 @@
                         <table class="c-table u-mb-0">
 
                             <colgroup>
-                                <col class="width-40">
+                                <col class="w-6">
                                 <col class="">
-                                <col class="width-120">
-                                <col class="width-120">
+                                <col class="w-9">
+                                <col class="w-9">
                             </colgroup>
 
                             <tr class="hide-visually">
@@ -257,11 +258,11 @@
 
                                 <td class="u-ph-0 {{ loop.last ? 'u-pt-0_25 u-pb-0_5' : 'u-pv-0_25' }} text-center">
                                     {% if tag.boilerplate %}
-                                        <dp-tooltip-icon
+                                        <dp-contextual-help
                                             class="color--grey"
-                                            icon="fa-file"
+                                            icon="file"
                                             text="{{ tag.boilerplate.text }}"
-                                        ></dp-tooltip-icon>
+                                        ></dp-contextual-help>
                                     {% endif %}
                                 </td>
 
@@ -353,7 +354,7 @@
                 </label><!--
              --><div class="layout__item u-1-of-3">
                     <button
-                        class="btn btn--primary u-mt width-100p"
+                        class="btn btn--primary u-mt w-full"
                         id="createNewTopic"
                         name="r_create"
                         data-cy="addNewTopic">
@@ -363,11 +364,10 @@
             </div>
 
             {# import #}
-            <dp-tooltip-icon
+            <dp-contextual-help
                 class="float-right"
-                icon="fa-question-circle"
                 text="{{ "tags.import.help"|trans }}"
-            ></dp-tooltip-icon>
+            ></dp-contextual-help>
 
             <div class="u-mb">
                 {{  fileupload(

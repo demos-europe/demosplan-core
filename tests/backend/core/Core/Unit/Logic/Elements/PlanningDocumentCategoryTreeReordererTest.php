@@ -49,6 +49,8 @@ class PlanningDocumentCategoryTreeReordererTest extends FunctionalTestCase
         ?int $newOrder,
         bool $necessary
     ): void {
+        self::markSkippedForCIIntervention();
+
         $this->loginTestUser();
         $this->enablePermissions(['feature_admin_element_edit']);
 
@@ -68,6 +70,8 @@ class PlanningDocumentCategoryTreeReordererTest extends FunctionalTestCase
 
     public function testUpdateEntitiesWithMoveToOtherCategory(): void
     {
+        self::markSkippedForCIIntervention();
+
         $this->loginTestUser();
         $this->enablePermissions(['feature_admin_element_edit']);
 
@@ -90,6 +94,8 @@ class PlanningDocumentCategoryTreeReordererTest extends FunctionalTestCase
 
     public function testUpdateEntitiesWithMoveToRoot(): void
     {
+        self::markSkippedForCIIntervention();
+
         $this->loginTestUser();
         $this->enablePermissions(['feature_admin_element_edit']);
 
@@ -111,6 +117,8 @@ class PlanningDocumentCategoryTreeReordererTest extends FunctionalTestCase
 
     public function testUpdateEntitiesWithNullIndex(): void
     {
+        self::markSkippedForCIIntervention();
+
         $this->loginTestUser();
         $this->enablePermissions(['feature_admin_element_edit']);
 

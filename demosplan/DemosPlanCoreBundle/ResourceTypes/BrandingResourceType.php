@@ -12,15 +12,17 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\BrandingInterface;
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
- * @template-extends DplanResourceType<Branding>
+ * @template-extends DplanResourceType<BrandingInterface>
  *
- * @property-read End              $cssvars
+ * @property-read End              $cssvars @deprecated, expose {@link self::$styling} instead
+ * @property-read End              $styling
  * @property-read FileResourceType $logo
  */
 class BrandingResourceType extends DplanResourceType
@@ -32,9 +34,23 @@ class BrandingResourceType extends DplanResourceType
 
     protected function getProperties(): array
     {
+        $currentCustomerBrandingId = $this->currentCustomerService->getCurrentCustomer()->getBranding()?->getId();
+        $customerCondition = null === $currentCustomerBrandingId
+            ? $this->conditionFactory->false()
+            : $this->conditionFactory->propertyHasValue($currentCustomerBrandingId, Paths::branding()->id);
+
+        $logo = $this->createToOneRelationship($this->logo);
+
         $properties = [
-            $this->createAttribute($this->id)->readable(true),
+            $this->createIdentifier()->readable(),
+            $logo,
         ];
+
+        if ($this->currentUser->hasPermission('feature_customer_branding_edit')) {
+            $properties[] = $this->createAttribute($this->styling)
+                ->updatable([$customerCondition])
+                ->aliasedPath(Paths::branding()->cssvars);
+        }
 
         if ($this->currentUser->hasAnyPermissions(
             'feature_orga_branding_edit',
@@ -43,8 +59,12 @@ class BrandingResourceType extends DplanResourceType
             $properties[] = $this->createAttribute($this->cssvars)->readable(true);
         }
 
+        if ($this->currentUser->hasPermission('area_customer_settings')) {
+            $logo->updatable([$customerCondition]);
+        }
+
         if ($this->currentUser->hasPermission('feature_platform_logo_edit')) {
-            $properties[] = $this->createToOneRelationship($this->logo)->readable();
+            $logo->readable();
         }
 
         return $properties;
@@ -64,18 +84,19 @@ class BrandingResourceType extends DplanResourceType
         );
     }
 
-    public function isReferencable(): bool
-    {
-        return true;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return false;
-    }
-
     protected function getAccessConditions(): array
     {
         return [];
+    }
+
+    public function isUpdateAllowed(): bool
+    {
+        if (!$this->currentUser->hasPermission('area_customer_settings')) {
+            return false;
+        }
+
+        $currentCustomerBrandingId = $this->currentCustomerService->getCurrentCustomer()->getBranding()?->getId();
+
+        return null !== $currentCustomerBrandingId;
     }
 }

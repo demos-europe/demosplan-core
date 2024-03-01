@@ -18,6 +18,9 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadBoilerplateData extends TestFixture implements DependentFixtureInterface
 {
     public function load(ObjectManager $manager): void

@@ -12,11 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<User>
@@ -69,24 +69,17 @@ final class AssignableUserResourceType extends DplanResourceType
         return [$this->conditionFactory->false()];
     }
 
-    public function isReferencable(): bool
-    {
-        return true;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
-    }
-
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true)->filterable()->sortable(),
+            $this->createIdentifier()->readable()->filterable()->sortable(),
             $this->createAttribute($this->firstname)->readable(true)->filterable()->sortable(),
             $this->createAttribute($this->lastname)->readable(true)->filterable()->sortable(),
             $this->createToOneRelationship($this->department)->readable()->filterable()->sortable(),
-            $this->createToOneRelationship($this->orga, true)->readable(true)->filterable()->sortable(),
+            $this->createToOneRelationship($this->orga)
+                ->readable(true, fn (User $user): ?Orga => $user->getOrga(), true)
+                ->filterable()
+                ->sortable(),
         ];
     }
 }

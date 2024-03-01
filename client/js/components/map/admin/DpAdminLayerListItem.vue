@@ -28,7 +28,7 @@
     :id="layer.id">
     <div class="c-at-item__row-icon layout__item u-pl-0">
       <i
-        class="fa fa-bars handle width-20 cursor-grab"
+        class="fa fa-bars handle w-[20px] cursor-grab"
         :title="Translator.trans('move')" />
     </div><!--
  --><div
@@ -605,15 +605,15 @@ export default {
     hasSettingsThatPreventGrouping () {
       if (typeof this.activeLayer.id === 'undefined') {
         return this.layer.attributes.canUserToggleVisibility === false ||
-            this.layer.attributes.type !== 'overlay' ||
+            this.layer.attributes.layerType !== 'overlay' ||
             this.layer.attributes.isScope ||
             this.layer.attributes.isBplan
       }
 
       return this.layer.attributes.canUserToggleVisibility === false ||
           this.activeLayer.attributes.canUserToggleVisibility === false ||
-          this.layer.attributes.type !== 'overlay' ||
-          this.activeLayer.attributes.type !== 'overlay' ||
+          this.layer.attributes.layerType !== 'overlay' ||
+          this.activeLayer.attributes.layerType !== 'overlay' ||
           this.layer.attributes.isScope ||
           this.activeLayer.attributes.isScope ||
           this.layer.attributes.isBplan ||
@@ -633,7 +633,7 @@ export default {
       set (value) {
         this.setChildrenFromCategory({
           categoryId: this.element.id,
-          data: value,
+          data: value.newOrder,
           orderType: 'treeOrder',
           parentOrder: this.layer.attributes.treeOrder
         })
@@ -785,7 +785,7 @@ export default {
      * Set/unset hover-state for row
      */
     mouseOverElement () {
-      if (this.isLoading || this.layer.attributes.type !== 'overlay') {
+      if (this.isLoading || this.layer.attributes.layerType !== 'overlay') {
         return false
       }
       this.$store.commit('layers/setHoverLayerId', this.layer.id)
@@ -802,7 +802,7 @@ export default {
       if (this.isLoading) {
         return false
       }
-      if (this.layer.attributes.type === 'overlay' && typeof this.activeLayer.id !== 'undefined') {
+      if (this.layer.attributes.layerType === 'overlay' && typeof this.activeLayer.id !== 'undefined') {
         this.$store.commit('layers/setHoverLayerIconIsHovered', true)
       } else {
         this.unsetIconHoverState()

@@ -16,6 +16,9 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadLocationData extends TestFixture
 {
     final public const COUNTY_1 = 'County1';

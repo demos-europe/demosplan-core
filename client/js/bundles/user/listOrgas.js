@@ -24,7 +24,7 @@ const components = {
   DpEditor
 }
 
-const apiStores = ['orga', 'customer']
+const apiStores = ['customer', 'orga']
 const presetStoreModules = {
   orga: [{
     name: 'pending',
@@ -38,7 +38,7 @@ const presetStoreModules = {
           }
         }
       },
-      include: ['branding', 'currentSlug', 'customers', 'statusInCustomers'].join(),
+      include: ['branding', 'currentSlug', 'statusInCustomers'].join(),
       group: 'pending'
     }
   }]

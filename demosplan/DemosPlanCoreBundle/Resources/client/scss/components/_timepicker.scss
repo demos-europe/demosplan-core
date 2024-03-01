@@ -13,7 +13,7 @@
 
     &__flyout {
         position: absolute;
-        z-index: $z-content-above;
+        z-index: $dp-z-above-zero;
         background-color: $dp-color-white;
         border: $dp-border-thickness solid $dp-color-border-default;
 

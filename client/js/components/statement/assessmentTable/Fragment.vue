@@ -323,7 +323,7 @@ useful info about the component:
       <div class="layout--flush">
 <!--
      --><div class="flex">
-          <tiptap-edit-text
+          <editable-text
             title="fragment.text"
             class="c-styled-html u-mt-0_25 u-pr-0_5 u-1-of-2 u-pb-0_5 border--right"
             :initial-text="fragmentText"
@@ -341,7 +341,7 @@ useful info about the component:
             @field:save="saveFragment"
             ref="text" />
 
-          <tiptap-edit-text
+          <editable-text
             v-if="editableConsiderationAdvice"
             title="fragment.considerationAdvice"
             class="c-styled-html u-mt-0_25 u-1-of-2 u-ph-0_5 u-pb-0_5"
@@ -359,7 +359,7 @@ useful info about the component:
             @field:save="saveFragment"
             ref="considerationAdvice"
             data-cy="considerationAdvice" />
-          <tiptap-edit-text
+          <editable-text
             v-else
             title="fragment.consideration"
             class="u-mt-0_25 u-1-of-2 u-ph-0_5 u-pb-0_5"
@@ -390,8 +390,8 @@ import { Base64 } from 'js-base64'
 import DpClaim from '../DpClaim'
 import DpEditFieldMultiSelect from './DpEditFieldMultiSelect'
 import DpEditFieldSingleSelect from './DpEditFieldSingleSelect'
+import EditableText from './EditableText'
 import TableCardFlyoutMenu from './TableCardFlyoutMenu'
-import TiptapEditText from './TiptapEditText'
 
 export default {
   name: 'DpAssessmentFragment',
@@ -400,8 +400,8 @@ export default {
     DpClaim,
     DpEditFieldMultiSelect,
     DpEditFieldSingleSelect,
+    EditableText,
     TableCardFlyoutMenu,
-    TiptapEditText,
     VPopover
   },
 
@@ -699,7 +699,7 @@ export default {
             })
           }
 
-          // Update short and full texts in TiptapEditText.vue
+          // Update short and full texts in EditableText.vue
           if (field === 'text' || field === 'consideration' || field === 'considerationAdvice') {
             this.$root.$emit('entityTextSaved:' + this.fragmentId, { entityId: this.fragmentId, field: field })
           }

@@ -28,8 +28,7 @@
       <dp-bulk-edit-header
         class="layout__item u-12-of-12 u-mt-0_5"
         v-if="selectedItemsCount > 0 && hasPermission('feature_statements_sync_to_procedure')"
-        :selected-items-count="selectedItemsCount"
-        :selection-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"
+        :selected-items-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"
         @reset-selection="resetSelection">
         <dp-button
           variant="outline"
@@ -37,7 +36,9 @@
           :text="Translator.trans('procedure.share_statements.bulk.share')" />
       </dp-bulk-edit-header>
       <div class="flex space-inline-xs">
-        <dp-flyout :align="'left'">
+        <dp-flyout
+          ref="flyout"
+          :align="'left'">
           <template v-slot:trigger>
             {{ Translator.trans('export.verb') }}
             <i
@@ -45,13 +46,13 @@
               aria-hidden="true" />
           </template>
           <a
-            :href="exportRoute('dplan_statement_segments_export')"
-            rel="noopener">
+            href="#"
+            @click="showHintAndDoExport('dplan_statement_segments_export')">
             {{ Translator.trans('export.statements.docx') }}
           </a>
           <a
-            :href="exportRoute('dplan_statement_segments_export_packaged')"
-            rel="noopener">
+            href="#"
+            @click="showHintAndDoExport('dplan_statement_segments_export_packaged')">
             {{ Translator.trans('export.statements.zip') }}
           </a>
           <a
@@ -114,7 +115,7 @@
             submitDate,
             submitName
           }">
-          <ul class="o-list max-width-350">
+          <ul class="o-list max-w-12">
             <li
               v-if="authorName !== '' || submitName !== ''"
               class="o-list__item o-hellip--nowrap">
@@ -140,7 +141,7 @@
         </template>
         <template v-slot:text="{ text }">
           <div
-            class="line-clamp-3 break-words"
+            class="line-clamp-3 c-styled-html"
             v-cleanhtml="text" />
         </template>
         <template v-slot:flyout="{ assignee, id, originalPdf, segmentsCount, synchronized }">
@@ -161,7 +162,7 @@
             <a
               v-if="hasPermission('feature_read_source_statement_via_api')"
               :class="{'is-disabled': originalPdf === null}"
-              :href="Routing.generate('core_file', { hash: originalPdf })"
+              :href="Routing.generate('core_file_procedure', { hash: originalPdf, procedureId: procedureId })"
               rel="noreferrer noopener"
               target="_blank">
               {{ Translator.trans('original.pdf') }}
@@ -231,7 +232,7 @@
           </statement-meta-data>
 
           <!-- Statement text -->
-          <div class="u-pt-0_5 break-words">
+          <div class="u-pt-0_5 c-styled-html">
             <strong>{{ Translator.trans('statement.text.short') }}:</strong>
             <template v-if="typeof fullText === 'undefined'">
               <div v-cleanhtml="text" />
@@ -363,7 +364,7 @@ export default {
       },
       headerFields: [
         { field: 'externId', label: Translator.trans('id') },
-        { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'width-100' },
+        { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'w-8' },
         { field: 'meta', label: Translator.trans('submitter.invitable_institution') },
         { field: 'text', label: Translator.trans('text') },
         { field: 'segmentsCount', label: Translator.trans('segments') }
@@ -401,6 +402,10 @@ export default {
   computed: {
     ...mapState('assignableUser', {
       assignableUsersObject: 'items'
+    }),
+
+    ...mapState('orga', {
+      orgaObject: 'items'
     }),
 
     ...mapState('statement', {
@@ -485,7 +490,8 @@ export default {
     getAssignee (statement) {
       if (this.assigneeId(statement)) {
         const assignee = this.assignableUsersObject[this.assigneeId(statement)]
-        const assigneeOrga = assignee ? Object.values(assignee.rel('orga'))[0] : null
+        const assigneeOrga = assignee ? assignee.rel('orga') : null
+
         if (typeof assignee === 'undefined') {
           return {
             id: statement.relationships.assignee.data.id,
@@ -493,12 +499,15 @@ export default {
             orgaName: 'unbekannt'
           }
         }
+
         return {
           id: statement.relationships.assignee.data.id,
           name: `${assignee.attributes.firstname} ${assignee.attributes.lastname}`,
           orgaName: assigneeOrga ? assigneeOrga.attributes.name : ''
+
         }
       }
+
       return {
         id: '',
         name: '',
@@ -536,7 +545,7 @@ export default {
         window.location.href = Routing.generate('dplan_drafts_list_edit', { statementId: statementId, procedureId: this.procedureId })
       }
 
-      if (!isStatementClaimed || isStatementClaimedByOtherUser && dpconfirm(Translator.trans('warning.statement.needLock.generic'))) {
+      if (!isStatementClaimed || (isStatementClaimedByOtherUser && dpconfirm(Translator.trans('warning.statement.needLock.generic')))) {
         this.claimStatement(statementId)
           .then(() => {
             window.location.href = Routing.generate('dplan_drafts_list_edit', { statementId: statementId, procedureId: this.procedureId })
@@ -565,8 +574,8 @@ export default {
     claimStatement (statementId) {
       const statement = this.statementsObject[statementId]
       if (typeof statement !== 'undefined') {
-        const dataToUpdate = { ...statement, ...{ relationships: { ...statement.relationships, ...{ assignee: { data: { type: 'User', id: this.currentUserId } } } } } }
-        this.setStatement({ ...dataToUpdate, id: statementId, group: null })
+        const dataToUpdate = { ...statement, ...{ relationships: { ...statement.relationships, ...{ assignee: { data: { type: 'Claim', id: this.currentUserId } } } } } }
+        this.setStatement({ ...dataToUpdate, id: statementId })
 
         const payload = {
           data: {
@@ -575,13 +584,14 @@ export default {
             relationships: {
               assignee: {
                 data: {
-                  type: 'User',
+                  type: 'Claim',
                   id: this.currentUserId
                 }
               }
             }
           }
         }
+
         return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: statementId }), {}, payload)
           .then(response => {
             checkResponse(response)
@@ -617,8 +627,8 @@ export default {
 
     unclaimStatement (statementId) {
       const statement = this.statementsObject[statementId]
-      const dataToUpdate = { ...statement, ...{ relationships: { ...statement.relationships, ...{ assignee: { data: { type: 'User', id: null } } } } } }
-      this.setStatement({ ...dataToUpdate, id: statementId, group: null })
+      const dataToUpdate = { ...statement, ...{ relationships: { ...statement.relationships, ...{ assignee: { data: { type: 'Claim', id: null } } } } } }
+      this.setStatement({ ...dataToUpdate, id: statementId })
 
       const payload = {
         data: {
@@ -647,6 +657,38 @@ export default {
     },
 
     getItemsByPage (page) {
+      const statementFields = [
+        // Attributes:
+        'authoredDate',
+        'authorName',
+        'externId',
+        'isSubmittedByCitizen',
+        'initialOrganisationCity',
+        'initialOrganisationDepartmentName',
+        'initialOrganisationHouseNumber',
+        'initialOrganisationName',
+        'initialOrganisationPostalCode',
+        'initialOrganisationStreet',
+        'internId',
+        'isCitizen',
+        'memo',
+        'submitDate',
+        'submitName',
+        'submitType',
+        'submitterEmailAddress',
+        'text',
+        'textIsTruncated',
+        // Relationships:
+        'assignee',
+        'attachments',
+        'segments'
+      ]
+      if (this.isSourceAndCoupledProcedure) {
+        statementFields.push('synchronized')
+      }
+      if (hasPermission('area_statement_segmentation')) {
+        statementFields.push('segmentDraftList')
+      }
       this.fetchStatements({
         page: {
           number: page,
@@ -672,39 +714,9 @@ export default {
           'attachments.file'
         ].join(),
         fields: {
-          Statement: [
-            // Attributes:
-            'authoredDate',
-            'authorName',
-            'externId',
-            'isSubmittedByCitizen',
-            'initialOrganisationCity',
-            'initialOrganisationDepartmentName',
-            'initialOrganisationHouseNumber',
-            'initialOrganisationName',
-            'initialOrganisationPostalCode',
-            'initialOrganisationStreet',
-            'internId',
-            'isCitizen',
-            'memo',
-            'submitDate',
-            'submitName',
-            'submitType',
-            'submitterEmailAddress',
-            'synchronized',
-            'text',
-            'textIsTruncated',
-            // Relationships:
-            'assignee',
-            'attachments',
-            'segments'
-          ].join(),
+          Statement: statementFields.join(),
           File: [
             'hash'
-          ].join(),
-          // Segments are only counted, no data needed here.
-          StatementSegment: [
-            'id'
           ].join()
         }
       }).then((data) => {
@@ -724,7 +736,7 @@ export default {
     getOriginalPdfAttachmentHash (el) {
       if (el.hasRelationship('attachments')) {
         const originalAttachment = Object.values(el.relationships.attachments.list())
-          .filter(attachment => attachment.attributes.type === 'source_statement')
+          .filter(attachment => attachment.attributes.attachmentType === 'source_statement')
         if (originalAttachment.length === 1) {
           return originalAttachment[0].relationships.file.get().attributes.hash
         }
@@ -867,6 +879,13 @@ export default {
       } else {
         this.allItemsCount = data.meta.pagination.total
       }
+    },
+
+    showHintAndDoExport (route) {
+      if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
+        window.location.href = this.exportRoute(route)
+      }
+      this.$refs.flyout.toggle()
     },
 
     triggerStatementDeletion (id) {
