@@ -128,7 +128,8 @@ class StatementExcelImporterTest extends FunctionalTestCase
             'publicStatement'     => Statement::EXTERNAL,
         ];
 
-        $this->sut->generateStatement($statementData, 0, 0, 'Öffentlichkeit');
+        $generatedOriginalStatement = $this->sut->createNewOriginalStatement($statementData, 0, 0, 'Öffentlichkeit');
+        $this->sut->createCopy($generatedOriginalStatement);
         static::assertTrue($this->sut->hasErrors());
         static::assertCount(1, $this->sut->getErrors());
         static::assertInstanceOf(

@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Command\Helpers\Helpers;
+use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -71,7 +72,7 @@ class RegisterUserForCustomerCommand extends CoreCommand
             $orga = $userToRegister->getOrga();
             $orgaTypes = $this->getOrgaTypesByRoles($roles);
             foreach ($orgaTypes as $orgaType) {
-                $orga->addCustomerAndOrgaType($customer, $orgaType);
+                $orga->addCustomerAndOrgaType($customer, $orgaType, OrgaStatusInCustomer::STATUS_ACCEPTED);
             }
             $this->orgaRepository->updateObject($orga);
 

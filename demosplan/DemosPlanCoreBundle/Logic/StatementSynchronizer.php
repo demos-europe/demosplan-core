@@ -93,22 +93,10 @@ class StatementSynchronizer
             $targetProcedure,
         );
 
-        $newStatement = $this->statementCopier->copyStatementObjectWithinProcedure(
+        $newStatement = $this->statementCopier->copyStatementObjectWithinProcedureWithRelatedFiles(
             $newOriginalStatement,
             false,
-            false,
-            false
         );
-
-        // persist to get an ID for the FileContainer copying below
-        $this->statementRepository->persistEntities([$newStatement]);
-
-        // The copyStatementObjectWithinProcedure call above tries to fetch the FileContainers
-        // of the $newOriginalStatement from the database to copy them into $newStatement.
-        // This does not work, because the FileContainers of that instance were not
-        // flushed into the database yet. As a workaround, we copy the FileContainers here
-        // manually, until the FileContainer approach is removed as a whole.
-        $this->copyFileContainersToStatement($targetOriginalFileContainers, $newStatement, false);
 
         $this->validateStatement($newStatement);
         $this->createAndPersistLink($sourceStatement, $newOriginalStatement);

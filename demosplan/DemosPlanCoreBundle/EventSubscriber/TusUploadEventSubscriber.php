@@ -29,6 +29,7 @@ use TusPhp\File;
  * Tus is the [transload-it upload specification](https://tus.io)
  * which our uploader component in the frontend (Uppy) uses
  * to process files in chunks.
+ * This class will be called when the route /_tus/upload is called
  */
 class TusUploadEventSubscriber implements EventSubscriberInterface
 {

@@ -15,7 +15,10 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 
-class ProcedureTypeRepository extends FluentRepository implements ObjectInterface
+/**
+ * @template-extends CoreRepository<ProcedureType>
+ */
+class ProcedureTypeRepository extends CoreRepository implements ObjectInterface
 {
     /**
      * @param ProcedureType $procedureType

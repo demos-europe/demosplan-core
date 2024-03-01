@@ -48,22 +48,20 @@
         {# Assignment (a.k.a. Claim) #}
         {% if hasPermission('feature_statement_assignment') %}
             {% if statement.assignee.id|default != currentUser.ident %}
-                <a class="c-actionmenu__trigger o-tooltip inline-block u-mr-0_5"
+                <a
+                  class="c-actionmenu__trigger inline-block u-mr-0_5"
                     href="{{ href_assign }}"
-                    data-cy="claim">
+                    data-cy="claim"
+                    v-tooltip="'{{ text }}'">
                     <i class="fa {{ icon }}" aria-hidden="true"></i>
-                    <div class="o-tooltip__content">
-                        {{ text }}
-                    </div>
                 </a>
             {% else %}
-                <a class="c-actionmenu__trigger o-tooltip o-link--default inline-block u-mr-0_5"
+                <a
+                  class="c-actionmenu__trigger o-link--default inline-block u-mr-0_5"
                     href="{{ href_unassign }}"
-                    data-cy="unclaim">
+                    data-cy="unclaim"
+                    v-tooltip="'{{ text }}'">
                     <i class="fa {{ icon }}" aria-hidden="true"></i>
-                    <div class="o-tooltip__content">
-                        {{ text }}
-                    </div>
                 </a>
             {% endif %}
         {% endif %}
@@ -101,7 +99,7 @@
 
     </div><!--
 
- --><div class="layout__item u-pt-0_125 u-2-of-4 flow-root vertical-align--baseline u-mb-0_25">
+ --><div class="layout__item u-pt-0_125 u-2-of-4 vertical-align--baseline u-mb-0_25">
         {% if statement.assignee.id|default != currentUser.ident and hasPermission('feature_statement_assignment') %}
             <a
                 class="btn btn--primary float-right u-pr-0_5-desk-down u-pl-0_5-desk-down"

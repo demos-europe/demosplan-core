@@ -103,6 +103,7 @@
 {% block heading %}
     <dp-accordion
         title="{{ item.label }}"
+        data-cy="sideMenu:{{ item.label }}"
         font-weight="normal"
         :is-open="{{ (item is knp_menu_ancestor) ? 'true' : 'false' }}">
 {% endblock %}

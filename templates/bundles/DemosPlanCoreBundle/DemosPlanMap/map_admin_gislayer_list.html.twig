@@ -24,6 +24,8 @@
                 type="hidden"
                 name="action"
                 value="updatePlan">
+            {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
             {% if hasPermission('feature_map_use_plan_draw_pdf') or hasPermission('feature_map_use_plan_pdf') %}
                 <fieldset class="u-pb layout layout--flush" id="drawingData">
                     {% if hasPermission('feature_map_use_plan_draw_pdf') %}
@@ -118,6 +120,7 @@
     {# gislayer settings #}
     <form method="post" action="{{ path('DemosPlan_map_administration_gislayer',{'procedureId':procedure}) }}" name="gisLayerForm">
         <input type="hidden" name="manualsort" value="">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         <fieldset class="layout--flush" id="gislayers">
 
@@ -149,7 +152,7 @@
             </div>
 
             <dp-admin-layer-list
-                class="width-100p u-mt"
+                class="w-full u-mt"
                 procedure-id="{{ templateVars.procedure.id|default('nö') }}"
             ></dp-admin-layer-list>
         </fieldset>

@@ -9,5 +9,4 @@
 | Pager.js | used to support a twig macro pager | public and planning area |
 | ToggleAnything.js | Adds toggle behavior to elements |
 | ToggleSideMenu.js | in/out. Saves state in sessionStorage |
-| Tooltips.js | Initializes tooltips on elements with `o-tooltip` Css class |
 | touchFriendlyUserbox.js | Tweak touch behavior for userbox |

@@ -267,7 +267,7 @@ class GisLayer extends CoreEntity implements GisLayerInterface
      *
      * Many GisLayers has one GisLayerCategory
      *
-     * @ORM\ManyToOne(targetEntity="GisLayerCategory", inversedBy="gisLayers", cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory", inversedBy="gisLayers", cascade={"persist"})
      *
      * @ORM\JoinColumn(name="category_id", referencedColumnName="id")
      */
@@ -307,8 +307,6 @@ class GisLayer extends CoreEntity implements GisLayerInterface
 
     /**
      * Set data from DSL.
-     *
-     * @param mixed $data
      *
      * @return GisLayer $this
      */

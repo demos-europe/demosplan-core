@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ValueObject\Map;
 
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
-use Geometry;
+use geoPHP\Geometry\Geometry;
 use Tightenco\Collect\Support\Collection;
 
 /**

@@ -2,14 +2,15 @@ includes:
     - %rootDir%/../../../vendor/phpstan/phpstan-symfony/extension.neon
     - %rootDir%/../../../vendor/timeweb/phpstan-enum/extension.neon
 parameters:
+    typeAliases:
+        # These three aliases are returned by EDT, but as phpstan does not consider aliases from composer dependencies,
+        # we need to define them directly in dplan again.
+        simple_primitive: 'bool|float|int|string'
+        JsonApiRelationship: 'array{type: non-empty-string, id: non-empty-string}'
+        JsonApiRelationships: 'array<non-empty-string, array{data: list<JsonApiRelationship>|JsonApiRelationship|null}>'
+
     tmpDir: /tmp/phpstan
     scanFiles:
-        - %rootDir%/../../../vendor/phayes/geophp/lib/adapters/GeoJSON.class.php
-        - %rootDir%/../../../vendor/phayes/geophp/lib/geometry/Collection.class.php
-        - %rootDir%/../../../vendor/phayes/geophp/lib/geometry/Geometry.class.php
-        - %rootDir%/../../../vendor/phayes/geophp/lib/geometry/LineString.class.php
-        - %rootDir%/../../../vendor/phayes/geophp/lib/geometry/Point.class.php
-        - %rootDir%/../../../vendor/phayes/geophp/lib/geometry/Polygon.class.php
         - %rootDir%/../../../vendor/twig/twig/src/Extension/CoreExtension.php
     scanDirectories:
 #    # used when oder phpstan version is used during refactoring with rector. Might be deleted with symfony4

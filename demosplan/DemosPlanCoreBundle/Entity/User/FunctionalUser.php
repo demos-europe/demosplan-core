@@ -48,33 +48,33 @@ class FunctionalUser extends User
         parent::__construct();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    protected function setDefaultOrgaDepartment(): void
+    {
+        $this->functionalOrga = new Orga();
+        $this->functionalOrga->setId(self::ANONYMOUS_USER_ORGA_ID);
+        $this->functionalOrga->setName(self::ANONYMOUS_USER_ORGA_NAME);
+
+        $this->department = new Department();
+        $this->department->setId(self::ANONYMOUS_USER_DEPARTMENT_ID);
+        $this->department->setName(self::ANONYMOUS_USER_DEPARTMENT_NAME);
+        $this->functionalOrga->setDepartments([$this->department]);
+    }
+
     public function isNewUser(): bool
     {
         return false;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function isProfileCompleted(): bool
     {
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getRoleBySubdomain(string $subdomain): string
     {
         return Role::GUEST;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getOrga(): Orga
     {
         return $this->functionalOrga;
@@ -103,6 +103,11 @@ class FunctionalUser extends User
         foreach ($roles as $role) {
             if ($role instanceof Role) {
                 $this->dplanRoles->add($role);
+            }
+            if (is_string($role)) {
+                $roleEntity = new Role();
+                $roleEntity->setCode($role);
+                $this->dplanRoles->add($roleEntity);
             }
         }
     }

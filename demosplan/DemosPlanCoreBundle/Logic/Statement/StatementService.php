@@ -19,7 +19,6 @@ use DemosEurope\DemosplanAddon\Contracts\Events\StatementUpdatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\StatementServiceInterface;
-use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
@@ -57,7 +56,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\NoTargetsException;
-use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UnexpectedDoctrineResultException;
 use demosplan\DemosPlanCoreBundle\Exception\UnknownIdsException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
@@ -68,6 +66,7 @@ use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\ClusterCitizenInstitutio
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\KeysAtEndSorter;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\KeysAtStartSorter;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\ParagraphOrderSorter;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\TitleGroupsSorter;
 use demosplan\DemosPlanCoreBundle\Logic\Consultation\ConsultationTokenService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
@@ -91,7 +90,6 @@ use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
-use demosplan\DemosPlanCoreBundle\Repository\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
@@ -175,9 +173,6 @@ class StatementService extends CoreService implements StatementServiceInterface
     /** @var PriorityAreaService */
     protected $priorityAreaService;
 
-    /** @var ParagraphService */
-    protected $paragraphService;
-
     /** @var ElementsService */
     protected $serviceElements;
 
@@ -248,7 +243,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         HashedQueryService $filterSetService,
         JsonApiPaginationParser $paginationParser,
         private readonly MessageBagInterface $messageBag,
-        ParagraphService $paragraphService,
+        protected ParagraphService $paragraphService,
         PermissionsInterface $permissions,
         PriorityAreaService $priorityAreaService,
         private readonly ProcedureRepository $procedureRepository,
@@ -269,7 +264,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         StatementFragmentService $statementFragmentService,
         StatementGeoService $statementGeoService,
         private readonly StatementReportEntryFactory $statementReportEntryFactory,
-        private readonly StatementRepository $statementRepository,
+        protected readonly StatementRepository $statementRepository,
         private readonly StatementResourceType $statementResourceType,
         StatementValidator $statementValidator,
         private readonly StatementVoteRepository $statementVoteRepository,
@@ -284,7 +279,6 @@ class StatementService extends CoreService implements StatementServiceInterface
         $this->entityContentChangeService = $entityContentChangeService;
         $this->filterSetService = $filterSetService;
         $this->paginationParser = $paginationParser;
-        $this->paragraphService = $paragraphService;
         $this->permissions = $permissions;
         $this->priorityAreaService = $priorityAreaService;
         $this->procedureService = $procedureService;
@@ -399,7 +393,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             } elseif (\array_key_exists('county', $data['statementAttributes']) && 0 < \strlen((string) $data['statementAttributes']['county'])) {
                 try {
                     $attrRepo->addCounty($statement, $data['statementAttributes']['county']);
-                } catch (Exception $e) {
+                } catch (Exception) {
                     $attrRepo->removeCounty($statement);
                 }
             }
@@ -487,6 +481,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                     $fileString
                 );
             })->toArray();
+
         // Update Statement with attached files
         return $this->getStatement($statement->getId());
     }
@@ -507,20 +502,6 @@ class StatementService extends CoreService implements StatementServiceInterface
 
         // Update Statement with attached files
         $newStatement->setFiles($fileStrings);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function deleteOriginalStatementAttachmentByStatementId(string $statementId): Statement
-    {
-        $statement = $this->getStatement($statementId);
-        if (!$statement instanceof Statement) {
-            throw StatementNotFoundException::createFromId($statementId);
-        }
-        $statement = $this->statementAttachmentService->deleteOriginalAttachment($statement);
-
-        return $this->updateStatementObject($statement);
     }
 
     /**
@@ -563,7 +544,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     public function submitDraftStatement(
         DraftStatement $draftStatement,
         $user,
-        NotificationReceiver $notificationReceiver = null,
+        ?NotificationReceiver $notificationReceiver = null,
         bool $gdprConsentReceived = false
     ) {
         try {
@@ -576,7 +557,11 @@ class StatementService extends CoreService implements StatementServiceInterface
             $this->statementAttributeRepository->copyStatementAttributes($draftStatement, $originalStatement);
 
             // Create a statement copy for the assessment table
-            $assessableStatement = $this->statementCopier->copyStatementObjectWithinProcedure($originalStatement, false);
+            $assessableStatement = $this->statementCopier->copyStatementObjectWithinProcedureWithRelatedFiles(
+                $originalStatement,
+                false,
+                true
+            );
 
             $assessableStatement = $this->postSubmitDraftStatement($assessableStatement, $draftStatement);
 
@@ -617,34 +602,6 @@ class StatementService extends CoreService implements StatementServiceInterface
         }
 
         return $statement;
-    }
-
-    /**
-     * @param array<string, mixed> $properties
-     */
-    public function createPersonAndAddToStatementWithResourceType(array $properties): ResourceChange
-    {
-        $procedure = $properties[$this->similarStatementSubmitterResourceType->procedure->getAsNamesInDotNotation()];
-        $fullName = $properties[$this->similarStatementSubmitterResourceType->fullName->getAsNamesInDotNotation()];
-
-        $submitter = new ProcedurePerson($fullName, $procedure);
-        $change = new ResourceChange($submitter, $this->similarStatementSubmitterResourceType, $properties);
-        $change->addEntityToPersist($submitter);
-
-        $updater = new PropertiesUpdater($properties);
-        $this->updatePersonEditableProperties($updater, $submitter);
-        $updater->ifPresent(
-            $this->similarStatementSubmitterResourceType->similarStatements,
-            static function (Collection $similarStatements) use ($change, $submitter): void {
-                /** @var Statement $statement */
-                foreach ($similarStatements as $statement) {
-                    $statement->getSimilarStatementSubmitters()->add($submitter);
-                }
-                $change->addEntitiesToPersist($similarStatements->getValues());
-            }
-        );
-
-        return $change;
     }
 
     public function updatePersonEditableProperties(PropertiesUpdater $updater, ProcedurePerson $person): void
@@ -748,6 +705,26 @@ class StatementService extends CoreService implements StatementServiceInterface
         }
 
         return $groupStructure;
+    }
+
+    /**
+     * @param non-empty-string $procedureId
+     *
+     * @return array<non-empty-string, non-empty-string>
+     */
+    public function getExternIdsInUse(string $procedureId): array
+    {
+        return $this->statementRepository->getExternIdsInUse($procedureId);
+    }
+
+    /**
+     * @param non-empty-string $procedureId
+     *
+     * @return array<non-empty-string, non-empty-string>
+     */
+    public function getInternIdsInUse(string $procedureId): array
+    {
+        return $this->statementRepository->getInternIdsInUse($procedureId);
     }
 
     /**
@@ -1070,18 +1047,6 @@ class StatementService extends CoreService implements StatementServiceInterface
         return $rParams;
     }
 
-    /**
-     * Will execute various checks and generate an EntityContentChange entry.
-     *
-     * @see https://yaits.demos-deutschland.de/w/demosplan/functions/at_detail_view/ Wiki: Detailseite Stellungnahme/Stellungnahmengruppe
-     *
-     * @param Statement $updatedStatement Statement as object
-     * @param bool      $ignoreAssignment Determines if a assignment statement will be updated regardless
-     * @param bool      $ignoreCluster    Determines if a clustered statement will be updated regardless
-     * @param bool      $ignoreOriginal
-     *
-     * @return statement|false|null if successful: the updated Statement object
-     */
     public function updateStatementFromObject($updatedStatement, $ignoreAssignment = false, $ignoreCluster = false, $ignoreOriginal = false)
     {
         return $this->updateStatement($updatedStatement, $ignoreAssignment, $ignoreCluster, $ignoreOriginal);
@@ -1297,7 +1262,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      * Determines if one of the fields which only can be modified on a manual statement, should be updated.
      *
      * @param statement|array $statement        - Statement as array or object
-     * @param statement       $currentStatement - current unmodified statement object, to compare with incoming update data
+     * @param Statement       $currentStatement - current unmodified statement object, to compare with incoming update data
      *
      * @return bool - true if one of the 'critical' fields should be updated, otherwise false
      */
@@ -1411,8 +1376,8 @@ class StatementService extends CoreService implements StatementServiceInterface
      */
     public function hasCurrentUserStatementAssignWriteRights($statement): bool
     {
-        return !$this->permissions->hasPermission('feature_statement_assignment') ||
-            $this->assignService->isStatementObjectAssignedToCurrentUser($statement);
+        return !$this->permissions->hasPermission('feature_statement_assignment')
+            || $this->assignService->isStatementObjectAssignedToCurrentUser($statement);
     }
 
     /**
@@ -1425,9 +1390,9 @@ class StatementService extends CoreService implements StatementServiceInterface
     protected function isStatementLockedByCluster(Statement $statement, $ignoreCluster = false): bool
     {
         return
-            !$ignoreCluster &&
-            $this->permissions->hasPermission('feature_statement_cluster') &&
-            $statement->isInCluster();
+            !$ignoreCluster
+            && $this->permissions->hasPermission('feature_statement_cluster')
+            && $statement->isInCluster();
     }
 
     /**
@@ -1656,11 +1621,6 @@ class StatementService extends CoreService implements StatementServiceInterface
         return $this->convertToLegacy($statement);
     }
 
-    /**
-     * Get a specific statement as object.
-     *
-     * @param string $statementId identifies the statement
-     */
     public function getStatement($statementId): ?Statement
     {
         try {
@@ -1752,42 +1712,11 @@ class StatementService extends CoreService implements StatementServiceInterface
     }
 
     /**
-     * Löscht eine Stellungnahme nur wenn diese keinem Anwender zugewiesen ist.
-     *
-     * @throws ORMException
-     * @throws OptimisticLockException
-     * @throws UserNotFoundException
-     * @throws \Doctrine\DBAL\Exception
+     * Add user vote to statement.
      */
-    public function deleteStatement(string $statementId, bool $ignoreAssignment = false, bool $ignoreOriginal = false): bool
-    {
-        $statement = $this->statementRepository->get($statementId);
-        if (null === $statement) {
-            $this->getLogger()->warning('Fehler beim Löschen eines Statements: Statement '.$statementId.' nicht gefunden.');
-
-            return false;
-        }
-
-        return $this->statementDeleter->deleteStatementObject($statement, $ignoreAssignment, $ignoreOriginal);
-    }
-
-    /**
-     * Der angemeldete Benutzer zeichnet eine Stellungnahme mit.
-     *
-     * @param string $statementId ID der Stellungnahme
-     *
-     * @return StatementVote|bool
-     */
-    public function addVote($statementId, User $user)
+    public function addVote(string $statementId, User $user): StatementVote|bool
     {
         try {
-            $data = [
-                'statement' => $statementId,
-                'user'      => $user->getId(),
-                'firstName' => $user->getFirstname(),
-                'lastName'  => $user->getLastname(),
-            ];
-
             // only one vote per user per statement
             $vote = $this->statementVoteRepository->findOneBy([
                 'user'      => $user->getId(),
@@ -1796,13 +1725,39 @@ class StatementService extends CoreService implements StatementServiceInterface
                 'active'    => true, ]);
 
             // user already voted this statement?
-            if (null === $vote) {
-                $vote = $this->statementVoteRepository->add($data);
-            }
+            if ($vote instanceof StatementVote) {
+                $this->messageBag->add('error', 'error.statement.marked.voted');
 
-            return $vote;
+                return $vote;
+            }
+            $statement = $this->statementRepository->get($statementId);
+
+            $newVote = new StatementVote();
+            $newVote->setStatement($statement);
+            $newVote->setUser($user);
+            $newVote->setFirstName($user->getFirstname());
+            $newVote->setLastName($user->getLastname());
+            $fullName = $newVote->getFirstName().' '.$newVote->getLastName();
+            $newVote->setUserName($fullName);
+            $newVote->setUserCity($user->getCity());
+            $newVote->setDepartmentName($user->getDepartmentName());
+            $newVote->setOrganisationName($user->getOrgaName());
+            $newVote->setUserMail($user->getEmail());
+            $newVote->setUserPostcode($user->getPostalcode());
+
+            $existingVotes = $statement->getVotes();
+            $existingVotes->add($newVote);
+
+            $statement->setVotes($existingVotes->toArray());
+
+            $this->statementRepository->updateObject($statement);
+
+            $this->messageBag->add('confirm', 'confirm.statement.marked.voted');
+
+            return $newVote;
         } catch (Exception $e) {
             $this->logger->error('Create new StatementVote failed:', [$e]);
+            $this->messageBag->add('error', 'error.statement.marked.voted');
 
             return false;
         }
@@ -1815,7 +1770,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @return StatementLike|false
      */
-    public function addLike($statementId, User $user = null)
+    public function addLike($statementId, ?User $user = null)
     {
         try {
             $em = $this->getDoctrine()->getManager();
@@ -1886,7 +1841,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                     // Legacy wird der Paragraph und nicht ParagraphVersion zurückgegeben!
                     $parentParagraph = $statement['paragraph']->getParagraph();
                     $statement['paragraph'] = $this->entityHelper->toArray($parentParagraph);
-                } catch (Exception $e) {
+                } catch (Exception) {
                     // Einige alte Einträge verweisen möcglicherweise noch nicht auf eine ParagraphVersion
                     $this->logger->error(
                         'No ParagraphVersion found for Id '.DemosPlanTools::varExport($statement['paragraph']->getId(), true)
@@ -2004,27 +1959,27 @@ class StatementService extends CoreService implements StatementServiceInterface
         $em = $this->getDoctrine()->getManager();
         $currentStatement = $this->getStatement($data['ident']);
 
-        if (\array_key_exists('paragraph', $data) && $data['paragraph'] instanceof Paragraph &&
-            $data['paragraph']->getId() != $currentStatement->getParagraphId()) {
+        if (\array_key_exists('paragraph', $data) && $data['paragraph'] instanceof Paragraph
+            && $data['paragraph']->getId() != $currentStatement->getParagraphId()) {
             $data['paragraph'] = $this->paragraphService->createParagraphVersion($data['paragraph']);
         }
         // Wenn das Statement einen Absatz hat lege eine Version an, wenn sich der Absatz verändert hat
-        if (\array_key_exists('paragraphId', $data) &&
-            0 < \strlen((string) $data['paragraphId']) &&
-            $data['paragraphId'] != $currentStatement->getParagraphId()) {
+        if (\array_key_exists('paragraphId', $data)
+            && 0 < \strlen((string) $data['paragraphId'])
+            && $data['paragraphId'] != $currentStatement->getParagraphId()) {
             $data['paragraph'] = $this->paragraphService->createParagraphVersion(
                 $em->getReference(Paragraph::class, $data['paragraphId'])
             );
         }
 
-        if (\array_key_exists('document', $data) && $data['document'] instanceof SingleDocument &&
-            $data['document']->getId() != $currentStatement->getDocumentId()) {
+        if (\array_key_exists('document', $data) && $data['document'] instanceof SingleDocument
+            && $data['document']->getId() != $currentStatement->getDocumentId()) {
             $data['document'] = $this->singleDocumentService->createSingleDocumentVersion($data['document']);
         }
 
-        if (\array_key_exists('documentId', $data) &&
-            0 < \strlen((string) $data['documentId']) &&
-            $data['documentId'] != $currentStatement->getDocumentId()) {
+        if (\array_key_exists('documentId', $data)
+            && 0 < \strlen((string) $data['documentId'])
+            && $data['documentId'] != $currentStatement->getDocumentId()) {
             $data['document'] = $this->singleDocumentService->createSingleDocumentVersion(
                 $em->getReference(SingleDocument::class, $data['documentId'])
             );
@@ -2116,6 +2071,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         foreach ($statements as $statement) {
             $statementsByIds[$statement->getId()] = $statement;
         }
+
         // remove items for statements that were returned by the ES but meanwhile deleted
         // in the database
         return array_filter($statementsByIds, static fn (?Statement $statement) => null !== $statement);
@@ -2186,8 +2142,6 @@ class StatementService extends CoreService implements StatementServiceInterface
     /**
      * @param string $statementId
      *
-     * @return mixed
-     *
      * @deprecated use {@link Statement::isManual()} instead
      */
     public function isManualStatement($statementId)
@@ -2232,8 +2186,11 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @throws Exception
      */
-    public function createElementsGroupStructure(string $procedureId, array $statementsIds, array $fragmentIds): StatementEntityGroup
-    {
+    public function createElementsGroupStructure(
+        string $procedureId,
+        array $statementsIds,
+        array $fragmentIds
+    ): StatementEntityGroup {
         $statements = $this->getStatementsByIds($statementsIds);
         $fragments = $this->statementFragmentRepository->getFragmentsById($fragmentIds);
         $entities = \array_merge($statements, $fragments);
@@ -2301,8 +2258,14 @@ class StatementService extends CoreService implements StatementServiceInterface
             ['getElementId' => $notDividableGroupKeys]
         );
 
-        $noManualSortElementsIds = $this->serviceElements->getHiddenElementsIdsForProcedureId($procedureId);
+        // sort the paragraphs by their order
+        $this->statementEntityGrouper->sortSubgroupsAtDepth(
+            $group,
+            new ParagraphOrderSorter($this->paragraphService),
+            2
+        );
 
+        $noManualSortElementsIds = $this->serviceElements->getHiddenElementsIdsForProcedureId($procedureId);
         // sorting only needed if there are elements to be moved to the end
         if (0 < count($noManualSortElementsIds)) {
             // sort hidden elements to end: sort elements not manually sortable in the admin list (because hidden) at the end
@@ -2466,7 +2429,13 @@ class StatementService extends CoreService implements StatementServiceInterface
     public function collectRequest(array $rParams): array
     {
         return \collect($rParams)->filter(
-            static fn ($value, string $key) => str_starts_with($key, 'r_') && ((\is_string($value) && '' !== $value) || (\is_array($value) && 0 < count($value)))
+            static function ($value, string $key) {
+                if ('r_submitterEmailAddress' === $key) {
+                    return str_starts_with($key, 'r_') && (\is_string($value) || (\is_array($value) && 0 < count($value)));
+                } else {
+                    return str_starts_with($key, 'r_') && ((\is_string($value) && '' !== $value) || (\is_array($value) && 0 < count($value)));
+                }
+            }
         )->mapWithKeys(
             static function ($stringOrArrayValue, string $key) {
                 // Use substr without r_ as key
@@ -4316,7 +4285,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             $statement['pId'] = $data['r_ident'];
         }
 
-//        do not set fileupload if emtpystring, because id '' will not be found and lead to error on add filecontainer
+        //        do not set fileupload if emtpystring, because id '' will not be found and lead to error on add filecontainer
         if (\array_key_exists('fileupload', $data) && '' !== $data['fileupload']) {
             $statement['file'] = $data['fileupload'];
         }
@@ -4571,7 +4540,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             $this->statementResourceType->procedure->id
         );
 
-        return $this->statementResourceType->listEntities([$condition]);
+        return $this->statementResourceType->getEntities([$condition], []);
     }
 
     public function addMissingSortKeys($sort, string $defaultPropertyName, string $defaultDirection): ToBy

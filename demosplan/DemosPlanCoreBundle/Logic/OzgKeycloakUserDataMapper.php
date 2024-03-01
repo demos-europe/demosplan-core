@@ -49,7 +49,7 @@ class OzgKeycloakUserDataMapper
 {
     private KeycloakUserDataInterface $ozgKeycloakUserData;
     private const ROLETITLE_TO_ROLECODE = [
-        // 'Mandanten Administration'          => Role::ORGANISATION_ADMINISTRATION,
+        'Mandanten Administration'          => Role::CUSTOMER_MASTER_USER,
         'Organisationsadministration'       => Role::ORGANISATION_ADMINISTRATION,
         'Fachplanung Planungsbüro'          => Role::PRIVATE_PLANNING_AGENCY,
         // 'Verfahrens-Planungsbüro'           => Role::PRIVATE_PLANNING_AGENCY,
@@ -60,11 +60,10 @@ class OzgKeycloakUserDataMapper
         'Institutions Koordination'         => Role::PUBLIC_AGENCY_COORDINATION,
         'Institutions Sachbearbeitung'      => Role::PUBLIC_AGENCY_WORKER,
         'Support'                           => Role::PLATFORM_SUPPORT,
-        'Plattform Administration'          => Role::CUSTOMER_MASTER_USER,
         'Redaktion'                         => Role::CONTENT_EDITOR,
         'Privatperson-Angemeldet'           => Role::CITIZEN,
         'Fachliche Leitstelle'              => Role::PROCEDURE_CONTROL_UNIT,
-        'Datenerfassung'                    => Role::PROCEDURE_DATA_INPUT
+        'Datenerfassung'                    => Role::PROCEDURE_DATA_INPUT,
     ];
 
     public function __construct(private readonly CustomerService $customerService, private readonly DepartmentRepository $departmentRepository, private readonly EntityManagerInterface $entityManager, private readonly GlobalConfig $globalConfig, private readonly LoggerInterface $logger, private readonly OrgaRepository $orgaRepository, private readonly OrgaService $orgaService, private readonly OrgaTypeRepository $orgaTypeRepository, private readonly RoleRepository $roleRepository, private readonly UserRepository $userRepository, private readonly UserRoleInCustomerRepository $userRoleInCustomerRepository, private readonly UserService $userService, private readonly ValidatorInterface $validator)
@@ -131,10 +130,10 @@ class OzgKeycloakUserDataMapper
         // and an existing user could be found using the given user attributes:
         // If the organisations are different - the assumption is that the user wants to change the orga.
         $moveUserToAnotherOrganisation =
-            null !== $existingUser &&
-            null !== $existingOrga &&
-            null !== $existingUser->getOrga() &&
-            $existingUser->getOrga()->getId() !== $existingOrga->getId();
+            null !== $existingUser
+            && null !== $existingOrga
+            && null !== $existingUser->getOrga()
+            && $existingUser->getOrga()->getId() !== $existingOrga->getId();
 
         if ($moveUserToAnotherOrganisation) {
             $this->detachUserFromOrgaAndDepartment($existingUser);
@@ -216,7 +215,7 @@ class OzgKeycloakUserDataMapper
                 if (!$orgaTypeToAdd instanceof OrgaType) {
                     throw new AuthenticationException('needed OrgaType could not be loaded and therefore cant be added');
                 }
-                $existingOrga->addCustomerAndOrgaType($customer, $orgaTypeToAdd);
+                $existingOrga->addCustomerAndOrgaType($customer, $orgaTypeToAdd, OrgaStatusInCustomer::STATUS_ACCEPTED);
             }
         }
         $this->entityManager->persist($existingOrga);
@@ -426,9 +425,13 @@ class OzgKeycloakUserDataMapper
         $availableRequestedRoles = [];
         foreach ($requestedRoleCodes as $roleCode) {
             if (in_array($roleCode, $this->globalConfig->getRolesAllowed(), true)) {
+                $this->logger->info('try to fetch role entity for role code', [$roleCode]);
                 $availableRequestedRoles[] = $this->roleRepository->findOneBy(['code' => $roleCode]);
+                $this->logger->info('current available requested roles', [$availableRequestedRoles]);
             } else {
+                $this->logger->info('try to fetch role entity for not allowed role code', [$roleCode]);
                 $unavailableRoles[] = $this->roleRepository->findOneBy(['code' => $roleCode]);
+                $this->logger->info('current unavailable requested roles', [$unavailableRoles]);
             }
         }
         if (0 !== count($unavailableRoles)) {

@@ -33,7 +33,7 @@
         //  apply trigger styles only for js capable devices
         html:not(.nojs) & {
             position: relative;
-            z-index: $z-content-above;
+            z-index: $dp-z-above-zero;
 
             cursor: pointer;
         }

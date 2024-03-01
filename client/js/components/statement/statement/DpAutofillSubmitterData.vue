@@ -75,16 +75,17 @@
         label="submitter"
         :options="submitterOptions"
         :placeholder="Translator.trans('choose.search')"
+        :sub-slots="['option', 'singleLabel']"
         track-by="entityId"
         @input="emitSubmitterData">
         <!-- Template for select options -->
           <template v-slot:option="{ props }">
-            <div v-cleanhtml="customOption(props.option, true)" />
+            <span v-cleanhtml="customOption(props.option, true)" />
           </template>
 
           <!-- Template for element that is visible when Multiselect is closed -->
           <template v-slot:singleLabel="{ props }">
-            {{ customSingleLabel(props.option) }}
+            <span v-cleanhtml="customSingleLabel(props.option)" />
           </template>
       </dp-multiselect>
     </div>
@@ -512,11 +513,11 @@ export default {
     //  Display an option for select
     renderOptionWithMarkup ({ organisation, department, name, postalCode, city }, role) {
       if (role === '0') {
-        return `<strong>${organisation}</strong><br><ul class="list-style-none u-mb-0"><li>${name}</li><li>${postalCode} ${city}</li></ul>`
+        return `<strong>${organisation}</strong><br><ul><li>${name}</li><li>${postalCode} ${city}</li></ul>`
       }
 
       if (role === '1') {
-        return `<strong>${organisation}</strong><br><ul class="list-style-none u-mb-0"><li>${department}</li><li>${name}</li></ul>`
+        return `<strong>${organisation}</strong><br><ul><li>${department}</li><li>${name}</li></ul>`
       }
     },
 

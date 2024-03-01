@@ -34,6 +34,7 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PrepareReportFromProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDeleter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
@@ -101,6 +102,7 @@ class AssessmentTableServiceStorage
         private readonly StatementAttachmentService $statementAttachmentService,
         StatementHandler $statementHandler,
         StatementService $statementService,
+        private readonly StatementDeleter $statementDeleter,
         FileService $fileService,
         UserService $userService
     ) {
@@ -267,7 +269,7 @@ class AssessmentTableServiceStorage
 
         if (array_key_exists('delete_file_'.StatementAttachment::SOURCE_STATEMENT, $rParams['request'])) {
             foreach ($rParams['request']['delete_file_'.StatementAttachment::SOURCE_STATEMENT] as $fileId) {
-                $this->statementService->deleteOriginalStatementAttachmentByStatementId($statementArray['ident']);
+                $this->statementDeleter->deleteOriginalStatementAttachmentByStatementId($statementArray['ident']);
             }
         }
 
@@ -422,8 +424,6 @@ class AssessmentTableServiceStorage
     /**
      * check whether user tries to delete metadata from statement that is assigned to its fragments.
      *
-     * @return mixed
-     *
      * @throws MessageBagException
      */
     protected function validateStatementData(array $statementToUpdate)
@@ -491,8 +491,6 @@ class AssessmentTableServiceStorage
     // @improve T14469
 
     /**
-     * @return mixed
-     *
      * @throws MessageBagException
      */
     protected function validateEntityInStatementUpdateData(array $statementToUpdate, Statement $currentStatement, array $entityArray)
@@ -662,7 +660,7 @@ class AssessmentTableServiceStorage
                             $attachmentNames
                         );
                     }
-                // manuell eingegebene Stellungnahme
+                    // manuell eingegebene Stellungnahme
                 } elseif ('' != $statement->getMeta()->getOrgaEmail()) {
                     $successMessageTranslationParams['sent_to'] = 'institution_only';
                     $this->sendDmSchlussmitteilung(
@@ -900,7 +898,7 @@ class AssessmentTableServiceStorage
                 if ($statement->isClusterStatement()) {
                     $statementHandler->resolveCluster($statement);
                 } else {
-                    $success = $this->statementService->deleteStatement($item);
+                    $success = $this->statementDeleter->deleteStatementObject($statement);
                     if ($success) {
                         ++$successful;
                     } else {

@@ -68,7 +68,7 @@ class Role extends CoreEntity implements UuidEntityInterface, RoleInterface, Str
     /**
      * @var Collection<int, UserRoleInCustomerInterface>
      *
-     * @ORM\OneToMany(targetEntity="UserRoleInCustomer", mappedBy="role")
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer", mappedBy="role")
      */
     protected $userRoleInCustomers;
 

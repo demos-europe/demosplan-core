@@ -30,6 +30,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Exception;
 use LogicException;
 use Psr\Log\InvalidArgumentException;
@@ -66,7 +67,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
         ServiceImporter $serviceImport,
         StatementHandler $statementHandler,
         TranslatorInterface $translator
-        ) {
+    ) {
         parent::__construct(
             $assessmentTableServiceOutput,
             $currentProcedureService,
@@ -113,7 +114,20 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             if (!array_key_exists('filters', $parameters) || !is_array($parameters['filters'])) {
                 $parameters['filters'] = [];
             }
-            $parameters = $this->addStatementsFromCurrentQueryHashToFilter($parameters, $procedureId, $original);
+            if (!array_key_exists('statementId', $parameters)) {
+                $parameters = $this->addStatementsFromCurrentQueryHashToFilter($parameters, $procedureId, $original);
+            } else {
+                /*
+                 * in case the key 'statementId' was set by the invoking
+                 * { @link AssessmentTableZipExporter::getAttachmentsOfStatements }
+                 * do not try to obtain the ids from session
+                 */
+                if (!array_key_exists('sort', $parameters)) {
+                    $parameters['sort'] = ToBy::createArray('submitDate', 'desc');
+                }
+                $parameters['items'] = [$parameters['statementId']];
+            }
+
             $fragmentIds = [];
             if (array_key_exists('items', $parameters) && 0 < (is_countable($parameters['items']) ? count($parameters['items']) : 0)) {
                 $parameters['filters']['id'] = [];

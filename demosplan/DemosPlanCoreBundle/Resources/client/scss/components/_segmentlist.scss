@@ -21,7 +21,6 @@ $utility-border-thickness: $dp-border-thickness;
 
     &-row {
         display: flex;
-        border-radius: 4px;
 
         &:not(.segment-list-row--assigned) {
             background-color: $dp-color-white;
@@ -41,7 +40,7 @@ $utility-border-thickness: $dp-border-thickness;
             left: 0;
             top: 0;
             position: fixed;
-            z-index: $z-modal-overlay;
+            z-index: $dp-z-fixed;
             overflow-y: auto;
 
             .tiptap .editor__content {

@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use DirectoryIterator;
 use Exception;
@@ -171,9 +172,9 @@ class DocumentHandler extends CoreHandler
             $fileName = utf8_decode((string) $entry['title']);
             if (in_array($entry['path'], $sessionElementImportList)) {
                 $keys = array_keys($sessionElementImportList, $entry['path']);
-                if (is_array($keys) &&
-                    isset($request[$keys[0]]) &&
-                    0 < strlen((string) $request[$keys[0]])
+                if (is_array($keys)
+                    && isset($request[$keys[0]])
+                    && 0 < strlen((string) $request[$keys[0]])
                 ) {
                     $fileName = $request[$keys[0]];
                 }
@@ -222,7 +223,7 @@ class DocumentHandler extends CoreHandler
                     $singleDocument->setDeleted(false);
                     $singleDocument->setOrder($singleDocumentIndex);
 
-                    $violations = $this->validator->validate($singleDocument, null, ['Default', SingleDocument::IMPORT_CREATION]);
+                    $violations = $this->validator->validate($singleDocument, null, [ResourceTypeService::VALIDATION_GROUP_DEFAULT, SingleDocument::IMPORT_CREATION]);
                     if (0 !== $violations->count()) {
                         throw ViolationsException::fromConstraintViolationList($violations);
                     }
@@ -357,8 +358,8 @@ class DocumentHandler extends CoreHandler
 
         foreach ($outputResultElementList as $element) {
             if ($element->getEnabled()
-                && (ElementsInterface::ELEMENTS_CATEGORY_FILE === $element->getCategory()
-                    || ElementsInterface::ELEMENTS_CATEGORY_PARAGRAPH === $element->getCategory())
+                && (ElementsInterface::ELEMENT_CATEGORIES['file'] === $element->getCategory()
+                    || ElementsInterface::ELEMENT_CATEGORIES['paragraph'] === $element->getCategory())
             ) {
                 $hasProcedureElements = true;
                 break;

@@ -37,7 +37,9 @@
     {% block user_data_hint %}
         <p>
             {% if projectType == 'gateway' %}
-                {{ "explanation.data.user.change"|trans({ href: gatewayURL, label: 'gateway'|trans })|wysiwyg }}
+                {% if not hasPermission('feature_show_notice_draft_statement') %}
+                    {{ "explanation.data.user.change"|trans({ href: gatewayURL, label: 'gateway'|trans })|wysiwyg }}
+                {% endif %}
             {% else %}
                 {{ "explanation.data.user.change.portal"|trans({ url: path('DemosPlan_user_portal'), label: 'profile'|trans })|wysiwyg }}
             {% endif %}
@@ -60,9 +62,9 @@
 
 <h3>{{ "statements.public.submit"|trans }}</h3>
 
-<form action="{{ path(templateVars.actionPath,{'procedure':procedure}) }}" method="post"
-      name="js__publicStatementForm">
+<form action="{{ path(templateVars.actionPath,{'procedure':procedure}) }}" method="post" name="js__publicStatementForm">
     <input name="action" type="hidden" value="confirmSubmitPublicStatement">
+    {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
     {% for statementToSubmitId in templateVars.statementsToSubmitIds %}
         <input name="item_check[]" type="hidden" value="{{ statementToSubmitId }}">
     {% endfor %}

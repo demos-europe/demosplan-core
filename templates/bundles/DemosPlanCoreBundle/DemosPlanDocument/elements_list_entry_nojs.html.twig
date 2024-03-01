@@ -11,7 +11,7 @@
     </div>
     <section>
         {% if element.documents is iterable %}
-            {% for singleDocument in element.documents if singleDocument.visible %}
+            {% for singleDocument in element.documents|filter(singleDocument => singleDocument.visible) %}
                 <p class="u-mb-0" style="padding-left: {{ 24*depth }}px">
                     <i class="fa fa-file-o"></i>
                     <a

@@ -53,7 +53,6 @@ nelmio/security-bundle: MIT
 nesbot/carbon: MIT
 openlss/lib-array2xml: Apache-2.0
 patchwork/utf8: (Apache-2.0 or GPL-2.0)
-phayes/geophp: GPL-2 or New-BSD
 php-amqplib/rabbitmq-bundle: MIT
 php-parallel-lint/php-console-highlighter: MIT
 phpdocumentor/reflection-docblock: MIT
@@ -124,6 +123,7 @@ timeweb/phpstan-enum: MIT
 twig/twig: BSD-3-Clause
 vimeo/psalm: MIT
 weirdan/doctrine-psalm-plugin: MIT
+wgirhad/geophp: GPL-2.0-or-later
 willdurand/geocoder-bundle: MIT
 willdurand/js-translation-bundle: MIT
 wrep/daemonizable-command: MIT
@@ -131,4 +131,4 @@ wsdltophp/packagegenerator: MIT
 yectep/phpspreadsheet-bundle: MIT
 zenstruck/foundry: MIT
 
-As of 24.07.2023 07:03
+As of 10.01.2024 07:03

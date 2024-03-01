@@ -5,10 +5,10 @@
     method="post"
     enctype="multipart/form-data"
     name="statementForm"
-    role="document"
->
+    role="document">
 
     <input type="hidden" name="action" value="{{ hiddenAction }}">
+    {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
     {# field for file upload - probably broken and only needed for nojs scenario. #}
     {% if hasPermission('field_statement_file') %}

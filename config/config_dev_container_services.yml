@@ -1,0 +1,6 @@
+# this file keeps specific services used
+# during development with DEMOS Containers
+services:
+    demosplan\DemosPlanCoreBundle\Tools\DocxImporterInterface: '@demosplan\DemosPlanCoreBundle\Tools\DocxImporterHttp'
+    demosplan\DemosPlanCoreBundle\Tools\PdfCreatorInterface: '@demosplan\DemosPlanCoreBundle\Tools\PdfCreatorHttp'
+    demosplan\DemosPlanCoreBundle\Tools\VirusCheckInterface: '@demosplan\DemosPlanCoreBundle\Tools\VirusCheckHttp'

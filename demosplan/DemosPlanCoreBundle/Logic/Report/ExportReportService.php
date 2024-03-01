@@ -13,14 +13,16 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Report;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
+use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Repository\ReportRepository;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\Exception\Exception;
 use PhpOffice\PhpWord\IOFactory;
-use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+
+use function Symfony\Component\String\u;
 
 class ExportReportService extends CoreService
 {
@@ -77,7 +79,7 @@ class ExportReportService extends CoreService
      */
     public function generateProcedureReport(array $reportInfo, array $reportMeta, string $format = 'PDF')
     {
-        $phpWord = new PhpWord();
+        $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $section = $phpWord->addSection();
 
         $docTitle = $reportMeta['name'].' - '.$this->translator->trans('protocol');
@@ -177,7 +179,7 @@ class ExportReportService extends CoreService
 
         $userName = $reportEntry->getUserName();
         $userCell = $table->addCell($this->styles['userCellWidth']);
-        $userCell->addText($userName, $this->styles['baseFont']);
+        $userCell->addText(u($userName)->normalize()->toString(), $this->styles['baseFont']);
     }
 
     /**

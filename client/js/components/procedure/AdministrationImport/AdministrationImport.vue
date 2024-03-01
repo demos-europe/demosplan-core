@@ -8,35 +8,39 @@
 </license>
 
 <template>
-  <dp-tabs
-    v-if="allComponentsLoaded"
-    :active-id="activeTabId"
-    use-url-fragment
-    @change="setActiveTabId">
-    <dp-tab
-      v-for="(option, index) in availableImportOptions"
-      :key="index"
-      :id="option.name"
-      :label="Translator.trans(option.title)">
-      <slot>
-        <keep-alive>
-          <component
-            class="u-mt"
-            :is="option.name" />
-        </keep-alive>
-      </slot>
-    </dp-tab>
-  </dp-tabs>
+  <div v-if="availableImportOptions.length > 0">
+    <dp-tabs
+      v-if="allComponentsLoaded"
+      :active-id="activeTabId"
+      use-url-fragment
+      @change="setActiveTabId">
+      <dp-tab
+        v-for="(option, index) in availableImportOptions"
+        :key="index"
+        :id="option.name"
+        :label="Translator.trans(option.title)">
+        <slot>
+          <keep-alive>
+            <component
+              class="u-mt"
+              :is="option.name"
+              :csrf-token="csrfToken" />
+          </keep-alive>
+        </slot>
+      </dp-tab>
+    </dp-tabs>
 
-  <dp-loading
-    v-else
-    class="u-mv" />
+    <dp-loading
+      v-else
+      class="u-mv" />
+  </div>
 </template>
 
 <script>
-import { checkResponse, dpRpc, DpLoading, DpTab, DpTabs, hasAnyPermissions } from '@demos-europe/demosplan-ui'
+import { checkResponse, DpLoading, dpRpc, DpTab, DpTabs, hasAnyPermissions } from '@demos-europe/demosplan-ui'
 import AdministrationImportNone from './AdministrationImportNone'
 import ExcelImport from './ExcelImport/ExcelImport'
+import ParticipationImport from './ParticipationImport/ParticipationImport'
 import StatementFormImport from './StatementFormImport/StatementFormImport'
 
 export default {
@@ -48,6 +52,7 @@ export default {
     DpTab,
     DpTabs,
     ExcelImport,
+    ParticipationImport,
     StatementFormImport
   },
 
@@ -63,6 +68,11 @@ export default {
   },
 
   props: {
+    csrfToken: {
+      type: String,
+      required: true
+    },
+
     currentUserId: {
       type: String,
       required: true
@@ -118,6 +128,11 @@ export default {
           name: StatementFormImport.name,
           permissions: ['feature_simplified_new_statement_create'],
           title: 'import.options.form'
+        },
+        {
+          name: ParticipationImport.name,
+          permissions: ['feature_statements_participation_import_excel'],
+          title: 'import.options.participation'
         }
       ].filter((component) => {
         return hasAnyPermissions(component.permissions)
@@ -169,10 +184,11 @@ export default {
   },
 
   mounted () {
-    Promise.allSettled([
-      this.loadComponents('import.tabs'),
-      this.loadComponents('email.import')
-    ])
+    const promises = [this.loadComponents('email.import')]
+    if (hasPermission('feature_import_statement_pdf')) {
+      promises.push(this.loadComponents('import.tabs'))
+    }
+    Promise.allSettled(promises)
       .then(() => {
         this.allComponentsLoaded = true
         this.setActiveTabId()

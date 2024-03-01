@@ -220,7 +220,7 @@ export default {
           },
           relationships: {
             assignee: {
-              data: { type: 'user', id: this.currentUserId }
+              data: { type: 'User', id: this.currentUserId }
             },
             statements: {
               data: unclaimedElements
@@ -236,7 +236,7 @@ export default {
           procedureId: this.procedureId,
           include: ['assignee', 'statements'].join()
         }),
-        data: JSON.stringify(payload)
+        data: payload
       })
         .then(checkResponse)
         .then(response => {
@@ -345,7 +345,7 @@ export default {
         isAllowed = false
       }
 
-      if (this.selectionContainsUnclaimedFragments && hasPermission('area_statements_fragment')) {
+      if (hasPermission('area_statements_fragment') && this.selectionContainsUnclaimedFragments) {
         this.triggerWarning('warning.edit.selection.fragments.not.claimed')
         isAllowed = false
       }

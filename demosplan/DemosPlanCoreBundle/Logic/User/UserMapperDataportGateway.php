@@ -381,8 +381,7 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
         foreach ($this->data['roles'] as $role) {
             $rolesFound = $this->findRole($role['ROLENAME']);
             if (0 === $rolesFound->count()) {
-                $roleFound = $rolesFound->first();
-                $roles[] = $roleFound['role'];
+                $roles[] = $role['ROLENAME'];
                 $this->logger->debug('Unknown Role found', [$role['ROLENAME']]);
             }
         }

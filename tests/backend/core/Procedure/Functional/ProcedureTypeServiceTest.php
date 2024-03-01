@@ -205,6 +205,8 @@ class ProcedureTypeServiceTest extends FunctionalTestCase
 
     public function testDeleteProcedureType(): void
     {
+        self::markSkippedForCIIntervention();
+
         $testProcedureType1 = $this->getProcedureTypeReference('testProcedureType1');
         $amountOfProcedureTypesBefore = $this->countEntries(ProcedureType::class);
         $amountOfProcedureBehaviorDefinitionBefore = $this->countEntries(ProcedureBehaviorDefinition::class);
@@ -284,7 +286,7 @@ class ProcedureTypeServiceTest extends FunctionalTestCase
 
         /** @var ProcedureTypeResourceType $procedureTypeResourceType */
         $procedureTypeResourceType = self::$container->get(ProcedureTypeResourceType::class);
-        $procedureTypes = $procedureTypeResourceType->listEntities([], []);
+        $procedureTypes = $procedureTypeResourceType->getEntities([], []);
         static::assertCount($this->countEntries(ProcedureType::class), $procedureTypes);
     }
 

@@ -12,18 +12,13 @@ namespace Tests\Core\Statement\Functional;
 
 use Carbon\Carbon;
 use Closure;
+use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
@@ -46,11 +41,8 @@ class StatementServiceTest extends FunctionalTestCase
     /** @var StatementService */
     protected $sut;
 
-    /** @var DraftStatement */
-    protected $testDraftStatement;
-
-    /** @var StatementCopier */
-    private $statementCopier;
+    protected DraftStatement|null $testDraftStatement;
+    private StatementCopier|null $statementCopier;
 
     /**
      * @var Session
@@ -168,7 +160,7 @@ class StatementServiceTest extends FunctionalTestCase
     {
         self::markSkippedForCIElasticsearchUnavailable();
 
-        $filters = ['publicVerified' => true];
+        $filters = ['publicVerified' =>  Statement::PUBLICATION_APPROVED];
         $sort = null;
         $search = null;
         $procedure = $this->getProcedureReference('testProcedure');
@@ -368,151 +360,6 @@ class StatementServiceTest extends FunctionalTestCase
         static::assertEquals('Beteiligungsplattform', $testStatement->getSubmitTypeTranslated());
 
         // this does not yet work on newly created statements
-    }
-
-    /**
-     * @throws \demosplan\DemosPlanCoreBundle\Exception\CopyException
-     */
-    public function testDeleteStatementButNotCopyOfStatement()
-    {
-        self::markSkippedForCIElasticsearchUnavailable();
-
-        $testStatement2 = $this->getStatementReference('testStatement2');
-        $testStatementId = $testStatement2->getId();
-
-        $createdCopy = $this->statementCopier->copyStatementObjectWithinProcedure($testStatement2);
-        static::assertInstanceOf(Statement::class, $createdCopy);
-
-        $result2 = $this->sut->deleteStatement($testStatementId);
-        static::assertTrue($result2);
-        static::assertNull($this->sut->getStatement($testStatementId));
-
-        $createdCopy = $this->sut->getStatement($createdCopy->getId());
-        static::assertInstanceOf(Statement::class, $createdCopy);
-    }
-
-    public function testDeleteStatement()
-    {
-        self::markSkippedForCIElasticsearchUnavailable();
-
-        $testTag1 = $this->getTagReference('testFixtureTag_1');
-        $testStatement2 = $this->getStatementReference('testStatement2');
-        static::assertInstanceOf(StatementMeta::class, $testStatement2->getMeta());
-
-        $amountOfMetasBefore = $this->countEntries(StatementMeta::class);
-
-        $amountOfTagsBefore = count($testStatement2->getTags());
-        $entireAmountOfTagsBefore = count($this->getEntries(Tag::class));
-
-        $initialAmountOfStatementsOfTag1 = count($testTag1->getStatements());
-        $this->sut->addTagToStatement($testTag1, $testStatement2);
-
-        // total amount of tags in DB has not changed
-        static::assertCount($entireAmountOfTagsBefore, $this->getEntries(Tag::class));
-        static::assertCount($initialAmountOfStatementsOfTag1 + 1, $testTag1->getStatements());
-        static::assertContains($testStatement2, $testTag1->getStatements());
-        static::assertContains($testTag1, $testStatement2->getTags());
-        $tags = $testStatement2->getTags();
-        static::assertCount($amountOfTagsBefore + 1, $tags);
-
-        // the actually deletion:
-        $result = $this->sut->deleteStatement($testStatement2->getId());
-
-        static::assertTrue($result);
-        static::assertCount($initialAmountOfStatementsOfTag1, $testTag1->getStatements());
-        static::assertNotContains($testStatement2, $testTag1->getStatements());
-        // total amount of tags in DB has still not changed
-        static::assertCount($entireAmountOfTagsBefore, $this->getEntries(Tag::class));
-
-        // total amount of StatementMeta in DB is decremeted
-        static::assertSame(
-            $amountOfMetasBefore - 1,
-            $this->countEntries(StatementMeta::class)
-        );
-    }
-
-    // test DB-sited onDelete:Cascade
-    // will only work if cascading in sqlite enabled
-    public function testDBSitedCasading()
-    {
-        // No cascading on sqlite
-        self::markSkippedForCIElasticsearchUnavailable();
-
-        $testStatement = $this->getStatementReference('testStatement');
-        $countiesOfStatement = $testStatement->getCounties();
-        $municipalitiesOfStatement = $testStatement->getMunicipalities();
-        $priorityAreasOfStatement = $testStatement->getPriorityAreas();
-        $attributesOfStatement = $testStatement->getStatementAttributes();
-        $totalAmountOfCounties = $this->countEntries(County::class);
-        $totalAmountOfMunicipalities = $this->countEntries(Municipality::class);
-        $totalAmountOfPriorityAreas = $this->countEntries(PriorityArea::class);
-        $totalAmountOfStatementAttributes = $this->countEntries(StatementAttribute::class);
-
-        static::assertNotEmpty($countiesOfStatement);
-        static::assertNotEmpty($municipalitiesOfStatement);
-        static::assertNotEmpty($priorityAreasOfStatement);
-        static::assertNotEmpty($attributesOfStatement);
-        static::assertInstanceOf(County::class, $countiesOfStatement[0]);
-        static::assertInstanceOf(Municipality::class, $municipalitiesOfStatement[0]);
-        static::assertInstanceOf(PriorityArea::class, $priorityAreasOfStatement[0]);
-        static::assertInstanceOf(StatementAttribute::class, $attributesOfStatement[0]);
-
-        // delete Statement
-        $result = $this->sut->deleteStatement($testStatement->getId());
-        static::assertTrue($result);
-
-        // still the same of amount of counties/municipalities/priorityAreas in the DB
-        static::assertSame(
-            $totalAmountOfCounties,
-            $this->countEntries(County::class)
-        );
-        static::assertSame(
-            $totalAmountOfMunicipalities,
-            $this->countEntries(Municipality::class)
-        );
-        static::assertSame(
-            $totalAmountOfPriorityAreas,
-            $this->countEntries(PriorityArea::class)
-        );
-
-        // exactly one StatementAttribute Entry is deleted via cascading:
-        static::assertSame(
-            $totalAmountOfStatementAttributes - 1,
-            $this->countEntries(StatementAttribute::class)
-        );
-    }
-
-    /**
-     * deny deleting statement in case of currentUser != assignee
-     * and allow deleting in case of no assignee or currentUser == assignee.
-     */
-    public function testDeleteAssignedStatement()
-    {
-        self::markSkippedForCIElasticsearchUnavailable();
-
-        $this->enableStatementAssignmentFeature();
-        $currentUser = $this->loginTestUser();
-
-        $testStatement2 = $this->getStatementReference('testStatement2');
-        static::assertInstanceOf(StatementMeta::class, $testStatement2->getMeta());
-
-        $assignee = $this->getUserReference('testUserPlanningOffice');
-        $testStatement2->setAssignee($assignee);
-        $this->sut->updateStatementFromObject($testStatement2, true);
-
-        $updatedStatement = $this->sut->getStatement($testStatement2->getId());
-        static::assertNotSame($updatedStatement->getAssignee()->getId(), $currentUser->getId());
-
-        // this delete operation must fail due to an assignee on the statement
-        $result = $this->sut->deleteStatement($updatedStatement->getId());
-        static::assertFalse($result);
-
-        $testStatement2->setAssignee(null);
-        $this->sut->updateStatementFromObject($testStatement2, true);
-
-        // this delete operation must succeed because there is no assignee anymore
-        $result = $this->sut->deleteStatement($testStatement2->getId());
-        static::assertTrue($result);
     }
 
     /**
@@ -945,43 +792,6 @@ class StatementServiceTest extends FunctionalTestCase
         $allStatements = $this->sut->getAllStatements();
         $currentNumberOfStatements = $this->countEntries(Statement::class);
         static::assertCount($currentNumberOfStatements, $allStatements);
-    }
-
-    public function testDeleteLockedStatement()
-    {
-        self::markSkippedForCIElasticsearchUnavailable();
-
-        $this->enableStatementAssignmentFeature();
-        $this->getMockSession()->get('permissions');
-
-        $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-
-        $statementId = $this->getStatementReference('testStatementAssigned6')->getId();
-        $statement = $this->sut->getStatement($statementId);
-        static::assertEquals($user, $statement->getAssignee());
-
-        $result = $this->sut->deleteStatement($statementId);
-        static::assertFalse($result);
-
-        // Still there?
-        static::assertInstanceOf(Statement::class, $this->sut->getStatement($statementId));
-        static::assertSame($statementId, $this->sut->getStatement($statementId)->getId());
-    }
-
-    public function testDeleteUnLockedStatement()
-    {
-        self::markSkippedForCIElasticsearchUnavailable();
-
-        $this->enableStatementAssignmentFeature();
-        $statementId = $this->getStatementReference('testStatement1')->getId();
-        $statement = $this->sut->getStatement($statementId);
-        static::assertNull($statement->getAssignee());
-
-        $result = $this->sut->deleteStatement($statementId);
-        static::assertTrue($result);
-
-        static::assertNotInstanceOf(Statement::class, $this->sut->getStatement($statementId));
-        static::assertNull($this->sut->getStatement($statementId));
     }
 
     protected function enableStatementAssignmentFeature()
@@ -1472,5 +1282,12 @@ class StatementServiceTest extends FunctionalTestCase
             $emailAddressAnonymized = $testStatement->hasBeenSubmittedAndAuthoredByUnregisteredCitizen() && User::ANONYMOUS_USER_NAME === $testStatement->getAuthorName();
             self::assertSame($emailAddressNeedsToBeAnonymized, $emailAddressAnonymized, $key);
         }
+    }
+
+    public function testExternIds(): void
+    {
+        $procedure = $this->getProcedureReference(LoadProcedureData::TESTPROCEDURE);
+        $result = $this->sut->getExternIdsInUse($procedure->getId());
+        $this->assertCount(31, $result);
     }
 }

@@ -16,12 +16,12 @@
       class="overflow-visible">
       <table :aria-label="Translator.trans('statement')">
         <colgroup>
-          <col class="width-10p">
-          <col class="width-10p text-left">
+          <col class="w-[10%]">
+          <col class="w-[10%] text-left">
           <col
             span="3"
-            class="width-25p">
-          <col class="width-5p text-right">
+            class="w-1/4">
+          <col class="w-[5%] text-right">
         </colgroup>
         <thead>
           <tr class="hide-visually">
@@ -91,7 +91,7 @@
           <h3 class="font-size-medium weight--bold">
             {{ Translator.trans('statementtext') }}
           </h3>
-          <dp-height-limit
+          <height-limit
             :short-text="!statement.shortText ? statement.text : statement.shortText"
             :full-text="statement.text"
             :is-shortened="statement.textIsTruncated"
@@ -118,7 +118,7 @@
               rel="noopener"
               class="o-hellip"
               :class="statement.files.length > 0 ? 'border--right border-color--grey-light u-mr-0_5 u-pr-0_5' : ''"
-              :href="Routing.generate('core_file', { hash: statement.sourceAttachment.hash })">
+              :href="Routing.generate('core_file_procedure', { hash: statement.sourceAttachment.hash, procedureId: procedureId })">
               {{ statement.sourceAttachment.filename }}
             </a>
 
@@ -129,7 +129,7 @@
               target="_blank"
               rel="noopener"
               class="o-hellip"
-              :href="Routing.generate('core_file', { hash: file.hash })">
+              :href="Routing.generate('core_file_procedure', { hash: file.hash, procedureId: procedureId })">
               {{ file.filename }}
             </a>
           </div>
@@ -189,18 +189,18 @@ import {
   CleanHtml,
   dpApi,
   DpFlyout,
-  DpHeightLimit,
   formatDate,
   hasOwnProp
 } from '@demos-europe/demosplan-ui'
 import { mapGetters, mapMutations, mapState } from 'vuex'
+import HeightLimit from '@DpJs/components/statement/HeightLimit'
 
 export default {
   name: 'OriginalStatementsTableItem',
 
   components: {
     DpFlyout,
-    DpHeightLimit
+    HeightLimit
   },
 
   directives: {
@@ -241,16 +241,15 @@ export default {
 
     element () {
       let elementTitle = ''
+      const element = this.statement.elementId ? this.elements.find((el) => el.id === this.statement.elementId) : null
 
-      if (hasOwnProp(this.statement, 'elements') && this.statement.elements.title !== '') {
-        elementTitle = this.statement.elements.title
+      if (element && element.title !== '') {
+        elementTitle = element.title
         if (hasOwnProp(this.statement, 'document') && this.statement.document.title !== '') {
           elementTitle += ` / ${this.statement.document.title}`
         }
       } else {
-        const element = this.statement.elementId ? this.elements.find((el) => el.id === this.statement.elementId) : null
-
-        elementTitle = element ? element.title : Translator.trans('notspecified')
+        elementTitle = Translator.trans('notspecified')
       }
 
       if (hasOwnProp(this.statement, 'paragraph')) {

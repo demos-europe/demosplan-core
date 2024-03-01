@@ -36,7 +36,7 @@ import { addProjection, Projection, transform } from 'ol/proj'
 import { Attribution, FullScreen, MousePosition, OverviewMap, ScaleLine } from 'ol/control'
 import { Circle, Fill, Stroke, Style } from 'ol/style'
 import { defaults as defaultInteractions, DragZoom, Draw } from 'ol/interaction'
-import { dpApi, DpAutocomplete, externalApi, formatDate, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { dpApi, DpAutocomplete, formatDate, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { Circle as GCircle, LineString as GLineString, Polygon as GPolygon } from 'ol/geom'
 import { GeoJSON, WMTSCapabilities } from 'ol/format'
 import { getArea, getLength } from 'ol/sphere'
@@ -587,57 +587,9 @@ export default {
     },
 
     createLayerSource (layer) {
-      let options
-      let source
-      let url
-      const serviceType = layer.attributes.serviceType
-
-      // We have to create this temporaryProjection to be able to get extent that will be used as origin for WMS TileGrid
-      const projectionLabel = layer.attributes.projectionLabel || window.dplan.defaultProjectionLabel
-      const projection = new Projection({
-        code: projectionLabel,
-        units: this.projectionUnits,
-        extent: transform(this.mapProjectionExtent, 'EPSG:3857', projectionLabel)
-      })
-
-      if (serviceType === 'wmts') {
-        const layerArray = Array.isArray(layer.attributes.layers) ? layer.attributes.layers : layer.attributes.layers.split(',')
-        const url = this.addGetCapabilityParamToUrl(layer.attributes.url)
-        externalApi(url)
-          .then(response => {
-            const result = this.parser.read(response.data)
-            options = optionsFromCapabilities(result, {
-              layer: layerArray[0] || '',
-              matrixSet: layer.attributes.tileMatrixSet
-            })
-
-            source = new WMTS({ ...options, layers: layerArray })
-          })
-      } else if (serviceType === 'wms') {
-        // @TODO find out why 'SERVICE=WMS&' is added twice to url
-        url = layer.attributes.url ? layer.attributes.url : null
-        if (url) {
-          //  Remove everything from the beginning to first match of `SERVICE` - if the term is found in string
-          const indexOfService = url.indexOf('SERVICE')
-          if (indexOfService > 0) {
-            url = url.slice(0, indexOfService)
-          }
-        }
-
-        source = new TileWMS({
-          url: url,
-          params: {
-            LAYERS: layer.attributes.layers || '',
-            FORMAT: 'image/png',
-            VERSION: layer.attributes.layerVersion || '1.3.0'
-          },
-          projection: layer.attributes.projectionLabel || window.dplan.defaultProjectionLabel,
-          tileGrid: new TileGrid({
-            origin: getTopLeft(projection.getExtent()),
-            resolutions: this.resolutions
-          })
-        })
-      }
+      const source = (layer.attributes.serviceType === 'wmts')
+        ? this.getWMTSSource(layer)
+        : this.getWMSSource(layer)
 
       this.bindLoadingEvents(source)
 
@@ -882,10 +834,11 @@ export default {
           //  Add progress indicator (.o-spinner on same element required)
           $popup.find('#popupContent h3').addClass(this.prefixClass('is-progress'))
 
-          dpApi.get(Routing.generate('DemosPlan_map_get_feature_info', { procedure: this.procedureId }), getData)
+          dpApi.get(Routing.generate('DemosPlan_map_get_feature_info', { procedure: this.procedureId }), getData, { serialize: true })
             .then(response => {
-              if (response.data.code === 100 && response.data.success) {
-                if (response.data.body !== null) {
+              const parsedData = JSON.parse(response.data)
+              if (parsedData.code === 100 && parsedData.success) {
+                if (parsedData.body !== null) {
                   let popupContent = ''
 
                   //  In Robob, do not show full response body
@@ -901,7 +854,7 @@ export default {
                       popupContent = this.addXMLPartToString(xmlResponse, xmlNeedle, popupContent)
                     }
                   } else {
-                    popupContent = response.data.body
+                    popupContent = parsedData.body
                   }
 
                   if (popupContent.length === 0 || popupContent.match(/<table[^>]*?>[\s\t\n\r↵]*<\/table>/mg) !== null) {
@@ -1580,11 +1533,65 @@ export default {
 
       for (; i < l; i++) {
         layer = allLayers[i]
-        if (layer.attributes.type === type) {
+        if (layer.attributes.layerType === type) {
           layers.push(layer)
         }
       }
       return layers
+    },
+
+    getWMTSSource (layer) {
+      const layerArray = Array.isArray(layer.attributes.layers) ? layer.attributes.layers : layer.attributes.layers.split(',')
+      const url = this.addGetCapabilityParamToUrl(layer.attributes.url)
+
+      return $.ajax({
+        dataType: 'xml',
+        url: url || '',
+        async: false,
+        success: response => {
+          const result = this.parser.read(response)
+          const options = optionsFromCapabilities(result, {
+            layer: layerArray[0] || '',
+            matrixSet: layer.attributes.tileMatrixSet
+          })
+
+          return new WMTS({ ...options, layers: layerArray })
+        }
+      })
+    },
+
+    getWMSSource (layer) {
+      // @TODO find out why 'SERVICE=WMS&' is added twice to url
+      let url = layer.attributes.url || null
+      if (url) {
+        //  Remove everything from the beginning to first match of `SERVICE` - if the term is found in string
+        const indexOfService = url.indexOf('SERVICE')
+        if (indexOfService > 0) {
+          url = url.slice(0, indexOfService)
+        }
+      }
+
+      // We have to create this temporaryProjection to be able to get extent that will be used as origin for WMS TileGrid
+      const projectionLabel = layer.attributes.projectionLabel || window.dplan.defaultProjectionLabel
+      const projection = new Projection({
+        code: projectionLabel,
+        units: this.projectionUnits,
+        extent: transform(this.mapProjectionExtent, 'EPSG:3857', projectionLabel)
+      })
+
+      return new TileWMS({
+        url: url,
+        params: {
+          LAYERS: layer.attributes.layers || '',
+          FORMAT: 'image/png',
+          VERSION: layer.attributes.layerVersion || '1.3.0'
+        },
+        projection: layer.attributes.projectionLabel || window.dplan.defaultProjectionLabel,
+        tileGrid: new TileGrid({
+          origin: getTopLeft(projection.getExtent()),
+          resolutions: this.resolutions
+        })
+      })
     },
 
     getXMLPart (xml, needle) {
@@ -1767,7 +1774,6 @@ export default {
     },
 
     redrawMap () {
-      const map = this.map
       this.map.updateSize()
       this.map.getView().fit(this.initialExtent, this.map.getSize())
     },
@@ -1910,7 +1916,6 @@ export default {
         extent: this.maxExtent,
         minResolution: resolutions[(resolutions.length - 1)],
         maxResolution: resolutions[0],
-        constrainOnlyCenter: true,
         constrainResolution: true
       })
     },

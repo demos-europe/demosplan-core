@@ -94,7 +94,7 @@
 
         &.is-open {
             display: block;
-            z-index: $z-fixed;
+            z-index: $dp-z-flyout;
         }
 
         // make these o-btn--link

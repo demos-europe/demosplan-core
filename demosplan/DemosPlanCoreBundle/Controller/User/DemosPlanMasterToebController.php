@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Exception\SubmittedStatementsOnMergeOrganisationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
@@ -87,6 +88,7 @@ class DemosPlanMasterToebController extends BaseController
         $response = [
             'code'    => 100,
             'success' => true, ];
+
         // return result as JSON
         return new Response(Json::encode($response));
     }
@@ -149,6 +151,7 @@ class DemosPlanMasterToebController extends BaseController
             'code'              => 100,
             'success'           => true,
             'hasNewReportEntry' => $hasNewReportEntry, ];
+
         // return result as JSON
         return new JsonResponse($response);
     }
@@ -198,6 +201,7 @@ class DemosPlanMasterToebController extends BaseController
                     'code'    => 101,
                     'success' => true, ];
             }
+
             // return result as JSON
             return new Response(Json::encode($response));
         } catch (HttpException $e) {
@@ -212,6 +216,7 @@ class DemosPlanMasterToebController extends BaseController
                     // return default result as JSON
                     return $this->handleAjaxError($e);
             }
+
             // return result as JSON
             return new Response(Json::encode($response));
         }
@@ -234,6 +239,7 @@ class DemosPlanMasterToebController extends BaseController
         $response = [
             'code'    => 100,
             'success' => true, ];
+
         // return result as JSON
         return new Response(Json::encode($response));
     }
@@ -447,10 +453,16 @@ class DemosPlanMasterToebController extends BaseController
             $masterToebId = $requestPost->get('r_orga_mastertoeb');
 
             if ((0 < strlen((string) $organisationId)) && (0 < strlen((string) $masterToebId))) {
-                $mergeResult = $masterToebListService->mergeOrganisations($organisationId, $masterToebId);
-                // Generiere eine Erfolgsmeldung
-                if ($mergeResult) {
-                    $this->getMessageBag()->add('confirm', 'confirm.merge.success');
+                try {
+                    $mergeResult = $masterToebListService->mergeOrganisations($organisationId, $masterToebId);
+
+                    // Generiere eine Erfolgsmeldung
+                    if ($mergeResult) {
+                        $this->getMessageBag()->add('confirm', 'confirm.merge.success');
+                    }
+                } catch (SubmittedStatementsOnMergeOrganisationsException $exception) {
+                    $this->logger->warning($exception->getMessage(), ['exception' => $exception]);
+                    $this->getMessageBag()->add('error', 'error.organisation.merge.statements.existing');
                 }
             } else {
                 // Generiere eine Fehlermeldung

@@ -1475,9 +1475,9 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
     }
 
     /**
-     * @return string|null returns the title of the parent paragraph (the paragraph of the paragraph version)
+     * @return string returns the title of the parent paragraph (the paragraph of the paragraph version)
      */
-    public function getParagraphParentTitle()
+    public function getParagraphParentTitle(): string
     {
         if (null === $this->paragraphParentTitle && $this->paragraph instanceof ParagraphVersionInterface) {
             $parentTitle = null;
@@ -1487,7 +1487,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
             $this->paragraphParentTitle = $parentTitle;
         }
 
-        return trim($this->paragraphParentTitle);
+        return trim($this->paragraphParentTitle ?? '');
     }
 
     /**
@@ -1569,12 +1569,12 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
     public function getParagraphParentTitleOrDocumentParentTitle(): ?string
     {
         $title = $this->getParagraphParentTitle();
-        if (null !== $title && '' !== $title) {
+        if ('' !== $title) {
             return $title;
         }
 
         $title = $this->getDocumentParentTitle();
-        if (null !== $title && '' !== $title) {
+        if ('' !== $title) {
             return $title;
         }
 
@@ -1596,19 +1596,14 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
         return $documentId;
     }
 
-    // @improve T13720
-
-    /**
-     * @return string|null
-     */
-    public function getDocumentParentTitle()
+    public function getDocumentParentTitle(): string
     {
-        $documentTitle = null;
+        $documentTitle = '';
         if ($this->document instanceof SingleDocumentVersionInterface) {
             $documentTitle = $this->document->getSingleDocument()->getTitle();
         }
 
-        return $documentTitle;
+        return trim($documentTitle);
     }
 
     public function setCreated(DateTime $created)

@@ -12,11 +12,15 @@
 
             {# Pager #}
             <form class="layout__item u-4-of-6 u-mt-0_5" action="{{ path("DemosPlan_statement_fragment_list_fragment_archived_reviewer", {}) }}" method="post">
+                {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
                 {{ macros.pager( templateVars|default() ) }}
             </form>
 
             {# Bulk actions + Filters #}
             <form action="{{ path("DemosPlan_statement_fragment_list_fragment_archived_reviewer", {}) }}" method="post">
+                {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
                 {% include '@DemosPlanCore/DemosPlanStatement/includes/fragment_list_filter.html.twig' with { 'backpath' : 'DemosPlan_statement_fragment_list_fragment_archived_reviewer' } %}
             </form>
         </header>
@@ -33,6 +37,8 @@
 
             {# Pager #}
             <form class="layout__item u-1-of-1 u-mt-0_5" action="{{ path("DemosPlan_statement_fragment_list_fragment_reviewer", {}) }}" method="post">
+                {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
                 {{ macros.pager( templateVars|default() ) }}
             </form>
 

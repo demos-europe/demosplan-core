@@ -20,8 +20,8 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Map\MapLayer;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayer;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayerTile;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayerTilePosition;
+use geoPHP\Geometry\Point;
 use Intervention\Image\ImageManager;
-use Point;
 use Tests\Base\UnitTestCase;
 use Tightenco\Collect\Support\Collection;
 

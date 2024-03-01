@@ -255,7 +255,7 @@ class GetFeatureInfo
                 $return = preg_replace('|<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>|mi', '', $return);
                 // Ersetze h2 durch h4
                 $return = preg_replace('|h2>|', 'h4>', $return);
-                $return = strip_tags($return, '<h4><table><tr><th><td><strong><b>');
+                $return = strip_tags($return, '<h4><table><tr><th><td><strong><b><a>');
             }
         }
 
@@ -293,11 +293,11 @@ class GetFeatureInfo
                 break;
             case 'vorranggebietId':
                 $featureInfoUrl = $this->getUrl2();
-//                http://geodienstewindstage.bob-sh.de/robob/services/wms_vorranggebiete
+                //                http://geodienstewindstage.bob-sh.de/robob/services/wms_vorranggebiete
 
                 $query['LAYERS'] = $this->getUrl2Layer();
                 $query['QUERY_LAYERS'] = $this->getUrl2Layer();
-//                vorranggebiete,potentialflaechen
+                //                vorranggebiete,potentialflaechen
 
                 $versionString = $this->getUrl2VersionString();
                 // ""
@@ -381,8 +381,6 @@ class GetFeatureInfo
     /** Setze den Request ab.
      * @param string $path
      * @param array  $data
-     *
-     * @return mixed
      *
      * @throws Exception
      */

@@ -85,7 +85,8 @@ class CustomerService
     }
 
     /**
-     * @return list<array{0: string, 1: string}> list of tuples with the first entry being the name and the second one being the subdomain
+     * @return list<array{0: string, 1: string}> list of tuples with the first entry being the name
+     *                                           and the second one being the subdomain
      */
     public function getReservedCustomerNamesAndSubdomains(): array
     {

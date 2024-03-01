@@ -9,6 +9,7 @@
         class="{{ 'c-proceduresearch__filter relative flow-root u-pr'|prefixClass }}"
         action="{{ path('core_home') }}"
         method="post">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         {% set shouldDisplayArsFilterHeader = templateVars.searchResultsHeader is defined and templateVars.searchResultsHeader != '' and (templateVars.ars is defined or templateVars.gkz != '') %}
 

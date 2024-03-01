@@ -13,17 +13,18 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
-        -   uses: styfle/cancel-workflow-action@0.11.0
+        -   uses: styfle/cancel-workflow-action@0.12.1
             with:
                 workflow_id: "reviewdog"
                 access_token: ${{ secrets.GITHUB_TOKEN }}
 
   reviewdog:
     runs-on: ubuntu-20.04
+    if: github.event.pull_request.draft == false
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: reviewdog/action-setup@v1.0.5
+      - uses: reviewdog/action-setup@v1.2.0
 
       - name: Setup PHP with composer v2
         uses: shivammathur/setup-php@v2
@@ -33,7 +34,7 @@ jobs:
           tools: composer:v2
 
       - name: Cache php modules
-        uses: actions/cache@v3.3.1
+        uses: actions/cache@v3.3.3
         with:
           path: |
             ~/.composer/cache
@@ -43,7 +44,7 @@ jobs:
             ${{ runner.os }}-build-php-${{ hashFiles('**/composer.lock') }}
 
       - name: Miscellaneous runtime caches
-        uses: actions/cache@v3.3.1
+        uses: actions/cache@v3.3.3
         with:
           path: |
             config/.runtime/cache

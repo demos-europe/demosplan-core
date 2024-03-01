@@ -12,6 +12,7 @@
     $dp-toggle-box-shadow-color: rgb(0 0 0 / 10%);
 
     &-wrapper {
+        isolation: isolate;
         display: inline-block;
         position: relative;
         cursor: pointer;
@@ -51,12 +52,12 @@
 
     &-disabled {
         position: absolute;
+        z-index: $dp-z-above-zero; // Move element above toggle control
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
         background-color: rgb(255 255 255 / 40%);
-        z-index: 1001;
         cursor: not-allowed;
     }
 }

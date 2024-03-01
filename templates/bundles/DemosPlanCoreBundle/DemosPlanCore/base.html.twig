@@ -9,7 +9,7 @@
 
 {# set login url - override in bobhh which treats users from intranet differently #}
 {% block login_path %}
-    {{ setStaticVariable('login_path', gatewayURL) }}
+    {{ setLoginPath(gatewayURL) }}
 {% endblock login_path %}
 
 {% import "@DemosPlanCore/macros.html.twig" as partial %}
@@ -59,10 +59,10 @@
                 <nav class="c-jumpnav" aria-labelledby="jumpToLabel" tabindex="-1" role="navigation">
                     <span class="hide-visually" id="jumpToLabel" aria-hidden="true">{{ "jumpTo"|trans }}</span>
                     <ul class="u-m-0 u-p-0">
-                        <li class="list-style-none">
+                        <li>
                             <a href="#jumpNavigation">{{ 'jumpTo.mainNavigation'|trans }}</a>
                         </li>
-                        <li class="list-style-none">
+                        <li>
                             <a href="#jumpContent">{{ 'jumpTo.mainContent'|trans }}</a>
                         </li>
                         {% block a11y_jump_markers %}{% endblock a11y_jump_markers %}
@@ -109,7 +109,7 @@
                         {# Name of procedure #}
                         <div class="flow-root border--top">
                             {% if proceduresettings.name|default != '' %}
-                                <span class="o-hellip--nowrap color--grey inline-block u-pt-0_5 u-mb-0_25 u-pr-2">
+                                <span class="color--grey inline-block u-pt-0_5 u-mb-0_25">
                                     {{ proceduresettings.name|default }}
                                 </span>
                             {% else %}

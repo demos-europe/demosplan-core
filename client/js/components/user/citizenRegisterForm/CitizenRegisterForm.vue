@@ -64,16 +64,15 @@
             data-cy="gdpr_consent"
             :class="prefixClass('u-mb-0_5')"
             :label="{
-              text: Translator.trans('confirm.gdpr.consent.registration.new', { terms: Routing.generate('DemosPlan_misccontent_static_terms'), dataprotectionUrl: Routing.generate('DemosPlan_misccontent_static_dataprotection') })
+              text: Translator.trans('confirm.gdpr.consent.registration', { terms: Routing.generate('DemosPlan_misccontent_static_terms'), dataprotectionUrl: Routing.generate('DemosPlan_misccontent_static_dataprotection'), projectName: dplan.projectName })
             }"
             name="gdpr_consent"
             required
             value="on" />
-          <dp-input
-            id="_csrf_token"
+          <input
             name="_csrf_token"
             type="hidden"
-            :value="csrfToken" />
+            :value="csrfToken">
           <dp-button
             :class="prefixClass('u-mt-0_5 u-mb-0_25')"
             data-cy="submit"
@@ -90,7 +89,7 @@
           v-text="Translator.trans('login.other_account')" />
         <p
           :class="prefixClass('u-mb-0_125')"
-          v-html="Translator.trans('register.saml.citizen.description')" />
+          v-html="Translator.trans('register.saml.citizen.description', { projectName: dplan.projectName })" />
         <dp-button
           :href="samlLoginPath"
           :text="Translator.trans('login.saml.action')"

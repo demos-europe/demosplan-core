@@ -83,16 +83,8 @@ postcss: MIT
 postcss-flexbugs-fixes: MIT
 postcss-loader: MIT
 postcss-prefix-selector: MIT
-postcss-preset-env: CC0-1.0
+postcss-preset-env: MIT-0
 proj4: MIT
-prosemirror-history: MIT
-prosemirror-model: MIT
-prosemirror-schema-basic: MIT
-prosemirror-schema-list: MIT
-prosemirror-state: MIT
-prosemirror-tables: MIT
-prosemirror-utils: Apache-2.0
-prosemirror-view: MIT
 purgecss-webpack-plugin: MIT
 qs: BSD-3-Clause
 raf: MIT
@@ -111,7 +103,6 @@ tailwindcss: MIT
 terser-webpack-plugin: MIT
 timers-browserify: MIT
 tippy.js: MIT
-tooltip.js: MIT
 util: MIT
 uuid: MIT
 vue: MIT
@@ -132,4 +123,4 @@ webpack-hot-middleware: MIT
 webpack-manifest-plugin: MIT
 webpack-merge: MIT
 
-As of 24.07.2023 07:03
+As of 10.01.2024 07:03

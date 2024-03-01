@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
@@ -20,7 +21,6 @@ use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathException;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<Orga>
@@ -32,6 +32,10 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  * @property-read End                              $showlist
  * @property-read UserResourceType                 $users
  * @property-read OrgaStatusInCustomerResourceType $statusInCustomers
+ * @property-read End                              $participationFeedbackEmailAddress
+ * @property-read End                              $ccEmailAddresses
+ * @property-read InstitutionLocationContactResourceType $locationContacts
+ * @property-read End $contactPerson
  */
 class InvitablePublicAgencyResourceType extends DplanResourceType
 {
@@ -51,16 +55,6 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
             'area_main_procedures',
             'area_admin_invitable_institution'
         );
-    }
-
-    public function isReferencable(): bool
-    {
-        return false;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
     }
 
     /**
@@ -114,10 +108,15 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
 
     protected function getProperties(): array
     {
-        return [
-            $this->createAttribute($this->id)->readable(true),
+        $properties = [
+            $this->createIdentifier()->readable(),
             $this->createAttribute($this->legalName)->readable(true)->aliasedPath($this->name),
-            $this->createAttribute($this->competenceDescription)->readable(
+            $this->createAttribute($this->participationFeedbackEmailAddress)->readable()->aliasedPath(Paths::orga()->email2),
+            $this->createToManyRelationship($this->locationContacts)->readable()->aliasedPath(Paths::orga()->addresses),
+        ];
+
+        if ($this->currentUser->hasPermission('field_organisation_competence')) {
+            $properties[] = $this->createAttribute($this->competenceDescription)->readable(
                 true,
                 static function (Orga $orga): ?string {
                     $competenceDescription = $orga->getCompetence();
@@ -127,7 +126,17 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
 
                     return $competenceDescription;
                 }
-            ),
-        ];
+            );
+        }
+
+        if ($this->currentUser->hasPermission('field_organisation_email2_cc')) {
+            $properties[] = $this->createAttribute($this->ccEmailAddresses)->readable()->aliasedPath(Paths::orga()->ccEmail2);
+        }
+
+        if ($this->currentUser->hasPermission('field_organisation_contact_person')) {
+            $properties[] = $this->createAttribute($this->contactPerson)->readable();
+        }
+
+        return $properties;
     }
 }

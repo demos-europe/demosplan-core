@@ -209,6 +209,7 @@
       :editable="editable"
       :attachments="attachments"
       class="u-pt-0_5 border--bottom u-pb-0_5"
+      :procedure-id="procedureId"
       :statement-id="statement.id"
       @change="(value) => emitInput('attachments', value)" />
 

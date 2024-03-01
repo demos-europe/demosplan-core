@@ -9,8 +9,10 @@
 
 @use 'sass:color';
 
-.o-wizard {
+$wizard-z-index-backdrop: $dp-z-modal - 1;
+$wizard-z-index-content: $dp-z-modal;
 
+.o-wizard {
     padding-bottom: $inuit-base-spacing-unit--small;
 
     &__trigger {
@@ -86,7 +88,7 @@
             left: 0;
             position: absolute;
             top: 0;
-            z-index: $z-super;
+            z-index: $wizard-z-index-content;
 
             max-width: $dp-page-width;
             padding: 62px 22px 48px;
@@ -259,12 +261,12 @@
 }
 
 .o-wizard__bg {
+    position: fixed;
     bottom: 0;
     left: 0;
-    position: fixed;
     right: 0;
     top: 0;
-    z-index: $z-modal-overlay;
+    z-index: $wizard-z-index-backdrop;
 
     display: none;
 

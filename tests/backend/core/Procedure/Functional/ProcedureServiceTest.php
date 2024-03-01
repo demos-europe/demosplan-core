@@ -13,6 +13,7 @@ namespace Tests\Core\Procedure\Functional;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadCustomerData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureTypeData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
@@ -1845,80 +1846,80 @@ Email:',
         static::assertNotNull($report);
     }
 
-//    The following Tests should be moved into the ProcedureHandlerTest, because these tests are testing the validation
-//    /**
-//     * @expectedException \InvalidArgumentException
-//     */
-//    public function testSetPublicAutoSwitchInvalidPhase()
-//    {
-//        /** @var Procedure $procedure */
-//        $procedure = $this->fixtures->getReference('testProcedure4');
-//
-//        static::assertNull($this->sut->getDesignatedPublicPhase($procedure));
-//        static::assertNull($this->sut->getDateOfSwitchPublicPhase($procedure));
-//
-//        $invalidPhase = 'blalbllbalab';
-//        $validDate = new \DateTime();
-//        $validDate->setDate(1999, 4, 4);
-//        $validEndDate = new \DateTime();
-//        $validEndDate->setDate(1999, 5, 5);
-//        $this->setAutoSwitch($procedure, $invalidPhase, $validDate, $validEndDate, $this->mockSession);
-//    }
-//
-//    /**
-//     * @expectedException \InvalidArgumentException
-//     */
-//    public function testSetAutoSwitchInvalidPhase()
-//    {
-//        /** @var Procedure $procedure */
-//        $procedure = $this->fixtures->getReference('testProcedure4');
-//
-//        static::assertNull($this->sut->getDesignatedPhase($procedure));
-//        static::assertNull($this->sut->getDateOfSwitchPhase($procedure));
-//
-//        $invalidPhase = 'blalbllbalab';
-//        $validDate = new \DateTime();
-//        $validDate->setDate(1999, 4, 4);
-//        $validEndDate = new \DateTime();
-//        $validEndDate->setDate(1999, 5, 5);
-//        $this->setAutoSwitchPublic($procedure, $invalidPhase, $validDate, $validEndDate, $this->mockSession);
-//    }
-//
-//    /**
-//     * @expectedException \InvalidArgumentException
-//     */
-//    public function testSetAutoSwitchInvalidDate()
-//    {
-//        /** @var Procedure $procedure */
-//        $procedure = $this->fixtures->getReference('testProcedure4');
-//
-//        static::assertNull($this->sut->getDesignatedPhase($procedure));
-//        static::assertNull($this->sut->getDateOfSwitchPhase($procedure));
-//
-//        $validPhase = 'configure';
-//        $invalidDate = 'someDate';
-//        $validEndDate = new \DateTime();
-//        $validEndDate->setDate(1999, 5, 5);
-//        $this->setAutoSwitchPublic($procedure, $validPhase, $invalidDate, $validEndDate, $this->mockSession);
-//    }
-//
-//    /**
-//     * @expectedException \InvalidArgumentException
-//     */
-//    public function testSetPublicAutoSwitchInvalidDate()
-//    {
-//        /** @var Procedure $procedure */
-//        $procedure = $this->fixtures->getReference('testProcedure4');
-//
-//        static::assertNull($this->sut->getDesignatedPublicPhase($procedure));
-//        static::assertNull($this->sut->getDateOfSwitchPublicPhase($procedure));
-//
-//        $validPhase = 'configure';
-//        $invalidDate = 'someDate';
-//        $validEndDate = new \DateTime();
-//        $validEndDate->setDate(1999, 5, 5);
-//        $this->setAutoSwitchPublic($procedure, $validPhase, $invalidDate, $validEndDate, $this->mockSession);
-//    }
+    //    The following Tests should be moved into the ProcedureHandlerTest, because these tests are testing the validation
+    //    /**
+    //     * @expectedException \InvalidArgumentException
+    //     */
+    //    public function testSetPublicAutoSwitchInvalidPhase()
+    //    {
+    //        /** @var Procedure $procedure */
+    //        $procedure = $this->fixtures->getReference('testProcedure4');
+    //
+    //        static::assertNull($this->sut->getDesignatedPublicPhase($procedure));
+    //        static::assertNull($this->sut->getDateOfSwitchPublicPhase($procedure));
+    //
+    //        $invalidPhase = 'blalbllbalab';
+    //        $validDate = new \DateTime();
+    //        $validDate->setDate(1999, 4, 4);
+    //        $validEndDate = new \DateTime();
+    //        $validEndDate->setDate(1999, 5, 5);
+    //        $this->setAutoSwitch($procedure, $invalidPhase, $validDate, $validEndDate, $this->mockSession);
+    //    }
+    //
+    //    /**
+    //     * @expectedException \InvalidArgumentException
+    //     */
+    //    public function testSetAutoSwitchInvalidPhase()
+    //    {
+    //        /** @var Procedure $procedure */
+    //        $procedure = $this->fixtures->getReference('testProcedure4');
+    //
+    //        static::assertNull($this->sut->getDesignatedPhase($procedure));
+    //        static::assertNull($this->sut->getDateOfSwitchPhase($procedure));
+    //
+    //        $invalidPhase = 'blalbllbalab';
+    //        $validDate = new \DateTime();
+    //        $validDate->setDate(1999, 4, 4);
+    //        $validEndDate = new \DateTime();
+    //        $validEndDate->setDate(1999, 5, 5);
+    //        $this->setAutoSwitchPublic($procedure, $invalidPhase, $validDate, $validEndDate, $this->mockSession);
+    //    }
+    //
+    //    /**
+    //     * @expectedException \InvalidArgumentException
+    //     */
+    //    public function testSetAutoSwitchInvalidDate()
+    //    {
+    //        /** @var Procedure $procedure */
+    //        $procedure = $this->fixtures->getReference('testProcedure4');
+    //
+    //        static::assertNull($this->sut->getDesignatedPhase($procedure));
+    //        static::assertNull($this->sut->getDateOfSwitchPhase($procedure));
+    //
+    //        $validPhase = 'configure';
+    //        $invalidDate = 'someDate';
+    //        $validEndDate = new \DateTime();
+    //        $validEndDate->setDate(1999, 5, 5);
+    //        $this->setAutoSwitchPublic($procedure, $validPhase, $invalidDate, $validEndDate, $this->mockSession);
+    //    }
+    //
+    //    /**
+    //     * @expectedException \InvalidArgumentException
+    //     */
+    //    public function testSetPublicAutoSwitchInvalidDate()
+    //    {
+    //        /** @var Procedure $procedure */
+    //        $procedure = $this->fixtures->getReference('testProcedure4');
+    //
+    //        static::assertNull($this->sut->getDesignatedPublicPhase($procedure));
+    //        static::assertNull($this->sut->getDateOfSwitchPublicPhase($procedure));
+    //
+    //        $validPhase = 'configure';
+    //        $invalidDate = 'someDate';
+    //        $validEndDate = new \DateTime();
+    //        $validEndDate->setDate(1999, 5, 5);
+    //        $this->setAutoSwitchPublic($procedure, $validPhase, $invalidDate, $validEndDate, $this->mockSession);
+    //    }
 
     public function testIsAutoSwitchPossible(): void
     {
@@ -2966,6 +2967,7 @@ Email:',
             'orgaName'     => $this->testProcedure->getOrga()->getName(),
             'logo'         => 'some:logodata:string',
             'shortUrl'     => 'myShortUrl',
+            'customer'     => $this->getCustomerReference(LoadCustomerData::DEMOS),
         ];
         $procedureRepository = $this->sut->getPublicProcedureRepository();
         $newProcedure = $procedureRepository->add($procedureData);
@@ -3386,7 +3388,7 @@ Email:',
      * The idea is, that a cronjob will switch the external phase of the procedure
      * to the designatedPhase on the given date.
      *
-     * @param procedure     $procedure            - procedure, whose external designated phase and designated date will be set
+     * @param Procedure     $procedure            - procedure, whose external designated phase and designated date will be set
      * @param DateTime|null $designatedSwitchDate
      * @param string|null   $designatedPhase
      *
@@ -3416,7 +3418,7 @@ Email:',
      * The cronjob will switch the phase of the procedure
      * to the designatedPhase on the given date.
      *
-     * @param procedure     $procedure            - procedure, whose internal designated phase and designated date will be set
+     * @param Procedure     $procedure            - procedure, whose internal designated phase and designated date will be set
      * @param DateTime|null $designatedSwitchDate
      * @param string|null   $designatedPhase
      *

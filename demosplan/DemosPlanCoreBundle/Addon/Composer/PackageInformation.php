@@ -43,11 +43,9 @@ final class PackageInformation
             return;
         }
 
-        $packageListPath = include_once $installedPackagesPath;
-
-        if (true === $packageListPath) {
-            return;
-        }
+        // we want to include the file again as we want to refresh the information
+        // and reload the packages
+        $packageListPath = include $installedPackagesPath;
 
         if (!array_key_exists('versions', $packageListPath)) {
             return;

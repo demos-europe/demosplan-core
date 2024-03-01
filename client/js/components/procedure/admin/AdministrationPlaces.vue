@@ -28,7 +28,7 @@
       <dp-loading
         v-if="isLoading"
         overlay />
-      <div class="border border-radius-small space-stack-m space-inset-m">
+      <div class="border rounded space-stack-m space-inset-m">
         <dp-input
           id="newPlaceName"
           v-model="newPlace.name"

@@ -9,7 +9,7 @@
 
 <template>
   <a
-    :href="Routing.generate('core_file', { hash: attachment.hash })"
+    :href="Routing.generate('core_file_procedure', { hash: attachment.hash, procedureId: procedureId})"
     rel="noopener"
     target="_blank">
     {{ attachment.filename }}
@@ -21,6 +21,11 @@ export default {
   name: 'StatementMetaAttachmentsLink',
 
   props: {
+    procedureId: {
+      type: String,
+      required: true
+    },
+
     attachment: {
       type: Object,
       required: true

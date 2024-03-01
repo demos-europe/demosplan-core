@@ -275,11 +275,6 @@
         "website": "https://github.com/tchwork/utf8"
     },
     {
-        "license": "GPL-2 or New-BSD",
-        "package": "phayes/geophp",
-        "website": "https://github.com/phayes/geoPHP"
-    },
-    {
         "license": "MIT",
         "package": "php-amqplib/rabbitmq-bundle",
         "website": "https://github.com/php-amqplib/RabbitMqBundle"
@@ -362,7 +357,7 @@
     {
         "license": "BSD-3-Clause",
         "package": "squizlabs/php_codesniffer",
-        "website": "https://github.com/squizlabs/PHP_CodeSniffer"
+        "website": "https://github.com/PHPCSStandards/PHP_CodeSniffer"
     },
     {
         "license": "MIT",
@@ -628,6 +623,11 @@
         "license": "MIT",
         "package": "weirdan/doctrine-psalm-plugin",
         "website": "https://github.com/psalm/psalm-plugin-doctrine"
+    },
+    {
+        "license": "GPL-2.0-or-later",
+        "package": "wgirhad/geophp",
+        "website": "https://github.com/wgirhad/geoPHP"
     },
     {
         "license": "MIT",

@@ -1,10 +1,5 @@
 {% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
 
-{% block javascripts %}
-    {{ parent() }}
-    {{ webpackBundle('statement-listFinalGroup.js') }}
-{% endblock javascripts %}
-
 {% block demosplanbundlecontent %}
 
     {% set counties = templateVars.counties|map(c => { label: c.name, value: c.id }) %}
@@ -60,8 +55,8 @@
 
         <div id="myStatementsList" class="{{ 'c-tabs__panel u-mh-0_5 is-active-tab'|prefixClass }}">
 
-            <form class="{{ 'layout flow-root'|prefixClass }}" name="sortform" action="{{ path('DemosPlan_statement_list_final_group',{'procedure':procedure})}}"
-                  method="post">
+            <form class="{{ 'layout flow-root'|prefixClass }}" name="sortform" action="{{ path('DemosPlan_statement_list_final_group',{'procedure':procedure})}}" method="post">
+                {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
                 {# filter fieldsets  #}
                 {% include '@DemosPlanCore/DemosPlanStatement/includes/form_filter.html.twig' with {
@@ -145,6 +140,7 @@
         <div id="votedStatementsList" class="{{ 'c-tabs__panel u-mh-0_5'|prefixClass }}">
 
             <form class="{{ 'layout flow-root'|prefixClass }}" name="sortform2" action="{{ path('DemosPlan_statement_list_final_group',{'procedure':procedure})}}" method="post">
+                {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
                 {# form controls above entry table (check all, print, email) #}
                 <fieldset class="{{ 'flow-root layout__item u-pb-0'|prefixClass }}">
@@ -173,3 +169,8 @@
     </div>
 
 {% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('statement-listFinalGroup.js') }}
+{% endblock javascripts %}

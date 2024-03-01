@@ -11,9 +11,9 @@ const config = {
     './demosplan/plugins/**/Resources/**/*.twig',
     './node_modules/@demos-europe/demosplan-ui/dist/*.js',
     './projects/**/templates/**/*.twig',
-    './templates/bundles/DemosPlanCoreBundle/**/*.twig'
-  ],
-  safelist: [] // Can be removed when demosplan-ui drops the /./ pattern in the Tailwind config
+    './templates/bundles/DemosPlanCoreBundle/**/*.twig',
+    './addons/vendor/demos-europe/demosplan-addon-*/client/**/*.{js,vue}'
+  ]
 }
 
 module.exports = config

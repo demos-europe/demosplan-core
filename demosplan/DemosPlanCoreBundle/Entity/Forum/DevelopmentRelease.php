@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Forum;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\DevelopmentReleaseInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
@@ -23,7 +24,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\DevelopmentReleaseRepository")
  */
-class DevelopmentRelease extends CoreEntity implements UuidEntityInterface
+class DevelopmentRelease extends CoreEntity implements UuidEntityInterface, DevelopmentReleaseInterface
 {
     /**
      * @var string|null

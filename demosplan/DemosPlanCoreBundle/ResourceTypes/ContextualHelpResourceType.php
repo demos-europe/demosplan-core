@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<ContextualHelp>
@@ -36,17 +35,22 @@ final class ContextualHelpResourceType extends DplanResourceType
         return ContextualHelp::class;
     }
 
+    public function getIdentifierPropertyPath(): array
+    {
+        return $this->ident->getAsNames();
+    }
+
     public function isAvailable(): bool
     {
         return true;
     }
 
-    public function isReferencable(): bool
+    public function isGetAllowed(): bool
     {
-        return true;
+        return false;
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isListAllowed(): bool
     {
         return false;
     }
@@ -59,7 +63,7 @@ final class ContextualHelpResourceType extends DplanResourceType
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true)->sortable()->filterable()->aliasedPath($this->ident),
+            $this->createIdentifier()->readable()->sortable()->filterable()->aliasedPath($this->ident),
             $this->createAttribute($this->key)->readable(true)->sortable()->filterable(),
             $this->createAttribute($this->text)->readable(true)->sortable()->filterable(),
         ];

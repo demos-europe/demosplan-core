@@ -43,6 +43,9 @@ use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadProcedureData extends TestFixture implements DependentFixtureInterface
 {
     final public const TESTPROCEDURE = 'testProcedure';
@@ -461,6 +464,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         $procedure->setProcedureUiDefinition($this->getReference(LoadProcedureUiDefinitionData::PROCEDURE_TESTPROCEDURE));
         $procedure->setStatementFormDefinition($this->getReference(LoadStatementFormDefinitionData::PROCEDURE_TESTPROCEDURE));
         $this->manager->persist($procedure);
+        $customer->setDefaultProcedureBlueprint($procedure);
 
         // related entities
         $this->loadTestProcedureNews($procedure);
@@ -929,19 +933,19 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         Procedure $masterBlueprint
     ): void {
         $elementsToCreate = [
-            ElementsInterface::FILE_TYPE_FNP_AENDERUNG,
-            ElementsInterface::FILE_TYPE_LAPRO_AENDERUNG,
-            ElementsInterface::FILE_TYPE_ERGAENZENDE_UNTERLAGE,
-            ElementsInterface::FILE_TYPE_ARBEITSKREISPAPIER,
-            ElementsInterface::FILE_TYPE_VERTEILER,
-            ElementsInterface::FILE_TYPE_NIEDERSCHRIFT_SONSTIGE,
-            ElementsInterface::FILE_TYPE_SCOPING_PAPIER,
-            ElementsInterface::FILE_TYPE_GUTACHTEN,
-            ElementsInterface::FILE_TYPE_ARBEITSKREISPAPIER_I,
-            ElementsInterface::FILE_TYPE_ARBEITSKREISPAPIER_II,
-            ElementsInterface::FILE_TYPE_NIEDERSCHRIFT_GROBABSTIMMUNG_ARBEITSKREISE,
-            ElementsInterface::FILE_TYPE_GROBABSTIMMUNGSPAPIER,
-            ElementsInterface::FILE_TYPE_SCOPING_PROTOKOLL,
+            ElementsInterface::ELEMENT_TITLES['fnp_aenderung'],
+            ElementsInterface::ELEMENT_TITLES['lapro_aenderung'],
+            ElementsInterface::ELEMENT_TITLES['ergaenzende_unterlage'],
+            ElementsInterface::ELEMENT_TITLES['arbeitskreispapier'],
+            ElementsInterface::ELEMENT_TITLES['verteiler'],
+            ElementsInterface::ELEMENT_TITLES['niederschrift_sonstige'],
+            ElementsInterface::ELEMENT_TITLES['scoping_papier'],
+            ElementsInterface::ELEMENT_TITLES['gutachten'],
+            ElementsInterface::ELEMENT_TITLES['arbeitskreispapier_i'],
+            ElementsInterface::ELEMENT_TITLES['arbeitskreispapier_ii'],
+            ElementsInterface::ELEMENT_TITLES['niederschrift_grobabstimmung_arbeitskreise'],
+            ElementsInterface::ELEMENT_TITLES['grobabstimmungspapier'],
+            ElementsInterface::ELEMENT_TITLES['scoping_protokoll'],
         ];
 
         foreach ($elementsToCreate as $key => $elementTitle) {
@@ -966,13 +970,13 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         Procedure $masterBlueprint
     ): void {
         $elementsToCreate = [
-            ElementsInterface::FILE_TYPE_VERORDNUNG,
-            ElementsInterface::FILE_TYPE_BEGRUENDUNG,
+            ElementsInterface::ELEMENT_TITLES['verordnung'],
+            ElementsInterface::ELEMENT_TITLES['begruendung'],
         ];
         foreach ($elementsToCreate as $key => $elementTitle) {
             $element = new Elements();
             $element->setProcedure($masterBlueprint);
-            $element->setCategory(ElementsInterface::ELEMENTS_CATEGORY_PARAGRAPH);
+            $element->setCategory(ElementsInterface::ELEMENT_CATEGORIES['paragraph']);
             $element->setOrder($key);
             $element->setEnabled(1);
             $element->setTitle($elementTitle);

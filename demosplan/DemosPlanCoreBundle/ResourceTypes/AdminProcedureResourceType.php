@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * This class limits the access to {@link Procedure} instances to those, that are allowed
@@ -65,19 +64,9 @@ final class AdminProcedureResourceType extends DplanResourceType
         return 'AdminProcedure';
     }
 
-    public function isReferencable(): bool
-    {
-        return true;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
-    }
-
     protected function getProperties(): array
     {
-        $id = $this->createAttribute($this->id)->readable(true);
+        $id = $this->createIdentifier()->readable();
         $name = $this->createAttribute($this->name);
         $creationDate = $this->createAttribute($this->creationDate)->aliasedPath($this->createdDate);
 
@@ -95,7 +84,7 @@ final class AdminProcedureResourceType extends DplanResourceType
         }
 
         if ($this->currentUser->hasPermission('area_admin_procedures')) {
-            $name->sortable()->readable();
+            $name->sortable()->readable()->filterable();
             $creationDate->sortable()->readable();
 
             $internalPhases = $this->globalConfig->getInternalPhasesAssoc();

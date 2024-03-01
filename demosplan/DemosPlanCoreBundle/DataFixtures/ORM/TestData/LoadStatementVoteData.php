@@ -15,6 +15,9 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadStatementVoteData extends TestFixture implements DependentFixtureInterface
 {
     public function load(ObjectManager $manager): void

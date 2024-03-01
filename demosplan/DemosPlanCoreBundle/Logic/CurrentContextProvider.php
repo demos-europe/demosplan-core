@@ -22,8 +22,11 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class CurrentContextProvider implements CurrentContextProviderInterface
 {
-    public function __construct(private readonly CurrentProcedureService $currentProcedureProvider, private readonly CustomerService $currentCustomerProvider, private readonly CurrentUserService $currentUserProvider)
-    {
+    public function __construct(
+        private readonly CurrentProcedureService $currentProcedureProvider,
+        private readonly CustomerService $currentCustomerProvider,
+        private readonly CurrentUserService $currentUserProvider
+    ) {
     }
 
     public function getCurrentProcedure(): ?ProcedureInterface

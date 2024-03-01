@@ -76,7 +76,7 @@ class GenerateOrganisationCommand extends DataProviderCommand
         $this->addArgument(
             'amount',
             InputArgument::OPTIONAL,
-            'The amount of statements to be generated.',
+            'The amount of organisations to be generated.',
             1
         );
     }

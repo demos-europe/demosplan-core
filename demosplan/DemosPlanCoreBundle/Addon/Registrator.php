@@ -40,18 +40,33 @@ final class Registrator
      * Checks if a given composer definition is a correct representation of an addon.
      * If so and if that addon is not yet installed, it will be added to the list of installed addons.
      */
-    public function register(PackageInterface $addonComposerDefinition): string
+    public function register(PackageInterface $addonComposerDefinition, bool $enabled = false): string
     {
         if (PackageInformation::ADDON_COMPOSER_TYPE !== $addonComposerDefinition->getType()) {
             throw AddonException::invalidType($addonComposerDefinition->getName(), $addonComposerDefinition->getType());
         }
 
-        // if addon is not in registry, then add it
-        if (!$this->isRegistered($addonComposerDefinition->getName())) {
-            $this->packageInformation->reloadPackages();
-            $this->doRegister($addonComposerDefinition);
-        }
+        // always refresh the package information and re-register, as it may have changed in addon
+        $this->packageInformation->reloadPackages();
+        $this->doRegister($addonComposerDefinition, $enabled);
 
+        $this->refreshAddonsYaml();
+
+        return $addonComposerDefinition->getName();
+    }
+
+    /**
+     * Remove an addon from the list of installed addons.
+     */
+    public function remove(PackageInterface $addonComposerDefinition): string
+    {
+        if (PackageInformation::ADDON_COMPOSER_TYPE !== $addonComposerDefinition->getType()) {
+            throw AddonException::invalidType($addonComposerDefinition->getName(), $addonComposerDefinition->getType());
+        }
+        $addonName = $addonComposerDefinition->getName();
+        if (isset($this->addons[$addonName])) {
+            unset($this->addons[$addonName]);
+        }
         $this->refreshAddonsYaml();
 
         return $addonComposerDefinition->getName();
@@ -80,15 +95,16 @@ final class Registrator
         return array_key_exists($addonName, $this->addons);
     }
 
-    private function doRegister(PackageInterface $addonComposerDefinition): void
+    private function doRegister(PackageInterface $addonComposerDefinition, bool $enabled = false): void
     {
         $addonName = $addonComposerDefinition->getName();
 
         $this->addons[$addonName] = [
-            'enabled'      => false,
+            'enabled'      => $enabled,
             'installed_at' => Carbon::now()->toIso8601String(),
             // use relative path to be compatible with different environments
             'install_path' => 'addons/vendor/'.$addonName,
+            'version'      => $addonComposerDefinition->getPrettyVersion(),
             'manifest'     => $this->loadManifest($addonName),
         ];
     }

@@ -12,19 +12,23 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Addon;
 
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
-use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
 use Exception;
 use JsonSchema\Exception\InvalidSchemaException;
+use Psr\Log\LoggerInterface;
 use stdClass;
 
 class RpcAddonAssetsLoader implements RpcMethodSolverInterface
 {
-    public function __construct(private readonly FrontendAssetProvider $assetProvider, private readonly RpcErrorGenerator $errorGenerator)
-    {
+    public function __construct(
+        private readonly FrontendAssetProvider $assetProvider,
+        private readonly LoggerInterface $logger,
+        private readonly RpcErrorGenerator $errorGenerator
+    ) {
     }
 
     public function supports(string $method): bool
@@ -32,7 +36,7 @@ class RpcAddonAssetsLoader implements RpcMethodSolverInterface
         return 'addons.assets.load' === $method;
     }
 
-    public function execute(?Procedure $procedure, $rpcRequests): array
+    public function execute(?ProcedureInterface $procedure, $rpcRequests): array
     {
         $rpcRequests = is_object($rpcRequests)
             ? [$rpcRequests]
@@ -48,11 +52,14 @@ class RpcAddonAssetsLoader implements RpcMethodSolverInterface
                 $addonsAssetsData = $this->assetProvider->getFrontendClassesForHook($hookName);
 
                 $resultResponse[] = $this->generateMethodResult($rpcRequest, $addonsAssetsData);
-            } catch (InvalidArgumentException|InvalidSchemaException) {
+            } catch (InvalidArgumentException|InvalidSchemaException $exception) {
+                $this->logger->error($exception);
                 $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
-            } catch (AccessDeniedException) {
+            } catch (AccessDeniedException $exception) {
+                $this->logger->error($exception);
                 $resultResponse[] = $this->errorGenerator->accessDenied($rpcRequest);
-            } catch (Exception) {
+            } catch (Exception $exception) {
+                $this->logger->error($exception);
                 $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
             }
         }

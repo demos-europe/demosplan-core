@@ -24,6 +24,7 @@
 
       <dp-column-selector
         class="ml-auto"
+        data-cy="submitterList:selectableColumns"
         :initial-selection="currentSelection"
         :selectable-columns="selectableColumns"
         @selection-changed="setCurrentSelection"
@@ -107,7 +108,7 @@ export default {
         { field: 'postalCodeAndCity', label: Translator.trans('postalcode') + ' / ' + Translator.trans('city') },
         { field: 'organisationAndDepartment', label: Translator.trans('organisation') + ' / ' + Translator.trans('department') },
         { field: 'memo', label: Translator.trans('memo') },
-        { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'width-100' },
+        { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'w-8' },
         { field: 'statement', label: Translator.trans('id'), tooltip: Translator.trans('id.statement.long') }
       ],
       isLoading: false,

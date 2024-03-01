@@ -61,6 +61,10 @@
             enforce-plausible-dates
             :min-date="startDate"
             required
+            :data-cy="{
+                endDate: dataCyEndDate,
+                startDate: dataCyStartDate
+            }"
             start-disabled
             :start-id="startDateId"
             :start-name="startDateId"
@@ -117,6 +121,18 @@ export default {
     availablePhases: {
       type: Object,
       default: () => ({})
+    },
+
+    dataCyEndDate: {
+      type: String,
+      required: false,
+      default: 'endDate'
+    },
+
+    dataCyStartDate: {
+      type: String,
+      required: false,
+      default: 'startDate'
     },
 
     /**
@@ -180,8 +196,10 @@ export default {
      * @return {boolean}
      */
     isParticipationPhaseSelected () {
-      const participationPhases = ['participation', 'earlyparticipation', 'anotherparticipation']
-      return participationPhases.includes(this.selectedCurrentPhase)
+      return Object.values(this.availablePhases)
+        .filter(phase => phase.permission === 'write')
+        .map(phase => phase.value)
+        .includes(this.selectedCurrentPhase)
     },
 
     endDateId () {

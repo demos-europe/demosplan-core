@@ -40,14 +40,14 @@
     $loading-color-bg: $dp-color-white !default;
     $loading-size: $inuit-base-spacing-unit * .75 !default;
     $loading-stroke: 2px !default;
-    $loading-zindex: $z-content-above;
+    $loading-z-index: $dp-z-above-zero;
     $loading-overlay-bg: rgb(255 255 255 / 60%);
 
     &--overlay {
         left: 0;
         position: absolute;
         top: 0;
-        z-index: $loading-zindex;
+        z-index: $loading-z-index;
 
         height: 100%;
         width: 100%;

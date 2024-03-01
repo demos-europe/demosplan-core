@@ -20,8 +20,7 @@ import {
   FloodControlField,
   FormActions,
   Pager,
-  ToggleAnything,
-  Tooltips
+  ToggleAnything
 } from './libs'
 
 /*
@@ -38,6 +37,4 @@ export function loadLibs () {
   ToggleAnything()
   Pager()
   Sticky()
-
-  window.dplan.tooltips = Tooltips()
 }

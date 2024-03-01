@@ -77,21 +77,17 @@ class TagService extends CoreService
     /**
      * Creates a new Tag with the given title.
      *
-     * @param string $title
-     *
      * @throws DuplicatedTagTitleException
-     * @throws Exception
      */
-    public function createTag($title, TagTopic $topic, bool $persistAndFlush = true): Tag
+    public function createTag(string $title, TagTopic $topic, bool $persistAndFlush = true): Tag
     {
         $procedureId = $topic->getProcedure()->getId();
         if ('' === $title) {
             throw new InvalidArgumentException('Tag title may not be empty.');
         }
 
-        $titleCount = $this->tagRepository->count(['id' => $procedureId, 'title' => $title]);
-        if (0 !== $titleCount) {
-            throw DuplicatedTagTitleException::createFromTitleAndProcedureId($title, $procedureId);
+        if (!$this->tagRepository->isTagTitleFree($procedureId, $title)) {
+            throw DuplicatedTagTitleException::createFromTitleAndProcedureId($topic, $title);
         }
 
         $toCreate = new Tag($title, $topic);
@@ -113,11 +109,7 @@ class TagService extends CoreService
      */
     public function createTagTopic($title, Procedure $procedure, bool $persistAndFlush = true): TagTopic
     {
-        $titleCount = $this->tagTopicRepository->count(['procedure' => $procedure, 'title' => $title]);
-        if (0 !== $titleCount) {
-            throw DuplicatedTagTopicTitleException::createFromTitleAndProcedureId($title, $procedure->getId());
-        }
-
+        $this->assertTitleNotDuplicated($title, $procedure);
         $toCreate = new TagTopic($title, $procedure);
 
         if (!$persistAndFlush) {
@@ -125,6 +117,19 @@ class TagService extends CoreService
         }
 
         return $this->tagTopicRepository->addObject($toCreate);
+    }
+
+    /**
+     * @param string $title
+     *
+     * @throws DuplicatedTagTopicTitleException
+     */
+    public function assertTitleNotDuplicated($title, Procedure $procedure): void
+    {
+        $titleCount = $this->tagTopicRepository->count(['procedure' => $procedure, 'title' => $title]);
+        if (0 !== $titleCount) {
+            throw DuplicatedTagTopicTitleException::createFromTitleAndProcedureId($title, $procedure->getId());
+        }
     }
 
     /**

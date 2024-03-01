@@ -32,7 +32,7 @@
             render-control
             v-tooltip="{
               content: Translator.trans('map.relation.set'),
-              classes: 'u-z-super'
+              classes: 'z-ultimate'
             }"
             type="Point"
             @layerFeatures:changed="data => updateDrawings('Point', data)" />
@@ -46,7 +46,7 @@
             render-control
             v-tooltip="{
               content: Translator.trans('statement.map.draw.mark_line'),
-              classes: 'u-z-super'
+              classes: 'z-ultimate'
             }"
             type="LineString"
             @layerFeatures:changed="data => updateDrawings('LineString', data)" />
@@ -60,7 +60,7 @@
             render-control
             v-tooltip="{
               content: Translator.trans('statement.map.draw.mark_polygon'),
-              classes: 'u-z-super'
+              classes: 'z-ultimate'
             }"
             type="Polygon"
             @layerFeatures:changed="data => updateDrawings('Polygon', data)" />
@@ -188,9 +188,11 @@ export default {
     segmentId (newVal) {
       if (newVal) {
         this.setInitDrawings()
-        this.$nextTick(() => {
-          this.setCenterAndExtent()
-        })
+        if (this.featuresObject.features.length > 0) {
+          this.$nextTick(() => {
+            this.setCenterAndExtent()
+          })
+        }
       }
     }
   },

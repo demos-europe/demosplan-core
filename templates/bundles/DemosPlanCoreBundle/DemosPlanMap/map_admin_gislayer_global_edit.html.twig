@@ -22,6 +22,7 @@
         <input type="hidden" value="{{ gislayer.ident|default() }}" name="r_ident">
         <input type="hidden" name="r_visible" value="1">
         <input type="hidden" name="r_user_toggle_visibility" value="1">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         {% block layerType %}
             <ul class="layout__item u-4-of-5 o-list bg-color--grey-light-2 u-p-0_5 u-mb">

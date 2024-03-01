@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\CustomFactory;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
+use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\DataProviderException;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
@@ -95,8 +95,6 @@ abstract class FactoryBase implements FactoryInterface
      * the necessity of persisting them or requirements to create tehm.
      *
      * @param int $amount
-     *
-     * @return mixed
      */
     public function create($amount = 1)
     {
@@ -141,7 +139,7 @@ abstract class FactoryBase implements FactoryInterface
      */
     public function configure(...$options): void
     {
-        $this->user = new FunctionalUser();
+        $this->user = new AnonymousUser();
 
         $this->permissions->initPermissions($this->user);
 

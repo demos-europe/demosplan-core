@@ -12,17 +12,18 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use Closure;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\ConnectionException;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
 use LogicException;
-use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionProperty;
@@ -31,36 +32,18 @@ use Symfony\Contracts\Service\Attribute\Required;
 use Tightenco\Collect\Support\Collection;
 
 /**
- * @template T of object
+ * @template T of EntityInterface
  *
- * @template-extends ServiceEntityRepository<T>
+ * @template-extends FluentRepository<T>
  */
-abstract class CoreRepository extends ServiceEntityRepository
+abstract class CoreRepository extends FluentRepository
 {
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
-
     /**
      * @var ValidatorInterface
      */
     protected $validator;
 
     protected $obscureTag = 'dp-obscure';
-
-    /**
-     * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @return $this
-     */
-    #[Required]
-    public function setLogger(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
-
-        return $this;
-    }
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
@@ -82,11 +65,11 @@ abstract class CoreRepository extends ServiceEntityRepository
      *
      * @deprecated use {@link TransactionService::executeAndFlushInTransaction()} instead
      *
-     * @template T
+     * @template TReturn
      *
-     * @param callable(): T $task
+     * @param callable(EntityManagerInterface): TReturn $task
      *
-     * @return T
+     * @return TReturn
      *
      * @throws ORMException
      * @throws OptimisticLockException
@@ -111,17 +94,9 @@ abstract class CoreRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return LoggerInterface
-     */
-    public function getLogger()
-    {
-        return $this->logger;
-    }
-
-    /**
      * @param int $amount
      *
-     * @return CoreEntity|array[Entity]
+     * @return T|array<T>
      */
     public function findRandom($amount = 1)
     {
@@ -145,7 +120,7 @@ abstract class CoreRepository extends ServiceEntityRepository
             return $all[$randomKeys];
         } else {
             return array_map(
-                fn($key) => $all[$key],
+                fn ($key) => $all[$key],
                 $randomKeys
             );
         }
@@ -479,7 +454,7 @@ abstract class CoreRepository extends ServiceEntityRepository
             ]
         )->merge($additionalAllowedTags)
             ->flatMap(
-                fn($tagName) => ["<{$tagName}>", "</{$tagName}>"]
+                fn ($tagName) => ["<{$tagName}>", "</{$tagName}>"]
             )->implode('');
 
         return strip_tags($text, $allowedTags);

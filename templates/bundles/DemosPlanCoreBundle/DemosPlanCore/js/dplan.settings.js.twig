@@ -17,7 +17,7 @@ window.dplan = {
     },
 
     paths                   : {
-        uploadPost          : "{{url('tus_upload') }}", {# global path for file uploader endpoint #}
+        tusEndpoint          : "{{url('tus_upload') }}", {# global path for file uploader endpoint #}
         urlPathPrefix       : "{{ urlPathPrefix|default('') }}"
     },
 
@@ -32,6 +32,7 @@ window.dplan = {
         roles: "{{ currentUser.roles|default([])|json_encode }}"
     },
     sentryDsn               : "{{ sentry_dsn|default }}",
+    csrfToken               : "{{ csrf_token('csrf')|json_encode }}",
     jwtToken                : "{{ jwtToken|default }}",
 
     defaultProjectionLabel  : "{{ defaultProjectionLabel() }}",

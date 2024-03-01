@@ -11,31 +11,37 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use DateTime;
-use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Services\SegmentServiceInterface;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityNotFoundException;
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\OptimisticLockException;
 use demosplan\DemosPlanCoreBundle\EntityValidator\SegmentValidator;
+use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\EntityNotFoundException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 
-class SegmentService extends CoreService
+class SegmentService extends CoreService implements SegmentServiceInterface
 {
-    public function __construct(private readonly EntityContentChangeService $entityContentChangeService, private readonly SegmentValidator $segmentValidator, private readonly SegmentRepository $segmentRepository, private readonly TransactionService $transactionService)
-    {
+    public function __construct(
+        private readonly EntityContentChangeService $entityContentChangeService,
+        private readonly SegmentValidator $segmentValidator,
+        private readonly SegmentRepository $segmentRepository,
+        private readonly TransactionService $transactionService
+    ) {
     }
 
     /**
      * @return array<Segment>
      */
-    public function findByProcedure(Procedure $procedure): array
+    public function findByProcedure(ProcedureInterface $procedure): array
     {
         return $this->segmentRepository->findByProcedure($procedure);
     }
@@ -96,13 +102,15 @@ class SegmentService extends CoreService
             return;
         }
 
-        $this->transactionService->executeAndFlushInTransaction(function (EntityManager $entityManager) use ($segments): void {
-            // obscure and validate
-            $this->prepareSegmentsForDatabase($segments);
-            // make the segments known to Doctrine
-            array_map($entityManager->persist(...), $segments);
-            // flush will be automatically called
-        });
+        $this->transactionService->executeAndFlushInTransaction(
+            function (EntityManager $entityManager) use ($segments): void {
+                // obscure and validate
+                $this->prepareSegmentsForDatabase($segments);
+                // make the segments known to Doctrine
+                array_map($entityManager->persist(...), $segments);
+                // flush will be automatically called
+            }
+        );
     }
 
     /**
@@ -112,10 +120,24 @@ class SegmentService extends CoreService
      *
      * @see SegmentRepository::editSegmentRecommendations
      */
-    public function editSegmentRecommendations(array $segments, string $procedureId, string $recommendationText, bool $attach, User $user, string $entityType, DateTime $updateTime): void
-    {
+    public function editSegmentRecommendations(
+        array $segments,
+        string $procedureId,
+        string $recommendationText,
+        bool $attach,
+        UserInterface $user,
+        string $entityType,
+        DateTime $updateTime
+    ): void {
         // create and persist the content changes
-        $contentChanges = $this->createRecommendationEditContentChangeEntries($entityType, $segments, $recommendationText, $attach, $user, $updateTime);
+        $contentChanges = $this->createRecommendationEditContentChangeEntries(
+            $entityType,
+            $segments,
+            $recommendationText,
+            $attach,
+            $user,
+            $updateTime
+        );
         $this->segmentRepository->persistEntities($contentChanges);
 
         // do the actual change in the database
@@ -134,12 +156,15 @@ class SegmentService extends CoreService
     {
         $segmentChanges = $this->getSegmentChanges($segments);
 
-        $contentChangeLists = array_map(fn(Segment $segment): array => $this->entityContentChangeService->createEntityContentChangeEntries(
-            $segment,
-            $segmentChanges[$segment->getId()],
-            false,
-            $updateTime
-        ), $segments);
+        $contentChangeLists = array_map(
+            fn(Segment $segment): array => $this->entityContentChangeService->createEntityContentChangeEntries(
+                $segment,
+                $segmentChanges[$segment->getId()],
+                false,
+                $updateTime
+            ),
+            $segments
+        );
 
         // return empty array if $contentChangeLists is empty
         return array_merge([], ...$contentChangeLists);
@@ -226,7 +251,7 @@ class SegmentService extends CoreService
         string $recommendationText,
         bool $attach,
         string $entityType,
-        User $changer,
+        UserInterface $changer,
         DateTime $creationDate
     ): EntityContentChange {
         $preUpdateValue = $segment->getRecommendation();
@@ -236,13 +261,13 @@ class SegmentService extends CoreService
         $contentChange = $this->entityContentChangeService->createContentChangeData(
             $preUpdateValue,
             $postUpdateValue,
-            Segment::RECOMMENDATION_FIELD_NAME,
+            SegmentInterface::RECOMMENDATION_FIELD_NAME,
             Segment::class
         );
 
         $change = $this->entityContentChangeService->createEntityContentChangeEntity(
             $segment,
-            Segment::RECOMMENDATION_FIELD_NAME,
+            SegmentInterface::RECOMMENDATION_FIELD_NAME,
             $contentChange,
             $changer,
             $entityType,
@@ -262,10 +287,23 @@ class SegmentService extends CoreService
      *
      * @return array<int, EntityContentChange>
      */
-    private function createRecommendationEditContentChangeEntries(string $entityType, array $segments, string $recommendationText, bool $attach, User $user, DateTime $creationTime): array
-    {
+    private function createRecommendationEditContentChangeEntries(
+        string $entityType,
+        array $segments,
+        string $recommendationText,
+        bool $attach,
+        UserInterface $user,
+        DateTime $creationTime
+    ): array {
         return array_map(
-            fn(Segment $segment): EntityContentChange => $this->createRecommendationContentChange($segment, $recommendationText, $attach, $entityType, $user, $creationTime),
+            fn(Segment $segment): EntityContentChange => $this->createRecommendationContentChange(
+                $segment,
+                $recommendationText,
+                $attach,
+                $entityType,
+                $user,
+                $creationTime
+            ),
             $segments
         );
     }

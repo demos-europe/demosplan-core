@@ -55,4 +55,12 @@
         font-weight: $bold-font-weight;
         font-family: $bold-font-family;
     }
+
+    ul {
+        list-style: disc;
+    }
+
+    ol {
+        list-style: decimal;
+    }
 }

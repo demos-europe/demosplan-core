@@ -20,6 +20,9 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 
+/**
+ * @template-extends CoreRepository<DevelopmentUserStory>
+ */
 class DevelopmentUserStoryRepository extends CoreRepository implements ArrayInterface
 {
     /**
@@ -237,7 +240,8 @@ class DevelopmentUserStoryRepository extends CoreRepository implements ArrayInte
      */
     public function recalculateAndUpdateVotes($updateClosedReleases)
     {
-        $this->getEntityManager()->getRepository(DevelopmentUserStoryVote::class)
-            ->recalculateAndUpdateAllVotes($updateClosedReleases);
+        /** @var DevelopmentUserStoryVoteRepository $developmentUserStoryVoteRepository */
+        $developmentUserStoryVoteRepository = $this->getEntityManager()->getRepository(DevelopmentUserStoryVote::class);
+        $developmentUserStoryVoteRepository->recalculateAndUpdateAllVotes($updateClosedReleases);
     }
 }

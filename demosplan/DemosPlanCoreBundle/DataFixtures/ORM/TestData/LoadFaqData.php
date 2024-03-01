@@ -17,6 +17,9 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadFaqData extends TestFixture implements DependentFixtureInterface
 {
     final public const FAQ_GUEST = 'testFaqGuest';

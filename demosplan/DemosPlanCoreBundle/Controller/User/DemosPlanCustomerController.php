@@ -25,13 +25,14 @@ use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomerResourceType;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\CustomerFormInput;
-use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\Wrapping\Contracts\AccessException;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Webmozart\Assert\Assert;
 
 class DemosPlanCustomerController extends BaseController
 {
@@ -45,15 +46,15 @@ class DemosPlanCustomerController extends BaseController
         CustomerHandler $customerHandler,
         EntityWrapperFactory $wrapperFactory,
         PrefilledResourceTypeProvider $resourceTypeProvider,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        RouterInterface $router
     ): Response {
         try {
             // Using a resource instead of the unrestricted entity is done here to easily notice
             // missing authorizations in the API contract until the page is migrated to an API
             // approach completely.
-            $customerResourceType = $resourceTypeProvider->requestType(CustomerResourceType::getName())
-                ->instanceOf(ResourceTypeInterface::class)
-                ->getInstanceOrThrow();
+            $customerResourceType = $resourceTypeProvider->getTypeByIdentifier(CustomerResourceType::getName());
+            Assert::isInstanceOf($customerResourceType, CustomerResourceType::class);
             $currentCustomer = $customerHandler->getCurrentCustomer();
             if (!$customerResourceType->isAvailable()) {
                 throw AccessException::typeNotAvailable($customerResourceType);
@@ -63,6 +64,7 @@ class DemosPlanCustomerController extends BaseController
             $templateVars = [
                 'customer'      => $customerResource,
                 'projectDomain' => $this->getGlobalConfig()->getProjectDomain(),
+                'imprintUrl'    => $router->generate('DemosPlan_misccontent_static_imprint', [], RouterInterface::ABSOLUTE_URL),
             ];
 
             return $this->renderTemplate(

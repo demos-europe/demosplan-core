@@ -23,13 +23,11 @@
       <ul
         :class="prefixClass('c-map__group js__mapLayerLegends')"
         v-show="unfolded">
-        <li
-          v-if="hasPermission('feature_map_use_plan_pdf') && planPdf.hash"
-          :class="prefixClass('list-style-none')">
+        <li v-if="hasPermission('feature_map_use_plan_pdf') && planPdf.hash">
           <a
             :class="prefixClass('c-map__group-item block')"
             target="_blank"
-            :href="Routing.generate('core_file', { hash: planPdf.hash })"
+            :href="Routing.generate('core_file_procedure', { hash: planPdf.hash, procedureId: procedureId})"
             :title="planPdfTitle">
             <i
               :class="prefixClass('fa fa-download')"
@@ -47,12 +45,11 @@
           <li
             v-for="(layer, idx) in layersWithLegendFiles"
             :key="idx"
-            :data-layername="layer.name"
-            :class="prefixClass('list-style-none')">
+            :data-layername="layer.name">
             <a
               :class="prefixClass('c-map__group-item block')"
               target="_blank"
-              :href="Routing.generate('core_file', { hash: layer.legend.hash })"
+              :href="Routing.generate('core_file_procedure', { hash: layer.legend.hash, procedureId: procedureId })"
               :title="`${layer.name} (${layer.legend.mimeType}, ${layer.legend.fileSize})`">
               {{ layer.name }}
             </a>
@@ -85,7 +82,12 @@ export default {
     planPdf: {
       type: Object,
       default: () => ({})
-    }
+    },
+
+  procedureId: {
+    type: String,
+    required: true
+  }
   },
 
   data () {

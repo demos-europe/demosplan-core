@@ -69,7 +69,9 @@ abstract class SimplifiedStatementCreator
             $rParams,
             $this->currentUser->hasPermission('feature_statement_data_input_orga')
         );
-        $this->handleCreatedStatement($request, $statement);
+        if (false !== $statement && null !== $statement) {
+            $this->handleCreatedStatement($request, $statement);
+        }
 
         return $this->redirectResponse(
             $request,

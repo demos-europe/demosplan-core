@@ -2,8 +2,9 @@
     <dp-upload-files
         id="r_document"
         allowed-file-types="pdf-zip-video"
+        :basic-auth="dplan.settings.basicAuth"
         :get-file-by-hash="(hash) => {
-           return Routing.generate('core_file', { hash: hash })
+           return Routing.generate('core_file_procedure', { hash: hash, procedureId: procedure })
         }"
         :label="{
           hint: Translator.trans('file.upload.pdf.zip.mp4'),
@@ -14,14 +15,16 @@
         name="r_document"
         needs-hidden-input
         :required="{{ required ? 'true' : 'false' }}"
-        :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }">
+        :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
+        :tus-endpoint="dplan.paths.tusEndpoint">
     </dp-upload-files>
 {% else %}
     <dp-upload-files
         id="r_document"
         allowed-file-types="pdf-video"
+        :basic-auth="dplan.settings.basicAuth"
         :get-file-by-hash="(hash) => {
-           return Routing.generate('core_file', { hash: hash })
+           return Routing.generate('core_file_procedure', { hash: hash, procedureId: procedure })
         }"
         :label="{
           hint: Translator.trans('file.upload.pdf.mp4'),
@@ -32,6 +35,7 @@
         name="r_document"
         needs-hidden-input
         :required="{{ required ? 'true' : 'false' }}"
-        :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }">
+        :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
+        :tus-endpoint="dplan.paths.tusEndpoint">
     </dp-upload-files>
 {% endif %}

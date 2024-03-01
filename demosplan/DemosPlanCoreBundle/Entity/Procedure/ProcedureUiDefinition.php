@@ -53,7 +53,7 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface, P
      *
      * @Gedmo\Timestampable(on="create")
      *
-     * @ORM\Column(type="datetime", nullable=false)
+     * @ORM\Column(type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
      */
     private $creationDate;
 
@@ -62,7 +62,7 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface, P
      *
      * @Gedmo\Timestampable(on="update")
      *
-     * @ORM\Column(type="datetime", nullable=false)
+     * @ORM\Column(type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
      */
     private $modificationDate;
 
@@ -75,7 +75,7 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface, P
      *
      * @var Procedure|null
      *
-     * @ORM\OneToOne(targetEntity="Procedure", mappedBy="procedureUiDefinition")
+     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", mappedBy="procedureUiDefinition")
      *
      * @JoinColumn(referencedColumnName="_p_id")
      */
@@ -88,7 +88,7 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface, P
      *
      * @var ProcedureType|null
      *
-     * @ORM\OneToOne(targetEntity="ProcedureType", mappedBy="procedureUiDefinition")
+     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType", mappedBy="procedureUiDefinition")
      *
      * @JoinColumn()
      */
@@ -97,28 +97,28 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface, P
     /**
      * @var string
      *
-     * @ORM\Column(type="text", nullable=false, options={"default":""})
+     * @ORM\Column(type="text", nullable=false)
      */
     private $mapHintDefault = '';
 
     /**
      * @var string
      *
-     * @ORM\Column(type="text", nullable=false, options={"default":""})
+     * @ORM\Column(type="text", nullable=false)
      */
     private $statementFormHintStatement = '';
 
     /**
      * @var string
      *
-     * @ORM\Column(type="text", nullable=false, options={"default":""})
+     * @ORM\Column(type="text", nullable=false)
      */
     private $statementFormHintPersonalData = '';
 
     /**
      * @var string
      *
-     * @ORM\Column(type="text", nullable=false, options={"default":""})
+     * @ORM\Column(type="text", nullable=false)
      */
     private $statementFormHintRecheck = '';
 
@@ -138,6 +138,11 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface, P
     public function getId(): ?string
     {
         return $this->id;
+    }
+
+    public function setId(string $id): void
+    {
+        $this->id = $id;
     }
 
     public function getProcedure(): ?Procedure

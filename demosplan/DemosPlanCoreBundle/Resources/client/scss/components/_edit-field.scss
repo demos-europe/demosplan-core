@@ -13,6 +13,14 @@
 .c-edit-field {
     position: relative;
 
+    ul {
+        list-style: disc;
+    }
+
+    ol {
+        list-style: decimal;
+    }
+
     &__trigger {
         position: absolute;
         right: 0;

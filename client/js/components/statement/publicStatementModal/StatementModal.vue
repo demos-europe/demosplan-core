@@ -101,6 +101,7 @@
             <dp-radio
               name="r_isNegativeReport"
               id="negative_report_false"
+              data-cy="statementModal:publicParticipationParticipate"
               class="u-mr-2"
               :checked="formData.r_isNegativeReport === '0'"
               @change="() => { setStatementData({ r_isNegativeReport: '0'}) }"
@@ -111,6 +112,7 @@
             <dp-radio
               name="r_isNegativeReport"
               id="negative_report_true"
+              data-cy="statementModal:indicationerror"
               :checked="formData.r_isNegativeReport === '1'"
               @change="() => { setStatementData({ r_isNegativeReport: '1'}) }"
               :label="{
@@ -171,6 +173,7 @@
 
         <template v-if="hasPermission('field_statement_add_assignment') && hasPlanningDocuments">
           <p
+            v-if="formData.r_isNegativeReport === '0'"
             aria-hidden="true"
             :class="prefixClass('c-statement__formblock-title u-mb-0_25 weight--bold inline-block')">
             {{ Translator.trans('element.assigned') }}
@@ -199,7 +202,8 @@
               </button>
             </template>
             <button
-              v-else
+              v-else-if="formData.r_isNegativeReport === '0'"
+              data-cy="statementModal:elementAssign"
               @click="gotoTab('procedureDetailsDocumentlist')"
               :class="prefixClass('btn--blank o-link--default text-left')">
               <i
@@ -258,7 +262,7 @@
                   :class="prefixClass('o-hellip')">
                   <a
                     :class="prefixClass('align-top')"
-                    :href="Routing.generate('core_file', { hash: file.hash })"
+                    :href="Routing.generate('core_file_procedure', { hash: file.hash, procedureId: procedureId })"
                     rel="noopener"
                     target="_blank">
                     {{ file.name }}
@@ -281,11 +285,13 @@
                 <dp-upload-files
                   id="upload_files"
                   allowed-file-types="pdf-img-zip"
-                  :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
+                  :basic-auth="dplan.settings.basicAuth"
+                  :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
                   :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
                   :max-number-of-files="20"
                   ref="uploadFiles"
                   :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
+                  :tus-endpoint="dplan.paths.tusEndpoint"
                   :side-by-side="initialFiles.length === 0"
                   :storage-name="fileStorageName"
                   @file-remove="removeUnsavedFile"
@@ -341,6 +347,7 @@
               v-if="hasPermission('feature_draft_statement_citizen_immediate_submit') && draftStatementId === ''"
               type="submit"
               :disabled="isLoading"
+              data-cy="statementModal:statementSaveImmediate"
               @click="e => sendStatement(e,true)"
               :class="prefixClass('btn btn--primary u-1-of-1-palm u-mt-0_5-palm')">
               {{ Translator.trans('statement.save.immediate') }}
@@ -353,7 +360,7 @@
                 prefixClass('btn u-1-of-1-palm u-mt-0_5-palm')
               ]"
               @click="sendStatement"
-              data-cy="saveAsDraft">
+              data-cy="statementModal:saveAsDraft">
               <template v-if="draftStatementId === ''">
                 {{ Translator.trans('statement.save.as.draft') }}
               </template>
@@ -364,6 +371,7 @@
           </template>
           <button
             type="reset"
+            data-cy="statementModal:discardChanges"
             :disabled="isLoading"
             :class="prefixClass('btn btn--secondary u-1-of-1-palm u-ml-lap-up')"
             @click.prevent="() => reset()">
@@ -453,7 +461,7 @@
               name="r_useName"
               data-cy="submitPublicly"
               value="1"
-              @change="val => setStatementData({r_useName: '1'})"
+              @change="val => setPrivacyPreference({r_useName: '1'})"
               :checked="formData.r_useName === '1'"
               :label="{
                 text: Translator.trans('statement.detail.form.personal.post_publicly')
@@ -480,7 +488,7 @@
               id="r_useName_0"
               name="r_useName"
               value="0"
-              @change="val => setStatementData({r_useName: '0'})"
+              @change="val => setPrivacyPreference({r_useName: '0'})"
               :checked="formData.r_useName === '0'"
               :label="{
                 text: Translator.trans('statement.detail.form.personal.post_anonymously')
@@ -883,6 +891,8 @@ export default {
   },
 
   computed: {
+    ...mapState('notify', ['messages']),
+
     ...mapState('publicStatement', {
       initFormDataJSON: 'initForm',
       initDraftStatements: 'initDraftStatements',
@@ -960,6 +970,8 @@ export default {
   },
 
   methods: {
+    ...mapMutations('notify', ['remove']),
+
     ...mapMutations('publicStatement', [
       'addUnsavedDraft',
       'clearDraftState',
@@ -985,11 +997,11 @@ export default {
       }
 
       const invalidFields = this.dpValidate.invalidFields[formId]
-      const fieldDescriptions = invalidFields.map(field => {
+      const uniqueFieldDescriptions = Array.from(new Set(invalidFields.map(field => {
         const fieldId = field.getAttribute('id')
         return `<li>${Translator.trans(fieldDescriptionsForErrors[fieldId])}</li>`
-      })
-      return `<p>${Translator.trans('error.in.fields')}</p><ul class="u-mb-0 u-ml">${fieldDescriptions.join('')}</ul>`
+      })))
+      return `<p>${Translator.trans('error.in.fields')}</p><ul class="u-mb-0 u-ml">${uniqueFieldDescriptions.join('')}</ul>`
     },
 
     fieldIsActive (fieldKey) {
@@ -1178,6 +1190,12 @@ export default {
       this.setStatementData(elementFields)
     },
 
+    removeNotificationsFromStore () {
+      this.messages.forEach(message => {
+        this.remove(message)
+      })
+    },
+
     removeUnsavedFile (file) {
       const indexToRemove = this.unsavedFiles.findIndex(el => el.hash === file.hash)
       this.unsavedFiles.splice(indexToRemove, 1)
@@ -1340,6 +1358,11 @@ export default {
         .then(() => {
           this.isLoading = false
         })
+    },
+
+    setPrivacyPreference (data) {
+      this.setStatementData(data)
+      this.removeNotificationsFromStore()
     },
 
     writeDraftStatementIdToSession (draftStatementId) {

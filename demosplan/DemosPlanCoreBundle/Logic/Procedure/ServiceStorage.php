@@ -156,8 +156,8 @@ class ServiceStorage implements ProcedureServiceStorageInterface
 
         // check for mandatory fields which should be programmatically added
         $mandatoryFields = ['orgaId', 'orgaName', 'r_copymaster'];
-        if (array_key_exists('r_copymaster', $data) &&
-            $this->masterTemplateService->getMasterTemplateId() !== $data['r_copymaster']) {
+        if (array_key_exists('r_copymaster', $data)
+            && $this->masterTemplateService->getMasterTemplateId() !== $data['r_copymaster']) {
             // r_procedure_type is only required if an actual procedure is created,
             // procedure blueprints do not need a procedure type.
             if (!array_key_exists('r_master', $data) || 'true' !== $data['r_master']) {
@@ -194,16 +194,6 @@ class ServiceStorage implements ProcedureServiceStorageInterface
                     ]
                 ),
             ];
-        }
-
-        // check if an MMPB is already existing for customer in case of customer is set
-        if (array_key_exists('customer', $data)
-            && $data['customer'] instanceof Customer
-            && $this->procedureService->isCustomerMasterBlueprintExisting($data['customer']->getId())
-        ) {
-            $this->messageBag->add(
-                'warning', 'customer.master.blueprint.already.exists',
-                ['customerName' => $data['customer']->getName()]);
         }
 
         if (array_key_exists('r_name', $data)) {
@@ -360,19 +350,25 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'oldSlug');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'desc');
 
-        // T15644: in case of deselected customer master blue print, the key 'r_customerMasterBlueprint' will be missing:
+        $currentCustomer = $this->customerService->getCurrentCustomer();
+        $isMasterTemplate = $this->masterTemplateService->getMasterTemplate()->getId() === $currentProcedure->getId();
+        // do not set a customer for the masterTemplate
         $procedure['customer'] = null;
-        if (array_key_exists('r_customerMasterBlueprint', $data)) { // soll current customer gesetzt werden?
-            $currentCustomer = $this->customerService->getCurrentCustomer();
-            if ($currentCustomer->getId() !== $currentProcedure->getCustomerId()// ist cc noch nicht gesetzt?
-                && $this->procedureService->isCustomerMasterBlueprintExisting($currentCustomer->getId())) {
-                $this->messageBag->add(
-                    'warning',
-                    'customer.master.blueprint.already.exists',
-                    ['customerName' => $currentCustomer->getName()]
-                );
+        if (!$isMasterTemplate) {
+            $procedure['customer'] = $currentCustomer;
+            if (array_key_exists('r_customerMasterBlueprint', $data)) {
+                $currentCustomer->setDefaultProcedureBlueprint($currentProcedure);
+                $this->customerService->updateCustomer($currentCustomer);
             } else {
-                $procedure['customer'] = $currentCustomer;
+                // T15644 & T34551 if the key 'r_customerMasterBlueprint' is not set within the $data array,
+                // - the assumption is that the procedure shall not be the default-customer-blueprint
+                // if the procedure is currently the default-customer-blueprint uncheck it as requested
+                if ($isBlueprint) {
+                    if ($currentProcedure === $currentCustomer->getDefaultProcedureBlueprint()) {
+                        $currentCustomer->setDefaultProcedureBlueprint(null);
+                        $this->customerService->updateCustomer($currentCustomer);
+                    }
+                }
             }
         }
 
@@ -441,8 +437,8 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'locationPostCode');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'publicParticipationContact');
 
-        if ($this->permissions->hasPermission('feature_procedure_categories_edit') &&
-            array_key_exists('r_procedure_categories', $data)) {
+        if ($this->permissions->hasPermission('feature_procedure_categories_edit')
+            && array_key_exists('r_procedure_categories', $data)) {
             // if empty string, reset categories
             if ('' === $data['r_procedure_categories']) {
                 $data['r_procedure_categories'] = [];

@@ -54,6 +54,8 @@ class GenericRpcController extends BaseController
         RpcErrorGenerator $errorGenerator,
         Exception $e
     ): JsonResponse {
+        $this->logger->error('RPC Route Exception', [$e]);
+
         if ($e instanceof InvalidSchemaException
             || $e instanceof InvalidArgumentException
             || $e instanceof JsonException) {

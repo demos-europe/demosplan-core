@@ -20,6 +20,11 @@
       v-else
       :action="formAction"
       method="POST">
+      <input
+        name="_token"
+        type="hidden"
+        :value="csrfToken">
+
       <dp-tree-list
         @node-selection-change="nodeSelectionChange"
         :tree-data="recursiveElements"
@@ -76,6 +81,13 @@ export default {
 
   directives: {
     cleanhtml: CleanHtml
+  },
+
+  props: {
+    csrfToken: {
+      type: String,
+      required: true
+    }
   },
 
   data () {

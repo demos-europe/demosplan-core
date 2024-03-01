@@ -101,6 +101,8 @@
                             {% if statementIdToBeSplit is defined and statementIdToBeSplit is not null %}
                                 <div class="u-mt text-right">
                                     <form method="post" action="{{ path('dplan_drafts_list_claim', {'statementId':statementIdToBeSplit, 'procedureId': procedure}) }}">
+                                        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
                                         {{ uiComponent('button', {
                                             type: 'submit',
                                             text: 'statement.do.segment.next'|trans

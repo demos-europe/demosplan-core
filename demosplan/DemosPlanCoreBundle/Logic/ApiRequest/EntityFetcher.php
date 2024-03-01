@@ -13,32 +13,26 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanCoreBundle\Repository\FluentRepository;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
-use demosplan\DemosPlanCoreBundle\ValueObject\APIPagination;
 use Doctrine\ORM\EntityManager;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
+use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\DqlQuerying\ObjectProviders\DoctrineOrmEntityProvider;
 use EDT\DqlQuerying\Utilities\JoinFinder;
 use EDT\DqlQuerying\Utilities\QueryBuilderPreparer;
-use EDT\JsonApi\RequestHandling\EntityFetcherInterface;
 use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\PaginationException;
 use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\SortException;
 use EDT\Querying\Contracts\SortMethodInterface;
-use EDT\Querying\ObjectProviders\PrefilledObjectProvider;
+use EDT\Querying\ObjectProviders\PrefilledEntityProvider;
+use EDT\Querying\Pagination\OffsetPagination;
 use EDT\Querying\Utilities\ConditionEvaluator;
 use EDT\Querying\Utilities\Sorter;
-use EDT\Wrapping\Contracts\AccessException;
-use EDT\Wrapping\Contracts\Types\IdentifiableTypeInterface;
-use EDT\Wrapping\Contracts\Types\TransferableTypeInterface;
-use Pagerfanta\Doctrine\ORM\QueryAdapter;
 
-class EntityFetcher implements EntityFetcherInterface
+use const PHP_INT_MAX;
+
+class EntityFetcher
 {
     private readonly JoinFinder $joinFinder;
 
@@ -49,38 +43,6 @@ class EntityFetcher implements EntityFetcherInterface
         private readonly Sorter $sorter
     ) {
         $this->joinFinder = new JoinFinder($this->entityManager->getMetadataFactory());
-    }
-
-    /**
-     * @deprecated use {@link DplanResourceType::listEntities()} instead
-     */
-    public function listEntities(TransferableTypeInterface $type, array $conditions, array $sortMethods = []): array
-    {
-        return $type->listEntities($conditions, $sortMethods);
-    }
-
-    /**
-     * @deprecated use {@link DplanResourceType::getEntityPaginator()} instead
-     */
-    public function getEntityPaginator(
-        TransferableTypeInterface $type,
-        APIPagination $pagination,
-        array $conditions,
-        array $sortMethods = []
-    ): DemosPlanPaginator {
-        return $type->getEntityPaginator($pagination, $conditions, $sortMethods);
-    }
-
-    /**
-     * @deprecated use {@link DplanResourceType::listPrefilteredEntities()} instead
-     */
-    public function listPrefilteredEntities(
-        TransferableTypeInterface $type,
-        array $dataObjects,
-        array $conditions = [],
-        array $sortMethods = []
-    ): array {
-        return $type->listPrefilteredEntities($dataObjects, $conditions, $sortMethods);
     }
 
     /**
@@ -102,8 +64,15 @@ class EntityFetcher implements EntityFetcherInterface
      */
     public function listPrefilteredEntitiesUnrestricted(array $dataObjects, array $conditions, array $sortMethods = [], int $offset = 0, int $limit = null): array
     {
-        $entityProvider = new PrefilledObjectProvider($this->conditionEvaluator, $this->sorter, $dataObjects);
-        $entities = $entityProvider->getObjects($conditions, $sortMethods, $offset, $limit);
+        $entityProvider = new PrefilledEntityProvider($this->conditionEvaluator, $this->sorter, $dataObjects);
+
+        $pagination = null;
+        if (0 !== $offset || null === $limit) {
+            $limit = PHP_INT_MAX;
+            $pagination = new OffsetPagination($offset, $limit);
+        }
+
+        $entities = $entityProvider->getEntities($conditions, $sortMethods, $pagination);
 
         return is_array($entities) ? $entities : iterator_to_array($entities);
     }
@@ -114,112 +83,9 @@ class EntityFetcher implements EntityFetcherInterface
     public function listEntitiesUnrestricted(string $entityClass, array $conditions, array $sortMethods = [], int $offset = 0, int $limit = null): array
     {
         $entityProvider = $this->createOrmEntityProvider($entityClass);
-
-        $entities = $entityProvider->getObjects($conditions, $sortMethods, $offset, $limit);
+        $entities = $entityProvider->getEntities($conditions, $sortMethods, new OffsetPagination($offset, $limit ?? PHP_INT_MAX));
 
         return is_array($entities) ? $entities : iterator_to_array($entities);
-    }
-
-    /**
-     * @deprecated use {@link FluentRepository::getEntitiesForPage()} instead
-     */
-    public function listPaginatedEntitiesUnrestricted(
-        string $entityClass,
-        array $conditions,
-        int $page,
-        int $pageSize,
-        array $sortMethods = []
-    ): DemosPlanPaginator {
-        $entityProvider = $this->createOrmEntityProvider($entityClass);
-        $queryBuilder = $entityProvider->generateQueryBuilder($conditions, $sortMethods);
-
-        $queryAdapter = new QueryAdapter($queryBuilder);
-        $paginator = new DemosPlanPaginator($queryAdapter);
-        $paginator->setMaxPerPage($pageSize);
-        $paginator->setCurrentPage($page);
-
-        return $paginator;
-    }
-
-    /**
-     * @template O of object
-     *
-     * @param IdentifiableTypeInterface<O>&TransferableTypeInterface<O> $type
-     *
-     * @return O
-     *
-     * @throws AccessException          thrown if the resource type denies the currently logged in user
-     *                                  the access to the resource type needed to fulfill the request
-     * @throws InvalidArgumentException thrown if no entity with the given ID and resource type was found
-     *
-     * @deprecated use {@link DplanResourceType::getEntityAsReadTarget()} instead
-     */
-    public function getEntityAsReadTarget(IdentifiableTypeInterface $type, string $id): object
-    {
-        return $type->getEntityAsReadTarget($id);
-    }
-
-    /**
-     * @template O of object
-     *
-     * @param IdentifiableTypeInterface<O>&DeletableDqlResourceTypeInterface<O> $type
-     *
-     * @return O
-     *
-     * @throws AccessException          thrown if the resource type denies the currently logged in user
-     *                                  the access to the resource type needed to fulfill the request
-     * @throws InvalidArgumentException thrown if no entity with the given ID and resource type was found
-     *
-     * @deprecated use {@link DplanResourceType::getEntityByTypeIdentifier()} instead
-     */
-    public function getEntityAsDeletionTarget(IdentifiableTypeInterface $type, string $id): object
-    {
-        return $type->getEntityByTypeIdentifier($id);
-    }
-
-    /**
-     * @template O of object
-     *
-     * @param IdentifiableTypeInterface<O>&TransferableTypeInterface<O> $type
-     *
-     * @return O
-     *
-     * @throws AccessException          thrown if the resource type denies the currently logged in user
-     *                                  the access to the resource type needed to fulfill the request
-     * @throws InvalidArgumentException thrown if no entity with the given ID and resource type was found
-     *
-     * @deprecated use {@link DplanResourceType::getEntityByTypeIdentifier()} instead
-     */
-    public function getEntityAsUpdateTarget(IdentifiableTypeInterface $type, string $id): object
-    {
-        return $type->getEntityByTypeIdentifier($id);
-    }
-
-    /**
-     * @deprecated use {@link DplanResourceType::getEntityCount()} instead
-     */
-    public function getEntityCount(TransferableTypeInterface $type, array $conditions): int
-    {
-        return $type->getEntityCount($conditions);
-    }
-
-    /**
-     * @deprecated use {@link DplanResourceType::getEntityByTypeIdentifier()} instead
-     */
-    public function getEntityByTypeIdentifier(IdentifiableTypeInterface $type, string $id): object
-    {
-        return $type->getEntityByTypeIdentifier($id);
-    }
-
-    /**
-     * @deprecated use {@link DplanResourceType::listEntityIdentifiers()} instead
-     */
-    public function listEntityIdentifiers(
-        TransferableTypeInterface $type,
-        array $conditions,
-        array $sortMethods
-    ) {
-        return $type->listEntityIdentifiers($conditions, $sortMethods);
     }
 
     /**
@@ -265,13 +131,17 @@ class EntityFetcher implements EntityFetcherInterface
     }
 
     /**
-     * @param class-string $entityClass
+     * @template T of object
+     *
+     * @param class-string<T> $entityClass
+     *
+     * @return DoctrineOrmEntityProvider<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, T>
      */
     private function createOrmEntityProvider(string $entityClass): DoctrineOrmEntityProvider
     {
         $builderPreparer = $this->createQueryBuilderPreparer($entityClass);
 
-        return new DoctrineOrmEntityProvider($this->entityManager, $builderPreparer);
+        return new DoctrineOrmEntityProvider($this->entityManager, $builderPreparer, $entityClass);
     }
 
     /**

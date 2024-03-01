@@ -24,6 +24,9 @@ use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadUserData extends TestFixture
 {
     /**

@@ -10,17 +10,20 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use Doctrine\ORM\ORMException;
 use Exception;
 
-class SegmentRepository extends FluentRepository
+/**
+ * @template-extends CoreRepository<Segment>
+ */
+class SegmentRepository extends CoreRepository
 {
     /**
      * @return array<Segment>
      */
-    public function findByProcedure(Procedure $procedure): array
+    public function findByProcedure(ProcedureInterface $procedure): array
     {
         return $this->findBy(['procedure' => $procedure]);
     }
@@ -111,13 +114,10 @@ class SegmentRepository extends FluentRepository
             return;
         }
 
-        // wrap the given text in quotes so the DB handles it as string instead of an expression
-        $recommendationText = "'$recommendationText'";
-
         $qb = $this->getEntityManager()->createQueryBuilder();
         $value = $attach
-            ? $qb->expr()->concat('segment.recommendation', $recommendationText)
-            : $recommendationText;
+            ? $qb->expr()->concat('segment.recommendation', ':recommendationText')
+            : ':recommendationText';
 
         $query = $qb
             ->update(Segment::class, 'segment')
@@ -125,6 +125,7 @@ class SegmentRepository extends FluentRepository
             ->where($qb->expr()->in('segment.id', $segmentIds))
             ->andWhere('segment.procedure = :procedureId')
             ->setParameter('procedureId', $procedureId)
+            ->setParameter('recommendationText', $recommendationText)
             ->getQuery();
 
         $query->execute();

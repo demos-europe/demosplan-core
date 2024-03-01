@@ -17,6 +17,9 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\ConsultationToken;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadConsultationTokenData extends TestFixture implements DependentFixtureInterface
 {
     final public const CONSULTATION_TOKEN = 'consultationToken';

@@ -20,8 +20,7 @@
             enctype="multipart/form-data"
             data-dp-validate
             method="post"
-            action="{{ path('DemosPlan_procedure_edit_master',{'procedure':proceduresettings.ident}) }}"
-        >
+            action="{{ path('DemosPlan_procedure_edit_master',{'procedure':proceduresettings.ident}) }}">
             <input type="hidden" name="_token" value="{{ form._token.vars.value }}" />
             <input type="hidden" value="{% if proceduresettings.ident is defined %}{{ proceduresettings.ident }}{% endif %}" name="r_ident">
             <input type="hidden" value="{% if templateVars.internalPhases.1 is defined %}{{ templateVars.internalPhases.1.key }}{% endif %}" name="r_phase">
@@ -68,7 +67,7 @@
                 {% endblock %}
             {% endif %}
 
-            {% if hasProcedureUserRestrictedAccess %}
+            {% if hasProcedureUserRestrictedAccess and hasPermission('feature_procedure_user_restrict_access_edit') %}
                 <div class="u-mb flow-root">
                     <label class="inline-block u-mb-0" for="r_dataInputOrga">
                         {{ "authorized.users"|trans }}
@@ -105,20 +104,20 @@
             <label>
                 {{ "internalnote"|trans }}
                 {# Bei textareas muss der Inhalt ohne Leerzeichen zwischen den Tags stehen, sonst werden die Leerzeichen ausgegeben und multiplizieren sich im Frontend. #}
-                <textarea class="height-60" name="r_desc">{% if proceduresettings.desc is defined %}{{ proceduresettings.desc }}{% else %}{{ "notspecified"|trans }}{% endif %}</textarea>
+                <textarea class="h-7" name="r_desc">{% if proceduresettings.desc is defined %}{{ proceduresettings.desc }}{% else %}{{ "notspecified"|trans }}{% endif %}</textarea>
             </label>
 
             <div class="u-mb flow-root">
                 <label class="inline-block u-mb-0" for="{{ form.agencyMainEmailAddress.vars.id }}">
                     {{ "email.procedure.agency"|trans }}
-                    {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                        helpText: 'email.procedure.agency.help'|trans,
-                        cssClasses:'o-tooltip--question-circle float-right u-mt-0_125'
-                    } %}
                     <p class="lbl__hint weight--normal text-left">
                         {{ "explanation.organisation.email.procedure.agency"|trans|wysiwyg }}
                     </p>
                 </label>
+                {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
+                    helpText: 'email.procedure.agency.help'|trans,
+                    cssClasses:'o-tooltip--question-circle float-right u-mt-0_125'
+                } %}
 
                 {{ form_errors(form.agencyMainEmailAddress) }}
                 <input

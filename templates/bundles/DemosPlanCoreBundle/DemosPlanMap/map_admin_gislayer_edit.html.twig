@@ -15,6 +15,7 @@
 
             <input type="hidden" value="{{ gislayer.ident|default() }}" name="r_ident">
             <input type="hidden" value="{{ isGlobalLayer == true ? '1' : '0' }}" name="r_isGlobalLayer">
+            {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
             {% if isGlobalLayer %}
 
@@ -84,7 +85,7 @@
                                     {{ "overlay"|trans }}
                                 </label>
                                 {% if hasPermission('area_public_participation') and hasPermission('feature_map_use_territory') %}
-                                    <ul class="list-style-none u-pl">
+                                    <ul class="u-pl">
                                         <li>
                                             <label
                                                 class="u-mb-0_25 cursor-pointer"
@@ -196,7 +197,7 @@
                 elements: [
                     {
                         label: { text: 'opacity.percent'|trans },
-                        control: { name: 'r_opacity', value: gislayer.opacity|default(100), pattern: "^\\d{1,2}?([.|,]\\d{1,2})?$|^100$", size: 'tiny' },
+                        control: { name: 'r_opacity', value: gislayer.opacity|default(100), pattern: "^\\d{1,2}?([\\.,]\\d{1,2})?$|^100$", size: 'tiny' },
                         id: 'r_opacity',
                         type: 'text',
                         required: true
@@ -250,6 +251,7 @@
 
             <label class="u-mb-0_5">
                 <input
+                    id="user_toggle_visibility"
                     type="checkbox"
                     name="r_user_toggle_visibility"
                     value="1"

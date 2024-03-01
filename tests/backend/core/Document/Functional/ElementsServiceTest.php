@@ -436,8 +436,8 @@ class ElementsServiceTest extends FunctionalTestCase
     {
         $data = [
             'enabled'       => true,
-            'title'         => ElementsInterface::FILE_TYPE_PLANZEICHNUNG,
-            'category'      => ElementsInterface::ELEMENTS_CATEGORY_MAP,
+            'title'         => ElementsInterface::ELEMENT_TITLES['planzeichnung'],
+            'category'      => ElementsInterface::ELEMENT_CATEGORIES['map'],
         ];
 
         $this->testElement->setEnabled($data['enabled']);
@@ -457,8 +457,8 @@ class ElementsServiceTest extends FunctionalTestCase
 
         $data = [
             'enabled'       => true,
-            'title'         => ElementsInterface::STATEMENT_TYPE_FEHLANZEIGE,
-            'category'      => ElementsInterface::ELEMENTS_CATEGORY_STATEMENT,
+            'title'         => ElementsInterface::ELEMENT_TITLES['fehlanzeige'],
+            'category'      => ElementsInterface::ELEMENT_CATEGORIES['statement'],
         ];
 
         $this->testElement->setEnabled($data['enabled']);
@@ -650,9 +650,9 @@ class ElementsServiceTest extends FunctionalTestCase
                 $foundFileElement = true;
             }
 
-            self::assertNotEquals(ElementsInterface::ELEMENTS_CATEGORY_CATEGORY, $element['category']);
-            self::assertNotEquals(ElementsInterface::ELEMENTS_CATEGORY_MAP, $element['category']);
-            self::assertNotEquals(ElementsInterface::ELEMENTS_CATEGORY_STATEMENT, $element['category']);
+            self::assertNotEquals(ElementsInterface::ELEMENT_CATEGORIES['category'], $element['category']);
+            self::assertNotEquals(ElementsInterface::ELEMENT_CATEGORIES['map'], $element['category']);
+            self::assertNotEquals(ElementsInterface::ELEMENT_CATEGORIES['statement'], $element['category']);
             self::assertEquals(1, $element['enabled']);
         }
 

@@ -59,14 +59,14 @@
       <div
         v-show="actions.anonymizeStatementText"
         class="u-ml">
-        <dp-tooltip-icon
-          icon="fa-question-circle float-right"
+        <dp-contextual-help
+          class="float-right"
           :text="Translator.trans('statement.anonymize.text.editor.hint')" />
         <p class="weight--bold u-mb-0_25">
           {{ Translator.trans('statement.anonymize.text.editor.title') }}
         </p>
         <dp-anonymize-text
-          class="u-mb u-p-0_25 overflow-y-auto max-height-500"
+          class="u-mb u-p-0_25 overflow-y-auto max-h-13"
           :value="anonymizeText"
           @change="text => anonymizeText = text" />
       </div>
@@ -238,7 +238,7 @@ import {
   dpApi,
   DpButton,
   DpCheckbox,
-  DpTooltipIcon
+  DpContextualHelp
 } from '@demos-europe/demosplan-ui'
 
 export default {
@@ -248,7 +248,7 @@ export default {
     DpButton,
     DpCheckbox,
     DpAnonymizeText,
-    DpTooltipIcon
+    DpContextualHelp
   },
 
   directives: {

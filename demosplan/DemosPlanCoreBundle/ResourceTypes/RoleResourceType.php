@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<Role>
@@ -38,17 +37,22 @@ final class RoleResourceType extends DplanResourceType
         return Role::class;
     }
 
+    public function getIdentifierPropertyPath(): array
+    {
+        return $this->ident->getAsNames();
+    }
+
     public function isAvailable(): bool
     {
         return true;
     }
 
-    public function isReferencable(): bool
+    public function isGetAllowed(): bool
     {
-        return true;
+        return false;
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isListAllowed(): bool
     {
         return false;
     }
@@ -66,8 +70,8 @@ final class RoleResourceType extends DplanResourceType
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)
-                ->readable(true)
+            $this->createIdentifier()
+                ->readable()
                 ->filterable()
                 ->sortable()
                 ->aliasedPath($this->ident),
@@ -84,7 +88,7 @@ final class RoleResourceType extends DplanResourceType
                 ->filterable()
                 ->sortable(),
             $this->createAttribute($this->name)
-                ->readable(true, static fn(Role $role): string =>
+                ->readable(true, static fn (Role $role): string =>
                     // Role->name is no longer found in database. It is added on doctrine postLoad
                     // event via RoleEntityListener. This allows the use of correctly translated
                     // names, but it can't be filtered or sorted at the moment.

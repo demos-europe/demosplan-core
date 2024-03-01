@@ -277,7 +277,7 @@
       <dp-item-row
         icon="fa-comment"
         title="fragment.text">
-        <dp-text-wrapper :text="fragment.text" />
+        <text-content-renderer :text="fragment.text" />
       </dp-item-row>
 
       <!-- fragment consideration -->
@@ -324,6 +324,7 @@
           v-if="editable && editing">
           <dp-fragment-edit
             @closeEditMode="closeEditMode"
+            :csrf-token="csrfToken"
             :fragment-id="fragment.id"
             :procedure-id="fragment.procedureId"
             :consideration-advice-initial="fragment.considerationAdvice"
@@ -468,7 +469,7 @@
           v-for="file in statementFiles"
           :key="file.hash"
           class="o-hellip u-pr-0_5"
-          :href="Routing.generate('core_file', { hash: file.hash })"
+          :href="Routing.generate('core_file_procedure', { hash: file.hash, procedureId: fragment.procedureId })"
           rel="noopener"
           target="_blank">
           {{ file.name }}
@@ -480,7 +481,7 @@
         icon="fa-comment"
         title="statement.text"
         :border-bottom="false">
-        <dp-height-limit
+        <height-limit
           :short-text="fragment.statement.textShort"
           :full-text="fragment.statement.text"
           element="statement"
@@ -495,8 +496,6 @@
 <script>
 import {
   CleanHtml,
-  DpHeightLimit,
-  DpTextWrapper,
   formatDate,
   getFileInfo,
   hasOwnProp,
@@ -508,6 +507,8 @@ import DpFragmentEdit from '../fragment/Edit'
 import DpFragmentStatus from '../fragment/Status'
 import DpFragmentVersions from '../fragment/Version'
 import DpItemRow from '../assessmentTable/ItemRow'
+import HeightLimit from '@DpJs/components/statement/HeightLimit'
+import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 
 export default {
   name: 'DpStatementFragment',
@@ -517,9 +518,9 @@ export default {
     DpFragmentEdit,
     DpFragmentStatus,
     DpFragmentVersions,
-    DpHeightLimit,
+    HeightLimit,
     DpItemRow,
-    DpTextWrapper,
+    TextContentRenderer,
     VPopover
   },
 
@@ -528,6 +529,11 @@ export default {
   },
 
   props: {
+    csrfToken: {
+      type: String,
+      required: true
+    },
+
     isArchive: {
       type: Boolean,
       required: false,

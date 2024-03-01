@@ -6,6 +6,7 @@
     <h1>{{ "gislayer.create"|trans }}</h1>
 
     <form action="{{ path('DemosPlan_map_administration_gislayer_new',{'procedure':procedure}) }}" method="post" enctype="multipart/form-data" data-dp-validate id="form">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         {% block layerType %}
             {%- apply spaceless %}
@@ -40,7 +41,7 @@
                             >
                             {{ "overlay"|trans }}
                         </label>
-                        <ul class="list-style-none u-pl">
+                        <ul class="u-pl">
                             {% if hasPermission('area_public_participation') and hasPermission('feature_map_use_territory') %}
                                 <li>
                                     <label class="cursor-pointer u-mb-0_25" title="Mit Planzeichnung können Sie einen B-Plan anlegen. Dieser wird ein-/ausblendbar über die Grundkarten gelegt.">
@@ -111,7 +112,7 @@
             elements: [
                 {
                     label: { text: 'opacity.percent'|trans },
-                    control: { name: 'r_opacity', value: templateVars.inData.r_opacity|default(100), pattern: "^\\d{1,2}?([.|,]\\d{1,2})?$|^100$", size: 'tiny' },
+                    control: { name: 'r_opacity', value: templateVars.inData.r_opacity|default(100), pattern: "^\\d{1,2}?([\\.,]\\d{1,2})?$|^100$", size: 'tiny' },
                     id: 'r_opacity',
                     type: 'text',
                     required: true
@@ -166,6 +167,7 @@
 
         <label class="u-mb-0_5">
             <input
+                id="user_toggle_visibility"
                 type="checkbox"
                 name="r_user_toggle_visibility"
                 data-cy="newMapLayerUserToggleVisibility"

@@ -202,7 +202,7 @@
                                 <input id="{{ form.agencyMainEmailAddress.vars.id }}"
                                        name="agencyMainEmailAddress[fullAddress]"
                                        value="{{ form.agencyMainEmailAddress.vars.value.fullAddress }}"
-                                       class="o-form__control-input width-100p"
+                                       class="o-form__control-input w-full"
                                        type="email"
                                        required>
                             </div>
@@ -226,6 +226,14 @@
                                 {% endfor %}
                                 <dp-email-list :init-emails="JSON.parse('{{ emailAddresses|json_encode|e('js', 'utf-8') }}')">
                                 </dp-email-list>
+                            </div>
+
+                            <div class="u-mb">
+                                {% set addonProps = { 'procedureId': templateVars.proceduresettings.id } %}
+                                <addon-wrapper
+                                    hook-name="adminstration.edit.extra_fields"
+                                    :addon-props="JSON.parse('{{ addonProps|json_encode|e('js', 'utf-8') }}')">
+                                </addon-wrapper>
                             </div>
 
                             {% if hasPermission('feature_use_data_input_orga') %}
@@ -324,7 +332,7 @@
                                 } %}
                                 {# Bei textareas muss der Inhalt ohne Leerzeichen zwischen den Tags stehen, sonst werden die Leerzeichen ausgegeben und multiplizieren sich im Frontend. #}
                                 <textarea
-                                    class="o-form__control-textarea height-60"
+                                    class="o-form__control-textarea h-7"
                                     id="r_desc"
                                     name="r_desc">
                                     {%- if proceduresettings.desc is defined %}
@@ -430,7 +438,7 @@
                                         </p>
                                         <input
                                             id="r_legalNotice"
-                                            class="o-form__control-input width-100p"
+                                            class="o-form__control-input w-full"
                                             name="r_legalNotice"
                                             type="text"
                                             maxlength="250"
@@ -455,6 +463,10 @@
 
                                     <dp-date-range-picker
                                         class="u-2-of-4"
+                                        :data-cy="{
+                                            endDate: 'administrationEditForm:endDate',
+                                            startDate: 'administrationEditForm:startDate'
+                                        }"
                                         start-id="r_startdate"
                                         start-name="r_startdate"
                                         start-value="{{ proceduresettings.startDate|default|dplanDate }}"
@@ -472,7 +484,11 @@
                                     <auto-switch-procedure-phase-form
                                         :available-phases="JSON.parse('{{ templateVars.internalPhases|map(internalPhase => {
                                             label: internalPhase.name,
-                                            value: internalPhase.key})|json_encode|e('js', 'utf-8') }}')"
+                                            permission: internalPhase.permissionset,
+                                            value: internalPhase.key
+                                        })|json_encode|e('js', 'utf-8') }}')"
+                                        data-cy-end-date="administrationEditForm:designatedEndDate"
+                                        data-cy-start-date="administrationEditForm:designatedStartDate"
                                         class="u-mb"
                                         end-date="{{ proceduresettings.settings.designatedEndDate|default|dplanDate }}"
                                         init-selected-phase="{{ proceduresettings.settings.designatedPhase }}"
@@ -580,7 +596,11 @@
                                     } %}
                                     <dp-date-range-picker
                                         class="u-2-of-4"
-                                        data-cy="publicParticipationStartDate"
+                                        :data-cy="{
+                                            endDate: 'administrationEditForm:publicParticipationEndDate',
+                                            startDate: 'administrationEditForm:publicParticipationStartDate'
+                                        }"
+                                        data-dp-validate-error-fieldname="{{ "period.public"|trans }}"
                                         start-id="r_publicParticipationStartDate"
                                         start-name="r_publicParticipationStartDate"
                                         start-value="{{  proceduresettings.publicParticipationStartDate|default|dplanDate }}"
@@ -598,7 +618,11 @@
                                     <auto-switch-procedure-phase-form
                                         :available-phases="JSON.parse('{{ templateVars.externalPhases|map(externalPhase => {
                                             label: externalPhase.name,
-                                            value: externalPhase.key})|json_encode|e('js', 'utf-8') }}')"
+                                            permission: externalPhase.permissionset,
+                                            value: externalPhase.key
+                                        })|json_encode|e('js', 'utf-8') }}')"
+                                        data-cy-end-date="administrationEditForm:designatedPublicEndDate"
+                                        data-cy-start-date="administrationEditForm:designatedPublicStartDate"
                                         class="u-mb"
                                         end-date="{{ proceduresettings.settings.designatedPublicEndDate|default|dplanDate }}"
                                         init-selected-phase="{{ proceduresettings.settings.designatedPublicPhase }}"
@@ -676,7 +700,7 @@
                                             data-counter="counter"
                                             data-cy="procedureName"
                                             maxlength="200"
-                                            class="o-form__control-input width-100p"
+                                            class="o-form__control-input w-full"
                                             name="r_name"
                                             type="text"
                                             value="{{ proceduresettings.name|default( "notspecified"|trans ) }}">
@@ -702,7 +726,7 @@
                                         data-counter="counter_oeb"
                                         maxlength="200"
                                         data-cy="procedureExternalName"
-                                        class="o-form__control-input width-100p"
+                                        class="o-form__control-input w-full"
                                         type="text"
                                         value="{{ proceduresettings.externalName|default( "notspecified"|trans ) }}"
                                         name="r_externalName">
@@ -734,7 +758,7 @@
                                     <p class="u-mt-0_25 u-mb-0_25"><strong>{{ 'preview'|trans }}:</strong></p>
                                     <p
                                         id="shortUrl_preview"
-                                        class="inline-block u-mt-0 u-mb-0_25 break-words max-width-100p"
+                                        class="inline-block u-mt-0 u-mb-0_25 break-words max-w-full"
                                         data-shorturl="{{ templateVars.shortUrlPath }}/">
                                         {{ templateVars.shortUrlPath }}/{{ templateVars.inData.r_shortUrl|default }}
                                     </p>
@@ -815,6 +839,9 @@
                                     <div class="u-mb">
                                         <label class="inline-block u-mb-0" for="r_publicParticipationContact">
                                             {{ 'public.participation.contact'|trans }}
+                                            {%- if hasPermission('feature_require_procedure_contact_person') -%}
+                                                <span aria-hidden="true">*</span>
+                                            {%- endif -%}
                                         </label>
                                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                             helpText: 'text.procedure.edit.external.contact_person'|trans,
@@ -829,9 +856,11 @@
                                             id="r_publicParticipationContact"
                                             hidden-input="r_publicParticipationContact"
                                             data-cy="publicParticipationContact"
+                                            data-dp-validate-error-fieldname="{{ 'public.participation.contact'|trans }}"
                                             :toolbar-items="{ listButtons: false }"
                                             :maxlength="2000"
-                                            value="{{ proceduresettings.publicParticipationContact|default( "notspecified"|trans ) }}">
+                                            value="{{ proceduresettings.publicParticipationContact|default((hasPermission('feature_require_procedure_contact_person') ? '' : 'notspecified')|trans ) }}"
+                                            {% if hasPermission('feature_require_procedure_contact_person') %}required{% endif %}>
                                         </dp-editor>
                                     </div>
                                 {% endif %}
@@ -988,7 +1017,7 @@
                                                     {{ "postalcode"|trans }}
                                                     {# Atm broken (was not reimplemented after removing jQuery autocomplete) #}
                                                     <input
-                                                        class="o-form__control-input width-100p js__locationName"
+                                                        class="o-form__control-input w-full js__locationName"
                                                         type="text"
                                                         value="{% if proceduresettings.locationPostCode is defined %}{{ proceduresettings.locationPostCode }}{% else %}{{ "notspecified"|trans }}{% endif %}"
                                                         name="r_locationPostCode">
@@ -996,7 +1025,7 @@
                                              --><label class="layout__item u-5-of-6 u-mb-0">
                                                     {{ "public.participation.location"|trans }}
                                                     <input
-                                                        class="o-form__control-input width-100p"
+                                                        class="o-form__control-input w-full"
                                                         type="text"
                                                         value="{% if proceduresettings.locationName is defined %}{{ proceduresettings.locationName }}{% else %}{{ "notspecified"|trans }}{% endif %}"
                                                         name="r_locationName">
@@ -1162,6 +1191,7 @@
                                                 type="email"
                                                 required
                                                 data-dp-validate-if="#sendMailsToCounties"
+                                                data-dp-validate-error-fieldname="{{ 'email.address'|trans }}"
                                                 value="{{ receiver.email|default }}"
                                             >
                                         </div>

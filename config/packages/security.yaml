@@ -85,6 +85,8 @@ security:
             lazy: true
             custom_authenticators: '%demosplan_user_authenticator_service%'
             entry_point: '%demosplan_user_authenticator_service_entry_point%'
+            logout:
+                path: DemosPlan_user_logout
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
 

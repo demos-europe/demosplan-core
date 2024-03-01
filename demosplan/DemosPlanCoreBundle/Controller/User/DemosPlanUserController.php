@@ -105,8 +105,8 @@ class DemosPlanUserController extends BaseController
             }
         }
         // Kommune oder Planungsbüro
-        if (in_array(OrgaType::MUNICIPALITY, $orga->getTypes($subdomain), true) ||
-            in_array(OrgaType::PLANNING_AGENCY, $orga->getTypes($subdomain), true)) {
+        if (in_array(OrgaType::MUNICIPALITY, $orga->getTypes($subdomain), true)
+            || in_array(OrgaType::PLANNING_AGENCY, $orga->getTypes($subdomain), true)) {
             $this->getLogger()->info('Welcomepage is ', ['types' => $orga->getTypes($subdomain)]);
         }
 
@@ -207,16 +207,16 @@ class DemosPlanUserController extends BaseController
 
             // Update User
             $data = [
-                'email'                        => $user->getEmail(), // Pflichtfeld beim Update
-                'firstname'                    => $user->getFirstname(), // Pflichtfeld beim Update
-                'lastname'                     => $user->getLastname(), // Pflichtfeld beim Update
-                UserFlagKey::IS_NEW_USER       => false,
-                UserFlagKey::PROFILE_COMPLETED => true,
-                UserFlagKey::ACCESS_CONFIRMED  => true,
+                'email'                               => $user->getEmail(), // Pflichtfeld beim Update
+                'firstname'                           => $user->getFirstname(), // Pflichtfeld beim Update
+                'lastname'                            => $user->getLastname(), // Pflichtfeld beim Update
+                UserFlagKey::IS_NEW_USER->value       => false,
+                UserFlagKey::PROFILE_COMPLETED->value => true,
+                UserFlagKey::ACCESS_CONFIRMED->value  => true,
             ];
 
             if ($requestPost->has('newsletter')) {
-                $data[UserFlagKey::SUBSCRIBED_TO_NEWSLETTER] = 'on';
+                $data[UserFlagKey::SUBSCRIBED_TO_NEWSLETTER->value] = 'on';
             }
 
             $user = $userHandler->updateUser($user->getId(), $data);
@@ -348,13 +348,17 @@ class DemosPlanUserController extends BaseController
 
         // get User settings
         $templateVars['emailNotificationReleasedStatement'] = false;
+        // by default coordinator gets mails, if not explicitly denied
+        if ($user->hasRole(Role::PUBLIC_AGENCY_COORDINATION)) {
+            $templateVars['emailNotificationReleasedStatement'] = true;
+        }
 
         $settings = $contentService->getSettings(
             'emailNotificationReleasedStatement',
             SettingsFilter::whereUser($user)->lock(),
             false
         );
-        // by default coordinator gets mails, if not explicitly denied
+
         if (is_array($settings) && 1 === count($settings)) {
             $templateVars['emailNotificationReleasedStatement'] = $settings[0]->getContentBool();
         }
@@ -492,16 +496,9 @@ class DemosPlanUserController extends BaseController
     {
         $title = 'user.register';
 
-        $useSaml = false;
-        // this check needs to be reworked once we know better how to save saml parameters by customer //
-        if ('' !== $parameterBag->get('saml_idp_entityid') &&
-            'bb' === $customerService->getCurrentCustomer()->getSubdomain()) {
-            $useSaml = true;
-        }
-
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanUser/citizen_register_form.html.twig',
-            ['title' => $title, 'useSaml' => $useSaml]
+            ['title' => $title, 'useSaml' => false]
         );
     }
 
