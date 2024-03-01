@@ -62,19 +62,6 @@ export default {
   },
 
   computed: {
-    defaultAttributions () {
-      const currentYear = formatDate(new Date(), 'YYYY')
-      // If a value is currently given, replace the {currentYear} placeholder within that value
-      if (this?.attributions) {
-        return this.attributions.replaceAll('{currentYear}', currentYear)
-      }
-      // If not, default to the default message
-      return Translator.trans('map.attribution.default', {
-        linkImprint: Routing.generate('DemosPlan_misccontent_static_imprint'),
-        currentYear
-      })
-    },
-
     map () {
       return this.olMapState.map
     }
@@ -87,12 +74,27 @@ export default {
   },
 
   methods: {
+    /*
+     * In several cases is shown map.attribution.default: in the view in basic settings for the procedure,
+     * in the map by defining startMapSegment and
+     * in the map in the general view in Settings for configuration for map and layer
+     */
+    defaultAttributions () {
+      const currentYear = formatDate(new Date(), 'YYYY')
+      return this.attributions
+        ? this.attributions.replaceAll('{currentYear}', currentYear)
+        : Translator.trans('map.attribution.default', {
+          linkImprint: Routing.generate('DemosPlan_misccontent_static_imprint'),
+          currentYear
+        })
+    },
+
     addLayer () {
       if (this.map === null) {
         return
       }
 
-      this.source = createSourceTileWMS(this.url, this.layers, this.projection, this.defaultAttributions, this.map)
+      this.source = createSourceTileWMS(this.url, this.layers, this.projection, this.defaultAttributions(), this.map)
       const layer = createTileLayer(this.title, this.name, this.source)
 
       //  Insert layer at pos 0, making it the background layer

@@ -27,7 +27,6 @@
       :value="coordinate">
 
     <dp-ol-map
-      :procedure-id="procedureId"
       ref="map"
       :options="{
         autoSuggest: false,
@@ -35,36 +34,40 @@
         procedureExtent: false,
         initialExtent: true,
         initCenter: center
-      }">
+      }"
+      :procedure-id="procedureId">
       <template v-slot:controls>
         <div class="border--bottom u-pv-0_5 flow-root">
           <i
-            class="fa fa-map u-ml-0_25 color--grey-light"
-            aria-hidden="true" />
+            aria-hidden="true"
+            class="fa fa-map u-ml-0_25 color--grey-light" />
           <dp-ol-map-set-extent
-            @extentSet="data => setExtent({ field: 'mapExtend_of_project_epsg25832', extent: data })"
             data-cy="mapDefaultBounds"
-            translation-key="map.default.bounds" />
+            translation-key="map.default.bounds"
+            @extentSet="data => setExtent({ field: 'mapExtend_of_project_epsg25832', extent: data })" />
           <dp-ol-map-set-extent
-            @extentSet="data => setExtent({ field: 'bbox_of_project_epsg25832', extent: data })"
             data-cy="boundsApply"
-            translation-key="bounds.apply" />
+            translation-key="bounds.apply"
+            @extentSet="data => setExtent({ field: 'bbox_of_project_epsg25832', extent: data })" />
           <i
-            class="fa fa-question-circle float-right"
+            v-tooltip="{ content: Translator.trans('text.mapsection'), container: '#DpOlMap' }"
             :aria-label="Translator.trans('contextual.help')"
-            v-tooltip="{ content: Translator.trans('text.mapsection'), container: '#DpOlMap' }" />
+            class="fa fa-question-circle float-right" />
         </div>
 
         <div
-          class="border--bottom u-pv-0_5 flow-root"
           v-if="hasPermission('feature_map_use_territory')">
+          class="border--bottom u-pv-0_5 flow-root"
           <i
-            class="fa fa-pencil u-ml-0_25 color--grey-light"
-            aria-hidden="true" />
+            aria-hidden="true"
+            class="fa fa-pencil u-ml-0_25 color--grey-light" />
           <dp-ol-map-draw-feature
-            name="Territory"
-            render-control
-            type="Polygon"
+            v-tooltip="{
+              content: Translator.trans('explanation.territory.help.draw', {
+                drawTool: Translator.trans('map.territory.define')
+              }),
+              container: '#DpOlMap'
+            }"
             data-cy="defineMapTerritory"
             :draw-style="{
               fillColor: 'rgba(0,0,0,0.1)',
@@ -74,54 +77,51 @@
               strokeLineWidth: 3
             }"
             :features="initTerritory"
-            :label="Translator.trans('map.territory.define')"
-            v-tooltip="{
-              content: Translator.trans('explanation.territory.help.draw', {
-                drawTool: Translator.trans('map.territory.define')
-              }),
-              container: '#DpOlMap'
-            }"
             icon-class="fa fa-pencil-square-o"
+            :label="Translator.trans('map.territory.define')"
+            name="Territory"
+            render-control
+            type="Polygon"
             @layerFeatures:changed="updateTerritory" />
           <dp-ol-map-edit-feature target="Territory" />
           <i
-            class="fa fa-question-circle float-right"
-            :aria-label="Translator.trans('contextual.help')"
             v-tooltip="{
               content: Translator.trans('explanation.territory.desc'),
               container: '#DpOlMap'
-            }" />
+            }"
+            :aria-label="Translator.trans('contextual.help')"
+            class="fa fa-question-circle float-right" />
         </div>
 
         <div
-          class="border--bottom u-pv-0_5 u-mb-0_5 flow-root"
-          v-if="hasPermission('area_procedure_adjustments_general_location')">
+          v-if="hasPermission('area_procedure_adjustments_general_location')"
+          class="border--bottom u-pv-0_5 u-mb-0_5 flow-root">
           <i
-            class="fa fa-map-marker u-ml-0_25 color--grey-light"
-            aria-hidden="true" />
+            aria-hidden="true"
+            class="fa fa-map-marker u-ml-0_25 color--grey-light"/>
           <dp-ol-map-draw-feature
+            data-cy="setMapRelation"
+            :features="procedureCoordinatesFeature"
+            :label="Translator.trans('map.relation.set')"
             name="Coordinates"
             render-control
             type="Point"
-            data-cy="setMapRelation"
-            :label="Translator.trans('map.relation.set')"
-            :features="procedureCoordinatesFeature"
             @layerFeatures:changed="updateCoordinates" />
           <i
-            class="fa fa-question-circle float-right"
-            :aria-label="Translator.trans('contextual.help')"
             v-tooltip="{
               content: Translator.trans('text.mapsection.hint'),
               container: '#DpOlMap'
-            }" />
+            }"
+            :aria-label="Translator.trans('contextual.help')"
+            class="fa fa-question-circle float-right" />
         </div>
         <template v-else>
           <dp-ol-map-draw-feature
+            class="u-mb-0_5"
+            :features="procedureCoordinatesFeature"
+            :label="Translator.trans('map.relation.set')"
             name="Coordinates"
             type="Point"
-            class="u-mb-0_5"
-            :label="Translator.trans('map.relation.set')"
-            :features="procedureCoordinatesFeature"
             @layerFeatures:changed="updateCoordinates" />
         </template>
 
@@ -150,19 +150,13 @@ export default {
   },
 
   props: {
-    defaultAttribution: {
+    procedureCoordinates: {
       required: false,
       type: String,
       default: ''
     },
 
     procedureId: {
-      required: false,
-      type: String,
-      default: ''
-    },
-
-    procedureCoordinates: {
       required: false,
       type: String,
       default: ''
@@ -177,10 +171,10 @@ export default {
 
   data () {
     return {
+      coordinate: this.procedureCoordinates.split(','),
       initTerritory: JSON.parse(this.procedureTerritory),
       isActive: '',
-      territory: JSON.parse(this.procedureTerritory),
-      coordinate: this.procedureCoordinates.split(',')
+      territory: JSON.parse(this.procedureTerritory)
     }
   },
 
