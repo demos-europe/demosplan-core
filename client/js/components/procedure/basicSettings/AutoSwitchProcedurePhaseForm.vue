@@ -12,6 +12,7 @@
     <dp-checkbox
       :id="checkboxId"
       v-model="autoSwitchPhase"
+      :data-cy="`autoSwitchPhase:${checkboxId}`"
       :disabled="hasPermission('feature_auto_switch_to_procedure_end_phase') && isParticipationPhaseSelected"
       :label="{
         text: Translator.trans('procedure.public.phase.autoswitch')
@@ -27,6 +28,7 @@
         <dp-select
           class="layout__item u-1-of-3 u-1-of-1-lap-down"
           v-model="selectedPhase"
+          :data-cy="`selectedPhase:${checkboxId}`"
           :disabled="!autoSwitchPhase"
           :label="{
             text: Translator.trans('procedure.phase.autoswitch.targetphase')
@@ -36,6 +38,10 @@
 
      --><div class="layout__item u-1-of-3 u-1-of-1-lap-down">
           <dp-datetime-picker
+            :data-cy="{
+                date: `phaseAutoSwitchDate:${switchDateId}`,
+                time: `phaseAutoSwitchTime:${switchDateId}`
+            }"
             :disabled="!autoSwitchPhase"
             hidden-input
             :id="switchDateId"

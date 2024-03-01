@@ -166,7 +166,7 @@
                                     <dp-multiselect
                                         id="r_agency"
                                         v-model="selectedAgencies"
-                                        data-cy="selectedAgencies"
+                                        data-cy="administrationEdit:selectedAgencies"
                                         label="name"
                                         multiple
                                         :options="JSON.parse('{{ agencies|default([])|json_encode|e('js', 'utf-8') }}')"
@@ -202,6 +202,7 @@
                                 <input id="{{ form.agencyMainEmailAddress.vars.id }}"
                                        name="agencyMainEmailAddress[fullAddress]"
                                        value="{{ form.agencyMainEmailAddress.vars.value.fullAddress }}"
+                                       data-cy="administrationEdit:agencyMainEmailAddress"
                                        class="o-form__control-input w-full"
                                        type="email"
                                        required>
@@ -282,7 +283,7 @@
                                     <dp-multiselect
                                         id="r_authorizedUsers"
                                         v-model="selectedAuthUsers"
-                                        data-cy="selectedAuthUsers"
+                                        data-cy="administrationEdit:selectedAuthUsers"
                                         label="name"
                                         multiple
                                         :options="authUsersOptions"
@@ -333,6 +334,7 @@
                                 {# Bei textareas muss der Inhalt ohne Leerzeichen zwischen den Tags stehen, sonst werden die Leerzeichen ausgegeben und multiplizieren sich im Frontend. #}
                                 <textarea
                                     class="o-form__control-textarea h-7"
+                                    data-cy="administrationEdit:internalNote"
                                     id="r_desc"
                                     name="r_desc">
                                     {%- if proceduresettings.desc is defined %}
