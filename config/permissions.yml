@@ -1622,6 +1622,10 @@ feature_project_switcher:
     label: 'Display a dropdown menu in global header to allow users to quickly move to other instances of the SH platform.'
     loginRequired: false
     parent: area_admin
+feature_profile_editable:
+    description: 'If enabled the user can edit his/her data'
+    label: 'Speichern/Abrechnen Formular anzeigen'
+    loginRequired: true
 feature_public_consultation:
     description: 'When a procedure is in the consultation phase, participants must have a way to access it.'
     expose: true
