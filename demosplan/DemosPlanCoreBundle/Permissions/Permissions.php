@@ -134,7 +134,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     /**
      * Initialisiere die Permissions.
      */
-    public function initPermissions(UserInterface $user, array $context = null): PermissionsInterface
+    public function initPermissions(UserInterface $user, ?array $context = null): PermissionsInterface
     {
         $this->user = $user;
 
@@ -882,7 +882,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     /**
      * Setzt das initiale Set von kontxtbezogenen Menue-Highlights.
      */
-    protected function initMenuhightlighting(array $context = null): void
+    protected function initMenuhightlighting(?array $context = null): void
     {
         if (null !== $context) {
             foreach ($context as $permission) {
