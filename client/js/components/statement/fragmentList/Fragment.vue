@@ -322,7 +322,7 @@
           title="fragment.consideration"
           :border-bottom="false"
           v-if="editable && editing">
-          <dp-fragment-edit
+          <edit
             @closeEditMode="closeEditMode"
             :csrf-token="csrfToken"
             :fragment-id="fragment.id"
@@ -503,7 +503,8 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import DpClaim from '../DpClaim'
-import DpFragmentEdit from '../fragment/Edit'
+import Edit from '../fragment/Edit.vue'
+// eslint-disable-next-line sort-imports
 import DpFragmentStatus from '../fragment/Status'
 import DpFragmentVersions from '../fragment/Version'
 import DpItemRow from '../assessmentTable/ItemRow'
@@ -511,11 +512,12 @@ import HeightLimit from '@DpJs/components/statement/HeightLimit'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 
 export default {
-  name: 'DpStatementFragment',
+  // eslint-disable-next-line vue/multi-word-component-names
+  name: 'Fragment',
 
   components: {
     DpClaim,
-    DpFragmentEdit,
+    Edit,
     DpFragmentStatus,
     DpFragmentVersions,
     HeightLimit,
@@ -680,6 +682,7 @@ export default {
   },
 
   mounted () {
+    console.log(this.fragment, 'fragment')
     this.status = this.fragment.voteAdvice
     this.considerationAdvice = this.fragment.considerationAdvice
     this.editable = hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee.id === this.currentUserId

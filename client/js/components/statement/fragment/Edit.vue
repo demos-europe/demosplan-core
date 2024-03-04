@@ -111,7 +111,8 @@ import { checkResponse, dpApi, DpButton, DpEditor, DpMultiselect } from '@demos-
 import qs from 'qs'
 
 export default {
-  name: 'DpFragmentEdit',
+  // eslint-disable-next-line vue/multi-word-component-names
+  name: 'Edit',
 
   components: {
     DpButton,

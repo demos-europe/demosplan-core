@@ -10,7 +10,7 @@
 <template>
   <section class="u-mb">
     <template v-if="fragments.length">
-      <dp-statement-fragment
+      <fragment
         :csrf-token="csrfToken"
         :is-archive="isArchive"
         v-for="fragment in fragments"
@@ -32,13 +32,14 @@
 <script>
 import { AnimateById } from '@demos-europe/demosplan-ui'
 import { mapMutations } from 'vuex'
-import StatementFragment from './Fragment'
+// eslint-disable-next-line sort-imports,import/extensions
+import Fragment from './Fragment.vue'
 
 export default {
   name: 'DpFragmentList',
 
   components: {
-    'dp-statement-fragment': StatementFragment
+    fragment: Fragment
   },
 
   props: {
