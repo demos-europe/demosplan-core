@@ -30,7 +30,6 @@
       ref="map"
       :options="{
         autoSuggest: false,
-        defaultAttribution,
         procedureExtent: false,
         initialExtent: true,
         initCenter: center

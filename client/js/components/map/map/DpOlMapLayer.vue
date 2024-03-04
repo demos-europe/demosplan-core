@@ -62,18 +62,6 @@ export default {
   },
 
   computed: {
-    map () {
-      return this.olMapState.map
-    }
-  },
-
-  watch: {
-    defaultAttributions () {
-      this.source.setAttributions(this.defaultAttributions)
-    }
-  },
-
-  methods: {
     /*
      * In several cases is shown map.attribution.default: in the view in basic settings for the procedure,
      * in the map by defining startMapSegment and
@@ -89,12 +77,24 @@ export default {
         })
     },
 
+    map () {
+      return this.olMapState.map
+    }
+  },
+
+  watch: {
+    defaultAttributions () {
+      this.source.setAttributions(this.defaultAttributions)
+    }
+  },
+
+  methods: {
     addLayer () {
       if (this.map === null) {
         return
       }
 
-      this.source = createSourceTileWMS(this.url, this.layers, this.projection, this.defaultAttributions(), this.map)
+      this.source = createSourceTileWMS(this.url, this.layers, this.projection, this.defaultAttributions, this.map)
       const layer = createTileLayer(this.title, this.name, this.source)
 
       //  Insert layer at pos 0, making it the background layer
