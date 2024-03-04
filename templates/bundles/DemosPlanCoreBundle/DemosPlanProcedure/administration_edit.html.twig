@@ -753,6 +753,7 @@
                                         class="o-form__control-input"
                                         id="r_shortUrl"
                                         name="r_shortUrl"
+                                        data-cy="administrationEdit:shortUrl"
                                         type="text"
                                         value="{{ templateVars.inData.r_shortUrl|default }}"
                                         size="40"
@@ -828,7 +829,7 @@
                                             <dp-editor
                                                 id="counter_oeb_desc_input"
                                                 hidden-input="r_externalDesc"
-                                                data-cy="procedureDescriptionPublic"
+                                                data-cy="administrationEdit:procedureDescriptionPublic"
                                                 :toolbar-items="{ listButtons: false }"
                                                 :maxlength="10000"
                                                 value="{{ proceduresettings.externalDesc|default( "notspecified"|trans ) }}">
@@ -857,7 +858,7 @@
                                         <dp-editor
                                             id="r_publicParticipationContact"
                                             hidden-input="r_publicParticipationContact"
-                                            data-cy="publicParticipationContact"
+                                            data-cy="administrationEdit:publicParticipationContact"
                                             data-dp-validate-error-fieldname="{{ 'public.participation.contact'|trans }}"
                                             :toolbar-items="{ listButtons: false }"
                                             :maxlength="2000"
