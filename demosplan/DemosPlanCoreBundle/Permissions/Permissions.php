@@ -156,11 +156,9 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
      */
     public function evaluateUserInvitedInProcedure(Procedure $procedure, Session $session): void
     {
-        if ($this->hasPermission('feature_public_consultation')) {
-            $invitedProcedures = $session->get('invitedProcedures', []);
-            if (\in_array($procedure->getId(), $invitedProcedures, true)) {
-                $this->userInvitedInProcedure = true;
-            }
+        $invitedProcedures = $session->get('invitedProcedures', []);
+        if (\in_array($procedure->getId(), $invitedProcedures, true)) {
+            $this->userInvitedInProcedure = true;
         }
     }
 
