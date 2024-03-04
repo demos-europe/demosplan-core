@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use function array_key_exists;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
@@ -68,9 +70,14 @@ class DemosPlanAssessmentExportController extends BaseController
         Request $request,
         AssessmentTableExporterStrategy $assessmentExporter,
         FileResponseGeneratorStrategy $responseGenerator,
+        PermissionsInterface $permissions,
         string $procedureId,
         bool $original = false): ?Response
     {
+        // in case that only docx in elements view mode should be exportable override the view mode
+        if($permissions->hasPermission('feature_export_docx_elements_view_mode_only')) {
+            $request->request->set('r_view_mode', AssessmentTableViewMode::ELEMENTS_VIEW);
+        }
         $exportParameters = $this->getExportParameters($request, $procedureId, $original);
         $exportFormat = $request->request->get('r_export_format');
         try {
