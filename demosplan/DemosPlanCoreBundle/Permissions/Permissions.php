@@ -212,7 +212,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             'feature_statements_released_email',
             'feature_statements_released_group_email',
             'field_county_list',
-            'field_fragment_status',
             'field_municipality_list',
             'field_news_pdf',
             'field_priority_area_list',
