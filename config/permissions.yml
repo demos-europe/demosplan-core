@@ -833,6 +833,11 @@ feature_email_invitable_institution_additional_invitation_text:
     description: 'Adds predefined text to institution invitations.'
     label: 'Text automatically added to institution invitations'
     loginRequired: true
+feature_export_docx_elements_view_mode_only:
+    expose: false
+    label: 'always export elements view in docx export'
+    loginRequired: true
+    parent: area_admin_assessmenttable
 feature_export_protocol:
     expose: true
     label: 'Exportieren des Verfahrensprotokolls'
