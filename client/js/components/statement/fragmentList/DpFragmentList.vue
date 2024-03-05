@@ -16,7 +16,7 @@
         v-for="fragment in fragments"
         :key="missKeyValue(fragment.id, 0)"
         :fragment-id="missKeyValue(fragment.id, 0)"
-        :statement-id="missKeyValue(fragment.statement.id, 0)"
+        :statement-id="missKeyValue(fragment.statement?.id, 0)"
         :current-user-id="currentUserId"
         :current-user-name="currentUserName"
         :advice-values="adviceValues" />
@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import { AnimateById } from '@demos-europe/demosplan-ui'
+import AnimateById from '@DpJs/lib/shared/AnimateById'
 import { mapMutations } from 'vuex'
 // eslint-disable-next-line sort-imports,import/extensions
 import Fragment from './Fragment.vue'
@@ -112,7 +112,7 @@ export default {
      */
     while (i--) {
       this.$store.commit('fragment/addFragment', {
-        statementId: this.fragments[i].statement.id,
+        statementId: this.fragments[i].statement?.id,
         fragment: this.fragments[i]
       })
     }

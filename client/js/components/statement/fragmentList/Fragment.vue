@@ -23,9 +23,9 @@
           class="c-at-item__row-icon inline-block"
           entity-type="fragment"
           :ignore-last-claimed="true"
-          :assigned-id="(fragment.assignee.id || '')"
-          :assigned-name="(fragment.assignee.name || '')"
-          :assigned-organisation="(fragment.assignee.orgaName || '')"
+          :assigned-id="(fragment?.assignee?.id || '')"
+          :assigned-name="(fragment?.assignee?.name || '')"
+          :assigned-organisation="(fragment?.assignee?.orgaName || '')"
           :current-user-id="currentUserId"
           :current-user-name="currentUserName"
           :is-loading="updatingClaimState"
@@ -503,6 +503,7 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import DpClaim from '../DpClaim'
+// eslint-disable-next-line import/extensions
 import Edit from '../fragment/Edit.vue'
 // eslint-disable-next-line sort-imports
 import DpFragmentStatus from '../fragment/Status'
@@ -583,14 +584,14 @@ export default {
 
   computed: {
     assigneeId () {
-      if (hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee.id) {
+      if (hasOwnProp(this.fragment, 'assignee') && this.fragment?.assignee?.id) {
         return this.fragment.assignee.id
       }
       return ''
     },
 
     assigneeName () {
-      if (hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee.name) {
+      if (hasOwnProp(this.fragment, 'assignee') && this.fragment?.assignee?.name) {
         return this.fragment.assignee.name
       }
       return ''
@@ -666,10 +667,10 @@ export default {
        * If we reset the assignee (give fragment back to FP), the lastClaimed should be ignored. Otherwise not, because we have to show the empty user-icon to FP (so that they know that fragment is being edited by FB)
        * let shouldIgnoreLastClaimed = (hasOwnProp(this.fragment.assignee, 'id') && this.fragment.assignee.id === this.currentUserId)
        */
-      this.setAssigneeAction({ fragmentId: this.fragmentId, statementId: this.statementId, ignoreLastClaimed: true, assigneeId: (hasOwnProp(this.fragment.assignee, 'id') && this.fragment.assignee.id === this.currentUserId ? '' : this.currentUserId) })
+      this.setAssigneeAction({ fragmentId: this.fragmentId, statementId: this.statementId, ignoreLastClaimed: true, assigneeId: (hasOwnProp(this.fragment?.assignee, 'id') && this.fragment?.assignee?.id === this.currentUserId ? '' : this.currentUserId) })
         .then(() => {
           this.updatingClaimState = false
-          this.editable = hasOwnProp(this.fragment.assignee, 'id') && this.fragment.assignee.id !== ''
+          this.editable = hasOwnProp(this.fragment.assignee, 'id') && this.fragment?.assignee?.id !== ''
         })
     },
 
@@ -685,11 +686,12 @@ export default {
     console.log(this.fragment, 'fragment')
     this.status = this.fragment.voteAdvice
     this.considerationAdvice = this.fragment.considerationAdvice
-    this.editable = hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee.id === this.currentUserId
+    this.editable = hasOwnProp(this.fragment, 'assignee') && this.fragment?.assignee?.id === this.currentUserId
     //  Sync contents of child components on save
     this.$root.$on('fragment-saved', data => {
-      if (this.fragmentId === data.id) {
-        data.fragmentId = data.id
+      console.log(data.id, 'dataid')
+      if (this.fragmentId === data?.id) {
+        data.fragmentId = data?.id
         data.statementId = this.statementId
         this.updateFragment(data)
 
@@ -707,8 +709,8 @@ export default {
 
     //  Destroy instance on reassign
     this.$root.$on('fragment-reassigned', data => {
-      if (data.id === this.fragmentId) {
-        this.deleteFragment({ fragmentId: this.fragmentId, statementId: this.fragment.statement.id })
+      if (data?.id === this.fragmentId) {
+        this.deleteFragment({ fragmentId: this.fragmentId, statementId: this.fragment?.statement?.id })
         /*
          * For now we just hide the Fragment
          * this can be refactored when the fragment-list gets the data from the store
