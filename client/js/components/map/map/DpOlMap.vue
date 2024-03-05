@@ -292,17 +292,15 @@ export default {
      * @return void
      */
     defineExtent (mapOptions) {
-      let extent = mapOptions.defaultMapExtent
+      this.maxExtent = mapOptions.defaultMapExtent
 
       if (this._options.procedureExtent) {
         if (mapOptions.procedureMaxExtent && mapOptions.procedureMaxExtent.length > 0) {
-          extent = mapOptions.procedureMaxExtent
+          this.maxExtent = mapOptions.procedureMaxExtent
         } else if (mapOptions.procedureDefaultMaxExtent && mapOptions.procedureDefaultMaxExtent.length > 0) {
-          extent = mapOptions.procedureDefaultMaxExtent
+          this.maxExtent = mapOptions.procedureDefaultMaxExtent
         }
       }
-
-      return extent
     },
 
     /**
