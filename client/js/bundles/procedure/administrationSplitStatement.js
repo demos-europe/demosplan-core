@@ -11,12 +11,14 @@
  * This is the entrypoint for administration_split_statement.html.twig
  */
 
-import AddonWrapper from "@DpJs/components/addon/AddonWrapper"
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import { initialize } from '@DpJs/InitVue'
 import SplitStatementStore from '@DpJs/store/procedure/SplitStatementStore'
+import SplitStatementView from '@DpJs/components/statement/splitStatement/SplitStatementView'
 
 const components = {
-  AddonWrapper
+  AddonWrapper,
+  SplitStatementView
 }
 const stores = {
   splitstatement: SplitStatementStore

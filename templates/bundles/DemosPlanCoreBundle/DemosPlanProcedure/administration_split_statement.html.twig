@@ -14,10 +14,16 @@
         'procedureName': procedureName
         }
     %}
-    <addon-wrapper
-        hook-name="split.statements"
-        :addon-props="JSON.parse('{{ addonProps|json_encode|e('js', 'utf-8') }}')">
-    </addon-wrapper>
+{#    <addon-wrapper#}
+{#        hook-name="split.statements"#}
+{#        :addon-props="JSON.parse('{{ addonProps|json_encode|e('js', 'utf-8') }}')">#}
+{#    </addon-wrapper>#}
+    <split-statement-view
+        statement-id="{{ statementId }}"
+        statement-extern-id="{{ statementExternId }}"
+        procedure-id="{{ procedure }}"
+        procedureName="{{ procedureName }}">
+    </split-statement-view>
 {% endblock %}
 
 {% block javascripts %}
