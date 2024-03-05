@@ -83,6 +83,7 @@ class DraftsInfoController extends BaseController
             /** @var Statement $statement */
             $statement = $statementHandler->getStatement($statementId);
             $procedureName = $statement->getProcedure()->getName();
+            $statementHandler->saveInitialDraftsListJson($statement);
 
             return $this->renderTemplate(
                 '@DemosPlanCore/DemosPlanProcedure/administration_split_statement.html.twig',
