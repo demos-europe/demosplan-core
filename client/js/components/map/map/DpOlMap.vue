@@ -289,18 +289,20 @@ export default {
     /**
      * Define extent for map
      * @param mapOptions
-     * @return void
+     * @return {Array}
      */
     defineExtent (mapOptions) {
-      this.maxExtent = mapOptions.defaultMapExtent
+      let extent = mapOptions.defaultMapExtent
 
       if (this._options.procedureExtent) {
         if (mapOptions.procedureMaxExtent && mapOptions.procedureMaxExtent.length > 0) {
-          this.maxExtent = mapOptions.procedureMaxExtent
+          extent = mapOptions.procedureMaxExtent
         } else if (mapOptions.procedureDefaultMaxExtent && mapOptions.procedureDefaultMaxExtent.length > 0) {
-          this.maxExtent = mapOptions.procedureDefaultMaxExtent
+          extent = mapOptions.procedureDefaultMaxExtent
         }
       }
+
+      return extent
     },
 
     /**
