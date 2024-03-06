@@ -89,7 +89,8 @@ import { checkResponse, CleanHtml, dpApi, DpLoading, formatDate } from '@demos-e
 import FragmentStatus from './Status'
 
 export default {
-  name: 'DpFragmentVersion',
+  // eslint-disable-next-line vue/multi-word-component-names
+  name: 'Version',
 
   components: {
     'dp-fragment-status': FragmentStatus,

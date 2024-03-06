@@ -292,7 +292,7 @@
       <dp-item-row
         class="u-pt-0"
         :border-bottom="!isArchive">
-        <dp-fragment-versions
+        <version
           :fragment-id="fragment.id"
           :statement-id="fragment.statement.id"
           ref="history" />
@@ -507,7 +507,7 @@ import DpClaim from '../DpClaim'
 import Edit from '../fragment/Edit.vue'
 // eslint-disable-next-line sort-imports
 import DpFragmentStatus from '../fragment/Status'
-import DpFragmentVersions from '../fragment/Version'
+import Version from '../fragment/Version'
 import DpItemRow from '../assessmentTable/ItemRow'
 import HeightLimit from '@DpJs/components/statement/HeightLimit'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
@@ -520,7 +520,7 @@ export default {
     DpClaim,
     Edit,
     DpFragmentStatus,
-    DpFragmentVersions,
+    Version,
     HeightLimit,
     DpItemRow,
     TextContentRenderer,
@@ -688,7 +688,6 @@ export default {
     this.editable = hasOwnProp(this.fragment, 'assignee') && this.fragment?.assignee?.id === this.currentUserId
     //  Sync contents of child components on save
     this.$root.$on('fragment-saved', data => {
-      console.log(data.id, 'dataid')
       if (this.fragmentId === data?.id) {
         data.fragmentId = data?.id
         data.statementId = this.statementId
