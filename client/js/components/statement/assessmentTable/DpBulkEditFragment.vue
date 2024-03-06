@@ -222,7 +222,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, DpButton, DpMultiselect, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpMultiselect, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
@@ -402,7 +402,6 @@ export default {
       }
       return dpApi.post(Routing.generate('dplan_api_assessment_table_statement_fragment_update_create'),
         {}, payload)
-        .then(checkResponse)
         .then(() => {
           this.mode = 'success'
           this.isLoading = false
@@ -412,15 +411,7 @@ export default {
           this.isLoading = false
           this.mode = 'confirm'
           this.isError = true
-          // Display error messages from response
-          const errorMeta = error.response.data.meta
-          if (hasOwnProp(errorMeta, 'messages')) {
-            for (const type in errorMeta.messages) {
-              for (const message in errorMeta.messages[type]) {
-                dplan.notify.notify(type, Translator.trans(errorMeta.messages[type][message]))
-              }
-            }
-          }
+          console.error(error)
         })
     },
 

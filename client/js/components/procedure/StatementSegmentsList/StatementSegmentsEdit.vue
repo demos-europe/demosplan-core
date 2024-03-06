@@ -100,7 +100,6 @@
 
 <script>
 import {
-  checkResponse,
   CleanHtml,
   dpApi,
   DpButtonRow,
@@ -259,15 +258,19 @@ export default {
         }
       }
 
-      return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: segment.id }), {}, payload)
-        .then(checkResponse)
+      const options = {
+        messages: {
+          200: { type: 'confirm', text: 'segment.claim.success' },
+          400: { type: 'error', text: 'segment.claim.fail' }
+        }
+      }
+
+      return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: segment.id }), {}, payload, options)
         .then(() => {
-          dplan.notify.notify('confirm', Translator.trans('segment.claim.success'))
           this.claimLoading = null
         })
         .catch((err) => {
           console.error(err)
-          dplan.notify.notify('error', Translator.trans('segment.claim.fail'))
           // Restore segment in store if it didn't work
           this.restoreSegmentAction(segment.id)
           this.claimLoading = null
@@ -351,7 +354,6 @@ export default {
         }
       }
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: segment.id }), {}, payload)
-        .then(checkResponse)
         .then(() => {
           const dataToUpdate = JSON.parse(JSON.stringify(segment))
           delete dataToUpdate.relationships.assignee

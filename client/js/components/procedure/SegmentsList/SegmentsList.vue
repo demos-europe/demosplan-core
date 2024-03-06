@@ -236,7 +236,6 @@
 
 <script>
 import {
-  checkResponse,
   CleanHtml,
   dpApi,
   DpBulkEditHeader,
@@ -534,7 +533,6 @@ export default {
 
     fetchSegmentIds (payload) {
       return dpRpc('segment.load.id', payload)
-        .then(response => checkResponse(response))
         .then(response => {
           const allSegments = (hasOwnProp(response, 0) && response[0].result) ? response[0].result : []
           this.storeAllSegments(allSegments)
@@ -639,7 +637,6 @@ export default {
         data.searchPhrase = this.searchTerm
       }
       return dpApi.patch(url, {}, data)
-        .then(response => checkResponse(response))
         .then(response => {
           if (response) {
             this.updateQueryHashInURL(oldQueryHash, response)

@@ -95,8 +95,8 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
+import { dpApi } from '@demos-europe/demosplan-ui'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 
 export default {
@@ -273,16 +273,19 @@ export default {
         }
       }
 
+      const options = {
+        messages: {
+          200: { type: 'confirm', text: 'info.user.updated' },
+          204: { type: 'confirm', text: 'info.user.updated' }
+        }
+      }
+
       // If currently selected department doesn't match current orga, reset to 'Keine Abteilung' or first option of current orga
       if (typeof this.currentOrganisation.departments.find(dep => dep.id === this.currentDepartment.id) === 'undefined') {
         this.resetCurrentDepartment()
       }
 
-      return dpApi.patch(url, {}, payload)
-        .then(response => checkResponse(response, {
-          200: { type: 'confirm', text: 'info.user.updated' },
-          204: { type: 'confirm', text: 'info.user.updated' }
-        }))
+      return dpApi.patch(url, {}, payload, options)
         .then(() => {
           this.$root.$emit('save-success')
           // Update department options

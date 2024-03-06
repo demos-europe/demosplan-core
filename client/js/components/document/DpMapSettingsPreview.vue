@@ -233,7 +233,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, DpDatepicker, DpToggle, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { dpApi, DpDatepicker, DpToggle, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { Attribution } from 'ol/control'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapLayerVector from '@DpJs/components/map/map/DpOlMapLayerVector'
@@ -399,12 +399,12 @@ export default {
             }
           }
         }
-      }).then(checkResponse)
+      })
         .then(() => {
           this.previousValues.planstatus = this.planstatus
           this.isPlanStatusEditing = false
         })
-        .catch(() => dplan.notify.error(Translator.trans('error.api.generic')))
+        .catch((e) => console.error(e))
     },
 
     updateIsMapEnabled () {
@@ -423,12 +423,12 @@ export default {
             }
           }
         }
-      }).then(checkResponse)
-        .then((response) => {
+      })
+        .then(() => {
           this.previousValues.isMapEnabled = this.isMapEnabled
           this.isMapStatusEditing = false
         })
-        .catch(() => dplan.notify.error(Translator.trans('error.api.generic')))
+        .catch((e) => console.error(e))
     },
 
     updatePlanningArea () {
@@ -446,8 +446,8 @@ export default {
             }
           }
         }
-      }).then(checkResponse)
-        .then((response) => {
+      })
+        .then(() => {
           this.previousValues.planningArea = this.planningArea
           this.isPlanningAreaEditing = false
         })
@@ -461,7 +461,6 @@ export default {
 
     getInitialData () {
       return dpApi.get(Routing.generate('dp_api_documents_dashboard_get', { procedureId: this.procedureId, include: 'procedureMapInfo' }))
-        .then(this.checkResponse)
         .then((response) => {
           // Get id of the "Elements" item that is the map
           if (hasOwnProp(response.data.data, 'relationships')) {
@@ -482,7 +481,7 @@ export default {
             this.planningAreaOptions = response.data.data.attributes.availablePlanningAreas
           }
         })
-        .catch(e => true)
+        .catch((e) => console.error(e))
     }
   },
 

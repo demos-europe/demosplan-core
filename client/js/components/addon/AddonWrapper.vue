@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import { checkResponse, dpRpc } from '@demos-europe/demosplan-ui'
+import { dpRpc } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'AddonWrapper',
@@ -49,7 +49,6 @@ export default {
   methods: {
     loadComponents () {
       dpRpc('addons.assets.load', { hookName: this.hookName })
-        .then(response => checkResponse(response))
         .then(response => {
           const result = response[0].result
 

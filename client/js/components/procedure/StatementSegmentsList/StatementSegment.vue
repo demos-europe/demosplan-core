@@ -324,7 +324,6 @@
 
 <script>
 import {
-  checkResponse,
   CleanHtml,
   dpApi,
   DpBadge,
@@ -589,7 +588,6 @@ export default {
       }
 
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
-        .then(checkResponse)
         .then(() => {
           this.claimLoading = false
           this.isCollapsed = false
@@ -758,7 +756,6 @@ export default {
       }
 
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
-        .then(checkResponse)
         .then(() => {
           this.isFullscreen = false
           this.isEditing = false

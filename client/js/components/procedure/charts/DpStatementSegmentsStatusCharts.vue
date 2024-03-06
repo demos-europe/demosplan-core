@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, DpCard, DpLoading } from '@demos-europe/demosplan-ui'
+import { dpApi, DpCard, DpLoading } from '@demos-europe/demosplan-ui'
 import ProcedureCharts from '@DpJs/components/procedure/charts/ProcedureCharts'
 
 export default {
@@ -77,7 +77,6 @@ export default {
     fetchStatisticsData () {
       const url = Routing.generate('dplan_rpc_procedure_segmentation_statistics_segmentations_get', { procedureId: this.procedureId })
       dpApi.get(url)
-        .then(response => checkResponse(response))
         .then(response => {
           const { absolutes, percentages, total } = response.data.attributes
           this.statementsTotal = total

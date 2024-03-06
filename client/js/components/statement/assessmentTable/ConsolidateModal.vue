@@ -207,7 +207,6 @@
 
 <script>
 import {
-  checkResponse,
   dpApi,
   DpButton,
   DpModal,
@@ -410,7 +409,6 @@ export default {
         }
       }
       return dpApi.get(url, params)
-        .then(checkResponse)
         .then(response => response.data)
     },
 

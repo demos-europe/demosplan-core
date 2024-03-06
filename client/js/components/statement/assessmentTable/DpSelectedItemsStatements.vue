@@ -97,11 +97,9 @@
 
 <script>
 import {
-  checkResponse,
   dpApi,
   DpLoading,
-  dpRpc,
-  handleResponseMessages
+  dpRpc
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { v4 as uuid } from 'uuid'
@@ -238,7 +236,6 @@ export default {
         }),
         data: payload
       })
-        .then(checkResponse)
         .then(response => {
           const assignee = response.included.find(elem => elem.id === response.data.relationships.assignee.data.id)
           const orgaName = response.included.find(elem => elem.type === 'Claim').attributes.orgaName
@@ -255,10 +252,7 @@ export default {
             currentUserId: this.currentUserId
           }))
         })
-        .catch(error => {
-          console.log(error)
-          handleResponseMessages(error.response.data.meta)
-        })
+        .catch((e) => console.error(e))
         .then(() => { this.loading = false })
     },
 
@@ -277,7 +271,6 @@ export default {
 
       if (params.statementIds.length > 0) {
         dpRpc('statements.bulk.copy', params)
-          .then(checkResponse)
           .then((response) => {
             if (response[0].error) {
               dplan.notify.notify('error', Translator.trans('error.copy'))

@@ -97,7 +97,7 @@
 </template>
 
 <script>
-import { checkResponse, DpButtonRow } from '@demos-europe/demosplan-ui'
+import { DpButtonRow } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature'
@@ -235,7 +235,6 @@ export default {
       })
 
       return this.saveSegmentAction(this.segmentId)
-        .then(checkResponse)
         .then(() => {
           dplan.notify.confirm(Translator.trans('confirm.saved'))
         })
