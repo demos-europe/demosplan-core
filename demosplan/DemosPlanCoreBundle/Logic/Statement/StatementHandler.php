@@ -4598,4 +4598,32 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
         return $additionalFiles;
     }
+
+    /**
+     * Save the DraftsListJson (refering to column drafts_info_json in statement table)
+     * with the basic data so that SplitStatementView.vue can show the statement
+     * @param Statement $statement
+     * @return void
+     * @throws \DemosEurope\DemosplanAddon\Exception\JsonException
+     */
+    public function saveInitialDraftsListJson(Statement $statement): void
+    {
+
+        $draftsListJson = [
+            'data' => [
+                'id'         => $statement->getId(),
+                'type'       => $statement->getType(), //check where it is coming from
+                'attributes' => [
+                    'statementId'      => $statement->getId(),
+                    'procedureId'      => $statement->getProcedureId(),
+                    'textualReference' => $statement->getText(),
+                    'segments'         => []
+                ],
+            ],
+        ];
+
+        $draftsListJsonEncoded = Json::encode($draftsListJson);
+        $statement->setDraftsListJson($draftsListJsonEncoded);
+        $this->statementService->updateStatementFromObject($statement, true);
+    }
 }
