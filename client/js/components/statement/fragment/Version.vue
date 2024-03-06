@@ -49,7 +49,7 @@
           </div><!--
 
        --><div class="inline-block text-right u-3-of-4">
-            <dp-fragment-status
+            <status
               v-if="hasPermission('feature_statements_fragment_advice')"
               :status="item.voteAdvice === null ? '' : fixCompoundVotes(item.voteAdvice)"
               :tooltip="false"
@@ -59,8 +59,8 @@
               <template v-slot:title>
                   {{ Translator.trans('fragment.voteAdvice.short') }}
               </template>
-            </dp-fragment-status>
-            <dp-fragment-status
+            </status>
+            <status
               v-if="hasPermission('feature_statements_fragment_vote')"
               :status="item.vote === null ? '' : item.vote"
               :tooltip="false"
@@ -69,7 +69,7 @@
               <template v-slot:title>
                   {{ Translator.trans('fragment.vote.short') }}
               </template>
-            </dp-fragment-status>
+            </status>
           </div>
         </div>
 
@@ -86,14 +86,14 @@
 
 <script>
 import { checkResponse, CleanHtml, dpApi, DpLoading, formatDate } from '@demos-europe/demosplan-ui'
-import FragmentStatus from './Status'
+import Status from './Status'
 
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
   name: 'Version',
 
   components: {
-    'dp-fragment-status': FragmentStatus,
+    Status,
     DpLoading
   },
 

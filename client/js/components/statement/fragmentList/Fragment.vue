@@ -74,7 +74,7 @@
       </div>
 
       <!-- voteAdvice badge -->
-      <dp-fragment-status
+      <status
         v-if="hasPermission('feature_statements_fragment_advice')"
         :status="status || ''"
         :archived-orga-name="fragment.archivedOrgaName || ''"
@@ -86,7 +86,7 @@
         <template v-slot:title>
           {{ Translator.trans('fragment.voteAdvice.short') }}
         </template>
-      </dp-fragment-status>
+      </status>
 
       <!-- Tabs -->
       <div class="text-right float-right">
@@ -117,7 +117,7 @@
     </div>
 
     <!-- display procedure name to add some context -->
-    <dp-item-row
+    <item-row
       icon="fa-folder"
       title="procedure"
       class="bg-color--grey-light-2">
@@ -126,7 +126,7 @@
         rel="noopener">
         {{ missKeyValue(fragment.procedureName) }}
       </a>
-    </dp-item-row>
+    </item-row>
 
     <!-- tab content: fragment -->
     <div
@@ -134,7 +134,7 @@
       class="layout--flush bg-color--grey-light-2"
       :id="`#fragment_${fragment.id || 0}`">
       <!-- tags -->
-      <dp-item-row
+      <item-row
         icon="fa-tag"
         title="tags.assigned">
         <template v-if="fragment.tags.length">
@@ -158,10 +158,10 @@
           class="u-m-0">
           {{ Translator.trans('tags.notassigned') }}
         </p>
-      </dp-item-row>
+      </item-row>
 
       <!-- location -->
-      <dp-item-row
+      <item-row
         icon="fa-map-marker"
         title="location"
         v-if="hasPermission('field_statement_county') || hasPermission('field_statement_municipality') || dplan.procedureStatementPriorityArea">
@@ -214,10 +214,10 @@
           class="u-m-0">
           {{ Translator.trans('location.notassigned') }}
         </p>
-      </dp-item-row>
+      </item-row>
 
       <!-- element -->
-      <dp-item-row
+      <item-row
         icon="fa-file-text"
         title="element.assigned">
         <dl v-if="fragment.elementTitle != null">
@@ -271,32 +271,32 @@
           class="u-m-0">
           {{ Translator.trans('element.notassigned') }}
         </p>
-      </dp-item-row>
+      </item-row>
 
       <!-- fragment text -->
-      <dp-item-row
+      <item-row
         icon="fa-comment"
         title="fragment.text">
         <text-content-renderer :text="fragment.text" />
-      </dp-item-row>
+      </item-row>
 
       <!-- fragment consideration -->
-      <dp-item-row
+      <item-row
         icon="fa-comment-o"
         title="fragment.consideration"
         :border-bottom="false">
         <span v-cleanhtml="fragment.considerationAdvice ? fragment.considerationAdvice : `<p>${Translator.trans('notspecified')}</p>`" />
-      </dp-item-row>
+      </item-row>
 
       <!-- fragment versions -->
-      <dp-item-row
+      <item-row
         class="u-pt-0"
         :border-bottom="!isArchive">
         <version
           :fragment-id="fragment.id"
           :statement-id="fragment.statement.id"
           ref="history" />
-      </dp-item-row>
+      </item-row>
 
       <!-- edit fragment -->
       <div
@@ -318,7 +318,7 @@
         </div>
 
         <!-- edit fragment: content -->
-        <dp-item-row
+        <item-row
           title="fragment.consideration"
           :border-bottom="false"
           v-if="editable && editing">
@@ -333,7 +333,7 @@
             :element-id="fragment.elementId"
             :paragraph-id="fragment.paragraphId"
             ref="editor" />
-        </dp-item-row>
+        </item-row>
       </div>
     </div>
 
@@ -422,7 +422,7 @@
       </dp-item-row>
 
       <!-- element -->
-      <dp-item-row
+      <item-row
         icon="fa-file-text"
         title="element.assigned">
         <dl v-if="fragment.statement.elementTitle != null">
@@ -458,10 +458,10 @@
           class="u-m-0">
           {{ Translator.trans('element.notassigned') }}
         </p>
-      </dp-item-row>
+      </item-row>
 
       <!-- attached files -->
-      <dp-item-row
+      <item-row
         icon="fa-paperclip"
         title="fragment.statement.files.uploaded"
         v-if="fragment.statement && fragment.statement.files && fragment.statement.files.length">
@@ -474,10 +474,10 @@
           target="_blank">
           {{ file.name }}
         </a>
-      </dp-item-row>
+      </item-row>
 
       <!-- statement text -->
-      <dp-item-row
+      <item-row
         icon="fa-comment"
         title="statement.text"
         :border-bottom="false">
@@ -488,7 +488,7 @@
           class="u-mr"
           :is-shortened="fragment.statement.textShort.length < fragment.statement.text.length"
           no-event />
-      </dp-item-row>
+      </item-row>
     </div>
   </article>
 </template>
@@ -506,9 +506,9 @@ import DpClaim from '../DpClaim'
 // eslint-disable-next-line import/extensions
 import Edit from '../fragment/Edit.vue'
 // eslint-disable-next-line sort-imports
-import DpFragmentStatus from '../fragment/Status'
+import Status from '../fragment/Status'
 import Version from '../fragment/Version'
-import DpItemRow from '../assessmentTable/ItemRow'
+import ItemRow from '../assessmentTable/ItemRow'
 import HeightLimit from '@DpJs/components/statement/HeightLimit'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 
@@ -519,10 +519,10 @@ export default {
   components: {
     DpClaim,
     Edit,
-    DpFragmentStatus,
+    Status,
     Version,
     HeightLimit,
-    DpItemRow,
+    ItemRow,
     TextContentRenderer,
     VPopover
   },
