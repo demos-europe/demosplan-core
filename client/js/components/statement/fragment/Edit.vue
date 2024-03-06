@@ -107,8 +107,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, DpButton, DpEditor, DpMultiselect } from '@demos-europe/demosplan-ui'
-import qs from 'qs'
+import { checkResponse, DpButton, DpEditor, DpMultiselect, makeFormPost } from '@demos-europe/demosplan-ui'
 
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
@@ -216,13 +215,7 @@ export default {
       saveData.forEach(el => {
         dataForRequest[el.name] = el.value
       })
-
-      dpApi({
-        method: 'post',
-        url: Routing.generate('DemosPlan_statement_fragment_edit_reviewer_ajax', { fragmentId: this.fragmentId }),
-        data: qs.stringify(dataForRequest),
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-      })
+      return makeFormPost(dataForRequest, Routing.generate('DemosPlan_statement_fragment_edit_reviewer_ajax', { fragmentId: this.fragmentId }))
         .then(checkResponse)
         .then(response => {
           /*

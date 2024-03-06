@@ -683,7 +683,6 @@ export default {
   },
 
   mounted () {
-    console.log(this.fragment, 'fragment')
     this.status = this.fragment.voteAdvice
     this.considerationAdvice = this.fragment.considerationAdvice
     this.editable = hasOwnProp(this.fragment, 'assignee') && this.fragment?.assignee?.id === this.currentUserId
