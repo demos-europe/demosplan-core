@@ -260,7 +260,8 @@ export default {
 
       const options = {
         messages: {
-          200: { type: 'confirm', text: 'segment.claim.success' }
+          200: { type: 'confirm', text: 'segment.claim.success' },
+          400: { type: 'error', text: 'segment.claim.fail' }
         }
       }
 
@@ -270,7 +271,6 @@ export default {
         })
         .catch((err) => {
           console.error(err)
-          dplan.notify.notify('error', Translator.trans('segment.claim.fail'))
           // Restore segment in store if it didn't work
           this.restoreSegmentAction(segment.id)
           this.claimLoading = null
