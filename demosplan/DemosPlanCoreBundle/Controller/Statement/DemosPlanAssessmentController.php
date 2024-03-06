@@ -195,10 +195,10 @@ class DemosPlanAssessmentController extends BaseController
                 $filterSet = $assessmentHandler->handleFilterHash($request, $procedureId);
                 $routeName = $currentUser->getUser()->hasRole(Role::PROCEDURE_DATA_INPUT) ?
                     'DemosPlan_statement_single_view' : 'dplan_assessmenttable_view_table';
-                $routeParameters = $routeName === 'DemosPlan_statement_single_view' ?
+                $routeParameters = 'DemosPlan_statement_single_view' === $routeName ?
                     [
                         'procedureId' => $procedureId,
-                        'statementId' => $newStatement->getId()
+                        'statementId' => $newStatement->getId(),
                     ] :
                     [
                         'procedureId' => $procedureId,
