@@ -506,7 +506,7 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
     }
 
     /**
-     * @return ArrayCollection|SingleDocument[]
+     * @return Collection<int, SingleDocument>
      */
     public function getDocuments(): Collection
     {
