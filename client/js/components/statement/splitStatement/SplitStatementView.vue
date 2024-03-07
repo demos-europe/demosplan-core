@@ -517,8 +517,8 @@ export default {
         .catch((err) => console.error(err))
     },
 
-    fetchSegments (isLoaded) {
-      if (!isLoaded) {
+    fetchSegments (addonLoaded) {
+      if (!addonLoaded) {
         this.fetchStatementSegmentDraftList(this.statementId)
           .then(({ data }) => {
             if (data.data.attributes.segmentDraftList?.data.attributes.segments) {
