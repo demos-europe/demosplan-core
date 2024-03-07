@@ -23,6 +23,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\PlaceInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureBehaviorDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureSettingsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureUiDefinitionInterface;
@@ -147,32 +148,14 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     protected $desc = '';
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="_p_phase", type="string", nullable=false)
+     * @ORM\OneToOne(
+     *     targetEntity="ProcedurePhase",
+     *     inversedBy="procedure",
+     *     nullable=false,
+     *     cascade={"persist", "remove"}
+     * )
      */
-    protected $phase = '';
-
-    /**
-     * Readable Phase name.
-     *
-     * @var string
-     */
-    protected $phaseName;
-
-    /**
-     * Virtual Property bound on phase configuration in procedurephases.yml.
-     *
-     * @var string
-     */
-    protected $phasePermissionset;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="_p_step", type="string", length=25, nullable=false, options={"default":""})
-     */
-    protected $step = '';
+    protected ProcedurePhase $phase;
 
     /**
      * @var string
@@ -256,32 +239,14 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     protected $publicParticipation = false;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="_p_public_participation_phase", type="string", nullable=false)
+     * @ORM\OneToOne(
+     *     targetEntity="ProcedurePhase",
+     *     inversedBy="procedure",
+     *     nullable=false,
+     *     cascade={"persist", "remove"}
+     * )
      */
-    protected $publicParticipationPhase = '';
-
-    /**
-     * Readable publicParticipationPhase name.
-     *
-     * @var string
-     */
-    protected $publicParticipationPhaseName;
-
-    /**
-     * Virtual Property bound on phase configuration in procedurephases.yml.
-     *
-     * @var string
-     */
-    protected $publicParticipationPhasePermissionset;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="_p_public_participation_step", type="string", length=25, nullable=false, options={"default":""})
-     */
-    protected $publicParticipationStep = '';
+    protected ProcedurePhase $publicParticipationPhase;
 
     /**
      * @var DateTime
@@ -674,6 +639,8 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         $this->notificationReceivers = new ArrayCollection();
         $this->exportFieldsConfigurations = new ArrayCollection();
         $this->segmentPlaces = new ArrayCollection();
+        $this->phase = new ProcedurePhase('configuration');
+        $this->publicParticipationPhase = new ProcedurePhase('configuration');
     }
 
     /**
@@ -824,30 +791,28 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     }
 
     /**
-     * Set pPhase.
+     * @param string $phaseKey
      *
-     * @param string $phase
-     *
-     * @return Procedure
+     * @return $this
      */
-    public function setPhase($phase)
+    public function setPhase($phaseKey): Procedure
     {
-        $this->phase = $phase;
+        $this->phase->setKey($phaseKey);
 
         return $this;
     }
 
-    public function getPhase(): string
+    /**
+     * Allow using this method the legacy way by using the implemented __toString.
+     */
+    public function getPhase(): string|ProcedurePhaseInterface
     {
         return $this->phase;
     }
 
-    /**
-     * @return string
-     */
-    public function getPhaseName()
+    public function getPhaseName(): string
     {
-        return $this->phaseName;
+        return $this->phase->getName();
     }
 
     /**
@@ -855,17 +820,17 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function setPhaseName($phaseName)
     {
-        $this->phaseName = $phaseName;
+        $this->phase->setName($phaseName);
     }
 
     public function getPhasePermissionset(): string
     {
-        return $this->phasePermissionset ?? ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN;
+        return $this->phase->getPermissionSet() ?? ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN;
     }
 
     public function setPhasePermissionset(string $phasePermissionset): Procedure
     {
-        $this->phasePermissionset = $phasePermissionset;
+        $this->phase->setPermissionSet($phasePermissionset);
 
         return $this;
     }
@@ -879,7 +844,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function setStep($step)
     {
-        $this->step = $step;
+        $this->phase->setStep($step);
 
         return $this;
     }
@@ -891,7 +856,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function getStep()
     {
-        return $this->step;
+        return $this->phase->getStep();
     }
 
     /**
@@ -1143,18 +1108,21 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     /**
      * Set pPublicParticipationPhase.
      *
-     * @param string $publicParticipationPhase
+     * @param string $publicParticipationPhaseKey
      *
      * @return Procedure
      */
-    public function setPublicParticipationPhase($publicParticipationPhase)
+    public function setPublicParticipationPhase($publicParticipationPhaseKey)
     {
-        $this->publicParticipationPhase = $publicParticipationPhase;
+        $this->getPublicParticipationPhase()->setKey($publicParticipationPhaseKey);
 
         return $this;
     }
 
-    public function getPublicParticipationPhase(): string
+    /**
+     * Allow using this method the legacy way by using the implemented __toString.
+     */
+    public function getPublicParticipationPhase(): string|ProcedurePhaseInterface
     {
         return $this->publicParticipationPhase;
     }
@@ -1164,40 +1132,35 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function getPublicParticipationPhaseName()
     {
-        return $this->publicParticipationPhaseName;
+        return $this->publicParticipationPhase->getName();
     }
 
     /**
      * @param string $publicParticipationPhaseName
      */
-    public function setPublicParticipationPhaseName(
-        $publicParticipationPhaseName
-    ) {
-        $this->publicParticipationPhaseName = $publicParticipationPhaseName;
+    public function setPublicParticipationPhaseName($publicParticipationPhaseName) {
+        $this->publicParticipationPhase->setName($publicParticipationPhaseName);
     }
 
     public function getPublicParticipationPhasePermissionset(): string
     {
-        return $this->publicParticipationPhasePermissionset ?? ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN;
+        return $this->publicParticipationPhase->getPermissionset() ??
+            ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN;
     }
 
     public function setPublicParticipationPhasePermissionset(string $publicParticipationPhasePermissionset): Procedure
     {
-        $this->publicParticipationPhasePermissionset = $publicParticipationPhasePermissionset;
+        $this->publicParticipationPhase->setPermissionset($publicParticipationPhasePermissionset);
 
         return $this;
     }
 
     /**
-     * Set pPublicParticipationStep.
-     *
      * @param string $publicParticipationStep
-     *
-     * @return Procedure
      */
-    public function setPublicParticipationStep($publicParticipationStep)
+    public function setPublicParticipationStep($publicParticipationStep): Procedure
     {
-        $this->publicParticipationStep = $publicParticipationStep;
+        $this->publicParticipationPhase->setStep($publicParticipationStep);
 
         return $this;
     }
@@ -1209,7 +1172,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function getPublicParticipationStep()
     {
-        return $this->publicParticipationStep;
+        return $this->publicParticipationPhase->getStep();
     }
 
     /**

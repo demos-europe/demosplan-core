@@ -198,20 +198,6 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     protected $pictogram;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="_ps_designated_phase", type="string", length=50, nullable=true)
-     */
-    protected $designatedPhase;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="_ps_designated_public_phase", type="string", length=50, nullable=true)
-     */
-    protected $designatedPublicPhase;
-
-    /**
      * @var DateTime
      *
      * @ORM\Column(name="_ps_designated_switch_date", type="datetime", nullable=true)
@@ -224,24 +210,6 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
      * @ORM\Column(name="_ps_designated_public_switch_date", type="datetime", nullable=true)
      */
     protected $designatedPublicSwitchDate;
-
-    /**
-     * @var UserInterface|null
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
-     *
-     * @ORM\JoinColumn(referencedColumnName="_u_id", nullable=true, onDelete="SET NULL")
-     */
-    protected $designatedPhaseChangeUser;
-
-    /**
-     * @var UserInterface|null
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
-     *
-     * @ORM\JoinColumn(referencedColumnName="_u_id", nullable=true, onDelete="SET NULL")
-     */
-    protected $designatedPublicPhaseChangeUser;
 
     /**
      * @var DateTime
@@ -873,7 +841,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
      */
     public function getDesignatedPhase()
     {
-        return $this->designatedPhase;
+        return $this->procedure->getPhase()->getDesignatedPhase();
     }
 
     /**
@@ -883,7 +851,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
      */
     public function setDesignatedPhase($designatedPhase)
     {
-        $this->designatedPhase = $designatedPhase;
+        $this->procedure->getPhase()->setDesignatedPhase($designatedPhase);
 
         return $this;
     }
@@ -895,7 +863,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
      */
     public function getDesignatedPublicPhase()
     {
-        return $this->designatedPublicPhase;
+        return $this->procedure->getPublicParticipationPhase()->getDesignatedPhase();
     }
 
     /**
@@ -903,7 +871,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
      */
     public function setDesignatedPublicPhase($designatedPublicPhase)
     {
-        $this->designatedPublicPhase = $designatedPublicPhase;
+        $this->procedure->getPublicParticipationPhase()->setDesignatedPhase($designatedPublicPhase);
 
         return $this;
     }
@@ -916,12 +884,12 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
      */
     public function getDesignatedSwitchDate(): ?DateTime
     {
-        return $this->designatedSwitchDate;
+        return $this->procedure->getPhase()->getDesignatedSwitchDate();
     }
 
     public function setDesignatedSwitchDate(?DateTime $designatedSwitchDate): self
     {
-        $this->designatedSwitchDate = $designatedSwitchDate;
+        $this->procedure->getPhase()->setDesignatedSwitchDate($designatedSwitchDate);
 
         return $this;
     }
@@ -934,12 +902,12 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
      */
     public function getDesignatedPublicSwitchDate(): ?DateTime
     {
-        return $this->designatedPublicSwitchDate;
+        return $this->procedure->getPublicParticipationPhase()->getDesignatedSwitchDate();
     }
 
     public function setDesignatedPublicSwitchDate(?DateTime $designatedPublicSwitchDate): self
     {
-        $this->designatedPublicSwitchDate = $designatedPublicSwitchDate;
+        $this->procedure->getPublicParticipationPhase()->setDesignatedSwitchDate($designatedPublicSwitchDate);
 
         return $this;
     }
@@ -949,7 +917,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
      */
     public function getDesignatedEndDate(): ?DateTime
     {
-        return $this->designatedEndDate;
+        return $this->procedure->getPhase()->getDesignatedEndDate();
     }
 
     /**
@@ -959,7 +927,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
      */
     public function setDesignatedEndDate($designatedEndDate)
     {
-        $this->designatedEndDate = $designatedEndDate;
+        $this->procedure->getPhase()->setDesignatedEndDate($designatedEndDate);
 
         return $this;
     }
@@ -969,7 +937,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
      */
     public function getDesignatedPublicEndDate(): ?DateTime
     {
-        return $this->designatedPublicEndDate;
+        return $this->procedure->getPublicParticipationPhase()->getDesignatedEndDate();
     }
 
     /**
@@ -977,7 +945,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
      */
     public function setDesignatedPublicEndDate($designatedPublicEndDate)
     {
-        $this->designatedPublicEndDate = $designatedPublicEndDate;
+        $this->procedure->getPublicParticipationPhase()->setDesignatedEndDate($designatedPublicEndDate);
 
         return $this;
     }
@@ -1101,24 +1069,24 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
 
     public function getDesignatedPhaseChangeUser(): ?UserInterface
     {
-        return $this->designatedPhaseChangeUser;
+        return $this->procedure->getPhase()->getDesignatedPhaseChangeUser();
     }
 
     public function getDesignatedPublicPhaseChangeUser(): ?UserInterface
     {
-        return $this->designatedPublicPhaseChangeUser;
+        return $this->procedure->getPublicParticipationPhase()->getDesignatedPhaseChangeUser();
     }
 
     public function setDesignatedPhaseChangeUser(?UserInterface $designatedPhaseChangeUser): self
     {
-        $this->designatedPhaseChangeUser = $designatedPhaseChangeUser;
+        $this->procedure->getPhase()->setDesignatedPhaseChangeUser($designatedPhaseChangeUser);
 
         return $this;
     }
 
     public function setDesignatedPublicPhaseChangeUser(?UserInterface $designatedPublicPhaseChangeUser): self
     {
-        $this->designatedPublicPhaseChangeUser = $designatedPublicPhaseChangeUser;
+        $this->procedure->getPublicParticipationPhase()->setDesignatedPhaseChangeUser($designatedPublicPhaseChangeUser);
 
         return $this;
     }
