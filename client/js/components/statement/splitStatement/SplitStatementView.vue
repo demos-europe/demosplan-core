@@ -23,6 +23,7 @@
           </h1>
 
           <ul
+            v-if="segmentationStatus === 'inUserSegmentation'"
             class="float-right u-pt-0_25 u-m-0">
             <li class="inline-block">
               <dp-flyout
@@ -54,6 +55,15 @@
 <!--        :processing-time="processingTime"-->
 <!--        @continue="handleContinue"-->
 <!--        class="u-mb" />-->
+      <addon-wrapper
+        :addon-props="{
+          status: segmentationStatus,
+          processingTime: processingTime,
+          class: 'u-mb'
+        }"
+        hook-name="split.statement.ai"
+        @loaded="fetchSegments"
+        @continue="handleContinue" />
 
       <transition
         name="slide-fade"
@@ -157,6 +167,7 @@ import {
 } from '@DpJs/lib/prosemirror/commands'
 import { dpApi, DpButton, DpFlyout, DpInlineNotification, DpLoading, DpStickyElement } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import CardPane from './CardPane'
 import dayjs from 'dayjs'
 import { generateRangeChangeMap } from '@DpJs/lib/prosemirror/utilities'
@@ -166,7 +177,6 @@ import SideBar from './SideBar'
 import StatementMeta from '@DpJs/components/procedure/StatementSegmentsList/StatementMeta/StatementMeta'
 import StatementMetaTooltip from '../StatementMetaTooltip'
 import { v4 as uuid } from 'uuid'
-
 /**
  * This function merges ranges with their corresponding segments.
  * Ranges are used to represent range shaped information in prosemirror.
@@ -201,6 +211,7 @@ export default {
   name: 'SplitStatementView',
 
   components: {
+    AddonWrapper,
     CardPane,
     DpButton,
     DpFlyout,
@@ -408,7 +419,7 @@ export default {
     },
 
     determineIfStatementReady (counter = 0) {
-      if (this.segmentationStatus === 'segmented' || this.segmentationStatus === 'inUserSegmentation') {
+      if (this.segmentationStatus === 'aiSegmented' || this.segmentationStatus === 'inUserSegmentation') {
         return
       }
       const time = counter < 3 ? 5000 : 2000
@@ -422,7 +433,7 @@ export default {
              */
             if (data.data.attributes.segmentDraftList !== null) {
               this.fetchInitialData().then(() => {
-                this.segmentationStatus = 'segmented'
+                this.segmentationStatus = 'aiSegmented'
               })
               return
             }
@@ -504,6 +515,22 @@ export default {
         this.setProperty({ prop: 'availablePlaces', val: availablePlaces })
       })
         .catch((err) => console.error(err))
+    },
+
+    fetchSegments (isLoaded) {
+      if (isLoaded) {
+        this.splitStatementAction(this.statementId)
+        this.determineIfStatementReady()
+      } else {
+        this.fetchStatementSegmentDraftList(this.statementId)
+          .then(({ data }) => {
+            if (data.data.attributes.segmentDraftList?.data.attributes.segments) {
+              this.fetchInitialData().then(() => {
+                this.segmentationStatus = 'inUserSegmentation'
+              })
+            }
+          })
+      }
     },
 
     handleCardHighlighting (segmentId, highlight) {
@@ -785,20 +812,20 @@ export default {
   },
 
   mounted () {
-    this.fetchStatementSegmentDraftList(this.statementId)
-      .then(({ data }) => {
-        /**
-         * Initially, we want to check two conditions.
-         * 1. Has the statement ever been segmented (indicated by a non-empty value for segmentsDraftList)?
-         * 2. Are there any segments which were found by the AI pipeline?
-         * If any of these conditions do not apply, we want to send the statement to the AI pipeline for segmentation.
-         */
-        if (data.data.attributes.segmentDraftList?.data.attributes.segments) { //this is only null if it was never segmented and data from pi is not here yet
-          this.fetchInitialData().then(() => {
-            this.segmentationStatus = 'segmented'
-          })
-        }
-      })
+    // this.fetchStatementSegmentDraftList(this.statementId)
+    //   .then(({ data }) => {
+    //     /**
+    //      * Initially, we want to check two conditions.
+    //      * 1. Has the statement ever been segmented (indicated by a non-empty value for segmentsDraftList)?
+    //      * 2. Are there any segments which were found by the AI pipeline?
+    //      * If any of these conditions do not apply, we want to send the statement to the AI pipeline for segmentation.
+    //      */
+    //     if (data.data.attributes.segmentDraftList?.data.attributes.segments) { //this is only null if it was never segmented and data from pi is not here yet
+    //       this.fetchInitialData().then(() => {
+    //         this.segmentationStatus = 'inUserSegmentation'
+    //       })
+    //     }
+    //   })
 
     this.fetchAssignableUsers()
     this.fetchAvailablePlaces()

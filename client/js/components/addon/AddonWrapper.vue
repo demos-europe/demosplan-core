@@ -4,7 +4,7 @@
       :is="component"
       :ref="refComponent"
       v-bind="addonProps"
-    />
+      @continue="() => this.$emit('continue')" />
   </div>
 </template>
 
@@ -42,7 +42,8 @@ export default {
 
   data () {
     return {
-      component: ''
+      component: '',
+      isLoaded: false
     }
   },
 
@@ -75,7 +76,11 @@ export default {
             this.$options.components[addon.entry] = window[addon.entry].default
 
             this.component = window[addon.entry].default
+
+            this.isLoaded = true
           }
+
+          this.$emit('loaded', this.isLoaded)
         })
     }
   },
