@@ -33,7 +33,9 @@
           v-if="!isArchive && hasPermission('feature_statement_assignment')"
           @click="updateClaim" />
 
-        <v-popover class="inline-block u-mr">
+        <v-popover
+          class="inline-block u-mr"
+          trigger="hover focus">
           <div>
             <span
               v-if="isArchive"

@@ -60,11 +60,13 @@ $tooltip-width: 400px;
         max-width: none;
     }
 
-    &__inner {
+    &__inner,
+    &-inner {
         @extend %tooltip-content-styles;
     }
 
-    &__arrow {
+    &__arrow,
+    &-arrow {
         position: absolute;
         z-index: -1;
 

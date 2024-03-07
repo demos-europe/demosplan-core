@@ -40,7 +40,9 @@ useful info about the component:
           v-model="fragmentSelected"
           :disabled="Object.keys(selectedElements).length > 0"
           :title="Object.keys(selectedElements).length > 0 ? Translator.trans('unselect.entity.first', {entity: Translator.trans('fragment')}) : false">
-        <v-popover class="inline-block u-ml-0_125 weight--bold">
+        <v-popover
+          class="inline-block u-ml-0_125 weight--bold"
+          trigger="hover focus">
           {{ fragment.displayId }}
           <template v-slot:popover>
             <div>

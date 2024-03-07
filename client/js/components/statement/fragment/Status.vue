@@ -28,7 +28,9 @@
     </div>
 
     <!-- If component is used without specifying `tooltip` prop (which defaults to true)... -->
-    <v-popover v-else>
+    <v-popover
+      v-else
+      trigger="hover focus">
       <!-- Target/Trigger (for the events and position) -->
       <div>
         <slot name="title" />
