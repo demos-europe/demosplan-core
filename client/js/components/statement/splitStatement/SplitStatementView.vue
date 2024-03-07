@@ -63,7 +63,7 @@
         }"
         hook-name="split.statement.ai"
         @loaded="fetchSegments"
-        @continue="handleContinue" />
+        @statusChange="setSegmentationStatus" />
 
       <transition
         name="slide-fade"
@@ -518,10 +518,7 @@ export default {
     },
 
     fetchSegments (isLoaded) {
-      if (isLoaded) {
-        this.splitStatementAction(this.statementId)
-        this.determineIfStatementReady()
-      } else {
+      if (!isLoaded) {
         this.fetchStatementSegmentDraftList(this.statementId)
           .then(({ data }) => {
             if (data.data.attributes.segmentDraftList?.data.attributes.segments) {
@@ -546,8 +543,8 @@ export default {
       }
     },
 
-    handleContinue () {
-      this.segmentationStatus = 'inUserSegmentation'
+    setSegmentationStatus (status) {
+      this.segmentationStatus = status
     },
 
     /**

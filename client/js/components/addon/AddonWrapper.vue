@@ -4,7 +4,7 @@
       :is="component"
       :ref="refComponent"
       v-bind="addonProps"
-      @continue="() => this.$emit('continue')" />
+      @statusChange="(status) => this.$emit('statusChange', status)" />
   </div>
 </template>
 
