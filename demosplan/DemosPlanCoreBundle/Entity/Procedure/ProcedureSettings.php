@@ -800,7 +800,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
      *
      * @return ProcedureSettingsInterface
      */
-    public function setProcedure(ProcedureInterface $procedure = null)
+    public function setProcedure(?ProcedureInterface $procedure = null)
     {
         $this->procedure = $procedure;
 

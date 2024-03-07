@@ -1,8 +1,16 @@
-<?php declare(strict_types=1);
+<?php
 
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
-
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseInterface;
@@ -17,6 +25,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * Currently there a two phases related to a procedure, therefore this Entity is related to the procedure twice.
  *
  * @ORM\Table
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseRepository")
  */
 class ProcedurePhase extends CoreEntity implements UuidEntityInterface, ProcedurePhaseInterface
@@ -35,8 +44,6 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     /**
      * Virtual property
      * Readable Phase name.
-     *
-     * @var string
      */
     protected string $name;
 
@@ -47,14 +54,10 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
 
     /**
      * Virtual Property bound on phase configuration in procedurephases.yml.
-     *
-     * @var string
      */
     protected string $permissionSet;
 
     /**
-     * @var string
-     *
      * @ORM\Column(type="string", length=25, nullable=false, options={"default":""})
      */
     protected string $step = '';
@@ -76,13 +79,12 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
 
     /**
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", mappedBy="phase")
+     *
      * @ORM\OrderBy({"name" = "ASC"})
      */
     protected Procedure $procedure;
 
     /**
-     * @var DateTime
-     *
      * @Gedmo\Timestampable(on="create")
      *
      * @ORM\Column(type="datetime", nullable=false)
@@ -114,7 +116,9 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
      * the user has no defined relation in its class.
      *
      * @var UserInterface|null
+     *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(referencedColumnName="_u_id", nullable=true, onDelete="SET NULL")
      */
     protected $designatedPhaseChangeUser;
@@ -126,16 +130,14 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
 
     public function __construct(string $key, string $step = '')
     {
-
-        //virtual properties:
-        //name
-        //Permissionset
+        // virtual properties:
+        // name
+        // Permissionset
 
         $this->key = $key;
         $this->step = $step;
         $this->endDate = new DateTime();
         $this->startDate = new DateTime();
-
     }
 
     public function getId(): ?string
@@ -282,5 +284,4 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     {
         $this->step = $step;
     }
-
 }

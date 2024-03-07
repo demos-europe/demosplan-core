@@ -1138,7 +1138,8 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     /**
      * @param string $publicParticipationPhaseName
      */
-    public function setPublicParticipationPhaseName($publicParticipationPhaseName) {
+    public function setPublicParticipationPhaseName($publicParticipationPhaseName)
+    {
         $this->publicParticipationPhase->setName($publicParticipationPhaseName);
     }
 
