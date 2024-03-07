@@ -11,17 +11,18 @@
  * This is the entrypoint for fragment_statement.html.twig
  */
 
+import { dpValidate, VPopover } from '@demos-europe/demosplan-ui'
 import AssessmentTableStore from '@DpJs/store/statement/AssessmentTable'
 import DeleteFragmentButton from '@DpJs/lib/statement/DeleteFragmentButton'
 import DpCreateStatementFragment from '@DpJs/components/statement/statement/DpCreateStatementFragment'
-import { dpValidate } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
 
 const stores = {
   assessmentTable: AssessmentTableStore
 }
 const components = {
-  DpCreateStatementFragment
+  DpCreateStatementFragment,
+  VPopover
 }
 
 initialize(components, stores).then(() => {
