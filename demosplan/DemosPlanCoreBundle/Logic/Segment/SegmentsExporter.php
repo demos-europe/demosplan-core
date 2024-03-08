@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
+use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use demosplan\DemosPlanCoreBundle\ValueObject\CellExportStyle;
 use demosplan\DemosPlanCoreBundle\ValueObject\ExportOrgaInfoHeader;
 use PhpOffice\PhpWord\Element\Row;
@@ -51,6 +52,7 @@ class SegmentsExporter
 
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
+        private readonly HTMLSanitizer $HTMLSanitizer,
         Slugify $slugify,
         TranslatorInterface $translator)
     {
@@ -279,7 +281,10 @@ class SegmentsExporter
 
     private function getHtmlValidText(string $text): string
     {
-        return str_replace('<br>', '<br/>', $text);
+        $text = str_replace('<br>', '<br/>', $text);
+
+        // avoid problems in phpword parser
+        return $this->HTMLSanitizer->purify($text);
     }
 
     private function addSegmentCell(Row $row, string $text, CellExportStyle $cellExportStyle): void
