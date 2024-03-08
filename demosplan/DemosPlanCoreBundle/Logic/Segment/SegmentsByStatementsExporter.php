@@ -138,6 +138,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     public function exportStatement(Section $section, Statement $statement): void
     {
         $this->addStatementInfo($section, $statement);
+        $this->addSimilarStatementSubmitters($section, $statement);
         $this->addSegments($section, $statement);
         $this->addFooter($section, $statement);
     }
