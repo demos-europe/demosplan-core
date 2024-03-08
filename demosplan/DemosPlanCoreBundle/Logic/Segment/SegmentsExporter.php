@@ -282,6 +282,7 @@ class SegmentsExporter
     private function getHtmlValidText(string $text): string
     {
         $text = str_replace('<br>', '<br/>', $text);
+
         // avoid problems in phpword parser
         return $this->HTMLSanitizer->purify($text);
     }
