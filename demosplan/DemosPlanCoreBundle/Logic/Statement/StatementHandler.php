@@ -120,7 +120,6 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
-use function Amp\Iterator\toArray;
 use function array_key_exists;
 use function is_string;
 
@@ -3192,12 +3191,12 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      * No other data will be updated, whereby no special checks are needed.
      * This will not creating a report entry!
      *
-     * @param statementFragment $fragment - fragment, which will be assigned
+     * @param StatementFragment $fragment - fragment, which will be assigned
      * @param User              $user     - User to assign to. If the user is null, the fragment will be freed
      *
      * @throws Exception
      */
-    public function setAssigneeOfStatementFragment(StatementFragment $fragment, User $user = null)
+    public function setAssigneeOfStatementFragment(StatementFragment $fragment, ?User $user = null)
     {
         $fragment->setAssignee($user);
         $this->statementFragmentService->updateStatementFragment($fragment, true);
@@ -3210,13 +3209,13 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      * No other data will be updated, whereby no special checks are needed.
      * This will not creating a report entry!
      *
-     * @param statement $statement     - statement, which will be assigned
+     * @param Statement $statement     - statement, which will be assigned
      * @param User      $user          - User to assign to. If the user is null, the statement will be freed
      * @param bool      $ignoreCluster -
      *
      * @return bool|string - true if the given statement was successfully assigned, otherwise the Extern-ID of the statement
      */
-    public function setAssigneeOfStatement(Statement $statement, User $user = null, $ignoreCluster = false)
+    public function setAssigneeOfStatement(Statement $statement, ?User $user = null, $ignoreCluster = false)
     {
         $assignedStatementOfCluster = 0;
         $cluster = $statement->getCluster();
@@ -3417,14 +3416,14 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     /**
      * Create new Statement which will copy values of the following attributes of the given $statement:.
      *
-     * @param statement   $representativeStatement - Statement, whose attributes will be copied
+     * @param Statement   $representativeStatement - Statement, whose attributes will be copied
      * @param string|null $name                    - custom name of cluster-statement
      *
      * @return Statement - new created Statement which can be used to be HeadStatement of a Cluster
      *
      * @throws StatementNameTooLongException
      */
-    protected function generateHeadStatement(Statement $representativeStatement, string $name = null): Statement
+    protected function generateHeadStatement(Statement $representativeStatement, ?string $name = null): Statement
     {
         $headStatement = new Statement();
         try {
@@ -3826,7 +3825,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             ->filter(fn ($fragment) => $fragment['id'] === $fragmentId)->first(null, []);
     }
 
-
     /**
      * @param string $statementId
      * @param string $fragmentId
@@ -3837,7 +3835,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     {
         $fragments = $this->entityManager
             ->getRepository(StatementFragment::class)->findByStatement($statementId);
-
 
         return collect($fragments)
             ->filter(fn ($fragment) => $fragment['id'] === $fragmentId)->first(null, []);
@@ -4386,7 +4383,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      * @throws NotAllStatementsGroupableException
      * @throws Exception
      */
-    public function createStatementCluster(string $procedureId, array $statementIds, string $headStatementId, string $headStatementName = null)
+    public function createStatementCluster(string $procedureId, array $statementIds, string $headStatementId, ?string $headStatementName = null)
     {
         if (!in_array($headStatementId, $statementIds)) {
             throw new InvalidArgumentException('Create statement cluster canceled: RepresentativeStatement have to be member of cluster');

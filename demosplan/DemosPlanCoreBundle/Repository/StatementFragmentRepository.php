@@ -64,10 +64,8 @@ class StatementFragmentRepository extends CoreRepository implements ArrayInterfa
      * Get Entity by Id.
      *
      * @param string $statementId
-     *
-     * @return array|null
      */
-    public function findByStatement($statementId) :?array
+    public function findByStatement($statementId): ?array
     {
         try {
             $query = $this->getEntityManager()->createQueryBuilder()
@@ -76,6 +74,7 @@ class StatementFragmentRepository extends CoreRepository implements ArrayInterfa
                 ->where('sf.statement = :id')
                 ->setParameter('id', $statementId)
                 ->getQuery();
+
             return $query->getResult(Query::HYDRATE_ARRAY);
         } catch (Exception $e) {
             $this->logger->warning('Get StatementFragment failed: ', [$e]);
