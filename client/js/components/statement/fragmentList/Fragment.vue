@@ -33,7 +33,10 @@
           v-if="!isArchive && hasPermission('feature_statement_assignment')"
           @click="updateClaim" />
 
-        <v-popover class="inline-block u-mr">
+        <v-popover
+          class="inline-block u-mr"
+          placement="top"
+          trigger="hover focus">
           <div>
             <span
               v-if="isArchive"
@@ -142,6 +145,7 @@
             <v-popover
               v-for="tag in fragment.tags"
               :key="tag.id"
+              placement="top"
               class="o-list__item">
               <li>{{ tag.title }}</li>
               <template v-slot:popover>
@@ -353,6 +357,7 @@
             <v-popover
               v-for="(tag, idx) in fragment.statement.tags"
               :key="idx"
+              placement="top"
               class="o-list__item inline">
               <li>{{ tag.title }}</li>
               <template v-slot:popover>
