@@ -24,8 +24,8 @@
           entity-type="fragment"
           :ignore-last-claimed="true"
           :assigned-id="(fragment.assignee?.id || '')"
-          :assigned-name="(fragment.assignee.name || '')"
-          :assigned-organisation="(fragment.assignee.orgaName || '')"
+          :assigned-name="(fragment.assignee?.name || '')"
+          :assigned-organisation="(fragment.assignee?.orgaName || '')"
           :current-user-id="currentUserId"
           :current-user-name="currentUserName"
           :is-loading="updatingClaimState"
@@ -587,13 +587,13 @@ export default {
   computed: {
     assigneeId () {
       if (hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee?.id) {
-        return this.fragment.assignee?.id
+        return this.fragment.assignee.id
       }
       return ''
     },
 
     assigneeName () {
-      if (hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee.name) {
+      if (hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee?.name) {
         return this.fragment.assignee.name
       }
       return ''
@@ -619,7 +619,7 @@ export default {
     },
 
     assigneeOrgaName () {
-      if (hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee.orgaName) {
+      if (hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee?.orgaName) {
         return this.fragment.assignee.orgaName
       }
       return ''
