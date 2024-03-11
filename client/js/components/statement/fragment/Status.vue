@@ -30,6 +30,7 @@
     <!-- If component is used without specifying `tooltip` prop (which defaults to true)... -->
     <v-popover
       v-else
+      placement="top"
       trigger="hover focus">
       <!-- Target/Trigger (for the events and position) -->
       <div>

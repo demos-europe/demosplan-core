@@ -66,7 +66,9 @@
           <label
             :for="`checkStatement:${displayedCheckboxId}`"
             class="layout__item u-1-of-6 u-mb-0 u-pb-0_25">
-            <v-popover trigger="hover focus">
+            <v-popover
+              placement="top"
+              trigger="hover focus">
               <i
                 v-if="statement.isCluster && hasPermission('feature_statement_cluster')"
                 class="fa fa-object-group"
@@ -109,6 +111,7 @@
               <div class="o-hellip--nowrap u-1-of-1">
                 <v-popover
                   class="o-hellip--nowrap"
+                  placement="top"
                   trigger="hover focus">
                   <!-- Findings when refactoring this template part:
                   - manual statements will have (`isSubmittedByCitizen === true`)
@@ -697,7 +700,9 @@
           <label
             :for="statement.id + ':item_check[]'"
             class="layout__item u-1-of-6 u-mb-0 u-pb-0_25">
-            <v-popover class="inline-block">
+            <v-popover
+              class="inline-block"
+              placement="top">
               {{ extid }}
 
               <i
