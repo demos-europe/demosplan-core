@@ -391,7 +391,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
             }
 
             // return current Version. Use ES to receive defined structure
-            $fragment = $this->statementHandler->getFragmentOfStatementES($updatedStatementFragment->getStatementId(), $fragmentId);
+            $fragment = $this->statementHandler->getFragmentOfStatement($updatedStatementFragment->getStatementId(), $fragmentId);
 
             return $this->renderJson($fragment, $returnCode, $success);
         } catch (Exception $e) {

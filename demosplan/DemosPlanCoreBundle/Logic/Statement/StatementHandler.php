@@ -120,6 +120,7 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
+use function Amp\Iterator\toArray;
 use function array_key_exists;
 use function is_string;
 
@@ -3822,6 +3823,23 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         $fragments = $this->getStatementFragmentsStatementES($statementId, []);
 
         return collect($fragments->getResult())
+            ->filter(fn ($fragment) => $fragment['id'] === $fragmentId)->first(null, []);
+    }
+
+
+    /**
+     * @param string $statementId
+     * @param string $fragmentId
+     *
+     * @return array|null;
+     */
+    public function getFragmentOfStatement($statementId, $fragmentId)
+    {
+        $fragments = $this->entityManager
+            ->getRepository(StatementFragment::class)->findByStatement($statementId);
+
+
+        return collect($fragments)
             ->filter(fn ($fragment) => $fragment['id'] === $fragmentId)->first(null, []);
     }
 
