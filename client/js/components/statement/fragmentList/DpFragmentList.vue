@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import { AnimateById } from '@demos-europe/demosplan-ui'
+import AnimateById from '@DpJs/lib/shared/AnimateById'
 import { mapMutations } from 'vuex'
 import StatementFragment from './Fragment'
 
