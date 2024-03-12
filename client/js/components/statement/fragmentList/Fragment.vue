@@ -604,11 +604,7 @@ export default {
     },
 
     fragmentDocumentTitle () {
-      if (hasOwnProp(this.fragment.document, 'document')) {
-        return Translator.trans(this.fragment.document.title)
-      } else {
-        return Translator.trans('file.notavailable')
-      }
+      return this.fragment.document ? Translator.trans(this.fragment.document.title) : Translator.trans('file.notavailable')
     },
 
     hasFile () {
