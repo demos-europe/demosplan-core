@@ -70,8 +70,7 @@
 import { CleanHtml, VPopover } from '@demos-europe/demosplan-ui'
 
 export default {
-  // eslint-disable-next-line vue/multi-word-component-names
-  name: 'Status',
+  name: 'DpFragmentStatus',
 
   components: {
     VPopover

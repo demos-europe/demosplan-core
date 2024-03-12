@@ -110,8 +110,7 @@
 import { checkResponse, DpButton, DpEditor, DpMultiselect, makeFormPost } from '@demos-europe/demosplan-ui'
 
 export default {
-  // eslint-disable-next-line vue/multi-word-component-names
-  name: 'Edit',
+  name: 'DpFragmentEdit',
 
   components: {
     DpButton,

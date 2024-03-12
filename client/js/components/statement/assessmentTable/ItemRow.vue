@@ -47,7 +47,7 @@
 import { DpIcon } from '@demos-europe/demosplan-ui'
 
 export default {
-  name: 'ItemRow',
+  name: 'DpItemRow',
 
   components: {
     DpIcon

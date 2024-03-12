@@ -10,13 +10,13 @@
 <template>
   <section class="u-mb">
     <template v-if="fragments.length">
-      <fragment
+      <dp-statement-fragment
         :csrf-token="csrfToken"
         :is-archive="isArchive"
         v-for="fragment in fragments"
         :key="missKeyValue(fragment.id, 0)"
         :fragment-id="missKeyValue(fragment.id, 0)"
-        :statement-id="missKeyValue(fragment.statement?.id, 0)"
+        :statement-id="missKeyValue(fragment.statement.id, 0)"
         :current-user-id="currentUserId"
         :current-user-name="currentUserName"
         :advice-values="adviceValues" />
@@ -32,14 +32,13 @@
 <script>
 import AnimateById from '@DpJs/lib/shared/AnimateById'
 import { mapMutations } from 'vuex'
-// eslint-disable-next-line sort-imports,import/extensions
-import Fragment from './Fragment.vue'
+import DpStatementFragment from './Fragment.vue'
 
 export default {
   name: 'DpFragmentList',
 
   components: {
-    fragment: Fragment
+    'dp-statement-fragment': DpStatementFragment
   },
 
   props: {
@@ -112,7 +111,7 @@ export default {
      */
     while (i--) {
       this.$store.commit('fragment/addFragment', {
-        statementId: this.fragments[i].statement?.id,
+        statementId: this.fragments[i].statement.id,
         fragment: this.fragments[i]
       })
     }
