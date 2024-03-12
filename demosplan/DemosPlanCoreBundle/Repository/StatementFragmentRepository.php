@@ -61,9 +61,11 @@ class StatementFragmentRepository extends CoreRepository implements ArrayInterfa
     }
 
     /**
-     * Get Entity by Id.
+     * Get Entity by Id and return as Array
+     * @return array<string, mixed>
+     * @throws Exception
      */
-    public function getAsArray(string $fragmentId): ?array
+    public function getAsArray(string $fragmentId): array
     {
         try {
             $query = $this->getEntityManager()->createQueryBuilder()
@@ -73,11 +75,11 @@ class StatementFragmentRepository extends CoreRepository implements ArrayInterfa
                 ->setParameter('id', $fragmentId)
                 ->getQuery();
 
-            return $query->getResult(Query::HYDRATE_ARRAY);
+            return $query->getSingleResult(Query::HYDRATE_ARRAY);
         } catch (Exception $e) {
             $this->logger->warning('Get StatementFragment failed: ', [$e]);
 
-            return null;
+            throw $e;
         }
     }
 
