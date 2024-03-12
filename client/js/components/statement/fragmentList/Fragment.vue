@@ -23,9 +23,9 @@
           class="c-at-item__row-icon inline-block"
           entity-type="fragment"
           :ignore-last-claimed="true"
-          :assigned-id="(fragment?.assignee?.id || '')"
-          :assigned-name="(fragment?.assignee?.name || '')"
-          :assigned-organisation="(fragment?.assignee?.orgaName || '')"
+          :assigned-id="(fragment.assignee?.id || '')"
+          :assigned-name="(fragment.assignee?.name || '')"
+          :assigned-organisation="(fragment.assignee?.orgaName || '')"
           :current-user-id="currentUserId"
           :current-user-name="currentUserName"
           :is-loading="updatingClaimState"
@@ -77,7 +77,7 @@
       </div>
 
       <!-- voteAdvice badge -->
-      <status
+      <dp-fragment-status
         v-if="hasPermission('feature_statements_fragment_advice')"
         :status="status || ''"
         :archived-orga-name="fragment.archivedOrgaName || ''"
@@ -89,7 +89,7 @@
         <template v-slot:title>
           {{ Translator.trans('fragment.voteAdvice.short') }}
         </template>
-      </status>
+      </dp-fragment-status>
 
       <!-- Tabs -->
       <div class="text-right float-right">
@@ -120,7 +120,7 @@
     </div>
 
     <!-- display procedure name to add some context -->
-    <item-row
+    <dp-item-row
       icon="fa-folder"
       title="procedure"
       class="bg-color--grey-light-2">
@@ -129,7 +129,7 @@
         rel="noopener">
         {{ missKeyValue(fragment.procedureName) }}
       </a>
-    </item-row>
+    </dp-item-row>
 
     <!-- tab content: fragment -->
     <div
@@ -137,7 +137,7 @@
       class="layout--flush bg-color--grey-light-2"
       :id="`#fragment_${fragment.id || 0}`">
       <!-- tags -->
-      <item-row
+      <dp-item-row
         icon="fa-tag"
         title="tags.assigned">
         <template v-if="fragment.tags.length">
@@ -162,10 +162,10 @@
           class="u-m-0">
           {{ Translator.trans('tags.notassigned') }}
         </p>
-      </item-row>
+      </dp-item-row>
 
       <!-- location -->
-      <item-row
+      <dp-item-row
         icon="fa-map-marker"
         title="location"
         v-if="hasPermission('field_statement_county') || hasPermission('field_statement_municipality') || dplan.procedureStatementPriorityArea">
@@ -218,10 +218,10 @@
           class="u-m-0">
           {{ Translator.trans('location.notassigned') }}
         </p>
-      </item-row>
+      </dp-item-row>
 
       <!-- element -->
-      <item-row
+      <dp-item-row
         icon="fa-file-text"
         title="element.assigned">
         <dl v-if="fragment.elementTitle != null">
@@ -275,32 +275,32 @@
           class="u-m-0">
           {{ Translator.trans('element.notassigned') }}
         </p>
-      </item-row>
+      </dp-item-row>
 
       <!-- fragment text -->
-      <item-row
+      <dp-item-row
         icon="fa-comment"
         title="fragment.text">
         <text-content-renderer :text="fragment.text" />
-      </item-row>
+      </dp-item-row>
 
       <!-- fragment consideration -->
-      <item-row
+      <dp-item-row
         icon="fa-comment-o"
         title="fragment.consideration"
         :border-bottom="false">
         <span v-cleanhtml="fragment.considerationAdvice ? fragment.considerationAdvice : `<p>${Translator.trans('notspecified')}</p>`" />
-      </item-row>
+      </dp-item-row>
 
       <!-- fragment versions -->
-      <item-row
+      <dp-item-row
         class="u-pt-0"
         :border-bottom="!isArchive">
-        <version
+        <dp-fragment-versions
           :fragment-id="fragment.id"
           :statement-id="fragment.statement.id"
           ref="history" />
-      </item-row>
+      </dp-item-row>
 
       <!-- edit fragment -->
       <div
@@ -322,11 +322,11 @@
         </div>
 
         <!-- edit fragment: content -->
-        <item-row
+        <dp-item-row
           title="fragment.consideration"
           :border-bottom="false"
           v-if="editable && editing">
-          <edit
+          <dp-fragment-edit
             @closeEditMode="closeEditMode"
             :csrf-token="csrfToken"
             :fragment-id="fragment.id"
@@ -337,7 +337,7 @@
             :element-id="fragment.elementId"
             :paragraph-id="fragment.paragraphId"
             ref="editor" />
-        </item-row>
+        </dp-item-row>
       </div>
     </div>
 
@@ -427,7 +427,7 @@
       </dp-item-row>
 
       <!-- element -->
-      <item-row
+      <dp-item-row
         icon="fa-file-text"
         title="element.assigned">
         <dl v-if="fragment.statement.elementTitle != null">
@@ -463,10 +463,10 @@
           class="u-m-0">
           {{ Translator.trans('element.notassigned') }}
         </p>
-      </item-row>
+      </dp-item-row>
 
       <!-- attached files -->
-      <item-row
+      <dp-item-row
         icon="fa-paperclip"
         title="fragment.statement.files.uploaded"
         v-if="fragment.statement && fragment.statement.files && fragment.statement.files.length">
@@ -479,10 +479,10 @@
           target="_blank">
           {{ file.name }}
         </a>
-      </item-row>
+      </dp-item-row>
 
       <!-- statement text -->
-      <item-row
+      <dp-item-row
         icon="fa-comment"
         title="statement.text"
         :border-bottom="false">
@@ -493,7 +493,7 @@
           class="u-mr"
           :is-shortened="fragment.statement.textShort.length < fragment.statement.text.length"
           no-event />
-      </item-row>
+      </dp-item-row>
     </div>
   </article>
 </template>
@@ -508,26 +508,23 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import DpClaim from '../DpClaim'
-// eslint-disable-next-line import/extensions
-import Edit from '../fragment/Edit.vue'
-// eslint-disable-next-line sort-imports
-import Status from '../fragment/Status'
-import Version from '../fragment/Version'
-import ItemRow from '../assessmentTable/ItemRow'
+import DpFragmentEdit from '../fragment/Edit'
+import DpFragmentStatus from '../fragment/Status'
+import DpFragmentVersions from '../fragment/Version'
+import DpItemRow from '../assessmentTable/ItemRow'
 import HeightLimit from '@DpJs/components/statement/HeightLimit'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 
 export default {
-  // eslint-disable-next-line vue/multi-word-component-names
-  name: 'Fragment',
+  name: 'DpStatementFragment',
 
   components: {
     DpClaim,
-    Edit,
-    Status,
-    Version,
+    DpFragmentEdit,
+    DpFragmentStatus,
+    DpFragmentVersions,
     HeightLimit,
-    ItemRow,
+    DpItemRow,
     TextContentRenderer,
     VPopover
   },
@@ -589,14 +586,14 @@ export default {
 
   computed: {
     assigneeId () {
-      if (hasOwnProp(this.fragment, 'assignee') && this.fragment?.assignee?.id) {
+      if (hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee?.id) {
         return this.fragment.assignee.id
       }
       return ''
     },
 
     assigneeName () {
-      if (hasOwnProp(this.fragment, 'assignee') && this.fragment?.assignee?.name) {
+      if (hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee?.name) {
         return this.fragment.assignee.name
       }
       return ''
@@ -607,11 +604,7 @@ export default {
     },
 
     fragmentDocumentTitle () {
-      if (hasOwnProp(this.fragment.document, 'document')) {
-        return Translator.trans(this.fragment.document.title)
-      } else {
-        return Translator.trans('file.notavailable')
-      }
+      return this.fragment.document ? Translator.trans(this.fragment.document.title) : Translator.trans('file.notavailable')
     },
 
     hasFile () {
@@ -622,7 +615,7 @@ export default {
     },
 
     assigneeOrgaName () {
-      if (hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee.orgaName) {
+      if (hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee?.orgaName) {
         return this.fragment.assignee.orgaName
       }
       return ''
@@ -672,10 +665,10 @@ export default {
        * If we reset the assignee (give fragment back to FP), the lastClaimed should be ignored. Otherwise not, because we have to show the empty user-icon to FP (so that they know that fragment is being edited by FB)
        * let shouldIgnoreLastClaimed = (hasOwnProp(this.fragment.assignee, 'id') && this.fragment.assignee.id === this.currentUserId)
        */
-      this.setAssigneeAction({ fragmentId: this.fragmentId, statementId: this.statementId, ignoreLastClaimed: true, assigneeId: (hasOwnProp(this.fragment?.assignee, 'id') && this.fragment?.assignee?.id === this.currentUserId ? '' : this.currentUserId) })
+      this.setAssigneeAction({ fragmentId: this.fragmentId, statementId: this.statementId, ignoreLastClaimed: true, assigneeId: (hasOwnProp(this.fragment.assignee, 'id') && this.fragment.assignee?.id === this.currentUserId ? '' : this.currentUserId) })
         .then(() => {
           this.updatingClaimState = false
-          this.editable = hasOwnProp(this.fragment.assignee, 'id') && this.fragment?.assignee?.id !== ''
+          this.editable = hasOwnProp(this.fragment.assignee, 'id') && this.fragment.assignee?.id !== ''
         })
     },
 
@@ -690,11 +683,11 @@ export default {
   mounted () {
     this.status = this.fragment.voteAdvice
     this.considerationAdvice = this.fragment.considerationAdvice
-    this.editable = hasOwnProp(this.fragment, 'assignee') && this.fragment?.assignee?.id === this.currentUserId
+    this.editable = hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee?.id === this.currentUserId
     //  Sync contents of child components on save
     this.$root.$on('fragment-saved', data => {
-      if (this.fragmentId === data?.id) {
-        data.fragmentId = data?.id
+      if (this.fragmentId === data.id) {
+        data.fragmentId = data.id
         data.statementId = this.statementId
         this.updateFragment(data)
 
@@ -712,8 +705,8 @@ export default {
 
     //  Destroy instance on reassign
     this.$root.$on('fragment-reassigned', data => {
-      if (data?.id === this.fragmentId) {
-        this.deleteFragment({ fragmentId: this.fragmentId, statementId: this.fragment?.statement?.id })
+      if (data.id === this.fragmentId) {
+        this.deleteFragment({ fragmentId: this.fragmentId, statementId: this.fragment.statement.id })
         /*
          * For now we just hide the Fragment
          * this can be refactored when the fragment-list gets the data from the store
