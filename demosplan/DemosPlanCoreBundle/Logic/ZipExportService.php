@@ -195,7 +195,7 @@ class ZipExportService
 
         $date = date('YmdHis');
         $randomInt = random_int(0, mt_getrandmax());
-        $tempFileName = "$prefix$date'_'$randomInt$suffix";
+        $tempFileName = sprintf("%s%s_%s%s", $prefix, $date, $randomInt, $suffix);
         $temporaryFullFilePath = DemosPlanPath::getTemporaryPath($tempFileName);
         // `PDF` doesn't implement `WriterInterface`, but has a `save` method available via
         // magic `call` method
