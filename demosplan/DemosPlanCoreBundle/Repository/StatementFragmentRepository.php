@@ -62,8 +62,6 @@ class StatementFragmentRepository extends CoreRepository implements ArrayInterfa
 
     /**
      * Get Entity by Id.
-     *
-     * @param string $fragmentId
      */
     public function getAsArray(string $fragmentId): ?array
     {
