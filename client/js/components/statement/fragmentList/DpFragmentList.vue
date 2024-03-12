@@ -31,8 +31,8 @@
 
 <script>
 import AnimateById from '@DpJs/lib/shared/AnimateById'
-import { mapMutations } from 'vuex'
 import DpStatementFragment from './Fragment'
+import { mapMutations } from 'vuex'
 
 export default {
   name: 'DpFragmentList',
