@@ -258,9 +258,9 @@
                     {# depending on which option is selected in the role radio, internal or external phases are displayed
                        - unless only external phases should be displayed here in the project
                      #}
-                    {% if hasPermission('field_statement_phase') %}
-                        <div class="layout u-mb-0_75">
-                            <div class="u-1-of-2 layout__item">
+                    <div class="flex u-mb-0_75">
+                        {% if hasPermission('field_statement_phase') %}
+                            <div class="w-1/2 inline-block">
                                 <label class="o-form__label">
                                     {{ "procedure.public.phase"|trans }}*
                                 </label>
@@ -281,8 +281,25 @@
                                 </dp-multiselect>
                                 <input type="hidden" :value="values.phase.key" name="r_phase"/>
                             </div>
+                        {% endif %}
+
+                        {# Durchgangsnummer für Öffentlichkeit und Institutionen #}
+                        <div class="w-1/2 inline-block ml-4">
+                            <dp-input
+                                id="r_phasecounter"
+                                :label="{
+                                    text: Translator.trans('procedure.phase.phasecounter'),
+                                    tooltip: `${Translator.trans('text.procedure.phasecounter')}}`
+                                }"
+                                name="r_phasecounter"
+                                data-cy="submitterForm:procedurePhasecounter"
+                                type="number"
+                                pattern="^[0-9]"
+                                value="" {# ein variable vom BE #}
+                                required>
+                            </dp-input>
                         </div>
-                    {% endif %}
+                    </div>
 
                     {% if hasPermission('feature_statement_cluster') %}
                         {% set clusters = [] %}
