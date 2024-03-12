@@ -23,9 +23,9 @@
           class="c-at-item__row-icon inline-block"
           entity-type="fragment"
           :ignore-last-claimed="true"
-          :assigned-id="(fragment.assignee.id || '')"
-          :assigned-name="(fragment.assignee.name || '')"
-          :assigned-organisation="(fragment.assignee.orgaName || '')"
+          :assigned-id="(fragment.assignee?.id || '')"
+          :assigned-name="(fragment.assignee?.name || '')"
+          :assigned-organisation="(fragment.assignee?.orgaName || '')"
           :current-user-id="currentUserId"
           :current-user-name="currentUserName"
           :is-loading="updatingClaimState"
@@ -586,14 +586,14 @@ export default {
 
   computed: {
     assigneeId () {
-      if (hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee.id) {
+      if (hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee?.id) {
         return this.fragment.assignee.id
       }
       return ''
     },
 
     assigneeName () {
-      if (hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee.name) {
+      if (hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee?.name) {
         return this.fragment.assignee.name
       }
       return ''
@@ -604,11 +604,7 @@ export default {
     },
 
     fragmentDocumentTitle () {
-      if (hasOwnProp(this.fragment, 'document')) {
-        return Translator.trans(this.fragment.document.title)
-      } else {
-        return Translator.trans('file.notavailable')
-      }
+      return this.fragment.document ? Translator.trans(this.fragment.document.title) : Translator.trans('file.notavailable')
     },
 
     hasFile () {
@@ -619,7 +615,7 @@ export default {
     },
 
     assigneeOrgaName () {
-      if (hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee.orgaName) {
+      if (hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee?.orgaName) {
         return this.fragment.assignee.orgaName
       }
       return ''
@@ -669,10 +665,10 @@ export default {
        * If we reset the assignee (give fragment back to FP), the lastClaimed should be ignored. Otherwise not, because we have to show the empty user-icon to FP (so that they know that fragment is being edited by FB)
        * let shouldIgnoreLastClaimed = (hasOwnProp(this.fragment.assignee, 'id') && this.fragment.assignee.id === this.currentUserId)
        */
-      this.setAssigneeAction({ fragmentId: this.fragmentId, statementId: this.statementId, ignoreLastClaimed: true, assigneeId: (hasOwnProp(this.fragment.assignee, 'id') && this.fragment.assignee.id === this.currentUserId ? '' : this.currentUserId) })
+      this.setAssigneeAction({ fragmentId: this.fragmentId, statementId: this.statementId, ignoreLastClaimed: true, assigneeId: (hasOwnProp(this.fragment.assignee, 'id') && this.fragment.assignee?.id === this.currentUserId ? '' : this.currentUserId) })
         .then(() => {
           this.updatingClaimState = false
-          this.editable = hasOwnProp(this.fragment.assignee, 'id') && this.fragment.assignee.id !== ''
+          this.editable = hasOwnProp(this.fragment.assignee, 'id') && this.fragment.assignee?.id !== ''
         })
     },
 
@@ -687,7 +683,7 @@ export default {
   mounted () {
     this.status = this.fragment.voteAdvice
     this.considerationAdvice = this.fragment.considerationAdvice
-    this.editable = hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee.id === this.currentUserId
+    this.editable = hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee?.id === this.currentUserId
     //  Sync contents of child components on save
     this.$root.$on('fragment-saved', data => {
       if (this.fragmentId === data.id) {
