@@ -61,8 +61,10 @@ class StatementFragmentRepository extends CoreRepository implements ArrayInterfa
     }
 
     /**
-     * Get Entity by Id and return as Array
+     * Get Entity by Id and return as Array.
+     *
      * @return array<string, mixed>
+     *
      * @throws Exception
      */
     public function getAsArray(string $fragmentId): array
