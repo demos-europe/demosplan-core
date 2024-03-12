@@ -380,7 +380,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
                 $updateData['mayChangeMetaData'] = false;
             }
             $updatedStatementFragment = $this->statementHandler->updateStatementFragment($fragmentId, $updateData, $isReviewer);
-            $returnCode = 200;
+            $returnCode = 400;
             $success = true;
 
             if (false === ($updatedStatementFragment instanceof StatementFragment)) {
@@ -391,7 +391,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
             }
 
             // return current Version. Use ES to receive defined structure
-            $fragment = $this->statementHandler->getFragmentOfStatement($updatedStatementFragment->getStatementId(), $fragmentId);
+            $fragment = $this->statementHandler->getFragmentOfStatement($fragmentId);
 
             return $this->renderJson($fragment, $returnCode, $success);
         } catch (Exception $e) {

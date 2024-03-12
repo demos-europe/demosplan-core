@@ -3826,18 +3826,16 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     }
 
     /**
-     * @param string $statementId
      * @param string $fragmentId
      *
-     * @return array|null;
+     * @return array<string, mixed>|null;
      */
-    public function getFragmentOfStatement($statementId, $fragmentId)
+    public function getFragmentOfStatement(string $fragmentId) :?array
     {
-        $fragments = $this->entityManager
-            ->getRepository(StatementFragment::class)->findByStatement($statementId);
+        $fragment = $this->entityManager
+            ->getRepository(StatementFragment::class)->getAsArray($fragmentId);
 
-        return collect($fragments)
-            ->filter(fn ($fragment) => $fragment['id'] === $fragmentId)->first(null, []);
+        return collect($fragment)->first(null, []);
     }
 
     /**

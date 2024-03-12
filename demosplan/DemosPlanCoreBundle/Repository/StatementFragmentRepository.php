@@ -63,16 +63,16 @@ class StatementFragmentRepository extends CoreRepository implements ArrayInterfa
     /**
      * Get Entity by Id.
      *
-     * @param string $statementId
+     * @param string $fragmentId
      */
-    public function findByStatement($statementId): ?array
+    public function getAsArray(string $fragmentId): ?array
     {
         try {
             $query = $this->getEntityManager()->createQueryBuilder()
                 ->select('sf')
                 ->from(StatementFragment::class, 'sf')
-                ->where('sf.statement = :id')
-                ->setParameter('id', $statementId)
+                ->where('sf.id = :id')
+                ->setParameter('id', $fragmentId)
                 ->getQuery();
 
             return $query->getResult(Query::HYDRATE_ARRAY);
