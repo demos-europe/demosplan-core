@@ -3196,7 +3196,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      *
      * @throws Exception
      */
-    public function setAssigneeOfStatementFragment(StatementFragment $fragment, ?User $user = null)
+    public function setAssigneeOfStatementFragment(StatementFragment $fragment, User $user = null)
     {
         $fragment->setAssignee($user);
         $this->statementFragmentService->updateStatementFragment($fragment, true);
@@ -3215,7 +3215,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      *
      * @return bool|string - true if the given statement was successfully assigned, otherwise the Extern-ID of the statement
      */
-    public function setAssigneeOfStatement(Statement $statement, ?User $user = null, $ignoreCluster = false)
+    public function setAssigneeOfStatement(Statement $statement, User $user = null, $ignoreCluster = false)
     {
         $assignedStatementOfCluster = 0;
         $cluster = $statement->getCluster();
@@ -3423,7 +3423,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      *
      * @throws StatementNameTooLongException
      */
-    protected function generateHeadStatement(Statement $representativeStatement, ?string $name = null): Statement
+    protected function generateHeadStatement(Statement $representativeStatement, string $name = null): Statement
     {
         $headStatement = new Statement();
         try {
@@ -4383,7 +4383,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      * @throws NotAllStatementsGroupableException
      * @throws Exception
      */
-    public function createStatementCluster(string $procedureId, array $statementIds, string $headStatementId, ?string $headStatementName = null)
+    public function createStatementCluster(string $procedureId, array $statementIds, string $headStatementId, string $headStatementName = null)
     {
         if (!in_array($headStatementId, $statementIds)) {
             throw new InvalidArgumentException('Create statement cluster canceled: RepresentativeStatement have to be member of cluster');
