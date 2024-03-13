@@ -78,7 +78,7 @@ class SegmentsExporter
         return IOFactory::createWriter($phpWord);
     }
 
-    public function addSimilarStatementSubmitters(Section $section, Statement $statement): void
+    private function addSimilarStatementSubmitters(Section $section, Statement $statement): void
     {
         $similarStatementSubmitters = $this->getSimilarStatementSubmitters($statement);
         if ('' !== $similarStatementSubmitters) {
@@ -110,7 +110,7 @@ class SegmentsExporter
         );
     }
 
-    public function getSimilarStatementSubmitters(Statement $statement): string
+    private function getSimilarStatementSubmitters(Statement $statement): string
     {
         $submitterStrings = [];
         foreach ($statement->getSimilarStatementSubmitters() as $submitter) {
