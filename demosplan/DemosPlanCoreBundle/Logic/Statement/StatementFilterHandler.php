@@ -442,9 +442,11 @@ class StatementFilterHandler extends CoreHandler
             [
                 'key'           => 'reasonParagraph',
                 // FB or FPA
-                'hasPermission' => $this->permissions->hasPermission(
-                    'area_admin_assessmenttable'
-                ),
+                'hasPermission' => $this->permissions->hasPermissions(
+                    [
+                    'area_admin_assessmenttable',
+                        'feature_documents_category_use_paragraph'
+                    ]),
                 'type'          => 'statement',
             ],
             // Datei - documentParentId - documentParentId
