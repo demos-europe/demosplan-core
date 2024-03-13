@@ -283,6 +283,10 @@ class SegmentsExporter
     {
         $text = str_replace('<br>', '<br/>', $text);
 
+        // strip all a tags without href
+        $pattern = '/<a\s+(?!.*?\bhref\s*=\s*([\'"])\S*\1)(.*?)>(.*?)<\/a>/i';
+        $text = preg_replace($pattern, '$3', $text);
+
         // avoid problems in phpword parser
         return $this->HTMLSanitizer->purify($text);
     }
