@@ -29,9 +29,10 @@ class FileRepository extends FluentRepository implements ArrayInterface, ObjectI
 {
     /**
      * Hole Infos zum File.
+     *
      * @throws Exception
      */
-    public function getFileInfo(string $hash, ?string $procedureId = null): ?File
+    public function getFileInfo(string $hash, string $procedureId = null): ?File
     {
         // Der übergebene Hash ist der Ident der Datenbank
         // Die Spalte Hash bezeichnet den Namen, unter dem die Datei auf dem
@@ -63,7 +64,6 @@ class FileRepository extends FluentRepository implements ArrayInterface, ObjectI
         $fileInfoWithProcedureBeingNull = null;
         foreach ($fileInfos as $fileInfo) {
             if ($procedureId === $fileInfo->getProcedure()?->getId()) {
-
                 return $fileInfo;
             }
             // might bee an old reference without procedureId within database
@@ -75,14 +75,12 @@ class FileRepository extends FluentRepository implements ArrayInterface, ObjectI
         // if we get here - no specific file for the given procedure was found
         // - but an old fileInfo usable for any procedure was maybe found
         if (null !== $fileInfoWithProcedureBeingNull) {
-
             return $fileInfoWithProcedureBeingNull;
         }
         // still nothing found - time to log an error
         $this->logger->error('no file could be found for the given hash that belongs to all or only this procedure');
 
         throw new Exception('no file could be found for the given hash that belongs to all or only this procedure');
-
     }
 
     /**
