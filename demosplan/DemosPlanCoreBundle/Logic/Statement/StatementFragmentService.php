@@ -1058,7 +1058,6 @@ class StatementFragmentService extends CoreService
                 }
                 $result[$key]['tags'] = $tagsOfVersion->toArray();
 
-
                 // counties:
                 $result[$key]['counties'] = [];
                 $decoded = Json::decodeToMatchingType($latestVersion['countyNamesAsJson']);
@@ -1083,7 +1082,7 @@ class StatementFragmentService extends CoreService
                 $priorityAreaKeys = is_array($decoded) ? $decoded : [];
                 foreach ($priorityAreaKeys as $priorityAreaKey) {
                     $result[$key]['priorityAreas'][]['key'] = $priorityAreaKey;
-                    $result[$key]['priorityAreaKeys'][]= $priorityAreaKey;
+                    $result[$key]['priorityAreaKeys'][] = $priorityAreaKey;
                 }
             }
 
