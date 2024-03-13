@@ -7,22 +7,11 @@
         {% set submitTypeOptions = submitTypeOptions|merge([{ label: label, value: value }]) %}
     {% endfor %}
 
-    {% set addonProps = {
-        'procedureId': procedure,
-        'statementId': statementId,
-        'statementExternId': statementExternId,
-        'procedureName': procedureName
-        }
-    %}
-{#    <addon-wrapper#}
-{#        hook-name="split.statements"#}
-{#        :addon-props="JSON.parse('{{ addonProps|json_encode|e('js', 'utf-8') }}')">#}
-{#    </addon-wrapper>#}
     <split-statement-view
-        statement-id="{{ statementId }}"
-        statement-extern-id="{{ statementExternId }}"
         procedure-id="{{ procedure }}"
-        procedureName="{{ procedureName }}">
+        procedure-name="{{ procedureName }}"
+        statement-extern-id="{{ statementExternId }}"
+        statement-id="{{ statementId }}">
     </split-statement-view>
 {% endblock %}
 
