@@ -342,7 +342,6 @@ const SplitStatementStore = {
             'internId',
             'isManual',
             'memo',
-            'procedureId',
             'segmentDraftList',
             'submitDate',
             'submitName',
@@ -471,7 +470,7 @@ const SplitStatementStore = {
         id: state.statementId,
         type: 'SegementedStatement',
         attributes: {
-          procedureId: state.statement.attributes.procedureId,
+          procedureId: state.procedureId,
           segments: [],
           statementId: state.statementId,
           textualReference: state.statement.attributes.fullText
