@@ -48,13 +48,6 @@
         </header>
       </dp-sticky-element>
 
-<!--      <processing-page-->
-<!--        v-if="segmentationStatus !== 'inUserSegmentation'"-->
-<!--        :status="segmentationStatus"-->
-<!--        :label="Translator.trans('statement.processing')"-->
-<!--        :processing-time="processingTime"-->
-<!--        @continue="handleContinue"-->
-<!--        class="u-mb" />-->
       <addon-wrapper
         :addon-props="{
           status: segmentationStatus,
@@ -63,7 +56,7 @@
         }"
         hook-name="split.statement.ai"
         @loaded="fetchSegments"
-        @statusChange="setSegmentationStatus" />
+        @segmentationStatus:change="setSegmentationStatus" />
 
       <transition
         name="slide-fade"
@@ -171,7 +164,6 @@ import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import CardPane from './CardPane'
 import dayjs from 'dayjs'
 import { generateRangeChangeMap } from '@DpJs/lib/prosemirror/utilities'
-import ProcessingPage from './ProcessingPage'
 import SegmentationEditor from './SegmentationEditor'
 import SideBar from './SideBar'
 import StatementMeta from '@DpJs/components/procedure/StatementSegmentsList/StatementMeta/StatementMeta'
@@ -218,7 +210,6 @@ export default {
     DpInlineNotification,
     DpLoading,
     DpStickyElement,
-    ProcessingPage,
     SegmentationEditor,
     SideBar,
     StatementMeta,
@@ -361,8 +352,10 @@ export default {
     ...mapActions('splitstatement', [
       'acceptSegmentProposal',
       'deleteSegmentAction',
+      'setInitialData',
       'fetchInitialData',
       'fetchStatementSegmentDraftList',
+      'fetchTags',
       'saveSegmentsDrafts',
       'saveSegmentsFinal',
       'splitStatementAction'
@@ -518,14 +511,18 @@ export default {
     },
 
     fetchSegments (addonLoaded) {
+      // We only want to fetch segments here when the addon is not installed, otherwise it happens in the addon
       if (!addonLoaded) {
         this.fetchStatementSegmentDraftList(this.statementId)
           .then(({ data }) => {
-            if (data.data.attributes.segmentDraftList?.data.attributes.segments) {
-              this.fetchInitialData().then(() => {
-                this.segmentationStatus = 'inUserSegmentation'
-              })
+            if (data.data.attributes.segmentDraftList) {
+              this.fetchInitialData()
+            } else {
+              this.setInitialData()
+              this.fetchTags()
             }
+
+            this.segmentationStatus = 'inUserSegmentation'
           })
       }
     },
@@ -541,10 +538,6 @@ export default {
           }
         }
       }
-    },
-
-    setSegmentationStatus (status) {
-      this.segmentationStatus = status
     },
 
     /**
@@ -780,6 +773,10 @@ export default {
       this.maxRange = range
     },
 
+    setSegmentationStatus (status) {
+      this.segmentationStatus = status
+    },
+
     toggleInfobox () {
       this.showInfobox = true
       this.$refs.metadataFlyout.isExpanded = false
@@ -809,21 +806,6 @@ export default {
   },
 
   mounted () {
-    // this.fetchStatementSegmentDraftList(this.statementId)
-    //   .then(({ data }) => {
-    //     /**
-    //      * Initially, we want to check two conditions.
-    //      * 1. Has the statement ever been segmented (indicated by a non-empty value for segmentsDraftList)?
-    //      * 2. Are there any segments which were found by the AI pipeline?
-    //      * If any of these conditions do not apply, we want to send the statement to the AI pipeline for segmentation.
-    //      */
-    //     if (data.data.attributes.segmentDraftList?.data.attributes.segments) { //this is only null if it was never segmented and data from pi is not here yet
-    //       this.fetchInitialData().then(() => {
-    //         this.segmentationStatus = 'inUserSegmentation'
-    //       })
-    //     }
-    //   })
-
     this.fetchAssignableUsers()
     this.fetchAvailablePlaces()
   }

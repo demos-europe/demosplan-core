@@ -4,7 +4,7 @@
       :is="component"
       :ref="refComponent"
       v-bind="addonProps"
-      @statusChange="(status) => this.$emit('statusChange', status)" />
+      @segmentationStatus:change="(status) => this.$emit('segmentationStatus:change', status)" />
   </div>
 </template>
 
