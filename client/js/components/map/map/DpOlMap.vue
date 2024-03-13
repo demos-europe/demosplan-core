@@ -289,7 +289,7 @@ export default {
     /**
      * Define extent for map
      * @param mapOptions
-     * @return void
+     * @return {Array}
      */
     defineExtent (mapOptions) {
       let extent = mapOptions.defaultMapExtent
