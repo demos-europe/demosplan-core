@@ -1052,10 +1052,12 @@ class StatementFragmentService extends CoreService
                     foreach ($tags as $tagTitle) {
                         $newTag->put('topicTitle', $topicTitle);
                         $newTag->put('title', $tagTitle);
+                        $result[$key]['tagNames'][] = $topicTitle;
                     }
                     $tagsOfVersion->push($newTag->toArray());
                 }
                 $result[$key]['tags'] = $tagsOfVersion->toArray();
+
 
                 // counties:
                 $result[$key]['counties'] = [];
@@ -1063,6 +1065,7 @@ class StatementFragmentService extends CoreService
                 $countyNames = is_array($decoded) ? $decoded : [];
                 foreach ($countyNames as $countyName) {
                     $result[$key]['counties'][]['name'] = $countyName;
+                    $result[$key]['countyNames'][] = $countyName;
                 }
 
                 // municipalities:
@@ -1071,6 +1074,7 @@ class StatementFragmentService extends CoreService
                 $municipalityNames = is_array($decoded) ? $decoded : [];
                 foreach ($municipalityNames as $municipalityName) {
                     $result[$key]['municipalities'][]['name'] = $municipalityName;
+                    $result[$key]['municipalityNames'][] = $municipalityName;
                 }
 
                 // priorityAreas:
@@ -1079,6 +1083,7 @@ class StatementFragmentService extends CoreService
                 $priorityAreaKeys = is_array($decoded) ? $decoded : [];
                 foreach ($priorityAreaKeys as $priorityAreaKey) {
                     $result[$key]['priorityAreas'][]['key'] = $priorityAreaKey;
+                    $result[$key]['priorityAreaKeys'][]= $priorityAreaKey;
                 }
             }
 
