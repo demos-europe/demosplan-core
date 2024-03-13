@@ -218,7 +218,7 @@
       </span>
 
       <div
-        :class="prefixClass('sm:h-9 overflow-auto w-full')"
+        :class="prefixClass('sm:h-9 overflow-auto')"
         v-cleanhtml="statement.r_text" />
     </div>
   </fieldset>
