@@ -29,8 +29,9 @@ class FileRepository extends FluentRepository implements ArrayInterface, ObjectI
 {
     /**
      * Hole Infos zum File.
+     * @throws Exception
      */
-    public function getFileInfo(string $hash): ?File
+    public function getFileInfo(string $hash, ?string $procedureId = null): ?File
     {
         // Der übergebene Hash ist der Ident der Datenbank
         // Die Spalte Hash bezeichnet den Namen, unter dem die Datei auf dem
@@ -38,14 +39,50 @@ class FileRepository extends FluentRepository implements ArrayInterface, ObjectI
 
         /** @var File|null $result */
         $result = $this->findOneBy(['ident' => $hash, 'deleted' => false]);
-
+        if (null !== $result) {
+            return $result;
+        }
         // As ident and hash are historically really strangely used mistakes happened
         // be kind and try to find via hash when nothing was found by ident
-        if (null === $result) {
-            $result = $this->findOneBy(['hash' => $hash, 'deleted' => false]);
-        }
 
-        return $result;
+        // T36732 In case the same physical file is used for multiple procedures
+        // There will be a fileInfo entity for every reference to a physical file.
+        // They share the same hash - but not necessarily the procedure
+        // - so the findOneBy method for the kindly supported hash is insufficient here.
+        $fileInfos = $this->findBy(['hash' => $hash, 'deleted' => false]);
+        $fileInfosCount = count($fileInfos);
+        // findOneBy would have returned null if no match was found
+        if (0 === $fileInfosCount) {
+            return null;
+        }
+        // easy - has to be this one
+        if (1 === $fileInfosCount) {
+            return reset($fileInfos);
+        }
+        // try to figure out the correct one for this procedure
+        $fileInfoWithProcedureBeingNull = null;
+        foreach ($fileInfos as $fileInfo) {
+            if ($procedureId === $fileInfo->getProcedure()?->getId()) {
+
+                return $fileInfo;
+            }
+            // might bee an old reference without procedureId within database
+            // remember this one if nothing specific can be found
+            if (null === $fileInfo->getProcedure()?->getId()) {
+                $fileInfoWithProcedureBeingNull = $fileInfo;
+            }
+        }
+        // if we get here - no specific file for the given procedure was found
+        // - but an old fileInfo usable for any procedure was maybe found
+        if (null !== $fileInfoWithProcedureBeingNull) {
+
+            return $fileInfoWithProcedureBeingNull;
+        }
+        // still nothing found - time to log an error
+        $this->logger->error('no file could be found for the given hash that belongs to all or only this procedure');
+
+        throw new Exception('no file could be found for the given hash that belongs to all or only this procedure');
+
     }
 
     /**
