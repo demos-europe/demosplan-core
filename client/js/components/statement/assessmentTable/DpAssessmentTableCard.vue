@@ -1193,7 +1193,6 @@ export default {
             })
           }
 
-          console.log(field)
           if (this.$refs[field]) {
             updatedField = field
             //  Handle components that use <dp-edit-field>
