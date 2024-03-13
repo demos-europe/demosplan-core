@@ -50,9 +50,9 @@
 
       <addon-wrapper
         :addon-props="{
-          status: segmentationStatus,
+          class: 'u-mb',
           processingTime: processingTime,
-          class: 'u-mb'
+          status: segmentationStatus
         }"
         hook-name="split.statement.ai"
         @loaded="fetchSegments"
