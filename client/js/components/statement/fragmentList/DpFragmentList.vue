@@ -38,7 +38,7 @@ export default {
   name: 'DpFragmentList',
 
   components: {
-    'dp-statement-fragment': DpStatementFragment
+    DpStatementFragment
   },
 
   props: {

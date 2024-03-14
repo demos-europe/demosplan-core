@@ -92,7 +92,7 @@ export default {
   name: 'DpFragmentVersion',
 
   components: {
-    'dp-fragment-status': DpFragmentStatus,
+    DpFragmentStatus,
     DpLoading
   },
 
