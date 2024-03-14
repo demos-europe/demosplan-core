@@ -243,7 +243,7 @@
 </template>
 
 <script>
-import { CleanHtml, DpFlyout, DpInlineNotification, DpContextualHelp } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpFlyout, DpInlineNotification } from '@demos-europe/demosplan-ui'
 import DomPurify from 'dompurify'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import { mapState } from 'vuex'
@@ -252,7 +252,6 @@ export default {
   name: 'DpPublicStatement',
 
   components: {
-    DpContextualHelp,
     DpFlyout,
     DpInlineNotification,
     DpTableCard
