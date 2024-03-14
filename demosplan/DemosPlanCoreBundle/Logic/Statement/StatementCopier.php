@@ -722,4 +722,23 @@ class StatementCopier extends CoreService
 
         return true;
     }
+
+    /**
+     * @param array<int, FileContainer> $originalfileContainers
+     *
+     * @throws Exception
+     */
+    public function addFilesDirectlyToCopiedStatement(
+        Statement $newStatement,
+        array $originalfileContainers
+    ): void {
+        $fileStrings = [];
+        foreach ($originalfileContainers as $oldFileContainer) {
+            $copy = $this->fileService->addFileContainerCopy($newStatement->getId(), $oldFileContainer);
+            $fileStrings[] = $copy->getFileString();
+        }
+
+        // Update Statement with attached files
+        $newStatement->setFiles($fileStrings);
+    }
 }

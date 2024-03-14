@@ -98,6 +98,11 @@ class StatementSynchronizer
             false,
         );
 
+        $this->statementCopier->addFilesDirectlyToCopiedStatement(
+            $newStatement,
+            $targetOriginalFileContainers
+        );
+
         $this->validateStatement($newStatement);
         $this->createAndPersistLink($sourceStatement, $newOriginalStatement);
 
