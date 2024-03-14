@@ -493,12 +493,14 @@ export default {
             }
 
             dataToUpdate.departmentId = hasOwnProp(responseRelationships, 'department') ? responseRelationships.department.data.id : ''
+
             if (dataToUpdate.departmentId) { // If departmentId is in response and is not null
               // we reset the assignee with the values from BE
-              if (hasOwnProp(responseRelationships, 'assignee')) {
-                const newAssigneeId = responseRelationships.assignee?.data?.id
+              if (responseRelationships.assignee?.data) {
+                const newAssigneeId = responseRelationships.assignee.data.id
                 const newAssignee = response.included.find(elem => elem.type === 'User' && elem.id === newAssigneeId)
                 const orgaId = newAssignee.relationships.orga.data.id
+
                 dataToUpdate.assignee = {
                   id: newAssigneeId,
                   uId: newAssigneeId,
