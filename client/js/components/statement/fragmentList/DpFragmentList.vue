@@ -31,14 +31,14 @@
 
 <script>
 import AnimateById from '@DpJs/lib/shared/AnimateById'
+import DpStatementFragment from './Fragment'
 import { mapMutations } from 'vuex'
-import StatementFragment from './Fragment'
 
 export default {
   name: 'DpFragmentList',
 
   components: {
-    'dp-statement-fragment': StatementFragment
+    DpStatementFragment
   },
 
   props: {
