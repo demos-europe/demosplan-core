@@ -63,26 +63,14 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     protected string $step = '';
 
     /**
-     * @ORM\Column(type="string", nullable=false)
-     */
-    protected string $participationState;
-
-    /**
-     * @ORM\Column(name="_p_start_date", type="datetime", nullable=false)
+     * @ORM\Column(type="datetime", nullable=false)
      */
     protected DateTime $startDate;
 
     /**
-     * @ORM\Column(name="_p_end_date", type="datetime", nullable=false)
+     * @ORM\Column(type="datetime", nullable=false)
      */
     protected DateTime $endDate;
-
-    /**
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", mappedBy="phase")
-     *
-     * @ORM\OrderBy({"name" = "ASC"})
-     */
-    protected Procedure $procedure;
 
     /**
      * @Gedmo\Timestampable(on="create")
@@ -101,7 +89,7 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     private $modificationDate;
 
     /**
-     * @ORM\Column(name="_ps_designated_phase", type="string", length=50, nullable=true)
+     * @ORM\Column(type="string", length=50, nullable=true)
      */
     protected ?string $designatedPhase = null;
 

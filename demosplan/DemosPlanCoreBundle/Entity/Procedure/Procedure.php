@@ -149,11 +149,10 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     /**
      * @ORM\OneToOne(
-     *     targetEntity="ProcedurePhase",
-     *     inversedBy="procedure",
-     *     nullable=false,
+     *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhase",
      *     cascade={"persist", "remove"}
      * )
+     * @ORM\JoinColumn(nullable=false)
      */
     protected ProcedurePhase $phase;
 
@@ -240,11 +239,10 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     /**
      * @ORM\OneToOne(
-     *     targetEntity="ProcedurePhase",
-     *     inversedBy="procedure",
-     *     nullable=false,
+     *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhase",
      *     cascade={"persist", "remove"}
      * )
+     * @ORM\JoinColumn(nullable=true)
      */
     protected ProcedurePhase $publicParticipationPhase;
 
