@@ -55,7 +55,7 @@
           status: segmentationStatus
         }"
         hook-name="split.statement.ai"
-        @loaded="fetchSegments"
+        @addons:loaded="fetchSegments"
         @segmentationStatus:change="setSegmentationStatus" />
 
       <transition
@@ -510,9 +510,9 @@ export default {
         .catch((err) => console.error(err))
     },
 
-    fetchSegments (addonLoaded) {
+    fetchSegments (addonsLoaded) {
       // We only want to fetch segments here when the addon is not installed, otherwise it happens in the addon
-      if (!addonLoaded) {
+      if (!addonsLoaded.includes('SplitStatementAi')) {
         this.fetchStatementSegmentDraftList(this.statementId)
           .then(({ data }) => {
             if (data.data.attributes.segmentDraftList) {

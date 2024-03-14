@@ -4,7 +4,7 @@
       :is="component"
       :ref="refComponent"
       v-bind="addonProps"
-      @segmentationStatus:change="(status) => this.$emit('segmentationStatus:change', status)" />
+      @addonEvent:emit="(event) => $emit(event.name, event.payload)" />
   </div>
 </template>
 
@@ -43,7 +43,7 @@ export default {
   data () {
     return {
       component: '',
-      isLoaded: false
+      loadedAddons: []
     }
   },
 
@@ -77,10 +77,10 @@ export default {
 
             this.component = window[addon.entry].default
 
-            this.isLoaded = true
+            this.loadedAddons.push(addon.entry)
           }
 
-          this.$emit('loaded', this.isLoaded)
+          this.$emit('addons:loaded', this.loadedAddons)
         })
     }
   },
