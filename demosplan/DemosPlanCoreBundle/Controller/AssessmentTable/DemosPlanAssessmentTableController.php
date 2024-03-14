@@ -204,7 +204,7 @@ class DemosPlanAssessmentTableController extends BaseController
             $table = $assessmentTableServiceOutput->getStatementListHandler(
                 $procedureId,
                 $rParams,
-                false,
+                true,
                 1,
                 false
             );
