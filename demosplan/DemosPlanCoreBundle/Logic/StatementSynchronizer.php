@@ -272,7 +272,7 @@ class StatementSynchronizer
 
         $targetStatement->setFiles(array_map(static fn (FileContainer $fileContainer): string => $fileContainer->getFileString(), $fileContainerCopies));
 
-        return $fileContainers;
+        return $fileContainerCopies;
     }
 
     /**
