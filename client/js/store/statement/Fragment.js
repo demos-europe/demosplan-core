@@ -394,7 +394,7 @@ export default {
 
       return dpApi({
         method: 'PATCH',
-        params: stringify(params, { encodeValuesOnly: true, arrayFormat: 'brackets' }),
+        params,
         data: {
           data: {
             type: 'StatementFragment',
