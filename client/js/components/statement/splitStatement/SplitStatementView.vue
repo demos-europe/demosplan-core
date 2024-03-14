@@ -110,7 +110,7 @@
                 :key="tagsCounter"
                 :max-range="maxRange"
                 :offset="headerOffset"
-                @confirm-segment="handleSegmentConfirmation"
+                @segment:confirm="handleSegmentConfirmation"
                 @edit-segment="enableEditMode"
                 @delete-segment="immediatelyDeleteSegment" />
             </transition>

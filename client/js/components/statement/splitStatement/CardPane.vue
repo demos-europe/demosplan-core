@@ -18,7 +18,7 @@
       :data-range="segment.id"
       :offset="offset"
       ref="card"
-      @confirm-segment="$emit('confirm-segment', segment.id)"
+      @segment:confirm="$emit('segment:confirm', segment.id)"
       @edit-segment="$emit('edit-segment', segment.id)"
       @delete-segment="$emit('delete-segment', segment.id)"
       @mouseenter.native="handleMouseEnter(segment.id)"

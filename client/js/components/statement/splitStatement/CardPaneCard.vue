@@ -57,11 +57,12 @@
       icon="fa-pencil"
       :text="Translator.trans('segment.edit')"
       @click="$emit('edit-segment', segment.id)" />
-    <dp-button-icon
-      v-if="segment.status !== 'confirmed'"
-      icon="fa-check"
-      :text="Translator.trans('segment.confirm.suggestion')"
-      @click="$emit('confirm-segment', segment.id)" />
+    <addon-wrapper
+      :addon-props="{
+        segmentStatus: segment.status
+      }"
+      hook-name="split.statement.buttons"
+      @segment:confirm="$emit('segment:confirm', segment.id)" />
     <dp-button-icon
       class="u-ml-0_25"
       icon="fa-trash"
@@ -71,6 +72,7 @@
 </template>
 
 <script>
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import { DpButtonIcon } from '@demos-europe/demosplan-ui'
 import { mapGetters } from 'vuex'
 
@@ -78,6 +80,7 @@ export default {
   name: 'CardPaneCard',
 
   components: {
+    AddonWrapper,
     DpButtonIcon
   },
 
