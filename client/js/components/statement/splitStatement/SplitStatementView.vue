@@ -54,7 +54,7 @@
           processingTime: processingTime,
           status: segmentationStatus
         }"
-        hook-name="split.statement.ai"
+        hook-name="split.statement.preprocessor"
         @addons:loaded="fetchSegments"
         @segmentationStatus:change="setSegmentationStatus" />
 
