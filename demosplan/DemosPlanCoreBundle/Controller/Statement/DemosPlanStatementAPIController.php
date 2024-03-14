@@ -443,6 +443,7 @@ class DemosPlanStatementAPIController extends APIController
                 $procedureId,
                 100000
             );
+
             $meta['fragmentAssignments'] = $userService->getAssigneeIds($allStatementFragments->getResult());
             $meta['filterHash'] = $filterSetHash;
 
