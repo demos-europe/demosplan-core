@@ -200,7 +200,7 @@ export default {
 
     save () {
       this.setRefreshButtonVisibility(true)
-      this.loading = true
+      this.editingEnabled = false
       this.$emit('save')
     }
   },
