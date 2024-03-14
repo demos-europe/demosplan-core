@@ -466,11 +466,6 @@ class DemosPlanAssessmentController extends BaseController
                 'fragmentListKeepPost',
                 $requestKeepPost
             );
-        } else {
-            $requestPost = $request->getSession()->get(
-                'fragmentListKeepPost',
-                $requestPost
-            );
         }
 
         return $requestPost;
