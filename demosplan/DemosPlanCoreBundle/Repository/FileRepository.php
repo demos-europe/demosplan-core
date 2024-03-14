@@ -29,8 +29,6 @@ class FileRepository extends FluentRepository implements ArrayInterface, ObjectI
 {
     /**
      * Hole Infos zum File.
-     *
-     * @throws Exception
      */
     public function getFileInfo(string $hash, string $procedureId = null): ?File
     {
@@ -80,7 +78,7 @@ class FileRepository extends FluentRepository implements ArrayInterface, ObjectI
         // still nothing found - time to log an error
         $this->logger->error('no file could be found for the given hash that belongs to all or only this procedure');
 
-        throw new Exception('no file could be found for the given hash that belongs to all or only this procedure');
+        return null;
     }
 
     /**
