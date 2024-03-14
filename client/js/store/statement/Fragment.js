@@ -9,6 +9,7 @@
 
 import { checkResponse, dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { del, set } from 'vue'
+import { stringify } from 'qs'
 
 export default {
   namespaced: true,
@@ -393,7 +394,7 @@ export default {
 
       return dpApi({
         method: 'PATCH',
-        params,
+        params: stringify(params, { encodeValuesOnly: true, arrayFormat: 'brackets' }),
         data: {
           data: {
             type: 'StatementFragment',
