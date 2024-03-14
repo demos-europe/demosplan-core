@@ -9,7 +9,6 @@
 
 import { checkResponse, dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { del, set } from 'vue'
-import { stringify } from 'qs'
 
 export default {
   namespaced: true,
