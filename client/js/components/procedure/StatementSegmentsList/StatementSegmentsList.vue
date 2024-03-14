@@ -69,7 +69,7 @@
           <li>
             <dp-button
               class="u-ph-0_25"
-              @click="showHintAndDoExport('dplan_segments_export')"
+              @click="showHintAndDoExport()"
               :text="Translator.trans('export.verb')"
               variant="subtle" />
           </li>
