@@ -60,6 +60,7 @@ class FileRepository extends FluentRepository implements ArrayInterface, ObjectI
         if (0 === $fileInfosCount) {
             return null;
         }
+
         return reset($fileInfos);
     }
 
