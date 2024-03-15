@@ -18,7 +18,6 @@ use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Doctrine\Generator\NCNameGenerator;
-use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
@@ -721,24 +720,5 @@ class StatementCopier extends CoreService
         }
 
         return true;
-    }
-
-    /**
-     * @param array<int, FileContainer> $originalfileContainers
-     *
-     * @throws Exception
-     */
-    public function addFilesDirectlyToCopiedStatement(
-        Statement $newStatement,
-        array $originalfileContainers
-    ): void {
-        $fileStrings = [];
-        foreach ($originalfileContainers as $oldFileContainer) {
-            $copy = $this->fileService->addFileContainerCopy($newStatement->getId(), $oldFileContainer);
-            $fileStrings[] = $copy->getFileString();
-        }
-
-        // Update Statement with attached files
-        $newStatement->setFiles($fileStrings);
     }
 }
