@@ -813,7 +813,21 @@ export default {
   computed: {
     // Get the Statement from the Store (if not Present there use initial data)
     ...mapState('statement', { statement (state) { return state.statements[this.statementId] } }),
-    ...mapGetters('assessmentTable', ['adviceValues', 'assessmentBase', 'assessmentBaseLoaded', 'elements', 'paragraph', 'priorities', 'procedureId', 'status', 'counties', 'municipalities', 'priorityAreas', 'tags', 'documents']),
+    ...mapGetters('assessmentTable', [
+      'adviceValues',
+      'assessmentBase',
+      'assessmentBaseLoaded',
+      'counties',
+      'documents',
+      'elements',
+      'municipalities',
+      'paragraph',
+      'priorities',
+      'priorityAreas',
+      'procedureId',
+      'status',
+      'tags'
+    ]),
     ...mapGetters('fragment', ['selectedFragments', 'fragmentsByStatement']),
     ...mapState('statement', ['selectedElements', 'statements', 'isFiltered']),
 
