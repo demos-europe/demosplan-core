@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DpFaqItem renders correctly 1`] = `
+"<div class=\\"layout--flush u-n-mt-0_25\\">
+  <div class=\\"layout__item u-4-of-12 u-pv-0_25 o-hellip\\">
+    faq item title
+  </div>
+  <div class=\\"layout__item u-4-of-12 u-pt-0_125\\">
+    <dp-multiselect-stub closeonselect=\\"true\\" customlabel=\\"[Function]\\" datacy=\\"selectedGroups\\" deselectlabel=\\"\\" deselectgrouplabel=\\"\\" grouplabel=\\"\\" groupvalues=\\"\\" id=\\"\\" label=\\"\\" maxheight=\\"300\\" multiple=\\"true\\" name=\\"\\" options=\\"[object Object],[object Object],[object Object]\\" placeholder=\\"Auswählen\\" searchable=\\"true\\" selectgrouplabel=\\"\\" selectlabel=\\"\\" selectedlabel=\\"\\" subslots=\\"option,tag\\" tagplaceholder=\\"Tag erstellen\\" trackby=\\"id\\" value=\\"\\"></dp-multiselect-stub>
+  </div>
+  <div class=\\"layout__item u-2-of-12 text-center u-pv-0_25\\">
+    <dp-toggle-stub value=\\"true\\" class=\\"u-mt-0_125\\"></dp-toggle-stub>
+  </div>
+  <div class=\\"layout__item u-2-of-12 text-center u-pv-0_25\\"><a href=\\"DemosPlan_faq_administration_faq_edit\\" aria-label=\\"item.edit\\" data-cy=\\"editElement\\" class=\\"btn--blank o-link--default u-mh-0_25\\"><i aria-hidden=\\"true\\" class=\\"fa fa-pencil\\"></i></a> <button type=\\"button\\" data-cy=\\"deleteFaqItem\\" aria-label=\\"item.delete\\" class=\\"btn--blank o-link--default u-mh-0_25\\"><i aria-hidden=\\"true\\" class=\\"fa fa-trash\\"></i></button></div>
+</div>"
+`;
