@@ -250,6 +250,7 @@
 
                                     <dp-multiselect
                                         id="r_dataInputOrgaTest"
+                                        data-cy="administrationEdit:selectedDataInputOrgas"
                                         v-model="selectedDataInputOrgas"
                                         label="name"
                                         multiple
@@ -1273,10 +1274,13 @@
                     class="btn btn--primary"
                     id="saveConfig"
                     name="saveConfig"
-                    data-cy="saveConfig"
+                    data-cy="administrationEdit:saveConfig"
                     type="submit"
                     value="{{ "save"|trans }}">
-                <a class="btn btn--secondary" href="{{ path('DemosPlan_procedure_administration_get') }}">
+                <a
+                    class="btn btn--secondary"
+                    data-cy="administrationEdit:abort"
+                    href="{{ path('DemosPlan_procedure_administration_get') }}">
                     {{ "abort"|trans }}
                 </a>
             </div>
