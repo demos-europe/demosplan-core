@@ -1,6 +1,6 @@
-import { createLocalVue, mount, shallowMount } from '@vue/test-utils'
-// eslint-disable-next-line import/extensions,sort-imports
+import { createLocalVue } from '@vue/test-utils'
 import DpFaqItem from '../../../client/js/components/faq/DpFaqItem.vue'
+import shallowMountWithGlobalMocks from '../../../client/js/VueConfigLocal'
 import Vuex from 'vuex'
 
 const localVue = createLocalVue()
@@ -12,14 +12,32 @@ describe('DpFaqItem', () => {
   let faqCategory, faq
 
   beforeEach(() => {
-    faqCategory = jest.fn()
+    faqCategory = {
+      namespaced: true,
+      state: {
+        items: {
+          faqItemParentId: {}
+        }
+      }
+    }
 
-    faq = jest.fn()
+    faq = {
+      namespaced: true,
+      state: {
+        items: {
+          1: {
+            attributes: {
+              enabled: true
+            }
+          }
+        }
+      }
+    }
 
     store = new Vuex.Store({
       modules: {
-        faqItems: faq,
-        faqCategories: faqCategory
+        faq: faq,
+        faqCategory: faqCategory
       }
     })
 
@@ -38,7 +56,7 @@ describe('DpFaqItem', () => {
       trans: jest.fn().mockImplementation(key => key) // Return the key for simplicity
     }
 
-    wrapper = shallowMount(DpFaqItem, {
+    wrapper = shallowMountWithGlobalMocks(DpFaqItem, {
       store,
       localVue,
       propsData: {
@@ -49,7 +67,7 @@ describe('DpFaqItem', () => {
             id: 1
           }
         },
-        parentId: 1,
+        parentId: '1',
         availableGroupOptions: ['a', 'b'],
         transformedCategoriesData: ['a', 'b']
       }
