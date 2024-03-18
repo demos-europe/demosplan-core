@@ -13,10 +13,12 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Exception\EntryAlreadyExistsException;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -251,5 +253,45 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     public function setStep(string $step): void
     {
         $this->step = $step;
+    }
+
+    /**
+     * A phase without a related procedure is not a valid state.
+     * Therefore on copy a phases a related target procedure has to be given.
+     *
+     * $asInternalPhase is needed, because the phase has no direct relation to the procedure.
+     * Without the procedure, we can not determine if this phase is used as public participation phase.
+     */
+    public function copyOntoProcedure(ProcedureInterface $targetProcedure, bool $asInternalPhase = true): self
+    {
+
+        if ($asInternalPhase && null !== $targetProcedure->getPhase()) {
+            throw new EntryAlreadyExistsException(
+                'The target Procedure already has an related phase.'
+            );
+        }
+
+        if (!$asInternalPhase && null !== $targetProcedure->getPublicParticipationPhase()) {
+            throw new EntryAlreadyExistsException(
+                'The target Procedure already has an related public participation phase.'
+            );
+        }
+
+        $newPhase = new self($this->key, $this->step);
+        $newPhase->name = $this->name;
+        $newPhase->designatedSwitchDate = $this->designatedSwitchDate;
+        $newPhase->designatedEndDate = $this->designatedEndDate;
+        $newPhase->designatedPhase = $this->designatedPhase;
+        $newPhase->permissionSet = $this->permissionSet;
+        $newPhase->startDate = $this->startDate;
+        $newPhase->endDate = $this->endDate;
+
+        if ($asInternalPhase) {
+            $targetProcedure->setPhase($newPhase);
+        } else {
+            $targetProcedure->setPublicParticipationPhase($newPhase);
+        }
+
+        return $newPhase;
     }
 }
