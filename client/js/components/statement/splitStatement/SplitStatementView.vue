@@ -512,7 +512,7 @@ export default {
 
     fetchSegments (addonsLoaded) {
       // We only want to fetch segments here when the addon is not installed, otherwise it happens in the addon
-      if (!addonsLoaded.includes('SplitStatementAi')) {
+      if (!addonsLoaded.includes('SplitStatementPreprocessor')) {
         this.fetchStatementSegmentDraftList(this.statementId)
           .then(({ data }) => {
             if (data.data.attributes.segmentDraftList) {
