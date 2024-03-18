@@ -6,7 +6,7 @@
  *
  * All rights reserved
  */
-const hasPermission = jest.fn(() => true)
+/*const hasPermission = jest.fn(() => true)
 
 const Translator = {
   trans: jest.fn(key => key)
@@ -15,4 +15,4 @@ const Translator = {
 global.Translator = Translator
 global.hasPermission = hasPermission
 
-global.PROJECT = 'blp'
+global.PROJECT = 'blp'*/
