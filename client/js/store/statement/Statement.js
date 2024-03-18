@@ -857,18 +857,18 @@ export default {
           statementId: data.data.id,
           procedureId: state.procedureId,
           include: [
-            'elements',
-            'paragraph',
-            'documents',
-            'counties',
-            'municipalities',
-            'priorityAreas',
-            'tags',
             'assignee',
             'attachments',
             'attachments.file',
+            'counties',
+            'document',
+            'elements',
             'files',
-            'fragmentsElements'
+            'fragmentsElements',
+            'municipalities',
+            'paragraph',
+            'priorityAreas',
+            'tags'
           ].join(',')
         }),
         headers: {
