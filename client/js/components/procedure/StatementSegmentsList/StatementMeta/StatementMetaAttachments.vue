@@ -41,16 +41,17 @@
         v-text="Translator.trans('none')" />
       <template v-if="editable">
         <dp-upload-files
-          :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
-          ref="uploadStatementAttachment"
           id="uploadStatementAttachment"
-          name="uploadStatementAttachment"
+          ref="uploadStatementAttachment"
           allowed-file-types="all"
           :basic-auth="dplan.settings.basicAuth"
+          :class="editable ? '' : 'pointer-events-none opacity-70'"
+          :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
           :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
           :max-number-of-files="1000"
-          :tus-endpoint="dplan.paths.tusEndpoint"
+          name="uploadStatementAttachment"
           :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
+          :tus-endpoint="dplan.paths.tusEndpoint"
           @file-remove="removeFileId"
           @upload-success="setFileId" />
         <dp-button
@@ -84,8 +85,8 @@ export default {
     },
 
     /**
-     * When true upload files and save button will not be rendered,
-     * but the attachments are still shown
+     * Editable can be used to disable DpUploadFiles on css level
+     * but keep the uploaded files list accessible at the same time.
      */
     editable: {
       type: Boolean,

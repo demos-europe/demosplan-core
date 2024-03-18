@@ -69,7 +69,7 @@
           <li>
             <dp-button
               class="u-ph-0_25"
-              :href="Routing.generate('dplan_segments_export', { procedureId: procedureId, statementId: statementId })"
+              @click="showHintAndDoExport()"
               :text="Translator.trans('export.verb')"
               variant="subtle" />
           </li>
@@ -603,6 +603,15 @@ export default {
 
       const defaultAction = hasPermission('feature_segment_recommendation_edit') ? 'addRecommendation' : 'editText'
       this.currentAction = action || defaultAction
+    },
+
+    showHintAndDoExport () {
+      if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
+        window.location.href = Routing.generate('dplan_segments_export', {
+          procedureId: this.procedureId,
+          statementId: this.statementId
+        })
+      }
     },
 
     /**
