@@ -152,6 +152,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhase",
      *     cascade={"persist", "remove"}
      * )
+     *
      * @ORM\JoinColumn(nullable=false)
      */
     protected ProcedurePhase $phase;
@@ -242,6 +243,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhase",
      *     cascade={"persist", "remove"}
      * )
+     *
      * @ORM\JoinColumn(nullable=true)
      */
     protected ProcedurePhase $publicParticipationPhase;

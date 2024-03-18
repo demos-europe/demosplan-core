@@ -264,17 +264,12 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
      */
     public function copyOntoProcedure(ProcedureInterface $targetProcedure, bool $asInternalPhase = true): self
     {
-
         if ($asInternalPhase && null !== $targetProcedure->getPhase()) {
-            throw new EntryAlreadyExistsException(
-                'The target Procedure already has an related phase.'
-            );
+            throw new EntryAlreadyExistsException('The target Procedure already has an related phase.');
         }
 
         if (!$asInternalPhase && null !== $targetProcedure->getPublicParticipationPhase()) {
-            throw new EntryAlreadyExistsException(
-                'The target Procedure already has an related public participation phase.'
-            );
+            throw new EntryAlreadyExistsException('The target Procedure already has an related public participation phase.');
         }
 
         $newPhase = new self($this->key, $this->step);

@@ -731,7 +731,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      */
     public function getAuthorizedUsers(
         $procedureId,
-        User $user = null,
+        ?User $user = null,
         $excludeUser = false,
         $excludeProcedureAuthorizedUsers = true
     ): Collection {
@@ -1775,7 +1775,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     /**
      * @throws CustomerNotFoundException
      */
-    public function calculateCopyMasterId(string $incomingCopyMasterId = null): string
+    public function calculateCopyMasterId(?string $incomingCopyMasterId = null): string
     {
         // use global default blueprint as default anyway:
         $masterTemplateId = $this->getMasterTemplateId();
@@ -2378,7 +2378,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      * @throws OptimisticLockException
      * @throws TransactionRequiredException
      */
-    public function isUserAuthorized(string $procedureId, User $user = null): bool
+    public function isUserAuthorized(string $procedureId, ?User $user = null): bool
     {
         if (null === $user) {
             $user = $this->currentUser->getUser();
