@@ -287,29 +287,7 @@ const SplitStatementStore = {
         })
 
       // Get tag list
-      const url = Routing.generate('api_resource_list', { resourceType: 'Tag' })
-      const tags = dpApi.get(url, { include: 'topic' }, { serialize: true })
-        .then(response => {
-          const tags = response.data
-          commit('setProperty', { prop: 'availableTags', val: tags.data })
-
-          const tagTopics = tags.included.filter((el) => el.type === 'TagTopic')
-          commit('setProperty', { prop: 'tagTopics', val: tagTopics })
-
-          const { uncategorizedTags, categorizedTags } = tags.data.reduce((acc, tag) => {
-            if (tag.relationships && tag.relationships.topic) {
-              return { ...acc, categorizedTags: [...acc.categorizedTags, tag] }
-            } else if (tag.relationships) {
-              return { ...acc, uncategorizedTags: [...acc.uncategorizedTags, tag] }
-            }
-            return acc
-          }, { uncategorizedTags: [], categorizedTags: [] })
-
-          commit('setProperty', { prop: 'uncategorizedTags', val: uncategorizedTags })
-          commit('setProperty', { prop: 'categorizedTags', val: categorizedTags })
-
-          return uncategorizedTags.concat(categorizedTags).map(tag => tag.attributes.title)
-        })
+      const tags = dispatch('fetchTags')
 
       return Promise.all([segments, tags]).then(([segmentTags, tags]) => {
         let pendingPiTags = []
@@ -353,6 +331,7 @@ const SplitStatementStore = {
           Statement: [
             'authoredDate',
             'authorName',
+            'fullText',
             'isSubmittedByCitizen',
             'initialOrganisationCity',
             'initialOrganisationDepartmentName',
@@ -385,6 +364,32 @@ const SplitStatementStore = {
           ].join()
         }
       }))
+    },
+
+    fetchTags ({ commit }) {
+      const url = Routing.generate('api_resource_list', { resourceType: 'Tag' })
+      return dpApi.get(url, { include: 'topic' }, { serialize: true })
+        .then(response => {
+          const tags = response.data
+          commit('setProperty', { prop: 'availableTags', val: tags.data })
+
+          const tagTopics = tags.included.filter((el) => el.type === 'TagTopic')
+          commit('setProperty', { prop: 'tagTopics', val: tagTopics })
+
+          const { uncategorizedTags, categorizedTags } = tags.data.reduce((acc, tag) => {
+            if (tag.relationships && tag.relationships.topic) {
+              return { ...acc, categorizedTags: [...acc.categorizedTags, tag] }
+            } else if (tag.relationships) {
+              return { ...acc, uncategorizedTags: [...acc.uncategorizedTags, tag] }
+            }
+            return acc
+          }, { uncategorizedTags: [], categorizedTags: [] })
+
+          commit('setProperty', { prop: 'uncategorizedTags', val: uncategorizedTags })
+          commit('setProperty', { prop: 'categorizedTags', val: categorizedTags })
+
+          return uncategorizedTags.concat(categorizedTags).map(tag => tag.attributes.title)
+        })
     },
 
     persistProsemirrorIndexing ({ commit, dispatch, state }) {
@@ -453,6 +458,28 @@ const SplitStatementStore = {
           commit('setProperty', { prop: 'segments', val: state.initialSegments })
           return Promise.reject(err)
         })
+    },
+
+    /**
+     * Set initial data for segmentDraftList if not set in backend
+     */
+    async setInitialData ({ state, commit, dispatch }) {
+      await dispatch('fetchStatement')
+
+      const initialData = {
+        id: state.statementId,
+        type: 'SegementedStatement',
+        attributes: {
+          procedureId: state.procedureId,
+          segments: [],
+          statementId: state.statementId,
+          textualReference: state.statement.attributes.fullText
+        }
+      }
+
+      commit('setProperty', { prop: 'initialData', val: initialData })
+      commit('setProperty', { prop: 'segments', val: initialData.attributes.segments })
+      commit('setProperty', { prop: 'initText', val: initialData.attributes.textualReference })
     },
 
     /**

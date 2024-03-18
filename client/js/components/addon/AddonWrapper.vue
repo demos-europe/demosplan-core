@@ -4,7 +4,7 @@
       :is="component"
       :ref="refComponent"
       v-bind="addonProps"
-    />
+      @addonEvent:emit="(event) => $emit(event.name, event.payload)" />
   </div>
 </template>
 
@@ -42,7 +42,8 @@ export default {
 
   data () {
     return {
-      component: ''
+      component: '',
+      loadedAddons: []
     }
   },
 
@@ -75,7 +76,11 @@ export default {
             this.$options.components[addon.entry] = window[addon.entry].default
 
             this.component = window[addon.entry].default
+
+            this.loadedAddons.push(addon.entry)
           }
+
+          this.$emit('addons:loaded', this.loadedAddons)
         })
     }
   },

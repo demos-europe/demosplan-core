@@ -78,7 +78,7 @@ class SegmentsExporter
         return IOFactory::createWriter($phpWord);
     }
 
-    public function addSimilarStatementSubmitters(Section $section, Statement $statement): void
+    private function addSimilarStatementSubmitters(Section $section, Statement $statement): void
     {
         $similarStatementSubmitters = $this->getSimilarStatementSubmitters($statement);
         if ('' !== $similarStatementSubmitters) {
@@ -110,7 +110,7 @@ class SegmentsExporter
         );
     }
 
-    public function getSimilarStatementSubmitters(Statement $statement): string
+    private function getSimilarStatementSubmitters(Statement $statement): string
     {
         $submitterStrings = [];
         foreach ($statement->getSimilarStatementSubmitters() as $submitter) {
@@ -282,6 +282,10 @@ class SegmentsExporter
     private function getHtmlValidText(string $text): string
     {
         $text = str_replace('<br>', '<br/>', $text);
+
+        // strip all a tags without href
+        $pattern = '/<a\s+(?!.*?\bhref\s*=\s*([\'"])\S*\1)(.*?)>(.*?)<\/a>/i';
+        $text = preg_replace($pattern, '$3', $text);
 
         // avoid problems in phpword parser
         return $this->HTMLSanitizer->purify($text);

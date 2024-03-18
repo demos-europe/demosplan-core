@@ -558,11 +558,7 @@
                     With tiptap we can set obscure as prop always when the obscure button should be visible in the field,
                     because the permission check (featureObscureText) takes place in tiptap
                     -->
-                <dp-loading
-                  v-if="reloadStatementEditor"
-                  class="u-pb-0_5 u-pr-0_5 u-pt-0_25 u-1-of-2 border--right" />
                 <editable-text
-                  v-else
                   class="u-pb-0_5 u-pr-0_5 u-pt-0_25 u-1-of-2 border--right"
                   title="statement"
                   :procedure-id="procedureId"
@@ -583,11 +579,7 @@
                 <!--
                   Recommendation text
                -->
-                <dp-loading
-                  v-if="reloadRecommendationEditor"
-                  class="u-pb-0_5 u-pr-0_5 u-pt-0_25 u-1-of-2" />
                 <editable-text
-                  v-else
                   class="u-pb-0_25 u-pl-0_5 u-pt-0_25 u-1-of-2"
                   title="recommendation"
                   :procedure-id="procedureId"
@@ -756,7 +748,7 @@
 </template>
 
 <script>
-import { dpApi, DpLoading, formatDate, hasOwnProp, VPopover } from '@demos-europe/demosplan-ui'
+import { dpApi, formatDate, hasOwnProp, VPopover } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
 import DpClaim from '../DpClaim'
@@ -776,7 +768,6 @@ export default {
     DpFragmentList: () => import(/* webpackChunkName: "dp-fragment-list" */ './DpFragmentList'),
     DpFragmentsSwitcher: () => import(/* webpackChunkName: "dp-fragments-switcher" */ './DpFragmentsSwitcher'),
     DpItemRow,
-    DpLoading,
     EditableText,
     TableCardFlyoutMenu,
     VPopover
@@ -815,16 +806,28 @@ export default {
       tab: this.$store.state.assessmentTable.currentTableView === 'fragments' ? 'fragments' : 'statement',
       updatingClaimState: false,
       fragmentsLoading: false,
-      placeholderStatementId: null,
-      reloadRecommendationEditor: false,
-      reloadStatementEditor: false
+      placeholderStatementId: null
     }
   },
 
   computed: {
     // Get the Statement from the Store (if not Present there use initial data)
     ...mapState('statement', { statement (state) { return state.statements[this.statementId] } }),
-    ...mapGetters('assessmentTable', ['adviceValues', 'assessmentBase', 'assessmentBaseLoaded', 'elements', 'paragraph', 'priorities', 'procedureId', 'status', 'counties', 'municipalities', 'priorityAreas', 'tags', 'documents']),
+    ...mapGetters('assessmentTable', [
+      'adviceValues',
+      'assessmentBase',
+      'assessmentBaseLoaded',
+      'counties',
+      'documents',
+      'elements',
+      'municipalities',
+      'paragraph',
+      'priorities',
+      'priorityAreas',
+      'procedureId',
+      'status',
+      'tags'
+    ]),
     ...mapGetters('fragment', ['selectedFragments', 'fragmentsByStatement']),
     ...mapState('statement', ['selectedElements', 'statements', 'isFiltered']),
 
@@ -1094,14 +1097,6 @@ export default {
       return payload
     },
 
-    reloadEditorOnSave (fieldName, value) {
-      if (fieldName === 'text') {
-        this.reloadStatementEditor = value
-      } else if (fieldName === 'recommendation') {
-        this.reloadRecommendationEditor = value
-      }
-    },
-
     resetRelatedFields () {
       if (this.elementHasParagraphs && this.$refs.paragraph) {
         this.resetSelectedParagraph()
@@ -1129,7 +1124,6 @@ export default {
      * @param fieldName {String} - the name of the property as sent to BE
      */
     saveStatement (data, propType, fieldName) {
-      this.reloadEditorOnSave(fieldName, true)
       const payload = this.preparePayload(data, propType, fieldName)
       this.$emit('statement:updated')
       //  ##### Fire store action #####
@@ -1196,7 +1190,6 @@ export default {
 
         // Used in DpVersionHistory to update items in version history sidebar
         this.$root.$emit('entity:updated', this.statementId, 'statement')
-        this.reloadEditorOnSave(fieldName, false)
 
         return updatedField
       }).then(updatedField => {
