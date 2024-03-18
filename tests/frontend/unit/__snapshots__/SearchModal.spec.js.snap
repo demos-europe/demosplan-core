@@ -89,9 +89,9 @@ exports[`SearchModal renders the correct markup with deactivated feature_stateme
           <!---->
         </div>
       </div>
-      <div class=\\"text-right\\"><button type=\\"button\\" class=\\"btn btn--primary u-mr\\">
+      <div class=\\"text-right\\"><button type=\\"button\\" class=\\"btn btn--primary u-mr\\" datacy=\\"searchModal:submitSearchAdvanced\\">
           apply
-        </button><button class=\\"btn btn--secondary\\">
+        </button><button class=\\"btn btn--secondary\\" datacy=\\"searchModal:resetSearchAdvanced\\">
           reset
         </button></div>
     </dp-modal-stub>
