@@ -168,16 +168,6 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
         $this->permissionSet = $permissionSet;
     }
 
-    public function getParticipationState(): string
-    {
-        return $this->participationState;
-    }
-
-    public function setParticipationState(string $participationState): void
-    {
-        $this->participationState = $participationState;
-    }
-
     public function getStartDate(): DateTime
     {
         return $this->startDate;
@@ -196,16 +186,6 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     public function setEndDate(DateTime $endDate): void
     {
         $this->endDate = $endDate;
-    }
-
-    public function getProcedure(): Procedure
-    {
-        return $this->procedure;
-    }
-
-    public function setProcedure(Procedure $procedure): void
-    {
-        $this->procedure = $procedure;
     }
 
     public function getCreationDate(): DateTime
