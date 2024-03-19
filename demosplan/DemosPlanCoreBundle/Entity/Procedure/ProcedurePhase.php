@@ -47,7 +47,7 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
      * Virtual property
      * Readable Phase name.
      */
-    protected string $name;
+    protected string $name = '';
 
     /**
      * @ORM\Column(type="string", nullable=false)

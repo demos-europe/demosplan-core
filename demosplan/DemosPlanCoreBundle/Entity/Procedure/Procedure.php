@@ -805,7 +805,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     /**
      * Allow using this method the legacy way by using the implemented __toString.
      */
-    public function getPhase(): string|ProcedurePhaseInterface
+    public function getPhase(): ProcedurePhaseInterface
     {
         return $this->phase;
     }
@@ -1185,7 +1185,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function setPublicParticipationStartDate($publicParticipationStartDate)
     {
-        $this->publicParticipationStartDate = $publicParticipationStartDate;
+        $this->publicParticipationPhase->setStartDate($publicParticipationStartDate);
 
         return $this;
     }
@@ -1197,7 +1197,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function getPublicParticipationStartDate()
     {
-        return $this->publicParticipationStartDate;
+        return $this->publicParticipationPhase->getStartDate();
     }
 
     /**
@@ -1207,8 +1207,8 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function getPublicParticipationStartDateTimestamp()
     {
-        if (($this->publicParticipationStartDate instanceof DateTime) && is_numeric($this->publicParticipationStartDate->getTimestamp())) {
-            return $this->publicParticipationStartDate->getTimestamp();
+        if (($this->getPublicParticipationStartDate() instanceof DateTime) && is_numeric($this->getPublicParticipationStartDate()->getTimestamp())) {
+            return $this->getPublicParticipationStartDate()->getTimestamp();
         }
 
         return 7200;
@@ -1223,7 +1223,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function setPublicParticipationEndDate($publicParticipationEndDate)
     {
-        $this->publicParticipationEndDate = $publicParticipationEndDate;
+        $this->publicParticipationPhase->setEndDate($publicParticipationEndDate);
 
         return $this;
     }
@@ -1235,7 +1235,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function getPublicParticipationEndDate()
     {
-        return $this->publicParticipationEndDate;
+        return $this->publicParticipationPhase->getEndDate();
     }
 
     /**
@@ -1245,8 +1245,8 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function getPublicParticipationEndDateTimestamp()
     {
-        if (($this->publicParticipationEndDate instanceof DateTime) && is_numeric($this->publicParticipationEndDate->getTimestamp())) {
-            return $this->publicParticipationEndDate->getTimestamp();
+        if (($this->getPublicParticipationEndDate() instanceof DateTime) && is_numeric($this->getPublicParticipationEndDate()->getTimestamp())) {
+            return $this->getPublicParticipationEndDate()->getTimestamp();
         }
 
         return 7200;
