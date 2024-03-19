@@ -166,7 +166,7 @@
                                     <dp-multiselect
                                         id="r_agency"
                                         v-model="selectedAgencies"
-                                        data-cy="administrationEdit:selectedAgencies"
+                                        data-cy="internal:selectedAgencies"
                                         label="name"
                                         multiple
                                         :options="JSON.parse('{{ agencies|default([])|json_encode|e('js', 'utf-8') }}')"
