@@ -31,14 +31,14 @@
       <dp-checkbox-group
         aria-labelledby="submitter"
         :options="submitterFields"
-        data-cy="submitterFields:"
+        data-cy="submitterFields"
         @update="checked => updateCheckedFields(checked)"
         :selected-options="getSelectedOptions(submitterFields)" />
     </div><!--
  --><dp-checkbox-group
       :label="Translator.trans('statement.data')"
       :options="metaDataFields"
-      data-cy="metaDataFields:"
+      data-cy="metaDataFields"
       @update="checked => updateCheckedFields(checked)"
       :selected-options="getSelectedOptions(metaDataFields)"
     class="inline-block align-top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm u-mb u-pr-2" /><!--
@@ -46,14 +46,14 @@
       v-if="hasPermission('field_procedure_elements')"
       :label="Translator.trans('documents')"
       :options="documentFields"
-      data-cy="documentFields:"
+      data-cy="documentFields"
       @update="checked => updateCheckedFields(checked)"
       :selected-options="getSelectedOptions(documentFields)"
     class="inline-block align-top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm u-mb" /><!--
  --><dp-checkbox-group
       :label="Translator.trans('publication')"
       :options="publicationField"
-      data-cy="publicationField:"
+      data-cy="publicationField"
       @update="checked => updateCheckedFields(checked)"
       :selected-options="getSelectedOptions(publicationField)"
       class="inline-block align-top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm" />
