@@ -38,10 +38,7 @@
 
      --><div class="layout__item u-1-of-3 u-1-of-1-lap-down">
           <dp-datetime-picker
-            :data-cy="{
-                date: `phaseAutoSwitchDate:${switchDateId}`,
-                time: `phaseAutoSwitchTime:${switchDateId}`
-            }"
+            :data-cy="`autoSwitchProcedurePhaseForm:${switchDateId}`"
             :disabled="!autoSwitchPhase"
             hidden-input
             :id="switchDateId"
