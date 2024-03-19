@@ -61,6 +61,31 @@ class StatementFragmentRepository extends CoreRepository implements ArrayInterfa
     }
 
     /**
+     * Get Entity by Id and return as Array.
+     *
+     * @return array<string, mixed>
+     *
+     * @throws Exception
+     */
+    public function getAsArray(string $fragmentId): array
+    {
+        try {
+            $query = $this->getEntityManager()->createQueryBuilder()
+                ->select('sf')
+                ->from(StatementFragment::class, 'sf')
+                ->where('sf.id = :id')
+                ->setParameter('id', $fragmentId)
+                ->getQuery();
+
+            return $query->getSingleResult(Query::HYDRATE_ARRAY);
+        } catch (Exception $e) {
+            $this->logger->warning('Get StatementFragment failed: ', [$e]);
+
+            throw $e;
+        }
+    }
+
+    /**
      * Load the StatementFragment of the given Ids.
      *
      * @param array $statementIds

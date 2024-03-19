@@ -66,13 +66,15 @@
           <label
             :for="`checkStatement:${displayedCheckboxId}`"
             class="layout__item u-1-of-6 u-mb-0 u-pb-0_25">
-            <v-popover>
+            <v-popover
+              placement="top"
+              trigger="hover focus">
               <i
                 v-if="statement.isCluster && hasPermission('feature_statement_cluster')"
                 class="fa fa-object-group"
                 aria-hidden="true" />
               <span data-cy="statementExtID">{{ extid }}</span>
-              <!--  Display icon anyways when moved from/to another procedure, otherwise display it when frontend state changes  -->
+              <!-- Display icon anyways when moved from/to another procedure, otherwise display it when frontend state changes  -->
               <i
                 v-if="!!statement.movedFromProcedureName"
                 class="fa fa-exchange"
@@ -83,25 +85,19 @@
               </span>
 
               <template v-slot:popover>
-                <span
-                  class="hidden"
-                  :class="{'inline-block': assessmentBaseLoaded}">
-                  <!-- should work in Vue when -->
-                  <template v-if="statement.authoredDate > 0">
-                      <!-- remove comment when in vue to sow the date -->
-                      {{ Translator.trans('statement.date.authored') }}: {{ statementDate(statement.authoredDate) }}<br>
-                  </template>
+                <template v-if="statement.authoredDate > 0">
+                  {{ Translator.trans('statement.date.authored') }}: {{ statementDate(statement.authoredDate) }}<br>
+                </template>
 
-                  {{ Translator.trans('statement.date.submitted') }}: {{ statementDate(statement.submitDate) }}<br>
-                  {{ Translator.trans('phase') }}: {{ statement.phase }}
+                {{ Translator.trans('statement.date.submitted') }}: {{ statementDate(statement.submitDate) }}<br>
+                {{ Translator.trans('phase') }}: {{ statement.phase }}
 
-                  <template v-if="statement.movedFromProcedureId !== ''">
-                    <br>
-                    {{ Translator.trans('movedFrom') }}: {{ statement.movedFromProcedureName }}
-                    <br>
-                    {{ Translator.trans('formerExternId') }}: {{ statement.formerExternId }}
-                  </template>
-                </span>
+                <template v-if="statement.movedFromProcedureId !== ''">
+                  <br>
+                  {{ Translator.trans('movedFrom') }}: {{ statement.movedFromProcedureName }}
+                  <br>
+                  {{ Translator.trans('formerExternId') }}: {{ statement.formerExternId }}
+                </template>
               </template>
             </v-popover>
           </label><!--
@@ -113,7 +109,10 @@
               v-if="false === statement.isCluster"
               class="u-1-of-1 u-pb-0_25">
               <div class="o-hellip--nowrap u-1-of-1">
-                <v-popover class="o-hellip--nowrap">
+                <v-popover
+                  class="o-hellip--nowrap"
+                  placement="top"
+                  trigger="hover focus">
                   <!-- Findings when refactoring this template part:
                   - manual statements will have (`isSubmittedByCitizen === true`)
                     when selected r_role == 0, and initialOrganisationName == '' when selected r_role == 1 (#1)
@@ -163,57 +162,53 @@
                   <!--  Popover content  -->
                   <template
                     v-if="hasOwnProp(statement, 'initialOrganisationName')"
-                     v-slot:popover>
-                    <div
-                      class="whitespace-normal hidden"
-                      :class="{'inline-block': assessmentBaseLoaded}">
-                      <!--  see (#1)  -->
-                      <template
-                        v-if="!statement.isSubmittedByCitizen && (hasPermission('field_statement_user_organisation') === false && !statement.userOrganisation)">
-                        {{ Translator.trans('organisation') }}: {{ statement.initialOrganisationName !== '' ? statement.initialOrganisationName : Translator.trans('institution') }} <br>
-                        <!--  see (#2)  -->
-                        <template v-if="!!statement.initialOrganisationDepartmentName && statement.initialOrganisationDepartmentName !== ''">
-                          {{ Translator.trans('department') }}: {{ statement.initialOrganisationDepartmentName }}<br>
-                        </template>
+                    v-slot:popover>
+                    <!--  see (#1)  -->
+                    <template
+                      v-if="!statement.isSubmittedByCitizen && (hasPermission('field_statement_user_organisation') === false && !statement.userOrganisation)">
+                      {{ Translator.trans('organisation') }}: {{ statement.initialOrganisationName !== '' ? statement.initialOrganisationName : Translator.trans('institution') }} <br>
+                      <!--  see (#2)  -->
+                      <template v-if="!!statement.initialOrganisationDepartmentName && statement.initialOrganisationDepartmentName !== ''">
+                        {{ Translator.trans('department') }}: {{ statement.initialOrganisationDepartmentName }}<br>
                       </template>
+                    </template>
 
-                      <!--  see (#3)  -->
-                      <!-- if
-                       - non-anonymous institution (submitName === given name) or
-                       - non-anonymous citizen (manual statement) (submitName === given name) or
-                       - anonymized citizen/institution (submitName === 'anonymisiert')
-                       display submitName -->
-                      <template v-if="statement.submitName !== ''">
-                        {{ Translator.trans('submitted.author') }}: {{ statement.submitName }}
-                      </template>
+                    <!--  see (#3)  -->
+                    <!-- if
+                     - non-anonymous institution (submitName === given name) or
+                     - non-anonymous citizen (manual statement) (submitName === given name) or
+                     - anonymized citizen/institution (submitName === 'anonymisiert')
+                     display submitName -->
+                    <template v-if="statement.submitName !== ''">
+                      {{ Translator.trans('submitted.author') }}: {{ statement.submitName }}
+                    </template>
 
-                      <!-- if non-anonymous (registered or unregistered) citizen, including manual statement -->
-                      <template v-else-if="statement.submitName === '' && !statement.anonymous && statement.authorName !== '' && statement.isSubmittedByCitizen">
-                        {{ Translator.trans('submitted.author') }}: {{ statement.authorName }}
-                      </template>
+                    <!-- if non-anonymous (registered or unregistered) citizen, including manual statement -->
+                    <template v-else-if="statement.submitName === '' && !statement.anonymous && statement.authorName !== '' && statement.isSubmittedByCitizen">
+                      {{ Translator.trans('submitted.author') }}: {{ statement.authorName }}
+                    </template>
 
-                      <!-- if anonymous citizen (unregistered or manual statement) -->
-                      <template v-else-if="statement.submitName === '' && (statement.authorName === '' || statement.anonymous) && statement.isSubmittedByCitizen">
-                        {{ Translator.trans('submitted.author') }}: {{ Translator.trans('citizen.anonymous') }}
-                      </template>
+                    <!-- if anonymous citizen (unregistered or manual statement) -->
+                    <template v-else-if="statement.submitName === '' && (statement.authorName === '' || statement.anonymous) && statement.isSubmittedByCitizen">
+                      {{ Translator.trans('submitted.author') }}: {{ Translator.trans('citizen.anonymous') }}
+                    </template>
 
-                      <!--  additional user fields: userState, userGroup, userOrganisation, userPosition  -->
-                      <template v-if="hasPermission('field_statement_user_state') && !!statement.userState">
-                        <br>{{ Translator.trans('state') }}: {{ statement.userState }}
-                      </template>
+                    <!--  additional user fields: userState, userGroup, userOrganisation, userPosition  -->
+                    <template v-if="hasPermission('field_statement_user_state') && !!statement.userState">
+                      <br>{{ Translator.trans('state') }}: {{ statement.userState }}
+                    </template>
 
-                      <template v-if="hasPermission('field_statement_user_group') && !!statement.userGroup">
-                        <br>{{ Translator.trans('group') }}: {{ statement.userGroup }}
-                      </template>
+                    <template v-if="hasPermission('field_statement_user_group') && !!statement.userGroup">
+                      <br>{{ Translator.trans('group') }}: {{ statement.userGroup }}
+                    </template>
 
-                      <template v-if="hasPermission('field_statement_user_organisation') && !!statement.userOrganisation">
-                        <br>{{ Translator.trans('organisation') }}: {{ statement.userOrganisation }}
-                      </template>
+                    <template v-if="hasPermission('field_statement_user_organisation') && !!statement.userOrganisation">
+                      <br>{{ Translator.trans('organisation') }}: {{ statement.userOrganisation }}
+                    </template>
 
-                      <template v-if="hasPermission('field_statement_user_position') && !!statement.userPosition">
-                        <br>{{ Translator.trans('position') }}: {{ statement.userPosition }}
-                      </template>
-                    </div>
+                    <template v-if="hasPermission('field_statement_user_position') && !!statement.userPosition">
+                      <br>{{ Translator.trans('position') }}: {{ statement.userPosition }}
+                    </template>
                   </template>
                   <template v-else>
                     {{ Translator.trans('notspecified') }}
@@ -563,11 +558,7 @@
                     With tiptap we can set obscure as prop always when the obscure button should be visible in the field,
                     because the permission check (featureObscureText) takes place in tiptap
                     -->
-                <dp-loading
-                  v-if="reloadStatementEditor"
-                  class="u-pb-0_5 u-pr-0_5 u-pt-0_25 u-1-of-2 border--right" />
                 <editable-text
-                  v-else
                   class="u-pb-0_5 u-pr-0_5 u-pt-0_25 u-1-of-2 border--right"
                   title="statement"
                   :procedure-id="procedureId"
@@ -588,11 +579,7 @@
                 <!--
                   Recommendation text
                -->
-                <dp-loading
-                  v-if="reloadRecommendationEditor"
-                  class="u-pb-0_5 u-pr-0_5 u-pt-0_25 u-1-of-2" />
                 <editable-text
-                  v-else
                   class="u-pb-0_25 u-pl-0_5 u-pt-0_25 u-1-of-2"
                   title="recommendation"
                   :procedure-id="procedureId"
@@ -705,7 +692,9 @@
           <label
             :for="statement.id + ':item_check[]'"
             class="layout__item u-1-of-6 u-mb-0 u-pb-0_25">
-            <v-popover class="inline-block">
+            <v-popover
+              class="inline-block"
+              placement="top">
               {{ extid }}
 
               <i
@@ -759,7 +748,7 @@
 </template>
 
 <script>
-import { dpApi, DpLoading, formatDate, hasOwnProp, VPopover } from '@demos-europe/demosplan-ui'
+import { dpApi, formatDate, hasOwnProp, VPopover } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
 import DpClaim from '../DpClaim'
@@ -779,7 +768,6 @@ export default {
     DpFragmentList: () => import(/* webpackChunkName: "dp-fragment-list" */ './DpFragmentList'),
     DpFragmentsSwitcher: () => import(/* webpackChunkName: "dp-fragments-switcher" */ './DpFragmentsSwitcher'),
     DpItemRow,
-    DpLoading,
     EditableText,
     TableCardFlyoutMenu,
     VPopover
@@ -818,16 +806,28 @@ export default {
       tab: this.$store.state.assessmentTable.currentTableView === 'fragments' ? 'fragments' : 'statement',
       updatingClaimState: false,
       fragmentsLoading: false,
-      placeholderStatementId: null,
-      reloadRecommendationEditor: false,
-      reloadStatementEditor: false
+      placeholderStatementId: null
     }
   },
 
   computed: {
     // Get the Statement from the Store (if not Present there use initial data)
     ...mapState('statement', { statement (state) { return state.statements[this.statementId] } }),
-    ...mapGetters('assessmentTable', ['adviceValues', 'assessmentBase', 'assessmentBaseLoaded', 'elements', 'paragraph', 'priorities', 'procedureId', 'status', 'counties', 'municipalities', 'priorityAreas', 'tags', 'documents']),
+    ...mapGetters('assessmentTable', [
+      'adviceValues',
+      'assessmentBase',
+      'assessmentBaseLoaded',
+      'counties',
+      'documents',
+      'elements',
+      'municipalities',
+      'paragraph',
+      'priorities',
+      'priorityAreas',
+      'procedureId',
+      'status',
+      'tags'
+    ]),
     ...mapGetters('fragment', ['selectedFragments', 'fragmentsByStatement']),
     ...mapState('statement', ['selectedElements', 'statements', 'isFiltered']),
 
@@ -1097,14 +1097,6 @@ export default {
       return payload
     },
 
-    reloadEditorOnSave (fieldName, value) {
-      if (fieldName === 'text') {
-        this.reloadStatementEditor = value
-      } else if (fieldName === 'recommendation') {
-        this.reloadRecommendationEditor = value
-      }
-    },
-
     resetRelatedFields () {
       if (this.elementHasParagraphs && this.$refs.paragraph) {
         this.resetSelectedParagraph()
@@ -1132,7 +1124,6 @@ export default {
      * @param fieldName {String} - the name of the property as sent to BE
      */
     saveStatement (data, propType, fieldName) {
-      this.reloadEditorOnSave(fieldName, true)
       const payload = this.preparePayload(data, propType, fieldName)
       this.$emit('statement:updated')
       //  ##### Fire store action #####
@@ -1199,7 +1190,6 @@ export default {
 
         // Used in DpVersionHistory to update items in version history sidebar
         this.$root.$emit('entity:updated', this.statementId, 'statement')
-        this.reloadEditorOnSave(fieldName, false)
 
         return updatedField
       }).then(updatedField => {

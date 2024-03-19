@@ -484,7 +484,9 @@
                                     <auto-switch-procedure-phase-form
                                         :available-phases="JSON.parse('{{ templateVars.internalPhases|map(internalPhase => {
                                             label: internalPhase.name,
-                                            value: internalPhase.key})|json_encode|e('js', 'utf-8') }}')"
+                                            permission: internalPhase.permissionset,
+                                            value: internalPhase.key
+                                        })|json_encode|e('js', 'utf-8') }}')"
                                         data-cy-end-date="administrationEditForm:designatedEndDate"
                                         data-cy-start-date="administrationEditForm:designatedStartDate"
                                         class="u-mb"
@@ -616,7 +618,9 @@
                                     <auto-switch-procedure-phase-form
                                         :available-phases="JSON.parse('{{ templateVars.externalPhases|map(externalPhase => {
                                             label: externalPhase.name,
-                                            value: externalPhase.key})|json_encode|e('js', 'utf-8') }}')"
+                                            permission: externalPhase.permissionset,
+                                            value: externalPhase.key
+                                        })|json_encode|e('js', 'utf-8') }}')"
                                         data-cy-end-date="administrationEditForm:designatedPublicEndDate"
                                         data-cy-start-date="administrationEditForm:designatedPublicStartDate"
                                         class="u-mb"

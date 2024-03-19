@@ -196,17 +196,10 @@ export default {
      * @return {boolean}
      */
     isParticipationPhaseSelected () {
-      const participationPhases = [
-        'earlyparticipation',
-        'anotherearlyparticipation',
-        'participation',
-        'anotherparticipation',
-        'externalearlyparticipation',
-        'anotherexternalearlyparticipation',
-        'externalparticipation'
-      ]
-
-      return participationPhases.includes(this.selectedCurrentPhase)
+      return Object.values(this.availablePhases)
+        .filter(phase => phase.permission === 'write')
+        .map(phase => phase.value)
+        .includes(this.selectedCurrentPhase)
     },
 
     endDateId () {
