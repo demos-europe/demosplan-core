@@ -466,10 +466,7 @@
 
                                     <dp-date-range-picker
                                         class="u-2-of-4"
-                                        :data-cy="{
-                                            endDate: 'administrationEditForm:endDate',
-                                            startDate: 'administrationEditForm:startDate'
-                                        }"
+                                        data-cy="procedureSettingsDate"
                                         start-id="r_startdate"
                                         start-name="r_startdate"
                                         start-value="{{ proceduresettings.startDate|default|dplanDate }}"
@@ -599,10 +596,7 @@
                                     } %}
                                     <dp-date-range-picker
                                         class="u-2-of-4"
-                                        :data-cy="{
-                                            endDate: 'administrationEditForm:publicParticipationEndDate',
-                                            startDate: 'administrationEditForm:publicParticipationStartDate'
-                                        }"
+                                        data-cy="procedureSettingsParticipationDate"
                                         data-dp-validate-error-fieldname="{{ "period.public"|trans }}"
                                         start-id="r_publicParticipationStartDate"
                                         start-name="r_publicParticipationStartDate"
