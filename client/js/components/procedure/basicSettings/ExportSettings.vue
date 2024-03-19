@@ -15,7 +15,7 @@
     <dp-checkbox
       id="check_all"
       v-model="allChecked"
-      data-cy="exportSetting:allChecked"
+      data-cy="exportSettings:allChecked"
       class="u-mb"
       :label="{
         bold: true,
