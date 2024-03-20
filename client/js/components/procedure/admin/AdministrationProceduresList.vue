@@ -36,6 +36,7 @@
 
       <dp-select
         class="w-11 ml-auto"
+        data-cy="selectedSort"
         :options="options"
         :selected="selectedSort"
         :show-placeholder="false"
@@ -81,6 +82,7 @@
 
     <dp-data-table
       v-else
+      data-cy="administrationProceduresListTable"
       :header-fields="headerFields"
       is-selectable
       :items="items"
