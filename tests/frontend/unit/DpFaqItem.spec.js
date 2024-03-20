@@ -1,4 +1,4 @@
-import { createLocalVue } from '@vue/test-utils'
+import { createLocalVue, flushPromises } from '@vue/test-utils'
 import DpFaqItem from '../../../client/js/components/faq/DpFaqItem.vue'
 import shallowMountWithGlobalMocks from '../../../client/js/VueConfigLocal'
 import Vuex from 'vuex'
@@ -10,6 +10,7 @@ describe('DpFaqItem', () => {
   let store
   let wrapper
   let faqCategory, faq
+  const mockDeleteFaqItem = jest.fn()
 
   beforeEach(() => {
     faqCategory = {
@@ -55,10 +56,14 @@ describe('DpFaqItem', () => {
     global.Translator = {
       trans: jest.fn().mockImplementation(key => key) // Return the key for simplicity
     }
-
+  })
+  it('button triggers delete', async () => {
     wrapper = shallowMountWithGlobalMocks(DpFaqItem, {
       store,
       localVue,
+      methods: {
+        deleteFaqItem: mockDeleteFaqItem
+      },
       propsData: {
         faqItem: {
           id: 1,
@@ -72,12 +77,12 @@ describe('DpFaqItem', () => {
         transformedCategoriesData: ['a', 'b']
       }
     })
-  })
-  it('button triggers delete', async () => {
-    /* Wrapper.find('button').trigger('click') */
     console.log(wrapper.props())
+    await wrapper.vm.$nextTick() // Ensure the component has finished rendering.
 
-    // eslint-disable-next-line jest/no-conditional-expect
-    /* expect(wrapper.vm.xyz).toHaveBeenCalled() */
+    const deleteButton = wrapper.find('[data-cy="deleteFaqItem"]')
+    await deleteButton.trigger('click')
+
+    expect(mockDeleteFaqItem).toHaveBeenCalledTimes(1)
   })
 })
