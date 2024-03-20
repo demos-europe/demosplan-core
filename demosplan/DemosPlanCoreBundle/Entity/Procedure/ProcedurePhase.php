@@ -120,10 +120,6 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
 
     public function __construct(string $key, string $step = '')
     {
-        // virtual properties:
-        // name
-        // Permissionset
-
         $this->key = $key;
         $this->step = $step;
         $this->endDate = new DateTime();
