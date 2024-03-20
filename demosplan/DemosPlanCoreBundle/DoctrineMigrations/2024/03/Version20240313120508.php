@@ -1,4 +1,14 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace Application\Migrations;
 
@@ -36,7 +46,6 @@ class Version20240313120508 extends AbstractMigration
     public function down(Schema $schema): void
     {
         $this->abortIfNotMysql();
-
     }
 
     /**
@@ -45,7 +54,7 @@ class Version20240313120508 extends AbstractMigration
     private function abortIfNotMysql(): void
     {
         $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof MySqlPlatform,
+            !$this->connection->getDatabasePlatform() instanceof MySQLPlatform,
             "Migration can only be executed safely on 'mysql'."
         );
     }
@@ -66,26 +75,25 @@ class Version20240313120508 extends AbstractMigration
                 `designated_end_date` = :designated_end_date,
                 `creation_date` = NOW(),
                 `modification_date` = NOW()
-            ',[
+            ', [
             'designated_phase_change_user_id' => $phase['designatedPhaseChangeUser'],
-            'uuid' => $phaseId,
-            'key' => $phase['key'],
-            'step' => $phase['step'],
-            'start_date' => $phase['startDate'],
-            'end_date' => $phase['endDate'],
-            'designated_phase' => $phase['designatedPhase'],
-            'designated_switch_date' => $phase['designatedSwitchDate'],
-            'designated_end_date' => $phase['designatedEndDate'],
+            'uuid'                            => $phaseId,
+            'key'                             => $phase['key'],
+            'step'                            => $phase['step'],
+            'start_date'                      => $phase['startDate'],
+            'end_date'                        => $phase['endDate'],
+            'designated_phase'                => $phase['designatedPhase'],
+            'designated_switch_date'          => $phase['designatedSwitchDate'],
+            'designated_end_date'             => $phase['designatedEndDate'],
         ]);
 
         $this->addSql(
             'UPDATE _procedure SET phase_id =:phaseId WHERE _p_id =:procedureId',
             [
-                'phaseId' => $phaseId,
+                'phaseId'     => $phaseId,
                 'procedureId' => $phase['procedureId'],
             ]
         );
-
     }
 
     private function addExternalPhase(array $phase): void
@@ -104,30 +112,30 @@ class Version20240313120508 extends AbstractMigration
                 `designated_end_date` = :designated_end_date,
                 `creation_date` = NOW(),
                 `modification_date` = NOW()
-            ',[
+            ', [
             'designated_phase_change_user_id' => $phase['designatedExternalPhaseChangeUser'],
-            'uuid' => $phaseId,
-            'key' => $phase['externalKey'],
-            'step' => $phase['externalStep'],
-            'start_date' => $phase['externalStartDate'],
-            'end_date' => $phase['externalEndDate'],
-            'designated_phase' => $phase['designatedExternalPhase'],
-            'designated_switch_date' => $phase['designatedExternalSwitchDate'],
-            'designated_end_date' => $phase['designatedExternalEndDate'],
+            'uuid'                            => $phaseId,
+            'key'                             => $phase['externalKey'],
+            'step'                            => $phase['externalStep'],
+            'start_date'                      => $phase['externalStartDate'],
+            'end_date'                        => $phase['externalEndDate'],
+            'designated_phase'                => $phase['designatedExternalPhase'],
+            'designated_switch_date'          => $phase['designatedExternalSwitchDate'],
+            'designated_end_date'             => $phase['designatedExternalEndDate'],
         ]);
 
         $this->addSql(
             'UPDATE _procedure SET public_participation_phase_id =:phaseId WHERE _p_id =:procedureId',
             [
-                'phaseId' => $phaseId,
+                'phaseId'     => $phaseId,
                 'procedureId' => $phase['procedureId'],
             ]
         );
-
     }
 
     /**
      * @return array<string, mixed>
+     *
      * @throws Exception
      */
     private function getPhaseDataOfAllProcedures(): array

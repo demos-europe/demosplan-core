@@ -1,4 +1,14 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace Application\Migrations;
 
@@ -12,7 +22,6 @@ class Version20240313115724 extends AbstractMigration
     public function getDescription(): string
     {
         return 'refs T36340: Extract phase of an procedure into own entity. Step1: Create new related entity.';
-
     }
 
     /**
@@ -65,7 +74,6 @@ class Version20240313115724 extends AbstractMigration
 
         $this->addSql('CREATE UNIQUE INDEX UNIQ_D1A01D0299091188 ON _procedure (phase_id)');
         $this->addSql('CREATE UNIQUE INDEX UNIQ_D1A01D0230F7E25B ON _procedure (public_participation_phase_id)');
-
     }
 
     /**
@@ -90,7 +98,7 @@ class Version20240313115724 extends AbstractMigration
     private function abortIfNotMysql(): void
     {
         $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof MySqlPlatform,
+            !$this->connection->getDatabasePlatform() instanceof MySQLPlatform,
             "Migration can only be executed safely on 'mysql'."
         );
     }

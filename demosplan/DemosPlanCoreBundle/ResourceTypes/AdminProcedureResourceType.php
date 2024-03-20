@@ -114,6 +114,7 @@ final class AdminProcedureResourceType extends DplanResourceType
                 $this->createAttribute($this->internalPhaseIdentifier)->readable()->aliasedPath($this->phase->key),
                 $this->createAttribute($this->internalPhaseTranslationKey)->readable(false, static function (Procedure $procedure) use ($internalPhases): string {
                     $internalPhaseIdentifier = $procedure->getPhase();
+
                     return $internalPhases[$internalPhaseIdentifier]['name'] ?? $internalPhaseIdentifier;
                 }),
                 $this->createAttribute($this->publicParticipation)->readable(),
