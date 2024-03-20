@@ -251,38 +251,17 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
         $this->step = $step;
     }
 
-    /**
-     * A phase without a related procedure is not a valid state.
-     * Therefore on copy a phases a related target procedure has to be given.
-     *
-     * $asInternalPhase is needed, because the phase has no direct relation to the procedure.
-     * Without the procedure, we can not determine if this phase is used as public participation phase.
-     */
-    public function copyOntoProcedure(ProcedureInterface $targetProcedure, bool $asInternalPhase = true): self
+    public function copyValuesFromPhase(ProcedurePhaseInterface $sourcePhase): void
     {
-        if ($asInternalPhase && null !== $targetProcedure->getPhase()) {
-            throw new EntryAlreadyExistsException('The target Procedure already has an related phase.');
-        }
-
-        if (!$asInternalPhase && null !== $targetProcedure->getPublicParticipationPhase()) {
-            throw new EntryAlreadyExistsException('The target Procedure already has an related public participation phase.');
-        }
-
-        $newPhase = new self($this->key, $this->step);
-        $newPhase->name = $this->name;
-        $newPhase->designatedSwitchDate = $this->designatedSwitchDate;
-        $newPhase->designatedEndDate = $this->designatedEndDate;
-        $newPhase->designatedPhase = $this->designatedPhase;
-        $newPhase->permissionSet = $this->permissionSet;
-        $newPhase->startDate = $this->startDate;
-        $newPhase->endDate = $this->endDate;
-
-        if ($asInternalPhase) {
-            $targetProcedure->setPhase($newPhase);
-        } else {
-            $targetProcedure->setPublicParticipationPhase($newPhase);
-        }
-
-        return $newPhase;
+        $this->key = $sourcePhase->key;
+        $this->step = $sourcePhase->step;
+        $this->name = $sourcePhase->name;
+        $this->designatedEndDate = $sourcePhase->designatedEndDate;
+        $this->designatedSwitchDate = $sourcePhase->designatedSwitchDate;
+        $this->designatedPhase = $sourcePhase->designatedPhase;
+        $this->permissionSet = $sourcePhase->permissionSet;
+        $this->startDate = $sourcePhase->startDate;
+        $this->endDate = $sourcePhase->endDate;
     }
+
 }
