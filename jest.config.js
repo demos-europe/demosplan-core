@@ -67,6 +67,5 @@ module.exports = {
         plugins: ['dynamic-import-node']
       }
     }
-  },
-  setupFiles: ['./client/setup/jest/setup.js']
+  }
 }
