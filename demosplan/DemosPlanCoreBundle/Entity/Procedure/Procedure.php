@@ -244,7 +244,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      *     cascade={"persist", "remove"}
      * )
      *
-     * @ORM\JoinColumn(nullable=true)
+     * @ORM\JoinColumn(nullable=false)
      */
     protected ProcedurePhase $publicParticipationPhase;
 
@@ -797,15 +797,22 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function setPhase($phaseKey): Procedure
     {
-        $this->phase->setKey($phaseKey);
+        $this->setPhaseKey($phaseKey);
 
         return $this;
     }
 
-    /**
-     * Allow using this method the legacy way by using the implemented __toString.
-     */
-    public function getPhase(): ProcedurePhaseInterface
+    public function setPhaseKey($phaseKey): void
+    {
+        $this->phase->setKey($phaseKey);
+    }
+
+    public function getPhase(): string
+    {
+        return $this->phase->getKey();
+    }
+
+    public function getPhaseObject(): ProcedurePhaseInterface
     {
         return $this->phase;
     }
@@ -1114,15 +1121,18 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function setPublicParticipationPhase($publicParticipationPhaseKey)
     {
-        $this->getPublicParticipationPhase()->setKey($publicParticipationPhaseKey);
+        $this->publicParticipationPhase->setKey($publicParticipationPhaseKey);
 
         return $this;
     }
 
-    /**
-     * Allow using this method the legacy way by using the implemented __toString.
-     */
-    public function getPublicParticipationPhase(): string|ProcedurePhaseInterface
+    public function getPublicParticipationPhase(): string
+    {
+        return $this->publicParticipationPhase->getKey();
+    }
+
+
+    public function getPublicParticipationPhaseObject(): ?ProcedurePhaseInterface
     {
         return $this->publicParticipationPhase;
     }
@@ -1145,13 +1155,13 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     public function getPublicParticipationPhasePermissionset(): string
     {
-        return $this->publicParticipationPhase->getPermissionset() ??
+        return $this->publicParticipationPhase->getPermissionSet() ??
             ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN;
     }
 
     public function setPublicParticipationPhasePermissionset(string $publicParticipationPhasePermissionset): Procedure
     {
-        $this->publicParticipationPhase->setPermissionset($publicParticipationPhasePermissionset);
+        $this->publicParticipationPhase->setPermissionSet($publicParticipationPhasePermissionset);
 
         return $this;
     }
