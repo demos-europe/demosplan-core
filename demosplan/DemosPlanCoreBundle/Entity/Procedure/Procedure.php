@@ -1131,7 +1131,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return $this->publicParticipationPhase->getKey();
     }
 
-
     public function getPublicParticipationPhaseObject(): ?ProcedurePhaseInterface
     {
         return $this->publicParticipationPhase;
