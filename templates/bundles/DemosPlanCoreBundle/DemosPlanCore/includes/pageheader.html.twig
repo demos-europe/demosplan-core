@@ -21,7 +21,7 @@
         {% if full_width|default(false) != true %}
 
             {# link in left corner of pageheader #}
-                <div class="{{ (width_css.col1|default('u-1-of-4'|prefixClass) ~ ' layout__item u-1-of-1-lap-down show-desk-up-ib-empty u-mv-0_25 flow-root u-pl-0_5-palm u-pr-0_5-palm')|prefixClass }}">
+                <div class="{{ (width_css.col1|default('u-1-of-4'|prefixClass) ~ (link_classes|default|prefixClass) ~ ' layout__item u-1-of-1-lap-down show-desk-up-ib-empty u-mv-0_5 u-pl-0_5-palm u-pr-0_5-palm')|prefixClass }}">
 
                 {# additional link to be inserted via link_caption / link #}
                     {% if link_caption|default != '' %}
