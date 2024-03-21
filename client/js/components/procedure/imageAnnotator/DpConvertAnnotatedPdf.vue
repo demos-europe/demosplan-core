@@ -199,7 +199,7 @@ export default {
         },
         include: 'annotatedStatementPdfPages'
       }
-      const documentResponse = await dpApi.get(url, params, { serialize: true })
+      const documentResponse = await dpApi.get(url, params)
       this.document = documentResponse.data.data.find(el => el.type === 'AnnotatedStatementPdf')
       this.formValues = { ...this.formValues, text: this.document.attributes.text }
       this.pages = documentResponse.data.included.filter(el => el.type === 'AnnotatedStatementPdfPage')

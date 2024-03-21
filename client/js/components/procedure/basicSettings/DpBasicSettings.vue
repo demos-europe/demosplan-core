@@ -152,8 +152,7 @@ export default {
   methods: {
     getDataPlis (plisId, routeName) {
       return dpApi({
-        method: 'get',
-        responseType: 'json',
+        method: 'GET',
         url: Routing.generate(routeName, { uuid: plisId })
       })
         .then(data => {
