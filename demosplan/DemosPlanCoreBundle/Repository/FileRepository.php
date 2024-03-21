@@ -56,9 +56,9 @@ class FileRepository extends FluentRepository implements ArrayInterface, ObjectI
         }
         $fileInfos = $this->findBy(['hash' => $hash, 'deleted' => false, 'procedure' => null]);
         $fileInfosCount = count($fileInfos);
-        // findOneBy would have returned null if no match was found
+        // tried our best to return the correct fileInfo - but if not successful until here - just return a matching hash
         if (0 === $fileInfosCount) {
-            return null;
+            return $this->findOneBy(['hash' => $hash, 'deleted' => false]);
         }
 
         return reset($fileInfos);
