@@ -330,20 +330,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="_p_start_date", type="datetime", nullable=false)
-     */
-    protected $startDate;
-
-    /**
-     * @var DateTime
-     *
-     * @ORM\Column(name="_p_end_date", type="datetime", nullable=false)
-     */
-    protected $endDate;
-
-    /**
-     * @var DateTime
-     *
      * @ORM\Column(name="_p_closed_date", type="datetime", nullable=false)
      */
     protected $closedDate;
@@ -1460,7 +1446,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function setStartDate($startDate)
     {
-        $this->startDate = $startDate;
+        $this->phase->setStartDate($startDate);
 
         return $this;
     }
@@ -1472,7 +1458,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function getStartDate()
     {
-        return $this->startDate;
+        return $this->phase->getStartDate();
     }
 
     /**
@@ -1482,8 +1468,8 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function getStartDateTimestamp()
     {
-        if ($this->startDate instanceof DateTime) {
-            return $this->startDate->getTimestamp();
+        if ($this->getStartDate() instanceof DateTime) {
+            return $this->getStartDate()->getTimestamp();
         }
 
         return 7200;
@@ -1498,7 +1484,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function setEndDate($endDate)
     {
-        $this->endDate = $endDate;
+        $this->phase->setEndDate($endDate);
 
         return $this;
     }
@@ -1510,7 +1496,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function getEndDate()
     {
-        return $this->endDate;
+        return $this->phase->getEndDate();
     }
 
     /**
@@ -1520,8 +1506,8 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function getEndDateTimestamp()
     {
-        if ($this->endDate instanceof DateTime) {
-            return $this->endDate->getTimestamp();
+        if ($this->getEndDate() instanceof DateTime) {
+            return $this->getEndDate()->getTimestamp();
         }
 
         return 7200;
