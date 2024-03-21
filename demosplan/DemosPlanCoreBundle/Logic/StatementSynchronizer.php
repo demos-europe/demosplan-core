@@ -106,7 +106,7 @@ class StatementSynchronizer
             $newOriginalStatement,
             false,
         );
-        /**
+        /*
          * to follow the schema that all Original-STN-FileContainers as well as its Child-STN-FileContainers
          * share the same { @link File } reference the { @link FileContainer } gets cloned here
          * the cloned FileContainer itself gets a new id assigned - just its File reference get shared.
