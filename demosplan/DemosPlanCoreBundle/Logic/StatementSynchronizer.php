@@ -16,6 +16,7 @@ use DateInterval;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\EntitySyncLink;
+use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
@@ -105,6 +106,11 @@ class StatementSynchronizer
             $newOriginalStatement,
             false,
         );
+        /**
+         * to follow the schema that all Original-STN-FileContainers as well as its Child-STN-FileContainers
+         * share the same { @link File } reference the { @link FileContainer } gets cloned here
+         * the cloned FileContainer itself gets a new id assigned - just its File reference get shared.
+         */
         $this->cloneFileContainersToStatement($targetOriginalFileContainers, $newStatement);
 
         $this->validateStatement($newStatement);
