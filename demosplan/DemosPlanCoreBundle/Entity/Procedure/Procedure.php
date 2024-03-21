@@ -249,20 +249,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     protected ProcedurePhase $publicParticipationPhase;
 
     /**
-     * @var DateTime
-     *
-     * @ORM\Column(name="_p_public_participation_start", type="datetime", nullable=false)
-     */
-    protected $publicParticipationStartDate;
-
-    /**
-     * @var DateTime
-     *
-     * @ORM\Column(name="_p_public_participation_end", type="datetime", nullable=false)
-     */
-    protected $publicParticipationEndDate;
-
-    /**
      * @var string
      *
      * @ORM\Column(name="_p_public_participation_contact", type="string", length=2048, nullable=false)
@@ -609,10 +595,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         $this->topics = new ArrayCollection();
         $this->closedDate = new DateTime();
         $this->deletedDate = new DateTime();
-        $this->endDate = new DateTime();
-        $this->startDate = new DateTime();
-        $this->publicParticipationStartDate = new DateTime();
-        $this->publicParticipationEndDate = new DateTime();
         $this->dataInputOrganisations = new ArrayCollection();
         $this->authorizedUsers = new ArrayCollection();
         $this->agencyExtraEmailAddresses = new ArrayCollection();
