@@ -885,7 +885,7 @@
                                             <a
                                                 target="_blank"
                                                 rel="noopener"
-                                                href="{{ path("core_file", { 'hash': proceduresettings.settings.pictogram|getFile('hash') }) }}">
+                                                href="{{ path("core_file_procedure", { 'hash': proceduresettings.settings.pictogram|getFile('hash'), 'procedureId': procedure }) }}">
                                                 {{ proceduresettings.settings.pictogram|getFile('name') }}
                                             </a>
                                         {% else %}
