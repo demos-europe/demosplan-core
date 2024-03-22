@@ -166,7 +166,7 @@
                                     <dp-multiselect
                                         id="r_agency"
                                         v-model="selectedAgencies"
-                                        data-cy="selectedAgencies"
+                                        data-cy="internal:selectedAgencies"
                                         label="name"
                                         multiple
                                         :options="JSON.parse('{{ agencies|default([])|json_encode|e('js', 'utf-8') }}')"
@@ -202,6 +202,7 @@
                                 <input id="{{ form.agencyMainEmailAddress.vars.id }}"
                                        name="agencyMainEmailAddress[fullAddress]"
                                        value="{{ form.agencyMainEmailAddress.vars.value.fullAddress }}"
+                                       data-cy="internal:agencyMainEmailAddress"
                                        class="o-form__control-input w-full"
                                        type="email"
                                        required>
@@ -249,6 +250,7 @@
 
                                     <dp-multiselect
                                         id="r_dataInputOrgaTest"
+                                        data-cy="internal:selectedDataInputOrgas"
                                         v-model="selectedDataInputOrgas"
                                         label="name"
                                         multiple
@@ -282,7 +284,7 @@
                                     <dp-multiselect
                                         id="r_authorizedUsers"
                                         v-model="selectedAuthUsers"
-                                        data-cy="selectedAuthUsers"
+                                        data-cy="internal:selectedAuthUsers"
                                         label="name"
                                         multiple
                                         :options="authUsersOptions"
@@ -333,6 +335,7 @@
                                 {# Bei textareas muss der Inhalt ohne Leerzeichen zwischen den Tags stehen, sonst werden die Leerzeichen ausgegeben und multiplizieren sich im Frontend. #}
                                 <textarea
                                     class="o-form__control-textarea h-7"
+                                    data-cy="internal:internalNote"
                                     id="r_desc"
                                     name="r_desc">
                                     {%- if proceduresettings.desc is defined %}
@@ -463,10 +466,7 @@
 
                                     <dp-date-range-picker
                                         class="u-2-of-4"
-                                        :data-cy="{
-                                            endDate: 'administrationEditForm:endDate',
-                                            startDate: 'administrationEditForm:startDate'
-                                        }"
+                                        data-cy="procedureSettingsDate"
                                         start-id="r_startdate"
                                         start-name="r_startdate"
                                         start-value="{{ proceduresettings.startDate|default|dplanDate }}"
@@ -596,10 +596,7 @@
                                     } %}
                                     <dp-date-range-picker
                                         class="u-2-of-4"
-                                        :data-cy="{
-                                            endDate: 'administrationEditForm:publicParticipationEndDate',
-                                            startDate: 'administrationEditForm:publicParticipationStartDate'
-                                        }"
+                                        data-cy="procedureSettingsParticipationDate"
                                         data-dp-validate-error-fieldname="{{ "period.public"|trans }}"
                                         start-id="r_publicParticipationStartDate"
                                         start-name="r_publicParticipationStartDate"
@@ -751,6 +748,7 @@
                                         class="o-form__control-input"
                                         id="r_shortUrl"
                                         name="r_shortUrl"
+                                        data-cy="nameAddress:shortUrl"
                                         type="text"
                                         value="{{ templateVars.inData.r_shortUrl|default }}"
                                         size="40"
@@ -826,7 +824,7 @@
                                             <dp-editor
                                                 id="counter_oeb_desc_input"
                                                 hidden-input="r_externalDesc"
-                                                data-cy="procedureDescriptionPublic"
+                                                data-cy="procedureInfo:procedureDescriptionPublic"
                                                 :toolbar-items="{ listButtons: false }"
                                                 :maxlength="10000"
                                                 value="{{ proceduresettings.externalDesc|default( "notspecified"|trans ) }}">
@@ -855,7 +853,7 @@
                                         <dp-editor
                                             id="r_publicParticipationContact"
                                             hidden-input="r_publicParticipationContact"
-                                            data-cy="publicParticipationContact"
+                                            data-cy="procedureInfo:publicParticipationContact"
                                             data-dp-validate-error-fieldname="{{ 'public.participation.contact'|trans }}"
                                             :toolbar-items="{ listButtons: false }"
                                             :maxlength="2000"
@@ -1273,7 +1271,10 @@
                     data-cy="saveConfig"
                     type="submit"
                     value="{{ "save"|trans }}">
-                <a class="btn btn--secondary" href="{{ path('DemosPlan_procedure_administration_get') }}">
+                <a
+                    class="btn btn--secondary"
+                    data-cy="abortConfig"
+                    href="{{ path('DemosPlan_procedure_administration_get') }}">
                     {{ "abort"|trans }}
                 </a>
             </div>
