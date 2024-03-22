@@ -29,7 +29,8 @@
         @node-selection-change="nodeSelectionChange"
         :tree-data="recursiveElements"
         :branch-identifier="isBranch()"
-        :options="treeListOptions">
+        :options="treeListOptions"
+        selection-by-prop>
         <template v-slot:header="">
           <span class="color--grey">Dokumente des Verfahrens</span>
         </template>
@@ -153,9 +154,23 @@ export default {
       return formatBytes(byteSize).replace(/\./g, ',')
     },
 
-    nodeSelectionChange (selected) {
-      const selectedFilesIds = selected.filter(node => node.nodeType === 'leaf').map(el => el.nodeId)
-      this.selectedFiles = this.allFiles.filter(file => selectedFilesIds.includes(file.id))
+    getAllSelectedSingleDocuments (recursiveElements) {
+      let singleDocuments = []
+
+      recursiveElements.forEach(element => {
+        if (element.type === 'singleDocument' && element.isSelected) {
+          singleDocuments.push(element)
+        } else if (element.children && element.children.length > 0) {
+          const childSingleDocuments = this.getAllSelectedSingleDocuments(element.children)
+          singleDocuments = singleDocuments.concat(childSingleDocuments)
+        }
+      })
+
+      return singleDocuments
+    },
+
+    nodeSelectionChange () {
+      this.selectedFiles = this.getAllSelectedSingleDocuments(this.recursiveElements)
     },
 
     /*
