@@ -1,11 +1,9 @@
 <template>
-  <div>
-    <component
-      :is="component"
-      :ref="refComponent"
-      v-bind="addonProps"
-      @addonEvent:emit="(event) => $emit(event.name, event.payload)" />
-  </div>
+  <component
+    :is="component"
+    :ref="refComponent"
+    v-bind="addonProps"
+    @addonEvent:emit="(event) => $emit(event.name, event.payload)" />
 </template>
 
 <script>
@@ -72,6 +70,7 @@ export default {
              * While eval is generally a BAD IDEA, we really need to evaluate the code
              * we're adding dynamically to use the provided addon's script from now on.
              */
+            // eslint-disable-next-line no-eval
             eval(content)
             this.$options.components[addon.entry] = window[addon.entry].default
 
