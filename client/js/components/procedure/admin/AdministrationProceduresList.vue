@@ -304,7 +304,7 @@ export default {
         sort: sort
       }
 
-      dpApi.get(url, params, { serialize: true })
+      dpApi.get(url, params)
         .then(response => {
           response.data.data.forEach(el => this.items.push({
             creationDate: formatDate(el.attributes.creationDate),

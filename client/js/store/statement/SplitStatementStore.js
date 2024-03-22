@@ -219,9 +219,11 @@ const SplitStatementStore = {
           }
           const initialData = data.data.attributes.segmentDraftList.data
           let segments = initialData.attributes.segments
-            // Filter out segments with less than 10 characters as those may lead the frontend to crash
-            // (because often that are closing or opening tags)
-            // and should probably not be needed in a real world scenario.
+            /*
+             * Filter out segments with less than 10 characters as those may lead the frontend to crash
+             * (because often that are closing or opening tags)
+             * and should probably not be needed in a real world scenario.
+             */
             .filter(segment => (segment.charEnd - segment.charStart) > 10)
 
           // Check if we are getting overlapping segments from pipeline that would cause errors
@@ -368,7 +370,7 @@ const SplitStatementStore = {
 
     fetchTags ({ commit }) {
       const url = Routing.generate('api_resource_list', { resourceType: 'Tag' })
-      return dpApi.get(url, { include: 'topic' }, { serialize: true })
+      return dpApi.get(url, { include: 'topic' })
         .then(response => {
           const tags = response.data
           commit('setProperty', { prop: 'availableTags', val: tags.data })
