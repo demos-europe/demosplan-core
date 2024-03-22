@@ -126,7 +126,7 @@ class PresentableOriginalStatementFactory
         }
         $data->setOptionals($optionals);
 
-        $text = $this->editorService->handleObscureTags($statement->getText(), false);
+        $text = $this->editorService->handleObscureTags($statement->getText());
         $data->setStatementText($text);
 
         $movedToProcedureName = $statement->getMovedToProcedureName();
@@ -146,9 +146,6 @@ class PresentableOriginalStatementFactory
         return $data->lock();
     }
 
-    /**
-     * @param mixed $value
-     */
     protected function createValuedLabel(string $labelTranslationKey, $value): ValuedLabel
     {
         return ValuedLabel::create($this->translator->trans($labelTranslationKey), $value);
