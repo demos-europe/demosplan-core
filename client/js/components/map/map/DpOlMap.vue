@@ -289,7 +289,7 @@ export default {
     /**
      * Define extent for map
      * @param mapOptions
-     * @return void
+     * @return {Array}
      */
     defineExtent (mapOptions) {
       let extent = mapOptions.defaultMapExtent
@@ -332,7 +332,7 @@ export default {
         return this.mapOptions
       }
       return dpApi({
-        method: 'get',
+        method: 'GET',
         url: Routing.generate(this.mapOptionsRoute, { procedureId: this.procedureId })
       })
         .then(checkResponse)

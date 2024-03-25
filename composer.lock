@@ -1362,16 +1362,16 @@
         },
         {
             "name": "demos-europe/demosplan-addon",
-            "version": "v0.26",
+            "version": "v0.28",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "e4f5a2cba028ee7a49ba5f941fa0df92edd81570"
+                "reference": "c56998e2fe811eb6bc7c546614f25d78cc939f5a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/e4f5a2cba028ee7a49ba5f941fa0df92edd81570",
-                "reference": "e4f5a2cba028ee7a49ba5f941fa0df92edd81570",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/c56998e2fe811eb6bc7c546614f25d78cc939f5a",
+                "reference": "c56998e2fe811eb6bc7c546614f25d78cc939f5a",
                 "shasum": ""
             },
             "require": {
@@ -1435,9 +1435,9 @@
             ],
             "description": "This is the base package for all demosplan addons",
             "support": {
-                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.26"
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.28"
             },
-            "time": "2024-02-16T19:08:21+00:00"
+            "time": "2024-02-27T14:57:51+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
@@ -9623,16 +9623,16 @@
         },
         {
             "name": "phpseclib/phpseclib",
-            "version": "3.0.35",
+            "version": "3.0.37",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "4b1827beabce71953ca479485c0ae9c51287f2fe"
+                "reference": "cfa2013d0f68c062055180dd4328cc8b9d1f30b8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/4b1827beabce71953ca479485c0ae9c51287f2fe",
-                "reference": "4b1827beabce71953ca479485c0ae9c51287f2fe",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/cfa2013d0f68c062055180dd4328cc8b9d1f30b8",
+                "reference": "cfa2013d0f68c062055180dd4328cc8b9d1f30b8",
                 "shasum": ""
             },
             "require": {
@@ -9713,7 +9713,7 @@
             ],
             "support": {
                 "issues": "https://github.com/phpseclib/phpseclib/issues",
-                "source": "https://github.com/phpseclib/phpseclib/tree/3.0.35"
+                "source": "https://github.com/phpseclib/phpseclib/tree/3.0.37"
             },
             "funding": [
                 {
@@ -9729,7 +9729,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-12-29T01:59:53+00:00"
+            "time": "2024-03-03T02:14:58+00:00"
         },
         {
             "name": "phpstan/phpdoc-parser",

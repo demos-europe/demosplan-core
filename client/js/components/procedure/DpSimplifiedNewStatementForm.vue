@@ -41,7 +41,7 @@
             <dp-radio
               name="r_role"
               value="0"
-              data-cy="simplifiedNewStatementForm:citizen"
+              data-cy="simplifiedNewStatementForm:citizenButton"
               :id="`${instanceId}r_role_0`"
               :label="{
                 text: Translator.trans('citizen')
@@ -51,7 +51,7 @@
             <dp-radio
               name="r_role"
               value="1"
-              data-cy="simplifiedNewStatementForm:institution"
+              data-cy="simplifiedNewStatementForm:institutionButton"
               :id="`${instanceId}r_role_1`"
               :label="{
                 text: Translator.trans('institution')

@@ -92,7 +92,7 @@
         @items-toggled="handleToggleItem"
         :should-be-selected-items="currentlySelectedItems">
         <template v-slot:externId="rowData">
-          <v-popover>
+          <v-popover trigger="hover focus">
             <div class="whitespace-nowrap">
               {{ rowData.attributes.externId }}
             </div>

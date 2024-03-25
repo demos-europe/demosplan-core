@@ -246,10 +246,7 @@ const Filter = {
 
       return dpApi({
         method: 'GET',
-        responseType: 'json',
-        url: Routing.generate(route, {
-          procedureId: state.procedureId
-        })
+        url: Routing.generate(route, { procedureId: state.procedureId })
       })
         .then(this.api.checkResponse)
         .then(data => {
@@ -278,11 +275,7 @@ const Filter = {
 
       return dpApi({
         method: 'GET',
-        responseType: 'json',
-        url: Routing.generate(route, {
-          procedureId: state.procedureId,
-          filterHash: data.filterHash
-        })
+        url: Routing.generate(route, { procedureId: state.procedureId, filterHash: data.filterHash })
       })
         .then(this.api.checkResponse)
         .then(response => {
@@ -314,10 +307,7 @@ const Filter = {
     getUserFilterSetsAction ({ commit }) {
       return dpApi({
         method: 'GET',
-        url: Routing.generate(
-          'api_resource_list',
-          { resourceType: 'UserFilterSet' }
-        )
+        url: Routing.generate('api_resource_list', { resourceType: 'UserFilterSet' })
       }).then(this.api.checkResponse)
         .then(data => {
           commit('updateUserFilterSets', data)
@@ -334,7 +324,6 @@ const Filter = {
     removeUserFilterSetAction ({ commit, state }, userFilterSetId) {
       return dpApi({
         method: 'DELETE',
-        responseType: 'json',
         url: Routing.generate('dplan_api_procedure_delete_statement_filter', {
           procedureId: state.procedureId,
           filterSetId: userFilterSetId

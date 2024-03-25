@@ -413,7 +413,6 @@ export default {
     copyStatementAction ({ state }, data) {
       return dpApi({
         method: 'POST',
-        responseType: 'json',
         url: Routing.generate('dplan_api_statement_copy_to_procedure', {
           procedureId: state.procedureId,
           statementId: data.statementId,
@@ -434,11 +433,11 @@ export default {
         url: Routing.generate('dplan_api_create_group_statement', {
           procedureId: state.procedureId
         }),
+        data: { data },
         headers: {
           'Content-type': 'application/vnd.api+json',
           Accept: 'application/vnd.api+json'
-        },
-        data: { data }
+        }
       })
         .then(this.api.checkResponse)
         .then(response => {
@@ -517,7 +516,6 @@ export default {
 
       return dpApi({
         method: 'GET',
-        responseType: 'json',
         // @improve T12984
         url: Routing.generate('dplan_assessmentqueryhash_get_procedure_statement_list', {
           procedureId: data.procedureId,
@@ -656,7 +654,6 @@ export default {
     moveStatementAction ({ state }, data) {
       return dpApi({
         method: 'POST',
-        responseType: 'json',
         url: Routing.generate('dplan_api_statement_move', {
           procedureId: state.procedureId,
           statementId: data.statementId,
@@ -728,18 +725,16 @@ export default {
     setAssigneeAction ({ commit }, { statementId, assigneeId }) {
       return dpApi({
         method: 'PATCH',
-        url: Routing.generate('dplan_claim_statements_api', {
-          statementId: statementId
-        }),
-        headers: {
-          'Content-type': 'application/vnd.api+json',
-          Accept: 'application/vnd.api+json'
-        },
+        url: Routing.generate('dplan_claim_statements_api', { statementId: statementId }),
         data: {
           data: {
             type: 'user',
             id: assigneeId
           }
+        },
+        headers: {
+          'Content-type': 'application/vnd.api+json',
+          Accept: 'application/vnd.api+json'
         }
       })
         .then(this.api.checkResponse)
@@ -849,26 +844,25 @@ export default {
 
       return dpApi({
         method: 'POST',
-        data: payload,
-        responseType: 'json',
         url: Routing.generate('dplan_api_statement_edit', {
           statementId: data.data.id,
           procedureId: state.procedureId,
           include: [
-            'elements',
-            'paragraph',
-            'documents',
-            'counties',
-            'municipalities',
-            'priorityAreas',
-            'tags',
             'assignee',
             'attachments',
             'attachments.file',
+            'counties',
+            'document',
+            'elements',
             'files',
-            'fragmentsElements'
+            'fragmentsElements',
+            'municipalities',
+            'paragraph',
+            'priorityAreas',
+            'tags'
           ].join(',')
         }),
+        data: payload,
         headers: {
           'Content-type': 'application/json'
         }
@@ -914,11 +908,11 @@ export default {
         url: Routing.generate('dplan_api_update_group_statement', {
           procedureId: state.procedureId
         }),
+        data: { data },
         headers: {
           'Content-type': 'application/vnd.api+json',
           Accept: 'application/vnd.api+json'
-        },
-        data: { data }
+        }
       })
         .then(this.api.checkResponse)
         .then(response => {

@@ -154,9 +154,9 @@ export default {
       return formatBytes(byteSize).replace(/\./g, ',')
     },
 
-    nodeSelectionChange (selected) {
-      const selectedFilesIds = selected.filter(node => node.nodeType === 'leaf').map(el => el.nodeId)
-      this.selectedFiles = this.allFiles.filter(file => selectedFilesIds.includes(file.id))
+    nodeSelectionChange (selectedNodes) {
+      const selectedSingleDocuments = selectedNodes.filter(el => el.nodeType === 'leaf')
+      this.selectedFiles = selectedSingleDocuments
     },
 
     /*
@@ -190,8 +190,8 @@ export default {
         const isTopLevel = node.attributes.parentId === null
 
         // Make documents direct children of node, if there are any
-        if (node.hasRelationship('documents')) {
-          node.children = [...node.children, ...Object.values(node.relationships.documents.list())]
+        if (node.hasRelationship('visibleDocuments')) {
+          node.children = [...node.children, ...Object.values(node.relationships.visibleDocuments.list())]
         }
 
         // Push item to correct position in map
@@ -236,7 +236,7 @@ export default {
   mounted () {
     // Initially get data from endpoint
     this.elementList({
-      include: ['children', 'documents'].join(),
+      include: ['children', 'visibleDocuments'].join(),
       filter: {
         enabledElements: {
           condition: {
@@ -255,11 +255,11 @@ export default {
          * Initially get the files attached to all elements to calculate the size for all files.
          * However, this does not have to be reactive since does not change.
          */
-        this.allFiles = Object.values(this.elements).reduce((documents, element) => {
-          if (element.hasRelationship('documents')) {
-            return [...documents, ...Object.values(element.relationships.documents.list())]
+        this.allFiles = Object.values(this.elements).reduce((visibleDocuments, element) => {
+          if (element.hasRelationship('visibleDocuments')) {
+            return [...visibleDocuments, ...Object.values(element.relationships.visibleDocuments.list())]
           } else {
-            return documents
+            return visibleDocuments
           }
         }, [])
 

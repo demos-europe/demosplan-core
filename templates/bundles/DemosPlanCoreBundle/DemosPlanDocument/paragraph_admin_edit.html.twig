@@ -76,7 +76,7 @@
             procedure-id="{{ procedure }}"
             :required="true"
             :routes="{
-             getFileByHash: (hash, procedure) => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedure })
+             getFileByHash: (hash) => Routing.generate('core_file_procedure', { hash: hash, procedureId: '{{ procedure }}' })
             }"
             :toolbar-items="{
                 imageButton: true,

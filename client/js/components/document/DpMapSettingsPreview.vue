@@ -30,21 +30,20 @@
   <div class="layout--flush border--bottom u-pb">
     <div class="layout__item u-1-of-2">
       <dp-ol-map
-        :procedure-id="procedureId"
         ref="map"
-        small
         :options="{
           scaleSelect: false,
           autoSuggest: false,
           controls: [attributionControl],
-          defaultAttribution: mapAttribution,
           initView: false,
           initCenter: false,
           procedureExtent: true
-        }">
+        }"
+        :procedure-id="procedureId"
+        small>
         <dp-ol-map-layer-vector
-          class="u-mb-0_5"
           v-if="hasPermission('area_procedure_adjustments_general_location') && procedureCoordinate"
+          class="u-mb-0_5"
           :features="features.procedureCoordinate"
           name="mapSettingsPreviewCoordinate" />
         <dp-ol-map-layer-vector
@@ -56,10 +55,10 @@
         <dp-ol-map-layer-vector
           v-if="territory"
           class="u-mb-0_5"
-          :features="features.territory"
           :draw-style="drawingStyles.territory"
+          :features="features.territory"
           name="mapSettingsPreviewTerritory" />
-    </dp-ol-map>
+      </dp-ol-map>
     </div><!--
  --><div class="layout__item u-1-of-2">
       <ul>
@@ -69,34 +68,39 @@
           :key="link.tooltipContent">
           <a
             v-tooltip="Translator.trans(link.tooltipContent)"
-            :data-cy="Translator.trans(link.label)"
-            :href="href(link)"
             class="o-link"
-            :class="{'color-status-complete-text': link.done()}">
+            :class="{'color-status-complete-text': link.done()}"
+            :data-cy="Translator.trans(link.label)"
+            :href="href(link)">
             <i
+              aria-hidden="true"
               class="w-[20px]"
-              :class="{'fa fa-check color-status-complete-fill': link.done(), 'fa fa-plus': !link.done()}"
-              aria-hidden="true" />{{ link.done() ? Translator.trans(link.labelDone) : Translator.trans(link.label) }}
+              :class="{'fa fa-check color-status-complete-fill': link.done(), 'fa fa-plus': !link.done()}" />
+            {{ link.done() ?
+              Translator.trans(link.labelDone)
+              : Translator.trans(link.label)
+            }}
           </a>
         </li>
       </ul>
       <div class="layout__item u-mb-0_25 u-mt-0_25">
         <label
           class="inline-block u-1-of-3 u-mb-0"
-          for="planstatus">{{ Translator.trans('planstatus') }}</label><!--
+          for="planstatus">{{ Translator.trans('planstatus') }}
+        </label><!--
      --><div class="inline-block u-2-of-3">
         <dp-datepicker
+          id="planstatus"
           class="inline-block u-3-of-4"
           v-model="planstatus"
-          id="planstatus"
-          :disabled="!isPlanStatusEditing"
-          :calendars-before="2" /><!--
+          :calendars-before="2"
+          :disabled="!isPlanStatusEditing" /><!--
        --><div class="inline-block u-1-of-4 text-right">
             <button
-              type="button"
-              :title="Translator.trans('edit')"
               v-if="false === isPlanStatusEditing"
               class="btn--blank o-link--default"
+              :title="Translator.trans('edit')"
+              type="button"
               @click="setEditingStatus('isPlanStatusEditing', true)">
               <i
                 aria-hidden="true"
@@ -104,9 +108,9 @@
             </button>
             <button
               v-if="isPlanStatusEditing"
-              type="button"
-              :title="Translator.trans('save')"
               class="btn--blank o-link--default"
+              :title="Translator.trans('save')"
+              type="button"
               @click="updatePlanstatus">
               <i
                 aria-hidden="true"
@@ -114,9 +118,9 @@
             </button>
             <button
               v-if="isPlanStatusEditing"
-              type="button"
-              :title="Translator.trans('reset')"
               class="btn--blank o-link--default"
+              :title="Translator.trans('reset')"
+              type="button"
               @click="reset('planstatus', 'isPlanStatusEditing')">
               <i
                 aria-hidden="true"
@@ -130,21 +134,22 @@
         class="layout__item u-mb-0_25">
         <label
           class="inline-block u-1-of-3 u-mb-0"
-          for="mapStatus">{{ Translator.trans('map') }}</label><!--
+          for="mapStatus">{{ Translator.trans('map') }}
+        </label><!--
      --><div class="inline-block u-2-of-3">
 <!--
      --><div class="inline-block u-3-of-4">
           <dp-toggle
             id="mapStatus"
-            :disabled="!isMapStatusEditing"
-            v-model="isMapEnabled" />
+            v-model="isMapEnabled"
+            :disabled="!isMapStatusEditing" />
         </div><!--
        --><div class="inline-block u-1-of-4 text-right">
             <button
-              type="button"
-              :title="Translator.trans('edit')"
               v-if="false === isMapStatusEditing"
               class="btn--blank o-link--default"
+              :title="Translator.trans('edit')"
+              type="button"
               @click="setEditingStatus('isMapStatusEditing', true)">
               <i
                 aria-hidden="true"
@@ -152,9 +157,9 @@
             </button>
             <button
               v-if="isMapStatusEditing"
-              type="button"
-              :title="Translator.trans('save')"
               class="btn--blank o-link--default"
+              :title="Translator.trans('save')"
+              type="button"
               @click="updateIsMapEnabled">
               <i
                 aria-hidden="true"
@@ -162,9 +167,9 @@
             </button>
             <button
               v-if="isMapStatusEditing"
-              type="button"
-              :title="Translator.trans('reset')"
               class="btn--blank o-link--default"
+              :title="Translator.trans('reset')"
+              type="button"
               @click="reset('isMapEnabled', 'isMapStatusEditing')">
               <i
                 aria-hidden="true"
@@ -178,13 +183,15 @@
         class="layout__item">
         <label
           class="inline-block u-1-of-3 u-mb-0"
-          for="planningArea">{{ Translator.trans('planningArea') }}</label><!--
+          for="planningArea">
+          {{ Translator.trans('planningArea') }}
+        </label><!--
      --><div class="inline-block u-2-of-3">
           <select
             id="planningArea"
-            :disabled="!isPlanningAreaEditing"
+            v-model="planningArea"
             class="o-form__control-select u-3-of-4"
-            v-model="planningArea">
+            :disabled="!isPlanningAreaEditing">
             <option
               v-for="(option, idx) in planningAreaOptions"
               :key="`planning_area_${idx}`"
@@ -194,9 +201,9 @@
           </select><!--
        --><div class="inline-block u-1-of-4 text-right">
             <button
-              type="button"
-              :title="Translator.trans('edit')"
               v-if="false === isPlanningAreaEditing"
+              :title="Translator.trans('edit')"
+              type="button"
               class="btn--blank o-link--default"
               @click="setEditingStatus('isPlanningAreaEditing', true)">
               <i
@@ -205,9 +212,9 @@
             </button>
             <button
               v-if="isPlanningAreaEditing"
-              type="button"
-              :title="Translator.trans('save')"
               class="btn--blank o-link--default"
+              :title="Translator.trans('save')"
+              type="button"
               @click="updatePlanningArea">
               <i
                 aria-hidden="true"
@@ -215,9 +222,9 @@
             </button>
             <button
               v-if="isPlanningAreaEditing"
-              type="button"
-              :title="Translator.trans('reset')"
               class="btn--blank o-link--default"
+              :title="Translator.trans('reset')"
+              type="button"
               @click="reset('planningArea', 'isPlanningAreaEditing')">
               <i
                 aria-hidden="true"
@@ -248,42 +255,6 @@ export default {
   },
 
   props: {
-    mapAttribution: {
-      required: false,
-      type: String,
-      default: ''
-    },
-
-    procedureId: {
-      required: false,
-      type: String,
-      default: ''
-    },
-
-    procedureCoordinate: {
-      required: false,
-      type: String,
-      default: ''
-    },
-
-    initExtent: {
-      required: false,
-      type: String,
-      default: ''
-    },
-
-    procedureDefaultInitialExtent: {
-      type: Array,
-      required: false,
-      default: () => []
-    },
-
-    territory: {
-      required: false,
-      type: String,
-      default: ''
-    },
-
     drawing: {
       required: false,
       type: String,
@@ -296,27 +267,63 @@ export default {
       default: ''
     },
 
+    initExtent: {
+      required: false,
+      type: String,
+      default: ''
+    },
+
     isBlueprint: {
       required: false,
       type: Boolean,
       default: false
+    },
+
+    procedureCoordinate: {
+      required: false,
+      type: String,
+      default: ''
+    },
+
+    procedureDefaultInitialExtent: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
+    procedureId: {
+      required: false,
+      type: String,
+      default: ''
+    },
+
+    territory: {
+      required: false,
+      type: String,
+      default: ''
     }
   },
 
   data () {
     return {
+      drawingStyles: {
+        territory: JSON.stringify({
+          fillColor: 'rgba(0,0,0,0.1)',
+          strokeColor: '#000',
+          imageColor: '#fff',
+          strokeLineDash: [4, 4],
+          strokeLineWidth: 3
+        })
+      },
+      gislayers: false,
       isMapStatusEditing: false,
       isPlanningAreaEditing: false,
       isPlanStatusEditing: false,
       isMapEnabled: false,
       mapIdent: '',
-      planstatus: '',
       planningArea: '',
       planningAreaOptions: [],
-      gislayers: false,
-      drawingStyles: {
-        territory: JSON.stringify({ fillColor: 'rgba(0,0,0,0.1)', strokeColor: '#000', imageColor: '#fff', strokeLineDash: [4, 4], strokeLineWidth: 3 })
-      },
+      planstatus: '',
       previousValues: {
         isMapEnabled: '',
         planstatus: '',

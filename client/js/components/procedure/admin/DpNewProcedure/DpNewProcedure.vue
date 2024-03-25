@@ -112,6 +112,7 @@
           v-model="currentProcedureType"
           class="layout__item u-1-of-1 u-pl-0 u-mb inline-block"
           label="name"
+          :data-dp-validate-error-fieldname="Translator.trans('text.procedures.type')"
           :options="procedureTypes"
           required
           track-by="id">
@@ -168,10 +169,7 @@
           start-name="r_startdate"
           end-id="enddate"
           end-name="r_enddate"
-          :data-cy="{
-            endDate: 'newProcedureForm:endDate',
-            startDate: 'newProcedureForm:startDate'
-          }"
+          data-cy="newProcedureForm"
           :required="hasPermission('field_required_procedure_end_date')"
           :calendars-after="2"
           enforce-plausible-dates />

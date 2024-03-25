@@ -239,6 +239,8 @@ export default {
 
     /**
      * Construct the query object to be passed into vuex-json-api call.
+     * if the id is unassigned, then set the operator to IS NULL so that only segments with assignee null are taking.
+     * That is because the BE uses Elastic Search to make the filtering
      */
     filter () {
       const filter = {}
@@ -247,7 +249,7 @@ export default {
           condition: {
             path: this.path,
             value: id,
-            operator: this.operator
+            operator: id === 'unassigned' ? 'IS NULL' : this.operator
           }
         }
       })
@@ -399,6 +401,21 @@ export default {
                 this.itemsObject[el.id] = el
               }
             })
+
+            // If the current filter is assignee, display amount of Segments that have assignee as null. That is given by the field missingResourcesSum
+             if (result.data[0].attributes.path === 'assignee') {
+              this.$set(this.itemsObject, 'unassigned', {
+                attributes: {
+                  count: result.data[0].attributes.missingResourcesSum,
+                  label: Translator.trans('not.assigned'),
+                  ungrouped: true,
+                  selected: result.meta.unassigned_selected
+                },
+                id: 'unassigned',
+                type: 'AggregationFilterItem',
+                ungrouped: true
+              })
+            }
           }
         })
         .catch(err => console.log(err))
