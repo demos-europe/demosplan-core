@@ -253,7 +253,7 @@ export default {
       this.updatingClaimState = false
       data.organisation = data.orgaName
       delete data.orgaName
-      Vue.set(this.selected, 'assignee', data)
+      this.selected.assignee = data
     }
   }
 }

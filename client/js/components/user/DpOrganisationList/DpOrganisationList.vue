@@ -7,13 +7,6 @@
   All rights reserved
 </license>
 
-<documentation>
-  <!--
-    Component that is used to display list of editable items
-  -->
-
-</documentation>
-
 <template>
   <div class="u-mt-0_5">
     <!-- List of pending organisations (if orga-self-registration is active) -->
@@ -360,7 +353,7 @@ export default {
         this.deleteOrganisation(id)
           .then(() => {
             // Remove deleted item from itemSelections
-            Vue.delete(this.itemSelections, id)
+            delete this.itemSelections[id]
             // Confirm notification for organisations is done in BE
           })
       })

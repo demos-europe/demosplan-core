@@ -100,26 +100,9 @@ const postCssPluginsWithoutPurgeCss = [
 const moduleRules =
   [
     {
-      test: /\.vue$/,
-      loader: 'vue-loader'
-    },
-    {
-      test: /\.js$/,
-      include: transpiledModules,
-      exclude: [
-        resolveDir('demosplan/DemosPlanCoreBundle/Resources/client/js/legacy')
-      ],
-      use: {
-        loader: 'babel-loader'
-      }
-    },
-    {
-      test: /\.js$/,
-      use: ['source-map-loader'],
-      enforce: 'pre',
-      exclude: (path) => {
-        return /[\\/]node_modules[\\/]/.test(path) && !/[\\/]node_modules[\\/](@sentry|popper|portal-vue|tooltip|fscreen)/.test(path)
-      }
+      test: /\.css$/,
+      use: [MiniCssExtractPlugin.loader],
+      exclude: resolveDir('client/css/tailwind.css') // Compiling and Purging happens in Tailwind config.
     },
     {
       test: /\.s?css$/,
@@ -171,6 +154,35 @@ const moduleRules =
           }
         }
       ]
+    },
+    {
+      test: /\.vue$/,
+      loader: 'vue-loader',
+      options: {
+        compilerOptions: {
+          compatConfig: {
+            MODE: 2
+          }
+        }
+      }
+    },
+    {
+      test: /\.js$/,
+      include: transpiledModules,
+      exclude: [
+        resolveDir('demosplan/DemosPlanCoreBundle/Resources/client/js/legacy')
+      ],
+      use: {
+        loader: 'babel-loader'
+      }
+    },
+    {
+      test: /\.js$/,
+      use: ['source-map-loader'],
+      enforce: 'pre',
+      exclude: (path) => {
+        return /[\\/]node_modules[\\/]/.test(path) && !/[\\/]node_modules[\\/](@sentry|popper|tooltip|fscreen)/.test(path)
+      }
     },
     {
       test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,

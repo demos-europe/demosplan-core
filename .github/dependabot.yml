@@ -31,10 +31,6 @@ updates:
         versions:
           - ">= 16"
 
-      - dependency-name: portal-vue
-        versions:
-          - ">= 3"
-
       # Can't be used as CommonJs but only ESM which will break our FE build atm
       - dependency-name: chalk
         versions:

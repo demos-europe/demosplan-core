@@ -74,8 +74,8 @@
       :procedure-id="procedureId" />
 
     <slot
-      name="filter"
-      v-bind="{ procedureId, allItemsOnPageSelected, copyStatements }" />
+      v-bind="{ procedureId, allItemsOnPageSelected, copyStatements }"
+      name="filter" />
 
     <!-- If there are statements, display statement list -->
     <dp-loading
@@ -142,6 +142,7 @@
 import { DpLoading, DpPager } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import changeUrlforPager from '../assessmentTable/utils/changeUrlforPager'
+import { defineAsyncComponent } from 'vue'
 import DpExportModal from '@DpJs/components/statement/assessmentTable/DpExportModal'
 import OriginalStatementsTableItem from './OriginalStatementsTableItem'
 
@@ -151,11 +152,11 @@ export default {
   components: {
     DpLoading,
     DpExportModal,
-    DpInlineNotification: async () => {
+    DpInlineNotification: defineAsyncComponent(async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
       return DpInlineNotification
-    },
-    DpMapModal: () => import(/* webpackChunkName: "dp-map-modal" */ '@DpJs/components/statement/assessmentTable/DpMapModal'),
+    }),
+    DpMapModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-map-modal" */ '@DpJs/components/statement/assessmentTable/DpMapModal')),
     DpPager,
     OriginalStatementsTableItem
   },

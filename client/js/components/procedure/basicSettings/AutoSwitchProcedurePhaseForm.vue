@@ -87,7 +87,7 @@
       </div>
 
       <dp-inline-notification
-        v-if="hasPermission('feature_auto_switch_to_procedure_end_phase') && isParticipationPhaseSelected"
+        v-else-if="hasPermission('feature_auto_switch_to_procedure_end_phase') && isParticipationPhaseSelected"
         class="u-mb-0"
         :message="Translator.trans('period.autoswitch.hint', { phase: Translator.trans(isInternal ? 'procedure.phases.internal.analysis' : 'procedure.phases.external.evaluating')})"
         type="warning" />
@@ -104,6 +104,7 @@ import {
   DpSelect,
   formatDate
 } from '@demos-europe/demosplan-ui'
+import { defineAsyncComponent } from 'vue'
 
 export default {
   name: 'AutoSwitchProcedurePhaseForm',
@@ -112,10 +113,10 @@ export default {
     DpCheckbox,
     DpDateRangePicker,
     DpDatetimePicker,
-    DpInlineNotification: async () => {
+    DpInlineNotification: defineAsyncComponent(async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
       return DpInlineNotification
-    },
+    }),
     DpLabel,
     DpSelect
   },

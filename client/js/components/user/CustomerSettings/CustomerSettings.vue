@@ -251,6 +251,7 @@ import CustomerSettingsLoginSupport from './CustomerSettingsLoginSupport'
 import CustomerSettingsSection from './CustomerSettingsSection'
 import CustomerSettingsSignLanguageVideo from './CustomerSettingsSignLanguageVideo'
 import CustomerSettingsSupport from './CustomerSettingsSupport'
+import { defineAsyncComponent } from 'vue'
 
 export default {
   name: 'CustomerSettings',
@@ -259,16 +260,16 @@ export default {
     DpButtonRow,
     CustomerSettingsBranding,
     CustomerSettingsLoginSupport,
-    CustomerSettingsMap: () => import('./CustomerSettingsMap'),
+    CustomerSettingsMap: defineAsyncComponent(() => import('./CustomerSettingsMap')),
     CustomerSettingsSection,
     CustomerSettingsSignLanguageVideo,
     CustomerSettingsSupport,
     DpLabel,
     DpLoading,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    }
+    })
   },
 
   mixins: [dpValidateMixin],

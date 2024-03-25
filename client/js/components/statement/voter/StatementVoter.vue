@@ -428,7 +428,7 @@ export default {
     this.anonymVotes = parseInt(this.anonymVotesString)
   },
 
-  beforeDestroy () {
+  beforeUnmount () {
     // Remove event listener from statement voter div
     if (document.getElementById('statementVoterDiv')) {
       document.getElementById('statementVoterDiv').removeEventListener('keydown', preventSend, false)

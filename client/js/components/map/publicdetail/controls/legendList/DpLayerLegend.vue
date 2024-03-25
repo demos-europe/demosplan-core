@@ -84,11 +84,15 @@ export default {
       default: () => ({})
     },
 
-  procedureId: {
-    type: String,
-    required: true
-  }
+    procedureId: {
+      type: String,
+      required: true
+    }
   },
+
+  emits: [
+    'layer-legend:unfolded'
+  ],
 
   data () {
     return {

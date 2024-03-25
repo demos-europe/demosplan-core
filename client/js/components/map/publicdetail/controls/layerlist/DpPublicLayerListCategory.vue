@@ -90,6 +90,13 @@ export default {
     }
   },
 
+  emits: [
+    'layer:hideOtherCategories',
+    'layer:showParent',
+    'layer:toggleChildCategories',
+    'layer:toggleChildLayer'
+  ],
+
   data () {
     return {
       isVisible: true,

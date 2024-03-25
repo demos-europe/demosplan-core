@@ -72,7 +72,7 @@ export default {
              */
             // eslint-disable-next-line no-eval
             eval(content)
-            this.$options.components[addon.entry] = window[addon.entry].default
+            this.$.appContext.components[addon.entry] = window[addon.entry].default
 
             this.component = window[addon.entry].default
 

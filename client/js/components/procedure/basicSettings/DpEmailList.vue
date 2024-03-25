@@ -88,10 +88,13 @@ export default {
   },
 
   watch: {
-    initEmails (newVal) {
-      if (this.allowUpdatesFromOutside) {
-        this.emails = newVal
-      }
+    initEmails: {
+      handler (newVal) {
+        if (this.allowUpdatesFromOutside) {
+          this.emails = newVal
+        }
+      },
+      deep: true
     }
   },
 

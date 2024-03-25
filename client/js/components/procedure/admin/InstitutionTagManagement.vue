@@ -15,6 +15,7 @@
     @change="setActiveTabId">
     <dp-tab
       id="institutionList"
+      :is-active="activeTabId === 'institutionList'"
       :label="Translator.trans('invitable_institution.group')">
       <slot>
         <InstitutionList />
@@ -22,6 +23,7 @@
     </dp-tab>
     <dp-tab
       id="tagList"
+      :is-active="activeTabId === 'tagList'"
       :label="Translator.trans('tag.administrate')">
       <slot>
         <TagList v-on:tagIsRemoved="institutionListReset" />

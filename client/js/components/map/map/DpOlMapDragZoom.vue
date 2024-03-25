@@ -28,6 +28,10 @@ export default {
 
   mixins: [prefixClassMixin],
 
+  emits: [
+    'tool:activated'
+  ],
+
   data () {
     return {
       active: false,

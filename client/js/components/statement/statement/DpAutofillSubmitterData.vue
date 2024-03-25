@@ -27,21 +27,21 @@
       <p class="lbl u-mb-0_5">
         {{ Translator.trans('submitted.author') }}
       </p>
-      <template v-for="role in roles">
-        <span :key="role.value">
-          <input
-            type="radio"
-            name="r_role"
-            :value="role.value"
-            @change="() => $emit('role-changed', currentRole)"
-            :id="`r_role_${role.value}`"
-            v-model="currentRole"><!--
-       --><label
-            class="lbl--text inline-block u-mb-0_5 u-pr u-ml-0_25"
-            :for="`r_role_${role.value}`">
-            {{ Translator.trans(role.label) }}
-          </label>
-        </span>
+      <template
+        v-for="role in roles"
+        :key="role.value">
+        <input
+          type="radio"
+          name="r_role"
+          :value="role.value"
+          @change="() => $emit('role-changed', currentRole)"
+          :id="`r_role_${role.value}`"
+          v-model="currentRole"><!--
+     --><label
+          class="lbl--text inline-block u-mb-0_5 u-pr u-ml-0_25"
+          :for="`r_role_${role.value}`">
+          {{ Translator.trans(role.label) }}
+        </label>
       </template>
     </div><!--
     Assuming t_role defaults to value=0 if feature_institution_participation is set to false:
@@ -140,9 +140,9 @@
       :key="idx">
       <dp-input
         v-for="(element, index) in generalElements(idx)"
+        v-bind="element"
         class="layout__item u-1-of-2 u-mb-0_75"
-        :key="`${element.id}_${index}`"
-        v-bind="element" />
+        :key="`${element.id}_${index}`" />
     </div>
   </div>
 </template>

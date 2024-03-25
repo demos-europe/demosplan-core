@@ -8,7 +8,6 @@
  */
 
 import { checkResponse, dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
-import { del, set } from 'vue'
 
 export default {
   namespaced: true,
@@ -61,7 +60,7 @@ export default {
      * @param {Object} fragment
      */
     addFragmentToSelection (state, fragment) {
-      set(state.selectedFragments, [fragment.id], fragment)
+      state.selectedFragments[fragment.id] = fragment
     },
 
     /**
@@ -88,10 +87,10 @@ export default {
 
       const fragments = { ...state.fragments }
       fragments[ids.statementId] = statementObj
-      set(state, 'fragments', fragments)
+      state.fragments = fragments
 
       if (hasOwnProp(state.selectedFragments, ids.fragmentId)) {
-        del(state.selectedFragments, ids.fragmentId)
+        delete state.selectedFragments[ids.fragmentId]
         state.selectedFragments = { ...state.selectedFragments }
       }
 
@@ -117,7 +116,7 @@ export default {
           }
         }
       }
-      set(state.fragments, statementId, fragments)
+      state.fragments[statementId] = fragments
     },
 
     /**
@@ -125,7 +124,7 @@ export default {
      * @param {String} fragmentId
      */
     removeFragmentFromSelection (state, fragmentId) {
-      del(state.selectedFragments, fragmentId)
+      delete state.selectedFragments[fragmentId]
     },
 
     /**
@@ -133,7 +132,7 @@ export default {
      * @param {Array} initFragments
      */
     setInitFragments (state, initFragments) {
-      set(state, 'initFragments', initFragments)
+      state.initFragments = initFragments
     },
 
     /**
@@ -163,7 +162,7 @@ export default {
 
       // If fragment to update is selected and assignee or editableState is changed, we have to set it also in session storage
       if (hasOwnProp(data, 'assignee') && hasOwnProp(state.selectedFragments, data.fragmentId)) {
-        set(state.selectedFragments[data.fragmentId], 'assignee', data.assignee)
+        state.selectedFragments[data.fragmentId].assignee = data.assignee
         state.selectedFragments = { ...state.selectedFragments }
 
         const selectedEntries = JSON.parse(sessionStorage.getItem('selectedFragments')) || {}
