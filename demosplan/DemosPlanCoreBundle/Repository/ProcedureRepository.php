@@ -136,7 +136,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
      *
      * @throws Exception
      */
-    public function getFullList(bool $master = null, bool $idsOnly = false): array
+    public function getFullList(?bool $master = null, bool $idsOnly = false): array
     {
         try {
             $em = $this->getEntityManager();
@@ -1176,6 +1176,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
 
     /**
      * @return array<int, Procedure>
+     *
      * @throws PaginationException
      * @throws PathException
      * @throws SortException
@@ -1206,14 +1207,12 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
 
             if ($internal) {
                 $hits = collect($procedures)->filter(
-                    static fn(Procedure $procedure): bool =>
-                        $procedure->getEndDate() < $currentDate
+                    static fn (Procedure $procedure): bool => $procedure->getEndDate() < $currentDate
                         && $phaseKeys->contains($procedure->getPhase())
                 );
             } else {
                 $hits = collect($procedures)->filter(
-                    static fn(Procedure $procedure): bool =>
-                        $procedure->getPublicParticipationEndDate() < $currentDate
+                    static fn (Procedure $procedure): bool => $procedure->getPublicParticipationEndDate() < $currentDate
                         && $phaseKeys->contains($procedure->getPublicParticipationPhase())
                 );
             }

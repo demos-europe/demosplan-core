@@ -482,8 +482,6 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     }
 
     /**
-     * @param bool $asArray
-     *
      * @return Procedure[]|array[]
      *
      * @throws Exception
