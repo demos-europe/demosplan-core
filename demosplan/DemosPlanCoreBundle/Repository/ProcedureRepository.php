@@ -52,6 +52,9 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\TransactionRequiredException;
+use EDT\Querying\Contracts\PaginationException;
+use EDT\Querying\Contracts\PathException;
+use EDT\Querying\Contracts\SortException;
 use EDT\Querying\FluentQueries\FluentQuery;
 use Exception;
 use Symfony\Component\Validator\Validation;
@@ -1172,34 +1175,50 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
     }
 
     /**
-     * @param bool $internal
-     * @param bool $asArray
-     *
-     * @return Procedure[]|array[]
+     * @return array<int, Procedure>
+     * @throws PaginationException
+     * @throws PathException
+     * @throws SortException
+     */
+    public function getUndeletedProcedures(): array
+    {
+        $query = $this->createFluentQuery();
+        $query->getConditionDefinition()
+            ->propertyHasValue(false, ['deleted'])
+            ->propertyHasValue(false, ['master'])
+            ->propertyHasValue(false, ['masterTemplate'])
+            ->anyConditionApplies();
+
+        return $query->getEntities();
+    }
+
+    /**
+     * @return array<int, Procedure>
      *
      * @throws Exception
      */
-    public function getProceduresWithEndedParticipation(array $phaseKeys, $internal = true, $asArray = false): array
+    public function getProceduresWithEndedParticipation(array $phaseKeys, bool $internal = true): array
     {
         try {
             $currentDate = new DateTime();
-            $endDate = $internal ? 'procedure.endDate' : 'procedure.publicParticipationEndDate';
-            $phase = $internal ? 'procedure.phase' : 'procedure.publicParticipationPhase';
+            $procedures = $this->getUndeletedProcedures();
+            $phaseKeys = collect($phaseKeys);
 
-            $query = $this->getEntityManager()
-                ->createQueryBuilder()
-                ->select('procedure')
-                ->from(Procedure::class, 'procedure')
-                ->where('procedure.deleted = 0')
-                ->andWhere('procedure.master = 0')
-                ->andWhere($endDate.' < :currentDate')
-                ->andWhere($phase.' IN (:phaseKeys)')
-                ->setParameter('currentDate', $currentDate)
-                ->setParameter('phaseKeys', $phaseKeys, Connection::PARAM_STR_ARRAY)
-                ->orderBy($endDate, 'desc')
-                ->getQuery();
+            if ($internal) {
+                $hits = collect($procedures)->filter(
+                    static fn(Procedure $procedure): bool =>
+                        $procedure->getEndDate() < $currentDate
+                        && $phaseKeys->contains($procedure->getPhase())
+                );
+            } else {
+                $hits = collect($procedures)->filter(
+                    static fn(Procedure $procedure): bool =>
+                        $procedure->getPublicParticipationEndDate() < $currentDate
+                        && $phaseKeys->contains($procedure->getPublicParticipationPhase())
+                );
+            }
 
-            return $asArray ? $query->getArrayResult() : $query->getResult();
+            return $hits->toArray();
         } catch (Exception $e) {
             $this->getLogger()->warning('getListOfEndedYesterday failed Reason: ', [$e]);
             throw $e;

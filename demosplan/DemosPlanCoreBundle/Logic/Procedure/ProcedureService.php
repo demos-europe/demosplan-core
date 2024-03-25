@@ -488,9 +488,9 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @throws Exception
      */
-    public function getProceduresWithEndedParticipation(array $writePhaseKeys, bool $internal = true, $asArray = false): array
+    public function getProceduresWithEndedParticipation(array $writePhaseKeys, bool $internal = true): array
     {
-        return $this->procedureRepository->getProceduresWithEndedParticipation($writePhaseKeys, $internal, $asArray);
+        return $this->procedureRepository->getProceduresWithEndedParticipation($writePhaseKeys, $internal);
     }
 
     public function getAmountOfProcedures(): int
