@@ -9,7 +9,8 @@
 
 <template>
   <div
-    v-if="false === hidden">
+    v-if="false === hidden"
+    :data-cy="generateDataCy(filterItem.attributes.name, filterItem.attributes.label)">
     <label
       :for="filterItem.id"
       class="layout__item u-1-of-3 u-pl-0 text-right">
@@ -41,7 +42,7 @@
             <template v-slot:tag="{ props }">
               <span
                 class="multiselect__tag"
-                :data-cy="'tag-' + generateDataCy(filterItem.attributes.name, props.option)">
+                :data-cy="'tag-' + generateDataCy(filterItem.attributes.name, props.option.label)">
                 <span>
                   {{ props.option.label }}
                   <template v-if="'fragment' !== filterGroup.type">
@@ -73,7 +74,7 @@
             <!-- selectable options -->
             <template
               v-slot:option="{ props }">
-              <span :data-cy="'option-' + generateDataCy(filterItem.attributes.name, props.option)">
+              <span :data-cy="'option-' + generateDataCy(filterItem.attributes.name, props.option.label)">
                 {{ props.option.label }}
               </span>
               <template v-if="'fragment' !== filterGroup.type">
@@ -199,7 +200,7 @@ export default {
     ]),
 
     generateDataCy (name, option) {
-      return name + '-' + option.label.replace(/\s+/g, '-').toLowerCase()
+      return name + '-' + option.replace(/\s+/g, '-').toLowerCase()
     },
 
     /**
