@@ -32,12 +32,30 @@ class Version20240321192129 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $this->addSql('ALTER TABLE _procedure DROP _p_phase, DROP _p_step, DROP _p_public_participation_phase, DROP _p_public_participation_step, DROP _p_public_participation_start, DROP _p_public_participation_end, DROP _p_start_date, DROP _p_end_date');
+        $this->addSql('
+            ALTER TABLE _procedure
+            DROP _p_phase,
+            DROP _p_step,
+            DROP _p_public_participation_phase,
+            DROP _p_public_participation_step,
+            DROP _p_public_participation_start,
+            DROP _p_public_participation_end,
+            DROP _p_start_date,
+            DROP _p_end_date
+        ');
+
         $this->addSql('ALTER TABLE _procedure_settings DROP FOREIGN KEY FK_9C04F53DF3EE7A28');
         $this->addSql('ALTER TABLE _procedure_settings DROP FOREIGN KEY FK_9C04F53DCBD82728');
         $this->addSql('DROP INDEX IDX_9C04F53DCBD82728 ON _procedure_settings');
         $this->addSql('DROP INDEX IDX_9C04F53DF3EE7A28 ON _procedure_settings');
-        $this->addSql('ALTER TABLE _procedure_settings DROP designated_phase_change_user_id, DROP designated_public_phase_change_user_id, DROP _ps_designated_phase, DROP _ps_designated_public_phase');
+
+        $this->addSql('
+            ALTER TABLE _procedure_settings
+            DROP designated_phase_change_user_id,
+            DROP designated_public_phase_change_user_id,
+            DROP _ps_designated_phase,
+            DROP _ps_designated_public_phase
+        ');
     }
 
     /**
@@ -47,12 +65,47 @@ class Version20240321192129 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $this->addSql('ALTER TABLE _procedure_settings ADD designated_phase_change_user_id CHAR(36) DEFAULT NULL, ADD designated_public_phase_change_user_id CHAR(36) DEFAULT NULL, ADD _ps_designated_phase VARCHAR(50) DEFAULT NULL, ADD _ps_designated_public_phase VARCHAR(50) DEFAULT NULL');
-        $this->addSql('ALTER TABLE _procedure_settings ADD CONSTRAINT FK_9C04F53DF3EE7A28 FOREIGN KEY (designated_public_phase_change_user_id) REFERENCES _user (_u_id) ON DELETE SET NULL');
-        $this->addSql('ALTER TABLE _procedure_settings ADD CONSTRAINT FK_9C04F53DCBD82728 FOREIGN KEY (designated_phase_change_user_id) REFERENCES _user (_u_id) ON DELETE SET NULL');
-        $this->addSql('CREATE INDEX IDX_9C04F53DCBD82728 ON _procedure_settings (designated_phase_change_user_id)');
-        $this->addSql('CREATE INDEX IDX_9C04F53DF3EE7A28 ON _procedure_settings (designated_public_phase_change_user_id)');
-        $this->addSql('ALTER TABLE _procedure ADD _p_phase VARCHAR(255) NOT NULL, ADD _p_step VARCHAR(25) DEFAULT \'\' NOT NULL, ADD _p_public_participation_phase VARCHAR(255) NOT NULL, ADD _p_public_participation_step VARCHAR(25) DEFAULT \'\' NOT NULL, ADD _p_public_participation_start DATETIME NOT NULL, ADD _p_public_participation_end DATETIME NOT NULL, ADD _p_start_date DATETIME NOT NULL, ADD _p_end_date DATETIME NOT NULL');
+        $this->addSql('
+            ALTER TABLE _procedure_settings
+            ADD designated_phase_change_user_id CHAR(36) DEFAULT NULL
+            ADD designated_public_phase_change_user_id CHAR(36) DEFAULT NULL,
+            ADD _ps_designated_phase VARCHAR(50) DEFAULT NULL,
+            ADD _ps_designated_public_phase VARCHAR(50) DEFAULT NULL
+        ');
+
+        $this->addSql('
+            ALTER TABLE _procedure_settings
+            ADD CONSTRAINT FK_9C04F53DF3EE7A28 FOREIGN KEY ( designated_public_phase_change_user_id )
+            REFERENCES _user (_u_id) ON DELETE SET NULL
+        ');
+
+        $this->addSql('
+            ALTER TABLE _procedure_settings
+            ADD CONSTRAINT FK_9C04F53DCBD82728 FOREIGN KEY (designated_phase_change_user_id)
+            REFERENCES _user (_u_id) ON DELETE SET NULL
+        ');
+
+        $this->addSql('
+            CREATE INDEX IDX_9C04F53DCBD82728 ON _procedure_settings
+            (designated_phase_change_user_id)
+        ');
+
+        $this->addSql('
+            CREATE INDEX IDX_9C04F53DF3EE7A28 ON _procedure_settings
+            (designated_public_phase_change_user_id)
+        ');
+
+        $this->addSql('
+            ALTER TABLE _procedure
+            ADD _p_phase VARCHAR(255) NOT NULL,
+            ADD _p_step VARCHAR(25) DEFAULT \'\' NOT NULL,
+            ADD _p_public_participation_phase VARCHAR(255) NOT NULL,
+            ADD _p_public_participation_step VARCHAR(25) DEFAULT \'\' NOT NULL,
+            ADD _p_public_participation_start DATETIME NOT NULL,
+            ADD _p_public_participation_end DATETIME NOT NULL,
+            ADD _p_start_date DATETIME NOT NULL,
+            ADD _p_end_date DATETIME NOT NULL
+        ');
     }
 
     /**
