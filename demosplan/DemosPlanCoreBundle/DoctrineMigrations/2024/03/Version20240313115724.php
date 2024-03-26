@@ -35,7 +35,7 @@ class Version20240313115724 extends AbstractMigration
             CREATE TABLE procedure_phase
                 (id CHAR(36) NOT NULL,
                 designated_phase_change_user_id CHAR(36) DEFAULT NULL,
-                `key` VARCHAR(255) NOT NULL,
+                phase_key VARCHAR(255) NOT NULL,
                 step VARCHAR(25) DEFAULT \'\' NOT NULL,
                 start_date DATETIME NOT NULL, end_date DATETIME NOT NULL,
                 creation_date DATETIME NOT NULL, modification_date DATETIME NOT NULL,

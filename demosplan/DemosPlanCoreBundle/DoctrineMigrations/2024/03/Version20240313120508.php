@@ -66,7 +66,7 @@ class Version20240313120508 extends AbstractMigration
             'INSERT INTO procedure_phase SET
                 `id` = :uuid,
                 `designated_phase_change_user_id` = :designated_phase_change_user_id,
-                `key` = :key,
+                `phase_key` = :key,
                 `step` = :step,
                 `start_date` = :start_date,
                 `end_date` = :end_date,
@@ -103,7 +103,7 @@ class Version20240313120508 extends AbstractMigration
             'INSERT INTO procedure_phase SET
                 `id` = :uuid,
                 `designated_phase_change_user_id` = :designated_phase_change_user_id,
-                `key` = :key,
+                `phase_key` = :key,
                 `step` = :step,
                 `start_date` = :start_date,
                 `end_date` = :end_date,

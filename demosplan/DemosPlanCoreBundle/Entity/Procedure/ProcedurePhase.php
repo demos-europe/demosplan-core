@@ -48,7 +48,7 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     protected string $name = '';
 
     /**
-     * @ORM\Column(type="string", nullable=false)
+     * @ORM\Column(name="phase_key", type="string", nullable=false)
      */
     protected string $key;
 
