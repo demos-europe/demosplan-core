@@ -263,7 +263,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         }
 
         if ($this->currentUser->hasPermission('area_admin_statement_list')) {
-            $configBuilder->internId->readable(true)->filterable()->sortable();
+            $configBuilder->internId->readable(true)->sortable();
         }
 
         if ($this->currentUser->hasPermission('area_statement_segmentation')) {
