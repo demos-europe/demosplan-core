@@ -21,7 +21,8 @@ class Version20240321192129 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'refs T36340: Extract phase of an procedure into own entity. Step4: Remove obsolete fields of procedure table.';
+        return 'refs T36340: Extract phase of an procedure into own entity.
+         Step4: Remove obsolete fields of procedure table.';
     }
 
     /**
