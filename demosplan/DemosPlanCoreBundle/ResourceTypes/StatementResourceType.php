@@ -260,6 +260,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->assignee->readable()->filterable();
             $configBuilder->authorName->readable(true)->filterable();
             $configBuilder->submitName->readable(true)->filterable()->sortable();
+            $configBuilder->internId->readable(true)->filterable()->sortable();
         }
 
         if ($this->currentUser->hasPermission('area_statement_segmentation')) {
