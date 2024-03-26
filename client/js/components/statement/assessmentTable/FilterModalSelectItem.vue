@@ -10,7 +10,7 @@
 <template>
   <div
     v-if="false === hidden"
-    :data-cy="generateDataCy(filterItem.attributes.name, filterItem.attributes.label)">
+    :data-cy="filterItem.attributes.label">
     <label
       :for="filterItem.id"
       class="layout__item u-1-of-3 u-pl-0 text-right">
