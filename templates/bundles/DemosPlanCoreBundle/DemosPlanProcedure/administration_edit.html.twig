@@ -490,9 +490,9 @@
                                         data-cy-end-date="administrationEditForm:designatedEndDate"
                                         data-cy-start-date="administrationEditForm:designatedStartDate"
                                         class="u-mb"
-                                        end-date="{{ proceduresettings.settings.designatedEndDate|default|dplanDate }}"
-                                        init-selected-phase="{{ proceduresettings.settings.designatedPhase }}"
-                                        init-switch-date="{{ proceduresettings.settings.designatedSwitchDate|default|isoDate }}"
+                                        end-date="{{ proceduresettings.phaseObject.designatedEndDate|default|dplanDate }}"
+                                        init-selected-phase="{{ proceduresettings.phaseObject.designatedPhase }}"
+                                        init-switch-date="{{ proceduresettings.phaseObject.designatedSwitchDate|default|isoDate }}"
                                         is-internal
                                         min-switch-date="{{ 'now'|date('d.m.Y') }}"
                                         :selected-current-phase="selectedInternalPhase">
@@ -624,9 +624,9 @@
                                         data-cy-end-date="administrationEditForm:designatedPublicEndDate"
                                         data-cy-start-date="administrationEditForm:designatedPublicStartDate"
                                         class="u-mb"
-                                        end-date="{{ proceduresettings.settings.designatedPublicEndDate|default|dplanDate }}"
-                                        init-selected-phase="{{ proceduresettings.settings.designatedPublicPhase }}"
-                                        init-switch-date="{{ proceduresettings.settings.designatedPublicSwitchDate|default|isoDate }}"
+                                        end-date="{{ proceduresettings.publicParticipationPhaseObject.designatedEndDate|default|dplanDate }}"
+                                        init-selected-phase="{{ proceduresettings.publicParticipationPhaseObject.designatedPhase }}"
+                                        init-switch-date="{{ proceduresettings.publicParticipationPhaseObject.designatedSwitchDate|default|isoDate }}"
                                         min-switch-date="{{ 'now'|date('d.m.Y') }}"
                                         :selected-current-phase="selectedPublicPhase">
                                     </auto-switch-procedure-phase-form>
