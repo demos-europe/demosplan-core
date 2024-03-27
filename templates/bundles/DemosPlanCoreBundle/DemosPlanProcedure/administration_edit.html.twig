@@ -384,29 +384,49 @@
 
                                 {% if hasPermission('feature_procedure_change_phase') %}
                                     <div class="u-mb">
-                                        <label class="inline-block u-mb-0" for="r_phase">
-                                            {{ "procedure.phase.institutions"|trans }}*
-                                        </label>
-                                        {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                                            helpText: 'text.procedure.edit.internal.change_phase'|trans,
-                                            cssClasses:'u-mt-0_125',
-                                            showPlainHint: true
-                                        } %}
-                                        <select
-                                            class="o-form__control-select"
-                                            id="r_phase"
-                                            v-model="selectedInternalPhase"
-                                            data-cy="r_phase"
-                                            name="r_phase">
-                                            {% for internalPhase in templateVars.internalPhases %}
-                                                <option
-                                                    value="{{ internalPhase.key }}"{% if proceduresettings.phase == internalPhase.key %}
-                                                    selected="selected"{% endif %}
-                                                    data-permissionset="{{ internalPhase.permissionset }}">
-                                                    {{ internalPhase.name }}
-                                                </option>
-                                            {% endfor %}
-                                        </select>
+                                        <div class="flex gap-2">
+                                            <div class="w-8/12 inline-block">
+                                                <label class="inline-block mb-0.5" for="r_phase">
+                                                    {{ "procedure.phase.institutions"|trans }}*
+                                                </label>
+                                                {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
+                                                    helpText: 'text.procedure.edit.internal.change_phase'|trans,
+                                                    showPlainHint: true
+                                                } %}
+
+                                                <select
+                                                    class="o-form__control-select"
+                                                    id="r_phase"
+                                                    v-model="selectedInternalPhase"
+                                                    data-cy="r_phase"
+                                                    name="r_phase">
+                                                    {% for internalPhase in templateVars.internalPhases %}
+                                                        <option
+                                                            value="{{ internalPhase.key }}"{% if proceduresettings.phase == internalPhase.key %}
+                                                            selected="selected"{% endif %}
+                                                            data-permissionset="{{ internalPhase.permissionset }}">
+                                                            {{ internalPhase.name }}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+
+                                            <div class="w-4/12 inline-block relative">
+                                                {{ uiComponent('form.element', {
+                                                    label: {
+                                                        text: 'procedure.phase.phasecounter'|trans,
+                                                        tooltip: 'text.procedure.phasecounter'|trans
+                                                    },
+                                                    control: {
+                                                        name: 'r_internalPhaseCount',
+                                                        value: '## Hier kommt etwas aus dem BE'
+                                                    },
+                                                    id: 'r_internalPhaseCount',
+                                                    type: 'text',
+                                                    required: true,
+                                                }) }}
+                                            </div>
+                                        </div>
 
                                         {{ uiComponent('inline-notification', {
                                             message: 'explanation.procedure.internal.permissions'|trans ~ '<span data-procedure-permission-set></span>',
@@ -434,16 +454,6 @@
                                         cssClasses:'u-mt-0_125',
                                         showPlainHint: true
                                     } %}
-                                    <input
-                                        id="r_institutionPhasecounter"
-                                        class="o-form__control-input w-full"
-                                        name="r_phasecounter"
-                                        data-cy="procedurePhasecounter"
-                                        data-dp-validate-error-fieldname="{{ "procedure.phase.phasecounter"|trans }}"
-                                        type="number"
-                                        pattern="^[0-9]"
-                                        value="" {#{{ proceduresettings.phasecounter }}#}
-                                        required>
                                 </div>
 
                                 {% if hasPermission('feature_procedure_legal_notice_read') %}
@@ -566,26 +576,47 @@
                                 {# phase for public participation #}
                                 {% if hasPermission('feature_procedure_change_phase') %}
                                     <div>
-                                        <label class="inline-block u-mb-0" for="r_publicParticipationPhase">
-                                            {{ "procedure.public.phase"|trans }}*
-                                        </label>
-                                        {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                                            helpText: 'text.procedure.edit.external.change_phase'|trans,
-                                            cssClasses:'u-mt-0_125',
-                                            showPlainHint: true
-                                        } %}
-                                        <select
-                                            id="r_publicParticipationPhase"
-                                            class="o-form__control-select"
-                                            data-cy="r_publicParticipationPhase"
-                                            v-model="selectedPublicPhase"
-                                            name="r_publicParticipationPhase">
-                                            {% for externalPhase in templateVars.externalPhases %}
-                                                <option value="{{ externalPhase.key }}"{% if proceduresettings.publicParticipationPhase == externalPhase.key %} selected="selected"{% endif %} data-permissionset="{{ externalPhase.permissionset }}">
-                                                    {{ externalPhase.name }}
-                                                </option>
-                                            {% endfor %}
-                                        </select>
+                                        <div class="flex gap-2">
+                                            <div class="w-8-12">
+                                                <label class="inline-block mb-0.5" for="r_publicParticipationPhase">
+                                                    {{ "procedure.public.phase"|trans }}*
+                                                </label>
+                                                {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
+                                                    helpText: 'text.procedure.edit.external.change_phase'|trans,
+                                                    cssClasses:'u-mt-0_125',
+                                                    showPlainHint: true
+                                                } %}
+                                                <select
+                                                    id="r_publicParticipationPhase"
+                                                    class="o-form__control-select u-11-of-12"
+                                                    data-cy="r_publicParticipationPhase"
+                                                    v-model="selectedPublicPhase"
+                                                    name="r_publicParticipationPhase">
+                                                    {% for externalPhase in templateVars.externalPhases %}
+                                                        <option value="{{ externalPhase.key }}"{% if proceduresettings.publicParticipationPhase == externalPhase.key %} selected="selected"{% endif %} data-permissionset="{{ externalPhase.permissionset }}">
+                                                            {{ externalPhase.name }}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+
+                                            {# @todo Permission Missing #}
+                                            <div class="w-4/12 inline-block relative">
+                                                {{ uiComponent('form.element', {
+                                                    label: {
+                                                        text: 'procedure.phase.phasecounter'|trans,
+                                                        tooltip: 'text.procedure.phasecounter'|trans
+                                                    },
+                                                    control: {
+                                                        name: 'r_externalPhaseCount',
+                                                        value: '## Hier kommt etwas aus dem BE'
+                                                    },
+                                                    id: 'r_externalPhaseCount',
+                                                    type: 'text',
+                                                    required: true,
+                                                }) }}
+                                            </div>
+                                        </div>
 
                                         {{ uiComponent('inline-notification', {
                                             message: 'explanation.procedure.external.permissions'|trans ~ '<span data-procedure-permission-set></span>',
@@ -601,29 +632,6 @@
                                         {% endif %}
                                     </div>
                                 {% endif %}
-
-                                {# Durchgangsnummer für Öffentlichkeit #}
-                                {# hier benötigt man ein permission #}
-                                <div class="u-mb">
-                                    <label class="inline-block u-mb-0" for="r_externPhasecounter">
-                                        {{ "procedure.phase.phasecounter"|trans }}*
-                                    </label>
-                                    {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                                        helpText: 'text.procedure.phasecounter'|trans,
-                                        cssClasses:'u-mt-0_125',
-                                        showPlainHint: true
-                                    } %}
-                                    <input
-                                        id="r_externPhasecounter"
-                                        class="o-form__control-input w-full"
-                                        name="r_phasecounter"
-                                        data-cy="procedurePhasecounter"
-                                        data-dp-validate-error-fieldname="{{ "procedure.phase.phasecounter"|trans }}"
-                                        type="number"
-                                        pattern="^[0-9]"
-                                        value="" {#{{ proceduresettings.phasecounter }}#}
-                                        required>
-                                </div>
 
                                 {# start/end date for public participation #}
                                 <div>
