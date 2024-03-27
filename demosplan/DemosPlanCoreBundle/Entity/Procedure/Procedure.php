@@ -2233,4 +2233,22 @@ class Procedure extends SluggedEntity implements ProcedureInterface
             $this->segmentPlaces->add($place);
         }
     }
+
+    /**
+     * This is only needed to clone a procedure incl. phase
+     * in order to create an "image" of the procedure before its update.
+     */
+    public function setPhaseObject(ProcedurePhaseInterface $phase): void
+    {
+        $this->phase = $phase;
+    }
+
+    /**
+     * This is only needed to clone a procedure incl. phase
+     * in order to create an "image" of the procedure before its update.
+     */
+    public function setPublicParticipationPhaseObject(ProcedurePhaseInterface $publicParticipationPhase): void
+    {
+        $this->publicParticipationPhase = $publicParticipationPhase;
+    }
 }

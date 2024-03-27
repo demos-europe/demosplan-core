@@ -2473,11 +2473,21 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         return $isInCustomer;
     }
 
+    /**
+     * The purpose of the copy is to be able to create a diff for report entries.
+     */
     private function cloneProcedure(Procedure $procedure): Procedure
     {
         $procedureClone = clone $procedure;
+
         $settingsClone = clone $procedureClone->getSettings();
         $procedureClone->setSettings($settingsClone);
+        $settingsClone->setProcedure($procedureClone);
+
+        $phaseClone = clone $procedure->getPhaseObject();
+        $procedureClone->setPhaseObject($phaseClone);
+        $publicParticipationPhaseClone = clone $procedure->getPublicParticipationPhaseObject();
+        $procedureClone->setPublicParticipationPhaseObject($publicParticipationPhaseClone);
 
         return $procedureClone;
     }
