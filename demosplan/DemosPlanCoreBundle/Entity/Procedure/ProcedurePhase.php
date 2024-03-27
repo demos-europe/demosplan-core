@@ -234,11 +234,6 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
         $this->designatedEndDate = $designatedEndDate;
     }
 
-    public function __toString(): string
-    {
-        return $this->getKey();
-    }
-
     public function getStep(): string
     {
         return $this->step;
