@@ -32,6 +32,7 @@
           <input
             type="radio"
             name="r_role"
+            :data-cy="role.label"
             :value="role.value"
             @change="() => $emit('role-changed', currentRole)"
             :id="`r_role_${role.value}`"
