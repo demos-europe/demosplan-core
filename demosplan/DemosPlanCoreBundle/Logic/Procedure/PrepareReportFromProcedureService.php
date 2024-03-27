@@ -137,7 +137,7 @@ class PrepareReportFromProcedureService extends CoreService
     }
 
     /**
-     * Create a Report.
+     * Detect diff and create a report for detected diffs.
      *
      * @throws Exception
      */

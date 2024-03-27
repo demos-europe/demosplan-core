@@ -23,35 +23,30 @@ use EDT\PathBuilding\End;
  *
  * @template-extends DplanResourceType<Procedure>
  *
- * @property-read StatementResourceType $statements
- * @property-read End                   $name
- * @property-read End                   $createdDate
- * @property-read End                   $creationDate
- * @property-read End                   $deleted
- * @property-read OrgaResourceType      $planningOffices
- * @property-read OrgaResourceType      $orga
- * @property-read End                   $master
- * @property-read UserResourceType      $authorizedUsers
- * @property-read End                   $externalName
- * @property-read End                   $internalStartDate
- * @property-read End                   $startDate
- * @property-read End                   $endDate
- * @property-read End                   $internalEndDate
- * @property-read End                   $originalStatementsCount
- * @property-read End                   $statementsCount
- * @property-read End                   $phase
- * @property-read End                   $phaseName
- * @property-read End                   $internalPhaseIdentifier
- * @property-read End                   $internalPhaseTranslationKey
- * @property-read End                   $publicParticipation
- * @property-read End                   $publicParticipationEndDate
- * @property-read End                   $externalEndDate
- * @property-read End                   $publicParticipationPhase
- * @property-read End                   $publicParticipationStartDate
- * @property-read End                   $externalStartDate
- * @property-read End                   $externalPhaseIdentifier
- * @property-read End                   $externalPhaseTranslationKey
- * @property-read CustomerResourceType  $customer
+ * @property-read StatementResourceType         $statements
+ * @property-read End                           $name
+ * @property-read End                           $createdDate
+ * @property-read End                           $creationDate
+ * @property-read End                           $deleted
+ * @property-read OrgaResourceType              $planningOffices
+ * @property-read OrgaResourceType              $orga
+ * @property-read End                           $master
+ * @property-read UserResourceType              $authorizedUsers
+ * @property-read End                           $externalName
+ * @property-read End                           $internalStartDate
+ * @property-read End                           $internalEndDate
+ * @property-read End                           $originalStatementsCount
+ * @property-read End                           $statementsCount
+ * @property-read ProcedurePhaseResourceType    $phase
+ * @property-read End                           $internalPhaseIdentifier
+ * @property-read End                           $internalPhaseTranslationKey
+ * @property-read End                           $publicParticipation
+ * @property-read End                           $externalEndDate
+ * @property-read ProcedurePhaseResourceType    $publicParticipationPhase
+ * @property-read End                           $externalStartDate
+ * @property-read End                           $externalPhaseIdentifier
+ * @property-read End                           $externalPhaseTranslationKey
+ * @property-read CustomerResourceType          $customer
  */
 final class AdminProcedureResourceType extends DplanResourceType
 {
@@ -90,31 +85,42 @@ final class AdminProcedureResourceType extends DplanResourceType
             $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
             $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
 
-            $properties = [...$properties, $this->createAttribute($this->externalName)->readable(), $this->createAttribute($this->internalStartDate)->readable()->aliasedPath($this->startDate), $this->createAttribute($this->internalEndDate)->readable()->aliasedPath($this->endDate), $this->createAttribute($this->originalStatementsCount)->readable(false, function (Procedure $procedure): int {
-                // optimize performance? it may be possible to use an actual relationship or
-                // otherwise use an RPC route that calculates the count for all procedures at once
-                $procedureId = $procedure->getId();
-                $counts = $this->procedureService->getOriginalStatementsCounts([$procedureId]);
+            $properties = [
+                ...$properties,
+                $this->createAttribute($this->externalName)->readable(),
+                $this->createAttribute($this->internalStartDate)->readable()->aliasedPath($this->phase->startDate),
+                $this->createAttribute($this->internalEndDate)->readable()->aliasedPath($this->phase->endDate),
+                $this->createAttribute($this->originalStatementsCount)->readable(false, function (Procedure $procedure): int {
+                    // optimize performance? it may be possible to use an actual relationship or
+                    // otherwise use an RPC route that calculates the count for all procedures at once
+                    $procedureId = $procedure->getId();
+                    $counts = $this->procedureService->getOriginalStatementsCounts([$procedureId]);
 
-                return $counts[$procedureId] ?? 0;
-            }), $this->createAttribute($this->statementsCount)->readable(false, function (Procedure $procedure): int {
-                // optimize performance? it may be possible to use an actual relationship or
-                // otherwise use an RPC route that calculates the count for all procedures at once
-                $procedureId = $procedure->getId();
-                $counts = $this->procedureService->getStatementsCounts([$procedureId]);
+                    return $counts[$procedureId] ?? 0;
+                }),
+                $this->createAttribute($this->statementsCount)->readable(false, function (Procedure $procedure): int {
+                    // optimize performance? it may be possible to use an actual relationship or
+                    // otherwise use an RPC route that calculates the count for all procedures at once
+                    $procedureId = $procedure->getId();
+                    $counts = $this->procedureService->getStatementsCounts([$procedureId]);
 
-                return $counts[$procedureId] ?? 0;
-            }), $this->createAttribute($this->internalPhaseIdentifier)->readable()->aliasedPath($this->phase), $this->createAttribute($this->internalPhaseTranslationKey)
-                ->readable(false, static function (Procedure $procedure) use ($internalPhases): string {
+                    return $counts[$procedureId] ?? 0;
+                }),
+                $this->createAttribute($this->internalPhaseIdentifier)->readable()->aliasedPath($this->phase->key),
+                $this->createAttribute($this->internalPhaseTranslationKey)->readable(false, static function (Procedure $procedure) use ($internalPhases): string {
                     $internalPhaseIdentifier = $procedure->getPhase();
 
                     return $internalPhases[$internalPhaseIdentifier]['name'] ?? $internalPhaseIdentifier;
-                }), $this->createAttribute($this->publicParticipation)->readable(), $this->createAttribute($this->externalEndDate)->readable()->aliasedPath($this->publicParticipationEndDate), $this->createAttribute($this->externalPhaseIdentifier)->readable()->aliasedPath($this->publicParticipationPhase), $this->createAttribute($this->externalPhaseTranslationKey)
-                ->readable(false, static function (Procedure $procedure) use ($externalPhases): string {
+                }),
+                $this->createAttribute($this->publicParticipation)->readable(),
+                $this->createAttribute($this->externalEndDate)->readable()->aliasedPath($this->publicParticipationPhase->endDate),
+                $this->createAttribute($this->externalPhaseIdentifier)->readable()->aliasedPath($this->publicParticipationPhase->key),
+                $this->createAttribute($this->externalPhaseTranslationKey)->readable(false, static function (Procedure $procedure) use ($externalPhases): string {
                     $externalPhaseIdentifier = $procedure->getPublicParticipationPhase();
 
                     return $externalPhases[$externalPhaseIdentifier]['name'] ?? $externalPhaseIdentifier;
-                }), $this->createAttribute($this->externalStartDate)->readable()->aliasedPath($this->publicParticipationStartDate)];
+                }),
+                $this->createAttribute($this->externalStartDate)->readable()->aliasedPath($this->publicParticipationPhase->startDate)];
         }
 
         return $properties;

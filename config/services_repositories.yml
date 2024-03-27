@@ -36,6 +36,9 @@ services:
     demosplan\DemosPlanCoreBundle\Repository\ProcedurePersonRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson'
 
+    demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseRepository:
+        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhase'
+
     demosplan\DemosPlanCoreBundle\Repository\ProcedureSettingsRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings'
 
