@@ -40,7 +40,7 @@
         "doctrine/doctrine-fixtures-bundle": "^3",
         "doctrine/doctrine-migrations-bundle": "^3.2",
         "doctrine/orm": "^2.0",
-        "doctrine/persistence": "^2.0",
+        "doctrine/persistence": "^3.3",
         "dompdf/dompdf": "^2.0.1",
         "efrane/console-additions": "^0.6.1",
         "efrane/tus-bundle": "^0.5",
