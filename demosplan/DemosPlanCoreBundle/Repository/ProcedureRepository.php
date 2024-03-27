@@ -1347,15 +1347,15 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             ->propertyHasValue(false, ['masterTemplate'])
             ->anyConditionApplies();
         $orCondition->allConditionsApply()
-            ->propertyIsNotNull(['settings', 'designatedSwitchDate'])
-            ->propertyIsNotNull(['settings', 'designatedPhase'])
-            ->propertyIsNotNull(['settings', 'designatedEndDate'])
-            ->propertyHasValueBeforeNow(['settings', 'designatedSwitchDate']);
+            ->propertyIsNotNull(['phase', 'designatedSwitchDate'])
+            ->propertyIsNotNull(['phase', 'designatedPhase'])
+            ->propertyIsNotNull(['phase', 'designatedEndDate'])
+            ->propertyHasValueBeforeNow(['phase', 'designatedSwitchDate']);
         $orCondition->allConditionsApply()
-            ->propertyIsNotNull(['settings', 'designatedPublicSwitchDate'])
-            ->propertyIsNotNull(['settings', 'designatedPublicPhase'])
-            ->propertyIsNotNull(['settings', 'designatedPublicEndDate'])
-            ->propertyHasValueBeforeNow(['settings', 'designatedPublicSwitchDate']);
+            ->propertyIsNotNull(['publicParticipationPhase', 'designatedSwitchDate'])
+            ->propertyIsNotNull(['publicParticipationPhase', 'designatedPhase'])
+            ->propertyIsNotNull(['publicParticipationPhase', 'designatedEndDate'])
+            ->propertyHasValueBeforeNow(['publicParticipationPhase', 'designatedSwitchDate']);
 
         return $query->getEntities();
     }
