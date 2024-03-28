@@ -36,18 +36,8 @@
     },
     {
         "license": "MIT",
-        "package": "demos-europe/edt-dql",
-        "website": "https://github.com/demos-europe/edt-dql"
-    },
-    {
-        "license": "MIT",
         "package": "demos-europe/edt-extra",
         "website": "https://github.com/demos-europe/edt-extra"
-    },
-    {
-        "license": "MIT",
-        "package": "demos-europe/edt-paths",
-        "website": "https://github.com/demos-europe/edt-paths"
     },
     {
         "license": "MIT",
@@ -608,11 +598,6 @@
         "license": "MIT",
         "package": "timeweb/phpstan-enum",
         "website": "https://github.com/timeweb/phpstan-enum"
-    },
-    {
-        "license": "BSD-3-Clause",
-        "package": "twig/twig",
-        "website": "https://github.com/twigphp/Twig"
     },
     {
         "license": "MIT",
