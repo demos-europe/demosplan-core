@@ -344,6 +344,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             }
         }
 
+        $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'iteration');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'ident');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'name');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'shortUrl');

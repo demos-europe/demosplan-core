@@ -541,7 +541,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
     }
 
     /**
-     * Sets objectvalues by arraydata.
+     * Sets objectvalues by arraydata of procedures.
      *
      * @param Procedure $procedure
      *
@@ -635,6 +635,9 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         }
         if (array_key_exists('phase', $data)) {
             $procedure->setPhase($data['phase']);
+        }
+        if (array_key_exists('iteration', $data)) {
+            $procedure->getPhaseObject()->setIteration($data['iteration']);
         }
         if (array_key_exists('shortUrl', $data)) {
             $procedure->setShortUrl($data['shortUrl']);
