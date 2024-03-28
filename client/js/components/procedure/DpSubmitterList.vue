@@ -162,8 +162,7 @@ export default {
               'submitterEmailAddress'
             ].join()
           }
-        },
-        { serialize: true }
+        }
       )
 
       this.items = [...response.data.data]

@@ -477,7 +477,7 @@ export default {
 
     fetchAssignableUsers () {
       const url = Routing.generate('api_resource_list', { resourceType: 'AssignableUser' })
-      return dpApi.get(url, { sort: 'lastname' }, { serialize: true })
+      return dpApi.get(url, { sort: 'lastname' })
         .then(response => {
           this.assignableUsers = response.data.data.map(assignableUser => {
             return {

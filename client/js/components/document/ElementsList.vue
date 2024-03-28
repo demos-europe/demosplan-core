@@ -153,9 +153,9 @@ export default {
       return formatBytes(byteSize).replace(/\./g, ',')
     },
 
-    nodeSelectionChange (selected) {
-      const selectedFilesIds = selected.filter(node => node.nodeType === 'leaf').map(el => el.nodeId)
-      this.selectedFiles = this.allFiles.filter(file => selectedFilesIds.includes(file.id))
+    nodeSelectionChange (selectedNodes) {
+      const selectedSingleDocuments = selectedNodes.filter(el => el.nodeType === 'leaf')
+      this.selectedFiles = selectedSingleDocuments
     },
 
     /*

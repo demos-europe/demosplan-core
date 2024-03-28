@@ -171,7 +171,7 @@
                             class="{{ 'u-ml-0_25 u-mb-0_25 inline-block'|prefixClass }}"
                             target="_blank"
                             rel="noopener"
-                            href="{{ path("core_file", { 'hash': file|getFile('hash') }) }}">
+                            href="{{ path("core_file_procedure", { 'hash': file|getFile('hash'), 'procedureId': procedure }) }}">
                             <i class="{{ 'fa fa-download u-mr-0_25'|prefixClass }}"></i>
                             {{ 'file.download' | trans }}
                             {% if (file|getFile('size')|length > 0) %}
@@ -183,7 +183,7 @@
                             class="{{ 'btn btn--secondary float-right u-ml-0_125'|prefixClass }}"
                             target="_blank"
                             rel="noopener"
-                            href="{{ path("core_file", { 'hash': file|getFile('hash') }) }}">
+                            href="{{ path("core_file_procedure", { 'hash': file|getFile('hash'), 'procedureId': procedure }) }}">
                             {{ 'download'|trans }}
                         </a>
                     </li>

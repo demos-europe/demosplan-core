@@ -832,7 +832,7 @@ export default {
     },
 
     getStatementsFullText (statementId) {
-      return dpApi.get(Routing.generate('api_resource_get', { resourceType: 'Statement', resourceId: statementId }), { fields: { Statement: ['fullText'].join() } }, { serialize: true })
+      return dpApi.get(Routing.generate('api_resource_get', { resourceType: 'Statement', resourceId: statementId }), { fields: { Statement: ['fullText'].join() } })
         .then((response) => {
           const oldStatement = Object.values(this.statementsObject).find(el => el.id === statementId)
           const fullText = response.data.data.attributes.fullText
