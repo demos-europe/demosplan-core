@@ -31,7 +31,7 @@ class Version20240328093128 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->abortIfNotMysql();
-        $this->addSql('ALTER TABLE procedure_phase ADD iteration SMALLINT UNSIGNED NOT NULL');
+        $this->addSql('ALTER TABLE procedure_phase ADD iteration SMALLINT UNSIGNED DEFAULT 1 NOT NULL');
     }
 
     /**
