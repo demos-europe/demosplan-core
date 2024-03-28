@@ -263,4 +263,14 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
         $this->startDate = $sourcePhase->startDate;
         $this->endDate = $sourcePhase->endDate;
     }
+
+    public function getIteration(): int
+    {
+        return $this->iteration;
+    }
+
+    public function setIteration(int $iteration): void
+    {
+        $this->iteration = $iteration;
+    }
 }
