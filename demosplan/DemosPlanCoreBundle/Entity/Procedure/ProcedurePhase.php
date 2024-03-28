@@ -116,6 +116,13 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
      */
     protected ?DateTime $designatedEndDate;
 
+    /**
+     * @var int
+     *
+     * @ORM\Column(type="smallint", nullable=false, options={"unsigned":true})
+     */
+    protected int $iteration = 1;
+
     public function __construct(string $key, string $step = '')
     {
         $this->key = $key;
