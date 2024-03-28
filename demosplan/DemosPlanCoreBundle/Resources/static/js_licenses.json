@@ -170,11 +170,6 @@
         "website": "Unknown"
     },
     {
-        "package": "clean-webpack-plugin",
-        "license": "MIT",
-        "website": "https://github.com/johnagan/clean-webpack-plugin"
-    },
-    {
         "package": "cli-progress",
         "license": "MIT",
         "website": "https://github.com/npkgz/cli-progress"
