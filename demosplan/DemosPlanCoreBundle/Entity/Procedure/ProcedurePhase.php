@@ -117,8 +117,6 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     protected ?DateTime $designatedEndDate;
 
     /**
-     * @var int
-     *
      * @ORM\Column(type="smallint", nullable=false, options={"unsigned":true})
      */
     protected int $iteration = 1;
