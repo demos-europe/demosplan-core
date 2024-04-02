@@ -45,7 +45,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\FluentProcedureQuery;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\DBAL\Connection;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
@@ -188,11 +187,10 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
                 ->setParameter('orgaId', $orgaId)
                 ->orderBy('p.name', 'ASC');
 
-            $prefilteredProcedures =  $query->getQuery()->getResult();
+            $prefilteredProcedures = $query->getQuery()->getResult();
 
             return collect($prefilteredProcedures)->filter(
-                static fn (Procedure $procedure): bool =>
-                    collect($allowedPhases)->contains($procedure->getPhase())
+                static fn (Procedure $procedure): bool => collect($allowedPhases)->contains($procedure->getPhase())
             )->toArray();
         } catch (Exception $e) {
             $this->getLogger()->warning('getProceduresForDataInputOrga failed: ', [$e]);
