@@ -45,7 +45,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\FluentProcedureQuery;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\DBAL\Connection;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
@@ -185,12 +184,14 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
                 ->andWhere('o.id = :orgaId')
                 ->andWhere('p.deleted = 0')
                 ->andWhere('p.closed = 0')
-                ->andWhere('p.phase IN (:allowedPhases)')
                 ->setParameter('orgaId', $orgaId)
-                ->setParameter('allowedPhases', $allowedPhases, Connection::PARAM_STR_ARRAY)
                 ->orderBy('p.name', 'ASC');
 
-            return $query->getQuery()->getResult();
+            $prefilteredProcedures = $query->getQuery()->getResult();
+
+            return collect($prefilteredProcedures)->filter(
+                static fn (Procedure $procedure): bool => collect($allowedPhases)->contains($procedure->getPhase())
+            )->toArray();
         } catch (Exception $e) {
             $this->getLogger()->warning('getProceduresForDataInputOrga failed: ', [$e]);
             throw $e;
@@ -830,38 +831,34 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
     }
 
     /**
-     * @param int  $exactlyDaysToGo number of day, in which the procedures ends
+     * @param int  $exactlyDaysToGo number of days, in which the procedures ends
      * @param bool $internal        check for institution phases. false checks public phases
      *
      * @return Procedure[] containing the procedures, which are ending in the given number of days
      *
      * @throws Exception
      */
-    public function getListOfSoonEnding(int $exactlyDaysToGo, $internal = true): array
+    public function getListOfSoonEnding(int $exactlyDaysToGo, bool $internal = true): array
     {
-        if (!is_numeric($exactlyDaysToGo)) {
-            $this->getLogger()->warning('getListIfSoonEnding needs an integer as parameter. The given parameter: '.$exactlyDaysToGo.' is not numeric.');
-            throw new Exception('getListIfSoonEnding needs an integer as parameter. The given parameter: '.$exactlyDaysToGo.' is not numeric.');
-        }
+        $resultProcedureList = [];
 
         try {
+            $phase = $internal ? 'phase' : 'publicParticipationPhase';
+
+            $query = $this->createFluentQuery();
+            $query->getConditionDefinition()
+                ->propertyHasValue(false, ['deleted'])
+                ->propertyHasValue(false, ['master'])
+                ->propertyHasValue(false, ['masterTemplate'])
+                ->propertyHasValueAfterNow([$phase, 'endDate']);
+
+            $notEndedProcedures = $query->getEntities();
+
             $currentTime = Carbon::today();
             $destinationDate = $currentTime->addDays($exactlyDaysToGo);
-            $resultProcedureList = [];
-            $field = $internal ? 'procedure.endDate' : 'procedure.publicParticipationEndDate';
-
-            $query = $this->getEntityManager()
-                ->createQueryBuilder()
-                ->select('procedure')
-                ->from(Procedure::class, 'procedure')
-                ->where($field.' > :currentTime')
-                ->setParameter('currentTime', $currentTime)
-                ->orderBy($field, 'desc')
-                ->getQuery();
-            $procedures = $query->getResult();
 
             /** @var Procedure $procedure */
-            foreach ($procedures as $procedure) {
+            foreach ($notEndedProcedures as $procedure) {
                 $endDate = $procedure->getEndDate();
                 if (!$internal) {
                     $endDate = $procedure->getPublicParticipationEndDate();
@@ -873,7 +870,10 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
 
             return $resultProcedureList;
         } catch (Exception $e) {
-            $this->getLogger()->warning('getListIfSoonEnding with the given parameter '.$exactlyDaysToGo.' failed Reason: ', [$e]);
+            $this->getLogger()->warning(
+                'getListIfSoonEnding with the given parameter '.$exactlyDaysToGo.' failed Reason: ',
+                [$e]
+            );
             throw $e;
         }
     }
@@ -1194,8 +1194,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         $query->getConditionDefinition()
             ->propertyHasValue(false, ['deleted'])
             ->propertyHasValue(false, ['master'])
-            ->propertyHasValue(false, ['masterTemplate'])
-            ->anyConditionApplies();
+            ->propertyHasValue(false, ['masterTemplate']);
 
         return $query->getEntities();
     }
@@ -1344,15 +1343,20 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
      * The result will not contain deleted procedures.
      *
      * @return array<int, Procedure>
+     *
+     * @throws PaginationException
+     * @throws PathException
+     * @throws SortException
      */
     public function getProceduresReadyToSwitchPhases(): array
     {
         $query = $this->createFluentQuery();
-        $orCondition = $query->getConditionDefinition()
+        $conditionDefinition = $query->getConditionDefinition()
             ->propertyHasValue(false, ['deleted'])
             ->propertyHasValue(false, ['master'])
-            ->propertyHasValue(false, ['masterTemplate'])
-            ->anyConditionApplies();
+            ->propertyHasValue(false, ['masterTemplate']);
+
+        $orCondition = $conditionDefinition->anyConditionApplies();
         $orCondition->allConditionsApply()
             ->propertyIsNotNull(['phase', 'designatedSwitchDate'])
             ->propertyIsNotNull(['phase', 'designatedPhase'])
