@@ -19,9 +19,10 @@
     </div>
 
     <div
-      class="u-mt-0_5"
+      class="u-mt-0_5 flex gap-2"
       data-dp-validate="statementMetaData">
-      <div class="inline-block u-1-of-2 align-top">
+      <div class="inline-block w-1/2 align-top">
+        <!-- @todo we have to add the logic here, that it could be an institution -->
         <dp-input
           id="statementSubmitter"
           v-model="localStatement.attributes.authorName"
@@ -31,6 +32,7 @@
             text: Translator.trans('submitter')
           }"
           @input="(val) => emitInput('authorName', val)" />
+
         <dp-input
           id="statementEmailAddress"
           v-model="localStatement.attributes.submitterEmailAddress"
@@ -52,7 +54,7 @@
           }"
           @input="(val) => emitInput('initialOrganisationName', val)" />
         <dp-input
-          v-if="!this.localStatement.attributes.isSubmittedByCitizen"
+          v-if="hasPermission('field_statement_meta_orga_department_name') && !this.localStatement.attributes.isSubmittedByCitizen"
           id="statementDepartmentName"
           v-model="localStatement.attributes.initialOrganisationDepartmentName"
           class="u-mb-0_5"
@@ -104,9 +106,8 @@
             }"
             @input="(val) => emitInput('initialOrganisationCity', val)" />
         </div>
-      </div><!--
-
-   --><div class="inline-block u-1-of-2 u-pl">
+      </div>
+      <div class="inline-block w-1/2">
         <dp-input
           id="statementInternId"
           v-model="localStatement.attributes.internId"
@@ -185,6 +186,28 @@
           :options="submitTypeOptions"
           @select="(val) => emitInput('submitType', val)" />
 
+        <dp-select
+          id="statementProcedurePhase"
+          v-model="localStatement.attributes.phase"
+          class="u-mb-0_5"
+          :disabled="!editable"
+          :label="{
+            text: Translator.trans('procedure.public.phase')
+          }"
+          :options="publicPrcedurePhases"
+          @select="(val) => emitInput('submitType', val)" />
+
+        <dp-select
+          id="statementProcedurePhase"
+          v-model="localStatement.attributes.phase"
+          class="u-mb-0_5"
+          :disabled="!editable"
+          :label="{
+            text: Translator.trans('procedure.public.phase')
+          }"
+          :options="publicPrcedurePhases"
+          @select="(val) => emitInput('submitType', val)" />
+
         <dp-text-area
           v-if="hasPermission('field_statement_memo')"
           :disabled="!editable"
@@ -193,17 +216,45 @@
           name="r_memo"
           reduced-height
           v-model="localStatement.attributes.memo" />
-      </div>
 
-      <dp-button-row
-        v-if="editable"
-        class="u-mt-0_5"
-        primary
-        secondary
-        :secondary-text="Translator.trans('discard.changes')"
-        @primary-action="dpValidateAction('statementMetaData', save, false)"
-        @secondary-action="reset" />
+      </div>
     </div>
+
+    <statement-meta-multiselect
+      v-if="hasPermission('field_statement_municipality')"
+      :editable="editable"
+      :label="Translator.trans('counties')"
+      name="counties"
+      :options="availableCounties"
+      :value="localStatement.attributes.counties"
+      @input="updateCounties" />
+
+    <statement-meta-multiselect
+      v-if="hasPermission('field_statement_municipality') && formDefinitions.mapAndCountyReference.enabled"
+      :editable="editable"
+      :label="Translator.trans('municipalities')"
+      name="municipalities"
+      :options="availableMunicipalities"
+      :value="localStatement.attributes.municipalities"
+      @input="updateMunicipalities" />
+
+    <statement-meta-multiselect
+      v-if="procedureStatementPriorityArea && formDefinitions.mapAndCountyReference.enabled"
+      :editable="editable"
+      :label="Translator.trans('priorityAreas')"
+      name="priorityAreas"
+      :options="availablePriorityAreas"
+      :value="localStatement.attributes.priorityAreas"
+      @input="updatePriorityAreas" />
+
+    <dp-button-row
+      v-if="editable"
+      class="u-mt-0_5 w-full"
+      primary
+      secondary
+      :secondary-text="Translator.trans('discard.changes')"
+      @primary-action="dpValidateAction('statementMetaData', save, false)"
+      @secondary-action="reset" />
 
     <statement-meta-attachments
       :editable="editable"
@@ -264,6 +315,24 @@ export default {
     attachments: {
       type: Object,
       required: true
+    },
+
+    availableCounties: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
+    availableMunicipalities: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
+    availablePriorityAreas: {
+      type: Array,
+      required: false,
+      default: () => []
     },
 
     currentUserId: {
@@ -386,6 +455,14 @@ export default {
 
     syncAuthorAndSubmitter () {
       this.localStatement.attributes.submitName = this.localStatement.attributes.authorName
+    },
+
+    updateCounties (val) {
+      console.log(val, this.localStatement.attributes.counties)
+    },
+
+    updateMunicipalities (val) {
+      console.log(val, this.localStatement.attributes.municipaities)
     }
   },
 

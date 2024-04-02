@@ -134,6 +134,11 @@
       <statement-meta
         v-if="showInfobox && statement"
         :attachments="filteredAttachments"
+        :available-counties="availableCounties"
+        :available-internal-phases="availableExternalPhases"
+        :available-externl-phases="availableInternalPases"
+        :available-municipalities="availableMunicipalities"
+        :available-priority-areas="availablePriorityAreas"
         :current-user-id="currentUser.id"
         :editable="editable"
         :statement="statement"
@@ -205,6 +210,36 @@ export default {
   },
 
   props: {
+    availableCounties: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
+    availableExternalPhases: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
+    availableInternalPhases: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
+    availableMunicipalities: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
+    availablePriorityAreas: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
     currentUser: {
       type: Object,
       required: true
@@ -492,6 +527,7 @@ export default {
         'similarStatementSubmitters',
         'authoredDate',
         'authorName',
+        'counties',
         'files',
         'fullText',
         'isSubmittedByCitizen',
@@ -504,6 +540,7 @@ export default {
         'internId',
         'isManual',
         'memo',
+        'phase',
         'recommendation',
         'segmentDraftList',
         'submitDate',
@@ -530,7 +567,10 @@ export default {
           'similarStatementSubmitters'
         ].join(),
         fields: {
-          Statement: statementFields.join(),
+          File: [
+            'hash',
+            'filename'
+          ].join(),
           SimilarStatementSubmitter: [
             'city',
             'emailAddress',
@@ -539,13 +579,10 @@ export default {
             'streetName',
             'streetNumber'
           ].join(),
+          Statement: statementFields.join(),
           StatementAttachment: [
             'file',
             'attachmentType'
-          ].join(),
-          File: [
-            'hash',
-            'filename'
           ].join()
         }
       })
