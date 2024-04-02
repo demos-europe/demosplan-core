@@ -1336,6 +1336,10 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
      * The result will not contain deleted procedures.
      *
      * @return array<int, Procedure>
+     *
+     * @throws PaginationException
+     * @throws PathException
+     * @throws SortException
      */
     public function getProceduresReadyToSwitchPhases(): array
     {
