@@ -1340,11 +1340,12 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
     public function getProceduresReadyToSwitchPhases(): array
     {
         $query = $this->createFluentQuery();
-        $orCondition = $query->getConditionDefinition()
+        $conditionDefinition = $query->getConditionDefinition()
             ->propertyHasValue(false, ['deleted'])
             ->propertyHasValue(false, ['master'])
-            ->propertyHasValue(false, ['masterTemplate'])
-            ->anyConditionApplies();
+            ->propertyHasValue(false, ['masterTemplate']);
+
+        $orCondition = $conditionDefinition->anyConditionApplies();
         $orCondition->allConditionsApply()
             ->propertyIsNotNull(['phase', 'designatedSwitchDate'])
             ->propertyIsNotNull(['phase', 'designatedPhase'])
