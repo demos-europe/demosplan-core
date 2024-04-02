@@ -437,10 +437,8 @@ class ProcedureServiceTest extends FunctionalTestCase
         static::assertEquals($this->testProcedure->getOrgaId(), $procedure->getOrgaId());
         static::assertInstanceOf('\DateTime', $procedure->getClosedDate());
         static::assertIsNotString($procedure->getClosedDate());
-        static::assertObjectHasAttribute('publicParticipationStartDate', $procedure);
         static::assertInstanceOf('\DateTime', $procedure->getPublicParticipationStartDate());
         static::assertIsNotString($procedure->getPublicParticipationStartDate());
-        static::assertObjectHasAttribute('publicParticipationEndDate', $procedure);
         static::assertInstanceOf('\DateTime', $procedure->getPublicParticipationEndDate());
         static::assertIsNotString($procedure->getPublicParticipationEndDate());
 

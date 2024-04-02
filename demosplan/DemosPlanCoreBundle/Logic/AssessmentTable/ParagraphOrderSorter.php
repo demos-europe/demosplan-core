@@ -44,8 +44,11 @@ class ParagraphOrderSorter implements ArraySorterInterface
     protected function getParagraphOrder(string $paragraphId): int
     {
         $paragraph = $this->paragraphService->getParaDocumentObject($paragraphId);
-        Assert::notNull($paragraph);
+        // missing paragraphs may have the $paragraphId "missing" and should be sorted on top
+        if ($paragraph instanceof Paragraph) {
+            return $paragraph->getOrder();
+        }
 
-        return $paragraph->getOrder();
+        return 0;
     }
 }

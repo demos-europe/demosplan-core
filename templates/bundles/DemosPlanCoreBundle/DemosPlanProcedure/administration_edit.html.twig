@@ -117,7 +117,7 @@
             data-procedure="{{ proceduresettings.ident }}"
             data-dp-validate="configForm"
             method="post"
-            action="{{ path('DemosPlan_procedure_edit',{ 'procedure': proceduresettings.ident }) }}"
+            action="{{ path('DemosPlan_procedure_edit',{ procedure: proceduresettings.ident }) }}"
         >
             <input type="hidden" name="_token" value="{{ form._token.vars.value }}" />
             <input type="hidden" value="edit" name="action">
@@ -166,7 +166,7 @@
                                     <dp-multiselect
                                         id="r_agency"
                                         v-model="selectedAgencies"
-                                        data-cy="selectedAgencies"
+                                        data-cy="internal:selectedAgencies"
                                         label="name"
                                         multiple
                                         :options="JSON.parse('{{ agencies|default([])|json_encode|e('js', 'utf-8') }}')"
@@ -202,6 +202,7 @@
                                 <input id="{{ form.agencyMainEmailAddress.vars.id }}"
                                        name="agencyMainEmailAddress[fullAddress]"
                                        value="{{ form.agencyMainEmailAddress.vars.value.fullAddress }}"
+                                       data-cy="internal:agencyMainEmailAddress"
                                        class="o-form__control-input w-full"
                                        type="email"
                                        required>
@@ -249,6 +250,7 @@
 
                                     <dp-multiselect
                                         id="r_dataInputOrgaTest"
+                                        data-cy="internal:selectedDataInputOrgas"
                                         v-model="selectedDataInputOrgas"
                                         label="name"
                                         multiple
@@ -282,7 +284,7 @@
                                     <dp-multiselect
                                         id="r_authorizedUsers"
                                         v-model="selectedAuthUsers"
-                                        data-cy="selectedAuthUsers"
+                                        data-cy="internal:selectedAuthUsers"
                                         label="name"
                                         multiple
                                         :options="authUsersOptions"
@@ -333,6 +335,7 @@
                                 {# Bei textareas muss der Inhalt ohne Leerzeichen zwischen den Tags stehen, sonst werden die Leerzeichen ausgegeben und multiplizieren sich im Frontend. #}
                                 <textarea
                                     class="o-form__control-textarea h-7"
+                                    data-cy="internal:internalNote"
                                     id="r_desc"
                                     name="r_desc">
                                     {%- if proceduresettings.desc is defined %}
@@ -496,10 +499,7 @@
 
                                     <dp-date-range-picker
                                         class="u-2-of-4"
-                                        :data-cy="{
-                                            endDate: 'administrationEditForm:endDate',
-                                            startDate: 'administrationEditForm:startDate'
-                                        }"
+                                        data-cy="procedureSettingsDate"
                                         data-dp-validate-error-fieldname="{{ "period.institutions"|trans }}"
                                         start-id="r_startdate"
                                         start-name="r_startdate"
@@ -524,9 +524,9 @@
                                         data-cy-end-date="administrationEditForm:designatedEndDate"
                                         data-cy-start-date="administrationEditForm:designatedStartDate"
                                         class="u-mb"
-                                        end-date="{{ proceduresettings.settings.designatedEndDate|default|dplanDate }}"
-                                        init-selected-phase="{{ proceduresettings.settings.designatedPhase }}"
-                                        init-switch-date="{{ proceduresettings.settings.designatedSwitchDate|default|isoDate }}"
+                                        end-date="{{ proceduresettings.phaseObject.designatedEndDate|default|dplanDate }}"
+                                        init-selected-phase="{{ proceduresettings.phaseObject.designatedPhase }}"
+                                        init-switch-date="{{ proceduresettings.phaseObject.designatedSwitchDate|default|isoDate }}"
                                         is-internal
                                         min-switch-date="{{ 'now'|date('d.m.Y') }}"
                                         :selected-current-phase="selectedInternalPhase">
@@ -651,10 +651,7 @@
                                     } %}
                                     <dp-date-range-picker
                                         class="u-2-of-4"
-                                        :data-cy="{
-                                            endDate: 'administrationEditForm:publicParticipationEndDate',
-                                            startDate: 'administrationEditForm:publicParticipationStartDate'
-                                        }"
+                                        data-cy="procedureSettingsParticipationDate"
                                         data-dp-validate-error-fieldname="{{ "period.public"|trans }}"
                                         start-id="r_publicParticipationStartDate"
                                         start-name="r_publicParticipationStartDate"
@@ -679,9 +676,9 @@
                                         data-cy-end-date="administrationEditForm:designatedPublicEndDate"
                                         data-cy-start-date="administrationEditForm:designatedPublicStartDate"
                                         class="u-mb"
-                                        end-date="{{ proceduresettings.settings.designatedPublicEndDate|default|dplanDate }}"
-                                        init-selected-phase="{{ proceduresettings.settings.designatedPublicPhase }}"
-                                        init-switch-date="{{ proceduresettings.settings.designatedPublicSwitchDate|default|isoDate }}"
+                                        end-date="{{ proceduresettings.publicParticipationPhaseObject.designatedEndDate|default|dplanDate }}"
+                                        init-selected-phase="{{ proceduresettings.publicParticipationPhaseObject.designatedPhase }}"
+                                        init-switch-date="{{ proceduresettings.publicParticipationPhaseObject.designatedSwitchDate|default|isoDate }}"
                                         min-switch-date="{{ 'now'|date('d.m.Y') }}"
                                         :selected-current-phase="selectedPublicPhase">
                                     </auto-switch-procedure-phase-form>
@@ -806,6 +803,7 @@
                                         class="o-form__control-input"
                                         id="r_shortUrl"
                                         name="r_shortUrl"
+                                        data-cy="nameAddress:shortUrl"
                                         type="text"
                                         value="{{ templateVars.inData.r_shortUrl|default }}"
                                         size="40"
@@ -881,7 +879,7 @@
                                             <dp-editor
                                                 id="counter_oeb_desc_input"
                                                 hidden-input="r_externalDesc"
-                                                data-cy="procedureDescriptionPublic"
+                                                data-cy="procedureInfo:procedureDescriptionPublic"
                                                 :toolbar-items="{ listButtons: false }"
                                                 :maxlength="10000"
                                                 value="{{ proceduresettings.externalDesc|default( "notspecified"|trans ) }}">
@@ -910,7 +908,7 @@
                                         <dp-editor
                                             id="r_publicParticipationContact"
                                             hidden-input="r_publicParticipationContact"
-                                            data-cy="publicParticipationContact"
+                                            data-cy="procedureInfo:publicParticipationContact"
                                             data-dp-validate-error-fieldname="{{ 'public.participation.contact'|trans }}"
                                             :toolbar-items="{ listButtons: false }"
                                             :maxlength="2000"
@@ -940,7 +938,7 @@
                                             <a
                                                 target="_blank"
                                                 rel="noopener"
-                                                href="{{ path("core_file", { 'hash': proceduresettings.settings.pictogram|getFile('hash') }) }}">
+                                                href="{{ path("core_file_procedure", { 'hash': proceduresettings.settings.pictogram|getFile('hash'), 'procedureId': procedure }) }}">
                                                 {{ proceduresettings.settings.pictogram|getFile('name') }}
                                             </a>
                                         {% else %}
@@ -1328,7 +1326,10 @@
                     data-cy="saveConfig"
                     type="submit"
                     value="{{ "save"|trans }}">
-                <a class="btn btn--secondary" href="{{ path('DemosPlan_procedure_administration_get') }}">
+                <a
+                    class="btn btn--secondary"
+                    data-cy="abortConfig"
+                    href="{{ path('DemosPlan_procedure_administration_get') }}">
                     {{ "abort"|trans }}
                 </a>
             </div>

@@ -43,6 +43,9 @@ const hasPermission = jest.fn(() => true)
 const Translator = {
   trans: jest.fn(key => key)
 }
+const Routing = {
+  generate: jest.fn(key => key)
+}
 const dplan = {
   settings: {
     debug: false,
@@ -56,6 +59,7 @@ const checkResponse = jest.fn(data => Promise.resolve(data))
 
 const globalMocks = {
   hasPermission,
+  Routing,
   Translator,
   dplan,
   Vue,

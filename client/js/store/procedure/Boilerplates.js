@@ -32,7 +32,6 @@ const BoilerplatesStore = {
       commit('getBoilerplatesFired', true)
       return dpApi({
         method: 'GET',
-        responseType: 'json',
         url: Routing.generate('api_resource_list', {
           resourceType: 'Boilerplate',
           includes: ['groups']
