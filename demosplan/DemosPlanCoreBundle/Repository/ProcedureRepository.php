@@ -185,12 +185,15 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
                 ->andWhere('o.id = :orgaId')
                 ->andWhere('p.deleted = 0')
                 ->andWhere('p.closed = 0')
-                ->andWhere('p.phase IN (:allowedPhases)')
                 ->setParameter('orgaId', $orgaId)
-                ->setParameter('allowedPhases', $allowedPhases, Connection::PARAM_STR_ARRAY)
                 ->orderBy('p.name', 'ASC');
 
-            return $query->getQuery()->getResult();
+            $prefilteredProcedures =  $query->getQuery()->getResult();
+
+            return collect($prefilteredProcedures)->filter(
+                static fn (Procedure $procedure): bool =>
+                    collect($allowedPhases)->contains($procedure->getPhase())
+            )->toArray();
         } catch (Exception $e) {
             $this->getLogger()->warning('getProceduresForDataInputOrga failed: ', [$e]);
             throw $e;
