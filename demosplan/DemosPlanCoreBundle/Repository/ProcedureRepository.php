@@ -830,31 +830,28 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
      *
      * @throws Exception
      */
-    public function getListOfSoonEnding(int $exactlyDaysToGo, $internal = true): array
+    public function getListOfSoonEnding(int $exactlyDaysToGo, bool $internal = true): array
     {
-        if (!is_numeric($exactlyDaysToGo)) {
-            $this->getLogger()->warning('getListIfSoonEnding needs an integer as parameter. The given parameter: '.$exactlyDaysToGo.' is not numeric.');
-            throw new Exception('getListIfSoonEnding needs an integer as parameter. The given parameter: '.$exactlyDaysToGo.' is not numeric.');
-        }
+        $resultProcedureList = [];
 
         try {
+
+            $phase = $internal ? 'phase' : 'publicParticipationPhase';
+
+            $query = $this->createFluentQuery();
+            $query->getConditionDefinition()
+                ->propertyHasValue(false, ['deleted'])
+                ->propertyHasValue(false, ['master'])
+                ->propertyHasValue(false, ['masterTemplate'])
+                ->propertyHasValueAfterNow([$phase, 'endDate']);
+
+            $notEndedProcedures = $query->getEntities();
+
             $currentTime = Carbon::today();
             $destinationDate = $currentTime->addDays($exactlyDaysToGo);
-            $resultProcedureList = [];
-            $field = $internal ? 'procedure.endDate' : 'procedure.publicParticipationEndDate';
-
-            $query = $this->getEntityManager()
-                ->createQueryBuilder()
-                ->select('procedure')
-                ->from(Procedure::class, 'procedure')
-                ->where($field.' > :currentTime')
-                ->setParameter('currentTime', $currentTime)
-                ->orderBy($field, 'desc')
-                ->getQuery();
-            $procedures = $query->getResult();
 
             /** @var Procedure $procedure */
-            foreach ($procedures as $procedure) {
+            foreach ($notEndedProcedures as $procedure) {
                 $endDate = $procedure->getEndDate();
                 if (!$internal) {
                     $endDate = $procedure->getPublicParticipationEndDate();
@@ -866,7 +863,10 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
 
             return $resultProcedureList;
         } catch (Exception $e) {
-            $this->getLogger()->warning('getListIfSoonEnding with the given parameter '.$exactlyDaysToGo.' failed Reason: ', [$e]);
+            $this->getLogger()->warning(
+                'getListIfSoonEnding with the given parameter '.$exactlyDaysToGo.' failed Reason: ',
+                [$e]
+            );
             throw $e;
         }
     }

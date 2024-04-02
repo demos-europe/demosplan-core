@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
 use Carbon\Carbon;
 use EDT\DqlQuerying\Functions\Constant;
+use EDT\DqlQuerying\Functions\Greater;
 use EDT\DqlQuerying\Functions\Property;
 use EDT\DqlQuerying\Functions\Smaller;
 use EDT\Querying\Contracts\PropertyPathAccessInterface;
@@ -33,6 +34,19 @@ class ProcedureConditionDefinition extends ConditionDefinition
         $now = new Constant(Carbon::now(), 'CURRENT_TIMESTAMP()');
 
         $this->conditions[] = new Smaller(
+            new Property($propertyPath),
+            $now
+        );
+
+        return $this;
+    }
+
+    public function propertyHasValueAfterNow(array $properties): ConditionDefinition
+    {
+        $propertyPath = new PropertyPath(null, '', PropertyPathAccessInterface::DIRECT, $properties);
+        $now = new Constant(Carbon::now(), 'CURRENT_TIMESTAMP()');
+
+        $this->conditions[] = new Greater(
             new Property($propertyPath),
             $now
         );
