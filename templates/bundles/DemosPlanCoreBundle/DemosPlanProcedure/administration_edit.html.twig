@@ -189,15 +189,15 @@
                             <div class="u-mb">
                                 <label class="inline-block u-mb-0 u-11-of-12" for="{{ form.agencyMainEmailAddress.vars.id }}">
                                     {{ "email.procedure.agency"|trans }}*
-                                    {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                                        helpText: 'email.procedure.agency.help'|trans,
-                                        cssClasses:'u-mt-0_125',
-                                        showPlainHint: true
-                                    } %}
                                     <p class="weight--normal">
                                         {{ "explanation.organisation.email.procedure.agency"|trans|wysiwyg }}
                                     </p>
                                 </label>
+                                {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
+                                    helpText: 'email.procedure.agency.help'|trans,
+                                    cssClasses:'u-mt-0_125',
+                                    showPlainHint: true
+                                } %}
                                 {{ form_errors(form.agencyMainEmailAddress) }}
                                 <input id="{{ form.agencyMainEmailAddress.vars.id }}"
                                        name="agencyMainEmailAddress[fullAddress]"
