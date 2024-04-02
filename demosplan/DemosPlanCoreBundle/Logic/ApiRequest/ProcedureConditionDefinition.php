@@ -32,6 +32,7 @@ class ProcedureConditionDefinition extends ConditionDefinition
      * @param non-empty-list<non-empty-string> $properties
      *
      * @return $this
+     *
      * @throws PathException
      */
     public function propertyHasValueBeforeNow(array $properties): ConditionDefinition
@@ -48,6 +49,7 @@ class ProcedureConditionDefinition extends ConditionDefinition
      * @param non-empty-list<non-empty-string> $properties
      *
      * @return $this
+     *
      * @throws PathException
      */
     public function propertyHasValueAfterNow(array $properties): ConditionDefinition
@@ -81,7 +83,6 @@ class ProcedureConditionDefinition extends ConditionDefinition
     {
         return new Constant(Carbon::now(), 'CURRENT_TIMESTAMP()');
     }
-
 
     /**
      * @return ProcedureConditionDefinition
