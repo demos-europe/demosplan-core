@@ -421,10 +421,10 @@
                                                         tooltip: 'text.procedure.phasecounter'|trans
                                                     },
                                                     control: {
-                                                        name: 'r_internalPhaseCount',
-                                                        value: '## Hier kommt etwas aus dem BE'
+                                                        name: 'r_phase_iteration',
+                                                        value: proceduresettings.phaseObject.iteration
                                                     },
-                                                    id: 'r_internalPhaseCount',
+                                                    id: 'r_phase_iteration',
                                                     type: 'text',
                                                     required: true,
                                                 }) }}
@@ -499,7 +499,6 @@
 
                                     <dp-date-range-picker
                                         class="u-2-of-4"
-                                        data-cy="procedureSettingsDate"
                                         data-dp-validate-error-fieldname="{{ "period.institutions"|trans }}"
                                         start-id="r_startdate"
                                         start-name="r_startdate"
@@ -608,10 +607,10 @@
                                                         tooltip: 'text.procedure.phasecounter'|trans
                                                     },
                                                     control: {
-                                                        name: 'r_externalPhaseCount',
-                                                        value: '## Hier kommt etwas aus dem BE'
+                                                        name: 'r_public_participation_phase_iteration',
+                                                        value: proceduresettings.publicParticipationPhaseObject.iteration
                                                     },
-                                                    id: 'r_externalPhaseCount',
+                                                    id: 'r_public_participation_phase_iteration',
                                                     type: 'text',
                                                     required: true,
                                                 }) }}
@@ -651,7 +650,6 @@
                                     } %}
                                     <dp-date-range-picker
                                         class="u-2-of-4"
-                                        data-cy="procedureSettingsParticipationDate"
                                         data-dp-validate-error-fieldname="{{ "period.public"|trans }}"
                                         start-id="r_publicParticipationStartDate"
                                         start-name="r_publicParticipationStartDate"
