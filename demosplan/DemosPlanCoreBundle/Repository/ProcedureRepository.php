@@ -1184,7 +1184,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
     public function getUndeletedProcedures(): array
     {
         $query = $this->createFluentQuery();
-        $this->createFluentQuery()->getConditionDefinition()
+        $query->getConditionDefinition()
             ->propertyHasValue(false, ['deleted'])
             ->propertyHasValue(false, ['master'])
             ->propertyHasValue(false, ['masterTemplate']);
