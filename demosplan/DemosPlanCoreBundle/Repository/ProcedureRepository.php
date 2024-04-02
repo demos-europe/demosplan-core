@@ -823,7 +823,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
     }
 
     /**
-     * @param int  $exactlyDaysToGo number of day, in which the procedures ends
+     * @param int  $exactlyDaysToGo number of days, in which the procedures ends
      * @param bool $internal        check for institution phases. false checks public phases
      *
      * @return Procedure[] containing the procedures, which are ending in the given number of days
@@ -1184,11 +1184,10 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
     public function getUndeletedProcedures(): array
     {
         $query = $this->createFluentQuery();
-        $query->getConditionDefinition()
+        $this->createFluentQuery()->getConditionDefinition()
             ->propertyHasValue(false, ['deleted'])
             ->propertyHasValue(false, ['master'])
-            ->propertyHasValue(false, ['masterTemplate'])
-            ->anyConditionApplies();
+            ->propertyHasValue(false, ['masterTemplate']);
 
         return $query->getEntities();
     }
