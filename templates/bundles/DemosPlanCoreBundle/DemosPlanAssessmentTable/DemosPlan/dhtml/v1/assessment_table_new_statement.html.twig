@@ -258,51 +258,32 @@
                     {# depending on which option is selected in the role radio, internal or external phases are displayed
                        - unless only external phases should be displayed here in the project
                      #}
-                    <div class="flex u-mb-0_75">
-                        {% if hasPermission('field_statement_phase') %}
-                            <div class="w-1/2 inline-block">
-                                <label class="o-form__label">
-                                    {{ "procedure.public.phase"|trans }}*
-                                </label>
-                                <dp-multiselect
-                                    class="o-form__control-wrapper"
-                                    data-cy="submitterForm:procedurePublicPhase"
-                                    label="name"
-                                    :options="phases"
-                                    required
-                                    track-by="key"
-                                    :value="values.phase"
-                                    @input="setPhaseValue">
-                                    <template v-slot:option="{ props }">
-                                        <span
-                                            class="weight--normal"
-                                            :data-cy="`procedurePublicPhase-${props.option.name.replace(/\s+/g, '-').toLowerCase()}`">
-                                            {% verbatim %}{{ props.option.name }}{% endverbatim %}
-                                        </span>
-                                    </template>
-                                </dp-multiselect>
-                                <input type="hidden" :value="values.phase.key" name="r_phase"/>
-                            </div>
-                        {% endif %}
-
-                        {# Durchgangsnummer für Öffentlichkeit und Institutionen #}
-                        {# hier benötigt man ein permission #}
-                        <div class="w-1/2 inline-block ml-4">
-                            <dp-input
-                                id="r_phasecounter"
-                                :label="{
-                                    text: Translator.trans('procedure.phase.phasecounter'),
-                                    tooltip: `${Translator.trans('text.procedure.phasecounter')}}`
-                                }"
-                                name="r_phasecounter"
-                                data-cy="submitterForm:procedurePhasecounter"
-                                type="number"
-                                pattern="^[0-9]"
-                                value="" {# ein variable vom BE #}
-                                required>
-                            </dp-input>
+                    {% if hasPermission('field_statement_phase') %}
+                    <div class="layout u-mb-0_75">
+                        <div class="u-1-of-2 layout__item">
+                            <label class="o-form__label">
+                                {{ "procedure.public.phase"|trans }}*
+                            </label>
+                            <dp-multiselect
+                                class="o-form__control-wrapper"
+                                data-cy="submitterForm:procedurePublicPhase"
+                                label="name"
+                                :options="phases"
+                                required
+                                track-by="key"
+                                :value="values.phase"
+                                @input="setPhaseValue">
+                                <template v-slot:option="{ props }">
+                                    <span
+                                        class="weight--normal"
+                                        :data-cy="`procedurePublicPhase-${props.option.name.replace(/\s+/g, '-').toLowerCase()}`">
+                                        {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                                    </span>
+                                </template>
+                            </dp-multiselect>
+                            <input type="hidden" :value="values.phase.key" name="r_phase"/>
                         </div>
-                    </div>
+                    {% endif %}
 
                     {% if hasPermission('feature_statement_cluster') %}
                         {% set clusters = [] %}
