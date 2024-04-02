@@ -835,7 +835,6 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         $resultProcedureList = [];
 
         try {
-
             $phase = $internal ? 'phase' : 'publicParticipationPhase';
 
             $query = $this->createFluentQuery();
