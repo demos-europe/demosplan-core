@@ -21,8 +21,9 @@ class Version20240318172346 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'refs T36340: Extract phase of an procedure into own entity. Step3: Make phase of a procedure nullable,
-        because at least an internal phase is always needed. (This was nullable true due the initial data migration.)';
+        return 'refs T36340: Extract phase of an procedure into own entity.
+        Step3: Make phase of a procedure not nullable, because at least an internal phase is always needed.
+        (This was nullable true due the initial data migration.)';
     }
 
     /**
