@@ -54,7 +54,10 @@ class Version20240321192129 extends AbstractMigration
             DROP designated_phase_change_user_id,
             DROP designated_public_phase_change_user_id,
             DROP _ps_designated_phase,
-            DROP _ps_designated_public_phase
+            DROP _ps_designated_public_switch_date,
+            DROP _ps_designated_switch_date,
+            DROP _ps_designated_end_date,
+            DROP _ps_designated_public_end_date
         ');
     }
 
