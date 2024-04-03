@@ -2575,8 +2575,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         }
 
         if ($excludeArchived) {
-
-            //todo: use Paths::procedure() here instead of array of strings to define the paths.
+            // todo: use Paths::procedure() here instead of array of strings to define the paths.
             $conditions[] = $this->conditionFactory->anyConditionApplies(
                 $this->conditionFactory->propertyHasNotValue('closed', ['phase', 'key']),
                 $this->conditionFactory->propertyHasNotValue('closed', ['publicParticipationPhase', 'key'])
