@@ -274,7 +274,9 @@
                                     :value="values.phase"
                                     @input="setPhaseValue">
                                     <template v-slot:option="{ props }">
-                                        <span class="weight--normal">
+                                        <span
+                                            class="weight--normal"
+                                            :data-cy="`procedurePublicPhase-${props.option.name.replace(/\s+/g, '-').toLowerCase()}`">
                                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                         </span>
                                     </template>
@@ -568,6 +570,7 @@
                         <dp-accordion title="{{ "statement.voter"|trans }}" ref="statementVoters">
                             <statement-voter
                                 id="dp-new-statement-voter"
+                                data-cy="newStatementVoter"
                                 class="o-box--dark u-mt-0_25 u-ph u-pt-0_5 flow-root"
                                 readonly="{{ readonly|default('') }}"
                                 is-manual="true"
