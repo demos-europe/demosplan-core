@@ -46,6 +46,20 @@ class Version20240313120508 extends AbstractMigration
     public function down(Schema $schema): void
     {
         $this->abortIfNotMysql();
+
+        $procedures = $this->getProcedures();
+
+        foreach ($procedures as $procedure) {
+            $internalPhase = $this->getPhase($procedure['phase_id'])[0];
+            $this->setInternalPhaseDataToProcedure($internalPhase, $procedure['_p_id']);
+            $this->setInternalPhaseDataToProcedureSetting($internalPhase, $procedure['_p_id']);
+            $this->deleteInternalPhase($procedure['_p_id'], $internalPhase['id']);
+
+            $externalPhase = $this->getPhase($procedure['public_participation_phase_id'])[0];
+            $this->setExternalPhaseDataToProcedure($externalPhase, $procedure['_p_id']);
+            $this->setExternalPhaseDataToProcedureSetting($externalPhase, $procedure['_p_id']);
+            $this->deleteExternalPhase($procedure['_p_id'], $externalPhase['id']);
+        }
     }
 
     /**
@@ -162,5 +176,140 @@ class Version20240313120508 extends AbstractMigration
                 _procedure_settings.designated_public_phase_change_user_id as `designatedExternalPhaseChangeUser`
                 FROM _procedure INNER JOIN _procedure_settings
                 ON _procedure._p_id = _procedure_settings._p_id;');
+    }
+    private function getPhase(string $phaseId): array
+    {
+        return $this->connection->fetchAllAssociative(
+            'SELECT
+                id,
+                phase_key,
+                step,
+                designated_phase,
+                start_date,
+                end_date,
+                designated_switch_date,
+                designated_end_date,
+                designated_phase_change_user_id
+                FROM procedure_phase
+                WHERE id =:phaseId',
+                ['phaseId' => $phaseId]
+        );
+    }
+
+    private function setExternalPhaseDataToProcedure(array $externalPhasePhase, string $procedureId): void
+    {
+        $this->addSql(
+            'UPDATE _procedure SET
+                `_p_public_participation_phase` = :phase_key,
+                `_p_public_participation_step` = :step,
+                `_p_public_participation_start` = :start_date,
+                `_p_public_participation_end` = :end_date
+                WHERE _p_id = :procedureId',
+            [
+                'procedureId'                     => $procedureId,
+                'phase_key'                       => $externalPhasePhase['phase_key'],
+                'step'                            => $externalPhasePhase['step'],
+                'start_date'                      => $externalPhasePhase['start_date'],
+                'end_date'                        => $externalPhasePhase['end_date'],
+            ]
+        );
+    }
+
+    private function setExternalPhaseDataToProcedureSetting(array $externalPhasePhase, string $procedureId): void
+    {
+        $this->addSql(
+            'UPDATE _procedure_settings SET
+                `designated_public_phase_change_user_id` = :designated_phase_change_user_id,
+                `_ps_designated_public_phase` = :designated_phase,
+                `_ps_designated_public_switch_date` = :designated_switch_date,
+                `_ps_designated_public_end_date` = :designated_end_date
+                WHERE _p_id =:procedureId',
+            [
+                'procedureId'                     => $procedureId,
+                'designated_phase_change_user_id' => $externalPhasePhase['designated_phase_change_user_id'],
+                'designated_phase'                => $externalPhasePhase['designated_phase'],
+                'designated_switch_date'          => $externalPhasePhase['designated_switch_date'],
+                'designated_end_date'             => $externalPhasePhase['designated_end_date'],
+            ]
+        );
+    }
+
+    private function setInternalPhaseDataToProcedure(array $internalPhase, string $procedureId): void
+    {
+        $this->addSql(
+            'UPDATE _procedure SET
+                `_p_phase` = :phase_key,
+                `_p_step` = :step,
+                `_p_start_date` = :start_date,
+                `_p_end_date` = :end_date
+                WHERE _p_id = :procedureId',
+            [
+                'procedureId'                     => $procedureId,
+                'phase_key'                       => $internalPhase['phase_key'],
+                'step'                            => $internalPhase['step'],
+                'start_date'                      => $internalPhase['start_date'],
+                'end_date'                        => $internalPhase['end_date'],
+            ]
+        );
+    }
+    private function setInternalPhaseDataToProcedureSetting(array $internalPhase, string $procedureId): void
+    {
+        $this->addSql(
+            'UPDATE _procedure_settings SET
+                `designated_phase_change_user_id` = :designated_phase_change_user_id,
+                `_ps_designated_phase` = :designated_phase,
+                `_ps_designated_switch_date` = :designated_switch_date,
+                `_ps_designated_end_date` = :designated_end_date
+                WHERE _p_id =:procedureId',
+            [
+                'procedureId'                     => $procedureId,
+                'designated_phase_change_user_id' => $internalPhase['designated_phase_change_user_id'],
+                'designated_phase'                => $internalPhase['designated_phase'],
+                'designated_switch_date'          => $internalPhase['designated_switch_date'],
+                'designated_end_date'             => $internalPhase['designated_end_date'],
+            ]
+        );
+    }
+
+    private function deleteInternalPhase(string $procedureId, string $phaseId): void
+    {
+        $this->addSql(
+            'UPDATE _procedure SET `phase_id` = NULL WHERE _p_id = :procedureId', [
+                'procedureId' => $procedureId,
+            ]
+        );
+
+        $this->addSql(
+            'DELETE FROM procedure_phase WHERE id =:phaseId',
+            ['phaseId' => $phaseId]
+        );
+    }
+
+    private function deleteExternalPhase(string $procedureId, string $phaseId): void
+    {
+        $this->addSql(
+            'UPDATE _procedure SET `public_participation_phase_id` = NULL WHERE _p_id = :procedureId', [
+                'procedureId' => $procedureId,
+            ]
+        );
+
+        $this->addSql(
+            'DELETE FROM procedure_phase WHERE id =:phaseId',
+            ['phaseId' => $phaseId]
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function getProcedures(): array
+    {
+        return $this->connection->fetchAllAssociative(
+            ' SELECT
+                _p_id,
+                phase_id,
+                public_participation_phase_id
+                FROM _procedure
+        ');
     }
 }
