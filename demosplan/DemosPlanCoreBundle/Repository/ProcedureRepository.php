@@ -28,6 +28,7 @@ use demosplan\DemosPlanCoreBundle\Entity\News\News;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateCategory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhase;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
@@ -270,6 +271,10 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedure->setInitialSlug();
             $procedure->setXtaPlanId($data['xtaPlanId'] ?? '');
             $procedure->setElements(new ArrayCollection());
+
+            $procedure->setPhaseObject(new ProcedurePhase());
+            $procedure->setPublicParticipationPhaseObject(new ProcedurePhase());
+
             // improve T20997:
             // this kind of denylisting should be avoided by do not using "clone"
             // instead copy each attribute which has to be copied (allowlisting)
