@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
@@ -116,10 +117,11 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
      */
     protected ?DateTime $designatedEndDate;
 
-    public function __construct(string $key, string $step = '')
+    public function __construct(string $key = 'configuration', string $step = '')
     {
         $this->key = $key;
         $this->step = $step;
+        $this->permissionSet = ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN;
         $this->endDate = new DateTime();
         $this->startDate = new DateTime();
     }

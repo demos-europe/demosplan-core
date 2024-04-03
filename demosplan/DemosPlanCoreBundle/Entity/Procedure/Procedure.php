@@ -607,8 +607,8 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         $this->notificationReceivers = new ArrayCollection();
         $this->exportFieldsConfigurations = new ArrayCollection();
         $this->segmentPlaces = new ArrayCollection();
-        $this->phase = new ProcedurePhase('configuration');
-        $this->publicParticipationPhase = new ProcedurePhase('configuration');
+        $this->phase = new ProcedurePhase();
+        $this->publicParticipationPhase = new ProcedurePhase();
     }
 
     /**
