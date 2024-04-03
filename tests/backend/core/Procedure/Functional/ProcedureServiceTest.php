@@ -2001,15 +2001,9 @@ Email:',
 
         // check structure of result
         static::assertIsArray($listOfProcedures);
-        static::assertCount(2, $listOfProcedures);
-        static::assertArrayHasKey(Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL, $listOfProcedures);
-        static::assertArrayHasKey(Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL, $listOfProcedures);
-
         // one external and one internal are expected:
-        static::assertCount(1, $listOfProcedures[Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL]);
-        static::assertCount(1, $listOfProcedures[Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL]);
-        static::assertEquals($procedure, $listOfProcedures[Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL][0]);
-        static::assertEquals($procedure, $listOfProcedures[Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL][0]);
+        static::assertCount(1, $listOfProcedures);
+        static::assertEquals($procedure, $listOfProcedures[0]);
 
         $autoSwitchDate = Carbon::create(2002, 12, 15, 9, 30, 45);
         $autoSwitchPublicDate = Carbon::create(2002, 11, 12, 7, 20, 10);
@@ -2027,10 +2021,8 @@ Email:',
         static::assertArrayHasKey(Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL, $listOfProcedures);
 
         // check content of result
-        static::assertCount(1, $listOfProcedures[Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL]);
-        static::assertCount(1, $listOfProcedures[Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL]);
-        static::assertEquals($procedure, $listOfProcedures[Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL][0]);
-        static::assertEquals($procedure, $listOfProcedures[Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL][0]);
+        static::assertCount(1, $listOfProcedures);
+        static::assertEquals($procedure, $listOfProcedures[0]);
 
         static::assertEquals($autoSwitchPublicDate->toDateTime(), $procedure->getSettings()->getDesignatedPublicSwitchDate());
         $setDesignatedPublicSwitchDate = new Carbon($procedure->getSettings()->getDesignatedPublicSwitchDate());

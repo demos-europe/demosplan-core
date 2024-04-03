@@ -17,13 +17,12 @@ use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
-class Version20240318172346 extends AbstractMigration
+class Version20240403081256 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'refs T36340: Extract phase of an procedure into own entity.
-        Step3: Make phase of a procedure not nullable, because at least an internal phase is always needed.
-        (This was nullable true due the initial data migration.)';
+        return 'refs T36340: Allow iteration of each phase by adding a counter.
+         Step6: Add phase-counter to statement entity.';
     }
 
     /**
@@ -32,16 +31,7 @@ class Version20240318172346 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->abortIfNotMysql();
-
-        $this->addSql('
-            ALTER TABLE _procedure
-            CHANGE phase_id phase_id CHAR(36) NOT NULL
-        ');
-
-        $this->addSql('
-            ALTER TABLE _procedure
-            CHANGE public_participation_phase_id public_participation_phase_id CHAR(36) NOT NULL
-        ');
+        $this->addSql(' ALTER TABLE _statement ADD phase_iteration SMALLINT UNSIGNED DEFAULT 1 NOT NULL');
     }
 
     /**
@@ -50,16 +40,7 @@ class Version20240318172346 extends AbstractMigration
     public function down(Schema $schema): void
     {
         $this->abortIfNotMysql();
-
-        $this->addSql('
-            ALTER TABLE _procedure CHANGE
-            phase_id phase_id CHAR(36) DEFAULT NULL
-        ');
-
-        $this->addSql('
-            ALTER TABLE _procedure
-            CHANGE public_participation_phase_id public_participation_phase_id CHAR(36) DEFAULT NULL
-        ');
+        $this->addSql('ALTER TABLE _statement DROP phase_iteration');
     }
 
     /**

@@ -298,6 +298,11 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     protected $phase;
 
     /**
+     * @ORM\Column(type="smallint", nullable=false, options={"unsigned":true, "default":1})
+     */
+    protected int $phaseIteration = 1;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="_st_status", type="string", length=50, nullable=false, options={"fixed":true})
@@ -4171,5 +4176,15 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         $this->anonymous = $anonymous;
 
         return $this;
+    }
+
+    public function getPhaseIteration(): int
+    {
+        return $this->phaseIteration;
+    }
+
+    public function setPhaseIteration(int $phaseIteration): void
+    {
+        $this->phaseIteration = $phaseIteration;
     }
 }
