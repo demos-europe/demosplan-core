@@ -177,6 +177,7 @@ class Version20240313120508 extends AbstractMigration
                 FROM _procedure INNER JOIN _procedure_settings
                 ON _procedure._p_id = _procedure_settings._p_id;');
     }
+
     private function getPhase(string $phaseId): array
     {
         return $this->connection->fetchAllAssociative(
@@ -192,7 +193,7 @@ class Version20240313120508 extends AbstractMigration
                 designated_phase_change_user_id
                 FROM procedure_phase
                 WHERE id =:phaseId',
-                ['phaseId' => $phaseId]
+            ['phaseId' => $phaseId]
         );
     }
 
@@ -252,6 +253,7 @@ class Version20240313120508 extends AbstractMigration
             ]
         );
     }
+
     private function setInternalPhaseDataToProcedureSetting(array $internalPhase, string $procedureId): void
     {
         $this->addSql(
