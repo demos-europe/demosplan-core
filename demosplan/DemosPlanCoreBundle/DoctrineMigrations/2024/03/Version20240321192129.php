@@ -77,7 +77,7 @@ class Version20240321192129 extends AbstractMigration
             ADD _ps_designated_public_phase DATETIME DEFAULT NULL,
             ADD _ps_designated_switch_date VARCHAR(50) DEFAULT NULL,
             ADD _ps_designated_public_switch_date DATETIME DEFAULT NULL,
-            ADD _ps_designated_end_date DATETIME DEFAULT NULL
+            ADD _ps_designated_end_date DATETIME DEFAULT NULL,
             ADD _ps_designated_public_end_date DATETIME DEFAULT NULL
         ');
 
