@@ -32,6 +32,11 @@ class Version20240321192129 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
+        $this->addSql('ALTER TABLE _procedure_settings DROP FOREIGN KEY FK_9C04F53DF3EE7A28');
+        $this->addSql('ALTER TABLE _procedure_settings DROP FOREIGN KEY FK_9C04F53DCBD82728');
+        $this->addSql('DROP INDEX IDX_9C04F53DCBD82728 ON _procedure_settings');
+        $this->addSql('DROP INDEX IDX_9C04F53DF3EE7A28 ON _procedure_settings');
+
         $this->addSql('
             ALTER TABLE _procedure
             DROP _p_phase,
@@ -43,11 +48,6 @@ class Version20240321192129 extends AbstractMigration
             DROP _p_start_date,
             DROP _p_end_date
         ');
-
-        $this->addSql('ALTER TABLE _procedure_settings DROP FOREIGN KEY FK_9C04F53DF3EE7A28');
-        $this->addSql('ALTER TABLE _procedure_settings DROP FOREIGN KEY FK_9C04F53DCBD82728');
-        $this->addSql('DROP INDEX IDX_9C04F53DCBD82728 ON _procedure_settings');
-        $this->addSql('DROP INDEX IDX_9C04F53DF3EE7A28 ON _procedure_settings');
 
         $this->addSql('
             ALTER TABLE _procedure_settings
