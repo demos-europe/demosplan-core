@@ -70,7 +70,7 @@ class Version20240321192129 extends AbstractMigration
 
         $this->addSql('
             ALTER TABLE _procedure_settings
-            ADD designated_phase_change_user_id CHAR(36) DEFAULT NULL
+            ADD designated_phase_change_user_id CHAR(36) DEFAULT NULL,
             ADD designated_public_phase_change_user_id CHAR(36) DEFAULT NULL,
             ADD _ps_designated_phase VARCHAR(50) DEFAULT NULL,
             ADD _ps_designated_public_phase VARCHAR(50) DEFAULT NULL
