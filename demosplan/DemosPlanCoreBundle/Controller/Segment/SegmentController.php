@@ -95,8 +95,8 @@ class SegmentController extends BaseController
             '@DemosPlanCore/DemosPlanProcedure/administration_statement_segments_list.html.twig',
             [
                 'procedure'                  => [
-                    'id' => $procedureId,
-                    'name' => $procedure->getName(),
+                    'id'       => $procedureId,
+                    'name'     => $procedure->getName(),
                     'orgaName' => $procedure->getOrgaName(),
                 ],
                 'recommendationProcedureIds' => $recommendationProcedureIds,
