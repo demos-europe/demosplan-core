@@ -192,9 +192,9 @@
           class="u-mb-0_5"
           :disabled="!editable"
           :label="{
-            text: Translator.trans('procedure.public.phase')
+            text: Translator.trans('procedure.phase')
           }"
-          :options="publicPrcedurePhases"
+          :options="availableInternalPhases"
           @select="(val) => emitInput('submitType', val)" />
 
         <dp-select
@@ -205,7 +205,7 @@
           :label="{
             text: Translator.trans('procedure.public.phase')
           }"
-          :options="publicPrcedurePhases"
+          :options="availableExternalPhases"
           @select="(val) => emitInput('submitType', val)" />
 
         <dp-text-area
@@ -257,16 +257,16 @@
       @secondary-action="reset" />
 
     <statement-meta-attachments
-      :editable="editable"
       :attachments="attachments"
       class="u-pt-0_5 border--bottom u-pb-0_5"
-      :procedure-id="procedureId"
+      :editable="editable"
+      :procedure-id="procedure.id"
       :statement-id="statement.id"
       @change="(value) => emitInput('attachments', value)" />
 
     <similar-statement-submitters
-      :procedure-id="procedureId"
       :editable="editable"
+      :procedure-id="procedure.id"
       :similar-statement-submitters="similarStatementSubmitters"
       :statement-id="statement.id" />
   </div>
@@ -295,8 +295,6 @@ const convert = (dateString) => {
 export default {
   name: 'StatementMeta',
 
-  inject: ['procedureId'],
-
   components: {
     DpButtonRow,
     DpDatepicker,
@@ -318,6 +316,18 @@ export default {
     },
 
     availableCounties: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
+    availableExternalPhases: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
+    availableInternalPhases: {
       type: Array,
       required: false,
       default: () => []
@@ -347,6 +357,17 @@ export default {
       default: false
     },
 
+    procedure: {
+      type: Object,
+      required: true
+    },
+
+    procedureStatementPriorityArea: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
     statement: {
       type: Object,
       required: true
@@ -361,6 +382,7 @@ export default {
 
   data () {
     return {
+      finalMailDefaultText: '',
       localStatement: null
     }
   },
@@ -451,6 +473,14 @@ export default {
       this.localStatement = JSON.parse(JSON.stringify(this.statement))
       this.localStatement.attributes.authoredDate = this.convertDate(this.localStatement.attributes.authoredDate)
       this.localStatement.attributes.submitDate = this.convertDate(this.localStatement.attributes.submitDate)
+
+      this.finalMailDefaultText = Translator.trans('statement.send.final_mail.default', {
+        hasStatementText: this.localStatement.attributes.fullText.length < 2000 ? 0 : 1,
+        orgaName: this.procedure.orgaName,
+        procedureName: this.procedure.name,
+        statementText: this.localStatement.attributes.fullText,
+        statementRecommendation: this.localStatement.attributes.recommendation
+      })
     },
 
     syncAuthorAndSubmitter () {
