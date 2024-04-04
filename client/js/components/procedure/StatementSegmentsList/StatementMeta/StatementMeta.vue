@@ -44,7 +44,7 @@
           type="email"
           @input="(val) => emitInput('submitterEmailAddress', val)" />
         <dp-input
-          v-if="!this.localStatement.attributes.isSubmittedByCitizen"
+          v-if="!localStatement.attributes.isSubmittedByCitizen"
           id="statementOrgaName"
           v-model="localStatement.attributes.initialOrganisationName"
           class="u-mb-0_5"
@@ -54,7 +54,7 @@
           }"
           @input="(val) => emitInput('initialOrganisationName', val)" />
         <dp-input
-          v-if="hasPermission('field_statement_meta_orga_department_name') && !this.localStatement.attributes.isSubmittedByCitizen"
+          v-if="hasPermission('field_statement_meta_orga_department_name') && !localStatement.attributes.isSubmittedByCitizen"
           id="statementDepartmentName"
           v-model="localStatement.attributes.initialOrganisationDepartmentName"
           class="u-mb-0_5"
