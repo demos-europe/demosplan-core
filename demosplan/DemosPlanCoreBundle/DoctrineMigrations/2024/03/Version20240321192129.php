@@ -54,8 +54,9 @@ class Version20240321192129 extends AbstractMigration
             DROP designated_phase_change_user_id,
             DROP designated_public_phase_change_user_id,
             DROP _ps_designated_phase,
-            DROP _ps_designated_public_switch_date,
+            DROP _ps_designated_public_phase,
             DROP _ps_designated_switch_date,
+            DROP _ps_designated_public_switch_date,
             DROP _ps_designated_end_date,
             DROP _ps_designated_public_end_date
         ');
@@ -73,7 +74,11 @@ class Version20240321192129 extends AbstractMigration
             ADD designated_phase_change_user_id CHAR(36) DEFAULT NULL,
             ADD designated_public_phase_change_user_id CHAR(36) DEFAULT NULL,
             ADD _ps_designated_phase VARCHAR(50) DEFAULT NULL,
-            ADD _ps_designated_public_phase VARCHAR(50) DEFAULT NULL
+            ADD _ps_designated_public_phase DATETIME DEFAULT NULL,
+            ADD _ps_designated_switch_date VARCHAR(50) DEFAULT NULL,
+            ADD _ps_designated_public_switch_date DATETIME DEFAULT NULL,
+            ADD _ps_designated_end_date DATETIME DEFAULT NULL
+            ADD _ps_designated_public_end_date DATETIME DEFAULT NULL
         ');
 
         $this->addSql('
