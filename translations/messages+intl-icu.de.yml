@@ -3354,9 +3354,39 @@ statement.save.altered: "Stellungnahme verändert speichern"
 statement.save.as.draft: "Stellungnahme als Entwurf speichern"
 statement.save.immediate: "Stellungnahme direkt einreichen"
 statement.save.text: "Sie haben Änderungen am Text der Stellungnahme vorgenommen. Wenn Sie fortfahren, werden diese ebenfalls gespeichert."
+statement.send: "Stellungnahme versenden"
 statement.send.email: "Stellungnahme per E-Mail versenden"
 statement.send.email.label: "Sende unten stehende Stellungnahme an"
-statement.send: "Stellungnahme versenden"
+statement.send.final_mail.default: |
+    <p>
+        Guten Tag,
+    </p>
+
+    <p>
+        Sie haben zum Bauleitplanverfahren {procedureName}
+        im Rahmen der Beteiligung nach §4 Abs.2 BauGB Stellungnahmen abgegeben.
+        Der Bauleitplan wurde inzwischen vom Rat der Gemeinde/der Stadt abschließend (Flächennutzungsplan)
+        bzw. als Satzung (Bebauungsplan) beschlossen.
+    </p>
+
+    {statementText}
+
+    <p>
+        Der Rat der Gemeinde/der Stadt hat zu Ihrer Stellungnahme wie folgt entschieden:
+    </p>
+
+    {statementRecommendation}
+
+    <p>
+      Bei dieser Mitteilung handelt es sich nicht um einen Verwaltungsakt im Sinne des Landesverwaltungsgesetzes.
+      Den beschlossenen Stand der Planung (Planzeichnung und Begründung) können Sie bei der Gemeinde einsehen.
+    </p>
+
+    <p>
+        Mit freundlichen Grüßen<br>
+        {orgaName}
+    </p>
+statement.send.final_mail.your_statement: "<p>Sie haben die folgende Stellungnahme abgegeben:</p>"
 statement.similarStatementSubmitters: "Weitere Einreichende der gleichen Stellungnahme"
 statement.similarStatementSubmitters.add: "Einreicher*in hinzufügen"
 statement.similarStatementSubmitters.hint: "Falls von weiteren Einreichenden inhaltlich identische Stellungnahmen eingegangen sind, können diese Personen hier angegeben werden."
