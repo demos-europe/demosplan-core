@@ -256,5 +256,4 @@ class Version20240321192129 extends AbstractMigration
             $this->setExternalPhaseDataToProcedureSetting($externalPhase, $procedure['_p_id']);
         }
     }
-
 }
