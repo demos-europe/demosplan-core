@@ -850,6 +850,8 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
                 ->propertyHasValue(false, ['masterTemplate'])
                 ->propertyHasValueAfterNow([$phase, 'endDate']);
 
+            $query->getSortDefinition()->propertyDescending([$phase, 'endDate']);
+
             $notEndedProcedures = $query->getEntities();
 
             $currentTime = Carbon::today();
