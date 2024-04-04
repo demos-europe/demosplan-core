@@ -1886,80 +1886,71 @@ Email:',
         static::assertTrue($date4->isSameSecond($loggedDate));
     }
 
-    //    The following Tests should be moved into the ProcedureHandlerTest, because these tests are testing the validation
-    //    /**
-    //     * @expectedException \InvalidArgumentException
-    //     */
-    //    public function testSetPublicAutoSwitchInvalidPhase()
-    //    {
-    //        /** @var Procedure $procedure */
-    //        $procedure = $this->fixtures->getReference('testProcedure4');
-    //
-    //        static::assertNull($this->sut->getDesignatedPublicPhase($procedure));
-    //        static::assertNull($this->sut->getDateOfSwitchPublicPhase($procedure));
-    //
-    //        $invalidPhase = 'blalbllbalab';
-    //        $validDate = new \DateTime();
-    //        $validDate->setDate(1999, 4, 4);
-    //        $validEndDate = new \DateTime();
-    //        $validEndDate->setDate(1999, 5, 5);
-    //        $this->setAutoSwitch($procedure, $invalidPhase, $validDate, $validEndDate, $this->mockSession);
-    //    }
-    //
-    //    /**
-    //     * @expectedException \InvalidArgumentException
-    //     */
-    //    public function testSetAutoSwitchInvalidPhase()
-    //    {
-    //        /** @var Procedure $procedure */
-    //        $procedure = $this->fixtures->getReference('testProcedure4');
-    //
-    //        static::assertNull($this->sut->getDesignatedPhase($procedure));
-    //        static::assertNull($this->sut->getDateOfSwitchPhase($procedure));
-    //
-    //        $invalidPhase = 'blalbllbalab';
-    //        $validDate = new \DateTime();
-    //        $validDate->setDate(1999, 4, 4);
-    //        $validEndDate = new \DateTime();
-    //        $validEndDate->setDate(1999, 5, 5);
-    //        $this->setAutoSwitchPublic($procedure, $invalidPhase, $validDate, $validEndDate, $this->mockSession);
-    //    }
-    //
-    //    /**
-    //     * @expectedException \InvalidArgumentException
-    //     */
-    //    public function testSetAutoSwitchInvalidDate()
-    //    {
-    //        /** @var Procedure $procedure */
-    //        $procedure = $this->fixtures->getReference('testProcedure4');
-    //
-    //        static::assertNull($this->sut->getDesignatedPhase($procedure));
-    //        static::assertNull($this->sut->getDateOfSwitchPhase($procedure));
-    //
-    //        $validPhase = 'configure';
-    //        $invalidDate = 'someDate';
-    //        $validEndDate = new \DateTime();
-    //        $validEndDate->setDate(1999, 5, 5);
-    //        $this->setAutoSwitchPublic($procedure, $validPhase, $invalidDate, $validEndDate, $this->mockSession);
-    //    }
-    //
-    //    /**
-    //     * @expectedException \InvalidArgumentException
-    //     */
-    //    public function testSetPublicAutoSwitchInvalidDate()
-    //    {
-    //        /** @var Procedure $procedure */
-    //        $procedure = $this->fixtures->getReference('testProcedure4');
-    //
-    //        static::assertNull($this->sut->getDesignatedPublicPhase($procedure));
-    //        static::assertNull($this->sut->getDateOfSwitchPublicPhase($procedure));
-    //
-    //        $validPhase = 'configure';
-    //        $invalidDate = 'someDate';
-    //        $validEndDate = new \DateTime();
-    //        $validEndDate->setDate(1999, 5, 5);
-    //        $this->setAutoSwitchPublic($procedure, $validPhase, $invalidDate, $validEndDate, $this->mockSession);
-    //    }
+    public function testSetPublicAutoSwitchInvalidPhase(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        /** @var Procedure $procedure */
+        $procedure = $this->fixtures->getReference('testProcedure4');
+
+        static::assertNull($procedure->getPublicParticipationPhaseObject()->getDesignatedPhase());
+        static::assertNull($procedure->getPublicParticipationPhaseObject()->getDesignatedSwitchDate());
+
+        $invalidPhase = 'blalbllbalab';
+        $validDate = new \DateTime();
+        $validDate->setDate(1999, 4, 4);
+        $validEndDate = new \DateTime();
+        $validEndDate->setDate(1999, 5, 5);
+        $this->setAndUpdateAutoSwitch(['id' => $procedure->getId()], $validDate, $invalidPhase);
+    }
+
+    public function testSetAutoSwitchInvalidPhase(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        /** @var Procedure $procedure */
+        $procedure = $this->fixtures->getReference('testProcedure4');
+
+        static::assertNull($procedure->getPhaseObject()->getDesignatedPhase());
+        static::assertNull($procedure->getPhaseObject()->getDesignatedSwitchDate());
+
+        $invalidPhase = 'blalbllbalab';
+        $validDate = new \DateTime();
+        $validDate->setDate(1999, 4, 4);
+        $validEndDate = new \DateTime();
+        $validEndDate->setDate(1999, 5, 5);
+        $this->setAndUpdateAutoSwitchPublic(['id' => $procedure->getId()], $validDate, $invalidPhase);
+    }
+
+    public function testSetAutoSwitchInvalidDate(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        /** @var Procedure $procedure */
+        $procedure = $this->fixtures->getReference('testProcedure4');
+
+        static::assertNull($procedure->getPhaseObject()->getDesignatedPhase());
+        static::assertNull($procedure->getPhaseObject()->getDesignatedSwitchDate());
+
+        $validPhase = 'configure';
+        $invalidDate = 'someDate';
+        $validEndDate = new \DateTime();
+        $validEndDate->setDate(1999, 5, 5);
+        $this->setAndUpdateAutoSwitchPublic(['id' => $procedure->getId()], $invalidDate, $validPhase);
+    }
+
+    public function testSetPublicAutoSwitchInvalidDate(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        /** @var Procedure $procedure */
+        $procedure = $this->fixtures->getReference('testProcedure4');
+
+        static::assertNull($procedure->getPublicParticipationPhaseObject()->getDesignatedPhase());
+        static::assertNull($procedure->getPublicParticipationPhaseObject()->getDesignatedSwitchDate());
+
+        $validPhase = 'configure';
+        $invalidDate = 'someDate';
+        $validEndDate = new \DateTime();
+        $validEndDate->setDate(1999, 5, 5);
+        $this->setAndUpdateAutoSwitchPublic(['id' => $procedure->getId()], $validPhase, $invalidDate, $validEndDate, $this->mockSession);
+    }
 
     public function testIsAutoSwitchPossible(): void
     {
@@ -1999,23 +1990,8 @@ Email:',
         static::assertEquals($designatedPublicPhase, $updatedProcedure->getPublicParticipationPhase());
     }
 
-    public function testInvalidAutoSwitchingPhase(): void
-    {
-        // fixme:
-        $this->expectException(Exception::class);
-
-        /** @var Procedure $procedure */
-        $procedure = $this->fixtures->getReference('testProcedure4');
-        static::assertFalse($this->sut->isAutoSwitchOfPublicPhasePossible($procedure));
-        static::assertFalse($this->sut->isAutoSwitchOfPhasePossible($procedure));
-
-        $this->sut->switchToDesignatedPhase($procedure);
-    }
-
     public function testGetProceduresToSwitchOnDay(): void
     {
-        self::markSkippedForCIIntervention();
-
         /** @var Procedure $procedure */
         $procedure = $this->getTestProcedure();
 
@@ -2042,7 +2018,6 @@ Email:',
 
         // check structure of result
         static::assertIsArray($listOfProcedures);
-        // one external and one internal are expected:
         static::assertCount(1, $listOfProcedures);
         static::assertEquals($procedure, $listOfProcedures[0]);
 
@@ -2051,17 +2026,14 @@ Email:',
 
         // reset autoswitch?!
         $procedure = $this->sut->getProcedure($procedure->getId());
-        $this->setAndUpdateAutoSwitchPublic($procedure, $autoSwitchPublicDate->toDateTime(), 'configuration');
-        $this->setAndUpdateAutoSwitch($procedure, $autoSwitchDate->toDateTime(), 'participation');
+
+        $this->setAndUpdateAutoSwitchPublic(['id' => $procedure->getId()], $autoSwitchPublicDate, 'configuration');
+        $this->setAndUpdateAutoSwitch(['id' => $procedure->getId()], $autoSwitchDate, 'participation');
+
         $listOfProcedures = $this->sut->getProceduresToSwitchUntilNow();
 
         // check structure of result
         static::assertIsArray($listOfProcedures);
-        static::assertCount(2, $listOfProcedures);
-        static::assertArrayHasKey(Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL, $listOfProcedures);
-        static::assertArrayHasKey(Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL, $listOfProcedures);
-
-        // check content of result
         static::assertCount(1, $listOfProcedures);
         static::assertEquals($procedure, $listOfProcedures[0]);
 
@@ -2114,14 +2086,8 @@ Email:',
 
         // check structure of result
         static::assertIsArray($proceduresToSwitch);
-        static::assertCount(2, $proceduresToSwitch);
-        static::assertArrayHasKey(Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL, $proceduresToSwitch);
-        static::assertArrayHasKey(Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL, $proceduresToSwitch);
-
-        // check content of result
-        static::assertCount(1, $proceduresToSwitch[Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL]);
-        static::assertEquals($testProcedure, $proceduresToSwitch[Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL][0]);
-        static::assertCount(0, $proceduresToSwitch[Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL]);
+        static::assertCount(1, $proceduresToSwitch);
+        static::assertEquals($testProcedure, $proceduresToSwitch[0]);
     }
 
     public function testGetFullIdList(): void
@@ -3423,7 +3389,7 @@ Email:',
      */
     protected function setAndUpdateAutoSwitchPublic(
         array $procedureUpdateData,
-        ?DateTime $designatedSwitchDate,
+        $designatedSwitchDate,
         ?string $designatedPhase
     ): array {
         try {
