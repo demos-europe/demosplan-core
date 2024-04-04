@@ -857,6 +857,8 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
                 ->propertyHasValue(false, ['masterTemplate'])
                 ->propertyHasValueAfterNow([$phase, 'endDate']);
 
+            $query->getSortDefinition()->propertyDescending([$phase, 'endDate']);
+
             $notEndedProcedures = $query->getEntities();
 
             $currentTime = Carbon::today();
@@ -1340,8 +1342,8 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
     }
 
     /**
-     * Procedures to switch are defined by {@link ProcedureSettings::$designatedSwitchDate} and
-     * {@link ProcedureSettings::$designatedPublicSwitchDate}.
+     * Procedures to switch are defined by {@link ProcedurePhase::$designatedSwitchDate} and
+     * {@link ProcedurePhase::$designatedPublicSwitchDate}.
      * The needed accuracy is limited to 15 minutes, therefore a check of current timestamp will be
      * sufficient.
      *

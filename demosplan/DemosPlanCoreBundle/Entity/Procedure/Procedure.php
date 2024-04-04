@@ -760,8 +760,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     /**
      * @param string $phaseKey
-     *
-     * @return $this
      */
     public function setPhase($phaseKey): Procedure
     {

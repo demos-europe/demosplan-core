@@ -111,6 +111,7 @@
         <dp-multiselect
           v-model="currentProcedureType"
           class="layout__item u-1-of-1 u-pl-0 u-mb inline-block"
+          data-cy="procedureType"
           label="name"
           :data-dp-validate-error-fieldname="Translator.trans('text.procedures.type')"
           :options="procedureTypes"

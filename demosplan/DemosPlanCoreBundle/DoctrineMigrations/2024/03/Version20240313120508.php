@@ -48,12 +48,9 @@ class Version20240313120508 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $procedurePhases = $this->getPhaseDataOfAllProcedures();
-
-        foreach ($procedurePhases as $phase) {
-            $this->addInternalPhase($phase);
-            $this->addExternalPhase($phase);
-        }
+        $this->addSql('UPDATE `_procedure` SET phase_id = NULL');
+        $this->addSql('UPDATE `_procedure` SET public_participation_phase_id = NULL ');
+        $this->addSql('DELETE FROM procedure_phase');
     }
 
     /**

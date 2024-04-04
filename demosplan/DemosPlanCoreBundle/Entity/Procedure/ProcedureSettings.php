@@ -198,34 +198,6 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     protected $pictogram;
 
     /**
-     * @var DateTime
-     *
-     * @ORM\Column(name="_ps_designated_switch_date", type="datetime", nullable=true)
-     */
-    protected $designatedSwitchDate;
-
-    /**
-     * @var DateTime
-     *
-     * @ORM\Column(name="_ps_designated_public_switch_date", type="datetime", nullable=true)
-     */
-    protected $designatedPublicSwitchDate;
-
-    /**
-     * @var DateTime
-     *
-     * @ORM\Column(name="_ps_designated_end_date", type="datetime", nullable=true)
-     */
-    protected $designatedEndDate;
-
-    /**
-     * @var DateTime
-     *
-     * @ORM\Column(name="_ps_designated_public_end_date", type="datetime", nullable=true)
-     */
-    protected $designatedPublicEndDate;
-
-    /**
      * @var bool
      *
      * @ORM\Column(name="_ps_send_mails_to_counties", type="boolean", nullable=false, options={"default":false})
