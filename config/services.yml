@@ -301,10 +301,7 @@ services:
         arguments: ['%kernel.default_locale%']
         tags: [kernel.event_subscriber]
 
-    demosplan\DemosPlanCoreBundle\EventSubscriber\ProcedureCoupleTokenSubscriber:
-        arguments:
-            $typeResolver: '@EDT\JsonApi\ApiDocumentation\AttributeTypeResolver'
-            $propertyAccessor: '@EDT\DqlQuerying\PropertyAccessors\Iso8601PropertyAccessor'
+    demosplan\DemosPlanCoreBundle\EventSubscriber\ProcedureCoupleTokenSubscriber: ~
 
     demosplan\DemosPlanCoreBundle\Form\ProcedureTypeFormType: ~
 
