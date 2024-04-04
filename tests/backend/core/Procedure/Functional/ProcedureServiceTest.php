@@ -3403,28 +3403,29 @@ Email:',
     /**
      * Set designated external phase and designated date of a specific procedure.
      * Necessary to enable switch of phase of a specific procedure.
-     * The idea is, that a cronjob will switch the external phase of the procedure
+     * A cronjob will switch the external phase of the procedure
      * to the designatedPhase on the given date.
      *
-     * @param Procedure     $procedure            - procedure, whose external designated phase and designated date will be set
-     * @param DateTime|null $designatedSwitchDate
-     * @param string|null   $designatedPhase
-     *
-     * @return Procedure - updated procedure
+     * @param array $procedureUpdateData - procedure, whose external designated phase and designated date will be set
      *
      * @throws Exception
      */
     protected function setAutoSwitchPublic(Procedure $procedure, $designatedSwitchDate, $designatedPhase)
     {
+    protected function setAndUpdateAutoSwitchPublic(
+        array $procedureUpdateData,
+        ?DateTime $designatedSwitchDate,
+        ?string $designatedPhase
+    ): array {
         try {
             if ($this->isValidDesignatedPhase($designatedPhase)) {
-                $procedure->getSettings()->setDesignatedPublicPhase($designatedPhase);
-                $procedure->getSettings()->setDesignatedPublicSwitchDate($designatedSwitchDate);
+                $procedureUpdateData['settings']['designatedPublicPhase'] = $designatedPhase;
+                $procedureUpdateData['settings']['designatedPublicSwitchDate'] = $designatedSwitchDate->format('d.m.Y H:i:s');
             } else {
                 throw new InvalidArgumentException('Invalid phasekey: '.$designatedPhase);
             }
 
-            return $this->sut->updateProcedureObject($procedure);
+            return $this->sut->updateProcedure($procedureUpdateData);
         } catch (Exception $e) {
             throw $e;
         }
