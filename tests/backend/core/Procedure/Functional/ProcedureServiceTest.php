@@ -2001,7 +2001,7 @@ Email:',
 
     public function testInvalidAutoSwitchingPhase(): void
     {
-        //fixme:
+        // fixme:
         $this->expectException(Exception::class);
 
         /** @var Procedure $procedure */
@@ -3446,7 +3446,7 @@ Email:',
      * The cronjob will switch the phase of the procedure
      * to the designatedPhase on the given date.
      *
-     * @param array     $procedureData - procedure, whose internal designated phase and designated date will be set
+     * @param array $procedureData - procedure, whose internal designated phase and designated date will be set
      *
      * @throws Exception
      */
