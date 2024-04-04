@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 
 /**
  * @template-extends DplanResourceType<StatementFormDefinition>
@@ -67,11 +68,11 @@ final class StatementFormDefinitionResourceType extends DplanResourceType
         return 'StatementFormDefinition';
     }
 
-    protected function getProperties(): array
+    protected function getProperties(): array|ResourceConfigBuilderInterface
     {
         return [
             $this->createIdentifier()->readable()->sortable()->filterable(),
-            $this->createToOneRelationship($this->fieldDefinitions)->readable()->sortable()->filterable(),
+            $this->createToManyRelationship($this->fieldDefinitions)->readable()->sortable()->filterable(),
             $this->createToManyRelationship($this->procedure)->readable()->sortable()->filterable(),
             $this->createToOneRelationship($this->procedureType)->readable()->sortable()->filterable(),
         ];

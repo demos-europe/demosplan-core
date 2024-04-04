@@ -28,7 +28,7 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Factory\PercentageDistributionFactoryInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\Factory\PercentageDistributionFactory'
 
-    DemosEurope\DemosplanAddon\Contracts\Services\ServiceStorageInterface:
+    DemosEurope\DemosplanAddon\Contracts\Services\ProcedureServiceStorageInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceStorage'
 
     DemosEurope\DemosplanAddon\Contracts\Services\SingleDocumentServiceInterface:
@@ -389,7 +389,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\MailService:
         arguments:
-            $logger: '@monolog.logger.dplan_mail'
             $mailer: '@demosplan\DemosPlanCoreBundle\Logic\TestMailer'
         lazy: true
 
@@ -674,6 +673,13 @@ services:
             - [ 'setClient', [ '@old_sound_rabbit_mq.demos_plan_import_rpc' ]]
 
     demosplan\DemosPlanCoreBundle\Tools\PdfCreatorInterface: '@demosplan\DemosPlanCoreBundle\Tools\PdfCreatorRabbitmq'
+
+    demosplan\DemosPlanCoreBundle\Tools\VirusCheckRabbitmq:
+        calls:
+            - [ 'setClient', [ '@old_sound_rabbit_mq.demos_plan_import_rpc' ]]
+
+    demosplan\DemosPlanCoreBundle\Tools\VirusCheckInterface: '@demosplan\DemosPlanCoreBundle\Tools\VirusCheckRabbitmq'
+
     demosplan\DemosPlanCoreBundle\Logic\Document\ElementHandler:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
         lazy: true
@@ -1085,7 +1091,7 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\Segment\RpcSegmentFacetsProvider:
         lazy: true
         arguments:
-            $drupalFilterParser: '@EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser'
+            $filterParser: '@EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser'
 
     demosplan\DemosPlanCoreBundle\StoredQuery\QuerySegment:
         parent: demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery
@@ -1199,10 +1205,7 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\User\UserMapper: ~
 
-    demosplan\DemosPlanCoreBundle\Logic\User\UserMapperDataportGateway:
-        lazy: true
-        arguments:
-            $logger: '@monolog.logger.dplan_gateway'
+    demosplan\DemosPlanCoreBundle\Logic\User\UserMapperDataportGateway: ~
 
     demosplan\DemosPlanCoreBundle\Logic\User\UserMapperDataportGatewaySH:
         lazy: true

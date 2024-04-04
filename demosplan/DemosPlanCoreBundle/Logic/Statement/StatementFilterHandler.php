@@ -161,7 +161,7 @@ class StatementFilterHandler extends CoreHandler
     {
         $translator = $this->translator;
         $statusLabels = collect($this->getFormParameter('statement_status'))
-            ->transform(fn($transkey) => $translator->trans($transkey))
+            ->transform(fn ($transkey) => $translator->trans($transkey))
             ->toArray();
 
         return $this->getTranslatedLabelMapOptions($options, $statusLabels);
@@ -442,9 +442,11 @@ class StatementFilterHandler extends CoreHandler
             [
                 'key'           => 'reasonParagraph',
                 // FB or FPA
-                'hasPermission' => $this->permissions->hasPermission(
-                    'area_admin_assessmenttable'
-                ),
+                'hasPermission' => $this->permissions->hasPermissions(
+                    [
+                    'area_admin_assessmenttable',
+                        'feature_documents_category_use_paragraph',
+                    ]),
                 'type'          => 'statement',
             ],
             // Datei - documentParentId - documentParentId

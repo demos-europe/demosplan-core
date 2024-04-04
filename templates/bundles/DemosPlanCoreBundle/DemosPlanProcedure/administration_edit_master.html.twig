@@ -104,7 +104,7 @@
             <label>
                 {{ "internalnote"|trans }}
                 {# Bei textareas muss der Inhalt ohne Leerzeichen zwischen den Tags stehen, sonst werden die Leerzeichen ausgegeben und multiplizieren sich im Frontend. #}
-                <textarea class="height-60" name="r_desc">{% if proceduresettings.desc is defined %}{{ proceduresettings.desc }}{% else %}{{ "notspecified"|trans }}{% endif %}</textarea>
+                <textarea class="h-7" name="r_desc">{% if proceduresettings.desc is defined %}{{ proceduresettings.desc }}{% else %}{{ "notspecified"|trans }}{% endif %}</textarea>
             </label>
 
             <div class="u-mb flow-root">
@@ -170,7 +170,7 @@
                         <a
                             target="_blank"
                             rel="noopener"
-                            href="{{ path("core_file", { 'hash': proceduresettings.settings.pictogram|getFile('hash') }) }}">
+                            href="{{ path("core_file_procedure", { 'hash': proceduresettings.settings.pictogram|getFile('hash'), 'procedureId': procedure }) }}">
                             {{ proceduresettings.settings.pictogram|getFile('name') }}
                         </a>
                     {% else %}

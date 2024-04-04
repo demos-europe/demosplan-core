@@ -134,7 +134,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     /**
      * Initialisiere die Permissions.
      */
-    public function initPermissions(UserInterface $user, array $context = null): PermissionsInterface
+    public function initPermissions(UserInterface $user, ?array $context = null): PermissionsInterface
     {
         $this->user = $user;
 
@@ -156,11 +156,9 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
      */
     public function evaluateUserInvitedInProcedure(Procedure $procedure, Session $session): void
     {
-        if ($this->hasPermission('feature_public_consultation')) {
-            $invitedProcedures = $session->get('invitedProcedures', []);
-            if (\in_array($procedure->getId(), $invitedProcedures, true)) {
-                $this->userInvitedInProcedure = true;
-            }
+        $invitedProcedures = $session->get('invitedProcedures', []);
+        if (\in_array($procedure->getId(), $invitedProcedures, true)) {
+            $this->userInvitedInProcedure = true;
         }
     }
 
@@ -884,7 +882,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     /**
      * Setzt das initiale Set von kontxtbezogenen Menue-Highlights.
      */
-    protected function initMenuhightlighting(array $context = null): void
+    protected function initMenuhightlighting(?array $context = null): void
     {
         if (null !== $context) {
             foreach ($context as $permission) {
@@ -1045,7 +1043,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     {
         // Simply checks each permission individually for now.
         // Optimizations may be implemented in the future.
-        array_map([$this, 'requirePermission'], $permissionIdentifiers);
+        array_map($this->requirePermission(...), $permissionIdentifiers);
     }
 
     public function isPermissionEnabled($permissionIdentifier): bool

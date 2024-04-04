@@ -898,8 +898,8 @@ class EntityContentChangeService extends CoreService
     {
         $flags = $user->getFlags();
 
-        return !(isset($flags[UserFlagKey::ASSIGNED_TASK_NOTIFICATION])
-            && (0 === $flags[UserFlagKey::ASSIGNED_TASK_NOTIFICATION] || false === $flags[UserFlagKey::ASSIGNED_TASK_NOTIFICATION]));
+        return !(isset($flags[UserFlagKey::ASSIGNED_TASK_NOTIFICATION->value])
+            && (0 === $flags[UserFlagKey::ASSIGNED_TASK_NOTIFICATION->value] || false === $flags[UserFlagKey::ASSIGNED_TASK_NOTIFICATION->value]));
     }
 
     private function sendUserAssignedTasksNotificationMail(array $mailData, User $user, int $mailCounter): int

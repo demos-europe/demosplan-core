@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
+use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -43,6 +44,7 @@ use Webmozart\Assert\Assert;
  * @property-read PlanningDocumentCategoryResourceType $parent
  * @property-read ProcedureResourceType $procedure
  * @property-read SingleDocumentResourceType $documents
+ * @property-read SingleDocumentResourceType $visibleDocuments
  */
 final class PlanningDocumentCategoryResourceType extends DplanResourceType
 {
@@ -180,7 +182,18 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType
                 true
             );
         }
+
+        // We provide two lists of SingleDocuments to the frontend. For both lists, the SingleDocumentResourceType will
+        // automatically check if a user has the necessary permissions to access non-visible documents. However, for
+        // convenience one of them will always contain visible documents only, even if the user has the permission
+        // to access non-visible ones.
         $documents = $this->createToManyRelationship($this->documents);
+        $visibleDocuments = $this->createToManyRelationship($this->visibleDocuments);
+        $visibleDocumentsReadFunction = static fn (Elements $element): array => $element
+            ->getDocuments()
+            ->filter(static fn (SingleDocument $document): bool => $document->getVisible())
+            ->getValues();
+
         $index = $this->createAttribute($this->index)->readable(true)->aliasedPath($this->order);
 
         $properties = [
@@ -190,6 +203,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType
             $title,
             $text,
             $documents,
+            $visibleDocuments,
         ];
 
         if ($this->currentUser->hasPermission('field_procedure_elements')) {
@@ -198,6 +212,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType
             $title->readable(true);
             $text->readable(true);
             $documents->readable(true, null, true);
+            $visibleDocuments->readable(true, $visibleDocumentsReadFunction, true);
             $properties = [...$properties, $fileInfo, $filePathWithHash, $children];
         }
 
@@ -205,6 +220,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType
             $parentId->readable(true);
             $title->readable(true);
             $documents->readable(true, null, true);
+            $visibleDocuments->readable(true, $visibleDocumentsReadFunction, true);
             if (!\in_array($fileInfo, $properties, true)) {
                 $properties[] = $fileInfo;
             }

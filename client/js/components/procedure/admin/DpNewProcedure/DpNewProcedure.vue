@@ -67,10 +67,12 @@
             v-text="Translator.trans('public.participation.desc')"
             class="weight--bold" />
           <dd
+            v-text="Translator.trans('planningcause.select.hint')"
             id="js__plisPlanungsanlass"
-            class="u-m-0" />
+            class="u-m-0 lbl__hint" />
         </dl>
       </template>
+
       <dp-form-row
         class="u-mb-0_75"
         v-else>
@@ -109,7 +111,9 @@
         <dp-multiselect
           v-model="currentProcedureType"
           class="layout__item u-1-of-1 u-pl-0 u-mb inline-block"
+          data-cy="procedureType"
           label="name"
+          :data-dp-validate-error-fieldname="Translator.trans('text.procedures.type')"
           :options="procedureTypes"
           required
           track-by="id">
@@ -166,10 +170,7 @@
           start-name="r_startdate"
           end-id="enddate"
           end-name="r_enddate"
-          :data-cy="{
-            endDate: 'newProcedureForm:endDate',
-            startDate: 'newProcedureForm:startDate'
-          }"
+          data-cy="newProcedureForm"
           :required="hasPermission('field_required_procedure_end_date')"
           :calendars-after="2"
           enforce-plausible-dates />
