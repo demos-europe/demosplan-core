@@ -136,6 +136,7 @@
         :attachments="filteredAttachments"
         :current-user-id="currentUser.id"
         :editable="editable"
+        :statement-form-definitions="statementFormDefinitions"
         :statement="statement"
         :submit-type-options="submitTypeOptions"
         @close="showInfobox = false"
@@ -239,6 +240,11 @@ export default {
     statementExternId: {
       type: String,
       required: true
+    },
+
+    statementFormDefinitions: {
+      required: true,
+      type: Object
     },
 
     submitTypeOptions: {
@@ -359,7 +365,7 @@ export default {
         orgaName: ''
       }
     },
-
+    // TO DO: add check for original statement
     editable () {
       return this.isCurrentUserAssigned && !this.statement.attributes.synchronized
     },

@@ -22,16 +22,59 @@
       class="u-mt-0_5"
       data-dp-validate="statementMetaData">
       <div class="inline-block u-1-of-2 align-top">
+<!--    TO DO: add if not participationGuestOnly  -->
         <dp-input
-          id="statementSubmitter"
-          v-model="localStatement.attributes.authorName"
+          v-if="hasPermission('field_statement_meta_orga_name')"
+          id="submitterRole"
           class="u-mb-0_5"
-          :disabled="statement.isManual ? false : !editable"
+          disabled
+          :label="{
+            text: Translator.trans('submitted.author'),
+          }"
+          :value="submitterRole" />
+        <dp-contextual-help
+          v-if="isSubmitterAnonymous()"
+          class="float-right mt-0.5"
+          :text="submitterHelpText" />
+        <dp-input
+          v-if="hasPermission('field_statement_meta_submit_name') && this.statementFormDefinitions.name.enabled"
+          id="statementSubmitter"
+          v-model="statementSubmitterValue"
+          class="u-mb-0_5"
+          :disabled="!statement.attributes.isManual || !editable || isSubmitterAnonymous()"
           :label="{
             text: Translator.trans('submitter')
           }"
-          @input="(val) => emitInput('authorName', val)" />
+          @input="(val) => emitInput(statementSubmitterField, val)" />
         <dp-input
+          v-if="hasPermission('field_statement_meta_orga_department_name') && !this.localStatement.attributes.isSubmittedByCitizen"
+          id="statementDepartmentName"
+          v-model="localStatement.attributes.initialOrganisationDepartmentName"
+          class="u-mb-0_5"
+          :disabled="statement.isManual ? false : !editable"
+          :label="{
+            text: Translator.trans('department')
+          }"
+          @input="(val) => emitInput('initialOrganisationDepartmentName', val)" />
+        <dp-input
+          v-if="localStatement.attributes.represents"
+          id="statementRepresentation"
+          disabled
+          :label="{
+            text: Translator.trans('statement.representation.assessment')
+          }"
+          :value="localStatement.attributes.represents" />
+        <dp-input
+          v-if="localStatement.attributes.represents"
+          id="representationCheck"
+          v-model="localStatement.attributes.representationChecked"
+          :disabled="statement.isManual ? false : !editable"
+          :label="{
+            text: Translator.trans('statement.representation.checked')
+          }"
+          type="checkbox" />
+        <dp-input
+          v-if="hasPermission('field_statement_submitter_email_address') || statement.isManual"
           id="statementEmailAddress"
           v-model="localStatement.attributes.submitterEmailAddress"
           class="u-mb-0_5"
@@ -41,6 +84,7 @@
           }"
           type="email"
           @input="(val) => emitInput('submitterEmailAddress', val)" />
+<!--        TO DO: add if not participationGuestOnly -->
         <dp-input
           v-if="!this.localStatement.attributes.isSubmittedByCitizen"
           id="statementOrgaName"
@@ -51,16 +95,6 @@
             text: Translator.trans('organisation')
           }"
           @input="(val) => emitInput('initialOrganisationName', val)" />
-        <dp-input
-          v-if="!this.localStatement.attributes.isSubmittedByCitizen"
-          id="statementDepartmentName"
-          v-model="localStatement.attributes.initialOrganisationDepartmentName"
-          class="u-mb-0_5"
-          :disabled="statement.isManual ? false : !editable"
-          :label="{
-            text: Translator.trans('department')
-          }"
-          @input="(val) => emitInput('initialOrganisationDepartmentName', val)" />
         <div class="o-form__group u-mb-0_5">
           <dp-input
             id="statementStreet"
@@ -224,6 +258,7 @@
 <script>
 import {
   DpButtonRow,
+  DpContextualHelp,
   DpDatepicker,
   DpIcon,
   DpInput,
@@ -248,6 +283,7 @@ export default {
 
   components: {
     DpButtonRow,
+    DpContextualHelp,
     DpDatepicker,
     DpIcon,
     DpInput,
@@ -281,6 +317,11 @@ export default {
     statement: {
       type: Object,
       required: true
+    },
+
+    statementFormDefinitions: {
+      required: true,
+      type: Object
     },
 
     submitTypeOptions: {
@@ -325,6 +366,61 @@ export default {
       return null
     },
 
+    statementSubmitterField () {
+      const attr = this.localStatement.attributes
+      let submitterField = 'authorName'
+      // If submitter is an orga and name has a value
+      if (attr.submitName && !attr.isSubmittedByCitizen) {
+        submitterField = 'submitName'
+      }
+
+      return submitterField
+    },
+
+    statementSubmitterValue: {
+      get () {
+        const attr = this.localStatement.attributes
+        let submitterValue = attr[this.statementSubmitterField]
+        // If submitter has revoked the gdpr consent for this statement or statement has been anonymized
+        if (this.isSubmitterAnonymous()) {
+          submitterValue = Translator.trans('anonymized')
+        }
+
+        return submitterValue
+      },
+      set (value) {
+        this.localStatement.attributes[this.statementSubmitterField] = value
+      }
+    },
+
+    submitterHelpText () {
+      const attr = this.localStatement.attributes
+      let helpText = ''
+
+      if (attr.gdprConsent && attr.gdprConsent.consentRevoked) {
+        helpText = Translator.trans('personal.data.usage.revoked')
+        if (hasPermission('area_statement_anonymize') &&
+          attr.original.submitterAndAuthorMetaDataAnonymized) {
+          helpText = helpText + `<br><br>${Translator.trans('statement.anonymized.submitter.data')}`
+        }
+      } else if (hasPermission('area_statement_anonymize') &&
+        attr.original.submitterAndAuthorMetaDataAnonymized) {
+        helpText = Translator.trans('statement.anonymized.submitter.data')
+      }
+
+      return helpText
+    },
+
+    submitterRole () {
+      let submitterRole = Translator.trans('institution')
+      if (this.localStatement.attributes.isSubmittedByCitizen &&
+          this.localStatement.attributes.submitterRole !== 'publicagency') {
+        submitterRole = Translator.trans('role.citizen')
+      }
+
+      return submitterRole
+    },
+
     submitType () {
       if (!this.statement.attributes.submitType) {
         return '-'
@@ -359,6 +455,13 @@ export default {
       return date.match(/[0-9]{2}.[0-9]{2}.[0-9]{4}/)
         ? date
         : convert(date)
+    },
+
+    isSubmitterAnonymous () {
+      const attr = this.localStatement.attributes
+
+      return (attr.gdprConsent && attr.gdprConsent.consentRevoked) ||
+              attr.original.submitterAndAuthorMetaDataAnonymized
     },
 
     reset () {
