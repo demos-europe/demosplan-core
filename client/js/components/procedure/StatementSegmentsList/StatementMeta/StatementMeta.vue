@@ -22,7 +22,6 @@
       class="u-mt-0_5 flex gap-2"
       data-dp-validate="statementMetaData">
       <div class="inline-block w-1/2 align-top">
-        <!-- @todo we have to add the logic here, that it could be an institution -->
         <dp-input
           id="statementSubmitter"
           v-model="localStatement.attributes.authorName"
