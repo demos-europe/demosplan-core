@@ -269,13 +269,82 @@
       :procedure-id="procedure.id"
       :similar-statement-submitters="similarStatementSubmitters"
       :statement-id="statement.id" />
+
+    <dp-accordion
+      class="mt-2"
+      :title="Translator.trans('statement.final.send')">
+      <template v-if="!localStatement.attributes.sendFinalMail">
+        {{ Translator.trans('explanation.no.statement.final.sent') }}
+      </template>
+      <template v-else-if="'demosplan\\DemosPlanCoreBundle\\Entity\\Statement\\Statement::EXTERNAL' === localStatement.attributes.publicStatement && !localStatement.attributes.authorFeedback">
+        {{ Translator.trans('explanation.no.statement.final.no.feedback.wanted') }}
+      </template>
+      <template v-else-if="localStatement.attributes.email2.length === 0">
+        {{ Translator.trans('explanation.no.statement.final.no.email') }}
+      </template>
+      <template v-else>
+        <template v-if="localStatement.attributes.finalEmailOnlyToVoters">
+          {{ Translator.trans('explanation.statement.final.sent.only.voters') }}
+        </template>
+
+        <p v-if="localStatement.attributes.sentAssessment">
+          {{ localStatement.attributes.sentAssessment
+            ? Translator.trans('confirm.statement.final.sent.date', { date: dplanDate(localStatement.attributes.sentAssessmentDate, 'd.m.Y | H:i') })
+            : Translator.trans('confirm.statement.final.not.sent') }}
+        </p>
+
+        <label v-if="hasPermission('field_organisation_email2_cc')">
+          {{ Translator.trans('email.recipient') }}
+          <p class="lbl--text color--grey">
+            <template v-if="localStatement.attributes.publicStatement === 'external'">
+              {{ localStatement.attributes.publicStatement === 'external'
+                ? Translator.trans('explanation.statement.final.citizen.email.hidden')
+                : localStatement.attributes.email2 }}
+            </template>
+            <template v-if="localStatement.attributes.ccEmail2">
+              {{ `, ${Translator.trans('recipients.additional')}: ${localStatement.attributes.ccEmail2}` }}
+            </template>
+          </p>
+        </label>
+
+        <dp-input
+          id="r_send_emailCC"
+          :label="{
+            text: Translator.trans('email.cc'),
+            hint: Translator.trans('explanation.email.cc')
+          }"
+          v-model="emailsCC"
+          :disabled="!editable" />
+
+        <dp-input
+          id="r_send_title"
+          :label="{
+            text: Translator.trans('subject'),
+          }"
+          :value="Translator.trans('statement.final.email.subject', { procedureName: procedure.name })"
+          :disabled="!editable" />
+
+        <dp-label
+          :text="Translator.trans('final.mail')"
+          for="r_final_mail" />
+        <dp-editor
+          v-if="true /*hasPermission('field_statement_memo') @todo wich permission?*/"
+          :disabled="!editable"
+          id="r_final_mail"
+          name="r_final_mail"
+          reduced-height
+          v-model="finalMailDefaultText" />
+      </template>
+    </dp-accordion>
   </div>
 </template>
 
 <script>
 import {
+  DpAccordion,
   DpButtonRow,
   DpDatepicker,
+  DpEditor,
   DpIcon,
   DpInput,
   DpLabel,
@@ -296,8 +365,10 @@ export default {
   name: 'StatementMeta',
 
   components: {
+    DpAccordion,
     DpButtonRow,
     DpDatepicker,
+    DpEditor,
     DpIcon,
     DpInput,
     DpLabel,
@@ -447,7 +518,7 @@ export default {
       if (!date) {
         return ''
       }
-      return date.match(/[0-9]{2}.[0-9]{2}.[0-9]{4}/)
+      return date.match(/\d{2}.\d{2}.\d{4}/)
         ? date
         : convert(date)
     },
@@ -475,10 +546,11 @@ export default {
       this.localStatement.attributes.submitDate = this.convertDate(this.localStatement.attributes.submitDate)
 
       this.finalMailDefaultText = Translator.trans('statement.send.final_mail.default', {
-        hasStatementText: this.localStatement.attributes.fullText.length < 2000 ? 0 : 1,
         orgaName: this.procedure.orgaName,
         procedureName: this.procedure.name,
-        statementText: this.localStatement.attributes.fullText,
+        statementText: this.localStatement.attributes.fullText.length < 2000
+          ? Translator.trans('statement.send.final_mail.your_statement') + this.localStatement.attributes.fullText
+          : '',
         statementRecommendation: this.localStatement.attributes.recommendation
       })
     },
