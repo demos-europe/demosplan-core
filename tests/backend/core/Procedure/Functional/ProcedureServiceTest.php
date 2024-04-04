@@ -1816,32 +1816,61 @@ Email:',
 
     public function testReportEntryOnSetAutoSwitch(): void
     {
-        self::markSkippedForCIIntervention();
-        // sqlite DB returns not persisted values from procedure_settings
-        // -> unable to test changed values at report entry!'
-
         $procedure = $this->getProcedureReference('testProcedure4');
         $procedureSettings = $procedure->getSettings();
 
         $designatedPublicPhase = $procedureSettings->getDesignatedPublicPhase();
         static::assertNull($designatedPublicPhase);
-
         static::assertNull($procedureSettings->getDesignatedPhase());
-
         static::assertNull($procedureSettings->getDesignatedPublicSwitchDate());
         static::assertNull($procedureSettings->getDesignatedSwitchDate());
 
         $phase = 'configuration';
-        $date4 = new DateTime();
-        $date4->setDate(1999, 9, 9);
-        $updatedProcedure = $this->setAutoSwitchPublic($procedure, $date4, $phase);
+        $date4 = Carbon::create(new DateTime());
+        $date4->setDate(2029, 9, 9);
+
+        static::assertNotEquals($procedure->getPublicParticipationPhaseObject()->getDesignatedPhase(), $phase);
+
+        $updatedProcedureArray = $this->setAndUpdateAutoSwitchPublic(
+            ['id' => $procedure->getId()],
+            $date4->toDateTime(),
+            $phase
+        );
+        $updatedProcedure = $this->sut->getProcedure($updatedProcedureArray['id']);
+
         static::assertEquals($procedure, $updatedProcedure);
         static::assertEquals($phase, $updatedProcedure->getSettings()->getDesignatedPublicPhase());
-        static::assertEquals($date4, $updatedProcedure->getSettings()->getDesignatedPublicSwitchDate());
 
-        $report = self::$container->get(ReportService::class)->getReportEntryByProcedureId($procedure->getId());
+        static::assertTrue($date4->isSameYear($updatedProcedure->getSettings()->getDesignatedPublicSwitchDate()));
+        static::assertTrue($date4->isSameMonth($updatedProcedure->getSettings()->getDesignatedPublicSwitchDate()));
+        static::assertTrue($date4->isSameDay($updatedProcedure->getSettings()->getDesignatedPublicSwitchDate()));
+        static::assertTrue($date4->isSameHour($updatedProcedure->getSettings()->getDesignatedPublicSwitchDate()));
+        static::assertTrue($date4->isSameSecond($updatedProcedure->getSettings()->getDesignatedPublicSwitchDate()));
 
-        static::assertNotNull($report);
+        static::assertEquals($updatedProcedure->getPublicParticipationPhaseObject()->getDesignatedPhase(), $phase);
+
+
+        /** @var ReportEntry[] $entries */
+        $entries = $this->getEntries(
+            ReportEntry::class,
+            [
+                'category' => ReportEntry::CATEGORY_UPDATE,
+                'group' => ReportEntry::GROUP_PROCEDURE,
+                'identifierType' => ReportEntry::IDENTIFIER_TYPE_PROCEDURE,
+                'identifier' => $updatedProcedure->getId(),
+            ],
+        );
+
+        static::assertCount(1, $entries);
+        $message = $entries[0]->getMessageDecoded(false);
+        $loggedDate = Carbon::createFromTimestamp($message['newDesignatedCitizenSwitchDate']);
+        $loggedPhase = $message['newDesignatedCitizenPhase'];
+
+        static::assertTrue($date4->isSameYear($loggedDate));
+        static::assertTrue($date4->isSameMonth($loggedDate));
+        static::assertTrue($date4->isSameDay($loggedDate));
+        static::assertTrue($date4->isSameHour($loggedDate));
+        static::assertTrue($date4->isSameSecond($loggedDate));
     }
 
     //    The following Tests should be moved into the ProcedureHandlerTest, because these tests are testing the validation
