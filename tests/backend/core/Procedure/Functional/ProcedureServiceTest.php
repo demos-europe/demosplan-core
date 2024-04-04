@@ -52,7 +52,6 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
-use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use Doctrine\ORM\ORMInvalidArgumentException;
 use Exception;
 use InvalidArgumentException;
@@ -1888,7 +1887,7 @@ Email:',
 
     public function testSetPublicAutoSwitchInvalidPhase(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         /** @var Procedure $procedure */
         $procedure = $this->fixtures->getReference('testProcedure4');
 
@@ -1896,16 +1895,16 @@ Email:',
         static::assertNull($procedure->getPublicParticipationPhaseObject()->getDesignatedSwitchDate());
 
         $invalidPhase = 'blalbllbalab';
-        $validDate = new \DateTime();
+        $validDate = new DateTime();
         $validDate->setDate(1999, 4, 4);
-        $validEndDate = new \DateTime();
+        $validEndDate = new DateTime();
         $validEndDate->setDate(1999, 5, 5);
         $this->setAndUpdateAutoSwitch(['id' => $procedure->getId()], $validDate, $invalidPhase);
     }
 
     public function testSetAutoSwitchInvalidPhase(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         /** @var Procedure $procedure */
         $procedure = $this->fixtures->getReference('testProcedure4');
 
@@ -1913,16 +1912,16 @@ Email:',
         static::assertNull($procedure->getPhaseObject()->getDesignatedSwitchDate());
 
         $invalidPhase = 'blalbllbalab';
-        $validDate = new \DateTime();
+        $validDate = new DateTime();
         $validDate->setDate(1999, 4, 4);
-        $validEndDate = new \DateTime();
+        $validEndDate = new DateTime();
         $validEndDate->setDate(1999, 5, 5);
         $this->setAndUpdateAutoSwitchPublic(['id' => $procedure->getId()], $validDate, $invalidPhase);
     }
 
     public function testSetAutoSwitchInvalidDate(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         /** @var Procedure $procedure */
         $procedure = $this->fixtures->getReference('testProcedure4');
 
@@ -1931,14 +1930,14 @@ Email:',
 
         $validPhase = 'configure';
         $invalidDate = 'someDate';
-        $validEndDate = new \DateTime();
+        $validEndDate = new DateTime();
         $validEndDate->setDate(1999, 5, 5);
         $this->setAndUpdateAutoSwitchPublic(['id' => $procedure->getId()], $invalidDate, $validPhase);
     }
 
     public function testSetPublicAutoSwitchInvalidDate(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         /** @var Procedure $procedure */
         $procedure = $this->fixtures->getReference('testProcedure4');
 
@@ -1947,7 +1946,7 @@ Email:',
 
         $validPhase = 'configure';
         $invalidDate = 'someDate';
-        $validEndDate = new \DateTime();
+        $validEndDate = new DateTime();
         $validEndDate->setDate(1999, 5, 5);
         $this->setAndUpdateAutoSwitchPublic(['id' => $procedure->getId()], $validPhase, $invalidDate, $validEndDate, $this->mockSession);
     }
