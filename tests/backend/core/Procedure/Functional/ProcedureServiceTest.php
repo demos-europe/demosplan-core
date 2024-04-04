@@ -1849,15 +1849,14 @@ Email:',
 
         static::assertEquals($updatedProcedure->getPublicParticipationPhaseObject()->getDesignatedPhase(), $phase);
 
-
         /** @var ReportEntry[] $entries */
         $entries = $this->getEntries(
             ReportEntry::class,
             [
-                'category' => ReportEntry::CATEGORY_UPDATE,
-                'group' => ReportEntry::GROUP_PROCEDURE,
+                'category'       => ReportEntry::CATEGORY_UPDATE,
+                'group'          => ReportEntry::GROUP_PROCEDURE,
                 'identifierType' => ReportEntry::IDENTIFIER_TYPE_PROCEDURE,
-                'identifier' => $updatedProcedure->getId(),
+                'identifier'     => $updatedProcedure->getId(),
             ],
         );
 
