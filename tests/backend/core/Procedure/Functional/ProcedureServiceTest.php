@@ -3410,8 +3410,6 @@ Email:',
      *
      * @throws Exception
      */
-    protected function setAutoSwitchPublic(Procedure $procedure, $designatedSwitchDate, $designatedPhase)
-    {
     protected function setAndUpdateAutoSwitchPublic(
         array $procedureUpdateData,
         ?DateTime $designatedSwitchDate,
