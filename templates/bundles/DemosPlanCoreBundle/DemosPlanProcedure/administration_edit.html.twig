@@ -447,20 +447,6 @@
                                     </div>
                                 {% endif %}
 
-                                {# Iteration for Institutions #}
-                                {% if hasPermission('field_phase_iterator') %}
-                                    <div class="u-mb">
-                                        <label class="inline-block u-mb-0" for="r_institutionPhasecounter">
-                                            {{ "procedure.phase.phasecounter"|trans }}*
-                                        </label>
-                                        {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                                            helpText: 'text.procedure.phasecounter'|trans,
-                                            cssClasses:'u-mt-0_125',
-                                            showPlainHint: true
-                                        } %}
-                                    </div>
-                                {% endif %}
-
                                 {% if hasPermission('feature_procedure_legal_notice_read') %}
                                     <div class="u-mb">
                                         <label class="inline-block u-mb-0" for="r_legalNotice">
