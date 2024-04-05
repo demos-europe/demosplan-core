@@ -117,6 +117,11 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
      */
     protected ?DateTime $designatedEndDate;
 
+    /**
+     * @ORM\Column(type="smallint", nullable=false, options={"unsigned":true, "default":1})
+     */
+    protected int $iteration = 1;
+
     public function __construct(string $key = 'configuration', string $step = '')
     {
         $this->key = $key;
@@ -257,5 +262,15 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
         $this->permissionSet = $sourcePhase->permissionSet;
         $this->startDate = $sourcePhase->startDate;
         $this->endDate = $sourcePhase->endDate;
+    }
+
+    public function getIteration(): int
+    {
+        return $this->iteration;
+    }
+
+    public function setIteration(int $iteration): void
+    {
+        $this->iteration = $iteration;
     }
 }

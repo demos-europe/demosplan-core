@@ -29,6 +29,7 @@ use EDT\PathBuilding\End;
  * @property-read End $designatedSwitchDate
  * @property-read End $designatedEndDate
  * @property-read End $designatedPhaseChangeUser
+ * @property-read End $iterator
  */
 final class ProcedurePhaseResourceType extends DplanResourceType
 {

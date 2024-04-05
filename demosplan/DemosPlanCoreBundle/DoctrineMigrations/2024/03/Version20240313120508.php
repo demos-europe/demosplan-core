@@ -22,7 +22,8 @@ class Version20240313120508 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'refs T36340: Extract phase of an procedure into own entity. Step2: Copy current data into new entity.';
+        return 'refs T36340: Extract phase of an procedure into own entity.
+        Step2: Copy current data into new entity.';
     }
 
     /**
