@@ -29,7 +29,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\ClusterStatementCopyNotImplementedException;
 use demosplan\DemosPlanCoreBundle\Exception\CopyException;
-use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
@@ -508,22 +507,17 @@ class StatementCopier extends CoreService
         bool $createReport = true,
         bool $copyOnCreateStatement = false,
     ): Statement {
-
         $newStatement = $this->copyStatementObjectWithinProcedure(
             $statement,
             $createReport,
             $copyOnCreateStatement,
-            false //do not flush to avoid constraints at this point
+            false // do not flush to avoid constraints at this point
         );
-
         if (!$statement instanceof Statement) {
             throw new CopyException('error on copying original statement');
         }
-
         // persist to get an ID for the FileContainer copying below
         $this->getDoctrine()->getManager()->persist($newStatement);
-
-
         $this->statementService->addFilesToCopiedStatement($newStatement, $statement->getId());
 
         return $newStatement;
@@ -626,7 +620,7 @@ class StatementCopier extends CoreService
             return $newStatement;
         } catch (CopyException $e) {
             throw $e;
-        } catch (ClusterStatementCopyNotImplementedException $e) {
+        } catch (ClusterStatementCopyNotImplementedException) {
             return false;
         } catch (Exception $e) {
             $this->getLogger()->error('Could not copy statement ', [$e]);
@@ -640,10 +634,9 @@ class StatementCopier extends CoreService
      * Will check for headStatement, assignment and claimant.
      * Will also add a corresponding message.
      *
-     * @param Statement $statement             - statement to check
-     * @param bool      $copyOnCreateStatement - Determines if this method is called on create a Statement
-     * @param Statement $statement             - statement to check
-     * @param bool      $ignoreCluster         - Determines if this method is called on create a Statement
+     * @param Statement $statement     - statement to check
+     * @param Statement $statement     - statement to check
+     * @param bool      $ignoreCluster - Determines if this method is called on create a Statement
      *
      * @return bool false, if the given statement<ul>
      *              <li>is a headstatement</li>

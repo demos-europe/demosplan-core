@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Entity\User;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\MasterToebVersionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
@@ -23,7 +24,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\MasterToebVersionRepository")
  */
-class MasterToebVersion extends CoreEntity implements UuidEntityInterface
+class MasterToebVersion extends CoreEntity implements UuidEntityInterface, MasterToebVersionInterface
 {
     /**
      * @var string|null

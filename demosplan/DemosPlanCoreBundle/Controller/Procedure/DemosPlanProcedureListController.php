@@ -262,7 +262,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
         path: '/verfahren/export',
         name: 'DemosPlan_procedures_export',
         options: ['expose' => true],
-        methods: ['GET']
+        methods: ['POST']
     )]
     public function exportProceduresAction(ExportService $exportService, Request $request): Response
     {
@@ -376,7 +376,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
             // by full fledged Gemeindekennziffer (gkz like 01062090) by only having municipality
             // gkz like 01062. Therefore we need to model filter as query string to be able to use
             // wildcard. The filter itself needs to be unset
-            if (array_key_exists('municipalCode', $requestPost) && 0 < strlen($requestPost['municipalCode'])) {
+            if (array_key_exists('municipalCode', $requestPost) && 0 < strlen((string) $requestPost['municipalCode'])) {
                 // if user searched for something add municipalCode as an AND-Search, not OR (default search)
                 $delimiter = '' !== $request->request->get('search') ? ' AND ' : ' ';
                 $requestPost['search'] .= $delimiter.$requestPost['municipalCode'].'*';

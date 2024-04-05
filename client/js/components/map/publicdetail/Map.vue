@@ -836,8 +836,9 @@ export default {
 
           dpApi.get(Routing.generate('DemosPlan_map_get_feature_info', { procedure: this.procedureId }), getData)
             .then(response => {
-              if (response.data.code === 100 && response.data.success) {
-                if (response.data.body !== null) {
+              const parsedData = JSON.parse(response.data)
+              if (parsedData.code === 100 && parsedData.success) {
+                if (parsedData.body !== null) {
                   let popupContent = ''
 
                   //  In Robob, do not show full response body
@@ -853,7 +854,7 @@ export default {
                       popupContent = this.addXMLPartToString(xmlResponse, xmlNeedle, popupContent)
                     }
                   } else {
-                    popupContent = response.data.body
+                    popupContent = parsedData.body
                   }
 
                   if (popupContent.length === 0 || popupContent.match(/<table[^>]*?>[\s\t\n\r↵]*<\/table>/mg) !== null) {
@@ -1109,6 +1110,12 @@ export default {
             }
             const printLayerName = printLayer.getProperties().name
             const source = printLayer.getSource()
+
+            // This covers the edge case that a layer which is set as print layer is no longer valid.
+            if (source === null) {
+              return
+            }
+
             const tileUrlFunction = source.getTileUrlFunction()
             const tileGrid = source.getTileGrid()
             const tileSize = tileGrid.getTileSize()
@@ -1532,7 +1539,7 @@ export default {
 
       for (; i < l; i++) {
         layer = allLayers[i]
-        if (layer.attributes.type === type) {
+        if (layer.attributes.layerType === type) {
           layers.push(layer)
         }
       }

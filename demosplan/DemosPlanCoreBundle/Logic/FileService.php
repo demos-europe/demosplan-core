@@ -27,14 +27,13 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
 use demosplan\DemosPlanCoreBundle\Repository\FileRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
+use demosplan\DemosPlanCoreBundle\Tools\VirusCheckInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Faker\Provider\Uuid;
 use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
-use PhpAmqpLib\Exception\AMQPTimeoutException;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -52,11 +51,6 @@ class FileService extends CoreService implements FileServiceInterface
     final public const INVALID_FILENAME_CHARS = ['%', '&', ':'];
 
     /**
-     * Die Datei wird nach dem Upload zum FileService direkt auf Viren geprüft.
-     */
-    final public const VIRUSCHECK_SYNC = 'sync';
-
-    /**
      * Die Datei wird nach dem Upload zum FileService nicht direkt auf Viren geprüft.
      */
     final public const VIRUSCHECK_ASYNC = 'async';
@@ -71,8 +65,20 @@ class FileService extends CoreService implements FileServiceInterface
      */
     protected $fileString;
 
-    public function __construct(private readonly CurrentProcedureService $currentProcedureService, private readonly EntityManagerInterface $entityManager, private readonly FileContainerRepository $fileContainerRepository, private readonly FileInUseChecker $fileInUseChecker, private readonly FileRepository $fileRepository, private readonly GlobalConfigInterface $globalConfig, private readonly MessageBagInterface $messageBag, private readonly RequestStack $requestStack, private readonly SingleDocumentRepository $singleDocumentRepository, private readonly TranslatorInterface $translator, protected RpcClient $client)
-    {
+    public function __construct(
+        private readonly CurrentProcedureService $currentProcedureService,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly FileContainerRepository $fileContainerRepository,
+        private readonly FileInUseChecker $fileInUseChecker,
+        private readonly FileRepository $fileRepository,
+        private readonly GlobalConfigInterface $globalConfig,
+        private readonly MessageBagInterface $messageBag,
+        private readonly RequestStack $requestStack,
+        private readonly SingleDocumentRepository $singleDocumentRepository,
+        private readonly TranslatorInterface $translator,
+        private readonly VirusCheckInterface $virusChecker,
+        protected RpcClient $client
+    ) {
     }
 
     /**
@@ -329,17 +335,15 @@ class FileService extends CoreService implements FileServiceInterface
     }
 
     /**
-     * Save a temporary file as regular file by its path.
-     *
      * @throws VirusFoundException|Throwable
      */
     public function saveTemporaryFile(
         string $filePath,
         string $fileName,
-        ?string $userId = null,
-        ?string $procedureId = null,
-        ?string $virencheck = FileService::VIRUSCHECK_SYNC,
-        ?string $hash = null
+        string $userId = null,
+        string $procedureId = null,
+        ?string $virencheck = FileServiceInterface::VIRUSCHECK_SYNC,
+        string $hash = null
     ): File {
         $dplanFile = new File();
         $symfonyFile = new \Symfony\Component\HttpFoundation\File\File($filePath);
@@ -369,7 +373,7 @@ class FileService extends CoreService implements FileServiceInterface
      *
      * @throws Throwable
      */
-    public function saveUploadedFile(UploadedFile $symfonyFile, $userId = null, $virencheck = FileService::VIRUSCHECK_SYNC): File
+    public function saveUploadedFile(UploadedFile $symfonyFile, $userId = null, $virencheck = FileServiceInterface::VIRUSCHECK_SYNC): File
     {
         $dplanFile = new File();
         $dplanFile->setMimetype($symfonyFile->getClientMimeType());
@@ -401,11 +405,7 @@ class FileService extends CoreService implements FileServiceInterface
             $path = date('Y').'/'.date('m');
 
             if ($viruscheck && $this->globalConfig->isAvscanEnabled()) {
-                try {
-                    $this->virusCheck($symfonyFile);
-                } catch (VirusFoundException $e) {
-                    throw $e;
-                }
+                $this->virusCheck($symfonyFile);
             }
 
             // $symfonyFile needs to be used before it is moved
@@ -605,7 +605,7 @@ class FileService extends CoreService implements FileServiceInterface
      * @throws InvalidDataException
      * @throws Throwable
      */
-    public function copyByFileString($fileString, ?string $procedureId = null): ?File
+    public function copyByFileString($fileString, string $procedureId = null): ?File
     {
         $file = $this->getFileInfoFromFileString($fileString);
 
@@ -617,7 +617,7 @@ class FileService extends CoreService implements FileServiceInterface
      *
      * @throws InvalidDataException|Throwable
      */
-    public function copy(?string $hash, ?string $targetProcedureId = null): ?File
+    public function copy(?string $hash, string $targetProcedureId = null): ?File
     {
         $fileToCopy = $this->get($hash);
         if (!$fileToCopy instanceof File) {
@@ -724,7 +724,7 @@ class FileService extends CoreService implements FileServiceInterface
      *
      * @return string
      */
-    protected function moveFile(\Symfony\Component\HttpFoundation\File\File $file, $path = '', ?string $existingHash = null)
+    protected function moveFile(\Symfony\Component\HttpFoundation\File\File $file, $path = '', string $existingHash = null)
     {
         // Generate a unique name for the file before saving it
         $hash = $existingHash ?? $this->createHash();
@@ -761,55 +761,26 @@ class FileService extends CoreService implements FileServiceInterface
 
     /**
      * Scan a specific file for a virus.
-     * The path of the file, will be send to a service, which execute the viruscheck.
+     * The path of the file, will be sent to a service, which executes the viruscheck.
      *
-     * @return bool - true if the file was successfully checked and it was no virus found, otherwise false
-     *
-     * @throws TimeoutException|Exception
+     * @throws VirusFoundException|Exception
      */
-    protected function virusCheck(\Symfony\Component\HttpFoundation\File\File $file): bool
+    protected function virusCheck(\Symfony\Component\HttpFoundation\File\File $file): void
     {
-        $payload = [
-            'path' => $file->getRealPath(),
-        ];
-
-        $msg = Json::encode($payload);
-
-        // Füge Message zum Request hinzu
         try {
-            $routingKey = $this->globalConfig->getProjectPrefix();
-            if ($this->globalConfig->isMessageQueueRoutingDisabled()) {
-                $routingKey = '';
-            }
-
-            // Anfrage absenden
-            $this->logger->info('Path of file for virusCheck: '.$file->getRealPath().', with routingKey: '.$routingKey);
-            $this->client->addRequest($msg, 'virusCheckDemosPlanLocal', 'virusCheck', $routingKey, 300);
-
-            $replies = $this->client->getReplies();
-
-            if (strlen((string) $replies['virusCheck']) > 0) {
-                $this->logger->info('Incoming message size:'.strlen((string) $replies['virusCheck']));
-            }
-            $vCheckResult = Json::decodeToArray($replies['virusCheck']);
-            if (true == $vCheckResult['result']) {
-                return true;
-            } else {
+            $hasVirus = $this->virusChecker->hasVirus($file);
+            if ($hasVirus) {
                 $this->removeRequestFiles();
-                $this->getLogger()->warning('File could not be checked. Response: '.DemosPlanTools::varExport($replies, true));
+
+                throw new VirusFoundException();
             }
-        } catch (AMQPTimeoutException $e) {
-            $this->getLogger()->error('Fehler in virusCheck:', [$e]);
-            throw new TimeoutException($e->getMessage());
         } catch (Exception $e) {
             $fs = new DemosFilesystem();
             $fs->remove($file->getPathname());
             $this->removeRequestFiles();
-            $this->getLogger()->error('Fehler in virusCheck:', [$e]);
+            $this->getLogger()->error('Error in virusCheck:', [$e]);
             throw $e;
         }
-
-        return false;
     }
 
     /**
@@ -897,8 +868,6 @@ class FileService extends CoreService implements FileServiceInterface
      * Gib einen lesbaren MimeType aus.
      *
      * @param string $value
-     *
-     * @return mixed
      */
     protected function convertMimeType($value)
     {
@@ -966,11 +935,6 @@ class FileService extends CoreService implements FileServiceInterface
         return $this->fileRepository->findBy(['ident' => $fileIds]);
     }
 
-    /**
-     * @param string $fileId
-     *
-     * @return File|null
-     */
     public function getFileById($fileId)
     {
         return $this->fileRepository->findOneBy(['ident' => $fileId]);
@@ -1005,8 +969,6 @@ class FileService extends CoreService implements FileServiceInterface
 
     /**
      * Given a SingleDocument (array format) returns its corresponding File id.
-     *
-     * @return mixed
      *
      * @throws Exception
      */

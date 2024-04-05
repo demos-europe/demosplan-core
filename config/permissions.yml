@@ -413,7 +413,7 @@ area_search_submitter_in_procedures:
         Planners may need to find all statements of a person in all (or some) procedures they have access to.
         There already was a search tool to find statements in a specific procedure
         by different criteria, including the submitters name. To keep the implementation
-        simple (and not duplicate the procedure specific search) this new search over multiple procuderes is limited
+        simple (and not duplicate the procedure specific search) this new search over multiple procedures is limited
         to the submitters name and will not result in a list of statements but in a list
         of procedures where the submitter name was found in a statement. The user can then
         search in each listed procedure using the procedure specific search to get the actual statements.
@@ -833,6 +833,11 @@ feature_email_invitable_institution_additional_invitation_text:
     description: 'Adds predefined text to institution invitations.'
     label: 'Text automatically added to institution invitations'
     loginRequired: true
+feature_export_docx_elements_view_mode_only:
+    expose: false
+    label: 'always export elements view in docx export'
+    loginRequired: true
+    parent: area_admin_assessmenttable
 feature_export_protocol:
     expose: true
     label: 'Exportieren des Verfahrensprotokolls'
@@ -1161,6 +1166,11 @@ feature_new_statement_form:
     label: 'Stell. verf. Formular anzeigen'
     loginRequired: true
     parent: feature_statement
+feature_show_notice_draft_statement:
+    description: 'some project with Gateway as a project type (diplanbeteiligung) should not be shown for the submitter in the public statement'
+    expose: false
+    label: 'note show'
+    loginRequired: true
 feature_notification_citizen_statement_submitted:
     label: 'Benachrichtigung an den Bürger bei eingereichten Stellungnahmen'
     loginRequired: true
@@ -1617,6 +1627,10 @@ feature_project_switcher:
     label: 'Display a dropdown menu in global header to allow users to quickly move to other instances of the SH platform.'
     loginRequired: false
     parent: area_admin
+feature_profile_editable:
+    description: 'If enabled the user can edit his/her data'
+    label: 'Speichern/Abrechnen Formular anzeigen'
+    loginRequired: true
 feature_public_consultation:
     description: 'When a procedure is in the consultation phase, participants must have a way to access it.'
     expose: true
@@ -1648,6 +1662,11 @@ feature_require_locality_confirmation:
         to was configured for.
     expose: false
     label: 'Submission of draft statements as statements requires to confirm the locality'
+    loginRequired: true
+feature_require_procedure_contact_person:
+    description: 'When a procedure be created, in diplanbeteiligung should contact person be required, therefore field should be empty otherwise be k.A'
+    expose: false
+    lable: 'Allows to set contact person without use default value'
     loginRequired: true
 feature_screenshot_map_nonpublic_printlayers:
     description: 'Enables having a gislayer which is not published but is used only as print/export layer.'
@@ -2304,7 +2323,7 @@ feature_user_delete:
     label: 'delete user'
     loginRequired: true
 feature_user_edit:
-    description: 'allows the user to create a new user'
+    description: 'allows the user to edit a user'
     expose: true
     label: 'edit user'
     loginRequired: true
@@ -2318,6 +2337,12 @@ feature_user_list:
     description: 'Allows the current user to fetch all users the current user is allowed to see from the JSON:API route.'
     expose: true
     label: 'fetch users from the API route.'
+    loginRequired: true
+# Only needed for user list in one specific project
+feature_user_list_extended:
+    description: 'Allows the current user to fetch an extended list of users the current user is allowed to see from the JSON:API route.'
+    expose: true
+    label: 'fetch extended list of users from the API route.'
     loginRequired: true
 feature_xplan_defaultlayers:
     label: 'Benutze vordefinierte XPlanLayer'
@@ -2419,6 +2444,10 @@ field_paragraph_lock_statement:
     description: 'Block the possibility to submit statements to chosen paragraph.'
     label: 'Statements can be locked for some paragraphs'
     loginRequired: false
+field_phase_iterator:
+      description: 'Additional counter for procedurephases to identify and count the number of itertions a specific phase is in because it is kind of usual that a phase is used and iteratet through more than once.'
+      label: 'Procedrephases extended/enhanced by a counter to identify the iteration the phase is currently in.'
+      loginRequired: false
 field_priority_area_list:
     label: 'betroffene Gemeinden'
     loginRequired: true

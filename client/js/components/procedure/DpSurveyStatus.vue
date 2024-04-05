@@ -51,7 +51,7 @@
           v-model="currentStartDate"
           format="dd.MM.yyyy"
           monday-first
-          class="inline-block width-100 u-mr-0_5"
+          class="inline-block w-8 u-mr-0_5"
           input-class="o-form__control-input"
           :language="de" /><!--
    --><span>-</span><!--
@@ -61,7 +61,7 @@
         v-model="currentEndDate"
         format="dd.MM.yyyy"
         monday-first
-        class="inline-block width-100 u-ml-0_5"
+        class="inline-block w-8 u-ml-0_5"
         input-class="o-form__control-input"
         :language="de" />
       </div>

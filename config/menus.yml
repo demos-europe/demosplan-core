@@ -16,7 +16,7 @@ sidemenu:
                 path_params: ['procedureId']
                 permission: 'area_admin_import'
                 link_attributes:
-                    data-cy: 'Import'
+                    data-cy: 'importDataEntry'
     fragment_menu:
         label: 'fragment.menu'
         path: ~

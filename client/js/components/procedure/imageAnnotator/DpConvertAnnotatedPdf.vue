@@ -183,7 +183,7 @@ export default {
   methods: {
     async getInitialData () {
       this.isLoading = true
-      const url = Routing.generate('api_resource_list', { procedureId: this.procedureId, resourceType: 'AnnotatedStatementPdf' })
+      const url = Routing.generate('api_resource_list', { resourceType: 'AnnotatedStatementPdf' })
       const params = {
         filter: {
           annotatedStatementPdf: {
@@ -193,12 +193,13 @@ export default {
             }
           }
         },
+        procedureId: this.procedureId,
         page: {
           size: 1
         },
         include: 'annotatedStatementPdfPages'
       }
-      const documentResponse = await dpApi.get(url, params, { serialize: true })
+      const documentResponse = await dpApi.get(url, params)
       this.document = documentResponse.data.data.find(el => el.type === 'AnnotatedStatementPdf')
       this.formValues = { ...this.formValues, text: this.document.attributes.text }
       this.pages = documentResponse.data.included.filter(el => el.type === 'AnnotatedStatementPdfPage')

@@ -31,6 +31,7 @@
           </span>
           <filter-flyout
             v-for="filter in filters"
+            :data-cy="`segmentsListFilter:${filter.labelTranslationKey}`"
             :initial-query="queryIds"
             :key="`filter_${filter.labelTranslationKey}`"
             :additional-query-params="{ searchPhrase: searchTerm }"
@@ -43,6 +44,7 @@
         </div>
         <dp-button
           class="ml-auto"
+          data-cy="segmentsList:resetFilter"
           variant="outline"
           @click="resetQuery"
           v-tooltip="Translator.trans('search.filter.reset')"
@@ -61,6 +63,7 @@
       </dp-bulk-edit-header>
       <div class="u-mt text-right">
         <dp-column-selector
+          data-cy="segmentsList:selectableColumns"
           :initial-selection="currentSelection"
           :selectable-columns="selectableColumns"
           @selection-changed="setCurrentSelection"
@@ -89,7 +92,7 @@
         @items-toggled="handleToggleItem"
         :should-be-selected-items="currentlySelectedItems">
         <template v-slot:externId="rowData">
-          <v-popover>
+          <v-popover trigger="hover focus">
             <div class="whitespace-nowrap">
               {{ rowData.attributes.externId }}
             </div>
@@ -113,7 +116,7 @@
           </div>
         </template>
         <template v-slot:submitter="rowData">
-          <ul class="o-list max-width-350">
+          <ul class="o-list max-w-12">
             <li
               v-if="statementsObject[rowData.relationships.parentStatement.data.id].attributes.authorName !== ''"
               class="o-list__item o-hellip--nowrap">
@@ -168,7 +171,7 @@
           </span>
         </template>
         <template v-slot:flyout="rowData">
-          <dp-flyout>
+          <dp-flyout data-cy="segmentsList:flyoutEditMenu">
             <a
               :href="Routing.generate('dplan_statement_segments_list', {
                 action: 'editText',
@@ -176,6 +179,7 @@
                 segment: rowData.id,
                 statementId: rowData.relationships.parentStatement.data.id
               })"
+              data-cy="segmentsList:edit"
               rel="noopener">
               {{ Translator.trans('edit') }}
             </a>
@@ -186,6 +190,7 @@
                 segment: rowData.id,
                 statementId: rowData.relationships.parentStatement.data.id
               })"
+              data-cy="segmentsList:segmentsRecommendationsCreate"
               rel="noopener">
               {{ Translator.trans('segments.recommendations.create') }}
             </a>
@@ -193,13 +198,14 @@
             <button
               type="button"
               class="btn--blank o-link--default"
-              @click.prevent="showVersionHistory(rowData.id, rowData.attributes.externId)"
-              data-cy="segmentVersionHistory">
+              data-cy="segmentsList:segmentVersionHistory"
+              @click.prevent="showVersionHistory(rowData.id, rowData.attributes.externId)">
               {{ Translator.trans('history') }}
             </button>
             <a
               v-if="hasPermission('feature_read_source_statement_via_api')"
               :class="{'is-disabled': getOriginalPdfAttachmentHashBySegment(rowData) === null}"
+              data-cy="segmentsList:originalPDF"
               target="_blank"
               :href="Routing.generate('core_file_procedure', { hash: getOriginalPdfAttachmentHashBySegment(rowData), procedureId: procedureId })"
               rel="noopener noreferrer">
@@ -324,7 +330,7 @@ export default {
       },
       headerFieldsAvailable: [
         { field: 'externId', label: Translator.trans('id') },
-        { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'width-100' },
+        { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'w-8' },
         { field: 'submitter', label: Translator.trans('submitter') },
         { field: 'address', label: Translator.trans('address') },
         { field: 'text', label: Translator.trans('text') },
@@ -352,6 +358,10 @@ export default {
 
     ...mapState('assignableUser', {
       assignableUsersObject: 'items'
+    }),
+
+    ...mapState('orga', {
+      orgaObject: 'items'
     }),
 
     ...mapState('statementSegment', {
@@ -478,8 +488,6 @@ export default {
             'attachments',
             'authoredDate',
             'authorName',
-            'formattedAuthoredDate',
-            'formattedSubmitDate',
             'isSubmittedByCitizen',
             'initialOrganisationDepartmentName',
             'initialOrganisationName',
@@ -488,14 +496,13 @@ export default {
             'initialOrganisationPostalCode',
             'initialOrganisationCity',
             'internId',
-            'location',
             'memo',
             'submitDate',
             'submitName',
             'submitType'
           ].join(),
           Tag: 'title',
-          StatementAttachment: ['file', 'type'].join(),
+          StatementAttachment: ['file', 'attachmentType'].join(),
           File: 'hash'
         }
       }
@@ -553,7 +560,7 @@ export default {
     getOriginalPdfAttachmentHashBySegment (segment) {
       const parentStatement = segment.rel('parentStatement')
       if (parentStatement.hasRelationship('attachments')) {
-        const originalAttachment = Object.values(parentStatement.relationships.attachments.list()).filter(attachment => attachment.attributes.type === 'source_statement')[0]
+        const originalAttachment = Object.values(parentStatement.relationships.attachments.list()).filter(attachment => attachment.attributes.attachmentType === 'source_statement')[0]
         if (originalAttachment) {
           return originalAttachment.rel('file').attributes.hash
         }

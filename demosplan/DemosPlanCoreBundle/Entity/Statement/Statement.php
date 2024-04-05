@@ -1173,7 +1173,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     }
 
     /**
-     * @return Statement
+     * @return Statement|null
      */
     public function getOriginal()
     {
@@ -1336,11 +1336,20 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         return $this->externId;
     }
 
-    public function getInternId(): ?string
+    /**
+     * The usual statement pair (original + non original), makes it tricky to ensure
+     * a unique internId per procedure, because these pair is a kind of a copy.
+     * To ensure the interId is actually unique per procedure, the internId will only be stored
+     * at the original statement.
+     * To reduce the mental load, on getting the internId of a statement, the internId of the related
+     * original statement wil be returned by default.
+     * But in some (technically) cases it can be necessary to get the internId of the current statement,
+     * instead of its parent. This can be done by setting the $gettingFromOriginal to false.
+     */
+    public function getInternId(bool $gettingFromOriginal = true): ?string
     {
-        $original = $this->getOriginal();
-        if (null !== $original) {
-            return $original->getInternId();
+        if ($gettingFromOriginal && null !== $this->getOriginal()) {
+            return $this->getOriginal()->getInternId();
         }
 
         return $this->internId;
@@ -2574,8 +2583,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     {
         if (null === $this->paragraphParentId && $this->paragraph instanceof ParagraphVersion) {
             $parentId = null;
-            if ($this->paragraph->getParagraph() instanceof Paragraph) {
-                $parentId = $this->paragraph->getParagraph()->getId();
+            $parentParagraph = $this->paragraph->getParagraph();
+            if ($parentParagraph instanceof Paragraph) {
+                $parentId = $parentParagraph->getId();
             }
             $this->paragraphParentId = $parentId;
         }

@@ -12,30 +12,32 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableDqlResourceTypeInterface;
-use DemosEurope\DemosplanAddon\Logic\ResourceChange;
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
+use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseTagResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
-use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTopicTitleException;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
+use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
+use EDT\Wrapping\CreationDataInterface;
+use EDT\Wrapping\EntityDataInterface;
+use EDT\Wrapping\PropertyBehavior\Attribute\Factory\AttributeConstructorBehaviorFactory;
+use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
+use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\Factory\ToOneRelationshipConstructorBehaviorFactory;
 
 /**
- * @template-implements CreatableDqlResourceTypeInterface<Tag>
- *
  * @template-extends DplanResourceType<Tag>
  *
  * @property-read TagTopicResourceType $topic
  * @property-read End $title
  */
-final class TagResourceType extends DplanResourceType implements CreatableDqlResourceTypeInterface
+final class TagResourceType extends DplanResourceType
 {
-    public function __construct(private readonly TagService $tagService)
-    {
+    public function __construct(
+        private readonly TagService $tagService,
+        private readonly TagRepository $tagRepository
+    ) {
     }
 
     public function getEntityClass(): string
@@ -71,79 +73,50 @@ final class TagResourceType extends DplanResourceType implements CreatableDqlRes
         )];
     }
 
-    public function isCreatable(): bool
+    public function isCreateAllowed(): bool
     {
         return $this->currentUser->hasPermission('feature_json_api_tag_create');
     }
 
-    /**
-     * @param array<string, mixed> $properties
-     *
-     * @throws DuplicatedTagTopicTitleException
-     * @throws UserNotFoundException
-     */
-    public function createObject(array $properties): ResourceChange
+    protected function getProperties(): BaseTagResourceConfigBuilder
     {
-        $tagTopic = $this->getTagTopic($properties);
-        $createTagTopic = null === $tagTopic;
-        $procedure = $this->currentProcedureService->getProcedureWithCertainty();
-        if ($createTagTopic) {
-            $tagTopic = $this->tagService->createTagTopic(
-                $this->translator->trans('tag_topic.name.default'),
-                $procedure
+        $configBuilder = $this->getConfig(BaseTagResourceConfigBuilder::class);
+        $configBuilder->id->readable()->sortable()->filterable();
+        $configBuilder->title->readable(true)->sortable()->filterable()
+            ->addConstructorBehavior(new AttributeConstructorBehaviorFactory(null, null));
+        $configBuilder->topic
+            ->setRelationshipType($this->resourceTypeStore->getTagTopicResourceType())
+            ->readable(true, null, true)
+            ->sortable()
+            ->filterable()
+            ->addConstructorBehavior(
+                new ToOneRelationshipConstructorBehaviorFactory(null, [], function (CreationDataInterface $entityData): array {
+                    $tagTopic = $this->getTagTopic();
+                    $createTagTopic = null === $tagTopic;
+                    $procedure = $this->currentProcedureService->getProcedureWithCertainty();
+                    if ($createTagTopic) {
+                        $tagTopicTitle = $this->translator->trans('tag_topic.name.default');
+                        $tagTopic = $this->tagService->createTagTopic($tagTopicTitle, $procedure);
+                    }
+
+                    return [$tagTopic, [Paths::tag()->topic->getAsNamesInDotNotation()]];
+                })
             );
-        }
-        $tagEntity = new Tag($properties[$this->title->getAsNamesInDotNotation()], $tagTopic);
-        $this->resourceTypeService->validateObject($tagEntity);
-        $resourceChange = new ResourceChange($tagEntity, $this, $properties);
-        $resourceChange->addEntityToPersist($tagEntity);
-        if ($createTagTopic) {
-            $resourceChange->setUnrequestedChangesToTargetResource();
-        }
+        $configBuilder->addPostConstructorBehavior(new FixedSetBehavior(function (Tag $tag, EntityDataInterface $entityData): array {
+            $this->tagRepository->persistEntities([$tag]);
 
-        return $resourceChange;
+            return [];
+        }));
+
+        return $configBuilder;
     }
 
-    public function isReferencable(): bool
+    private function getTagTopic(): ?TagTopic
     {
-        return true;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
-    }
-
-    protected function getProperties(): array
-    {
-        return [
-            $this->createAttribute($this->id)->readable(true)->sortable()->filterable(),
-            $this->createAttribute($this->title)->readable(true)->sortable()
-                ->filterable()->initializable(),
-            $this->createToOneRelationship($this->topic, true)
-                ->readable(true)->sortable()->filterable()->initializable(true),
-        ];
-    }
-
-    /**
-     * @param array<string, mixed> $properties
-     */
-    private function getTagTopic(array $properties): ?TagTopic
-    {
-        $topicKey = $this->topic->getAsNamesInDotNotation();
-        if (isset($properties[$topicKey])) {
-            if (!$properties[$topicKey] instanceof TagTopic) {
-                $this->logger->error('Received property tagTopic is no instance of TagTopic');
-
-                throw new InvalidArgumentException('Invalid fields received for create request');
-            }
-
-            return $properties[$topicKey];
-        }
-
         $procedure = $this->currentProcedureService->getProcedureWithCertainty();
         $defaultTagTopicTitle = $this->translator->trans('tag_topic.name.default');
         $topics = $this->tagService->getTagTopicsByTitle($procedure, $defaultTagTopicTitle);
+        /** @var TagTopic|null $defaultTagTopic */
         $defaultTagTopic = array_shift($topics);
         if (null !== $defaultTagTopic && 0 < count($topics)) {
             $defaultTagTopicId = $defaultTagTopic->getId();

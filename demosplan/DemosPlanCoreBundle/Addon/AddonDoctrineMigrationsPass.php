@@ -29,12 +29,12 @@ class AddonDoctrineMigrationsPass implements CompilerPassInterface
 
         foreach ($addons as $config) {
             // check if the addon has a DoctrineMigrations directory
-            $migrationsPath = AddonPath::getRootPath($config['install_path'] . '/src/DoctrineMigrations');
+            $migrationsPath = AddonPath::getRootPath($config['install_path'].'/src/DoctrineMigrations');
             if (!is_dir($migrationsPath)) {
                 continue;
             }
             // fetch the namespace from the mandatory entry point configuration
-            $baseNamespace = substr($config['manifest']['entry'], 0, strrpos($config['manifest']['entry'], '\\'));
+            $baseNamespace = substr((string) $config['manifest']['entry'], 0, strrpos((string) $config['manifest']['entry'], '\\'));
             // add the migrations directory to the MigrationConfiguration service
             $migrationConfigurationDefinition->addMethodCall('addMigrationsDirectory', [$baseNamespace.'\\DoctrineMigrations', $migrationsPath]);
         }

@@ -190,11 +190,14 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             $this->getTopElements($procedureId, [], ['title' => $hiddenTitlesArray, 'deleted' => [false]]);
 
         // return IDs only:
-        return collect(array_merge($mapCategories, $hiddenByConfigCategories))->map(
-            fn ($element) =>
-                /* @var Elements $element */
-                $element->getId()
-        )->toArray();
+        return collect(array_merge($mapCategories, $hiddenByConfigCategories))
+            ->sort(fn ($elementA, $elementB) => strcasecmp($elementA->getTitle(), $elementB->getTitle()))
+            ->map(
+                fn ($element) =>
+                    /* @var Elements $element */
+                    $element->getId()
+            )
+            ->toArray();
     }
 
     /**
@@ -779,7 +782,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             );
 
         /** @var Elements[] $elements */
-        $elements = $this->elementResourceType->listEntities([$condition]);
+        $elements = $this->elementResourceType->getEntities([$condition], []);
 
         foreach ($elements as $element) {
             $element->setDesignatedSwitchDate($designatedSwitchDateTime);
@@ -791,9 +794,11 @@ class ElementsService extends CoreService implements ElementsServiceInterface
     /**
      * Kopiert alle Elements (Planunterlagenkategorien) von einem Verfahren in ein anderes.
      *
+     * @return array<string, string>
+     *
      * @throws Exception
      */
-    public function copy(string $sourceProcedureId, Procedure $destinationProcedure): ?array
+    public function copy(string $sourceProcedureId, Procedure $destinationProcedure): array
     {
         $entityManager = $this->entityManager;
 

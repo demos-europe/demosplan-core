@@ -12,13 +12,15 @@ namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType;
 
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Facet\FacetInterface;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
+use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
+use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use Elastica\Index;
 
 /**
  * @template T of object
  *
- * @template-extends ResourceTypeInterface<T>
+ * @template-extends ResourceTypeInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, T>
  */
 interface ReadableEsResourceTypeInterface extends ResourceTypeInterface
 {
@@ -35,7 +37,7 @@ interface ReadableEsResourceTypeInterface extends ResourceTypeInterface
      * Returns the mapping from the key identifying the aggregation as it is set in the
      * elasticsearch.yml to the corresponding facet definition.
      *
-     * @return array<string,FacetInterface>
+     * @return array<string,FacetInterface<object>>
      */
     public function getFacetDefinitions(): array;
 }

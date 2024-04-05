@@ -62,7 +62,7 @@
             ref="newAssignee"
             v-model="options.newAssignee.value"
             :allow-empty="false"
-            class="u-mb width-450"
+            class="u-mb w-13"
             :custom-label="option => `${option.name} ${option.id === currentUserId ? '(Sie)' : ''}`"
             :options="users"
             track-by="id"
@@ -368,7 +368,7 @@ export default {
         url: Routing.generate('dplan_assessment_table_assessment_table_statement_bulk_edit_api_action', {
           procedureId: this.procedureId
         }),
-        data: JSON.stringify(payload)
+        data: payload
       })
         .then(checkResponse)
         .then(() => {

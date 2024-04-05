@@ -13,12 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
-use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -27,10 +23,9 @@ use Doctrine\Common\Collections\Collection;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathException;
+use Webmozart\Assert\Assert;
 
 /**
- * @template-implements UpdatableDqlResourceTypeInterface<Elements>
- *
  * @template-extends DplanResourceType<Elements>
  *
  * @property-read End $category
@@ -49,8 +44,9 @@ use EDT\Querying\Contracts\PathException;
  * @property-read PlanningDocumentCategoryResourceType $parent
  * @property-read ProcedureResourceType $procedure
  * @property-read SingleDocumentResourceType $documents
+ * @property-read SingleDocumentResourceType $visibleDocuments
  */
-final class PlanningDocumentCategoryResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface, DeletableDqlResourceTypeInterface
+final class PlanningDocumentCategoryResourceType extends DplanResourceType
 {
     public function __construct(private readonly FileService $fileService, private readonly ProcedureAccessEvaluator $procedureAccessEvaluator, private readonly ElementsService $elementService)
     {
@@ -68,10 +64,10 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
 
     public function isAvailable(): bool
     {
-        return $this->isDirectlyAccessible() || $this->isReferencable();
+        return true;
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isGetAllowed(): bool
     {
         return $this->currentUser->hasAnyPermissions(
             'feature_admin_element_edit',
@@ -80,10 +76,18 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
             || $this->isBulkEditAllowed();
     }
 
-    public function isReferencable(): bool
+    public function isListAllowed(): bool
     {
-        // migrated from the API 1.0 route initialize
-        return $this->currentUser->hasPermission('field_procedure_elements');
+        return $this->currentUser->hasAnyPermissions(
+            'feature_admin_element_edit',
+            // used within the procedure detail view (project specific)
+            'area_documents')
+            || $this->isBulkEditAllowed();
+    }
+
+    public function isUpdateAllowed(): bool
+    {
+        return $this->currentUser->hasPermission('feature_admin_element_edit');
     }
 
     /**
@@ -149,8 +153,8 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
      */
     protected function getProperties(): array
     {
-        $id = $this->createAttribute($this->id)->readable(true);
-        $enabled = $this->createAttribute($this->enabled)->filterable();
+        $id = $this->createIdentifier()->readable();
+        $enabled = $this->createAttribute($this->enabled)->filterable()->updatable();
         $parentId = $this->createAttribute($this->parentId)->aliasedPath($this->parent->id);
         $fileInfo = $this->createAttribute($this->fileInfo)
                 ->readable(true, fn (Elements $element): array => $this->fileService->getInfoArrayFromFileString($element->getFile()));
@@ -170,9 +174,26 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
             });
         $title = $this->createAttribute($this->title);
         $text = $this->createAttribute($this->text);
-        $children = $this->createToManyRelationship($this->children, true)
-            ->readable(true, static fn (Elements $element): Collection => $element->getChildren()->filter(fn (Elements $elements): bool => $elements->getEnabled()));
-        $documents = $this->createToManyRelationship($this->documents, true);
+        $children = $this->createToManyRelationship($this->children);
+        if ($this->currentUser->hasPermission('field_procedure_elements')) {
+            $children->readable(
+                true,
+                static fn (Elements $element): Collection => $element->getChildren()->filter(fn (Elements $elements): bool => $elements->getEnabled()),
+                true
+            );
+        }
+
+        // We provide two lists of SingleDocuments to the frontend. For both lists, the SingleDocumentResourceType will
+        // automatically check if a user has the necessary permissions to access non-visible documents. However, for
+        // convenience one of them will always contain visible documents only, even if the user has the permission
+        // to access non-visible ones.
+        $documents = $this->createToManyRelationship($this->documents);
+        $visibleDocuments = $this->createToManyRelationship($this->visibleDocuments);
+        $visibleDocumentsReadFunction = static fn (Elements $element): array => $element
+            ->getDocuments()
+            ->filter(static fn (SingleDocument $document): bool => $document->getVisible())
+            ->getValues();
+
         $index = $this->createAttribute($this->index)->readable(true)->aliasedPath($this->order);
 
         $properties = [
@@ -182,6 +203,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
             $title,
             $text,
             $documents,
+            $visibleDocuments,
         ];
 
         if ($this->currentUser->hasPermission('field_procedure_elements')) {
@@ -189,14 +211,16 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
             $parentId->readable(true);
             $title->readable(true);
             $text->readable(true);
-            $documents->readable(true);
+            $documents->readable(true, null, true);
+            $visibleDocuments->readable(true, $visibleDocumentsReadFunction, true);
             $properties = [...$properties, $fileInfo, $filePathWithHash, $children];
         }
 
         if ($this->currentUser->hasPermission('area_documents')) {
             $parentId->readable(true);
             $title->readable(true);
-            $documents->readable(true);
+            $documents->readable(true, null, true);
+            $visibleDocuments->readable(true, $visibleDocumentsReadFunction, true);
             if (!\in_array($fileInfo, $properties, true)) {
                 $properties[] = $fileInfo;
             }
@@ -233,25 +257,6 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
         );
     }
 
-    public function updateObject(object $object, array $properties): ResourceChange
-    {
-        // Update and validate the object.
-        $this->resourceTypeService->updateObjectNaive($object, $properties);
-        $this->resourceTypeService->validateObject($object);
-
-        // Mark the entity as to be persisted.
-        return new ResourceChange($object, $this, $properties);
-    }
-
-    public function getUpdatableProperties(object $updateTarget): array
-    {
-        if ($this->currentUser->hasPermission('feature_admin_element_edit')) {
-            return $this->toProperties($this->enabled);
-        }
-
-        return [];
-    }
-
     /**
      * In case of elements with a parent/grand parent/… the element is considered disabled
      * if any parent is disabled, even if the element itself is set to be enabled by the admin.
@@ -283,24 +288,18 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
         return $conditions;
     }
 
-    /**
-     * @param Elements $entity
-     *
-     * @throws UserNotFoundException
-     */
-    public function delete(object $entity): ResourceChange
+    public function deleteEntity(string $entityIdentifier): void
     {
-        $success = $this->elementService->deleteElement([$entity->getId()]);
-        if (!$success) {
-            throw new InvalidArgumentException("Deletion of planning document category failed for the given ID '{$entity->getId()}'");
-        }
-
-        // as the service already flushed the changes, we don't need to return anything in particular
-        return new ResourceChange($entity, $this, []);
+        $this->getTransactionService()->executeAndFlushInTransaction(
+            function () use ($entityIdentifier): void {
+                $success = $this->elementService->deleteElement([$entityIdentifier]);
+                Assert::true($success, "Deletion of planning document category failed for the given ID '$entityIdentifier'");
+            }
+        );
     }
 
-    public function getRequiredDeletionPermissions(): array
+    public function isDeleteAllowed(): bool
     {
-        return ['feature_admin_element_edit'];
+        return $this->currentUser->hasPermission('feature_admin_element_edit');
     }
 }

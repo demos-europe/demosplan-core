@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Logger\ApiLoggerInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
@@ -44,6 +45,7 @@ use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;
 use demosplan\DemosPlanCoreBundle\Transformers\AssessmentTable\StatementBulkEditTransformer;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementBulkEditVO;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
+use EDT\JsonApi\RequestHandling\MessageFormatter;
 use EDT\JsonApi\RequestHandling\PaginatorFactory;
 use EDT\JsonApi\Validation\FieldsValidator;
 use EDT\Wrapping\TypeProviders\PrefilledTypeProvider;
@@ -67,13 +69,14 @@ class DemosPlanStatementAPIController extends APIController
 {
     public function __construct(
         private readonly PermissionsInterface $permissions,
-        LoggerInterface $apiLogger,
+        ApiLoggerInterface $apiLogger,
         FieldsValidator $fieldsValidator,
         PrefilledTypeProvider $resourceTypeProvider,
         TranslatorInterface $translator,
         LoggerInterface $logger,
         GlobalConfigInterface $globalConfig,
         MessageBagInterface $messageBag,
+        MessageFormatter $messageFormatter,
         SchemaPathProcessor $schemaPathProcessor
     ) {
         parent::__construct(
@@ -84,7 +87,8 @@ class DemosPlanStatementAPIController extends APIController
             $logger,
             $globalConfig,
             $messageBag,
-            $schemaPathProcessor
+            $schemaPathProcessor,
+            $messageFormatter
         );
     }
 
@@ -439,6 +443,7 @@ class DemosPlanStatementAPIController extends APIController
                 $procedureId,
                 100000
             );
+
             $meta['fragmentAssignments'] = $userService->getAssigneeIds($allStatementFragments->getResult());
             $meta['filterHash'] = $filterSetHash;
 

@@ -3,7 +3,7 @@
         {% apply spaceless %}
             <div class="layout--flush">
                 <i
-                    class="fa fa-paperclip color--grey width-16 inline"
+                    class="fa fa-paperclip color--grey w-3 inline"
                     aria-hidden="true"
                     title="{{ 'statement.files.uploaded'|trans }}">
                 </i>
@@ -16,7 +16,7 @@
                                 class="u-pr-0_5 o-hellip"
                                 target="_blank"
                                 rel="noopener"
-                                href="{{ path("core_file", { 'hash': file|getFile('hash') }) }}">
+                                href="{{ path("core_file_procedure", { 'hash': file|getFile('hash'), 'procedureId': statement.procedure.id }) }}">
                                 {{ file|getFile('name') }}
                             </a>
                         {% endif %}

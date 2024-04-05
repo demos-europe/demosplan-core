@@ -21,6 +21,7 @@
         <dp-button
           class="ml-auto"
           variant="outline"
+          data-cy="listStatements:searchReset"
           :href="Routing.generate('dplan_procedure_statement_list', { procedureId: procedureId })"
           :disabled="searchValue === ''"
           :text="Translator.trans('search.reset')" />
@@ -38,6 +39,7 @@
       <div class="flex space-inline-xs">
         <dp-flyout
           ref="flyout"
+          data-cy="listStatements:export"
           :align="'left'">
           <template v-slot:trigger>
             {{ Translator.trans('export.verb') }}
@@ -46,11 +48,13 @@
               aria-hidden="true" />
           </template>
           <a
+            data-cy="listStatements:exportStatementsDocx"
             href="#"
             @click="showHintAndDoExport('dplan_statement_segments_export')">
             {{ Translator.trans('export.statements.docx') }}
           </a>
           <a
+            data-cy="listStatements:exportStatementsZip"
             href="#"
             @click="showHintAndDoExport('dplan_statement_segments_export_packaged')">
             {{ Translator.trans('export.statements.zip') }}
@@ -58,6 +62,7 @@
           <a
             v-if="hasPermission('feature_admin_assessmenttable_export_statement_generic_xlsx')"
             :href="exportRoute('dplan_statement_xls_export')"
+            data-cy="listStatements:exportStatementsXlsx"
             rel="noopener">
             {{ Translator.trans('export.statements.xlsx') }}
           </a>
@@ -79,6 +84,7 @@
     <!-- Statement list -->
     <template v-if="!isLoading && items.length > 0">
       <dp-data-table
+        data-cy="listStatements"
         has-flyout
         :is-selectable="isSourceAndCoupledProcedure"
         :header-fields="headerFields"
@@ -115,7 +121,7 @@
             submitDate,
             submitName
           }">
-          <ul class="o-list max-width-350">
+          <ul class="o-list max-w-12">
             <li
               v-if="authorName !== '' || submitName !== ''"
               class="o-list__item o-hellip--nowrap">
@@ -145,9 +151,10 @@
             v-cleanhtml="text" />
         </template>
         <template v-slot:flyout="{ assignee, id, originalPdf, segmentsCount, synchronized }">
-          <dp-flyout>
+          <dp-flyout data-cy="listStatements:statementActionsMenu">
             <button
               v-if="hasPermission('area_statement_segmentation')"
+              data-cy="listStatements:statementSplit"
               :class="`${(segmentsCount > 0 && segmentsCount !== '-') ? 'is-disabled' : '' } btn--blank o-link--default`"
               :disabled="segmentsCount > 0 && segmentsCount !== '-'"
               @click.prevent="handleStatementSegmentation(id, assignee, segmentsCount)"
@@ -155,12 +162,14 @@
               {{ Translator.trans('split') }}
             </button>
             <a
+              data-cy="listStatements:statementDetailsAndRecommendation"
               :href="Routing.generate('dplan_statement_segments_list', { statementId: id, procedureId: procedureId })"
               rel="noopener">
               {{ Translator.trans('statement.details_and_recommendation') }}
             </a>
             <a
               v-if="hasPermission('feature_read_source_statement_via_api')"
+              data-cy="listStatements:originalPDF"
               :class="{'is-disabled': originalPdf === null}"
               :href="Routing.generate('core_file_procedure', { hash: originalPdf, procedureId: procedureId })"
               rel="noreferrer noopener"
@@ -168,6 +177,7 @@
               {{ Translator.trans('original.pdf') }}
             </a>
             <button
+              data-cy="listStatements:statementDelete"
               :class="`${ !synchronized || assignee.id === currentUserId ? 'hover:underline--hover' : 'is-disabled' } btn--blank o-link--default`"
               :disabled="synchronized || assignee.id !== currentUserId"
               type="button"
@@ -364,7 +374,7 @@ export default {
       },
       headerFields: [
         { field: 'externId', label: Translator.trans('id') },
-        { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'width-100' },
+        { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'w-8' },
         { field: 'meta', label: Translator.trans('submitter.invitable_institution') },
         { field: 'text', label: Translator.trans('text') },
         { field: 'segmentsCount', label: Translator.trans('segments') }
@@ -402,6 +412,10 @@ export default {
   computed: {
     ...mapState('assignableUser', {
       assignableUsersObject: 'items'
+    }),
+
+    ...mapState('orga', {
+      orgaObject: 'items'
     }),
 
     ...mapState('statement', {
@@ -486,7 +500,8 @@ export default {
     getAssignee (statement) {
       if (this.assigneeId(statement)) {
         const assignee = this.assignableUsersObject[this.assigneeId(statement)]
-        const assigneeOrga = assignee ? Object.values(assignee.rel('orga'))[0] : null
+        const assigneeOrga = assignee ? assignee.rel('orga') : null
+
         if (typeof assignee === 'undefined') {
           return {
             id: statement.relationships.assignee.data.id,
@@ -494,12 +509,15 @@ export default {
             orgaName: 'unbekannt'
           }
         }
+
         return {
           id: statement.relationships.assignee.data.id,
           name: `${assignee.attributes.firstname} ${assignee.attributes.lastname}`,
           orgaName: assigneeOrga ? assigneeOrga.attributes.name : ''
+
         }
       }
+
       return {
         id: '',
         name: '',
@@ -566,8 +584,8 @@ export default {
     claimStatement (statementId) {
       const statement = this.statementsObject[statementId]
       if (typeof statement !== 'undefined') {
-        const dataToUpdate = { ...statement, ...{ relationships: { ...statement.relationships, ...{ assignee: { data: { type: 'User', id: this.currentUserId } } } } } }
-        this.setStatement({ ...dataToUpdate, id: statementId, group: null })
+        const dataToUpdate = { ...statement, ...{ relationships: { ...statement.relationships, ...{ assignee: { data: { type: 'Claim', id: this.currentUserId } } } } } }
+        this.setStatement({ ...dataToUpdate, id: statementId })
 
         const payload = {
           data: {
@@ -576,13 +594,14 @@ export default {
             relationships: {
               assignee: {
                 data: {
-                  type: 'User',
+                  type: 'Claim',
                   id: this.currentUserId
                 }
               }
             }
           }
         }
+
         return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: statementId }), {}, payload)
           .then(response => {
             checkResponse(response)
@@ -618,8 +637,8 @@ export default {
 
     unclaimStatement (statementId) {
       const statement = this.statementsObject[statementId]
-      const dataToUpdate = { ...statement, ...{ relationships: { ...statement.relationships, ...{ assignee: { data: { type: 'User', id: null } } } } } }
-      this.setStatement({ ...dataToUpdate, id: statementId, group: null })
+      const dataToUpdate = { ...statement, ...{ relationships: { ...statement.relationships, ...{ assignee: { data: { type: 'Claim', id: null } } } } } }
+      this.setStatement({ ...dataToUpdate, id: statementId })
 
       const payload = {
         data: {
@@ -648,6 +667,38 @@ export default {
     },
 
     getItemsByPage (page) {
+      const statementFields = [
+        // Attributes:
+        'authoredDate',
+        'authorName',
+        'externId',
+        'isSubmittedByCitizen',
+        'initialOrganisationCity',
+        'initialOrganisationDepartmentName',
+        'initialOrganisationHouseNumber',
+        'initialOrganisationName',
+        'initialOrganisationPostalCode',
+        'initialOrganisationStreet',
+        'internId',
+        'isCitizen',
+        'memo',
+        'submitDate',
+        'submitName',
+        'submitType',
+        'submitterEmailAddress',
+        'text',
+        'textIsTruncated',
+        // Relationships:
+        'assignee',
+        'attachments',
+        'segments'
+      ]
+      if (this.isSourceAndCoupledProcedure) {
+        statementFields.push('synchronized')
+      }
+      if (hasPermission('area_statement_segmentation')) {
+        statementFields.push('segmentDraftList')
+      }
       this.fetchStatements({
         page: {
           number: page,
@@ -673,39 +724,9 @@ export default {
           'attachments.file'
         ].join(),
         fields: {
-          Statement: [
-            // Attributes:
-            'authoredDate',
-            'authorName',
-            'externId',
-            'isSubmittedByCitizen',
-            'initialOrganisationCity',
-            'initialOrganisationDepartmentName',
-            'initialOrganisationHouseNumber',
-            'initialOrganisationName',
-            'initialOrganisationPostalCode',
-            'initialOrganisationStreet',
-            'internId',
-            'isCitizen',
-            'memo',
-            'submitDate',
-            'submitName',
-            'submitType',
-            'submitterEmailAddress',
-            'synchronized',
-            'text',
-            'textIsTruncated',
-            // Relationships:
-            'assignee',
-            'attachments',
-            'segments'
-          ].join(),
+          Statement: statementFields.join(),
           File: [
             'hash'
-          ].join(),
-          // Segments are only counted, no data needed here.
-          StatementSegment: [
-            'id'
           ].join()
         }
       }).then((data) => {
@@ -725,7 +746,7 @@ export default {
     getOriginalPdfAttachmentHash (el) {
       if (el.hasRelationship('attachments')) {
         const originalAttachment = Object.values(el.relationships.attachments.list())
-          .filter(attachment => attachment.attributes.type === 'source_statement')
+          .filter(attachment => attachment.attributes.attachmentType === 'source_statement')
         if (originalAttachment.length === 1) {
           return originalAttachment[0].relationships.file.get().attributes.hash
         }
@@ -812,7 +833,7 @@ export default {
     },
 
     getStatementsFullText (statementId) {
-      return dpApi.get(Routing.generate('api_resource_get', { resourceType: 'Statement', resourceId: statementId }), { fields: { Statement: ['fullText'].join() } }, { serialize: true })
+      return dpApi.get(Routing.generate('api_resource_get', { resourceType: 'Statement', resourceId: statementId }), { fields: { Statement: ['fullText'].join() } })
         .then((response) => {
           const oldStatement = Object.values(this.statementsObject).find(el => el.id === statementId)
           const fullText = response.data.data.attributes.fullText

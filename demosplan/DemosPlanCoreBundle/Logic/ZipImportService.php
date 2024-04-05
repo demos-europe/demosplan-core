@@ -19,7 +19,6 @@ use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use Patchwork\Utf8;
 use Psr\Log\LoggerInterface;
 use SplFileInfo;
 use Symfony\Component\Finder\Finder;
@@ -31,16 +30,18 @@ use Webmozart\Assert\InvalidArgumentException;
 use ZipArchive;
 
 use function is_string;
+use function Symfony\Component\String\u;
 
 use const DIRECTORY_SEPARATOR;
 
 class ZipImportService
 {
-    private Finder $finder;
+    private readonly Finder $finder;
     private const ZIP_CONTAINS_ERROR_TXT_FILE = 'File is not valid. It contains an errors.txt file indicating a faulty export';
     private const IMPORT_FILE_TYPES_TO_NOT_BE_SAVED = [
         'xlsx',
     ];
+
     public function __construct(
         private readonly CurrentContextProvider $currentContextProvider,
         private readonly LoggerInterface $logger,
@@ -53,6 +54,7 @@ class ZipImportService
 
     /**
      * @return array<string, File|SplFileInfo> // Filehash => File || FileName => SplFileInfo
+     *
      * @throws InvalidDataException
      * @throws InvalidArgumentException
      */
@@ -66,7 +68,6 @@ class ZipImportService
             if ($this->finder->hasResults()) {
                 /** @var SplFileInfo $file */
                 foreach ($this->finder as $file) {
-
                     $extension = $file->getExtension();
                     $fileNameParts = explode('_', $file->getFilename());
 
@@ -80,17 +81,16 @@ class ZipImportService
 
                     if (in_array($extension, self::IMPORT_FILE_TYPES_TO_NOT_BE_SAVED, true)) {
                         $fileMap[$fileHash] = $file;
-                        } else {
-
-                            $fileMap[$fileHash] = $this->fileService->saveTemporaryFile(
-                                $file->getRealPath(),
-                                $file->getFilename(),
-                                null,
-                                $procedureId,
-                                FileService::VIRUSCHECK_ASYNC,
-                                $this->fileService->createHash()
-                            );
-                        }
+                    } else {
+                        $fileMap[$fileHash] = $this->fileService->saveTemporaryFile(
+                            $file->getRealPath(),
+                            $file->getFilename(),
+                            null,
+                            $procedureId,
+                            FileService::VIRUSCHECK_ASYNC,
+                            $this->fileService->createHash()
+                        );
+                    }
                 }
             }
 
@@ -108,12 +108,11 @@ class ZipImportService
             $this->messageBag->add(
                 'error',
                 $this->translator->trans('error.file.could.not.be.read'),
-                ['files' => implode(array_keys($fileMap))]
+                ['files' => implode('', array_keys($fileMap))]
             );
 
             throw new DemosException('statement import failed');
         }
-
     }
 
     /**
@@ -134,9 +133,8 @@ class ZipImportService
 
                 $fileInfo = pathinfo($filenameOrig);
 
-                // T5659 only filter filenames for bad chars, do not translit
-                $filename = Utf8::filter($fileInfo['basename']);
-                $dirname = Utf8::filter($fileInfo['dirname']);
+                $filename = u($fileInfo['basename'])->ascii()->replace(' ', '_')->toString();
+                $dirname = u($fileInfo['dirname'])->ascii()->replace(' ', '_')->toString();
 
                 $user = $this->currentContextProvider->getCurrentUser();
                 $extractDir = $this->getStatementAttachmentImportDir($procedureId, $tempFileFolder, $user);
@@ -195,9 +193,7 @@ class ZipImportService
         $tmpDir = DemosPlanPath::getTemporaryPath($user->getId().'/'.$procedureId.'/'.$tempFileFolder);
 
         if (!is_dir($tmpDir) && !mkdir($tmpDir, 0777, true) && !is_dir($tmpDir)) {
-            throw new InvalidDataException(
-                'The filename does not exists or is not a directory. Directory was not created'
-            );
+            throw new InvalidDataException('The filename does not exists or is not a directory. Directory was not created');
         }
 
         return $tmpDir;

@@ -467,7 +467,7 @@
                                             title="{{ source_stn.file.name|default('original.pdf'|trans) }}"
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            href="{{ path("core_file", { 'hash': source_stn.file.hash|default }) }}">
+                                            href="{{ path("core_file_procedure", { 'hash': source_stn.file.hash|default, 'procedureId': procedure  }) }}">
                                             {{ source_stn.file.name|default('original.pdf'|trans) }}
                                         </a>
                                     {% endif %}

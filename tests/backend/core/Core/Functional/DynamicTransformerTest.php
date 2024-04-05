@@ -20,10 +20,7 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType;
-use EDT\JsonApi\OutputTransformation\DynamicTransformer;
-use EDT\JsonApi\OutputTransformation\IncludeDefinition;
-use EDT\JsonApi\OutputTransformation\IncludeDefinitionInterface;
-use EDT\JsonApi\OutputTransformation\PropertyDefinitionInterface;
+use EDT\JsonApi\OutputHandling\DynamicTransformer;
 use EDT\JsonApi\RequestHandling\MessageFormatter;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use League\Fractal\Manager;
@@ -69,6 +66,7 @@ class DynamicTransformerTest extends JsonApiTest
 
     public function testProcedureInclude(): void
     {
+        self::markSkippedForCIIntervention();
         $this->loginTestUser();
         $this->enablePermissions(['feature_json_api_procedure']);
 

@@ -141,7 +141,7 @@ export default {
 
       this.entityId = id
       return dpApi({
-        method: 'get',
+        method: 'GET',
         url: Routing.generate(route, params)
       })
         .then(response => checkResponse(response))

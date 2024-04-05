@@ -93,6 +93,7 @@
               class="space-stack-s">
               <dp-input
                 id="statementSubmitterName"
+                data-cy="similarStatementSubmitters:name"
                 v-model="formFields.submitterName"
                 :label="{
                   text: Translator.trans('name')
@@ -100,6 +101,7 @@
                 required />
               <dp-input
                 id="statementSubmitterEmail"
+                data-cy="similarStatementSubmitters:email"
                 v-model="formFields.submitterEmailAddress"
                 :label="{
                   text: Translator.trans('email')
@@ -113,6 +115,7 @@
               <div class="o-form__group">
                 <dp-input
                   id="statementSubmitterAddress"
+                  data-cy="similarStatementSubmitters:street"
                   v-model="formFields.submitterAddress"
                   class="o-form__group-item"
                   :label="{
@@ -120,6 +123,7 @@
                   }" />
                 <dp-input
                   id="statementSubmitterHouseNumber"
+                  data-cy="similarStatementSubmitters:streetNumberShort"
                   v-model="formFields.submitterHouseNumber"
                   class="o-form__group-item shrink"
                   :label="{
@@ -131,6 +135,7 @@
               <div class="o-form__group">
                 <dp-input
                   id="statementSubmitterPostalCode"
+                  data-cy="similarStatementSubmitters:postalCode"
                   v-model="formFields.submitterPostalCode"
                   class="o-form__group-item shrink"
                   :label="{
@@ -140,6 +145,7 @@
                   :size="5" />
                 <dp-input
                   id="statementSubmitterCity"
+                  data-cy="similarStatementSubmitters:city"
                   v-model="formFields.submitterCity"
                   class="o-form__group-item"
                   :label="{

@@ -36,7 +36,6 @@ use Doctrine\ORM\Query\QueryException;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\PropertyPathInterface;
-use EDT\Wrapping\Contracts\AccessException;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -335,9 +334,7 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
                 $statementFieldDefinitionResourceType->required
             );
 
-            $statementFieldDefinition = $statementFieldDefinitionResourceType->getEntityByTypeIdentifier(
-                $fieldDefinition['id']
-            );
+            $statementFieldDefinition = $statementFieldDefinitionResourceType->getEntity($fieldDefinition['id']);
             $statementFieldDefinitionChanges[] = $this->resourcePersister->updateBackingObjectWithEntity(
                 $statementFieldDefinitionResourceType,
                 $statementFieldDefinition,
@@ -357,9 +354,7 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
         Request $request
     ): Request {
         $params = $request->request->all();
-        /** @var ProcedureType $originalProcedureTypeEntity */
-        $originalProcedureTypeEntity = $this->procedureTypeResourceType->getEntityAsReadTarget($params['id']);
-
+        $originalProcedureTypeEntity = $this->procedureTypeResourceType->getEntity($params['id']);
         // Always adds participationGuestOnly since it is never send in the form
         $originalParticipationGuestOnly =
             $originalProcedureTypeEntity->getProcedureBehaviorDefinition()->isParticipationGuestOnly();
@@ -453,13 +448,9 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
      */
     public function getAllProcedureTypes(): array
     {
-        if (!$this->procedureTypeResourceType->isAvailable()) {
-            throw AccessException::typeNotAvailable($this->procedureTypeResourceType);
-        }
-
         $nameSorting = $this->sortMethodFactory->propertyAscending($this->procedureTypeResourceType->name);
 
-        return $this->procedureTypeResourceType->listEntities([], [$nameSorting]);
+        return $this->procedureTypeResourceType->getEntities([], [$nameSorting]);
     }
 
     public function getProcedureTypeByName(string $name): ?ProcedureType

@@ -47,7 +47,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\DocumentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
-use demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Export\EntityPreparator;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
@@ -60,7 +59,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureCategoryService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput as ProcedureServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceStorage;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
@@ -105,8 +103,6 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use EDT\Wrapping\Contracts\AccessException;
-use EDT\Wrapping\Contracts\WrapperFactoryInterface;
 use Exception;
 use InvalidArgumentException;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -191,7 +187,7 @@ class DemosPlanProcedureController extends BaseController
      * @throws MessageBagException
      */
     #[Route(path: '/plan/{slug}', name: 'core_procedure_slug')]
-    public function procedureSlugAction(CurrentUserInterface $currentUser, ServiceOutput $procedureOutput, string $slug = '')
+    public function procedureSlugAction(CurrentUserInterface $currentUser, ProcedureServiceOutput $procedureOutput, string $slug = '')
     {
         try {
             $slugify = new Slugify();
@@ -651,6 +647,8 @@ class DemosPlanProcedureController extends BaseController
                 'r_enddate',
                 'r_externalDesc',
                 'r_externalName',
+                'r_phase_iteration',
+                'r_public_participation_phase_iteration',
                 'r_ident',
                 'r_legalNotice',
                 'r_links',
@@ -1155,7 +1153,7 @@ class DemosPlanProcedureController extends BaseController
     {
         // todo: move this method in service?
 
-//        refs T6189: Only toeb, who were selected to recive the invitation mail are listed in mail-body.
+        //        refs T6189: Only toeb, who were selected to recive the invitation mail are listed in mail-body.
         $organization = $procedure->getOrga();
         if (0 === count($selectedOrganisations)) {
             $procedureServiceOutput = $this->procedureServiceOutput;
@@ -1289,9 +1287,9 @@ class DemosPlanProcedureController extends BaseController
                 // If there is no institution participation, only the externalName aka. publicly visible name
                 // can be edited. To prevent both values to be displayed (which is the default behavior when
                 // values differ) the fields are synced.
-                if (false === $this->permissions->hasPermission('feature_institution_participation') &&
-                    true === $this->permissions->hasPermission('area_public_participation') &&
-                    isset($inData['r_externalName'])) {
+                if (false === $this->permissions->hasPermission('feature_institution_participation')
+                    && true === $this->permissions->hasPermission('area_public_participation')
+                    && isset($inData['r_externalName'])) {
                     $inData['r_name'] = $inData['r_externalName'];
                 }
 
@@ -1690,7 +1688,7 @@ class DemosPlanProcedureController extends BaseController
                                 $savedStatement->getExternId(),
                                 $currentProcedureService->getProcedureWithCertainty()
                             );
-                    } catch (GdprConsentRequiredException $e) {
+                    } catch (GdprConsentRequiredException) {
                         $this->getMessageBag()->add('warning', 'warning.gdpr.consent');
 
                         return $this->redirectToRoute('DemosPlan_procedure_public_detail', ['procedureId' => $procedureId]);
@@ -1722,7 +1720,7 @@ class DemosPlanProcedureController extends BaseController
                     // Benachrichtige das Template, dass ein Emailversand erwünscht war
                     $templateVars['wantsEmail'] = true;
                 }
-            } catch (ValidatorException $e) {
+            } catch (ValidatorException) {
                 // Werte ins Template übergeben
                 $templateVars['request'] = $requestPost;
             } catch (ViolationsException $e) {
@@ -1899,10 +1897,10 @@ class DemosPlanProcedureController extends BaseController
             ++$tabCount;
         }
         if (
-            $this->permissions->hasPermission('area_statements_public_published_public') &&
-            \array_key_exists('publicStatements', $templateVars) &&
-            \array_key_exists('statements', $templateVars['publicStatements']) &&
-            0 < sizeof($templateVars['publicStatements']['statements'])
+            $this->permissions->hasPermission('area_statements_public_published_public')
+            && \array_key_exists('publicStatements', $templateVars)
+            && \array_key_exists('statements', $templateVars['publicStatements'])
+            && 0 < sizeof($templateVars['publicStatements']['statements'])
         ) {
             ++$tabCount;
 
@@ -2239,8 +2237,8 @@ class DemosPlanProcedureController extends BaseController
         );
         if (\is_array($invitationEmailSent['result']) && 0 < count($invitationEmailSent['result'])) {
             foreach ($invitationEmailSent['result'] as $invitedOrga) {
-                if (\array_key_exists('organisation', $invitedOrga) &&
-                    $invitedOrga['organisation'] instanceof Orga
+                if (\array_key_exists('organisation', $invitedOrga)
+                    && $invitedOrga['organisation'] instanceof Orga
                 ) {
                     $templateVars['orgaInvitationemailSent'][] = $invitedOrga['organisation']->getId();
                 }
@@ -2777,12 +2775,8 @@ class DemosPlanProcedureController extends BaseController
             return $templateVars;
         }
 
-        if (!$this->procedureTypeResourceType->isAvailable()) {
-            throw AccessException::typeNotAvailable($this->procedureTypeResourceType);
-        }
-
         $nameSorting = $this->sortMethodFactory->propertyAscending($this->procedureTypeResourceType->name);
-        $templateVars['procedureTypes'] = $this->procedureTypeResourceType->listEntities([], [$nameSorting]);
+        $templateVars['procedureTypes'] = $this->procedureTypeResourceType->getEntities([], [$nameSorting]);
 
         return $templateVars;
     }

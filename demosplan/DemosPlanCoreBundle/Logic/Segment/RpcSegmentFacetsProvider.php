@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
+use DemosEurope\DemosplanAddon\Contracts\ApiRequest\JsonApiEsServiceInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
@@ -31,11 +32,9 @@ use stdClass;
 class RpcSegmentFacetsProvider implements RpcMethodSolverInterface
 {
     private const FACET_LIST_METHOD = 'segments.facets.list';
-    private readonly DrupalFilterParser $filterParser;
 
-    public function __construct(private readonly ApiResourceService $resourceService, private readonly CurrentUserInterface $currentUser, DrupalFilterParser $drupalFilterParser, private readonly JsonApiActionService $jsonApiActionService, private readonly RpcErrorGenerator $errorGenerator, private readonly StatementSegmentResourceType $segmentResourceType)
+    public function __construct(private readonly ApiResourceService $resourceService, private readonly CurrentUserInterface $currentUser, private readonly DrupalFilterParser $filterParser, private readonly JsonApiActionService $jsonApiActionService, private readonly RpcErrorGenerator $errorGenerator, private readonly StatementSegmentResourceType $segmentResourceType)
     {
-        $this->filterParser = $drupalFilterParser;
     }
 
     public function supports(string $method): bool
@@ -63,8 +62,8 @@ class RpcSegmentFacetsProvider implements RpcMethodSolverInterface
                     : $searchPhrase;
 
                 $searchParams = SearchParams::createOptional([
-                    'value'         => $searchPhrase,
-                    'facetKeys'     => [$facetKey => $facetKey],
+                    JsonApiEsServiceInterface::VALUE      => $searchPhrase,
+                    JsonApiEsServiceInterface::FACET_KEYS => [$facetKey => $facetKey],
                 ]);
                 $apiListResult = $this->jsonApiActionService->searchObjects(
                     $this->segmentResourceType,
@@ -78,6 +77,17 @@ class RpcSegmentFacetsProvider implements RpcMethodSolverInterface
                 $item = $this->resourceService->makeCollection($aggregationFilterType, AggregationFilterTypeTransformer::class);
                 $jsonArray = $this->resourceService->getFractal()->createData($item)->toArray();
                 $jsonArray['meta']['count'] = $apiListResult->getResultCount();
+
+                /*
+                 * When the user selects a filter, the BE uses ElasticSearch facets to create the filters and answers back the FE with the given filter id and the property selected = true (see here demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Facet\FacetFactory.php method createAggregationFilterItems)
+                 * When filtering for assignee NULL, there is no id, consequently there is not Facet for this filter.
+                 * Because NULL filters lack an id, the BE can't inform the FE that this filter (assignee == NULL) has been selected.
+                 * To address this, we include information about the NULL filter in the meta (metadata) of the RPC request: $jsonArray['meta']['unassigned_selected']
+                 * This way, the FE is notified that a NULL filter for a assignee is selected, even though it doesn't have an id.
+                 */
+
+                $jsonArray['meta']['unassigned_selected'] = property_exists($rpcRequest->params->filter, 'unassigned');
+
                 $resultResponse[] = $this->generateMethodResult($rpcRequest, $jsonArray);
             } catch (InvalidArgumentException|InvalidSchemaException) {
                 $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
