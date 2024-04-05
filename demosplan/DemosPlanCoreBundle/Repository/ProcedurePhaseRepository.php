@@ -12,8 +12,19 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 
 class ProcedurePhaseRepository extends FluentRepository
 {
+    public function getProcedureByInstitutionPhaseId(string $phaseId): ProcedureInterface|null
+    {
+        return $this->getEntityManager()->getRepository(ProcedureInterface::class)->findOneBy(['phase' => $phaseId]);
+    }
+
+    public function getProcedureByPublicParticipationPhaseId(string $phaseId): ProcedureInterface|null
+    {
+        return $this->getEntityManager()->getRepository(ProcedureInterface::class)
+            ->findOneBy(['publicParticipationPhase' => $phaseId]);
+    }
 }
