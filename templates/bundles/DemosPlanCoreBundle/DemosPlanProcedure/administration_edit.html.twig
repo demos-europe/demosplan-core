@@ -413,22 +413,23 @@
                                                     {% endfor %}
                                                 </select>
                                             </div>
-
-                                            <div class="w-4/12 inline-block relative">
-                                                {{ uiComponent('form.element', {
-                                                    label: {
-                                                        text: 'procedure.phase.phasecounter'|trans,
-                                                        tooltip: 'text.procedure.phasecounter'|trans
-                                                    },
-                                                    control: {
-                                                        name: 'r_phase_iteration',
-                                                        value: proceduresettings.phaseObject.iteration
-                                                    },
-                                                    id: 'r_phase_iteration',
-                                                    type: 'text',
-                                                    required: true,
-                                                }) }}
-                                            </div>
+                                            {% if hasPermission('field_phase_iterator') %}
+                                                <div class="w-4/12 inline-block relative">
+                                                    {{ uiComponent('form.element', {
+                                                        label: {
+                                                            text: 'procedure.phase.phasecounter'|trans,
+                                                            tooltip: 'text.procedure.phasecounter'|trans
+                                                        },
+                                                        control: {
+                                                            name: 'r_phase_iteration',
+                                                            value: proceduresettings.phaseObject.iteration
+                                                        },
+                                                        id: 'r_phase_iteration',
+                                                        type: 'text',
+                                                        required: true,
+                                                    }) }}
+                                                </div>
+                                            {% endif %}
                                         </div>
 
                                         {{ uiComponent('inline-notification', {
