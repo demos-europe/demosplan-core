@@ -29,6 +29,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
+use demosplan\DemosPlanCoreBundle\Twig\Extension\LatexExtension;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Exception;
@@ -269,6 +270,14 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
                     'viewMode'     => AssessmentTableViewMode::DEFAULT_VIEW,
                     'anonymous'    => $anonymous,
                 ]
+            );
+            $content = str_replace(
+                [LatexExtension::HTML_TO_LATEX['<ul>'], LatexExtension::HTML_TO_LATEX['<ol>']],
+                [
+                    '\begin{itemize}[leftmargin=0.5cm,rightmargin=\dimexpr\linewidth-12cm-\leftmargin\relax]',
+                    '\begin{enumerate}[leftmargin=0.5cm,rightmargin=\dimexpr\linewidth-12cm-\leftmargin\relax]',
+                ],
+                $content
             );
             $procedureName = $this
                 ->assessmentTableOutput
