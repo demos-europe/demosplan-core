@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Form;
 
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanCoreBundle\Logic\TwigableWrapperObject;
 use Doctrine\ORM\Query\QueryException;
 use EDT\Wrapping\WrapperFactories\WrapperObject;
 use ReflectionException;
@@ -52,7 +53,7 @@ abstract class AbstractBaseResourceFormType extends AbstractType implements Data
             return;
         }
 
-        if (!$viewData instanceof WrapperObject) {
+        if (!$viewData instanceof TwigableWrapperObject) {
             throw new UnexpectedTypeException($viewData, WrapperObject::class);
         }
 

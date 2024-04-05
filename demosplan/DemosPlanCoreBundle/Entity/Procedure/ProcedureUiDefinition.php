@@ -140,6 +140,11 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface, P
         return $this->id;
     }
 
+    public function setId(string $id): void
+    {
+        $this->id = $id;
+    }
+
     public function getProcedure(): ?Procedure
     {
         return $this->procedure;

@@ -42,7 +42,7 @@ about.introduction: >-
 
     <p>Eine bundesweite Übersicht über alle raumbezogenen Planwerke und formalen Beteiligungsverfahren des Baugesetzbuches
     sowie perspektivisch der Raumordnung und Planfeststellung finden Sie in unserem
-    <a class="o-link--external" href="https://portal.demo.diplanung.de/" target="_blank" rel="noopener">DiPlanPortal</a>.
+    <a class="o-link--external" href="{diplanportalurl}" target="_blank" rel="noopener">DiPlanPortal</a>.
     </p>
 
     <p>DiPlanBeteiligung ist als freie Software unter der Open-Source-Lizenz für die Europäische Union
@@ -2062,7 +2062,7 @@ logo.delete: "Logo löschen"
 logo.upload.new: "Neues Logo hochladen"
 logout: "Abmelden"
 # map.attribution.default supports both {linkImprint} and {currentYear} placeholders.
-map.attribution.default: "Lizenzrechtliche Angaben im <a href=\"{linkImprint}\">Impressum</a>"
+map.attribution.default: "© basemap.de / BKG {currentYear}"
 map.attribution.exports: "© basemap.de BKG (www.basemap.de) / LVermGeo SH (www.LVermGeoSH.schleswig-holstein.de)"
 map.attribution: "Copyright-Vermerk"
 map.attribution.hint: "Der Copyright-Vermerk bzw. die Quellengabe wird in einer Leiste unterhalb der Karte angezeigt."
@@ -2635,6 +2635,7 @@ procedure.notifyCountry.setEmails.invalidEmail.notSaved: "E-Mail-Adresse ungült
 procedure.phase.autoswitch.enddate: "Neues Enddatum:"
 procedure.phase.autoswitch.targetphase: "Neuer Verfahrensschritt"
 procedure.phase.institutions: "Verfahrensschritt für Institutionen"
+procedure.phase.phasecounter: "Durchgangsnummer"
 procedure.phase.public: "Verfahrensschritt für Bürger*innen"
 procedure.phase.select: "Verfahrensschritt auswählen"
 procedure.phases.internal.configuration: "Konfiguration TöB"
@@ -2862,7 +2863,7 @@ role.editor.abbr: "Red."
 role.editor: "Redaktion"
 role.falst: "Fachliche Leitstelle"
 role.fp: "Fachplanung"
-role.fp.for: "für Fachplaner"
+role.fp.for: "für Fachplanung"
 role.fpa.abbr: "FP-A"
 role.fpa: "Fachplanung-Admin"
 role.fpfb.abbr: "FP-FB"
@@ -3614,7 +3615,7 @@ tag.name: "Name des neuen Schlagwortes"
 tag.new: "Neues Schlagwort"
 tag.rename: "Schlagwort umbenennen"
 tag.search: "Schlagwort suchen"
-tag.topic.new: "Schlagwort oder Thema anlegen…"
+tag.topic.new: "Schlagwort/Thema anlegen…"
 tag.topic.select.create: "Bitte wählen Sie ein Thema aus oder legen Sie ein neues Thema an."
 tag.update: "Schlagwort bearbeiten"
 tag: "Schlagwort"
@@ -3697,6 +3698,7 @@ text.procedure.show.similar.recommendations: "Legen Sie fest, aus welchen Verfah
 text.procedure.upload.antragx: 'Der Verfahrensname wird beim Speichern aus der hochgeladenen Datei extrahiert.'
 text.procedures.invited.list: "Alle Verfahren, zu denen Ihre Organisation als Institution beteiligt wird."
 text.procedures.list: "Alle Verfahren Ihrer Organisation."
+text.procedure.phasecounter: "Bitte geben Sie die Durchgangsnummer für den jeweiligen Verfahrensschritt ein. Verfahrensschritte können beliebig oft durchlaufen werden. Diese Durchläufe werden durch Angabe einer Durchgangsnummer (>0) gekennzeichnet."
 text.procedures.public.participation.list: "Die Liste enthält alle Online-Beteiligungsverfahren, die bei demosplan eingestellt und für die Öffentlichkeit freigegeben wurden. Über den Filter \"Phase\" können Sie sich laufende Verfahren, solche in der Auswertung oder abgeschlossene Verfahren anzeigen lassen."
 text.procedure.types.guests.only: "Beteiligung auf unangemeldete Nutzende beschränken"
 text.procedure.types.guests.only.tipp: "Die Einstellung ist vordefiniert und kann nicht verändert werden.<br /> Nur wenn die Checkbox aktiv ist, können die Stellungnahmefelder weiter unten konfiguriert werden."

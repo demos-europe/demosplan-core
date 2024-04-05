@@ -544,7 +544,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     public function submitDraftStatement(
         DraftStatement $draftStatement,
         $user,
-        NotificationReceiver $notificationReceiver = null,
+        ?NotificationReceiver $notificationReceiver = null,
         bool $gdprConsentReceived = false
     ) {
         try {
@@ -1737,6 +1737,13 @@ class StatementService extends CoreService implements StatementServiceInterface
             $newVote->setUser($user);
             $newVote->setFirstName($user->getFirstname());
             $newVote->setLastName($user->getLastname());
+            $fullName = $newVote->getFirstName().' '.$newVote->getLastName();
+            $newVote->setUserName($fullName);
+            $newVote->setUserCity($user->getCity());
+            $newVote->setDepartmentName($user->getDepartmentName());
+            $newVote->setOrganisationName($user->getOrgaName());
+            $newVote->setUserMail($user->getEmail());
+            $newVote->setUserPostcode($user->getPostalcode());
 
             $existingVotes = $statement->getVotes();
             $existingVotes->add($newVote);
@@ -1763,7 +1770,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @return StatementLike|false
      */
-    public function addLike($statementId, User $user = null)
+    public function addLike($statementId, ?User $user = null)
     {
         try {
             $em = $this->getDoctrine()->getManager();

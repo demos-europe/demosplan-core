@@ -1,25 +1,28 @@
 <article>
-    <header class="{{ 'layout__item u-pv-0_25'|prefixClass }}">
-        {% if statement.number is defined %}{{ statement.number }}{% endif %}
+    {% if statement.number is defined %}
+        <header class="{{ 'layout__item'|prefixClass }}">
+            {{ statement.number }}
+            {% if statement.createdDate is defined %}
+                <span class="{{ 'font-size-smaller float-right'|prefixClass }}">
+                    {{ "date.created"|trans }}: {{ statement.createdDate|dplanDate("d.m.Y H:i") }}
+                </span>
+            {% endif %}
+        </header>
+    {% endif %}
 
-        <span class="{{ 'font-size-smaller float-right'|prefixClass }}">
-			{% if statement.createdDate is defined %}{{ "date.created"|trans }}: {{ statement.createdDate|dplanDate("d.m.Y H:i") }}{% endif %}
-		</span>
-    </header>
-
-    <dl class="{{ 'layout u-mb'|prefixClass }}">
-        <dt class="{{ 'layout__item u-1-of-6 weight--bold u-1-of-1-palm'|prefixClass }}">
-            {{ "document"|trans }}:
-        </dt><!--
-     --><dd class="{{ 'layout__item u-1-of-3 u-ml-0-lap-up u-1-of-1-palm u-ml-0_5-palm'|prefixClass }}">
+    <dl class="{{ 'w-full md:w-1/3 mb-0'|prefixClass }}">
+        <dt class="{{ 'inline-block mb-3 mt-1 w-1/4 md:w-4/12 lg:w-1/4 font-semibold'|prefixClass }}">
+            {{ "document"|trans }}
+        </dt>
+         <dd class="{{ 'inline-block ml-0 w-3/4 md:w-7/12 lg:w-3/4'|prefixClass }}">
             {{ statement.element.title|default() }} {% if statement.document.title is defined %}/ {{ statement.document.title }}{% endif %}
-        </dd><!--
+        </dd>
 
         {% if hasPermission('field_statement_location') %}
-         --><dt class="{{ 'layout__item u-1-of-6 weight--bold u-1-of-1-palm'|prefixClass }}">
-                {{ "location"|trans }}:
-            </dt><!--
-         --><dd class="{{ 'layout__item u-1-of-3 u-ml-0-lap-up u-1-of-1-palm u-ml-0_5-palm'|prefixClass }}">
+            <dt class="{{ 'inline-block mb-3 w-1/4 md:w-4/12 lg:w-1/4 font-semibold'|prefixClass }}">
+                {{ "location"|trans }}
+            </dt>
+             <dd class="{{ 'inline-block ml-0 w-3/4 md:w-7/12 lg:w-3/4'|prefixClass }}">
                 {% if statement.polygon|default != '' %}
                     <button
                         class="{{ 'btn--blank o-link--default'|prefixClass }}"
@@ -30,37 +33,37 @@
                 {% else %}
                     {{ "notspecified"|trans }}
                 {% endif %}
-            </dd><!--
+            </dd>
         {% endif %}
 
         {% if hasPermission('feature_documents_new_statement') %}
-        --><dt class="{{ 'layout__item u-1-of-6 weight--bold u-1-of-1-palm'|prefixClass }}">
-                {{ "paragraph"|trans }}:
-            </dt><!--
-        --><dd class="{{ 'layout__item u-1-of-3 u-ml-0-lap-up u-1-of-1-palm u-ml-0_5-palm'|prefixClass }}">
+            <dt class="{{ 'inline-block mb-3 w-1/4 md:w-4/12 lg:w-1/4 font-semibold'|prefixClass }}">
+                {{ "paragraph"|trans }}
+            </dt>
+            <dd class="{{ 'inline-block ml-0 w-3/4 md:w-7/12 lg:w-3/4'|prefixClass }}">
                 {% if statement.paragraph.title is defined %}{{ statement.paragraph.title|striptags|default() }}{% endif %}
-            </dd><!--
+            </dd>
         {% endif %}
 
-     --><dt class="{{ 'layout__item u-1-of-6 weight--bold u-1-of-1-palm'|prefixClass }}">
-            {{ "file"|trans }}:
-        </dt><!--
-     --><dd class="{{ 'layout__item u-1-of-3 u-ml-0-lap-up o-hellip u-1-of-1-palm u-ml-0_5-palm'|prefixClass }}">
+        <dt class="{{ 'inline-block mb-3 w-1/4 md:w-4/12 lg:w-1/4 font-semibold'|prefixClass }}">
+            {{ "file"|trans }}
+        </dt>
+        <dd class="{{ 'inline-block align-top ml-0 w-3/4 md:w-7/12 lg:w-3/4'|prefixClass }}">
             {% if statement.files|default([])|length > 0 %}
                 {% for file in statement.files %}
-                <a
-                    target="_blank"
-                    rel="noopener"
-                    href="{{ path("core_file", { 'hash': file|getFile('hash') }) }}" title="{{ file|getFile('name') }}">
-                    {{ file|getFile('name') }}
-                </a><br>
+                    <a
+                        target="_blank"
+                        rel="noopener"
+                        href="{{ path("core_file", { 'hash': file|getFile('hash') }) }}" title="{{ file|getFile('name') }}">
+                        {{ file|getFile('name') }}
+                    </a>
+                    {% if not loop.last %}<span>,</span>{% endif %}
                 {% endfor %}
             {% endif %}
         </dd>
     </dl>
 
-
-    <div class="{{ 'layout__item u-11-of-12 u-pl-0 u-pt -'|prefixClass }}">
+    <div class="{{ 'w-11/12 pl-0 pt-2'|prefixClass }}">
         {% if statement.rejectedReason is defined and statement.rejectedReason!='' %}
             <strong>
                 {{ "confirm.statement.rejected.reason"|trans }} "{{ statement.rejectedReason }}"
