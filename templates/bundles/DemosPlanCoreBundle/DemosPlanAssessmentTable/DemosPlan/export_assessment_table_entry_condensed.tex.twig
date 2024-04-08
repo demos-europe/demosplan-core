@@ -99,7 +99,7 @@
         \ParallelRText{{ '{' }}\textbf{{ '{' }}{{ "considerationadvice"|trans|latex|raw }}{{ '}' }}{{ '}' }}
         \end{Parallel}
         \begin{{ '{' }}Parallel{{ '}' }}{{ '{' }}12.25cm{{ '}' }}{{ '{' }}12.25cm{{ '}' }}
-        \ParallelLText{{ '{' }}{{ statement.text|default("notspecified"|trans)|latex|raw }}{{ '}' }}
+        \ParallelLText{{ '{' }}{{ statement.text|default("notspecified"|trans)|latex(listwidth=templateVars.listwidth)|raw }}{{ '}' }}
         \ParallelRText{{ '{' }}{{ statement.recommendation|default("notspecified"|trans)|latex|raw }}{{ '}' }}
         \end{Parallel}
 

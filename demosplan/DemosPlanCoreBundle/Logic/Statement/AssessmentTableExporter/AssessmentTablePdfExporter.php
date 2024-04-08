@@ -259,6 +259,11 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             // * Querformat: DemosPlanAssessmentTableBundle:DemosPlan:export_original.tex.twig
             // * Hochformat: DemosPlanAssessmentTableBundle:DemosPlan:export_original.tex.twig
             $fullTemplateName = '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/'.$templateName.'.tex.twig';
+
+
+            // @todo add logic to evaluate list width
+            $templateVars['listwidth'] = 10;
+
             $content = $this->twig->render(
                 $fullTemplateName,
                 [
@@ -271,14 +276,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
                     'anonymous'    => $anonymous,
                 ]
             );
-            $content = str_replace(
-                [LatexExtension::HTML_TO_LATEX['<ul>'], LatexExtension::HTML_TO_LATEX['<ol>']],
-                [
-                    '\begin{itemize}[leftmargin=0.5cm,rightmargin=\dimexpr\linewidth-12cm-\leftmargin\relax]',
-                    '\begin{enumerate}[leftmargin=0.5cm,rightmargin=\dimexpr\linewidth-12cm-\leftmargin\relax]',
-                ],
-                $content
-            );
+
             $procedureName = $this
                 ->assessmentTableOutput
                 ->selectProcedureName(

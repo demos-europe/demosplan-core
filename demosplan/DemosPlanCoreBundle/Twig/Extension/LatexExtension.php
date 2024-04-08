@@ -53,9 +53,7 @@ class LatexExtension extends ExtensionBase
         '<b>'                                  => '{\bfseries ',
         '</b>'                                 => '}',
         '<ins>'                                => '',
-        '<ul>'                                 => '\begin{itemize}[leftmargin=0.5cm,rightmargin=\dimexpr\linewidth-17cm-\leftmargin\relax]',
         '</ul>'                                => '\end{itemize}',
-        '<ol>'                                 => '\begin{enumerate}[leftmargin=0.5cm,rightmargin=\dimexpr\linewidth-17cm-\leftmargin\relax]',
         '</ol>'                                => '\end{enumerate}',
         '<li>'                                 => '\item ',
         '</li>'                                => '',
@@ -96,7 +94,14 @@ class LatexExtension extends ExtensionBase
     public function getFilters(): array
     {
         return [
-            new TwigFilter('latex', $this->latexFilter(...)),
+            new TwigFilter(
+                'latex', function (
+                $string,
+                $listwidth = 7
+            ) {
+                return $this->latexFilter($string, $listwidth);
+            }
+            ),
             new TwigFilter('nl2texnl', $this->latexNewlineFilter(...)),
             new TwigFilter('latexPrepareImage', $this->prepareImage(...)),
             new TwigFilter('htmlPrepareImage', $this->prepareHtmlImage(...)),
@@ -122,7 +127,7 @@ class LatexExtension extends ExtensionBase
      *
      * @throws Exception
      */
-    public function latexFilter($text)
+    public function latexFilter($text, int $listwidth)
     {
         try {
             // return numeric values without conversion
@@ -212,6 +217,11 @@ class LatexExtension extends ExtensionBase
             if (false !== stripos($text, '<table')) {
                 $text = $this->processTable($text);
             }
+            $htmlToLatexList = [
+                '<ul>'      => sprintf('\begin{itemize}[leftmargin=0.5cm,rightmargin=\dimexpr\linewidth-%scm-\leftmargin\relax]', $listwidth),
+                '<ol>'      => sprintf('\begin{enumerate}[leftmargin=0.5cm,rightmargin=\dimexpr\linewidth-%scm-\leftmargin\relax]', $listwidth),
+            ];
+            $text = str_replace(array_keys($htmlToLatexList), $htmlToLatexList, $text);
 
             // Replace found URLs with latex-style URLs
             $hitcount = 0;
