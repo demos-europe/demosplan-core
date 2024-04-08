@@ -904,6 +904,8 @@ class DraftStatementService extends CoreService
         $outputResult['statementlist'] = $filteredStatementList;
         $templateVars['list'] = $outputResult;
         $templateVars['procedure'] = $procedureId;
+        // set listLineWidth for pdf vertical format (portrait) view not split - Text only
+        $templateVars['listwidth'] = 17;
         $procedure = $this->procedureService->getProcedure($procedureId);
 
         $content = $this->twig->render('@DemosPlanCore/DemosPlanStatement/'.$template.'.tex.twig', [
