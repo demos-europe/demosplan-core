@@ -452,10 +452,9 @@ export default {
     },
 
     isSubmitterAnonymous () {
-      const attr = this.localStatement.attributes
+      const { gdprConsent, original } = this.localStatement.attributes
 
-      return (attr.gdprConsent && attr.gdprConsent.consentRevoked) ||
-              attr.original.submitterAndAuthorMetaDataAnonymized
+      return gdprConsent?.consentRevoked || original.submitterAndAuthorMetaDataAnonymized
     },
 
     reset () {
