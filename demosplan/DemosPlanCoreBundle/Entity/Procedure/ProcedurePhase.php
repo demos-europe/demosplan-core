@@ -20,6 +20,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Stores the information about the current phase of a procedure.
@@ -120,6 +121,7 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     /**
      * @ORM\Column(type="smallint", nullable=false, options={"unsigned":true, "default":1})
      */
+    #[Assert\Positive]
     protected int $iteration = 1;
 
     public function __construct(string $key = 'configuration', string $step = '')
