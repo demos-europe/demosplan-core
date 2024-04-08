@@ -266,13 +266,13 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
                 // vertical format (portrait) view not split - Text only
                 $listLineWidtch = 17;
             }
-            if (('landscape' === $template && 'export' === $templateName) ||
-                ('condensed' === $template && 'export_condensed' === $templateName && !$original)) {
+            if (('landscape' === $template && 'export' === $templateName)
+                || ('condensed' === $template && 'export_condensed' === $templateName && !$original)) {
                 // horizontal format (landscape) split view - Text | Response
                 $listLineWidtch = 12;
             }
-            if (('landscape' === $template && 'export_original' === $templateName) ||
-                ('condensed' === $template && 'export_condensed' === $templateName && $original)) {
+            if (('landscape' === $template && 'export_original' === $templateName)
+                || ('condensed' === $template && 'export_condensed' === $templateName && $original)) {
                 // horizontal format (landscape) view not split - Text only
                 $listLineWidtch = 24;
             }

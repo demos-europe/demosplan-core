@@ -493,7 +493,7 @@ class DraftStatementService extends CoreService
     /**
      * Set all draftStatements of the given organisation, which are released and not submitted, to unreleased.
      *
-     * @param orga $organisation - organisation, whose draftStatements will be set to unreleased
+     * @param Orga $organisation - organisation, whose draftStatements will be set to unreleased
      *
      * @return bool - true, if all found draftStatements are successfully reset
      */
@@ -597,7 +597,7 @@ class DraftStatementService extends CoreService
     public function submitDraftStatement(
         $draftStatementIds,
         $user,
-        NotificationReceiver $notificationReceiver = null,
+        ?NotificationReceiver $notificationReceiver = null,
         bool $gdprConsentReceived = false,
         bool $convertToLegacy = true
     ): array {
@@ -626,7 +626,7 @@ class DraftStatementService extends CoreService
     protected function submitDraftStatements(
         array $draftStatementIds,
         $user,
-        NotificationReceiver $notificationReceiver = null,
+        ?NotificationReceiver $notificationReceiver = null,
         bool $gdprConsentReceived = false,
         bool $convertToLegacy = true
     ): array {
