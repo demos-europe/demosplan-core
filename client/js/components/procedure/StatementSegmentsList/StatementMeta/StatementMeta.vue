@@ -409,13 +409,10 @@ export default {
     },
 
     submitterRole () {
-      let submitterRole = Translator.trans('institution')
-      if (this.localStatement.attributes.isSubmittedByCitizen &&
-          this.localStatement.attributes.submitterRole !== 'publicagency') {
-        submitterRole = Translator.trans('role.citizen')
-      }
+      const isSubmittedByCitizen = this.localStatement.attributes.isSubmittedByCitizen &&
+        this.localStatement.attributes.submitterRole !== 'publicagency'
 
-      return submitterRole
+      return isSubmittedByCitizen ? Translator.trans('role.citizen') : Translator.trans('institution')
     },
 
     submitType () {
