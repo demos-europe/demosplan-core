@@ -617,7 +617,11 @@
                     {{ 'save'|trans }}
                 </button>
 
-                <a class="btn btn--secondary" href='{{ abort_path }}' name="cancelStellungnahme">
+                <a
+                  class="btn btn--secondary"
+                  data-cy="submitterForm::abort"
+                  href='{{ abort_path }}'
+                  id="cancelStellungnahme">
                     {{ "abort"|trans }}
                 </a>
             </div>
