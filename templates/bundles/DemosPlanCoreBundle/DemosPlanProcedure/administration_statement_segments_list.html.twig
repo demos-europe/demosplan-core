@@ -11,6 +11,7 @@
 {% endfor %}
 
 {% block component_part %}
+{#    TP DO: Fill statementFormDefinitions #}
     <statement-segments-list
         :current-user="JSON.parse('{{ user|json_encode|e('js', 'utf-8') }}')"
         :is-source-and-coupled-procedure="{{ templateVars.isSourceAndCoupledProcedure ? 'true' : 'false' }}"
@@ -18,6 +19,7 @@
         :recommendation-procedure-ids="JSON.parse('{{ recommendationProcedureIds|json_encode|e('js', 'utf-8') }}')"
         statement-id="{{ statementId }}"
         statement-extern-id="{{ statementExternId }}"
+        statement-form-definitions="{}"
         :submit-type-options="JSON.parse('{{ submitTypeOptions|json_encode|e('js', 'utf-8') }}')">
     </statement-segments-list>
 {% endblock %}

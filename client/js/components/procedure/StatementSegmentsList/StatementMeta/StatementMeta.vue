@@ -22,51 +22,85 @@
       class="u-mt-0_5"
       data-dp-validate="statementMetaData">
       <div class="inline-block u-1-of-2 align-top">
+<!--    TO DO: add if not participationGuestOnly  -->
         <dp-input
-          id="statementSubmitter"
-          v-model="localStatement.attributes.authorName"
+          v-if="hasPermission('field_statement_meta_orga_name')"
+          id="submitterRole"
           class="u-mb-0_5"
-          :disabled="statement.isManual ? false : !editable"
+          disabled
+          :label="{
+            text: Translator.trans('submitted.author'),
+          }"
+          :value="submitterRole" />
+        <dp-contextual-help
+          v-if="isSubmitterAnonymous()"
+          class="float-right mt-0.5"
+          :text="submitterHelpText" />
+        <dp-input
+          v-if="hasPermission('field_statement_meta_submit_name') && this.statementFormDefinitions.name.enabled"
+          id="statementSubmitter"
+          v-model="statementSubmitterValue"
+          class="u-mb-0_5"
+          :disabled="!isStatementManual || !editable || isSubmitterAnonymous()"
           :label="{
             text: Translator.trans('submitter')
           }"
-          @input="(val) => emitInput('authorName', val)" />
+          @input="(val) => emitInput(statementSubmitterField, val)" />
         <dp-input
+          v-if="hasPermission('field_statement_meta_orga_department_name') && !this.localStatement.attributes.isSubmittedByCitizen"
+          id="statementDepartmentName"
+          v-model="localStatement.attributes.initialOrganisationDepartmentName"
+          class="u-mb-0_5"
+          :disabled="isStatementManual ? false : !editable"
+          :label="{
+            text: Translator.trans('department')
+          }"
+          @input="val => emitInput('initialOrganisationDepartmentName', val)" />
+        <dp-input
+          v-if="localStatement.attributes.represents"
+          id="statementRepresentation"
+          disabled
+          :label="{
+            text: Translator.trans('statement.representation.assessment')
+          }"
+          :value="localStatement.attributes.represents" />
+        <dp-input
+          v-if="localStatement.attributes.represents"
+          id="representationCheck"
+          v-model="localStatement.attributes.representationChecked"
+          :disabled="isStatementManual ? false : !editable"
+          :label="{
+            text: Translator.trans('statement.representation.checked')
+          }"
+          type="checkbox" />
+        <dp-input
+          v-if="hasPermission('field_statement_submitter_email_address') || isStatementManual"
           id="statementEmailAddress"
           v-model="localStatement.attributes.submitterEmailAddress"
           class="u-mb-0_5"
-          :disabled="statement.isManual ? false : !editable"
+          :disabled="isStatementManual ? false : !editable"
           :label="{
             text: Translator.trans('email')
           }"
           type="email"
           @input="(val) => emitInput('submitterEmailAddress', val)" />
+<!--        TO DO: add if not participationGuestOnly -->
         <dp-input
           v-if="!this.localStatement.attributes.isSubmittedByCitizen"
           id="statementOrgaName"
           v-model="localStatement.attributes.initialOrganisationName"
           class="u-mb-0_5"
-          :disabled="statement.isManual ? false : !editable"
+          :disabled="isStatementManual ? false : !editable"
           :label="{
             text: Translator.trans('organisation')
           }"
           @input="(val) => emitInput('initialOrganisationName', val)" />
-        <dp-input
-          v-if="!this.localStatement.attributes.isSubmittedByCitizen"
-          id="statementDepartmentName"
-          v-model="localStatement.attributes.initialOrganisationDepartmentName"
-          class="u-mb-0_5"
-          :disabled="statement.isManual ? false : !editable"
-          :label="{
-            text: Translator.trans('department')
-          }"
-          @input="(val) => emitInput('initialOrganisationDepartmentName', val)" />
         <div class="o-form__group u-mb-0_5">
           <dp-input
             id="statementStreet"
             v-model="localStatement.attributes.initialOrganisationStreet"
             class="o-form__group-item"
-            :disabled="statement.isManual ? false : !editable"
+            :disabled="isStatementManual ? false : !editable"
             :label="{
               text: Translator.trans('street')
             }"
@@ -75,7 +109,7 @@
             id="statementHouseNumber"
             v-model="localStatement.attributes.initialOrganisationHouseNumber"
             class="o-form__group-item shrink"
-            :disabled="statement.isManual ? false : !editable"
+            :disabled="isStatementManual ? false : !editable"
             :label="{
               text: Translator.trans('street.number.short')
             }"
@@ -87,7 +121,7 @@
             id="statementPostalCode"
             v-model="localStatement.attributes.initialOrganisationPostalCode"
             class="o-form__group-item shrink"
-            :disabled="statement.isManual ? false : !editable"
+            :disabled="isStatementManual ? false : !editable"
             :label="{
               text: Translator.trans('postalcode')
             }"
@@ -98,7 +132,7 @@
             id="statementCity"
             v-model="localStatement.attributes.initialOrganisationCity"
             class="o-form__group-item"
-            :disabled="statement.isManual ? false : !editable"
+            :disabled="isStatementManual ? false : !editable"
             :label="{
               text: Translator.trans('city')
             }"
@@ -120,7 +154,7 @@
         <div class="o-form__group u-mb-0_5">
           <!-- authoredDate: if manual statement -->
           <dp-input
-            v-if="statement.isManual ? true : !editable"
+            v-if="isStatementManual ? true : !editable"
             id="statementAuthoredDate"
             class="o-form__group-item"
             :disabled="true"
@@ -147,7 +181,7 @@
 
           <!-- submitDate: if manual statement -->
           <dp-input
-            v-if="statement.isManual ? true : !editable"
+            v-if="isStatementManual ? true : !editable"
             id="statementSubmitDate"
             class="o-form__group-item"
             :disabled="true"
@@ -224,6 +258,7 @@
 <script>
 import {
   DpButtonRow,
+  DpContextualHelp,
   DpDatepicker,
   DpIcon,
   DpInput,
@@ -248,6 +283,7 @@ export default {
 
   components: {
     DpButtonRow,
+    DpContextualHelp,
     DpDatepicker,
     DpIcon,
     DpInput,
@@ -281,6 +317,11 @@ export default {
     statement: {
       type: Object,
       required: true
+    },
+
+    statementFormDefinitions: {
+      required: true,
+      type: Object
     },
 
     submitTypeOptions: {
@@ -318,11 +359,64 @@ export default {
       return false
     },
 
+    isStatementManual () {
+      return this.statement.attributes.isManual
+    },
+
     similarStatementSubmitters () {
       if (typeof this.statement.hasRelationship === 'function' && this.statement.hasRelationship('similarStatementSubmitters')) {
         return Object.values(this.statement.relationships.similarStatementSubmitters.list())
       }
       return null
+    },
+
+    statementSubmitterField () {
+      const attr = this.localStatement.attributes
+      let submitterField = 'authorName'
+      // If submitter is an orga and name has a value
+      if (attr.submitName && !attr.isSubmittedByCitizen) {
+        submitterField = 'submitName'
+      }
+
+      return submitterField
+    },
+
+    statementSubmitterValue: {
+      get () {
+        return this.isSubmitterAnonymous() ? Translator.trans('anonymized') : this.localStatement.attributes[this.statementSubmitterField]
+      },
+      set (value) {
+        this.localStatement.attributes[this.statementSubmitterField] = value
+      }
+    },
+
+    submitterHelpText () {
+      const { gdprConsent, original } = this.localStatement.attributes
+      let helpText = ''
+
+      const isConsentRevoked = gdprConsent?.consentRevoked
+      const isAnonymized = hasPermission('area_statement_anonymize') && original.submitterAndAuthorMetaDataAnonymized
+
+      if (isConsentRevoked) {
+        helpText = Translator.trans('personal.data.usage.revoked')
+
+        if (isAnonymized) {
+          helpText = helpText + `<br><br>${Translator.trans('statement.anonymized.submitter.data')}`
+        }
+      }
+
+      if (!isConsentRevoked && isAnonymized) {
+        helpText = Translator.trans('statement.anonymized.submitter.data')
+      }
+
+      return helpText
+    },
+
+    submitterRole () {
+      const isSubmittedByCitizen = this.localStatement.attributes.isSubmittedByCitizen &&
+        this.localStatement.attributes.submitterRole !== 'publicagency'
+
+      return isSubmittedByCitizen ? Translator.trans('role.citizen') : Translator.trans('institution')
     },
 
     submitType () {
@@ -359,6 +453,12 @@ export default {
       return date.match(/[0-9]{2}.[0-9]{2}.[0-9]{4}/)
         ? date
         : convert(date)
+    },
+
+    isSubmitterAnonymous () {
+      const { gdprConsent, original } = this.localStatement.attributes
+
+      return gdprConsent?.consentRevoked || original.submitterAndAuthorMetaDataAnonymized
     },
 
     reset () {
