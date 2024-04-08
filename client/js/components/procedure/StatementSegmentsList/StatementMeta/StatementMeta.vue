@@ -55,7 +55,7 @@
           :label="{
             text: Translator.trans('department')
           }"
-          @input="(val) => emitInput('initialOrganisationDepartmentName', val)" />
+          @input="val => emitInput('initialOrganisationDepartmentName', val)" />
         <dp-input
           v-if="localStatement.attributes.represents"
           id="statementRepresentation"
