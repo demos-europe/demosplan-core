@@ -51,7 +51,7 @@
           id="statementDepartmentName"
           v-model="localStatement.attributes.initialOrganisationDepartmentName"
           class="u-mb-0_5"
-          :disabled="statement.isManual ? false : !editable"
+          :disabled="statement.attributes.isManual ? false : !editable"
           :label="{
             text: Translator.trans('department')
           }"
@@ -68,17 +68,17 @@
           v-if="localStatement.attributes.represents"
           id="representationCheck"
           v-model="localStatement.attributes.representationChecked"
-          :disabled="statement.isManual ? false : !editable"
+          :disabled="statement.attributes.isManual ? false : !editable"
           :label="{
             text: Translator.trans('statement.representation.checked')
           }"
           type="checkbox" />
         <dp-input
-          v-if="hasPermission('field_statement_submitter_email_address') || statement.isManual"
+          v-if="hasPermission('field_statement_submitter_email_address') || statement.attributes.isManual"
           id="statementEmailAddress"
           v-model="localStatement.attributes.submitterEmailAddress"
           class="u-mb-0_5"
-          :disabled="statement.isManual ? false : !editable"
+          :disabled="statement.attributes.isManual ? false : !editable"
           :label="{
             text: Translator.trans('email')
           }"
@@ -90,7 +90,7 @@
           id="statementOrgaName"
           v-model="localStatement.attributes.initialOrganisationName"
           class="u-mb-0_5"
-          :disabled="statement.isManual ? false : !editable"
+          :disabled="statement.attributes.isManual ? false : !editable"
           :label="{
             text: Translator.trans('organisation')
           }"
@@ -100,7 +100,7 @@
             id="statementStreet"
             v-model="localStatement.attributes.initialOrganisationStreet"
             class="o-form__group-item"
-            :disabled="statement.isManual ? false : !editable"
+            :disabled="statement.attributes.isManual ? false : !editable"
             :label="{
               text: Translator.trans('street')
             }"
@@ -109,7 +109,7 @@
             id="statementHouseNumber"
             v-model="localStatement.attributes.initialOrganisationHouseNumber"
             class="o-form__group-item shrink"
-            :disabled="statement.isManual ? false : !editable"
+            :disabled="statement.attributes.isManual ? false : !editable"
             :label="{
               text: Translator.trans('street.number.short')
             }"
@@ -121,7 +121,7 @@
             id="statementPostalCode"
             v-model="localStatement.attributes.initialOrganisationPostalCode"
             class="o-form__group-item shrink"
-            :disabled="statement.isManual ? false : !editable"
+            :disabled="statement.attributes.isManual ? false : !editable"
             :label="{
               text: Translator.trans('postalcode')
             }"
@@ -132,7 +132,7 @@
             id="statementCity"
             v-model="localStatement.attributes.initialOrganisationCity"
             class="o-form__group-item"
-            :disabled="statement.isManual ? false : !editable"
+            :disabled="statement.attributes.isManual ? false : !editable"
             :label="{
               text: Translator.trans('city')
             }"
@@ -154,7 +154,7 @@
         <div class="o-form__group u-mb-0_5">
           <!-- authoredDate: if manual statement -->
           <dp-input
-            v-if="statement.isManual ? true : !editable"
+            v-if="statement.attributes.isManual ? true : !editable"
             id="statementAuthoredDate"
             class="o-form__group-item"
             :disabled="true"
@@ -181,7 +181,7 @@
 
           <!-- submitDate: if manual statement -->
           <dp-input
-            v-if="statement.isManual ? true : !editable"
+            v-if="statement.attributes.isManual ? true : !editable"
             id="statementSubmitDate"
             class="o-form__group-item"
             :disabled="true"
