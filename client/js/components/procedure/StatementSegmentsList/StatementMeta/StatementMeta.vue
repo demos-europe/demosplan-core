@@ -387,17 +387,21 @@ export default {
     },
 
     submitterHelpText () {
-      const attr = this.localStatement.attributes
+      const { gdprConsent, original } = this.localStatement.attributes
       let helpText = ''
 
-      if (attr.gdprConsent && attr.gdprConsent.consentRevoked) {
+      const isConsentRevoked = gdprConsent?.consentRevoked
+      const isAnonymized = hasPermission('area_statement_anonymize') && original.submitterAndAuthorMetaDataAnonymized
+
+      if (isConsentRevoked) {
         helpText = Translator.trans('personal.data.usage.revoked')
-        if (hasPermission('area_statement_anonymize') &&
-          attr.original.submitterAndAuthorMetaDataAnonymized) {
+
+        if (isAnonymized) {
           helpText = helpText + `<br><br>${Translator.trans('statement.anonymized.submitter.data')}`
         }
-      } else if (hasPermission('area_statement_anonymize') &&
-        attr.original.submitterAndAuthorMetaDataAnonymized) {
+      }
+
+      if (!isConsentRevoked && isAnonymized) {
         helpText = Translator.trans('statement.anonymized.submitter.data')
       }
 
