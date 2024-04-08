@@ -379,14 +379,7 @@ export default {
 
     statementSubmitterValue: {
       get () {
-        const attr = this.localStatement.attributes
-        let submitterValue = attr[this.statementSubmitterField]
-        // If submitter has revoked the gdpr consent for this statement or statement has been anonymized
-        if (this.isSubmitterAnonymous()) {
-          submitterValue = Translator.trans('anonymized')
-        }
-
-        return submitterValue
+        return this.isSubmitterAnonymous() ? Translator.trans('anonymized') : this.localStatement.attributes[this.statementSubmitterField]
       },
       set (value) {
         this.localStatement.attributes[this.statementSubmitterField] = value
