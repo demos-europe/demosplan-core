@@ -3742,7 +3742,7 @@ text.protocol.procedure.coupled.targetProcedure: "Dieses Verfahren wurde mit dem
 text.protocol.procedure.time.changed: "Zeitraum geändert von {oldStartDate} - {oldEndDate} in {newStartDate} - {newEndDate}"
 text.protocol.procedure.time.set: "Zeitraum gesetzt auf {startDate} - {endDate}"
 text.protocol.procedure.finalMail: "Eine Schlussmitteilung wurde zu der Stellungnahme <a href=\"{url}\">{externId}</a> versendet."
-text.protocol.publicphase: "Öffentlichkeitsbeteiligung: Verfahrensschritt von \"{oldPublicPhase}\" auf \"{newPublicPhase}\" verändert"
+text.protocol.publicphase: "Öffentlichkeitsbeteiligung: Verfahrensschritt von \"{oldPublicPhase} {oldPublicPhaseIteration}\" auf \"{newPublicPhase} {newPublicPhaseIteration}\" verändert"
 text.protocol.publicphase.system: "Öffentlichkeitsbeteiligung: Verfahrensschritt automatisch von \"{oldPublicPhase} {oldPublicPhaseIteration}\" auf \"{newPublicPhase} {newPublicPhaseIteration}\" verändert"
 text.protocol.published.documents: "Bei der Umstellung eingestellte Unterlagen:"
 text.recommend.project: "> {projectname} kann ab sofort von Verfahrensträgern und den beteiligten Behörden und sonstigen Trägern öffentlicher Belange eingesetzt werden. Über das folgende Formular können Sie auf die Online-Beteiligung aufmerksam machen, indem Sie Kolleg*innen, Verfahrensträgern und zu beteiligenden Stellen die offizielle {projectname} Webseite empfehlen."
