@@ -127,7 +127,7 @@ class LatexExtension extends ExtensionBase
      *
      * @throws Exception
      */
-    public function latexFilter($text, int $listwidth)
+    public function latexFilter($text, int $listwidth = 7)
     {
         try {
             // return numeric values without conversion
