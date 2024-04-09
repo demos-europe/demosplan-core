@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use RuntimeException;
@@ -151,7 +152,8 @@ class ElasticsearchPopulateCommand extends CoreCommand
         if (null === $this->getApplication()) {
             throw new RuntimeException('Cannot run this command without an application');
         }
-
-        return DemosPlanPath::getRootPath('bin/'.$this->getApplication()->getKernel()->getActiveProject());
+        $kernel = $this->getApplication()->getKernel();
+        /** @var DemosPlanKernel $kernel */
+        return DemosPlanPath::getRootPath('bin/'.$kernel->getActiveProject());
     }
 }

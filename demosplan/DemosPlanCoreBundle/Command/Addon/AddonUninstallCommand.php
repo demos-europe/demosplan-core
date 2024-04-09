@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Addon\AddonInfo;
 use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\Addon\Composer\PackageInformation;
 use demosplan\DemosPlanCoreBundle\Addon\Registrator;
+use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
@@ -156,7 +157,8 @@ class AddonUninstallCommand extends CoreCommand
     {
         $kernel = $this->getApplication()->getKernel();
         $environment = $kernel->getEnvironment();
-        $activeProject = $this->getApplication()->getKernel()->getActiveProject();
+        /** @var DemosPlanKernel $kernel  */
+        $activeProject = $kernel->getActiveProject();
         $batchReturn = Batch::create($this->getApplication(), $output)
             ->addShell(['composer', 'remove', $addonInfo->getName(), '--working-dir=addons'])
             ->addShell(['composer', 'bin', 'addons', 'update', '-a', '-o', '--prefer-lowest'])

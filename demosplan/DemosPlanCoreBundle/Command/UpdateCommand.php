@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Command;
 
 use Carbon\Carbon;
+use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\Exception\UpdateException;
 use demosplan\DemosPlanCoreBundle\Logic\DemosFilesystem;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
@@ -157,8 +158,9 @@ EOT
                 $fs->remove($jmsSerializerDocpath);
             }
         }
-
-        $bin = $this->getApplication()->getKernel()->getActiveProject();
+        $kernel = $this->getApplication()->getKernel();
+        /** @var DemosPlanKernel $kernel */
+        $bin = $kernel->getActiveProject();
 
         Batch::create($this->getApplication(), $output)
             // clear any caches and rebuild container before syncing files
@@ -228,8 +230,9 @@ EOT
         if (null === $this->getApplication()) {
             throw UpdateException::assetBuildImpossible();
         }
-
-        $projectName = $this->getApplication()->getKernel()->getActiveProject();
+        $kernel = $this->getApplication()->getKernel();
+        /** @var DemosPlanKernel $kernel */
+        $projectName = $kernel->getActiveProject();
 
         $feCommand = ['./fe', 'build', $projectName];
 
