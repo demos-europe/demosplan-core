@@ -422,6 +422,7 @@
                                                         },
                                                         control: {
                                                             name: 'r_phase_iteration',
+                                                            pattern: '^[1-9][0-9]*$',
                                                             value: proceduresettings.phaseObject.iteration
                                                         },
                                                         id: 'r_phase_iteration',
@@ -444,20 +445,6 @@
                                                 {{ 'period.autoswitch.hint'|trans({ phase: 'procedure.phases.internal.analysis'|trans }) }}
                                             </div>
                                         {% endif %}
-                                    </div>
-                                {% endif %}
-
-                                {# Iteration for Institutions #}
-                                {% if hasPermission('field_phase_iterator') %}
-                                    <div class="u-mb">
-                                        <label class="inline-block u-mb-0" for="r_institutionPhasecounter">
-                                            {{ "procedure.phase.phasecounter"|trans }}*
-                                        </label>
-                                        {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                                            helpText: 'text.procedure.phasecounter'|trans,
-                                            cssClasses:'u-mt-0_125',
-                                            showPlainHint: true
-                                        } %}
                                     </div>
                                 {% endif %}
 
@@ -611,6 +598,7 @@
                                                         },
                                                         control: {
                                                             name: 'r_public_participation_phase_iteration',
+                                                            pattern: '^[1-9][0-9]*$',
                                                             value: proceduresettings.publicParticipationPhaseObject.iteration
                                                         },
                                                         id: 'r_public_participation_phase_iteration',
