@@ -42,7 +42,7 @@ class AddonRegistry implements ArrayAccess
         }
 
         foreach ($addonInfos as $addonInfo) {
-            /*
+            /**
              * @var AddonInfo $addonInfo
              */
             $this->addonInfos[$addonInfo->getName()] = $addonInfo;
