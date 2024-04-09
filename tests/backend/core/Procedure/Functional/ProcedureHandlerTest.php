@@ -76,8 +76,6 @@ class ProcedureHandlerTest extends FunctionalTestCase
      */
     public function testSwitchToEvaluationPhasesOnEndOfParticipationPhase(): void
     {
-        self::markSkippedForCIIntervention();
-
         $internalWritePhaseKeys = $this->sut->getDemosplanConfig()->getInternalPhaseKeys('write');
         $externalWritePhaseKeys = $this->sut->getDemosplanConfig()->getExternalPhaseKeys('write');
 
@@ -133,8 +131,6 @@ class ProcedureHandlerTest extends FunctionalTestCase
      */
     public function testDataOnSwitchToEvaluationPhasesOnEndOfParticipationPhase(): void
     {
-        self::markSkippedForCIIntervention();
-
         $internalWritePhaseKeys = $this->sut->getDemosplanConfig()->getInternalPhaseKeys('write');
         $externalWritePhaseKeys = $this->sut->getDemosplanConfig()->getExternalPhaseKeys('write');
         $internalPhaseName = $this->sut->getDemosplanConfig()->getPhaseNameWithPriorityInternal('evaluating');

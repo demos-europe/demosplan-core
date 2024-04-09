@@ -7,8 +7,9 @@
  * All rights reserved
  */
 
-const FE = require('commander')
+const { Command } = require('commander')
 const runWebpack = require('./webpack/runWebpack')
+const FE = new Command()
 
 // eslint-disable-next-line new-cap
 FE.storeOptionsAsProperties(true)
