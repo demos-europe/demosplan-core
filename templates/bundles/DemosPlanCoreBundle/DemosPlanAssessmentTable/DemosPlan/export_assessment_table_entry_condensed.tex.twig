@@ -88,7 +88,7 @@
         \ParallelRText{{ '{' }}{{ '}' }}
         \end{Parallel}
         \begin{{ '{' }}Parallel{{ '}' }}{{ '{' }}24.5cm{{ '}' }}{{ '{' }}0cm{{ '}' }}
-        \ParallelLText{{ '{' }}{{ statement.text|default("notspecified"|trans)|latex|raw }}{{ '}' }}
+        \ParallelLText{{ '{' }}{{ statement.text|default("notspecified"|trans)|latex(listwidth=templateVars.listwidth)|raw }}{{ '}' }}
         \ParallelRText{{ '{' }}{{ '}' }}
         \end{Parallel}
 
