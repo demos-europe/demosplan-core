@@ -175,8 +175,10 @@ class ReportMessageConverter
      */
     protected function handleAncientReportMessages($message): array
     {
-        $procedureId = (isset($message['procedure']) && array_key_exists('id', $message['procedure'])) ? $message['procedure']['id'] :
-            $message['procedure']['ident'] ?? '';
+        $procedureId = (isset($message['procedure']) && array_key_exists('id', $message['procedure']))
+                ? $message['procedure']['id']
+                : $message['procedure']['ident'] ?? '';
+
         $messageId = array_key_exists('id', $message) ? $message['id'] :
             $message['ident'] ?? '';
 
@@ -492,13 +494,16 @@ class ReportMessageConverter
 
         // phase changed
         if (array_key_exists('oldPhase', $message) && array_key_exists('newPhase', $message)) {
+
+            $phaseChangeMessageData = [
+                'oldPhase'     => $message['oldPhase'],
+                'newPhase'     => $message['newPhase'],
+                'oldIteration' => $message['oldPhaseIteration'] ?? 0,
+                'newIteration' => $message['newPhaseIteration'] ?? 0,
+            ];
+
             if ($createdBySystem) {
-                $returnMessage[] = $translator->trans('text.protocol.phase.system', [
-                    'oldPhase'     => $message['oldPhase'],
-                    'newPhase'     => $message['newPhase'],
-                    'oldIteration' => $message['oldPhaseIteration'] ?? 0,
-                    'newIteration' => $message['newPhaseIteration'] ?? 0,
-                ]);
+                $returnMessage[] = $translator->trans('text.protocol.phase.system', $phaseChangeMessageData);
 
                 // Only show in case of a phase change by the system, as some customers
                 // think the start and end date does not refer to a phase but the
@@ -517,12 +522,7 @@ class ReportMessageConverter
                     $returnMessage[] = "$visibilityMessage: $dateChangeMessage";
                 }
             } else {
-                $returnMessage[] = $translator->trans('text.protocol.phase', [
-                    'oldPhase'     => $message['oldPhase'],
-                    'newPhase'     => $message['newPhase'],
-                    'oldIteration' => $message['oldPhaseIteration'] ?? 0,
-                    'newIteration' => $message['newPhaseIteration'] ?? 0,
-                ]);
+                $returnMessage[] = $translator->trans('text.protocol.phase', $phaseChangeMessageData);
             }
         }
         if (array_key_exists('oldPublicPhase', $message) && array_key_exists('newPublicPhase', $message)) {
