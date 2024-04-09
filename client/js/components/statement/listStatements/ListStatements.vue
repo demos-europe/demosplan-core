@@ -84,6 +84,7 @@
     <!-- Statement list -->
     <template v-if="!isLoading && items.length > 0">
       <dp-data-table
+        data-cy="listStatements"
         has-flyout
         :is-selectable="isSourceAndCoupledProcedure"
         :header-fields="headerFields"
