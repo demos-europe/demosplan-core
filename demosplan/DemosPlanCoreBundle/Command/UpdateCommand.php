@@ -73,9 +73,10 @@ EOT
         $updateLockFile = DemosPlanPath::getRootPath('update.lock');
         $env = $isDeployment ? 'prod' : 'dev';
         $rootPath = DemosPlanPath::getRootPath();
-
+        /** @var DemosPlanKernel $kernel */
+        $kernel = $this->getApplication()->getKernel();
         if (null !== $this->getApplication()
-            && $this->getApplication()->getKernel()->isLocalContainer()) {
+            && $kernel->isLocalContainer()) {
             $output->writeln('Will not run in your container to prevent damage.');
 
             return Command::FAILURE;
