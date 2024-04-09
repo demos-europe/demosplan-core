@@ -287,18 +287,10 @@ class ReportMessageConverter
                 'oldName' => $message['oldPublicName'], 'newName' => $message['newPublicName'],
             ]);
         }
-        if (array_key_exists('oldStartDate', $message) && array_key_exists('newStartDate', $message)
-            && array_key_exists('oldEndDate', $message) && array_key_exists('newEndDate', $message)) {
-            $visibilityMessage = $this->translator->trans('invitable_institution.participation');
-            $mainMessage = $this->translator->trans('text.protocol.procedure.time.changed', [
-                'oldStartDate' => $dateExtension->dateFilter($message['oldStartDate'] ?? ''),
-                'oldEndDate'   => $dateExtension->dateFilter($message['oldEndDate'] ?? ''),
-                'newStartDate' => $dateExtension->dateFilter($message['newStartDate'] ?? ''),
-                'newEndDate'   => $dateExtension->dateFilter($message['newEndDate'] ?? ''),
-            ]);
-
-            $returnMessage[] = "$visibilityMessage: $mainMessage";
+        if ($this->isPeriodMessageDataAvailable($message, false)) {
+            $returnMessage[] = $this->generatePeriodChangeMessage($message, false);
         }
+
         if (!array_key_exists('oldStartDate', $message) && array_key_exists('newStartDate', $message)
             && !array_key_exists('oldEndDate', $message) && array_key_exists('newEndDate', $message)) {
             // only required for initial report
@@ -311,17 +303,10 @@ class ReportMessageConverter
             $returnMessage[] = "$agencyVisibilityMessage: $mainMessage";
             $returnMessage[] = "$citizenVisibilityMessage: $mainMessage";
         }
-        if (array_key_exists('oldPublicStartDate', $message) && array_key_exists('newPublicStartDate', $message)
-            && array_key_exists('oldPublicEndDate', $message) && array_key_exists('newPublicEndDate', $message)) {
-            $visibilityMessage = $this->translator->trans('public.participation');
-            $mainMessage = $this->translator->trans('text.protocol.procedure.time.changed', [
-                'oldStartDate' => $dateExtension->dateFilter($message['oldPublicStartDate'] ?? ''),
-                'oldEndDate'   => $dateExtension->dateFilter($message['oldPublicEndDate'] ?? ''),
-                'newStartDate' => $dateExtension->dateFilter($message['newPublicStartDate'] ?? ''),
-                'newEndDate'   => $dateExtension->dateFilter($message['newPublicEndDate'] ?? ''),
-            ]);
 
-            $returnMessage[] = "$visibilityMessage: $mainMessage";
+
+        if ($this->isPeriodMessageDataAvailable($message, true)) {
+            $returnMessage[] = $this->generatePeriodChangeMessage($message, true);
         }
 
         // @improve T23803
@@ -787,5 +772,37 @@ class ReportMessageConverter
     protected function getSubjectLine(string $subject): string
     {
         return $this->translator->trans('subject').': '.$subject;
+    }
+
+    private function isPeriodMessageDataAvailable(array $message, bool $isPublic): bool
+    {
+        $message = collect($message);
+        $publicKeyPart = $isPublic ? 'Public' : '';
+
+        return $message->has('old'.$publicKeyPart.'StartDate')
+            && $message->has('new'.$publicKeyPart.'StartDate')
+            && $message->has('old'.$publicKeyPart.'EndDate')
+            && $message->has('new'.$publicKeyPart.'EndDate');
+    }
+
+    private function generatePeriodChangeMessage(array $message, bool $isPublic): string
+    {
+        $dateExtension = $this->getDateExtension();
+        $mainMessageKey = 'text.protocol.procedure.time.changed';
+
+        $publicKeyPart = $isPublic ? 'Public' : '';
+        $visibilityMessage = $isPublic
+            ? $this->translator->trans('public.participation')
+            : $this->translator->trans('invitable_institution.participation');
+
+        // message variables are the same for public and internal, therefore no need to add the $publicKeyPart
+        $mainMessage = $this->translator->trans($mainMessageKey, [
+            'oldStartDate' => $dateExtension->dateFilter($message['old'.$publicKeyPart.'StartDate'] ?? ''),
+            'oldEndDate' => $dateExtension->dateFilter($message['old'.$publicKeyPart.'EndDate'] ?? ''),
+            'newStartDate' => $dateExtension->dateFilter($message['new'.$publicKeyPart.'StartDate'] ?? ''),
+            'newEndDate' => $dateExtension->dateFilter($message['new'.$publicKeyPart.'EndDate'] ?? '')
+        ]);
+
+        return "$visibilityMessage: $mainMessage";
     }
 }
