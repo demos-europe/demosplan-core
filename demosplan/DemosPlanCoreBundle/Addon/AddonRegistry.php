@@ -33,7 +33,7 @@ class AddonRegistry implements ArrayAccess
     }
 
     /**
-     * @param Definition[] $addonInfos
+     * @param AddonInfo[] $addonInfos
      */
     public function boot(array $addonInfos = [])
     {
