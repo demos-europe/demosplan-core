@@ -320,6 +320,7 @@ class PrepareReportFromProcedureService extends CoreService
 
     /**
      * @return array<string, string|int>
+     *
      * @throws ReflectionException
      */
     private function createPhaseChangeMessageData(
@@ -347,8 +348,7 @@ class PrepareReportFromProcedureService extends CoreService
         $oldExternPhase = $sourceProcedure->getPublicParticipationPhaseObject();
         $newExternPhase = $destinationProcedure->getPublicParticipationPhaseObject();
         if ($oldExternPhase->getKey() !== $newExternPhase->getKey()
-            || $oldExternPhase->getIteration() !== $newExternPhase->getIteration())
-        {
+            || $oldExternPhase->getIteration() !== $newExternPhase->getIteration()) {
             $changes['oldPublicPhase'] = $oldExternPhase->getKey();
             $changes['newPublicPhase'] = $newExternPhase->getKey();
             $changes['oldPublicPhaseStart'] = $oldExternPhase->getStartDate()->getTimestamp();
