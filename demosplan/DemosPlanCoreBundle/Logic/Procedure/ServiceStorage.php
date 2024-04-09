@@ -1087,14 +1087,14 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         ];
 
         $key = 'phase_iteration';
-        if (isset($procedure[$key]) && !(is_numeric($procedure[$key]) || (int)$procedure[$key] > 0)) {
+        if (isset($procedure[$key]) && !(is_numeric($procedure[$key]) || (int) $procedure[$key] > 0)) {
             // Because the error message is the same for external phase as for internal phase,
             // avoid creating an additional one by simply returning on here.
             return $mandatoryErrors;
         }
 
         $key = 'public_participation_phase_iteration';
-        if (isset($procedure[$key]) && (!is_numeric($procedure[$key]) || (int)$procedure[$key] < 1)) {
+        if (isset($procedure[$key]) && (!is_numeric($procedure[$key]) || (int) $procedure[$key] < 1)) {
             return $mandatoryErrors;
         }
 
