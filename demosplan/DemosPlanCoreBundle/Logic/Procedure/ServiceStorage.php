@@ -346,6 +346,11 @@ class ServiceStorage implements ProcedureServiceStorageInterface
 
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'phase_iteration');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'public_participation_phase_iteration');
+        $phaseIterationError = $this->validatePhaseIteration($procedure);
+        if (count($phaseIterationError) > 0) {
+            $mandatoryErrors[] = $phaseIterationError;
+        }
+
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'ident');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'name');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'shortUrl');
@@ -1072,5 +1077,27 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         }
 
         return $token;
+    }
+
+    private function validatePhaseIteration(array $procedure): array
+    {
+        $mandatoryErrors = [
+            'type'    => 'error',
+            'message' => $this->translator->trans('error.phaseIteration.invalid'),
+        ];
+
+        $key = 'phase_iteration';
+        if (isset($procedure[$key]) && !(is_numeric($procedure[$key]) || (int) $procedure[$key] > 0)) {
+            // Because the error message is the same for external phase as for internal phase,
+            // avoid creating an additional one by simply returning on here.
+            return $mandatoryErrors;
+        }
+
+        $key = 'public_participation_phase_iteration';
+        if (isset($procedure[$key]) && (!is_numeric($procedure[$key]) || (int) $procedure[$key] < 1)) {
+            return $mandatoryErrors;
+        }
+
+        return [];
     }
 }

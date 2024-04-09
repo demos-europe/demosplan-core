@@ -452,6 +452,23 @@ class LatexExtensionTest extends UnitTestCase
         self::assertSame($partsExpectedToBeEqual[0], $partsExpectedToBeEqual[1]);
     }
 
+    public function testListWidthUlOl(): void
+    {
+        // Test the default list width value
+        $ul = $this->sut->latexFilter('<ul>');
+        $ol = $this->sut->latexFilter('<ol>');
+        self::assertStringContainsString('linewidth-7cm-', $ul);
+        self::assertStringContainsString('linewidth-7cm-', $ol);
+
+        // Test with custome list width
+        $ul = $this->sut->latexFilter('<ul>', 12);
+        $ol = $this->sut->latexFilter('<ol>', 12);
+        self::assertStringContainsString('linewidth-12cm-', $ul);
+        self::assertStringContainsString('linewidth-12cm-', $ol);
+        self::assertStringNotContainsString('linewidth-7cm-', $ul);
+        self::assertStringNotContainsString('linewidth-7cm-', $ol);
+    }
+
     public function testStrikeTagReplacement(): void
     {
         $text = '<p>test</p><p></p><p><strong>bold</strong></p><p><em>kursiv</em></p><p><u>unterstrichen</u></p><p><s>durchgestrichen</s></p><p><mark title="markierter Text">markiert</mark></p><p><dp-obscure>geschwärzt</dp-obscure></p>';
