@@ -55,8 +55,8 @@
         </div>
 
         <div
-          v-if="hasPermission('feature_map_use_territory')">
-          class="border--bottom u-pv-0_5 flow-root"
+          v-if="hasPermission('feature_map_use_territory')"
+          class="border--bottom u-pv-0_5 flow-root">
           <i
             aria-hidden="true"
             class="fa fa-pencil u-ml-0_25 color--grey-light" />

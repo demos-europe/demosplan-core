@@ -70,6 +70,7 @@
        <!--Multiselect component-->
       <dp-multiselect
         id="submitterSelect"
+        data-cy="submitterForm:submitterSelect"
         v-model="submitter"
         :custom-label="customOption"
         :disabled="currentListIsEmpty"
