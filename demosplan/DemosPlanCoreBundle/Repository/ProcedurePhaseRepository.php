@@ -18,12 +18,12 @@ use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 
 class ProcedurePhaseRepository extends FluentRepository implements ProcedurePhaseRepositoryInterface
 {
-    public function getProcedureByInstitutionPhaseId(string $phaseId): ProcedureInterface|null
+    public function getProcedureByInstitutionPhaseId(string $phaseId): ?ProcedureInterface
     {
         return $this->getEntityManager()->getRepository(ProcedureInterface::class)->findOneBy(['phase' => $phaseId]);
     }
 
-    public function getProcedureByPublicParticipationPhaseId(string $phaseId): ProcedureInterface|null
+    public function getProcedureByPublicParticipationPhaseId(string $phaseId): ?ProcedureInterface
     {
         return $this->getEntityManager()->getRepository(ProcedureInterface::class)
             ->findOneBy(['publicParticipationPhase' => $phaseId]);
