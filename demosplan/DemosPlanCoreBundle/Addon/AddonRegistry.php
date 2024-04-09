@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Addon;
 use ArrayAccess;
 use DemosEurope\DemosplanAddon\Permission\PermissionInitializerInterface;
 use demosplan\DemosPlanCoreBundle\Exception\AddonException;
+use Symfony\Component\DependencyInjection\Definition;
 
 /**
  * This is the central information repository about all addons installed on this system and their configuration.
@@ -32,7 +33,7 @@ class AddonRegistry implements ArrayAccess
     }
 
     /**
-     * @param AddonInfo[] $addonInfos
+     * @param Definition[] $addonInfos
      */
     public function boot(array $addonInfos = [])
     {
@@ -41,6 +42,9 @@ class AddonRegistry implements ArrayAccess
         }
 
         foreach ($addonInfos as $addonInfo) {
+            /**
+             * @var AddonInfo $addonInfo
+             */
             $this->addonInfos[$addonInfo->getName()] = $addonInfo;
         }
     }
