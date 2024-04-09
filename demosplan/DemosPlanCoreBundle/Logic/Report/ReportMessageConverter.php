@@ -304,7 +304,6 @@ class ReportMessageConverter
             $returnMessage[] = "$citizenVisibilityMessage: $mainMessage";
         }
 
-
         if ($this->isPeriodMessageDataAvailable($message, true)) {
             $returnMessage[] = $this->generatePeriodChangeMessage($message, true);
         }
@@ -798,9 +797,9 @@ class ReportMessageConverter
         // message variables are the same for public and internal, therefore no need to add the $publicKeyPart
         $mainMessage = $this->translator->trans($mainMessageKey, [
             'oldStartDate' => $dateExtension->dateFilter($message['old'.$publicKeyPart.'StartDate'] ?? ''),
-            'oldEndDate' => $dateExtension->dateFilter($message['old'.$publicKeyPart.'EndDate'] ?? ''),
+            'oldEndDate'   => $dateExtension->dateFilter($message['old'.$publicKeyPart.'EndDate'] ?? ''),
             'newStartDate' => $dateExtension->dateFilter($message['new'.$publicKeyPart.'StartDate'] ?? ''),
-            'newEndDate' => $dateExtension->dateFilter($message['new'.$publicKeyPart.'EndDate'] ?? '')
+            'newEndDate'   => $dateExtension->dateFilter($message['new'.$publicKeyPart.'EndDate'] ?? ''),
         ]);
 
         return "$visibilityMessage: $mainMessage";
