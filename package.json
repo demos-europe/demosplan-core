@@ -50,7 +50,7 @@
   "dependencies": {
     "@demos-europe/demosplan-ui": "github:demos-europe/demosplan-ui#i_vue3_migration",
     "@demos-europe/dp-consent": "^1.1.2",
-    "@efrane/vuex-json-api": "github:efrane/vuex-json-api#f_update_vue",
+    "@efrane/vuex-json-api": "github:efrane/vuex-json-api#main",
     "@masterportal/masterportalapi": "^2.19.2",
     "@sentry/browser": "^7.109.0",
     "@sentry/integrations": "^7.109.0",
