@@ -494,7 +494,6 @@ class ReportMessageConverter
 
         // phase changed
         if (array_key_exists('oldPhase', $message) && array_key_exists('newPhase', $message)) {
-
             $phaseChangeMessageData = [
                 'oldPhase'     => $message['oldPhase'],
                 'newPhase'     => $message['newPhase'],
