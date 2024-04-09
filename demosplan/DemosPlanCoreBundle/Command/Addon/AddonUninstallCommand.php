@@ -41,7 +41,7 @@ class AddonUninstallCommand extends CoreCommand
         private readonly AddonRegistry $registry,
         private readonly Registrator $registrator,
         ParameterBagInterface $parameterBag,
-        string $name = null
+        ?string $name = null
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -157,7 +157,7 @@ class AddonUninstallCommand extends CoreCommand
     {
         $kernel = $this->getApplication()->getKernel();
         $environment = $kernel->getEnvironment();
-        /** @var DemosPlanKernel $kernel  */
+        /** @var DemosPlanKernel $kernel */
         $activeProject = $kernel->getActiveProject();
         $batchReturn = Batch::create($this->getApplication(), $output)
             ->addShell(['composer', 'remove', $addonInfo->getName(), '--working-dir=addons'])

@@ -31,7 +31,7 @@ class DeployCommand extends CoreCommand
 
     protected $strategyLoader;
 
-    public function __construct(ParameterBagInterface $parameterBag, StrategyLoader $strategyLoader, string $name = null)
+    public function __construct(ParameterBagInterface $parameterBag, StrategyLoader $strategyLoader, ?string $name = null)
     {
         parent::__construct($parameterBag, $name);
 
@@ -65,7 +65,7 @@ class DeployCommand extends CoreCommand
         $strategy = $this->strategyLoader->get($input->getOption('strategy'));
         $kernel = $this->getApplication()->getKernel();
         $strategy->setApplication($this->getApplication());
-        /** @var DemosPlanKernel $kernel */
+        /* @var DemosPlanKernel $kernel */
         $strategy->setProjectName($kernel->getActiveProject());
         $strategy->setGitReference($input->getOption('reference'));
         $strategy->execute($input, $output);

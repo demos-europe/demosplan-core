@@ -69,7 +69,7 @@ class MigrateCommand extends CoreCommand
 
         \collect($commands)->map(
             function (string $commandString) {
-                /** @var DemosPlanKernel $kernel  */
+                /** @var DemosPlanKernel $kernel */
                 $kernel = $this->getApplication()->getKernel();
                 $command = collect(sprintf(
                     'bin/%s',
