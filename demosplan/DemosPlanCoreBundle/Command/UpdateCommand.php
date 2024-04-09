@@ -158,8 +158,8 @@ EOT
                 $fs->remove($jmsSerializerDocpath);
             }
         }
-        $kernel = $this->getApplication()->getKernel();
         /** @var DemosPlanKernel $kernel */
+        $kernel = $this->getApplication()->getKernel();
         $bin = $kernel->getActiveProject();
 
         Batch::create($this->getApplication(), $output)
@@ -230,8 +230,8 @@ EOT
         if (null === $this->getApplication()) {
             throw UpdateException::assetBuildImpossible();
         }
-        $kernel = $this->getApplication()->getKernel();
         /** @var DemosPlanKernel $kernel */
+        $kernel = $this->getApplication()->getKernel();
         $projectName = $kernel->getActiveProject();
 
         $feCommand = ['./fe', 'build', $projectName];

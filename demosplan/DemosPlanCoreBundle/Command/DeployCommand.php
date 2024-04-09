@@ -63,9 +63,9 @@ class DeployCommand extends CoreCommand
         $output = new SymfonyStyle($input, $output);
 
         $strategy = $this->strategyLoader->get($input->getOption('strategy'));
-        $kernel = $this->getApplication()->getKernel();
         $strategy->setApplication($this->getApplication());
-        /* @var DemosPlanKernel $kernel */
+        /** @var DemosPlanKernel $kernel */
+        $kernel = $this->getApplication()->getKernel();
         $strategy->setProjectName($kernel->getActiveProject());
         $strategy->setGitReference($input->getOption('reference'));
         $strategy->execute($input, $output);

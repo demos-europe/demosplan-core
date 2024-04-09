@@ -152,9 +152,8 @@ class ElasticsearchPopulateCommand extends CoreCommand
         if (null === $this->getApplication()) {
             throw new RuntimeException('Cannot run this command without an application');
         }
+        /** @var DemosPlanKernel $kernel */
         $kernel = $this->getApplication()->getKernel();
-
-        /* @var DemosPlanKernel $kernel */
         return DemosPlanPath::getRootPath('bin/'.$kernel->getActiveProject());
     }
 }
