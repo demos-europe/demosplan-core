@@ -261,22 +261,22 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
 
             // the line width of lists inside the generated pdf differs in following circumstances:
             // vertical format (portrait) split view - Text | Response
-            $listLineWidtch = 7;
+            $listLineWidth = 7;
             if ('portrait' === $template && 'export_original' === $templateName) {
                 // vertical format (portrait) view not split - Text only
-                $listLineWidtch = 17;
+                $listLineWidth = 17;
             }
             if (('landscape' === $template && 'export' === $templateName)
                 || ('condensed' === $template && 'export_condensed' === $templateName && !$original)) {
                 // horizontal format (landscape) split view - Text | Response
-                $listLineWidtch = 12;
+                $listLineWidth = 12;
             }
             if (('landscape' === $template && 'export_original' === $templateName)
                 || ('condensed' === $template && 'export_condensed' === $templateName && $original)) {
                 // horizontal format (landscape) view not split - Text only
-                $listLineWidtch = 24;
+                $listLineWidth = 24;
             }
-            $templateVars['listwidth'] = $listLineWidtch;
+            $templateVars['listwidth'] = $listLineWidth;
 
             $content = $this->twig->render(
                 $fullTemplateName,
