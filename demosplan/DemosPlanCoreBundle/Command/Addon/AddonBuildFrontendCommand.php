@@ -14,6 +14,7 @@ use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -50,7 +51,9 @@ class AddonBuildFrontendCommand extends CoreCommand
                 return self::SUCCESS;
             }
             $question = new ChoiceQuestion('Which addon do you want to build the assets for? ', array_keys($enabledAddons));
-            $addonName = $this->getHelper('question')->ask($input, $output, $question);
+            /** @var QuestionHelper $questionHelper */
+            $questionHelper = $this->getHelper('question');
+            $addonName = $questionHelper->ask($input, $output, $question);
         }
 
         $output->writeln("Building frontend assets for {$addonName}");

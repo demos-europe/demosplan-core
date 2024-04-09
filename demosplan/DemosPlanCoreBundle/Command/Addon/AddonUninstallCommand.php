@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
 use RuntimeException;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -73,7 +74,9 @@ class AddonUninstallCommand extends CoreCommand
                 static fn ($addonInfo) => $addonInfo->getName(), $addonsInfos
             ));
             $question = new ChoiceQuestion('Which addon do you want to uninstall? ', $addons);
-            $name = $this->getHelper('question')->ask($input, $output, $question);
+            /** @var QuestionHelper $questionHelper */
+            $questionHelper = $this->getHelper('question');
+            $name = $questionHelper->ask($input, $output, $question);
         }
 
         if (!array_key_exists($name, $addonsInfos)) {
