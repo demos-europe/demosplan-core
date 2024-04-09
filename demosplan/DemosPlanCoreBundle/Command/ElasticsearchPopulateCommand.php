@@ -154,6 +154,7 @@ class ElasticsearchPopulateCommand extends CoreCommand
         }
         /** @var DemosPlanKernel $kernel */
         $kernel = $this->getApplication()->getKernel();
+
         return DemosPlanPath::getRootPath('bin/'.$kernel->getActiveProject());
     }
 }
