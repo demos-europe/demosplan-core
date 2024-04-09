@@ -27,7 +27,7 @@ class AddonBuildFrontendCommand extends CoreCommand
     protected static $defaultName = 'dplan:addon:build-frontend';
     protected static $defaultDescription = 'Build frontend assets for an addon';
 
-    public function __construct(private readonly AddonRegistry $registry, ParameterBagInterface $parameterBag, string $name = null)
+    public function __construct(private readonly AddonRegistry $registry, ParameterBagInterface $parameterBag, ?string $name = null)
     {
         parent::__construct($parameterBag, $name);
     }

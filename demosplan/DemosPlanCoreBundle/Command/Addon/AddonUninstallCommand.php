@@ -41,7 +41,7 @@ class AddonUninstallCommand extends CoreCommand
         private readonly AddonRegistry $registry,
         private readonly Registrator $registrator,
         ParameterBagInterface $parameterBag,
-        string $name = null
+        ?string $name = null
     ) {
         parent::__construct($parameterBag, $name);
     }

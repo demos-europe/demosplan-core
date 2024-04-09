@@ -66,7 +66,7 @@ class AddonInstallFromZipCommand extends CoreCommand
         private readonly HttpClientInterface $httpClient,
         private readonly Registrator $installer,
         ParameterBagInterface $parameterBag,
-        string $name = null
+        ?string $name = null
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -349,6 +349,7 @@ class AddonInstallFromZipCommand extends CoreCommand
         $question = new ChoiceQuestion('Which addon do you want to install? When you want to install the addon directly via GitHub use --github ', $zips);
         /** @var QuestionHelper $questionHelper */
         $questionHelper = $this->getHelper('question');
+
         return $questionHelper->ask($input, $output, $question);
     }
 
@@ -508,6 +509,7 @@ class AddonInstallFromZipCommand extends CoreCommand
         );
         /** @var QuestionHelper $questionHelper */
         $questionHelper = $this->getHelper('question');
+
         return $questionHelper->ask($input, $output, $question);
     }
 }
