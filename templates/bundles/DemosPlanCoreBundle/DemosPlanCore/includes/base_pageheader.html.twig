@@ -62,7 +62,9 @@
     demosplan\DemosPlanCoreBundle\Resources\views\DemosPlanCore\includes\pageheader.html.twig
 #}
 <header class="border--bottom {{ flush|default == true ? '' : 'u-mb' }} u-pb-0_5 flow-root">
-    <h1 class="font-size-h1 align-bottom inline-block u-m-0">
+    <h1
+        class="font-size-h1 align-bottom inline-block u-m-0"
+        :data-cy="{{ heading|responsive|json_encode }}">
         {{ heading|responsive }}
     </h1>
 
