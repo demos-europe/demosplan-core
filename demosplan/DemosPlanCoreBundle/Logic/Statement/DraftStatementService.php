@@ -54,6 +54,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\PdfFile;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -130,17 +131,17 @@ class DraftStatementService extends CoreService
         private readonly NotificationReceiverRepository $notificationReceiverRepository,
         OrgaService $orgaService,
         ParagraphService $paragraphService,
-        private readonly ParagraphVersionRepository $paragraphVersionRepository,
-        private readonly ProcedureService $procedureService,
-        private readonly ReportService $reportService,
-        ServiceImporter $serviceImporter,
+        private readonly ParagraphVersionRepository      $paragraphVersionRepository,
+        private readonly ProcedureService                $procedureService,
+        private readonly ReportService                   $reportService,
+        ServiceImporter                                  $serviceImporter,
         private readonly SingleDocumentVersionRepository $singleDocumentVersionRepository,
-        private readonly SortMethodFactory $sortMethodFactory,
-        private readonly StatementAttributeRepository $statementAttributeRepository,
-        private readonly StatementReportEntryFactory $statementReportEntryFactory,
-        StatementService $statementService,
-        StatementValidator $statementValidator,
-        private readonly TranslatorInterface $translator
+        private readonly SortMethodFactory               $sortMethodFactory,
+        private readonly StatementAttributeRepository    $statementAttributeRepository,
+        private readonly StatementReportEntryFactory     $statementReportEntryFactory,
+        StatementService                                 $statementService,
+        StatementValidator                               $statementValidator,
+        private readonly TranslatorInterface             $translator, private readonly EntityManagerInterface $entityManager
     ) {
         $this->currentUser = $currentUser;
         $this->elementsService = $elementsService;
@@ -1221,7 +1222,7 @@ class DraftStatementService extends CoreService
      */
     protected function getEntityVersions($data)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->entityManager;
         $entity = null;
 
         // get existing entity to avoid creation of versions on already existing versions
