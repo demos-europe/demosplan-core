@@ -57,9 +57,8 @@ const ProcedureStore = {
       }
 
       return dpApi({
-        method: 'get',
-        url: Routing.generate('DemosPlan_procedure_search_ajax', urlParams),
-        responseType: 'json'
+        method: 'GET',
+        url: Routing.generate('DemosPlan_procedure_search_ajax', urlParams)
       }).then(response => {
         commit('reset')
         nextTick(() => {

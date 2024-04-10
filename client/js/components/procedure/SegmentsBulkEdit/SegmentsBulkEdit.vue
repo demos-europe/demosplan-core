@@ -521,7 +521,15 @@ export default {
               id: assignableUser.id
             }
           })
+
+          // Add option to set unassigned to segments
+          this.assignableUsers.push({
+            name: Translator.trans('not.assigned'),
+            id: null
+          });
+
         })
+
     },
 
     fetchPlaces () {

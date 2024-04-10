@@ -32,6 +32,7 @@
         :key="role.value">
         <input
           type="radio"
+          :data-cy="`roleInput-${role.label}`"
           name="r_role"
           :value="role.value"
           @change="() => $emit('role-changed', currentRole)"
@@ -69,6 +70,7 @@
        <!--Multiselect component-->
       <dp-multiselect
         id="submitterSelect"
+        data-cy="submitterForm:submitterSelect"
         v-model="submitter"
         :custom-label="customOption"
         :disabled="currentListIsEmpty"

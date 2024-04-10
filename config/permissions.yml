@@ -833,6 +833,11 @@ feature_email_invitable_institution_additional_invitation_text:
     description: 'Adds predefined text to institution invitations.'
     label: 'Text automatically added to institution invitations'
     loginRequired: true
+feature_export_docx_elements_view_mode_only:
+    expose: false
+    label: 'always export elements view in docx export'
+    loginRequired: true
+    parent: area_admin_assessmenttable
 feature_export_protocol:
     expose: true
     label: 'Exportieren des Verfahrensprotokolls'
@@ -1622,6 +1627,10 @@ feature_project_switcher:
     label: 'Display a dropdown menu in global header to allow users to quickly move to other instances of the SH platform.'
     loginRequired: false
     parent: area_admin
+feature_profile_editable:
+    description: 'If enabled the user can edit his/her data'
+    label: 'Speichern/Abrechnen Formular anzeigen'
+    loginRequired: true
 feature_public_consultation:
     description: 'When a procedure is in the consultation phase, participants must have a way to access it.'
     expose: true
@@ -2435,6 +2444,10 @@ field_paragraph_lock_statement:
     description: 'Block the possibility to submit statements to chosen paragraph.'
     label: 'Statements can be locked for some paragraphs'
     loginRequired: false
+field_phase_iterator:
+      description: 'Additional counter for procedurephases to identify and count the number of itertions a specific phase is in because it is kind of usual that a phase is used and iteratet through more than once.'
+      label: 'Procedrephases extended/enhanced by a counter to identify the iteration the phase is currently in.'
+      loginRequired: false
 field_priority_area_list:
     label: 'betroffene Gemeinden'
     loginRequired: true

@@ -228,7 +228,7 @@ export default {
 
     loadHistory () {
       return dpApi({
-        method: 'get',
+        method: 'GET',
         url: Routing.generate('dplan_api_history_of_all_fields_of_specific_datetime', {
           entityContentChangeId: this.time.anyEntityContentChangeIdOfThisChangeInstance,
           procedureId: this.procedureId

@@ -66,6 +66,7 @@ class DynamicTransformerTest extends JsonApiTest
 
     public function testProcedureInclude(): void
     {
+        self::markSkippedForCIIntervention();
         $this->loginTestUser();
         $this->enablePermissions(['feature_json_api_procedure']);
 

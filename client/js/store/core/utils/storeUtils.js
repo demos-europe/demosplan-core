@@ -13,7 +13,6 @@ import normalize from 'json-api-normalizer'
 const fetchResourcesByProcedureId = (mutationName, url, includes = []) => ({ commit }, procedureId) => {
   return dpApi({
     method: 'GET',
-    responseType: 'json',
     url: Routing.generate(url, {
       procedureId: procedureId,
       includes: includes

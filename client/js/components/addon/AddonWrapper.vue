@@ -1,10 +1,9 @@
 <template>
-  <div>
-    <component
-      v-bind="addonProps"
-      :is="component"
-      :ref="refComponent" />
-  </div>
+  <component
+    :is="component"
+    :ref="refComponent"
+    v-bind="addonProps"
+    @addonEvent:emit="(event) => $emit(event.name, event.payload)" />
 </template>
 
 <script>
@@ -41,7 +40,8 @@ export default {
 
   data () {
     return {
-      component: ''
+      component: '',
+      loadedAddons: []
     }
   },
 
@@ -70,11 +70,16 @@ export default {
              * While eval is generally a BAD IDEA, we really need to evaluate the code
              * we're adding dynamically to use the provided addon's script from now on.
              */
+            // eslint-disable-next-line no-eval
             eval(content)
             this.$.appContext.components[addon.entry] = window[addon.entry].default
 
             this.component = window[addon.entry].default
+
+            this.loadedAddons.push(addon.entry)
           }
+
+          this.$emit('addons:loaded', this.loadedAddons)
         })
     }
   },

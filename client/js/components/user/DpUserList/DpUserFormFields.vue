@@ -143,6 +143,7 @@
 <script>
 import { dpApi, DpInput, DpMultiselect, DpSelect, hasOwnProp, sortAlphabetically } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import { nextTick } from 'vue'
 import qs from 'qs'
 
 export default {
@@ -319,7 +320,7 @@ export default {
 
     emitUserUpdate () {
       // NextTick is needed because the selects do not update the local user before the emitUserUpdate method is invoked
-      Vue.nextTick(() => {
+      nextTick(() => {
         this.$emit('user-update', this.localUser)
       })
     },

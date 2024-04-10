@@ -228,6 +228,7 @@ export default {
       const {
         document,
         element,
+        externId,
         files,
         ident,
         paragraph,
@@ -282,6 +283,7 @@ export default {
         department: dName,
         document: statementDocument,
         id: ident,
+        externId,
         organisation: oName,
         paragraph: statementParagraph,
         phase,

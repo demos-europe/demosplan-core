@@ -842,7 +842,7 @@ export default {
           //  Add progress indicator (.o-spinner on same element required)
           $popup.find('#popupContent h3').addClass(this.prefixClass('is-progress'))
 
-          dpApi.get(Routing.generate('DemosPlan_map_get_feature_info', { procedure: this.procedureId }), getData, { serialize: true })
+          dpApi.get(Routing.generate('DemosPlan_map_get_feature_info', { procedure: this.procedureId }), getData)
             .then(response => {
               const parsedData = JSON.parse(response.data)
               if (parsedData.code === 100 && parsedData.success) {
@@ -1118,6 +1118,12 @@ export default {
             }
             const printLayerName = printLayer.getProperties().name
             const source = printLayer.getSource()
+
+            // This covers the edge case that a layer which is set as print layer is no longer valid.
+            if (source === null) {
+              return
+            }
+
             const tileUrlFunction = source.getTileUrlFunction()
             const tileGrid = source.getTileGrid()
             const tileSize = tileGrid.getTileSize()
