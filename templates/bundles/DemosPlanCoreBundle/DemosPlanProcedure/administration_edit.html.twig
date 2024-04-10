@@ -109,7 +109,6 @@
         init-procedure-phase-internal="{{ proceduresettings.phase }}"
         init-procedure-phase-public="{{ proceduresettings.publicParticipationPhase }}"
         :init-similar-recommendation-procedures="JSON.parse('{{ selectedAllowedSegmentAccessProcedures|json_encode|e('js', 'utf-8') }}')"
-        :participation-phases="['participation', 'earlyparticipation', 'anotherparticipation']"
     >
         <form
             name="configForm"
@@ -386,66 +385,30 @@
                             <div class="o-wizard__main">
 
                                 {% if hasPermission('feature_procedure_change_phase') %}
-                                    <div class="u-mb">
-                                        <div class="flex gap-2">
-                                            <div class="w-8/12 inline-block">
-                                                <label class="inline-block mb-0.5" for="r_phase">
-                                                    {{ "procedure.phase.institutions"|trans }}*
-                                                </label>
-                                                {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                                                    helpText: 'text.procedure.edit.internal.change_phase'|trans,
-                                                    showPlainHint: true
-                                                } %}
-
-                                                <select
-                                                    class="o-form__control-select"
-                                                    id="r_phase"
-                                                    v-model="selectedInternalPhase"
-                                                    data-cy="r_phase"
-                                                    name="r_phase">
-                                                    {% for internalPhase in templateVars.internalPhases %}
-                                                        <option
-                                                            value="{{ internalPhase.key }}"{% if proceduresettings.phase == internalPhase.key %}
-                                                            selected="selected"{% endif %}
-                                                            data-permissionset="{{ internalPhase.permissionset }}">
-                                                            {{ internalPhase.name }}
-                                                        </option>
-                                                    {% endfor %}
-                                                </select>
-                                            </div>
-                                            {% if hasPermission('field_phase_iterator') %}
-                                                <div class="w-4/12 inline-block relative">
-                                                    {{ uiComponent('form.element', {
-                                                        label: {
-                                                            text: 'procedure.phase.phasecounter'|trans,
-                                                            tooltip: 'text.procedure.phasecounter'|trans
-                                                        },
-                                                        control: {
-                                                            name: 'r_phase_iteration',
-                                                            pattern: '^[1-9][0-9]*$',
-                                                            value: proceduresettings.phaseObject.iteration
-                                                        },
-                                                        id: 'r_phase_iteration',
-                                                        type: 'text',
-                                                        required: true,
-                                                    }) }}
-                                                </div>
-                                            {% endif %}
-                                        </div>
-
-                                        {{ uiComponent('inline-notification', {
-                                            message: 'explanation.procedure.internal.permissions'|trans ~ '<span data-procedure-permission-set></span>',
-                                            type: 'warning'
-                                        }) }}
-
-                                        {%  if hasPermission('feature_auto_switch_to_procedure_end_phase') and not hasPermission('feature_auto_switch_procedure_phase') %}
-                                            <div
-                                                v-if="internalPhaseIsInParticipation"
-                                                class="lbl__hint u-mt-0_25 u-mb-0">
-                                                {{ 'period.autoswitch.hint'|trans({ phase: 'procedure.phases.internal.analysis'|trans }) }}
-                                            </div>
-                                        {% endif %}
-                                    </div>
+                                    {# phase for institution participation #}
+                                    {% set internalPhaseOptions = [] %}
+                                    {% for phase in templateVars.internalPhases %}
+                                        {% set internalPhaseOptions = internalPhaseOptions|merge([{
+                                            value: phase.key,
+                                            label: phase.name,
+                                            permissionset: phase.permissionset,
+                                        }]) %}
+                                    {% endfor %}
+                                    <participation-phases
+                                        autoswitch-hint="{{ 'period.autoswitch.hint'|trans({ phase: 'procedure.phases.internal.evaluating'|trans }) }}"
+                                        field-name="r_phase"
+                                        help-text="{{ 'text.procedure.edit.internal.change_phase'|trans }}"
+                                        label-text="{{ "procedure.phase.institutions"|trans }}"
+                                        :participation-phases="['participation', 'earlyparticipation', 'anotherparticipation']"
+                                        permission-message="{{ 'explanation.procedure.permissions'|trans }}"
+                                        :phase-options="JSON.parse('{{ internalPhaseOptions|json_encode|e('js', 'utf-8') }}')"
+                                        init-selected-phase="{{ proceduresettings.phase }}"
+                                        :iterator="{
+                                            label: Translator.trans('procedure.phase.phasecounter'),
+                                            tooltip: Translator.trans('text.procedure.phasecounter'),
+                                            value: '{{ proceduresettings.phaseObject.iteration }}'
+                                        }">
+                                    </participation-phases>
                                 {% endif %}
 
                                 {% if hasPermission('feature_procedure_legal_notice_read') %}
@@ -488,7 +451,10 @@
 
                                     <dp-date-range-picker
                                         class="u-2-of-4"
-                                        data-cy="procedureSettingsDate"
+                                        :data-cy="{
+                                            endDate: 'dataCyEndDate',
+                                            startDate: 'dataCyStartDate'
+                                        }"
                                         data-dp-validate-error-fieldname="{{ "period.institutions"|trans }}"
                                         start-id="r_startdate"
                                         start-name="r_startdate"
@@ -564,64 +530,29 @@
 
                                 {# phase for public participation #}
                                 {% if hasPermission('feature_procedure_change_phase') %}
-                                    <div>
-                                        <div class="flex gap-2">
-                                            <div class="w-8-12">
-                                                <label class="inline-block mb-0.5" for="r_publicParticipationPhase">
-                                                    {{ "procedure.public.phase"|trans }}*
-                                                </label>
-                                                {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                                                    helpText: 'text.procedure.edit.external.change_phase'|trans,
-                                                    cssClasses:'u-mt-0_125',
-                                                    showPlainHint: true
-                                                } %}
-                                                <select
-                                                    id="r_publicParticipationPhase"
-                                                    class="o-form__control-select u-11-of-12"
-                                                    data-cy="r_publicParticipationPhase"
-                                                    v-model="selectedPublicPhase"
-                                                    name="r_publicParticipationPhase">
-                                                    {% for externalPhase in templateVars.externalPhases %}
-                                                        <option value="{{ externalPhase.key }}"{% if proceduresettings.publicParticipationPhase == externalPhase.key %} selected="selected"{% endif %} data-permissionset="{{ externalPhase.permissionset }}">
-                                                            {{ externalPhase.name }}
-                                                        </option>
-                                                    {% endfor %}
-                                                </select>
-                                            </div>
-
-                                            {% if hasPermission('field_phase_iterator') %}
-                                                <div class="w-4/12 inline-block relative">
-                                                    {{ uiComponent('form.element', {
-                                                        label: {
-                                                            text: 'procedure.phase.phasecounter'|trans,
-                                                            tooltip: 'text.procedure.phasecounter'|trans
-                                                        },
-                                                        control: {
-                                                            name: 'r_public_participation_phase_iteration',
-                                                            pattern: '^[1-9][0-9]*$',
-                                                            value: proceduresettings.publicParticipationPhaseObject.iteration
-                                                        },
-                                                        id: 'r_public_participation_phase_iteration',
-                                                        type: 'text',
-                                                        required: true,
-                                                    }) }}
-                                                </div>
-                                            {% endif %}
-                                        </div>
-
-                                        {{ uiComponent('inline-notification', {
-                                            message: 'explanation.procedure.external.permissions'|trans ~ '<span data-procedure-permission-set></span>',
-                                            type: 'warning'
-                                        }) }}
-
-                                        {% if hasPermission('feature_auto_switch_to_procedure_end_phase') and not hasPermission('feature_auto_switch_procedure_phase') %}
-                                            <div
-                                                v-if="publicPhaseIsInParticipation"
-                                                class="lbl__hint u-mt-0_25 u-mb-0">
-                                                {{ 'period.autoswitch.hint'|trans({ phase: 'procedure.phases.external.evaluating'|trans }) }}
-                                            </div>
-                                        {% endif %}
-                                    </div>
+                                    {% set externalPhaseOptions = [] %}
+                                    {% for phase in templateVars.externalPhases %}
+                                        {% set externalPhaseOptions = externalPhaseOptions|merge([{
+                                            value: phase.key,
+                                            label: phase.name,
+                                            permissionset: phase.permissionset,
+                                        }]) %}
+                                    {% endfor %}
+                                    <participation-phases
+                                        autoswitch-hint="{{ 'period.autoswitch.hint'|trans({ phase: 'procedure.phases.external.evaluating'|trans }) }}"
+                                        field-name="r_publicParticipationPhase"
+                                        help-text="{{ 'text.procedure.edit.external.change_phase'|trans }}"
+                                        label-text="{{ "procedure.public.phase"|trans }}"
+                                        :participation-phases="['participation', 'earlyparticipation', 'anotherparticipation']"
+                                        permission-message="{{ 'explanation.procedure.external.permissions'|trans }}"
+                                        :phase-options="JSON.parse('{{ externalPhaseOptions|json_encode|e('js', 'utf-8') }}')"
+                                        init-selected-phase="{{ proceduresettings.publicParticipationPhase }}"
+                                        :iterator="{
+                                          label: Translator.trans('procedure.phase.phasecounter'),
+                                          tooltip: Translator.trans('text.procedure.phasecounter'),
+                                          value: '{{ proceduresettings.publicParticipationPhaseObject.iteration }}'
+                                        }">
+                                    </participation-phases>
                                 {% endif %}
 
                                 {# start/end date for public participation #}
@@ -642,7 +573,10 @@
                                     } %}
                                     <dp-date-range-picker
                                         class="u-2-of-4"
-                                        data-cy="procedureSettingsParticipationDate"
+                                        :data-cy="{
+                                            endDate: 'administrationEditForm:publicParticipationEndDate',
+                                            startDate: 'administrationEditForm:publicParticipationStartDate'
+                                        }"
                                         data-dp-validate-error-fieldname="{{ "period.public"|trans }}"
                                         start-id="r_publicParticipationStartDate"
                                         start-name="r_publicParticipationStartDate"
