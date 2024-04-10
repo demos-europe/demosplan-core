@@ -118,14 +118,16 @@ export default {
   computed: {
     permissionMessageText () {
       const currentPhase = this.phaseOptions.find(option => option.value === this.selectedPhase)
-      /*
+       /*
        * Generated Trans-Keyes:
        *
        * 'permissionset.hidden'
        * 'permissionset.read'
        * 'permissionset.write'
        */
-      return this.permissionMessage + Translator.trans(`permissionset.${currentPhase.permissionset}`)
+      const permissionsetMessage =  Translator.trans(`permissionset.${currentPhase.permissionset}`)
+     
+      return `${this.permissionMessage} ${permissionsetMessage}`
     },
 
     isInParticipation () {
