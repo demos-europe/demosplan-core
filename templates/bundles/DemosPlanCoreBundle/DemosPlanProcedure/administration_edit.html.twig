@@ -400,7 +400,7 @@
                                         help-text="{{ 'text.procedure.edit.internal.change_phase'|trans }}"
                                         label-text="{{ "procedure.phase.institutions"|trans }}"
                                         :participation-phases="['participation', 'earlyparticipation', 'anotherparticipation']"
-                                        permission-message="{{ 'explanation.procedure.permissions'|trans }}"
+                                        permission-message="{{ 'explanation.procedure.internal.permissions'|trans }}"
                                         :phase-options="JSON.parse('{{ internalPhaseOptions|json_encode|e('js', 'utf-8') }}')"
                                         init-selected-phase="{{ proceduresettings.phase }}"
                                         :iterator="{
