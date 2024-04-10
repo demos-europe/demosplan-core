@@ -55,6 +55,7 @@ use Webmozart\Assert\Assert;
  * @property-read End $paragraphTitle @deprecated Use {@link StatementResourceType::$paragraph} instead
  * @property-read End $segmentDraftList
  * @property-read SimilarStatementSubmitterResourceType $similarStatementSubmitters
+ * @property-read End $sentAssessmentDate
  */
 final class StatementResourceType extends AbstractStatementResourceType implements ReadableEsResourceTypeInterface, StatementResourceTypeInterface
 {
@@ -418,6 +419,10 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 ->setRelationshipType($this->getTypes()->getStatementVoteResourceType())
                 ->readable(true);//this defines if the property is present in the response always
         }
+
+
+        $configBuilder->organisation->readable()->filterable();
+        $configBuilder->sentAssessmentDate->readable();
 
         return $configBuilder;
     }

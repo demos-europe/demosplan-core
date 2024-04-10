@@ -22,12 +22,15 @@ use EDT\PathBuilding\End;
 
 
 /**
- * @template-extends DplanResourceType<Tag>
+ * @template-extends DplanResourceType<StatementVote>
  *
  * @property-read StatementResourceType $statement
  * @property-read UserResourceType $user
- * @property-read End $firstname
- * @property-read End $lastname
+ * @property-read End $firstName
+ * @property-read End $lastName
+ * @property-read End $userMail
+ * @property-read End $userCity
+ * @property-read End $userPostcode
  * @property-read End $active
  * @property-read End $deleted
  *
@@ -39,7 +42,11 @@ final class StatementVoteResourceType extends DplanResourceType
     {
         return [
             $this->createIdentifier()->readable()->sortable()->filterable(),
-            $this->createAttribute($this->firstname)->readable(),
+            $this->createAttribute($this->firstName)->readable(),
+            $this->createAttribute($this->lastName)->readable(),
+            $this->createAttribute($this->userMail)->readable(),
+            $this->createAttribute($this->userCity)->readable(),
+            $this->createAttribute($this->userPostcode)->readable(),
             $this->createToOneRelationship($this->user)->readable(),
         ];
     }
