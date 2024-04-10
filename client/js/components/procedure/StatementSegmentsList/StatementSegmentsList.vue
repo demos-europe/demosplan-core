@@ -141,6 +141,7 @@
         :available-priority-areas="availablePriorityAreas"
         :current-user-id="currentUser.id"
         :editable="editable"
+        :external-constant="externalConstant"
         :procedure="procedure"
         :procedure-statement-priority-area="procedureStatementPriorityArea"
         :statement="statement"
@@ -244,6 +245,11 @@ export default {
 
     currentUser: {
       type: Object,
+      required: true
+    },
+
+    externalConstant: {
+      type: String,
       required: true
     },
 

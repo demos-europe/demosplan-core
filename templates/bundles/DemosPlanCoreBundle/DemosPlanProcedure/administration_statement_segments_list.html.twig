@@ -18,6 +18,7 @@
         :available-municipalities="JSON.parse('{{ templateVars.municipalities|default([])|json_encode|e('js', 'utf-8') }}')"
         :available-priority-areas="JSON.parse('{{ templateVars.priorityAreas|default([])|json_encode|e('js', 'utf-8') }}')"
         :current-user="JSON.parse('{{ user|json_encode|e('js', 'utf-8') }}')"
+        external-constant="{{ constant('demosplan\\DemosPlanCoreBundle\\Entity\\Statement\\Statement::EXTERNAL') }}"
         :is-source-and-coupled-procedure="{{ templateVars.isSourceAndCoupledProcedure ? 'true' : 'false' }}"
         :procedure-statement-priority-area="Boolean('{{ procedureStatementPriorityArea|default(false) }}')"
         :procedure="JSON.parse('{{ procedure|json_encode|e('js', 'utf-8') }}')"

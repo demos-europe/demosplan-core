@@ -275,7 +275,7 @@
       <template v-if="!localStatement.attributes.sendFinalMail">
         {{ Translator.trans('explanation.no.statement.final.sent') }}
       </template>
-      <template v-else-if="'demosplan\\DemosPlanCoreBundle\\Entity\\Statement\\Statement::EXTERNAL' === localStatement.attributes.publicStatement && !localStatement.attributes.authorFeedback">
+      <template v-else-if="localStatement.attributes.publicStatement === externalConstant && !localStatement.attributes.authorFeedback">
         {{ Translator.trans('explanation.no.statement.final.no.feedback.wanted') }}
       </template>
       <template v-else-if="localStatement.attributes.email2.length === 0">
@@ -425,6 +425,11 @@ export default {
       required: false,
       type: Boolean,
       default: false
+    },
+
+    externalConstant: {
+      type: String,
+      required: true
     },
 
     procedure: {
