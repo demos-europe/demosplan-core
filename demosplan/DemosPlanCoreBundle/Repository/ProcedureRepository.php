@@ -245,10 +245,6 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedure->setSettings($procedureSettings);
 
             $currentDate = new DateTime();
-            $procedure->setStartDate($currentDate);
-            $procedure->setEndDate($currentDate);
-            $procedure->setPublicParticipationStartDate($currentDate);
-            $procedure->setPublicParticipationEndDate($currentDate);
             $procedure->setDeletedDate($currentDate);
             $procedure->setClosedDate($currentDate);
             $procedure->setAuthorizedUsers([]);
