@@ -96,8 +96,6 @@ class MunicipalityRepository extends FluentRepository implements ArrayInterface,
      * Update Entity.
      *
      * @param string $entityId
-     *
-     * @return CoreEntity
      */
     public function update($entityId, array $data): never
     {
