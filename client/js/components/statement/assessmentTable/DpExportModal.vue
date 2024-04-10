@@ -368,8 +368,8 @@
           <button
             type="button"
             class="btn btn--primary submitBtn"
-            @click.prevent="handleSubmit"
-            data-cy="exportModal:submit">
+            data-cy="exportModal:submit"
+            @click.prevent="handleSubmit">
             {{ submitLabel }}
           </button>
         </div>
