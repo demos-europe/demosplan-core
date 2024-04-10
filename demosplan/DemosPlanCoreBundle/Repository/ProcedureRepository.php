@@ -269,7 +269,11 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedure->setElements(new ArrayCollection());
 
             $procedure->setPhaseObject(new ProcedurePhase());
+            $procedure->getPhaseObject()->copyValuesFromPhase($procedureMaster->getPhaseObject());
             $procedure->setPublicParticipationPhaseObject(new ProcedurePhase());
+            $procedure->getPublicParticipationPhaseObject()->copyValuesFromPhase(
+                $procedureMaster->getPublicParticipationPhaseObject()
+            );
 
             // improve T20997:
             // this kind of denylisting should be avoided by do not using "clone"

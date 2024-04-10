@@ -2707,13 +2707,6 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
         $this->copyPlaces($blueprintId, $newProcedure);
 
-        /** @var Procedure $blueprint */
-        $blueprint = $this->procedureRepository->get($blueprintId);
-        $newProcedure->setPhaseObject(clone $blueprint->getPhaseObject());
-        $newProcedure->setPublicParticipationPhaseObject(
-            clone $blueprint->getPublicParticipationPhaseObject()
-        );
-
         /** @var NewProcedureAdditionalDataEvent $additionalDataEvent */
         $additionalDataEvent = $this->eventDispatcher->dispatch(new NewProcedureAdditionalDataEvent($newProcedure));
 
