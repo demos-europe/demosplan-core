@@ -52,13 +52,11 @@ final class StatementVoteResourceType extends DplanResourceType
         }
 
         $procedureId = $currentProcedure->getId();
-        $procedureCondition = $this->conditionFactory->propertyHasValue($procedureId, Paths::statementVote()->statement->procedure->id);
 
-
-
-
-        return [$procedureCondition];
-
+        return [
+            $this->conditionFactory->propertyHasValue($procedureId, Paths::statementVote()->statement->procedure->id),
+            $this->conditionFactory->propertyHasValue(false, Paths::statementVote()->deleted),
+        ];
     }
 
     public static function getName(): string
