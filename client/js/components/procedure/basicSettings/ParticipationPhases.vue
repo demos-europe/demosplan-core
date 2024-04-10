@@ -60,12 +60,6 @@ export default {
       default: ''
     },
 
-    labelText: {
-      type: String,
-      required: false,
-      default: ''
-    },
-
     fieldName: {
       type: String,
       required: false,
@@ -78,16 +72,38 @@ export default {
       default: ''
     },
 
+    labelText: {
+      type: String,
+      required: false,
+      default: ''
+    },
+
     initSelectedPhase: {
       type: String,
       required: false,
       default: ''
     },
 
+    /**
+     * Manually set iterator for the phase
+     * The Value can only be a number larger than 0 ( > 0 )
+     */
     iterator: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
+      validate: val => {
+        const requiredKeys = ['label', 'name', 'tooltip', 'value']
+        let keyCounter = 0
+
+        Object.keys(val).forEach(key => {
+          if (requiredKeys.includes(key)) {
+            keyCounter++
+          }
+        })
+
+        return keyCounter === requiredKeys.length
+      }
     },
 
     participationPhases: {
