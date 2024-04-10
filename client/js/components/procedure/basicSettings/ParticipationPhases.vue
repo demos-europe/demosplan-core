@@ -134,7 +134,7 @@ export default {
 
   computed: {
     permissionMessageText () {
-      const currentPhase = this.phaseOptions.find(option => option.value === this.selectedPhase)
+      const currentPhase = this.phaseOptions.find(option => option.value === this.selectedPhase) || this.phaseOptions[0]
       /*
        * Generated Trans-Keys:
        *
