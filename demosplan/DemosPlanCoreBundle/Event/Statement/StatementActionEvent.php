@@ -32,9 +32,6 @@ class StatementActionEvent extends DPlanEvent
         $this->statement = $statement;
     }
 
-    /**
-     * @return StatementInterface
-     */
     public function getStatement(): StatementInterface
     {
         return $this->statement;
