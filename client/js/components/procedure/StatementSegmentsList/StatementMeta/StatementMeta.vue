@@ -269,89 +269,107 @@
       :similar-statement-submitters="similarStatementSubmitters"
       :statement-id="statement.id" />
 
-    <dp-accordion
-      class="mt-2"
-      :title="Translator.trans('statement.final.send')">
-      <template v-if="!localStatement.attributes.sendFinalMail">
-        {{ Translator.trans('explanation.no.statement.final.sent') }}
-      </template>
-      <template v-else-if="localStatement.attributes.publicStatement === externalConstant && !localStatement.attributes.authorFeedback">
-        {{ Translator.trans('explanation.no.statement.final.no.feedback.wanted') }}
-      </template>
-      <template v-else-if="localStatement.attributes.email2.length === 0">
-        {{ Translator.trans('explanation.no.statement.final.no.email') }}
-      </template>
-      <template v-else>
-        <template v-if="localStatement.attributes.finalEmailOnlyToVoters">
-          {{ Translator.trans('explanation.statement.final.sent.only.voters') }}
-        </template>
-
-        <p v-if="localStatement.attributes.sentAssessment">
-          {{ localStatement.attributes.sentAssessment
-            ? Translator.trans('confirm.statement.final.sent.date', { date: dplanDate(localStatement.attributes.sentAssessmentDate, 'd.m.Y | H:i') })
-            : Translator.trans('confirm.statement.final.not.sent') }}
+    <section class="mt-4">
+      <dp-accordion
+        v-if="hasPermission('field_send_final_email')"
+        class="mt-2"
+        :title="Translator.trans('statement.final.send')">
+        <p v-if="!localStatement.attributes.sendFinalMail">
+          {{ Translator.trans('explanation.no.statement.final.sent') }}
         </p>
-
-        <label v-if="hasPermission('field_organisation_email2_cc')">
-          {{ Translator.trans('email.recipient') }}
-          <p class="lbl--text color--grey">
-            <template v-if="localStatement.attributes.publicStatement === 'external'">
-              {{ localStatement.attributes.publicStatement === 'external'
-                ? Translator.trans('explanation.statement.final.citizen.email.hidden')
-                : localStatement.attributes.email2 }}
-            </template>
-            <template v-if="localStatement.attributes.ccEmail2">
-              {{ `, ${Translator.trans('recipients.additional')}: ${localStatement.attributes.ccEmail2}` }}
-            </template>
+        <p v-else-if="localStatement.attributes.publicStatement === externalConstant && !localStatement.attributes.authorFeedback">
+          {{ Translator.trans('explanation.no.statement.final.no.feedback.wanted') }}
+        </p>
+        <p v-else-if="localStatement.attributes.email2?.length === 0">
+          {{ Translator.trans('explanation.no.statement.final.no.email') }}
+        </p>
+        <template v-else>
+          <p v-if="localStatement.attributes.finalEmailOnlyToVoters">
+            {{ Translator.trans('explanation.statement.final.sent.only.voters') }}
           </p>
-        </label>
+          <p>
+            {{ localStatement.attributes.sentAssessment
+              ? Translator.trans('confirm.statement.final.sent.date', { date: dplanDate(localStatement.attributes.sentAssessmentDate, 'd.m.Y | H:i') })
+              : Translator.trans('confirm.statement.final.not.sent') }}
+          </p>
+          <template v-if="hasPermission('field_organisation_email2_cc')">
+            <dp-input
+              id="email2"
+              class="u-mb-0_5"
+              disabled
+              :label="{
+                text: Translator.trans('email.recipient')
+              }"
+              :value="email2Value" />
+            <dp-input
+              v-if="localStatement.attributes.ccEmail2"
+              id="email2_cc"
+              class="u-mb-0_5"
+              disabled
+              :label="{
+                text: Translator.trans('recipients.additional')
+              }"
+              :value="localStatement.attributes.ccEmail2" />
+          </template>
+          <dp-input
+            id="sendEmailCC"
+            class="u-mb-0_5"
+            :label="{
+              text: Translator.trans('email.cc'),
+              hint: Translator.trans('explanation.email.cc')
+            }"
+            v-model="emailsCC"
+            :disabled="!editable" />
+          <dp-input
+            id="sendTitle"
+            class="u-mb-0_5"
+            :label="{
+              text: Translator.trans('subject'),
+            }"
+            :value="Translator.trans('statement.final.email.subject', { procedureName: procedure.name })"
+            :disabled="!editable" />
 
-        <dp-input
-          id="r_send_emailCC"
-          :label="{
-            text: Translator.trans('email.cc'),
-            hint: Translator.trans('explanation.email.cc')
-          }"
-          v-model="emailsCC"
-          :disabled="!editable" />
-
-        <dp-input
-          id="r_send_title"
-          :label="{
-            text: Translator.trans('subject'),
-          }"
-          :value="Translator.trans('statement.final.email.subject', { procedureName: procedure.name })"
-          :disabled="!editable" />
-
-        <dp-label
-          :text="Translator.trans('final.mail')"
-          for="r_final_mail" />
-        <dp-editor
-          v-if="true /*hasPermission('field_statement_memo') @todo wich permission?*/"
-          :disabled="!editable"
-          id="r_final_mail"
-          name="r_final_mail"
-          reduced-height
-          v-model="finalMailDefaultText" />
-      </template>
-    </dp-accordion>
+          <detail-view-final-email-body
+            class="u-mb-0_5"
+            :init-text="finalMailDefaultText"
+            :procedure-id="procedure.id" />
+          <dp-upload-files
+            v-if="editable"
+            id="uploadEmailAttachments"
+            allowed-file-types="all"
+            :basic-auth="dplan.settings.basicAuth"
+            :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedure.id })"
+            :max-file-size="250 * 1024 * 1024 /* 250 MB */"
+            :max-number-of-files="20"
+            name="uploadEmailAttachments"
+            :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '250 MB' }) }"
+            :tus-endpoint="dplan.paths.tusEndpoint" />
+          <dp-button
+            class="u-mt-0_5"
+            :text="Translator.trans('send')"
+            @click="sendEmail()" />
+        </template>
+      </dp-accordion>
+    </section>
   </div>
 </template>
 
 <script>
 import {
   DpAccordion,
+  DpButton,
   DpButtonRow,
   DpDatepicker,
-  DpEditor,
   DpIcon,
   DpInput,
   DpLabel,
   DpSelect,
   DpTextArea,
+  DpUploadFiles,
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import DetailViewFinalEmailBody from '@DpJs/components/statement/assessmentTable/DetailView/DetailViewFinalEmailBody'
 import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 import StatementMetaAttachments from './StatementMetaAttachments'
 
@@ -364,15 +382,17 @@ export default {
   name: 'StatementMeta',
 
   components: {
+    DetailViewFinalEmailBody,
     DpAccordion,
+    DpButton,
     DpButtonRow,
     DpDatepicker,
-    DpEditor,
     DpIcon,
     DpInput,
     DpLabel,
     DpSelect,
     DpTextArea,
+    DpUploadFiles,
     SimilarStatementSubmitters,
     StatementMetaAttachments
   },
@@ -457,6 +477,7 @@ export default {
 
   data () {
     return {
+      email2Value: '',
       finalMailDefaultText: '',
       localStatement: null
     }
@@ -539,6 +560,23 @@ export default {
       this.$emit('save', this.localStatement)
     },
 
+    sendEmail () {
+      const { isSubmittedByCitizen, votes } = this.localStatement.attributes
+      let sentTo = Translator.trans('check.mail.result.citizen')
+
+      if (!isSubmittedByCitizen) {
+        sentTo = Translator.trans('check.mail.result.citizenAndVoters')
+      }
+
+      if (isSubmittedByCitizen && hasPermission('feature_statements_vote') && votes.length > 0) {
+        sentTo = Translator.trans('check.mail.result.citizen')
+      }
+
+      if (dpconfirm(Translator.trans('check.mail.result', { sentTo: sentTo }))) {
+        // TO DO: send email
+      }
+    },
+
     setDate (val, field) {
       this.localStatement.attributes[field] = val
       this.emitInput(field, val)
@@ -557,6 +595,10 @@ export default {
           : '',
         statementRecommendation: this.localStatement.attributes.recommendation
       })
+
+      this.email2Value = this.localStatement.attributes.publicStatement === this.externalConstant
+        ? Translator.trans('explanation.statement.final.citizen.email.hidden')
+        : this.localStatement.attributes.email2
     },
 
     syncAuthorAndSubmitter () {
