@@ -14,6 +14,7 @@
 
       <dp-input
         v-if="hasPermission('field_phase_iterator')"
+        :id="iterator.name"
         width="w-4/12"
         :label="{
           text: iterator.label,
@@ -142,7 +143,7 @@ export default {
        * 'permissionset.write'
        */
       const permissionsetMessage =  Translator.trans(`permissionset.${currentPhase.permissionset}`)
-     
+
       return `${this.permissionMessage} ${permissionsetMessage}`
     },
 
