@@ -1,34 +1,19 @@
 <template>
   <div>
     <dp-label
-      :text="label"
-      :for="name" />
-    <ul
-      v-if="editable"
-      :id="name"
-      class="o-list o-list--csv color--grey">
-      <template v-if="options.filter(opt => value.contains(opt))">
-        <li
-          v-for="option in options.filter(opt => value.contains(opt))"
-          :key="`county-${option.name}`"
-          class="o-list__item">
-          {{ option.name }}
-        </li>
-      </template>
-      <li v-else>
-        -
-      </li>
-    </ul>
+      class="my-1"
+      :for="name"
+      :text="label" />
     <dp-multiselect
-      v-else
-      :value="value"
-      @input="(changedValue) => $emit('change', changedValue)"
+      v-if="editable"
+      v-model="selectedItems"
       :id="name"
-      class="layout__item u-1-of-1 inline-block"
+      class="w-full inline-block"
       label="name"
       multiple
       :options="options"
-      track-by="id">
+      track-by="id"
+      @input="(changedValue) => $emit('change', changedValue, name)">
       <template v-slot:option="{ props }">
         {{ props.option.name }}
       </template>
@@ -43,10 +28,26 @@
           <input
             type="hidden"
             :value="props.option.id"
-            :name="name" />
+            :name="name">
         </span>
       </template>
     </dp-multiselect>
+    <ul
+      v-else
+      :id="name"
+      class="o-list o-list--csv color--grey">
+      <template v-if="filterValueByOptions.length > 0">
+        <li
+          v-for="value in filterValueByOptions"
+          :key="`${name}-${value.name}`"
+          class="o-list__item">
+          {{ value.name }}
+        </li>
+      </template>
+      <li v-else>
+        -
+      </li>
+    </ul>
   </div>
 </template>
 
@@ -71,13 +72,13 @@ export default {
       default: false
     },
 
-    name: {
+    label: {
       type: String,
       required: false,
       default: ''
     },
 
-    label: {
+    name: {
       type: String,
       required: false,
       default: ''
@@ -90,9 +91,24 @@ export default {
     },
 
     value: {
-      type: String,
+      type: Array,
       required: false,
-      default: ''
+      default: () => []
+    }
+  },
+
+  data () {
+    return {
+      selectedItems: this.value
+    }
+  },
+
+  computed: {
+    filterValueByOptions () {
+      // Filters the value array based on whether each item's name exists in the options array
+      return this.value.filter(item => {
+        return this.options.some(option => option.name === item.name)
+      })
     }
   }
 }

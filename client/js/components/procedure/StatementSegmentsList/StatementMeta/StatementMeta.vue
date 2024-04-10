@@ -186,17 +186,19 @@
           @select="(val) => emitInput('submitType', val)" />
 
         <dp-select
+          v-if="hasPermission('field_show_internal_procedure_phases_in_dropdown') && !localStatement.attributes.isSubmittedByCitizen"
           id="statementProcedurePhase"
           v-model="localStatement.attributes.phase"
           class="u-mb-0_5"
           :disabled="!editable"
           :label="{
-            text: Translator.trans('procedure.phase')
+            text: Translator.trans('procedure.public.phase')
           }"
           :options="availableInternalPhases"
           @select="(val) => emitInput('submitType', val)" />
 
         <dp-select
+          v-else
           id="statementProcedurePhase"
           v-model="localStatement.attributes.phase"
           class="u-mb-0_5"
@@ -215,19 +217,20 @@
           name="r_memo"
           reduced-height
           v-model="localStatement.attributes.memo" />
-
       </div>
     </div>
 
+    <!-- need to add statement.attributes.counties and availableCounties in the BE (Array) -->
     <statement-meta-multiselect
-      v-if="hasPermission('field_statement_municipality')"
+      v-if="hasPermission('field_statement_county')"
       :editable="editable"
       :label="Translator.trans('counties')"
       name="counties"
       :options="availableCounties"
       :value="localStatement.attributes.counties"
-      @input="updateCounties" />
+      @change="updateLocalStatementProperties" />
 
+    <!-- need to add statement.attributes.municipalities and availableMunicipalities in the BE (Array) -->
     <statement-meta-multiselect
       v-if="hasPermission('field_statement_municipality') && formDefinitions.mapAndCountyReference.enabled"
       :editable="editable"
@@ -235,8 +238,9 @@
       name="municipalities"
       :options="availableMunicipalities"
       :value="localStatement.attributes.municipalities"
-      @input="updateMunicipalities" />
+      @change="updateLocalStatementProperties" />
 
+    <!-- need to add statement.attributes.priorityAreas and availablePriorityAreas in the BE (Array) -->
     <statement-meta-multiselect
       v-if="procedureStatementPriorityArea && formDefinitions.mapAndCountyReference.enabled"
       :editable="editable"
@@ -244,7 +248,7 @@
       name="priorityAreas"
       :options="availablePriorityAreas"
       :value="localStatement.attributes.priorityAreas"
-      @input="updatePriorityAreas" />
+      @change="updateLocalStatementProperties" />
 
     <dp-button-row
       v-if="editable"
@@ -285,6 +289,7 @@ import {
 import { mapActions, mapMutations, mapState } from 'vuex'
 import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 import StatementMetaAttachments from './StatementMetaAttachments'
+import StatementMetaMultiselect from './StatementMetaMultiselect'
 
 const convert = (dateString) => {
   const date = dateString.split('T')[0].split('-')
@@ -303,7 +308,8 @@ export default {
     DpSelect,
     DpTextArea,
     SimilarStatementSubmitters,
-    StatementMetaAttachments
+    StatementMetaAttachments,
+    StatementMetaMultiselect
   },
 
   mixins: [dpValidateMixin],
@@ -486,12 +492,9 @@ export default {
       this.localStatement.attributes.submitName = this.localStatement.attributes.authorName
     },
 
-    updateCounties (val) {
-      console.log(val, this.localStatement.attributes.counties)
-    },
-
-    updateMunicipalities (val) {
-      console.log(val, this.localStatement.attributes.municipaities)
+    updateLocalStatementProperties (value, property) {
+      this.localStatement.attributes[property] = value
+      console.log(`this.localStatement.attributes.${property}:`, this.localStatement.attributes[property])
     }
   },
 
