@@ -41,16 +41,16 @@ class MessageSerializable implements JsonSerializable, MessageSerializableInterf
     /**
      * @return string
      */
-    public function getSeverity()
+    public function getSeverity():string
     {
         return $this->severity;
     }
     /**
      * @param string $severity
      *
-     * @return MessageSerializable
+     * @return MessageSerializableInterface
      */
-    public function setSeverity($severity)
+    public function setSeverity($severity) :MessageSerializableInterface
     {
         $this->severity = $severity;
 
@@ -59,16 +59,16 @@ class MessageSerializable implements JsonSerializable, MessageSerializableInterf
     /**
      * @return string
      */
-    public function getText()
+    public function getText() :string
     {
         return $this->text;
     }
     /**
      * @param string $text
      *
-     * @return MessageSerializable
+     * @return MessageSerializableInterface
      */
-    public function setText($text)
+    public function setText($text):MessageSerializableInterface
     {
         $this->text = $text;
 
@@ -81,7 +81,7 @@ class MessageSerializable implements JsonSerializable, MessageSerializableInterf
     /**
      * @return array
      */
-    public function getTextParameters()
+    public function getTextParameters():array
     {
         return $this->textParameters;
     }

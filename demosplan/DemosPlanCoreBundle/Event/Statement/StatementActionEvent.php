@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Event\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementSimilarity;
@@ -32,9 +33,9 @@ class StatementActionEvent extends DPlanEvent
     }
 
     /**
-     * @return Statement
+     * @return StatementInterface
      */
-    public function getStatement()
+    public function getStatement(): StatementInterface
     {
         return $this->statement;
     }

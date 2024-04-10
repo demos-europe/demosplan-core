@@ -1779,7 +1779,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     /**
      * @return ArrayCollection
      */
-    public function getCounties()
+    public function getCounties(): ArrayCollection
     {
         return $this->counties;
     }
@@ -1840,7 +1840,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     /**
      * @return ArrayCollection
      */
-    public function getMunicipalities()
+    public function getMunicipalities(): ArrayCollection
     {
         return $this->municipalities;
     }
@@ -4121,7 +4121,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         return $this->similarStatementSubmitters;
     }
 
-    public function addSimilarStatementSubmitter(ProcedurePerson $similarStatementSubmitter): void
+    public function addSimilarStatementSubmitter(ProcedurePersonInterface $similarStatementSubmitter): void
     {
         if (!$this->similarStatementSubmitters->contains($similarStatementSubmitter)) {
             $this->similarStatementSubmitters->add($similarStatementSubmitter);
