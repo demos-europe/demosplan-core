@@ -1,31 +1,28 @@
 <template>
   <div>
     <div class="flex gap-2">
-      <div class="w-8-12">
-        <dp-select
-          :label="{
-            text: labelText,
-            tooltip: helpText
-          }"
-          :name="fieldName"
-          :options="phaseOptions"
-          required
-          v-model="selectedPhase" />
-      </div>
+      <dp-select
+        class="w-8/12"
+        :label="{
+          text: labelText,
+          tooltip: helpText
+        }"
+        :name="fieldName"
+        :options="phaseOptions"
+        required
+        v-model="selectedPhase" />
 
-      <div
-        v-if="true || hasPermission('field_phase_iterator')"
-        class="w-4/12 inline-block relative">
-        <dp-label
-          for="r_public_participation_phase_iteration"
-          :text="iterator.label"
-          :tooltip="iterator.tooltip"
-          required />
-        <dp-input
-          name="r_public_participation_phase_iteration"
-          :value="iterator.value"
-          pattern="^[1-9][0-9]*$" />
-      </div>
+      <dp-input
+        v-if="hasPermission('field_phase_iterator')"
+        width="w-4/12"
+        :label="{
+          text: iterator.label,
+          tooltip: iterator.tooltip
+        }"
+        :name="iterator.name"
+        :value="iterator.value"
+        pattern="^[1-9][0-9]*$"
+        required />
     </div>
 
     <dp-inline-notification
@@ -44,7 +41,6 @@
 import {
   DpInlineNotification,
   DpInput,
-  DpLabel,
   DpSelect
 } from '@demos-europe/demosplan-ui'
 
@@ -54,7 +50,6 @@ export default {
   components: {
     DpInlineNotification,
     DpInput,
-    DpLabel,
     DpSelect
   },
 

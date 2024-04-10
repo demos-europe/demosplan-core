@@ -405,6 +405,7 @@
                                         init-selected-phase="{{ proceduresettings.phase }}"
                                         :iterator="{
                                             label: Translator.trans('procedure.phase.phasecounter'),
+                                            name: 'r_phase_iteration',
                                             tooltip: Translator.trans('text.procedure.phasecounter'),
                                             value: '{{ proceduresettings.phaseObject.iteration }}'
                                         }">
@@ -548,9 +549,10 @@
                                         :phase-options="JSON.parse('{{ externalPhaseOptions|json_encode|e('js', 'utf-8') }}')"
                                         init-selected-phase="{{ proceduresettings.publicParticipationPhase }}"
                                         :iterator="{
-                                          label: Translator.trans('procedure.phase.phasecounter'),
-                                          tooltip: Translator.trans('text.procedure.phasecounter'),
-                                          value: '{{ proceduresettings.publicParticipationPhaseObject.iteration }}'
+                                            label: Translator.trans('procedure.phase.phasecounter'),
+                                            name: 'r_public_participation_phase_iteration',
+                                            tooltip: Translator.trans('text.procedure.phasecounter'),
+                                            value: '{{ proceduresettings.publicParticipationPhaseObject.iteration }}'
                                         }">
                                     </participation-phases>
                                 {% endif %}
