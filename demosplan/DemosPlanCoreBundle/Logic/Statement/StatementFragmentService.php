@@ -59,7 +59,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
@@ -130,17 +129,17 @@ class StatementFragmentService extends CoreService
         private readonly GlobalConfigInterface $globalConfig,
         private readonly ManagerRegistry $managerRegistry,
         private readonly MessageBagInterface $messageBag,
-        ParagraphService                                    $paragraphService,
-        PermissionsInterface                                $permissions,
-        ProcedureService                                    $procedureService,
-        private readonly Reindexer                          $reindexer,
-        private readonly SortMethodFactory                  $sortMethodFactory,
-        private readonly StatementFragmentRepository        $statementFragmentRepository,
+        ParagraphService $paragraphService,
+        PermissionsInterface $permissions,
+        ProcedureService $procedureService,
+        private readonly Reindexer $reindexer,
+        private readonly SortMethodFactory $sortMethodFactory,
+        private readonly StatementFragmentRepository $statementFragmentRepository,
         private readonly StatementFragmentVersionRepository $statementFragmentVersionRepository,
-        private readonly StatementService                   $statementService,
-        TranslatorInterface                                 $translator,
-        private readonly UserRepository                     $userRepository,
-        UserService                                         $userService, private readonly EntityManagerInterface $entityManager
+        private readonly StatementService $statementService,
+        TranslatorInterface $translator,
+        private readonly UserRepository $userRepository,
+        UserService $userService
     ) {
         $this->assignService = $assignService;
         $this->elementService = $elementService;
@@ -858,7 +857,7 @@ class StatementFragmentService extends CoreService
     public function updateStatementFragmentObject(StatementFragment $fragment)
     {
         try {
-            $em = $this->entityManager;
+            $em = $this->getDoctrine()->getManager();
             $user = $this->currentUser->getUser();
 
             if ($user instanceof User) {
@@ -907,7 +906,7 @@ class StatementFragmentService extends CoreService
      */
     public function getParagraphVersionsForFragmentArray(array $fragmentArray)
     {
-        $em = $this->entityManager;
+        $em = $this->getDoctrine()->getManager();
         $fragmentId = $this->entityHelper->extractId($fragmentArray);
         $currentFragment = $this->getStatementFragment($fragmentId);
 

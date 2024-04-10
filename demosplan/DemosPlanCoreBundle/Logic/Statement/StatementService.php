@@ -119,7 +119,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
@@ -265,16 +264,16 @@ class StatementService extends CoreService implements StatementServiceInterface
         StatementFragmentService $statementFragmentService,
         StatementGeoService $statementGeoService,
         private readonly StatementReportEntryFactory $statementReportEntryFactory,
-        protected readonly StatementRepository       $statementRepository,
-        private readonly StatementResourceType       $statementResourceType,
-        StatementValidator                           $statementValidator,
-        private readonly StatementVoteRepository     $statementVoteRepository,
-        private readonly TagRepository               $tagRepository,
-        private readonly TagTopicRepository          $tagTopicRepository,
-        private readonly TranslatorInterface         $translator,
-        private readonly UserRepository              $userRepository,
-        UserService                                  $userService,
-        private readonly StatementDeleter            $statementDeleter, private readonly EntityManagerInterface $entityManager
+        protected readonly StatementRepository $statementRepository,
+        private readonly StatementResourceType $statementResourceType,
+        StatementValidator $statementValidator,
+        private readonly StatementVoteRepository $statementVoteRepository,
+        private readonly TagRepository $tagRepository,
+        private readonly TagTopicRepository $tagTopicRepository,
+        private readonly TranslatorInterface $translator,
+        private readonly UserRepository $userRepository,
+        UserService $userService,
+        private readonly StatementDeleter $statementDeleter
     ) {
         $this->assignService = $assignService;
         $this->entityContentChangeService = $entityContentChangeService;
@@ -307,7 +306,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      */
     public function createOriginalStatement($data): Statement
     {
-        $em = $this->entityManager;
+        $em = $this->getDoctrine()->getManager();
 
         // Create and use versions of paragraph and SingleDocument
         if (\array_key_exists('paragraphId', $data) && 0 < \strlen((string) $data['paragraphId']) && '-' != $data['paragraphId']) {
@@ -1774,7 +1773,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     public function addLike($statementId, ?User $user = null)
     {
         try {
-            $em = $this->entityManager;
+            $em = $this->getDoctrine()->getManager();
 
             $data = [
                 'statement' => $em->getReference(Statement::class, $statementId),
@@ -1957,7 +1956,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      */
     protected function getEntityVersions(array $data): array
     {
-        $em = $this->entityManager;
+        $em = $this->getDoctrine()->getManager();
         $currentStatement = $this->getStatement($data['ident']);
 
         if (\array_key_exists('paragraph', $data) && $data['paragraph'] instanceof Paragraph
