@@ -492,9 +492,9 @@ export default {
       this.localStatement.attributes.submitName = this.localStatement.attributes.authorName
     },
 
-    updateLocalStatementProperties (value, property) {
-      this.localStatement.attributes[property] = value
-      console.log(`this.localStatement.attributes.${property}:`, this.localStatement.attributes[property])
+    updateLocalStatementProperties (value, field) {
+      this.localStatement.attributes[field] = value
+      this.localStatement.attributes[field].sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0))
     }
   },
 
