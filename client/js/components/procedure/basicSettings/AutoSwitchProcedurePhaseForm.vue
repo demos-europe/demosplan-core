@@ -64,7 +64,10 @@
             enforce-plausible-dates
             :min-date="startDate"
             required
-^
+            :data-cy="{
+                endDate: dataCyEndDate,
+                startDate: dataCyStartDate
+            }"
             start-disabled
             :start-id="startDateId"
             :start-name="startDateId"
