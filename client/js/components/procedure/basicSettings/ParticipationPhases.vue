@@ -135,14 +135,14 @@ export default {
   computed: {
     permissionMessageText () {
       const currentPhase = this.phaseOptions.find(option => option.value === this.selectedPhase)
-       /*
-       * Generated Trans-Keyes:
+      /*
+       * Generated Trans-Keys:
        *
        * 'permissionset.hidden'
        * 'permissionset.read'
        * 'permissionset.write'
        */
-      const permissionsetMessage =  Translator.trans(`permissionset.${currentPhase.permissionset}`)
+      const permissionsetMessage = Translator.trans(`permissionset.${currentPhase.permissionset}`)
 
       return `${this.permissionMessage} ${permissionsetMessage}`
     },
