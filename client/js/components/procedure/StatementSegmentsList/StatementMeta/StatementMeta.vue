@@ -199,8 +199,8 @@
 
         <dp-select
           v-else
-          id="statementProcedurePhase"
-          v-model="localStatement.attributes.phase"
+          id="statementProcedureExternalPhase"
+          v-model="localStatement.attributes.externalPhase"
           class="u-mb-0_5"
           :disabled="!editable"
           :label="{
