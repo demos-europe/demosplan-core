@@ -82,6 +82,7 @@ use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $paragraphTitle @deprecated Use {@link StatementResourceType::$paragraph} instead
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $authorName
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $submitName
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $authorFeedback
  *
  * Head statement properties
  * @property-read ToManyRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, Statement, Elements> $statements

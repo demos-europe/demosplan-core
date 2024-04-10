@@ -232,6 +232,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
         $configBuilder->authorName->aliasedPath(Paths::statement()->meta->authorName);
         $configBuilder->submitName->aliasedPath(Paths::statement()->meta->submitName);
+        $configBuilder->authorFeedback->aliasedPath(Paths::statement()->meta->authorFeedback)->readable();
         $configBuilder->similarStatementSubmitters
             ->setRelationshipType($this->getTypes()->getSimilarStatementSubmitterResourceType());
 
@@ -423,6 +424,8 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
         $configBuilder->organisation->readable()->filterable();
         $configBuilder->sentAssessmentDate->readable();
+        $configBuilder->represents->readable();
+        $configBuilder->representationCheck->readable();
 
         return $configBuilder;
     }
