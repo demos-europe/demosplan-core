@@ -1241,7 +1241,7 @@ class DraftStatementService extends CoreService
             // check whether existing paragraph equals given paragraphId
             if (is_null($entity) || $data['paragraphId'] != $entity->getParagraphId()) {
                 $data['paragraph'] = $this->createParagraphVersion(
-                    $em->getReference(
+                    $em->find(
                         Paragraph::class,
                         $data['paragraphId']
                     )
@@ -1261,7 +1261,7 @@ class DraftStatementService extends CoreService
             // check whether existing document equals given documentId
             if (is_null($entity) || $data['documentId'] != $entity->getDocumentId()) {
                 $data['document'] = $this->createSingleDocumentVersion(
-                    $em->getReference(
+                    $em->find(
                         SingleDocument::class,
                         $data['documentId']
                     )
