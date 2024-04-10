@@ -351,8 +351,6 @@ class ElementsRepository extends CoreRepository implements ArrayInterface, Objec
 
     /**
      * @param Elements $entity
-     *
-     * @return bool
      */
     public function deleteObject($entity): never
     {

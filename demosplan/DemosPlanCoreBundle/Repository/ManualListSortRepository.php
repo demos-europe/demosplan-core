@@ -155,7 +155,7 @@ class ManualListSortRepository extends CoreRepository implements ImmutableArrayI
     }
 
     /**
-     * @return CoreEntity|void
+     * @param array $data
      */
     public function add(array $data): never
     {

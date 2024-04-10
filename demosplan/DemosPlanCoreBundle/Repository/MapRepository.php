@@ -711,8 +711,6 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
 
     /**
      * @param CoreEntity $entity
-     *
-     * @return bool
      */
     public function deleteObject($entity): never
     {
