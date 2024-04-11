@@ -57,6 +57,8 @@ class LatexExtension extends ExtensionBase
         '</ol>'                                => '\end{enumerate}',
         '<li>'                                 => '\item ',
         '</li>'                                => '',
+        '<dp-obscure>'                         => '\censor{',
+        '</dp-obscure>'                        => '}',
         '´'                                    => '\textquoteright ',
         '`'                                    => '\textquoteleft ',
         '&'                                    => '\&',
@@ -197,7 +199,7 @@ class LatexExtension extends ExtensionBase
             // Alle anderen Tags beseitigen
             $text = strip_tags(
                 $text,
-                '<p><table><tr><td><tcs2><tcs><tcs3><tcs4><tcs5><tcs6><th><br><ol><strike><u><s><del><i><ol><ul><li><b><strong><em><span><ins><mark>'
+                '<p><table><tr><td><tcs2><tcs><tcs3><tcs4><tcs5><tcs6><th><br><ol><strike><u><s><del><i><ol><ul><li><b><strong><em><span><ins><mark><dp-obscure>'
             );
 
             // remove <ins> title attribute
