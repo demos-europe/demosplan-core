@@ -41,7 +41,7 @@ describe('ParticipationPhases', () => {
     expect(ParticipationPhases.name).toBe('ParticipationPhases')
   })
 
-  it('should set the "inParticipation"-State as expected', async () => {
+  it('should set the "inParticipation"-State to true if the selected Phase occures in the participationPhases Array', async () => {
     const localVue = createLocalVue()
 
     const wrapper = shallowMountWithGlobalMocks(ParticipationPhases, {
@@ -64,7 +64,7 @@ describe('ParticipationPhases', () => {
     expect(wrapper.vm.isInParticipation).toBe(false)
   })
 
-  it('should set the Permission-Message-Text as expected', async () => {
+  it('should set the Permission-Message-Text depending on the selected participation phase permissionset ', async () => {
     const localVue = createLocalVue()
 
     const wrapper = shallowMountWithGlobalMocks(ParticipationPhases, {
