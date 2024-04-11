@@ -41,7 +41,7 @@ describe('ParticipationPhases', () => {
     expect(ParticipationPhases.name).toBe('ParticipationPhases')
   })
 
-  it('should set the "inParticipation"-State to true if the selected Phase occures in the participationPhases Array', async () => {
+  it('sets the 'inParticipation' state correctly depending on whether the selected Phase is a participation phase', async () => {
     const localVue = createLocalVue()
 
     const wrapper = shallowMountWithGlobalMocks(ParticipationPhases, {
