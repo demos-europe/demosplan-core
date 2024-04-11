@@ -553,8 +553,8 @@ class ReportMessageConverter
                 $returnMessage[] = $translator->trans('text.protocol.publicphase', [
                     'oldPublicPhase'     => $message['oldPublicPhase'],
                     'newPublicPhase'     => $message['newPublicPhase'],
-                    'oldPublicIteration' => $message['oldPublicPhaseIteration'] ?? 0,
-                    'newPublicIteration' => $message['newPublicPhaseIteration'] ?? 0,
+                    'oldPublicPhaseIteration' => $message['oldPublicPhaseIteration'] ?? 0,
+                    'newPublicPhaseIteration' => $message['newPublicPhaseIteration'] ?? 0,
                 ]);
             }
         }
