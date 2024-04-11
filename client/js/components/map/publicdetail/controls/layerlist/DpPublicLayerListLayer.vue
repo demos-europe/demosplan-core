@@ -56,12 +56,7 @@
     <dp-contextual-help
       v-if="contextualHelpText"
       class="c-map__layerhelp u-mt-0_125"
-      :text="contextualHelpText"
-      :tabindex="0"
-      @mouseover.self="tooltipExpanded = true"
-      @focus="tooltipExpanded = true"
-      @mouseleave.self="tooltipExpanded = false"
-      @blur="tooltipExpanded = false" />
+      :text="contextualHelpText" />
   </li>
 </template>
 
@@ -70,7 +65,7 @@ import { DpContextualHelp, prefixClass } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpPublicLayerListLayer',
-  components: {DpContextualHelp},
+  components: { DpContextualHelp },
 
   props: {
     layer: {
@@ -111,7 +106,7 @@ export default {
     contextualHelpText () {
       const contextualHelp = this.$store.getters['layers/element']({ id: this.layer.id, type: 'ContextualHelp' })
       const hasContextualHelp = contextualHelp && contextualHelp.attributes.text
-      return hasContextualHelp ? contextualHelp.attributes.text : false
+      return hasContextualHelp ? contextualHelp.attributes.text : ''
     },
 
     id () {
