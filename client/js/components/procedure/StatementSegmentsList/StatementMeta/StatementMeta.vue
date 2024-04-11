@@ -185,29 +185,42 @@
           :options="submitTypeOptions"
           @select="(val) => emitInput('submitType', val)" />
 
-        <dp-select
-          v-if="hasPermission('field_show_internal_procedure_phases_in_dropdown') && !localStatement.attributes.isSubmittedByCitizen"
-          id="statementProcedurePhase"
-          v-model="localStatement.attributes.phase"
-          class="u-mb-0_5"
-          :disabled="!editable"
-          :label="{
-            text: Translator.trans('procedure.public.phase')
-          }"
-          :options="availableInternalPhases"
-          @select="(val) => emitInput('submitType', val)" />
+        <div v-if="hasPermission('field_statement_phase')">
+          <template v-if="!editable || !localStatement.attributes.isManual">
+            <dp-label
+              class="my-1"
+              for="procedurePhase"
+              :text="Translator.trans('procedure.public.phase')" />
+            <p
+              id="procedurePhase"
+              class="color--grey mb-3">
+              {{ localStatement.attributes.phase ? localStatement.attributes.phase : '-' }}
+            </p>
+          </template>
+          <template v-else>
+            <dp-select
+              v-if="hasPermission('field_show_internal_procedure_phases_in_dropdown') && !localStatement.attributes.isSubmittedByCitizen"
+              id="statementProcedurePhase"
+              v-model="localStatement.attributes.phase"
+              class="mb-3"
+              :label="{
+                text: Translator.trans('procedure.public.phase')
+              }"
+              :options="availableInternalPhases"
+              @select="(val) => emitInput('submitType', val)" />
 
-        <dp-select
-          v-else
-          id="statementProcedureExternalPhase"
-          v-model="localStatement.attributes.externalPhase"
-          class="u-mb-0_5"
-          :disabled="!editable"
-          :label="{
-            text: Translator.trans('procedure.public.phase')
-          }"
-          :options="availableExternalPhases"
-          @select="(val) => emitInput('submitType', val)" />
+            <dp-select
+              v-else
+              id="statementProcedureExternalPhase"
+              v-model="localStatement.attributes.phase"
+              class="mb-3"
+              :label="{
+                text: Translator.trans('procedure.public.phase')
+              }"
+              :options="availableExternalPhases"
+              @select="(val) => emitInput('submitType', val)" />
+          </template>
+        </div>
 
         <dp-text-area
           v-if="hasPermission('field_statement_memo')"
