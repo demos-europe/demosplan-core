@@ -421,7 +421,7 @@ class PrepareReportFromProcedureService extends CoreService
         $oldPhase = $sourceProcedure->getPhaseObject();
         $newPhase = $destinationProcedure->getPhaseObject();
         $oldPublicPhase = $sourceProcedure->getPublicParticipationPhaseObject();
-        $newPublicPhase = $sourceProcedure->getPublicParticipationPhaseObject();
+        $newPublicPhase = $destinationProcedure->getPublicParticipationPhaseObject();
 
         $internKeyHasChanged = 0 !== strcmp($oldPhase->getKey(), $newPhase->getKey());
         $externKeyHasChanged = 0 !== strcmp($oldPublicPhase->getKey(), $newPublicPhase->getKey());
