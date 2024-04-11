@@ -27,7 +27,7 @@ describe('ParticipationPhases', () => {
     iterator: {
       label: 'Iterator Label',
       name: 'iterator_input_name',
-      tooltip: 'Tooltip text for the itereator',
+      tooltip: 'Tooltip text for the iterator',
       value: '1'
     }
   }
