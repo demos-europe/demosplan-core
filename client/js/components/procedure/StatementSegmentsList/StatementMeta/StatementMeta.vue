@@ -207,7 +207,7 @@
                 text: Translator.trans('procedure.public.phase')
               }"
               :options="availableInternalPhases"
-              @select="(val) => emitInput('submitType', val)" />
+              @select="(val) => emitInput('phase', val)" />
 
             <dp-select
               v-else
@@ -218,7 +218,7 @@
                 text: Translator.trans('procedure.public.phase')
               }"
               :options="availableExternalPhases"
-              @select="(val) => emitInput('submitType', val)" />
+              @select="(val) => emitInput('phase', val)" />
           </template>
         </div>
 
