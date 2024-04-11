@@ -185,10 +185,10 @@
           :options="submitTypeOptions"
           @select="(val) => emitInput('submitType', val)" />
 
-        <div v-if="hasPermission('field_statement_phase')">
+        <template v-if="hasPermission('field_statement_phase')">
           <dp-select
             v-if="hasPermission('field_show_internal_procedure_phases_in_dropdown') && !localStatement.attributes.isSubmittedByCitizen"
-            id="statementProcedurePhase"
+            id="statementProcedureInternalPhase"
             v-model="localStatement.attributes.phase"
             class="mb-3"
             :disabled="!editable || !localStatement.attributes.isManual"
@@ -209,7 +209,7 @@
             }"
             :options="availableExternalPhases"
             @select="(val) => emitInput('phase', val)" />
-        </div>
+        </template>
 
         <dp-text-area
           v-if="hasPermission('field_statement_memo')"
