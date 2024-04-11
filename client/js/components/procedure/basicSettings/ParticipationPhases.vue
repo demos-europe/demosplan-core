@@ -93,7 +93,7 @@ export default {
       type: Object,
       required: false,
       default: () => ({}),
-      validate: val => {
+      validator: val => {
         const requiredKeys = ['label', 'name', 'tooltip', 'value']
         let keyCounter = 0
 
