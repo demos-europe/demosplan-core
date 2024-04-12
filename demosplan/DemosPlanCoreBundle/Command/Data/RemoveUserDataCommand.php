@@ -116,7 +116,7 @@ class RemoveUserDataCommand extends CoreCommand
         StatementService $statementService,
         DraftStatementService $draftStatementService,
         ManagerRegistry $doctrine,
-        string $name = null
+        ?string $name = null
     ) {
         $this->userService = $userService;
         $this->statementService = $statementService;

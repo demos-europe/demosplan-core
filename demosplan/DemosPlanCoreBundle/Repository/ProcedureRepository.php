@@ -1147,6 +1147,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         $em = $this->getEntityManager();
         /** @var ReportRepository $repo */
         $repo = $em->getRepository(ReportEntry::class);
+
         return $repo->deleteByProcedure($procedureId);
     }
 

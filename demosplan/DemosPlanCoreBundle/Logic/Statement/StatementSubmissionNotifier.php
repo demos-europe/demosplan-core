@@ -255,8 +255,7 @@ class StatementSubmissionNotifier
     /**
      * Send Notification because Statement needs to be checked by Planner.
      *
-     * @param Statement $statement
-     * @param string[]        $ccs
+     * @param string[] $ccs
      *
      * @throws Throwable
      */
@@ -355,7 +354,6 @@ class StatementSubmissionNotifier
      *
      * @param string $statementText
      * @param string $recipient
-     * @param mixed  $number
      *
      * @throws Throwable
      * @throws LoaderError
@@ -367,7 +365,7 @@ class StatementSubmissionNotifier
         $recipient,
         ?Statement $submittedStatement = null,
         $number = null,
-        GdprConsentRevokeToken $gdprConsentRevokeToken = null
+        ?GdprConsentRevokeToken $gdprConsentRevokeToken = null
     ): void {
         $mailTemplateVars = [];
         $vars = [];

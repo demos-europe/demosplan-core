@@ -27,7 +27,6 @@ interface EntityGroupInterface
 
     /**
      * @param array<int|string,T> $entries
-     * @return void
      */
     public function setEntries(array $entries): void;
 

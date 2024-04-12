@@ -106,7 +106,7 @@ class ForumEntryRepository extends CoreRepository implements ArrayInterface
 
         $entries = $this->findBy(['thread' => $threadId]);
         $resultList = [];
-         /** @var ForumEntryFileRepository $forumEntryFileRepos */
+        /** @var ForumEntryFileRepository $forumEntryFileRepos */
         $forumEntryFileRepos = $this->getEntityManager()->getRepository(ForumEntryFile::class);
         foreach ($entries as $entry) {
             try {

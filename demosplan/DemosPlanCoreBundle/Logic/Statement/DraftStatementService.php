@@ -1354,14 +1354,11 @@ class DraftStatementService extends CoreService
     /**
      * Ruft die unveränderten freigegebenen Stellungnahmen eines Nutzers ab.
      *
-     * @param string                        $procedureId
-     * @param StatementListUserFilter       $filters
-     * @param string                        $search
-     * @param array|null                    $sort            deprecated
-     * @param User                          $user
-     * @param string|null                   $manualSortScope
-     *
-     * @return DraftStatementResult
+     * @param string      $procedureId
+     * @param string      $search
+     * @param array|null  $sort            deprecated
+     * @param User        $user
+     * @param string|null $manualSortScope
      *
      * @throws Exception
      */
