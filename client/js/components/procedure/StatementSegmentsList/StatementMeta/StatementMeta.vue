@@ -189,26 +189,26 @@
           <dp-select
             v-if="hasPermission('field_show_internal_procedure_phases_in_dropdown') && !localStatement.attributes.isSubmittedByCitizen"
             id="statementProcedureInternalPhase"
-            v-model="localStatement.attributes.phase"
+            v-model="localStatement.attributes.institutionPhase"
             class="mb-3"
             :disabled="!editable || !localStatement.attributes.isManual"
             :label="{
               text: Translator.trans('procedure.public.phase')
             }"
-            :options="availableInternalPhases"
-            @select="(val) => emitInput('phase', val)" />
+            :options="availableInstitutionPhases"
+            @select="(val) => emitInput('institutionPhase', val)" />
 
           <dp-select
             v-else
             id="statementProcedureExternalPhase"
-            v-model="localStatement.attributes.phase"
+            v-model="localStatement.attributes.publicPhase"
             class="mb-3"
             :disabled="!editable || !localStatement.attributes.isManual"
             :label="{
               text: Translator.trans('procedure.public.phase')
             }"
-            :options="availableExternalPhases"
-            @select="(val) => emitInput('phase', val)" />
+            :options="availablePublicPhases"
+            @select="(val) => emitInput('publicPhase', val)" />
         </template>
 
         <dp-text-area
@@ -328,13 +328,7 @@ export default {
       default: () => []
     },
 
-    availableExternalPhases: {
-      type: Array,
-      required: false,
-      default: () => []
-    },
-
-    availableInternalPhases: {
+    availableInstitutionPhases: {
       type: Array,
       required: false,
       default: () => []
@@ -347,6 +341,12 @@ export default {
     },
 
     availablePriorityAreas: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
+    availablePublicPhases: {
       type: Array,
       required: false,
       default: () => []

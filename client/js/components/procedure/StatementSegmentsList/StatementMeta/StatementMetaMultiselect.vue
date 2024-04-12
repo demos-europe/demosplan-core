@@ -36,9 +36,9 @@
       v-else
       :id="name"
       class="o-list o-list--csv color--grey">
-      <template v-if="filterValueByOptions.length > 0">
+      <template v-if="filteredByOptionsValue.length > 0">
         <li
-          v-for="value in filterValueByOptions"
+          v-for="value in filteredByOptionsValue"
           :key="`${name}-${value.name}`"
           class="o-list__item">
           {{ value.name }}
@@ -104,7 +104,7 @@ export default {
   },
 
   computed: {
-    filterValueByOptions () {
+    filteredByOptionsValue () {
       // Filters the value array based on whether each item's name exists in the options array
       return this.value.filter(item => {
         return this.options.some(option => option.name === item.name)
