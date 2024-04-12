@@ -429,12 +429,8 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
         $configBuilder->metaMisc
             ->setRelationshipType($this->getTypes()->getStatementMetaMiscResourceType())
-            //->aliasedPath(Paths::statement()->meta) //affects readability,updatability,sortable,filterable
-            ->readable(
-
-                false, static function (Statement $statement): StatementMeta {
-                return $statement->getMeta();
-            });
+            ->aliasedPath(Paths::statement()->meta) //affects readability,updatability,sortable,filterable
+            ->readable();
 
         return $configBuilder;
     }
