@@ -65,7 +65,7 @@ class AddonInstallFromZipCommand extends CoreCommand
         private readonly HttpClientInterface $httpClient,
         private readonly Registrator $installer,
         ParameterBagInterface $parameterBag,
-        string $name = null
+        ?string $name = null
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -438,7 +438,7 @@ class AddonInstallFromZipCommand extends CoreCommand
             // fetch a list of available tags
             $ghUrl = 'https://api.github.com/repos/demos-europe/'.$repo.'/tags';
             $tag = $this->getGithubItem($ghUrl, $ghOptions, $input, $output);
-            $zipUrl = sprintf("https://github.com/demos-europe/%s/archive/refs/tags/%s.zip", $repo, $tag);
+            $zipUrl = sprintf('https://github.com/demos-europe/%s/archive/refs/tags/%s.zip', $repo, $tag);
             // tags are prefixed with v, but the zip file in GitHub is not
             $path = DemosPlanPath::getRootPath($folder).'/'.$repo.'-'.str_replace('v', '', $tag).'.zip';
         } else {
@@ -515,11 +515,10 @@ class AddonInstallFromZipCommand extends CoreCommand
     {
         $response = $this->httpClient->request('GET', $ghUrl, $ghOptions);
         if (404 === $response->getStatusCode()) {
-            throw new RuntimeException(
-                'Could not access repository. Did you create a GitHub personal access token?'
-            );
+            throw new RuntimeException('Could not access repository. Did you create a GitHub personal access token?');
         }
         $existingItemsContent = $response->getContent(false);
+
         return $this->askItem($existingItemsContent, $input, $output);
     }
 }
