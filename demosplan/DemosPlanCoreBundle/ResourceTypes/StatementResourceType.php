@@ -20,7 +20,7 @@ use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicateInternIdException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
@@ -426,6 +426,15 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         $configBuilder->sentAssessmentDate->readable();
         $configBuilder->represents->readable();
         $configBuilder->representationCheck->readable();
+
+        $configBuilder->metaMisc
+            ->setRelationshipType($this->getTypes()->getStatementMetaMiscResourceType())
+            //->aliasedPath(Paths::statement()->meta) //affects readability,updatability,sortable,filterable
+            ->readable(
+
+                false, static function (Statement $statement): StatementMeta {
+                return $statement->getMeta();
+            });
 
         return $configBuilder;
     }
