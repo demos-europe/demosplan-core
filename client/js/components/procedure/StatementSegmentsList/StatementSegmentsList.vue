@@ -212,31 +212,31 @@ export default {
   },
 
   props: {
-    availableCounties: {
+    availableCounties: { // TODO: has to be adjusted in the BE
       type: Array,
       required: false,
       default: () => []
     },
 
-    availableExternalPhases: {
+    availableExternalPhases: { // TODO: has to be adjusted in the BE
       type: Array,
       required: false,
       default: () => []
     },
 
-    availableInternalPhases: {
+    availableInternalPhases: { // TODO: has to be adjusted in the BE
       type: Array,
       required: false,
       default: () => []
     },
 
-    availableMunicipalities: {
+    availableMunicipalities: { // TODO: has to be adjusted in the BE
       type: Array,
       required: false,
       default: () => []
     },
 
-    availablePriorityAreas: {
+    availablePriorityAreas: { // TODO: has to be adjusted in the BE
       type: Array,
       required: false,
       default: () => []
@@ -557,12 +557,12 @@ export default {
         'initialOrganisationPostalCode',
         'initialOrganisationStreet',
         'internId',
-        'institutionPhase',
         'isManual',
         'memo',
         'municipalities',
         'priorityAreas',
-        'publicPhase',
+        'phase',
+        'publicParticipationPhase', // TODO: has to be adjusted in the BE
         'recommendation',
         'segmentDraftList',
         'submitDate',

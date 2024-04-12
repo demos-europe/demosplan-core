@@ -188,27 +188,27 @@
         <template v-if="hasPermission('field_statement_phase')">
           <dp-select
             v-if="hasPermission('field_show_internal_procedure_phases_in_dropdown') && !localStatement.attributes.isSubmittedByCitizen"
-            id="statementProcedureInstitutionPhase"
-            v-model="localStatement.attributes.institutionPhase"
+            id="statementProcedureInternalPhase"
+            v-model="localStatement.attributes.phase"
             class="mb-3"
             :disabled="!editable || !localStatement.attributes.isManual"
             :label="{
               text: Translator.trans('procedure.public.phase')
             }"
-            :options="availableInstitutionPhases"
-            @select="(val) => emitInput('institutionPhase', val)" />
+            :options="availableInternalPhases"
+            @select="(val) => emitInput('phase', val)" />
 
           <dp-select
             v-else
-            id="statementProcedurePublicPhase"
-            v-model="localStatement.attributes.publicPhase"
+            id="statementProcedureExternalPhase"
+            v-model="localStatement.attributes.publicParticipationPhase"
             class="mb-3"
             :disabled="!editable || !localStatement.attributes.isManual"
             :label="{
               text: Translator.trans('procedure.public.phase')
             }"
-            :options="availablePublicPhases"
-            @select="(val) => emitInput('publicPhase', val)" />
+            :options="availableExternalPhases"
+            @select="(val) => emitInput('publicParticipationPhase', val)" />
         </template>
 
         <dp-text-area
@@ -328,7 +328,13 @@ export default {
       default: () => []
     },
 
-    availableInstitutionPhases: {
+    availableExternalPhases: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
+    availableInternalPhases: {
       type: Array,
       required: false,
       default: () => []
@@ -341,12 +347,6 @@ export default {
     },
 
     availablePriorityAreas: {
-      type: Array,
-      required: false,
-      default: () => []
-    },
-
-    availablePublicPhases: {
       type: Array,
       required: false,
       default: () => []
