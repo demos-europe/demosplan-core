@@ -1079,25 +1079,24 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         return $token;
     }
 
+    /**
+     * @return array<non-empty-string, non-empty-string>
+     */
     private function validatePhaseIteration(array $procedure): array
     {
-        $mandatoryErrors = [
-            'type'    => 'error',
-            'message' => $this->translator->trans('error.phaseIteration.invalid'),
-        ];
-
+        $error = [];
         $key = 'phase_iteration';
-        if (isset($procedure[$key]) && !(is_numeric($procedure[$key]) || (int) $procedure[$key] > 0)) {
-            // Because the error message is the same for external phase as for internal phase,
-            // avoid creating an additional one by simply returning on here.
-            return $mandatoryErrors;
+        $isNumericAndPositive2 = isset($procedure[$key]) && is_numeric($procedure[$key]) && (int) $procedure[$key] > 0;
+        $publicKey = 'public_participation_phase_iteration';
+        $isNumericAndPositive1 = isset($procedure[$publicKey]) && is_numeric($procedure[$publicKey]) && (int) $procedure[$publicKey] > 0;
+
+        if (!$isNumericAndPositive1 || !$isNumericAndPositive2) {
+            $error = [
+                'type'    => 'error',
+                'message' => $this->translator->trans('error.phaseIteration.invalid'),
+            ];
         }
 
-        $key = 'public_participation_phase_iteration';
-        if (isset($procedure[$key]) && (!is_numeric($procedure[$key]) || (int) $procedure[$key] < 1)) {
-            return $mandatoryErrors;
-        }
-
-        return [];
+        return $error;
     }
 }
