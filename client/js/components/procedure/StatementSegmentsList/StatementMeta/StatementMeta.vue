@@ -188,7 +188,7 @@
         <template v-if="hasPermission('field_statement_phase')">
           <dp-select
             v-if="hasPermission('field_show_internal_procedure_phases_in_dropdown') && !localStatement.attributes.isSubmittedByCitizen"
-            id="statementProcedureInternalPhase"
+            id="statementProcedureInstitutionPhase"
             v-model="localStatement.attributes.institutionPhase"
             class="mb-3"
             :disabled="!editable || !localStatement.attributes.isManual"
@@ -200,7 +200,7 @@
 
           <dp-select
             v-else
-            id="statementProcedureExternalPhase"
+            id="statementProcedurePublicPhase"
             v-model="localStatement.attributes.publicPhase"
             class="mb-3"
             :disabled="!editable || !localStatement.attributes.isManual"
