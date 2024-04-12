@@ -98,7 +98,7 @@ class StatementFactory extends FactoryBase
     }
 
     /**
-     * @return mixed
+     * @return Statement
      *
      * @throws DataProviderException
      */

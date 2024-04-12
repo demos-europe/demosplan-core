@@ -146,7 +146,7 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
             if (array_key_exists('description', $data)) {
                 $boilerplateCategory->setDescription($data['description']);
             }
-            $boilerplateCategory->setText($data['text']);
+            $boilerplateCategory->setDescription($data['text']);
 
             $this->getEntityManager()->persist($boilerplateCategory);
             $this->getEntityManager()->flush();
@@ -177,7 +177,7 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
 
         if (null != $toUpdate) {
             if (array_key_exists('description', $data)) {
-                $toUpdate->setText($data['description']);
+                $toUpdate->setDescription($data['description']);
             }
 
             if (array_key_exists('title', $data)) {

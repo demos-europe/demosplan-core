@@ -118,8 +118,6 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
     }
 
     /**
-     * @throws DBALException
-     * @throws ORMException
      * @throws OptimisticLockException
      */
     public function createAnonymousCitizenUser(

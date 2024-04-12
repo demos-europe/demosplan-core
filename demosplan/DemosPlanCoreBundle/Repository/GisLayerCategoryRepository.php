@@ -426,6 +426,7 @@ class GisLayerCategoryRepository extends FluentRepository implements ArrayInterf
     {
         // replace to gisLayer visibilityGroup IDs to new one, to avoid mixing with blueprint ids
         $entityManager = $this->getEntityManager();
+        /** @var MapRepository $gisLayerRepository */
         $gisLayerRepository = $entityManager->getRepository(GisLayer::class);
 
         /** @var GisLayer[][] $visibilityGroups */
@@ -453,6 +454,7 @@ class GisLayerCategoryRepository extends FluentRepository implements ArrayInterf
         try {
             $gisLayers = [];
             $entityManager = $this->getEntityManager();
+            /** @var ContextualHelpRepository $contextualHelpRepos */
             $contextualHelpRepos = $entityManager->getRepository(ContextualHelp::class);
 
             /** @var GisLayer[] $gisLayersOfCategory */

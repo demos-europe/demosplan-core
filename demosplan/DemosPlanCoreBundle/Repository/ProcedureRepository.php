@@ -319,8 +319,9 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
                 }
 
                 $em->remove($em->getReference(Procedure::class, $procedureId));
-                $em->getRepository(ReportEntry::class)
-                    ->deleteByProcedure($procedureId);
+                /** @var ReportRepository $repo */
+                $repo = $em->getRepository(ReportEntry::class);
+                $repo->deleteByProcedure($procedureId);
             }
             $em->flush();
 
@@ -366,6 +367,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         $gisCategoryRepos->deleteByProcedureId($procedureId);
 
         // Delete DraftStatements
+        /** @var DraftStatementRepository $draftStatementRepos */
         $draftStatementRepos = $entityManager->getRepository(DraftStatement::class);
         foreach ($draftStatementRepos->getFilesByProcedureId($procedureId) as $fileToDelete) {
             $filesToDelete = [...$filesToDelete, ...array_values($fileToDelete)];
@@ -378,6 +380,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         }
 
         // Delete DraftStatementVersions
+        /** @var DraftStatementVersionRepository $draftStatementVersionRepos */
         $draftStatementVersionRepos = $entityManager->getRepository(DraftStatementVersion::class);
         foreach ($draftStatementVersionRepos->getFilesByProcedureId($procedureId) as $fileToDelete) {
             $filesToDelete = [...$filesToDelete, ...array_values($fileToDelete)];
@@ -1141,7 +1144,10 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
      */
     public function deleteRelatedReports(string $procedureId): int
     {
-        return $this->getEntityManager()->getRepository(ReportEntry::class)->deleteByProcedure($procedureId);
+        $em = $this->getEntityManager();
+        /** @var ReportRepository $repo */
+        $repo = $em->getRepository(ReportEntry::class);
+        return $repo->deleteByProcedure($procedureId);
     }
 
     /**

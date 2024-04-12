@@ -104,6 +104,7 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
 
             if ($this->isGlobal($newGisLayer)) {
                 $allProcedures = $this->getEntityManager()->getRepository(Procedure::class)->findAll();
+                /** @var GisLayerCategoryRepository $gisLayerCategoryRepository */
                 $gisLayerCategoryRepository = $this->getEntityManager()->getRepository(GisLayerCategory::class);
 
                 foreach ($allProcedures as $singleProcedure) {
@@ -550,6 +551,7 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
                 $gisLayer->setCategory($this->getEntityManager()->getReference(GisLayerCategory::class, $data['category']));
             } else {
                 // set rootCategory:
+                /** @var GisLayerCategoryRepository $gisLayerCategoryRepository */
                 $gisLayerCategoryRepository = $this->getEntityManager()->getRepository(GisLayerCategory::class);
                 $rootCategory = $gisLayerCategoryRepository->getRootLayerCategory($data['pId']);
                 $gisLayer->setCategory($rootCategory);
@@ -592,7 +594,7 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
             if (!is_null($gisLayer->getVisibilityGroupId())) {
                 $gisLayers = $this->getByVisibilityGroupId($gisLayer->getVisibilityGroupId());
                 foreach ($gisLayers as $gisLayerOfGroup) {
-                    $gisLayerOfGroup->setEnabled($gisLayer->getVisible());
+                    $gisLayerOfGroup->setEnabled($gisLayer->getVisibilityGroupId());
                     $this->updateObject($gisLayerOfGroup);
                 }
             }
@@ -634,7 +636,7 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
     }
 
     /**
-     * @return CoreEntity
+     * @return GisLayer
      *
      * @throws ORMException
      * @throws OptimisticLockException

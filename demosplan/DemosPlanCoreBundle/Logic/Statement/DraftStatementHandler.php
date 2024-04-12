@@ -141,9 +141,6 @@ class DraftStatementHandler extends CoreHandler
      * @param array    $procedure
      *
      * @throws Throwable
-     * @throws Twig_Error_Loader
-     * @throws Twig_Error_Runtime
-     * @throws Twig_Error_Syntax
      */
     public function sendNotificationEmailOnReleasedStatement($releasedStatements, $user, $procedure)
     {

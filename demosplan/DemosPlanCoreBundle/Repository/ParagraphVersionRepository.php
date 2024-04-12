@@ -254,10 +254,10 @@ class ParagraphVersionRepository extends CoreRepository implements ArrayInterfac
             $entity->setText($data['text']);
         }
         if (array_key_exists('pId', $data)) {
-            $entity->setPId($data['pId']);
+            $entity->setProcedure($data['pId']);
         }
         if (array_key_exists('elementId', $data)) {
-            $entity->setElementId($data['elementId']);
+            $entity->setElement($data['elementId']);
         }
         if (array_key_exists('category', $data)) {
             $entity->setCategory($data['category']);
@@ -271,7 +271,7 @@ class ParagraphVersionRepository extends CoreRepository implements ArrayInterfac
                 $parent = $this->getEntityManager()->getReference(
                     ParagraphVersion::class, $data['parentId']);
             }
-            $entity->setParent($parent);
+            $entity->setParagraph($parent);
         }
 
         return $entity;

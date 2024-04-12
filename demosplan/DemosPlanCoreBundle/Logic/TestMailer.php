@@ -55,7 +55,7 @@ class TestMailer implements MailerInterface
         $this->mailer->send($message);
     }
 
-    private function adjustForTestingEnvironment(RawMessage $message): RawMessage
+    private function adjustForTestingEnvironment(Email $message): RawMessage
     {
         // build testmailbody if necessary
         if (false === $this->emailIsLiveSystem) {

@@ -45,8 +45,9 @@ class ForumEntryRepository extends CoreRepository implements ArrayInterface
             $this->logger->error('Get Entry failed: Entry with ID: '.$entityId.' not found.');
             throw new EntityNotFoundException('Get Entry failed: Entry with ID: '.$entityId.' not found.');
         }
-        $files = $this->getEntityManager()->getRepository(ForumEntryFile::class)
-            ->getFileResponsesAsString($entityId);
+        /** @var ForumEntryFileRepository $repo */
+        $repo = $this->getEntityManager()->getRepository(ForumEntryFile::class);
+        $files = $repo->getFileResponsesAsString($entityId);
 
         return $this->convertToEntryResponse($entry, $files);
     }
@@ -63,9 +64,9 @@ class ForumEntryRepository extends CoreRepository implements ArrayInterface
     public function getForumEntryList($threadId)
     {
         try {
-            $relatedThread = $this->getEntityManager()
-                ->getRepository(ForumThread::class)
-                ->get($threadId);
+            /** @var ForumThreadRepository $repo */
+            $repo = $this->getEntityManager()->getRepository(ForumThread::class);
+            $relatedThread = $repo->get($threadId);
 
             if (null === $relatedThread) {
                 $this->logger->error('Get list failed: Thread with ID: '.$threadId.' not found.');
@@ -105,7 +106,7 @@ class ForumEntryRepository extends CoreRepository implements ArrayInterface
 
         $entries = $this->findBy(['thread' => $threadId]);
         $resultList = [];
-
+         /** @var ForumEntryFileRepository $forumEntryFileRepos */
         $forumEntryFileRepos = $this->getEntityManager()->getRepository(ForumEntryFile::class);
         foreach ($entries as $entry) {
             try {
@@ -265,8 +266,9 @@ class ForumEntryRepository extends CoreRepository implements ArrayInterface
 
         if (null !== $data['files'] && null !== $toUpdate->getUser()) {
             if (null === $data['anonymise'] || !$data['anonymise']) {
-                $this->getEntityManager()->getRepository(ForumEntryFile::class)
-                    ->add(['entryId' => $entityId, 'files' => $data['files']]);
+                /** @var ForumEntryFileRepository $repo */
+                $repo = $this->getEntityManager()->getRepository(ForumEntryFile::class);
+                $repo->add(['entryId' => $entityId, 'files' => $data['files']]);
             }
         }
 

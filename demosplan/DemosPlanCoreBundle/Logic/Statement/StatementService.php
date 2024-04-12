@@ -2083,7 +2083,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     }
 
     /**
-     * @return Type
+     * @return Index
      */
     protected function getEsStatementType()
     {

@@ -138,7 +138,9 @@ class RemoveUserDataCommand extends CoreCommand
         $this->map('Fehlanzeige', 'Fehlanzeige');
 
         $this->currentGwId = $this->faker->numberBetween(1, 99999);
-        $this->mockTexts[50] = $this->faker->textCloseToLength(50);
+        /** @var ApproximateLengthText $textCloseToLength */
+        $textCloseToLength = $this->faker;
+        $this->mockTexts[50] = $textCloseToLength->textCloseToLength(50);
 
         parent::__construct($parameterBag, $name);
     }
@@ -307,7 +309,6 @@ class RemoveUserDataCommand extends CoreCommand
             $address->setCode(null); // ?
             $address->setStreet($this->map($address->getStreet(), $this->faker->streetName));
             $address->setStreet1($this->map($address->getStreet1(), $this->faker->streetName));
-            $address->setState($this->map($address->getState(), $this->faker->state));
             $address->setPostalcode($this->map($address->getPostalcode(), $this->faker->postcode));
             $address->setCity($this->map($address->getCity(), $this->faker->city));
             $address->setRegion(''); // this->faker->domainWord
@@ -1083,7 +1084,9 @@ class RemoveUserDataCommand extends CoreCommand
         $roundedLength = (int) round($length, -2);
 
         if (!array_key_exists($roundedLength, $this->mockTexts)) {
-            $this->mockTexts[$roundedLength] = $this->faker->textCloseToLength($length < 10 ? 10 : $length);
+            /** @var ApproximateLengthText $textCloseToLength */
+            $textCloseToLength = $this->faker;
+            $this->mockTexts[$roundedLength] = $textCloseToLength->textCloseToLength($length < 10 ? 10 : $length);
         }
 
         return $this->mockTexts[$roundedLength];

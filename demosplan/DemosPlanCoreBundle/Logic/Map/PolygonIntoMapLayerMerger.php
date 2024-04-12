@@ -14,7 +14,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\Feature;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\MapLayer;
 use GdImage;
-use Point;
+use geoPHP\Geometry\Point;
 use stdClass;
 use Tightenco\Collect\Support\Collection;
 

@@ -22,8 +22,10 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
+use Doctrine\Common\Collections\AbstractLazyCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Util\ClassUtils;
+use Doctrine\ORM\PersistentCollection;
 use Exception;
 use InvalidArgumentException;
 use Jfcherng\Diff\DiffHelper;
@@ -218,7 +220,9 @@ class EntityContentChangeService extends CoreService
             if ($preUpdateValue instanceof Collection) {
                 // getOriginalEntityData() seems to be ignore n:m association.
                 // use getSnapshot() to get "pre update" data
+                /** @var AbstractLazyCollection $preUpdateValue */
                 $preUpdateValue->initialize();
+                /** @var PersistentCollection $preUpdateValue */
                 $preUpdateValue = $preUpdateValue->getSnapshot();
             }
 

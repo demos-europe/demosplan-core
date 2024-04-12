@@ -281,7 +281,7 @@ class AddonInstallFromZipCommand extends CoreCommand
     }
 
     /**
-     * @return BasePackage|CompleteAliasPackage|CompletePackage|RootAliasPackage|RootPackage|InputDefinition
+     * @return BasePackage|CompleteAliasPackage|CompletePackage|RootAliasPackage|RootPackage
      *
      * @throws JsonException
      */

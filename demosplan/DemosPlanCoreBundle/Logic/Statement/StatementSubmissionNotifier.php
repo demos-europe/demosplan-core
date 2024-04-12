@@ -255,13 +255,10 @@ class StatementSubmissionNotifier
     /**
      * Send Notification because Statement needs to be checked by Planner.
      *
-     * @param array|Statement $statement
+     * @param Statement $statement
      * @param string[]        $ccs
      *
      * @throws Throwable
-     * @throws Twig_Error_Loader
-     * @throws Twig_Error_Runtime
-     * @throws Twig_Error_Syntax
      */
     protected function sendNewPublicAllowedStatementNotification(
         Statement $statement,

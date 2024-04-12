@@ -86,6 +86,7 @@ use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
+use demosplan\DemosPlanCoreBundle\Repository\StatementFragmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SimilarStatementSubmitterResourceType;
@@ -3830,7 +3831,10 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      */
     public function getFragmentOfStatement(string $fragmentId): array
     {
-        return $this->entityManager->getRepository(StatementFragment::class)->getAsArray($fragmentId);
+        /** @var StatementFragmentRepository $repo */
+        $repo = $this->entityManager->getRepository(StatementFragment::class);
+
+        return $repo->getAsArray($fragmentId);
     }
 
     /**

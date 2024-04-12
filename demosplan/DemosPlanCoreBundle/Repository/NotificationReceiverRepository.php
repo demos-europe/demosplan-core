@@ -99,7 +99,7 @@ class NotificationReceiverRepository extends CoreRepository implements ArrayInte
             $entity->setLabel($data['label']);
         }
         if (array_key_exists('procedureId', $data)) {
-            $entity->setProcedureId($data['procedureId']);
+            $entity->setProcedure($data['procedureId']);
         }
         if (array_key_exists('email', $data)) {
             $entity->setEmail($data['email']);

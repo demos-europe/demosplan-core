@@ -364,8 +364,8 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
      *
      * @param array       $columnsDefinition array of resulting column-definitions
      * @param string      $key               key to get value from statement array (elasticsearch result) later on
-     * @param string|null $permission        permission to determine if column will be added
-     * @param string|null $columnTitle       translation-key used as title for column in resulting document
+     * @param string $permission        permission to determine if column will be added
+     * @param string $columnTitle       translation-key used as title for column in resulting document
      * @param int         $width             width of column in resulting document
      */
     private function addColumnDefinition(
