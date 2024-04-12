@@ -1776,7 +1776,11 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         return $this;
     }
 
-    public function getCounties(): ArrayCollection
+    /**
+     * @return ArrayCollection
+     */
+
+    public function getCounties()
     {
         return $this->counties;
     }
@@ -1834,7 +1838,11 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         }
     }
 
-    public function getMunicipalities(): ArrayCollection
+    /**
+     * @return ArrayCollection
+     */
+
+    public function getMunicipalities()
     {
         return $this->municipalities;
     }
