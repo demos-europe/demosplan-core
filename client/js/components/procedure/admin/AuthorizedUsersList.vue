@@ -103,7 +103,7 @@
         {{ Translator.trans('export') }}
       </a>
       <dp-contextual-help
-        class="inline-block align-top u-ml-0_25 u-mt-0_125"
+        class="inline-block u-ml-0_25 u-mt-0_125"
         :text="Translator.trans('consultation.export.bulk.letter.explanation')" />
     </div>
 
