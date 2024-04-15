@@ -27,16 +27,8 @@ final class GdprConsentResourceType extends DplanResourceType
         $configBuilder = $this->getConfig(GdprConsentResourceConfigBuilder::class);
         $configBuilder->id
             ->readable();
-        $configBuilder->isConsented
-            ->readable(false, static function (GdprConsent $gdprConsent): bool {
-                return $gdprConsent->isConsented();
-            });
-        $configBuilder->consentChangeDate
-            ->readable(false, function (GdprConsent $gdprConsent): ? string {
-
-                return $this->formatDate($gdprConsent->isConsented() ? $gdprConsent->getConsentReceivedDate() : $gdprConsent->getConsentRevokedDate());
-            });
-
+        $configBuilder->consentRevoked
+            ->readable();
         return $configBuilder;
 
 

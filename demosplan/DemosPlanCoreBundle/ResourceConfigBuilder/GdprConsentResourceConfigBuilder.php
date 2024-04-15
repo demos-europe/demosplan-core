@@ -22,8 +22,7 @@ use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
 use EDT\JsonApi\ResourceConfig\Builder\MagicResourceConfigBuilder;
 
 /**
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, GdprConsentInterface> $isConsented
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, GdprConsentInterface> $consentChangeDate
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, GdprConsentInterface> $consentRevoked
  * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, StatementMeta, StatementInterface> $statement
  */
 class GdprConsentResourceConfigBuilder extends MagicResourceConfigBuilder
