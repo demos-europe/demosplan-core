@@ -433,11 +433,9 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             ->aliasedPath(Paths::statement()->meta) //affects readability,updatability,sortable,filterable
             ->readable();
 
-        $configBuilder->gdprConsent
-            ->setRelationshipType($this->getTypes()->getGdprConsentResourceType())
-            ->readable(false, static function (Statement $statement): GdprConsent {
-                return $statement->getGdprConsent();
-            });
+        $configBuilder->original
+            ->setRelationshipType($this->getTypes()->getOriginalStatementResourceType())
+            ->readable();
 
         return $configBuilder;
     }
