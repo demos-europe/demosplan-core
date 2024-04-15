@@ -18,6 +18,7 @@ use DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInter
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
@@ -431,6 +432,12 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             ->setRelationshipType($this->getTypes()->getStatementMetaMiscResourceType())
             ->aliasedPath(Paths::statement()->meta) //affects readability,updatability,sortable,filterable
             ->readable();
+
+        $configBuilder->gdprConsent
+            ->setRelationshipType($this->getTypes()->getGdprConsentResourceType())
+            ->readable(false, static function (Statement $statement): GdprConsent {
+                return $statement->getGdprConsent();
+            });
 
         return $configBuilder;
     }
