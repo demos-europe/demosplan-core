@@ -61,7 +61,7 @@
           @click.prevent="handleBulkEdit"
           :text="Translator.trans('segments.bulk.edit')" />
       </dp-bulk-edit-header>
-      <div class="flex justify-between items-center mt-4 mb-3">
+      <div class="flex justify-between items-center mt-4">
         <dp-pager
           v-if="pagination.currentPage"
           :class="{ 'invisible': isLoading }"

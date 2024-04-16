@@ -77,6 +77,17 @@
             @select="applySort" />
         </div>
       </div>
+      <dp-pager
+        v-if="pagination.currentPage"
+        :class="{ 'invisible': isLoading }"
+        :current-page="pagination.currentPage"
+        :total-pages="pagination.totalPages"
+        :total-items="pagination.total"
+        :per-page="pagination.perPage"
+        :limits="pagination.limits"
+        @page-change="getItemsByPage"
+        @size-change="handleSizeChange"
+        :key="`pager1_${pagination.currentPage}_${pagination.count}`" />
     </dp-sticky-element>
 
     <dp-loading v-if="isLoading" />
@@ -266,19 +277,6 @@
           </div>
         </template>
       </dp-data-table>
-
-      <dp-pager
-        v-if="pagination.currentPage"
-        :class="{ 'invisible': isLoading }"
-        class="u-pt-0_5 text-right u-1-of-1"
-        :current-page="pagination.currentPage"
-        :total-pages="pagination.totalPages"
-        :total-items="pagination.total"
-        :per-page="pagination.perPage"
-        :limits="pagination.limits"
-        @page-change="getItemsByPage"
-        @size-change="handleSizeChange"
-        :key="`pager1_${pagination.currentPage}_${pagination.count}`" />
     </template>
 
     <dp-inline-notification
