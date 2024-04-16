@@ -317,6 +317,12 @@ submenu_procedures:
         link_attributes:
             data-cy: 'documentsAndMapSettings'
             data-extern-dataport: 'documentsAndMapSettings'
+    map_settings:
+        label: 'map_settings.menu'
+        path: 'DemosPlan_map_administration_map'
+        path_params: [ 'procedureId' ]
+        link_attributes:
+            data-cy: 'mapSettings'
     invitable_institution_administer:
         label: 'invitable_institution.administer'
         path: 'DemosPlan_procedure_member_index'
