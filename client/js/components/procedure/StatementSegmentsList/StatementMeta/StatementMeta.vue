@@ -19,10 +19,10 @@
     </div>
 
     <div
-      class="u-mt-0_5"
+      class="u-mt-0_5 flex gap-2"
       data-dp-validate="statementMetaData">
-      <div class="inline-block u-1-of-2 align-top">
-<!--    TO DO: add if not participationGuestOnly  -->
+      <div class="inline-block w-1/2 align-top">
+        <!--  TO DO: add if not participationGuestOnly  -->
         <dp-input
           v-if="hasPermission('field_statement_meta_orga_name')"
           id="submitterRole"
@@ -45,7 +45,7 @@
           :label="{
             text: Translator.trans('submitter')
           }"
-          @input="(val) => emitInput(statementSubmitterField, val)" />
+          @input="(val) => emitInput('statementSubmitterField', val)" />
         <dp-input
           v-if="hasPermission('field_statement_meta_orga_department_name') && !this.localStatement.attributes.isSubmittedByCitizen"
           id="statementDepartmentName"
@@ -55,7 +55,7 @@
           :label="{
             text: Translator.trans('department')
           }"
-          @input="val => emitInput('initialOrganisationDepartmentName', val)" />
+          @input="(val) => emitInput('initialOrganisationDepartmentName', val)" />
         <dp-input
           v-if="localStatement.attributes.represents"
           id="statementRepresentation"
@@ -84,7 +84,7 @@
           }"
           type="email"
           @input="(val) => emitInput('submitterEmailAddress', val)" />
-<!--        TO DO: add if not participationGuestOnly -->
+        <!--  TO DO: add if not participationGuestOnly -->
         <dp-input
           v-if="!this.localStatement.attributes.isSubmittedByCitizen"
           id="statementOrgaName"
@@ -138,9 +138,8 @@
             }"
             @input="(val) => emitInput('initialOrganisationCity', val)" />
         </div>
-      </div><!--
-
-   --><div class="inline-block u-1-of-2 u-pl">
+      </div>
+      <div class="inline-block w-1/2">
         <dp-input
           id="statementInternId"
           v-model="localStatement.attributes.internId"
@@ -219,6 +218,32 @@
           :options="submitTypeOptions"
           @select="(val) => emitInput('submitType', val)" />
 
+        <template v-if="hasPermission('field_statement_phase')">
+          <dp-select
+            v-if="hasPermission('field_show_internal_procedure_phases_in_dropdown') && !localStatement.attributes.isSubmittedByCitizen"
+            id="statementProcedureInternalPhase"
+            v-model="localStatement.attributes.phase"
+            class="mb-3"
+            :disabled="!editable || !isStatementManual"
+            :label="{
+              text: Translator.trans('procedure.public.phase')
+            }"
+            :options="availableInternalPhases"
+            @select="(val) => emitInput('phase', val)" />
+
+          <dp-select
+            v-else
+            id="statementProcedureExternalPhase"
+            v-model="localStatement.attributes.publicParticipationPhase"
+            class="mb-3"
+            :disabled="!editable || !isStatementManual"
+            :label="{
+              text: Translator.trans('procedure.public.phase')
+            }"
+            :options="availableExternalPhases"
+            @select="(val) => emitInput('publicParticipationPhase', val)" />
+        </template>
+
         <dp-text-area
           v-if="hasPermission('field_statement_memo')"
           :disabled="!editable"
@@ -228,28 +253,58 @@
           reduced-height
           v-model="localStatement.attributes.memo" />
       </div>
-
-      <dp-button-row
-        v-if="editable"
-        class="u-mt-0_5"
-        primary
-        secondary
-        :secondary-text="Translator.trans('discard.changes')"
-        @primary-action="dpValidateAction('statementMetaData', save, false)"
-        @secondary-action="reset" />
     </div>
 
-    <statement-meta-attachments
+    <!-- need to add statement.attributes.counties and availableCounties in the BE (Array) -->
+    <statement-meta-multiselect
+      v-if="hasPermission('field_statement_county')"
       :editable="editable"
+      :label="Translator.trans('counties')"
+      name="counties"
+      :options="availableCounties"
+      :value="localStatement.attributes.counties"
+      @change="updateLocalStatementProperties" />
+
+    <!-- need to add statement.attributes.municipalities and availableMunicipalities in the BE (Array) -->
+    <statement-meta-multiselect
+      v-if="hasPermission('field_statement_municipality') && formDefinitions.mapAndCountyReference.enabled"
+      :editable="editable"
+      :label="Translator.trans('municipalities')"
+      name="municipalities"
+      :options="availableMunicipalities"
+      :value="localStatement.attributes.municipalities"
+      @change="updateLocalStatementProperties" />
+
+    <!-- need to add statement.attributes.priorityAreas and availablePriorityAreas in the BE (Array) -->
+    <statement-meta-multiselect
+      v-if="procedureStatementPriorityArea && formDefinitions.mapAndCountyReference.enabled"
+      :editable="editable"
+      :label="Translator.trans('priorityAreas')"
+      name="priorityAreas"
+      :options="availablePriorityAreas"
+      :value="localStatement.attributes.priorityAreas"
+      @change="updateLocalStatementProperties" />
+
+    <dp-button-row
+      v-if="editable"
+      class="u-mt-0_5 w-full"
+      primary
+      secondary
+      :secondary-text="Translator.trans('discard.changes')"
+      @primary-action="dpValidateAction('statementMetaData', save, false)"
+      @secondary-action="reset" />
+
+    <statement-meta-attachments
       :attachments="attachments"
       class="u-pt-0_5 border--bottom u-pb-0_5"
-      :procedure-id="procedureId"
+      :editable="editable"
+      :procedure-id="procedure.id"
       :statement-id="statement.id"
       @change="(value) => emitInput('attachments', value)" />
 
     <similar-statement-submitters
-      :procedure-id="procedureId"
       :editable="editable"
+      :procedure-id="procedure.id"
       :similar-statement-submitters="similarStatementSubmitters"
       :statement-id="statement.id" />
   </div>
@@ -270,6 +325,7 @@ import {
 import { mapActions, mapMutations, mapState } from 'vuex'
 import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 import StatementMetaAttachments from './StatementMetaAttachments'
+import StatementMetaMultiselect from './StatementMetaMultiselect'
 
 const convert = (dateString) => {
   const date = dateString.split('T')[0].split('-')
@@ -278,8 +334,6 @@ const convert = (dateString) => {
 
 export default {
   name: 'StatementMeta',
-
-  inject: ['procedureId'],
 
   components: {
     DpButtonRow,
@@ -291,7 +345,8 @@ export default {
     DpSelect,
     DpTextArea,
     SimilarStatementSubmitters,
-    StatementMetaAttachments
+    StatementMetaAttachments,
+    StatementMetaMultiselect
   },
 
   mixins: [dpValidateMixin],
@@ -300,6 +355,36 @@ export default {
     attachments: {
       type: Object,
       required: true
+    },
+
+    availableCounties: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
+    availableExternalPhases: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
+    availableInternalPhases: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
+    availableMunicipalities: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
+    availablePriorityAreas: {
+      type: Array,
+      required: false,
+      default: () => []
     },
 
     currentUserId: {
@@ -311,6 +396,17 @@ export default {
     editable: {
       required: false,
       type: Boolean,
+      default: false
+    },
+
+    procedure: {
+      type: Object,
+      required: true
+    },
+
+    procedureStatementPriorityArea: {
+      type: Boolean,
+      required: false,
       default: false
     },
 
@@ -333,6 +429,7 @@ export default {
 
   data () {
     return {
+      finalMailDefaultText: '',
       localStatement: null
     }
   },
@@ -482,10 +579,23 @@ export default {
       this.localStatement = JSON.parse(JSON.stringify(this.statement))
       this.localStatement.attributes.authoredDate = this.convertDate(this.localStatement.attributes.authoredDate)
       this.localStatement.attributes.submitDate = this.convertDate(this.localStatement.attributes.submitDate)
+
+      this.finalMailDefaultText = Translator.trans('statement.send.final_mail.default', {
+        hasStatementText: this.localStatement.attributes.fullText.length < 2000 ? 0 : 1,
+        orgaName: this.procedure.orgaName,
+        procedureName: this.procedure.name,
+        statementText: this.localStatement.attributes.fullText,
+        statementRecommendation: this.localStatement.attributes.recommendation
+      })
     },
 
     syncAuthorAndSubmitter () {
       this.localStatement.attributes.submitName = this.localStatement.attributes.authorName
+    },
+
+    updateLocalStatementProperties (value, field) {
+      this.localStatement.attributes[field] = value
+      this.localStatement.attributes[field].sort((a, b) => a.name.localeCompare(b.name))
     }
   },
 
