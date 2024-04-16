@@ -245,10 +245,6 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedure->setSettings($procedureSettings);
 
             $currentDate = new DateTime();
-            $procedure->setStartDate($currentDate);
-            $procedure->setEndDate($currentDate);
-            $procedure->setPublicParticipationStartDate($currentDate);
-            $procedure->setPublicParticipationEndDate($currentDate);
             $procedure->setDeletedDate($currentDate);
             $procedure->setClosedDate($currentDate);
             $procedure->setAuthorizedUsers([]);
@@ -273,7 +269,11 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedure->setElements(new ArrayCollection());
 
             $procedure->setPhaseObject(new ProcedurePhase());
+            $procedure->getPhaseObject()->copyValuesFromPhase($procedureMaster->getPhaseObject());
             $procedure->setPublicParticipationPhaseObject(new ProcedurePhase());
+            $procedure->getPublicParticipationPhaseObject()->copyValuesFromPhase(
+                $procedureMaster->getPublicParticipationPhaseObject()
+            );
 
             // improve T20997:
             // this kind of denylisting should be avoided by do not using "clone"
@@ -1317,6 +1317,9 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         $additionalValidationGroups[] = Procedure::VALIDATION_GROUP_MANDATORY_PROCEDURE;
         $validator = Validation::createValidatorBuilder()->enableAnnotationMapping()->getValidator();
         $violationList = $validator->validate($procedure, null, $additionalValidationGroups);
+        $violationList->addAll($validator->validate($procedure->getPhaseObject()));
+        $violationList->addAll($validator->validate($procedure->getPublicParticipationPhaseObject()));
+
         if (0 !== $violationList->count()) {
             throw ViolationsException::fromConstraintViolationList($violationList);
         }
@@ -1336,6 +1339,8 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         $additionalValidationGroups[] = Procedure::VALIDATION_GROUP_MANDATORY_PROCEDURE_TEMPLATE;
         $validator = Validation::createValidatorBuilder()->enableAnnotationMapping()->getValidator();
         $violationList = $validator->validate($procedure, null, $additionalValidationGroups);
+        $violationList->addAll($validator->validate($procedure->getPhaseObject()));
+        $violationList->addAll($validator->validate($procedure->getPublicParticipationPhaseObject()));
         if (0 !== $violationList->count()) {
             throw ViolationsException::fromConstraintViolationList($violationList);
         }

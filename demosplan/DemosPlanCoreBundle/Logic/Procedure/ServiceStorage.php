@@ -346,6 +346,11 @@ class ServiceStorage implements ProcedureServiceStorageInterface
 
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'phase_iteration');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'public_participation_phase_iteration');
+        $phaseIterationError = $this->validatePhaseIteration($procedure);
+        if (count($phaseIterationError) > 0) {
+            $mandatoryErrors[] = $phaseIterationError;
+        }
+
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'ident');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'name');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'shortUrl');
@@ -1072,5 +1077,26 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         }
 
         return $token;
+    }
+
+    /**
+     * @return array<non-empty-string, non-empty-string>
+     */
+    private function validatePhaseIteration(array $procedure): array
+    {
+        $error = [];
+        $key = 'phase_iteration';
+        $isNumericAndPositive2 = isset($procedure[$key]) && is_numeric($procedure[$key]) && (int) $procedure[$key] > 0;
+        $publicKey = 'public_participation_phase_iteration';
+        $isNumericAndPositive1 = isset($procedure[$publicKey]) && is_numeric($procedure[$publicKey]) && (int) $procedure[$publicKey] > 0;
+
+        if (!$isNumericAndPositive1 || !$isNumericAndPositive2) {
+            $error = [
+                'type'    => 'error',
+                'message' => $this->translator->trans('error.phaseIteration.invalid'),
+            ];
+        }
+
+        return $error;
     }
 }

@@ -30,7 +30,7 @@
 \ParallelLText{{ '{' }}
 {% if statement.text is defined %}
     \textbf{{ '{' }}{{ "statementtext"|trans|latex|raw }}{{ '}' }}\\
-    {{ statement.text|latex|raw }}
+    {{ statement.text|latex(listwidth=templateVars.listwidth)|raw }}
     \\
 {% endif %}
 {% if statement.mapFile is defined and statement.mapFile != "" %}

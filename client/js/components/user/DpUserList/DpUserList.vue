@@ -30,10 +30,9 @@
           class="u-ml-0_5"
           :text="Translator.trans('searching')"
           @click="getFilteredItems" />
-        <i
-          class="fa fa-question-circle"
-          :aria-label="Translator.trans('contextual.help')"
-          v-tooltip="{ content: tooltipContent }" />
+        <dp-contextual-help
+          class="float-right"
+          :text="tooltipContent" />
       </div>
     </div>
 
@@ -105,7 +104,7 @@
 </template>
 
 <script>
-import { debounce, DpButton, DpLoading, dpSelectAllMixin, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { debounce, DpButton, DpContextualHelp, DpLoading, dpSelectAllMixin, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 
 export default {
@@ -113,6 +112,7 @@ export default {
 
   components: {
     DpButton,
+    DpContextualHelp,
     DpLoading,
     DpSlidingPagination: async () => {
       const { DpSlidingPagination } = await import('@demos-europe/demosplan-ui')
