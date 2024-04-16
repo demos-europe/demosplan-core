@@ -10,13 +10,18 @@
     </span>
 {% endif %}
 
-<i
-    tabindex="0"
+{#<i#}
+{#    tabindex="0"#}
+{#    class="{{ icon|default('fa-question-circle') ~ ' fa u-nojs-hide'|prefixClass(omitPrefix) }} {{ cssClasses|default()|prefixClass(omitPrefix) }}"#}
+{#    aria-label="{{ 'contextual.help'|trans }}"#}
+{#    v-tooltip="'{{ helpText|wysiwyg|e('html_attr') }}'"#}
+{#    {% if showPlainHint|default(false) == true %}data-wizard-tooltip{% endif %}>#}
+{#</i>#}
+<dp-contextual-help
     class="{{ icon|default('fa-question-circle') ~ ' fa u-nojs-hide'|prefixClass(omitPrefix) }} {{ cssClasses|default()|prefixClass(omitPrefix) }}"
-    aria-label="{{ 'contextual.help'|trans }}"
-    v-tooltip="'{{ helpText|wysiwyg|e('html_attr') }}'"
+    :text="'{{ helpText|wysiwyg|e('html_attr') }}'"
     {% if showPlainHint|default(false) == true %}data-wizard-tooltip{% endif %}>
-</i>
+</dp-contextual-help>
 <noscript>
     <span
         tabindex="0"
