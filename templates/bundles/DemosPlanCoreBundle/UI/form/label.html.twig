@@ -54,7 +54,7 @@
 </label>
 {% if tooltip|default %}
     <i
-        class="{{ 'fa fa-question-circle absolute u-mt-0_125 u-t-0 u-r-0'|prefixClass(omitPrefix) }}"
+        class="{{ 'fa fa-question-circle absolute mt-0.5 top-0 right-0'|prefixClass(omitPrefix) }}"
         :aria-label="Translator.trans('contextual.help')"
         v-tooltip="'{{ tooltip|trans }}'">
     </i>

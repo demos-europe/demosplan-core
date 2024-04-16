@@ -13,31 +13,75 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
 use Carbon\Carbon;
+use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\Functions\Constant;
+use EDT\DqlQuerying\Functions\Greater;
 use EDT\DqlQuerying\Functions\Property;
 use EDT\DqlQuerying\Functions\Smaller;
+use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\PropertyPathAccessInterface;
 use EDT\Querying\FluentQueries\ConditionDefinition;
 use EDT\Querying\PropertyPaths\PropertyPath;
 
+/**
+ * @template-extends ConditionDefinition<ClauseFunctionInterface<bool>>
+ */
 class ProcedureConditionDefinition extends ConditionDefinition
 {
     /**
      * @param non-empty-list<non-empty-string> $properties
      *
      * @return $this
+     *
+     * @throws PathException
      */
     public function propertyHasValueBeforeNow(array $properties): ConditionDefinition
     {
-        $propertyPath = new PropertyPath(null, '', PropertyPathAccessInterface::DIRECT, $properties);
-        $now = new Constant(Carbon::now(), 'CURRENT_TIMESTAMP()');
-
         $this->conditions[] = new Smaller(
-            new Property($propertyPath),
-            $now
+            $this->createDirectProperty($properties),
+            $this->createNowConstant()
         );
 
         return $this;
+    }
+
+    /**
+     * @param non-empty-list<non-empty-string> $properties
+     *
+     * @return $this
+     *
+     * @throws PathException
+     */
+    public function propertyHasValueAfterNow(array $properties): ConditionDefinition
+    {
+        $this->conditions[] = new Greater(
+            $this->createDirectProperty($properties),
+            $this->createNowConstant()
+        );
+
+        return $this;
+    }
+
+    /**
+     * @param non-empty-list<non-empty-string> $properties
+     *
+     * @throws PathException
+     */
+    protected function createDirectProperty(array $properties): Property
+    {
+        $propertyPath = new PropertyPath(
+            null,
+            '',
+            PropertyPathAccessInterface::DIRECT,
+            $properties
+        );
+
+        return new Property($propertyPath);
+    }
+
+    protected function createNowConstant(): Constant
+    {
+        return new Constant(Carbon::now(), 'CURRENT_TIMESTAMP()');
     }
 
     /**

@@ -141,6 +141,7 @@
         :available-priority-areas="availablePriorityAreas"
         :current-user-id="currentUser.id"
         :editable="editable"
+        :statement-form-definitions="statementFormDefinitions"
         :procedure="procedure"
         :procedure-statement-priority-area="procedureStatementPriorityArea"
         :statement="statement"
@@ -295,6 +296,11 @@ export default {
       required: true
     },
 
+    statementFormDefinitions: {
+      required: true,
+      type: Object
+    },
+
     submitTypeOptions: {
       type: Array,
       required: false,
@@ -413,7 +419,7 @@ export default {
         orgaName: ''
       }
     },
-
+    // TO DO: add check for original statement
     editable () {
       return this.isCurrentUserAssigned && !this.statement.attributes.synchronized
     },
