@@ -1088,7 +1088,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
 
         $publicPhaseIteration = 'public_participation_phase_iteration';
         if (isset($procedure[$publicPhaseIteration])) {
-            return $this->validatePhaseIterationValue($procedure[$phaseIteration]);
+            return $this->validatePhaseIterationValue($procedure[$publicPhaseIteration]);
         }
 
         return [];
