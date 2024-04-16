@@ -29,7 +29,7 @@ use EDT\PathBuilding\End;
  * @property-read StatementResourceType $headStatement
  * @property-read StatementResourceType $movedStatement
  * @property-read GdprConsentResourceType $gdprConsent
- * @property-read OriginalStatementAnonymizationResourceType $anonymization
+ * @property-read OriginalStatementAnonymizationResourceType $anonymizations
  */
 final class OriginalStatementResourceType extends DplanResourceType implements OriginalStatementResourceTypeInterface
 {
@@ -82,7 +82,7 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
         return [
             $this->createIdentifier()->readable()->filterable(),
             $this->createToOneRelationship($this->gdprConsent)->readable(),
-            $this->createToOneRelationship($this->anonymization)->readable(),
+            $this->createToManyRelationship($this->anonymizations)->readable(),
         ];
     }
 }
