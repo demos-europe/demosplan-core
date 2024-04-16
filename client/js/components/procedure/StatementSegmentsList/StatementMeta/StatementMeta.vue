@@ -45,7 +45,7 @@
           :label="{
             text: Translator.trans('submitter')
           }"
-          @input="(val) => emitInput('authorName', val)" />
+          @input="(val) => emitInput('statementSubmitterField', val)" />
         <dp-input
           v-if="hasPermission('field_statement_meta_orga_department_name') && !this.localStatement.attributes.isSubmittedByCitizen"
           id="statementDepartmentName"
