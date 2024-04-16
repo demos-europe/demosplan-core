@@ -88,6 +88,9 @@ class SegmentController extends BaseController
             throw ProcedureNotFoundException::createFromId($procedureId);
         }
 
+        $currentProcedureArray = $currentProcedureService->getProcedureArray();
+        $procedureSettings = $currentProcedureArray['settings'];
+
         $recommendationProcedureIds = $procedureService->getRecommendationProcedureIds($currentUser->getUser(), $procedureId);
         $isSourceAndCoupledProcedure = $tokenFetcher->isSourceAndCoupledProcedure($procedure);
 
@@ -95,6 +98,7 @@ class SegmentController extends BaseController
             '@DemosPlanCore/DemosPlanProcedure/administration_statement_segments_list.html.twig',
             [
                 'procedure'                  => $procedureId,
+                'procedureSettings'          => $procedureSettings,
                 'recommendationProcedureIds' => $recommendationProcedureIds,
                 'statementId'                => $statementId,
                 'statementExternId'          => $statement->getExternId(),

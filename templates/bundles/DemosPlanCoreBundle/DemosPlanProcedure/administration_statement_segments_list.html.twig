@@ -15,6 +15,7 @@
         :current-user="JSON.parse('{{ user|json_encode|e('js', 'utf-8') }}')"
         :is-source-and-coupled-procedure="{{ templateVars.isSourceAndCoupledProcedure ? 'true' : 'false' }}"
         procedure-id="{{ procedure }}"
+        init-extent="{{ procedureSettings.mapExtent }}"
         :recommendation-procedure-ids="JSON.parse('{{ recommendationProcedureIds|json_encode|e('js', 'utf-8') }}')"
         statement-id="{{ statementId }}"
         statement-extern-id="{{ statementExternId }}"

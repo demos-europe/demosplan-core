@@ -23,6 +23,7 @@
       <segment-location-map
         v-show="slidebar.showTab === 'map'"
         ref="locationMap"
+        :init-extent="initExtent"
         :procedure-id="procedureId"
         :segment-id="slidebar.segmentId"
         :statement-id="statementId" />
@@ -208,6 +209,12 @@ export default {
     currentUser: {
       type: Object,
       required: true
+    },
+
+    initExtent: {
+      required: false,
+      type: String,
+      default: ''
     },
 
     /**

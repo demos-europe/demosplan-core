@@ -84,6 +84,12 @@
             </template>
           </dp-ol-map-edit-feature>
         </template>
+        <dp-ol-map-layer-vector
+          v-if="initExtent"
+          class="u-mb-0_5"
+          :features="features.initExtent"
+          name="mapSettingsPreviewInitExtent"
+          zoom-to-drawing />
       </dp-ol-map>
       <dp-button-row
         class="u-mt"
@@ -102,7 +108,9 @@ import { mapActions, mapMutations, mapState } from 'vuex'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature'
 import DpOlMapEditFeature from '@DpJs/components/map/map/DpOlMapEditFeature'
+import DpOlMapLayerVector from '@DpJs/components/map/map/DpOlMapLayerVector'
 import { extend } from 'ol/extent'
+import { fromExtent } from 'ol/geom/Polygon'
 
 export default {
   name: 'SegmentLocationMap',
@@ -111,10 +119,17 @@ export default {
     DpButtonRow,
     DpOlMap,
     DpOlMapDrawFeature,
-    DpOlMapEditFeature
+    DpOlMapEditFeature,
+    DpOlMapLayerVector
   },
 
   props: {
+    initExtent: {
+      required: false,
+      type: String,
+      default: ''
+    },
+
     procedureId: {
       type: String,
       required: true
@@ -151,6 +166,24 @@ export default {
       return {
         type: 'FeatureCollection',
         features: this.initPolygons.filter(f => f.geometry.type === 'Point') || []
+      }
+    },
+
+    features () {
+      /*
+       *  Transform the value that is saved as a string into valid GeoJSON
+       *  to be able to use it with a generic vector layer component
+       */
+      return {
+        initExtent: this.initExtent
+          ? {
+              type: 'Feature',
+              geometry: {
+                type: 'Polygon',
+                coordinates: fromExtent(JSON.parse(`[${this.initExtent}]`)).getCoordinates()
+              }
+            }
+          : null
       }
     },
 
@@ -191,6 +224,10 @@ export default {
         if (this.featuresObject.features.length > 0) {
           this.$nextTick(() => {
             this.setCenterAndExtent()
+          })
+        } else if (this.initExtent) {
+          this.$nextTick(() => {
+            this.setInitExtent()
           })
         }
       }
@@ -242,6 +279,13 @@ export default {
         .catch(() => {
           dplan.notify.error(Translator.trans('error.changes.not.saved'))
         })
+    },
+
+    setInitExtent () {
+      this.$refs.map.map.updateSize()
+      this.$nextTick(() => {
+        this.$refs.map.map.getView().fit(JSON.parse(`[${this.initExtent}]`), { size: this.$refs.map.map.getSize() })
+      })
     },
 
     /*
