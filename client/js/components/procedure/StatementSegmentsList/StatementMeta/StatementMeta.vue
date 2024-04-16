@@ -22,7 +22,7 @@
       class="u-mt-0_5 flex gap-2"
       data-dp-validate="statementMetaData">
       <div class="inline-block w-1/2 align-top">
-<!--    TO DO: add if not participationGuestOnly  -->
+        <!--    TO DO: add if not participationGuestOnly  -->
         <dp-input
           v-if="hasPermission('field_statement_meta_orga_name')"
           id="submitterRole"
@@ -66,7 +66,7 @@
           }"
           type="email"
           @input="(val) => emitInput('submitterEmailAddress', val)" />
-<!--        TO DO: add if not participationGuestOnly -->
+        <!--        TO DO: add if not participationGuestOnly -->
         <dp-input
           v-if="!this.localStatement.attributes.isSubmittedByCitizen"
           id="statementOrgaName"
@@ -216,7 +216,7 @@
             id="statementProcedureInternalPhase"
             v-model="localStatement.attributes.phase"
             class="mb-3"
-            :disabled="!editable || !localStatement.attributes.isManual"
+            :disabled="!editable || !isStatementManual"
             :label="{
               text: Translator.trans('procedure.public.phase')
             }"
@@ -228,7 +228,7 @@
             id="statementProcedureExternalPhase"
             v-model="localStatement.attributes.publicParticipationPhase"
             class="mb-3"
-            :disabled="!editable || !localStatement.attributes.isManual"
+            :disabled="!editable || !isStatementManual"
             :label="{
               text: Translator.trans('procedure.public.phase')
             }"
