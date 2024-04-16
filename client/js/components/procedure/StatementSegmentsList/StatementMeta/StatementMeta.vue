@@ -47,6 +47,24 @@
           }"
           @input="(val) => emitInput('authorName', val)" />
         <dp-input
+          v-if="hasPermission('field_statement_meta_orga_department_name') && !this.localStatement.attributes.isSubmittedByCitizen"
+          id="statementDepartmentName"
+          v-model="localStatement.attributes.initialOrganisationDepartmentName"
+          class="u-mb-0_5"
+          :disabled="isStatementManual ? false : !editable"
+          :label="{
+            text: Translator.trans('department')
+          }"
+          @input="(val) => emitInput('initialOrganisationDepartmentName', val)" />
+        <dp-input
+          v-if="localStatement.attributes.represents"
+          id="statementRepresentation"
+          disabled
+          :label="{
+            text: Translator.trans('statement.representation.assessment')
+          }"
+          :value="localStatement.attributes.represents" />
+        <dp-input
           v-if="localStatement.attributes.represents"
           id="representationCheck"
           v-model="localStatement.attributes.representationChecked"
@@ -77,16 +95,6 @@
             text: Translator.trans('organisation')
           }"
           @input="(val) => emitInput('initialOrganisationName', val)" />
-        <dp-input
-          v-if="hasPermission('field_statement_meta_orga_department_name') && !this.localStatement.attributes.isSubmittedByCitizen"
-          id="statementDepartmentName"
-          v-model="localStatement.attributes.initialOrganisationDepartmentName"
-          class="u-mb-0_5"
-          :disabled="isStatementManual ? false : !editable"
-          :label="{
-            text: Translator.trans('department')
-          }"
-          @input="(val) => emitInput('initialOrganisationDepartmentName', val)" />
         <div class="o-form__group u-mb-0_5">
           <dp-input
             id="statementStreet"
