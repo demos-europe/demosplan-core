@@ -55,7 +55,6 @@ class ServiceStorageTest extends FunctionalTestCase
         $this->procedureType = $this->getReferenceProcedureType(LoadProcedureTypeData::BRK);
         $this->masterBlueprint = $this->getReferenceProcedure('masterBlaupause');
         $this->testProcedure = $this->fixtures->getReference('testProcedure');
-
     }
 
     public function testAdministrationNewHandler(): void
@@ -123,7 +122,6 @@ class ServiceStorageTest extends FunctionalTestCase
         $procedureObject = $this->find(Procedure::class, $this->testProcedure->getId());
 
         if ([] === $expectedMandatoryError) {
-
             if (array_key_exists('r_phase_iteration', $data)) {
                 static::assertEquals($data['r_phase_iteration'], $procedureObject->getPhaseObject()->getIteration());
             }
@@ -185,7 +183,7 @@ class ServiceStorageTest extends FunctionalTestCase
             [[
                 'action'                                    => 'edit',
                 'r_ident'                                   => $this->testProcedure->getId(),
-                'r_public_participation_phase_iteration'    => '3'
+                'r_public_participation_phase_iteration'    => '3',
             ], 'mandatoryError' => []],
             [[
                 'action'                                    => 'edit',
@@ -195,7 +193,7 @@ class ServiceStorageTest extends FunctionalTestCase
             [[
                 'action'                                    => 'edit',
                 'r_ident'                                   => $this->testProcedure->getId(),
-                'r_public_participation_phase_iteration'    => '-2'
+                'r_public_participation_phase_iteration'    => '-2',
             ], 'mandatoryError' => $this->translator->trans('error.phaseIteration.invalid')],
         ];
     }
