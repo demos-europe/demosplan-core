@@ -61,7 +61,18 @@
           @click.prevent="handleBulkEdit"
           :text="Translator.trans('segments.bulk.edit')" />
       </dp-bulk-edit-header>
-      <div class="u-mt text-right">
+      <div class="flex justify-between items-center mt-4 mb-3">
+        <dp-pager
+          v-if="pagination.currentPage"
+          :class="{ 'invisible': isLoading }"
+          :current-page="pagination.currentPage"
+          :total-pages="pagination.totalPages"
+          :total-items="pagination.total"
+          :per-page="pagination.perPage"
+          :limits="pagination.limits"
+          @page-change="applyQuery"
+          @size-change="handleSizeChange"
+          :key="`pager1_${pagination.currentPage}_${pagination.count}`" />
         <dp-column-selector
           data-cy="segmentsList:selectableColumns"
           :initial-selection="currentSelection"
@@ -223,19 +234,6 @@
           {{ Translator.trans('segments.none') }}
         </p>
       </div>
-
-      <dp-pager
-        v-if="pagination.currentPage"
-        :class="{ 'invisible': isLoading }"
-        class="u-pt-0_5 text-right u-1-of-1"
-        :current-page="pagination.currentPage"
-        :total-pages="pagination.totalPages"
-        :total-items="pagination.total"
-        :per-page="pagination.perPage"
-        :limits="pagination.limits"
-        @page-change="applyQuery"
-        @size-change="handleSizeChange"
-        :key="`pager1_${pagination.currentPage}_${pagination.count}`" />
     </template>
   </div>
 </template>
