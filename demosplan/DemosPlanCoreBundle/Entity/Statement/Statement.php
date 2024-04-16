@@ -1028,7 +1028,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * @ORM\Column(type="boolean", nullable = false, options={"default":false})
      */
-    private $anonymous = false;
+    protected $anonymous = false;
 
     public function __construct()
     {
