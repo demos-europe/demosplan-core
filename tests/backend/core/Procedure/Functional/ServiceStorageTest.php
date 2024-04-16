@@ -35,15 +35,22 @@ class ServiceStorageTest extends FunctionalTestCase
      */
     private $masterBlueprint;
 
+    /** @var ServiceStorage */
+    protected $sut;
+
+    /** @var Procedure */
+    private $testProcedure;
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->sut = static::$container->get(ServiceStorage::class);
-
+        $this->sut = $this->getContainer()->get(ServiceStorage::class);
         $this->testUser = $this->loginTestUser();
         $this->procedureType = $this->getReferenceProcedureType(LoadProcedureTypeData::BRK);
         $this->masterBlueprint = $this->getReferenceProcedure('masterBlaupause');
+        $this->testProcedure = $this->fixtures->getReference('testProcedure');
+
     }
 
     public function testAdministrationNewHandler(): void
@@ -76,6 +83,81 @@ class ServiceStorageTest extends FunctionalTestCase
         static::assertSame($procedureData['orgaName'], $procedure->getOrgaName());
         static::assertSame($procedureData['publicParticipationPhase'], $procedure->getPublicParticipationPhase());
         static::assertSame($procedureData['r_procedure_type'], $this->procedureType->getId());
+    }
+
+    public function testUpdatePhaseIteration(): void
+    {
+        $iterationValue = '3';
+        $publicIterationValue = '2';
+
+        $data = [
+            'action'                                    => 'edit',
+            'r_ident'                                   => $this->testProcedure->getId(),
+            'r_phase_iteration'                         => $iterationValue,
+            'r_public_participation_phase_iteration'    => $publicIterationValue,
+        ];
+
+        $procedure = $this->sut->administrationEditHandler($data);
+        static::assertIsArray($procedure);
+        /** @var Procedure $procedure */
+        $procedure = $this->find(Procedure::class, $procedure['id']);
+
+
+        //use equals here, because values are incoming as string but are stored as integers.
+        static::assertEquals($iterationValue,  $procedure->getPhaseObject()->getIteration());
+        static::assertEquals($publicIterationValue,  $procedure->getPublicParticipationPhaseObject()->getIteration());
+    }
+
+    public function testUpdatePhaseIteration2(): void
+    {
+        $iterationValue = '-3';
+        $publicIterationValue = '-2';
+
+        $data = [
+            'action'                                    => 'edit',
+            'r_ident'                                   => $this->testProcedure->getId(),
+            'r_phase_iteration'                         => $iterationValue,
+        ];
+
+        $procedure = $this->sut->administrationEditHandler($data);
+        static::assertIsArray($procedure);
+        static::assertArrayHasKey('mandatoryfieldwarning', $procedure);
+        self::assertSame('error', $procedure['mandatoryfieldwarning'][0]['type']);
+        self::assertSame(
+            'Die Durchgangsnummer einer Phase muss eine positive Ganzzahl sein.',
+            $procedure['mandatoryfieldwarning'][0]['message']
+        );
+
+
+        /** @var Procedure $procedure */
+        $procedure = $this->find(Procedure::class, $this->testProcedure->getId());
+
+        //use equals here, because values are incoming as string but are stored as integers.
+        static::assertNotEquals($iterationValue,  $procedure->getPhaseObject()->getIteration());
+        static::assertNotEquals($publicIterationValue,  $procedure->getPublicParticipationPhaseObject()->getIteration());
+
+
+        $data = [
+            'action'                                    => 'edit',
+            'r_ident'                                   => $this->testProcedure->getId(),
+            'r_public_participation_phase_iteration'    => $publicIterationValue,
+        ];
+
+        $procedure = $this->sut->administrationEditHandler($data);
+        static::assertIsArray($procedure);
+        static::assertArrayHasKey('mandatoryfieldwarning', $procedure);
+        self::assertSame('error', $procedure['mandatoryfieldwarning'][0]['type']);
+        self::assertSame(
+            'Die Durchgangsnummer einer Phase muss eine positive Ganzzahl sein.',
+            $procedure['mandatoryfieldwarning'][0]['message']
+        );
+
+        /** @var Procedure $procedure */
+        $procedure = $this->find(Procedure::class, $this->testProcedure->getId());
+
+        //use equals here, because values are incoming as string but are stored as integers.
+        static::assertNotEquals($iterationValue,  $procedure->getPhaseObject()->getIteration());
+        static::assertNotEquals($publicIterationValue,  $procedure->getPublicParticipationPhaseObject()->getIteration());
     }
 
     /**
