@@ -1182,8 +1182,6 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
 
     /**
      * @param CoreEntity $entity
-     *
-     * @return bool
      */
     public function deleteObject($entity): never
     {

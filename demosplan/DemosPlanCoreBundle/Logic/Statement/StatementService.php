@@ -311,13 +311,13 @@ class StatementService extends CoreService implements StatementServiceInterface
         // Create and use versions of paragraph and SingleDocument
         if (\array_key_exists('paragraphId', $data) && 0 < \strlen((string) $data['paragraphId']) && '-' != $data['paragraphId']) {
             $data['paragraph'] = $this->paragraphService->createParagraphVersion(
-                $em->getReference(Paragraph::class, $data['paragraphId'])
+                $em->find(Paragraph::class, $data['paragraphId'])
             );
         }
 
         if (\array_key_exists('documentId', $data) && 0 < \strlen((string) $data['documentId'])) {
             $data['document'] = $this->singleDocumentService->createSingleDocumentVersion(
-                $em->getReference(SingleDocument::class, $data['documentId'])
+                $em->find(SingleDocument::class, $data['documentId'])
             );
         }
 
@@ -1776,10 +1776,10 @@ class StatementService extends CoreService implements StatementServiceInterface
             $em = $this->getDoctrine()->getManager();
 
             $data = [
-                'statement' => $em->getReference(Statement::class, $statementId),
+                'statement' => $em->find(Statement::class, $statementId),
             ];
             if ($user instanceof User) {
-                $data['user'] = $em->getReference(User::class, $user->getId());
+                $data['user'] = $em->find(User::class, $user->getId());
             }
 
             return $this->statementRepository->addLike($data);
@@ -1968,7 +1968,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             && 0 < \strlen((string) $data['paragraphId'])
             && $data['paragraphId'] != $currentStatement->getParagraphId()) {
             $data['paragraph'] = $this->paragraphService->createParagraphVersion(
-                $em->getReference(Paragraph::class, $data['paragraphId'])
+                $em->find(Paragraph::class, $data['paragraphId'])
             );
         }
 
@@ -1981,7 +1981,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             && 0 < \strlen((string) $data['documentId'])
             && $data['documentId'] != $currentStatement->getDocumentId()) {
             $data['document'] = $this->singleDocumentService->createSingleDocumentVersion(
-                $em->getReference(SingleDocument::class, $data['documentId'])
+                $em->find(SingleDocument::class, $data['documentId'])
             );
         }
 

@@ -337,8 +337,6 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
 
     /**
      * @param CoreEntity $entity
-     *
-     * @return bool
      */
     public function deleteObject($entity): never
     {
