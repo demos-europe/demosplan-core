@@ -146,7 +146,7 @@ class ContextualHelpRepository extends FluentRepository implements ArrayInterfac
             $newContextualHelp->setKey('gislayer.'.$newGisLayer->getId());
 
             $this->getEntityManager()->persist($newContextualHelp);
-            $this->getEntityManager()->flush($newContextualHelp);
+            $this->getEntityManager()->flush();
 
             return $newContextualHelp;
         } catch (Exception $e) {
