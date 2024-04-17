@@ -145,6 +145,7 @@
         :procedure="procedure"
         :procedure-statement-priority-area="procedureStatementPriorityArea"
         :statement="statement"
+        :statement-form-definitions="statementFormDefinitions"
         :submit-type-options="submitTypeOptions"
         @close="showInfobox = false"
         @save="(statement) => saveStatement(statement)"
@@ -213,31 +214,31 @@ export default {
   },
 
   props: {
-    availableCounties: {
+    availableCounties: { // TODO: has to be adjusted in the BE
       type: Array,
       required: false,
       default: () => []
     },
 
-    availableExternalPhases: {
+    availableExternalPhases: { // TODO: has to be adjusted in the BE
       type: Array,
       required: false,
       default: () => []
     },
 
-    availableInternalPhases: {
+    availableInternalPhases: { // TODO: has to be adjusted in the BE
       type: Array,
       required: false,
       default: () => []
     },
 
-    availableMunicipalities: {
+    availableMunicipalities: { // TODO: has to be adjusted in the BE
       type: Array,
       required: false,
       default: () => []
     },
 
-    availablePriorityAreas: {
+    availablePriorityAreas: { // TODO: has to be adjusted in the BE
       type: Array,
       required: false,
       default: () => []
@@ -299,6 +300,11 @@ export default {
     statementExternId: {
       type: String,
       required: true
+    },
+
+    statementFormDefinitions: {
+      required: true,
+      type: Object
     },
 
     submitTypeOptions: {
@@ -419,7 +425,7 @@ export default {
         orgaName: ''
       }
     },
-
+    // TO DO: add check for original statement
     editable () {
       return this.isCurrentUserAssigned && !this.statement.attributes.synchronized
     },
@@ -565,7 +571,10 @@ export default {
         'internId',
         'isManual',
         'memo',
+        'municipalities',
+        'priorityAreas',
         'phase',
+        'publicParticipationPhase', // TODO: has to be adjusted in the BE
         'recommendation',
         'segmentDraftList',
         'submitDate',

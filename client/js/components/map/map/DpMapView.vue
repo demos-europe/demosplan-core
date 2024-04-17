@@ -48,10 +48,9 @@
             data-cy="boundsApply"
             translation-key="bounds.apply"
             @extentSet="data => setExtent({ field: 'bbox_of_project_epsg25832', extent: data })" />
-          <i
-            v-tooltip="{ content: Translator.trans('text.mapsection'), container: '#DpOlMap' }"
-            :aria-label="Translator.trans('contextual.help')"
-            class="fa fa-question-circle float-right" />
+          <dp-contextual-help
+            class="float-right"
+            :text="Translator.trans('text.mapsection')" />
         </div>
 
         <div
@@ -83,13 +82,9 @@
             type="Polygon"
             @layerFeatures:changed="updateTerritory" />
           <dp-ol-map-edit-feature target="Territory" />
-          <i
-            v-tooltip="{
-              content: Translator.trans('explanation.territory.desc'),
-              container: '#DpOlMap'
-            }"
-            :aria-label="Translator.trans('contextual.help')"
-            class="fa fa-question-circle float-right" />
+          <dp-contextual-help
+            class="float-right"
+            :text="Translator.trans('explanation.territory.desc')" />
         </div>
 
         <div
@@ -106,13 +101,9 @@
             render-control
             type="Point"
             @layerFeatures:changed="updateCoordinates" />
-          <i
-            v-tooltip="{
-              content: Translator.trans('text.mapsection.hint'),
-              container: '#DpOlMap'
-            }"
-            :aria-label="Translator.trans('contextual.help')"
-            class="fa fa-question-circle float-right" />
+          <dp-contextual-help
+            class="float-right"
+            :text="Translator.trans('text.mapsection.hint')" />
         </div>
         <template v-else>
           <dp-ol-map-draw-feature
@@ -131,6 +122,7 @@
 </template>
 
 <script>
+import { DpContextualHelp } from '@demos-europe/demosplan-ui'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapDragZoom from '@DpJs/components/map/map/DpOlMapDragZoom'
 import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature'
@@ -141,6 +133,7 @@ export default {
   name: 'DpMapView',
 
   components: {
+    DpContextualHelp,
     DpOlMap,
     DpOlMapDragZoom,
     DpOlMapSetExtent,
