@@ -95,11 +95,14 @@ class NotificationReceiverRepository extends CoreRepository implements ArrayInte
      */
     public function generateObjectValues($entity, array $data)
     {
+        $em = $this->getEntityManager();
+        $procedureRepository = $em->getRepository(Procedure::class);
         if (array_key_exists('label', $data)) {
             $entity->setLabel($data['label']);
         }
         if (array_key_exists('procedureId', $data)) {
-            $entity->setProcedure($data['procedureId']);
+            $procedure = $procedureRepository->find($data['procedureId']);
+            $entity->setProcedure($procedure);
         }
         if (array_key_exists('email', $data)) {
             $entity->setEmail($data['email']);

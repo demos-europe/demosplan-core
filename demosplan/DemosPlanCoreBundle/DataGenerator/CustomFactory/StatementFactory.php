@@ -194,6 +194,8 @@ class StatementFactory extends FactoryBase
      *
      * @param array $baseData
      *
+     * @return array
+     *
      * @throws InvalidUserDataException on invalid user value
      */
     protected function determineUserInfo($baseData)

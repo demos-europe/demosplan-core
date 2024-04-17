@@ -309,6 +309,7 @@ class RemoveUserDataCommand extends CoreCommand
             $address->setCode(null); // ?
             $address->setStreet($this->map($address->getStreet(), $this->faker->streetName));
             $address->setStreet1($this->map($address->getStreet1(), $this->faker->streetName));
+            $address->setState($this->map($address->getState(), $this->faker->country));
             $address->setPostalcode($this->map($address->getPostalcode(), $this->faker->postcode));
             $address->setCity($this->map($address->getCity(), $this->faker->city));
             $address->setRegion(''); // this->faker->domainWord

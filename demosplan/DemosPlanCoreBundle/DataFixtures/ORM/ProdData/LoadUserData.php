@@ -115,9 +115,6 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
         $manager->persist($superUser);
     }
 
-    /**
-     * @throws OptimisticLockException
-     */
     public function createAnonymousCitizenUser(
         ObjectManager $manager,
         OrgaType $orgaTypeOlauth,

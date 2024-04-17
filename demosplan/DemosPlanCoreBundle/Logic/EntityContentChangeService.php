@@ -220,9 +220,8 @@ class EntityContentChangeService extends CoreService
             if ($preUpdateValue instanceof Collection) {
                 // getOriginalEntityData() seems to be ignore n:m association.
                 // use getSnapshot() to get "pre update" data
-                /* @var AbstractLazyCollection $preUpdateValue */
+                /* @var PersistentCollection $preUpdateValue */
                 $preUpdateValue->initialize();
-                /** @var PersistentCollection $preUpdateValue */
                 $preUpdateValue = $preUpdateValue->getSnapshot();
             }
 

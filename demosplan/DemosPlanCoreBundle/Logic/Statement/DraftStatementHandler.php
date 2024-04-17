@@ -36,6 +36,9 @@ use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 
 /**
  * Speicherung von Planterunterlagen.
@@ -137,7 +140,8 @@ class DraftStatementHandler extends CoreHandler
      * @param User     $user
      * @param array    $procedure
      *
-     * @throws Throwable
+     * @return void
+     * @throws Throwable|LoaderError|RuntimeError|SyntaxError
      */
     public function sendNotificationEmailOnReleasedStatement($releasedStatements, $user, $procedure)
     {

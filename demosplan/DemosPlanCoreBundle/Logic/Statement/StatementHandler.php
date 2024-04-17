@@ -3828,13 +3828,11 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
     /**
      * @return array<string, mixed>
+     * @throws Exception
      */
     public function getFragmentOfStatement(string $fragmentId): array
     {
-        /** @var StatementFragmentRepository $repo */
-        $repo = $this->entityManager->getRepository(StatementFragment::class);
-
-        return $repo->getAsArray($fragmentId);
+        return $this->getStatementFragmentRepository()->getAsArray($fragmentId);
     }
 
     /**
@@ -4609,5 +4607,14 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         }
 
         return $additionalFiles;
+    }
+
+    /**
+     * @return StatementFragmentRepository
+     */
+
+    private function getStatementFragmentRepository(): StatementFragmentRepository
+    {
+        return $this->entityManager->getRepository(StatementFragment::class);
     }
 }

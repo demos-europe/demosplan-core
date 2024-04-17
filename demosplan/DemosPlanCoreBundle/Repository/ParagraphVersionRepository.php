@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
@@ -247,6 +248,8 @@ class ParagraphVersionRepository extends CoreRepository implements ArrayInterfac
      */
     public function generateObjectValues($entity, array $data)
     {
+        $em = $this->getEntityManager();
+        $elementRepository = $em->getRepository(Elements::class);
         if (array_key_exists('title', $data)) {
             $entity->setTitle($data['title']);
         }
@@ -257,7 +260,8 @@ class ParagraphVersionRepository extends CoreRepository implements ArrayInterfac
             $entity->setProcedure($data['pId']);
         }
         if (array_key_exists('elementId', $data)) {
-            $entity->setElement($data['elementId']);
+            $element = $elementRepository->find($data['elementId']);
+            $entity->setElement($element);
         }
         if (array_key_exists('category', $data)) {
             $entity->setCategory($data['category']);

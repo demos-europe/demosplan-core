@@ -257,13 +257,13 @@ class StatementSubmissionNotifier
      *
      * @param string[] $ccs
      *
-     * @throws Throwable
+     * @throws LoaderError|RuntimeError|SyntaxError|Throwable
      */
     protected function sendNewPublicAllowedStatementNotification(
         Statement $statement,
         Procedure $procedure,
         array $recipients,
-        $ccs = []
+        array $ccs = []
     ): void {
         $emailText = $this->twig->load(
             '@DemosPlanCore/DemosPlanStatement/send_notification_email_for_new_statement_public_allowed.html.twig'

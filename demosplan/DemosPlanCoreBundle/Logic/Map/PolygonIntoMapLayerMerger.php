@@ -179,6 +179,7 @@ class PolygonIntoMapLayerMerger
     /**
      * html2rgb()
      * Transformiert eine CSS-Farbangabe nach RGB.
+     * @param array $color
      *
      * @return array|false
      */

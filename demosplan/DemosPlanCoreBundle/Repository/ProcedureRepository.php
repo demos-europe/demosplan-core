@@ -319,9 +319,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
                 }
 
                 $em->remove($em->getReference(Procedure::class, $procedureId));
-                /** @var ReportRepository $repo */
-                $repo = $em->getRepository(ReportEntry::class);
-                $repo->deleteByProcedure($procedureId);
+                $this->getReportRepository()->deleteByProcedure($procedureId);
             }
             $em->flush();
 
@@ -1448,5 +1446,10 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
     private function getUserRepository(): UserRepository
     {
         return $this->getEntityManager()->getRepository(User::class);
+    }
+
+    private function getReportRepository(): ReportRepository
+    {
+        return $this->getEntityManager()->getRepository(ReportEntry::class);
     }
 }

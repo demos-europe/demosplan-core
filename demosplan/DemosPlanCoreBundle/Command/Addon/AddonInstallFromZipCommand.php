@@ -280,7 +280,7 @@ class AddonInstallFromZipCommand extends CoreCommand
     }
 
     /**
-     * @return BasePackage|CompleteAliasPackage|CompletePackage|RootAliasPackage|RootPackage
+     * @return PackageInterface
      *
      * @throws JsonException
      */
