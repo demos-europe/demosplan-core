@@ -37,7 +37,7 @@
           class="float-right mt-0.5"
           :text="submitterHelpText" />
         <dp-input
-          v-if="hasPermission('field_statement_meta_submit_name') && this.statementFormDefinitions.name.enabled"
+          v-if="hasPermission('field_statement_meta_submit_name') && statementFormDefinitions.name?.enabled"
           id="statementSubmitter"
           v-model="statementSubmitterValue"
           class="u-mb-0_5"
@@ -47,7 +47,7 @@
           }"
           @input="(val) => emitInput('statementSubmitterField', val)" />
         <dp-input
-          v-if="hasPermission('field_statement_meta_orga_department_name') && !this.localStatement.attributes.isSubmittedByCitizen"
+          v-if="hasPermission('field_statement_meta_orga_department_name') && !localStatement.attributes.isSubmittedByCitizen"
           id="statementDepartmentName"
           v-model="localStatement.attributes.initialOrganisationDepartmentName"
           class="u-mb-0_5"
@@ -267,7 +267,7 @@
 
     <!-- need to add statement.attributes.municipalities and availableMunicipalities in the BE (Array) -->
     <statement-meta-multiselect
-      v-if="hasPermission('field_statement_municipality') && formDefinitions.mapAndCountyReference.enabled"
+      v-if="hasPermission('field_statement_municipality') && formDefinitions.mapAndCountyReference?.enabled"
       :editable="editable"
       :label="Translator.trans('municipalities')"
       name="municipalities"
@@ -277,7 +277,7 @@
 
     <!-- need to add statement.attributes.priorityAreas and availablePriorityAreas in the BE (Array) -->
     <statement-meta-multiselect
-      v-if="procedureStatementPriorityArea && formDefinitions.mapAndCountyReference.enabled"
+      v-if="procedureStatementPriorityArea && formDefinitions.mapAndCountyReference?.enabled"
       :editable="editable"
       :label="Translator.trans('priorityAreas')"
       name="priorityAreas"
@@ -589,7 +589,7 @@ export default {
       let helpText = ''
 
       const isConsentRevoked = gdprConsent?.consentRevoked
-      const isAnonymized = hasPermission('area_statement_anonymize') && original.submitterAndAuthorMetaDataAnonymized
+      const isAnonymized = hasPermission('area_statement_anonymize') && original?.submitterAndAuthorMetaDataAnonymized
 
       if (isConsentRevoked) {
         helpText = Translator.trans('personal.data.usage.revoked')
@@ -652,7 +652,7 @@ export default {
     isSubmitterAnonymous () {
       const { gdprConsent, original } = this.localStatement.attributes
 
-      return gdprConsent?.consentRevoked || original.submitterAndAuthorMetaDataAnonymized
+      return gdprConsent?.consentRevoked || original?.submitterAndAuthorMetaDataAnonymized
     },
 
     reset () {
