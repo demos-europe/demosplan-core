@@ -70,5 +70,4 @@ final class OriginalStatementAnonymizationResourceType extends DplanResourceType
     {
         return false;
     }
-
 }
