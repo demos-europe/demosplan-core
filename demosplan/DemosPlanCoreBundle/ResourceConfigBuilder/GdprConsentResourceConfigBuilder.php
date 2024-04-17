@@ -27,5 +27,4 @@ use EDT\JsonApi\ResourceConfig\Builder\MagicResourceConfigBuilder;
  */
 class GdprConsentResourceConfigBuilder extends MagicResourceConfigBuilder
 {
-
 }

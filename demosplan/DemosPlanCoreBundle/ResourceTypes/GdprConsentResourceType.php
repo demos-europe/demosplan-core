@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use DateTime;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
@@ -21,7 +20,6 @@ use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 
 final class GdprConsentResourceType extends DplanResourceType
 {
-
     protected function getProperties(): ResourceConfigBuilderInterface
     {
         $configBuilder = $this->getConfig(GdprConsentResourceConfigBuilder::class);
@@ -29,9 +27,8 @@ final class GdprConsentResourceType extends DplanResourceType
             ->readable();
         $configBuilder->consentRevoked
             ->readable();
+
         return $configBuilder;
-
-
     }
 
     protected function getAccessConditions(): array

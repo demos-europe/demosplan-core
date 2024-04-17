@@ -18,10 +18,8 @@ use DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInter
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicateInternIdException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
@@ -419,9 +417,8 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         if ($this->resourceTypeStore->getStatementVoteResourceType()->isAvailable()) {
             $configBuilder->votes
                 ->setRelationshipType($this->getTypes()->getStatementVoteResourceType())
-                ->readable(true);//this defines if the property is present in the response always
+                ->readable(true); // this defines if the property is present in the response always
         }
-
 
         $configBuilder->organisation->readable()->filterable();
         $configBuilder->sentAssessmentDate->readable();
@@ -430,7 +427,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
         $configBuilder->metaMisc
             ->setRelationshipType($this->getTypes()->getStatementMetaMiscResourceType())
-            ->aliasedPath(Paths::statement()->meta) //affects readability,updatability,sortable,filterable
+            ->aliasedPath(Paths::statement()->meta) // affects readability,updatability,sortable,filterable
             ->readable();
 
         $configBuilder->original

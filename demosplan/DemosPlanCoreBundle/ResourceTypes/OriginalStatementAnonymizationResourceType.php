@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\OriginalStatementAnonymization;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
@@ -28,6 +27,7 @@ final class OriginalStatementAnonymizationResourceType extends DplanResourceType
             ->readable();
         $configBuilder->submitterAndAuthorMetaDataAnonymized
             ->readable();
+
         return $configBuilder;
     }
 

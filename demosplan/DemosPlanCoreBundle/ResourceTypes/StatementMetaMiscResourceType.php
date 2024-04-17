@@ -19,8 +19,8 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceTyp
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementMetaMiscResourceConfigBuilder;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 
-final class StatementMetaMiscResourceType extends DplanResourceType {
-
+final class StatementMetaMiscResourceType extends DplanResourceType
+{
     protected function getProperties(): ResourceConfigBuilderInterface
     {
         $configBuilder = $this->getConfig(StatementMetaMiscResourceConfigBuilder::class);
@@ -38,10 +38,8 @@ final class StatementMetaMiscResourceType extends DplanResourceType {
             ->readable(false, static function (StatementMeta $statementMeta): bool {
                 $miscData = $statementMeta->getMiscData();
 
-                return  StatementMetaInterface::SUBMITTER_ROLE_CITIZEN === $miscData[StatementMetaInterface::SUBMITTER_ROLE];
+                return StatementMetaInterface::SUBMITTER_ROLE_CITIZEN === $miscData[StatementMetaInterface::SUBMITTER_ROLE];
             });
-
-
 
         return $configBuilder;
     }
@@ -63,18 +61,16 @@ final class StatementMetaMiscResourceType extends DplanResourceType {
 
     public static function getName(): string
     {
-        return 'StatementMetaMisc'; //@todo fix me
+        return 'StatementMetaMisc'; // @todo fix me
     }
 
     public function getEntityClass(): string
     {
-        return StatementMeta::class; //this is the context in the getaccess conditions
+        return StatementMeta::class; // this is the context in the getaccess conditions
     }
 
     public function isAvailable(): bool
     {
         return null !== $this->currentProcedureService->getProcedure();
-
     }
-
 }

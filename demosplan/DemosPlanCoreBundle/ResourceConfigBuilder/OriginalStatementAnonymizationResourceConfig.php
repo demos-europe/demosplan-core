@@ -16,6 +16,4 @@ use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseOriginalStatementAnonym
 
 class OriginalStatementAnonymizationResourceConfig extends BaseOriginalStatementAnonymizationResourceConfigBuilder
 {
-
 }
-

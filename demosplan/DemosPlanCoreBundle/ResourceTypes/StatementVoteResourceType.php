@@ -13,13 +13,9 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
-
 
 /**
  * @template-extends DplanResourceType<StatementVote>
@@ -33,8 +29,6 @@ use EDT\PathBuilding\End;
  * @property-read End $userPostcode
  * @property-read End $active
  * @property-read End $deleted
- *
- *
  */
 final class StatementVoteResourceType extends DplanResourceType
 {
@@ -78,7 +72,7 @@ final class StatementVoteResourceType extends DplanResourceType
 
     public function isAvailable(): bool
     {
-        //return false;
+        // return false;
         return $this->currentUser->hasPermission('field_statement_votes') && null !== $this->currentProcedureService->getProcedure();
     }
 }
