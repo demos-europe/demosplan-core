@@ -262,6 +262,10 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->submitName->readable(true)->filterable()->sortable();
         }
 
+        if ($this->currentUser->hasPermission('area_admin_statement_list')) {
+            $configBuilder->internId->readable(true)->sortable();
+        }
+
         if ($this->currentUser->hasPermission('area_statement_segmentation')) {
             $configBuilder->segmentDraftList
                 ->updatable([$simpleStatementCondition], function (Statement $statement, array $rawJson): array {
