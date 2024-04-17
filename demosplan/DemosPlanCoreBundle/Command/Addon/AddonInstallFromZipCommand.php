@@ -13,13 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Command\Addon;
 
 use Composer\Console\Input\InputOption;
-use Composer\Package\BasePackage;
-use Composer\Package\CompleteAliasPackage;
-use Composer\Package\CompletePackage;
 use Composer\Package\Loader\ArrayLoader;
 use Composer\Package\PackageInterface;
-use Composer\Package\RootAliasPackage;
-use Composer\Package\RootPackage;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Addon\AddonManifestCollection;
@@ -280,8 +275,6 @@ class AddonInstallFromZipCommand extends CoreCommand
     }
 
     /**
-     * @return PackageInterface
-     *
      * @throws JsonException
      */
     public function loadPackageDefinition(): PackageInterface

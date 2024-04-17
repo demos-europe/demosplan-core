@@ -3828,6 +3828,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
     /**
      * @return array<string, mixed>
+     *
      * @throws Exception
      */
     public function getFragmentOfStatement(string $fragmentId): array
@@ -4608,10 +4609,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
         return $additionalFiles;
     }
-
-    /**
-     * @return StatementFragmentRepository
-     */
 
     private function getStatementFragmentRepository(): StatementFragmentRepository
     {
