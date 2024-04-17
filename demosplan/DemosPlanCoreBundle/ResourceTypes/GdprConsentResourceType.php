@@ -70,5 +70,4 @@ final class GdprConsentResourceType extends DplanResourceType
     {
         return false;
     }
-
 }
