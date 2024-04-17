@@ -73,4 +73,14 @@ final class StatementMetaMiscResourceType extends DplanResourceType
     {
         return null !== $this->currentProcedureService->getProcedure();
     }
+
+    public function isGetAllowed(): bool
+    {
+        return false;
+    }
+
+    public function isListAllowed(): bool
+    {
+        return false;
+    }
 }
