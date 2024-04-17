@@ -56,14 +56,16 @@
                     ]
                 }) }}
 
-                {# set as include to be easily overridden in Projects #}
-                {% set predefinedText -%}
-                    {{ include('@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/shared/v1/assessment_statement_detail_statement_final_emailtext.html.twig') }}
-                {%- endset %}
-
                 <detail-view-final-email-body
                     class="u-mb-0_5"
-                    init-text="{{ predefinedText|default }}"
+                    init-text="{{ "statement.send.final_mail.default"|trans({
+                        orgaName: templateVars.table.procedure.orgaName|default,
+                        procedureName: templateVars.table.procedure.name|default,
+                        statementText: statement.text|default|striptags|length < 2000
+                            ? 'statement.send.final_mail.your_statement'|trans ~ statement.text|default
+                            : '',
+                        statementRecommendation: statement.recommendation
+                    }) }}"
                     procedure-id="{{ templateVars.table.procedure.ident }}">
                 </detail-view-final-email-body>
 
