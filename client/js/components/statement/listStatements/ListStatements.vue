@@ -8,23 +8,35 @@
 </license>
 
 <template>
-  <div>
+  <div
+    :class="{ 'top-0 left-0 w-full h-full fixed z-[2200] bg-white': isFullscreen }">
     <!-- Header -->
     <dp-sticky-element
       border
-      class="py-2">
-      <div class="flex mb-2">
-        <search-modal
-          :search-in-fields="searchFields"
-          @search="(term, selectedFields) => applySearch(term, selectedFields)"
-          ref="searchModal" />
+      class="py-4"
+      :class="{ 'fixed top-0 left-0 w-full h-1/6 px-4' : isFullscreen }">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex">
+          <search-modal
+            :search-in-fields="searchFields"
+            @search="(term, selectedFields) => applySearch(term, selectedFields)"
+            ref="searchModal" />
+          <dp-button
+            class="ml-2"
+            variant="outline"
+            data-cy="listStatements:searchReset"
+            :href="Routing.generate('dplan_procedure_statement_list', { procedureId: procedureId })"
+            :disabled="searchValue === ''"
+            :text="Translator.trans('search.reset')" />
+        </div>
         <dp-button
-          class="ml-auto"
+          data-cy="editorFullscreen"
+          :icon="isFullscreen ? 'compress' : 'expand'"
+          icon-size="medium"
+          hide-text
           variant="outline"
-          data-cy="listStatements:searchReset"
-          :href="Routing.generate('dplan_procedure_statement_list', { procedureId: procedureId })"
-          :disabled="searchValue === ''"
-          :text="Translator.trans('search.reset')" />
+          :text="isFullscreen ? Translator.trans('editor.fullscreen.close') : Translator.trans('editor.fullscreen')"
+          @click="isFullscreen = !isFullscreen" />
       </div>
       <dp-bulk-edit-header
         class="layout__item u-12-of-12 u-mt-0_5"
@@ -96,6 +108,7 @@
     <template v-if="!isLoading && items.length > 0">
       <dp-data-table
         data-cy="listStatements"
+        :class="{'px-4 overflow-y-scroll h-5/6': isFullscreen }"
         has-flyout
         :is-selectable="isSourceAndCoupledProcedure"
         :header-fields="headerFields"
@@ -370,6 +383,7 @@ export default {
         limits: [10, 25, 50, 100],
         perPage: 10
       },
+      isFullscreen: false,
       headerFields: [
         { field: 'externId', label: Translator.trans('id') },
         { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'w-8' },

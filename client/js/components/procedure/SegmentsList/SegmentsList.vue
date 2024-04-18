@@ -9,12 +9,13 @@
 
 <template>
   <div
-    :class="{'top-0 left-0 w-full h-full fixed z-[2200] px-4 bg-white overflow-y-scroll': isFullscreen}">
+    :class="{ 'top-0 left-0 w-full h-full fixed z-[2200] bg-white': isFullscreen }">
     <dp-sticky-element
       border
-      class="py-4">
+      class="py-4"
+      :class="{ 'fixed top-0 left-0 w-full h-[15%] px-4': isFullscreen }">
       <div
-        class="flex items-center justify-between space-inline-s">
+        class="flex items-center justify-between mb-2">
         <custom-search
           ref="customSearch"
           id="customSearch"
@@ -54,21 +55,14 @@
             :disabled="noQuery"
             :text="Translator.trans('reset')" />
         </div>
-        <div>
-          <button
-            class="btn--primary btn--outline"
-            data-cy="editorFullscreen"
-            :aria-label="Translator.trans('editor.fullscreen')"
-            v-tooltip="{
-              content: Translator.trans('editor.fullscreen')
-            }"
-            @click="isFullscreen = !isFullscreen">
-            <dp-icon
-              class="inline-block"
-              :icon="isFullscreen ? 'compress' : 'expand'"
-              aria-hidden="true" />
-          </button>
-        </div>
+        <dp-button
+          data-cy="editorFullscreen"
+          :icon="isFullscreen ? 'compress' : 'expand'"
+          icon-size="medium"
+          hide-text
+          variant="outline"
+          :text="isFullscreen ? Translator.trans('editor.fullscreen.close') : Translator.trans('editor.fullscreen')"
+          @click="isFullscreen = !isFullscreen" />
       </div>
       <dp-bulk-edit-header
         class="layout__item u-12-of-12 u-mt-0_5"
@@ -109,6 +103,7 @@
     <template v-else>
       <dp-data-table
         class="overflow-x-auto"
+        :class="{ 'px-4 overflow-y-scroll h-[85%]': isFullscreen }"
         v-if="items"
         :header-fields="headerFields"
         :items="items"
@@ -267,7 +262,6 @@ import {
   DpColumnSelector,
   DpDataTable,
   DpFlyout,
-  DpIcon,
   DpLoading,
   DpPager,
   dpRpc,
@@ -293,7 +287,6 @@ export default {
     DpColumnSelector,
     DpDataTable,
     DpFlyout,
-    DpIcon,
     DpLoading,
     DpPager,
     DpStickyElement,
