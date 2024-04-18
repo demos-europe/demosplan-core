@@ -8,11 +8,13 @@
 </license>
 
 <template>
-  <div>
+  <div
+    :class="{'top-0 left-0 w-full h-full fixed z-[2200] px-4 bg-white overflow-y-scroll': isFullscreen}">
     <dp-sticky-element
       border
-      class="u-pv-0_5">
-      <div class="flex items-start space-inline-s">
+      class="py-4">
+      <div
+        class="flex items-center justify-between space-inline-s">
         <custom-search
           ref="customSearch"
           id="customSearch"
@@ -25,31 +27,48 @@
           @change-fields="updateSearchFields"
           @search="updateSearchQuery"
           @reset="updateSearchQuery" />
-        <div class="flex bg-color--grey-light-2 rounded-md space-inline-xs">
-          <span class="color--grey u-ml-0_5 line-height--2">
-            {{ Translator.trans('filter') }}
-          </span>
-          <filter-flyout
-            v-for="filter in filters"
-            :data-cy="`segmentsListFilter:${filter.labelTranslationKey}`"
-            :initial-query="queryIds"
-            :key="`filter_${filter.labelTranslationKey}`"
-            :additional-query-params="{ searchPhrase: searchTerm }"
-            ref="filterFlyout"
-            :label="Translator.trans(filter.labelTranslationKey)"
-            :operator="filter.comparisonOperator"
-            :path="filter.rootPath"
-            :procedure-id="procedureId"
-            @filter-apply="sendFilterQuery" />
+        <div class="flex items-center">
+          <div class="bg-color--grey-light-2 rounded-md space-inline-xs">
+            <span class="color--grey ml-2 line-height--2">
+              {{ Translator.trans('filter') }}
+            </span>
+            <filter-flyout
+              v-for="filter in filters"
+              :data-cy="`segmentsListFilter:${filter.labelTranslationKey}`"
+              :initial-query="queryIds"
+              :key="`filter_${filter.labelTranslationKey}`"
+              :additional-query-params="{ searchPhrase: searchTerm }"
+              ref="filterFlyout"
+              :label="Translator.trans(filter.labelTranslationKey)"
+              :operator="filter.comparisonOperator"
+              :path="filter.rootPath"
+              :procedure-id="procedureId"
+              @filter-apply="sendFilterQuery" />
+          </div>
+          <dp-button
+            class="ml-2 h-fit"
+            data-cy="segmentsList:resetFilter"
+            variant="outline"
+            @click="resetQuery"
+            v-tooltip="Translator.trans('search.filter.reset')"
+            :disabled="noQuery"
+            :text="Translator.trans('reset')" />
         </div>
-        <dp-button
-          class="ml-auto"
-          data-cy="segmentsList:resetFilter"
-          variant="outline"
-          @click="resetQuery"
-          v-tooltip="Translator.trans('search.filter.reset')"
-          :disabled="noQuery"
-          :text="Translator.trans('reset')" />
+        <div>
+          <button
+            class="btn--primary btn--outline"
+            data-cy="editorFullscreen"
+            :aria-label="Translator.trans('editor.fullscreen')"
+            v-tooltip="{
+              content: Translator.trans('editor.fullscreen')
+            }"
+            @click="isFullscreen = !isFullscreen">
+            <dp-icon
+              class="inline-block"
+              :icon="isFullscreen ? 'compress' : 'expand'"
+              aria-hidden="true" />
+          </button>
+        </div>
       </div>
       <dp-bulk-edit-header
         class="layout__item u-12-of-12 u-mt-0_5"
@@ -250,6 +269,7 @@ import {
   DpColumnSelector,
   DpDataTable,
   DpFlyout,
+  DpIcon,
   DpLoading,
   DpPager,
   dpRpc,
@@ -275,6 +295,7 @@ export default {
     DpColumnSelector,
     DpDataTable,
     DpFlyout,
+    DpIcon,
     DpLoading,
     DpPager,
     DpStickyElement,
@@ -328,6 +349,7 @@ export default {
         limits: [10, 25, 50, 100],
         perPage: 10
       },
+      isFullscreen: false,
       headerFieldsAvailable: [
         { field: 'externId', label: Translator.trans('id') },
         { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'w-8' },
