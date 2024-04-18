@@ -12,8 +12,8 @@
     <!-- Header -->
     <dp-sticky-element
       border
-      class="u-pv-0_5 space-stack-s">
-      <div class="flex space-inline-xs">
+      class="py-2">
+      <div class="flex mb-2">
         <search-modal
           :search-in-fields="searchFields"
           @search="(term, selectedFields) => applySearch(term, selectedFields)"
@@ -36,37 +36,48 @@
           @click.prevent="handleBulkShare"
           :text="Translator.trans('procedure.share_statements.bulk.share')" />
       </dp-bulk-edit-header>
-      <div class="flex space-inline-xs">
-        <dp-flyout
-          ref="flyout"
-          data-cy="listStatements:export"
-          :align="'left'">
-          <template v-slot:trigger>
-            {{ Translator.trans('export.verb') }}
-            <i
-              class="fa fa-angle-down"
-              aria-hidden="true" />
-          </template>
-          <a
-            data-cy="listStatements:exportStatementsDocx"
-            href="#"
-            @click="showHintAndDoExport('dplan_statement_segments_export')">
-            {{ Translator.trans('export.statements.docx') }}
-          </a>
-          <a
-            data-cy="listStatements:exportStatementsZip"
-            href="#"
-            @click="showHintAndDoExport('dplan_statement_segments_export_packaged')">
-            {{ Translator.trans('export.statements.zip') }}
-          </a>
-          <a
-            v-if="hasPermission('feature_admin_assessmenttable_export_statement_generic_xlsx')"
-            :href="exportRoute('dplan_statement_xls_export')"
-            data-cy="listStatements:exportStatementsXlsx"
-            rel="noopener">
-            {{ Translator.trans('export.statements.xlsx') }}
-          </a>
-        </dp-flyout>
+      <dp-flyout
+        ref="flyout"
+        data-cy="listStatements:export"
+        :align="'left'">
+        <template v-slot:trigger>
+          {{ Translator.trans('export.verb') }}
+          <i
+            class="fa fa-angle-down"
+            aria-hidden="true" />
+        </template>
+        <a
+          data-cy="listStatements:exportStatementsDocx"
+          href="#"
+          @click="showHintAndDoExport('dplan_statement_segments_export')">
+          {{ Translator.trans('export.statements.docx') }}
+        </a>
+        <a
+          data-cy="listStatements:exportStatementsZip"
+          href="#"
+          @click="showHintAndDoExport('dplan_statement_segments_export_packaged')">
+          {{ Translator.trans('export.statements.zip') }}
+        </a>
+        <a
+          v-if="hasPermission('feature_admin_assessmenttable_export_statement_generic_xlsx')"
+          :href="exportRoute('dplan_statement_xls_export')"
+          data-cy="listStatements:exportStatementsXlsx"
+          rel="noopener">
+          {{ Translator.trans('export.statements.xlsx') }}
+        </a>
+      </dp-flyout>
+      <div class="flex mt-2">
+        <dp-pager
+          v-if="pagination.currentPage"
+          :class="{ 'invisible': isLoading }"
+          :current-page="pagination.currentPage"
+          :total-pages="pagination.totalPages"
+          :total-items="pagination.total"
+          :per-page="pagination.perPage"
+          :limits="pagination.limits"
+          @page-change="getItemsByPage"
+          @size-change="handleSizeChange"
+          :key="`pager1_${pagination.currentPage}_${pagination.count}`" />
         <div class="ml-auto flex items-center space-inline-xs">
           <label class="u-mb-0">
             {{ Translator.trans('sorting') }}
@@ -77,17 +88,6 @@
             @select="applySort" />
         </div>
       </div>
-      <dp-pager
-        v-if="pagination.currentPage"
-        :class="{ 'invisible': isLoading }"
-        :current-page="pagination.currentPage"
-        :total-pages="pagination.totalPages"
-        :total-items="pagination.total"
-        :per-page="pagination.perPage"
-        :limits="pagination.limits"
-        @page-change="getItemsByPage"
-        @size-change="handleSizeChange"
-        :key="`pager1_${pagination.currentPage}_${pagination.count}`" />
     </dp-sticky-element>
 
     <dp-loading v-if="isLoading" />
