@@ -14,14 +14,18 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhase;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureYmlPhasesRepository;
+use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\PhaseDTO;
+use EDT\JsonApi\InputHandling\RepositoryInterface;
 use EDT\PathBuilding\End;
 
 /**
  * @template-extends DplanResourceType<ProcedurePhase>
  *
  * @property-read End $name
- * @property-read End $key
+ * @property-read End $translationKey
  * @property-read End $permissionsSet
+ * @property-read End $participationState
  * @property-read End $step
  * @property-read End $startDate
  * @property-read End $endDate
@@ -30,6 +34,7 @@ use EDT\PathBuilding\End;
  * @property-read End $designatedEndDate
  * @property-read End $designatedPhaseChangeUser
  * @property-read End $iterator
+ * @property-read End $phaseType
  */
 final class ProcedurePhaseResourceType extends DplanResourceType
 {
@@ -40,17 +45,17 @@ final class ProcedurePhaseResourceType extends DplanResourceType
 
     public function getEntityClass(): string
     {
-        return ProcedurePhase::class;
+        return PhaseDTO::class;
     }
 
     public function isAvailable(): bool
     {
-        return false;
+        return true;
     }
 
     protected function getAccessConditions(): array
     {
-        return [$this->conditionFactory->false()];
+        return [];
     }
 
     public function isGetAllowed(): bool
@@ -65,6 +70,21 @@ final class ProcedurePhaseResourceType extends DplanResourceType
 
     protected function getProperties(): array
     {
-        return [];
+        return [
+            $this->createIdentifier()->readable(
+                static fn (PhaseDTO $phase) => $phase->getPhaseType() . '_' . $phase->getKey()),
+            $this->createAttribute($this->translationKey)->aliasedPath([ProcedureYmlPhasesRepository::PROCEDURE_PHASE_NAME])->readable(),
+            $this->createAttribute($this->name)->aliasedPath([ProcedureYmlPhasesRepository::PROCEDURE_PHASE_KEY])->readable(),
+            $this->createAttribute($this->permissionsSet)->readable(),
+            $this->createAttribute($this->participationState)->readable(),
+            $this->createAttribute($this->phaseType)->readable(),
+
+
+        ];
+    }
+
+    protected function getRepository(): RepositoryInterface
+    {
+        return new ProcedureYmlPhasesRepository($this->globalConfig);
     }
 }

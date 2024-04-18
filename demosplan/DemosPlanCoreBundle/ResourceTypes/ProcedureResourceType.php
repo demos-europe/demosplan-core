@@ -21,7 +21,10 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\PhasePermissionsetLoader;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
+use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureYmlPhasesRepository;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
+use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\PhaseDTO;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\PathBuilding\End;
 
@@ -62,6 +65,7 @@ use EDT\PathBuilding\End;
  * @property-read End                                 $externalPhasePermissionset
  * @property-read End                                 $internalPhasePermissionset
  * @property-read CustomerResourceType                $customer
+ * @property-read ProcedurePhaseResourceType          $phases
  */
 final class ProcedureResourceType extends DplanResourceType implements ProcedureResourceTypeInterface
 {
@@ -69,7 +73,8 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
         private readonly PhasePermissionsetLoader $phasePermissionsetLoader,
         private readonly DraftStatementService $draftStatementService,
         private readonly ProcedureAccessEvaluator $accessEvaluator,
-        private readonly ProcedureExtension $procedureExtension
+        private readonly ProcedureExtension $procedureExtension,
+        private readonly ProcedurePhaseResourceType $procedurePhase,
     ) {
     }
 
@@ -242,6 +247,9 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
                 ->readable(false, $this->phasePermissionsetLoader->getInternalPhasePermissionset(...));
             $properties[] = $this->createAttribute($this->externalPhasePermissionset)
                 ->readable(false, $this->phasePermissionsetLoader->getExternalPhasePermissionset(...));
+            $properties[] = $this->createToManyRelationship($this->phases)
+                ->setRelationshipType($this->procedurePhase)
+                ->readable(false, $this->getPhases(...));
         }
 
         return $properties;
@@ -252,4 +260,33 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
         return $this->currentUser->hasAnyPermissions('area_admin_single_document', 'area_procedure_type_edit', 'feature_json_api_procedure')
             || $this->currentUser->hasAllPermissions('area_admin_procedures', 'area_search_submitter_in_procedures');
     }
+
+    protected function getPhases(): array
+    {
+
+        $phases = [];
+        foreach ($this->globalConfig->getRawInternalPhases() as $internalPhase) {
+            $phases[] = $this->createPhaseDto($internalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL);
+        }
+
+        foreach ($this->globalConfig->getRawExternalPhases() as $externalPhase) {
+            $phases[] = $this->createPhaseDto($externalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL);
+        }
+
+        return $phases;
+    }
+
+    protected function createPhaseDto(array $phase, string $type)
+    {
+
+        $phaseDto = new PhaseDTO();
+        $phaseDto->setKey($phase[ProcedureYmlPhasesRepository::PROCEDURE_PHASE_KEY]);
+        $phaseDto->setName($phase[ProcedureYmlPhasesRepository::PROCEDURE_PHASE_NAME]);
+        $phaseDto->setPermissionsSet($phase[ProcedureYmlPhasesRepository::PROCEDURE_PHASE_PERMISSIONS_SET]);
+        $phaseDto->setParticipationState($phase[ProcedureYmlPhasesRepository::PROCEDURE_PHASE_PARTICIPATION_STATE]?? null);
+        $phaseDto->setPhaseType($type);
+
+        return $phaseDto->lock();
+    }
+
 }

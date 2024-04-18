@@ -568,6 +568,8 @@ class GlobalConfig implements GlobalConfigInterface
      * @var array<non-empty-string, non-empty-string>
      */
     private array $externalLinks;
+    private array $rawInternalPhases;
+    private array $rawExternalPhases;
 
     public function __construct(
         ParameterBagInterface $params,
@@ -719,6 +721,8 @@ class GlobalConfig implements GlobalConfigInterface
         // Verfahrensschritte
         $this->internalPhases = $parameterBag->get('internalPhases');
         $this->externalPhases = $parameterBag->get('externalPhases');
+        $this->rawInternalPhases = $parameterBag->get('internalPhases');
+        $this->rawExternalPhases = $parameterBag->get('externalPhases');
 
         // Links to other projects
         $this->projects = $parameterBag->get('projects');
@@ -1784,5 +1788,15 @@ class GlobalConfig implements GlobalConfigInterface
         }
 
         return $externalLinks;
+    }
+
+    public function getRawInternalPhases(): array
+    {
+        return $this->rawInternalPhases;
+    }
+
+    public function getRawExternalPhases(): array
+    {
+        return $this->rawExternalPhases;
     }
 }
