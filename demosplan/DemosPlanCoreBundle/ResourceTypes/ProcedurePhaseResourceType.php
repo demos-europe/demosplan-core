@@ -72,14 +72,12 @@ final class ProcedurePhaseResourceType extends DplanResourceType
     {
         return [
             $this->createIdentifier()->readable(
-                static fn (PhaseDTO $phase) => $phase->getPhaseType() . '_' . $phase->getKey()),
+                static fn (PhaseDTO $phase) => $phase->getPhaseType().'_'.$phase->getKey()),
             $this->createAttribute($this->translationKey)->aliasedPath([ProcedureYmlPhasesRepository::PROCEDURE_PHASE_NAME])->readable(),
             $this->createAttribute($this->name)->aliasedPath([ProcedureYmlPhasesRepository::PROCEDURE_PHASE_KEY])->readable(),
             $this->createAttribute($this->permissionsSet)->readable(),
             $this->createAttribute($this->participationState)->readable(),
             $this->createAttribute($this->phaseType)->readable(),
-
-
         ];
     }
 

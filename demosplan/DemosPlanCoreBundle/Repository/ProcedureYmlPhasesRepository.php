@@ -14,9 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Permissions\Permission;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\ValueObject\PhasesDTO;
 use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\PhaseDTO;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
@@ -30,7 +28,6 @@ use Webmozart\Assert\Assert;
  * to be shown in the procedure administration list for the authenticated user.
  *
  * @template-implements RepositoryInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, >
- *
  */
 class ProcedureYmlPhasesRepository implements RepositoryInterface
 {
@@ -58,6 +55,7 @@ class ProcedureYmlPhasesRepository implements RepositoryInterface
         throw new InvalidArgumentException();
         Assert::isEmpty($conditions);
         Assert::isEmpty($sortMethods);
+
         return [];
     }
 
@@ -66,7 +64,6 @@ class ProcedureYmlPhasesRepository implements RepositoryInterface
         throw new InvalidArgumentException();
         Assert::isEmpty($conditions);
         Assert::isEmpty($sortMethods);
-
 
         $phases = [];
         foreach ($this->globalConfig->getRawInternalPhases() as $internalPhase) {
@@ -86,12 +83,11 @@ class ProcedureYmlPhasesRepository implements RepositoryInterface
         $phaseDto->setId($phase[self::PROCEDURE_PHASE_KEY]);
         $phaseDto->setName($phase[self::PROCEDURE_PHASE_NAME]);
         $phaseDto->setPermissionsSet($phase[self::PROCEDURE_PHASE_PERMISSIONS_SET]);
-        $phaseDto->setParticipationState($phase[self::PROCEDURE_PHASE_PARTICIPATION_STATE]?? null);
+        $phaseDto->setParticipationState($phase[self::PROCEDURE_PHASE_PARTICIPATION_STATE] ?? null);
         $phaseDto->setType($type);
 
         return $phaseDto->lock();
     }
-
 
     public function getEntitiesForPage(array $conditions, array $sortMethods, PagePagination $pagination): Pagerfanta
     {

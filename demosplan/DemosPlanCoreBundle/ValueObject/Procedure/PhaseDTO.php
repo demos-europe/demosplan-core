@@ -16,15 +16,15 @@ use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 
 /**
  * @method string getKey()
- * @method void setKey(string $key)
+ * @method void   setKey(string $key)
  * @method string getName()
- * @method void setName(string $name)
+ * @method void   setName(string $name)
  * @method string getParticipationState()
- * @method void setParticipationState(string|null $participationState)
+ * @method void   setParticipationState(string|null $participationState)
  * @method string getPermissionsSet()
- * @method void setPermissionsSet(string $permissionsSet)
+ * @method void   setPermissionsSet(string $permissionsSet)
  * @method string getPhaseType()
- * @method void setPhaseType(string $phaseType)
+ * @method void   setPhaseType(string $phaseType)
  */
 class PhaseDTO extends ValueObject
 {

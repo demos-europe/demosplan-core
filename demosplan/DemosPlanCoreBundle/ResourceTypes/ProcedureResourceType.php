@@ -263,7 +263,6 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
 
     protected function getPhases(): array
     {
-
         $phases = [];
         foreach ($this->globalConfig->getRawInternalPhases() as $internalPhase) {
             $phases[] = $this->createPhaseDto($internalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL);
@@ -278,15 +277,13 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
 
     protected function createPhaseDto(array $phase, string $type)
     {
-
         $phaseDto = new PhaseDTO();
         $phaseDto->setKey($phase[ProcedureYmlPhasesRepository::PROCEDURE_PHASE_KEY]);
         $phaseDto->setName($phase[ProcedureYmlPhasesRepository::PROCEDURE_PHASE_NAME]);
         $phaseDto->setPermissionsSet($phase[ProcedureYmlPhasesRepository::PROCEDURE_PHASE_PERMISSIONS_SET]);
-        $phaseDto->setParticipationState($phase[ProcedureYmlPhasesRepository::PROCEDURE_PHASE_PARTICIPATION_STATE]?? null);
+        $phaseDto->setParticipationState($phase[ProcedureYmlPhasesRepository::PROCEDURE_PHASE_PARTICIPATION_STATE] ?? null);
         $phaseDto->setPhaseType($type);
 
         return $phaseDto->lock();
     }
-
 }
