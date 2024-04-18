@@ -270,8 +270,6 @@ boilerplates.categories.explanation: "Um einen Textbaustein hier auswählen zu k
 boilerplates.category: "Textbausteine des Bereichs \"{category}\""
 boilerplates.category.hint: "Über den Bereich stellen Sie ein, wo in der Anwendung Ihnen der Textbaustein zur Verfügung steht."
 boilerplates.in.group: "Textbausteine in Gruppe"
-boundingbox: "Kartenbegrenzung"
-boundingbox.not.set: 'Sie haben noch keine Kartenbegrenzung festgesetzt.'
 bounds.apply: "Kartenbegrenzung übernehmen"
 
 branding.label: "Branding-Anpassungen"
@@ -436,8 +434,6 @@ city.name: "Wohnort"
 city: "Ort"
 clipboard.copied: "Der Text wurde in die Zwischenablage kopiert."
 clipboard.copy_to: "In die Zwischenablage kopieren"
-clipping: "Startkartenausschnitt"
-clipping.not.set: 'Sie haben noch keinen Startkartenausschnitt festgesetzt.'
 clipping.set: 'Startkartenausschnitt festsetzen'
 clipping.is.set: 'Startkartenausschnitt ist festgesetzt'
 clock: "Uhr"
@@ -1901,6 +1897,8 @@ information.short: "Kurzinfo"
 information.short.empty: "Zu diesem Verfahren wurde keine Kurzinfo hinterlegt."
 informations: "Informationen"
 information.pin: "Informationen anheften"
+initial_extent: "Startkartenausschnitt"
+initial_extent.not.set: 'Sie haben noch keinen Startkartenausschnitt festgesetzt.'
 input.text.maxlength: "Der eingegebene Text kann bis zu {maxlength} Zeichen lang sein. Es sind noch <input class=\"o-char-count\" disabled value=\"{maxlength}\" id=\"{id}\"> Zeichen verfügbar."
 insert: "Einfügen"
 institution: "Institution"
@@ -2165,6 +2163,8 @@ master.select.hint: "Wählen Sie eine Blaupause aus, um ihre Einstellungen in da
 master.toeb.list: "Master TöB-Liste"
 master.toeb.list.export.file: "masterToebListe"
 matrixset.no.supported.projections: "Für das ausgewählte Matrix-Set gibt es keine unterstützten Projektionen."
+max_extent: "Kartenbegrenzung"
+max_extent.not.set: 'Sie haben noch keine Kartenbegrenzung festgesetzt.'
 memo: "Notiz"
 memo.unset: "Keine Notiz vorhanden"
 menu.currentPage: "Aktuelle Seite"

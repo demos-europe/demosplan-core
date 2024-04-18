@@ -1,5 +1,9 @@
 <template>
   <div class="space-stack-xs">
+    <label
+      for="r_scales"
+      class="mb-0"
+      v-text="Translator.trans('map.scales')" />
     <dp-multiselect
       v-model="scales"
       label="label"
