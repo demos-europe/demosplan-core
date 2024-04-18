@@ -54,6 +54,7 @@ use Webmozart\Assert\Assert;
  * @property-read End $paragraphTitle @deprecated Use {@link StatementResourceType::$paragraph} instead
  * @property-read End $segmentDraftList
  * @property-read SimilarStatementSubmitterResourceType $similarStatementSubmitters
+ * @property-read End $sentAssessmentDate
  */
 final class StatementResourceType extends AbstractStatementResourceType implements ReadableEsResourceTypeInterface, StatementResourceTypeInterface
 {
@@ -230,6 +231,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
         $configBuilder->authorName->aliasedPath(Paths::statement()->meta->authorName);
         $configBuilder->submitName->aliasedPath(Paths::statement()->meta->submitName);
+        $configBuilder->authorFeedback->aliasedPath(Paths::statement()->meta->authorFeedback)->readable();
         $configBuilder->similarStatementSubmitters
             ->setRelationshipType($this->getTypes()->getSimilarStatementSubmitterResourceType());
 
@@ -411,6 +413,26 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 }
             );
         }
+
+        if ($this->resourceTypeStore->getStatementVoteResourceType()->isAvailable()) {
+            $configBuilder->votes
+                ->setRelationshipType($this->getTypes()->getStatementVoteResourceType())
+                ->readable(true); // this defines if the property is present in the response always
+        }
+
+        $configBuilder->organisation->readable()->filterable();
+        $configBuilder->sentAssessmentDate->readable();
+        $configBuilder->represents->readable();
+        $configBuilder->representationCheck->readable();
+
+        $configBuilder->metaMisc
+            ->setRelationshipType($this->getTypes()->getStatementMetaMiscResourceType())
+            ->aliasedPath(Paths::statement()->meta) // affects readability,updatability,sortable,filterable
+            ->readable();
+
+        $configBuilder->original
+            ->setRelationshipType($this->getTypes()->getOriginalStatementResourceType())
+            ->readable();
 
         return $configBuilder;
     }

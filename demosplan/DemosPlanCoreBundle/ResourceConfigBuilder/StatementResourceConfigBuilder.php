@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\JsonApi\PropertyConfig\Builder\AttributeConfigBuilderInterface;
@@ -71,6 +72,7 @@ use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $submitterHouseNumber
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $initialOrganisationEmail @deprecated Along to other initial statement data, this should be moved into OrgaSubmitData resource type or something similar
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $submitterName
+ * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, Statement, StatementMeta> $metaMisc
  *
  * Cluster statement properties
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $documentParentId @deprecated Use {@link StatementResourceType::$document} instead
@@ -82,6 +84,7 @@ use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $paragraphTitle @deprecated Use {@link StatementResourceType::$paragraph} instead
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $authorName
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $submitName
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $authorFeedback
  *
  * Head statement properties
  * @property-read ToManyRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, Statement, Elements> $statements
