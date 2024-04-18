@@ -516,6 +516,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
             // enable ai specific permissions
             $this->enablePermissions([
+                'area_main_file',
                 'feature_read_source_statement_via_api',
                 'field_statement_recommendation',
             ]);
