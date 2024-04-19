@@ -33,7 +33,7 @@ class InitDbCommand extends CoreCommand
     public function __construct(
         ParameterBagInterface $parameterBag,
         private readonly SessionHandlerInterface $sessionHandler,
-        string $name = null
+        ?string $name = null
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -90,7 +90,7 @@ class InitDbCommand extends CoreCommand
             $input = new StringInput('doctrine:fixtures:load -n --group '.$fixtureGroup);
             $fixtureSuccess = $application->run($input, $output);
             // set project migrations as migrated
-            $input = new StringInput('doctrine:migrations:version --add --all --configuration ' .DemosPlanPath::getProjectPath('app/config/project_migrations.yml'));
+            $input = new StringInput('doctrine:migrations:version --add --all --configuration '.DemosPlanPath::getProjectPath('app/config/project_migrations.yml'));
             $projectMigrationsSuccess = $application->run($input, $output);
         }
 
