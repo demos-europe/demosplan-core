@@ -24,7 +24,6 @@ class RegisterUserForCustomerCommandTest extends FunctionalTestCase
 {
     public function testSuccessfulExecute(): void
     {
-
         /** @var User $user */
         $user = $this->fixtures->getReference(LoadUserData::TEST_USER_FP_ONLY);
         /** @var Customer $newCustomer */
@@ -52,7 +51,6 @@ class RegisterUserForCustomerCommandTest extends FunctionalTestCase
 
     public function testInvalidUserExecute(): void
     {
-
         $commandTester = $this->getCommandTester();
 
         $commandTester->setInputs(
@@ -67,7 +65,6 @@ class RegisterUserForCustomerCommandTest extends FunctionalTestCase
 
     public function testInvalidCustomerExecute(): void
     {
-
         /** @var User $user */
         $user = $this->fixtures->getReference(LoadUserData::TEST_USER_FP_ONLY);
         /** @var Customer $newCustomer */

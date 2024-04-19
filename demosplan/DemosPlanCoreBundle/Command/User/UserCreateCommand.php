@@ -43,7 +43,7 @@ class UserCreateCommand extends CoreCommand
         private readonly OrgaRepository $orgaRepository,
         ParameterBagInterface $parameterBag,
         private readonly UserRepository $userRepository,
-        string $name = null
+        ?string $name = null
     ) {
         parent::__construct($parameterBag, $name);
         $this->helper = new QuestionHelper();
