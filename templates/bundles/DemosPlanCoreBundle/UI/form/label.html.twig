@@ -53,8 +53,8 @@
     {% endif %}
 </label>
 {% if tooltip|default %}
-    <dp-contextual-help
-        class="{{ 'mt-0.5 top-0 right-0'|prefixClass(omitPrefix) }}"
-        :text="'{{ tooltip|trans }}'">
-    </dp-contextual-help>
+    {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
+        helpText: tooltip|trans,
+        cssClasses:'mt-0.5 top-0 right-0'
+    } %}
 {% endif %}
