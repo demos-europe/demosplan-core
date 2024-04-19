@@ -57,7 +57,7 @@
         "goetas-webservices/xsd2php-runtime": "^0.2.2",
         "guzzlehttp/guzzle": "^7",
         "hslavich/oneloginsaml-bundle": "^2.8",
-        "intervention/image": "^2.5",
+        "intervention/image": "^3.5",
         "intriro/csv-bundle": "^1.0",
         "jfcherng/php-diff": "^6.0",
         "jmikola/geojson": "^1.0",
