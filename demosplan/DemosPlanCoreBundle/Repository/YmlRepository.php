@@ -14,8 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\PhaseDTO;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\JsonApi\InputHandling\RepositoryInterface;
@@ -31,7 +29,6 @@ use Webmozart\Assert\Assert;
  */
 class YmlRepository implements RepositoryInterface
 {
-
     protected GlobalConfigInterface $globalConfig;
 
     public function __construct(
@@ -60,9 +57,7 @@ class YmlRepository implements RepositoryInterface
         throw new InvalidArgumentException();
         Assert::isEmpty($conditions);
         Assert::isEmpty($sortMethods);
-
     }
-
 
     public function getEntitiesForPage(array $conditions, array $sortMethods, PagePagination $pagination): Pagerfanta
     {

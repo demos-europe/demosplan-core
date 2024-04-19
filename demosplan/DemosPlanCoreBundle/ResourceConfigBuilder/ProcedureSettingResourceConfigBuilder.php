@@ -17,8 +17,8 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\ScaleResourceType;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\JsonApi\PropertyConfig\Builder\AttributeConfigBuilderInterface;
-use EDT\JsonApi\ResourceConfig\Builder\MagicResourceConfigBuilder;
 use EDT\JsonApi\PropertyConfig\Builder\ToManyRelationshipConfigBuilderInterface;
+use EDT\JsonApi\ResourceConfig\Builder\MagicResourceConfigBuilder;
 
 /**
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, ProcedureSettingsInterface> $boundingBox

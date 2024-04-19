@@ -15,13 +15,11 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\YmlRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\ScaleDTO;
-use EDT\PathBuilding\End;
 use EDT\JsonApi\InputHandling\RepositoryInterface;
-
+use EDT\PathBuilding\End;
 
 /**
  * @template-extends DplanResourceType<ScaleDTO>
- *
  *
  * @property-read End $scale
  */
@@ -42,7 +40,7 @@ final class ScaleResourceType extends DplanResourceType
         return [
             $this->createIdentifier()->readable(
                 static fn (ScaleDTO $scale) => $scale->getScale()),
-            $this->createAttribute($this->scale)->readable(true)
+            $this->createAttribute($this->scale)->readable(true),
         ];
     }
 

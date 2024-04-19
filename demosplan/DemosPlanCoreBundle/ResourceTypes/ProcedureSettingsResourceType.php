@@ -22,6 +22,7 @@ use EDT\PathBuilding\End;
 
 /**
  * @template-extends DplanResourceType<ProcedureSettings>
+ *
  * @property-read End $coordinate
  */
 class ProcedureSettingsResourceType extends DplanResourceType
@@ -56,9 +57,7 @@ class ProcedureSettingsResourceType extends DplanResourceType
             ->readable(true, $this->getScales(...));
 
         return $configBuilder;
-
     }
-
 
     protected function getScales(): array
     {
@@ -71,6 +70,7 @@ class ProcedureSettingsResourceType extends DplanResourceType
             $scaleDto->lock();
             $availableScales[] = $scaleDto;
         }
+
         return $availableScales;
     }
 
@@ -91,9 +91,8 @@ class ProcedureSettingsResourceType extends DplanResourceType
 
     public function isUpdateAllowed(): bool
     {
-        return $this->currentUser->hasPermission('area_admin_map'); //@todo update permission
+        return $this->currentUser->hasPermission('area_admin_map'); // @todo update permission
     }
-
 
     protected function getAccessConditions(): array
     {
