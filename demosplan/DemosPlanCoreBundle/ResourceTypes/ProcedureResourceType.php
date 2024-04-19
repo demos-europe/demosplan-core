@@ -189,6 +189,7 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
         }
 
         if ($this->currentUser->hasPermission('area_public_participation')) {
+            $properties[] = $this->createToOneRelationship($this->settings)->readable();
             $properties[] = $this->createAttribute($this->coordinate)->readable()->aliasedPath($this->settings->coordinate);
             $properties[] = $this->createAttribute($this->externalDescription)->readable()->aliasedPath($this->externalDesc);
             $properties[] = $this->createAttribute($this->statementSubmitted)->readable(false, function (Procedure $procedure): int {
