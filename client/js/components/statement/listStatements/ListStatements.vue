@@ -9,12 +9,12 @@
 
 <template>
   <div
-    :class="{ 'top-0 left-0 w-full h-full fixed z-[2200] bg-white': isFullscreen }">
+    :class="{ 'top-0 left-0 w-full h-full fixed z-fixed bg-white': isFullscreen }">
     <!-- Header -->
     <dp-sticky-element
       border
       class="py-4"
-      :class="{ 'fixed top-0 left-0 w-full h-1/6 px-4': isFullscreen }">
+      :class="{ 'fixed top-0 left-0 w-full px-4': isFullscreen }">
       <div class="flex items-center justify-between mb-2">
         <div class="flex">
           <search-modal

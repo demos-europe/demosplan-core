@@ -9,13 +9,13 @@
 
 <template>
   <div
-    :class="{ 'top-0 left-0 w-full h-full fixed z-[2200] bg-white': isFullscreen }">
+    :class="{ 'top-0 left-0 w-full h-full fixed z-fixed bg-white': isFullscreen }">
     <dp-sticky-element
       border
       class="py-4"
-      :class="{ 'fixed top-0 left-0 w-full h-[15%] px-4': isFullscreen }">
+      :class="{ 'fixed top-0 left-0 w-full px-4': isFullscreen }">
       <div
-        class="flex items-center justify-between mb-2">
+        class="flex items-start mb-2">
         <custom-search
           ref="customSearch"
           id="customSearch"
@@ -28,34 +28,33 @@
           @change-fields="updateSearchFields"
           @search="updateSearchQuery"
           @reset="updateSearchQuery" />
-        <div class="flex items-center">
-          <div class="bg-color--grey-light-2 rounded-md space-inline-xs">
-            <span class="color--grey ml-2 line-height--2">
-              {{ Translator.trans('filter') }}
-            </span>
-            <filter-flyout
-              v-for="filter in filters"
-              ref="filterFlyout"
-              :additional-query-params="{ searchPhrase: searchTerm }"
-              :data-cy="`segmentsListFilter:${filter.labelTranslationKey}`"
-              :initial-query="queryIds"
-              :key="`filter_${filter.labelTranslationKey}`"
-              :label="Translator.trans(filter.labelTranslationKey)"
-              :operator="filter.comparisonOperator"
-              :path="filter.rootPath"
-              :procedure-id="procedureId"
-              @filter-apply="sendFilterQuery" />
-          </div>
-          <dp-button
-            class="ml-2 h-fit"
-            data-cy="segmentsList:resetFilter"
-            :disabled="noQuery"
-            :text="Translator.trans('reset')"
-            variant="outline"
-            v-tooltip="Translator.trans('search.filter.reset')"
-            @click="resetQuery" />
+        <div class="bg-color--grey-light-2 rounded-md space-inline-xs ml-2">
+          <span class="color--grey ml-2 line-height--2">
+            {{ Translator.trans('filter') }}
+          </span>
+          <filter-flyout
+            v-for="filter in filters"
+            ref="filterFlyout"
+            :additional-query-params="{ searchPhrase: searchTerm }"
+            :data-cy="`segmentsListFilter:${filter.labelTranslationKey}`"
+            :initial-query="queryIds"
+            :key="`filter_${filter.labelTranslationKey}`"
+            :label="Translator.trans(filter.labelTranslationKey)"
+            :operator="filter.comparisonOperator"
+            :path="filter.rootPath"
+            :procedure-id="procedureId"
+            @filter-apply="sendFilterQuery" />
         </div>
         <dp-button
+          class="ml-2 h-fit"
+          data-cy="segmentsList:resetFilter"
+          :disabled="noQuery"
+          :text="Translator.trans('reset')"
+          variant="outline"
+          v-tooltip="Translator.trans('search.filter.reset')"
+          @click="resetQuery" />
+        <dp-button
+          class="ml-auto"
           data-cy="editorFullscreen"
           :icon="isFullscreen ? 'compress' : 'expand'"
           icon-size="medium"
