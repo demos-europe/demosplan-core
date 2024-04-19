@@ -37,14 +37,19 @@ class ProcedureSettingsResourceType extends DplanResourceType
         $configBuilder->id
             ->readable();
         $configBuilder->boundingBox
+            ->updatable()
             ->readable();
         $configBuilder->mapExtent
+            ->updatable()
             ->readable();
         $configBuilder->scales
+            ->updatable()
             ->readable();
         $configBuilder->informationUrl
+            ->updatable()
             ->readable();
         $configBuilder->copyright
+            ->updatable()
             ->readable();
 
         return $configBuilder;
@@ -61,15 +66,16 @@ class ProcedureSettingsResourceType extends DplanResourceType
         return null !== $this->currentProcedureService->getProcedure();
     }
 
-    public function isGetAllowed(): bool
-    {
-        return false;
-    }
-
     public function isListAllowed(): bool
     {
         return false;
     }
+
+    public function isUpdateAllowed(): bool
+    {
+        return $this->currentUser->hasPermission('area_admin_map'); //@todo update permission
+    }
+
 
     protected function getAccessConditions(): array
     {
