@@ -12,8 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\ProcedureSettingResourceConfigBuilder;
+use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 
 /**
@@ -28,9 +31,24 @@ class ProcedureSettingsResourceType extends DplanResourceType
         return 'ProcedureSettings';
     }
 
-    protected function getProperties(): array
+    protected function getProperties(): ResourceConfigBuilderInterface
     {
-        return [];
+        $configBuilder = $this->getConfig(ProcedureSettingResourceConfigBuilder::class);
+        $configBuilder->id
+            ->readable();
+        $configBuilder->boundingBox
+            ->readable();
+        $configBuilder->mapExtent
+            ->readable();
+        $configBuilder->scales
+            ->readable();
+        $configBuilder->informationUrl
+            ->readable();
+        $configBuilder->copyright
+            ->readable();
+
+        return $configBuilder;
+
     }
 
     public function getEntityClass(): string
@@ -40,11 +58,31 @@ class ProcedureSettingsResourceType extends DplanResourceType
 
     public function isAvailable(): bool
     {
+        return null !== $this->currentProcedureService->getProcedure();
+    }
+
+    public function isGetAllowed(): bool
+    {
+        return false;
+    }
+
+    public function isListAllowed(): bool
+    {
         return false;
     }
 
     protected function getAccessConditions(): array
     {
-        return [];
+        $currentProcedure = $this->currentProcedureService->getProcedure();
+        if (null === $currentProcedure) {
+            return [$this->conditionFactory->false()];
+        }
+
+        $procedureId = $currentProcedure->getId();
+
+        return [
+            $this->conditionFactory->propertyHasValue($procedureId, Paths::procedureSettings()->procedure->id),
+            $this->conditionFactory->propertyHasValue(false, Paths::procedureSettings()->procedure->deleted),
+        ];
     }
 }
