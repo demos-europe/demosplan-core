@@ -35,11 +35,11 @@
             </span>
             <filter-flyout
               v-for="filter in filters"
+              ref="filterFlyout"
+              :additional-query-params="{ searchPhrase: searchTerm }"
               :data-cy="`segmentsListFilter:${filter.labelTranslationKey}`"
               :initial-query="queryIds"
               :key="`filter_${filter.labelTranslationKey}`"
-              :additional-query-params="{ searchPhrase: searchTerm }"
-              ref="filterFlyout"
               :label="Translator.trans(filter.labelTranslationKey)"
               :operator="filter.comparisonOperator"
               :path="filter.rootPath"
@@ -49,11 +49,11 @@
           <dp-button
             class="ml-2 h-fit"
             data-cy="segmentsList:resetFilter"
-            variant="outline"
-            @click="resetQuery"
-            v-tooltip="Translator.trans('search.filter.reset')"
             :disabled="noQuery"
-            :text="Translator.trans('reset')" />
+            :text="Translator.trans('reset')"
+            variant="outline"
+            v-tooltip="Translator.trans('search.filter.reset')"
+            @click="resetQuery" />
         </div>
         <dp-button
           data-cy="editorFullscreen"
@@ -65,34 +65,34 @@
           @click="isFullscreen = !isFullscreen" />
       </div>
       <dp-bulk-edit-header
-        class="layout__item u-12-of-12 u-mt-0_5"
         v-if="selectedItemsCount > 0"
+        class="layout__item u-12-of-12 u-mt-0_5"
         :selected-items-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"
         @reset-selection="resetSelection">
         <dp-button
+          :text="Translator.trans('segments.bulk.edit')"
           variant="outline"
-          @click.prevent="handleBulkEdit"
-          :text="Translator.trans('segments.bulk.edit')" />
+          @click.prevent="handleBulkEdit" />
       </dp-bulk-edit-header>
       <div class="flex justify-between items-center mt-4">
         <dp-pager
           v-if="pagination.currentPage"
           :class="{ 'invisible': isLoading }"
           :current-page="pagination.currentPage"
+          :key="`pager1_${pagination.currentPage}_${pagination.count}`"
+          :limits="pagination.limits"
+          :per-page="pagination.perPage"
           :total-pages="pagination.totalPages"
           :total-items="pagination.total"
-          :per-page="pagination.perPage"
-          :limits="pagination.limits"
           @page-change="applyQuery"
-          @size-change="handleSizeChange"
-          :key="`pager1_${pagination.currentPage}_${pagination.count}`" />
+          @size-change="handleSizeChange" />
         <dp-column-selector
           data-cy="segmentsList:selectableColumns"
           :initial-selection="currentSelection"
+          local-storage-key="segmentList"
           :selectable-columns="selectableColumns"
-          @selection-changed="setCurrentSelection"
           use-local-storage
-          local-storage-key="segmentList" />
+          @selection-changed="setCurrentSelection" />
       </div>
     </dp-sticky-element>
 
@@ -102,20 +102,20 @@
 
     <template v-else>
       <dp-data-table
+        v-if="items"
         class="overflow-x-auto"
         :class="{ 'px-4 overflow-y-scroll h-[85%]': isFullscreen }"
-        v-if="items"
-        :header-fields="headerFields"
-        :items="items"
         has-flyout
+        :header-fields="headerFields"
+        is-selectable
+        :items="items"
         :multi-page-all-selected="allSelectedVisually"
         :multi-page-selection-items-total="allItemsCount"
         :multi-page-selection-items-toggled="toggledItems.length"
-        is-selectable
+        :should-be-selected-items="currentlySelectedItems"
         track-by="id"
         @select-all="handleSelectAll"
-        @items-toggled="handleToggleItem"
-        :should-be-selected-items="currentlySelectedItems">
+        @items-toggled="handleToggleItem">
         <template v-slot:externId="rowData">
           <v-popover trigger="hover focus">
             <div class="whitespace-nowrap">
