@@ -34,7 +34,6 @@ class Helpers
 
     public function __construct(
         private readonly CustomerRepository $customerRepository,
-        private readonly GlobalConfigInterface $globalConfig,
         private readonly RoleRepository $roleRepository
     ) {
         $this->helper = new QuestionHelper();
@@ -43,7 +42,7 @@ class Helpers
     /**
      * @return array<int, Role>
      */
-    public function askRoles(InputInterface $input, OutputInterface $output): array
+    public function askRoles(InputInterface $input, OutputInterface $output, array $rolesAllowed): array
     {
         $availableRolesCollection = collect($this->roleRepository->findAll());
         $rolesSelection = $availableRolesCollection
@@ -52,6 +51,10 @@ class Helpers
                 $code = $role->getCode();
 
                 return [$code => $name];
+            })
+            // filter roles that are not allowed
+            ->filter(static function (string $name, string $code) use ($rolesAllowed) {
+                return in_array($code, $rolesAllowed, true);
             })
             ->all();
         $questionRoles = new ChoiceQuestion(

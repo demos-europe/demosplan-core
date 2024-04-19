@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace Tests\Core\Core\Functional;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
-use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -24,7 +24,6 @@ class RegisterUserForCustomerCommandTest extends FunctionalTestCase
 {
     public function testSuccessfulExecute(): void
     {
-        self::markSkippedForCIIntervention();
 
         /** @var User $user */
         $user = $this->fixtures->getReference(LoadUserData::TEST_USER_FP_ONLY);
@@ -37,7 +36,7 @@ class RegisterUserForCustomerCommandTest extends FunctionalTestCase
             [
                 $user->getLogin(),
                 $newCustomer->getSubdomain(),
-                Role::PLANNING_AGENCY_ADMIN.','.Role::PUBLIC_AGENCY_COORDINATION,
+                RoleInterface::PLANNING_AGENCY_ADMIN.','.RoleInterface::PUBLIC_AGENCY_COORDINATION,
             ]
         );
 
@@ -48,11 +47,11 @@ class RegisterUserForCustomerCommandTest extends FunctionalTestCase
         // the output of the command in the console
         $output = $commandTester->getDisplay();
         static::assertStringContainsString('User successfully registered for customer', $output);
+        static::assertStringNotContainsString(RoleInterface::API_AI_COMMUNICATOR, $output);
     }
 
     public function testInvalidUserExecute(): void
     {
-        self::markSkippedForCIIntervention();
 
         $commandTester = $this->getCommandTester();
 
@@ -68,7 +67,6 @@ class RegisterUserForCustomerCommandTest extends FunctionalTestCase
 
     public function testInvalidCustomerExecute(): void
     {
-        self::markSkippedForCIIntervention();
 
         /** @var User $user */
         $user = $this->fixtures->getReference(LoadUserData::TEST_USER_FP_ONLY);
@@ -82,7 +80,7 @@ class RegisterUserForCustomerCommandTest extends FunctionalTestCase
                 $user->getLogin(),
                 'invalid customer',
                 $newCustomer->getSubdomain(),
-                Role::PUBLIC_AGENCY_SUPPORT,
+                RoleInterface::PUBLIC_AGENCY_SUPPORT,
             ]
         );
 

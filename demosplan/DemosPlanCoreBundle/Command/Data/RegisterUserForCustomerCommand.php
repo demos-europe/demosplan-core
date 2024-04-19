@@ -61,7 +61,7 @@ class RegisterUserForCustomerCommand extends CoreCommand
             return Command::FAILURE;
         }
         $customer = $this->helpers->askCustomer($input, $output);
-        $roles = $this->helpers->askRoles($input, $output);
+        $roles = $this->helpers->askRoles($input, $output, $this->parameterBag->get('roles_allowed'));
 
         try {
             // add user to customer

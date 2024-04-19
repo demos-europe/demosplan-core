@@ -58,7 +58,7 @@ class UserCreateCommand extends CoreCommand
         $customer = $this->helpers->askCustomer($input, $output);
         $orga = $this->askOrga($customer->getId(), $input, $output);
         $department = $this->askDepartment($orga->getId(), $input, $output);
-        $roles = $this->helpers->askRoles($input, $output);
+        $roles = $this->helpers->askRoles($input, $output, $this->parameterBag->get('roles_allowed'));
 
         // Create user
         $data = [
