@@ -38,7 +38,7 @@ class ContainerInitCommand extends CoreCommand
     private const OPTION_CUSTOMER_CONFIG = 'customerConfig';
 
     protected static $defaultName = 'dplan:container:init';
-    protected static $defaultDescription = 'Perform startup tasks as an init container in kubernetes setup';
+    protected static $defaultDescription = 'Perform startup tasks that may be used e.g. as an init container in kubernetes setup';
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
@@ -57,7 +57,7 @@ class ContainerInitCommand extends CoreCommand
         $this
            ->setHelp(
                <<<EOT
-Perform startup tasks as an init container in kubernetes setup. Usage:
+Perform startup tasks that may be used e.g. as an init container in kubernetes setup. Usage:
     php bin/<project> dplan:container:init
 EOT
            );
