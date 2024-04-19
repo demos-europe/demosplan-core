@@ -14,7 +14,7 @@
     <dp-sticky-element
       border
       class="py-4"
-      :class="{ 'fixed top-0 left-0 w-full h-1/6 px-4' : isFullscreen }">
+      :class="{ 'fixed top-0 left-0 w-full h-1/6 px-4': isFullscreen }">
       <div class="flex items-center justify-between mb-2">
         <div class="flex">
           <search-modal
@@ -108,7 +108,7 @@
     <template v-if="!isLoading && items.length > 0">
       <dp-data-table
         data-cy="listStatements"
-        :class="{'px-4 overflow-y-scroll h-5/6': isFullscreen }"
+        :class="{ 'px-4 overflow-y-scroll h-5/6': isFullscreen }"
         has-flyout
         :is-selectable="isSourceAndCoupledProcedure"
         :header-fields="headerFields"
