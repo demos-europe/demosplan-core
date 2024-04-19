@@ -8,8 +8,7 @@
 </license>
 
 <template>
-  <div
-    :class="{ 'top-0 left-0 w-full h-full fixed z-fixed bg-white': isFullscreen }">
+  <div :class="{ 'top-0 left-0 w-full h-full fixed z-fixed bg-white': isFullscreen }">
     <dp-sticky-element
       border
       class="py-4"
