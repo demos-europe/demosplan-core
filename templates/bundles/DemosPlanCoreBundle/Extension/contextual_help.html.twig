@@ -11,7 +11,7 @@
 {% endif %}
 
 <dp-contextual-help
-    class="{{ icon|default('fa-question-circle') ~ ' fa u-nojs-hide'|prefixClass(omitPrefix) }} {{ cssClasses|default()|prefixClass(omitPrefix) }}"
+    class="{{ 'u-nojs-hide'|prefixClass(omitPrefix) }} {{ cssClasses|default|prefixClass(omitPrefix) }}"
     :text="'{{ helpText|wysiwyg|e('html_attr') }}'"
     {% if showPlainHint|default(false) == true %}data-wizard-tooltip{% endif %}>
 </dp-contextual-help>
