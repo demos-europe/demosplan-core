@@ -13,9 +13,12 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceConfigBuilder;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureSettingsInterface;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\ScaleResourceType;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
+use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\JsonApi\PropertyConfig\Builder\AttributeConfigBuilderInterface;
 use EDT\JsonApi\ResourceConfig\Builder\MagicResourceConfigBuilder;
+use EDT\JsonApi\PropertyConfig\Builder\ToManyRelationshipConfigBuilderInterface;
 
 /**
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, ProcedureSettingsInterface> $boundingBox
@@ -23,6 +26,7 @@ use EDT\JsonApi\ResourceConfig\Builder\MagicResourceConfigBuilder;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, ProcedureSettingsInterface> $scales
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, ProcedureSettingsInterface> $informationUrl
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, ProcedureSettingsInterface> $copyright
+ * @property-read ToManyRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, ProcedureSettingsInterface, ScaleResourceType> $publicAvailableScales
  */
 class ProcedureSettingResourceConfigBuilder extends MagicResourceConfigBuilder
 {

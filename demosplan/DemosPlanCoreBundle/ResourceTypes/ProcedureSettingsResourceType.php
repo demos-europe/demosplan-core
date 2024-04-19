@@ -16,12 +16,12 @@ use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\ProcedureSettingResourceConfigBuilder;
+use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\ScaleDTO;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 
 /**
  * @template-extends DplanResourceType<ProcedureSettings>
- *
  * @property-read End $coordinate
  */
 class ProcedureSettingsResourceType extends DplanResourceType
@@ -51,9 +51,27 @@ class ProcedureSettingsResourceType extends DplanResourceType
         $configBuilder->copyright
             ->updatable()
             ->readable();
+        $configBuilder->publicAvailableScales
+            ->setRelationshipType($this->resourceTypeStore->getScaleResourceType())
+            ->readable(true, $this->getScales(...));
 
         return $configBuilder;
 
+    }
+
+
+    protected function getScales(): array
+    {
+        $scales = str_replace(['[', ']'], '', (string) $this->globalConfig->getMapPublicAvailableScales());
+        $rawAvailableScales = explode(',', $scales);
+        $availableScales = [];
+        foreach ($rawAvailableScales as $scale) {
+            $scaleDto = new ScaleDTO();
+            $scaleDto->setScale($scale);
+            $scaleDto->lock();
+            $availableScales[] = $scaleDto;
+        }
+        return $availableScales;
     }
 
     public function getEntityClass(): string
