@@ -957,6 +957,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     {
         // Prüfe, ob der User ins Verfahren darf
         if (null !== $this->procedure) {
+            $this->setProcedurePermissions();
             $readPermission = $this->hasPermissionsetRead();
             $owns = $this->ownsProcedure();
             $apiUserMayAccess = $this->hasPermission('feature_procedure_api_access');
