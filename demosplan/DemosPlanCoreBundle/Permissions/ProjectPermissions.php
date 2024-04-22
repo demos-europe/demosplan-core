@@ -15,7 +15,7 @@ use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 
 abstract class ProjectPermissions extends Permissions implements ProjectPermissionsInterface
 {
-    public function initPermissions(UserInterface $user, array $context = null): PermissionsInterface
+    public function initPermissions(UserInterface $user, ?array $context = null): PermissionsInterface
     {
         parent::initPermissions($user, $context);
 

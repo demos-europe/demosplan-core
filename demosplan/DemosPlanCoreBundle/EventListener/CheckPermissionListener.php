@@ -32,9 +32,9 @@ use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
 
 /**
  * Perform initial Permission checks (former initialize()).
- * Permissions are initially set in {@link ConfigurePermissionsListener },
- * Procedure permissions are enhanced in {@link AccessProcedureListener }, general
- * procedure access check is also done in {@link AccessProcedureListener }.
+ * Permissions are initially set in {@link ConfigurePermissionsListener},
+ * Procedure permissions are enhanced in {@link AccessProcedureListener}, general
+ * procedure access check is also done in {@link AccessProcedureListener}.
  */
 class CheckPermissionListener
 {

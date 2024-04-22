@@ -1,5 +1,14 @@
 <?php
+
 declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
@@ -11,12 +20,10 @@ use Symfony\Component\HttpKernel\Event\ControllerEvent;
 #[AsEventListener(event: 'kernel.controller', priority: 6)]
 class AccessProcedureListener
 {
-
     public function __construct(
         private readonly CurrentProcedureService $currentProcedureService,
         private readonly PermissionsInterface $permissions,
-    )
-    {
+    ) {
     }
 
     public function onKernelController(ControllerEvent $controllerEvent): void
@@ -34,5 +41,4 @@ class AccessProcedureListener
         // check whether user has access to the procedure
         $this->permissions->checkProcedurePermission();
     }
-
 }

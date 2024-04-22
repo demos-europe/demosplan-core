@@ -15,14 +15,13 @@ use Psr\Log\LoggerInterface;
 
 class InitializeService implements InitializeServiceInterface
 {
-
     public function __construct(
         private readonly LoggerInterface $logger,
     ) {
     }
 
     /**
-     * @deprecated CheckPermissionListener is used to perform initial Permission checks.
+     * @deprecated checkPermissionListener is used to perform initial Permission checks
      */
     public function initialize(array $context): void
     {
