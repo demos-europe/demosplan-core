@@ -532,7 +532,7 @@ class EntityFetcherTest extends FunctionalTestCase
         $unexpectedStatement = $this->getStatementReference('testStatement20');
         $unexpectedId = $unexpectedStatement->getId();
 
-        $filters =  [
+        $filters = [
             'condition_a' => [
                 'condition' => [
                     'operator' => '<>',
