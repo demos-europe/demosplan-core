@@ -14,8 +14,11 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
+use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\ProcedureMapSettingResourceConfigBuilder;
+use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 use Webmozart\Assert\Assert;
@@ -26,6 +29,13 @@ use Webmozart\Assert\Assert;
  */
 class ProcedureMapSettingResourceType extends DplanResourceType
 {
+
+    public function __construct(protected readonly ContentService $contentService)
+    {
+
+    }
+
+
     public static function getName(): string
     {
         return 'ProcedureMapSetting';
@@ -60,12 +70,37 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         $configBuilder->copyright
             ->updatable()
             ->readable();
-        $configBuilder->publicAvailableScales
+        $configBuilder->publicAvailableScales //@todo rename
             ->readable(false, $this->getAvailablePublicScales(...));
+
+        $configBuilder->showOnlyOverlayCategory
+            ->updatable([], function (ProcedureSettings $procedureSetting, bool $showOnlyOverlayCategory): array {
+                $setting = $this->getSetting(
+                    ContentService::LAYER_GROUPS_ALTERNATE_VISIBILITY,
+                    $procedureSetting);
+                $setting->setContent($showOnlyOverlayCategory);
+                return [];
+            })
+            ->readable(false, function (ProcedureSettings $procedureSetting): bool {
+                $setting = $this->getSetting(
+                    ContentService::LAYER_GROUPS_ALTERNATE_VISIBILITY,
+                    $procedureSetting);
+                return null === $setting ? false : $setting->getContentBool();
+            });
 
 
         return $configBuilder;
 
+    }
+
+    protected function getSetting(string $settingName, ProcedureSettings $procedureSetting): ?Setting
+    {
+        $settings = $this->contentService->getSettings(
+            $settingName,
+            SettingsFilter::whereProcedureId($procedureSetting->getProcedure()->getId())->lock(),
+            false);
+        Assert::countBetween($settings,0,1);
+        return array_pop($settings);
     }
 
     protected function convertCoordinatesToFlatList(array $coordinates): string {

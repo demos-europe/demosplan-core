@@ -30,6 +30,11 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ContentService extends CoreService
 {
+
+    /**
+     * Used as one of the keys in {@link Setting}
+     */
+    public const LAYER_GROUPS_ALTERNATE_VISIBILITY = 'layerGroupsAlternateVisibility';
     public function __construct(
         private readonly ContentRepository $contentRepository,
         private readonly DateHelper $dateHelper,
