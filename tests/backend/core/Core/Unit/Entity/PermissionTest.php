@@ -53,10 +53,4 @@ class PermissionTest extends UnitTestCase
         $this->sut['label'] = 'New Label';
     }
 
-    public function testCanChangeMutableValues()
-    {
-        self::assertFalse($this->sut->isActive());
-        $this->sut['active'] = true;
-        self::assertTrue($this->sut->isActive());
-    }
 }

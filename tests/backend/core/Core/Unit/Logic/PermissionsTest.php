@@ -3159,7 +3159,7 @@ class PermissionsTest extends FunctionalTestCase
                 $procedureRepositoryMock = $this->setUpProcedureRepositoryForTestCase($procedureMock);
                 $this->permissions->setProcedureRepository($procedureRepositoryMock);
             }
-            $this->permissions->initPermissions($user, ['area_demosplan']);
+            $this->permissions->initPermissions($user);
             if ($isInProcedure) {
                 $this->permissions->checkProcedurePermission();
             }

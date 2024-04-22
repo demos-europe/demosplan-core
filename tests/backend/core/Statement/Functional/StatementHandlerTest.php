@@ -98,7 +98,7 @@ class StatementHandlerTest extends FunctionalTestCase
         $this->testProcedure = $this->getProcedureReference(LoadProcedureData::TESTPROCEDURE);
 
         $permissions = $this->sut->getPermissions();
-        $permissions->initPermissions($this->testUser, null);
+        $permissions->initPermissions($this->testUser);
         $permissions->enablePermissions(['feature_statements_fragment_edit']);
         $this->sut->setPermissions($permissions);
     }

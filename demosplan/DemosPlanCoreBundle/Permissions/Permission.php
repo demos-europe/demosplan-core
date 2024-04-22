@@ -55,10 +55,6 @@ class Permission implements ArrayAccess
      */
     protected $enabled = false;
 
-    /**
-     * @var bool Used to control the menu bar
-     */
-    protected $active = false;
 
     /**
      * @param string $name
@@ -128,11 +124,6 @@ class Permission implements ArrayAccess
         return $this->enabled;
     }
 
-    public function isActive(): bool
-    {
-        return $this->active;
-    }
-
     public function isExposed(): bool
     {
         return $this->expose;
@@ -180,16 +171,6 @@ class Permission implements ArrayAccess
     public function disable(): void
     {
         $this->setEnabled(false);
-    }
-
-    /**
-     * @param bool $active
-     */
-    public function setActive($active): self
-    {
-        $this->active = $active;
-
-        return $this;
     }
 
     /**
