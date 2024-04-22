@@ -160,6 +160,7 @@ class JsonApiActionService
         }
 
         $filterParam = $query->get(UrlParameter::FILTER);
+        $filterParam = $this->filterParser->validateFilter($filterParam);
         $conditions = $this->filterParser->parseFilter($filterParam);
         $query->remove(UrlParameter::FILTER);
 

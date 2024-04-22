@@ -138,6 +138,7 @@ class PermissionResolver implements PermissionFilterValidatorInterface
         ?Customer $customer
     ): bool {
         $processedFilterList = $this->replaceParameterConditions($filterList, $user, $procedure, $customer);
+        $processedFilterList = $this->filterParser->validateFilter($processedFilterList);
         $conditions = $this->filterParser->parseFilter($processedFilterList);
 
         // If there is no target (e.g. no procedure because the request has no procedure context)
