@@ -1540,53 +1540,6 @@
             "time": "2024-01-17T07:49:56+00:00"
         },
         {
-            "name": "demos-europe/edt-extra",
-            "version": "0.24.41",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/demos-europe/edt-extra.git",
-                "reference": "b7dd3e5cb75003a8d14fbb283b828451fd7c1ce7"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/edt-extra/zipball/b7dd3e5cb75003a8d14fbb283b828451fd7c1ce7",
-                "reference": "b7dd3e5cb75003a8d14fbb283b828451fd7c1ce7",
-                "shasum": ""
-            },
-            "require": {
-                "demos-europe/edt-jsonapi": "^0.24.41",
-                "php": "^8.1",
-                "thecodingmachine/safe": "^2.4.0"
-            },
-            "conflict": {
-                "demos-europe/edt-access-definitions": "<0.17.1",
-                "demos-europe/edt-dql": "<0.17.1",
-                "demos-europe/edt-paths": "<0.17.1",
-                "demos-europe/edt-queries": "<0.17.1"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "EDT\\Querying\\ConditionParsers\\": "src/Querying/ConditionParsers/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Christian Dressler",
-                    "email": "dressler@demos-deutschland.de"
-                }
-            ],
-            "description": "Extension for edt-queries containing various convenience and use-case specific functionality.",
-            "support": {
-                "source": "https://github.com/demos-europe/edt-extra/tree/0.24.41"
-            },
-            "time": "2024-01-17T07:49:55+00:00"
-        },
-        {
             "name": "demos-europe/edt-jsonapi",
             "version": "0.24.41",
             "source": {
