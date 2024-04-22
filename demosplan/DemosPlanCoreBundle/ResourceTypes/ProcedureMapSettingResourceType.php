@@ -22,6 +22,7 @@ use Webmozart\Assert\Assert;
 
 /**
  * @template-extends DplanResourceType<ProcedureSettings>
+ *
  * @property-read End $coordinate
  */
 class ProcedureMapSettingResourceType extends DplanResourceType
@@ -38,7 +39,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
             ->readable();
         $configBuilder->boundingBox
             ->updatable()
-            ->readable(false, fn(ProcedureSettings $procedureSettings) => $this->convertFlatListToCoordinates($procedureSettings->getBoundingBox()) /*$this->convertToListOfFloat($procedureSettings->getBoundingBox())*/);
+            ->readable(false, fn (ProcedureSettings $procedureSettings) => $this->convertFlatListToCoordinates($procedureSettings->getBoundingBox()) /* $this->convertToListOfFloat($procedureSettings->getBoundingBox()) */);
         $configBuilder->mapExtent
             ->updatable()
             ->readable(false, fn (ProcedureSettings $procedureSettings) => $this->convertFlatListToCoordinates($procedureSettings->getMapExtent()));
@@ -55,11 +56,11 @@ class ProcedureMapSettingResourceType extends DplanResourceType
             ->readable(false, $this->getAvailablePublicScales(...));
 
         return $configBuilder;
-
     }
 
-    protected function convertFlatListToCoordinates(string $rawCoordinateValues): array {
-        $rawCoordinateValues =  explode(',', $rawCoordinateValues);
+    protected function convertFlatListToCoordinates(string $rawCoordinateValues): array
+    {
+        $rawCoordinateValues = explode(',', $rawCoordinateValues);
         $coordinateValues = [];
 
         foreach ($rawCoordinateValues as $value) {
@@ -68,15 +69,14 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
         Assert::count($coordinateValues, 4);
 
-        return array(
-            'start' => array(
-                'latitude' => $coordinateValues[0],
-                'longitude' => $coordinateValues[1]),
-            'end' => array(
-                'latitude' => $coordinateValues[2],
-                'longitude' => $coordinateValues[3]));
+        return [
+            'start' => [
+                'latitude'  => $coordinateValues[0],
+                'longitude' => $coordinateValues[1]],
+            'end' => [
+                'latitude'  => $coordinateValues[2],
+                'longitude' => $coordinateValues[3]]];
     }
-
 
     protected function getAvailablePublicScales(): array
     {
@@ -85,10 +85,12 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
     /**
      * @param string|list<string> $values
+     *
      * @return list<int>
      */
-    protected function convertToListOfInt(string|array $values): array {
-        $rawAvailableScales = is_array($values)? $values : explode(',', $values);
+    protected function convertToListOfInt(string|array $values): array
+    {
+        $rawAvailableScales = is_array($values) ? $values : explode(',', $values);
         $availableScales = [];
         foreach ($rawAvailableScales as $scale) {
             $availableScales[] = (int) $scale;
@@ -114,9 +116,8 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
     public function isUpdateAllowed(): bool
     {
-        return $this->currentUser->hasPermission('area_admin_map'); //@todo update permission
+        return $this->currentUser->hasPermission('area_admin_map'); // @todo update permission
     }
-
 
     protected function getAccessConditions(): array
     {
