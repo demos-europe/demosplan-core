@@ -98,7 +98,7 @@ class StatementHandlerTest extends FunctionalTestCase
         $this->testProcedure = $this->getProcedureReference(LoadProcedureData::TESTPROCEDURE);
 
         $permissions = $this->sut->getPermissions();
-        $permissions->initPermissions($this->testUser, null);
+        $permissions->initPermissions($this->testUser);
         $permissions->enablePermissions(['feature_statements_fragment_edit']);
         $this->sut->setPermissions($permissions);
     }
@@ -739,8 +739,8 @@ class StatementHandlerTest extends FunctionalTestCase
             'r_modifiedByUserId'       => $testUserId3,
             'r_modifiedByDepartmentId' => $testDepartmentId,
             'r_element'                => $testElementId1,
-//            'r_paragraph' => 'neuer Text eines frisch erstellen Datensatzes.',
-//            'r_document' => 'neuer Text eines frisch erstellen Datensatzes.',
+            //            'r_paragraph' => 'neuer Text eines frisch erstellen Datensatzes.',
+            //            'r_document' => 'neuer Text eines frisch erstellen Datensatzes.',
             'statementId'              => $statementId,
             'procedureId'              => $procedureId,
         ];
