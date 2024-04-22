@@ -37,13 +37,22 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         $configBuilder->id
             ->readable();
         $configBuilder->boundingBox
-            ->updatable()
-            ->readable(false, fn(ProcedureSettings $procedureSettings) => $this->convertFlatListToCoordinates($procedureSettings->getBoundingBox()) /*$this->convertToListOfFloat($procedureSettings->getBoundingBox())*/);
+            ->updatable([], function (ProcedureSettings $procedureSettings, array $boundingBox): array {
+                $procedureSettings->setBoundingBox($this->convertCoordinatesToFlatList($boundingBox));
+                return [];
+            })
+            ->readable(false, fn(ProcedureSettings $procedureSettings) => $this->convertFlatListToCoordinates($procedureSettings->getBoundingBox()));
         $configBuilder->mapExtent
-            ->updatable()
+            ->updatable([], function (ProcedureSettings $procedureSettings, array $mapExtent): array {
+                $procedureSettings->setMapExtent($this->convertCoordinatesToFlatList($mapExtent));
+                return [];
+            })
             ->readable(false, fn (ProcedureSettings $procedureSettings) => $this->convertFlatListToCoordinates($procedureSettings->getMapExtent()));
         $configBuilder->scales
-            ->updatable()
+            ->updatable([], function (ProcedureSettings $procedureSettings, array $scales): array {
+                $procedureSettings->setScales($this->convertListOfIntToString($scales));
+                return [];
+            })
             ->readable(false, fn (ProcedureSettings $procedureSettings) => $this->convertToListOfInt($procedureSettings->getScales()));
         $configBuilder->informationUrl
             ->updatable()
@@ -54,8 +63,17 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         $configBuilder->publicAvailableScales
             ->readable(false, $this->getAvailablePublicScales(...));
 
+
         return $configBuilder;
 
+    }
+
+    protected function convertCoordinatesToFlatList(array $coordinates): string {
+        return implode(',', array(
+            $coordinates['start']['latitude'],
+            $coordinates['start']['longitude'],
+            $coordinates['end']['latitude'],
+            $coordinates['end']['longitude']));
     }
 
     protected function convertFlatListToCoordinates(string $rawCoordinateValues): array {
@@ -81,6 +99,11 @@ class ProcedureMapSettingResourceType extends DplanResourceType
     protected function getAvailablePublicScales(): array
     {
         return $this->convertToListOfInt(str_replace(['[', ']'], '', (string) $this->globalConfig->getMapPublicAvailableScales()));
+    }
+
+    protected function convertListOfIntToString(array $values): string
+    {
+        return implode(',', $values);
     }
 
     /**
