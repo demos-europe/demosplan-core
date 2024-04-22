@@ -30,11 +30,11 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ContentService extends CoreService
 {
-
     /**
-     * Used as one of the keys in {@link Setting}
+     * Used as one of the keys in {@link Setting}.
      */
     public const LAYER_GROUPS_ALTERNATE_VISIBILITY = 'layerGroupsAlternateVisibility';
+
     public function __construct(
         private readonly ContentRepository $contentRepository,
         private readonly DateHelper $dateHelper,
@@ -144,6 +144,7 @@ class ContentService extends CoreService
     {
         try {
             $singleGlobalContent = $this->contentRepository->add($data);
+
             // convert to Legacy Array
             return $this->convertToLegacy($singleGlobalContent);
         } catch (Exception $e) {
@@ -199,8 +200,6 @@ class ContentService extends CoreService
 
     /**
      * Get all global Settings.
-     *
-     * @return mixed
      *
      * @throws Exception
      */
@@ -265,7 +264,7 @@ class ContentService extends CoreService
      *
      * @throws Exception
      */
-    public function getSettings($key, SettingsFilter $filter = null, $legacy = true)
+    public function getSettings($key, ?SettingsFilter $filter = null, $legacy = true)
     {
         try {
             // Wurde ein Filter übergeben
