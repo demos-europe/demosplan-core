@@ -32,7 +32,6 @@ describe('ParticipationPhases', () => {
     }
   }
 
-
   it('should be an object', () => {
     expect(typeof ParticipationPhases).toBe('object')
   })
@@ -52,19 +51,19 @@ describe('ParticipationPhases', () => {
     expect(wrapper.vm.isInParticipation).toBe(true)
 
     await wrapper.setData({
-      selectedPhase: 'fourth',
+      selectedPhase: 'fourth'
     })
 
     expect(wrapper.vm.isInParticipation).toBe(false)
 
     await wrapper.setData({
-      selectedPhase: 'noneAtall',
+      selectedPhase: 'noneAtall'
     })
 
     expect(wrapper.vm.isInParticipation).toBe(false)
   })
 
-  it('should set the Permission-Message-Text depending on the selected participation phase permissionset ', async () => {
+  it('should set the Permission-Message-Text depending on the selected participation phase permissionset', async () => {
     const localVue = createLocalVue()
 
     const wrapper = shallowMountWithGlobalMocks(ParticipationPhases, {
@@ -75,13 +74,13 @@ describe('ParticipationPhases', () => {
     expect(wrapper.vm.permissionMessageText).toEqual('Some Message permissionset.read')
 
     await wrapper.setData({
-      selectedPhase: 'fifth',
+      selectedPhase: 'fifth'
     })
 
     expect(wrapper.vm.permissionMessageText).toEqual('Some Message permissionset.hidden')
 
     await wrapper.setData({
-      selectedPhase: 'fourth',
+      selectedPhase: 'fourth'
     })
 
     expect(wrapper.vm.permissionMessageText).toEqual('Some Message permissionset.write')
