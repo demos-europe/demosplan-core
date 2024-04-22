@@ -33,9 +33,9 @@ class PermissionDrupalConditionFactory extends PredefinedDrupalConditionFactory
         parent::__construct($conditionFactory);
     }
 
-    protected function getOperatorFunctions(): array
+    protected function getOperatorFunctionsWithoutValue(): array
     {
-        $operators = parent::getOperatorFunctions();
+        $operators = parent::getOperatorFunctionsWithoutValue();
         $operators['IS NULL'] = fn ($conditionValue, array $path): PathsBasedInterface => $this->conditionFactory->propertyIsNull($path);
         $operators['IS NOT NULL'] = fn ($conditionValue, array $path): PathsBasedInterface => $this->conditionFactory->propertyIsNotNull($path);
 
