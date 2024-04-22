@@ -691,6 +691,15 @@ class ContentService extends CoreService
         return true;
     }
 
+    public function createEmptySetting(Entity\Procedure\Procedure $procedure, string $key) : Setting
+    {
+        $setting = new Setting();
+        $setting->setProcedure($procedure);
+        $setting->setKey($key);
+        $this->settingRepository->persistEntities([$setting]);
+        return $setting;
+    }
+
     /**
      * Returns Settings of a specific user.
      *

@@ -51,13 +51,13 @@ class ProcedureMapSettingResourceType extends DplanResourceType
                 $procedureSettings->setBoundingBox($this->convertCoordinatesToFlatList($boundingBox));
                 return [];
             })
-            ->readable(false, fn(ProcedureSettings $procedureSettings) => $this->convertFlatListToCoordinates($procedureSettings->getBoundingBox()));
+            ->readable(false, fn(ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getBoundingBox()));
         $configBuilder->mapExtent
             ->updatable([], function (ProcedureSettings $procedureSettings, array $mapExtent): array {
                 $procedureSettings->setMapExtent($this->convertCoordinatesToFlatList($mapExtent));
                 return [];
             })
-            ->readable(false, fn (ProcedureSettings $procedureSettings) => $this->convertFlatListToCoordinates($procedureSettings->getMapExtent()));
+            ->readable(false, fn(ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getMapExtent()));
         $configBuilder->scales
             ->updatable([], function (ProcedureSettings $procedureSettings, array $scales): array {
                 $procedureSettings->setScales($this->convertListOfIntToString($scales));
@@ -78,7 +78,15 @@ class ProcedureMapSettingResourceType extends DplanResourceType
                 $setting = $this->getSetting(
                     ContentService::LAYER_GROUPS_ALTERNATE_VISIBILITY,
                     $procedureSetting);
+                if(null === $setting) {
+                    $setting = $this->contentService->createEmptySetting(
+                        $procedureSetting->getProcedure(),
+                        ContentService::LAYER_GROUPS_ALTERNATE_VISIBILITY
+                        );
+                }
+
                 $setting->setContent($showOnlyOverlayCategory);
+
                 return [];
             })
             ->readable(false, function (ProcedureSettings $procedureSetting): bool {
@@ -87,7 +95,6 @@ class ProcedureMapSettingResourceType extends DplanResourceType
                     $procedureSetting);
                 return null === $setting ? false : $setting->getContentBool();
             });
-
 
         return $configBuilder;
 
@@ -111,7 +118,12 @@ class ProcedureMapSettingResourceType extends DplanResourceType
             $coordinates['end']['longitude']));
     }
 
-    protected function convertFlatListToCoordinates(string $rawCoordinateValues): array {
+    protected function convertFlatListToCoordinates(string $rawCoordinateValues): ?array {
+
+        if ('' === $rawCoordinateValues) {
+            return null;
+        }
+
         $rawCoordinateValues =  explode(',', $rawCoordinateValues);
         $coordinateValues = [];
 
@@ -145,7 +157,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
      * @param string|list<string> $values
      * @return list<int>
      */
-    protected function convertToListOfInt(string|array $values): array {
+    protected function convertToListOfInt(string|array $values): ?array {
         $rawAvailableScales = is_array($values)? $values : explode(',', $values);
         $availableScales = [];
         foreach ($rawAvailableScales as $scale) {
