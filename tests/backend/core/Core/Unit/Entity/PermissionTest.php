@@ -30,7 +30,7 @@ class PermissionTest extends UnitTestCase
     /**
      * @var Permission
      */
-    protected $sut = null;
+    protected $sut;
 
     public function setUp(): void
     {
@@ -52,5 +52,4 @@ class PermissionTest extends UnitTestCase
 
         $this->sut['label'] = 'New Label';
     }
-
 }

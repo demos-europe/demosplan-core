@@ -739,8 +739,8 @@ class StatementHandlerTest extends FunctionalTestCase
             'r_modifiedByUserId'       => $testUserId3,
             'r_modifiedByDepartmentId' => $testDepartmentId,
             'r_element'                => $testElementId1,
-//            'r_paragraph' => 'neuer Text eines frisch erstellen Datensatzes.',
-//            'r_document' => 'neuer Text eines frisch erstellen Datensatzes.',
+            //            'r_paragraph' => 'neuer Text eines frisch erstellen Datensatzes.',
+            //            'r_document' => 'neuer Text eines frisch erstellen Datensatzes.',
             'statementId'              => $statementId,
             'procedureId'              => $procedureId,
         ];
