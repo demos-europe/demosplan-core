@@ -520,7 +520,6 @@ class DemosPlanStatementController extends BaseController
 
         if (true === $submitted) {
             $this->permissions->checkPermission('area_statements_final');
-            $this->permissions->setMenuhighlighting('area_statements_final');
             if ($requestPost->has('f_scope') && 'own' === $requestPost->get('f_scope')) {
                 $filters->setUserId($this->currentUser->getUser()->getId());
                 $scope = 'own';
@@ -535,14 +534,11 @@ class DemosPlanStatementController extends BaseController
         } elseif (true === $released) {
             if ('group' === $scope) {
                 $this->permissions->checkPermission('area_statements_released_group');
-                $this->permissions->setMenuhighlighting('area_statements_released_group');
             } else {
                 $this->permissions->checkPermission('area_statements_released');
-                $this->permissions->setMenuhighlighting('area_statements_released');
             }
         } else {
             $this->permissions->checkPermission('area_statements_draft');
-            $this->permissions->setMenuhighlighting('area_statements_draft');
         }
 
         // loeschen verarbeiten
