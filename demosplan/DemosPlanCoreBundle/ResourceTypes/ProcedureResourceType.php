@@ -42,7 +42,7 @@ use EDT\PathBuilding\End;
  * @property-read UserResourceType                    $authorizedUsers
  * @property-read OrgaResourceType                    $planningOffices
  * @property-read End                                 $coordinate
- * @property-read ProcedureSettingsResourceType       $settings
+ * @property-read ProcedureMapSettingResourceType     $mapSetting
  * @property-read End                                 $externalDesc
  * @property-read End                                 $externalDescription
  * @property-read End                                 $externalName
@@ -189,8 +189,8 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
         }
 
         if ($this->currentUser->hasPermission('area_public_participation')) {
-            $properties[] = $this->createToOneRelationship($this->settings)->readable();
-            $properties[] = $this->createAttribute($this->coordinate)->readable()->aliasedPath($this->settings->coordinate);
+            $properties[] = $this->createToOneRelationship($this->mapSetting)->readable();
+            $properties[] = $this->createAttribute($this->coordinate)->readable()->aliasedPath($this->mapSetting->coordinate);
             $properties[] = $this->createAttribute($this->externalDescription)->readable()->aliasedPath($this->externalDesc);
             $properties[] = $this->createAttribute($this->statementSubmitted)->readable(false, function (Procedure $procedure): int {
                 $userFilter = new StatementListUserFilter();

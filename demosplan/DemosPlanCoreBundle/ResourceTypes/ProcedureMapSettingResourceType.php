@@ -15,37 +15,36 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\ProcedureSettingResourceConfigBuilder;
-use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\ScaleDTO;
+use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\ProcedureMapSettingResourceConfigBuilder;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
+use Webmozart\Assert\Assert;
 
 /**
  * @template-extends DplanResourceType<ProcedureSettings>
- *
  * @property-read End $coordinate
  */
-class ProcedureSettingsResourceType extends DplanResourceType
+class ProcedureMapSettingResourceType extends DplanResourceType
 {
     public static function getName(): string
     {
-        return 'ProcedureSettings';
+        return 'ProcedureMapSetting';
     }
 
     protected function getProperties(): ResourceConfigBuilderInterface
     {
-        $configBuilder = $this->getConfig(ProcedureSettingResourceConfigBuilder::class);
+        $configBuilder = $this->getConfig(ProcedureMapSettingResourceConfigBuilder::class);
         $configBuilder->id
             ->readable();
         $configBuilder->boundingBox
             ->updatable()
-            ->readable();
+            ->readable(false, fn(ProcedureSettings $procedureSettings) => $this->convertFlatListToCoordinates($procedureSettings->getBoundingBox()) /*$this->convertToListOfFloat($procedureSettings->getBoundingBox())*/);
         $configBuilder->mapExtent
             ->updatable()
-            ->readable();
+            ->readable(false, fn (ProcedureSettings $procedureSettings) => $this->convertFlatListToCoordinates($procedureSettings->getMapExtent()));
         $configBuilder->scales
             ->updatable()
-            ->readable();
+            ->readable(false, fn (ProcedureSettings $procedureSettings) => $this->convertToListOfInt($procedureSettings->getScales()));
         $configBuilder->informationUrl
             ->updatable()
             ->readable();
@@ -53,22 +52,46 @@ class ProcedureSettingsResourceType extends DplanResourceType
             ->updatable()
             ->readable();
         $configBuilder->publicAvailableScales
-            ->setRelationshipType($this->resourceTypeStore->getScaleResourceType())
-            ->readable(true, $this->getScales(...));
+            ->readable(false, $this->getAvailablePublicScales(...));
 
         return $configBuilder;
+
     }
 
-    protected function getScales(): array
+    protected function convertFlatListToCoordinates(string $rawCoordinateValues): array {
+        $rawCoordinateValues =  explode(',', $rawCoordinateValues);
+        $coordinateValues = [];
+
+        foreach ($rawCoordinateValues as $value) {
+            $coordinateValues[] = (float) $value;
+        }
+
+        Assert::count($coordinateValues, 4);
+
+        return array(
+            'start' => array(
+                'latitude' => $coordinateValues[0],
+                'longitude' => $coordinateValues[1]),
+            'end' => array(
+                'latitude' => $coordinateValues[2],
+                'longitude' => $coordinateValues[3]));
+    }
+
+
+    protected function getAvailablePublicScales(): array
     {
-        $scales = str_replace(['[', ']'], '', (string) $this->globalConfig->getMapPublicAvailableScales());
-        $rawAvailableScales = explode(',', $scales);
+        return $this->convertToListOfInt(str_replace(['[', ']'], '', (string) $this->globalConfig->getMapPublicAvailableScales()));
+    }
+
+    /**
+     * @param string|list<string> $values
+     * @return list<int>
+     */
+    protected function convertToListOfInt(string|array $values): array {
+        $rawAvailableScales = is_array($values)? $values : explode(',', $values);
         $availableScales = [];
         foreach ($rawAvailableScales as $scale) {
-            $scaleDto = new ScaleDTO();
-            $scaleDto->setScale($scale);
-            $scaleDto->lock();
-            $availableScales[] = $scaleDto;
+            $availableScales[] = (int) $scale;
         }
 
         return $availableScales;
@@ -91,8 +114,9 @@ class ProcedureSettingsResourceType extends DplanResourceType
 
     public function isUpdateAllowed(): bool
     {
-        return $this->currentUser->hasPermission('area_admin_map'); // @todo update permission
+        return $this->currentUser->hasPermission('area_admin_map'); //@todo update permission
     }
+
 
     protected function getAccessConditions(): array
     {
