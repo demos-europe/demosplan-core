@@ -57,9 +57,9 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\PlaceResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\PlanningDocumentCategoryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\PriorityAreaResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureBehaviorDefinitionResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureMapSettingResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureNewsResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureMapSettingResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureTemplateResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureTypeResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureUiDefinitionResourceType;
@@ -478,5 +478,4 @@ class ResourceTypeStore
     {
         return $this->userRoleInCustomerResourceType;
     }
-
 }
