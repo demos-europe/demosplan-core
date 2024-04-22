@@ -33,6 +33,9 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserInterface;
+use Scheb\TwoFactorBundle\Model\Totp\TotpConfiguration;
+use Scheb\TwoFactorBundle\Model\Totp\TotpConfigurationInterface;
+use Scheb\TwoFactorBundle\Model\Totp\TwoFactorInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use UnexpectedValueException;
 
@@ -49,7 +52,7 @@ use function in_array;
  *
  * @UserWithMatchingDepartmentInOrgaConstraint()
  */
-class User implements SamlUserInterface, AddonUserInterface
+class User implements SamlUserInterface, AddonUserInterface, TwoFactorInterface
 {
     public const HEARING_AUTHORITY_ROLES = [RoleInterface::HEARING_AUTHORITY_ADMIN, RoleInterface::HEARING_AUTHORITY_WORKER];
     public const PLANNING_AGENCY_ROLES = [RoleInterface::PLANNING_AGENCY_ADMIN, RoleInterface::PLANNING_AGENCY_WORKER];
@@ -1754,5 +1757,20 @@ class User implements SamlUserInterface, AddonUserInterface
     private function hasInvalidRoleCache(): bool
     {
         return null === $this->rolesArrayCache || count($this->rolesArrayCache) !== $this->roleInCustomers->count();
+    }
+
+    public function isTotpAuthenticationEnabled(): bool
+    {
+        return true;
+    }
+
+    public function getTotpAuthenticationUsername(): string
+    {
+        return $this->getUserIdentifier();
+    }
+
+    public function getTotpAuthenticationConfiguration(): ?TotpConfigurationInterface
+    {
+        return new TotpConfiguration('ONSWG4TFOQ', TotpConfiguration::ALGORITHM_SHA1, 30, 6);
     }
 }

@@ -25,8 +25,11 @@ use demosplan\DemosPlanCoreBundle\Logic\User\UserHasher;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\LoginFormAuthenticator;
+use Endroid\QrCode\Builder\BuilderInterface;
+use Endroid\QrCodeBundle\Response\QrCodeResponse;
 use Exception;
 use Psr\Log\LoggerInterface;
+use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Totp\TotpAuthenticatorInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -119,7 +122,19 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
 
         return $this->redirectToRoute('DemosPlan_user_portal');
     }
-
+    /**
+     * @Route("/authentication/2fa/qr-code", name="app_qr_code")
+     */
+    public function displayGoogleAuthenticatorQrCode(BuilderInterface $builder, TotpAuthenticatorInterface $totpAuthenticator)
+    {
+        $qrCodeContent = $totpAuthenticator->getQRContent($this->getUser());
+        $result = $builder
+            ->size(400)
+            ->margin(20)
+            ->data($qrCodeContent)
+            ->build();
+        return new QrCodeResponse($result);
+    }
     /**
      * Set email address of user. Called via link which was sent to user via email.
      *
