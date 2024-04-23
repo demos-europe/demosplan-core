@@ -129,9 +129,10 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     {
         $qrCodeContent = $totpAuthenticator->getQRContent($this->getUser());
         $result = $builder
-            ->size(400)
+            ->size(200)
             ->margin(20)
             ->data($qrCodeContent)
+            ->validateResult(true)
             ->build();
         return new QrCodeResponse($result);
     }
