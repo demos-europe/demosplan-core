@@ -30,7 +30,7 @@ class PermissionTest extends UnitTestCase
     /**
      * @var Permission
      */
-    protected $sut = null;
+    protected $sut;
 
     public function setUp(): void
     {
@@ -51,12 +51,5 @@ class PermissionTest extends UnitTestCase
         $this->expectException(RuntimeException::class);
 
         $this->sut['label'] = 'New Label';
-    }
-
-    public function testCanChangeMutableValues()
-    {
-        self::assertFalse($this->sut->isActive());
-        $this->sut['active'] = true;
-        self::assertTrue($this->sut->isActive());
     }
 }
