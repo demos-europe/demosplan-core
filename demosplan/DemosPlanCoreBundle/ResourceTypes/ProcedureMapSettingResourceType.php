@@ -124,7 +124,6 @@ class ProcedureMapSettingResourceType extends DplanResourceType
                 });
         }
 
-
         $configBuilder->defaultMapExtent
             ->readable(false, function (ProcedureSettings $procedureSetting): ?array {
                 $masterTemplateMapSetting = $this->masterTemplateService->getMasterTemplate()->getSettings();
