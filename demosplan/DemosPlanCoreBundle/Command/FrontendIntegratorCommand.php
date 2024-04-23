@@ -10,18 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
-use cebe\openapi\spec\OpenApi;
-use cebe\openapi\Writer;
-use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
-use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
-use demosplan\DemosPlanCoreBundle\Entity\User\Role;
-use demosplan\DemosPlanCoreBundle\Logic\ApiDocumentation\JsApiResourceDefinitionBuilder;
-use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use EDT\JsonApi\ApiDocumentation\OpenAPISchemaGenerator;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
 use Symfony\Component\Console\Command\Command;
@@ -30,9 +21,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\Yaml\Yaml;
 
-use function file_put_contents;
 use function str_replace;
 
 /**
@@ -46,7 +35,7 @@ class FrontendIntegratorCommand extends CoreCommand
 
     public function __construct(
         ParameterBagInterface $parameterBag,
-        string $name = null
+        ?string $name = null
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -111,5 +100,4 @@ class FrontendIntegratorCommand extends CoreCommand
             ->add('dplan:translations:dump')
             ->run();
     }
-
 }
