@@ -45,18 +45,18 @@ class ProcedureMapSettingResourceType extends DplanResourceType
             ->readable();
         $configBuilder->boundingBox
             ->updatable([], function (ProcedureSettings $procedureSettings, array $boundingBox): array {
-                $procedureSettings->setBoundingBox($this->convertCoordinatesToFlatList($boundingBox));
+                $procedureSettings->setBoundingBox($this->convertStartEndCoordinatesToFlatList($boundingBox));
 
                 return [];
             })
-            ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getBoundingBox()));
+            ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getBoundingBox(),4));
         $configBuilder->mapExtent
             ->updatable([], function (ProcedureSettings $procedureSettings, array $mapExtent): array {
-                $procedureSettings->setMapExtent($this->convertCoordinatesToFlatList($mapExtent));
+                $procedureSettings->setMapExtent($this->convertStartEndCoordinatesToFlatList($mapExtent));
 
                 return [];
             })
-            ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getMapExtent()));
+            ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getMapExtent(),4));
         $configBuilder->scales
             ->updatable([], function (ProcedureSettings $procedureSettings, array $scales): array {
                 $procedureSettings->setScales($this->convertListOfIntToString($scales));
@@ -98,7 +98,12 @@ class ProcedureMapSettingResourceType extends DplanResourceType
             });
 
         $configBuilder->coordinate
-            ->readable();
+            ->updatable([], function (ProcedureSettings $procedureSettings, array $coordinate): array {
+                $procedureSettings->setCoordinate($this->convertCoordinatesToFlatList($coordinate));
+
+                return [];
+            })
+            ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getCoordinate(), 2));
 
         $configBuilder->territory
             ->readable();
@@ -107,14 +112,14 @@ class ProcedureMapSettingResourceType extends DplanResourceType
             ->readable(false, function (ProcedureSettings $procedureSetting): ?array {
                 $masterTemplateMapSetting = $this->masterTemplateService->getMasterTemplate()->getSettings();
 
-                return $this->convertFlatListToCoordinates($masterTemplateMapSetting->getBoundingBox());
+                return $this->convertFlatListToCoordinates($masterTemplateMapSetting->getBoundingBox(), 4);
             });
 
         $configBuilder->defaultMapExtent
             ->readable(false, function (ProcedureSettings $procedureSetting): ?array {
                 $masterTemplateMapSetting = $this->masterTemplateService->getMasterTemplate()->getSettings();
 
-                return $this->convertFlatListToCoordinates($masterTemplateMapSetting->getMapExtent());
+                return $this->convertFlatListToCoordinates($masterTemplateMapSetting->getMapExtent(),4);
             });
 
         $configBuilder->useGlobaInformationUrl
@@ -134,7 +139,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         return array_pop($settings);
     }
 
-    protected function convertCoordinatesToFlatList(array $coordinates): string
+    protected function convertStartEndCoordinatesToFlatList(array $coordinates): string
     {
         return implode(',', [
             $coordinates['start']['latitude'],
@@ -143,7 +148,14 @@ class ProcedureMapSettingResourceType extends DplanResourceType
             $coordinates['end']['longitude']]);
     }
 
-    protected function convertFlatListToCoordinates(string $rawCoordinateValues): ?array
+    protected function convertCoordinatesToFlatList(array $coordinates): string
+    {
+        return implode(',', [
+            $coordinates['latitude'],
+            $coordinates['longitude']]);
+    }
+
+    protected function convertFlatListToCoordinates(string $rawCoordinateValues, $expectedCoordinatePair): ?array
     {
         if ('' === $rawCoordinateValues) {
             return null;
@@ -156,15 +168,27 @@ class ProcedureMapSettingResourceType extends DplanResourceType
             $coordinateValues[] = (float) $value;
         }
 
-        Assert::count($coordinateValues, 4);
+        Assert::count($coordinateValues, $expectedCoordinatePair);
 
-        return [
-            'start' => [
+        if ($expectedCoordinatePair === 2) {
+            return [
                 'latitude'  => $coordinateValues[0],
-                'longitude' => $coordinateValues[1]],
-            'end' => [
-                'latitude'  => $coordinateValues[2],
-                'longitude' => $coordinateValues[3]]];
+                'longitude' => $coordinateValues[1]
+            ];
+        } elseif ($expectedCoordinatePair === 4) {
+            return [
+                'start' => [
+                    'latitude'  => $coordinateValues[0],
+                    'longitude' => $coordinateValues[1]
+                ],
+                'end' => [
+                    'latitude'  => $coordinateValues[2],
+                    'longitude' => $coordinateValues[3]
+                ]
+            ];
+        } else {
+            throw new \InvalidArgumentException('Expected exactly two or four coordinate values');
+        }
     }
 
     protected function getAvailablePublicScales(): array
