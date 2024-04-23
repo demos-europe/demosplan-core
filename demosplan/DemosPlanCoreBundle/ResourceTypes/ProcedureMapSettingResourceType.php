@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\ProcedureMapSettingResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
+use InvalidArgumentException;
 use Webmozart\Assert\Assert;
 
 /**
@@ -49,14 +50,14 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
                 return [];
             })
-            ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getBoundingBox(),4));
+            ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getBoundingBox(), 4));
         $configBuilder->mapExtent
             ->updatable([], function (ProcedureSettings $procedureSettings, array $mapExtent): array {
                 $procedureSettings->setMapExtent($this->convertStartEndCoordinatesToFlatList($mapExtent));
 
                 return [];
             })
-            ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getMapExtent(),4));
+            ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getMapExtent(), 4));
         $configBuilder->scales
             ->updatable([], function (ProcedureSettings $procedureSettings, array $scales): array {
                 $procedureSettings->setScales($this->convertListOfIntToString($scales));
@@ -126,7 +127,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
             ->readable(false, function (ProcedureSettings $procedureSetting): ?array {
                 $masterTemplateMapSetting = $this->masterTemplateService->getMasterTemplate()->getSettings();
 
-                return $this->convertFlatListToCoordinates($masterTemplateMapSetting->getMapExtent(),4);
+                return $this->convertFlatListToCoordinates($masterTemplateMapSetting->getMapExtent(), 4);
             });
 
         $configBuilder->useGlobaInformationUrl
@@ -177,24 +178,24 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
         Assert::count($coordinateValues, $expectedCoordinatePair);
 
-        if ($expectedCoordinatePair === 2) {
+        if (2 === $expectedCoordinatePair) {
             return [
                 'latitude'  => $coordinateValues[0],
-                'longitude' => $coordinateValues[1]
+                'longitude' => $coordinateValues[1],
             ];
-        } elseif ($expectedCoordinatePair === 4) {
+        } elseif (4 === $expectedCoordinatePair) {
             return [
                 'start' => [
                     'latitude'  => $coordinateValues[0],
-                    'longitude' => $coordinateValues[1]
+                    'longitude' => $coordinateValues[1],
                 ],
                 'end' => [
                     'latitude'  => $coordinateValues[2],
-                    'longitude' => $coordinateValues[3]
-                ]
+                    'longitude' => $coordinateValues[3],
+                ],
             ];
         } else {
-            throw new \InvalidArgumentException('Expected exactly two or four coordinate values');
+            throw new InvalidArgumentException('Expected exactly two or four coordinate values');
         }
     }
 
