@@ -41,17 +41,10 @@ use function str_replace;
  */
 class FrontendIntegratorCommand extends CoreCommand
 {
-    private const OPEN_API_JSON_FILE = 'client/js/generated/openApi.json';
-
-    private const RESOURCE_TYPES_FILE = 'client/js/generated/ResourceTypes.js';
-
     protected static $defaultName = 'dplan:frontend:integrator';
     protected static $defaultDescription = 'This command outputs a bunch of data needed by the FE tooling';
 
     public function __construct(
-        private readonly CurrentUserInterface $currentUser,
-        private readonly JsApiResourceDefinitionBuilder $resourceDefinitionBuilder,
-        private readonly OpenAPISchemaGenerator $apiDocumentationGenerator,
         ParameterBagInterface $parameterBag,
         string $name = null
     ) {
@@ -117,55 +110,6 @@ class FrontendIntegratorCommand extends CoreCommand
             )
             ->add('dplan:translations:dump')
             ->run();
-
-        if (DemosPlanKernel::ENVIRONMENT_PROD !== $this->getApplication()->getKernel()->getEnvironment()) {
-            $this->updateApiCodingSupport();
-        }
     }
 
-    /**
-     * Build an OpenApi spec with the most permissive permissions configuration possible.
-     *
-     * A user who is logged in in any role and has all available permissions enabled
-     * should result in all (non-procedure) permission checks evaluating true.
-     *
-     * With this user, all possible ResourceTypes should be included in the spec build.
-     */
-    private function getOpenApiSpec(): OpenApi
-    {
-        $user = new FunctionalUser();
-        $user->setDplanroles([Role::CITIZEN]);
-
-        $this->currentUser->setUser($user);
-        $this->currentUser->getPermissions()->initPermissions($user);
-
-        $allPermissions = Yaml::parseFile(DemosPlanPath::getConfigPath(Permissions::PERMISSIONS_YML));
-        $this->currentUser->getPermissions()->enablePermissions(array_keys($allPermissions));
-
-        $openApiSpec = $this->apiDocumentationGenerator->getOpenAPISpecification();
-
-        // just to be safe, reset permissions after getting everything we want
-        $this->currentUser->getPermissions()->initPermissions($user);
-
-        return $openApiSpec;
-    }
-
-    private function saveOpenApiSpec(OpenApi $openApiSpec): void
-    {
-        file_put_contents(
-            DemosPlanPath::getRootPath(self::OPEN_API_JSON_FILE),
-            Writer::writeToJson($openApiSpec)
-        );
-    }
-
-    /**
-     * Update coding support files for our EDT-based {json:api}.
-     */
-    private function updateApiCodingSupport(): void
-    {
-        $openApiSpec = $this->getOpenApiSpec();
-
-        $this->saveOpenApiSpec($openApiSpec);
-        $this->resourceDefinitionBuilder->build($openApiSpec, self::RESOURCE_TYPES_FILE);
-    }
 }
