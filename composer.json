@@ -81,7 +81,7 @@
         "ramsey/uuid": "^4",
         "rollerworks/password-strength-bundle": "^2.2",
         "sensio/framework-extra-bundle": "^6.1",
-        "sentry/sentry-symfony": "^4.0",
+        "sentry/sentry-symfony": "^5.0",
         "stevenmaguire/oauth2-keycloak": "^5.0",
         "stof/doctrine-extensions-bundle": "^1.2",
         "symfony/asset": "5.*.*",
