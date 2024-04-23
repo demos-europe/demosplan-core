@@ -115,7 +115,6 @@ class ProcedureMapSettingResourceType extends DplanResourceType
                 ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertJsonToCoordinates($procedureSettings->getTerritory()));
         }
 
-
         $configBuilder->defaultBoundingBox
             ->readable(false, function (ProcedureSettings $procedureSetting): ?array {
                 $masterTemplateMapSetting = $this->masterTemplateService->getMasterTemplate()->getSettings();
@@ -207,8 +206,8 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
         $coordinateValues = json_decode($rawCoordinateValues, true);
 
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \InvalidArgumentException('Invalid JSON provided');
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            throw new InvalidArgumentException('Invalid JSON provided');
         }
 
         return $coordinateValues;
