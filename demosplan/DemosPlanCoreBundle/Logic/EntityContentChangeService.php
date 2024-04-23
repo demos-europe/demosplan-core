@@ -216,10 +216,9 @@ class EntityContentChangeService extends CoreService
             // we use `null` as pre update value.
             $preUpdateValue = $preUpdateArray[$propertyName] ?? null;
             $postUpdateValue = $incomingUpdatedObject->$methodName();
-            if ($preUpdateValue instanceof Collection) {
+            if ($preUpdateValue instanceof PersistentCollection) {
                 // getOriginalEntityData() seems to be ignore n:m association.
                 // use getSnapshot() to get "pre update" data
-                /* @var PersistentCollection $preUpdateValue */
                 $preUpdateValue->initialize();
                 $preUpdateValue = $preUpdateValue->getSnapshot();
             }
