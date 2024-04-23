@@ -2371,6 +2371,10 @@ field_data_protection_text_customized_edit_orga:
     label: 'Edit customized data protection text for orga'
     expose: true
     parent: feature_data_protection_text_customized_view
+field_master_procedure_default_bounding_box:
+    description: 'Access default bounding box of a mastertemplate in the initial map view'
+    label: 'Access default bounding box of a mastertemplate'
+    loginRequired: true
 field_fragment_status:
     description: 'Set and show the status of fragment (new, assigned, editing etc).'
     expose: true
