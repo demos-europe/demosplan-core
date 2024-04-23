@@ -37,7 +37,7 @@
         :required="required && statement.r_useName === '1'"
         :value="statement.r_houseNumber"
         width="u-4-of-12"
-        @input="val => setStatementData({r_houseNumber: val})" />
+        @update:model-value="val => setStatementData({r_houseNumber: val})" />
     </div>
   </div>
 </template>

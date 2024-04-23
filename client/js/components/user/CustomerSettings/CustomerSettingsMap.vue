@@ -29,7 +29,7 @@
         text: Translator.trans('layers')
       }"
       name="r_baseLayerLayers"
-      @input="debounceUpdate" />
+      @update:model-value="debounceUpdate" />
 
     <dp-input
       id="r_mapAttribution"

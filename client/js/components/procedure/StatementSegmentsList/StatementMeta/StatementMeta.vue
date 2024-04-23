@@ -30,7 +30,7 @@
           :label="{
             text: Translator.trans('submitter')
           }"
-          @input="(val) => emitInput('authorName', val)" />
+          @update:model-value="(val) => emitInput('authorName', val)" />
         <dp-input
           id="statementEmailAddress"
           v-model="localStatement.attributes.submitterEmailAddress"
@@ -40,7 +40,7 @@
             text: Translator.trans('email')
           }"
           type="email"
-          @input="(val) => emitInput('submitterEmailAddress', val)" />
+          @update:model-value="(val) => emitInput('submitterEmailAddress', val)" />
         <dp-input
           v-if="!this.localStatement.attributes.isSubmittedByCitizen"
           id="statementOrgaName"
@@ -50,7 +50,7 @@
           :label="{
             text: Translator.trans('organisation')
           }"
-          @input="(val) => emitInput('initialOrganisationName', val)" />
+          @update:model-value="(val) => emitInput('initialOrganisationName', val)" />
         <dp-input
           v-if="!this.localStatement.attributes.isSubmittedByCitizen"
           id="statementDepartmentName"
@@ -60,7 +60,7 @@
           :label="{
             text: Translator.trans('department')
           }"
-          @input="(val) => emitInput('initialOrganisationDepartmentName', val)" />
+          @update:model-value="(val) => emitInput('initialOrganisationDepartmentName', val)" />
         <div class="o-form__group u-mb-0_5">
           <dp-input
             id="statementStreet"
@@ -70,7 +70,7 @@
             :label="{
               text: Translator.trans('street')
             }"
-            @input="(val) => emitInput('initialOrganisationStreet', val)" />
+            @update:model-value="(val) => emitInput('initialOrganisationStreet', val)" />
           <dp-input
             id="statementHouseNumber"
             v-model="localStatement.attributes.initialOrganisationHouseNumber"
@@ -80,7 +80,7 @@
               text: Translator.trans('street.number.short')
             }"
             :size="3"
-            @input="(val) => emitInput('initialOrganisationHouseNumber', val)" />
+            @update:model-value="(val) => emitInput('initialOrganisationHouseNumber', val)" />
         </div>
         <div class="o-form__group u-mb-0_5">
           <dp-input
@@ -93,7 +93,7 @@
             }"
             pattern="^[0-9]{4,5}$"
             :size="5"
-            @input="(val) => emitInput('initialOrganisationPostalCode', val)" />
+            @update:model-value="(val) => emitInput('initialOrganisationPostalCode', val)" />
           <dp-input
             id="statementCity"
             v-model="localStatement.attributes.initialOrganisationCity"
@@ -102,7 +102,7 @@
             :label="{
               text: Translator.trans('city')
             }"
-            @input="(val) => emitInput('initialOrganisationCity', val)" />
+            @update:model-value="(val) => emitInput('initialOrganisationCity', val)" />
         </div>
       </div><!--
 
@@ -115,7 +115,7 @@
           :label="{
             text: Translator.trans('internId')
           }"
-          @input="(val) => emitInput('internId', val)" />
+          @update:model-value="(val) => emitInput('internId', val)" />
 
         <div class="o-form__group u-mb-0_5">
           <!-- authoredDate: if manual statement -->
@@ -128,7 +128,7 @@
               text: Translator.trans('statement.date.authored')
             }"
             :value="localStatement.attributes.authoredDate ? localStatement.attributes.authoredDate : '-'"
-            @input="(val) => emitInput('authoredDate', val)" />
+            @update:model-value="(val) => emitInput('authoredDate', val)" />
 
           <!-- authoredDate: if not manual statement -->
           <div
@@ -142,7 +142,7 @@
               id="authoredDateDatepicker"
               :value="localStatement.attributes.authoredDate"
               :max-date="localStatement.attributes.submitDate ? localStatement.attributes.submitDate : currentDate"
-              @input="(val) => setDate(val, 'authoredDate')" />
+              @update:model-value="(val) => setDate(val, 'authoredDate')" />
           </div>
 
           <!-- submitDate: if manual statement -->
@@ -155,7 +155,7 @@
               text: Translator.trans('statement.date.submitted')
             }"
             :value="localStatement.attributes.submitDate ? localStatement.attributes.submitDate : '-'"
-            @input="(val) => emitInput('submitDate', val)" />
+            @update:model-value="(val) => emitInput('submitDate', val)" />
 
           <!-- submitDate: if not manual statement -->
           <div
