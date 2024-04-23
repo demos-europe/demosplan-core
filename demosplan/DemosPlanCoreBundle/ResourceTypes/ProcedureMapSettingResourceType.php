@@ -29,12 +29,9 @@ use Webmozart\Assert\Assert;
  */
 class ProcedureMapSettingResourceType extends DplanResourceType
 {
-
     public function __construct(protected readonly ContentService $contentService, private readonly MasterTemplateService $masterTemplateService, GlobalConfigInterface $globalConfig)
     {
-
     }
-
 
     public static function getName(): string
     {
@@ -49,18 +46,21 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         $configBuilder->boundingBox
             ->updatable([], function (ProcedureSettings $procedureSettings, array $boundingBox): array {
                 $procedureSettings->setBoundingBox($this->convertCoordinatesToFlatList($boundingBox));
+
                 return [];
             })
-            ->readable(false, fn(ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getBoundingBox()));
+            ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getBoundingBox()));
         $configBuilder->mapExtent
             ->updatable([], function (ProcedureSettings $procedureSettings, array $mapExtent): array {
                 $procedureSettings->setMapExtent($this->convertCoordinatesToFlatList($mapExtent));
+
                 return [];
             })
-            ->readable(false, fn(ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getMapExtent()));
+            ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getMapExtent()));
         $configBuilder->scales
             ->updatable([], function (ProcedureSettings $procedureSettings, array $scales): array {
                 $procedureSettings->setScales($this->convertListOfIntToString($scales));
+
                 return [];
             })
             ->readable(false, fn (ProcedureSettings $procedureSettings) => $this->convertToListOfInt($procedureSettings->getScales()));
@@ -70,7 +70,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         $configBuilder->copyright
             ->updatable()
             ->readable();
-        $configBuilder->publicAvailableScales //@todo rename
+        $configBuilder->publicAvailableScales // @todo rename
             ->readable(false, $this->getAvailablePublicScales(...));
 
         $configBuilder->showOnlyOverlayCategory
@@ -78,11 +78,11 @@ class ProcedureMapSettingResourceType extends DplanResourceType
                 $setting = $this->getSetting(
                     ContentService::LAYER_GROUPS_ALTERNATE_VISIBILITY,
                     $procedureSetting);
-                if(null === $setting) {
+                if (null === $setting) {
                     $setting = $this->contentService->createEmptySetting(
                         $procedureSetting->getProcedure(),
                         ContentService::LAYER_GROUPS_ALTERNATE_VISIBILITY
-                        );
+                    );
                 }
 
                 $setting->setContent($showOnlyOverlayCategory);
@@ -93,6 +93,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
                 $setting = $this->getSetting(
                     ContentService::LAYER_GROUPS_ALTERNATE_VISIBILITY,
                     $procedureSetting);
+
                 return null === $setting ? false : $setting->getContentBool();
             });
 
@@ -105,19 +106,21 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         $configBuilder->defaultBoundingBox
             ->readable(false, function (ProcedureSettings $procedureSetting): ?array {
                 $masterTemplateMapSetting = $this->masterTemplateService->getMasterTemplate()->getSettings();
+
                 return $this->convertFlatListToCoordinates($masterTemplateMapSetting->getBoundingBox());
             });
 
         $configBuilder->defaultMapExtent
             ->readable(false, function (ProcedureSettings $procedureSetting): ?array {
                 $masterTemplateMapSetting = $this->masterTemplateService->getMasterTemplate()->getSettings();
+
                 return $this->convertFlatListToCoordinates($masterTemplateMapSetting->getMapExtent());
             });
 
         $configBuilder->useGlobaInformationUrl
-            ->readable(false, fn(ProcedureSettings $procedureSetting): bool => $this->globalConfig->isMapGetFeatureInfoUrlGlobal());
-        return $configBuilder;
+            ->readable(false, fn (ProcedureSettings $procedureSetting): bool => $this->globalConfig->isMapGetFeatureInfoUrlGlobal());
 
+        return $configBuilder;
     }
 
     protected function getSetting(string $settingName, ProcedureSettings $procedureSetting): ?Setting
@@ -126,25 +129,27 @@ class ProcedureMapSettingResourceType extends DplanResourceType
             $settingName,
             SettingsFilter::whereProcedureId($procedureSetting->getProcedure()->getId())->lock(),
             false);
-        Assert::countBetween($settings,0,1);
+        Assert::countBetween($settings, 0, 1);
+
         return array_pop($settings);
     }
 
-    protected function convertCoordinatesToFlatList(array $coordinates): string {
-        return implode(',', array(
+    protected function convertCoordinatesToFlatList(array $coordinates): string
+    {
+        return implode(',', [
             $coordinates['start']['latitude'],
             $coordinates['start']['longitude'],
             $coordinates['end']['latitude'],
-            $coordinates['end']['longitude']));
+            $coordinates['end']['longitude']]);
     }
 
-    protected function convertFlatListToCoordinates(string $rawCoordinateValues): ?array {
-
+    protected function convertFlatListToCoordinates(string $rawCoordinateValues): ?array
+    {
         if ('' === $rawCoordinateValues) {
             return null;
         }
 
-        $rawCoordinateValues =  explode(',', $rawCoordinateValues);
+        $rawCoordinateValues = explode(',', $rawCoordinateValues);
         $coordinateValues = [];
 
         foreach ($rawCoordinateValues as $value) {
@@ -153,15 +158,14 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
         Assert::count($coordinateValues, 4);
 
-        return array(
-            'start' => array(
-                'latitude' => $coordinateValues[0],
-                'longitude' => $coordinateValues[1]),
-            'end' => array(
-                'latitude' => $coordinateValues[2],
-                'longitude' => $coordinateValues[3]));
+        return [
+            'start' => [
+                'latitude'  => $coordinateValues[0],
+                'longitude' => $coordinateValues[1]],
+            'end' => [
+                'latitude'  => $coordinateValues[2],
+                'longitude' => $coordinateValues[3]]];
     }
-
 
     protected function getAvailablePublicScales(): array
     {
@@ -175,10 +179,12 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
     /**
      * @param string|list<string> $values
+     *
      * @return list<int>
      */
-    protected function convertToListOfInt(string|array $values): ?array {
-        $rawAvailableScales = is_array($values)? $values : explode(',', $values);
+    protected function convertToListOfInt(string|array $values): ?array
+    {
+        $rawAvailableScales = is_array($values) ? $values : explode(',', $values);
         $availableScales = [];
         foreach ($rawAvailableScales as $scale) {
             $availableScales[] = (int) $scale;
@@ -194,8 +200,8 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
     public function isAvailable(): bool
     {
-        return null !== $this->currentProcedureService->getProcedure() &&
-            $this->currentUser->hasPermission('area_admin_map'); //@todo update permission
+        return null !== $this->currentProcedureService->getProcedure()
+            && $this->currentUser->hasPermission('area_admin_map'); // @todo update permission
     }
 
     public function isGetAllowed(): bool
@@ -212,7 +218,6 @@ class ProcedureMapSettingResourceType extends DplanResourceType
     {
         return $this->isAvailable();
     }
-
 
     protected function getAccessConditions(): array
     {
