@@ -194,11 +194,9 @@ class StatementFactory extends FactoryBase
      *
      * @param array $baseData
      *
-     * @return array
-     *
      * @throws InvalidUserDataException on invalid user value
      */
-    protected function determineUserInfo($baseData)
+    protected function determineUserInfo($baseData): array
     {
         // NOTE: Currently, only anonymous and named public users are being chosen
         // TODO (SG): Modify this to do everything the method comment says this does
