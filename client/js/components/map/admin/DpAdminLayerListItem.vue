@@ -37,7 +37,7 @@
       <div class="layout__item u-9-of-12">
         <!-- regular categories -->
         <i
-          v-if="layer.type === 'GisLayerCategory' && false === layer.attributes.layerWithChildrenHidden"
+          v-if="layer.type === 'GisLayerCategory' && !layer.attributes.layerWithChildrenHidden"
           aria-hidden="true"
           class="fa u-mr-0_125"
           @click="toggleChildren"
@@ -108,7 +108,7 @@
         </div><!--
    -->
 </template><!--
-            Show this Stuff for 'special category that looks like an Layer and hides all his children'
+            Show this stuff for 'special category that looks like a layer and hides all its children'
    --><template v-if="(layer.type === 'GisLayerCategory' && layer.attributes.layerWithChildrenHidden)">
 <!--
      --><div class="layout__item u-2-of-12 text-right">
@@ -121,7 +121,7 @@
    -->
 </template><!--
    --><div
-        v-if="(layer.type !== 'GisLayer' && (false === layer.attributes.layerWithChildrenHidden))"
+        v-if="(layer.type !== 'GisLayer' && (!layer.attributes.layerWithChildrenHidden))"
         class="layout__item u-2-of-12 text-right">
         <!-- spacer for groups -->
       </div><!--
@@ -148,17 +148,22 @@
 
     <!-- recursive nesting inside -->
     <dp-draggable
-      v-if="(layer.type === 'GisLayerCategory' && false === layer.attributes.layerWithChildrenHidden) && showChildren"
+      v-if="(layer.type === 'GisLayerCategory' && !layer.attributes.layerWithChildrenHidden) && showChildren"
       class="layout u-ml u-mt-0_25"
       :class="[childElements.length <= 0 ? 'o-sortablelist__empty' :'']"
+      key="draggableLayers"
+      :group-id="groupId"
       :opts="draggableOptions"
-      v-model="childElements">
+      :content-data="childElements"
+      :node-id="element.id"
+      @end="handleDragEnd">
       <dp-admin-layer-list-item
         v-for="(item, idx) in childElements"
-        :key="item.id"
+        :key="`layer:${item.id}`"
         :element="{ id: item.id, type: item.type }"
         :sorting-type="sortingType"
         :layer-type="layerType"
+        :list-type="listType"
         :parent-order-position="layer.attributes[sortingType]"
         :index="idx" />
       <div
@@ -166,20 +171,25 @@
         class="o-sortablelist__spacer" />
     </dp-draggable>
 
-    <!-- if special category that looks like an Layer and hides all his children -->
+    <!-- if special category that looks like a layer and hides all its children -->
     <dp-draggable
       v-if="(layer.type === 'GisLayerCategory' && layer.attributes.layerWithChildrenHidden) && showChildren"
       class="layout u-ml u-mt-0_25"
       :class="[childElements.length <= 0 ? 'o-sortablelist__empty' :'']"
+      :group-id="groupId"
+      key="draggableLayersWithChildrenHidden"
       :opts="draggableOptions"
-      v-model="childElements"
-      @add="onAddToCategoryWithChildrenHidden">
+      :content-data="childElements"
+      :node-id="element.id"
+      @add="onAddToCategoryWithChildrenHidden"
+      @end="(event, item) => handleDragEnd(event, item)">
       <dp-admin-layer-list-item
         v-for="(item, idx) in childElements"
-        :key="item.id"
+        :key="`layerWithChildrenHidden:${item.id}`"
         :element="item"
         :sorting-type="sortingType"
         :layer-type="layerType"
+        :list-type="listType"
         :parent-order-position="orderPosition"
         :index="idx" />
       <div
@@ -191,7 +201,7 @@
 
 <script>
 import { DpDraggable, hasOwnProp } from '@demos-europe/demosplan-ui'
-import { mapGetters, mapMutations, mapState } from 'vuex'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import DpAdminLayerListItem from './DpAdminLayerListItem'
 import { v4 as uuid } from 'uuid'
 
@@ -208,16 +218,32 @@ export default {
       type: Object
     },
 
+    groupId: {
+      type: String,
+      default: null
+    },
+
     sortingType: {
       required: false,
       type: String,
-      default: 'treeOrder'
+      default: 'treeOrder',
+      validator: (prop) => {
+        return ['mapOrder', 'treeOrder'].includes(prop)
+      }
     },
 
     layerType: {
       required: false,
       type: String,
       default: ''
+    },
+
+    listType: {
+      type: String,
+      required: true,
+      validator: (prop) => {
+        return ['map', 'mapBase', 'tree', 'treeBase'].includes(prop)
+      }
     },
 
     isLoading: {
@@ -249,8 +275,21 @@ export default {
   },
 
   computed: {
+    ...mapGetters('layers', [
+      'directChildren'
+    ]),
+
+    ...mapState('layers', [
+      'draggableOptions',
+      'draggableOptionsForBaseLayer',
+      'mapList',
+      'mapBaseList',
+      'treeList',
+      'treeBaseList'
+    ]),
+
     parentCategory () {
-      // Get parentLayer and check if if it hides his children
+      // Get parentLayer and check if it hides its children
       const parentLayer = this.$store.getters['layers/element']({
         id: this.layer.attributes.categoryId,
         type: 'GisLayerCategory'
@@ -621,23 +660,15 @@ export default {
     },
 
     /**
-     * Get/set all child elements
+     * Get all direct child elements
      * (only important for categories/ recursion)
      *
      * returns Array|List of Layers/Categories
      */
-    childElements: {
-      get () {
-        return this.elementListForLayerSidebar(this.element.id, 'overlay', true)
-      },
-      set (value) {
-        this.setChildrenFromCategory({
-          categoryId: this.element.id,
-          data: value.newOrder,
-          orderType: 'treeOrder',
-          parentOrder: this.layer.attributes.treeOrder
-        })
-      }
+    childElements () {
+      const parentId = this.element.id
+
+      return this.directChildren(parentId, this.sortingType)
     },
 
     /**
@@ -658,10 +689,7 @@ export default {
           procedure: this.procedureId
         })
       }
-    },
-
-    ...mapState('layers', ['draggableOptions', 'draggableOptionsForBaseLayer']),
-    ...mapGetters('layers', ['elementListForLayerSidebar'])
+    }
   },
 
   watch: {
@@ -674,6 +702,50 @@ export default {
   },
 
   methods: {
+    ...mapActions('layers', [
+      'updateListSort'
+    ]),
+
+    ...mapMutations('layers', [
+      'setAttributeForLayer',
+      'setChildrenFromCategory',
+      'updateUiIndexList'
+    ]),
+
+    changeManualSort (event, item) {
+      console.log('changeManualSort')
+      const { newIndex, oldIndex } = event
+      const targetParentId = event.to.parentElement.id ?? null
+      const sourceParentId = event.from.parentElement.id ?? null
+      const layerType = item.attributes.layerType
+      const isCategory = !layerType
+      const listKey = isCategory || item.attributes.layerType === 'overlay' ? `${this.listType}List` : `${this.listType}BaseList`
+      const relationshipType = item.type === 'GisLayer' ? 'gisLayers' : 'categories'
+
+      // const removedItem = this.childElements.splice(oldIndex, 1)[0]
+      // this.childElements.splice(newIndex, 0, removedItem)
+
+      this.updateListSort({
+        listKey,
+        listType: 'tree',
+        newIndex,
+        oldIndex,
+        orderType: 'treeOrder',
+        parentOrder: this.layer.attributes.treeOrder,
+        relationshipType,
+        sourceParentId,
+        targetParentId,
+      })
+    },
+
+    handleDragEnd (event, item) {
+      // this.childElements.forEach((child, idx) => {
+      //   console.log('child', child.attributes.name, idx)
+      //   this.updateUiIndexList({ id: child.id, index: idx})
+      // })
+      this.changeManualSort(event, item)
+    },
+
     toggleChildren () {
       if (this.childElements.length < 1) {
         return
@@ -901,13 +973,17 @@ export default {
           value: newVisibilityGroupId
         })
       }
-    },
-
-    ...mapMutations('layers', ['setAttributeForLayer', 'setChildrenFromCategory'])
+    }
   },
 
   beforeCreate () {
     this.$options.components.DpAdminLayerListItem = DpAdminLayerListItem
+  },
+
+  mounted () {
+    this.childElements.forEach((child, idx) => {
+      this.updateUiIndexList({ id: child.id, index: idx})
+    })
   }
 }
 </script>

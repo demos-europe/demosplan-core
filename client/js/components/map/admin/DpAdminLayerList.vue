@@ -77,20 +77,24 @@
       </div>
     </div>
     <dp-draggable
-      v-if="false === this.isLoading"
+      v-if="!this.isLoading"
       :opts="draggableOptions"
-      v-model="currentList"
-      :class="{'color--grey': false === isEditable}">
+      :content-data="currentList"
+      :class="{'color--grey': false === isEditable}"
+      group-id="layerlist"
+      @end="(event, item) => changeListManualSort(event, item)">
       <dp-admin-layer-list-item
         v-for="(item, idx) in currentList"
-        :key="item.id"
+        :key="`currentList:${item.id}`"
+        data-cy="overlaysMapLayerListItem"
         :element="item"
-        :sorting-type="currentTab"
+        group-id="layerlist"
+        :index="idx"
         :is-loading="(false === isEditable)"
         layer-type="overlay"
-        data-cy="overlaysMapLayerListItem"
-        :index="idx"
-        :parent-order-position="1" />
+        :list-type="currentTab === 'mapOrder' ? 'map' : 'tree'"
+        :parent-order-position="1"
+        :sorting-type="currentTab" />
     </dp-draggable>
 
     <dp-loading
@@ -98,7 +102,7 @@
       class="list__item u-pv-0_5 border--top" />
 
     <div
-      v-if="(0 === currentList.length ) && false === isLoading"
+      v-if="(currentList.length === 0) && !isLoading"
       class="list__item u-pv-0_5 border--top color--grey">
       {{ Translator.trans('no.data') }}
     </div>
@@ -127,18 +131,22 @@
     </div>
     <dp-draggable
       v-if="false === this.isLoading"
+      :class="{'color--grey': false === isEditable}"
+      :content-data="currentBaseList"
       :opts="draggableOptionsForBaseLayer"
-      v-model="currentBaseList"
-      :class="{'color--grey': false === isEditable}">
+      group-id="baselist"
+      @end="(event, item, nodeId) => changeBaseListManualSort(event, item, nodeId)">
       <dp-admin-layer-list-item
         v-for="(item, idx) in currentBaseList"
-        :key="item.id"
+        :key="`currentBaseList:${item.id}`"
+        data-cy="baseMapLayerListItem"
         :element="item"
-        :sorting-type="currentTab"
+        group-id="baselist"
+        :index="idx"
         :is-loading="(false === isEditable)"
         layer-type="base"
-        data-cy="baseMapLayerListItem"
-        :index="idx" />
+        :list-type="currentTab === 'mapOrder' ? 'mapBase' : 'treeBase'"
+        :sorting-type="currentTab" />
     </dp-draggable>
     <div class="layout--flush u-mt u-mb">
       <h3 class="layout__item u-1-of-3">
@@ -203,15 +211,15 @@ export default {
   },
 
   props: {
-    procedureId: {
-      required: true,
-      type: String
-    },
-
     parentOrderPosition: {
       required: false,
       type: Number,
       default: 1
+    },
+
+    procedureId: {
+      required: true,
+      type: String
     }
   },
 
@@ -225,130 +233,147 @@ export default {
   },
 
   computed: {
+    ...mapState('layers', [
+      'draggableOptions',
+      'draggableOptionsForBaseLayer',
+      'draggableOptionsForCategorysWithHiddenLayers',
+      'mapBaseList',
+      'mapList',
+      'treeBaseList',
+      'treeList'
+    ]),
+
+    ...mapGetters('layers', [
+      'gisLayerList',
+      'elementListForLayerSidebar',
+      'minimapLayer'
+    ]),
+
     /**
      *
      * Model to switch the Models but keeping the Markup lean
      * refers to mapList or treeList
      */
-    currentList: {
-      get () {
-        return (this.currentTab === 'mapOrder') ? this.mapList : this.treeList
-      },
-      set ({ newOrder }) {
-        if (this.currentTab === 'mapOrder') {
-          this.mapList = newOrder
-        } else {
-          this.treeList = newOrder
-        }
-      }
+    currentList () {
+      return this.currentTab === 'mapOrder'
+        ? this.mapList
+        : this.treeList
     },
+      // set ({ newOrder }) {
+      //   if (this.currentTab === 'mapOrder') {
+      //     this.mapList = newOrder
+      //   } else {
+      //     this.treeList = newOrder
+      //   }
+      // }
 
-    currentBaseList: {
-      get () {
-        return (this.currentTab === 'mapOrder') ? this.mapBaseList : this.treeBaseList
-      },
-      set ({ newOrder }) {
-        if (this.currentTab === 'mapOrder') {
-          this.mapBaseList = newOrder
-        } else {
-          this.treeBaseList = newOrder
-        }
-      }
+
+    currentBaseList () {
+      return this.currentTab === 'mapOrder'
+        ? this.mapBaseList
+        : this.treeBaseList
+
+      // set ({ newOrder }) {
+      //   if (this.currentTab === 'mapOrder') {
+      //     this.mapBaseList = newOrder
+      //   } else {
+      //     this.treeBaseList = newOrder
+      //   }
+      // }
     },
 
     /*
-     * Nested List which reflects layer-categories and its children
+     * Nested List which reflects layer-categories and their children
      * layerType overlay
      * mapList and treeList have different order-numbers
      */
-    treeList: {
-      get () {
-        return this.elementListForLayerSidebar(null, 'overlay', true)
-      },
-      set (value) {
-        this.setChildrenFromCategory({
-          categoryId: null,
-          data: value,
-          orderType: 'treeOrder',
-          parentOrder: this.parentOrderPosition
-        })
-      }
-    },
+    // treeList () {
+    //   return this.elementListForLayerSidebar(null, 'overlay', true)
+    // },
+      // set (value) {
+      //   this.setChildrenFromCategory({
+      //     categoryId: null,
+      //     data: value,
+      //     orderType: 'treeOrder',
+      //     parentOrder: this.parentOrderPosition
+      //   })
+      // }
+    // },
 
     /*
      * MapList which ignores categories
      * layerType overlay
      * mapList and treeList have different order-numbers
      */
-    mapList: {
-      get () {
-        return this.gisLayerList('overlay')
-      },
-      set (value) {
-        this.setChildrenFromCategory({
-          categoryId: null,
-          data: value,
-          orderType: 'mapOrder',
-          parentOrder: this.parentOrderPosition
-        })
-        /* If there is just one order (map) -then the treeorder should match the map-order */
-        if (this.canHaveCategories === false) {
-          this.setChildrenFromCategory({
-            categoryId: null,
-            data: value,
-            orderType: 'treeOrder',
-            parentOrder: this.parentOrderPosition
-          })
-        }
-      }
-    },
+    // mapList: {
+    //   get () {
+    //     return this.gisLayerList('overlay')
+    //   },
+      // set (value) {
+      //   this.setChildrenFromCategory({
+      //     categoryId: null,
+      //     data: value,
+      //     orderType: 'mapOrder',
+      //     parentOrder: this.parentOrderPosition
+      //   })
+      //   /* If there is just one order (map) -then the tree order should match the map order */
+      //   if (this.canHaveCategories === false) {
+      //     this.setChildrenFromCategory({
+      //       categoryId: null,
+      //       data: value,
+      //       orderType: 'treeOrder',
+      //       parentOrder: this.parentOrderPosition
+      //     })
+      //   }
+      // }
+    // },
 
     /*
-     * Nested List which reflects layer-categories and its children
+     * Nested List which reflects layer-categories and their children
      * layerType base
      * mapList and treeList have different order-numbers
      */
-    treeBaseList: {
-      get () {
-        return this.elementListForLayerSidebar(null, 'base', false)
-      },
-      set (value) {
-        this.setChildrenFromCategory({
-          categoryId: null,
-          data: value,
-          orderType: 'treeOrder',
-          parentOrder: this.parentOrderPosition
-        })
-      }
-    },
+    // treeBaseList: {
+    //   get () {
+    //     return this.elementListForLayerSidebar(null, 'base', false)
+    //   },
+      // set (value) {
+      //   this.setChildrenFromCategory({
+      //     categoryId: null,
+      //     data: value,
+      //     orderType: 'treeOrder',
+      //     parentOrder: this.parentOrderPosition
+      //   })
+      // }
+    // },
 
     /*
      * MapList which ignores categories
      * layerType base
      * mapList and treeList have different order-numbers
      */
-    mapBaseList: {
-      get () {
-        return this.gisLayerList('base')
-      },
-      set (value) {
-        this.setChildrenFromCategory({
-          categoryId: null,
-          data: value,
-          orderType: 'mapOrder',
-          parentOrder: this.parentOrderPosition
-        })
-        /* If there is just one order (map) -then the treeorder should match the map-order */
-        if (this.canHaveCategories === false) {
-          this.setChildrenFromCategory({
-            categoryId: null,
-            data: value,
-            orderType: 'treeOrder',
-            parentOrder: this.parentOrderPosition
-          })
-        }
-      }
-    },
+    // mapBaseList: {
+    //   get () {
+    //     return this.gisLayerList('base')
+    //   },
+      // set (value) {
+      //   this.setChildrenFromCategory({
+      //     categoryId: null,
+      //     data: value,
+      //     orderType: 'mapOrder',
+      //     parentOrder: this.parentOrderPosition
+      //   })
+      //   /* If there is just one order (map) -then the treeorder should match the map-order */
+      //   if (this.canHaveCategories === false) {
+      //     this.setChildrenFromCategory({
+      //       categoryId: null,
+      //       data: value,
+      //       orderType: 'treeOrder',
+      //       parentOrder: this.parentOrderPosition
+      //     })
+      //   }
+      // }
+    // },
 
     canHaveCategories () {
       return hasPermission('feature_map_category')
@@ -361,30 +386,77 @@ export default {
       set (value) {
         this.setMinimapBaseLayer(value.id)
       }
-    },
-
-    ...mapState('layers', ['draggableOptions', 'draggableOptionsForBaseLayer', 'draggableOptionsForCategorysWithHiddenLayers']),
-    ...mapGetters('layers', ['gisLayerList', 'elementListForLayerSidebar', 'minimapLayer'])
+    }
   },
 
   methods: {
+    ...mapActions('layers', [
+      'get',
+      'save',
+      'updateListSort'
+    ]),
+
+    ...mapMutations('layers', [
+      'resetOrder',
+      'setChildrenFromCategory',
+      'setDraggableOptions',
+      'setDraggableOptionsForBaseLayer',
+      'setDraggableOptionsForCategorysWithHiddenLayers',
+      'setMinimapBaseLayer',
+      'updateUiIndexList'
+    ]),
+
+    changeBaseListManualSort (event, item) {
+      if (this.currentTab === 'mapOrder') {
+        const removedItem = this.mapBaseList.splice(event.oldIndex, 1)[0]
+        this.mapBaseList.splice(event.newIndex, 0, removedItem)
+      } else {
+        const removedItem = this.treeBaseList.splice(event.oldIndex, 1)[0]
+        this.treeBaseList.splice(event.newIndex, 0, removedItem)
+      }
+    },
+
+    changeListManualSort (event, item) {
+      console.log('changeListManualSort')
+      const { newIndex, oldIndex } = event
+      const targetParentId = event.to.parentElement.id ?? null
+      const sourceParentId = event.from.parentElement.id ?? null
+      const listType = this.currentTab === 'mapOrder' ? 'map' : 'tree'
+      const layerType = item.attributes.layerType
+      const isCategory = !layerType
+      const listKey = isCategory || item.attributes.layerType === 'overlay' ? `${listType}List` : `${listType}BaseList`
+      const relationshipType = item.type === 'GisLayer' ? 'gisLayers' : 'categories'
+
+      this.updateListSort({
+        listKey,
+        listType,
+        newIndex,
+        oldIndex,
+        orderType: this.currentTab,
+        parentOrder: this.parentOrderPosition,
+        relationshipType,
+        sourceParentId,
+        targetParentId
+      })
+    },
+
     saveOrder (redirect) {
       this.isEditable = false
-      this.save().then(() => {
-        this.isEditable = true
-        if (redirect === true) {
-          window.location.href = Routing.generate('DemosPlan_element_administration', { procedure: this.procedureId })
-        }
+
+      this.save()
+        .then(() => {
+          this.isEditable = true
+
+          if (redirect === true) {
+            window.location.href = Routing.generate('DemosPlan_element_administration', { procedure: this.procedureId })
+          }
       })
     },
 
     setActiveTab (sortOrder) {
       this.currentTab = sortOrder
       lscache.set('layerOrderTab', sortOrder, 300)
-    },
-
-    ...mapActions('layers', ['save', 'get']),
-    ...mapMutations('layers', ['setChildrenFromCategory', 'resetOrder', 'setDraggableOptions', 'setDraggableOptionsForCategorysWithHiddenLayers', 'setDraggableOptionsForBaseLayer', 'setMinimapBaseLayer'])
+    }
   },
 
   mounted () {
@@ -396,6 +468,7 @@ export default {
           scrollTo('#gislayers', { offset: -10 })
         }
       })
+
     this.currentTab = lscache.get('layerOrderTab') || 'treeOrder'
 
     const basicOptions = {
