@@ -344,29 +344,24 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         $filesToDelete = [];
 
         // Delete News
-        /** @var NewsRepository $newsRepos */
-        $newsRepos = $entityManager->getRepository(News::class);
+        $newsRepos = $this->getNewsRepository();
         foreach ($newsRepos->getFilesByProcedureId($procedureId) as $newsPdfToDelete) {
             $filesToDelete = [...$filesToDelete, ...array_values($newsPdfToDelete)];
         }
         $newsRepos->deleteByProcedureId($procedureId);
 
         // Delete GIS-Layer
-        /** @var MapRepository $gisRepos */
-        $gisRepos = $entityManager->getRepository(GisLayer::class);
+        $gisRepos = $this->getMapRepository();
         foreach ($gisRepos->getLegendsByProcedureId($procedureId) as $legendsToDelete) {
             $filesToDelete = [...$filesToDelete, ...array_values($legendsToDelete)];
         }
         $gisRepos->deleteByProcedureId($procedureId);
 
         // Delete GIS-LayerCategory
-        /** @var GisLayerCategoryRepository $gisCategoryRepos */
-        $gisCategoryRepos = $entityManager->getRepository(GisLayerCategory::class);
-        $gisCategoryRepos->deleteByProcedureId($procedureId);
+        $this->getGisLayerCategoryRepository()->deleteByProcedureId($procedureId);
 
         // Delete DraftStatements
-        /** @var DraftStatementRepository $draftStatementRepos */
-        $draftStatementRepos = $entityManager->getRepository(DraftStatement::class);
+        $draftStatementRepos = $this->getDraftStatementRepository();
         foreach ($draftStatementRepos->getFilesByProcedureId($procedureId) as $fileToDelete) {
             $filesToDelete = [...$filesToDelete, ...array_values($fileToDelete)];
         }
@@ -378,8 +373,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         }
 
         // Delete DraftStatementVersions
-        /** @var DraftStatementVersionRepository $draftStatementVersionRepos */
-        $draftStatementVersionRepos = $entityManager->getRepository(DraftStatementVersion::class);
+        $draftStatementVersionRepos = $this->getDraftStatementVersionRepository();
         foreach ($draftStatementVersionRepos->getFilesByProcedureId($procedureId) as $fileToDelete) {
             $filesToDelete = [...$filesToDelete, ...array_values($fileToDelete)];
         }
@@ -437,45 +431,34 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         }
 
         // Delete SingleDocumentVersions
-        /** @var SingleDocumentVersionRepository $singleDocumentVersionRepos */
-        $singleDocumentVersionRepos = $entityManager->getRepository(SingleDocumentVersion::class);
+        $singleDocumentVersionRepos = $this->getSingleDocumentVersionRepository();
         foreach ($singleDocumentVersionRepos->getFilesByProcedureId($procedureId) as $fileToDelete) {
             $filesToDelete = [...$filesToDelete, ...array_values($fileToDelete)];
         }
         $singleDocumentVersionRepos->deleteByProcedureId($procedureId);
 
         // Delete SingleDocuments
-        /** @var SingleDocumentRepository $singleDocumentRepos */
-        $singleDocumentRepos = $entityManager->getRepository(SingleDocument::class);
+        $singleDocumentRepos = $this->getSingleDocumentRepository();
         foreach ($singleDocumentRepos->getFilesByProcedureId($procedureId) as $fileToDelete) {
             $filesToDelete = [...$filesToDelete, ...array_values($fileToDelete)];
         }
         $singleDocumentRepos->deleteByProcedureId($procedureId);
 
         // Delete Elements
-        /** @var ElementsRepository $elementRepository */
-        $elementRepository = $entityManager->getRepository(Elements::class);
-        $elementRepository->deleteByProcedureId($procedureId);
+        $this->getElementsRepository()->deleteByProcedureId($procedureId);
 
-        /** @var BoilerplateRepository $boilerplateRepository */
-        $boilerplateRepository = $entityManager->getRepository(Boilerplate::class);
+        $boilerplateRepository = $this->getBoilerplateRepository();
         $boilerplateRepository->unsetAllCategories($procedureId);
 
-        /** @var BoilerplateCategoryRepository $boilerplateCategoryRepository */
-        $boilerplateCategoryRepository = $entityManager->getRepository(BoilerplateCategory::class);
-        $boilerplateCategoryRepository->deleteByProcedureId($procedureId);
+        $this->getBoilerplateCategoryRepository()->deleteByProcedureId($procedureId);
 
         $boilerplateRepository->deleteByProcedureId($procedureId);
 
         // Delete ManualListSorts
-        /** @var ManualListSortRepository $manualListSortRepository */
-        $manualListSortRepository = $entityManager->getRepository(ManualListSort::class);
-        $manualListSortRepository->deleteByProcedureId($procedureId);
+        $this->getManualListSortRepository()->deleteByProcedureId($procedureId);
 
         // Delete Topics
-        /** @var TagTopicRepository $tagTopicRepository */
-        $tagTopicRepository = $entityManager->getRepository(TagTopic::class);
-        $topicsToDelete = $tagTopicRepository->findBy(['procedure' => $procedureId]);
+        $topicsToDelete = $this->getTagTopicRepository()->findBy(['procedure' => $procedureId]);
         /** @var TagTopic $topicToDelete */
         foreach ($topicsToDelete as $topicToDelete) {
             $entityManager->remove($topicToDelete);
@@ -484,8 +467,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         // flush to persist state that is needed later to avoid stale references
         $entityManager->flush();
 
-        /** @var ProcedureSettings[] $procedureSettingsToDelete */
-        $procedureSettingsToDelete = $entityManager->getRepository(ProcedureSettings::class)
+        $procedureSettingsToDelete = $this->getProcedureSettingsRepository()
             ->findBy(['procedure' => $procedureId]);
         foreach ($procedureSettingsToDelete as $procedureSetting) {
             if (0 < strlen($procedureSetting->getPlanPDF())) {
@@ -706,9 +688,8 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
 
         if (array_key_exists(AbstractProcedureFormTypeInterface::AGENCY_EXTRA_EMAIL_ADDRESSES, $data)) {
             $inputEmailAddressStrings = $data[AbstractProcedureFormTypeInterface::AGENCY_EXTRA_EMAIL_ADDRESSES];
-            /** @var EmailAddressRepository $emailAddressRepository */
-            $emailAddressRepository = $this->getEntityManager()->getRepository(EmailAddress::class);
-            $newEmailAddressEntities = $emailAddressRepository->getOrCreateEmailAddresses($inputEmailAddressStrings);
+            $newEmailAddressEntities = $this->getEmailAddressRepository()
+                ->getOrCreateEmailAddresses($inputEmailAddressStrings);
             $procedure->setAgencyExtraEmailAddresses(new ArrayCollection($newEmailAddressEntities));
         }
 
@@ -1108,9 +1089,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
     public function deleteDraftStatements(string $procedureId): int
     {
         try {
-            /** @var DraftStatementRepository $draftStatementRepository */
-            $draftStatementRepository = $this->getEntityManager()->getRepository(DraftStatement::class);
-            $amountOfDeletedDraftStatements = $draftStatementRepository->deleteByProcedureId($procedureId);
+            $amountOfDeletedDraftStatements = $this->getDraftStatementRepository()->deleteByProcedureId($procedureId);
         } catch (Exception $e) {
             $this->getLogger()->warning('Delete DraftStatement of a procedure failed ', [$e]);
         }
@@ -1121,9 +1100,8 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
     public function deleteDraftStatementVersions(string $procedureId): int
     {
         try {
-            /** @var DraftStatementVersionRepository $draftStatementVersionRepository */
-            $draftStatementVersionRepository = $this->getEntityManager()->getRepository(DraftStatementVersion::class);
-            $amountOfDeletedDraftStatementVersions = $draftStatementVersionRepository->deleteByProcedureId($procedureId);
+            $amountOfDeletedDraftStatementVersions = $this->getDraftStatementVersionRepository()
+                ->deleteByProcedureId($procedureId);
         } catch (Exception $e) {
             $this->getLogger()->warning('Delete DraftStatementVersions of a procedure failed ', [$e]);
         }
@@ -1142,11 +1120,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
      */
     public function deleteRelatedReports(string $procedureId): int
     {
-        $em = $this->getEntityManager();
-        /** @var ReportRepository $repo */
-        $repo = $em->getRepository(ReportEntry::class);
-
-        return $repo->deleteByProcedure($procedureId);
+        return $this->getReportRepository()->deleteByProcedure($procedureId);
     }
 
     /**
@@ -1451,5 +1425,75 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
     private function getReportRepository(): ReportRepository
     {
         return $this->getEntityManager()->getRepository(ReportEntry::class);
+    }
+
+    private function getNewsRepository(): NewsRepository
+    {
+        return $this->getEntityManager()->getRepository(News::class);
+    }
+
+    private function getMapRepository(): MapRepository
+    {
+        return $this->getEntityManager()->getRepository(GisLayer::class);
+    }
+
+    private function getGisLayerCategoryRepository(): GisLayerCategoryRepository
+    {
+        return $this->getEntityManager()->getRepository(GisLayerCategory::class);
+    }
+
+    private function getDraftStatementRepository(): DraftStatementRepository
+    {
+        return $this->getEntityManager()->getRepository(DraftStatement::class);
+    }
+
+    private function getDraftStatementVersionRepository(): DraftStatementVersionRepository
+    {
+        return $this->getEntityManager()->getRepository(DraftStatementVersion::class);
+    }
+
+    private function getSingleDocumentVersionRepository(): SingleDocumentVersionRepository
+    {
+        return $this->getEntityManager()->getRepository(SingleDocumentVersion::class);
+    }
+
+    private function getSingleDocumentRepository(): SingleDocumentRepository
+    {
+        return $this->getEntityManager()->getRepository(SingleDocument::class);
+    }
+
+    private function getElementsRepository(): ElementsRepository
+    {
+        return $this->getEntityManager()->getRepository(Elements::class);
+    }
+
+    private function getBoilerplateRepository(): BoilerplateRepository
+    {
+        return $this->getEntityManager()->getRepository(Boilerplate::class);
+    }
+
+    private function getManualListSortRepository(): ManualListSortRepository
+    {
+        return $this->getEntityManager()->getRepository(ManualListSort::class);
+    }
+
+    private function getTagTopicRepository(): TagTopicRepository
+    {
+        return $this->getEntityManager()->getRepository(TagTopic::class);
+    }
+
+    private function getBoilerplateCategoryRepository(): BoilerplateCategoryRepository
+    {
+        return $this->getEntityManager()->getRepository(BoilerplateCategory::class);
+    }
+
+    private function getProcedureSettingsRepository(): ProcedureSettingsRepository
+    {
+        return $this->getEntityManager()->getRepository(ProcedureSettings::class);
+    }
+
+    private function getEmailAddressRepository(): EmailAddressRepository
+    {
+        return $this->getEntityManager()->getRepository(EmailAddress::class);
     }
 }
