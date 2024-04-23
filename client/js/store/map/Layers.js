@@ -550,23 +550,14 @@ const LayersStore = {
      * @param state
      * @param commit
      * @param {Object} data
-     * @param {String} data.listKey
-     * @param {Number} data.newIndex
-     * @param {String} data.orderType 'treeOrder' | 'mapOrder'
-     * @param {String} data.relationshipType 'categories' | 'gisLayers'
-     * @param {Boolean} data.targetIsRoot
-     * @param {String} data.targetParentId
+     * @param {String} listKey
+     * @param {Number} newIndex
+     * @param {String} orderType 'treeOrder' | 'mapOrder'
+     * @param {String} relationshipType 'categories' | 'gisLayers'
+     * @param {Boolean} targetIsRoot
+     * @param {String} targetParentId
      */
-    addItem ({ state, commit }, data) {
-      const {
-        listKey,
-        newIndex,
-        orderType,
-        relationshipType,
-        targetIsRoot,
-        targetParentId
-      } = data
-
+    addItem ({ state, commit }, { listKey, newIndex, orderType, relationshipType, targetIsRoot, targetParentId }) {
       if (targetIsRoot) {
         commit('addToRoot', {
           listKey,
@@ -619,21 +610,16 @@ const LayersStore = {
      * @param state
      * @param commit
      * @param data
-     * @param data.categoryId
-     * @param data.type 'base' | 'overlay'
-     * @param {boolean} data.withCategories
+     * @param categoryId
+     * @param type 'base' | 'overlay'
+     * @param {boolean} withCategories
      * @return {*[]}
      */
-    buildChildrenListForTreeCategory ({ state, commit }, data) {
+    buildChildrenListForTreeCategory ({ state, commit }, { categoryId = null, type, withCategories }) {
       if (typeof state.apiData.data === 'undefined') {
         return []
       }
 
-      const {
-        categoryId = null,
-        type,
-        withCategories
-      } = data
       const listKey = type === 'base' ? 'treeBaseList' : 'treeList'
       let categoryOrRootId = categoryId
       //  If called without categoryId, set it to the id of the root category
@@ -823,22 +809,14 @@ const LayersStore = {
      * @param state
      * @param commit
      * @param data
-     * @param {String} data.listKey
-     * @param {Number} data.oldIndex
-     * @param {String} data.orderType 'treeOrder' | 'mapOrder'
-     * @param {String} data.relationshipType 'categories' | 'gisLayers'
-     * @param {Boolean} data.sourceIsRoot
-     * @param {String} data.sourceParentId
+     * @param {String} listKey
+     * @param {Number} oldIndex
+     * @param {String} orderType 'treeOrder' | 'mapOrder'
+     * @param {String} relationshipType 'categories' | 'gisLayers'
+     * @param {Boolean} sourceIsRoot
+     * @param {String} sourceParentId
      */
-    removeItem ({ state, commit }, data) {
-      const {
-        listKey,
-        oldIndex,
-        orderType,
-        sourceIsRoot,
-        sourceParentId
-      } = data
-
+    removeItem ({ state, commit }, { listKey, oldIndex, orderType, relationshipType, sourceIsRoot, sourceParentId }) {
       if (sourceIsRoot) {
         commit('removeFromRoot', {
           listKey,
@@ -998,7 +976,6 @@ const LayersStore = {
         listKey,
         oldIndex,
         orderType,
-        parentOrder,
         relationshipType,
         sourceIsRoot,
         sourceParentId
