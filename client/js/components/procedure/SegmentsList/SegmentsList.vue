@@ -111,6 +111,7 @@
         :multi-page-all-selected="allSelectedVisually"
         :multi-page-selection-items-total="allItemsCount"
         :multi-page-selection-items-toggled="toggledItems.length"
+        is-resizable
         is-selectable
         track-by="id"
         @select-all="handleSelectAll"
@@ -343,7 +344,7 @@ export default {
       isFullscreen: false,
       headerFieldsAvailable: [
         { field: 'externId', label: Translator.trans('id') },
-        { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'w-8' },
+        { field: 'internId', label: Translator.trans('internId.shortened') },
         { field: 'submitter', label: Translator.trans('submitter') },
         { field: 'address', label: Translator.trans('address') },
         { field: 'text', label: Translator.trans('text') },
