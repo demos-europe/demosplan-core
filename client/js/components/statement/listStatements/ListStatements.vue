@@ -12,8 +12,8 @@
     <!-- Header -->
     <dp-sticky-element
       border
-      class="py-4"
-      :class="{ 'fixed top-0 left-0 w-full px-4': isFullscreen }">
+      class="py-2"
+      :class="{ 'fixed top-0 left-0 w-full h-1/6 px-2': isFullscreen }">
       <div class="flex items-center justify-between mb-2">
         <div class="flex">
           <search-modal
@@ -35,7 +35,7 @@
           hide-text
           variant="outline"
           :text="isFullscreen ? Translator.trans('editor.fullscreen.close') : Translator.trans('editor.fullscreen')"
-          @click="isFullscreen = !isFullscreen" />
+          @click="handleFullscreenMode()" />
       </div>
       <dp-bulk-edit-header
         class="layout__item u-12-of-12 u-mt-0_5"
@@ -107,7 +107,7 @@
     <template v-if="!isLoading && items.length > 0">
       <dp-data-table
         data-cy="listStatements"
-        :class="{ 'px-4 overflow-y-scroll h-5/6': isFullscreen }"
+        :class="{ 'px-2 overflow-y-scroll h-5/6': isFullscreen }"
         has-flyout
         :is-selectable="isSourceAndCoupledProcedure"
         :header-fields="headerFields"
@@ -873,6 +873,15 @@ export default {
           .catch(e => {
             console.error(e)
           })
+      }
+    },
+
+    handleFullscreenMode () {
+      this.isFullscreen = !this.isFullscreen
+      if (this.isFullscreen) {
+        document.querySelector('html').setAttribute('style', 'overflow: hidden')
+      } else {
+        document.querySelector('html').removeAttribute('style')
       }
     },
 

@@ -11,8 +11,8 @@
   <div :class="{ 'top-0 left-0 w-full h-full fixed z-fixed bg-white': isFullscreen }">
     <dp-sticky-element
       border
-      class="py-4"
-      :class="{ 'fixed top-0 left-0 w-full px-4': isFullscreen }">
+      class="py-2"
+      :class="{ 'fixed top-0 left-0 w-full h-[15%] px-2': isFullscreen }">
       <div
         class="flex items-start mb-2">
         <custom-search
@@ -60,7 +60,7 @@
           hide-text
           variant="outline"
           :text="isFullscreen ? Translator.trans('editor.fullscreen.close') : Translator.trans('editor.fullscreen')"
-          @click="isFullscreen = !isFullscreen" />
+          @click="handleFullscreenMode()" />
       </div>
       <dp-bulk-edit-header
         v-if="selectedItemsCount > 0"
@@ -102,7 +102,7 @@
       <dp-data-table
         v-if="items"
         class="overflow-x-auto"
-        :class="{ 'px-4 overflow-y-scroll h-[85%]': isFullscreen }"
+        :class="{ 'px-2 overflow-y-scroll h-[85%]': isFullscreen }"
         has-flyout
         :header-fields="headerFields"
         is-selectable
@@ -585,6 +585,15 @@ export default {
       // Persist currentQueryHash to load the filtered SegmentsList after returning from bulk edit flow.
       lscache.set(this.lsKey.currentQueryHash, this.currentQueryHash)
       window.location.href = Routing.generate('dplan_segment_bulk_edit_form', { procedureId: this.procedureId })
+    },
+
+    handleFullscreenMode () {
+      this.isFullscreen = !this.isFullscreen
+      if (this.isFullscreen) {
+        document.querySelector('html').setAttribute('style', 'overflow: hidden')
+      } else {
+        document.querySelector('html').removeAttribute('style')
+      }
     },
 
     handleSizeChange (newSize) {
