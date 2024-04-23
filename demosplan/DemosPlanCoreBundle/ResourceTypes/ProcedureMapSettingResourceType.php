@@ -73,40 +73,47 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         $configBuilder->publicAvailableScales // @todo rename
             ->readable(false, $this->getAvailablePublicScales(...));
 
-        $configBuilder->showOnlyOverlayCategory
-            ->updatable([], function (ProcedureSettings $procedureSetting, bool $showOnlyOverlayCategory): array {
-                $setting = $this->getSetting(
-                    ContentService::LAYER_GROUPS_ALTERNATE_VISIBILITY,
-                    $procedureSetting);
-                if (null === $setting) {
-                    $setting = $this->contentService->createEmptySetting(
-                        $procedureSetting->getProcedure(),
-                        ContentService::LAYER_GROUPS_ALTERNATE_VISIBILITY
-                    );
-                }
+        if ($this->currentUser->hasPermission('feature_layer_groups_alternate_visibility')) {
+            $configBuilder->showOnlyOverlayCategory
+                ->updatable([], function (ProcedureSettings $procedureSetting, bool $showOnlyOverlayCategory): array {
+                    $setting = $this->getSetting(
+                        ContentService::LAYER_GROUPS_ALTERNATE_VISIBILITY,
+                        $procedureSetting);
+                    if (null === $setting) {
+                        $setting = $this->contentService->createEmptySetting(
+                            $procedureSetting->getProcedure(),
+                            ContentService::LAYER_GROUPS_ALTERNATE_VISIBILITY
+                        );
+                    }
 
-                $setting->setContent($showOnlyOverlayCategory);
+                    $setting->setContent($showOnlyOverlayCategory);
 
-                return [];
-            })
-            ->readable(false, function (ProcedureSettings $procedureSetting): bool {
-                $setting = $this->getSetting(
-                    ContentService::LAYER_GROUPS_ALTERNATE_VISIBILITY,
-                    $procedureSetting);
+                    return [];
+                })
+                ->readable(false, function (ProcedureSettings $procedureSetting): bool {
+                    $setting = $this->getSetting(
+                        ContentService::LAYER_GROUPS_ALTERNATE_VISIBILITY,
+                        $procedureSetting);
 
-                return null === $setting ? false : $setting->getContentBool();
-            });
+                    return null === $setting ? false : $setting->getContentBool();
+                });
+        }
 
-        $configBuilder->coordinate
-            ->updatable([], function (ProcedureSettings $procedureSettings, array $coordinate): array {
-                $procedureSettings->setCoordinate($this->convertCoordinatesToFlatList($coordinate));
+        if ($this->currentUser->hasPermission('area_procedure_adjustments_general_location')) {
+            $configBuilder->coordinate
+                ->updatable([], function (ProcedureSettings $procedureSettings, array $coordinate): array {
+                    $procedureSettings->setCoordinate($this->convertCoordinatesToFlatList($coordinate));
 
-                return [];
-            })
-            ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getCoordinate(), 2));
+                    return [];
+                })
+                ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getCoordinate(), 2));
+        }
 
-        $configBuilder->territory
-            ->readable();
+        if ($this->currentUser->hasPermission('feature_map_use_territory')) {
+            $configBuilder->territory
+                ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertJsonToCoordinates($procedureSettings->getTerritory()));
+        }
+
 
         $configBuilder->defaultBoundingBox
             ->readable(false, function (ProcedureSettings $procedureSetting): ?array {
@@ -189,6 +196,21 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         } else {
             throw new \InvalidArgumentException('Expected exactly two or four coordinate values');
         }
+    }
+
+    protected function convertJsonToCoordinates(string $rawCoordinateValues): ?array
+    {
+        if ('' === $rawCoordinateValues) {
+            return null;
+        }
+
+        $coordinateValues = json_decode($rawCoordinateValues, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new \InvalidArgumentException('Invalid JSON provided');
+        }
+
+        return $coordinateValues;
     }
 
     protected function getAvailablePublicScales(): array
