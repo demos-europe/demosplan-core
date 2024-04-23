@@ -25,7 +25,6 @@ use Webmozart\Assert\Assert;
 
 /**
  * @template-extends DplanResourceType<ProcedureSettings>
- * @property-read End $coordinate
  */
 class ProcedureMapSettingResourceType extends DplanResourceType
 {
@@ -95,6 +94,12 @@ class ProcedureMapSettingResourceType extends DplanResourceType
                     $procedureSetting);
                 return null === $setting ? false : $setting->getContentBool();
             });
+
+        $configBuilder->coordinate
+            ->readable();
+
+        $configBuilder->territory
+            ->readable();
 
         return $configBuilder;
 
