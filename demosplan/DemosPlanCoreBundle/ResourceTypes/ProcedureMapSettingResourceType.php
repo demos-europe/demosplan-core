@@ -17,10 +17,10 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\ProcedureMapSettingResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
-use EDT\PathBuilding\End;
 use Webmozart\Assert\Assert;
 
 /**
@@ -29,7 +29,7 @@ use Webmozart\Assert\Assert;
 class ProcedureMapSettingResourceType extends DplanResourceType
 {
 
-    public function __construct(protected readonly ContentService $contentService)
+    public function __construct(protected readonly ContentService $contentService,  private readonly MasterTemplateService $masterTemplateService)
     {
 
     }
@@ -100,6 +100,18 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
         $configBuilder->territory
             ->readable();
+
+        $configBuilder->defaultBoundingBox
+            ->readable(false, function (ProcedureSettings $procedureSetting): ?array {
+                $masterTemplateMapSetting = $this->masterTemplateService->getMasterTemplate()->getSettings();
+                return $this->convertFlatListToCoordinates($masterTemplateMapSetting->getBoundingBox());
+            });
+
+        $configBuilder->defaultMapExtent
+            ->readable(false, function (ProcedureSettings $procedureSetting): ?array {
+                $masterTemplateMapSetting = $this->masterTemplateService->getMasterTemplate()->getSettings();
+                return $this->convertFlatListToCoordinates($masterTemplateMapSetting->getMapExtent());
+            });
 
         return $configBuilder;
 
