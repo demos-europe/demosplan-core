@@ -317,6 +317,7 @@ submenu_procedures:
         link_attributes:
             data-cy: 'documentsAndMapSettings'
             data-extern-dataport: 'documentsAndMapSettings'
+#            TO DO: Add permission
     map_settings:
         label: 'map_settings.menu'
         path: 'DemosPlan_map_administration_map'
