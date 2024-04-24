@@ -45,7 +45,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         $configBuilder->id
             ->readable();
 
-        /**
+        /*
          * FE sends boundingBox and BE stores it as mapExtent due to legacy reasons
          */
         $configBuilder->boundingBox
@@ -56,7 +56,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
             })
             ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getMapExtent(), 4));
 
-        /**
+        /*
          * FE sends mapExtent and BE stores it as boundingBox due to legacy reasons
          */
         $configBuilder->mapExtent
