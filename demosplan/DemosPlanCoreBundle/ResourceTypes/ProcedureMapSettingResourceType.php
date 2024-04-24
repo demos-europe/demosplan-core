@@ -247,7 +247,9 @@ class ProcedureMapSettingResourceType extends DplanResourceType
     {
         $rawAvailableScales = is_array($values) ? $values : explode(',', $values);
         $availableScales = [];
+
         foreach ($rawAvailableScales as $scale) {
+            Assert::integerish($scale);
             $availableScales[] = (int) $scale;
         }
 
