@@ -30,7 +30,7 @@ use Webmozart\Assert\Assert;
  */
 class ProcedureMapSettingResourceType extends DplanResourceType
 {
-    public function __construct(protected readonly ContentService $contentService, private readonly MasterTemplateService $masterTemplateService, GlobalConfigInterface $globalConfig)
+    public function __construct(protected readonly ContentService $contentService, private readonly MasterTemplateService $masterTemplateService)
     {
     }
 
