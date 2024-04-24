@@ -109,6 +109,7 @@ export default {
   },
 
   data () {
+    // TO DO: Adjust, this was a first draft
     return {
       areScalesSuitable: true,
       availableScales: [],
