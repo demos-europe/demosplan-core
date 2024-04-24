@@ -341,11 +341,11 @@ export default {
       isFullscreen: false,
       headerFieldsAvailable: [
         { field: 'externId', label: Translator.trans('id') },
-        { field: 'internId', label: Translator.trans('internId.shortened') },
+        { field: 'internId', label: Translator.trans('internId.shortened'), colWidth: '150px' },
         { field: 'submitter', label: Translator.trans('submitter') },
         { field: 'address', label: Translator.trans('address') },
-        { field: 'text', label: Translator.trans('text') },
-        { field: 'recommendation', label: Translator.trans('segment.recommendation') },
+        { field: 'text', label: Translator.trans('text'), colWidth: '200px' },
+        { field: 'recommendation', label: Translator.trans('segment.recommendation'), colWidth: '200px' },
         { field: 'tags', label: Translator.trans('segment.tags') },
         { field: 'place', label: Translator.trans('workflow.place') }
       ],
