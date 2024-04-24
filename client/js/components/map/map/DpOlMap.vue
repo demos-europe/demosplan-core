@@ -511,6 +511,7 @@ const _defaults = {
     units: 'm'
   },
   controls: [
+    // TO DO: Add copyright (procedureSettings.copyright)
     new Attribution({ collapsible: false }),
     new FullScreen({ source: 'DpOlMap' }),
     /*
