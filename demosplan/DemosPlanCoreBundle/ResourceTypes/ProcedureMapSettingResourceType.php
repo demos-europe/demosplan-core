@@ -208,13 +208,11 @@ class ProcedureMapSettingResourceType extends DplanResourceType
     protected function convertCoordinatesToJson(?array $coordinates): ?string
     {
         return null === $coordinates ? null : json_encode($coordinates, JSON_THROW_ON_ERROR);
-
     }
 
     protected function convertJsonToCoordinates(string $rawCoordinateValues): ?array
     {
         return '' === $rawCoordinateValues ? null : json_decode($rawCoordinateValues, true, 512, JSON_THROW_ON_ERROR);
-
     }
 
     protected function getAvailablePublicScales(): array
