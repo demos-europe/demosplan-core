@@ -182,7 +182,7 @@
       :content-data="childElements"
       :node-id="element.id"
       @add="onAddToCategoryWithChildrenHidden"
-      @end="(event, item) => handleDragEnd(event, item)">
+      @end="(event, item) => changeManualSort(event, item)">
       <dp-admin-layer-list-item
         v-for="(item, idx) in childElements"
         :key="`layerWithChildrenHidden:${item.id}`"
@@ -713,7 +713,6 @@ export default {
     ]),
 
     changeManualSort (event, item) {
-      console.log('changeManualSort')
       const { newIndex, oldIndex } = event
       const targetParentId = event.to.parentElement.id ?? null
       const sourceParentId = event.from.parentElement.id ?? null
@@ -721,9 +720,6 @@ export default {
       const isCategory = !layerType
       const listKey = isCategory || item.attributes.layerType === 'overlay' ? `${this.listType}List` : `${this.listType}BaseList`
       const relationshipType = item.type === 'GisLayer' ? 'gisLayers' : 'categories'
-
-      // const removedItem = this.childElements.splice(oldIndex, 1)[0]
-      // this.childElements.splice(newIndex, 0, removedItem)
 
       this.updateListSort({
         listKey,
@@ -736,14 +732,6 @@ export default {
         sourceParentId,
         targetParentId,
       })
-    },
-
-    handleDragEnd (event, item) {
-      // this.childElements.forEach((child, idx) => {
-      //   console.log('child', child.attributes.name, idx)
-      //   this.updateUiIndexList({ id: child.id, index: idx})
-      // })
-      this.changeManualSort(event, item)
     },
 
     toggleChildren () {
