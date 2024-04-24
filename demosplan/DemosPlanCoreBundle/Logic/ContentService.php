@@ -14,6 +14,7 @@ use Closure;
 use demosplan\DemosPlanCoreBundle\Entity;
 use demosplan\DemosPlanCoreBundle\Entity\Category;
 use demosplan\DemosPlanCoreBundle\Entity\GlobalContent;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -690,7 +691,7 @@ class ContentService extends CoreService
         return true;
     }
 
-    public function createEmptySetting(Entity\Procedure\Procedure $procedure, string $key): Setting
+    public function createEmptySetting(Procedure $procedure, string $key): Setting
     {
         $setting = new Setting();
         $setting->setProcedure($procedure);
