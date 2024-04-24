@@ -85,7 +85,7 @@ area_admin_initial_map_view:
 area_admin_initial_map_view_page:
     description: |-
         Enable page access to configure initial map section in the procedure independent from where it is accessed.
-    label: 'Karteneinstellungen'
+    label: 'Kartenausschnitt definieren'
     loginRequired: true
     parent: area_admin
 area_admin_map_description:
