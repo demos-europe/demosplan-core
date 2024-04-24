@@ -81,8 +81,8 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         $configBuilder->copyright
             ->updatable()
             ->readable();
-        $configBuilder->publicAvailableScales // @todo rename
-            ->readable(false, $this->getAvailablePublicScales(...));
+        $configBuilder->availableScales
+            ->readable(false, $this->getAvailableScales(...));
 
         if ($this->currentUser->hasPermission('feature_layer_groups_alternate_visibility')) {
             $configBuilder->showOnlyOverlayCategory
@@ -225,7 +225,10 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         return '' === $rawCoordinateValues ? null : Json::decodeToArray($rawCoordinateValues);
     }
 
-    protected function getAvailablePublicScales(): array
+    /**
+     * @return list<int>
+     */
+    protected function getAvailableScales(): array
     {
         return $this->convertToListOfInt(str_replace(['[', ']'], '', (string) $this->globalConfig->getMapPublicAvailableScales()));
     }
