@@ -12,9 +12,8 @@
     <dp-sticky-element
       border
       class="py-2"
-      :class="{ 'fixed top-0 left-0 w-full h-[15%] px-2': isFullscreen }">
-      <div
-        class="flex items-start mb-2">
+      :class="{ 'fixed top-0 left-0 w-full h-1/6 px-2': isFullscreen }">
+      <div class="flex items-start mb-2">
         <custom-search
           ref="customSearch"
           id="customSearch"
@@ -102,7 +101,7 @@
       <dp-data-table
         v-if="items"
         class="overflow-x-auto"
-        :class="{ 'px-2 overflow-y-scroll h-[85%]': isFullscreen }"
+        :class="{ 'px-2 overflow-y-scroll h-5/6': isFullscreen }"
         has-flyout
         :header-fields="headerFields"
         is-selectable
