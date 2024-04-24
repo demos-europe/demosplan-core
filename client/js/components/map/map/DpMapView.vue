@@ -16,6 +16,7 @@
 
 <template>
   <div>
+<!-- TO DO: Move to MapAdmin? -->
     <input
       name="r_territory"
       type="hidden"
@@ -213,6 +214,7 @@ export default {
       }
     },
 
+    // TO DO: update to set extent via api
     setExtent (data) {
       document.querySelector('p[data-coordinates="' + data.field + '"]').innerText = data.extent
       document.querySelector('input[data-coordinates="' + data.field + '"]').setAttribute('value', data.extent)
