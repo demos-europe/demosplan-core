@@ -92,6 +92,7 @@ class NotificationReceiverRepository extends CoreRepository implements ArrayInte
      * @param NotificationReceiver $entity
      *
      * @return NotificationReceiver
+     *
      * @throws Exception
      */
     public function generateObjectValues($entity, array $data)
@@ -109,7 +110,6 @@ class NotificationReceiverRepository extends CoreRepository implements ArrayInte
                 $this->logger->warning('There is no related Entity to the given ID: ', [$e]);
                 throw $e;
             }
-
         }
         if (array_key_exists('email', $data)) {
             $entity->setEmail($data['email']);
