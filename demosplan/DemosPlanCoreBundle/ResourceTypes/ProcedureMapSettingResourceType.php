@@ -44,20 +44,28 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         $configBuilder = $this->getConfig(ProcedureMapSettingResourceConfigBuilder::class);
         $configBuilder->id
             ->readable();
+
+        /**
+         * FE sends boundingBox and BE stores it as mapExtent due to legacy reasons
+         */
         $configBuilder->boundingBox
             ->updatable([], function (ProcedureSettings $procedureSettings, ?array $boundingBox): array {
-                $procedureSettings->setBoundingBox($this->convertStartEndCoordinatesToFlatList($boundingBox));
-
-                return [];
-            })
-            ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getBoundingBox(), 4));
-        $configBuilder->mapExtent
-            ->updatable([], function (ProcedureSettings $procedureSettings, ?array $mapExtent): array {
-                $procedureSettings->setMapExtent($this->convertStartEndCoordinatesToFlatList($mapExtent));
+                $procedureSettings->setMapExtent($this->convertStartEndCoordinatesToFlatList($boundingBox));
 
                 return [];
             })
             ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getMapExtent(), 4));
+
+        /**
+         * FE sends mapExtent and BE stores it as boundingBox due to legacy reasons
+         */
+        $configBuilder->mapExtent
+            ->updatable([], function (ProcedureSettings $procedureSettings, ?array $mapExtent): array {
+                $procedureSettings->setBoundingBox($this->convertStartEndCoordinatesToFlatList($mapExtent));
+
+                return [];
+            })
+            ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getBoundingBox(), 4));
         $configBuilder->scales
             ->updatable([], function (ProcedureSettings $procedureSettings, array $scales): array {
                 $procedureSettings->setScales($this->convertListOfIntToString($scales));
