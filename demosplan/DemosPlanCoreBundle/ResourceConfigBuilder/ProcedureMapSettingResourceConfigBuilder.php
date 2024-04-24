@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceConfigBuilder;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureSettingsInterface;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
+use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\JsonApi\PropertyConfig\Builder\AttributeConfigBuilderInterface;
 use EDT\JsonApi\ResourceConfig\Builder\MagicResourceConfigBuilder;
 
@@ -30,6 +31,8 @@ use EDT\JsonApi\ResourceConfig\Builder\MagicResourceConfigBuilder;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, ProcedureSettingsInterface> $defaultBoundingBox
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, ProcedureSettingsInterface> $defaultMapExtent
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, ProcedureSettingsInterface> $useGlobaInformationUrl
+ *
+ * @template-extends MagicResourceConfigBuilder<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,ProcedureSettingsInterface>
  */
 class ProcedureMapSettingResourceConfigBuilder extends MagicResourceConfigBuilder
 {
