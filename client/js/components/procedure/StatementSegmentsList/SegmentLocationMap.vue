@@ -124,6 +124,7 @@ export default {
   },
 
   props: {
+    // TO DO: Remove as prop and get via API procedureSettings.mapExtent
     initExtent: {
       required: false,
       type: String,
