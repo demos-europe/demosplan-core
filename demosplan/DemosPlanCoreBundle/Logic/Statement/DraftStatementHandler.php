@@ -140,11 +140,9 @@ class DraftStatementHandler extends CoreHandler
      * @param User     $user
      * @param array    $procedure
      *
-     * @return void
-     *
      * @throws Throwable|LoaderError|RuntimeError|SyntaxError
      */
-    public function sendNotificationEmailOnReleasedStatement($releasedStatements, $user, $procedure)
+    public function sendNotificationEmailOnReleasedStatement($releasedStatements, $user, $procedure): void
     {
         $mailTemplateVars = [];
         $vars = [];
