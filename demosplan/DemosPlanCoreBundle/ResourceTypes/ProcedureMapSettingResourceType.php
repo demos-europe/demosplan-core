@@ -88,7 +88,8 @@ class ProcedureMapSettingResourceType extends DplanResourceType
                 ->updatable([], function (ProcedureSettings $procedureSetting, bool $showOnlyOverlayCategory): array {
                     $setting = $this->getSetting(
                         ContentService::LAYER_GROUPS_ALTERNATE_VISIBILITY,
-                        $procedureSetting);
+                        $procedureSetting
+                    );
                     if (null === $setting) {
                         $setting = $this->contentService->createEmptySetting(
                             $procedureSetting->getProcedure(),
@@ -103,7 +104,8 @@ class ProcedureMapSettingResourceType extends DplanResourceType
                 ->readable(false, function (ProcedureSettings $procedureSetting): bool {
                     $setting = $this->getSetting(
                         ContentService::LAYER_GROUPS_ALTERNATE_VISIBILITY,
-                        $procedureSetting);
+                        $procedureSetting
+                    );
 
                     return null === $setting ? false : $setting->getContentBool();
                 });
