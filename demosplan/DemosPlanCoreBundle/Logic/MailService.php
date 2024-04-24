@@ -333,7 +333,7 @@ class MailService extends CoreService
 
                 // send mail
                 try {
-                    $this->mailer->send($message);
+                    $this->mailer->sendEmail($message);
                     $mail->setStatus('sent');
                     $mail->setSendDate(new DateTime());
                 } catch (TransportExceptionInterface $e) {

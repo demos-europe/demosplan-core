@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use Symfony\Component\Mailer\Envelope;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
@@ -51,8 +52,15 @@ class TestMailer implements MailerInterface
 
     public function send(RawMessage $message, ?Envelope $envelope = null): void
     {
-        $message = $this->adjustForTestingEnvironment($message);
         $this->mailer->send($message);
+    }
+
+    /**
+     * @throws TransportExceptionInterface
+     */
+    public function sendEmail(Email $message, ?Envelope $envelope = null): void
+    {
+        $this->send($this->adjustForTestingEnvironment($message), $envelope);
     }
 
     private function adjustForTestingEnvironment(Email $message): RawMessage
