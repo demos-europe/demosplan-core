@@ -45,14 +45,14 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         $configBuilder->id
             ->readable();
         $configBuilder->boundingBox
-            ->updatable([], function (ProcedureSettings $procedureSettings, array $boundingBox): array {
+            ->updatable([], function (ProcedureSettings $procedureSettings, ?array $boundingBox): array {
                 $procedureSettings->setBoundingBox($this->convertStartEndCoordinatesToFlatList($boundingBox));
 
                 return [];
             })
             ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getBoundingBox(), 4));
         $configBuilder->mapExtent
-            ->updatable([], function (ProcedureSettings $procedureSettings, array $mapExtent): array {
+            ->updatable([], function (ProcedureSettings $procedureSettings, ?array $mapExtent): array {
                 $procedureSettings->setMapExtent($this->convertStartEndCoordinatesToFlatList($mapExtent));
 
                 return [];
@@ -102,7 +102,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
         if ($this->currentUser->hasPermission('area_procedure_adjustments_general_location')) {
             $configBuilder->coordinate
-                ->updatable([], function (ProcedureSettings $procedureSettings, array $coordinate): array {
+                ->updatable([], function (ProcedureSettings $procedureSettings, ?array $coordinate): array {
                     $procedureSettings->setCoordinate($this->convertCoordinatesToFlatList($coordinate));
 
                     return [];
@@ -112,6 +112,11 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
         if ($this->currentUser->hasPermission('feature_map_use_territory')) {
             $configBuilder->territory
+                ->updatable([], function (ProcedureSettings $procedureSettings, array $territory): array {
+                    $procedureSettings->setTerritory($this->convertCoordinatesToJson($territory));
+
+                    return [];
+                })
                 ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertJsonToCoordinates($procedureSettings->getTerritory()));
         }
 
@@ -148,18 +153,18 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         return array_pop($settings);
     }
 
-    protected function convertStartEndCoordinatesToFlatList(array $coordinates): string
+    protected function convertStartEndCoordinatesToFlatList(?array $coordinates): string
     {
-        return implode(',', [
+        return null === $coordinates ? '' : implode(',', [
             $coordinates['start']['latitude'],
             $coordinates['start']['longitude'],
             $coordinates['end']['latitude'],
             $coordinates['end']['longitude']]);
     }
 
-    protected function convertCoordinatesToFlatList(array $coordinates): string
+    protected function convertCoordinatesToFlatList(?array $coordinates): string
     {
-        return implode(',', [
+        return null === $coordinates ? '' : implode(',', [
             $coordinates['latitude'],
             $coordinates['longitude']]);
     }
@@ -200,19 +205,16 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         }
     }
 
+    protected function convertCoordinatesToJson(?array $coordinates): ?string
+    {
+        return null === $coordinates ? null : json_encode($coordinates, JSON_THROW_ON_ERROR);
+
+    }
+
     protected function convertJsonToCoordinates(string $rawCoordinateValues): ?array
     {
-        if ('' === $rawCoordinateValues) {
-            return null;
-        }
+        return '' === $rawCoordinateValues ? null : json_decode($rawCoordinateValues, true, 512, JSON_THROW_ON_ERROR);
 
-        $coordinateValues = json_decode($rawCoordinateValues, true);
-
-        if (JSON_ERROR_NONE !== json_last_error()) {
-            throw new InvalidArgumentException('Invalid JSON provided');
-        }
-
-        return $coordinateValues;
     }
 
     protected function getAvailablePublicScales(): array
