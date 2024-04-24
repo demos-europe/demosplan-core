@@ -33,7 +33,8 @@ class ProcedureMapSettingResourceType extends DplanResourceType
     public function __construct(
         protected readonly ContentService $contentService,
         protected readonly MasterTemplateService $masterTemplateService
-    ) {}
+    ) {
+    }
 
     public static function getName(): string
     {
