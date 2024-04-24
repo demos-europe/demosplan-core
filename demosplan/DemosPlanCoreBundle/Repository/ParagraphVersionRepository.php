@@ -245,6 +245,7 @@ class ParagraphVersionRepository extends CoreRepository implements ArrayInterfac
      * @return ParagraphVersion
      *
      * @throws ORMException
+     * @throws Exception
      */
     public function generateObjectValues($entity, array $data)
     {
@@ -257,11 +258,22 @@ class ParagraphVersionRepository extends CoreRepository implements ArrayInterfac
             $entity->setText($data['text']);
         }
         if (array_key_exists('pId', $data)) {
-            $entity->setProcedure($data['pId']);
+            try {
+                $procedure = $elementRepository->find($data['pId']);
+                $entity->setProcedure($procedure);
+            } catch (Exception $e) {
+                $this->logger->warning('There is no related Entity to the given ID: ', [$e]);
+                throw $e;
+            }
         }
         if (array_key_exists('elementId', $data)) {
-            $element = $elementRepository->find($data['elementId']);
-            $entity->setElement($element);
+            try {
+                $element = $elementRepository->find($data['elementId']);
+                $entity->setElement($element);
+            } catch (Exception $e) {
+                $this->logger->warning('There is no related Entity to the given ID: ', [$e]);
+                throw $e;
+            }
         }
         if (array_key_exists('category', $data)) {
             $entity->setCategory($data['category']);
