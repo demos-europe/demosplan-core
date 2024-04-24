@@ -56,7 +56,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
                 return [];
             })
-            ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getMapExtent(), 4));
+            ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getMapExtent(), true));
 
         /*
          * FE sends mapExtent and BE stores it as boundingBox due to legacy reasons
@@ -67,7 +67,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
                 return [];
             })
-            ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getBoundingBox(), 4));
+            ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getBoundingBox(), true));
         $configBuilder->scales
             ->updatable([], function (ProcedureSettings $procedureSettings, array $scales): array {
                 $procedureSettings->setScales($this->convertListOfIntToString($scales));
@@ -117,7 +117,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
                     return [];
                 })
-                ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getCoordinate(), 2));
+                ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getCoordinate(), false));
         }
 
         if ($this->currentUser->hasPermission('feature_map_use_territory')) {
@@ -135,7 +135,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
                 ->readable(false, function (ProcedureSettings $procedureSetting): ?array {
                     $masterTemplateMapSetting = $this->masterTemplateService->getMasterTemplate()->getSettings();
 
-                    return $this->convertFlatListToCoordinates($masterTemplateMapSetting->getBoundingBox(), 4);
+                    return $this->convertFlatListToCoordinates($masterTemplateMapSetting->getBoundingBox(), true);
                 });
         }
 
@@ -143,7 +143,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
             ->readable(false, function (ProcedureSettings $procedureSetting): ?array {
                 $masterTemplateMapSetting = $this->masterTemplateService->getMasterTemplate()->getSettings();
 
-                return $this->convertFlatListToCoordinates($masterTemplateMapSetting->getMapExtent(), 4);
+                return $this->convertFlatListToCoordinates($masterTemplateMapSetting->getMapExtent(), true);
             });
 
         $configBuilder->useGlobalInformationUrl
@@ -158,6 +158,11 @@ class ProcedureMapSettingResourceType extends DplanResourceType
             $settingName,
             SettingsFilter::whereProcedureId($procedureSetting->getProcedure()->getId())->lock(),
             false);
+
+        if (null === $settings) {
+            return null;
+        }
+
         Assert::countBetween($settings, 0, 1);
 
         return array_pop($settings);
@@ -165,7 +170,18 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
     protected function convertStartEndCoordinatesToFlatList(?array $coordinates): string
     {
-        return null === $coordinates ? '' : implode(',', [
+        if (null === $coordinates) {
+            return '';
+        }
+
+        $expectedKeys = ['start', 'end'];
+        foreach ($coordinates as $key => $value) {
+            Assert::oneOf($key, $expectedKeys, 'Unexpected key in coordinates array');
+            Assert::keyExists($value, 'latitude', 'Missing latitude in ' . $key);
+            Assert::keyExists($value, 'longitude', 'Missing longitude in ' . $key);
+        }
+
+        return implode(',', [
             $coordinates['start']['latitude'],
             $coordinates['start']['longitude'],
             $coordinates['end']['latitude'],
@@ -174,12 +190,21 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
     protected function convertCoordinatesToFlatList(?array $coordinates): string
     {
-        return null === $coordinates ? '' : implode(',', [
+        if (null === $coordinates) {
+            return '';
+        }
+
+        $expectedKeys = ['latitude', 'longitude'];
+        foreach ($coordinates as $key => $value) {
+            Assert::oneOf($key, $expectedKeys, 'Unexpected key in coordinates array');
+        }
+
+        return implode(',', [
             $coordinates['latitude'],
             $coordinates['longitude']]);
     }
 
-    protected function convertFlatListToCoordinates(string $rawCoordinateValues, $expectedCoordinatePair): ?array
+    protected function convertFlatListToCoordinates(string $rawCoordinateValues, bool $isExtendedFormat): ?array
     {
         if ('' === $rawCoordinateValues) {
             return null;
@@ -189,30 +214,32 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         $coordinateValues = [];
 
         foreach ($rawCoordinateValues as $value) {
+            Assert::numeric($value);
             $coordinateValues[] = (float) $value;
         }
 
-        Assert::count($coordinateValues, $expectedCoordinatePair);
+        if (!$isExtendedFormat) {
+            Assert::count($coordinateValues, 2);
 
-        if (2 === $expectedCoordinatePair) {
             return [
                 'latitude'  => $coordinateValues[0],
                 'longitude' => $coordinateValues[1],
             ];
-        } elseif (4 === $expectedCoordinatePair) {
-            return [
-                'start' => [
-                    'latitude'  => $coordinateValues[0],
-                    'longitude' => $coordinateValues[1],
-                ],
-                'end' => [
-                    'latitude'  => $coordinateValues[2],
-                    'longitude' => $coordinateValues[3],
-                ],
-            ];
-        } else {
-            throw new InvalidArgumentException('Expected exactly two or four coordinate values');
         }
+
+        Assert::count($coordinateValues, 4);
+
+        return [
+            'start' => [
+                'latitude'  => $coordinateValues[0],
+                'longitude' => $coordinateValues[1],
+            ],
+            'end' => [
+                'latitude'  => $coordinateValues[2],
+                'longitude' => $coordinateValues[3],
+            ],
+        ];
+
     }
 
     protected function convertCoordinatesToJson(?array $coordinates): ?string
