@@ -431,6 +431,14 @@ class DemosPlanUserController extends BaseController
                 return $this->redirectToRoute('DemosPlan_citizen_register');
             }
 
+            // avoid brute force attacks
+            $limiter = $userRegisterLimiter->create($request->getClientIp());
+            if (false === $limiter->consume()->isAccepted()) {
+                $this->messageBag->add('warning', 'warning.user.register.throttle');
+
+                return $this->redirectToRoute('core_home');
+            }
+
             $submittedToken = $request->request->get('_csrf_token');
             $tokenId = 'register-user';
             if (!$this->isCsrfTokenValid($tokenId, $submittedToken)) {
@@ -445,14 +453,6 @@ class DemosPlanUserController extends BaseController
             // in xhr requests. We do not need this here, instead, we need to
             // make sure that the token is only valid once.
             $csrfTokenManager->refreshToken($tokenId);
-
-            // avoid brute force attacks
-            $limiter = $userRegisterLimiter->create($request->getClientIp());
-            if (false === $limiter->consume()->isAccepted()) {
-                $this->messageBag->add('warning', 'warning.user.register.throttle');
-
-                return $this->redirectToRoute('core_home');
-            }
 
             $user = $userHandler->createCitizen($request->request);
 
