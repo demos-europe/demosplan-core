@@ -22,7 +22,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\ProcedureMapSettingResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
-use InvalidArgumentException;
 use Webmozart\Assert\Assert;
 
 /**
@@ -177,8 +176,8 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         $expectedKeys = ['start', 'end'];
         foreach ($coordinates as $key => $value) {
             Assert::oneOf($key, $expectedKeys, 'Unexpected key in coordinates array');
-            Assert::keyExists($value, 'latitude', 'Missing latitude in ' . $key);
-            Assert::keyExists($value, 'longitude', 'Missing longitude in ' . $key);
+            Assert::keyExists($value, 'latitude', 'Missing latitude in '.$key);
+            Assert::keyExists($value, 'longitude', 'Missing longitude in '.$key);
         }
 
         return implode(',', [
@@ -239,7 +238,6 @@ class ProcedureMapSettingResourceType extends DplanResourceType
                 'longitude' => $coordinateValues[3],
             ],
         ];
-
     }
 
     protected function convertCoordinatesToJson(?array $coordinates): ?string
