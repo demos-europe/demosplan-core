@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
@@ -214,12 +215,12 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
     protected function convertCoordinatesToJson(?array $coordinates): ?string
     {
-        return null === $coordinates ? null : json_encode($coordinates, JSON_THROW_ON_ERROR);
+        return null === $coordinates ? null : Json::encode($coordinates);
     }
 
     protected function convertJsonToCoordinates(string $rawCoordinateValues): ?array
     {
-        return '' === $rawCoordinateValues ? null : json_decode($rawCoordinateValues, true, 512, JSON_THROW_ON_ERROR);
+        return '' === $rawCoordinateValues ? null : Json::decodeToArray($rawCoordinateValues);
     }
 
     protected function getAvailablePublicScales(): array
