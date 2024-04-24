@@ -270,6 +270,7 @@ import {
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import CustomSearch from './CustomSearch'
 import FilterFlyout from './FilterFlyout'
+import fullscreenModeMixin from '@DpJs/components/shared/mixins/fullscreenModeMixin'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
@@ -296,7 +297,7 @@ export default {
     cleanhtml: CleanHtml
   },
 
-  mixins: [paginationMixin, tableSelectAllItems],
+  mixins: [fullscreenModeMixin, paginationMixin, tableSelectAllItems],
 
   props: {
     currentUserId: {
@@ -337,7 +338,6 @@ export default {
         limits: [10, 25, 50, 100],
         perPage: 10
       },
-      isFullscreen: false,
       headerFieldsAvailable: [
         { field: 'externId', label: Translator.trans('id') },
         { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'w-8' },
@@ -584,15 +584,6 @@ export default {
       // Persist currentQueryHash to load the filtered SegmentsList after returning from bulk edit flow.
       lscache.set(this.lsKey.currentQueryHash, this.currentQueryHash)
       window.location.href = Routing.generate('dplan_segment_bulk_edit_form', { procedureId: this.procedureId })
-    },
-
-    handleFullscreenMode () {
-      this.isFullscreen = !this.isFullscreen
-      if (this.isFullscreen) {
-        document.querySelector('html').setAttribute('style', 'overflow: hidden')
-      } else {
-        document.querySelector('html').removeAttribute('style')
-      }
     },
 
     handleSizeChange (newSize) {
