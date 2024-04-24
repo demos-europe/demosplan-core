@@ -243,7 +243,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
      *
      * @return list<int>
      */
-    protected function convertToListOfInt(string|array $values): ?array
+    protected function convertToListOfInt(string|array $values): array
     {
         $rawAvailableScales = is_array($values) ? $values : explode(',', $values);
         $availableScales = [];
