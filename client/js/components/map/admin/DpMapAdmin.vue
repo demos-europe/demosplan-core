@@ -9,7 +9,7 @@
 
 <template>
   <div class="layout u-pb">
-<!--    {# TO DO: Add permission #}-->
+<!--    {# TO DO: Add permission, This boundingBox in BE! #}-->
     <dp-input
       id="maxExtent"
       v-model="maxExtent"
@@ -18,7 +18,7 @@
       :label="{
         text: Translator.trans('max_extent')
       }" />
-<!--    {# Startkartenausschnitt #}-->
+<!--    {# Startkartenausschnitt, This is mapExtent in BE! #}-->
     <dp-input
       id="initialExtent"
       v-model="initialExtent"
@@ -36,7 +36,7 @@
     <div class="u-mb">
       <dp-map-admin-scales
         :available-scales="JSON.parse(JSON.stringify(availableScales))"
-        :selected-scales="JSON.parse(JSON.stringify(selectedScales))"
+        :selected-scales="JSON.parse(JSON.stringify(procedureSettings.scales))"
         @change="value => areScalesSuitable = value" />
     </div>
 
@@ -45,7 +45,7 @@
       <dp-input
         v-if="!mapGlobals.featureInfoUrl.global"
         id="informationURL"
-        v-model="mapGlobals.informationUrl"
+        v-model="procedureSettings.informationUrl"
         :label="{
           text: Translator.trans('url.information'),
           hint: Translator.trans('url.information.hint', { buttonlabel: 'map.getfeatureinfo.label' })
@@ -55,7 +55,7 @@
     <div class="u-mb">
       <dp-input
         id="copyright"
-        v-model="mapGlobals.copyright"
+        v-model="procedureSettings.copyright"
         :label="{
           text: Translator.trans('map.attribution'),
           hint: Translator.trans('map.attribution.placeholder')
@@ -91,7 +91,7 @@
   </div>
 </template>
 <script>
-import { DpCheckbox, DpInput } from '@demos-europe/demosplan-ui'
+import { DpApi, DpCheckbox, DpInput } from '@demos-europe/demosplan-ui'
 import DpMapAdminScales from './DpMapAdminScales'
 import DpMapView from '@DpJs/components/map/map/DpMapView'
 
@@ -106,10 +106,6 @@ export default {
   },
 
   props: {
-    procedure: {
-      type: String,
-      required: true
-    }
   },
 
   data () {
@@ -135,27 +131,62 @@ export default {
         procedureDefaultInitialExtent: [],
         procedureDefaultMaxExtent: []
       },
-      selectedScales: [],
+      procedureSettings: {},
       territory: ''
     }
   },
 
   computed: {
+    // TO DO: Adjust to BE implementation
     maxExtent () {
-      if (this.mapOptions.procedureMaxExtent === this.mapOptions.procedureDefaultMaxExtent) {
+      if (this.procedureSettings.procedureMaxExtent === this.mapOptions.procedureDefaultMaxExtent) {
         return Translator.trans('max_extent.not.set')
       }
 
-      return this.mapOptions.procedureMaxExtent.join(',')
+      return this.procedureSettings.procedureMaxExtent.join(',')
     },
 
+    // TO DO: Adjust to BE implementation
     initialExtent () {
-      if (this.mapOptions.procedureInitialExtent === this.mapOptions.procedureDefaultInitialExtent) {
+      if (this.procedureSettings.procedureInitialExtent === this.mapOptions.procedureDefaultInitialExtent) {
         return Translator.trans('initial_extent.not.set')
       }
 
-      return this.mapOptions.procedureInitialExtent.join(',')
+      return this.procedureSettings.procedureInitialExtent.join(',')
     }
+  },
+
+  methods: {
+    fetchInitialData () {
+      this.fetchProcedureSettings()
+    },
+
+    fetchProcedureSettings () {
+      const url = Routing.generate('api_resource_list', { procedureId: this.procedureId, resourceType: 'Procedure' })
+      const params = {
+        fields: {
+          ProcedureSettings: [
+            'boundingBox',
+            'coordinate',
+            'mapExtent',
+            'scales',
+            'informationUrl',
+            'copyright',
+            'publicAvailableScales'
+          ].join()
+        },
+        include: 'ProcedureSettings'
+      }
+
+      DpApi.get(url, params)
+        .then(response => {
+          this.procedureSettings = response.data
+        })
+    }
+  },
+
+  mounted () {
+    this.fetchInitialData()
   }
 }
 </script>
