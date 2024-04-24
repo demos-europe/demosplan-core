@@ -74,7 +74,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
                 return [];
             })
-            ->readable(false, fn (ProcedureSettings $procedureSettings) => $this->convertToListOfInt($procedureSettings->getScales()));
+            ->readable(false, fn (ProcedureSettings $procedureSettings): array => $this->convertToListOfInt($procedureSettings->getScales()));
         $configBuilder->informationUrl
             ->updatable()
             ->readable();
