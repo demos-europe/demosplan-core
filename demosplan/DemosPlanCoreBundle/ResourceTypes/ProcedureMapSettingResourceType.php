@@ -143,7 +143,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
                 return $this->convertFlatListToCoordinates($masterTemplateMapSetting->getMapExtent(), 4);
             });
 
-        $configBuilder->useGlobaInformationUrl
+        $configBuilder->useGlobalInformationUrl
             ->readable(false, fn (ProcedureSettings $procedureSetting): bool => $this->globalConfig->isMapGetFeatureInfoUrlGlobal());
 
         return $configBuilder;
