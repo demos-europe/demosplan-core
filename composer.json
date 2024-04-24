@@ -113,6 +113,7 @@
         "symfony/property-access": "5.*.*",
         "symfony/property-info": "5.*.*",
         "symfony/proxy-manager-bridge": "5.*.*",
+        "symfony/rate-limiter": "5.*.*",
         "symfony/security-bundle": "5.*.*",
         "symfony/security-csrf": "5.*.*",
         "symfony/serializer": "5.*.*",
