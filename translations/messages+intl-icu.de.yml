@@ -3970,7 +3970,7 @@ warning.isolated.tag: "Der Stellungnahme {parentStatementExternalId} ist (weiter
 warning.limited.input.field: "Das Eingabefeld  \"{fieldname}\" ist auf {limit} Zeichen begrenzt."
 warning.local.participant.confirm: "Bitte bestätigen Sie, dass Sie in der/einer Gemeinde wohnen, die dieses Thema betrifft."
 warning.login.failed: "Der Login war nicht erfolgreich. Bitte versuchen Sie es erneut."
-warning.login.failed.throttle: "Zu viele erfolglose Loginversuche. Bitte versuchen Sie es in {minutes} Minute erneut."
+warning.login.failed.throttle: "Sie haben sich zu häufig erfolglos eingeloggt. Bitte versuchen Sie es in {minutes} Minute erneut."
 warning.login.welcomepage.failed: "Der Login war nicht erfolgreich. Die Vollständigkeit der Daten Ihrer Organisation konnte nicht erfolgreich geprüft werden."
 warning.new.entry.not.possible: "Ein neuer Beitrag ist in dieser Phase nicht möglich."
 warning.no.selected.procedures: "Es wurden keine Verfahren ausgewählt."
