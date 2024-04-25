@@ -97,8 +97,7 @@ class EntryPointDecider implements EntryPointDeciderInterface
                 break;
 
             case $user->hasRole(Role::CONTENT_EDITOR):
-                $redirectUrlName = $this->globalConfig->getEntrypointRouteRtedit();
-                $entrypointRoute->setRoute($redirectUrlName);
+                $entrypointRoute->setRoute('DemosPlan_faq_administration_faq');
                 $this->logger->info('Entrypoint content editor');
                 break;
 
