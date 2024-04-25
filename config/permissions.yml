@@ -76,6 +76,18 @@ area_admin_map:
     label: 'Verwalten Planzeichnung'
     loginRequired: true
     parent: area_admin
+area_admin_initial_map_view:
+    description: |-
+        Enable only menu item to show the initial map section in the procedure.
+    label: 'Karteneinstellungen'
+    loginRequired: true
+    parent: area_admin
+area_admin_initial_map_view_page:
+    description: |-
+        Enable page access to configure initial map section in the procedure independent from where it is accessed.
+    label: 'Kartenausschnitt definieren'
+    loginRequired: true
+    parent: area_admin
 area_admin_map_description:
     label: 'Verwalten Planzeichenerkl.'
     loginRequired: true
@@ -2359,6 +2371,10 @@ field_data_protection_text_customized_edit_orga:
     label: 'Edit customized data protection text for orga'
     expose: true
     parent: feature_data_protection_text_customized_view
+field_master_procedure_default_bounding_box:
+    description: 'Access default bounding box of a mastertemplate in the initial map view'
+    label: 'Access default bounding box of a mastertemplate'
+    loginRequired: true
 field_fragment_status:
     description: 'Set and show the status of fragment (new, assigned, editing etc).'
     expose: true
