@@ -402,8 +402,7 @@ export default {
       'setDraggableOptions',
       'setDraggableOptionsForBaseLayer',
       'setDraggableOptionsForCategorysWithHiddenLayers',
-      'setMinimapBaseLayer',
-      'updateUiIndexList'
+      'setMinimapBaseLayer'
     ]),
 
     changeBaseListManualSort (event, item) {

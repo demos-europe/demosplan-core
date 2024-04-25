@@ -156,7 +156,7 @@
       :opts="draggableOptions"
       :content-data="childElements"
       :node-id="element.id"
-      @end="handleDragEnd">
+      @end="(event, item) => changeManualSort(event, item)">
       <dp-admin-layer-list-item
         v-for="(item, idx) in childElements"
         :key="`layer:${item.id}`"
@@ -708,9 +708,17 @@ export default {
 
     ...mapMutations('layers', [
       'setAttributeForLayer',
-      'setChildrenFromCategory',
-      'updateUiIndexList'
+      'setChildrenFromCategory'
     ]),
+
+    // Add index property to item, so it can be accessed in the store
+    addIndex() {
+      this.setAttributeForLayer({
+        id: this.element.id,
+        attribute: 'index',
+        value: this.index
+      })
+    },
 
     changeManualSort (event, item) {
       const { newIndex, oldIndex } = event
@@ -969,9 +977,7 @@ export default {
   },
 
   mounted () {
-    this.childElements.forEach((child, idx) => {
-      this.updateUiIndexList({ id: child.id, index: idx})
-    })
+    this.addIndex()
   }
 }
 </script>
