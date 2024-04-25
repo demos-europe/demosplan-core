@@ -310,7 +310,7 @@
                 name="r_represents"
                 :placeholder="Translator.trans('institution.represents')"
                 :value="formData.r_represents"
-                @input="val => setStatementData({r_represents: val})" />
+                @update:model-value="val => setStatementData({r_represents: val})" />
             </div>
           </fieldset>
         </template>
