@@ -44,7 +44,7 @@
           text: Translator.trans('email')
         }"
         required
-        @input="emitUserUpdate" />
+        @update:model-value="emitUserUpdate" />
     </div>
 
     <div class="w-1/2 pr-3 inline-block">
