@@ -23,7 +23,7 @@
         name="r_postalCode"
         pattern="^[0-9]{4,5}$"
         :required="required && statement.r_useName === '1'"
-        :value="statement.r_postalCode"
+        :model-value="statement.r_postalCode"
         width="u-4-of-12"
         @update:model-value="val => setStatementData({r_postalCode: val})" /><!--
    --><dp-input
@@ -37,7 +37,7 @@
         }"
         name="r_city"
         :required="required && statement.r_useName === '1'"
-        :value="statement.r_city"
+        :model-value="statement.r_city"
         width="u-8-of-12"
         @update:model-value="val => setStatementData({r_city: val})" />
     </div>

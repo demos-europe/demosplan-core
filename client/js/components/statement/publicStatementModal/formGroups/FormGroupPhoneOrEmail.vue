@@ -22,7 +22,7 @@
         pattern="^(\+?)(-| |[0-9]|\(|\))*$"
         :required="phoneIsRequired"
         type="tel"
-        :value="statement.r_phone"
+        :model-value="statement.r_phone"
         @update:model-value="val => setStatementData({r_phone: val})" /><!--
    --><dp-input
         id="r_email"
@@ -35,7 +35,7 @@
         name="r_email"
         :required="mailIsRequired"
         type="email"
-        :value="statement.r_email"
+        :model-value="statement.r_email"
         @update:model-value="val => setStatementData({r_email: val})" />
     </div>
   </div>

@@ -18,7 +18,7 @@
     }"
     name="r_street"
     :required="required && statement.r_useName === '1'"
-    :value="statement.r_street"
+    :model-value="statement.r_street"
     width="u-1-of-2"
     @update:model-value="val => setStatementData({r_street: val})" />
 </template>

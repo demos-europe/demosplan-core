@@ -53,7 +53,7 @@
           name="r_email"
           :required="statement.r_getEvaluation === 'email'"
           type="email"
-          :value="statement.r_email"
+          :model-value="statement.r_email"
           @update:model-value="val => hasPermission('feature_statements_feedback_check_email') ? setStatementData({r_email: val}) : setStatementData({r_email: val, r_email2: val})" /><!--
 
         if repeating of email input is enforced, display second email field
@@ -73,7 +73,7 @@
           name="r_email2"
           :required="statement.r_getEvaluation === 'email'"
           type="email"
-          :value="statement.r_email2"
+          :model-value="statement.r_email2"
         @update:model-value="val => setStatementData({r_email2: val})" /><!--
      --><dp-radio
           v-if="hasPermission('feature_statements_feedback_postal')"

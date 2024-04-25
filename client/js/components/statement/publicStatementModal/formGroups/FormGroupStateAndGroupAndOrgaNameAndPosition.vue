@@ -88,7 +88,7 @@
         }"
         name="r_userOrganisation"
         :required="required && statement.r_useName === '1'"
-        :value="statement.r_userOrganisation"
+        :model-value="statement.r_userOrganisation"
       @update:model-value="val => setStatementData({r_userOrganisation: val})" /><!--
 
    --><label

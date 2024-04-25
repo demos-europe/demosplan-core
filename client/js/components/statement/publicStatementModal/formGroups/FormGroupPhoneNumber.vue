@@ -19,7 +19,7 @@
     pattern="^(\+?)(-| |[0-9]|\(|\))*$"
     :required="required && statement.r_useName === '1'"
     type="tel"
-    :value="statement.r_phone"
+    :model-value="statement.r_phone"
     @update:model-value="val => setStatementData({r_phone: val})" />
 </template>
 

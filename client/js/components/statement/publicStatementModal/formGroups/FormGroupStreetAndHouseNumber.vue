@@ -21,7 +21,7 @@
         }"
         name="r_street"
         :required="required && statement.r_useName === '1'"
-        :value="statement.r_street"
+        :model-value="statement.r_street"
         width="u-8-of-12"
         @update:model-value="val => setStatementData({r_street: val})" /><!--
    --><dp-input
@@ -35,7 +35,7 @@
         }"
         name="r_houseNumber"
         :required="required && statement.r_useName === '1'"
-        :value="statement.r_houseNumber"
+        :model-value="statement.r_houseNumber"
         width="u-4-of-12"
         @update:model-value="val => setStatementData({r_houseNumber: val})" />
     </div>
