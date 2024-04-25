@@ -264,7 +264,7 @@
                 :id="`note:${rowData.tokenId}`"
                 :label="Translator.trans('memo')"
                 :maxlength="rowData.isEditable ? '1000' : false"
-                :value="rowData.note"
+                :model-value="rowData.note"
                 @update:model-value="val => localUsers.find(user => user.tokenId === rowData.tokenId).note = val" />
               <dp-button-row
                 v-if="rowData.isEditable"

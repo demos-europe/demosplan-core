@@ -106,7 +106,7 @@
           :hint="Translator.trans('explanation.public.participation.contact')"
           id="r_publicParticipationContact"
           name="r_publicParticipationContact"
-          :value="publicParticipationContact" />
+          :model-value="publicParticipationContact" />
 
         <dp-checkbox
           v-if="hasPermission('feature_admin_customer_master_procedure_template')"

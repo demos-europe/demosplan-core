@@ -67,7 +67,7 @@
         name="r_cssvars"
         :label="Translator.trans('branding.styling.input')"
         reduced-height
-        :value="branding.cssvars" />
+        :model-value="branding.cssvars" />
       <dp-details :summary="Translator.trans('branding.styling.details')">
         <span v-html="Translator.trans('branding.styling.details.description')" />
       </dp-details>
