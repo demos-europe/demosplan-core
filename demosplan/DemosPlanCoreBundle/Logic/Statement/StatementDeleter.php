@@ -74,11 +74,7 @@ class StatementDeleter extends CoreService
      * @throws ORMException
      * @throws Exception
      */
-    private function deleteOriginalStatement(
-        Statement $originalStatement,
-        bool $ignoreAssignment = true,
-        bool $ignoreOriginal = true
-    ): void {
+    private function deleteOriginalStatement(Statement $originalStatement): void {
         if (!$originalStatement->isOriginal()) {
             throw new InvalidArgumentException('Given original-Statement is actually not an original statement.');
         }
@@ -87,71 +83,20 @@ class StatementDeleter extends CoreService
             throw new InvalidArgumentException('Original-Statement to delete still has children.');
         }
         $forReport = clone $originalStatement;
-
-        $statementId = $originalStatement->getId();
-        $ignoreAssignment =
-            $ignoreAssignment
-            || false === $this->permissions->hasPermission('feature_statement_assignment');
-
-        $noAssignee = null === $originalStatement->getAssignee();
-        $assignedToCurrentUser = $this->assignService->isStatementObjectAssignedToCurrentUser($originalStatement);
-        $lockedByAssignment = !($ignoreAssignment || $noAssignee || $assignedToCurrentUser);
-
-        $lockedByAssignmentOfRelatedFragments =
-            !$this->statementFragmentService->areAllFragmentsClaimedByCurrentUser($statementId);
-
-        $lockedByCluster = $originalStatement->isInCluster();
-        $lockedBecauseOfOriginal = $originalStatement->isOriginal() && !$ignoreOriginal;
-        $lockedBySync = null !== $this->entitySyncLinkRepository
-                ->findOneBy(['class' => Statement::class, 'sourceId' => $originalStatement->getId()])
-            || null !== $this->entitySyncLinkRepository
-                ->findOneBy(['class' => Statement::class, 'targetId' => $originalStatement->getId()]);
-
-        $allowedToDelete =
-            !$lockedByAssignmentOfRelatedFragments
-            && !$lockedByAssignment
-            && !$lockedByCluster
-            && !$lockedBecauseOfOriginal
-            && !$lockedBySync;
-
-        if ($allowedToDelete) {
-            try {
-                // Prohibit deletion if a consultation token exists for this statement
-                if (null !== $this->consultationTokenService->getTokenForStatement($originalStatement)) {
-                    throw new DemosException('error.delete.statement.consultation.token', 'Statement '.DemosPlanTools::varExport($statementId, true).' has an associated consultation token.');
-                }
-
-                \collect($originalStatement->getAttachments())
-                    ->map(static fn (StatementAttachment $attachment): string => $attachment->getFile()->getIdent());
-
-                $this->statementAttachmentService->deleteStatementAttachments($originalStatement->getAttachments()->getValues());
-                $this->entityContentChangeService->deleteByEntityIds([$statementId]);
-            } catch (DemosException $demosException) {
-                $this->getLogger()->error('Fehler beim Löschen eines Statements: ', [$demosException]);
-                $this->messageBag->add(
-                    'warning',
-                    $demosException->getUserMsg()
-                );
-            } catch (Exception $e) {
-                $this->getLogger()->error('Fehler beim Löschen eines Statements: ', [$e]);
-            }
-        } else {
-            $this->getDeleteStatementLogger(
-                $originalStatement,
-                $lockedByAssignmentOfRelatedFragments,
-                $lockedByAssignment,
-                $lockedByCluster,
-                $lockedBecauseOfOriginal,
-                $lockedBySync,
+        $deleteOriginal = $this->deleteStatementObject(
+            $originalStatement,
+            true,
+            true,
+            false
+        );
+        if ($deleteOriginal) {
+            $entry = $this->statementReportEntryFactory->createDeletionEntry($forReport);
+            $this->reportService->persistAndFlushReportEntries($entry);
+            $this->logger->info(
+                'generate report of deleteStatement(). ReportID: ',
+                ['identifier' => $entry->getIdentifier()]
             );
         }
-
-        $entry = $this->statementReportEntryFactory->createDeletionEntry($forReport);
-        $this->reportService->persistAndFlushReportEntries($entry);
-        $this->logger->info(
-            'generate report of deleteStatement(). ReportID: ',
-            ['identifier' => $entry->getIdentifier()]
-        );
     }
 
     /**
@@ -163,10 +108,13 @@ class StatementDeleter extends CoreService
     public function deleteStatementObject(
         Statement $statement,
         bool $ignoreAssignment = false,
-        bool $ignoreOriginal = false
+        bool $ignoreOriginal = false,
+        bool $canCommitt = true
     ): bool {
-        /** @var Connection $doctrineConnection */
-        $doctrineConnection = $this->getDoctrine()->getConnection();
+        if($canCommitt) {
+            /** @var Connection $doctrineConnection */
+            $doctrineConnection = $this->getDoctrine()->getConnection();
+        }
         try {
             $success = false;
             $statementId = $statement->getId();
@@ -207,8 +155,9 @@ class StatementDeleter extends CoreService
                     if (null !== $this->consultationTokenService->getTokenForStatement($statement)) {
                         throw new DemosException('error.delete.statement.consultation.token', 'Statement '.DemosPlanTools::varExport($statementId, true).' has an associated consultation token.');
                     }
-
-                    $doctrineConnection->beginTransaction();
+                    if($canCommitt) {
+                        $doctrineConnection->beginTransaction();
+                    }
 
                     $attachedFileIdents = \collect($statement->getAttachments())
                         ->map(static fn (StatementAttachment $attachment): string => $attachment->getFile()->getIdent());
@@ -230,7 +179,9 @@ class StatementDeleter extends CoreService
                     } catch (Exception $e) {
                         $this->getLogger()->warning('Add Report in deleteStatement() failed Message: ', [$e]);
                     }
-                    $doctrineConnection->commit();
+                    if ($canCommitt) {
+                        $doctrineConnection->commit();
+                    }
 
                     $this->entityContentChangeService->deleteByEntityIds([$statementId]);
                     $success = true;
@@ -247,14 +198,50 @@ class StatementDeleter extends CoreService
                     $success = false;
                 }
             } else {
-                $this->getDeleteStatementLogger(
-                    $statement,
-                    $lockedByAssignmentOfRelatedFragments,
-                    $lockedByAssignment,
-                    $lockedByCluster,
-                    $lockedBecauseOfOriginal,
-                    $lockedBySync,
-                );
+                if ($lockedByAssignmentOfRelatedFragments) {
+                    $this->getLogger()->warning("Statement {$statementId} was not deleted, because of related fragments are locked by assignment");
+                    $this->messageBag->add(
+                        'warning',
+                        'warning.delete.statement.because.of.fragments.not.claimed.by.current.user',
+                        ['externId' => $statement->getExternId()]
+                    );
+                }
+
+                if ($lockedByAssignment) {
+                    $this->getLogger()
+                        ->warning("Statement {$statementId} was not deleted, because of locked by assignment");
+                    $this->messageBag->add(
+                        'warning', 'warning.delete.statement.because.of.assignment',
+                        ['externId' => $statement->getExternId()]
+                    );
+                }
+
+                if ($lockedByCluster) {
+                    $this->getLogger()
+                        ->warning("Statement {$statementId} was not deleted, because of locked by cluster");
+                    $this->messageBag->add(
+                        'warning', 'error.statement.clustered.in',
+                        ['headStatementId' => $statement->getExternId()]
+                    );
+                }
+
+                if ($lockedBecauseOfOriginal) {
+                    $this->getLogger()
+                        ->warning("Statement {$statementId} was not deleted, because it is a undeletable original-Statement");
+                    $this->messageBag->add(
+                        'warning', 'warning.delete.statement.original',
+                        ['externId' => $statement->getExternId()]
+                    );
+                }
+
+                if ($lockedBySync) {
+                    $this->getLogger()
+                        ->warning("Statement {$statementId} was not deleted, because of locked by related synced statement.");
+                    $this->messageBag->add(
+                        'warning', 'warning.delete.statement.synced', // add transkey
+                        ['externId' => $statement->getExternId()]
+                    );
+                }
             }
 
             return $success;
@@ -263,63 +250,6 @@ class StatementDeleter extends CoreService
             $doctrineConnection->rollBack();
 
             return false;
-        }
-    }
-
-    /**
-     * @return void
-     */
-    private function getDeleteStatementLogger(
-        Statement $statement,
-        bool $lockedByAssignmentOfRelatedFragments = true,
-        bool $lockedByAssignment = true,
-        bool $lockedByCluster = true,
-        bool $lockedBecauseOfOriginal = true,
-        bool $lockedBySync = true,
-    ) {
-        if ($lockedByAssignmentOfRelatedFragments) {
-            $this->getLogger()->warning("Statement {$statement->getId()} was not deleted, because of related fragments are locked by assignment");
-            $this->messageBag->add(
-                'warning',
-                'warning.delete.statement.because.of.fragments.not.claimed.by.current.user',
-                ['externId' => $statement->getExternId()]
-            );
-        }
-
-        if ($lockedByAssignment) {
-            $this->getLogger()
-                ->warning("Statement {$statement->getId()} was not deleted, because of locked by assignment");
-            $this->messageBag->add(
-                'warning', 'warning.delete.statement.because.of.assignment',
-                ['externId' => $statement->getExternId()]
-            );
-        }
-
-        if ($lockedByCluster) {
-            $this->getLogger()
-                ->warning("Statement {$statement->getId()} was not deleted, because of locked by cluster");
-            $this->messageBag->add(
-                'warning', 'error.statement.clustered.in',
-                ['headStatementId' => $statement->getExternId()]
-            );
-        }
-
-        if ($lockedBecauseOfOriginal) {
-            $this->getLogger()
-                ->warning("Statement {$statement->getId()} was not deleted, because it is a undeletable original-Statement");
-            $this->messageBag->add(
-                'warning', 'warning.delete.statement.original',
-                ['externId' => $statement->getExternId()]
-            );
-        }
-
-        if ($lockedBySync) {
-            $this->getLogger()
-                ->warning("Statement {$statement->getId()} was not deleted, because of locked by related synced statement.");
-            $this->messageBag->add(
-                'warning', 'warning.delete.statement.synced', // add transkey
-                ['externId' => $statement->getExternId()]
-            );
         }
     }
 }
