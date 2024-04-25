@@ -78,8 +78,7 @@ class StatementDeleter extends CoreService
         Statement $originalStatement,
         bool $ignoreAssignment = true,
         bool $ignoreOriginal = true
-    ): void
-    {
+    ): void {
         if (!$originalStatement->isOriginal()) {
             throw new InvalidArgumentException('Given original-Statement is actually not an original statement.');
         }
@@ -268,15 +267,8 @@ class StatementDeleter extends CoreService
     }
 
     /**
-     * @param Statement $statement
-     * @param bool $lockedByAssignmentOfRelatedFragments
-     * @param bool $lockedByAssignment
-     * @param bool $lockedByCluster
-     * @param bool $lockedBecauseOfOriginal
-     * @param bool $lockedBySync
      * @return void
      */
-
     private function getDeleteStatementLogger(
         Statement $statement,
         bool $lockedByAssignmentOfRelatedFragments = true,
@@ -284,8 +276,7 @@ class StatementDeleter extends CoreService
         bool $lockedByCluster = true,
         bool $lockedBecauseOfOriginal = true,
         bool $lockedBySync = true,
-    )
-    {
+    ) {
         if ($lockedByAssignmentOfRelatedFragments) {
             $this->getLogger()->warning("Statement {$statement->getId()} was not deleted, because of related fragments are locked by assignment");
             $this->messageBag->add(
