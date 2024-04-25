@@ -242,9 +242,9 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         ];
     }
 
-    protected function convertCoordinatesToJson(?array $coordinates): ?string
+    protected function convertCoordinatesToJson(?array $coordinates): string
     {
-        return null === $coordinates ? null : Json::encode($coordinates);
+        return null === $coordinates ? '' : Json::encode($coordinates);
     }
 
     protected function convertJsonToCoordinates(string $rawCoordinateValues): ?array
