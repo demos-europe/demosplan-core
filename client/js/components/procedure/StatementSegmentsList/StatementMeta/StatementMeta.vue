@@ -140,7 +140,7 @@
             <dp-datepicker
               class="o-form__control-wrapper"
               id="authoredDateDatepicker"
-              :value="localStatement.attributes.authoredDate"
+              :model-value="localStatement.attributes.authoredDate"
               :max-date="localStatement.attributes.submitDate ? localStatement.attributes.submitDate : currentDate"
               @update:model-value="(val) => setDate(val, 'authoredDate')" />
           </div>
@@ -167,10 +167,10 @@
             <dp-datepicker
               class="o-form__control-wrapper"
               id="submitDateDatepicker"
-              :value="convertDate(localStatement.attributes.submitDate)"
+              :model-value="convertDate(localStatement.attributes.submitDate)"
               :max-date="currentDate"
               :min-date="localStatement.attributes.authoredDate ? localStatement.attributes.authoredDate : ''"
-              @input="(val) => setDate(val, 'submitDate')" />
+              @update:model-value="(val) => setDate(val, 'submitDate')" />
           </div>
         </div>
 
