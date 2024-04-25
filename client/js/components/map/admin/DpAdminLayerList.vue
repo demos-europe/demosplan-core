@@ -82,7 +82,7 @@
       :content-data="currentList"
       :class="{'color--grey': false === isEditable}"
       group-id="layerlist"
-      @end="(event, item) => changeListManualSort(event, item)">
+      @end="(event, item) => changeManualSort(event, item)">
       <dp-admin-layer-list-item
         v-for="(item, idx) in currentList"
         :key="`currentList:${item.id}`"
@@ -135,7 +135,7 @@
       :content-data="currentBaseList"
       :opts="draggableOptionsForBaseLayer"
       group-id="baselist"
-      @end="(event, item, nodeId) => changeBaseListManualSort(event, item, nodeId)">
+      @end="(event, item, nodeId) => changeManualSort(event, item)">
       <dp-admin-layer-list-item
         v-for="(item, idx) in currentBaseList"
         :key="`currentBaseList:${item.id}`"
@@ -405,18 +405,7 @@ export default {
       'setMinimapBaseLayer'
     ]),
 
-    changeBaseListManualSort (event, item) {
-      if (this.currentTab === 'mapOrder') {
-        const removedItem = this.mapBaseList.splice(event.oldIndex, 1)[0]
-        this.mapBaseList.splice(event.newIndex, 0, removedItem)
-      } else {
-        const removedItem = this.treeBaseList.splice(event.oldIndex, 1)[0]
-        this.treeBaseList.splice(event.newIndex, 0, removedItem)
-      }
-    },
-
-    changeListManualSort (event, item) {
-      console.log('changeListManualSort')
+    changeManualSort (event, item) {
       const { newIndex, oldIndex } = event
       const targetParentId = event.to.parentElement.id ?? null
       const sourceParentId = event.from.parentElement.id ?? null
