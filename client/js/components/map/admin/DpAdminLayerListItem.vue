@@ -735,7 +735,6 @@ export default {
         newIndex,
         oldIndex,
         orderType: 'treeOrder',
-        parentOrder: this.layer.attributes.treeOrder,
         relationshipType,
         sourceParentId,
         targetParentId,

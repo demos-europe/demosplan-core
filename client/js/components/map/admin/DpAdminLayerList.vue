@@ -432,7 +432,6 @@ export default {
         newIndex,
         oldIndex,
         orderType: this.currentTab,
-        parentOrder: this.parentOrderPosition,
         relationshipType,
         sourceParentId,
         targetParentId
