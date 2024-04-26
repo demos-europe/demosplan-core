@@ -127,7 +127,7 @@
                             {% if templateVars.statementsTotal|default(0) > 0 %}
                                 <div class="layout__item u-1-of-2 u-1-of-1-palm u-mb-palm">
                                     <p class="weight--bold">
-                                        {{ contextualHelp('help.without.moved.statements', ['o-tooltip--question-circle','c-infolist__help u-ml-0_25 u-mt-0_125 float-right']) }}
+                                        {{ contextualHelp('help.without.moved.statements', ['c-infolist__help u-ml-0_25 u-mt-0_125 float-right']) }}
                                         {{ 'statements.grouped.status'|trans({ count: 0 }) }}
                                     </p>
                                     <div
@@ -141,7 +141,7 @@
                                 </div>
                                 <div class="layout__item u-1-of-2 u-1-of-1-palm">
                                     <p class="weight--bold u-pb">
-                                        {{ contextualHelp('help.without.moved.statements', ['o-tooltip--question-circle','c-infolist__help u-ml-0_25 u-mt-0_125 float-right']) }}
+                                        {{ contextualHelp('help.without.moved.statements', ['c-infolist__help u-ml-0_25 u-mt-0_125 float-right']) }}
                                         {{ 'statements.grouped.priority'|trans({ count: 0 }) }}
                                     </p>
                                     <div id="pieChart" class="c-chart__svg-wrapper"></div>
