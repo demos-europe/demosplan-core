@@ -28,6 +28,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
+use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
@@ -73,6 +74,7 @@ class StatementDeleter extends CoreService
      * @throws UserNotFoundException
      * @throws ORMException
      * @throws Exception
+     * @throws \Doctrine\DBAL\Driver\Exception
      */
     private function deleteOriginalStatement(Statement $originalStatement): void {
         if (!$originalStatement->isOriginal()) {
@@ -82,16 +84,22 @@ class StatementDeleter extends CoreService
         if (!$originalStatement->getChildren()->isEmpty()) {
             throw new InvalidArgumentException('Original-Statement to delete still has children.');
         }
-        $forReport = clone $originalStatement;
+        /** @var Connection $doctrineConnection */
+        $doctrineConnection = $this->getDoctrine()->getConnection();
+        $sql = "DELETE FROM statement_import_email_original_statements WHERE original_statement_id = :id";
+        $prepareEmailToDelete = $doctrineConnection->prepare($sql);
+        $execute = $prepareEmailToDelete->executeQuery(['id' => $originalStatement->getId()]);
+        $execute->fetchAllAssociative();
+
         $deleteOriginal = $this->deleteStatementObject(
             $originalStatement,
             true,
-            true,
-            false
+            true
         );
+        $forReport = clone $originalStatement;
         if ($deleteOriginal) {
             $entry = $this->statementReportEntryFactory->createDeletionEntry($forReport);
-            $this->reportService->persistAndFlushReportEntries($entry);
+            $this->reportService->persistAndFlushWithoutTransaction($entry);
             $this->logger->info(
                 'generate report of deleteStatement(). ReportID: ',
                 ['identifier' => $entry->getIdentifier()]
@@ -109,12 +117,7 @@ class StatementDeleter extends CoreService
         Statement $statement,
         bool $ignoreAssignment = false,
         bool $ignoreOriginal = false,
-        bool $canCommitt = true
     ): bool {
-        if($canCommitt) {
-            /** @var Connection $doctrineConnection */
-            $doctrineConnection = $this->getDoctrine()->getConnection();
-        }
         try {
             $success = false;
             $statementId = $statement->getId();
@@ -155,9 +158,6 @@ class StatementDeleter extends CoreService
                     if (null !== $this->consultationTokenService->getTokenForStatement($statement)) {
                         throw new DemosException('error.delete.statement.consultation.token', 'Statement '.DemosPlanTools::varExport($statementId, true).' has an associated consultation token.');
                     }
-                    if($canCommitt) {
-                        $doctrineConnection->beginTransaction();
-                    }
 
                     $attachedFileIdents = \collect($statement->getAttachments())
                         ->map(static fn (StatementAttachment $attachment): string => $attachment->getFile()->getIdent());
@@ -179,9 +179,6 @@ class StatementDeleter extends CoreService
                     } catch (Exception $e) {
                         $this->getLogger()->warning('Add Report in deleteStatement() failed Message: ', [$e]);
                     }
-                    if ($canCommitt) {
-                        $doctrineConnection->commit();
-                    }
 
                     $this->entityContentChangeService->deleteByEntityIds([$statementId]);
                     $success = true;
@@ -194,7 +191,6 @@ class StatementDeleter extends CoreService
                     $success = false;
                 } catch (Exception $e) {
                     $this->getLogger()->error('Fehler beim Löschen eines Statements: ', [$e]);
-                    $doctrineConnection->rollBack();
                     $success = false;
                 }
             } else {
@@ -247,8 +243,6 @@ class StatementDeleter extends CoreService
             return $success;
         } catch (Exception $e) {
             $this->getLogger()->warning('Fehler beim Löschen eines Statements: ', [$e]);
-            $doctrineConnection->rollBack();
-
             return false;
         }
     }

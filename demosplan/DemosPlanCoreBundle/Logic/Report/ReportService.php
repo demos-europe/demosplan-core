@@ -74,6 +74,17 @@ class ReportService extends CoreService
         );
     }
 
+    public function persistAndFlushWithoutTransaction(ReportEntry ...$reportEntries) {
+            foreach ($reportEntries as $reportEntry) {
+                $violations = $this->validator->validate($reportEntry);
+                if (0 !== $violations->count()) {
+                    throw ViolationsException::fromConstraintViolationList($violations);
+                }
+                $this->reportRepository->addObject($reportEntry);
+            }
+            return null;
+    }
+
     /**
      * @throws ViolationsException
      */
