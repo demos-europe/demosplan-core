@@ -313,14 +313,14 @@ submenu_procedures:
             'DemosPlan_singledocument_administration_new',
         ]
         path_params: ['procedure']
-        permission: ['area_admin_single_document', 'area_admin_paragraphed_document', 'area_admin_map']
+        permission: ['area_admin_single_document'] # @todo Comment is required
         link_attributes:
             data-cy: 'documentsAndMapSettings'
             data-extern-dataport: 'documentsAndMapSettings'
-#            TO DO: Add permission
     map_settings:
         label: 'map_settings.menu'
         path: 'DemosPlan_map_administration_map'
+        permission: ['area_admin_map']
         path_params: [ 'procedureId' ]
         link_attributes:
             data-cy: 'mapSettings'

@@ -73,6 +73,8 @@ area_admin_import:
     loginRequired: true
     parent: area_admin
 area_admin_map:
+    description: |-
+        Controls ResourceType and Access to Map Settings.
     label: 'Verwalten Planzeichnung'
     loginRequired: true
     parent: area_admin
@@ -81,13 +83,7 @@ area_admin_initial_map_view:
         Enable only menu item to show the initial map section in the procedure.
     label: 'Karteneinstellungen'
     loginRequired: true
-    parent: area_admin
-area_admin_initial_map_view_page:
-    description: |-
-        Enable page access to configure initial map section in the procedure independent from where it is accessed.
-    label: 'Kartenausschnitt definieren'
-    loginRequired: true
-    parent: area_admin
+    parent: area_admin_map
 area_admin_map_description:
     label: 'Verwalten Planzeichenerkl.'
     loginRequired: true
