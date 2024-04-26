@@ -1,16 +1,14 @@
 {% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
-{% set mapglobals = templateVars.mapglobals %}
-{% set mapOptions = templateVars.mapOptions %}
-
+{% set mapGlobals = templateVars.mapglobals %}
 {% set availableScales = templateVars.availableScales|map(scale => { label: '1:' ~ scale|number_format(0, '.', '.'), value: scale } ) %}
-{% set selectedScales = templateVars.mapglobals.scales|map(scale => { label: '1:' ~ scale|number_format(0, '.', '.'), value: scale } ) %}
 
 {% block demosplanbundlecontent %}
 
     {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
         heading: 'drawing.mapsection.define'|trans
     } %}
-    <dp-map-admin>
+
+    <dp-map-admin procedure-id="{{ procedure }}">
     </dp-map-admin>
 
 {% endblock %}

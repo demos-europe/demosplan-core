@@ -16,17 +16,6 @@
 
 <template>
   <div>
-<!-- TO DO: Move to MapAdmin? -->
-    <input
-      name="r_territory"
-      type="hidden"
-      :value="JSON.stringify(territory)">
-
-    <input
-      name="r_coordinate"
-      type="hidden"
-      :value="coordinate">
-
     <dp-ol-map
       ref="map"
       :options="{
@@ -44,11 +33,11 @@
           <dp-ol-map-set-extent
             data-cy="mapDefaultBounds"
             translation-key="map.default.bounds"
-            @extentSet="data => setExtent({ field: 'mapExtend_of_project_epsg25832', extent: data })" />
+            @extentSet="data => setExtent({ field: 'boundingBox', extent: data })" />
           <dp-ol-map-set-extent
             data-cy="boundsApply"
             translation-key="bounds.apply"
-            @extentSet="data => setExtent({ field: 'bbox_of_project_epsg25832', extent: data })" />
+            @extentSet="data => setExtent({ field: 'mapExtent', extent: data })" />
           <dp-contextual-help
             class="float-right"
             :text="Translator.trans('text.mapsection')" />
@@ -214,10 +203,8 @@ export default {
       }
     },
 
-    // TO DO: update to set extent via api
     setExtent (data) {
-      document.querySelector('p[data-coordinates="' + data.field + '"]').innerText = data.extent
-      document.querySelector('input[data-coordinates="' + data.field + '"]').setAttribute('value', data.extent)
+      this.$emit('update', data)
     }
   }
 }
