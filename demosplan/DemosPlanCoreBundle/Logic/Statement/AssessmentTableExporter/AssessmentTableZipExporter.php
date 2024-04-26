@@ -89,8 +89,8 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
 
         try {
             $statementAttachments = $this->getAttachmentsOfStatements($xlsxArray['statementIds']);
-        } catch (Exception) {
-            $this->logger->error(self::ATTACHMENTS_NOT_ADDABLE_LOG);
+        } catch (Exception $e) {
+            $this->logger->error(self::ATTACHMENTS_NOT_ADDABLE_LOG, [$e]);
             throw new AssessmentTableZipExportException('error', self::ATTACHMENTS_NOT_ADDABLE);
         }
 
