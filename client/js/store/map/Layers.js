@@ -805,81 +805,65 @@ const LayersStore = {
     },
 
     /**
-     *
+     * Updates the order of a list item after moving it
+     * - removes it from the old position in the source category
+     * - adds it to the new position in the target category
+     * - updates the parentId/categoryId attribute of the moved item
+     * - updates the order attribute of all children of the source and target category
      * @param state
      * @param commit
      * @param dispatch
-     * @param {Object} data
-     * @param {String} data.listKey 'mapBaseList' | 'mapList' | 'treeBaseList' | 'treeList'
-     * @param {String} data.listType 'map' | 'tree'
-     * @param {Number} data.newIndex
-     * @param {Number} data.oldIndex
-     * @param {String} data.orderType 'mapOrder' | 'treeOrder'
-     * @param {String} data.relationshipType
-     * @param {String} data.sourceParentId
-     * @param {String} data.targetParentId
+     * @param {String} listKey 'mapBaseList' | 'mapList' | 'treeBaseList' | 'treeList'
+     * @param {String} listType 'map' | 'tree'
+     * @param {Number} newIndex
+     * @param {Number} oldIndex
+     * @param {String} orderType 'mapOrder' | 'treeOrder'
+     * @param {String} relationshipType
+     * @param {String} sourceParentId
+     * @param {String} targetParentId
      */
-    updateListSort ({state, commit, dispatch}, data) {
-      const {
-        listKey,
-        listType,
-        newIndex,
-        oldIndex,
-        orderType,
-        relationshipType,
-        sourceParentId,
-        targetParentId
-      } = data
+    updateListSort ({state, commit, dispatch}, { listKey, listType, newIndex, oldIndex, orderType, relationshipType, sourceParentId, targetParentId }) {
       const targetIsRoot = !targetParentId
       const sourceIsRoot = !sourceParentId
 
-      dispatch('removeItem', {
-        listKey,
-        oldIndex,
-        orderType,
-        relationshipType,
-        sourceIsRoot,
-        sourceParentId
-      })
-
-      dispatch('addItem', {
-        listKey,
-        newIndex,
-        orderType,
-        relationshipType,
-        targetIsRoot,
-        targetParentId
-      })
-
-      const isCompleteItem = !!state.removedItem.attributes
-
-      // if item has been moved from a non-root category, it only has properties `id` and `type`, but on root level, it
-      // should have attributes, too
-      if (!isCompleteItem) {
-        commit('addMissingProperties', {
-          listKey
+      if (orderType === 'treeOrder') {
+        dispatch('removeItem', {
+          listKey,
+          oldIndex,
+          orderType,
+          relationshipType,
+          sourceIsRoot,
+          sourceParentId
         })
+
+        dispatch('addItem', {
+          listKey,
+          newIndex,
+          orderType,
+          relationshipType,
+          targetIsRoot,
+          targetParentId
+        })
+
+        const isCompleteItem = !!state.removedItem.attributes
+
+        /* If item has been moved from a non-root category, it only has properties `id` and `type`, but we need the
+           complete item with all its properties */
+        if (!isCompleteItem) {
+          commit('addMissingProperties', {
+            listKey
+          })
+        }
       }
 
-      const layerType = listKey.includes('Base') ? 'base' : 'overlay'
-
       dispatch('updateItemAttrs', {
-        layerType,
+        layerType: listKey.includes('Base') ? 'base' : 'overlay',
         orderType: `${listType}Order`,
         sourceParentId: sourceIsRoot ? null : sourceParentId,
         targetParentId: targetIsRoot ? null : targetParentId
       })
 
       // @fixme
-      // if (listType === 'map') {
-      //   commit('setChildrenFromCategory',{
-      //     categoryId: targetIsRoot ? null : targetParentId,
-      //     data: state[listKey],
-      //     orderType: listType === 'map' ? 'mapOrder' : 'treeOrder',
-      //     parentOrder: parentOrder
-      //   })
-      // }
-
       /* If there is just one order (map), the tree order should match the map order */
       // if (listType === 'map' && !hasPermission('feature_map_category')) {
       //   commit('setChildrenFromCategory', {
