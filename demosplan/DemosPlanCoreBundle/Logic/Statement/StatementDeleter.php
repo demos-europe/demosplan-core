@@ -28,7 +28,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
-use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
@@ -76,7 +75,8 @@ class StatementDeleter extends CoreService
      * @throws Exception
      * @throws \Doctrine\DBAL\Driver\Exception
      */
-    private function deleteOriginalStatement(Statement $originalStatement): void {
+    private function deleteOriginalStatement(Statement $originalStatement): void
+    {
         if (!$originalStatement->isOriginal()) {
             throw new InvalidArgumentException('Given original-Statement is actually not an original statement.');
         }
@@ -86,7 +86,7 @@ class StatementDeleter extends CoreService
         }
         /** @var Connection $doctrineConnection */
         $doctrineConnection = $this->getDoctrine()->getConnection();
-        $sql = "DELETE FROM statement_import_email_original_statements WHERE original_statement_id = :id";
+        $sql = 'DELETE FROM statement_import_email_original_statements WHERE original_statement_id = :id';
         $prepareEmailToDelete = $doctrineConnection->prepare($sql);
         $execute = $prepareEmailToDelete->executeQuery(['id' => $originalStatement->getId()]);
         $execute->fetchAllAssociative();
@@ -243,6 +243,7 @@ class StatementDeleter extends CoreService
             return $success;
         } catch (Exception $e) {
             $this->getLogger()->warning('Fehler beim Löschen eines Statements: ', [$e]);
+
             return false;
         }
     }
