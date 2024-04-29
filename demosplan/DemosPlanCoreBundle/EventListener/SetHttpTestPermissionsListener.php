@@ -20,6 +20,7 @@ use Symfony\Component\HttpKernel\Event\ControllerEvent;
 class SetHttpTestPermissionsListener
 {
     public const X_DPLAN_TEST_PERMISSIONS = 'x-dplan-test-permissions';
+
     public function __construct(
         private readonly PermissionsInterface $permissions,
     ) {

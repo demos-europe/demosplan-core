@@ -33,6 +33,4 @@ class HttpTestCase extends FunctionalTestCase
     {
         $this->client->setServerParameter(SetHttpTestPermissionsListener::X_DPLAN_TEST_PERMISSIONS, implode(',', $permissionsToEnable));
     }
-
-
 }
