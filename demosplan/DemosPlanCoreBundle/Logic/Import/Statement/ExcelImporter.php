@@ -26,6 +26,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\EntityValidator\SegmentValidator;
 use demosplan\DemosPlanCoreBundle\EntityValidator\TagValidator;
+use demosplan\DemosPlanCoreBundle\Event\Statement\StatementCreatedViaExcelEvent;
 use demosplan\DemosPlanCoreBundle\Exception\CopyException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
@@ -48,6 +49,7 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Validator\Constraint;
@@ -99,6 +101,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         private readonly DqlConditionFactory $conditionFactory,
         private readonly EntityManagerInterface $entityManager,
         ElementsService $elementsService,
+        private readonly EventDispatcherInterface $eventDispatcher,
         OrgaService $orgaService,
         private readonly PlaceService $placeService,
         private readonly SegmentValidator $segmentValidator,
@@ -261,6 +264,13 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
                 ++$counter;
             }
+
+            // PI proposals have to be updated with the new Excel imported tags which make them available in the next
+            // segmentation proposals. The 'StatementCreatedViaExcelEvent' will be dispatched with every new already
+            // segmented generated statement and a segmentation request will be send to data.
+            // The only purpose to do that here is to pass imported tagged sections with Excel to DATA which make
+            // these tags ( from the tagged sections ) available in the next segmentation proposals.
+            $this->eventDispatcher->dispatch(new StatementCreatedViaExcelEvent($generatedStatement));
 
             unset($segments[$statementId]);
         }
