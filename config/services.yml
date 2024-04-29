@@ -254,7 +254,7 @@ services:
     # which needs the permission-settings to execute its logic.
     demosplan\DemosPlanCoreBundle\EventListener\CheckPermissionListener:
         tags:
-            - { name: kernel.event_listener, event: kernel.controller, method: onControllerRequest, priority: 5 }
+            - { name: kernel.event_listener, event: kernel.controller, method: onControllerRequest, priority: 4 }
 
     demosplan\DemosPlanCoreBundle\EventListener\DemosPlanRequestListener:
         tags:
