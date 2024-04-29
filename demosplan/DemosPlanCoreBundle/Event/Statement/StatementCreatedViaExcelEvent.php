@@ -10,8 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Event\Statement;
 
-use DemosEurope\DemosplanAddon\Contracts\Events\StatementCreatedViaExcelEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\StatementCreatedViaExcelEventInterface;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 
 class StatementCreatedViaExcelEvent extends DPlanEvent implements StatementCreatedViaExcelEventInterface
