@@ -268,8 +268,8 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             // PI proposals have to be updated with the new Excel imported tags which make them available in the next
             // segmentation proposals. The 'StatementCreatedViaExcelEvent' will be dispatched with every new already
             // segmented generated statement and a segmentation request will be send to data.
-            // The only purpose to do that here is to pass imported tagged sections with Excel to DATA which make
-            // these tags ( from the tagged sections ) available in the next segmentation proposals.
+            // The only purpose to do that here is to pass imported tagged sections with Excel to DATA to make them
+            // available in the next segmentation proposals.
             $this->eventDispatcher->dispatch(new StatementCreatedViaExcelEvent($generatedStatement));
 
             unset($segments[$statementId]);
