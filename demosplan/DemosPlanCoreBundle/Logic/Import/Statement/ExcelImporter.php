@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\StatementCreatedViaExcelEventInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\DateStringConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\MatchingFieldValueInSegments;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
@@ -270,7 +271,10 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             // segmented generated statement and a segmentation request will be send to data.
             // The only purpose to do that here is to pass imported tagged sections with Excel to DATA to make them
             // available in the next segmentation proposals.
-            $this->eventDispatcher->dispatch(new StatementCreatedViaExcelEvent($generatedStatement));
+            $this->eventDispatcher->dispatch(
+                new StatementCreatedViaExcelEvent($generatedStatement),
+                StatementCreatedViaExcelEventInterface::class
+            );
 
             unset($segments[$statementId]);
         }
