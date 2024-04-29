@@ -13,7 +13,6 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 use Carbon\Carbon;
 use DateInterval;
 use DateTime;
-use DemosEurope\DemosplanAddon\DemosMaillane\Entity\StatementImportEmail;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;

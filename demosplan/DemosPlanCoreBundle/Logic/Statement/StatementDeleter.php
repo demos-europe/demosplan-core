@@ -34,7 +34,6 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
-use Symfony\Component\Serializer\Exception\ExceptionInterface;
 
 class StatementDeleter extends CoreService
 {
@@ -79,7 +78,6 @@ class StatementDeleter extends CoreService
         $this->queriesService->deleteFromTableByIdentifierArray('statement_import_email_original_statements', 'original_statement_id', $originalStatement, $isDryRun);
     }
 
-
     /**
      * @throws OptimisticLockException
      * @throws UserNotFoundException
@@ -93,7 +91,7 @@ class StatementDeleter extends CoreService
             $this->queriesService->fetchFromTableByParameter(['id'],
                 'statement_import_email_original_statements',
                 'original_statement_id',
-                get_object_vars($originalStatement)),'id');
+                get_object_vars($originalStatement)), 'id');
 
         if (!$originalStatement->isOriginal()) {
             throw new InvalidArgumentException('Given original-Statement is actually not an original statement.');
