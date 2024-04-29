@@ -84,19 +84,13 @@ class StatementDeleter extends CoreService
         if (!$originalStatement->getChildren()->isEmpty()) {
             throw new InvalidArgumentException('Original-Statement to delete still has children.');
         }
-        /** @var Connection $doctrineConnection */
-        $doctrineConnection = $this->getDoctrine()->getConnection();
-        $sql = 'DELETE FROM statement_import_email_original_statements WHERE original_statement_id = :id';
-        $prepareEmailToDelete = $doctrineConnection->prepare($sql);
-        $execute = $prepareEmailToDelete->executeQuery(['id' => $originalStatement->getId()]);
-        $execute->fetchAllAssociative();
-
+        $this->statementRepository->deleteRelatedEmailOriginalStatement($originalStatement);
+        $forReport = clone $originalStatement;
         $deleteOriginal = $this->deleteStatementObject(
             $originalStatement,
             true,
             true
         );
-        $forReport = clone $originalStatement;
         if ($deleteOriginal) {
             $entry = $this->statementReportEntryFactory->createDeletionEntry($forReport);
             $this->reportService->persistAndFlushWithoutTransaction($entry);

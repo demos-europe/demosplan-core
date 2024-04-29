@@ -585,6 +585,17 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         }
     }
 
+    public function deleteRelatedEmailOriginalStatement(Statement $originalStatement)
+    {
+        /** @var Connection $doctrineConnection */
+        $doctrineConnection = $this->getDoctrine()->getConnection();
+        $sql = 'DELETE FROM statement_import_email_original_statements WHERE original_statement_id = :id';
+        $prepareEmailToDelete = $doctrineConnection->prepare($sql);
+        $execute = $prepareEmailToDelete->executeQuery(['id' => $originalStatement->getId()]);
+
+        return $execute->fetchAllAssociative();
+    }
+
     /**
      * Adds a Version of the recommendation.
      *
