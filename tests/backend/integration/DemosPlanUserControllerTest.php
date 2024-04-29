@@ -8,16 +8,10 @@ use Tests\Base\HttpTestCase;
 class DemosPlanUserControllerTest extends HttpTestCase
 {
 
-    public function setUp(): void
-    {
-        parent::setUp();
-        static::ensureKernelShutdown();
-    }
-
-    public function testUserRegister()
+    public function testUserRegister(): void
     {
         $this->enablePermissions(['feature_citizen_registration']);
-        $crawler = $this->client->request('GET', '/user/register');
+        $this->client->request('GET', '/user/register');
 
         // Validate a successful response and some content
         self::assertResponseIsSuccessful();
