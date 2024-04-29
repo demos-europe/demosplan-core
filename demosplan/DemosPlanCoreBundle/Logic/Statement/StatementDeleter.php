@@ -28,10 +28,13 @@ use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
+use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 
 class StatementDeleter extends CoreService
 {
@@ -47,7 +50,8 @@ class StatementDeleter extends CoreService
         private readonly MessageBagInterface $messageBag,
         private readonly EntityContentChangeService $entityContentChangeService,
         private readonly StatementService $statementService,
-        private readonly EntitySyncLinkRepository $entitySyncLinkRepository
+        private readonly EntitySyncLinkRepository $entitySyncLinkRepository,
+        private readonly SqlQueriesService $queriesService,
     ) {
     }
 
@@ -68,14 +72,29 @@ class StatementDeleter extends CoreService
     }
 
     /**
+     * @throws \Exception
+     */
+    private function deleteImportEmailOriginalStatements(array $originalStatement, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray('statement_import_email_original_statements', 'original_statement_id', $originalStatement, $isDryRun);
+    }
+
+
+    /**
      * @throws OptimisticLockException
      * @throws UserNotFoundException
      * @throws ORMException
      * @throws Exception
-     * @throws \Doctrine\DBAL\Driver\Exception
+     * @throws \Exception
      */
     private function deleteOriginalStatement(Statement $originalStatement): void
     {
+        $importOriginalStatementData = array_column(
+            $this->queriesService->fetchFromTableByParameter(['id'],
+                'statement_import_email_original_statements',
+                'original_statement_id',
+                get_object_vars($originalStatement)),'id');
+
         if (!$originalStatement->isOriginal()) {
             throw new InvalidArgumentException('Given original-Statement is actually not an original statement.');
         }
@@ -83,13 +102,14 @@ class StatementDeleter extends CoreService
         if (!$originalStatement->getChildren()->isEmpty()) {
             throw new InvalidArgumentException('Original-Statement to delete still has children.');
         }
-        $this->statementRepository->deleteRelatedEmailOriginalStatement($originalStatement);
-        $forReport = clone $originalStatement;
+        $this->deleteImportEmailOriginalStatements($importOriginalStatementData, false);
+
         $deleteOriginal = $this->deleteStatementObject(
             $originalStatement,
             true,
             true
         );
+        $forReport = clone $originalStatement;
         if ($deleteOriginal) {
             $entry = $this->statementReportEntryFactory->createDeletionEntry($forReport);
             $this->reportService->persistAndFlushWithoutTransaction($entry);
@@ -111,6 +131,8 @@ class StatementDeleter extends CoreService
         bool $ignoreAssignment = false,
         bool $ignoreOriginal = false,
     ): bool {
+        /** @var Connection $doctrineConnection */
+        $doctrineConnection = $this->getDoctrine()->getConnection();
         try {
             $success = false;
             $statementId = $statement->getId();
@@ -184,6 +206,7 @@ class StatementDeleter extends CoreService
                     $success = false;
                 } catch (Exception $e) {
                     $this->getLogger()->error('Fehler beim Löschen eines Statements: ', [$e]);
+                    $doctrineConnection->rollBack();
                     $success = false;
                 }
             } else {
@@ -236,6 +259,7 @@ class StatementDeleter extends CoreService
             return $success;
         } catch (Exception $e) {
             $this->getLogger()->warning('Fehler beim Löschen eines Statements: ', [$e]);
+            $doctrineConnection->rollBack();
 
             return false;
         }

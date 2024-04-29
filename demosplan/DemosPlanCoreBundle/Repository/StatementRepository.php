@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 use Carbon\Carbon;
 use DateInterval;
 use DateTime;
+use DemosEurope\DemosplanAddon\DemosMaillane\Entity\StatementImportEmail;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
@@ -583,17 +584,6 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
 
             return false;
         }
-    }
-
-    public function deleteRelatedEmailOriginalStatement(Statement $originalStatement)
-    {
-        /** @var Connection $doctrineConnection */
-        $doctrineConnection = $this->getDoctrine()->getConnection();
-        $sql = 'DELETE FROM statement_import_email_original_statements WHERE original_statement_id = :id';
-        $prepareEmailToDelete = $doctrineConnection->prepare($sql);
-        $execute = $prepareEmailToDelete->executeQuery(['id' => $originalStatement->getId()]);
-
-        return $execute->fetchAllAssociative();
     }
 
     /**
