@@ -18,7 +18,7 @@
       <dp-flyout
         align="left"
         data-cy="customSearch:searchCustomLimitFields"
-        class="u-top-0 u-right-0 absolute"
+        class="u-top-0 u-right-0 absolute p-0.5"
         :has-menu="false"
         :padded="false">
         <template v-slot:trigger>
