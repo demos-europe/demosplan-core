@@ -192,6 +192,10 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
             $properties[] = $this->createAttribute($this->coordinate)->readable()->aliasedPath($this->settings->coordinate);
             $properties[] = $this->createAttribute($this->externalDescription)->readable()->aliasedPath($this->externalDesc);
             $properties[] = $this->createAttribute($this->statementSubmitted)->readable(false, function (Procedure $procedure): int {
+                // guests can not have any draft statements
+                if ($this->currentUser->getUser()->isGuestOnly()) {
+                    return 0;
+                }
                 $userFilter = new StatementListUserFilter();
                 $userFilter->setSubmitted(true)->setReleased(true);
                 $statementResult = $this->draftStatementService->getDraftStatementList(
