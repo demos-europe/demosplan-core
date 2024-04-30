@@ -72,7 +72,7 @@ class Breadcrumb
      * @param array|null  $procedure
      * @param bool        $isOwner
      */
-    public function getMarkup(User $user = null, $titleKey = null, $procedure = null, $isOwner = false): string
+    public function getMarkup(?User $user = null, $titleKey = null, $procedure = null, $isOwner = false): string
     {
         // Override title only if title hasn't been set before
         if (null !== $titleKey && $titleKey !== $this->title) {
