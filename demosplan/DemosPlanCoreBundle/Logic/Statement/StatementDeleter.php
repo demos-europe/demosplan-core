@@ -83,7 +83,6 @@ class StatementDeleter extends CoreService
      */
     private function deleteOriginalStatement(Statement $originalStatement): void
     {
-
         if (!$originalStatement->isOriginal()) {
             throw new InvalidArgumentException('Given original-Statement is actually not an original statement.');
         }
