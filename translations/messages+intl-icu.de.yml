@@ -3657,6 +3657,7 @@ text.invitable_institution.administer: "Hier ordnen Sie Behörden und Institutio
 text.invite.unregistered.recipient: ""
 text.mapsection: "Sie können die Kartenbegrenzung aus der Karte übernehmen. Navigieren Sie dazu zu dem Ausschnitt, den Sie auswählen wollen und klicken Sie \"Kartenbegrenzung übernehmen\", um die generelle Kartenbegrenzung der Karte zu übernehmen und \"Startkartenausschnitt übernehmen\", um den Startkartenausschnitt zu übernehmen. Speichern Sie das Formular nach der Auswahl."
 text.mapsection.hint: "Bitte beachten Sie, dass sich die Verortung des Verfahrens (Grundeinstellungen) innerhalb des gewählten Startkartenausschnitts und der Startkartenausschnitt innerhalb der Kartenbegrenzung befinden muss."
+text.mapsection.updated: "Die Kartendaten wurde erfolgreich aktualisiert."
 text.master.new: "Im folgenden Formular können Sie eine neue Blaupause anlegen. Aus Ihren Blaupausen können Sie dann Verfahren ableiten. Möchten Sie eine neue Blaupause aus einer bestehenden Blaupause kopieren, wählen Sie die entsprechende Blaupause aus. Soll die neue Blaupause ohne Einstellungen erzeugt werden, wählen Sie \"leere Blaupause\" aus."
 text.masters.list: "In der Listenansicht sehen Sie alle Blaupausen Ihrer Organisation."
 text.mydata.citizen: "Hier können Sie Ihre persönlichen Daten einsehen, mit denen Sie registriert sind. Möchten Sie Ihre Daten ändern, tun Sie dies bitte unter \"Meine Daten\"."

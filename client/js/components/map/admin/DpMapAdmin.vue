@@ -223,7 +223,6 @@ export default {
       const params = {
         fields: {
           Procedure: [
-            'coordinate',
             'mapSetting'
           ].join(),
           ProcedureMapSetting: [
@@ -239,6 +238,10 @@ export default {
           ].join()
         },
         include: 'mapSetting'
+      }
+
+      if (hasPermission('area_procedure_adjustments_general_location')) {
+        params.fields.ProcedureMapSetting.push('coordinate')
       }
 
       if (hasPermission('feature_map_use_territory')) {
@@ -299,7 +302,7 @@ export default {
       dpApi.patch(url, {}, payload)
         .then(checkResponse)
         .then(() => {
-          dplan.notify.notify('confirm', Translator.trans('mapdata.updated'))
+          dplan.notify.notify('confirm', Translator.trans('text.mapsection.updated'))
           this.$refs.mapView.$refs.map.getMapOptions()
 
           if (returnToOverview) {
