@@ -9,7 +9,6 @@
 
 <template>
   <div :class="{ 'top-0 left-0 w-full h-full fixed z-fixed bg-white': isFullscreen }">
-    <!-- Header -->
     <dp-sticky-element
       border
       class="py-2"
@@ -101,11 +100,13 @@
       </div>
     </dp-sticky-element>
 
-    <dp-loading v-if="isLoading" />
+    <dp-loading
+      class="u-mt"
+      v-if="isLoading" />
 
-    <!-- Statement list -->
-    <template v-if="!isLoading && items.length > 0">
+    <template v-else>
       <dp-data-table
+        v-if="items"
         data-cy="listStatements"
         :class="{ 'px-2 overflow-y-scroll h-5/6': isFullscreen }"
         has-flyout
@@ -289,12 +290,12 @@
           </div>
         </template>
       </dp-data-table>
-    </template>
 
-    <dp-inline-notification
-      v-else-if="!isLoading && items.length === 0"
-      :message="Translator.trans((this.searchValue === '' ? 'statements.none' : 'search.no.results'), {searchterm: this.searchValue})"
-      type="info" />
+      <dp-inline-notification
+        v-else
+        :message="Translator.trans((this.searchValue === '' ? 'statements.none' : 'search.no.results'), {searchterm: this.searchValue})"
+        type="info" />
+    </template>
   </div>
 </template>
 
