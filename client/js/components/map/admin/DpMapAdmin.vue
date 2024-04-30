@@ -271,21 +271,11 @@ export default {
         })
     },
 
-    save () {
-      const url = Routing.generate('api_resource_update', { resourceType: 'Procedure', resourceId: this.procedureId })
-      const payload = {
-        data: {
-          id: this.procedureId,
-          type: 'Procedure',
-          attributes: {
-            coordinate: this.coordinate
-          }
-        }
-      }
-      const url2 = Routing.generate('api_resource_update', { resourceType: 'ProcedureMapSetting', resourceId: this.procedureMapSettings.id })
+    save (returnToOverview = false) {
+      const url = Routing.generate('api_resource_update', { resourceType: 'ProcedureMapSetting', resourceId: this.procedureMapSettings.id })
       const updateData = this.procedureMapSettings.attributes
 
-      const payload2 = {
+      const payload = {
         data: {
           id: this.procedureMapSettings.id,
           type: 'ProcedureMapSetting',
@@ -299,25 +289,23 @@ export default {
       }
 
       if (hasPermission('feature_layer_groups_alternate_visibility')) {
-        payload2.data.attributes.layerGroupsAlternateVisibility = updateData.layerGroupsAlternateVisibility
+        payload.data.attributes.layerGroupsAlternateVisibility = updateData.layerGroupsAlternateVisibility
       }
 
       if (hasPermission('feature_map_use_territory')) {
-        payload2.data.attributes.territory = updateData.territory
+        payload.data.attributes.territory = updateData.territory
       }
 
       dpApi.patch(url, {}, payload)
-      dpApi.patch(url2, {}, payload2)
         .then(checkResponse)
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('mapdata.updated'))
           this.$refs.mapView.$refs.map.getMapOptions()
-        })
-    },
 
-    saveAndReturn () {
-      this.save()
-      window.location.href = Routing.generate('DemosPlan_element_administration', { procedure: this.procedureId })
+          if (returnToOverview) {
+            window.location.href = Routing.generate('DemosPlan_element_administration', { procedure: this.procedureId })
+          }
+        })
     },
 
     setExtent ({ field, extent }) {
