@@ -12,10 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\DeleteEmailImportedStatementEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
+use demosplan\DemosPlanCoreBundle\Event\Statement\DeleteEmailImportedStatementEvent;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
@@ -34,6 +36,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class StatementDeleter extends CoreService
 {
@@ -51,6 +54,7 @@ class StatementDeleter extends CoreService
         private readonly StatementService $statementService,
         private readonly EntitySyncLinkRepository $entitySyncLinkRepository,
         private readonly SqlQueriesService $queriesService,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -71,14 +75,6 @@ class StatementDeleter extends CoreService
     }
 
     /**
-     * @throws \Exception
-     */
-    private function deleteImportEmailOriginalStatements(array $originalStatement, bool $isDryRun): void
-    {
-        $this->queriesService->deleteFromTableByIdentifierArray('statement_import_email_original_statements', 'original_statement_id', $originalStatement, $isDryRun);
-    }
-
-    /**
      * @throws OptimisticLockException
      * @throws UserNotFoundException
      * @throws ORMException
@@ -87,11 +83,6 @@ class StatementDeleter extends CoreService
      */
     private function deleteOriginalStatement(Statement $originalStatement): void
     {
-        $importOriginalStatementData = array_column(
-            $this->queriesService->fetchFromTableByParameter(['id'],
-                'statement_import_email_original_statements',
-                'original_statement_id',
-                get_object_vars($originalStatement)), 'id');
 
         if (!$originalStatement->isOriginal()) {
             throw new InvalidArgumentException('Given original-Statement is actually not an original statement.');
@@ -100,14 +91,17 @@ class StatementDeleter extends CoreService
         if (!$originalStatement->getChildren()->isEmpty()) {
             throw new InvalidArgumentException('Original-Statement to delete still has children.');
         }
-        $this->deleteImportEmailOriginalStatements($importOriginalStatementData, false);
+        $forReport = clone $originalStatement;
+
+        $this->eventDispatcher->dispatch(new DeleteEmailImportedStatementEvent($originalStatement), DeleteEmailImportedStatementEventInterface::class);
 
         $deleteOriginal = $this->deleteStatementObject(
             $originalStatement,
             true,
-            true
+            true,
+            false
         );
-        $forReport = clone $originalStatement;
+
         if ($deleteOriginal) {
             $entry = $this->statementReportEntryFactory->createDeletionEntry($forReport);
             $this->reportService->persistAndFlushWithoutTransaction($entry);
@@ -128,6 +122,7 @@ class StatementDeleter extends CoreService
         Statement $statement,
         bool $ignoreAssignment = false,
         bool $ignoreOriginal = false,
+        bool $canTransaction = true
     ): bool {
         /** @var Connection $doctrineConnection */
         $doctrineConnection = $this->getDoctrine()->getConnection();
@@ -171,7 +166,9 @@ class StatementDeleter extends CoreService
                     if (null !== $this->consultationTokenService->getTokenForStatement($statement)) {
                         throw new DemosException('error.delete.statement.consultation.token', 'Statement '.DemosPlanTools::varExport($statementId, true).' has an associated consultation token.');
                     }
-
+                    if ($canTransaction) {
+                        $doctrineConnection->beginTransaction();
+                    }
                     $attachedFileIdents = \collect($statement->getAttachments())
                         ->map(static fn (StatementAttachment $attachment): string => $attachment->getFile()->getIdent());
 
@@ -193,6 +190,10 @@ class StatementDeleter extends CoreService
                         $this->getLogger()->warning('Add Report in deleteStatement() failed Message: ', [$e]);
                     }
 
+                    if ($canTransaction) {
+                        $doctrineConnection->commit();
+                    }
+
                     $this->entityContentChangeService->deleteByEntityIds([$statementId]);
                     $success = true;
                 } catch (DemosException $demosException) {
@@ -206,6 +207,8 @@ class StatementDeleter extends CoreService
                     $this->getLogger()->error('Fehler beim Löschen eines Statements: ', [$e]);
                     $doctrineConnection->rollBack();
                     $success = false;
+                } catch (\Doctrine\DBAL\Driver\Exception $e) {
+                    $e->getMessage();
                 }
             } else {
                 if ($lockedByAssignmentOfRelatedFragments) {
