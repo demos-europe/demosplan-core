@@ -102,7 +102,7 @@
         type="submit"
         name="submit_item_return_button"
         :value="Translator.trans('save.and.return.to.list')"
-        @click="saveAndReturn">
+        @click="() => save(true)">
       <a
         class="btn btn--secondary"
         :href="Routing.generate('DemosPlan_element_administration', { procedure: procedureId })">
