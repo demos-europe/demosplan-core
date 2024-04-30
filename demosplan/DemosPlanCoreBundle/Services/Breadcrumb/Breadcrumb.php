@@ -121,18 +121,23 @@ class Breadcrumb
                 }
             } else {
                 foreach ($this->userRoles as $role) {
-                    match ($role) {
-                        Role::PROCEDURE_DATA_INPUT => $markup .= $this->getSnippetMarkup(
+                    $result = match ($role) {
+                        Role::PROCEDURE_DATA_INPUT => $this->getSnippetMarkup(
                             $this->getRouter()->generate('DemosPlan_procedure_list_data_input_orga_procedures'),
                             $this->translator->trans('procedure'),
                             $liCounter++
                         ),
-                        default => $markup .= $this->getSnippetMarkup(
+                        default => $this->getSnippetMarkup(
                             $this->getRouter()->generate('core_home'),
                             $this->translator->trans('participation'),
                             $liCounter++
                         ),
                     };
+
+                    if ($result) {
+                        $markup .= $result;
+                        break;
+                    }
                 }
             }
 
