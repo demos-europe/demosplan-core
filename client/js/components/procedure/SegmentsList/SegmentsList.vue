@@ -102,7 +102,7 @@
         <dp-data-table
           ref="dataTable"
           class="overflow-x-auto"
-          :class="isFullscreen ? 'px-2 overflow-y-scroll h-5/6 grow' : '-mt-3'"
+          :class="isFullscreen ? 'px-2 overflow-y-scroll grow' : '-mt-3'"
           has-flyout
           :header-fields="headerFields"
           is-resizable
