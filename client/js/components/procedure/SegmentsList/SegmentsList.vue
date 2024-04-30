@@ -98,145 +98,153 @@
       v-if="isLoading" />
 
     <template v-else>
-      <dp-data-table
-        v-if="items"
-        class="overflow-x-auto"
-        :class="{ 'px-2 overflow-y-scroll h-5/6': isFullscreen }"
-        has-flyout
-        :header-fields="headerFields"
-        is-resizable
-        is-selectable
-        :items="items"
-        :multi-page-all-selected="allSelectedVisually"
-        :multi-page-selection-items-total="allItemsCount"
-        :multi-page-selection-items-toggled="toggledItems.length"
-        :should-be-selected-items="currentlySelectedItems"
-        track-by="id"
-        @select-all="handleSelectAll"
-        @items-toggled="handleToggleItem">
-        <template v-slot:externId="rowData">
-          <v-popover trigger="hover focus">
-            <div class="whitespace-nowrap">
-              {{ rowData.attributes.externId }}
+      <template v-if="items">
+        <dp-data-table
+          ref="dataTable"
+          class="overflow-x-auto"
+          :class="{ 'px-2 overflow-y-scroll h-5/6': isFullscreen }"
+          has-flyout
+          :header-fields="headerFields"
+          is-resizable
+          is-selectable
+          :items="items"
+          :multi-page-all-selected="allSelectedVisually"
+          :multi-page-selection-items-total="allItemsCount"
+          :multi-page-selection-items-toggled="toggledItems.length"
+          :should-be-selected-items="currentlySelectedItems"
+          track-by="id"
+          @select-all="handleSelectAll"
+          @items-toggled="handleToggleItem">
+          <template v-slot:externId="rowData">
+            <v-popover trigger="hover focus">
+              <div class="whitespace-nowrap">
+                {{ rowData.attributes.externId }}
+              </div>
+              <template v-slot:popover>
+                <statement-meta-tooltip
+                  :assignable-users="assignableUsers"
+                  :statement="statementsObject[rowData.relationships.parentStatement.data.id]"
+                  :segment="rowData"
+                  :places="places" />
+              </template>
+            </v-popover>
+          </template>
+          <template v-slot:internId="rowData">
+            <div class="o-hellip__wrapper">
+              <div
+                class="o-hellip--nowrap text-right"
+                v-tooltip="statementsObject[rowData.relationships.parentStatement.data.id].attributes.internId"
+                dir="rtl">
+                {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.internId }}
+              </div>
             </div>
-            <template v-slot:popover>
-              <statement-meta-tooltip
-                :assignable-users="assignableUsers"
-                :statement="statementsObject[rowData.relationships.parentStatement.data.id]"
-                :segment="rowData"
-                :places="places" />
-            </template>
-          </v-popover>
-        </template>
-        <template v-slot:internId="rowData">
-          <div class="o-hellip__wrapper">
+          </template>
+          <template v-slot:submitter="rowData">
+            <ul class="o-list max-w-12">
+              <li
+                v-if="statementsObject[rowData.relationships.parentStatement.data.id].attributes.authorName !== ''"
+                class="o-list__item o-hellip--nowrap">
+                {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.authorName }}
+              </li>
+              <li
+                v-else
+                class="o-list__item o-hellip--nowrap">
+                {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.submitName }}
+              </li>
+              <li
+                v-if="statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationName !== ''"
+                class="o-list__item o-hellip--nowrap">
+                {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationName }}
+              </li>
+            </ul>
+          </template>
+          <template v-slot:address="rowData">
+            <ul class="o-list">
+              <li
+                v-if="statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationStreet !== ''"
+                class="o-list__item o-hellip--nowrap">
+                {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationStreet }}
+                {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationHouseNumber }}
+              </li>
+              <li
+                v-if="statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationPostalCode !== ''"
+                class="o-list__item o-hellip--nowrap">
+                {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationPostalCode }}
+                {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationCity }}
+              </li>
+            </ul>
+          </template>
+          <template v-slot:place="rowData">
+            {{ placesObject[rowData.relationships.place.data.id].attributes.name }}
+          </template>
+          <template v-slot:text="rowData">
             <div
-              class="o-hellip--nowrap text-right"
-              v-tooltip="statementsObject[rowData.relationships.parentStatement.data.id].attributes.internId"
-              dir="rtl">
-              {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.internId }}
-            </div>
-          </div>
-        </template>
-        <template v-slot:submitter="rowData">
-          <ul class="o-list max-w-12">
-            <li
-              v-if="statementsObject[rowData.relationships.parentStatement.data.id].attributes.authorName !== ''"
-              class="o-list__item o-hellip--nowrap">
-              {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.authorName }}
-            </li>
-            <li
-              v-else
-              class="o-list__item o-hellip--nowrap">
-              {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.submitName }}
-            </li>
-            <li
-              v-if="statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationName !== ''"
-              class="o-list__item o-hellip--nowrap">
-              {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationName }}
-            </li>
-          </ul>
-        </template>
-        <template v-slot:address="rowData">
-          <ul class="o-list">
-            <li
-              v-if="statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationStreet !== ''"
-              class="o-list__item o-hellip--nowrap">
-              {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationStreet }}
-              {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationHouseNumber }}
-            </li>
-            <li
-              v-if="statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationPostalCode !== ''"
-              class="o-list__item o-hellip--nowrap">
-              {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationPostalCode }}
-              {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationCity }}
-            </li>
-          </ul>
-        </template>
-        <template v-slot:place="rowData">
-          {{ placesObject[rowData.relationships.place.data.id].attributes.name }}
-        </template>
-        <template v-slot:text="rowData">
-          <div
-            v-cleanhtml="rowData.attributes.text"
-            class="overflow-word-break c-styled-html" />
-        </template>
-        <template v-slot:recommendation="rowData">
-          <div v-cleanhtml="rowData.attributes.recommendation !== '' ? rowData.attributes.recommendation : '-'" />
-        </template>
-        <template v-slot:tags="rowData">
-          <span
-            :key="tag.id"
-            class="rounded-md"
-            v-for="tag in getTagsBySegment(rowData.id)"
-            style="color: #63667e; background: #EBE9E9; padding: 2px 4px; margin: 4px 2px; display: inline-block;">
-            {{ tag.attributes.title }}
-          </span>
-        </template>
-        <template v-slot:flyout="rowData">
-          <dp-flyout data-cy="segmentsList:flyoutEditMenu">
-            <a
-              :href="Routing.generate('dplan_statement_segments_list', {
-                action: 'editText',
-                procedureId: procedureId,
-                segment: rowData.id,
-                statementId: rowData.relationships.parentStatement.data.id
-              })"
-              data-cy="segmentsList:edit"
-              rel="noopener">
-              {{ Translator.trans('edit') }}
-            </a>
-            <a
-              v-if="hasPermission('feature_segment_recommendation_edit')"
-              :href="Routing.generate('dplan_statement_segments_list', {
-                procedureId: procedureId,
-                segment: rowData.id,
-                statementId: rowData.relationships.parentStatement.data.id
-              })"
-              data-cy="segmentsList:segmentsRecommendationsCreate"
-              rel="noopener">
-              {{ Translator.trans('segments.recommendations.create') }}
-            </a>
-            <!-- Version history view -->
-            <button
-              type="button"
-              class="btn--blank o-link--default"
-              data-cy="segmentsList:segmentVersionHistory"
-              @click.prevent="showVersionHistory(rowData.id, rowData.attributes.externId)">
-              {{ Translator.trans('history') }}
-            </button>
-            <a
-              v-if="hasPermission('feature_read_source_statement_via_api')"
-              :class="{'is-disabled': getOriginalPdfAttachmentHashBySegment(rowData) === null}"
-              data-cy="segmentsList:originalPDF"
-              target="_blank"
-              :href="Routing.generate('core_file_procedure', { hash: getOriginalPdfAttachmentHashBySegment(rowData), procedureId: procedureId })"
-              rel="noopener noreferrer">
-              {{ Translator.trans('original.pdf') }}
-            </a>
-          </dp-flyout>
-        </template>
-      </dp-data-table>
+              v-cleanhtml="rowData.attributes.text"
+              class="overflow-word-break c-styled-html" />
+          </template>
+          <template v-slot:recommendation="rowData">
+            <div v-cleanhtml="rowData.attributes.recommendation !== '' ? rowData.attributes.recommendation : '-'" />
+          </template>
+          <template v-slot:tags="rowData">
+            <span
+              :key="tag.id"
+              class="rounded-md"
+              v-for="tag in getTagsBySegment(rowData.id)"
+              style="color: #63667e; background: #EBE9E9; padding: 2px 4px; margin: 4px 2px; display: inline-block;">
+              {{ tag.attributes.title }}
+            </span>
+          </template>
+          <template v-slot:flyout="rowData">
+            <dp-flyout data-cy="segmentsList:flyoutEditMenu">
+              <a
+                :href="Routing.generate('dplan_statement_segments_list', {
+                  action: 'editText',
+                  procedureId: procedureId,
+                  segment: rowData.id,
+                  statementId: rowData.relationships.parentStatement.data.id
+                })"
+                data-cy="segmentsList:edit"
+                rel="noopener">
+                {{ Translator.trans('edit') }}
+              </a>
+              <a
+                v-if="hasPermission('feature_segment_recommendation_edit')"
+                :href="Routing.generate('dplan_statement_segments_list', {
+                  procedureId: procedureId,
+                  segment: rowData.id,
+                  statementId: rowData.relationships.parentStatement.data.id
+                })"
+                data-cy="segmentsList:segmentsRecommendationsCreate"
+                rel="noopener">
+                {{ Translator.trans('segments.recommendations.create') }}
+              </a>
+              <!-- Version history view -->
+              <button
+                type="button"
+                class="btn--blank o-link--default"
+                data-cy="segmentsList:segmentVersionHistory"
+                @click.prevent="showVersionHistory(rowData.id, rowData.attributes.externId)">
+                {{ Translator.trans('history') }}
+              </button>
+              <a
+                v-if="hasPermission('feature_read_source_statement_via_api')"
+                :class="{'is-disabled': getOriginalPdfAttachmentHashBySegment(rowData) === null}"
+                data-cy="segmentsList:originalPDF"
+                target="_blank"
+                :href="Routing.generate('core_file_procedure', { hash: getOriginalPdfAttachmentHashBySegment(rowData), procedureId: procedureId })"
+                rel="noopener noreferrer">
+                {{ Translator.trans('original.pdf') }}
+              </a>
+            </dp-flyout>
+          </template>
+        </dp-data-table>
+
+        <div
+          ref="scrollBar"
+          class="sticky bottom-0 left-0 right-0 -mt-3 overflow-x-scroll overflow-y-hidden">
+          <div />
+        </div>
+      </template>
 
       <div v-else>
         <p class="flash flash-info">
@@ -549,6 +557,21 @@ export default {
         })
     },
 
+    /**
+     * Adjust the width of the inner element of the footer scrollbar to the width of the Table.
+     */
+    updateScrollbarStyles () {
+      const tableWidth = window.getComputedStyle(this.dataTableElement).width
+      const tableContainerWidth = window.getComputedStyle(this.dataTableContainerElement).width
+
+      if (tableWidth > tableContainerWidth) {
+        this.scrollbar.classList.remove('hidden')
+        this.scrollbar.firstChild.setAttribute('style', 'width:' + tableWidth + ';height:1px;')
+      } else {
+        this.scrollbar.classList.add('hidden')
+      }
+    },
+
     fetchSegmentIds (payload) {
       return dpRpc('segment.load.id', payload)
         .then(response => checkResponse(response))
@@ -680,6 +703,36 @@ export default {
       this.resetSelection()
       this.applyQuery(1)
     }
+  },
+
+  created () {
+    this.$watch('isLoading', (isLoading) => {
+      if (isLoading) {
+        return
+      }
+
+      this.$nextTick(() => {
+        this.scrollbar = this.$refs.scrollBar
+        this.dataTableContainerElement = this.$refs.dataTable.$el
+        this.dataTableElement = this.$refs.dataTable.$refs.tableEl
+
+        // Bind behaviour and position of the footer scrollbar to the scroll position of the dataTableContainerElement.
+        this.scrollbar.addEventListener('scroll', () => {
+          this.dataTableContainerElement.scrollLeft = this.scrollbar.scrollLeft
+        })
+
+        this.dataTableContainerElement.addEventListener('scroll', () => {
+          this.scrollbar.scrollLeft = this.dataTableContainerElement.scrollLeft
+        })
+
+        // Observe changes to dataTable to update scrollbar accordingly
+        this.dataTableObserver = new ResizeObserver(this.updateScrollbarStyles.bind(this))
+        this.dataTableObserver.observe(this.dataTableElement)
+
+        // Set scrollbar width or conditionally hide it.
+        this.updateScrollbarStyles()
+      })
+    })
   },
 
   mounted () {
