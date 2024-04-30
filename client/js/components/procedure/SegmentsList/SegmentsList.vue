@@ -8,15 +8,11 @@
 </license>
 
 <template>
-  <div :class="{ 'top-0 left-0 w-full h-full fixed z-fixed bg-white': isFullscreen }">
+  <div :class="{ 'top-0 left-0 flex flex-col w-full h-full fixed z-fixed bg-white': isFullscreen }">
     <dp-sticky-element
       border
-      class="py-2"
-      :class="[
-        { 'fixed top-0 left-0 w-full px-2': isFullscreen },
-        { 'h-1/4': selectedItemsCount > 0 && isFullscreen },
-        { 'h-1/6': selectedItemsCount === 0 && isFullscreen }
-      ]">
+      class="pt-2 pb-3"
+      :class="{ 'fixed top-0 left-0 w-full px-2': isFullscreen }">
       <div class="flex items-start mb-2">
         <custom-search
           ref="customSearch"
@@ -106,11 +102,7 @@
         <dp-data-table
           ref="dataTable"
           class="overflow-x-auto"
-          :class="[
-            { 'px-2 overflow-y-scroll': isFullscreen },
-            { 'h-3/4': selectedItemsCount > 0 && isFullscreen },
-            { 'h-5/6': selectedItemsCount === 0 && isFullscreen }
-          ]"
+          :class="isFullscreen ? 'px-2 overflow-y-scroll h-5/6 grow' : '-mt-3'"
           has-flyout
           :header-fields="headerFields"
           is-resizable
