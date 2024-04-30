@@ -6,10 +6,28 @@
  *
  * All rights reserved
  */
+/**
+ * This mixin is intended to show a fixed scrollbar below a dataTable that exceeds its container.
+ * Example usage:
+ *
+ * <dp-data-table
+ *   ref="dataTable"
+ *   class="overflow-x-auto"
+ *   <!-- other required attrs for dataTable... --> />
+ * <div
+ *   ref="scrollBar"
+ *   class="sticky bottom-0 left-0 right-0 -mt-3 overflow-x-scroll overflow-y-hidden">
+ *   <div />
+ * </div>
+ *
+ * Important thing to note is that both elements should have exactly the refs shown in the example.
+ * Also, within the using component, `isLoading` should be present within data.
+ */
 export default {
   methods: {
     /**
-     * Adjust the width of the inner element of the footer scrollbar to the width of the Table.
+     * Adjust the width of the inner element of the footer scrollbar to the width of the Table,
+     * conditionally hide or show scrollbar.
      */
     updateScrollbarStyles () {
       const tableWidth = window.getComputedStyle(this.dataTableElement).width
