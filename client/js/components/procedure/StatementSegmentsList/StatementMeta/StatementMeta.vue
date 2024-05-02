@@ -154,7 +154,7 @@
             :label="{
               text: Translator.trans('statement.date.submitted')
             }"
-            :value="localStatement.attributes.submitDate ? localStatement.attributes.submitDate : '-'"
+            :model-value="localStatement.attributes.submitDate ? localStatement.attributes.submitDate : '-'"
             @update:modelValue="(val) => emitInput('submitDate', val)" />
 
           <!-- submitDate: if not manual statement -->
