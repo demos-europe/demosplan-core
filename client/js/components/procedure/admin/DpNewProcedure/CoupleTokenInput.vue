@@ -17,8 +17,8 @@
       :label="{
         text: Translator.trans('procedure.couple_token.label')
       }"
-      :maxlength="tokenLength"
-      :minlength="tokenLength"
+      :maxlength="`${tokenLength}`"
+      :minlength="`${tokenLength}`"
       name="procedureCoupleToken"
       @input="validateToken" />
     <dp-inline-notification
@@ -30,7 +30,7 @@
   </div>
 </template>
 <script>
-import { DpInlineNotification, DpInput, dpRpc, length } from '@demos-europe/demosplan-ui'
+import { DpInlineNotification, DpInput, dpRpc } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'CoupleTokenInput',
@@ -40,19 +40,16 @@ export default {
     DpInput
   },
 
-  props: {
-    tokenLength: length
-  },
-
   data () {
     return {
-      notification: null
+      notification: null,
+      tokenLength: 12
     }
   },
 
   methods: {
     async validateToken (token) {
-      if (token.length > (this.tokenLength - 1)) {
+      if (token.length === this.tokenLength) {
         const notification = {}
         const response = await dpRpc('procedure.token.usage', { token: token })
         const sourceProcedure = response.data[0].result.sourceProcedure

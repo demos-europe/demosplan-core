@@ -80,7 +80,7 @@
           data-cy="newProcedureTitle"
           id="r_name"
           :label="{ text: Translator.trans('name') }"
-          :maxlength="200"
+          maxlength="200"
           name="r_name"
           :required="requireField"
           type="text" />
@@ -194,7 +194,7 @@
           :message="Translator.trans('procedure.couple_token.vht.inline_notification')"
           type="warning" />
 
-        <couple-token-input :token-length="tokenLength" />
+        <couple-token-input />
       </div>
 
       <div class="space-inline-s text-right">
@@ -290,12 +290,6 @@ export default {
       type: String,
       required: false,
       default: ''
-    },
-
-    tokenLength: {
-      type: length,
-      required: false,
-      default: 12
     }
   },
 
