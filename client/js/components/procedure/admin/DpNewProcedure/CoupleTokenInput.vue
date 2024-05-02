@@ -20,7 +20,7 @@
       :maxlength="tokenLength"
       :minlength="tokenLength"
       name="procedureCoupleToken"
-      @update:model-value="validateToken" />
+      @update:modelValue="validateToken" />
     <dp-inline-notification
       v-if="notification"
       class="u-mb-0"

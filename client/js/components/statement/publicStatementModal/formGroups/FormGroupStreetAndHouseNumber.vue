@@ -23,7 +23,7 @@
         :required="required && statement.r_useName === '1'"
         :model-value="statement.r_street"
         width="u-8-of-12"
-        @update:model-value="val => setStatementData({r_street: val})" /><!--
+        @update:modelValue="val => setStatementData({r_street: val})" /><!--
    --><dp-input
         id="r_houseNumber"
         autocomplete="address-line2"
@@ -37,7 +37,7 @@
         :required="required && statement.r_useName === '1'"
         :model-value="statement.r_houseNumber"
         width="u-4-of-12"
-        @update:model-value="val => setStatementData({r_houseNumber: val})" />
+        @update:modelValue="val => setStatementData({r_houseNumber: val})" />
     </div>
   </div>
 </template>

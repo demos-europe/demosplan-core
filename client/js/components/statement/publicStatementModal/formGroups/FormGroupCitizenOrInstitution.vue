@@ -64,7 +64,7 @@
         required
         :model-value="statement.r_userOrganisation"
         width="u-1-of-2 u-1-of-1-lap-down"
-        @update:model-value="val => setStatementData({ r_userOrganisation: val})" />
+        @update:modelValue="val => setStatementData({ r_userOrganisation: val})" />
     </div>
   </div>
 </template>

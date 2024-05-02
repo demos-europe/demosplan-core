@@ -22,7 +22,7 @@
     type="email"
     :model-value="statement.r_email"
     width="u-1-of-2"
-    @update:model-value="val => setStatementData({r_email: val})" />
+    @update:modelValue="val => setStatementData({r_email: val})" />
 </template>
 
 <script>

@@ -25,7 +25,7 @@
         :required="required && statement.r_useName === '1'"
         :model-value="statement.r_postalCode"
         width="u-4-of-12"
-        @update:model-value="val => setStatementData({r_postalCode: val})" /><!--
+        @update:modelValue="val => setStatementData({r_postalCode: val})" /><!--
    --><dp-input
         id="r_city"
         autocomplete="address-level2"
@@ -39,7 +39,7 @@
         :required="required && statement.r_useName === '1'"
         :model-value="statement.r_city"
         width="u-8-of-12"
-        @update:model-value="val => setStatementData({r_city: val})" />
+        @update:modelValue="val => setStatementData({r_city: val})" />
     </div>
   </div>
 </template>
