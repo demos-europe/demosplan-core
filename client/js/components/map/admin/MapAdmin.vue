@@ -29,8 +29,11 @@
     </div>
     <map-view
       ref="mapView"
-      class="layout__item u-1-of-1 u-pb"
+      :bounding-box="boundingBoxAsPolygon"
+      class="layout__item w-1/1 u-pb"
       :default-attribution="procedureMapSettings.attributes.copyright"
+      :map-extent="mapExtentAsPolygon"
+      :max-extent="procedureMapSettings.attributes.defaultMapExtent"
       :procedure-id="procedureId"
       :procedure-coordinates="coordinate"
       :procedure-territory="procedureMapSettings.attributes.territory"
@@ -147,6 +150,15 @@ export default {
     return {
       areScalesSuitable: true,
       coordinate: '',
+      drawingStyles: {
+        territory: JSON.stringify({
+          fillColor: 'rgba(0,0,0,0.1)',
+          strokeColor: '#000',
+          imageColor: '#fff',
+          strokeLineDash: [4, 4],
+          strokeLineWidth: 3
+        })
+      },
       procedureMapSettings: {
         id: '',
         type: 'ProcecdureMapSetting',
@@ -177,6 +189,42 @@ export default {
       }
 
       return this.procedureMapSettings.attributes.boundingBox[0] ? this.procedureMapSettings.attributes.boundingBox.join(',') : ''
+    },
+
+    boundingBoxAsPolygon () {
+      if (!this.boundingBox) {
+        return null
+      }
+
+      return {
+        type: 'Feature',
+        geometry: {
+          type: 'Polygon',
+          coordinates: fromExtent(JSON.parse(`[${this.boundingBox}]`)).getCoordinates()
+        }
+      }
+    },
+
+    mapExtent () {
+      if (this.procedureMapSettings.attributes.mapExtent === this.procedureMapSettings.attributes.procedureDefaultMapExtent) {
+        return Translator.trans('max_extent.not.set')
+      }
+
+      return this.procedureMapSettings.attributes.mapExtent[0] ? this.procedureMapSettings.attributes.mapExtent.join(',') : ''
+    },
+
+    mapExtentAsPolygon () {
+      if (!this.mapExtent) {
+        return null
+      }
+
+      return {
+        type: 'Feature',
+        geometry: {
+          type: 'Polygon',
+          coordinates: fromExtent(JSON.parse(`[${this.mapExtent}]`)).getCoordinates()
+        }
+      }
     }
   },
 

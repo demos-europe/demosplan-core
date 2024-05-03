@@ -18,6 +18,13 @@
   <div>
     <dp-ol-map
       ref="map"
+      :map-options="{
+        procedureMaxExtent: maxExtent,
+        procedureExtent: true,
+        initialExtent: true,
+        initCenter: center,
+        scales: scales.map(s => s.value)
+      }"
       :options="{
         autoSuggest: false,
         defaultAttribution: defaultAttribution
@@ -28,6 +35,19 @@
           <i
             aria-hidden="true"
             class="fa fa-map u-ml-0_25 color--grey-light" />
+          <dp-ol-map-layer-vector
+            v-if="boundingBox"
+            class="u-mb-0_5"
+            :features="boundingBox"
+            name="mapSettingsPreviewInitExtent"
+            zoom-to-drawing />
+
+          <dp-ol-map-layer-vector
+            v-if="mapExtent"
+            class="u-mb-0_5"
+            :draw-style="drawingStyles.mapExtent"
+            :features="mapExtent"
+            name="mapSettingsPreviewMapExtent" />
           <dp-ol-map-set-extent
             data-cy="mapDefaultBounds"
             translation-key="map.default.bounds"
@@ -186,6 +206,15 @@ export default {
   data () {
     return {
       coordinate: this.procedureCoordinates.split(','),
+      drawingStyles: {
+        mapExtent: JSON.stringify({
+          fillColor: 'rgba(0,0,0,0.1)',
+          strokeColor: '#000',
+          imageColor: '#fff',
+          strokeLineDash: [4, 4],
+          strokeLineWidth: 3
+        })
+      },
       initTerritory: JSON.parse(this.procedureTerritory),
       isActive: '',
       territory: JSON.parse(this.procedureTerritory)
