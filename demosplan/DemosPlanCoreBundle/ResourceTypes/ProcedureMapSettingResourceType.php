@@ -158,14 +158,12 @@ class ProcedureMapSettingResourceType extends DplanResourceType
                 ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertJsonToCoordinates($procedureSettings->getTerritory()));
         }
 
-        if ($this->currentUser->hasPermission('field_master_procedure_default_bounding_box')) {
-            $configBuilder->defaultBoundingBox
-                ->readable(false, function (ProcedureSettings $procedureSetting): ?array {
-                    $masterTemplateMapSetting = $this->masterTemplateService->getMasterTemplate()->getSettings();
+        $configBuilder->defaultBoundingBox
+            ->readable(false, function (ProcedureSettings $procedureSetting): ?array {
+                $masterTemplateMapSetting = $this->masterTemplateService->getMasterTemplate()->getSettings();
 
-                    return $this->convertFlatListToCoordinates($masterTemplateMapSetting->getBoundingBox(), true);
-                });
-        }
+                return $this->convertFlatListToCoordinates($masterTemplateMapSetting->getBoundingBox(), true);
+            });
 
         $configBuilder->defaultMapExtent
             ->readable(false, function (ProcedureSettings $procedureSetting): ?array {
