@@ -308,7 +308,7 @@
           :id="`${organisation.id}:cssvars`"
           :label="Translator.trans('branding.styling.input')"
           reduced-height
-          @update:modelValue="emitOrganisationUpdate"
+          @update:model-value="emitOrganisationUpdate"
           v-model="localOrganisation.attributes.cssvars" />
         <dp-details :summary="Translator.trans('branding.styling.details')">
           <span v-html="Translator.trans('branding.styling.details.description')" />

@@ -20,7 +20,7 @@
     :required="required && statement.r_useName === '1'"
     type="tel"
     :model-value="statement.r_phone"
-    @update:modelValue="val => setStatementData({r_phone: val})" />
+    @update:model-value="val => setStatementData({r_phone: val})" />
 </template>
 
 <script>

@@ -18,7 +18,7 @@
           text: Translator.trans('name.first')
         }"
         required
-        @update:modelValue="emitUserUpdate" />
+        @update:model-value="emitUserUpdate" />
     </div>
 
     <div class="inline-block w-1/2 pr-3 my-3">
@@ -30,7 +30,7 @@
           text: Translator.trans('name.last')
         }"
         required
-        @update:modelValue="emitUserUpdate" />
+        @update:model-value="emitUserUpdate" />
     </div>
 
     <!-- Email -->
@@ -44,7 +44,7 @@
           text: Translator.trans('email')
         }"
         required
-        @update:modelValue="emitUserUpdate" />
+        @update:model-value="emitUserUpdate" />
     </div>
 
     <div class="w-1/2 pr-3 inline-block">

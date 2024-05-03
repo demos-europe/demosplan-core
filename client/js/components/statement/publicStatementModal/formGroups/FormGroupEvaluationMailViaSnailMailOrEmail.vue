@@ -54,7 +54,7 @@
           :required="statement.r_getEvaluation === 'email'"
           type="email"
           :model-value="statement.r_email"
-          @update:modelValue="val => hasPermission('feature_statements_feedback_check_email') ? setStatementData({r_email: val}) : setStatementData({r_email: val, r_email2: val})" /><!--
+          @update:model-value="val => hasPermission('feature_statements_feedback_check_email') ? setStatementData({r_email: val}) : setStatementData({r_email: val, r_email2: val})" /><!--
 
         if repeating of email input is enforced, display second email field
      --><dp-input
@@ -74,7 +74,7 @@
           :required="statement.r_getEvaluation === 'email'"
           type="email"
           :model-value="statement.r_email2"
-        @update:modelValue="val => setStatementData({r_email2: val})" /><!--
+        @update:model-value="val => setStatementData({r_email2: val})" /><!--
      --><dp-radio
           v-if="hasPermission('feature_statements_feedback_postal')"
           id="r_getEvaluation_snailmail"

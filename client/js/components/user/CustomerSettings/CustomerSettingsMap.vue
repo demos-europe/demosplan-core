@@ -18,7 +18,7 @@
         text: Translator.trans('map.base.url')
       }"
       name="r_baseLayerUrl"
-      @update:modelValue="debounceUpdate" />
+      @update:model-value="debounceUpdate" />
 
     <dp-input
       id="r_baseLayerLayers"
@@ -29,7 +29,7 @@
         text: Translator.trans('layers')
       }"
       name="r_baseLayerLayers"
-      @update:modelValue="debounceUpdate" />
+      @update:model-value="debounceUpdate" />
 
     <dp-input
       id="r_mapAttribution"

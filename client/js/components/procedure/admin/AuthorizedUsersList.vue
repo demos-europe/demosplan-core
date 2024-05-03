@@ -191,7 +191,7 @@
                 }"
                 required
                 :model-value="rowData.submitterName"
-                @update:modelValue="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterName = val" />
+                @update:model-value="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterName = val" />
               <div
                 v-if="!rowData.authorName || rowData.anonymous"
                 class="u-mt-0_75 u-mb-0_5">
@@ -212,7 +212,7 @@
                 }"
                 type="email"
                 :model-value="rowData.submitterEmailAddress"
-                @update:modelValue="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterEmailAddress = val" />
+                @update:model-value="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterEmailAddress = val" />
               <div class="o-form__group u-mb-0_5 u-mt-0_75">
                 <dp-input
                   :id="`street:${rowData.tokenId}`"
@@ -222,7 +222,7 @@
                     text: Translator.trans('street')
                   }"
                   :model-value="rowData.submitterStreet"
-                  @update:modelValue="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterStreet = val" />
+                  @update:model-value="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterStreet = val" />
                 <dp-input
                   :id="`houseNumber:${rowData.tokenId}`"
                   class="o-form__group-item"
@@ -232,7 +232,7 @@
                   }"
                   :size="5"
                   :model-value="rowData.submitterHouseNumber"
-                  @update:modelValue="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterHouseNumber = val" />
+                  @update:model-value="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterHouseNumber = val" />
               </div>
               <div class="o-form__group u-mb-0_5 u-mt-0_75">
                 <dp-input
@@ -245,7 +245,7 @@
                   pattern="^[0-9]{5}$"
                   :size="5"
                   :model-value="rowData.submitterPostalCode"
-                  @update:modelValue="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterPostalCode = val" />
+                  @update:model-value="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterPostalCode = val" />
                 <dp-input
                   :id="`city:${rowData.tokenId}`"
                   class="o-form__group-item"
@@ -254,7 +254,7 @@
                     text: Translator.trans('city')
                   }"
                   :model-value="rowData.submitterCity"
-                  @update:modelValue="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterCity = val" />
+                  @update:model-value="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterCity = val" />
               </div>
             </div>
             <div class="align-top u-1-of-3 u-pl-0_5">
@@ -265,7 +265,7 @@
                 :label="Translator.trans('memo')"
                 :maxlength="rowData.isEditable ? '1000' : false"
                 :model-value="rowData.note"
-                @update:modelValue="val => localUsers.find(user => user.tokenId === rowData.tokenId).note = val" />
+                @update:model-value="val => localUsers.find(user => user.tokenId === rowData.tokenId).note = val" />
               <dp-button-row
                 v-if="rowData.isEditable"
                 primary
