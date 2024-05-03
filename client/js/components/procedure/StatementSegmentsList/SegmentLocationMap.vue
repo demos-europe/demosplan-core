@@ -17,8 +17,14 @@
       <dp-ol-map
         ref="map"
         :procedure-id="procedureId"
+        :map-options="{
+          procedureMaxExtent: mapData.mapExtent ?? []
+
+        }"
         :options="{
-          autoSuggest: false
+          autoSuggest: false,
+          defaultAttribution: mapData.copyright,
+          initialExtent: mapData.boundingBox ?? [],
         }">
         <template v-if="hasPermission('feature_segment_polygon_set')">
           <dp-ol-map-draw-feature
@@ -84,12 +90,6 @@
             </template>
           </dp-ol-map-edit-feature>
         </template>
-        <dp-ol-map-layer-vector
-          v-if="initExtent"
-          class="u-mb-0_5"
-          :features="features.initExtent"
-          name="mapSettingsPreviewInitExtent"
-          zoom-to-drawing />
       </dp-ol-map>
       <dp-button-row
         class="u-mt"
@@ -125,10 +125,10 @@ export default {
 
   props: {
     // TO DO: Remove as prop and get via API procedureSettings.mapExtent
-    initExtent: {
+    mapData: {
+      type: Object,
       required: false,
-      type: String,
-      default: ''
+      default: () => ({})
     },
 
     procedureId: {
@@ -151,8 +151,7 @@ export default {
     return {
       currentPolygons: [],
       hasChanges: true,
-      initPolygons: [],
-      mapData: null
+      initPolygons: []
     }
   },
 
@@ -176,12 +175,12 @@ export default {
        *  to be able to use it with a generic vector layer component
        */
       return {
-        initExtent: this.initExtent
+        boundingBox: this.mapData.boundingBox
           ? {
               type: 'Feature',
               geometry: {
                 type: 'Polygon',
-                coordinates: fromExtent(JSON.parse(`[${this.initExtent}]`)).getCoordinates()
+                coordinates: fromExtent(JSON.parse(`[${this.mapData.boundingBox}]`)).getCoordinates()
               }
             }
           : null
@@ -226,7 +225,7 @@ export default {
           this.$nextTick(() => {
             this.setCenterAndExtent()
           })
-        } else if (this.initExtent) {
+        } else if (this.mapData.boundingBox) {
           this.$nextTick(() => {
             this.setInitExtent()
           })
@@ -285,7 +284,7 @@ export default {
     setInitExtent () {
       this.$refs.map.map.updateSize()
       this.$nextTick(() => {
-        this.$refs.map.map.getView().fit(JSON.parse(`[${this.initExtent}]`), { size: this.$refs.map.map.getSize() })
+        this.$refs.map.map.getView().fit(JSON.parse(`[${this.mapData.boundingBox}]`), { size: this.$refs.map.map.getSize() })
       })
     },
 
