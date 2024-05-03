@@ -15,17 +15,14 @@ namespace demosplan\DemosPlanCoreBundle\ValueObject\Procedure;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 
 /**
- * @method string getKey()
- * @method void   setKey(string $key)
  * @method string getLabel()
  * @method void   setLabel(string $label)
- * @method string getProjection()
- * @method void   setProjection(string $projection)
+ * @method string getValue()
+ * @method void   setValue(string $projection)
  */
 class AvailableProjectionVO extends ValueObject
 {
-    protected string $key;
     protected string $label;
-    protected string $projection;
+    protected string $value;
 
 }

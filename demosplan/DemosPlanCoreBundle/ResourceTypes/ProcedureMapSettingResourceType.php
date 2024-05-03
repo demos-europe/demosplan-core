@@ -305,9 +305,8 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
     protected function createAvailableProjectionVO(array $availableProjection): AvailableProjectionVO {
         $availableProjectionVO = new AvailableProjectionVO();
-        $availableProjectionVO->setKey($availableProjection['label']);
         $availableProjectionVO->setLabel($availableProjection['label']);
-        $availableProjectionVO->setProjection($availableProjection['value']);
+        $availableProjectionVO->setValue($availableProjection['value']);
         return $availableProjectionVO->lock();
     }
 
