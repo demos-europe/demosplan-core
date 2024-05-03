@@ -12,12 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
-use DemosEurope\DemosplanAddon\Contracts\Events\DeleteEmailImportedStatementEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\StatementPreDeleteEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
-use demosplan\DemosPlanCoreBundle\Event\Statement\DeleteEmailImportedStatementEvent;
+use demosplan\DemosPlanCoreBundle\Event\Statement\StatementPreDeleteEvent;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
@@ -92,7 +92,7 @@ class StatementDeleter extends CoreService
         }
         $forReport = clone $originalStatement;
 
-        $this->eventDispatcher->dispatch(new DeleteEmailImportedStatementEvent($originalStatement), DeleteEmailImportedStatementEventInterface::class);
+        $this->eventDispatcher->dispatch(new StatementPreDeleteEvent($originalStatement), StatementPreDeleteEventInterface::class);
 
         $deleteOriginal = $this->deleteStatementObject(
             $originalStatement,

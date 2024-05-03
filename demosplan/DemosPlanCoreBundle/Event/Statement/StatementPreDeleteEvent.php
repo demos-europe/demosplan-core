@@ -11,10 +11,10 @@
 namespace demosplan\DemosPlanCoreBundle\Event\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
-use DemosEurope\DemosplanAddon\Contracts\Events\DeleteEmailImportedStatementEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\StatementPreDeleteEventInterface;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 
-class DeleteEmailImportedStatementEvent extends DPlanEvent implements DeleteEmailImportedStatementEventInterface
+class StatementPreDeleteEvent extends DPlanEvent implements StatementPreDeleteEventInterface
 {
     protected StatementInterface $statement;
 
