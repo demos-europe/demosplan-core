@@ -20,9 +20,7 @@
       ref="map"
       :options="{
         autoSuggest: false,
-        procedureExtent: false,
-        initialExtent: true,
-        initCenter: center
+        defaultAttribution: defaultAttribution
       }"
       :procedure-id="procedureId">
       <template v-slot:controls>
@@ -117,21 +115,55 @@ import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapDragZoom from '@DpJs/components/map/map/DpOlMapDragZoom'
 import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature'
 import DpOlMapEditFeature from '@DpJs/components/map/map/DpOlMapEditFeature'
+import DpOlMapLayerVector from '@DpJs/components/map/map/DpOlMapLayerVector'
 import DpOlMapSetExtent from '@DpJs/components/map/map/DpOlMapSetExtent'
 
 export default {
-  name: 'DpMapView',
+  name: 'MapView',
 
   components: {
     DpContextualHelp,
     DpOlMap,
     DpOlMapDragZoom,
-    DpOlMapSetExtent,
     DpOlMapDrawFeature,
-    DpOlMapEditFeature
+    DpOlMapEditFeature,
+    DpOlMapLayerVector,
+    DpOlMapSetExtent
   },
 
   props: {
+    /* GeoJSON object */
+    boundingBox: {
+      type: Object,
+      required: false,
+      default: () => ({})
+    },
+
+    defaultAttribution: {
+      type: String,
+      required: false,
+      default: ''
+    },
+
+    /* GeoJSON object */
+    mapExtent: {
+      type: Object,
+      required: false,
+      default: () => ({})
+    },
+
+    maxExtent: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
+    scales: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
     procedureCoordinates: {
       required: false,
       type: String,
@@ -188,6 +220,15 @@ export default {
       } else {
         return false
       }
+    }
+  },
+
+  watch: {
+    $props: {
+      handler () {
+        this.$refs.map.updateMapInstance()
+      },
+      deep: true
     }
   },
 

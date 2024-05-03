@@ -43,7 +43,7 @@
 import { DpInlineNotification, DpMultiselect } from '@demos-europe/demosplan-ui'
 
 export default {
-  name: 'DpMapAdminScales',
+  name: 'MapAdminScales',
 
   components: {
     DpInlineNotification,

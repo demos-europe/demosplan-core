@@ -9,7 +9,7 @@
 
 <template>
   <div class="layout u-pb">
-    <div class="layout__item">
+    <div class="layout__item w-1/1">
       <dp-input
         id="mapExtent"
         v-model="mapExtent"
@@ -27,17 +27,18 @@
           text: Translator.trans('initial_extent')
         }" />
     </div>
-    <dp-map-view
+    <map-view
       ref="mapView"
       class="layout__item u-1-of-1 u-pb"
       :default-attribution="procedureMapSettings.attributes.copyright"
       :procedure-id="procedureId"
       :procedure-coordinates="coordinate"
       :procedure-territory="procedureMapSettings.attributes.territory"
+      :scales="procedureMapSettings.attributes.availableScales"
       @update="setExtent" />
 
     <div class="layout__item">
-      <dp-map-admin-scales
+      <map-admin-scales
         :available-scales="procedureMapSettings.attributes.availableScales"
         class="u-mb"
         :selected-scales="procedureMapSettings.attributes.scales || []"
@@ -94,7 +95,7 @@
         type="submit"
         name="saveConfig"
         :value="Translator.trans('save')"
-        @click="save">
+        @click="() => save()">
       <input
         v-if="hasPermission('area_admin_single_document')"
         class="btn btn--primary"
@@ -112,18 +113,21 @@
   </div>
 </template>
 <script>
-import { checkResponse, dpApi, DpCheckbox, DpInput, hasOwnProp } from '@demos-europe/demosplan-ui'
-import DpMapAdminScales from './DpMapAdminScales'
-import DpMapView from '@DpJs/components/map/map/DpMapView'
+import { checkResponse, dpApi, DpCheckbox, DpInput } from '@demos-europe/demosplan-ui'
+import { Attribution } from 'ol/control'
+import convertExtentToFlatArray from '../map/utils/convertExtentToFlatArray'
+import { fromExtent } from 'ol/geom/Polygon'
+import MapAdminScales from './MapAdminScales'
+import MapView from '@DpJs/components/map/map/MapView'
 
 export default {
-  name: 'DpMapAdmin',
+  name: 'MapAdmin',
 
   components: {
     DpCheckbox,
     DpInput,
-    DpMapView,
-    DpMapAdminScales
+    MapAdminScales,
+    MapView
   },
 
   props: {
@@ -163,12 +167,8 @@ export default {
   },
 
   computed: {
-    mapExtent () {
-      if (this.procedureMapSettings.attributes.mapExtent === this.procedureMapSettings.attributes.procedureDefaultMapExtent) {
-        return Translator.trans('max_extent.not.set')
-      }
-
-      return this.procedureMapSettings.attributes.mapExtent[0] ? this.procedureMapSettings.attributes.mapExtent.join(',') : ''
+    attributionControl () {
+      return new Attribution({ collapsible: false })
     },
 
     boundingBox () {
@@ -201,24 +201,7 @@ export default {
       }
     },
 
-    convertExtentToFlatArray (extent) {
-      if (hasOwnProp(extent, 'start') && hasOwnProp(extent, 'end')) {
-        return [
-          extent.start.latitude,
-          extent.start.longitude,
-          extent.end.latitude,
-          extent.end.longitude
-        ]
-      }
-
-      return [extent?.latitude, extent?.longitude]
-    },
-
     fetchInitialData () {
-      this.fetchprocedureMapSettings()
-    },
-
-    fetchprocedureMapSettings () {
       const url = Routing.generate('api_resource_get', { resourceId: this.procedureId, resourceType: 'Procedure' })
       const params = {
         fields: {
@@ -260,14 +243,14 @@ export default {
           this.procedureMapSettings.id = response.data.included[0].id
           this.procedureMapSettings.attributes = {
             availableScales: data.availableScales.map(scale => ({ label: `1:${scale.toLocaleString('de-DE')}`, value: scale })) ?? [],
-            copyright: data.copyright ?? [],
-            defaultBoundingBox: this.convertExtentToFlatArray(data.defaultBoundingBox) ?? [],
-            defaultMapExtent: this.convertExtentToFlatArray(data.defaultMapExtent) ?? [],
+            copyright: data.copyright ?? '',
+            defaultBoundingBox: convertExtentToFlatArray(data.defaultBoundingBox) ?? [],
+            defaultMapExtent: convertExtentToFlatArray(data.defaultMapExtent) ?? [],
             featureInfoUrl: data.featureInfoUrl ?? { global: false },
             informationUrl: data.informationUrl ?? '',
             layerGroupsAlternateVisibility: data.layerGroupsAlternateVisibility ?? false,
-            mapExtent: this.convertExtentToFlatArray(data.mapExtent) ?? [], // Maximum extent of the map
-            boundingBox: this.convertExtentToFlatArray(data.boundingBox) ?? [], // Extent on load of the map
+            mapExtent: convertExtentToFlatArray(data.mapExtent) ?? [], // Maximum extent of the map
+            boundingBox: convertExtentToFlatArray(data.boundingBox) ?? [], // Extent on load of the map
             scales: data.scales.map(scale => ({ label: `1:${scale.toLocaleString()}`, value: scale })) ?? [],
             territory: data.territory ?? '{}'
           }
@@ -284,6 +267,7 @@ export default {
           type: 'ProcedureMapSetting',
           attributes: {
             boundingBox: this.convertExtentToObject(updateData.boundingBox),
+            copyright: updateData.copyright,
             informationUrl: updateData.informationUrl,
             mapExtent: this.convertExtentToObject(updateData.mapExtent),
             scales: updateData.scales.map(scale => scale.value)
