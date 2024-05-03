@@ -52,7 +52,7 @@
                             multiple
                             :options="agencies"
                             track-by="id"
-                            @input="sortSelected('Agencies')">
+                            @update:model-value="sortSelected('Agencies')">
                             <template v-slot:option="{ props }">
                                 {% verbatim %}{{ props.option.name }}{% endverbatim %}
                             </template>
@@ -84,7 +84,7 @@
                         :options="authUsers"
                         selection-controls
                         track-by="id"
-                        @input="sortSelected('AuthUsers')"
+                        @update:model-value="sortSelected('AuthUsers')"
                         @select-all="selectAllAuthUsers"
                         @unselect-all="unselectAllAuthUsers">
                         <template v-slot:option="{ props }">

@@ -80,7 +80,7 @@
                         label="title"
                         :options="JSON.parse('{{ boilerplatesGroups|json_encode|e('js', 'utf-8') }}')"
                         track-by="id"
-                        @input="val => setBoilerplateGroup(val)">
+                        @update:model-value="val => setBoilerplateGroup(val)">
                         <template v-slot:option="{ props }">
                             {% verbatim %}{{ props.option.title }}{% endverbatim %}
                         </template>

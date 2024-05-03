@@ -15,7 +15,7 @@ All rights reserved
     :options="tagsByTopic"
     :close-on-select="false"
     :searchable="false"
-    @input="(val) => updateTags(val)"
+    @update:model-value="(val) => updateTags(val)"
     multiple>
     <template v-slot:option="{ props }">
       <input

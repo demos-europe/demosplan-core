@@ -42,7 +42,7 @@
         :name="`${entityId}:${fieldKey}`"
         :options="options"
         track-by="id"
-        @input="val => handleInput(val)">
+        @update:model-value="val => handleInput(val)">
         <template v-slot:option="{ props }">
           <strong v-if="props.option.$isLabel">{{ props.option.$groupLabel }}</strong>
           <span v-else>{{ props.option.name }}</span>

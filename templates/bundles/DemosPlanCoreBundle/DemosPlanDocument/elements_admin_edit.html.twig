@@ -253,7 +253,7 @@
                         multiple
                         :options="orgasOfProcedure"
                         track-by="id"
-                        @input="sortSelected('Orgas')">
+                        @update:model-value="sortSelected('Orgas')">
                         <template v-slot:option="{ props }">
                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                         </template>

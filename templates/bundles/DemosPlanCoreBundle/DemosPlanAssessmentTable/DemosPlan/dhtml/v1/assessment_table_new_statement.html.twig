@@ -272,7 +272,7 @@
                                     required
                                     track-by="key"
                                     :value="values.phase"
-                                    @input="setPhaseValue">
+                                    @update:model-value="setPhaseValue">
                                     <template v-slot:option="{ props }">
                                         <span
                                             class="weight--normal"
@@ -323,7 +323,7 @@
                             data-cy="submitterForm:elements"
                             :options="elements"
                             track-by="id"
-                            @input="checkForParagraphsAndFiles()">
+                            @update:model-value="checkForParagraphsAndFiles()">
                             <template v-slot:option="{ props }">
                                 {% verbatim %}{{ props.option.title }}{% endverbatim %}
                             </template>
@@ -397,7 +397,7 @@
                                     multiple
                                     :options="counties"
                                     track-by="id"
-                                    @input="sortSelected('counties')">
+                                    @update:model-value="sortSelected('counties')">
                                     <template v-slot:option="{ props }">
                                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                     </template>
@@ -431,7 +431,7 @@
                                     multiple
                                     :options="municipalities"
                                     track-by="id"
-                                    @input="sortSelected('municipalities')">
+                                    @update:model-value="sortSelected('municipalities')">
                                     <template v-slot:option="{ props }">
                                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                     </template>
@@ -461,7 +461,7 @@
                                     multiple
                                     :options="priorityAreas"
                                     track-by="id"
-                                    @input="sortSelected('priorityAreas')">
+                                    @update:model-value="sortSelected('priorityAreas')">
                                     <template v-slot:option="{ props }">
                                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                     </template>
@@ -492,7 +492,7 @@
                             multiple
                             :options="tags"
                             track-by="id"
-                            @input="sortSelected('tags')">
+                            @update:model-value="sortSelected('tags')">
                             <template v-slot:option="{ props }">
                                 <span v-if="props.option.$isLabel">
                                 {% verbatim %}{{ props.option.$groupLabel }}{% endverbatim %}
