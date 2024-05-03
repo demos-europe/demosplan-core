@@ -37,7 +37,6 @@ use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -152,10 +151,9 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     /**
      * @deprecated see deprecation on property userInvitedInProcedure
      */
-    public function evaluateUserInvitedInProcedure(Procedure $procedure, Session $session): void
+    public function evaluateUserInvitedInProcedure(array $invitedProcedures): void
     {
-        $invitedProcedures = $session->get('invitedProcedures', []);
-        if (\in_array($procedure->getId(), $invitedProcedures, true)) {
+        if (\in_array($this->procedure?->getId(), $invitedProcedures, true)) {
             $this->userInvitedInProcedure = true;
         }
     }
