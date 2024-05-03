@@ -71,8 +71,8 @@
     <dp-checkbox
       v-if="hasPermission('feature_layer_groups_alternate_visibility')"
       id="enableLayerGroupsAlternateVisibility"
-      v-model="procedureMapSettings.attributes.layerGroupsAlternateVisibility"
-      :checked="procedureMapSettings.attributes.layerGroupsAlternateVisibility"
+      v-model="procedureMapSettings.attributes.showOnlyOverlayCategory"
+      :checked="procedureMapSettings.attributes.showOnlyOverlayCategory"
       :label="{
         bold: true,
         hint: Translator.trans('explanation.gislayer.layergroup.toggle.alternating.visibility.extended'),
@@ -168,7 +168,7 @@ export default {
           defaultBoundingBox: [],
           featureInfoUrl: { global: false },
           informationUrl: '',
-          layerGroupsAlternateVisibility: false,
+          showOnlyOverlayCategory: false,
           mapExtent: [],
           boundingBox: [],
           scales: [],
@@ -280,7 +280,7 @@ export default {
       }
 
       if (hasPermission('feature_layer_groups_alternate_visibility')) {
-        params.fields.ProcedureMapSetting.push('layerGroupsAlternateVisibility')
+        params.fields.ProcedureMapSetting.push('showOnlyOverlayCategory')
       }
 
       dpApi.get(url, params)
@@ -296,7 +296,7 @@ export default {
             defaultMapExtent: convertExtentToFlatArray(data.defaultMapExtent) ?? [],
             featureInfoUrl: data.featureInfoUrl ?? { global: false },
             informationUrl: data.informationUrl ?? '',
-            layerGroupsAlternateVisibility: data.layerGroupsAlternateVisibility ?? false,
+            showOnlyOverlayCategory: data.showOnlyOverlayCategory ?? false,
             mapExtent: convertExtentToFlatArray(data.mapExtent) ?? [], // Maximum extent of the map
             boundingBox: convertExtentToFlatArray(data.boundingBox) ?? [], // Extent on load of the map
             scales: data.scales.map(scale => ({ label: `1:${scale.toLocaleString()}`, value: scale })) ?? [],
