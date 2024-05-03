@@ -94,7 +94,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         $configBuilder->baseLayerUrl
             ->readable(false, fn (ProcedureSettings $procedureSetting): string => $this->globalConfig->getMapAdminBaselayer());
 
-        $configBuilder->baseLayerNames
+        $configBuilder->baseLayerLayerNames
             ->readable(false, fn (ProcedureSettings $procedureSetting): array => $this->convertToListOfString($this->globalConfig->getMapAdminBaselayerLayers()));
 
         $configBuilder->baseLayerProjection
