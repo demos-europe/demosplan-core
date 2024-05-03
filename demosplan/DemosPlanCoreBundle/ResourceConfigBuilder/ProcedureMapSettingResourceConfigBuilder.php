@@ -37,6 +37,7 @@ use EDT\JsonApi\ResourceConfig\Builder\MagicResourceConfigBuilder;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, ProcedureSettingsInterface> $baseLayerProjection
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, ProcedureSettingsInterface> $defaultProjection
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, ProcedureSettingsInterface> $globalAvailableScales
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, ProcedureSettingsInterface> $publicSearchAutoZoom
  *
  * @template-extends MagicResourceConfigBuilder<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,ProcedureSettingsInterface>
  */

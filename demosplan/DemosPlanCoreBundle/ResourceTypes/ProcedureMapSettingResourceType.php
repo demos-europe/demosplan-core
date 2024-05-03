@@ -103,6 +103,12 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         $configBuilder->defaultProjection
             ->readable(false, fn (ProcedureSettings $procedureSetting): array  => $this->globalConfig->getMapDefaultProjection());
 
+        $configBuilder->publicSearchAutoZoom
+            ->readable(false, function (ProcedureSettings $procedureSetting): float {
+                Assert::numeric($this->globalConfig->getMapPublicSearchAutozoom());
+                return (float) $this->globalConfig->getMapPublicSearchAutozoom();
+            });
+
 
         if ($this->currentUser->hasPermission('feature_layer_groups_alternate_visibility')) {
             $configBuilder->showOnlyOverlayCategory
