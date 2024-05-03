@@ -127,7 +127,7 @@
             :label="{
               text: Translator.trans('statement.date.authored')
             }"
-            :value="localStatement.attributes.authoredDate ? localStatement.attributes.authoredDate : '-'"
+            :model-value="localStatement.attributes.authoredDate ? localStatement.attributes.authoredDate : '-'"
             @update:modelValue="(val) => emitInput('authoredDate', val)" />
 
           <!-- authoredDate: if not manual statement -->

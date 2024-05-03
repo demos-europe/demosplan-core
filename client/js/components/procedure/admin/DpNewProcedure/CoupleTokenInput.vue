@@ -14,6 +14,7 @@
       id="procedureCoupleToken"
       data-cy="procedureCoupleToken"
       data-dp-validate-if="#procedureCoupleToken!==''"
+      v-model="notification.text"
       :label="{
         text: Translator.trans('procedure.couple_token.label')
       }"
