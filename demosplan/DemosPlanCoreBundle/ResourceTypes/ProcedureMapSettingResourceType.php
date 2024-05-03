@@ -92,23 +92,23 @@ class ProcedureMapSettingResourceType extends DplanResourceType
             ->readable(false, $this->getAvailableProjections(...));
 
         $configBuilder->baseLayerUrl
-            ->readable(false, fn (ProcedureSettings $procedureSetting): string  => $this->globalConfig->getMapAdminBaselayer());
+            ->readable(false, fn (ProcedureSettings $procedureSetting): string => $this->globalConfig->getMapAdminBaselayer());
 
         $configBuilder->baseLayerNames
-            ->readable(false, fn (ProcedureSettings $procedureSetting): array  => $this->convertToListOfString($this->globalConfig->getMapAdminBaselayerLayers()));
+            ->readable(false, fn (ProcedureSettings $procedureSetting): array => $this->convertToListOfString($this->globalConfig->getMapAdminBaselayerLayers()));
 
         $configBuilder->baseLayerProjection
-            ->readable(false, fn (ProcedureSettings $procedureSetting): string  => MapService::PSEUDO_MERCATOR_PROJECTION_LABEL);
+            ->readable(false, fn (ProcedureSettings $procedureSetting): string => MapService::PSEUDO_MERCATOR_PROJECTION_LABEL);
 
         $configBuilder->defaultProjection
-            ->readable(false, fn (ProcedureSettings $procedureSetting): array  => $this->globalConfig->getMapDefaultProjection());
+            ->readable(false, fn (ProcedureSettings $procedureSetting): array => $this->globalConfig->getMapDefaultProjection());
 
         $configBuilder->publicSearchAutoZoom
             ->readable(false, function (ProcedureSettings $procedureSetting): float {
                 Assert::numeric($this->globalConfig->getMapPublicSearchAutozoom());
+
                 return (float) $this->globalConfig->getMapPublicSearchAutozoom();
             });
-
 
         if ($this->currentUser->hasPermission('feature_layer_groups_alternate_visibility')) {
             $configBuilder->showOnlyOverlayCategory
@@ -294,19 +294,19 @@ class ProcedureMapSettingResourceType extends DplanResourceType
     {
         $rawAvailableProjections = $this->globalConfig->getMapAvailableProjections();
 
-        $availableProjections = array_map(function($availableProjection) {
-            return $this->createAvailableProjectionVO($availableProjection) ;
+        $availableProjections = array_map(function ($availableProjection) {
+            return $this->createAvailableProjectionVO($availableProjection);
         }, $rawAvailableProjections);
 
         return $availableProjections;
-
-
     }
 
-    protected function createAvailableProjectionVO(array $availableProjection): AvailableProjectionVO {
+    protected function createAvailableProjectionVO(array $availableProjection): AvailableProjectionVO
+    {
         $availableProjectionVO = new AvailableProjectionVO();
         $availableProjectionVO->setLabel($availableProjection['label']);
         $availableProjectionVO->setValue($availableProjection['value']);
+
         return $availableProjectionVO->lock();
     }
 
@@ -345,7 +345,6 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
         return $baseLayerNames;
     }
-
 
     public function getEntityClass(): string
     {

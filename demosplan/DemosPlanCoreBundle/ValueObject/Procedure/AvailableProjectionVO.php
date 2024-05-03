@@ -24,5 +24,4 @@ class AvailableProjectionVO extends ValueObject
 {
     protected string $label;
     protected string $value;
-
 }
