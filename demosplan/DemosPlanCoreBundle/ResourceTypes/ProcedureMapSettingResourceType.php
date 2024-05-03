@@ -286,7 +286,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
     }
 
     /**
-     * @return list<int>
+     * @return list<AvailableProjectionVO>
      */
     protected function getAvailableProjections(): array
     {
