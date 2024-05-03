@@ -253,11 +253,8 @@ export default {
   },
 
   watch: {
-    $props: {
-      handler () {
-        this.$refs.map.updateMapInstance()
-      },
-      deep: true
+    defaultAttribution () {
+      this.$refs.map.updateMapInstance()
     }
   },
 
