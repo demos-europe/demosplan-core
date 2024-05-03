@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\AfterSegmentationEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\StatementCreatedViaExcelEventInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\DateStringConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\MatchingFieldValueInSegments;
@@ -27,6 +28,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\EntityValidator\SegmentValidator;
 use demosplan\DemosPlanCoreBundle\EntityValidator\TagValidator;
+use demosplan\DemosPlanCoreBundle\Event\Statement\AfterSegmentationEvent;
 use demosplan\DemosPlanCoreBundle\Event\Statement\StatementCreatedViaExcelEvent;
 use demosplan\DemosPlanCoreBundle\Exception\CopyException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
@@ -265,16 +267,6 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
                 ++$counter;
             }
-
-            // PI proposals have to be updated with the new Excel imported tags which make them available in the next
-            // segmentation proposals. The 'StatementCreatedViaExcelEvent' will be dispatched with every new already
-            // segmented generated statement and a segmentation request will be send to data.
-            // The only purpose to do that here is to pass imported tagged sections with Excel to DATA to make them
-            // available in the next segmentation proposals.
-            $this->eventDispatcher->dispatch(
-                new StatementCreatedViaExcelEvent($generatedStatement),
-                StatementCreatedViaExcelEventInterface::class
-            );
 
             unset($segments[$statementId]);
         }
