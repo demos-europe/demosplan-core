@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceTyp
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\ProcedureMapSettingResourceConfigBuilder;
+use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\AvailableProjectionVO;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use Webmozart\Assert\Assert;
@@ -82,6 +83,9 @@ class ProcedureMapSettingResourceType extends DplanResourceType
             ->readable();
         $configBuilder->availableScales
             ->readable(false, $this->getAvailableScales(...));
+
+        $configBuilder->availableProjections
+            ->readable(false, $this->getAvailableProjections(...));
 
         if ($this->currentUser->hasPermission('feature_layer_groups_alternate_visibility')) {
             $configBuilder->showOnlyOverlayCategory
@@ -258,6 +262,30 @@ class ProcedureMapSettingResourceType extends DplanResourceType
     protected function getAvailableScales(): array
     {
         return $this->convertToListOfInt(str_replace(['[', ']'], '', (string) $this->globalConfig->getMapPublicAvailableScales()));
+    }
+
+    /**
+     * @return list<int>
+     */
+    protected function getAvailableProjections(): array
+    {
+        $rawAvailableProjections = $this->globalConfig->getMapAvailableProjections();
+
+        $availableProjections = array_map(function($availableProjection) {
+            return $this->createAvailableProjectionVO($availableProjection) ;
+        }, $rawAvailableProjections);
+
+        return $availableProjections;
+
+
+    }
+
+    protected function createAvailableProjectionVO(array $availableProjection): AvailableProjectionVO {
+        $availableProjectionVO = new AvailableProjectionVO();
+        $availableProjectionVO->setKey($availableProjection['label']);
+        $availableProjectionVO->setLabel($availableProjection['label']);
+        $availableProjectionVO->setProjection($availableProjection['value']);
+        return $availableProjectionVO->lock();
     }
 
     protected function convertListOfIntToString(array $values): string
