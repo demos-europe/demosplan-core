@@ -76,7 +76,9 @@
           {{ Translator.trans('export.statements.xlsx') }}
         </a>
       </dp-flyout>
-      <div class="flex mt-2">
+      <div
+        v-if="items.length > 0"
+        class="flex mt-2">
         <dp-pager
           v-if="pagination.currentPage"
           :class="{ 'invisible': isLoading }"
@@ -106,7 +108,7 @@
 
     <template v-else>
       <dp-data-table
-        v-if="items"
+        v-if="items.length > 0"
         data-cy="listStatements"
         :class="{ 'px-2 overflow-y-scroll grow': isFullscreen }"
         has-flyout
@@ -293,6 +295,7 @@
 
       <dp-inline-notification
         v-else
+        :class="{ 'mx-2': isFullscreen }"
         :message="Translator.trans((this.searchValue === '' ? 'statements.none' : 'search.no.results'), {searchterm: this.searchValue})"
         type="info" />
     </template>
