@@ -30,7 +30,7 @@
   </div>
 </template>
 <script>
-import { DpInlineNotification, DpInput, dpRpc } from '@demos-europe/demosplan-ui'
+import { DpInlineNotification, DpInput, dpRpc, length } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'CoupleTokenInput',
@@ -40,10 +40,13 @@ export default {
     DpInput
   },
 
+  props: {
+    tokenLength: length
+  },
+
   data () {
     return {
-      notification: null,
-      tokenLength: 12
+      notification: null
     }
   },
 

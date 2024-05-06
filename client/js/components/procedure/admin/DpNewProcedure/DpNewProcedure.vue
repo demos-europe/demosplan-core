@@ -194,7 +194,7 @@
           :message="Translator.trans('procedure.couple_token.vht.inline_notification')"
           type="warning" />
 
-        <couple-token-input />
+        <couple-token-input :token-length="tokenLength" />
       </div>
 
       <div class="space-inline-s text-right">
@@ -290,6 +290,12 @@ export default {
       type: String,
       required: false,
       default: ''
+    },
+
+    tokenLength: {
+      type: length,
+      required: false,
+      default: 12
     }
   },
 
