@@ -1287,7 +1287,7 @@
                                     multiple
                                     :options="counties"
                                     track-by="id"
-                                    @input="sortSelected('Counties')">
+                                    @update:model-value="sortSelected('Counties')">
                                     <template v-slot:option="{ props }">
                                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                     </template>
@@ -1338,7 +1338,7 @@
                                     multiple
                                     :options="municipalities"
                                     track-by="id"
-                                    @input="sortSelected('Municipalities')">
+                                    @update:model-value="sortSelected('Municipalities')">
                                     <template v-slot:option="{ props }">
                                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                     </template>
@@ -1389,7 +1389,7 @@
                                     multiple
                                     :options="priorityAreas"
                                     track-by="id"
-                                    @input="sortSelected('PriorityAreas')">
+                                    @update:model-value="sortSelected('PriorityAreas')">
                                     <template v-slot:option="{ props }">
                                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                     </template>

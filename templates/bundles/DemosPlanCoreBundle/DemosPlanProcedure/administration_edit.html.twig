@@ -885,7 +885,7 @@
                                                 data-cy="procedureInfo:procedureDescriptionPublic"
                                                 :toolbar-items="{ listButtons: false }"
                                                 :maxlength="10000"
-                                                value="{{ proceduresettings.externalDesc|default( "notspecified"|trans ) }}">
+                                                model-value="{{ proceduresettings.externalDesc|default( "notspecified"|trans ) }}">
                                             </dp-editor>
                                         </div>
                                     {% endblock oeb_desc %}
@@ -915,7 +915,7 @@
                                             data-dp-validate-error-fieldname="{{ 'public.participation.contact'|trans }}"
                                             :toolbar-items="{ listButtons: false }"
                                             :maxlength="2000"
-                                            value="{{ proceduresettings.publicParticipationContact|default((hasPermission('feature_require_procedure_contact_person') ? '' : 'notspecified')|trans ) }}"
+                                            model-value="{{ proceduresettings.publicParticipationContact|default((hasPermission('feature_require_procedure_contact_person') ? '' : 'notspecified')|trans ) }}"
                                             {% if hasPermission('feature_require_procedure_contact_person') %}required{% endif %}>
                                         </dp-editor>
                                     </div>
@@ -1000,7 +1000,7 @@
                                             showPlainHint: true
                                         } %}
                                         <dp-editor
-                                            value="{{ proceduresettings.settings.links|default }}"
+                                            model-value="{{ proceduresettings.settings.links|default }}"
                                             hidden-input="r_links"
                                             ref="r_links"
                                             :toolbar-items="{ linkButton: true }" >

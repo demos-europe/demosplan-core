@@ -66,7 +66,7 @@
             :custom-label="option => `${option.name} ${option.id === currentUserId ? '(Sie)' : ''}`"
             :options="users"
             track-by="id"
-            @input="() => {options.newAssignee.isValid() ? $refs.newAssignee.$el.querySelector(options.newAssignee.elementToReceiveErrorBorder).classList.remove('border--error') : null}">
+            @update:model-value="() => {options.newAssignee.isValid() ? $refs.newAssignee.$el.querySelector(options.newAssignee.elementToReceiveErrorBorder).classList.remove('border--error') : null}">
             <template v-slot:option="{ props }">
               {{ props.option.name }} {{ props.option.id === currentUserId? ` (Sie)` : '' }}
             </template>
@@ -93,8 +93,8 @@
           </p>
           <dp-editor
             ref="recommendation"
-            :value="options.recommendation.value"
-            @input="updateRecommendationText">
+            :model-value="options.recommendation.value"
+            @update:model-value="updateRecommendationText">
             <template v-slot:modal="modalProps">
               <dp-boiler-plate-modal
                 v-if="hasPermission('area_admin_boilerplates')"

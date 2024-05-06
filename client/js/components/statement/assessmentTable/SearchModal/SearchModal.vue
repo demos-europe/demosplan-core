@@ -49,17 +49,17 @@
       @modal:toggled="modalToggled">
       <h2>{{ Translator.trans('search.advanced') }}</h2>
 
-        <!-- Search Field -->
-        <label class="layout__item u-pl-0 u-mb-0_25 u-mt-0_75 relative">
-          <dp-input
-            id="searchterm2"
-            name="search_word"
-            data-cy="searchModal:searchAssessmentTableAdvanced"
-            :placeholder="Translator.trans('searchterm')"
-            v-model="searchString"
-            :aria-label="Translator.trans('search.assessment.table')"
-            @enter="submit" />
-        </label>
+      <!-- Search Field -->
+      <label class="layout__item u-pl-0 u-mb-0_25 u-mt-0_75 relative">
+        <dp-input
+          id="searchterm2"
+          name="search_word"
+          data-cy="searchModal:searchAssessmentTableAdvanced"
+          :placeholder="Translator.trans('searchterm')"
+          v-model="searchString"
+          :aria-label="Translator.trans('search.assessment.table')"
+          @enter="submit" />
+      </label>
 
       <!-- search hint -->
       <p class="lbl__hint u-pt-0 u-mt-0 u-pb-0_5">
@@ -81,19 +81,19 @@
         {{ Translator.trans('search.in') }}
       </h3>
 
-        <div class="max-h-12 w-full align-top overflow-auto u-mb">
-          <div class="layout--flush">
-            <dp-checkbox
-              v-for="checkbox in filterCheckBoxesItems"
-              :data-cy="`searchModal:${checkbox.id}`"
-              :id="checkbox.id"
-              :key="'checkbox_' + checkbox.id"
-              v-model="checkbox.checked"
-              class="layout__item u-1-of-2"
-              :label="{
-                text: Translator.trans(checkbox.label)
-              }"
-              name="search_fields[]" />
+      <div class="max-h-12 w-full align-top overflow-auto u-mb">
+        <div class="layout--flush">
+          <dp-checkbox
+            v-for="checkbox in filterCheckBoxesItems"
+            :data-cy="`searchModal:${checkbox.id}`"
+            :id="checkbox.id"
+            :key="'checkbox_' + checkbox.id"
+            v-model="checkbox.checked"
+            class="layout__item u-1-of-2"
+            :label="{
+              text: Translator.trans(checkbox.label)
+            }"
+            name="search_fields[]" />
 
           <!-- department is added as hidden field when organisation is selected -->
           <input

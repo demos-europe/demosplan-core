@@ -124,7 +124,7 @@
                     linkButton: true
                 }"
                 required
-                value="{{ templateVars.procedure.settings.emailText|default }}">
+                model-value="{{ templateVars.procedure.settings.emailText|default }}">
                 <template v-slot:modal="modalProps">
                     <dp-boiler-plate-modal
                         ref="boilerPlateModal"

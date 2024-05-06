@@ -20,9 +20,9 @@
         }"
         name="r_firstname"
         :required="required && statement.r_useName === '1'"
-        :value="statement.r_firstname"
+        :model-value="statement.r_firstname"
         width="u-1-of-2"
-        @input="val => setStatementData({r_firstname: val})" /><!--
+        @update:model-value="val => setStatementData({r_firstname: val})" /><!--
    --><dp-input
         id="r_lastname"
         autocomplete="family-name"
@@ -33,9 +33,9 @@
         }"
         name="r_lastname"
         :required="statement.r_useName === '1' && required"
-        :value="statement.r_lastname"
+        :model-value="statement.r_lastname"
         width="u-1-of-2"
-        @input="val => setStatementData({r_lastname: val})" />
+        @update:model-value="val => setStatementData({r_lastname: val})" />
     </div>
   </div>
 </template>

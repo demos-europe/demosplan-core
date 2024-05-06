@@ -65,7 +65,6 @@
       for="r_layers"
       required />
     <dp-multiselect
-      @input="filterMatrixSetByLayers"
       required
       track-by="label"
       label="label"
@@ -74,7 +73,8 @@
       v-model="layers"
       data-cy="newMapLayerLayers"
       :options="layersOptions"
-      class="u-mb-0_5" />
+      class="u-mb-0_5"
+      @update:model-value="filterMatrixSetByLayers" />
 
     <input
       type="hidden"

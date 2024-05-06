@@ -27,7 +27,7 @@
         label="title"
         :options="boilerPlates"
         track-by="id"
-        @input="addToTextArea">
+        @update:model-value="addToTextArea">
         <template v-slot:option="{ props }">
           {{ props.option.title }}
           <span v-if="props.option.$isLabel">

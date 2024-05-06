@@ -14,13 +14,14 @@
       id="procedureCoupleToken"
       data-cy="procedureCoupleToken"
       data-dp-validate-if="#procedureCoupleToken!==''"
+      v-model="notification.text"
       :label="{
         text: Translator.trans('procedure.couple_token.label')
       }"
       :maxlength="tokenLength"
       :minlength="tokenLength"
       name="procedureCoupleToken"
-      @input="validateToken" />
+      @update:model-value="validateToken" />
     <dp-inline-notification
       v-if="notification"
       class="u-mb-0"

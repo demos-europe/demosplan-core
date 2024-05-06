@@ -6,7 +6,7 @@
       multiple
       :options="availableScales"
       track-by="value"
-      @input="sortSelected('scales')">
+      @update:model-value="sortSelected('scales')">
       <template v-slot:option="{ props }">
         {{ props.option.label }}
       </template>

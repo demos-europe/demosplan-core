@@ -51,7 +51,7 @@
                     linkButton: true
                 }"
                 required
-                value="{{ templateVars.preparationMail.mailBody }}">
+                model-value="{{ templateVars.preparationMail.mailBody }}">
                 <template v-slot:modal="modalProps">
                     <dp-boiler-plate-modal
                         v-if="hasPermission('area_admin_boilerplates')"

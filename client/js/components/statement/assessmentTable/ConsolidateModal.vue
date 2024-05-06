@@ -90,7 +90,7 @@
         multiple
         :options="initialStatementSelection"
         track-by="id"
-        @input="checkSelectionValidity">
+        @update:model-value="checkSelectionValidity">
         <template v-slot:option="{ props }">
           {{ props.option.extid }}
         </template>
@@ -145,7 +145,7 @@
         :options="selectedStatementsWithoutGroups"
         ref="multiselect"
         track-by="id"
-        @input="checkHeadStatementValidity">
+        @update:model-value="checkHeadStatementValidity">
         <template v-slot:option="{ props }">
           {{ props.option.extid }}
         </template>

@@ -79,7 +79,7 @@
         :placeholder="Translator.trans('choose.search')"
         :sub-slots="['option', 'singleLabel']"
         track-by="entityId"
-        @input="emitSubmitterData">
+        @update:model-value="emitSubmitterData">
         <!-- Template for select options -->
           <template v-slot:option="{ props }">
             <span v-cleanhtml="customOption(props.option, true)" />

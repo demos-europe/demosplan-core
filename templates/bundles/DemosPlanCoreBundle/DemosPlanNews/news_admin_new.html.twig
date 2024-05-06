@@ -210,7 +210,7 @@
                 :toolbar-items="{
                     linkButton: true
                 }"
-                value="{{ templateVars.prefill.r_text|default }}">
+                model-value="{{ templateVars.prefill.r_text|default }}">
                 {% include '@DemosPlanCore/DemosPlanNews/includes/news_editor_boilerplate_modal.html.twig' %}
                 <template v-slot:modal="modalProps">
                     <dp-boiler-plate-modal

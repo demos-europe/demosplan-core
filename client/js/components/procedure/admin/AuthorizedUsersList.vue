@@ -190,8 +190,8 @@
                   text: Translator.trans('name')
                 }"
                 required
-                :value="rowData.submitterName"
-                @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterName = val" />
+                :model-value="rowData.submitterName"
+                @update:model-value="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterName = val" />
               <div
                 v-if="!rowData.authorName || rowData.anonymous"
                 class="u-mt-0_75 u-mb-0_5">
@@ -211,8 +211,8 @@
                   text: Translator.trans('email')
                 }"
                 type="email"
-                :value="rowData.submitterEmailAddress"
-                @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterEmailAddress = val" />
+                :model-value="rowData.submitterEmailAddress"
+                @update:model-value="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterEmailAddress = val" />
               <div class="o-form__group u-mb-0_5 u-mt-0_75">
                 <dp-input
                   :id="`street:${rowData.tokenId}`"
@@ -221,8 +221,8 @@
                   :label="{
                     text: Translator.trans('street')
                   }"
-                  :value="rowData.submitterStreet"
-                  @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterStreet = val" />
+                  :model-value="rowData.submitterStreet"
+                  @update:model-value="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterStreet = val" />
                 <dp-input
                   :id="`houseNumber:${rowData.tokenId}`"
                   class="o-form__group-item"
@@ -231,8 +231,8 @@
                     text: Translator.trans('street.number.short')
                   }"
                   :size="5"
-                  :value="rowData.submitterHouseNumber"
-                  @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterHouseNumber = val" />
+                  :model-value="rowData.submitterHouseNumber"
+                  @update:model-value="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterHouseNumber = val" />
               </div>
               <div class="o-form__group u-mb-0_5 u-mt-0_75">
                 <dp-input
@@ -244,8 +244,8 @@
                   }"
                   pattern="^[0-9]{5}$"
                   :size="5"
-                  :value="rowData.submitterPostalCode"
-                  @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterPostalCode = val" />
+                  :model-value="rowData.submitterPostalCode"
+                  @update:model-value="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterPostalCode = val" />
                 <dp-input
                   :id="`city:${rowData.tokenId}`"
                   class="o-form__group-item"
@@ -253,8 +253,8 @@
                   :label="{
                     text: Translator.trans('city')
                   }"
-                  :value="rowData.submitterCity"
-                  @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterCity = val" />
+                  :model-value="rowData.submitterCity"
+                  @update:model-value="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterCity = val" />
               </div>
             </div>
             <div class="align-top u-1-of-3 u-pl-0_5">
@@ -264,8 +264,8 @@
                 :id="`note:${rowData.tokenId}`"
                 :label="Translator.trans('memo')"
                 :maxlength="rowData.isEditable ? '1000' : false"
-                :value="rowData.note"
-                @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).note = val" />
+                :model-value="rowData.note"
+                @update:model-value="val => localUsers.find(user => user.tokenId === rowData.tokenId).note = val" />
               <dp-button-row
                 v-if="rowData.isEditable"
                 primary

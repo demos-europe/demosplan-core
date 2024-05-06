@@ -66,7 +66,7 @@
         :name="`${entityId}:${fieldKey}`"
         :options="options"
         track-by="id"
-        @input="val => $emit('field:input', val)">
+        @update:model-value="val => $emit('field:input', val)">
         <template v-slot:option="{ props }">
           {{ props.option.title }}
         </template>

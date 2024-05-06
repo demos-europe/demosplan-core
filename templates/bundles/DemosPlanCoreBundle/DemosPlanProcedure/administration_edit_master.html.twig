@@ -52,7 +52,7 @@
                             multiple
                             :options="agencies"
                             track-by="id"
-                            @input="sortSelected('Agencies')">
+                            @update:model-value="sortSelected('Agencies')">
                             <template v-slot:option="{ props }">
                                 {% verbatim %}{{ props.option.name }}{% endverbatim %}
                             </template>
@@ -84,7 +84,7 @@
                         :options="authUsers"
                         selection-controls
                         track-by="id"
-                        @input="sortSelected('AuthUsers')"
+                        @update:model-value="sortSelected('AuthUsers')"
                         @select-all="selectAllAuthUsers"
                         @unselect-all="unselectAllAuthUsers">
                         <template v-slot:option="{ props }">
@@ -195,7 +195,7 @@
                     {{ "linkbox"|trans }}
                 </label>
                 <dp-editor
-                    value="{{ proceduresettings.settings.links|default() }}"
+                    model-value="{{ proceduresettings.settings.links|default() }}"
                     hidden-input="r_links"
                     ref="r_links"
                     :toolbar-items="{ linkButton: true }" >
@@ -210,7 +210,7 @@
                     </p>
                 </label>
                 <dp-editor
-                    value="{{ proceduresettings.publicParticipationContact|default( "notspecified"|trans ) }}"
+                    model-value="{{ proceduresettings.publicParticipationContact|default( "notspecified"|trans ) }}"
                     hidden-input="r_publicParticipationContact"
                     :toolbar-items="{ listButtons: false }">
                 </dp-editor>

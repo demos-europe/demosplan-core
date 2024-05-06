@@ -308,7 +308,7 @@
           :id="`${organisation.id}:cssvars`"
           :label="Translator.trans('branding.styling.input')"
           reduced-height
-          @input="emitOrganisationUpdate"
+          @update:model-value="emitOrganisationUpdate"
           v-model="localOrganisation.attributes.cssvars" />
         <dp-details :summary="Translator.trans('branding.styling.details')">
           <span v-html="Translator.trans('branding.styling.details.description')" />
@@ -684,7 +684,7 @@
       <dp-editor
         data-cy="imprint"
         v-model="localOrganisation.attributes.imprint"
-        @input="emitOrganisationUpdate"
+        @update:model-value="emitOrganisationUpdate"
         :toolbar-items="{
           fullscreenButton: true,
           headings: [2,3,4],
@@ -700,7 +700,7 @@
       <dp-editor
         data-cy="dataProtection"
         v-model="localOrganisation.attributes.dataProtection"
-        @input="emitOrganisationUpdate"
+        @update:model-value="emitOrganisationUpdate"
         :toolbar-items="{
           fullscreenButton: true,
           headings: [2,3,4],
