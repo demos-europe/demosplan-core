@@ -169,7 +169,6 @@ import {
   DpStickyElement
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import convertExtentToFlatArray from '@DpJs/components/map/map/utils/convertExtentToFlatArray'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory'
 import SegmentCommentsList from './SegmentCommentsList'
@@ -420,15 +419,19 @@ export default {
       setStatement: 'setItem'
     }),
 
+    ...mapActions('assignableUser', {
+      listAssignableUser: 'list'
+    }),
+
+    ...mapActions('ProcedureMapSettings', {
+      fetchProcedureMapSettings: 'fetchProcedureMapSettings'
+    }),
+
     ...mapActions('statement', {
       getStatementAction: 'get',
       saveStatementAction: 'save',
       updateStatementAction: 'update',
       restoreStatementAction: 'restoreFromInitial'
-    }),
-
-    ...mapActions('assignableUser', {
-      listAssignableUser: 'list'
     }),
 
     ...mapActions('segmentSlidebar', [
@@ -485,49 +488,6 @@ export default {
         })
         .finally(() => {
           this.isLoading = false
-        })
-    },
-
-    getProcedureMapSettings () {
-      const url = Routing.generate('api_resource_get', { resourceId: this.procedureId, resourceType: 'Procedure' })
-      const params = {
-        fields: {
-          Procedure: [
-            'mapSetting'
-          ].join(),
-          ProcedureMapSetting: [
-            'boundingBox',
-            'copyright',
-            'defaultBoundingBox',
-            'defaultMapExtent',
-            'mapExtent',
-            'scales'
-          ].join()
-        },
-        include: 'mapSetting'
-      }
-
-      if (hasPermission('area_procedure_adjustments_general_location')) {
-        params.fields.ProcedureMapSetting.push('coordinate')
-      }
-
-      if (hasPermission('feature_map_use_territory')) {
-        params.fields.ProcedureMapSetting.push('territory')
-      }
-
-      dpApi.get(url, params)
-        .then(response => {
-          const data = response.data.included[0].attributes
-
-          this.coordinate = response.data.data.attributes.coordinate ?? ''
-          this.procedureMapSettings.id = response.data.included[0].id
-          this.procedureMapSettings = {
-            copyright: data.copyright ?? '',
-            mapExtent: convertExtentToFlatArray(data.mapExtent) ?? convertExtentToFlatArray(data.defaultMapExtent), // Maximum extent of the map
-            boundingBox: convertExtentToFlatArray(data.boundingBox) ?? convertExtentToFlatArray(data.defaultBoundingBox), // Extent on load of the map
-            scales: data.scales.map(scale => ({ label: `1:${scale.toLocaleString()}`, value: scale })) ?? [],
-            territory: data.territory ?? '{}'
-          }
         })
     },
 
@@ -747,7 +707,10 @@ export default {
       }
     })
     this.setContent({ prop: 'commentsList', val: { ...this.commentsList, procedureId: this.procedureId, statementId: this.statementId } })
-    this.getProcedureMapSettings()
+    this.fetchProcedureMapSettings(this.procedureId)
+      .then(response => {
+        this.procedureMapSettings = response.attributes
+      })
   }
 }
 </script>
