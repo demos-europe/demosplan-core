@@ -162,7 +162,8 @@
           for="startdate"
           :hint="Translator.trans('explanation.date.procedure')"
           :required="hasPermission('field_required_procedure_end_date')"
-          :text="Translator.trans('period')" />
+          :text="Translator.trans('period')"
+          :tooltip="Translator.trans('explanation.date.format')" />
 
         <dp-date-range-picker
           class="u-2-of-4"
@@ -171,6 +172,7 @@
           end-id="enddate"
           end-name="r_enddate"
           data-cy="newProcedureForm"
+          :data-dp-validate-error-fieldname="Translator.trans('period')"
           :required="hasPermission('field_required_procedure_end_date')"
           :calendars-after="2"
           enforce-plausible-dates />

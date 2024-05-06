@@ -1360,6 +1360,7 @@ explanation.data.protection.before.vote: "Die Stellungnahme muss für den öffen
 explanation.data.user.change: "Sollten sich Ihre Daten geändert haben, ändern Sie sie bitte vor der Einreichung der Stellungnahme(n) im <a class=\"o-link--default\" href=\"{href}\"><i class=\"fa fa-external-link\" aria-hidden=\"true\"></i> {label}</a> unter Menüpunkt \"Benutzerprofil/Daten ändern\" (Sie verlassen diese Seite)."
 explanation.data.user.change.portal: "Sollte sich Ihr Name oder Ihre E-Mail-Adresse geändert haben, ändern Sie sie bitte vor der Einreichung der Stellungnahme(n) unter \"<a href=\"{url}\">{label}</a>\"."
 explanation.data.user: "Hier können Sie Ihre persönlichen Daten einsehen, mit denen Sie registriert sind."
+explanation.date.format: "Bitte beachten Sie: Das erwartete Datumsformat ist 'dd.mm.yyyy'"
 explanation.date.procedure: ""
 explanation.date.empty: "Wird der Zeitraum leer gelassen, setzt das System automatisch das aktuelle Datum ein."
 explanation.drawing.configuration: "Die Konfiguration der Karten, Pläne und Legende erfolgt unter nachfolgendem Link im Menü „Planzeichnung“."
