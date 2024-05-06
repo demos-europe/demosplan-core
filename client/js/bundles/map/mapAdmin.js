@@ -13,7 +13,9 @@
 
 import { initialize } from '@DpJs/InitVue'
 import MapAdmin from '@DpJs/components/map/admin/MapAdmin'
+import procedureMapSettings from '@DpJs/store/map/ProcedureMapSettings'
 
 const components = { MapAdmin }
+const stores = { procedureMapSettings }
 
-initialize(components)
+initialize(components, stores)
