@@ -107,7 +107,6 @@ import { mapActions, mapMutations, mapState } from 'vuex'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature'
 import DpOlMapEditFeature from '@DpJs/components/map/map/DpOlMapEditFeature'
-import DpOlMapLayerVector from '@DpJs/components/map/map/DpOlMapLayerVector'
 import { extend } from 'ol/extent'
 import { fromExtent } from 'ol/geom/Polygon'
 
@@ -119,11 +118,9 @@ export default {
     DpOlMap,
     DpOlMapDrawFeature,
     DpOlMapEditFeature,
-    DpOlMapLayerVector
   },
 
   props: {
-    // TO DO: Remove as prop and get via API procedureSettings.mapExtent
     mapData: {
       type: Object,
       required: false,
