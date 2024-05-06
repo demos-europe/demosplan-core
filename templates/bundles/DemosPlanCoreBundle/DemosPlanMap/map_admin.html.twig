@@ -1,6 +1,4 @@
 {% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
-{% set mapGlobals = templateVars.mapglobals %}
-{% set availableScales = templateVars.availableScales|map(scale => { label: '1:' ~ scale|number_format(0, '.', '.'), value: scale } ) %}
 
 {% block demosplanbundlecontent %}
 
