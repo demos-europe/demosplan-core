@@ -18,8 +18,10 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\ProcedureMapSettingResourceConfigBuilder;
+use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\AvailableProjectionVO;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use Webmozart\Assert\Assert;
@@ -81,7 +83,32 @@ class ProcedureMapSettingResourceType extends DplanResourceType
             ->updatable()
             ->readable();
         $configBuilder->availableScales
-            ->readable(false, $this->getAvailableScales(...));
+            ->readable(false, fn (ProcedureSettings $procedureSettings): array => $this->getScales($this->globalConfig->getMapPublicAvailableScales()));
+
+        $configBuilder->globalAvailableScales
+            ->readable(false, fn (ProcedureSettings $procedureSettings): array => $this->getScales($this->globalConfig->getMapGlobalAvailableScales()));
+
+        $configBuilder->availableProjections
+            ->readable(false, $this->getAvailableProjections(...));
+
+        $configBuilder->baseLayerUrl
+            ->readable(false, fn (ProcedureSettings $procedureSetting): string => $this->globalConfig->getMapAdminBaselayer());
+
+        $configBuilder->baseLayerLayerNames
+            ->readable(false, fn (ProcedureSettings $procedureSetting): array => $this->convertToListOfString($this->globalConfig->getMapAdminBaselayerLayers()));
+
+        $configBuilder->baseLayerProjection
+            ->readable(false, fn (ProcedureSettings $procedureSetting): string => MapService::PSEUDO_MERCATOR_PROJECTION_LABEL);
+
+        $configBuilder->defaultProjection
+            ->readable(false, fn (ProcedureSettings $procedureSetting): array => $this->globalConfig->getMapDefaultProjection());
+
+        $configBuilder->publicSearchAutoZoom
+            ->readable(false, function (ProcedureSettings $procedureSetting): float {
+                Assert::numeric($this->globalConfig->getMapPublicSearchAutozoom());
+
+                return (float) $this->globalConfig->getMapPublicSearchAutozoom();
+            });
 
         if ($this->currentUser->hasPermission('feature_layer_groups_alternate_visibility')) {
             $configBuilder->showOnlyOverlayCategory
@@ -131,14 +158,12 @@ class ProcedureMapSettingResourceType extends DplanResourceType
                 ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertJsonToCoordinates($procedureSettings->getTerritory()));
         }
 
-        if ($this->currentUser->hasPermission('field_master_procedure_default_bounding_box')) {
-            $configBuilder->defaultBoundingBox
-                ->readable(false, function (ProcedureSettings $procedureSetting): ?array {
-                    $masterTemplateMapSetting = $this->masterTemplateService->getMasterTemplate()->getSettings();
+        $configBuilder->defaultBoundingBox
+            ->readable(false, function (ProcedureSettings $procedureSetting): ?array {
+                $masterTemplateMapSetting = $this->masterTemplateService->getMasterTemplate()->getSettings();
 
-                    return $this->convertFlatListToCoordinates($masterTemplateMapSetting->getBoundingBox(), true);
-                });
-        }
+                return $this->convertFlatListToCoordinates($masterTemplateMapSetting->getBoundingBox(), true);
+            });
 
         $configBuilder->defaultMapExtent
             ->readable(false, function (ProcedureSettings $procedureSetting): ?array {
@@ -255,9 +280,32 @@ class ProcedureMapSettingResourceType extends DplanResourceType
     /**
      * @return list<int>
      */
-    protected function getAvailableScales(): array
+    protected function getScales($scaleSettings): array
     {
-        return $this->convertToListOfInt(str_replace(['[', ']'], '', (string) $this->globalConfig->getMapPublicAvailableScales()));
+        return $this->convertToListOfInt(str_replace(['[', ']'], '', (string) $scaleSettings));
+    }
+
+    /**
+     * @return list<AvailableProjectionVO>
+     */
+    protected function getAvailableProjections(): array
+    {
+        $rawAvailableProjections = $this->globalConfig->getMapAvailableProjections();
+
+        $availableProjections = array_map(function ($availableProjection) {
+            return $this->createAvailableProjectionVO($availableProjection);
+        }, $rawAvailableProjections);
+
+        return $availableProjections;
+    }
+
+    protected function createAvailableProjectionVO(array $availableProjection): AvailableProjectionVO
+    {
+        $availableProjectionVO = new AvailableProjectionVO();
+        $availableProjectionVO->setLabel($availableProjection['label']);
+        $availableProjectionVO->setValue($availableProjection['value']);
+
+        return $availableProjectionVO->lock();
     }
 
     protected function convertListOfIntToString(array $values): string
@@ -281,6 +329,19 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         }
 
         return $availableScales;
+    }
+
+    protected function convertToListOfString(string|array $values): array
+    {
+        $rawBaseLayerNames = is_array($values) ? $values : explode(',', $values);
+        $baseLayerNames = [];
+
+        foreach ($rawBaseLayerNames as $baseLayer) {
+            Assert::string($baseLayer);
+            $baseLayerNames[] = $baseLayer;
+        }
+
+        return $baseLayerNames;
     }
 
     public function getEntityClass(): string
