@@ -1,0 +1,302 @@
+<license>
+  (c) 2010-present DEMOS plan GmbH.
+
+  This file is part of the package demosplan,
+  for more information see the license file.
+
+  All rights reserved
+</license>
+
+<template>
+  <div class="layout u-pb">
+    <div class="layout__item w-1/1">
+      <dp-input
+        id="mapExtent"
+        v-model="mapExtent"
+        data-cy="mapExtent"
+        disabled
+        :label="{
+          text: Translator.trans('max_extent')
+        }" />
+      <dp-input
+        id="boundingBox"
+        v-model="boundingBox"
+        data-cy="boundingBox"
+        disabled
+        :label="{
+          text: Translator.trans('initial_extent')
+        }" />
+    </div>
+    <map-view
+      ref="mapView"
+      :bounding-box="boundingBoxAsPolygon"
+      class="layout__item w-1/1 u-pb"
+      :default-attribution="procedureMapSettings.attributes.copyright"
+      :map-extent="mapExtentAsPolygon"
+      :max-extent="procedureMapSettings.attributes.defaultMapExtent"
+      :procedure-id="procedureId"
+      :procedure-coordinates="procedureMapSettings.attributes.coordinate"
+      :procedure-territory="procedureMapSettings.attributes.territory"
+      :scales="procedureMapSettings.attributes.availableScales"
+      @update="setExtent" />
+
+    <div class="layout__item">
+      <map-admin-scales
+        :available-scales="procedureMapSettings.attributes.availableScales"
+        class="u-mb"
+        :selected-scales="procedureMapSettings.attributes.scales || []"
+        @update="value => procedureMapSettings.attributes.scales = value"
+        @suitableScalesChange="value => areScalesSuitable = value" />
+
+      <dp-input
+        v-if="!procedureMapSettings.attributes.featureInfoUrl.global"
+        v-model="procedureMapSettings.attributes.informationUrl"
+        id="informationURL"
+        class="u-mb"
+        :label="{
+          text: Translator.trans('url.information'),
+          hint: Translator.trans('url.information.hint', { buttonlabel: 'map.getfeatureinfo.label' })
+        }" />
+
+      <dp-input
+        id="copyright"
+        v-model="procedureMapSettings.attributes.copyright"
+        class="u-mb"
+        :label="{
+          text: Translator.trans('map.attribution'),
+          hint: Translator.trans('map.attribution.placeholder')
+        }" />
+    </div>
+
+    <dp-checkbox
+      v-if="hasPermission('feature_layer_groups_alternate_visibility')"
+      id="enableLayerGroupsAlternateVisibility"
+      v-model="procedureMapSettings.attributes.showOnlyOverlayCategory"
+      :checked="procedureMapSettings.attributes.showOnlyOverlayCategory"
+      :label="{
+        bold: true,
+        hint: Translator.trans('explanation.gislayer.layergroup.toggle.alternating.visibility.extended'),
+        text: Translator.trans('explanation.gislayer.layergroup.toggle.alternating.visibility')
+      }" />
+
+    <input
+      aria-hidden="true"
+      name="r_territory"
+      type="hidden"
+      :value="JSON.stringify(procedureMapSettings.attributes.territory)">
+
+    <input
+      aria-hidden="true"
+      name="r_coordinate"
+      type="hidden"
+      :value="procedureMapSettings.attributes.coordinate">
+
+    <div class="layout__item u-1-of-1 text-right u-mt-0_5 space-inline-s">
+      <input
+        class="btn btn--primary"
+        :disabled="!areScalesSuitable"
+        type="submit"
+        name="saveConfig"
+        :value="Translator.trans('save')"
+        @click="() => save()">
+      <input
+        v-if="hasPermission('area_admin_single_document')"
+        class="btn btn--primary"
+        :disabled="!areScalesSuitable"
+        type="submit"
+        name="submit_item_return_button"
+        :value="Translator.trans('save.and.return.to.list')"
+        @click="() => save(true)">
+      <a
+        class="btn btn--secondary"
+        :href="Routing.generate('DemosPlan_element_administration', { procedure: procedureId })">
+        {{ Translator.trans('abort') }}
+      </a>
+    </div>
+  </div>
+</template>
+<script>
+import { checkResponse, dpApi, DpCheckbox, DpInput } from '@demos-europe/demosplan-ui'
+import { Attribution } from 'ol/control'
+import { fromExtent } from 'ol/geom/Polygon'
+import { mapActions } from 'vuex'
+import MapAdminScales from './MapAdminScales'
+import MapView from '@DpJs/components/map/map/MapView'
+
+export default {
+  name: 'MapAdmin',
+
+  components: {
+    DpCheckbox,
+    DpInput,
+    MapAdminScales,
+    MapView
+  },
+
+  props: {
+    procedureId: {
+      type: String,
+      required: true
+    }
+  },
+
+  provide () {
+    return {
+      olMapState: this.olMapState
+    }
+  },
+
+  data () {
+    return {
+      areScalesSuitable: true,
+      drawingStyles: {
+        territory: JSON.stringify({
+          fillColor: 'rgba(0,0,0,0.1)',
+          strokeColor: '#000',
+          imageColor: '#fff',
+          strokeLineDash: [4, 4],
+          strokeLineWidth: 3
+        })
+      },
+      procedureMapSettings: {
+        id: '',
+        type: 'ProcecdureMapSetting',
+        attributes: {
+          coordinate: '',
+          copyright: '',
+          defaultMapExtent: [],
+          defaultBoundingBox: [],
+          featureInfoUrl: { global: false },
+          informationUrl: '',
+          showOnlyOverlayCategory: false,
+          mapExtent: [],
+          boundingBox: [],
+          scales: [],
+          territory: '{}'
+        }
+      }
+    }
+  },
+
+  computed: {
+    attributionControl () {
+      return new Attribution({ collapsible: false })
+    },
+
+    boundingBox () {
+      if (this.procedureMapSettings.attributes.boundingBox === this.procedureMapSettings.attributes.defaultBoundingBox) {
+        return Translator.trans('initial_extent.not.set')
+      }
+
+      return this.procedureMapSettings.attributes.boundingBox[0] ? this.procedureMapSettings.attributes.boundingBox.join(',') : ''
+    },
+
+    boundingBoxAsPolygon () {
+      if (!this.boundingBox) {
+        return null
+      }
+
+      return {
+        type: 'Feature',
+        geometry: {
+          type: 'Polygon',
+          coordinates: fromExtent(JSON.parse(`[${this.boundingBox}]`)).getCoordinates()
+        }
+      }
+    },
+
+    mapExtent () {
+      if (this.procedureMapSettings.attributes.mapExtent === this.procedureMapSettings.attributes.procedureDefaultMapExtent) {
+        return Translator.trans('max_extent.not.set')
+      }
+
+      return this.procedureMapSettings.attributes.mapExtent[0] ? this.procedureMapSettings.attributes.mapExtent.join(',') : ''
+    },
+
+    mapExtentAsPolygon () {
+      if (!this.mapExtent) {
+        return null
+      }
+
+      return {
+        type: 'Feature',
+        geometry: {
+          type: 'Polygon',
+          coordinates: fromExtent(JSON.parse(`[${this.mapExtent}]`)).getCoordinates()
+        }
+      }
+    }
+  },
+
+  methods: {
+    ...mapActions('ProcedureMapSettings', ['fetchProcedureMapSettings']),
+
+    convertExtentToObject (extentArray) {
+      if (extentArray.length < 4) {
+        return {
+          latitude: extentArray[0],
+          longitude: extentArray[1]
+        }
+      }
+
+      return {
+        start: {
+          latitude: extentArray[0],
+          longitude: extentArray[1]
+        },
+        end: {
+          latitude: extentArray[2],
+          longitude: extentArray[3]
+        }
+      }
+    },
+
+    save (returnToOverview = false) {
+      const url = Routing.generate('api_resource_update', { resourceType: 'ProcedureMapSetting', resourceId: this.procedureMapSettings.id })
+      const updateData = this.procedureMapSettings.attributes
+
+      const payload = {
+        data: {
+          id: this.procedureMapSettings.id,
+          type: 'ProcedureMapSetting',
+          attributes: {
+            boundingBox: this.convertExtentToObject(updateData.boundingBox),
+            copyright: updateData.copyright,
+            informationUrl: updateData.informationUrl,
+            mapExtent: this.convertExtentToObject(updateData.mapExtent),
+            scales: updateData.scales.map(scale => scale.value)
+          }
+        }
+      }
+
+      if (hasPermission('feature_layer_groups_alternate_visibility')) {
+        payload.data.attributes.layerGroupsAlternateVisibility = updateData.layerGroupsAlternateVisibility
+      }
+
+      if (hasPermission('feature_map_use_territory')) {
+        payload.data.attributes.territory = updateData.territory
+      }
+
+      dpApi.patch(url, {}, payload)
+        .then(checkResponse)
+        .then(() => {
+          dplan.notify.notify('confirm', Translator.trans('text.mapsection.updated'))
+          this.$refs.mapView.$refs.map.getMapOptions()
+
+          if (returnToOverview) {
+            window.location.href = Routing.generate('DemosPlan_element_administration', { procedure: this.procedureId })
+          }
+        })
+    },
+
+    setExtent ({ field, extent }) {
+      this.procedureMapSettings.attributes[field] = extent
+    }
+  },
+
+  async mounted () {
+    const settings = await this.fetchProcedureMapSettings(this.procedureId)
+    this.procedureMapSettings = JSON.parse(JSON.stringify(settings))
+  }
+}
+</script>
