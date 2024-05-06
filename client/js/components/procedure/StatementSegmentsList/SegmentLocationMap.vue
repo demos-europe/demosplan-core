@@ -19,7 +19,6 @@
         :procedure-id="procedureId"
         :map-options="{
           procedureMaxExtent: mapData.mapExtent ?? []
-
         }"
         :options="{
           autoSuggest: false,
