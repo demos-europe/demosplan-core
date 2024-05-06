@@ -93,8 +93,8 @@
           </p>
           <dp-editor
             ref="recommendation"
-            :value="options.recommendation.value"
-            @input="updateRecommendationText">
+            :model-value="options.recommendation.value"
+            @update:model-value="updateRecommendationText">
             <template v-slot:modal="modalProps">
               <dp-boiler-plate-modal
                 v-if="hasPermission('area_admin_boilerplates')"

@@ -15,8 +15,8 @@
     <dp-editor
       :id="`createComment:${segmentId}`"
       ref="createComment"
-      :value="text"
-      @input="update" />
+      :model-value="text"
+      @update:model-value="update" />
     <dp-button-row
       class="u-mt"
       primary

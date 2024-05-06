@@ -96,8 +96,8 @@
 
           <dp-editor
             ref="consideration"
-            :value="options.consideration.value"
-            @input="updateConsiderationText">
+            :model-value="options.consideration.value"
+            @update:model-value="updateConsiderationText">
             <template v-slot:modal="modalProps">
               <dp-boiler-plate-modal
                 v-if="hasPermission('area_admin_boilerplates')"

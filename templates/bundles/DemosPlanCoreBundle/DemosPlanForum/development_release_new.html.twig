@@ -21,7 +21,7 @@
                     {{ "description"|trans }}
                 </label>
                 <dp-editor
-                    value="{{ templateVars.request.r_text|default() }}"
+                    model-value="{{ templateVars.request.r_text|default() }}"
                     hidden-input="r_description"
                     class="u-mb">
                 </dp-editor>

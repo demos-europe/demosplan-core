@@ -21,7 +21,7 @@
         multiple
         :options="availableGroupOptions"
         track-by="id"
-        :value="selectedGroups"
+        :model-value="selectedGroups"
         @update:model-value="selectGroups">
         <template v-slot:option="{ props }">
           <span>{{ props.option.title }}</span>

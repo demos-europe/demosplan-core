@@ -29,7 +29,7 @@
                                         obscure: hasPermission('feature_obscure_text'),
                                         strikethrough: true
                                     }"
-                                    :value="JSON.parse('{{ statement.text|json_encode|e('js') }}')">
+                                    :model-value="JSON.parse('{{ statement.text|json_encode|e('js') }}')">
                                 </dp-editor>
                             {% else %}
                                 <span class="c-styled-html break-words">

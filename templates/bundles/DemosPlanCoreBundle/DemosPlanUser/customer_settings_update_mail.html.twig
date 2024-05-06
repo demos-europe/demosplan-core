@@ -45,7 +45,7 @@
                         linkButton: true
                     }"
                     required
-                    value="{{ 'customer.settings.update.mail.default.text'|trans({ termsOfUseUrl: urlBase ~ path('DemosPlan_misccontent_static_terms'), dataProtectionUrl: urlBase ~ path('DemosPlan_misccontent_static_dataprotection') }) }}">
+                    model-value="{{ 'customer.settings.update.mail.default.text'|trans({ termsOfUseUrl: urlBase ~ path('DemosPlan_misccontent_static_terms'), dataProtectionUrl: urlBase ~ path('DemosPlan_misccontent_static_dataprotection') }) }}">
                     <template v-slot:modal="modalProps">
                         <dp-boiler-plate-modal
                             v-if="hasPermission('area_admin_boilerplates')"

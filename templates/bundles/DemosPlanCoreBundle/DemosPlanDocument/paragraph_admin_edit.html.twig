@@ -73,6 +73,7 @@
             :basic-auth="dplan.settings.basicAuth"
             class="u-mb"
             hidden-input="r_text"
+            model-value="{{ document.text }}"
             procedure-id="{{ procedure }}"
             :required="true"
             :routes="{
@@ -84,8 +85,7 @@
                 linkButton: true,
                 table: true
             }"
-            :tus-endpoint="dplan.paths.tusEndpoint"
-            value="{{ document.text }}">
+            :tus-endpoint="dplan.paths.tusEndpoint">
         </dp-editor>
 
         <div class="text-right space-inline-s">

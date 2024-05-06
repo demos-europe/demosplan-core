@@ -121,7 +121,7 @@
                                     }"
                                     name="r_userOrganisation"
                                     :required="institutionSelected"
-                                    value="{{ templateVars.request.r_userOrganisation|default }}">
+                                    model-value="{{ templateVars.request.r_userOrganisation|default }}">
                                 </dp-input>
                             {% endif %}
 
@@ -243,7 +243,7 @@
                                     name="r_internId"
                                     data-cy="submitterForm:internId"
                                     pattern="{{ usedInternIds|length > 0 ? '^(?!(?:' ~ usedInternIds|join('|') ~ '+)$)[0-9a-zA-Z-_ ]{1,}$' : '^[0-9a-zA-Z-_ ]{1,}$' }}"
-                                    value="{{ app.request.get('r_internId') }}">
+                                    model-value="{{ app.request.get('r_internId') }}">
                                 </dp-input>
                                 <p
                                     id="lastUsedDescription"
@@ -271,7 +271,7 @@
                                     :options="phases"
                                     required
                                     track-by="key"
-                                    :value="values.phase"
+                                    :model-value="values.phase"
                                     @update:model-value="setPhaseValue">
                                     <template v-slot:option="{ props }">
                                         <span
@@ -519,11 +519,11 @@
                             required>
                         </dp-label>
                         <dp-editor
-                            :value="values.text"
                             class="o-form__control-tiptap u-mb-0_75"
                             hidden-input="r_text"
                             data-cy="submitterForm:statementText"
                             required
+                            :model-value="values.text"
                             :toolbar-items="{
                                 obscure: hasPermission('feature_obscure_text'),
                                 mark: true,

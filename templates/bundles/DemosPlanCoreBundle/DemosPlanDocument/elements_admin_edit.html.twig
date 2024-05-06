@@ -144,15 +144,15 @@
                     {{ "instruction"|trans }}
                 </label>
                 <dp-editor
-                    :value="JSON.parse('{{ element.text|default|json_encode|e('js') }}')"
                     class="u-mb-0_75"
+                    data-cy="noteText"
                     hidden-input="r_text"
                     editor-id="noteText"
+                    :model-value="JSON.parse('{{ element.text|default|json_encode|e('js') }}')"
                     :toolbar-items="{
                         linkButton: true,
                         headings: [3, 4, 5]
-                    }"
-                    data-cy="noteText">
+                    }">
                 </dp-editor>
 
                 {% if hasPermission('feature_auto_switch_element_state') %}

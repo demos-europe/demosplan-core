@@ -64,7 +64,7 @@
         :placeholder="Translator.trans('search.three.signs')"
         required
         track-by="id"
-        :value="currentUserOrga"
+        :model-value="currentUserOrga"
         @select="changeUserOrga">
         <template v-slot:option="{ props }">
           <span>{{ props.option.name }}</span>
@@ -115,7 +115,7 @@
         :options="allowedRolesForOrga"
         required
         track-by="id"
-        :value="localUser.relationships.roles.data"
+        :model-value="localUser.relationships.roles.data"
         @remove="removeRole"
         @select="addRole">
         <template v-slot:option="{ props }">
