@@ -152,7 +152,10 @@
                                     <p class="weight--bold">{{ 'statements'|trans }}</p>
                                     {{ 'statements.none'|trans }}
                                     {% if hasPermission('feature_statement_data_input_orga') %}
-                                        <a class="btn-icns u-m-0 float-right" href="{{ path(newStatementPath, { 'procedureId': procedure }) }}">
+                                        <a
+                                            class="btn-icns u-m-0 float-right"
+                                            data-cy="newStatement"
+                                            href="{{ path(newStatementPath, { 'procedureId': procedure }) }}">
                                             <i class="fa fa-plus" aria-hidden="true"></i>
                                             {{ 'statement.new'|trans }}
                                         </a>
