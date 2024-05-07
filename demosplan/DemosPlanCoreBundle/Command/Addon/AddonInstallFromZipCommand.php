@@ -103,6 +103,8 @@ class AddonInstallFromZipCommand extends CoreCommand
         $folder = $input->getOption('folder');
         $branch = $input->getOption('branch');
 
+        $this->createDirectoryIfNecessary(DemosPlanPath::getRootPath($folder));
+
         if (null === $path) {
             try {
                 if ($input->getOption('local')) {
