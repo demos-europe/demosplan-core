@@ -62,26 +62,36 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         /*
          * FE sends mapExtent and BE stores it as boundingBox due to legacy reasons
          */
-        $configBuilder->mapExtent
-            ->updatable([], function (ProcedureSettings $procedureSettings, ?array $mapExtent): array {
-                $procedureSettings->setBoundingBox($this->convertStartEndCoordinatesToFlatList($mapExtent));
 
-                return [];
-            })
-            ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getBoundingBox(), true));
-        $configBuilder->scales
-            ->updatable([], function (ProcedureSettings $procedureSettings, array $scales): array {
-                $procedureSettings->setScales($this->convertListOfIntToString($scales));
+        if ($this->currentUser->hasPermission('feature_map_max_extent')) {
+            $configBuilder->mapExtent
+                ->updatable([], function (ProcedureSettings $procedureSettings, ?array $mapExtent): array {
+                    $procedureSettings->setBoundingBox($this->convertStartEndCoordinatesToFlatList($mapExtent));
 
-                return [];
-            })
-            ->readable(false, fn (ProcedureSettings $procedureSettings): array => $this->convertToListOfInt($procedureSettings->getScales()));
-        $configBuilder->informationUrl
-            ->updatable()
-            ->readable();
-        $configBuilder->copyright
-            ->updatable()
-            ->readable();
+                    return [];
+                })
+                ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getBoundingBox(), true));
+            $configBuilder->scales
+                ->updatable([], function (ProcedureSettings $procedureSettings, array $scales): array {
+                    $procedureSettings->setScales($this->convertListOfIntToString($scales));
+
+                    return [];
+                })
+                ->readable(false, fn (ProcedureSettings $procedureSettings): array => $this->convertToListOfInt($procedureSettings->getScales()));
+        }
+
+        if ($this->currentUser->hasPermission('feature_map_feature_info')) {
+            $configBuilder->informationUrl
+                ->updatable()
+                ->readable();
+        }
+
+        if ($this->currentUser->hasPermission('feature_map_attribution')) {
+            $configBuilder->copyright
+                ->updatable()
+                ->readable();
+        }
+
         $configBuilder->availableScales
             ->readable(false, fn (ProcedureSettings $procedureSettings): array => $this->getScales($this->globalConfig->getMapPublicAvailableScales()));
 
