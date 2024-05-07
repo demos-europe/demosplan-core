@@ -141,7 +141,7 @@ adjustments.general.error.public.participation.maxlength: "\"Ansprechperson für
 adjustments.general.error.public.procedure.description.maxlength: "\"Öffentliche Verfahrensbeschreibung\" darf nicht länger als 10.000 Zeichen sein"
 adjustments: "Einstellungen"
 administer: "Verwalten"
-administration.alt: "Institution"
+administration.alt: "durchführende Organisation"
 administration: "Verwaltung"
 affirmative: "Zustimmend"
 advisory.board.activities: "Aktivitäten im virtuellen Anwenderbeirat"
