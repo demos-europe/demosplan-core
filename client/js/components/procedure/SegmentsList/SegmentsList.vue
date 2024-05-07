@@ -104,7 +104,7 @@
         <dp-data-table
           ref="dataTable"
           class="overflow-x-auto pb-3"
-          :class="{ 'px-2 overflow-y-scroll grow': isFullscreen }"
+          :class="{ 'px-2 overflow-y-scroll grow': isFullscreen, 'scrollbar-none': !isFullscreen }"
           has-flyout
           :header-fields="headerFields"
           is-resizable
@@ -114,7 +114,6 @@
           :multi-page-selection-items-total="allItemsCount"
           :multi-page-selection-items-toggled="toggledItems.length"
           :should-be-selected-items="currentlySelectedItems"
-          :style="`${!isFullscreen && 'scrollbar-width: none;'}`"
           track-by="id"
           @select-all="handleSelectAll"
           @items-toggled="handleToggleItem">
