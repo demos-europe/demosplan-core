@@ -10,36 +10,36 @@ export default {
     fetchProcedureMapSettings ({ commit }, procedureId) {
       try {
         const url = Routing.generate('api_resource_get', { resourceId: procedureId, resourceType: 'Procedure' })
+        const procedureMapSettingFields = ['availableScales',
+          'boundingBox',
+          'copyright',
+          'defaultBoundingBox',
+          'defaultMapExtent',
+          'featureInfoUrl',
+          'informationUrl',
+          'mapExtent',
+          'scales'
+        ]
+        if (hasPermission('area_procedure_adjustments_general_location')) {
+          procedureMapSettingFields.push('coordinate')
+        }
+
+        if (hasPermission('feature_map_use_territory')) {
+          procedureMapSettingFields.push('territory')
+        }
+
+        if (hasPermission('feature_layer_groups_alternate_visibility')) {
+          procedureMapSettingFields.push('showOnlyOverlayCategory')
+        }
+
         const params = {
           fields: {
             Procedure: [
               'mapSetting'
             ].join(),
-            ProcedureMapSetting: [
-              'availableScales',
-              'boundingBox',
-              'copyright',
-              'defaultBoundingBox',
-              'defaultMapExtent',
-              'featureInfoUrl',
-              'informationUrl',
-              'mapExtent',
-              'scales'
-            ].join()
+            ProcedureMapSetting: procedureMapSettingFields.join()
           },
           include: 'mapSetting'
-        }
-
-        if (hasPermission('area_procedure_adjustments_general_location')) {
-          params.fields.ProcedureMapSetting.push('coordinate')
-        }
-
-        if (hasPermission('feature_map_use_territory')) {
-          params.fields.ProcedureMapSetting.push('territory')
-        }
-
-        if (hasPermission('feature_layer_groups_alternate_visibility')) {
-          params.fields.ProcedureMapSetting.push('showOnlyOverlayCategory')
         }
 
         return dpApi.get(url, params)
