@@ -80,7 +80,7 @@
           data-cy="newProcedureTitle"
           id="r_name"
           :label="{ text: Translator.trans('name') }"
-          :maxlength="200"
+          maxlength="200"
           name="r_name"
           :required="requireField"
           type="text" />
