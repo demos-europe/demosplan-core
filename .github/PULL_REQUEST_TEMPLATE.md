@@ -1,6 +1,6 @@
 ### Ticket
 https://demoseurope.youtrack.cloud/issue/DPLAN-XXXXX
-oder
+or
 https://www.dev.diplanung.de/DefaultCollection/EfA%20DiPlanung/_workitems/edit/XXXXX
 
 
