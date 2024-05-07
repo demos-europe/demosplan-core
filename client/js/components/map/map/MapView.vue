@@ -185,9 +185,9 @@ export default {
     },
 
     procedureCoordinates: {
+      type: Array,
       required: false,
-      type: String,
-      default: ''
+      default: () => []
     },
 
     procedureId: {
@@ -205,7 +205,7 @@ export default {
 
   data () {
     return {
-      coordinate: this.procedureCoordinates.split(','),
+      coordinate: this.procedureCoordinates,
       drawingStyles: {
         mapExtent: JSON.stringify({
           fillColor: 'rgba(0,0,0,0.1)',
@@ -223,7 +223,7 @@ export default {
 
   computed: {
     procedureCoordinatesFeature () {
-      if (this.procedureCoordinates !== '') {
+      if (this.procedureCoordinates.length > 0) {
         return {
           type: 'FeatureCollection',
           features: [{
@@ -240,15 +240,7 @@ export default {
     },
 
     center () {
-      if (this.procedureCoordinates) {
-        const array = this.procedureCoordinates.split(',')
-        return [
-          Number(array[0]),
-          Number(array[1])
-        ]
-      } else {
-        return false
-      }
+      return this.procedureCoordinates ? this.procedureCoordinates : false
     }
   },
 
