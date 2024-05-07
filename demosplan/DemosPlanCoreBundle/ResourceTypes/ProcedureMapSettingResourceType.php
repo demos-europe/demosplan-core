@@ -71,14 +71,15 @@ class ProcedureMapSettingResourceType extends DplanResourceType
                     return [];
                 })
                 ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getBoundingBox(), true));
-            $configBuilder->scales
-                ->updatable([], function (ProcedureSettings $procedureSettings, array $scales): array {
-                    $procedureSettings->setScales($this->convertListOfIntToString($scales));
-
-                    return [];
-                })
-                ->readable(false, fn (ProcedureSettings $procedureSettings): array => $this->convertToListOfInt($procedureSettings->getScales()));
         }
+
+        $configBuilder->scales
+            ->updatable([], function (ProcedureSettings $procedureSettings, array $scales): array {
+                $procedureSettings->setScales($this->convertListOfIntToString($scales));
+
+                return [];
+            })
+            ->readable(false, fn (ProcedureSettings $procedureSettings): array => $this->convertToListOfInt($procedureSettings->getScales()));
 
         if ($this->currentUser->hasPermission('feature_map_feature_info')) {
             $configBuilder->informationUrl
