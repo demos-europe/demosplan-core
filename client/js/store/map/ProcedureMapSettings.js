@@ -12,16 +12,25 @@ export default {
         const url = Routing.generate('api_resource_get', { resourceId: procedureId, resourceType: 'Procedure' })
         const procedureMapSettingFields = ['availableScales',
           'boundingBox',
-          'copyright',
           'defaultBoundingBox',
           'defaultMapExtent',
-          'featureInfoUrl',
-          'informationUrl',
-          'mapExtent',
           'scales'
         ]
         if (hasPermission('area_procedure_adjustments_general_location')) {
           procedureMapSettingFields.push('coordinate')
+        }
+
+        if (hasPermission('feature_map_max_extent')) {
+          procedureMapSettingFields.push('mapExtent')
+        }
+
+        if (hasPermission('feature_map_feature_info')) {
+          procedureMapSettingFields.push('informationUrl')
+          procedureMapSettingFields.push('featureInfoUrl')
+        }
+
+        if (hasPermission('feature_map_attribution')) {
+          procedureMapSettingFields.push('copyright')
         }
 
         if (hasPermission('feature_map_use_territory')) {

@@ -53,6 +53,7 @@
             translation-key="map.default.bounds"
             @extentSet="data => setExtent({ field: 'boundingBox', extent: data })" />
           <dp-ol-map-set-extent
+            v-if="hasPermission('feature_map_max_extent')"
             data-cy="boundsApply"
             translation-key="bounds.apply"
             @extentSet="data => setExtent({ field: 'mapExtent', extent: data })" />
