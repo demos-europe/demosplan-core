@@ -1098,7 +1098,7 @@ feature_layer_groups_alternate_visibility:
     loginRequired: true
 feature_map_attribution:
     description: |-
-        Access copyright of the ProcedureMapSetting see @link \demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType.
+        Restrict the access to edit the public map copyright/attribution (in the admin area)
     label: 'Access copyright of the ProcedureMapSetting Resource Type'
     loginRequired: true
     parent: area_admin_map
