@@ -51,12 +51,12 @@
           <dp-ol-map-set-extent
             data-cy="mapDefaultBounds"
             translation-key="map.default.bounds"
-            @extentSet="data => setExtent({ field: 'boundingBox', extent: data })" />
+            @extentSet="data => emitFieldUpdate({ field: 'boundingBox', extent: data })" />
           <dp-ol-map-set-extent
             v-if="hasPermission('feature_map_max_extent')"
             data-cy="boundsApply"
             translation-key="bounds.apply"
-            @extentSet="data => setExtent({ field: 'mapExtent', extent: data })" />
+            @extentSet="data => emitFieldUpdate({ field: 'mapExtent', extent: data })" />
           <dp-contextual-help
             class="float-right"
             :text="Translator.trans('text.mapsection')" />
@@ -83,7 +83,7 @@
               strokeLineDash: [4,4],
               strokeLineWidth: 3
             }"
-            :features="initTerritory"
+            :features="procedureInitTerritory"
             icon-class="fa fa-pencil-square-o"
             :label="Translator.trans('map.territory.define')"
             name="Territory"
@@ -197,10 +197,10 @@ export default {
       default: ''
     },
 
-    procedureTerritory: {
+    procedureInitTerritory: {
+      type: Object,
       required: false,
-      type: String,
-      default: '{}'
+      default: () => {}
     }
   },
 
@@ -216,9 +216,8 @@ export default {
           strokeLineWidth: 3
         })
       },
-      initTerritory: JSON.parse(this.procedureTerritory),
       isActive: '',
-      territory: JSON.parse(this.procedureTerritory)
+      territory: {}
     }
   },
 
@@ -254,17 +253,19 @@ export default {
   methods: {
     updateTerritory (data) {
       this.territory = JSON.parse(data)
+      this.emitFieldUpdate({ field: 'territory', data: this.territory })
     },
 
     updateCoordinates (data) {
       const features = JSON.parse(data).features
       if (JSON.parse(data).features.length > 0) {
         this.coordinate = features[0].geometry.coordinates
+        this.emitFieldUpdate({ field: 'coordinate', data: this.coordinate })
       }
     },
 
-    setExtent (data) {
-      this.$emit('update', data)
+    emitFieldUpdate (data) {
+      this.$emit('field:update', data)
     }
   }
 }

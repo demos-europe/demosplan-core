@@ -37,9 +37,9 @@
       :max-extent="procedureMapSettings.attributes.defaultMapExtent"
       :procedure-id="procedureId"
       :procedure-coordinates="procedureMapSettings.attributes.coordinate"
-      :procedure-territory="procedureMapSettings.attributes.territory"
+      :procedure-init-territory="procedureMapSettings.attributes.territory"
       :scales="procedureMapSettings.attributes.availableScales"
-      @update="setExtent" />
+      @field:update="setField" />
 
     <div class="layout__item">
       <map-admin-scales
@@ -80,18 +80,6 @@
         hint: Translator.trans('explanation.gislayer.layergroup.toggle.alternating.visibility.extended'),
         text: Translator.trans('explanation.gislayer.layergroup.toggle.alternating.visibility')
       }" />
-
-    <input
-      aria-hidden="true"
-      name="r_territory"
-      type="hidden"
-      :value="JSON.stringify(procedureMapSettings.attributes.territory)">
-
-    <input
-      aria-hidden="true"
-      name="r_coordinate"
-      type="hidden"
-      :value="procedureMapSettings.attributes.coordinate">
 
     <div class="layout__item u-1-of-1 text-right u-mt-0_5 space-inline-s">
       <input
@@ -175,7 +163,7 @@ export default {
           mapExtent: [],
           boundingBox: [],
           scales: [],
-          territory: '{}'
+          territory: {}
         }
       }
     }
@@ -256,6 +244,10 @@ export default {
         payload.data.attributes.boundingBox = convertExtentToObject(updateData.boundingBox)
       }
 
+      if (hasPermission('area_procedure_adjustments_general_location')) {
+        payload.data.attributes.coordinate = convertExtentToObject(updateData.coordinate)
+      }
+
       if (hasPermission('feature_layer_groups_alternate_visibility')) {
         payload.data.attributes.layerGroupsAlternateVisibility = updateData.layerGroupsAlternateVisibility
       }
@@ -284,8 +276,8 @@ export default {
         })
     },
 
-    setExtent ({ field, extent }) {
-      this.procedureMapSettings.attributes[field] = extent
+    setField ({ field, data }) {
+      this.procedureMapSettings.attributes[field] = data
     }
   },
 
