@@ -1096,6 +1096,12 @@ feature_layer_groups_alternate_visibility:
         Disable showing layers from different categories at once.
     label: 'Hide other layer categories if overlay from another category is visible'
     loginRequired: true
+feature_map_attribution:
+    description: |-
+        Restrict the access to edit the public map copyright/attribution (in the admin area)
+    label: 'Restrict the access to edit the public map copyright/attribution (in the admin area)'
+    loginRequired: true
+    parent: area_admin_map
 feature_map_category:
     expose: true
     label: 'Kategorien in Kartenlayer'
@@ -1106,6 +1112,12 @@ feature_map_deactivate:
     label: 'Planungsdokumentenkategorie Map deaktivieren'
     loginRequired: false
     parent: area_admin_map
+feature_map_feature_info:
+        description: |-
+            Restrict the access to edit the public map information url (in the admin area)
+        label: 'Restrict the access to edit the public map information url (in the admin area)'
+        loginRequired: true
+        parent: area_admin_map
 feature_map_hint:
     expose: true
     label: Kartenhinweis
@@ -1125,6 +1137,12 @@ feature_map_layer_legend_file:
     label: 'Enables uploading/displaying of legend files for specific layers.'
     loginRequired: false
     parent: area_map_participation_area
+feature_map_max_extent:
+        description: |-
+            Restrict the access to get the max extension of the public map (in the admin area)
+        label: 'Restrict the access to get the max extension of the public map (in the admin area)'
+        loginRequired: true
+        parent: area_admin_map
 feature_map_new_statement:
     expose: true
     label: 'Planzeichnung Neue Stellungnahme'
@@ -2367,10 +2385,6 @@ field_data_protection_text_customized_edit_orga:
     label: 'Edit customized data protection text for orga'
     expose: true
     parent: feature_data_protection_text_customized_view
-field_master_procedure_default_bounding_box:
-    description: 'Access default bounding box of a mastertemplate in the initial map view'
-    label: 'Access default bounding box of a mastertemplate'
-    loginRequired: true
 field_fragment_status:
     description: 'Set and show the status of fragment (new, assigned, editing etc).'
     expose: true
