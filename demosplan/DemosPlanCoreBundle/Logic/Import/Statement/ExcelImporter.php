@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\StatementCreatedViaExcelEventInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\DateStringConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\MatchingFieldValueInSegments;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
@@ -26,6 +27,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\EntityValidator\SegmentValidator;
 use demosplan\DemosPlanCoreBundle\EntityValidator\TagValidator;
+use demosplan\DemosPlanCoreBundle\Event\Statement\StatementCreatedViaExcelEvent;
 use demosplan\DemosPlanCoreBundle\Exception\CopyException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
@@ -48,6 +50,7 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Validator\Constraint;
@@ -99,6 +102,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         private readonly DqlConditionFactory $conditionFactory,
         private readonly EntityManagerInterface $entityManager,
         ElementsService $elementsService,
+        private readonly EventDispatcherInterface $eventDispatcher,
         OrgaService $orgaService,
         private readonly PlaceService $placeService,
         private readonly SegmentValidator $segmentValidator,
@@ -261,6 +265,12 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
                 ++$counter;
             }
+
+            // this event allows to send segmentation proposals requests
+            $this->eventDispatcher->dispatch(
+                new StatementCreatedViaExcelEvent($generatedStatement),
+                StatementCreatedViaExcelEventInterface::class
+            );
 
             unset($segments[$statementId]);
         }
