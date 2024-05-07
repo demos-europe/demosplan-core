@@ -7,7 +7,7 @@ export default {
   name: 'ProcedureMapSettings',
 
   actions: {
-    fetchProcedureMapSettings({ commit }, procedureId) {
+    fetchProcedureMapSettings ({ commit }, procedureId) {
       try {
         const url = Routing.generate('api_resource_get', { resourceId: procedureId, resourceType: 'Procedure' })
         const procedureMapSettingFields = ['availableScales',
