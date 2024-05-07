@@ -118,6 +118,7 @@
 <script>
 import { checkResponse, dpApi, DpCheckbox, DpInput } from '@demos-europe/demosplan-ui'
 import { Attribution } from 'ol/control'
+import convertExtentToObject from '../map/utils/convertExtentToObject'
 import { fromExtent } from 'ol/geom/Polygon'
 import { mapActions } from 'vuex'
 import MapAdminScales from './MapAdminScales'
@@ -231,26 +232,6 @@ export default {
   methods: {
     ...mapActions('ProcedureMapSettings', ['fetchProcedureMapSettings']),
 
-    convertExtentToObject (extentArray) {
-      if (extentArray.length < 4) {
-        return {
-          latitude: extentArray[0],
-          longitude: extentArray[1]
-        }
-      }
-
-      return {
-        start: {
-          latitude: extentArray[0],
-          longitude: extentArray[1]
-        },
-        end: {
-          latitude: extentArray[2],
-          longitude: extentArray[3]
-        }
-      }
-    },
-
     save (returnToOverview = false) {
       const url = Routing.generate('api_resource_update', { resourceType: 'ProcedureMapSetting', resourceId: this.procedureMapSettings.id })
       const updateData = this.procedureMapSettings.attributes
@@ -260,13 +241,19 @@ export default {
           id: this.procedureMapSettings.id,
           type: 'ProcedureMapSetting',
           attributes: {
-            boundingBox: this.convertExtentToObject(updateData.boundingBox),
             copyright: updateData.copyright,
             informationUrl: updateData.informationUrl,
-            mapExtent: this.convertExtentToObject(updateData.mapExtent),
             scales: updateData.scales.map(scale => scale.value)
           }
         }
+      }
+
+      if (updateData.mapExtent.length > 0) {
+        payload.data.attributes.mapExtent = convertExtentToObject(updateData.mapExtent)
+      }
+
+      if (updateData.boundingBox.length > 0) {
+        payload.data.attributes.boundingBox = convertExtentToObject(updateData.boundingBox)
       }
 
       if (hasPermission('feature_layer_groups_alternate_visibility')) {
