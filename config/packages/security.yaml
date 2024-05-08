@@ -87,6 +87,8 @@ security:
             entry_point: '%demosplan_user_authenticator_service_entry_point%'
             logout:
                 path: DemosPlan_user_logout
+            # allow 5 login attempts per minute by default
+            login_throttling: null
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
 
