@@ -270,8 +270,6 @@ boilerplates.categories.explanation: "Um einen Textbaustein hier auswählen zu k
 boilerplates.category: "Textbausteine des Bereichs \"{category}\""
 boilerplates.category.hint: "Über den Bereich stellen Sie ein, wo in der Anwendung Ihnen der Textbaustein zur Verfügung steht."
 boilerplates.in.group: "Textbausteine in Gruppe"
-boundingbox: "Kartenbegrenzung"
-boundingbox.not.set: 'Sie haben noch keine Kartenbegrenzung festgesetzt.'
 bounds.apply: "Kartenbegrenzung übernehmen"
 
 branding.label: "Branding-Anpassungen"
@@ -436,8 +434,6 @@ city.name: "Wohnort"
 city: "Ort"
 clipboard.copied: "Der Text wurde in die Zwischenablage kopiert."
 clipboard.copy_to: "In die Zwischenablage kopieren"
-clipping: "Startkartenausschnitt"
-clipping.not.set: 'Sie haben noch keinen Startkartenausschnitt festgesetzt.'
 clipping.set: 'Startkartenausschnitt festsetzen'
 clipping.is.set: 'Startkartenausschnitt ist festgesetzt'
 clock: "Uhr"
@@ -1902,6 +1898,8 @@ information.short: "Kurzinfo"
 information.short.empty: "Zu diesem Verfahren wurde keine Kurzinfo hinterlegt."
 informations: "Informationen"
 information.pin: "Informationen anheften"
+initial_extent: "Startkartenausschnitt"
+initial_extent.not.set: 'Sie haben noch keinen Startkartenausschnitt festgesetzt.'
 input.text.maxlength: "Der eingegebene Text kann bis zu {maxlength} Zeichen lang sein. Es sind noch <input class=\"o-char-count\" disabled value=\"{maxlength}\" id=\"{id}\"> Zeichen verfügbar."
 insert: "Einfügen"
 institution: "Institution"
@@ -2113,6 +2111,7 @@ map.scale: "Maßstab"
 map.scales: "Verfügbare Maßstäbe"
 map.set.order.tree: "Reihenfolge für die Navigation"
 map.set.order.map: "Reihenfolge für die Karte"
+map_settings.menu: "Karteneinstellungen"
 map.territory: "Geltungsbereich"
 map.territory.define: "Geltungsbereich zeichnen"
 map.territory.delete: "Geltungsbereich löschen"
@@ -2165,6 +2164,8 @@ master.select.hint: "Wählen Sie eine Blaupause aus, um ihre Einstellungen in da
 master.toeb.list: "Master TöB-Liste"
 master.toeb.list.export.file: "masterToebListe"
 matrixset.no.supported.projections: "Für das ausgewählte Matrix-Set gibt es keine unterstützten Projektionen."
+max_extent: "Kartenbegrenzung"
+max_extent.not.set: 'Sie haben noch keine Kartenbegrenzung festgesetzt.'
 memo: "Notiz"
 memo.unset: "Keine Notiz vorhanden"
 menu.currentPage: "Aktuelle Seite"
@@ -3657,6 +3658,7 @@ text.invitable_institution.administer: "Hier ordnen Sie Behörden und Institutio
 text.invite.unregistered.recipient: ""
 text.mapsection: "Sie können die Kartenbegrenzung aus der Karte übernehmen. Navigieren Sie dazu zu dem Ausschnitt, den Sie auswählen wollen und klicken Sie \"Kartenbegrenzung übernehmen\", um die generelle Kartenbegrenzung der Karte zu übernehmen und \"Startkartenausschnitt übernehmen\", um den Startkartenausschnitt zu übernehmen. Speichern Sie das Formular nach der Auswahl."
 text.mapsection.hint: "Bitte beachten Sie, dass sich die Verortung des Verfahrens (Grundeinstellungen) innerhalb des gewählten Startkartenausschnitts und der Startkartenausschnitt innerhalb der Kartenbegrenzung befinden muss."
+text.mapsection.updated: "Die Kartendaten wurde erfolgreich aktualisiert."
 text.master.new: "Im folgenden Formular können Sie eine neue Blaupause anlegen. Aus Ihren Blaupausen können Sie dann Verfahren ableiten. Möchten Sie eine neue Blaupause aus einer bestehenden Blaupause kopieren, wählen Sie die entsprechende Blaupause aus. Soll die neue Blaupause ohne Einstellungen erzeugt werden, wählen Sie \"leere Blaupause\" aus."
 text.masters.list: "In der Listenansicht sehen Sie alle Blaupausen Ihrer Organisation."
 text.mydata.citizen: "Hier können Sie Ihre persönlichen Daten einsehen, mit denen Sie registriert sind. Möchten Sie Ihre Daten ändern, tun Sie dies bitte unter \"Meine Daten\"."
