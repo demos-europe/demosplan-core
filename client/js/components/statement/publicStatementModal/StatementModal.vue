@@ -1283,6 +1283,16 @@ export default {
 
       return makeFormPost(this.formData, route)
         .then(response => {
+          if (response.status === 429) {
+            dplan.notify.notify('error', Translator.trans('error.statement.not.saved.throttle'))
+
+            return false;
+          }
+          if (response.status !== 200) {
+            dplan.notify.notify('error', Translator.trans('error.statement.not.saved'))
+
+            return false;
+          }
           /*
            * Handling for successful responses
            * if its not an HTML-Response like after creating a new one
