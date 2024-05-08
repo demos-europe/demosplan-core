@@ -240,7 +240,7 @@ export default {
     },
 
     center () {
-      return this.procedureCoordinates ? this.procedureCoordinates : false
+      return this.procedureCoordinates?.length > 0 ? this.procedureCoordinates : false
     }
   },
 
