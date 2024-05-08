@@ -74,8 +74,25 @@
             and removed from here.
         #}
         const cookieBanner = document.getElementById('_cookie-consent')
+        const cookieAcceptAllButton = document.querySelector('.dp-consent-button--primary')
+        const cookieChangeSettingButton = document.querySelector('.dp-consent-button--secondary')
+
         if (cookieBanner) {
             cookieBanner.setAttribute('tabindex', '0')
+            cookieBanner.setAttribute('data-cy', 'cookie-consent')
+            cookieAcceptAllButton.setAttribute('data-cy', 'cookieAcceptAll')
+            cookieChangeSettingButton.setAttribute('data-cy', 'cookieChangeSetting')
+
+            cookieChangeSettingButton.addEventListener('click', function() {
+                setTimeout(() => {
+                    const cookieInputOptional = document.getElementById('dp-consent-optional')
+                    const cookieSaveSettings = document.querySelector('[data-dp-consent="save_settings"]')
+
+                    cookieInputOptional.setAttribute('data-cy', 'cookieInputOptional')
+                    cookieSaveSettings.setAttribute('data-cy', 'cookieSaveSettings')
+                }, 0)
+            })
+
             setTimeout(() => {
                 cookieBanner.focus()
             }, 1500)
