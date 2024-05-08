@@ -2182,6 +2182,13 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return $this->statementFormDefinition;
     }
 
+    public function clearProcedureTypeDefinitions(): void
+    {
+        $this->statementFormDefinition = null;
+        $this->procedureUiDefinition = null;
+        $this->procedureBehaviorDefinition = null;
+    }
+
     public function getProcedureType(): ?ProcedureType
     {
         return $this->procedureType;

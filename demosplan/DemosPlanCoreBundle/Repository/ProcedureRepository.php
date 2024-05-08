@@ -270,6 +270,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             // this kind of denylisting should be avoided by do not using "clone"
             // instead copy each attribute which has to be copied (allowlisting)
             $procedure->clearExportFieldsConfiguration();
+            $procedure->clearProcedureTypeDefinitions();
             // this will be filled later
 
             $this->validateProcedureLike($procedure);
