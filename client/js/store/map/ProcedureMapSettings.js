@@ -70,7 +70,7 @@ export default {
                 mapExtent: convertExtentToFlatArray(data.mapExtent) ?? defaultMapExtent, // Maximum extent of the map
                 boundingBox: convertExtentToFlatArray(data.boundingBox) ?? defaultBoundingBox, // Extent on load of the map
                 scales: data.scales?.map(scale => ({ label: `1:${scale.toLocaleString()}`, value: scale })) ?? [],
-                territory: data.territory ?? '{}'
+                territory: data.territory ?? {}
               },
               id: response.data.included[0].id,
               type: 'ProcecdureMapSetting'

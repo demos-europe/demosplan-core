@@ -51,12 +51,12 @@
           <dp-ol-map-set-extent
             data-cy="mapDefaultBounds"
             translation-key="map.default.bounds"
-            @extentSet="data => emitFieldUpdate({ field: 'boundingBox', extent: data })" />
+            @extentSet="data => emitFieldUpdate({ field: 'boundingBox', data: data })" />
           <dp-ol-map-set-extent
             v-if="hasPermission('feature_map_max_extent')"
             data-cy="boundsApply"
             translation-key="bounds.apply"
-            @extentSet="data => emitFieldUpdate({ field: 'mapExtent', extent: data })" />
+            @extentSet="data => emitFieldUpdate({ field: 'mapExtent', data: data })" />
           <dp-contextual-help
             class="float-right"
             :text="Translator.trans('text.mapsection')" />
