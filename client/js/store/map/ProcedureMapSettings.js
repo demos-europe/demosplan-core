@@ -12,16 +12,25 @@ export default {
         const url = Routing.generate('api_resource_get', { resourceId: procedureId, resourceType: 'Procedure' })
         const procedureMapSettingFields = ['availableScales',
           'boundingBox',
-          'copyright',
           'defaultBoundingBox',
           'defaultMapExtent',
-          'featureInfoUrl',
-          'informationUrl',
-          'mapExtent',
           'scales'
         ]
         if (hasPermission('area_procedure_adjustments_general_location')) {
           procedureMapSettingFields.push('coordinate')
+        }
+
+        if (hasPermission('feature_map_max_extent')) {
+          procedureMapSettingFields.push('mapExtent')
+        }
+
+        if (hasPermission('feature_map_feature_info')) {
+          procedureMapSettingFields.push('informationUrl')
+          procedureMapSettingFields.push('featureInfoUrl')
+        }
+
+        if (hasPermission('feature_map_attribution')) {
+          procedureMapSettingFields.push('copyright')
         }
 
         if (hasPermission('feature_map_use_territory')) {
@@ -51,7 +60,7 @@ export default {
             const procedureMapSettings = {
               attributes: {
                 availableScales: data.availableScales.map(scale => ({ label: `1:${scale.toLocaleString('de-DE')}`, value: scale })) ?? [],
-                coordinate: data.coordinate ?? '',
+                coordinate: convertExtentToFlatArray(data.coordinate) ?? '',
                 copyright: data.copyright ?? '',
                 defaultBoundingBox: defaultBoundingBox,
                 defaultMapExtent: defaultMapExtent,
@@ -60,8 +69,8 @@ export default {
                 showOnlyOverlayCategory: data.showOnlyOverlayCategory ?? false,
                 mapExtent: convertExtentToFlatArray(data.mapExtent) ?? defaultMapExtent, // Maximum extent of the map
                 boundingBox: convertExtentToFlatArray(data.boundingBox) ?? defaultBoundingBox, // Extent on load of the map
-                scales: data.scales.map(scale => ({ label: `1:${scale.toLocaleString()}`, value: scale })) ?? [],
-                territory: data.territory ?? '{}'
+                scales: data.scales?.map(scale => ({ label: `1:${scale.toLocaleString()}`, value: scale })) ?? [],
+                territory: data.territory ?? {}
               },
               id: response.data.included[0].id,
               type: 'ProcecdureMapSetting'

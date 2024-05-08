@@ -11,6 +11,7 @@
   <div class="layout u-pb">
     <div class="layout__item w-1/1">
       <dp-input
+        v-if="hasPermission('feature_map_max_extent')"
         id="mapExtent"
         v-model="mapExtent"
         data-cy="mapExtent"
@@ -36,9 +37,9 @@
       :max-extent="procedureMapSettings.attributes.defaultMapExtent"
       :procedure-id="procedureId"
       :procedure-coordinates="procedureMapSettings.attributes.coordinate"
-      :procedure-territory="procedureMapSettings.attributes.territory"
+      :procedure-init-territory="procedureMapSettings.attributes.territory"
       :scales="procedureMapSettings.attributes.availableScales"
-      @update="setExtent" />
+      @field:update="setField" />
 
     <div class="layout__item">
       <map-admin-scales
@@ -49,7 +50,7 @@
         @suitableScalesChange="value => areScalesSuitable = value" />
 
       <dp-input
-        v-if="!procedureMapSettings.attributes.featureInfoUrl.global"
+        v-if="!procedureMapSettings.attributes.featureInfoUrl.global && hasPermission('feature_map_feature_info')"
         v-model="procedureMapSettings.attributes.informationUrl"
         id="informationURL"
         class="u-mb"
@@ -59,6 +60,7 @@
         }" />
 
       <dp-input
+        v-if="hasPermission('feature_map_attribution')"
         id="copyright"
         v-model="procedureMapSettings.attributes.copyright"
         class="u-mb"
@@ -78,18 +80,6 @@
         hint: Translator.trans('explanation.gislayer.layergroup.toggle.alternating.visibility.extended'),
         text: Translator.trans('explanation.gislayer.layergroup.toggle.alternating.visibility')
       }" />
-
-    <input
-      aria-hidden="true"
-      name="r_territory"
-      type="hidden"
-      :value="JSON.stringify(procedureMapSettings.attributes.territory)">
-
-    <input
-      aria-hidden="true"
-      name="r_coordinate"
-      type="hidden"
-      :value="procedureMapSettings.attributes.coordinate">
 
     <div class="layout__item u-1-of-1 text-right u-mt-0_5 space-inline-s">
       <input
@@ -163,7 +153,7 @@ export default {
         id: '',
         type: 'ProcecdureMapSetting',
         attributes: {
-          coordinate: '',
+          coordinate: [],
           copyright: '',
           defaultMapExtent: [],
           defaultBoundingBox: [],
@@ -173,7 +163,7 @@ export default {
           mapExtent: [],
           boundingBox: [],
           scales: [],
-          territory: '{}'
+          territory: {}
         }
       }
     }
@@ -185,7 +175,7 @@ export default {
     },
 
     boundingBox () {
-      if (this.procedureMapSettings.attributes.boundingBox === this.procedureMapSettings.attributes.defaultBoundingBox) {
+      if (this.procedureMapSettings.attributes.boundingBox?.length < 1 && this.procedureMapSettings.attributes.defaultBoundingBox?.length < 1) {
         return Translator.trans('initial_extent.not.set')
       }
 
@@ -193,7 +183,7 @@ export default {
     },
 
     boundingBoxAsPolygon () {
-      if (!this.boundingBox) {
+      if (this.procedureMapSettings.attributes.boundingBox?.length < 1) {
         return null
       }
 
@@ -201,13 +191,13 @@ export default {
         type: 'Feature',
         geometry: {
           type: 'Polygon',
-          coordinates: fromExtent(JSON.parse(`[${this.boundingBox}]`)).getCoordinates()
+          coordinates: fromExtent(this.procedureMapSettings.attributes.boundingBox).getCoordinates()
         }
       }
     },
 
     mapExtent () {
-      if (this.procedureMapSettings.attributes.mapExtent === this.procedureMapSettings.attributes.procedureDefaultMapExtent) {
+      if (this.procedureMapSettings.attributes.mapExtent?.length < 1 && this.procedureMapSettings.attributes.procedureDefaultMapExtent?.length < 1) {
         return Translator.trans('max_extent.not.set')
       }
 
@@ -215,7 +205,7 @@ export default {
     },
 
     mapExtentAsPolygon () {
-      if (!this.mapExtent) {
+      if (this.procedureMapSettings.attributes.mapExtent?.length < 1) {
         return null
       }
 
@@ -223,7 +213,7 @@ export default {
         type: 'Feature',
         geometry: {
           type: 'Polygon',
-          coordinates: fromExtent(JSON.parse(`[${this.mapExtent}]`)).getCoordinates()
+          coordinates: fromExtent(this.procedureMapSettings.attributes.mapExtent).getCoordinates()
         }
       }
     }
@@ -241,8 +231,6 @@ export default {
           id: this.procedureMapSettings.id,
           type: 'ProcedureMapSetting',
           attributes: {
-            copyright: updateData.copyright,
-            informationUrl: updateData.informationUrl,
             scales: updateData.scales.map(scale => scale.value)
           }
         }
@@ -256,12 +244,24 @@ export default {
         payload.data.attributes.boundingBox = convertExtentToObject(updateData.boundingBox)
       }
 
+      if (hasPermission('area_procedure_adjustments_general_location')) {
+        payload.data.attributes.coordinate = convertExtentToObject(updateData.coordinate)
+      }
+
       if (hasPermission('feature_layer_groups_alternate_visibility')) {
         payload.data.attributes.layerGroupsAlternateVisibility = updateData.layerGroupsAlternateVisibility
       }
 
       if (hasPermission('feature_map_use_territory')) {
         payload.data.attributes.territory = updateData.territory
+      }
+
+      if (hasPermission('feature_map_feature_info')) {
+        payload.data.attributes.informationUrl = updateData.informationUrl
+      }
+
+      if (hasPermission('feature_map_attribution')) {
+        payload.data.attributes.copyright = updateData.copyright
       }
 
       dpApi.patch(url, {}, payload)
@@ -276,8 +276,8 @@ export default {
         })
     },
 
-    setExtent ({ field, extent }) {
-      this.procedureMapSettings.attributes[field] = extent
+    setField ({ field, data }) {
+      this.procedureMapSettings.attributes[field] = data
     }
   },
 

@@ -51,11 +51,12 @@
           <dp-ol-map-set-extent
             data-cy="mapDefaultBounds"
             translation-key="map.default.bounds"
-            @extentSet="data => setExtent({ field: 'boundingBox', extent: data })" />
+            @extentSet="data => emitFieldUpdate({ field: 'boundingBox', data: data })" />
           <dp-ol-map-set-extent
+            v-if="hasPermission('feature_map_max_extent')"
             data-cy="boundsApply"
             translation-key="bounds.apply"
-            @extentSet="data => setExtent({ field: 'mapExtent', extent: data })" />
+            @extentSet="data => emitFieldUpdate({ field: 'mapExtent', data: data })" />
           <dp-contextual-help
             class="float-right"
             :text="Translator.trans('text.mapsection')" />
@@ -82,7 +83,7 @@
               strokeLineDash: [4,4],
               strokeLineWidth: 3
             }"
-            :features="initTerritory"
+            :features="procedureInitTerritory"
             icon-class="fa fa-pencil-square-o"
             :label="Translator.trans('map.territory.define')"
             name="Territory"
@@ -185,9 +186,9 @@ export default {
     },
 
     procedureCoordinates: {
+      type: Array,
       required: false,
-      type: String,
-      default: ''
+      default: () => []
     },
 
     procedureId: {
@@ -196,16 +197,16 @@ export default {
       default: ''
     },
 
-    procedureTerritory: {
+    procedureInitTerritory: {
+      type: Object,
       required: false,
-      type: String,
-      default: '{}'
+      default: () => {}
     }
   },
 
   data () {
     return {
-      coordinate: this.procedureCoordinates.split(','),
+      coordinate: this.procedureCoordinates,
       drawingStyles: {
         mapExtent: JSON.stringify({
           fillColor: 'rgba(0,0,0,0.1)',
@@ -215,15 +216,14 @@ export default {
           strokeLineWidth: 3
         })
       },
-      initTerritory: JSON.parse(this.procedureTerritory),
       isActive: '',
-      territory: JSON.parse(this.procedureTerritory)
+      territory: {}
     }
   },
 
   computed: {
     procedureCoordinatesFeature () {
-      if (this.procedureCoordinates !== '') {
+      if (this.procedureCoordinates.length > 0) {
         return {
           type: 'FeatureCollection',
           features: [{
@@ -240,15 +240,7 @@ export default {
     },
 
     center () {
-      if (this.procedureCoordinates) {
-        const array = this.procedureCoordinates.split(',')
-        return [
-          Number(array[0]),
-          Number(array[1])
-        ]
-      } else {
-        return false
-      }
+      return this.procedureCoordinates?.length > 0 ? this.procedureCoordinates : false
     }
   },
 
@@ -261,17 +253,19 @@ export default {
   methods: {
     updateTerritory (data) {
       this.territory = JSON.parse(data)
+      this.emitFieldUpdate({ field: 'territory', data: this.territory })
     },
 
     updateCoordinates (data) {
       const features = JSON.parse(data).features
       if (JSON.parse(data).features.length > 0) {
         this.coordinate = features[0].geometry.coordinates
+        this.emitFieldUpdate({ field: 'coordinate', data: this.coordinate })
       }
     },
 
-    setExtent (data) {
-      this.$emit('update', data)
+    emitFieldUpdate (data) {
+      this.$emit('field:update', data)
     }
   }
 }
