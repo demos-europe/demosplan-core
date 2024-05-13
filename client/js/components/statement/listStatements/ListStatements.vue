@@ -8,23 +8,33 @@
 </license>
 
 <template>
-  <div>
-    <!-- Header -->
+  <div :class="{ 'top-0 left-0 flex flex-col w-full h-full fixed z-fixed bg-white': isFullscreen }">
     <dp-sticky-element
       border
-      class="py-2">
-      <div class="flex mb-2">
-        <search-modal
-          :search-in-fields="searchFields"
-          @search="(term, selectedFields) => applySearch(term, selectedFields)"
-          ref="searchModal" />
+      class="pt-2 pb-3"
+      :class="{ 'fixed top-0 left-0 w-full px-2': isFullscreen }">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex">
+          <search-modal
+            :search-in-fields="searchFields"
+            @search="(term, selectedFields) => applySearch(term, selectedFields)"
+            ref="searchModal" />
+          <dp-button
+            class="ml-2"
+            variant="outline"
+            data-cy="listStatements:searchReset"
+            :href="Routing.generate('dplan_procedure_statement_list', { procedureId: procedureId })"
+            :disabled="searchValue === ''"
+            :text="Translator.trans('search.reset')" />
+        </div>
         <dp-button
-          class="ml-auto"
+          data-cy="editorFullscreen"
+          :icon="isFullscreen ? 'compress' : 'expand'"
+          icon-size="medium"
+          hide-text
           variant="outline"
-          data-cy="listStatements:searchReset"
-          :href="Routing.generate('dplan_procedure_statement_list', { procedureId: procedureId })"
-          :disabled="searchValue === ''"
-          :text="Translator.trans('search.reset')" />
+          :text="isFullscreen ? Translator.trans('editor.fullscreen.close') : Translator.trans('editor.fullscreen')"
+          @click="handleFullscreenMode()" />
       </div>
       <dp-bulk-edit-header
         class="layout__item u-12-of-12 u-mt-0_5"
@@ -90,12 +100,15 @@
       </div>
     </dp-sticky-element>
 
-    <dp-loading v-if="isLoading" />
+    <dp-loading
+      class="u-mt"
+      v-if="isLoading" />
 
-    <!-- Statement list -->
-    <template v-if="!isLoading && items.length > 0">
+    <template v-else>
       <dp-data-table
+        v-if="items"
         data-cy="listStatements"
+        :class="{ 'px-2 overflow-y-scroll grow': isFullscreen }"
         has-flyout
         :is-selectable="isSourceAndCoupledProcedure"
         :header-fields="headerFields"
@@ -277,12 +290,12 @@
           </div>
         </template>
       </dp-data-table>
-    </template>
 
-    <dp-inline-notification
-      v-else-if="!isLoading && items.length === 0"
-      :message="Translator.trans((this.searchValue === '' ? 'statements.none' : 'search.no.results'), {searchterm: this.searchValue})"
-      type="info" />
+      <dp-inline-notification
+        v-else
+        :message="Translator.trans((this.searchValue === '' ? 'statements.none' : 'search.no.results'), {searchterm: this.searchValue})"
+        type="info" />
+    </template>
   </div>
 </template>
 
@@ -370,6 +383,7 @@ export default {
         limits: [10, 25, 50, 100],
         perPage: 10
       },
+      isFullscreen: false,
       headerFields: [
         { field: 'externId', label: Translator.trans('id') },
         { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'w-8' },
@@ -860,6 +874,15 @@ export default {
           .catch(e => {
             console.error(e)
           })
+      }
+    },
+
+    handleFullscreenMode () {
+      this.isFullscreen = !this.isFullscreen
+      if (this.isFullscreen) {
+        document.querySelector('html').setAttribute('style', 'overflow: hidden')
+      } else {
+        document.querySelector('html').removeAttribute('style')
       }
     },
 

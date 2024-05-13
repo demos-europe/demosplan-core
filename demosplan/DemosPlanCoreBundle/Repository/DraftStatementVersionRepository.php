@@ -262,8 +262,6 @@ class DraftStatementVersionRepository extends CoreRepository implements ArrayInt
      * Delete Entity.
      *
      * @param string $entityId
-     *
-     * @return bool
      */
     public function delete($entityId): never
     {

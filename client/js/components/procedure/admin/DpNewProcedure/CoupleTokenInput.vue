@@ -17,8 +17,8 @@
       :label="{
         text: Translator.trans('procedure.couple_token.label')
       }"
-      :maxlength="tokenLength"
-      :minlength="tokenLength"
+      :maxlength="`${tokenLength}`"
+      :minlength="`${tokenLength}`"
       name="procedureCoupleToken"
       @input="validateToken" />
     <dp-inline-notification
@@ -52,7 +52,7 @@ export default {
 
   methods: {
     async validateToken (token) {
-      if (token.length > (this.tokenLength - 1)) {
+      if (token.length === this.tokenLength) {
         const notification = {}
         const response = await dpRpc('procedure.token.usage', { token: token })
         const sourceProcedure = response.data[0].result.sourceProcedure

@@ -33,6 +33,7 @@ use Exception;
 use RuntimeException;
 use SplFileInfo;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
@@ -101,6 +102,8 @@ class AddonInstallFromZipCommand extends CoreCommand
         $path = $input->getArgument('path');
         $folder = $input->getOption('folder');
         $branch = $input->getOption('branch');
+
+        $this->createDirectoryIfNecessary(DemosPlanPath::getRootPath($folder));
 
         if (null === $path) {
             try {
@@ -348,8 +351,10 @@ class AddonInstallFromZipCommand extends CoreCommand
         }
 
         $question = new ChoiceQuestion('Which addon do you want to install? When you want to install the addon directly via GitHub use --github ', $zips);
+        /** @var QuestionHelper $questionHelper */
+        $questionHelper = $this->getHelper('question');
 
-        return $this->getHelper('question')->ask($input, $output, $question);
+        return $questionHelper->ask($input, $output, $question);
     }
 
     private function loadFromApiRepository(InputInterface $input, SymfonyStyle $output, mixed $folder): string
@@ -379,7 +384,9 @@ class AddonInstallFromZipCommand extends CoreCommand
             throw new RuntimeException('Could not decode response from repository. '.$exception->getMessage().' Response was '.$existingTagsContent);
         }
         $repoQuestion = new ChoiceQuestion('Which addon do you want to install? ', $availableAddons);
-        $repo = $this->getHelper('question')->ask($input, $output, $repoQuestion);
+        /** @var QuestionHelper $questionHelper */
+        $questionHelper = $this->getHelper('question');
+        $repo = $questionHelper->ask($input, $output, $repoQuestion);
 
         // fetch a list of available tags
         $tagsUrl = sprintf('%s/api/list/tags/%s', $addonRepositoryUrl, $repo);
@@ -431,7 +438,9 @@ class AddonInstallFromZipCommand extends CoreCommand
             ->values()
             ->toArray();
         $question = new ChoiceQuestion('Which addon do you want to install? ', $availableAddons);
-        $repo = $this->getHelper('question')->ask($input, $output, $question);
+        /** @var QuestionHelper $questionHelper */
+        $questionHelper = $this->getHelper('question');
+        $repo = $questionHelper->ask($input, $output, $question);
 
         // default: show tags
         if (false === $branch) {
@@ -507,8 +516,10 @@ class AddonInstallFromZipCommand extends CoreCommand
             'What do you want to install? ',
             $items
         );
+        /** @var QuestionHelper $questionHelper */
+        $questionHelper = $this->getHelper('question');
 
-        return $this->getHelper('question')->ask($input, $output, $question);
+        return $questionHelper->ask($input, $output, $question);
     }
 
     private function getGithubItem(string $ghUrl, array $ghOptions, InputInterface $input, SymfonyStyle $output): mixed

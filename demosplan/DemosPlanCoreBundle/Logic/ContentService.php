@@ -14,6 +14,7 @@ use Closure;
 use demosplan\DemosPlanCoreBundle\Entity;
 use demosplan\DemosPlanCoreBundle\Entity\Category;
 use demosplan\DemosPlanCoreBundle\Entity\GlobalContent;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -30,6 +31,11 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ContentService extends CoreService
 {
+    /**
+     * Used as one of the keys in {@link Setting}.
+     */
+    public const LAYER_GROUPS_ALTERNATE_VISIBILITY = 'layerGroupsAlternateVisibility';
+
     public function __construct(
         private readonly ContentRepository $contentRepository,
         private readonly DateHelper $dateHelper,
@@ -139,6 +145,7 @@ class ContentService extends CoreService
     {
         try {
             $singleGlobalContent = $this->contentRepository->add($data);
+
             // convert to Legacy Array
             return $this->convertToLegacy($singleGlobalContent);
         } catch (Exception $e) {
@@ -194,8 +201,6 @@ class ContentService extends CoreService
 
     /**
      * Get all global Settings.
-     *
-     * @return mixed
      *
      * @throws Exception
      */
@@ -260,7 +265,7 @@ class ContentService extends CoreService
      *
      * @throws Exception
      */
-    public function getSettings($key, SettingsFilter $filter = null, $legacy = true)
+    public function getSettings($key, ?SettingsFilter $filter = null, $legacy = true)
     {
         try {
             // Wurde ein Filter übergeben
@@ -684,6 +689,16 @@ class ContentService extends CoreService
         }
 
         return true;
+    }
+
+    public function createEmptySetting(Procedure $procedure, string $key): Setting
+    {
+        $setting = new Setting();
+        $setting->setProcedure($procedure);
+        $setting->setKey($key);
+        $this->settingRepository->persistEntities([$setting]);
+
+        return $setting;
     }
 
     /**

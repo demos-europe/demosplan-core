@@ -230,10 +230,11 @@ services:
         arguments:
             - !tagged dplan.data.generator
 
+    demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\ApiAuthenticator:
+        parent: lexik_jwt_authentication.security.jwt_authenticator
+
     demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\AiApiAuthenticator:
-        autowire: true
-        public: false
-        parent: lexik_jwt_authentication.security.guard.jwt_token_authenticator
+        parent: lexik_jwt_authentication.security.jwt_authenticator
 
     demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher: ~
 
