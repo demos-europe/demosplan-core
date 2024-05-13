@@ -1163,9 +1163,6 @@
     "webmozart/assert": {
         "version": "1.9.1"
     },
-    "webmozart/path-util": {
-        "version": "2.3.0"
-    },
     "weirdan/doctrine-psalm-plugin": {
         "version": "0.11.3"
     },
