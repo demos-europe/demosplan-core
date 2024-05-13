@@ -108,16 +108,14 @@
         :init-procedure-categories="JSON.parse('{{ selectedProcedureCategories|default([])|json_encode|e('js', 'utf-8') }}')"
         init-procedure-phase-internal="{{ proceduresettings.phase }}"
         init-procedure-phase-public="{{ proceduresettings.publicParticipationPhase }}"
-        :init-similar-recommendation-procedures="JSON.parse('{{ selectedAllowedSegmentAccessProcedures|json_encode|e('js', 'utf-8') }}')"
-    >
+        :init-similar-recommendation-procedures="JSON.parse('{{ selectedAllowedSegmentAccessProcedures|json_encode|e('js', 'utf-8') }}')">
         <form
             name="configForm"
             enctype="multipart/form-data"
             data-procedure="{{ proceduresettings.ident }}"
             data-dp-validate="configForm"
             method="post"
-            action="{{ path('DemosPlan_procedure_edit',{ procedure: proceduresettings.ident }) }}"
-        >
+            action="{{ path('DemosPlan_procedure_edit',{ procedure: proceduresettings.ident }) }}">
             <input type="hidden" name="_token" value="{{ form._token.vars.value }}" />
             <input type="hidden" value="edit" name="action">
             <input type="hidden" value="{% if proceduresettings.ident is defined %}{{ proceduresettings.ident }}{% endif %}" name="r_ident">
@@ -154,7 +152,7 @@
                             {% if hasPermission('field_procedure_adjustments_planning_agency') %}
                                 <div class="u-mb">
                                     <label class="inline-block u-mb-0" for="r_agency">
-                                        {{ "planningagency"|trans }}
+                                        {{ "planningagency.participating"|trans }}
                                     </label>
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                         helpText: 'text.procedure.edit.planning_agency'|trans,
