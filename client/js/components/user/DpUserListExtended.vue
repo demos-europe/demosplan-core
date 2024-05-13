@@ -181,7 +181,7 @@ export default {
           Orga: ['departments', 'masterToeb', 'name'].join(),
           MasterToeb: ['id'].join()
         }
-      }, { serialize: true })
+      })
         .then((response) => {
           this.organisations = response?.data?.data ?? {}
         })

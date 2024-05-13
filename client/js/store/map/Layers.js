@@ -200,15 +200,13 @@ const LayersStore = {
       commit('setProcedureId', procedureId)
 
       return dpApi({
-        method: 'get',
-        url: Routing.generate(
-          'dplan_api_procedure_layer_list',
+        method: 'GET',
+        url: Routing.generate('dplan_api_procedure_layer_list',
           {
             procedureId: procedureId,
             include: ['categories', 'gisLayers'].join()
           }
-        ),
-        responseType: 'json'
+        )
       })
         .then(checkResponse)
         .then(data => {
@@ -255,14 +253,8 @@ const LayersStore = {
 
     save ({ state, commit, dispatch }) {
       return dpApi({
-        method: 'post',
-        url: Routing.generate(
-          'dplan_api_procedure_layer_update',
-          {
-            procedureId: state.procedureId
-          }
-        ),
-        responseType: 'json',
+        method: 'POST',
+        url: Routing.generate('dplan_api_procedure_layer_update', { procedureId: state.procedureId }),
         data: { data: state.apiData }
       })
         .then(checkResponse)
@@ -372,7 +364,6 @@ const LayersStore = {
      */
     elementListForLayerSidebar: state => (categoryId, type, withCategories) => {
       //  Return if there is no data
-      console.log('here')
       if (typeof state.apiData.data === 'undefined') {
         return []
       }

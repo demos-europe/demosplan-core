@@ -525,7 +525,7 @@
                                     title="{{ file|getFile('name') }}"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    href="{{ path("core_file", { 'hash': file|getFile('hash') }) }}">
+                                    href="{{ path("core_file_procedure", { 'hash': file|getFile('hash'), 'procedureId': statement.procedure.id }) }}">
                                     <i class="fa fa-file-o"></i> {{ file|getFile('name') }}
                                 </a>
                             {% else %}

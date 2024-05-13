@@ -33,10 +33,6 @@ nelmio_security:
             worker-src:
                 - 'none'
             upgrade-insecure-requests: '%https_only%' # upgrades HTTP requests to HTTPS transport
-        # log csp violations to a custom log channel
-        report_logger_service: monolog.logger.dplan_csp
-        report_endpoint:
-            log_channel: "dplan_csp"
 
         compat_headers: false #Disable compat_headers to avoid sending X-Content-Security-Policy (IE10, IE11, Firefox < 23). This will mean those browsers get no CSP instructions.
     clickjacking:

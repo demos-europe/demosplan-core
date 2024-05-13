@@ -16,7 +16,9 @@
     @mouseleave="isHover = false"
     :id="`segment_${segment.id}`">
     <div class="flex flex-col justify-start basis-1/5 u-pt-0_5 u-pl-0_5">
-      <v-popover :container="$refs.statementSegment">
+      <v-popover
+        :container="$refs.statementSegment"
+        trigger="hover focus">
         <i
           class="fa fa-hashtag color--grey-light"
           :class="{'color--grey-dark': isAssignedToMe || isHover}"
@@ -571,7 +573,7 @@ export default {
           }
         }
       }
-      this.setSegment({ ...dataToUpdate, id: this.segment.id})
+      this.setSegment({ ...dataToUpdate, id: this.segment.id })
 
       const payload = {
         data: {

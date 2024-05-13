@@ -116,8 +116,8 @@
                     :statements="JSON.parse('{{ templateVars.list.votedStatements|convertToLegacy|default([])|json_encode|e('js', 'utf-8') }}')"
                     :counties="JSON.parse('{{ counties|default([])|json_encode|e('js', 'utf-8') }}')"
                     procedure-id="{{ templateVars.procedure|default('') }}"
-                    show-checkbox
-                    target="final_group"></dp-public-statement-list>
+                    target="final_group">
+                </dp-public-statement-list>
             </form>
         </div>
 

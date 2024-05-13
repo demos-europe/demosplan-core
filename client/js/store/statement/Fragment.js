@@ -296,13 +296,7 @@ export default {
     setAssigneeAction ({ commit }, { fragmentId, statementId, ignoreLastClaimed, assigneeId, lastClaimed }) {
       return dpApi({
         method: 'PATCH',
-        url: Routing.generate('dplan_claim_fragments_api', {
-          entityId: fragmentId
-        }),
-        headers: {
-          'Content-type': 'application/vnd.api+json',
-          Accept: 'application/vnd.api+json'
-        },
+        url: Routing.generate('dplan_claim_fragments_api', { entityId: fragmentId }),
         data: {
           data: {
             type: 'user',
@@ -310,6 +304,10 @@ export default {
             ignoreLastClaimed: ignoreLastClaimed,
             ...((ignoreLastClaimed === false && typeof lastClaimed !== 'undefined') && { relationships: { lastClaimed: { data: { id: lastClaimed, type: 'user' } } } })
           }
+        },
+        headers: {
+          'Content-type': 'application/vnd.api+json',
+          Accept: 'application/vnd.api+json'
         }
       })
         .then(this.api.checkResponse)
@@ -393,7 +391,23 @@ export default {
 
       return dpApi({
         method: 'PATCH',
-        params,
+        url: Routing.generate('dplan_api_statement_fragment_edit', {
+          statementFragmentId: data.id,
+          include: [
+            'statement',
+            'department',
+            'tags',
+            'counties',
+            'municipalities',
+            'priorityAreas',
+            'element',
+            'paragraph',
+            'document',
+            'assignee',
+            'lastClaimedUser'
+          ].join(),
+          ...params
+        }),
         data: {
           data: {
             type: 'StatementFragment',
@@ -401,26 +415,6 @@ export default {
             attributes: payload
           }
         },
-        responseType: 'json',
-        url: Routing.generate(
-          'dplan_api_statement_fragment_edit',
-          {
-            statementFragmentId: data.id,
-            include: [
-              'statement',
-              'department',
-              'tags',
-              'counties',
-              'municipalities',
-              'priorityAreas',
-              'element',
-              'paragraph',
-              'document',
-              'assignee',
-              'lastClaimedUser'
-            ].join()
-          }
-        ),
         headers: {
           'Content-type': 'application/vnd.api+json',
           Accept: 'application/vnd.api+json'
@@ -492,12 +486,14 @@ export default {
             }
 
             dataToUpdate.departmentId = hasOwnProp(responseRelationships, 'department') ? responseRelationships.department.data.id : ''
+
             if (dataToUpdate.departmentId) { // If departmentId is in response and is not null
               // we reset the assignee with the values from BE
-              if (hasOwnProp(responseRelationships, 'assignee')) {
+              if (responseRelationships.assignee?.data) {
                 const newAssigneeId = responseRelationships.assignee.data.id
                 const newAssignee = response.included.find(elem => elem.type === 'User' && elem.id === newAssigneeId)
                 const orgaId = newAssignee.relationships.orga.data.id
+
                 dataToUpdate.assignee = {
                   id: newAssigneeId,
                   uId: newAssigneeId,

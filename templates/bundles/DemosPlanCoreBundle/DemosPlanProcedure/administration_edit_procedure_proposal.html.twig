@@ -12,7 +12,7 @@
             <h2>{{ proposal.name }}</h2>
             {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                 helpText: 'procedure.proposal.help.shortdescription'|trans,
-                cssClasses:'o-tooltip--question-circle float-right u-mt-0_125'
+                cssClasses:'float-right u-mt-0_125'
             } %}
             <label class="u-mb-0">
                 {{ 'procedure.description.public'|trans }}
@@ -20,7 +20,7 @@
             <p class="u-mb">{{ proposal.description }}</p>
             {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                 helpText: 'procedure.proposal.help.explanation'|trans,
-                cssClasses:'o-tooltip--question-circle float-right u-mt-0_125'
+                cssClasses:'float-right u-mt-0_125'
             } %}
             <label class="u-mb-0">
                 {{ 'explanation'|trans }}

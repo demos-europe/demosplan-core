@@ -199,9 +199,6 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
      */
     protected $organisations;
 
-    /**
-     * @var mixed
-     */
     protected $type;
 
     /**
@@ -506,7 +503,7 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
     }
 
     /**
-     * @return ArrayCollection|SingleDocument[]
+     * @return Collection<int, SingleDocument>
      */
     public function getDocuments(): Collection
     {
@@ -567,17 +564,11 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
         }
     }
 
-    /**
-     * @return DateTime
-     */
     public function getDesignatedSwitchDate(): ?DateTime
     {
         return $this->designatedSwitchDate;
     }
 
-    /**
-     * @param DateTime $designatedSwitchDate
-     */
     public function setDesignatedSwitchDate(?DateTime $designatedSwitchDate): void
     {
         $this->designatedSwitchDate = $designatedSwitchDate;

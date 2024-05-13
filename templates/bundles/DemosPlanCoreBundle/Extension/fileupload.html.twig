@@ -43,6 +43,7 @@
             return Routing.generate('core_file', { hash: hash })
         }"
         name="{{ field_name|default }}"
+        data-cy="{{ field_name|default }}"
         :max-file-size="{{ maxfilesize }}"
         :max-number-of-files="{{ maxfiles|default(1) }}"
         needs-hidden-input
