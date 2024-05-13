@@ -1,7 +1,19 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace Tests\Core\Core\Functional;
+
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\RepositoryLoaderPass;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
+use demosplan\DemosPlanCoreBundle\Entity\User\AddressBookEntry;
+use demosplan\DemosPlanCoreBundle\Repository\AddressBookEntryRepository;
 use demosplan\DemosPlanCoreBundle\Repository\MailRepository;
 use demosplan\DemosPlanCoreBundle\Repository\MunicipalityRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ReportRepository;
@@ -9,15 +21,11 @@ use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Tests\Base\FunctionalTestCase;
-use demosplan\DemosPlanCoreBundle\Repository\AddressBookEntryRepository;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
-use demosplan\DemosPlanCoreBundle\Entity\User\AddressBookEntry;
 
 class RepositoryLoaderPassTest extends FunctionalTestCase
 {
     private $repositoryLoaderPass;
     private $containerBuilder;
-
 
     protected function setUp(): void
     {
@@ -45,12 +53,12 @@ class RepositoryLoaderPassTest extends FunctionalTestCase
             [
                 [AddressBookEntryRepository::class => []],
                 AddressBookEntryRepository::class,
-                AddressBookEntry::class
+                AddressBookEntry::class,
             ],
             [
                 [MunicipalityRepository::class => []],
                 MunicipalityRepository::class,
-                Municipality::class
+                Municipality::class,
             ],
         ];
     }
@@ -72,13 +80,13 @@ class RepositoryLoaderPassTest extends FunctionalTestCase
     {
         return [
             [
-              [ReportRepository::class => []],
-              ReportRepository::class,
+                [ReportRepository::class => []],
+                ReportRepository::class,
             ],
             [
-              [MailRepository::class => []],
+                [MailRepository::class => []],
                 MailRepository::class,
-            ]
+            ],
         ];
     }
 
@@ -95,7 +103,7 @@ class RepositoryLoaderPassTest extends FunctionalTestCase
         $this->containerBuilder->method('findDefinition')
             ->with($containerDefinition)
             ->willReturn($definition);
+
         return $definition;
     }
-
 }

@@ -1,5 +1,14 @@
 <?php
+
 declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler;
 
@@ -18,8 +27,6 @@ class RepositoryLoaderPass implements CompilerPassInterface
 {
     /**
      * Processes the ContainerBuilder to manipulate the service definitions.
-     *
-     * @param ContainerBuilder $container
      */
     public function process(ContainerBuilder $container): void
     {
@@ -51,7 +58,7 @@ class RepositoryLoaderPass implements CompilerPassInterface
                 try {
                     $definition->setArgument('$entityClass', $className);
                 } catch (Exception) {
-                   // no need to catch it here, special cases are handled via services_repositories.yml
+                    // no need to catch it here, special cases are handled via services_repositories.yml
                 }
             }
         }
@@ -60,8 +67,9 @@ class RepositoryLoaderPass implements CompilerPassInterface
     /**
      * Finds the class file for a given class name.
      *
-     * @param string $className The name of the class to find.
-     * @return string|null The fully qualified class name if the file is found, null otherwise.
+     * @param string $className the name of the class to find
+     *
+     * @return string|null the fully qualified class name if the file is found, null otherwise
      */
     private function findClassFile(string $className): ?string
     {
@@ -69,7 +77,7 @@ class RepositoryLoaderPass implements CompilerPassInterface
         $finder = new Finder();
 
         // Configure the Finder to search for the class file
-        $finder->files()->name($className . '.php')->in(DemosPlanPath::getRootPath('demosplan/DemosPlanCoreBundle/Entity'));
+        $finder->files()->name($className.'.php')->in(DemosPlanPath::getRootPath('demosplan/DemosPlanCoreBundle/Entity'));
 
         // Iterate over the (one) Finder result
         foreach ($finder as $file) {
