@@ -63,7 +63,7 @@ use Exception;
 use Pagerfanta\Pagerfanta;
 use ReflectionException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 use function array_combine;
 

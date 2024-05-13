@@ -36,7 +36,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Stringable;
 use Symfony\Component\Validator\Constraints as Assert;
-use Tightenco\Collect\Support\Collection as TightencoCollection;
+use Illuminate\Support\Collection as IlluminateCollection;
 
 /**
  * @ORM\Table(
@@ -925,14 +925,14 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     }
 
     /**
-     * @return ArrayCollection|TightencoCollection
+     * @return ArrayCollection|IlluminateCollection
      */
     public function getAllUsers()
     {
         return $this->users;
     }
 
-    public function getUsers(): TightencoCollection
+    public function getUsers(): IlluminateCollection
     {
         /** @var User[] $allUser */
         $allUser = $this->users;
@@ -981,7 +981,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
         return $this;
     }
 
-    public function getDepartments(): TightencoCollection
+    public function getDepartments(): IlluminateCollection
     {
         $nonDeletedDepartments = $this->departments->filter(
             static fn (Department $department) => !$department->isDeleted()
@@ -1049,7 +1049,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
     // @improve T12377
     /**
-     * @return TightencoCollection[User]
+     * @return IlluminateCollection[User]
      */
     public function getAllUsersOfDepartments()
     {

@@ -39,7 +39,7 @@ use ReflectionException;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 use Twig\Environment;
 
 class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract

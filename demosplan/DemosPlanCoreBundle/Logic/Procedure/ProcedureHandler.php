@@ -40,7 +40,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 use Twig\Environment;
 
 use function array_key_exists;

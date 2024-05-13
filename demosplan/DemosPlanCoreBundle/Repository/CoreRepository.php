@@ -29,7 +29,7 @@ use ReflectionException;
 use ReflectionProperty;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Service\Attribute\Required;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 /**
  * @template T of EntityInterface
