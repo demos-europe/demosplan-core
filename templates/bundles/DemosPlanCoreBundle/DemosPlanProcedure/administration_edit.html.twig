@@ -406,7 +406,8 @@
                                             name: 'r_phase_iteration',
                                             tooltip: Translator.trans('text.procedure.phasecounter'),
                                             value: '{{ proceduresettings.phaseObject.iteration }}'
-                                        }">
+                                        }"
+                                        @phase:select="setSelectedInternalPhase">
                                     </participation-phases>
                                 {% endif %}
 
@@ -450,10 +451,10 @@
 
                                     <dp-date-range-picker
                                         class="u-2-of-4"
-                                        :data-cy="{
+                                        :data-cy="JSON.stringify({
                                             endDate: 'dataCyEndDate',
                                             startDate: 'dataCyStartDate'
-                                        }"
+                                        })"
                                         data-dp-validate-error-fieldname="{{ "period.institutions"|trans }}"
                                         start-id="r_startdate"
                                         start-name="r_startdate"
@@ -551,7 +552,8 @@
                                             name: 'r_public_participation_phase_iteration',
                                             tooltip: Translator.trans('text.procedure.phasecounter'),
                                             value: '{{ proceduresettings.publicParticipationPhaseObject.iteration }}'
-                                        }">
+                                        }"
+                                        @phase:select="setSelectedPublicPhase">
                                     </participation-phases>
                                 {% endif %}
 
@@ -573,10 +575,10 @@
                                     } %}
                                     <dp-date-range-picker
                                         class="u-2-of-4"
-                                        :data-cy="{
+                                        :data-cy="JSON.stringify({
                                             endDate: 'administrationEditForm:publicParticipationEndDate',
                                             startDate: 'administrationEditForm:publicParticipationStartDate'
-                                        }"
+                                        })"
                                         data-dp-validate-error-fieldname="{{ "period.public"|trans }}"
                                         start-id="r_publicParticipationStartDate"
                                         start-name="r_publicParticipationStartDate"

@@ -64,10 +64,10 @@
             enforce-plausible-dates
             :min-date="startDate"
             required
-            :data-cy="{
+            :data-cy="JSON.stringify({
                 endDate: dataCyEndDate,
                 startDate: dataCyStartDate
-            }"
+            })"
             start-disabled
             :start-id="startDateId"
             :start-name="startDateId"

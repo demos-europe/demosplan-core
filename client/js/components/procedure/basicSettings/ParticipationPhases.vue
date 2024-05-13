@@ -10,7 +10,8 @@
         :name="fieldName"
         :options="phaseOptions"
         required
-        v-model="selectedPhase" />
+        v-model="selectedPhase"
+        @select="$emit('phase:select', selectedPhase)" />
 
       <dp-input
         v-if="hasPermission('field_phase_iterator')"
