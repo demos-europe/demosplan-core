@@ -11,7 +11,7 @@
         :options="phaseOptions"
         required
         v-model="selectedPhase"
-        @select="$emit('phase:select', selectedPhase)" />
+        @select="$emit('phase:select', $event)" />
 
       <dp-input
         v-if="hasPermission('field_phase_iterator')"
