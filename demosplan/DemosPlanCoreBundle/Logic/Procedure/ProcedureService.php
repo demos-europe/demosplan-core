@@ -2729,8 +2729,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $copiedFile = $this->fileService->copyByFileString($legendStringFromBlueprint, $newProcedure->getId());
 
             // set planPDF with the referenced legends file and update procedure setting
-            $newProcedurePlanPdf = 'kopie_von'.$copiedFile->getName().':'.$copiedFile->getId().':'.$copiedFile->getMimetype();
-
+            $newProcedurePlanPdf = $copiedFile->getFileString();
             $newProcedureSettings = $newProcedure->getSettings();
 
             $newProcedureSettings->setPlanPDF($newProcedurePlanPdf);
