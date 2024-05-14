@@ -37,10 +37,6 @@ describe('ParticipationPhases', () => {
     })
   })
 
-  it('should be instantiated', () => {
-    expect(wrapper).toBeTruthy()
-  })
-
   it('should set the `inParticipation` state correctly depending on whether the selected Phase is a participation phase or not', async () => {
     expect(wrapper.vm.isInParticipation).toBe(true)
 
