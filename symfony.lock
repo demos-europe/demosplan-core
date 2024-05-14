@@ -327,9 +327,6 @@
     "hslavich/oneloginsaml-bundle": {
         "version": "v1.6.4"
     },
-    "http-interop/http-factory-guzzle": {
-        "version": "1.2.0"
-    },
     "intervention/image": {
         "version": "2.6.1"
     },
@@ -520,9 +517,6 @@
             "demosplan/Consumer/.gitignore"
         ]
     },
-    "php-http/client-common": {
-        "version": "2.4.0"
-    },
     "php-http/discovery": {
         "version": "1.14.0"
     },
@@ -531,9 +525,6 @@
     },
     "php-http/message": {
         "version": "1.11.2"
-    },
-    "php-http/message-factory": {
-        "version": "v1.0.2"
     },
     "php-http/promise": {
         "version": "1.1.0"
@@ -731,9 +722,6 @@
         "files": [
             "demosplan/DemosPlanCoreBundle/Resources/config/packages/sensio_framework_extra.yaml"
         ]
-    },
-    "sentry/sdk": {
-        "version": "3.1.0"
     },
     "sentry/sentry": {
         "version": "3.3.2"
