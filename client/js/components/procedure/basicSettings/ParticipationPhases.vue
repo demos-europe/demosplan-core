@@ -2,7 +2,9 @@
   <div>
     <div class="flex gap-2">
       <dp-select
+        v-model="selectedPhase"
         class="w-8/12"
+        :data-cy="dataCySelect"
         :label="{
           text: labelText,
           tooltip: helpText
@@ -10,20 +12,21 @@
         :name="fieldName"
         :options="phaseOptions"
         required
-        v-model="selectedPhase" />
+        @select="$emit('phase:select', $event)" />
 
       <dp-input
         v-if="hasPermission('field_phase_iterator')"
         :id="iterator.name"
-        width="w-4/12"
+        :data-cy="dataCyIterator"
         :label="{
           text: iterator.label,
           tooltip: iterator.tooltip
         }"
         :name="iterator.name"
-        :value="iterator.value"
         pattern="^[1-9][0-9]*$"
-        required />
+        required
+        :value="iterator.value"
+        width="w-4/12" />
     </div>
 
     <dp-inline-notification
@@ -56,6 +59,18 @@ export default {
 
   props: {
     autoswitchHint: {
+      type: String,
+      required: false,
+      default: ''
+    },
+
+    dataCySelect: {
+      type: String,
+      required: false,
+      default: ''
+    },
+
+    dataCyIterator: {
       type: String,
       required: false,
       default: ''
