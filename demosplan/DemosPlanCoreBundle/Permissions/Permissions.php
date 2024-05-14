@@ -26,6 +26,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
 use demosplan\DemosPlanCoreBundle\Exception\PermissionException;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlPermissionPerOrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
@@ -122,7 +123,8 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         private readonly PermissionResolver $permissionResolver,
         ProcedureAccessEvaluator $procedureAccessEvaluator,
         private ProcedureRepository $procedureRepository,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
+        private readonly AccessControlPermissionPerOrgaService $accessControlPermissionPerOrga
     ) {
         $this->addonPermissionInitializers = $addonRegistry->getPermissionInitializers();
         $this->globalConfig = $globalConfig;
@@ -145,8 +147,39 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         // set Permissions which are dependent on role but independent of procedure
         $this->setGlobalPermissions();
 
+        // set Permissions which are dependent on orga
+        $this->setOrgaPermissions();
+
         return $this;
     }
+
+
+
+    public function setOrgaPermissions(): void
+    {
+        if ($this->user->hasAnyOfRoles(
+            [
+                Role::PRIVATE_PLANNING_AGENCY,
+            ]
+        )) {
+
+            //In this case, permission is not core permission, then check if permission is in table:
+
+            $permissions = $this->accessControlPermissionPerOrga->getPermissionForOrga($this->user->getOrga(), $this->user->getCurrentCustomer(), $this->user->getRole());
+
+
+            if ($permissions !== null) {
+                $this->enablePermissions((array)$permissions);
+            } else {
+                // Handle the case when $permissions is null or an empty array
+                // This could be an error message, a default action, etc.
+                // For example, let's print an error message:
+                echo "No permissions to enable.";
+            }
+        }
+
+    }
+
 
     /**
      * @deprecated see deprecation on property userInvitedInProcedure
