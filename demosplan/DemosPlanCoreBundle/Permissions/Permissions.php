@@ -153,8 +153,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         return $this;
     }
 
-
-
     public function setOrgaPermissions(): void
     {
         if ($this->user->hasAnyOfRoles(
@@ -162,24 +160,20 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 Role::PRIVATE_PLANNING_AGENCY,
             ]
         )) {
-
-            //In this case, permission is not core permission, then check if permission is in table:
+            // In this case, permission is not core permission, then check if permission is in table:
 
             $permissions = $this->accessControlPermissionPerOrga->getPermissionForOrga($this->user->getOrga(), $this->user->getCurrentCustomer(), $this->user->getRole());
 
-
-            if ($permissions !== null) {
-                $this->enablePermissions((array)$permissions);
+            if (null !== $permissions) {
+                $this->enablePermissions((array) $permissions);
             } else {
                 // Handle the case when $permissions is null or an empty array
                 // This could be an error message, a default action, etc.
                 // For example, let's print an error message:
-                echo "No permissions to enable.";
+                echo 'No permissions to enable.';
             }
         }
-
     }
-
 
     /**
      * @deprecated see deprecation on property userInvitedInProcedure

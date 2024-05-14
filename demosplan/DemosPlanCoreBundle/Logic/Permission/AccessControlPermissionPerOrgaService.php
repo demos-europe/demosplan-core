@@ -2,6 +2,13 @@
 
 declare(strict_types=1);
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Permission;
 
@@ -17,13 +24,11 @@ use demosplan\DemosPlanCoreBundle\Repository\AccessControlPermissionRepository;
  *
  * All rights reserved
  */
-
 class AccessControlPermissionPerOrgaService extends CoreService
 {
     public function __construct(
         private readonly AccessControlPermissionRepository $accessControlPermissionRepository,
         private readonly RoleHandler $roleHandler,
-
     ) {
     }
 
@@ -44,10 +49,8 @@ class AccessControlPermissionPerOrgaService extends CoreService
         // Split the roles string into an array
         $rolesArray = explode(',', $roles);
 
-
         // Initialize an array to hold the permissions
         $enabledPermissions = [];
-
 
         // Loop through each role
         foreach ($rolesArray as $roleName) {
@@ -56,10 +59,9 @@ class AccessControlPermissionPerOrgaService extends CoreService
 
             $permissions = $this->accessControlPermissionRepository->findBy([
                 'organisation' => $orga,
-                'customer' => $customer,
-                'role' => $role
+                'customer'     => $customer,
+                'role'         => $role,
             ]);
-
 
             // Loop through each permission object and get the permission name
             foreach ($permissions as $permissionObject) {
@@ -67,9 +69,7 @@ class AccessControlPermissionPerOrgaService extends CoreService
             }
         }
 
-
         // Return the permissions array
         return $enabledPermissions;
     }
-
 }
