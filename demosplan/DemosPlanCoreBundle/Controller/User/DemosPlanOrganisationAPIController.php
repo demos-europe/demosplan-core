@@ -20,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
-use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -34,7 +33,6 @@ use demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
-use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\OrgaResourceType;
 use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
@@ -334,15 +332,14 @@ class DemosPlanOrganisationAPIController extends APIController
      */
     #[Route(path: '/api/1.0/organisation/{id}', name: 'organisation_update', options: ['expose' => true], methods: ['PATCH'])]
     public function updateOrgaAction(
-        CustomerHandler                       $customerHandler,
-        OrgaHandler                           $orgaHandler,
-        PermissionsInterface                  $permissions,
-        Request                               $request,
-        UserHandler                           $userHandler,
+        CustomerHandler $customerHandler,
+        OrgaHandler $orgaHandler,
+        PermissionsInterface $permissions,
+        Request $request,
+        UserHandler $userHandler,
         AccessControlPermissionPerOrgaService $accessControlPermissionPerOrga,
-        RoleHandler                           $roleHandler,
-
-        string                                $id)
+        RoleHandler $roleHandler,
+        string $id)
     {
         $orgaId = $id;
         try {
@@ -370,10 +367,8 @@ class DemosPlanOrganisationAPIController extends APIController
             }
 
             if (is_array($orgaDataArray['attributes']) && array_key_exists('has_paid', $orgaDataArray['attributes'])) {
-
                 $role = $roleHandler->getUserRolesByCodes([RoleInterface::ORGANISATION_ADMINISTRATION])[0];
                 $accessControlPermissionPerOrga->createPermissionForOrga('feature_admin_new_procedure', $preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
-
             }
 
             $updatedOrga = $userHandler->updateOrga($orgaId, $orgaDataArray);

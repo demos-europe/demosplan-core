@@ -15,10 +15,8 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControlPermission;
 use Exception;
 
-
 class AccessControlPermissionRepository extends CoreRepository
 {
-
     /**
      * Add Entity to database.
      *

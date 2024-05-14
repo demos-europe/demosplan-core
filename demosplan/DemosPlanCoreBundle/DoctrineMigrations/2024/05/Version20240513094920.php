@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /**
  * This file is part of the package demosplan.
@@ -64,7 +64,6 @@ class Version20240513094920 extends AbstractMigration
                 REFERENCES customer (_c_id)
                 ON DELETE SET NULL
         ');
-
     }
 
     /**
@@ -75,7 +74,6 @@ class Version20240513094920 extends AbstractMigration
         $this->abortIfNotMysql();
 
         $this->addSql('DROP TABLE access_control_permissions');
-
     }
 
     /**
@@ -84,7 +82,7 @@ class Version20240513094920 extends AbstractMigration
     private function abortIfNotMysql(): void
     {
         $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof MySqlPlatform,
+            !$this->connection->getDatabasePlatform() instanceof MySQLPlatform,
             "Migration can only be executed safely on 'mysql'."
         );
     }
