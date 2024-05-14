@@ -366,6 +366,8 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
      */
     protected function collectStatementsOrFragments($statements, $statementsOnly, $filterSetHash, string $procedureId, bool $original, $selectedFragmentIds = []): Collection
     {
+        $filterSetReferenceSorting = [];
+
         if (true !== $original) {
             $filterSetStatements = $this->statementHandler->getResultsByFilterSetHash(
                 $filterSetHash,
