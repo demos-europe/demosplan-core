@@ -81,7 +81,7 @@ class AccessControlPermission extends CoreEntity implements UuidEntityInterface,
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga")
      *
-     * @ORM\JoinColumn(referencedColumnName="_o_id", nullable=true, onDelete="SET NULL")
+     * @ORM\JoinColumn(name="orga_id", referencedColumnName="_o_id", nullable=true, onDelete="SET NULL")
      */
     protected $organisation;
 
