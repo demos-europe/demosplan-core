@@ -41,7 +41,7 @@ describe('ParticipationPhases', () => {
     expect(wrapper).toBeTruthy()
   })
 
-  it('should set the `inParticipatin` state correctly depending on whether the selected Phase is a participation phase', async () => {
+  it('should set the `inParticipation` state correctly depending on whether the selected Phase is a participation phase or not', async () => {
     expect(wrapper.vm.isInParticipation).toBe(true)
 
     await wrapper.setData({
