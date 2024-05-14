@@ -98,15 +98,16 @@
         type="submit"
         @click="() => save(true)" />
       <dp-button
+        v-if="hasPermission('area_admin_single_document')"
         color="secondary"
         data-cy="abort"
         :href="Routing.generate('DemosPlan_element_administration', { procedure: procedureId })"
         :text="Translator.trans('abort')" />
       <dp-button
+        v-else
         color="secondary"
         data-cy="reset"
         :text="Translator.trans('reset')"
-        variant="outline"
         @click="reset" />
     </div>
   </div>
