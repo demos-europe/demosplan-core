@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
+
+namespace demosplan\DemosPlanCoreBundle\Logic\Permission;
+
+use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControlPermission;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use demosplan\DemosPlanCoreBundle\Logic\Permission;
-use demosplan\DemosPlanCoreBundle\Permissions\AccessControlPermission;
 use demosplan\DemosPlanCoreBundle\Repository\AccessControlPermissionRepository;
 
 /**
@@ -15,7 +17,7 @@ use demosplan\DemosPlanCoreBundle\Repository\AccessControlPermissionRepository;
  * All rights reserved
  */
 
-class PermissionHandler extends CoreService
+class AccessControlPermissionPerOrgaService extends CoreService
 {
     public function __construct(
         private readonly AccessControlPermissionRepository $accessControlPermissionRepository,

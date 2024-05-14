@@ -10,20 +10,17 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanCoreBundle\Permissions;
+namespace demosplan\DemosPlanCoreBundle\Entity\Permission;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\AccessControlPermissionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Stores the information about the current phase of a procedure.
@@ -33,7 +30,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\AccessControlPermissionRepository")
  */
-class AccessControlPermission extends CoreEntity implements UuidEntityInterface
+class AccessControlPermission extends CoreEntity implements UuidEntityInterface, AccessControlPermissionInterface
 {
     /**
      * @ORM\Column(type="string", length=36, options={"fixed":true})
@@ -44,7 +41,7 @@ class AccessControlPermission extends CoreEntity implements UuidEntityInterface
      *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
-    protected ?string $id;
+    protected string $id;
 
     /**
      * @ORM\Column(name="permission", type="string", nullable=false)
