@@ -6,6 +6,16 @@ export default {
 
   name: 'ProcedureMapSettings',
 
+  state: {
+    procedureMapSettings: {}
+  },
+
+  mutations: {
+    setItem (state, { key, value }) {
+      state[key] = value
+    }
+  },
+
   actions: {
     fetchProcedureMapSettings ({ commit }, procedureId) {
       try {
@@ -76,6 +86,7 @@ export default {
               type: 'ProcecdureMapSetting'
             }
 
+            commit('setItem', { key: 'procedureMapSettings', value: procedureMapSettings })
             return procedureMapSettings
           })
       } catch (e) {
