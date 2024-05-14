@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "55552368a6c64bf2bcc0b11d5e4c91ce",
+    "content-hash": "85d8bd43e6eb43f04add1b1eaf175973",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -9622,16 +9622,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.10.67",
+            "version": "1.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "16ddbe776f10da6a95ebd25de7c1dbed397dc493"
+                "reference": "666cb1703742cea9cc80fee631f0940e1592fa6e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/16ddbe776f10da6a95ebd25de7c1dbed397dc493",
-                "reference": "16ddbe776f10da6a95ebd25de7c1dbed397dc493",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/666cb1703742cea9cc80fee631f0940e1592fa6e",
+                "reference": "666cb1703742cea9cc80fee631f0940e1592fa6e",
                 "shasum": ""
             },
             "require": {
@@ -9676,7 +9676,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-04-16T07:22:02+00:00"
+            "time": "2024-05-13T06:02:22+00:00"
         },
         {
             "name": "predis/predis",
@@ -19106,16 +19106,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v3.56.0",
+            "version": "v3.56.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer.git",
-                "reference": "4429303e62a4ce583ddfe64ff5c34c76bcf74931"
+                "reference": "69c6168ae8bc96dc656c7f6c7271120a68ae5903"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/4429303e62a4ce583ddfe64ff5c34c76bcf74931",
-                "reference": "4429303e62a4ce583ddfe64ff5c34c76bcf74931",
+                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/69c6168ae8bc96dc656c7f6c7271120a68ae5903",
+                "reference": "69c6168ae8bc96dc656c7f6c7271120a68ae5903",
                 "shasum": ""
             },
             "require": {
@@ -19187,7 +19187,7 @@
             ],
             "support": {
                 "issues": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/issues",
-                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.56.0"
+                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.56.1"
             },
             "funding": [
                 {
@@ -19195,7 +19195,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-05-07T15:50:05+00:00"
+            "time": "2024-05-10T11:31:15+00:00"
         },
         {
             "name": "goetas-webservices/xsd-reader",
@@ -19983,22 +19983,22 @@
         },
         {
             "name": "phpstan/phpstan-symfony",
-            "version": "1.3.12",
+            "version": "1.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan-symfony.git",
-                "reference": "f4b9407fa3203aebafd422ae8f0eb1ef94659a80"
+                "reference": "51183fefbaf4713aa81eddbd273dc59dd5e5ff71"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan-symfony/zipball/f4b9407fa3203aebafd422ae8f0eb1ef94659a80",
-                "reference": "f4b9407fa3203aebafd422ae8f0eb1ef94659a80",
+                "url": "https://api.github.com/repos/phpstan/phpstan-symfony/zipball/51183fefbaf4713aa81eddbd273dc59dd5e5ff71",
+                "reference": "51183fefbaf4713aa81eddbd273dc59dd5e5ff71",
                 "shasum": ""
             },
             "require": {
                 "ext-simplexml": "*",
                 "php": "^7.2 || ^8.0",
-                "phpstan/phpstan": "^1.10.62"
+                "phpstan/phpstan": "^1.11"
             },
             "conflict": {
                 "symfony/framework-bundle": "<3.0"
@@ -20049,9 +20049,9 @@
             "description": "Symfony Framework extensions and rules for PHPStan",
             "support": {
                 "issues": "https://github.com/phpstan/phpstan-symfony/issues",
-                "source": "https://github.com/phpstan/phpstan-symfony/tree/1.3.12"
+                "source": "https://github.com/phpstan/phpstan-symfony/tree/1.4.0"
             },
-            "time": "2024-04-14T13:30:23+00:00"
+            "time": "2024-04-20T06:38:35+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
