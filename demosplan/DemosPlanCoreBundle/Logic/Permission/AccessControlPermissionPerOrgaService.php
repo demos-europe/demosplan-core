@@ -72,4 +72,24 @@ class AccessControlPermissionPerOrgaService extends CoreService
         // Return the permissions array
         return $enabledPermissions;
     }
+
+    public function removePermissionForOrga($permissionName, $orga, $customer, $role): void
+    {
+        // Find the existing permission with the given parameters
+        $permission = $this->accessControlPermissionRepository->findOneBy([
+            'permission' => $permissionName,
+            'organisation' => $orga,
+            'customer' => $customer,
+            'role' => $role,
+        ]);
+
+        // If a permission is found, remove it
+        //@todo remove permission
+        if ($permission) {
+            $this->accessControlPermissionRepository->persistAndDelete([], [$permission]);
+        }
+    }
+
+
+
 }
