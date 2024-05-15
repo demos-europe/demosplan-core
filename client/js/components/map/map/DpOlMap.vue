@@ -491,11 +491,6 @@ export default {
     this.olMapState.drawStyles = this.getDrawStyles()
 
     this.registerFullscreenChangeHandler()
-
-    // Selectors/Hooks needed for Cypress Testing.
-    document.querySelector('.ol-full-screen-false')?.setAttribute('data-cy', 'map:toggleFullScreen')
-    document.querySelector('.ol-zoom-in')?.setAttribute('data-cy', 'map:zoomIn')
-    document.querySelector('.ol-zoom-out')?.setAttribute('data-cy', 'map:zoomOut')
   },
 
   beforeDestroy () {
