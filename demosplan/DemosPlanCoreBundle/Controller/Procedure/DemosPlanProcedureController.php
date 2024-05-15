@@ -1179,6 +1179,7 @@ class DemosPlanProcedureController extends BaseController
                 'organisation'       => $organization,
                 'procedureMainEmail' => $procedureMainEmail,
             ],
+            'gatewayURL'             => $this->globalConfig->getGatewayURL(),
         ];
 
         return $this->twig
