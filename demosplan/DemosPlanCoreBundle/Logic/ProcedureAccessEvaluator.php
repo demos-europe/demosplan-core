@@ -99,6 +99,27 @@ class ProcedureAccessEvaluator
             return true;
         }
 
+
+        // user owns via dynamic permissions
+        // user owns via paid feature on organisation on customer
+        $dynamicPermissionIsEnabled = $this->conditionFactory->false();
+        $privatePlanningAgency = $ownsProcedureConditionFactory->hasPlanningAgencyRole($currentCustomer);
+        if ($this->entityFetcher->objectMatchesAll($user, $privatePlanningAgency)) {
+            $this->logger->debug('User has dynamic permission');
+
+            $dynamicPermissionIsEnabled = $ownsProcedureConditionFactory->isAuthorizedViaDynamicPermission($currentCustomer);
+            $orgaOwnsProcedure = $ownsProcedureConditionFactory->isAuthorizedViaOrgaOrManually();
+            if ($this->entityFetcher->objectMatchesAny($user, [
+                $orgaOwnsProcedure,
+                $dynamicPermissionIsEnabled,
+                $orgaOwnsProcedure,
+            ])) {
+                $this->logger->debug('Permissions → Dynamic permission is enabled');
+
+                return true;
+            }
+        }
+
         $this->logger->debug('Permissions → Orga does not own procedure');
 
         return false;
@@ -151,13 +172,23 @@ class ProcedureAccessEvaluator
             ...$ownsProcedureConditionFactory->hasPlanningAgencyRole($currentCustomer),
         );
 
+        // user owns via dynamic permissions
+        // user owns via paid feature on organisation on customer
+        $dynamicPermission =  $this->conditionFactory->allConditionsApply(
+            $ownsProcedureConditionFactory->isAuthorizedViaOrgaOrManually(),
+            $ownsProcedureConditionFactory->isAuthorizedViaDynamicPermission($currentCustomer),
+            ...$ownsProcedureConditionFactory->hasPlanningAgencyRole($currentCustomer)
+        );
+
+
         return [
             $ownsProcedureConditionFactory->isEitherTemplateOrProcedure($template),
             $ownsProcedureConditionFactory->isNotDeletedProcedure(),
             // user owns via owning organisation or planning agency
             $this->conditionFactory->anyConditionApplies(
                 $orgaOwnsProcedure,
-                $planningAgencyOwnsProcedure
+                $planningAgencyOwnsProcedure,
+                $dynamicPermission
             ),
         ];
     }

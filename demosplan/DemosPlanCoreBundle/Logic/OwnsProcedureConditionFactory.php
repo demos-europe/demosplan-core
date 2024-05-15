@@ -135,6 +135,27 @@ class OwnsProcedureConditionFactory
     }
 
     /**
+     */
+    public function isAuthorizedViaDynamicPermission(Customer $customer): ClauseFunctionInterface
+    {
+
+        if ($this->userOrProcedure instanceof User) {
+            $user = $this->userOrProcedure;
+
+
+            return $user->hasDynamicPermission('feature_admin_new_procedure')
+                ? $this->conditionFactory->true()
+                : $this->conditionFactory->false();
+        }
+
+        $procedure = $this->userOrProcedure;
+        $procedurePlanningOffices = $procedure->getPlanningOfficesIds();
+
+        return $this->conditionFactory->propertyHasAnyOfValues($procedurePlanningOffices, ['orga', 'id']);
+
+    }
+
+    /**
      * The user must have the {@link RoleInterface::PRIVATE_PLANNING_AGENCY} role.
      *
      * @return list<FunctionInterface<bool>>
