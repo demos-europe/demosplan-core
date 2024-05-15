@@ -189,6 +189,7 @@ const orgaFields = {
     'emailNotificationEndingPhase',
     'emailNotificationNewStatement',
     'email2',
+    'has_paid',
     'houseNumber',
     'imprint',
     'isPlanningOrganisation',

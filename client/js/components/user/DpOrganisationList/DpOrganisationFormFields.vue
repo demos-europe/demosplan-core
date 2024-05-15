@@ -214,6 +214,14 @@
               </div>
             </div>
           </template>
+          <template>
+            <dp-checkbox
+              id="isOrgaPaid"
+              :label="{
+                text: 'test'
+              }"
+              v-model="localOrganisation.attributes.has_paid" />
+          </template>
         </template>
 
         <!-- Readonly: Currently assigned or requested permissions -->
@@ -714,12 +722,13 @@
 </template>
 
 <script>
-import { CleanHtml, DpDetails, DpEditor, DpLabel, DpTextArea, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpCheckbox, DpDetails, DpEditor, DpLabel, DpTextArea, hasOwnProp } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpOrganisationFormFields',
 
   components: {
+    DpCheckbox,
     DpDetails,
     DpEditor,
     DpLabel,
@@ -769,6 +778,7 @@ export default {
             email2: '',
             emailNotificationEndingPhase: false,
             emailNotificationNewStatement: false,
+            has_paid: false,
             imprint: '',
             name: '',
             participationEmail: '',
