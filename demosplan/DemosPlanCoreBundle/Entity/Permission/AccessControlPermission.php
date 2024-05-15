@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\Permission;
 
 use DateTime;
-use DemosEurope\DemosplanAddon\Contracts\Entities\AccessControlPermissionInterface;
+
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
@@ -30,7 +30,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\AccessControlPermissionRepository")
  */
-class AccessControlPermission extends CoreEntity implements UuidEntityInterface, AccessControlPermissionInterface
+class AccessControlPermission extends CoreEntity implements UuidEntityInterface
 {
     /**
      * @ORM\Column(type="string", length=36, options={"fixed":true})
