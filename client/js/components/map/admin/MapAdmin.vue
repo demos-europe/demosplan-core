@@ -54,6 +54,7 @@
         v-model="procedureMapSettings.attributes.informationUrl"
         id="informationURL"
         class="u-mb"
+        data-cy="map:informationUrl"
         :label="{
           text: Translator.trans('url.information'),
           hint: Translator.trans('url.information.hint', { buttonlabel: 'map.getfeatureinfo.label' })
@@ -64,6 +65,7 @@
         id="copyright"
         v-model="procedureMapSettings.attributes.copyright"
         class="u-mb"
+        data-cy="map:mapCopyright"
         :label="{
           text: Translator.trans('map.attribution'),
           hint: Translator.trans('map.attribution.placeholder')
