@@ -2439,7 +2439,7 @@ plandocument.and.chapter: "Planungsdokument und -kapitel"
 plandocument.edit: "Planungsdokument bearbeiten"
 plandocument.file.attach: "Planungsdokument als Datei anhängen"
 plandocument.import.docx: "Planungsdokument direkt importieren"
-plandocument.import.hint: "Bitte nutzen Sie für Überschriften die Formatvorlagen, damit diese erkannt und Absätze korrekt importiert werden."
+plandocument.import.hint: "Bitte nutzen Sie für Überschriften die Formatvorlagen, damit diese erkannt und Absätze korrekt importiert werden. Sie können sich an dem bereitgestellten Beispieldokument orientieren."
 plandocument.name.displayed: "Angezeigter Name"
 plandocument.new: "Planungsdokument neu"
 plandocument.zip.file.name: 'Planungsdokumente.zip'
