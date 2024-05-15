@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
 use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper;
-use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakUserData;
+use demosplan\DemosPlanCoreBundle\ValueObject\KeycloakUserData;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
@@ -30,12 +30,12 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
 
-class OzgKeycloakAuthenticator extends OAuth2Authenticator implements AuthenticationEntrypointInterface
+class KeycloakAuthenticator extends OAuth2Authenticator implements AuthenticationEntrypointInterface
 {
     public function __construct(
         private readonly ClientRegistry $clientRegistry,
         private readonly EntityManagerInterface $entityManager,
-        private readonly OzgKeycloakUserData $ozgKeycloakUserData,
+        private readonly KeycloakUserData $keycloakUserData,
         private readonly LoggerInterface $logger,
         private readonly OzgKeycloakUserDataMapper $ozgKeycloakUserDataMapper,
         private readonly RouterInterface $router
@@ -45,12 +45,12 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
     public function supports(Request $request): ?bool
     {
         // continue ONLY if the current ROUTE matches the check ROUTE
-        return 'connect_keycloak_ozg_check' === $request->attributes->get('_route');
+        return 'connect_keycloak_check' === $request->attributes->get('_route');
     }
 
     public function authenticate(Request $request): Passport
     {
-        $client = $this->clientRegistry->getClient('keycloak_ozg');
+        $client = $this->clientRegistry->getClient('keycloak');
         $accessToken = $this->fetchAccessToken($client);
         $this->logger->info('login attempt', ['accessToken' => $accessToken ?? null]);
 
@@ -60,9 +60,9 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
                     $this->entityManager->getConnection()->beginTransaction();
                     $this->logger->info('Start of doctrine transaction.');
 
-                    $this->ozgKeycloakUserData->fill($client->fetchUserFromToken($accessToken));
-                    $this->logger->info('Found user data: '.$this->ozgKeycloakUserData);
-                    $user = $this->ozgKeycloakUserDataMapper->mapUserData($this->ozgKeycloakUserData);
+                    $this->keycloakUserData->fill($client->fetchUserFromToken($accessToken));
+                    $this->logger->info('Found user data: '.$this->keycloakUserData);
+                    $user = $this->ozgKeycloakUserDataMapper->mapUserData($this->keycloakUserData);
 
                     $this->entityManager->getConnection()->commit();
                     $this->logger->info('doctrine transaction commit.');
@@ -75,7 +75,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
                     $this->logger->error(
                         'login failed',
                         [
-                            'requestValues' => $this->ozgKeycloakUserData ?? null,
+                            'requestValues' => $this->keycloakUserData ?? null,
                             'exception'     => $e,
                         ]
                     );
