@@ -1439,7 +1439,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
             $this->paragraphTitle = $this->paragraph->getTitle();
         }
 
-        return trim($this->paragraphTitle);
+        return trim($this->paragraphTitle ?? '');
     }
 
     /**
