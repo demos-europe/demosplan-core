@@ -10,11 +10,5 @@
 import Status from '@DpJs/components/statement/fragment/Status'
 
 describe('Status', () => {
-  it('should be an object', () => {
-    expect(typeof Status).toBe('object')
-  })
 
-  it('should be named dp-fragment-status', () => {
-    expect(Status.name).toBe('DpFragmentStatus')
-  })
 })

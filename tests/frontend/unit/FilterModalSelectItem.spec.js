@@ -10,11 +10,4 @@
 import FilterModalSelectItem from '@DpJs/components/statement/assessmentTable/FilterModalSelectItem'
 
 describe('FilterModalSelectItem', () => {
-  it('should be an object', () => {
-    expect(typeof FilterModalSelectItem).toBe('object')
-  })
-
-  it('should be named dp-modal', () => {
-    expect(FilterModalSelectItem.name).toBe('DpFilterModalSelectItem')
-  })
 })

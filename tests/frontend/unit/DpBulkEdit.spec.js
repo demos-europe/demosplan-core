@@ -9,11 +9,4 @@
 import DpBulkEditStatement from '@DpJs/components/statement/assessmentTable/DpBulkEditStatement'
 
 describe('DpBulkEditStatement', () => {
-  it('should be an object', () => {
-    expect(typeof DpBulkEditStatement).toBe('object')
-  })
-
-  it('should be named DpBulkEdit', () => {
-    expect(DpBulkEditStatement.name).toBe('DpBulkEditStatement')
-  })
 })

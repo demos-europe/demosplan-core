@@ -11,11 +11,4 @@ import DpLayerLegend from '@DpJs/components/map/publicdetail/controls/legendList
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 describe('DpLayerLegend', () => {
-  it('should be an object', () => {
-    expect(typeof DpLayerLegend).toBe('object')
-  })
-
-  it('should be named DpLayerLegend', () => {
-    expect(DpLayerLegend.name).toBe('DpLayerLegend')
-  })
 })

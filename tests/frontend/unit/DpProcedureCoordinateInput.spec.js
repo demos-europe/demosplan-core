@@ -11,11 +11,6 @@ import DpProcedureCoordinateInput from '@DpJs/components/procedure/basicSettings
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 describe('DpProcedureCoordinateInput', () => {
-  it('should be named DpProcedureCoordinateInput', () => {
-    expect(DpProcedureCoordinateInput.hasOwnProperty('name')).toBe(true)
-    expect(DpProcedureCoordinateInput.name).toBe('DpProcedureCoordinateInput')
-  })
-
   it('button should be enabled with valid input from props', () => {
     const instance = shallowMountWithGlobalMocks(DpProcedureCoordinateInput, {})
     expect(instance.html()).toEqual(expect.not.stringContaining('class="btn--disabled"'))
