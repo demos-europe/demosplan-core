@@ -178,6 +178,7 @@ const orgaFields = {
     'subdomain'
   ].join(),
   Orga: [
+    'canCreateProcedures',
     'ccEmail2',
     'city',
     'competence',
@@ -189,7 +190,6 @@ const orgaFields = {
     'emailNotificationEndingPhase',
     'emailNotificationNewStatement',
     'email2',
-    'has_paid', // The name of the variable will change (canCreateProcedures); is not implemented in the route 2.0
     'houseNumber',
     'imprint',
     'isPlanningOrganisation',

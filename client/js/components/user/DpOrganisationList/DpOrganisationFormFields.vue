@@ -223,7 +223,8 @@
                 text: Translator.trans('procedure.canCreate'),
                 bold: true
               }"
-              v-model="localOrganisation.attributes.has_paid" /> <!--the name of the variable will change (can_create_procedures)-->
+              v-model="localOrganisation.attributes.canCreateProcedures"
+              @change="emitOrganisationUpdate" />
           </template>
         </template>
 
@@ -769,6 +770,7 @@ export default {
       default: () => {
         return {
           attributes: {
+            canCreateProcedures: false,
             ccEmail2: '',
             city: '',
             dataProtection: '',
@@ -780,7 +782,6 @@ export default {
             email2: '',
             emailNotificationEndingPhase: false,
             emailNotificationNewStatement: false,
-            has_paid: false, // The name of the variable will change (canCreateProcedures)
             imprint: '',
             name: '',
             participationEmail: '',
