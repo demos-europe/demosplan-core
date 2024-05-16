@@ -1369,21 +1369,22 @@
         },
         {
             "name": "demos-europe/demosplan-addon",
-            "version": "v0.32",
+            "version": "v0.34",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "f494d80b2d175c9281b9dd896dc3f6349ff5649e"
+                "reference": "6dd201ae984a705a470ef76b560a8c60c4aa8063"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/f494d80b2d175c9281b9dd896dc3f6349ff5649e",
-                "reference": "f494d80b2d175c9281b9dd896dc3f6349ff5649e",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/6dd201ae984a705a470ef76b560a8c60c4aa8063",
+                "reference": "6dd201ae984a705a470ef76b560a8c60c4aa8063",
                 "shasum": ""
             },
             "require": {
                 "composer-plugin-api": "^2.0",
                 "demos-europe/edt-dql": "^0.24.0",
+                "demos-europe/edt-extra": "^0.24.0",
                 "demos-europe/edt-jsonapi": "^0.24.0",
                 "demos-europe/edt-paths": "^0.24.0",
                 "doctrine/doctrine-bundle": "^2",
@@ -1442,9 +1443,9 @@
             ],
             "description": "This is the base package for all demosplan addons",
             "support": {
-                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.32"
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.34"
             },
-            "time": "2024-04-22T07:07:17+00:00"
+            "time": "2024-05-16T09:35:18+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
