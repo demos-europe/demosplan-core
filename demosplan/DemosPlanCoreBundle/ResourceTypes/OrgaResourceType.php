@@ -67,7 +67,7 @@ use Tightenco\Collect\Support\Collection as TightencoCollection;
  * @property-read BrandingResourceType             $branding
  * @property-read RoleResourceType                 $allowedRoles
  * @property-read InstitutionTagResourceType       $ownInstitutionTags
- * @property-read End                              $hasPaid
+ * @property-read End                              $canCreateProcedures
  */
 final class OrgaResourceType extends DplanResourceType
 {
@@ -191,11 +191,6 @@ final class OrgaResourceType extends DplanResourceType
             $statusInCustomers,
         ];
 
-        $properties[] = $this->createAttribute($this->hasPaid)->readable(false, function (Orga $orga): bool {
-            $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
-            return $this->accessControlPermissionPerOrgaService->canCreateProcedure($orga, $currentCustomer);
-        });
-
         if ($this->resourceTypeStore->getCustomerResourceType()->isReferencable()) {
             $properties[] = $this->createToManyRelationship($this->customers)->readable(false, static fn (Orga $orga): Collection => $orga->getCustomers());
         }
@@ -222,6 +217,12 @@ final class OrgaResourceType extends DplanResourceType
         if ($this->currentUser->hasPermission('area_manage_users')) {
             $properties[] = $this->createToManyRelationship($this->allowedRoles)
                 ->readable(false, $this->getAllowedRoles(...));
+
+            //@todo make it readable false
+            $properties[] = $this->createAttribute($this->canCreateProcedures)->readable(true, function (Orga $orga) : bool {
+                $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
+                return $this->accessControlPermissionPerOrgaService->canCreateProcedure($orga, $currentCustomer);
+            });
         }
 
         return $properties;
