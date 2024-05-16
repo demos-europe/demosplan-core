@@ -371,10 +371,10 @@ class DemosPlanOrganisationAPIController extends APIController
                 && array_key_exists('canCreateProcedures', $orgaDataArray['attributes'])) {
                 $role = $roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY])[0];
                 if (true === $orgaDataArray['attributes']['canCreateProcedures']) {
-                    $accessControlPermission->createPermissionForOrga('feature_admin_new_procedure', $preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
+                    $accessControlPermission->createPermission('feature_admin_new_procedure', $preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
                 } else {
                     // @todo remove permissions
-                    $accessControlPermission->removePermissionForOrga('feature_admin_new_procedure', $preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
+                    $accessControlPermission->removePermission('feature_admin_new_procedure', $preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
                 }
             }
 

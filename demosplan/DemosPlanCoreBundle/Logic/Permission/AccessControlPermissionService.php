@@ -34,7 +34,7 @@ class AccessControlPermissionService extends CoreService
     ) {
     }
 
-    public function createPermissionForOrga($permissionName, $orga, $customer, $role): AccessControlPermission
+    public function createPermission($permissionName, $orga, $customer, $role): AccessControlPermission
     {
         $permission = new AccessControlPermission();
         $permission->setPermission($permissionName);
@@ -46,7 +46,7 @@ class AccessControlPermissionService extends CoreService
         return $permission;
     }
 
-    public function getPermissionForOrga($orga, $customer, $roles): array
+    public function getPermission($orga, $customer, $roles): array
     {
         // Split the roles string into an array
         $rolesArray = explode(',', $roles);
@@ -75,7 +75,7 @@ class AccessControlPermissionService extends CoreService
         return $enabledPermissions;
     }
 
-    public function removePermissionForOrga($permissionName, $orga, $customer, $role): void
+    public function removePermission($permissionName, $orga, $customer, $role): void
     {
         // Find the existing permission with the given parameters
         $permission = $this->accessControlPermissionRepository->findOneBy([
@@ -99,7 +99,7 @@ class AccessControlPermissionService extends CoreService
     public function canCreateProcedure($orga, $customer): bool
     {
         // Check if the user has the permission to create a procedure
-        $permissions = $this->getPermissionForOrga($orga, $customer, RoleInterface::PRIVATE_PLANNING_AGENCY);
+        $permissions = $this->getPermission($orga, $customer, RoleInterface::PRIVATE_PLANNING_AGENCY);
         return in_array('feature_admin_new_procedure', $permissions);
 
     }
