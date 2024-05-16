@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Permission;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControlPermission;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
@@ -88,5 +90,17 @@ class AccessControlPermissionPerOrgaService extends CoreService
         if ($permission) {
             $this->accessControlPermissionRepository->persistAndDelete([], [$permission]);
         }
+    }
+
+    /**
+     * @param OrgaInterface $orga
+     * @return bool
+     */
+    public function canCreateProcedure($orga, $customer): bool
+    {
+        // Check if the user has the permission to create a procedure
+        $permissions = $this->getPermissionForOrga($orga, $customer, RoleInterface::PRIVATE_PLANNING_AGENCY);
+        return in_array('feature_admin_new_procedure', $permissions);
+
     }
 }

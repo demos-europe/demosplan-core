@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlPermissionPerOrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
 use Doctrine\Common\Collections\Collection;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
@@ -66,6 +67,7 @@ use Tightenco\Collect\Support\Collection as TightencoCollection;
  * @property-read BrandingResourceType             $branding
  * @property-read RoleResourceType                 $allowedRoles
  * @property-read InstitutionTagResourceType       $ownInstitutionTags
+ * @property-read End                              $hasPaid
  */
 final class OrgaResourceType extends DplanResourceType
 {
@@ -84,9 +86,10 @@ final class OrgaResourceType extends DplanResourceType
      */
     private const REGISTRATION_STATUSES_SUBDOMAIN = 'subdomain';
 
-    public function __construct(private readonly RoleService $roleService)
+    public function __construct(private readonly RoleService $roleService, protected readonly AccessControlPermissionPerOrgaService $accessControlPermissionPerOrgaService)
     {
     }
+
 
     public function getEntityClass(): string
     {
@@ -187,6 +190,11 @@ final class OrgaResourceType extends DplanResourceType
             ),
             $statusInCustomers,
         ];
+
+        $properties[] = $this->createAttribute($this->hasPaid)->readable(false, function (Orga $orga): bool {
+            $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
+            return $this->accessControlPermissionPerOrgaService->canCreateProcedure($orga, $currentCustomer);
+        });
 
         if ($this->resourceTypeStore->getCustomerResourceType()->isReferencable()) {
             $properties[] = $this->createToManyRelationship($this->customers)->readable(false, static fn (Orga $orga): Collection => $orga->getCustomers());
