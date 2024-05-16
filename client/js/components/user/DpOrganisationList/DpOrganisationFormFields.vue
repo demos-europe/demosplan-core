@@ -780,7 +780,7 @@ export default {
             email2: '',
             emailNotificationEndingPhase: false,
             emailNotificationNewStatement: false,
-            has_paid: false, // The name of the variable will change (can_create_procedures)
+            has_paid: false, // The name of the variable will change (canCreateProcedures)
             imprint: '',
             name: '',
             participationEmail: '',
