@@ -220,7 +220,7 @@
               class="my-1.5"
               data-cy="orgaFormField:procedureCreatePermission"
               :label="{
-                text: Translator.trans('organisation.procedure.create.permission'),
+                text: Translator.trans('procedure.canCreate'),
                 bold: true
               }"
               v-model="localOrganisation.attributes.has_paid" /> <!--the name of the variable will change (can_create_procedures)-->

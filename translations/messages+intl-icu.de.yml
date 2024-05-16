@@ -2287,7 +2287,6 @@ organisation.procedurelist.slug: "Direktlink zur Verfahrensliste"
 organisation.procedurelist.slug.explanation: "Unter dieser URL sind die Verfahren der Organisation zu finden. Ändern Sie diese URL, ist die Verfahrensliste weiterhin auch über sämtliche zuvor vergebene URLs erreichbar."
 organisation.procedures.branding: "Darstellung im öffentlichen Bereich"
 organisation.procedures.branding.link: "Sie können die Darstellung der Verfahren Ihrer Organisation im öffentlichen Bereich <a href=\"{href}\">hier festlegen</a>."
-organisation.procedure.create.permission: 'Darf Verfahren anlegen'
 organisation.publication.agreed: "{organisation} hat der Veröffentlichung zugestimmt."
 organisation.publication.disagreed: "{organisation} hat der Veröffentlichung nicht zugestimmt."
 organisation.select.first: "Bitte wählen Sie zuerst eine Organisation aus."
@@ -2586,7 +2585,7 @@ procedure.by.phase.public: |
         =0 {Verfahren nach Phase (Öffentlichkeit)}
         other {# Verfahren nach Phase (Öffentlichkeit)}
     }
-procedure.public.view: "Öffentlichkeit/Institutions-Ansicht"
+procedure.canCreate: 'Darf Verfahren anlegen'
 procedure.create: "Neues Verfahren anlegen"
 procedure.created: "Verfahren angelegt"
 procedure.current: "Dieses Verfahren"
@@ -2673,6 +2672,7 @@ procedure.public.phase.autoswitch: "Verfahrensschritt automatisch umstellen"
 procedure.public.phase.intern: "Verfahrensschritt Institutionen"
 procedure.public.phase.extern: "Verfahrensschritt Öffentlichkeit"
 procedure.public.search.placeholder: "Ort, PLZ oder Verfahrensname"
+procedure.public.view: "Öffentlichkeit/Institutions-Ansicht"
 procedure.selected.none: "Kein Verfahren ausgewählt."
 procedure.shorturl.explanation: "Unter dieser URL ist das Verfahren öffentlich abrufbar. Wenn Sie die URL ändern, kann das Verfahren weiterhin auch über die zuvor vergebenen URLs erreicht werden."
 procedure.show.similar.recommendations: "Ähnliche Erwiderungen aus folgenden Verfahren anzeigen"
