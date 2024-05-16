@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ccb5acabcaf5dc59c00b937bd3a69bd8",
+    "content-hash": "34e2383f6b60374b97781b81c6da55cb",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -9624,16 +9624,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.11.0",
+            "version": "1.11.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "666cb1703742cea9cc80fee631f0940e1592fa6e"
+                "reference": "e524358f930e41a2b4cca1320e3b04fc26b39e0b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/666cb1703742cea9cc80fee631f0940e1592fa6e",
-                "reference": "666cb1703742cea9cc80fee631f0940e1592fa6e",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/e524358f930e41a2b4cca1320e3b04fc26b39e0b",
+                "reference": "e524358f930e41a2b4cca1320e3b04fc26b39e0b",
                 "shasum": ""
             },
             "require": {
@@ -9678,7 +9678,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-05-13T06:02:22+00:00"
+            "time": "2024-05-15T08:00:59+00:00"
         },
         {
             "name": "predis/predis",
@@ -20605,27 +20605,30 @@
         },
         {
             "name": "rector/rector",
-            "version": "0.19.8",
+            "version": "1.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rectorphp/rector.git",
-                "reference": "de3b3bb159abd704b144aa86fb244f7f1f4ac947"
+                "reference": "73eb63e4f9011dba6b7c66c3262543014e352f34"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rectorphp/rector/zipball/de3b3bb159abd704b144aa86fb244f7f1f4ac947",
-                "reference": "de3b3bb159abd704b144aa86fb244f7f1f4ac947",
+                "url": "https://api.github.com/repos/rectorphp/rector/zipball/73eb63e4f9011dba6b7c66c3262543014e352f34",
+                "reference": "73eb63e4f9011dba6b7c66c3262543014e352f34",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.2|^8.0",
-                "phpstan/phpstan": "^1.10.56"
+                "phpstan/phpstan": "^1.10.57"
             },
             "conflict": {
                 "rector/rector-doctrine": "*",
                 "rector/rector-downgrade-php": "*",
                 "rector/rector-phpunit": "*",
                 "rector/rector-symfony": "*"
+            },
+            "suggest": {
+                "ext-dom": "To manipulate phpunit.xml via the custom-rule command"
             },
             "bin": [
                 "bin/rector"
@@ -20649,7 +20652,7 @@
             ],
             "support": {
                 "issues": "https://github.com/rectorphp/rector/issues",
-                "source": "https://github.com/rectorphp/rector/tree/0.19.8"
+                "source": "https://github.com/rectorphp/rector/tree/1.0.5"
             },
             "funding": [
                 {
@@ -20657,7 +20660,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-02-05T10:59:13+00:00"
+            "time": "2024-05-10T05:31:15+00:00"
         },
         {
             "name": "sebastian/cli-parser",
