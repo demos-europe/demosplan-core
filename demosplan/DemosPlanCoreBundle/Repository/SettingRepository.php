@@ -27,7 +27,7 @@ use Exception;
 /**
  * @template-extends FluentRepository<Setting>
  */
-class SettingRepository extends FluentRepository implements ArrayInterface, ObjectInterface
+class SettingRepository extends CoreRepository implements ArrayInterface, ObjectInterface
 {
     /**
      * Get Entity by Id.

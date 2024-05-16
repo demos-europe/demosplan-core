@@ -73,9 +73,17 @@ area_admin_import:
     loginRequired: true
     parent: area_admin
 area_admin_map:
+    description: |-
+        Controls ResourceType and Access to Map Settings.
     label: 'Verwalten Planzeichnung'
     loginRequired: true
     parent: area_admin
+area_admin_initial_map_view:
+    description: |-
+        Enable only menu item to show the initial map section in the procedure.
+    label: 'Karteneinstellungen'
+    loginRequired: true
+    parent: area_admin_map
 area_admin_map_description:
     label: 'Verwalten Planzeichenerkl.'
     loginRequired: true
@@ -125,6 +133,7 @@ area_admin_protocol:
 area_admin_single_document:
     label: 'Verwalten Planungsdokumente'
     loginRequired: true
+    expose: true
     parent: area_admin
 area_admin_statement_list:
     description: 'New list with Statements belonging to a Procedure showing basic info for each Statement so the planner can have a quick overview of the status of the Procedure.'
@@ -833,6 +842,11 @@ feature_email_invitable_institution_additional_invitation_text:
     description: 'Adds predefined text to institution invitations.'
     label: 'Text automatically added to institution invitations'
     loginRequired: true
+feature_export_docx_elements_view_mode_only:
+    expose: false
+    label: 'always export elements view in docx export'
+    loginRequired: true
+    parent: area_admin_assessmenttable
 feature_export_protocol:
     expose: true
     label: 'Exportieren des Verfahrensprotokolls'
@@ -1083,6 +1097,12 @@ feature_layer_groups_alternate_visibility:
         Disable showing layers from different categories at once.
     label: 'Hide other layer categories if overlay from another category is visible'
     loginRequired: true
+feature_map_attribution:
+    description: |-
+        Restrict the access to edit the public map copyright/attribution (in the admin area)
+    label: 'Restrict the access to edit the public map copyright/attribution (in the admin area)'
+    loginRequired: true
+    parent: area_admin_map
 feature_map_category:
     expose: true
     label: 'Kategorien in Kartenlayer'
@@ -1093,6 +1113,12 @@ feature_map_deactivate:
     label: 'Planungsdokumentenkategorie Map deaktivieren'
     loginRequired: false
     parent: area_admin_map
+feature_map_feature_info:
+        description: |-
+            Restrict the access to edit the public map information url (in the admin area)
+        label: 'Restrict the access to edit the public map information url (in the admin area)'
+        loginRequired: true
+        parent: area_admin_map
 feature_map_hint:
     expose: true
     label: Kartenhinweis
@@ -1112,6 +1138,12 @@ feature_map_layer_legend_file:
     label: 'Enables uploading/displaying of legend files for specific layers.'
     loginRequired: false
     parent: area_map_participation_area
+feature_map_max_extent:
+        description: |-
+            Restrict the access to get the max extension of the public map (in the admin area)
+        label: 'Restrict the access to get the max extension of the public map (in the admin area)'
+        loginRequired: true
+        parent: area_admin_map
 feature_map_new_statement:
     expose: true
     label: 'Planzeichnung Neue Stellungnahme'
@@ -1161,6 +1193,11 @@ feature_new_statement_form:
     label: 'Stell. verf. Formular anzeigen'
     loginRequired: true
     parent: feature_statement
+feature_show_notice_draft_statement:
+    description: 'some project with Gateway as a project type (diplanbeteiligung) should not be shown for the submitter in the public statement'
+    expose: false
+    label: 'note show'
+    loginRequired: true
 feature_notification_citizen_statement_submitted:
     label: 'Benachrichtigung an den Bürger bei eingereichten Stellungnahmen'
     loginRequired: true
@@ -1617,6 +1654,10 @@ feature_project_switcher:
     label: 'Display a dropdown menu in global header to allow users to quickly move to other instances of the SH platform.'
     loginRequired: false
     parent: area_admin
+feature_profile_editable:
+    description: 'If enabled the user can edit his/her data'
+    label: 'Speichern/Abrechnen Formular anzeigen'
+    loginRequired: true
 feature_public_consultation:
     description: 'When a procedure is in the consultation phase, participants must have a way to access it.'
     expose: true
@@ -1648,6 +1689,11 @@ feature_require_locality_confirmation:
         to was configured for.
     expose: false
     label: 'Submission of draft statements as statements requires to confirm the locality'
+    loginRequired: true
+feature_require_procedure_contact_person:
+    description: 'When a procedure be created, in diplanbeteiligung should contact person be required, therefore field should be empty otherwise be k.A'
+    expose: false
+    lable: 'Allows to set contact person without use default value'
     loginRequired: true
 feature_screenshot_map_nonpublic_printlayers:
     description: 'Enables having a gislayer which is not published but is used only as print/export layer.'
@@ -2425,6 +2471,11 @@ field_paragraph_lock_statement:
     description: 'Block the possibility to submit statements to chosen paragraph.'
     label: 'Statements can be locked for some paragraphs'
     loginRequired: false
+field_phase_iterator:
+    description: 'Additional counter for procedurephases to identify and count the number of itertions a specific phase is in because it is kind of usual that a phase is used and iteratet through more than once.'
+    label: 'Procedrephases extended/enhanced by a counter to identify the iteration the phase is currently in.'
+    loginRequired: false
+    expose: true
 field_priority_area_list:
     label: 'betroffene Gemeinden'
     loginRequired: true

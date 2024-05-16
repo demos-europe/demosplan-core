@@ -126,7 +126,7 @@ class Version20240108110342 extends AbstractMigration
                     ['orgaId' => $kommune]
                 );
                 if (null !== $organisationName && '' !== $organisationName) {
-                    $kommune = $organisationName;
+                    $kommune = $kommune.' '.$organisationName;
                 }
                 if (array_key_exists($kommune, $resultingKommunes)) {
                     $resultingKommunes[$kommune][] = $customer['shortage'];

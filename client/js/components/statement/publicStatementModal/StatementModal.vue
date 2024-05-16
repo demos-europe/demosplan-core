@@ -173,6 +173,7 @@
 
         <template v-if="hasPermission('field_statement_add_assignment') && hasPlanningDocuments">
           <p
+            v-if="formData.r_isNegativeReport === '0'"
             aria-hidden="true"
             :class="prefixClass('c-statement__formblock-title u-mb-0_25 weight--bold inline-block')">
             {{ Translator.trans('element.assigned') }}
@@ -201,7 +202,7 @@
               </button>
             </template>
             <button
-              v-else
+              v-else-if="formData.r_isNegativeReport === '0'"
               data-cy="statementModal:elementAssign"
               @click="gotoTab('procedureDetailsDocumentlist')"
               :class="prefixClass('btn--blank o-link--default text-left')">
@@ -1282,6 +1283,16 @@ export default {
 
       return makeFormPost(this.formData, route)
         .then(response => {
+          if (response.status === 429) {
+            dplan.notify.notify('error', Translator.trans('error.statement.not.saved.throttle'))
+
+            return false;
+          }
+          if (response.status !== 200) {
+            dplan.notify.notify('error', Translator.trans('error.statement.not.saved'))
+
+            return false;
+          }
           /*
            * Handling for successful responses
            * if its not an HTML-Response like after creating a new one

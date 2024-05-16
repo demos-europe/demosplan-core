@@ -23,6 +23,7 @@
       <segment-location-map
         v-show="slidebar.showTab === 'map'"
         ref="locationMap"
+        :map-data="procedureMapSettings"
         :procedure-id="procedureId"
         :segment-id="slidebar.segmentId"
         :statement-id="statementId" />
@@ -69,7 +70,7 @@
           <li>
             <dp-button
               class="u-ph-0_25"
-              :href="Routing.generate('dplan_segments_export', { procedureId: procedureId, statementId: statementId })"
+              @click="showHintAndDoExport()"
               :text="Translator.trans('export.verb')"
               variant="subtle" />
           </li>
@@ -252,6 +253,7 @@ export default {
     return {
       currentAction: 'addRecommendation',
       isLoading: false,
+      procedureMapSettings: {},
       segmentDraftList: '',
       // Add key to meta box to rerender the component in case the save request fails and the data is store in set back to initial values
       showInfobox: false,
@@ -417,15 +419,19 @@ export default {
       setStatement: 'setItem'
     }),
 
+    ...mapActions('assignableUser', {
+      listAssignableUser: 'list'
+    }),
+
+    ...mapActions('ProcedureMapSettings', {
+      fetchProcedureMapSettings: 'fetchProcedureMapSettings'
+    }),
+
     ...mapActions('statement', {
       getStatementAction: 'get',
       saveStatementAction: 'save',
       updateStatementAction: 'update',
       restoreStatementAction: 'restoreFromInitial'
-    }),
-
-    ...mapActions('assignableUser', {
-      listAssignableUser: 'list'
     }),
 
     ...mapActions('segmentSlidebar', [
@@ -605,6 +611,15 @@ export default {
       this.currentAction = action || defaultAction
     },
 
+    showHintAndDoExport () {
+      if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
+        window.location.href = Routing.generate('dplan_segments_export', {
+          procedureId: this.procedureId,
+          statementId: this.statementId
+        })
+      }
+    },
+
     /**
      * If `this.statement` has changed its assignee (which does not propagate to the
      * localStatement in StatementMeta), it must be synced back before applying the
@@ -692,6 +707,10 @@ export default {
       }
     })
     this.setContent({ prop: 'commentsList', val: { ...this.commentsList, procedureId: this.procedureId, statementId: this.statementId } })
+    this.fetchProcedureMapSettings(this.procedureId)
+      .then(response => {
+        this.procedureMapSettings = response.attributes
+      })
   }
 }
 </script>

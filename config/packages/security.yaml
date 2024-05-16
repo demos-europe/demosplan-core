@@ -42,9 +42,8 @@ security:
             pattern: ^/api/ai
             stateless: true
             provider: ai_provider
-            guard:
-                authenticators:
-                    - demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\AiApiAuthenticator
+            jwt:
+                authenticator: demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\AiApiAuthenticator
         api_ai_auth_jwt:
             pattern: ^/api/ai/auth
             stateless: true
@@ -57,9 +56,8 @@ security:
             pattern: ^/api/\d.+
             stateless: true
             provider: api_provider
-            guard:
-                authenticators:
-                    - demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\ApiAuthenticator
+            jwt:
+                authenticator: demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\ApiAuthenticator
         saml:
             pattern: ^/saml
             saml:
@@ -87,6 +85,8 @@ security:
             entry_point: '%demosplan_user_authenticator_service_entry_point%'
             logout:
                 path: DemosPlan_user_logout
+            # allow 5 login attempts per minute by default
+            login_throttling: null
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
 

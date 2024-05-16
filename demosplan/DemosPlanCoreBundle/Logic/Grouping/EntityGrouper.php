@@ -200,8 +200,12 @@ abstract class EntityGrouper
      *
      * @return int number of times the given entity was added to a group
      */
-    protected function fillEntityIntoGroupStructure(EntityGroupInterface $group, CoreEntity&EntityInterface $entity, array $entityFieldsToUse, array $stopGroupingForKeys = []): int
-    {
+    protected function fillEntityIntoGroupStructure(
+        EntityGroupInterface $group,
+        CoreEntity&EntityInterface $entity,
+        array $entityFieldsToUse,
+        array $stopGroupingForKeys = []
+    ): int {
         if (0 === count($entityFieldsToUse)) {
             // if we do not have any fields to use as keys from the entity
             // then we just add the entity to the given array

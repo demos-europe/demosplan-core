@@ -8,8 +8,8 @@
 </license>
 
 <script>
+import { DpButton, DpEditor, DpMultiselect, VPopover } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters } from 'vuex'
-import { DpButton, DpEditor, DpMultiselect } from '@demos-europe/demosplan-ui'
 import DpSelectDocument from './../fragment/SelectDocument'
 
 export default {
@@ -20,7 +20,8 @@ export default {
     DpButton,
     DpEditor,
     DpMultiselect,
-    DpSelectDocument
+    DpSelectDocument,
+    VPopover
   },
 
   props: {

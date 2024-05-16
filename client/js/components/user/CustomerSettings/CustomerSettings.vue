@@ -158,11 +158,12 @@
             linkButton: true,
             headings: [2, 3, 4]
           }" />
-          <h3
-            class="u-mt"
-            v-text="Translator.trans('video')" />
+        <h3
+          class="u-mt"
+          v-text="Translator.trans('video')" />
         <customer-settings-sign-language-video
           v-if="!isLoadingSignLanguageOverviewVideo"
+          :current-customer-id="this.currentCustomerId"
           :sign-language-overview-video="signLanguageOverviewVideo"
           :sign-language-overview-description="customer.signLanguageOverviewDescription"
           @created="fetchCustomerData"
@@ -336,7 +337,7 @@ export default {
         mimetype: '',
         title: ''
       },
-      isBusy:false
+      isBusy: false
     }
   },
 
@@ -389,7 +390,7 @@ export default {
       this.isLoadingSignLanguageOverviewVideo = true
       const payload = this.getRequestPayload()
 
-      this.fetchCustomer(payload, { serialize: true })
+      this.fetchCustomer(payload)
         .then(res => {
           // Update fields
           const response = res.data
@@ -400,8 +401,7 @@ export default {
 
           this.customer = {
             ...this.customer,
-            imprint: currentData.imprint ?? '',
-            dataProtection: currentData.dataProtection ?? ''
+            ...currentData
           }
           this.branding.logoHash = fileHash
         })
@@ -467,7 +467,7 @@ export default {
 
       if (hasPermission('feature_customer_support_contact_administration')) {
         this.requestIncludes.push('customerContacts')
-        this.addAttributesToField('CustomerSettingsSupport', ['title', 'text', 'phoneNumber', 'eMailAddress', 'visible'])
+        this.addAttributesToField('CustomerLoginSupportContact', ['title', 'text', 'phoneNumber', 'eMailAddress', 'visible'])
         this.addAttributesToField('Customer', ['customerContacts'])
       }
 
@@ -496,12 +496,12 @@ export default {
       }
     },
 
-    resetProperty(property) {
+    resetProperty (property) {
       const currentCustomer = this.customerList[this.currentCustomerId]
       this.customer[property] = currentCustomer.attributes[property]
     },
 
-    saveSettings(property) {
+    saveSettings (property) {
       this.isBusy = true
       const payload = {
         id: this.currentCustomerId,

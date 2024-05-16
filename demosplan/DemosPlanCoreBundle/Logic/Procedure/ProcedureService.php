@@ -482,15 +482,13 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     }
 
     /**
-     * @param bool $asArray
-     *
      * @return Procedure[]|array[]
      *
      * @throws Exception
      */
-    public function getProceduresWithEndedParticipation(array $writePhaseKeys, bool $internal = true, $asArray = false): array
+    public function getProceduresWithEndedParticipation(array $writePhaseKeys, bool $internal = true): array
     {
-        return $this->procedureRepository->getProceduresWithEndedParticipation($writePhaseKeys, $internal, $asArray);
+        return $this->procedureRepository->getProceduresWithEndedParticipation($writePhaseKeys, $internal);
     }
 
     public function getAmountOfProcedures(): int
@@ -630,47 +628,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      */
     public function getAdminProcedureConditions(bool $template, User $user): array
     {
-        $conditions = [];
-        $conditions[] = $this->conditionFactory->propertyHasValue(false, ['deleted']);
-
-        $organisationId = $user->getOrganisationId();
-
-        // Planning agencies ("Planungsbüro") get the list of procedures they are
-        // authorized for (enabled via field_procedure_adjustments_planning_agency).
-        $planningAgencyCondition = $this->conditionFactory->false();
-        if ($user->hasRole(Role::PRIVATE_PLANNING_AGENCY)) {
-            $planningAgencyCondition = $this->conditionFactory->propertyHasStringAsMember($organisationId, ['planningOffices']);
-        }
-
-        $orgaOwnsProcedureCondition = $this->conditionFactory->false();
-        $authorizedUserCondition = $this->conditionFactory->true();
-        // CUSTOMER_MASTER_USER is not able to see this whole list, but in
-        // ProcedureAccessEvaluator::isOwningProcedure we also test for this role,
-        // so it is included here just to be on-par with that method.
-        if ($user->hasRole(Role::CUSTOMER_MASTER_USER)
-            || $user->isHearingAuthority()
-            || $user->isPlanningAgency()
-        ) {
-            // Planning agencies are allowed to see any procedure created by a user of their orga.
-            $orgaOwnsProcedureCondition = $this->conditionFactory->propertyHasValue($organisationId, ['orga']);
-
-            // If enabled via globalConfig, Planning agencies can be authorized user-wise.
-            if ($this->globalConfig->hasProcedureUserRestrictedAccess()) {
-                $authorizedUserCondition = $this->conditionFactory->propertyHasStringAsMember($user->getId(), ['authorizedUsers']);
-            }
-        }
-
-        $conditions[] = $this->conditionFactory->anyConditionApplies(
-            $planningAgencyCondition,
-            $this->conditionFactory->allConditionsApply(
-                $orgaOwnsProcedureCondition,
-                $authorizedUserCondition
-            )
-        );
-
-        $conditions[] = $this->conditionFactory->propertyHasValue($template, ['master']);
-
-        return $conditions;
+        return $this->procedureAccessEvaluator->getOwnsProcedureConditions($user, $template);
     }
 
     /**
@@ -771,7 +729,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      */
     public function getAuthorizedUsers(
         $procedureId,
-        User $user = null,
+        ?User $user = null,
         $excludeUser = false,
         $excludeProcedureAuthorizedUsers = true
     ): Collection {
@@ -1815,7 +1773,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     /**
      * @throws CustomerNotFoundException
      */
-    public function calculateCopyMasterId(string $incomingCopyMasterId = null): string
+    public function calculateCopyMasterId(?string $incomingCopyMasterId = null): string
     {
         // use global default blueprint as default anyway:
         $masterTemplateId = $this->getMasterTemplateId();
@@ -2418,7 +2376,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      * @throws OptimisticLockException
      * @throws TransactionRequiredException
      */
-    public function isUserAuthorized(string $procedureId, User $user = null): bool
+    public function isUserAuthorized(string $procedureId, ?User $user = null): bool
     {
         if (null === $user) {
             $user = $this->currentUser->getUser();
@@ -2515,11 +2473,21 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         return $isInCustomer;
     }
 
+    /**
+     * The purpose of the copy is to be able to create a diff for report entries.
+     */
     private function cloneProcedure(Procedure $procedure): Procedure
     {
         $procedureClone = clone $procedure;
+
         $settingsClone = clone $procedureClone->getSettings();
         $procedureClone->setSettings($settingsClone);
+        $settingsClone->setProcedure($procedureClone);
+
+        $phaseClone = clone $procedure->getPhaseObject();
+        $procedureClone->setPhaseObject($phaseClone);
+        $publicParticipationPhaseClone = clone $procedure->getPublicParticipationPhaseObject();
+        $procedureClone->setPublicParticipationPhaseObject($publicParticipationPhaseClone);
 
         return $procedureClone;
     }
@@ -2607,9 +2575,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         }
 
         if ($excludeArchived) {
+            // todo: use Paths::procedure() here instead of array of strings to define the paths.
             $conditions[] = $this->conditionFactory->anyConditionApplies(
-                $this->conditionFactory->propertyHasNotValue('closed', ['phase']),
-                $this->conditionFactory->propertyHasNotValue('closed', ['publicParticipationPhase'])
+                $this->conditionFactory->propertyHasNotValue('closed', ['phase', 'key']),
+                $this->conditionFactory->propertyHasNotValue('closed', ['publicParticipationPhase', 'key'])
             );
         }
 
@@ -2624,8 +2593,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         if (isset($filters['excludeHiddenPhases'])) {
             // Include only procedures where at least one phase is not hidden
             $conditions[] = $this->conditionFactory->anyConditionApplies(
-                $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['phase']),
-                $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['publicParticipationPhase']),
+                $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['phase', 'key']),
+                $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['publicParticipationPhase', 'key']),
             );
         }
 
