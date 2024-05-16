@@ -1538,6 +1538,7 @@ explanation.territory.help.edit: "Mit dem Werkzeug <strong>\"{editTool}\"</stron
 explanation.territory.help.delete.selected: "Durch Klick auf <strong>\"{deleteSelectedTool}\"</strong> löschen Sie die aktuell mit \"{editTool}\" ausgewählten Formen."
 explanation.territory.help.delete.all: "Durch Klick auf <strong>\"{deleteAllTool}\"</strong> löschen Sie alle Formen."
 explanation.territory.is.defined: "Sie haben bereits den <strong>GIS-Layer {layerName}</strong> als Geltungsbereich definiert. Dieser wird im öffentlichen Bereich dem hier eingezeichneten Geltungsbereich vorgezogen."
+explanation.unregistered.publicagency.email: "Der E-Mail-Text kann angepasst werden."
 explanation.upload.logo.dimensions: "Für eine optimale Darstellung sollte das Logo höchstens 300 x 100 Pixel (72dpi) groß sein. Sie können es im JPEG-, PNG- oder GIF-Format hochladen."
 explanation.url.set: "Diese Informationsseite ist unter dieser Webadresse <a href=\"/info/{infopageURL}\">{infopageURL}</a> aufrufbar."
 explanation.user.email: "Mit der E-Mail-Adresse meldet sich der/die Nutzer*in später bei {projectName} an."
