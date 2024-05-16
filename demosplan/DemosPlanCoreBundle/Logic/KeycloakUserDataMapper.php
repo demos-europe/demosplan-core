@@ -10,12 +10,14 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanCoreBundle\Security\User;
+namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface as UserInterfaceDplan;
+use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
-use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\User\NewOrgaRegisteredEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
@@ -24,27 +26,36 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use demosplan\DemosPlanCoreBundle\ValueObject\KeycloakUserData;
 use Exception;
-use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenInterface;
-use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class SamlUserFactory implements SamlUserFactoryInterface
+/**
+ * Supposed to handle the request from @see KeycloakAuthenticator to log in a user. Therefore, the information from
+ * keycloak will be passed by @see KeycloakUserData.
+ */
+class KeycloakUserDataMapper
 {
-    public function __construct(private readonly CustomerService $customerService, private readonly EventDispatcherPostInterface $eventDispatcherPost, private readonly LoggerInterface $logger, private readonly OrgaService $orgaService, private readonly RoleHandler $roleHandler, private readonly UserService $userService)
-    {
+    public function __construct(
+        private readonly CustomerService $customerService,
+        private readonly EventDispatcherPostInterface $eventDispatcherPost,
+        private readonly LoggerInterface $logger,
+        private readonly OrgaService $orgaService,
+        private readonly RoleHandler $roleHandler,
+        private readonly UserService $userService
+    ) {
     }
 
-    public function createUser($username, array $attributes = []): UserInterface
+    /**
+     * Maps incoming data to dplan:user.
+     * Creates.
+     *
+     * @throws Exception
+     */
+    public function mapUserData(KeycloakUserData $keycloakUserData): UserInterface
     {
-        $this->logger->info('Eventually create new User from SAML', ['attributes' => $attributes]);
-
-        if ($username instanceof SamlTokenInterface) {
-            trigger_deprecation('hslavich/oneloginsaml-bundle', '2.1', 'Usage of %s is deprecated.', SamlTokenInterface::class);
-
-            [$username, $attributes] = [$username->getUserIdentifier(), $username->getAttributes()];
-        }
+        $this->logger->info('Eventually create new User from Keycloak', ['data' => $keycloakUserData]);
 
         // At this state the login attempt may be from different Identity Providers (IdP).
         // In some cases the IdP only passes an orga without any acting user (like Orgakonto Bund)
@@ -52,26 +63,27 @@ class SamlUserFactory implements SamlUserFactoryInterface
         // We need to distinguish the cases here and act accordingly
 
         // Does the payload carry an organisation?
-        if (array_key_exists('orgaName', $attributes) && '' !== ($attributes['orgaName'][0] ?? '')) {
-            return $this->getUserForOrga($username, $attributes);
+        if ('' !== $keycloakUserData->getOrganisationName()) {
+            return $this->getUserForOrga($keycloakUserData);
         }
 
         // otherwise we assume that it is a citizen
-        return $this->getUserForNewCitizen($attributes);
+        return $this->getUserForNewCitizen($keycloakUserData);
+
     }
 
-    private function getUserForNewCitizen(array $attributes): User
+    private function getUserForNewCitizen(KeycloakUserData $keycloakUserData): User
     {
-        $login = $attributes['ID'][0] ?? '';
+        $login = $keycloakUserData->getId();
 
         // check whether existing user needs to be updated.
         // when user with email exists, update login field to saml login
         // to allow Login via saml and dplan
 
-        $user = $this->userService->findDistinctUserByEmailOrLogin($attributes['email'][0] ?? '');
+        $user = $this->userService->findDistinctUserByEmailOrLogin($keycloakUserData->getEmailAddress());
 
         if ($user instanceof User) {
-            $this->logger->info('Tie existing user to SAML-Login');
+            $this->logger->info('Tie existing user to Keycloak-Login');
             // user exists with email. Just update login to tie user to saml and at the same time
             // allow to login locally via email
             $user->setLogin($login);
@@ -80,28 +92,28 @@ class SamlUserFactory implements SamlUserFactoryInterface
             return $this->userService->updateUserObject($user);
         }
 
-        $this->logger->info('Create new User from SAML data');
+        $this->logger->info('Create new User from Keycloak data');
 
         // user does not yet exist
         $user = $this->getNewUserWithDefaultValues();
-        $user->setEmail($attributes['email'][0] ?? '');
-        $user->setFirstname($attributes['surname'][0] ?? '');
-        $user->setLastname($attributes['givenName'][0] ?? '');
+        $user->setEmail($keycloakUserData->getEmailAddress());
+        $user->setFirstname($keycloakUserData->getFirstName());
+        $user->setLastname($keycloakUserData->getLastName());
         $user->setLogin($login);
 
-        $roleCodes = [Role::CITIZEN];
+        $roleCodes = [RoleInterface::CITIZEN];
         $user = $this->addUserRoles($roleCodes, $user);
-        $anonymousUser = $this->userService->getValidUser(User::ANONYMOUS_USER_LOGIN);
+        $anonymousUser = new AnonymousUser();
 
         return $this->addUserToOrgaAndDepartment($anonymousUser->getOrga(), $user);
     }
 
-    private function getUserForOrga(string $username, array $attributes): UserInterface
+    private function getUserForOrga(KeycloakUserData $keycloakUserData): UserInterface
     {
         // in this context the given Id is the GatewayName of the organisation
-        $orgas = $this->orgaService->getOrgaByFields(['gatewayName' => $username]);
+        $orgas = $this->orgaService->getOrgaByFields(['gatewayName' => $keycloakUserData->getUserName()]);
         if (null === $orgas || (is_array($orgas) && empty($orgas))) {
-            return $this->createNewUserAndOrgaFromOrga($attributes);
+            return $this->createNewUserAndOrgaFromOrga($keycloakUserData);
         }
 
         // orga is already registered in customer, return default user
@@ -110,34 +122,34 @@ class SamlUserFactory implements SamlUserFactoryInterface
         $orga = $orgas[0] ?? null;
         if (!$orga instanceof Orga) {
             $this->logger->error('Could not find valid orga in Keycloak request', [$orgas]);
-            throw new InvalidArgumentException('Could not find valid orga in SAML request');
+            throw new InvalidArgumentException('Could not find valid orga in Keycloak request');
         }
 
-        $orga = $this->updateOrgaWithKnownValues($orga, $attributes);
+        $orga = $this->updateOrgaWithKnownValues($orga, $keycloakUserData);
 
         $users = $orga->getUsers();
 
         // return the orga default user
-        $user = $users->filter(fn (User $user) => User::DEFAULT_ORGA_USER_NAME === $user->getLastname());
+        $user = $users->filter(fn (User $user) => UserInterfaceDplan::DEFAULT_ORGA_USER_NAME === $user->getLastname());
 
         if (1 === $user->count()) {
             return $user->first();
         }
 
-        throw new InvalidArgumentException('Invalid user attributes given');
+        throw new InvalidArgumentException('Invalid Keycloak user attributes given');
     }
 
     private function getNewUserWithDefaultValues(): User
     {
         $user = new User();
         $user->setAccessConfirmed(true);
-        $user->setAlternativeLoginPassword('loginViaSAML');
+        $user->setAlternativeLoginPassword('loginViaKeycloak');
         $user->setForumNotification(false);
         $user->setInvited(false);
         $user->setNewsletter(false);
         $user->setNewUser(false);
         $user->setNoPiwik(false);
-        $user->setPassword('loginViaSAML');
+        $user->setPassword('loginViaKeycloak');
         $user->setProfileCompleted(true);
         $user->setProvidedByIdentityProvider(true);
 
@@ -148,15 +160,15 @@ class SamlUserFactory implements SamlUserFactoryInterface
      * We could not find any existing orga, so we need to create a new orga
      * with one default user.
      */
-    private function createNewUserAndOrgaFromOrga(array $attributes): UserInterface
+    private function createNewUserAndOrgaFromOrga(KeycloakUserData $keycloakUserData): UserInterface
     {
         $customer = $this->customerService->getCurrentCustomer();
 
-        $orgaName = $attributes['orgaName'][0] ?? '';
+        $orgaName = $keycloakUserData->getOrganisationName();
         $phone = '';
         $userFirstName = '';
         $userLastName = User::DEFAULT_ORGA_USER_NAME;
-        $userEmail = $attributes['email'][0] ?? '';
+        $userEmail = $keycloakUserData->getEmailAddress();
         $orgaTypeNames = [OrgaType::PUBLIC_AGENCY];
 
         $orga = $this->orgaService->createOrgaRegister(
@@ -169,7 +181,7 @@ class SamlUserFactory implements SamlUserFactoryInterface
             $orgaTypeNames
         );
 
-        $orga = $this->updateOrgaWithKnownValues($orga, $attributes);
+        $orga = $this->updateOrgaWithKnownValues($orga, $keycloakUserData);
 
         try {
             $newOrgaRegisteredEvent = new NewOrgaRegisteredEvent(
@@ -188,7 +200,7 @@ class SamlUserFactory implements SamlUserFactoryInterface
         // Orga has exactly one master user so far
         $user = $orga->getUsers()->first();
         // set Orga Id as User login to be able to login as the default Orga user on login
-        $user->setLogin($attributes['ID'][0] ?? '');
+        $user->setLogin($keycloakUserData->getId());
         $user->setProvidedByIdentityProvider(true);
 
         return $this->userService->updateUserObject($user);
@@ -221,13 +233,13 @@ class SamlUserFactory implements SamlUserFactoryInterface
         return $user;
     }
 
-    private function updateOrgaWithKnownValues(Orga $orga, array $attributes): Orga
+    private function updateOrgaWithKnownValues(Orga $orga, KeycloakUserData $keycloakUserData): Orga
     {
-        $orga->setPostalcode($attributes['postalCode'][0] ?? '');
-        $orga->setCity($attributes['localityName'][0] ?? '');
-        $orga->setStreet($attributes['street'][0] ?? '');
-        $orga->setHouseNumber($attributes['houseNumber'][0] ?? '');
-        $orga->setGatewayName($attributes['ID'][0] ?? '');
+        $orga->setPostalcode($keycloakUserData->getPostalCode());
+        $orga->setCity($keycloakUserData->getLocalityName());
+        $orga->setStreet($keycloakUserData->getStreet());
+        $orga->setHouseNumber($keycloakUserData->getHouseNumber());
+        $orga->setGatewayName($keycloakUserData->getId());
 
         return $this->orgaService->updateOrga($orga);
     }

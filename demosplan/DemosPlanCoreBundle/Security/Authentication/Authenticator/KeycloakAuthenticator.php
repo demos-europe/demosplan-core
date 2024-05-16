@@ -12,10 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
-use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper;
-use demosplan\DemosPlanCoreBundle\ValueObject\KeycloakUserData;
-use Doctrine\ORM\EntityManagerInterface;
-use Exception;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
 use Psr\Log\LoggerInterface;
@@ -34,11 +30,9 @@ class KeycloakAuthenticator extends OAuth2Authenticator implements Authenticatio
 {
     public function __construct(
         private readonly ClientRegistry $clientRegistry,
-        private readonly EntityManagerInterface $entityManager,
-        private readonly KeycloakUserData $keycloakUserData,
         private readonly LoggerInterface $logger,
-        private readonly OzgKeycloakUserDataMapper $ozgKeycloakUserDataMapper,
-        private readonly RouterInterface $router
+        private readonly RouterInterface $router,
+        private readonly KeycloakUserBadgeCreator $keycloakUserBadgeCreator
     ) {
     }
 
@@ -54,34 +48,10 @@ class KeycloakAuthenticator extends OAuth2Authenticator implements Authenticatio
         $accessToken = $this->fetchAccessToken($client);
         $this->logger->info('login attempt', ['accessToken' => $accessToken ?? null]);
 
+        $userIdentifier = $accessToken->getToken();
+        $resourceOwner = $client->fetchUserFromToken($accessToken);
         return new SelfValidatingPassport(
-            new UserBadge($accessToken->getToken(), function () use ($accessToken, $client, $request) {
-                try {
-                    $this->entityManager->getConnection()->beginTransaction();
-                    $this->logger->info('Start of doctrine transaction.');
-
-                    $this->keycloakUserData->fill($client->fetchUserFromToken($accessToken));
-                    $this->logger->info('Found user data: '.$this->keycloakUserData);
-                    $user = $this->ozgKeycloakUserDataMapper->mapUserData($this->keycloakUserData);
-
-                    $this->entityManager->getConnection()->commit();
-                    $this->logger->info('doctrine transaction commit.');
-                    $request->getSession()->set('userId', $user->getId());
-
-                    return $user;
-                } catch (Exception $e) {
-                    $this->entityManager->getConnection()->rollBack();
-                    $this->logger->info('doctrine transaction rollback.');
-                    $this->logger->error(
-                        'login failed',
-                        [
-                            'requestValues' => $this->keycloakUserData ?? null,
-                            'exception'     => $e,
-                        ]
-                    );
-                    throw new AuthenticationException('You shall not pass!');
-                }
-            })
+            $this->keycloakUserBadgeCreator->createKeycloakUserBadge($userIdentifier, $resourceOwner, $request)
         );
     }
 
