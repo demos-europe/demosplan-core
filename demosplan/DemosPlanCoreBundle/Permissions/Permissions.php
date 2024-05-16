@@ -26,7 +26,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
 use demosplan\DemosPlanCoreBundle\Exception\PermissionException;
-use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlPermissionPerOrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlPermissionService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
@@ -124,7 +124,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         ProcedureAccessEvaluator $procedureAccessEvaluator,
         private ProcedureRepository $procedureRepository,
         private readonly ValidatorInterface $validator,
-        private readonly AccessControlPermissionPerOrgaService $accessControlPermissionPerOrga
+        private readonly AccessControlPermissionService $accessControlPermission
     ) {
         $this->addonPermissionInitializers = $addonRegistry->getPermissionInitializers();
         $this->globalConfig = $globalConfig;
@@ -147,7 +147,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         // set Permissions which are dependent on role but independent of procedure
         $this->setGlobalPermissions();
 
-        // set Permissions which are dependent on orga
+        // set Permissions which are store in DB
         $this->loadDynamicPermissions();
 
         return $this;
@@ -155,9 +155,9 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
     public function loadDynamicPermissions(): void
     {
-        // In this case, permission is not core permission, then check if permission is in table:
+        // In this case, permission is not core permission, then check if permission is DB in table access_control_permissions
 
-        $permissions = $this->accessControlPermissionPerOrga->getPermissionForOrga($this->user->getOrga(), $this->user->getCurrentCustomer(), $this->user->getRole());
+        $permissions = $this->accessControlPermission->getPermissionForOrga($this->user->getOrga(), $this->user->getCurrentCustomer(), $this->user->getRole());
 
         if (!empty($permissions)) {
             $this->enablePermissions($permissions);

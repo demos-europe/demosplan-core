@@ -26,7 +26,7 @@ use demosplan\DemosPlanCoreBundle\Repository\AccessControlPermissionRepository;
  *
  * All rights reserved
  */
-class AccessControlPermissionPerOrgaService extends CoreService
+class AccessControlPermissionService extends CoreService
 {
     public function __construct(
         private readonly AccessControlPermissionRepository $accessControlPermissionRepository,
