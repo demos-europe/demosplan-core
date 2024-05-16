@@ -2287,6 +2287,7 @@ organisation.procedurelist.slug: "Direktlink zur Verfahrensliste"
 organisation.procedurelist.slug.explanation: "Unter dieser URL sind die Verfahren der Organisation zu finden. Ändern Sie diese URL, ist die Verfahrensliste weiterhin auch über sämtliche zuvor vergebene URLs erreichbar."
 organisation.procedures.branding: "Darstellung im öffentlichen Bereich"
 organisation.procedures.branding.link: "Sie können die Darstellung der Verfahren Ihrer Organisation im öffentlichen Bereich <a href=\"{href}\">hier festlegen</a>."
+organisation.procedure.create.permission: 'Darf Verfahren anlegen'
 organisation.publication.agreed: "{organisation} hat der Veröffentlichung zugestimmt."
 organisation.publication.disagreed: "{organisation} hat der Veröffentlichung nicht zugestimmt."
 organisation.select.first: "Bitte wählen Sie zuerst eine Organisation aus."
