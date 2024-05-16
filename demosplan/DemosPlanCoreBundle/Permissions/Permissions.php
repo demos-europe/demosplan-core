@@ -148,30 +148,19 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         $this->setGlobalPermissions();
 
         // set Permissions which are dependent on orga
-        $this->setOrgaPermissions();
+        $this->loadDynamicPermissions();
 
         return $this;
     }
 
-    public function setOrgaPermissions(): void
+    public function loadDynamicPermissions(): void
     {
-        if ($this->user->hasAnyOfRoles(
-            [
-                Role::PRIVATE_PLANNING_AGENCY,
-            ]
-        )) {
-            // In this case, permission is not core permission, then check if permission is in table:
+        // In this case, permission is not core permission, then check if permission is in table:
 
-            $permissions = $this->accessControlPermissionPerOrga->getPermissionForOrga($this->user->getOrga(), $this->user->getCurrentCustomer(), $this->user->getRole());
+        $permissions = $this->accessControlPermissionPerOrga->getPermissionForOrga($this->user->getOrga(), $this->user->getCurrentCustomer(), $this->user->getRole());
 
-            if (null !== $permissions) {
-                $this->enablePermissions((array) $permissions);
-            } else {
-                // Handle the case when $permissions is null or an empty array
-                // This could be an error message, a default action, etc.
-                // For example, let's print an error message:
-                echo 'No permissions to enable.';
-            }
+        if (!empty($permissions)) {
+            $this->enablePermissions($permissions);
         }
     }
 
