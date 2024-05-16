@@ -200,7 +200,6 @@ export default {
     },
 
     saveOrganisationAction (payload) {
-      console.log('payload:', payload)
       this.$store.dispatch(`orga${this.moduleSubstring}/save`, payload)
         .then(() => {
           /*
