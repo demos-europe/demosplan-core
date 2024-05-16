@@ -314,7 +314,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('filter', ['setCurrentSearch']),
+    ...mapMutations('Filter', ['setCurrentSearch']),
 
     toggleModal () {
       this.$refs.searchModal.toggle()

@@ -130,7 +130,7 @@ export default {
   },
 
   computed: {
-    ...mapState('orga', {
+    ...mapState('Orga', {
       organisations: 'items'
     }),
 

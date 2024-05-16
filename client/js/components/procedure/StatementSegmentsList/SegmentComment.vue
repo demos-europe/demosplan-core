@@ -53,13 +53,13 @@ export default {
   },
 
   computed: {
-    ...mapState('statementSegment', {
+    ...mapState('StatementSegment', {
       segments: 'items'
     }),
 
     place () {
       if (this.comment && this.comment?.relationships?.place?.data && Object.keys(this.comment.relationships.place.data).length) {
-        const place = this.comment.rel('place')
+        const place = this.comment.rel('Place')
         if (place.attributes.name) {
           return place.attributes.name
         }
@@ -73,7 +73,7 @@ export default {
 
     submitter () {
       if (this.comment && this.comment?.relationships?.submitter?.data && Object.keys(this.comment.relationships.submitter.data).length) {
-        const submitter = this.comment.rel('submitter')
+        const submitter = this.comment.rel('Submitter')
 
         /*
          * This is a workaround in case a segmentated statement does not contain a first initial comment.

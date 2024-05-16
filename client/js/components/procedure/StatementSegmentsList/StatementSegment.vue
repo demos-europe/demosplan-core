@@ -440,9 +440,9 @@ export default {
   },
 
   computed: {
-    ...mapState('segmentSlidebar', ['slidebar']),
+    ...mapState('SegmentSlidebar', ['slidebar']),
 
-    ...mapState('assignableUser', {
+    ...mapState('AssignableUser', {
       assignableUserItems: 'items'
     }),
 
@@ -466,7 +466,7 @@ export default {
       if (this.segment?.relationships?.assignee?.data?.id && this.segment.relationships.assignee.data.id !== '') {
         const assignee = this.assignableUserItems[this.segment.relationships.assignee.data.id]
         const name = `${assignee.attributes.firstname} ${assignee.attributes.lastname}`
-        const orga = assignee ? assignee.rel('orga') : ''
+        const orga = assignee ? assignee.rel('Orga') : ''
 
         return { id: this.segment.relationships.assignee.data.id, name: name, orgaName: orga ? orga.attributes.name : '' }
       } else {
@@ -497,7 +497,7 @@ export default {
 
     tagsAsString () {
       if (this.segment.hasRelationship('tags')) {
-        return Object.values(this.segment.rel('tags')).map(el => el.attributes.title).join(', ')
+        return Object.values(this.segment.rel('Tags')).map(el => el.attributes.title).join(', ')
       }
 
       return '-'
@@ -515,28 +515,28 @@ export default {
   },
 
   methods: {
-    ...mapActions('assignableUser', {
+    ...mapActions('AssignableUser', {
       fetchAssignableUsers: 'list'
     }),
 
-    ...mapActions('place', {
+    ...mapActions('Place', {
       fetchPlaces: 'list'
     }),
 
-    ...mapActions('segmentSlidebar', [
+    ...mapActions('SegmentSlidebar', [
       'toggleSlidebarContent'
     ]),
 
-    ...mapMutations('segmentSlidebar', [
+    ...mapMutations('SegmentSlidebar', [
       'setProperty'
     ]),
 
-    ...mapActions('statementSegment', {
+    ...mapActions('StatementSegment', {
       restoreSegmentAction: 'restoreFromInitial',
       saveSegmentAction: 'save'
     }),
 
-    ...mapMutations('statementSegment', {
+    ...mapMutations('StatementSegment', {
       updateSegment: 'update',
       setSegment: 'setItem'
     }),
@@ -836,7 +836,7 @@ export default {
   mounted () {
     this.fetchPlaces({
       fields: {
-        Place: ['name', 'sortIndex', 'description'].join()
+        Place: ['name', 'sortIndex', 'description'].join(),
       },
       sort: 'sortIndex'
     })

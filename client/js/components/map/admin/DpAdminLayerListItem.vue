@@ -660,8 +660,8 @@ export default {
       }
     },
 
-    ...mapState('layers', ['draggableOptions', 'draggableOptionsForBaseLayer']),
-    ...mapGetters('layers', ['elementListForLayerSidebar'])
+    ...mapState('Layers', ['draggableOptions', 'draggableOptionsForBaseLayer']),
+    ...mapGetters('Layers', ['elementListForLayerSidebar'])
   },
 
   watch: {
@@ -903,7 +903,7 @@ export default {
       }
     },
 
-    ...mapMutations('layers', ['setAttributeForLayer', 'setChildrenFromCategory'])
+    ...mapMutations('Layers', ['setAttributeForLayer', 'setChildrenFromCategory'])
   },
 
   beforeCreate () {

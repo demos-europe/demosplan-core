@@ -156,7 +156,7 @@ export default {
   },
 
   computed: {
-    ...mapState('user', {
+    ...mapState('User', {
       items: 'items',
       currentPage: 'currentPage',
       totalPages: 'totalPages'
@@ -179,20 +179,20 @@ export default {
   },
 
   methods: {
-    ...mapActions('department', {
+    ...mapActions('Department', {
       departmentList: 'list'
     }),
     ...mapActions('UserFormFields', [
       'fetchOrgaSuggestions'
     ]),
-    ...mapActions('orga', {
+    ...mapActions('Orga', {
       organisationList: 'list',
       deleteOrganisation: 'delete'
     }),
-    ...mapActions('role', {
+    ...mapActions('Role', {
       roleList: 'list'
     }),
-    ...mapActions('user', {
+    ...mapActions('User', {
       userList: 'list',
       deleteUser: 'delete'
     }),

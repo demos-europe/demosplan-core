@@ -9,12 +9,12 @@
 
 export const VuexApiRoutes = [
   {
-    module: 'branding',
+    module: 'Branding',
     action: 'list',
     url: '/2.0/Branding'
   },
   {
-    module: 'branding',
+    module: 'Branding',
     action: 'update',
     url: '/2.0/Branding/{id}',
     parameters: [
@@ -22,17 +22,17 @@ export const VuexApiRoutes = [
     ]
   },
   {
-    module: 'customer',
+    module: 'Customer',
     action: 'create',
     url: '/2.0/Customer'
   },
   {
-    module: 'customer',
+    module: 'Customer',
     action: 'list',
     url: '/2.0/Customer'
   },
   {
-    module: 'customer',
+    module: 'Customer',
     action: 'delete',
     url: '/2.0/Customer/{id}',
     parameters: [
@@ -40,7 +40,7 @@ export const VuexApiRoutes = [
     ]
   },
   {
-    module: 'customer',
+    module: 'Customer',
     action: 'update',
     url: '/2.0/Customer/{id}',
     parameters: [
@@ -48,12 +48,12 @@ export const VuexApiRoutes = [
     ]
   },
   {
-    module: 'customerContact',
+    module: 'CustomerContact',
     action: 'create',
     url: '/2.0/CustomerContact'
   },
   {
-    module: 'customerContact',
+    module: 'CustomerContact',
     action: 'delete',
     url: '/2.0/CustomerContact/{id}',
     parameters: [
@@ -61,12 +61,12 @@ export const VuexApiRoutes = [
     ]
   },
   {
-    module: 'customerContact',
+    module: 'CustomerContact',
     action: 'list',
     url: '/2.0/CustomerContact'
   },
   {
-    module: 'customerContact',
+    module: 'CustomerContact',
     action: 'update',
     url: '/2.0/CustomerContact/{id}',
     parameters: [
@@ -74,12 +74,12 @@ export const VuexApiRoutes = [
     ]
   },
   {
-    module: 'customerLoginSupportContact',
+    module: 'CustomerLoginSupportContact',
     action: 'create',
     url: '/2.0/CustomerLoginSupportContact'
   },
   {
-    module: 'customerLoginSupportContact',
+    module: 'CustomerLoginSupportContact',
     action: 'delete',
     url: '/2.0/CustomerLoginSupportContact/{id}',
     parameters: [
@@ -87,12 +87,12 @@ export const VuexApiRoutes = [
     ]
   },
   {
-    module: 'customerLoginSupportContact',
+    module: 'CustomerLoginSupportContact',
     action: 'list',
     url: '/2.0/CustomerLoginSupportContact'
   },
   {
-    module: 'customerLoginSupportContact',
+    module: 'CustomerLoginSupportContact',
     action: 'update',
     url: '/2.0/CustomerLoginSupportContact/{id}',
     parameters: [
@@ -100,7 +100,7 @@ export const VuexApiRoutes = [
     ]
   },
   {
-    module: 'report',
+    module: 'Report',
     action: 'list',
     url: '/1.0/reports/{procedureId}/{group}',
     parameters: [
@@ -109,12 +109,12 @@ export const VuexApiRoutes = [
     ]
   },
   {
-    module: 'user',
+    module: 'User',
     action: 'list',
     url: '/1.0/user/'
   },
   {
-    module: 'user',
+    module: 'User',
     action: 'get',
     url: '/1.0/user/{userId}',
     parameters: [
@@ -122,7 +122,7 @@ export const VuexApiRoutes = [
     ]
   },
   {
-    module: 'user',
+    module: 'User',
     action: 'update',
     url: '/1.0/user/{id}',
     parameters: [
@@ -130,12 +130,12 @@ export const VuexApiRoutes = [
     ]
   },
   {
-    module: 'user',
+    module: 'User',
     action: 'create',
     url: '/1.0/user/'
   },
   {
-    module: 'user',
+    module: 'User',
     action: 'delete',
     url: '/1.0/user/{id}',
     parameters: [
@@ -143,22 +143,22 @@ export const VuexApiRoutes = [
     ]
   },
   {
-    module: 'department',
+    module: 'Department',
     action: 'list',
     url: '/2.0/Department'
   },
   {
-    module: 'assignableUser',
+    module: 'AssignableUser',
     action: 'list',
     url: '/2.0/AssignableUser'
   },
   {
-    module: 'orga',
+    module: 'Orga',
     action: 'list',
     url: '/2.0/Orga'
   },
   {
-    module: 'orga',
+    module: 'Orga',
     action: 'update',
     url: '/1.0/organisation/{id}',
     parameters: [
@@ -166,12 +166,12 @@ export const VuexApiRoutes = [
     ]
   },
   {
-    module: 'orga',
+    module: 'Orga',
     action: 'create',
     url: '/1.0/organisation/'
   },
   {
-    module: 'orga',
+    module: 'Orga',
     action: 'delete',
     url: '/1.0/organisation/{id}',
     parameters: [
@@ -179,22 +179,22 @@ export const VuexApiRoutes = [
     ]
   },
   {
-    module: 'role',
+    module: 'Role',
     action: 'list',
     url: '/1.0/role/'
   },
   {
-    module: 'faqCategory',
+    module: 'FaqCategory',
     action: 'list',
     url: '/1.0/faq-category/'
   },
   {
-    module: 'faq',
+    module: 'Faq',
     action: 'list',
     url: '/1.0/faq/'
   },
   {
-    module: 'faq',
+    module: 'Faq',
     action: 'delete',
     url: '/1.0/faq/{id}',
     parameters: [
@@ -202,7 +202,7 @@ export const VuexApiRoutes = [
     ]
   },
   {
-    module: 'faq',
+    module: 'Faq',
     action: 'update',
     url: '/1.0/faq/{id}',
     parameters: [
@@ -210,17 +210,17 @@ export const VuexApiRoutes = [
     ]
   },
   {
-    module: 'invitableToeb',
+    module: 'InvitableToeb',
     action: 'list',
     url: '/2.0/InvitableToeb'
   },
   {
-    module: 'invitableInstitution',
+    module: 'InvitableInstitution',
     action: 'list',
     url: '/2.0/InvitableInstitution'
   },
   {
-    module: 'invitableInstitution',
+    module: 'InvitableInstitution',
     action: 'update',
     url: '/2.0/InvitableInstitution/{id}',
     parameters: [
@@ -228,22 +228,22 @@ export const VuexApiRoutes = [
     ]
   },
   {
-    module: 'place',
+    module: 'Place',
     action: 'list',
     url: '/2.0/Place'
   },
   {
-    module: 'segmentComment',
+    module: 'SegmentComment',
     action: 'list',
     url: '/2.0/SegmentComment'
   },
   {
-    module: 'statementSegment',
+    module: 'StatementSegment',
     action: 'list',
     url: '/2.0/StatementSegment'
   },
   {
-    module: 'statementSegment',
+    module: 'StatementSegment',
     action: 'update',
     url: '/2.0/StatementSegment/{id}',
     parameters: [
@@ -251,12 +251,12 @@ export const VuexApiRoutes = [
     ]
   },
   {
-    module: 'statement',
+    module: 'Statement',
     action: 'list',
     url: '/2.0/Statement'
   },
   {
-    module: 'statement',
+    module: 'Statement',
     action: 'get',
     url: '/2.0/Statement/{id}',
     parameters: [
@@ -264,7 +264,7 @@ export const VuexApiRoutes = [
     ]
   },
   {
-    module: 'statement',
+    module: 'Statement',
     action: 'update',
     url: '/2.0/Statement/{id}',
     parameters: [
@@ -272,7 +272,7 @@ export const VuexApiRoutes = [
     ]
   },
   {
-    module: 'statement',
+    module: 'Statement',
     action: 'delete',
     url: '/2.0/Statement/{id}',
     parameters: [
@@ -280,27 +280,27 @@ export const VuexApiRoutes = [
     ]
   },
   {
-    module: 'statementAttachment',
+    module: 'StatementAttachment',
     action: 'create',
     url: '/2.0/StatementAttachment'
   },
   {
-    module: 'tag',
+    module: 'Tag',
     action: 'list',
     url: '/2.0/Tag'
   },
   {
-    module: 'institutionTag',
+    module: 'InstitutionTag',
     action: 'create',
     url: '/2.0/InstitutionTag'
   },
   {
-    module: 'institutionTag',
+    module: 'InstitutionTag',
     action: 'list',
     url: '/2.0/InstitutionTag'
   },
   {
-    module: 'institutionTag',
+    module: 'InstitutionTag',
     action: 'update',
     url: '/2.0/InstitutionTag/{id}',
     parameters: [
@@ -308,7 +308,7 @@ export const VuexApiRoutes = [
     ]
   },
   {
-    module: 'institutionTag',
+    module: 'InstitutionTag',
     action: 'delete',
     url: '/2.0/InstitutionTag/{id}',
     parameters: [
@@ -316,17 +316,17 @@ export const VuexApiRoutes = [
     ]
   },
   {
-    module: 'tagTopic',
+    module: 'TagTopic',
     action: 'list',
     url: '/2.0/TagTopic'
   },
   {
-    module: 'elements',
+    module: 'Elements',
     action: 'list',
     url: '/2.0/Elements'
   },
   {
-    module: 'elements',
+    module: 'Elements',
     action: 'update',
     url: '/2.0/Elements/{id}',
     parameters: [
@@ -334,7 +334,7 @@ export const VuexApiRoutes = [
     ]
   },
   {
-    module: 'elements',
+    module: 'Elements',
     action: 'delete',
     url: '/2.0/Elements/{id}',
     parameters: [

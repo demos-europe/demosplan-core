@@ -69,7 +69,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('fragment', ['fragmentsByStatement']),
+    ...mapGetters('Fragment', ['fragmentsByStatement']),
 
     assessmentBaseLoaded () {
       if (hasOwnProp(this.$store.state, 'assessmentTable')) {

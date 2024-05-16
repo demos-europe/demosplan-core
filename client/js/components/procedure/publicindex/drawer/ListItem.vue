@@ -76,7 +76,7 @@ export default {
   },
 
   methods: Object.assign({
-    ...mapActions('procedure', [
+    ...mapActions('Procedure', [
       'setProperty',
       'showDetailView'
     ])

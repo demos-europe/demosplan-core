@@ -168,11 +168,11 @@ export default {
   },
 
   computed: {
-    ...mapState('statementSegment', {
+    ...mapState('StatementSegment', {
       segments: 'items'
     }),
 
-    ...mapState('statement', {
+    ...mapState('Statement', {
       statements: 'items'
     }),
 
@@ -180,8 +180,8 @@ export default {
       return segmentId => {
         const segment = this.segments[segmentId]
         try {
-          const assignee = segment.rel('assignee')
-          const orga = assignee ? assignee.rel('orga') : ''
+          const assignee = segment.rel('Assignee')
+          const orga = assignee ? assignee.rel('Orga') : ''
 
           return {
             id: assignee.id,
@@ -216,23 +216,23 @@ export default {
   },
 
   methods: {
-    ...mapMutations('statementSegment', {
+    ...mapMutations('StatementSegment', {
       updateSegment: 'update',
       setSegment: 'setItem'
     }),
 
-    ...mapActions('statementSegment', {
+    ...mapActions('StatementSegment', {
       updateSegmentAction: 'update',
       restoreSegmentAction: 'restoreFromInitial',
       saveSegmentAction: 'save',
       listSegments: 'list'
     }),
 
-    ...mapActions('statement', {
+    ...mapActions('Statement', {
       restoreStatementAction: 'restoreFromInitial'
     }),
 
-    ...mapMutations('statement', {
+    ...mapMutations('Statement', {
       setStatement: 'setItem'
     }),
 

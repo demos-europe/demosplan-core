@@ -422,15 +422,15 @@ export default {
   },
 
   computed: {
-    ...mapState('assignableUser', {
+    ...mapState('AssignableUser', {
       assignableUsersObject: 'items'
     }),
 
-    ...mapState('orga', {
+    ...mapState('Orga', {
       orgaObject: 'items'
     }),
 
-    ...mapState('statement', {
+    ...mapState('Statement', {
       statementsObject: 'items',
       currentPage: 'currentPage',
       totalFiles: 'totalFiles',
@@ -487,17 +487,17 @@ export default {
   },
 
   methods: {
-    ...mapActions('assignableUser', {
+    ...mapActions('AssignableUser', {
       fetchAssignableUsers: 'list'
     }),
 
-    ...mapActions('statement', {
+    ...mapActions('Statement', {
       deleteStatement: 'delete',
       fetchStatements: 'list',
       restoreStatementAction: 'restoreFromInitial'
     }),
 
-    ...mapMutations('statement', {
+    ...mapMutations('Statement', {
       setStatement: 'setItem'
     }),
 
@@ -512,7 +512,7 @@ export default {
     getAssignee (statement) {
       if (this.assigneeId(statement)) {
         const assignee = this.assignableUsersObject[this.assigneeId(statement)]
-        const assigneeOrga = assignee ? assignee.rel('orga') : null
+        const assigneeOrga = assignee ? assignee.rel('Orga') : null
 
         if (typeof assignee === 'undefined') {
           return {

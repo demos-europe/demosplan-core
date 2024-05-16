@@ -290,8 +290,8 @@ export default {
   },
 
   computed: {
-    ...mapState('statement', ['selectedElements']),
-    ...mapGetters('statement', ['selectedElementsLength']),
+    ...mapState('Statement', ['selectedElements']),
+    ...mapGetters('Statement', ['selectedElementsLength']),
 
     // Array with keys (names) of all checked options
     checkedOptions () {
@@ -331,10 +331,10 @@ export default {
   },
 
   methods: {
-    ...mapActions('statement', {
+    ...mapActions('Statement', {
       resetSelectionAction: 'resetSelection'
     }),
-    ...mapActions('statement', ['setSelectedElementsAction', 'setProcedureIdAction']),
+    ...mapActions('Statement', ['setSelectedElementsAction', 'setProcedureIdAction']),
 
     handleReturn () {
       this.resetSelectionAction()

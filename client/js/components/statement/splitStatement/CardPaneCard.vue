@@ -109,7 +109,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('splitstatement', [
+    ...mapGetters('Splitstatement', [
       'assignableUsers',
       'availablePlaces',
       'currentlyHighlightedSegmentId',

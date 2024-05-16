@@ -42,7 +42,7 @@ describe('Layer-Store', () => {
 describe('Layers', () => {
   beforeEach(() => {
     StubStore = new Vuex.Store({})
-    StubStore.registerModule('layers', Layers)
+    StubStore.registerModule('Layers', Layers)
   })
 
   it('can store data', () => {
