@@ -180,8 +180,8 @@ export default {
       return segmentId => {
         const segment = this.segments[segmentId]
         try {
-          const assignee = segment.rel('Assignee')
-          const orga = assignee ? assignee.rel('Orga') : ''
+          const assignee = segment.rel('assignee')
+          const orga = assignee ? assignee.rel('orga') : ''
 
           return {
             id: assignee.id,

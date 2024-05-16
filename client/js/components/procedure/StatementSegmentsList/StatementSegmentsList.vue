@@ -311,6 +311,7 @@ export default {
 
     attachments () {
       if (this?.statement?.hasRelationship('attachments')) {
+        console.log('this.statement.relationships.attachments', this.statement.relationships.attachments)
         const attachments = this.statement.relationships.attachments.list()
 
         return Object.values(attachments).map(attachment => {
@@ -346,7 +347,7 @@ export default {
 
       if (currentAssigneeId) {
         const assignee = this.assignableUsersObject[currentAssigneeId] || { attributes: {} }
-        const assigneeOrga = assignee.rel ? assignee.rel('Orga') : null
+        const assigneeOrga = assignee.rel ? assignee.rel('orga') : null
 
         return {
           id: currentAssigneeId,
