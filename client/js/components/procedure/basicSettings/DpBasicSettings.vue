@@ -129,6 +129,8 @@ export default {
       selectedAgencies: this.initAgencies,
       selectedDataInputOrgas: this.initDataInputOrgas,
       selectedAuthUsers: this.initAuthUsers,
+      selectedInternalPhase: this.initProcedurePhaseInternal,
+      selectedPublicPhase: this.initProcedurePhasePublic,
       selectedProcedureCategories: this.initProcedureCategories,
       selectedSimilarRecommendationProcedures: this.initSimilarRecommendationProcedures,
       procedureDescription: this.procedureExternalDesc,
@@ -156,6 +158,14 @@ export default {
 
     selectAllAuthUsers () {
       this.selectedAuthUsers = this.authorizedUsersOptions
+    },
+
+    setSelectedInternalPhase (phase) {
+      this.selectedInternalPhase = phase
+    },
+
+    setSelectedPublicPhase (phase) {
+      this.selectedPublicPhase = phase
     },
 
     unselectAllAuthUsers () {

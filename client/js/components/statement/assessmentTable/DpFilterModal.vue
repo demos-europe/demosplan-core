@@ -158,6 +158,7 @@
             <button
               type="button"
               class="btn btn--secondary"
+              data-cy="filterReset"
               @click="reset"
               v-text="Translator.trans('filter.reset')" />
           </div>

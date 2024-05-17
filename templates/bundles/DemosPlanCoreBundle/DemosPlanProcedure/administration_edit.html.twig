@@ -108,16 +108,14 @@
         :init-procedure-categories="JSON.parse('{{ selectedProcedureCategories|default([])|json_encode|e('js', 'utf-8') }}')"
         init-procedure-phase-internal="{{ proceduresettings.phase }}"
         init-procedure-phase-public="{{ proceduresettings.publicParticipationPhase }}"
-        :init-similar-recommendation-procedures="JSON.parse('{{ selectedAllowedSegmentAccessProcedures|json_encode|e('js', 'utf-8') }}')"
-    >
+        :init-similar-recommendation-procedures="JSON.parse('{{ selectedAllowedSegmentAccessProcedures|json_encode|e('js', 'utf-8') }}')">
         <form
             name="configForm"
             enctype="multipart/form-data"
             data-procedure="{{ proceduresettings.ident }}"
             data-dp-validate="configForm"
             method="post"
-            action="{{ path('DemosPlan_procedure_edit',{ procedure: proceduresettings.ident }) }}"
-        >
+            action="{{ path('DemosPlan_procedure_edit',{ procedure: proceduresettings.ident }) }}">
             <input type="hidden" name="_token" value="{{ form._token.vars.value }}" />
             <input type="hidden" value="edit" name="action">
             <input type="hidden" value="{% if proceduresettings.ident is defined %}{{ proceduresettings.ident }}{% endif %}" name="r_ident">
@@ -138,12 +136,7 @@
             {% block wizard_content %}
 
                 {# wizard item: Intern #}
-                <fieldset
-                    name="internalForm"
-                    {% if proceduresettings.internalComplete is defined %}data-wizard-finished="true"{% endif %}
-                    data-wizard-topic="{{ 'wizard.topic.internal'|trans }}"
-                    class="o-wizard"
-                    data-dp-validate="internalForm">
+                <fieldset {% if proceduresettings.internalComplete is defined %}data-wizard-finished="true"{% endif %} data-wizard-topic="{{ 'wizard.topic.internal'|trans }}" class="o-wizard" data-dp-validate="internalForm">
 
                     <legend
                         data-toggle-id="internal"
@@ -159,7 +152,7 @@
                             {% if hasPermission('field_procedure_adjustments_planning_agency') %}
                                 <div class="u-mb">
                                     <label class="inline-block u-mb-0" for="r_agency">
-                                        {{ "planningagency"|trans }}
+                                        {{ "planningagency.participating"|trans }}
                                     </label>
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                         helpText: 'text.procedure.edit.planning_agency'|trans,
@@ -406,6 +399,8 @@
                                     {% endfor %}
                                     <participation-phases
                                         autoswitch-hint="{{ 'period.autoswitch.hint'|trans({ phase: 'procedure.phases.internal.evaluating'|trans }) }}"
+                                        data-cy-iterator="internalPhase:iterator"
+                                        data-cy-select="internalPhase:select"
                                         field-name="r_phase"
                                         help-text="{{ 'text.procedure.edit.internal.change_phase'|trans }}"
                                         label-text="{{ "procedure.phase.institutions"|trans }}"
@@ -418,7 +413,8 @@
                                             name: 'r_phase_iteration',
                                             tooltip: Translator.trans('text.procedure.phasecounter'),
                                             value: '{{ proceduresettings.phaseObject.iteration }}'
-                                        }">
+                                        }"
+                                        @phase:select="setSelectedInternalPhase">
                                     </participation-phases>
                                 {% endif %}
 
@@ -462,7 +458,7 @@
 
                                     <dp-date-range-picker
                                         class="u-2-of-4"
-                                        data-cy="institutionPeriod"
+                                        data-cy="procedurePeriod"
                                         data-dp-validate-error-fieldname="{{ "period.institutions"|trans }}"
                                         start-id="r_startdate"
                                         start-name="r_startdate"
@@ -484,7 +480,7 @@
                                             permission: internalPhase.permissionset,
                                             value: internalPhase.key
                                         })|json_encode|e('js', 'utf-8') }}')"
-                                        data-cy-period="administrationEditForm:procedurePhasePeriod"
+                                        data-cy-phase-period="internalPhasePeriod"
                                         class="u-mb"
                                         end-date="{{ proceduresettings.phaseObject.designatedEndDate|default|dplanDate }}"
                                         init-selected-phase="{{ proceduresettings.phaseObject.designatedPhase }}"
@@ -552,6 +548,8 @@
                                     {% endfor %}
                                     <participation-phases
                                         autoswitch-hint="{{ 'period.autoswitch.hint'|trans({ phase: 'procedure.phases.external.evaluating'|trans }) }}"
+                                        data-cy-iterator="publicPhase:iterator"
+                                        data-cy-select="publicPhase:select"
                                         field-name="r_publicParticipationPhase"
                                         help-text="{{ 'text.procedure.edit.external.change_phase'|trans }}"
                                         label-text="{{ "procedure.public.phase"|trans }}"
@@ -564,7 +562,8 @@
                                             name: 'r_public_participation_phase_iteration',
                                             tooltip: Translator.trans('text.procedure.phasecounter'),
                                             value: '{{ proceduresettings.publicParticipationPhaseObject.iteration }}'
-                                        }">
+                                        }"
+                                        @phase:select="setSelectedPublicPhase">
                                     </participation-phases>
                                 {% endif %}
 
@@ -586,7 +585,7 @@
                                     } %}
                                     <dp-date-range-picker
                                         class="u-2-of-4"
-                                        data-cy="administrationEditForm"
+                                        data-cy="publicParticipationPeriod"
                                         data-dp-validate-error-fieldname="{{ "period.public"|trans }}"
                                         start-id="r_publicParticipationStartDate"
                                         start-name="r_publicParticipationStartDate"
@@ -608,7 +607,7 @@
                                             permission: externalPhase.permissionset,
                                             value: externalPhase.key
                                         })|json_encode|e('js', 'utf-8') }}')"
-                                        data-cy-period="administrationEditForm:procedurePhasePeriodPublic"
+                                        data-cy-phase-period="publicPhasePeriod"
                                         class="u-mb"
                                         end-date="{{ proceduresettings.publicParticipationPhaseObject.designatedEndDate|default|dplanDate }}"
                                         init-selected-phase="{{ proceduresettings.publicParticipationPhaseObject.designatedPhase }}"
