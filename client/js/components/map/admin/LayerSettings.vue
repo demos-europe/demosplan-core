@@ -66,7 +66,6 @@
       required />
     <dp-multiselect
       @input="filterMatrixSetByLayers"
-      required
       track-by="label"
       label="label"
       multiple
@@ -264,6 +263,7 @@ export default {
 
   methods: {
     addLayerToOptions (layerArray, identifier) {
+      console.log('layerArray', layerArray)
       layerArray.forEach(layer => {
         if (layer[identifier]) {
           this.layersOptions.push({ value: layer[identifier], label: layer[identifier] })
@@ -278,6 +278,8 @@ export default {
       // Show available layers in layers dropdown
       if (Array.isArray(this.currentCapabilities.Capability.Layer.Layer)) {
         this.addLayerToOptions(this.currentCapabilities.Capability.Layer.Layer, 'Name')
+      } else if (this.currentCapabilities.Capability.Layer.Name) {
+        this.layersOptions.push({ value: this.currentCapabilities.Capability.Layer, label: this.currentCapabilities.Capability.Layer.Name })
       } else {
         this.layersOptions = []
       }
