@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Address;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
@@ -221,7 +222,8 @@ final class OrgaResourceType extends DplanResourceType
             //@todo make it readable false
             $properties[] = $this->createAttribute($this->canCreateProcedures)->readable(true, function (Orga $orga) : bool {
                 $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
-                return $this->accessControlPermissionService->canCreateProcedure($orga, $currentCustomer);
+                $role = $this->roleService->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY])[0];
+                return $this->accessControlPermissionService->canCreateProcedure($orga, $currentCustomer, RoleInterface::PRIVATE_PLANNING_AGENCY);
             });
         }
 

@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Permission;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControlPermission;
@@ -75,6 +76,7 @@ class AccessControlPermissionService extends CoreService
         return $enabledPermissions;
     }
 
+
     public function removePermission($permissionName, $orga, $customer, $role): void
     {
         // Find the existing permission with the given parameters
@@ -94,12 +96,14 @@ class AccessControlPermissionService extends CoreService
 
     /**
      * @param OrgaInterface $orga
+     * @param CustomerInterface $orga
+     * @param string $role
      * @return bool
      */
-    public function canCreateProcedure($orga, $customer): bool
+    public function canCreateProcedure($orga, $customer, $role): bool
     {
         // Check if the user has the permission to create a procedure
-        $permissions = $this->getPermission($orga, $customer, RoleInterface::PRIVATE_PLANNING_AGENCY);
+        $permissions = $this->getPermission($orga, $customer, $role);
         return in_array('feature_admin_new_procedure', $permissions);
 
     }
