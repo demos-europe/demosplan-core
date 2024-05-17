@@ -290,7 +290,7 @@
                         {{ 'map.getfeatureinfo.label'|trans }}
                     </button>
                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                        cssClasses: 'o-tooltip--question-circle float-right u-mt-0_25',
+                        cssClasses: 'float-right u-mt-0_25',
                         helpText: "map.getfeatureinfo.description"|trans,
                         omitCssPrefix: false
                     } %}
@@ -404,30 +404,6 @@
                     </button>
                 {% endif %}
             </div>
-
-            {% if procedureStatementPriorityArea %}
-                <div id="priorityAreaPopup">
-                    <h3 class="{{ 'c-map__popup__title o-spinner'|prefixClass }}">___content___</h3>
-                    <span class="{{ 'inline-block u-mr-0_5'|prefixClass }}">___id___</span>
-                    {% if templateVars.htmlAvailable %}
-                        <a
-                            class="{{ 'c-map__popup__link block u-mt-0_5'|prefixClass }}"
-                            target="_blank"
-                            rel="noopener"
-                            href="{{ path('dplan_project_procedure_show_datasheet', { 'priorityArea': '___id___', 'procedureId': procedure|default()  }) }}">
-                            <i class="{{ 'fa fa-external-link'|prefixClass }}" aria-hidden="true"></i> {{ "priorityArea.datasheet.open"|trans }}
-                        </a>
-                    {% endif %}
-
-                    <a
-                        class="{{ 'c-map__popup__link block u-mv-0_25 '|prefixClass }}"
-                        target="_blank"
-                        rel="noopener"
-                        href="{{ path('dplan_project_procedure_procedure_show_datasheet_pdf', { 'priorityArea': '___id___', 'procedureId': procedure|default() }) }}">
-                        <i class="{{ 'fa fa-download'|prefixClass }}" aria-hidden="true"></i> {{ "priorityArea.datasheet.download.pdf"|trans }}
-                    </a>
-                </div>
-            {% endif %}
 
             <div id="markLocationPopup">
                 <h3 class="{{ 'c-map__popup__title'|prefixClass }}">{{ "location.selected"|trans }}</h3>

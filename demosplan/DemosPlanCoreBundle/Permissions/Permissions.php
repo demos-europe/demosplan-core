@@ -37,7 +37,6 @@ use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -134,13 +133,11 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     /**
      * Initialisiere die Permissions.
      */
-    public function initPermissions(UserInterface $user, ?array $context = null): PermissionsInterface
+    public function initPermissions(UserInterface $user): PermissionsInterface
     {
         $this->user = $user;
 
         $this->setInitialPermissions();
-
-        $this->initMenuhightlighting($context);
 
         // set Permissions which are user independent
         $this->setPlatformPermissions();
@@ -154,10 +151,9 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     /**
      * @deprecated see deprecation on property userInvitedInProcedure
      */
-    public function evaluateUserInvitedInProcedure(Procedure $procedure, Session $session): void
+    public function evaluateUserInvitedInProcedure(array $invitedProcedures): void
     {
-        $invitedProcedures = $session->get('invitedProcedures', []);
-        if (\in_array($procedure->getId(), $invitedProcedures, true)) {
+        if (\in_array($this->procedure?->getId(), $invitedProcedures, true)) {
             $this->userInvitedInProcedure = true;
         }
     }
@@ -516,6 +512,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
             // enable ai specific permissions
             $this->enablePermissions([
+                'area_main_file',
                 'feature_read_source_statement_via_api',
                 'field_statement_recommendation',
             ]);
@@ -525,7 +522,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     /**
      * Setze die Rechte, die ein Verfahren betreffen.
      */
-    protected function setProcedurePermissions(): void
+    public function setProcedurePermissions(): void
     {
         // Ist Inhaberin des Verfahrens. Nur FP*-Rollen
         if ($this->ownsProcedure()) {
@@ -880,33 +877,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     }
 
     /**
-     * Setzt das initiale Set von kontxtbezogenen Menue-Highlights.
-     */
-    protected function initMenuhightlighting(?array $context = null): void
-    {
-        if (null !== $context) {
-            foreach ($context as $permission) {
-                $this->setMenuhighlighting($permission);
-            }
-        }
-    }
-
-    /**
-     * Setzt das Menue-Highlight eines einzelnen Permissions.
-     *
-     * @param string $permission
-     */
-    public function setMenuhighlighting($permission): void
-    {
-        // Nur "area_*"-Permissions bestimmen das Highlighting
-        if (false === \stripos($permission, 'area_')) {
-            return;
-        }
-
-        $this->permissions[$permission]->setActive(true);
-    }
-
-    /**
      * Setzt das initiale Set von Berechtigungen.
      */
     protected function setInitialPermissions(): void
@@ -986,7 +956,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         // Prüfe, ob der User ins Verfahren darf
         if (null !== $this->procedure) {
             $this->setProcedurePermissions();
-
             $readPermission = $this->hasPermissionsetRead();
             $owns = $this->ownsProcedure();
             $apiUserMayAccess = $this->hasPermission('feature_procedure_api_access');

@@ -230,10 +230,11 @@ services:
         arguments:
             - !tagged dplan.data.generator
 
+    demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\ApiAuthenticator:
+        parent: lexik_jwt_authentication.security.jwt_authenticator
+
     demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\AiApiAuthenticator:
-        autowire: true
-        public: false
-        parent: lexik_jwt_authentication.security.guard.jwt_token_authenticator
+        parent: lexik_jwt_authentication.security.jwt_authenticator
 
     demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher: ~
 
@@ -301,10 +302,7 @@ services:
         arguments: ['%kernel.default_locale%']
         tags: [kernel.event_subscriber]
 
-    demosplan\DemosPlanCoreBundle\EventSubscriber\ProcedureCoupleTokenSubscriber:
-        arguments:
-            $typeResolver: '@EDT\JsonApi\ApiDocumentation\AttributeTypeResolver'
-            $propertyAccessor: '@EDT\DqlQuerying\PropertyAccessors\Iso8601PropertyAccessor'
+    demosplan\DemosPlanCoreBundle\EventSubscriber\ProcedureCoupleTokenSubscriber: ~
 
     demosplan\DemosPlanCoreBundle\Form\ProcedureTypeFormType: ~
 
@@ -1331,6 +1329,11 @@ services:
         arguments:
             $propertyAccessor: '@EDT\DqlQuerying\PropertyAccessors\Iso8601PropertyAccessor'
             $typeResolver: '@EDT\JsonApi\ApiDocumentation\AttributeTypeResolver'
+            $identifierByDefaultSortable: true
+            $attributesByDefaultSortable: true
+            $toOneRelationshipsByDefaultSortable: true
+            # logically problematic, understand the implications before setting this to true (https://github.com/demos-europe/edt/issues/45)
+            $toManyRelationshipsByDefaultSortable: false
 
     EDT\PathBuilding\DocblockPropertyByTraitEvaluator:
         arguments:

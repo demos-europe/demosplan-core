@@ -267,7 +267,11 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
                 $listLineWidth = 17;
             }
             if (('landscape' === $template && 'export' === $templateName)
-                || ('condensed' === $template && 'export_condensed' === $templateName && !$original)) {
+                || ('condensed' === $template && 'export_condensed' === $templateName && !$original)
+                || ('condensed' === $template && 'export_condensed_anonymous' === $templateName && !$original)
+                || ('landscape' === $template && 'export_anonymous' === $templateName && !$original)
+                || ('landscapeWithFrags' === $template && 'export_fragments_anonymous' === $templateName && !$original)
+            ) {
                 // horizontal format (landscape) split view - Text | Response
                 $listLineWidth = 12;
             }
@@ -362,6 +366,8 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
      */
     protected function collectStatementsOrFragments($statements, $statementsOnly, $filterSetHash, string $procedureId, bool $original, $selectedFragmentIds = []): Collection
     {
+        $filterSetReferenceSorting = [];
+
         if (true !== $original) {
             $filterSetStatements = $this->statementHandler->getResultsByFilterSetHash(
                 $filterSetHash,
