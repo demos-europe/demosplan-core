@@ -4050,6 +4050,7 @@ warning.topic.in.use: "Das Thema {topicname} kann nicht gelöscht werden, weil e
 warning.topic.renamed: "Das Thema {topicname} konnte nicht umbenannt werden."
 warning.use.login: "Anmeldung fehlgeschlagen. Bitte nutzen Sie Ihren Nutzendennamen, um sich anzumelden."
 warning.user.register.throttle: "Es können im Moment keine weiteren Accounts angelegt werden. Bitte versuchen Sie es später erneut."
+warning.user.pass.reset.throttle: "Es können keine weiteren Passwort zurücksetzen Anfragen gestellt werden. Bitte versuchen Sie es später erneut."
 warning.virus.found: "In der Datei {filename} wurde ein Virus gefunden."
 warning.gisLayerCategory.delete.because.of.children: "Die Kategorie {categoryName} konnte nicht gelöscht werden, weil sie noch Kategorien oder Kartenebenen enthält."
 warning.gisLayer.automatic.removed.from.group: "Die Kartenebene \"{gisLayerName}\" wurde aus der Sichtbarkeitsgruppe gelöst, weil es nicht erlaubt ist, die Kartenebene in der Beteiligungsebene auszublenden."
