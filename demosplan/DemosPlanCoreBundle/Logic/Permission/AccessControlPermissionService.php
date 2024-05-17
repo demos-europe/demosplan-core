@@ -29,6 +29,8 @@ use demosplan\DemosPlanCoreBundle\Repository\AccessControlPermissionRepository;
  */
 class AccessControlPermissionService extends CoreService
 {
+
+    public const CAN_CREATE_PROCEDURES = 'feature_admin_new_procedure';
     public function __construct(
         private readonly AccessControlPermissionRepository $accessControlPermissionRepository,
         private readonly RoleHandler $roleHandler,
@@ -97,13 +99,13 @@ class AccessControlPermissionService extends CoreService
     /**
      * @param OrgaInterface $orga
      * @param CustomerInterface $orga
-     * @param string $role
+     * @param string $roles
      * @return bool
      */
-    public function canCreateProcedure($orga, $customer, $role): bool
+    public function canCreateProcedure($orga, $customer, $roles): bool
     {
         // Check if the user has the permission to create a procedure
-        $permissions = $this->getPermission($orga, $customer, $role);
+        $permissions = $this->getPermission($orga, $customer, $roles);
         return in_array('feature_admin_new_procedure', $permissions);
 
     }

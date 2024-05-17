@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlPermissionService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\FunctionInterface;
@@ -32,7 +33,8 @@ class ProcedureAccessEvaluator
         private readonly CustomerService $currentCustomerProvider,
         private readonly EntityFetcher $entityFetcher,
         private readonly GlobalConfigInterface $globalConfig,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
+        private readonly AccessControlPermissionService $accessControlPermissionService,
     ) {
     }
 
@@ -61,7 +63,8 @@ class ProcedureAccessEvaluator
             $this->conditionFactory,
             $this->globalConfig,
             $this->logger,
-            $procedure
+            $procedure,
+            $this->accessControlPermissionService,
         );
 
         // procedure must not be deleted
@@ -106,8 +109,7 @@ class ProcedureAccessEvaluator
         $privatePlanningAgency = $ownsProcedureConditionFactory->hasPlanningAgencyRole($currentCustomer);
         if ($this->entityFetcher->objectMatchesAll($user, $privatePlanningAgency)) {
             $this->logger->debug('User has dynamic permission');
-
-            $dynamicPermissionIsEnabled = $ownsProcedureConditionFactory->isAuthorizedViaDynamicPermission($currentCustomer);
+            $dynamicPermissionIsEnabled = $ownsProcedureConditionFactory->isOrgaAuthorizedOnThisCustomerViaDynamicPermission($currentCustomer);
             $orgaOwnsProcedure = $ownsProcedureConditionFactory->isAuthorizedViaOrgaOrManually();
             if ($this->entityFetcher->objectMatchesAny($user, [
                 $orgaOwnsProcedure,
@@ -155,7 +157,8 @@ class ProcedureAccessEvaluator
             $this->conditionFactory,
             $this->globalConfig,
             $this->logger,
-            $userOrProcedure
+            $userOrProcedure,
+            $this->accessControlPermissionService
         );
 
         $currentCustomer = $this->currentCustomerProvider->getCurrentCustomer();
@@ -176,7 +179,7 @@ class ProcedureAccessEvaluator
         // user owns via paid feature on organisation on customer
         $dynamicPermission =  $this->conditionFactory->allConditionsApply(
             $ownsProcedureConditionFactory->isAuthorizedViaOrgaOrManually(),
-            $ownsProcedureConditionFactory->isAuthorizedViaDynamicPermission($currentCustomer),
+            $ownsProcedureConditionFactory->isOrgaAuthorizedOnThisCustomerViaDynamicPermission($currentCustomer),
             ...$ownsProcedureConditionFactory->hasPlanningAgencyRole($currentCustomer)
         );
 
