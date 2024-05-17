@@ -484,8 +484,7 @@
                                             permission: internalPhase.permissionset,
                                             value: internalPhase.key
                                         })|json_encode|e('js', 'utf-8') }}')"
-                                        data-cy-end-date="administrationEditForm:designatedEndDate"
-                                        data-cy-start-date="administrationEditForm:designatedStartDate"
+                                        data-cy-period="administrationEditForm:procedurePhasePeriod"
                                         class="u-mb"
                                         end-date="{{ proceduresettings.phaseObject.designatedEndDate|default|dplanDate }}"
                                         init-selected-phase="{{ proceduresettings.phaseObject.designatedPhase }}"
@@ -609,8 +608,7 @@
                                             permission: externalPhase.permissionset,
                                             value: externalPhase.key
                                         })|json_encode|e('js', 'utf-8') }}')"
-                                        data-cy-end-date="administrationEditForm:designatedPublicEndDate"
-                                        data-cy-start-date="administrationEditForm:designatedPublicStartDate"
+                                        data-cy-period="administrationEditForm:procedurePhasePeriodPublic"
                                         class="u-mb"
                                         end-date="{{ proceduresettings.publicParticipationPhaseObject.designatedEndDate|default|dplanDate }}"
                                         init-selected-phase="{{ proceduresettings.publicParticipationPhaseObject.designatedPhase }}"

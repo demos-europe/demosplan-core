@@ -64,7 +64,7 @@
             enforce-plausible-dates
             :min-date="startDate"
             required
-            data-cy="procedurePhasePeriod"
+            :data-cy="dataCyPeriod"
             start-disabled
             :start-id="startDateId"
             :start-name="startDateId"
@@ -123,16 +123,10 @@ export default {
       default: () => ({})
     },
 
-    dataCyEndDate: {
+    dataCyPeriod: {
       type: String,
       required: false,
-      default: 'endDate'
-    },
-
-    dataCyStartDate: {
-      type: String,
-      required: false,
-      default: 'startDate'
+      default: 'period'
     },
 
     /**
