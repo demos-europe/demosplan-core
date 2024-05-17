@@ -60,9 +60,9 @@ class AccessControlPermissionService extends CoreService
             $role = $this->roleHandler->getUserRolesByCodes([$roleName])[0];
 
             $permissions = $this->accessControlPermissionRepository->findBy([
-                'organisation' => $orga,
-                'customer'     => $customer,
-                'role'         => $role,
+                'organisation' => [$orga, NULL],
+                'customer'     => [$customer, NULL],
+                'role'         => [$role, NULL]
             ]);
 
             // Loop through each permission object and get the permission name
