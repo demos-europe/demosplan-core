@@ -16,17 +16,10 @@
           @click="toggle">
           {{ Translator.trans('maptools') }}
         </button>
-        <i
-          :class="prefixClass('fa fa-question-circle c-map__layerhelp c-map__layerhelp--position-absolute')"
-          :aria-label="Translator.trans('contextual.help')"
+        <dp-contextual-help
           v-if="unfolded"
-          tabindex="0"
-          v-tooltip="{
-            content: Translator.trans('maptools.explanation'),
-            classes: 'width-350',
-            boundariesElement: 'body',
-            container: '#procedureDetailsMap'
-          }" />
+          class="c-map__layerhelp"
+          :text="Translator.trans('maptools.explanation')" />
       </div>
     </div>
 
@@ -114,10 +107,11 @@
 
 <script>
 import isMobile from 'ismobilejs'
-import { prefixClassMixin } from '@demos-europe/demosplan-ui'
+import {DpContextualHelp, prefixClassMixin} from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpMapTools',
+  components: {DpContextualHelp},
 
   mixins: [prefixClassMixin],
 

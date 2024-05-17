@@ -101,6 +101,7 @@
             <dp-radio
               name="r_isNegativeReport"
               id="negative_report_false"
+              data-cy="statementModal:publicParticipationParticipate"
               class="u-mr-2"
               :checked="formData.r_isNegativeReport === '0'"
               @change="() => { setStatementData({ r_isNegativeReport: '0'}) }"
@@ -111,6 +112,7 @@
             <dp-radio
               name="r_isNegativeReport"
               id="negative_report_true"
+              data-cy="statementModal:indicationerror"
               :checked="formData.r_isNegativeReport === '1'"
               @change="() => { setStatementData({ r_isNegativeReport: '1'}) }"
               :label="{
@@ -171,6 +173,7 @@
 
         <template v-if="hasPermission('field_statement_add_assignment') && hasPlanningDocuments">
           <p
+            v-if="formData.r_isNegativeReport === '0'"
             aria-hidden="true"
             :class="prefixClass('c-statement__formblock-title u-mb-0_25 weight--bold inline-block')">
             {{ Translator.trans('element.assigned') }}
@@ -199,7 +202,8 @@
               </button>
             </template>
             <button
-              v-else
+              v-else-if="formData.r_isNegativeReport === '0'"
+              data-cy="statementModal:elementAssign"
               @click="gotoTab('procedureDetailsDocumentlist')"
               :class="prefixClass('btn--blank o-link--default text-left')">
               <i
@@ -343,6 +347,7 @@
               v-if="hasPermission('feature_draft_statement_citizen_immediate_submit') && draftStatementId === ''"
               type="submit"
               :disabled="isLoading"
+              data-cy="statementModal:statementSaveImmediate"
               @click="e => sendStatement(e,true)"
               :class="prefixClass('btn btn--primary u-1-of-1-palm u-mt-0_5-palm')">
               {{ Translator.trans('statement.save.immediate') }}
@@ -355,7 +360,7 @@
                 prefixClass('btn u-1-of-1-palm u-mt-0_5-palm')
               ]"
               @click="sendStatement"
-              data-cy="saveAsDraft">
+              data-cy="statementModal:saveAsDraft">
               <template v-if="draftStatementId === ''">
                 {{ Translator.trans('statement.save.as.draft') }}
               </template>
@@ -366,6 +371,7 @@
           </template>
           <button
             type="reset"
+            data-cy="statementModal:discardChanges"
             :disabled="isLoading"
             :class="prefixClass('btn btn--secondary u-1-of-1-palm u-ml-lap-up')"
             @click.prevent="() => reset()">
@@ -1277,6 +1283,16 @@ export default {
 
       return makeFormPost(this.formData, route)
         .then(response => {
+          if (response.status === 429) {
+            dplan.notify.notify('error', Translator.trans('error.statement.not.saved.throttle'))
+
+            return false;
+          }
+          if (response.status !== 200) {
+            dplan.notify.notify('error', Translator.trans('error.statement.not.saved'))
+
+            return false;
+          }
           /*
            * Handling for successful responses
            * if its not an HTML-Response like after creating a new one

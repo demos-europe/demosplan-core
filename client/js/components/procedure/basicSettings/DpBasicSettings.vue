@@ -11,6 +11,7 @@
 import {
   dpApi,
   DpButton,
+  DpContextualHelp,
   DpDateRangePicker,
   DpDatetimePicker,
   DpEditor,
@@ -22,6 +23,7 @@ import {
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import DpEmailList from './DpEmailList'
 import ExportSettings from './ExportSettings'
+import ParticipationPhases from './ParticipationPhases'
 
 export default {
   name: 'DpBasicSettings',
@@ -30,6 +32,7 @@ export default {
     AddonWrapper,
     AutoSwitchProcedurePhaseForm: () => import(/* webpackChunkName: "auto-switch-procedure-phase-form" */ '@DpJs/components/procedure/basicSettings/AutoSwitchProcedurePhaseForm'),
     DpButton,
+    DpContextualHelp,
     DpDateRangePicker,
     DpDatetimePicker,
     DpEditor,
@@ -42,7 +45,8 @@ export default {
       const { DpUploadFiles } = await import('@demos-europe/demosplan-ui')
       return DpUploadFiles
     },
-    ExportSettings
+    ExportSettings,
+    ParticipationPhases
   },
 
   props: {
@@ -125,9 +129,9 @@ export default {
       selectedAgencies: this.initAgencies,
       selectedDataInputOrgas: this.initDataInputOrgas,
       selectedAuthUsers: this.initAuthUsers,
-      selectedProcedureCategories: this.initProcedureCategories,
       selectedInternalPhase: this.initProcedurePhaseInternal,
       selectedPublicPhase: this.initProcedurePhasePublic,
+      selectedProcedureCategories: this.initProcedureCategories,
       selectedSimilarRecommendationProcedures: this.initSimilarRecommendationProcedures,
       procedureDescription: this.procedureExternalDesc,
       procedureName: this.initProcedureName
@@ -138,22 +142,13 @@ export default {
     authUsersOptions () {
       const users = JSON.parse(JSON.stringify(this.authorizedUsersOptions))
       return sortAlphabetically(users, 'name')
-    },
-
-    publicPhaseIsInParticipation () {
-      return this.participationPhases.includes(this.selectedPublicPhase)
-    },
-
-    internalPhaseIsInParticipation () {
-      return this.participationPhases.includes(this.selectedInternalPhase)
     }
   },
 
   methods: {
     getDataPlis (plisId, routeName) {
       return dpApi({
-        method: 'get',
-        responseType: 'json',
+        method: 'GET',
         url: Routing.generate(routeName, { uuid: plisId })
       })
         .then(data => {
@@ -163,6 +158,14 @@ export default {
 
     selectAllAuthUsers () {
       this.selectedAuthUsers = this.authorizedUsersOptions
+    },
+
+    setSelectedInternalPhase (phase) {
+      this.selectedInternalPhase = phase
+    },
+
+    setSelectedPublicPhase (phase) {
+      this.selectedPublicPhase = phase
     },
 
     unselectAllAuthUsers () {

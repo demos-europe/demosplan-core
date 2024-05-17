@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\ManualListSort;
 use demosplan\DemosPlanCoreBundle\Entity\News\News;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
@@ -20,9 +19,9 @@ use Doctrine\ORM\NoResultException;
 use Exception;
 
 /**
- * @template-extends FluentRepository<News>
+ * @template-extends CoreRepository<News>
  */
-class NewsRepository extends FluentRepository implements ArrayInterface
+class NewsRepository extends CoreRepository implements ArrayInterface
 {
     /**
      * Get a news entry from DB by id.
@@ -129,7 +128,7 @@ class NewsRepository extends FluentRepository implements ArrayInterface
      * @param string $entityId - The ID of the entry, whichone will be updated
      * @param array  $data     - contains the values for the object, which will mapped to the DB
      *
-     * @return news - Will return the updated news-object, if the update was successful
+     * @return News - Will return the updated news-object, if the update was successful
      *
      * @throws Exception
      */
@@ -233,7 +232,7 @@ class NewsRepository extends FluentRepository implements ArrayInterface
      *
      * @param News $news
      *
-     * @return news
+     * @return News
      */
     public function generateObjectValues($news, array $data)
     {

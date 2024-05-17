@@ -17,7 +17,7 @@
 
       <!-- modal content -->
       <div
-        class="c-tabs__modal u-ph-0 u-pb-0 u-mv-0 height--auto"
+        class="c-tabs__modal u-ph-0 u-pb-0 u-mv-0 h-auto"
         :style="{ minHeight: minHeight + 'px' }"
         ref="exportModalContent">
         <div
@@ -27,6 +27,7 @@
             class="tab u-1-of-6"
             :class="activeTab(key)"
             @click="switchTab(key)"
+            :data-cy="`exportModal:${option.tabLabel}`"
             type="button"
             role="tab"
             v-for="(option, key) in tabsOptions"
@@ -55,6 +56,7 @@
                   type="checkbox"
                   name="pdfAnonymous"
                   id="pdfAnonymous"
+                  data-cy="exportModal:pdfAnonymous"
                   value="anonymous"
                   v-model="exportChoice.pdf.anonymous">
                 {{ Translator.trans('export.anonymous') }}
@@ -77,6 +79,7 @@
                   type="radio"
                   :id="'pdfTemplate_'+identifier"
                   name="pdfTemplate"
+                  :data-cy="`exportModal:pdfTemplate_${identifier}`"
                   v-model="exportChoice.pdf.template"
                   :value="identifier">
                 {{ Translator.trans(templateInfo.name) }}
@@ -152,6 +155,7 @@
                 <input
                   type="checkbox"
                   id="docxAnonymous"
+                  data-cy="exportModal:docxAnonymous"
                   value="anonymous"
                   v-model="exportChoice.docx.anonymous">
                 {{ Translator.trans('export.anonymous') }}
@@ -173,6 +177,7 @@
                 <input
                   type="radio"
                   :id="'docxTemplate_'+identifier"
+                  :data-cy="`exportModal:docxTemplate_${identifier}`"
                   name="docxTemplate"
                   v-model="exportChoice.docx.template"
                   :value="identifier">
@@ -301,6 +306,7 @@
                   type="radio"
                   name="xlsxExportType"
                   id="xlsxExportTypeTopicsAndTags"
+                  data-cy="exportModal:xlsxExportTypeTopicsAndTags"
                   value="topicsAndTags"
                   v-model="exportChoice.xlsx.exportType">
                 {{ Translator.trans('export.topicsAndTags') }}
@@ -316,6 +322,7 @@
                   type="radio"
                   name="xlsxExportType"
                   id="xlsxExportTypePotentialAreas"
+                  data-cy="exportModal:xlsxExportTypePotentialAreas"
                   value="potentialAreas"
                   v-model="exportChoice.xlsx.exportType">
                 {{ Translator.trans('export.potentialAreas') }}
@@ -331,6 +338,7 @@
                   type="radio"
                   name="xlsxExportType"
                   id="xlsxExportTypeStatement"
+                  data-cy="exportModal:xlsxExportTypeStatement"
                   value="statements"
                   v-model="exportChoice.xlsx.exportType">
                 {{ Translator.trans('statements') }}
@@ -360,6 +368,7 @@
           <button
             type="button"
             class="btn btn--primary submitBtn"
+            data-cy="exportModal:submit"
             @click.prevent="handleSubmit">
             {{ submitLabel }}
           </button>

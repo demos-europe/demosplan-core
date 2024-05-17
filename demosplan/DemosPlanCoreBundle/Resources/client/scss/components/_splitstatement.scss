@@ -19,7 +19,7 @@
     $segment-highlight-bg-color: $dp-color-message-warning-bg;
 
     // Sidebar
-    $sidebar-width: 300px;
+    $sidebar-width: 330px;
     // Width + margin of sidebar are subtracted
     $segmentation-editor-width: calc(100% - #{$sidebar-width} - #{$inuit-base-spacing-unit});
 
@@ -46,7 +46,7 @@
     .side-bar {
         width: $sidebar-width;
         margin-left: $inuit-base-spacing-unit;
-        padding: 20px;
+        padding: 12px;
 
         border: 1px solid $dp-color-neutral-light-2;
         border-radius: 6px;
@@ -146,10 +146,10 @@
         position: relative;
 
         padding-top: 5px;
-        margin-left: -30px;
+        margin-left: -2px;
 
         & .ProseMirror {
-            padding-left: 30px !important;
+            padding-left: 2px !important;
         }
     }
 
@@ -312,10 +312,17 @@
         }
 
         .multiselect__option {
+            display: flex;
+            word-break: break-word;
+            align-items: flex-start;
+            hyphens: auto;
+
             // Sad but true: overriding _form.scss "default" styles...
             label {
                 display: inline-block;
                 margin-bottom: 0;
+                font-family: $normal-font-family;
+                font-weight: $normal-font-weight;
             }
         }
 
@@ -329,6 +336,13 @@
         // Dark variant used in TagSelect.vue
         &--dark {
             box-sizing: content-box;
+
+            // Within the TagSelect context, the border of the wrapper was being cut off
+            // when using the default styles. This is fixed here.
+            .multiselect__content-wrapper {
+                width: 100%;
+                margin: 0;
+            }
 
             // Outer container
             .multiselect__tags {

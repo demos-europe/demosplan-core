@@ -19,7 +19,7 @@
       @mouseover="toggleOpacityControl(true)"
       @mouseout="toggleOpacityControl(false)">
       <button
-        :class="prefixClass('btn--blank btn--focus width-16 text-left')"
+        :class="prefixClass('btn--blank btn--focus w-3 text-left')"
         :aria-label="layer.attributes.name + ' ' + statusAriaText"
         @focus="toggleOpacityControl(true)"
         @click.prevent.stop="toggleFromSelf(true)"
@@ -50,30 +50,22 @@
     </span>
     <span
       :class="prefixClass('c-map__group-item-name o-hellip--nowrap')"
-      v-show="!showOpacityControl">{{ layer.attributes.name }}</span>
-    <i
-      :class="prefixClass('fa fa-question-circle c-map__layerhelp u-mt-0_125')"
-      :aria-label="Translator.trans('contextual.help')"
-      :tabindex="0"
+      v-show="!showOpacityControl">
+      {{ layer.attributes.name }}
+    </span>
+    <dp-contextual-help
       v-if="contextualHelpText"
-      v-tooltip="{
-        content: contextualHelpText,
-        classes: prefixClass('width-350'),
-        boundariesElement: 'body',
-        container: '#procedureDetailsMap'
-      }"
-      @mouseover.self="tooltipExpanded = true"
-      @focus="tooltipExpanded = true"
-      @mouseleave.self="tooltipExpanded = false"
-      @blur="tooltipExpanded = false" />
+      class="c-map__layerhelp u-mt-0_125"
+      :text="contextualHelpText" />
   </li>
 </template>
 
 <script>
-import { prefixClass } from '@demos-europe/demosplan-ui'
+import { DpContextualHelp, prefixClass } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpPublicLayerListLayer',
+  components: { DpContextualHelp },
 
   props: {
     layer: {
@@ -114,7 +106,7 @@ export default {
     contextualHelpText () {
       const contextualHelp = this.$store.getters['layers/element']({ id: this.layer.id, type: 'ContextualHelp' })
       const hasContextualHelp = contextualHelp && contextualHelp.attributes.text
-      return hasContextualHelp ? contextualHelp.attributes.text : false
+      return hasContextualHelp ? contextualHelp.attributes.text : ''
     },
 
     id () {

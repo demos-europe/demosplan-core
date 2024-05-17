@@ -27,7 +27,7 @@
         {# pdf attachment #}
         {% if news.pdf is defined and news.pdf != '' %}
             <a
-                class="{{ 'font-size-smaller float-right max-width-100p'|prefixClass }}"
+                class="{{ 'font-size-smaller float-right max-w-full'|prefixClass }}"
                 target="_blank"
                 rel="noopener"
                 href="{{ path("core_file", { 'hash': news.pdf|getFile('hash') }) }}"
@@ -52,6 +52,11 @@
         {# full text #}
         <div class="{{ 'c-styled-html'|prefixClass }} {% if news.picture is defined and news.picture != "" %}overflow-auto{% endif %}">
             {{ news.description|wysiwyg }}
+            {% if news.text is defined and news.text != "" %}
+                <a href="{{ path('DemosPlan_news_news_public_detail',{'newsID':news.ident,'procedure':procedure}) }}">
+                    {{ "readon"|trans }}
+                </a>
+            {% endif %}
         </div>
 
     </div>

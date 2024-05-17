@@ -111,6 +111,11 @@ class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
         return $this->id;
     }
 
+    public function setId(string $id): void
+    {
+        $this->id = $id;
+    }
+
     public function getStatementFormDefinition(): StatementFormDefinitionInterface
     {
         return $this->statementFormDefinition;

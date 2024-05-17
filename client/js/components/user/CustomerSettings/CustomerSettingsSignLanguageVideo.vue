@@ -14,7 +14,7 @@
     <template v-if="video.id">
       <div class="flex space-inline-m">
         <dp-video-player
-          class="shadow height-fit-content width-300"
+          class="shadow h-fit w-12"
           :sources="videoSources"
           :id="`file${video.file}`"
           icon-url="/img/plyr.svg" />
@@ -109,6 +109,11 @@ export default {
   mixins: [dpValidateMixin],
 
   props: {
+    currentCustomerId: {
+      type: String,
+      required: true
+    },
+
     signLanguageOverviewVideo: {
       required: false,
       type: Object,
@@ -127,7 +132,7 @@ export default {
       required: false,
       type: String,
       default: ''
-    },
+    }
   },
 
   data () {
@@ -168,7 +173,7 @@ export default {
 
     saveSignLanguageVideo () {
       this.isBusy = true
-      this.saveSignLanguage()
+      this.saveSignLanguageOverviewDescription()
       this.saveVideo()
         .then(() => {
           this.$emit('created')
@@ -185,12 +190,13 @@ export default {
         .then(() => this.$emit('deleted'))
     },
 
-    saveSignLanguage() {
+    saveSignLanguageOverviewDescription () {
       const payload = {
         id: this.currentCustomerId,
         type: 'Customer',
         attributes: {
-          ...this.customerList[this.currentCustomerId].attributes
+          ...this.customerList[this.currentCustomerId].attributes,
+          signLanguageOverviewDescription: this.signLanguageOverviewDescription
         }
       }
       this.updateCustomer(payload)

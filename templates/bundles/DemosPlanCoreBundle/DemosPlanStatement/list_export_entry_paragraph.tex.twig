@@ -19,7 +19,9 @@
             {% if hasPermission('feature_statements_like') and statement.publicAllowed %}
                 {% if statement.isSubmittedByCitizen %} {{ "liked.by"|trans|latex|raw }}: & {% if statement.likesNum is defined and statement.likesNum  == 1 %}{{ statement.likesNum }}{{ "person"|trans|latex|raw }}{% else %}{{ statement.likesNum|default() }} {{ "persons"|trans|latex|raw }}{% endif %}\\{% endif %}
             {% endif %}
-            {{ "paragraph"|trans|latex|raw }}: & {% if statement.paragraph  is defined and statement.paragraph.title  != '' %}{{ statement.paragraph.title|latex|raw }}{% else %} {{ "notspecified"|trans|latex|raw }} {% endif %}\\
+            {% if hasPermission('feature_documents_category_use_paragraph') %}
+            {{ "paragraph"|trans|latex|raw }}: & {% if statement.paragraph  is defined and statement.paragraph.title  != '' %}{{ statement.paragraph.title|latex|raw }}{% else %} {{ "notspecified"|trans|latex|raw }} {% endif %}
+            {% endif %}
   			{{ "file"|trans|latex|raw }}: & {% if statement.files|default([])|length > 0 %}{% for file in statement.files %}{{ file|getFile('name')|latex|raw }} {% endfor %}{% else %} {{ "notspecified"|trans|latex|raw }} {% endif %}\\
             {% if hasPermission('field_statement_public_allowed') %}{{ "publish.on.platform"|trans|latex|raw }}:& {% if statement.publicAllowed %}{{ "yes"|trans }}{% else %}{{ "no"|trans }}{% endif %} \\{% endif %}
   		\hline
@@ -28,7 +30,7 @@
 \ParallelLText{{ '{' }}
 {% if statement.text is defined %}
     \textbf{{ '{' }}{{ "statementtext"|trans|latex|raw }}{{ '}' }}\\
-    {{ statement.text|latex|raw }}
+    {{ statement.text|latex(listwidth=templateVars.listwidth)|raw }}
     \\
 {% endif %}
 {% if statement.mapFile is defined and statement.mapFile != "" %}

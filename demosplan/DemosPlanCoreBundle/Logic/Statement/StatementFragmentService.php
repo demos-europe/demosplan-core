@@ -862,10 +862,10 @@ class StatementFragmentService extends CoreService
 
             if ($user instanceof User) {
                 $fragment->setModifiedByUser(
-                    $em->getReference(User::class, $user->getId())
+                    $em->find(User::class, $user->getId())
                 );
                 $fragment->setModifiedByDepartment(
-                    $em->getReference(Department::class, $user->getDepartmentId())
+                    $em->find(Department::class, $user->getDepartmentId())
                 );
 
                 if (null === $user->getDepartmentId()) {
@@ -920,7 +920,7 @@ class StatementFragmentService extends CoreService
         if (array_key_exists('paragraphId', $fragmentArray)
             && 0 < \strlen((string) $fragmentArray['paragraphId'])
             && $fragmentArray['paragraphId'] != $currentFragment->getParagraphId()) {
-            $paragraphVersion = $em->getReference(
+            $paragraphVersion = $em->find(
                 Paragraph::class,
                 $fragmentArray['paragraphId']);
             $fragmentArray['paragraph'] = $this->paragraphService->createParagraphVersion($paragraphVersion);
@@ -1052,6 +1052,7 @@ class StatementFragmentService extends CoreService
                     foreach ($tags as $tagTitle) {
                         $newTag->put('topicTitle', $topicTitle);
                         $newTag->put('title', $tagTitle);
+                        $result[$key]['tagNames'][] = $topicTitle;
                     }
                     $tagsOfVersion->push($newTag->toArray());
                 }
@@ -1063,6 +1064,7 @@ class StatementFragmentService extends CoreService
                 $countyNames = is_array($decoded) ? $decoded : [];
                 foreach ($countyNames as $countyName) {
                     $result[$key]['counties'][]['name'] = $countyName;
+                    $result[$key]['countyNames'][] = $countyName;
                 }
 
                 // municipalities:
@@ -1071,6 +1073,7 @@ class StatementFragmentService extends CoreService
                 $municipalityNames = is_array($decoded) ? $decoded : [];
                 foreach ($municipalityNames as $municipalityName) {
                     $result[$key]['municipalities'][]['name'] = $municipalityName;
+                    $result[$key]['municipalityNames'][] = $municipalityName;
                 }
 
                 // priorityAreas:
@@ -1079,6 +1082,7 @@ class StatementFragmentService extends CoreService
                 $priorityAreaKeys = is_array($decoded) ? $decoded : [];
                 foreach ($priorityAreaKeys as $priorityAreaKey) {
                     $result[$key]['priorityAreas'][]['key'] = $priorityAreaKey;
+                    $result[$key]['priorityAreaKeys'][] = $priorityAreaKey;
                 }
             }
 

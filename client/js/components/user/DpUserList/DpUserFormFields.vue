@@ -86,13 +86,13 @@
         data-cy="department"
         :disabled="noOrgaSelected"
         :label="{
-          hint: localUser.relationships.orga.data.id ? '' : Translator.trans('organisation.select.first'),
+          hint: localUser.relationships.orga?.data?.id ? '' : Translator.trans('organisation.select.first'),
           text: Translator.trans('department')
         }"
         :options="departmentSelectOptions"
         required
         :selected="localUser.relationships.department.data.id"
-        @change="changeUserDepartment" />
+        @select="changeUserDepartment" />
     </div>
 
     <!-- Role -->
@@ -295,8 +295,7 @@ export default {
       this.emitUserUpdate('relationships.roles.data', role, 'roles', 'add')
     },
 
-    changeUserDepartment (e) {
-      const departmentId = e.target.value
+    changeUserDepartment (departmentId) {
       this.localUser.relationships.department.data = {
         id: departmentId,
         type: 'department'
@@ -323,7 +322,7 @@ export default {
      * Fetch organisation of user or, in DpCreateItem, of currently logged-in user
      */
     fetchCurrentOrganisation () {
-      const orgaId = this.user.relationships.orga && this.user.relationships.orga.data.id
+      const orgaId = this.user.relationships.orga?.data?.id
         ? this.user.relationships.orga.data.id
         : this.presetUserOrgaId
       if (orgaId !== '') {

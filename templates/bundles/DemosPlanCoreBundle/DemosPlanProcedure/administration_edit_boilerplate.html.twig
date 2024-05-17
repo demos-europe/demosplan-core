@@ -2,11 +2,15 @@
 
 {% block component_part %}
 
+    {% set isNew = not (form.vars.value.id is defined and form.vars.value.id != '') %}
+    {% set selectedGroup = { id: form.vars.value.group.id|default(''), title: form.vars.value.group.title|default('-') } %}
+    {% set isDefaultSelectedCategory = isNew and boilerplateCategories|length == 1 %}
+
+
     {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
-        heading: form.vars.value.id is defined and form.vars.value.id != '' ? 'boilerplate.edit'|trans : 'boilerplate.generate'|trans
+        heading: isNew ? 'boilerplate.generate'|trans : 'boilerplate.edit'|trans
     } %}
 
-    {% set selectedGroup = { id: form.vars.value.group.id|default(''), title: form.vars.value.group.title|default('-') } %}
 
     <dp-edit-boilerplate
         :selected-boilerplate-group="JSON.parse('{{ selectedGroup|json_encode|e('js', 'utf-8') }}')">
@@ -56,7 +60,7 @@
                             data-cy="{{ cat.title|trans }}"
                             value="{{ cat.id }}"
                             name="r_boilerplateCategory[][id]"
-                            {% if cat.id in form.vars.value.categories|map(x => x.id) %}checked{% endif %}/>
+                            {% if cat.id in form.vars.value.categories|map(x => x.id) or isDefaultSelectedCategory %}checked{% endif %}/>
                         <label for="{{ cat.id }}" class="inline-block u-mr">{{ cat.title|trans }}</label>
                     {% endfor %}
                 </div><!-- Textbausteine in Gruppe
@@ -106,7 +110,10 @@
                         type="submit">
                         {{ "save"|trans }}
                     </button>
-                    <a class="btn btn--secondary" href="{{ path('DemosPlan_procedure_boilerplate_list', {'procedure': procedure}) }}">
+                    <a
+                        class="btn btn--secondary"
+                        data-cy="abortBoilerplate"
+                        href="{{ path('DemosPlan_procedure_boilerplate_list', {'procedure': procedure}) }}">
                         {{ "abort"|trans }}
                     </a>
                 </div>

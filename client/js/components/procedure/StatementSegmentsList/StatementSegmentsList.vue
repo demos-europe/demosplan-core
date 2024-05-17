@@ -23,6 +23,7 @@
       <segment-location-map
         v-show="slidebar.showTab === 'map'"
         ref="locationMap"
+        :map-data="procedureMapSettings"
         :procedure-id="procedureId"
         :segment-id="slidebar.segmentId"
         :statement-id="statementId" />
@@ -69,7 +70,7 @@
           <li>
             <dp-button
               class="u-ph-0_25"
-              :href="Routing.generate('dplan_segments_export', { procedureId: procedureId, statementId: statementId })"
+              @click="showHintAndDoExport()"
               :text="Translator.trans('export.verb')"
               variant="subtle" />
           </li>
@@ -85,7 +86,7 @@
                 </span>
               </template>
               <template v-if="statement">
-                <div class="overflow-x-scroll break-words max-height-500 max-width-600 width-max-content">
+                <div class="overflow-x-scroll break-words max-h-13 max-w-14 w-max">
                   <span class="block weight--bold">{{ Translator.trans('original.pdf') }}</span>
                   <statement-meta-attachments-link
                     v-if="originalAttachment.hash"
@@ -210,6 +211,16 @@ export default {
       required: true
     },
 
+    /**
+     * If inside a source procedure that is already coupled, HEARING_AUTHORITY_ADMIN users may copy statements to the
+     * respective target procedure, while HEARING_AUTHORITY_WORKER users may see which statements are synchronized.
+     */
+    isSourceAndCoupledProcedure: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
     procedureId: {
       type: String,
       required: true
@@ -242,6 +253,7 @@ export default {
     return {
       currentAction: 'addRecommendation',
       isLoading: false,
+      procedureMapSettings: {},
       segmentDraftList: '',
       // Add key to meta box to rerender the component in case the save request fails and the data is store in set back to initial values
       showInfobox: false,
@@ -407,15 +419,19 @@ export default {
       setStatement: 'setItem'
     }),
 
+    ...mapActions('assignableUser', {
+      listAssignableUser: 'list'
+    }),
+
+    ...mapActions('ProcedureMapSettings', {
+      fetchProcedureMapSettings: 'fetchProcedureMapSettings'
+    }),
+
     ...mapActions('statement', {
       getStatementAction: 'get',
       saveStatementAction: 'save',
       updateStatementAction: 'update',
       restoreStatementAction: 'restoreFromInitial'
-    }),
-
-    ...mapActions('assignableUser', {
-      listAssignableUser: 'list'
     }),
 
     ...mapActions('segmentSlidebar', [
@@ -462,7 +478,7 @@ export default {
         .then(() => {
           const dataToUpdate = this.setDataToUpdate(true)
 
-          this.setStatement({ ...dataToUpdate, id: this.statement.id, group: null })
+          this.setStatement({ ...dataToUpdate, id: this.statement.id })
           dplan.notify.notify('confirm', Translator.trans('confirm.statement.assignment.assigned'))
         })
         .catch((err) => {
@@ -499,9 +515,12 @@ export default {
         'submitDate',
         'submitName',
         'submitType',
-        'submitterEmailAddress',
-        'synchronized'
+        'submitterEmailAddress'
       ]
+
+      if (this.isSourceAndCoupledProcedure) {
+        statementFields.push('synchronized')
+      }
 
       if (hasPermission('area_statement_segmentation')) {
         statementFields.push('segmentDraftList')
@@ -527,7 +546,6 @@ export default {
             'streetNumber'
           ].join(),
           StatementAttachment: [
-            'id',
             'file',
             'attachmentType'
           ].join(),
@@ -593,6 +611,15 @@ export default {
       this.currentAction = action || defaultAction
     },
 
+    showHintAndDoExport () {
+      if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
+        window.location.href = Routing.generate('dplan_segments_export', {
+          procedureId: this.procedureId,
+          statementId: this.statementId
+        })
+      }
+    },
+
     /**
      * If `this.statement` has changed its assignee (which does not propagate to the
      * localStatement in StatementMeta), it must be synced back before applying the
@@ -653,7 +680,7 @@ export default {
         .then(() => {
           const dataToUpdate = this.setDataToUpdate()
 
-          this.setStatement({ ...dataToUpdate, id: this.statement.id, group: null })
+          this.setStatement({ ...dataToUpdate, id: this.statement.id })
           dplan.notify.notify('confirm', Translator.trans('confirm.statement.assignment.unassigned'))
         })
         .catch((err) => {
@@ -680,6 +707,10 @@ export default {
       }
     })
     this.setContent({ prop: 'commentsList', val: { ...this.commentsList, procedureId: this.procedureId, statementId: this.statementId } })
+    this.fetchProcedureMapSettings(this.procedureId)
+      .then(response => {
+        this.procedureMapSettings = response.attributes
+      })
   }
 }
 </script>

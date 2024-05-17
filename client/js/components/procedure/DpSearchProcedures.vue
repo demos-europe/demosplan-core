@@ -170,7 +170,7 @@ export default {
             }
           }
         }
-        dpApi.get(url, params, { serialize: true })
+        dpApi.get(url, params)
           .then(response => {
             this.results = response.data.data
             if (this.results.length === 0) {

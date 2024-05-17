@@ -102,15 +102,14 @@
           aria-hidden="true" />
         {{ Translator.trans('export') }}
       </a>
-      <i
-        class="fa fa-question-circle inline-block align-top u-ml-0_25 u-mt-0_125"
-        :aria-label="Translator.trans('contextual.help')"
-        v-tooltip="Translator.trans('consultation.export.bulk.letter.explanation')" />
+      <dp-contextual-help
+        class="inline-block u-ml-0_25 u-mt-0_125"
+        :text="Translator.trans('consultation.export.bulk.letter.explanation')" />
     </div>
 
     <dp-data-table-extended
       ref="dataTable"
-      class="u-mb u-mt-0_5 max-width-100p"
+      class="u-mb u-mt-0_5 max-w-full"
       :header-fields="headerFields"
       has-flyout
       :default-sort-order="{ direction: 1, key: 'submitterName' }"
@@ -147,7 +146,7 @@
       <template v-slot:note="rowData">
         <div
           v-tooltip="user(rowData.tokenId).note"
-          class="o-hellip__wrapper max-width-90p">
+          class="o-hellip__wrapper max-w-[90%]">
           <span class="o-hellip--nowrap block">
             {{ user(rowData.tokenId).note }}
           </span>
@@ -157,7 +156,7 @@
         <span data-dp-validate="saveEditAuthorisedUser">
           <div class="flex">
             <div class="align-top u-1-of-3">
-              <div class="u-ph-0_75 u-pv-0_25 u-mb-0_75 bg-color--grey-light-2 flex width-160">
+              <div class="u-ph-0_75 u-pv-0_25 u-mb-0_75 bg-color--grey-light-2 flex w-10">
                 <p
                   :id="`userToken:${rowData.tokenId}`"
                   class="u-m-0">
@@ -293,6 +292,7 @@ import {
   dpApi,
   DpButton,
   DpButtonRow,
+  DpContextualHelp,
   DpDataTableExtended,
   DpInput,
   dpRpc,
@@ -307,6 +307,7 @@ export default {
     DpAccordion,
     DpButton,
     DpButtonRow,
+    DpContextualHelp,
     DpDataTableExtended,
     DpInput,
     DpTextArea
@@ -442,7 +443,7 @@ export default {
           ].join()
         }
       }
-      return dpApi.get(url, params, { serialize: true })
+      return dpApi.get(url, params)
         .then(response => {
           this.consultationTokens = [...response.data.data].map(token => {
             if (token.relationships && token.relationships.statement) {

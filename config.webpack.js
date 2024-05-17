@@ -27,7 +27,8 @@ const baseConfig = {
   context: config.absoluteRoot,
   output: {
     filename: './[name].[contenthash:6].js',
-    chunkFilename: './[name].[contenthash:6].js'
+    chunkFilename: './[name].[contenthash:6].js',
+    clean: true
   },
   devtool: (config.isProduction) ? false : 'eval',
   plugins: (() => {
@@ -111,6 +112,43 @@ const bundlesConfig = merge(baseConfig, {
   ]
 })
 
+const stylesConfig = merge(baseConfig, {
+  name: 'styles',
+  entry: () => {
+    return {
+      style: config.stylesEntryPoint,
+      'style-public': config.publicStylesEntryPoint,
+      'demosplan-ui': './client/css/index.css'
+    }
+  },
+  output: {
+    path: config.projectRoot + '/web/js/bundles',
+    publicPath: config.urlPathPrefix + '/js/bundles/',
+    clean: {
+      /*
+       * As the styles are emitted into the same output directory as
+       * JS assets, we want tp prevent the "clean" option from erasing
+       * everything. Instead, only style.[hash].js and style-public.[hash].js
+       * should be replaced.
+       * See https://webpack.js.org/configuration/output/#outputclean
+       */
+      keep (asset) {
+        return !/style\.|style-public\./.test(asset)
+      }
+    }
+  },
+  devtool: (config.isProduction) ? false : 'eval',
+  optimization: optimization(),
+  plugins: [
+    new DefinePlugin({
+      URL_PATH_PREFIX: JSON.stringify(config.urlPathPrefix) // Path prefix for dynamically generated urls
+    }),
+    new WebpackManifestPlugin({
+      fileName: '../../styles.manifest.json'
+    })
+  ]
+})
+
 const legacyBundlesConfig = {
   mode: 'production',
   name: 'legacy-bundles',
@@ -140,5 +178,6 @@ const legacyBundlesConfig = {
 
 module.exports = [
   bundlesConfig,
-  legacyBundlesConfig
+  legacyBundlesConfig,
+  stylesConfig
 ]

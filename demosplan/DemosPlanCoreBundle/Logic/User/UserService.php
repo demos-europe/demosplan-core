@@ -44,7 +44,6 @@ use demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRoleInCustomerRepository;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\TestUserValueObject;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\CustomerResourceInterface;
@@ -55,6 +54,7 @@ use Doctrine\ORM\ORMException;
 use DOMDocument;
 use Exception;
 use LSS\XML2Array;
+use Pagerfanta\Pagerfanta;
 use RuntimeException;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -66,8 +66,6 @@ use function array_key_exists;
 
 class UserService extends CoreService implements UserServiceInterface
 {
-    private const HEX_CHARS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
-
     /**
      * The hash function that is being used to generate password hashes.
      */
@@ -551,6 +549,8 @@ class UserService extends CoreService implements UserServiceInterface
             try {
                 $data['name'] = $orga->getName();
                 $this->orgaService->addReport($orga->getId(), $data, $showListBefore);
+            } catch (ViolationsException $e) {
+                $this->logger->warning('Add Report in updateOrga() failed due to Violation: ', [$e, $e->getViolationsAsStrings()]);
             } catch (Exception $e) {
                 $this->logger->warning('Add Report in updateOrga() failed Message: ', [$e]);
             }
@@ -906,7 +906,7 @@ class UserService extends CoreService implements UserServiceInterface
             'lastname'     => '',
             'email'        => $userLogin,
             'login'        => $userLogin,
-            'password'     => $this->generateRandomString(128, self::HEX_CHARS),
+            'password'     => $this->generateNewRandomPassword(),
             'customer'     => $customer,
             'roles'        => [Role::CUSTOMER_MASTER_USER],
         ]);
@@ -1039,11 +1039,9 @@ class UserService extends CoreService implements UserServiceInterface
     /**
      * Liste der InvitableInstitutionsichtbarkeitenänderungen anfordern.
      *
-     * @return DemosPlanPaginator
-     *
      * @throws Exception
      */
-    public function getInvitableInstitutionShowlistChanges()
+    public function getInvitableInstitutionShowlistChanges(): Pagerfanta
     {
         try {
             return $this->reportService->getInvitableInstitutionShowlistChanges();
@@ -1532,29 +1530,6 @@ class UserService extends CoreService implements UserServiceInterface
     protected function isNotDefaultDepartment(Department $department): bool
     {
         return 'Keine Abteilung' !== $department->getName();
-    }
-
-    /**
-     * Generates a cryptographically random string.
-     *
-     * The implementation is probably slower and more greedy for randomness than necessary, but as
-     * it is intended for the creation of customers on container-build it is seldom used and
-     * performance is not a concern.
-     *
-     * @param list<string> $allowedCharacters
-     *
-     * @throws Exception
-     */
-    private function generateRandomString(int $length, array $allowedCharacters): string
-    {
-        $allowedCharactersCount = count($allowedCharacters);
-        $string = '';
-        for ($i = 0; $i < $length; ++$i) {
-            $position = random_int(1, $allowedCharactersCount);
-            $string .= $allowedCharacters[$position - 1];
-        }
-
-        return $string;
     }
 
     /**

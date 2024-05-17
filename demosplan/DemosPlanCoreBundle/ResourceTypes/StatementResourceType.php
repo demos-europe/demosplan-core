@@ -32,6 +32,7 @@ use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigB
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryStatement;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
+use Doctrine\Common\Collections\ArrayCollection;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
@@ -195,8 +196,6 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 $entity = $this->getEntity($entityIdentifier);
                 $success = $this->statementDeleter->deleteStatementObject($entity);
                 Assert::true($success, "Deletion of statement failed for the given ID '$entityIdentifier'");
-
-                parent::deleteEntity($entityIdentifier);
             }
         );
     }
@@ -376,7 +375,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         // always updatable if access to type and instances was granted
         $configBuilder->assignee
             ->setRelationshipType($this->resourceTypeStore->getClaimResourceType())
-            ->updatable([$simpleStatementCondition, $manualStatementCondition]);
+            ->updatable([$simpleStatementCondition]);
 
         if ($this->currentUser->hasPermission('field_statement_memo')) {
             $configBuilder->memo->updatable([$simpleStatementCondition]);
@@ -406,7 +405,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 [$simpleStatementCondition],
                 [],
                 static function (Statement $statement, array $newValue): array {
-                    $statement->setSimilarStatementSubmitters($newValue);
+                    $statement->setSimilarStatementSubmitters(new ArrayCollection($newValue));
 
                     return [];
                 }

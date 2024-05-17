@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\LegacyResult;
 use Doctrine\Common\Collections\Collection;
 use Exception;
+
 use function collect;
 
 /**
@@ -57,19 +58,21 @@ class ProcedureToLegacyConverter extends CoreService
 
         $procedureArray['agencyExtraEmailAddresses'] = $procedure
             ->getAgencyExtraEmailAddresses()
-            ->map(static fn(EmailAddress $emailAddress) => $emailAddress->getFullAddress());
+            ->map(static fn (EmailAddress $emailAddress) => $emailAddress->getFullAddress());
 
         // When using objects this is not needed any more
 
         if (null !== $procedureArray['settings']) {
             $procedureArray['settings'] = $this->entityHelper->toArray($procedureArray['settings']);
+            $procedureArray['phaseObject'] = $this->entityHelper->toArray($procedure->getPhaseObject());
+            $procedureArray['publicParticipationPhaseObject'] = $this->entityHelper->toArray($procedure->getPublicParticipationPhaseObject());
             $procedureArray['pictogram'] = $procedureArray['settings']['pictogram'];
         }
 
         $procedureArray['isMapEnabled'] = false;
         if (isset($procedureArray['elements']) && $procedureArray['elements'] instanceof Collection) {
             $mapElements = $procedureArray['elements']->filter(
-                static fn($entry) => 'map' === $entry->getCategory()
+                static fn ($entry) => 'map' === $entry->getCategory()
                     && true === $entry->getEnabled()
             );
             if (0 < $mapElements->count()) {
@@ -104,13 +107,18 @@ class ProcedureToLegacyConverter extends CoreService
         $planningOfficeIds = $this->procedureRepository->getPlanningOfficeIds($procedure->getId());
         $isCustomerMasterBlueprint = $procedure->isCustomerMasterBlueprint();
         $planningOfficeOrganisations = collect($procedure->getPlanningOffices())
-            ->transform(static fn(Orga $orga) => [
+            ->transform(static fn (Orga $orga) => [
                 'ident'     => $orga->getId(),
                 'name'      => $orga->getName(),
                 'nameLegal' => $orga->getName(),
             ])->all();
         $dataInputOrgaIds = $procedure->getDataInputOrgaIds();
         $authorizedUserIds = $procedure->getAuthorizedUserIds();
+
+        // T34551 changed the relation of procedure to customer.
+        // previously the procedure->customer relation was null Except for the default-customer-blueprint.
+        // Now only the customer holds the relation to its default-blueprint.
+        $customerToLegacy = $procedure->isCustomerMasterBlueprint() ? $procedure->getCustomer() : null;
 
         // explicitly define legacy procedure array to be able to optimize database calls
         // (e.g. avoid costly getOrganisationIds() call). More over there is no need to automatically
@@ -126,7 +134,7 @@ class ProcedureToLegacyConverter extends CoreService
             'coordinate'                            => $procedure->getCoordinate(),
             'createdDate'                           => $procedure->getCreatedDate(),
             'currentSlug'                           => $procedure->getCurrentSlug(),
-            'customer'                              => $procedure->getCustomer(),
+            'customer'                              => $customerToLegacy,
             'dataInputOrganisations'                => $procedure->getDataInputOrganisations(),
             'dataInputOrgaIds'                      => $dataInputOrgaIds,
             'deleted'                               => $procedure->getDeleted(),
@@ -187,9 +195,9 @@ class ProcedureToLegacyConverter extends CoreService
     /**
      * Convert Result to Legacy.
      *
-     * @param array  $list
+     * @param array       $list
      * @param string|null $search
-     * @param array  $aggregation Elasticsearch aggregation converted to legacy
+     * @param array       $aggregation Elasticsearch aggregation converted to legacy
      *
      * @internal param array $filter
      */
