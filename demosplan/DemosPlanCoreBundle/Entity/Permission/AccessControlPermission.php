@@ -26,7 +26,6 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * Stores the information about the current phase of a procedure.
  * Currently there a two phases related to a procedure, therefore this Entity is related to the procedure twice.
  *
- * @ORM\Table(name="access_control_permissions")
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\AccessControlPermissionRepository")
  */
@@ -65,20 +64,11 @@ class AccessControlPermission extends CoreEntity implements UuidEntityInterface
     private $modificationDate;
 
     /**
-     * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(type="datetime", nullable=false)
-     */
-    private $deletionDate;
-
-    /**
      * @var OrgaInterface|null
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga")
      *
-     * @ORM\JoinColumn(name="orga_id", referencedColumnName="_o_id", nullable=true, onDelete="SET NULL")
+     * @ORM\JoinColumn(name="orga_id", referencedColumnName="_o_id", nullable=true, onDelete="CASCADE")
      */
     protected $organisation;
 
@@ -87,7 +77,7 @@ class AccessControlPermission extends CoreEntity implements UuidEntityInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Role")
      *
-     * @ORM\JoinColumn(referencedColumnName="_r_id", nullable=true, onDelete="SET NULL")
+     * @ORM\JoinColumn(referencedColumnName="_r_id", nullable=true, onDelete="CASCADE")
      */
     protected $role;
 
@@ -96,7 +86,7 @@ class AccessControlPermission extends CoreEntity implements UuidEntityInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
      *
-     * @ORM\JoinColumn(referencedColumnName="_c_id", nullable=true, onDelete="SET NULL")
+     * @ORM\JoinColumn(referencedColumnName="_c_id", nullable=true, onDelete="CASCADE")
      */
     protected $customer;
 
