@@ -152,12 +152,9 @@
           :for="filter.name"
           :class="prefixClass('c-proceduresearch__filter-label layout__item u-mb-0_25 u-1-of-1')">
           {{ filter.title }}
-          <dp-tooltip-icon
+          <dp-contextual-help
             v-if="filter.contextHelp !== ''"
-            :aria-label="Translator.trans('contextual.help')"
-            :class="prefixClass('u-ml-0_25')"
-            tabindex="0"
-            icon="fa-question-circle"
+            class="u-ml-0_25"
             :text="filter.contextHelp" />
         </label><!--
      --><div :class="prefixClass('layout__item u-1-of-1 u-mb')">
@@ -225,6 +222,7 @@
 <script>
 import {
   DpAutocomplete,
+  DpContextualHelp,
   DpInput,
   DpLoading,
   hasOwnProp,
@@ -238,6 +236,7 @@ export default {
 
   components: {
     DpAutocomplete,
+    DpContextualHelp,
     DpInput,
     DpLoading
   },

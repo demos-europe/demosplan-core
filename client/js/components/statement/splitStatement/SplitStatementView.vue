@@ -52,6 +52,7 @@
         :addon-props="{
           class: 'u-mb',
           processingTime: processingTime,
+          statementId: statementId,
           status: segmentationStatus
         }"
         hook-name="split.statement.preprocessor"
@@ -357,8 +358,7 @@ export default {
       'fetchStatementSegmentDraftList',
       'fetchTags',
       'saveSegmentsDrafts',
-      'saveSegmentsFinal',
-      'splitStatementAction'
+      'saveSegmentsFinal'
     ]),
 
     setCurrentTime () {

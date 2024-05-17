@@ -16,6 +16,7 @@ use DateInterval;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\EntitySyncLink;
+use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
@@ -41,8 +42,16 @@ use function in_array;
 
 class StatementSynchronizer
 {
-    public function __construct(private readonly CurrentUserInterface $currentUserProvider, private readonly StatementCopier $statementCopier, private readonly StatementReportEntryFactory $statementReportEntryFactory, private readonly StatementRepository $statementRepository, private readonly StatementService $statementService, private readonly TransactionService $transactionService, private readonly ValidatorInterface $validator)
-    {
+    public function __construct(
+        private readonly CurrentUserInterface $currentUserProvider,
+        private readonly FileService $fileService,
+        private readonly StatementCopier $statementCopier,
+        private readonly StatementReportEntryFactory $statementReportEntryFactory,
+        private readonly StatementRepository $statementRepository,
+        private readonly StatementService $statementService,
+        private readonly TransactionService $transactionService,
+        private readonly ValidatorInterface $validator
+    ) {
     }
 
     /**
@@ -97,6 +106,12 @@ class StatementSynchronizer
             $newOriginalStatement,
             false,
         );
+        /*
+         * to follow the schema that all Original-STN-FileContainers as well as its Child-STN-FileContainers
+         * share the same { @link File } reference the { @link FileContainer } gets cloned here
+         * the cloned FileContainer itself gets a new id assigned - just its File reference get shared.
+         */
+        $this->cloneFileContainersToStatement($targetOriginalFileContainers, $newStatement);
 
         $this->validateStatement($newStatement);
         $this->createAndPersistLink($sourceStatement, $newOriginalStatement);
@@ -156,7 +171,6 @@ class StatementSynchronizer
         $newOriginalStatement->setSend($sourceStatement->getSend());
         $newOriginalStatement->setAnonymous($sourceStatement->isAnonymous());
         $newOriginalStatement->setPhase($sourceStatement->getPhase());
-        $newOriginalStatement->setPhaseIteration($sourceStatement->getPhaseIteration());
         $newOriginalStatement->setMemo($sourceStatement->getMemo());
         // This may be useless information in the target procedure, but copying the value
         // from the source procedure seems like the most resilient thing to do in case
@@ -241,7 +255,7 @@ class StatementSynchronizer
     ): array {
         $sourceFileContainers = $this->statementService->getFileContainersForStatement($sourceStatement->getId());
 
-        return $this->copyFileContainersToStatement($sourceFileContainers, $newOriginalStatement, true);
+        return $this->copyFileContainersToStatement($sourceFileContainers, $newOriginalStatement);
     }
 
     /**
@@ -251,8 +265,10 @@ class StatementSynchronizer
      *
      * @throws Exception
      */
-    private function copyFileContainersToStatement(array $fileContainers, Statement $targetStatement, bool $createLinks): array
-    {
+    private function copyFileContainersToStatement(
+        array $fileContainers,
+        Statement $targetStatement
+    ): array {
         $fileContainerCopies = [];
         foreach ($fileContainers as $fileContainer) {
             $newFileContainer = $this->statementRepository->copyFileContainer($fileContainer, $targetStatement);
@@ -260,15 +276,36 @@ class StatementSynchronizer
             if (0 !== $fileViolations->count()) {
                 throw ViolationsException::fromConstraintViolationList($fileViolations);
             }
-            if ($createLinks) {
-                $this->createAndPersistLink($fileContainer, $newFileContainer);
-            }
+            $this->createAndPersistLink($fileContainer, $newFileContainer);
             $fileContainerCopies[] = $newFileContainer;
         }
 
-        $targetStatement->setFiles(array_map(static fn (FileContainer $fileContainer): string => $fileContainer->getFileString(), $fileContainerCopies));
+        $targetStatement->setFiles(
+            array_map(
+                static fn (FileContainer $fileContainer): string => $fileContainer->getFileString(),
+                $fileContainerCopies
+            )
+        );
 
-        return $fileContainers;
+        return $fileContainerCopies;
+    }
+
+    /**
+     * @param array<int, FileContainer> $originalfileContainers
+     *
+     * @throws Exception
+     */
+    public function cloneFileContainersToStatement(
+        array $originalfileContainers,
+        Statement $newStatement
+    ): void {
+        $fileStrings = [];
+        foreach ($originalfileContainers as $oldFileContainer) {
+            $copy = $this->fileService->addFileContainerCopy($newStatement->getId(), $oldFileContainer);
+            $fileStrings[] = $copy->getFileString();
+        }
+
+        $newStatement->setFiles($fileStrings);
     }
 
     /**

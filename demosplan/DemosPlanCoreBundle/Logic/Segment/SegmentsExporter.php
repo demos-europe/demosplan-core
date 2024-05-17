@@ -78,7 +78,7 @@ class SegmentsExporter
         return IOFactory::createWriter($phpWord);
     }
 
-    private function addSimilarStatementSubmitters(Section $section, Statement $statement): void
+    protected function addSimilarStatementSubmitters(Section $section, Statement $statement): void
     {
         $similarStatementSubmitters = $this->getSimilarStatementSubmitters($statement);
         if ('' !== $similarStatementSubmitters) {

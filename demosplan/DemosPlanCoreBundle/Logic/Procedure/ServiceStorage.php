@@ -346,7 +346,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
 
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'phase_iteration');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'public_participation_phase_iteration');
-        $phaseIterationError = $this->validatePhaseIteration($procedure);
+        $phaseIterationError = $this->validatePhaseIterations($procedure);
         if (count($phaseIterationError) > 0) {
             $mandatoryErrors[] = $phaseIterationError;
         }
@@ -1079,23 +1079,28 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         return $token;
     }
 
-    private function validatePhaseIteration(array $procedure): array
+    private function validatePhaseIterations(array $procedure): array
     {
-        $mandatoryErrors = [
-            'type'    => 'error',
-            'message' => $this->translator->trans('error.phaseIteration.invalid'),
-        ];
-
-        $key = 'phase_iteration';
-        if (isset($procedure[$key]) && !(is_numeric($procedure[$key]) || (int) $procedure[$key] > 0)) {
-            // Because the error message is the same for external phase as for internal phase,
-            // avoid creating an additional one by simply returning on here.
-            return $mandatoryErrors;
+        $phaseIteration = 'phase_iteration';
+        if (isset($procedure[$phaseIteration])) {
+            return $this->validatePhaseIterationValue($procedure[$phaseIteration]);
         }
 
-        $key = 'public_participation_phase_iteration';
-        if (isset($procedure[$key]) && (!is_numeric($procedure[$key]) || (int) $procedure[$key] < 1)) {
-            return $mandatoryErrors;
+        $publicPhaseIteration = 'public_participation_phase_iteration';
+        if (isset($procedure[$publicPhaseIteration])) {
+            return $this->validatePhaseIterationValue($procedure[$publicPhaseIteration]);
+        }
+
+        return [];
+    }
+
+    private function validatePhaseIterationValue($value): array
+    {
+        if (!is_numeric($value) || (int) $value < 1) {
+            return [
+                'type'    => 'error',
+                'message' => $this->translator->trans('error.phaseIteration.invalid'),
+            ];
         }
 
         return [];

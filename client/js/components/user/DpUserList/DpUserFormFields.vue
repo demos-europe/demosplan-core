@@ -92,7 +92,7 @@
         :options="departmentSelectOptions"
         required
         :selected="localUser.relationships.department.data.id"
-        @change="changeUserDepartment" />
+        @select="changeUserDepartment" />
     </div>
 
     <!-- Role -->
@@ -301,8 +301,7 @@ export default {
       this.emitUserUpdate('relationships.roles.data', role, 'roles', 'add')
     },
 
-    changeUserDepartment (e) {
-      const departmentId = e.target.value
+    changeUserDepartment (departmentId) {
       this.localUser.relationships.department.data = {
         id: departmentId,
         type: 'department'

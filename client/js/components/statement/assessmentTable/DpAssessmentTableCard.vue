@@ -600,11 +600,9 @@
                     v-slot:hint
                     v-if="recommendationPubliclyVisible">
                     {{ Translator.trans('recommendation.publicly.visible.short') }}
-                    <i
-                      v-tooltip="Translator.trans('recommendation.publicly.visible')"
-                      tabindex="0"
-                      class="fa fa-question-circle float-right u-pt-0_125"
-                      aria-hidden="true" />
+                    <dp-contextual-help
+                      class="float-right u-mt-0_125"
+                      :text="Translator.trans('recommendation.publicly.visible')" />
                   </template>
                 </editable-text>
               </dl>
@@ -748,7 +746,7 @@
 </template>
 
 <script>
-import { dpApi, formatDate, hasOwnProp, VPopover } from '@demos-europe/demosplan-ui'
+import { dpApi, DpContextualHelp, formatDate, hasOwnProp, VPopover } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
 import DpClaim from '../DpClaim'
@@ -762,6 +760,7 @@ export default {
   name: 'DpAssessmentTableCard',
 
   components: {
+    DpContextualHelp,
     DpClaim,
     DpEditFieldMultiSelect,
     DpEditFieldSingleSelect,

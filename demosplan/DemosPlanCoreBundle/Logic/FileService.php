@@ -104,9 +104,9 @@ class FileService extends CoreService implements FileServiceInterface
      *
      * @throws Exception
      */
-    public function getFileInfo($hash): FileInfo
+    public function getFileInfo($hash, string $procedureId = null): FileInfo
     {
-        $file = $this->fileRepository->getFileInfo($hash);
+        $file = $this->fileRepository->getFileInfo($hash, $procedureId);
 
         if (null !== $file) {
             $path = $file->getPath();

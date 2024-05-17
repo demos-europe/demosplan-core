@@ -300,8 +300,6 @@ class ParagraphVersionRepository extends CoreRepository implements ArrayInterfac
 
     /**
      * @param CoreEntity $entity
-     *
-     * @return bool
      */
     public function deleteObject($entity): never
     {
