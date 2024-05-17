@@ -10,6 +10,7 @@
 
 namespace Tests\Core\Statement\Functional;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -34,10 +35,8 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
-use PHPUnit_Framework_MockObject_MockObject;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -98,7 +97,7 @@ class StatementHandlerTest extends FunctionalTestCase
         $this->testProcedure = $this->getProcedureReference(LoadProcedureData::TESTPROCEDURE);
 
         $permissions = $this->sut->getPermissions();
-        $permissions->initPermissions($this->testUser, null);
+        $permissions->initPermissions($this->testUser);
         $permissions->enablePermissions(['feature_statements_fragment_edit']);
         $this->sut->setPermissions($permissions);
     }
@@ -739,8 +738,8 @@ class StatementHandlerTest extends FunctionalTestCase
             'r_modifiedByUserId'       => $testUserId3,
             'r_modifiedByDepartmentId' => $testDepartmentId,
             'r_element'                => $testElementId1,
-//            'r_paragraph' => 'neuer Text eines frisch erstellen Datensatzes.',
-//            'r_document' => 'neuer Text eines frisch erstellen Datensatzes.',
+            //            'r_paragraph' => 'neuer Text eines frisch erstellen Datensatzes.',
+            //            'r_document' => 'neuer Text eines frisch erstellen Datensatzes.',
             'statementId'              => $statementId,
             'procedureId'              => $procedureId,
         ];

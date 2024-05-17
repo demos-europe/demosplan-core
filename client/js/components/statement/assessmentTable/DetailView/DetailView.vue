@@ -16,6 +16,7 @@ import {
   DpAccordion,
   dpApi,
   DpButton,
+  DpContextualHelp,
   DpDatepicker,
   DpMultiselect,
   DpUploadFiles
@@ -35,6 +36,7 @@ export default {
     DetailViewFinalEmailBody,
     DpBoilerPlateModal,
     DpButton,
+    DpContextualHelp,
     DpDatepicker,
     DpMapModal,
     DpMultiselect,

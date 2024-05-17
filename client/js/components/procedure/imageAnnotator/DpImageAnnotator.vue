@@ -76,13 +76,9 @@
                 class="weight--bold"
                 :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}">
                 {{ Translator.trans('element.selected') }}
-                <i
-                  :aria-label="Translator.trans('contextual.help')"
-                  v-tooltip="{
-                    content: Translator.trans('annotator.modify.explanation'),
-                    classes: 'z-ultimate'
-                  }"
-                  class="fa fa-question-circle float-right u-mt-0_125" />
+                <dp-contextual-help
+                  class="float-right u-mt-0_12"
+                  :text="Translator.trans('annotator.modify.explanation')" />
               </p>
               <div>
                 <button
@@ -120,12 +116,12 @@
               <div>
                 <dp-button
                   :busy="isSaving"
-                  class="width-250 u-mb-0_25"
+                  class="w-11 u-mb-0_25"
                   :disabled="documentLengthTotal === 0"
                   :text="buttonText"
                   @click="save" />
                 <dp-button
-                  class="width-250"
+                  class="w-11"
                   color="secondary"
                   :href="Routing.generate('DemosPlan_procedure_dashboard', { procedure: procedureId })"
                   :text="Translator.trans('abort')" />
@@ -147,7 +143,7 @@
 import { Circle as CircleStyle, Fill, Stroke, Style, Text } from 'ol/style'
 import { containsExtent, getCenter } from 'ol/extent'
 import { defaults as defaultInteractions, Draw, Modify, Select, Snap } from 'ol/interaction'
-import { dpApi, DpButton, DpLoading, DpStickyElement, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpContextualHelp, DpLoading, DpStickyElement, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { createBox } from 'ol/interaction/Draw'
 import DpLabelModal from './DpLabelModal'
 import DpSendBeacon from './DpSendBeacon'
@@ -166,6 +162,7 @@ export default {
   name: 'DpImageAnnotator',
 
   components: {
+    DpContextualHelp,
     DpButton,
     DpLabelModal,
     DpLoading,

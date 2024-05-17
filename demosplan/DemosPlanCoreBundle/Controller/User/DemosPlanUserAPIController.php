@@ -139,6 +139,7 @@ class DemosPlanUserAPIController extends APIController
         try {
             if ($request->query->has(UrlParameter::FILTER)) {
                 $filterArray = $request->query->get(UrlParameter::FILTER);
+                $filterArray = $filterParser->validateFilter($filterArray);
                 $conditions = $filterParser->parseFilter($filterArray);
             } else {
                 $conditions = [];

@@ -61,10 +61,9 @@
         class="u-mb-0_25 flow-root"
         for="submitterSelect">
         {{ Translator.trans('statement.form.autofill.label') }} ({{ Translator.trans(currentRoleKeyword) }})
-        <i
-          class="fa fa-question-circle float-right"
-          :aria-label="Translator.trans('contextual.help')"
-          v-tooltip="autoFillLabel" />
+        <dp-contextual-help
+          class="float-right"
+          :text="autoFillLabel" />
       </label>
 
        <!--Multiselect component-->
@@ -150,7 +149,7 @@
 </template>
 
 <script>
-import { CleanHtml, DpInput, DpMultiselect, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpContextualHelp, DpInput, DpMultiselect, hasOwnProp } from '@demos-europe/demosplan-ui'
 
 const emptySubmitterData = {
   city: '',
@@ -166,6 +165,7 @@ const emptySubmitterData = {
 export default {
   name: 'DpAutofillSubmitterData',
   components: {
+    DpContextualHelp,
     DpInput,
     DpMultiselect
   },
