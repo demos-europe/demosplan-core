@@ -483,8 +483,8 @@ export default {
     },
 
     places () {
-      return this.$store.state.place
-        ? Object.values(this.$store.state.place.items)
+      return this.$store.state.Place
+        ? Object.values(this.$store.state.Place.items)
           .map(pl => ({ ...pl.attributes, id: pl.id }))
         : []
     },
@@ -543,7 +543,7 @@ export default {
 
     abort () {
       // Restore initial recommendation value, set it also in tiptap
-      const initText = this.$store.state.statementSegment.initial[this.segment.id].attributes.recommendation
+      const initText = this.$store.state.StatementSegment.initial[this.segment.id].attributes.recommendation
       this.updateSegment('recommendation', initText)
       // Update interface
       this.isFullscreen = false
@@ -768,7 +768,7 @@ export default {
           const dataToUpdate = JSON.parse(JSON.stringify(this.segment))
           delete dataToUpdate.relationships.assignee
           // Reset recommendation text in store (segment might have been in edit mode with some changes)
-          dataToUpdate.attributes.recommendation = this.$store.state.statementSegment.initial[this.segment.id].attributes.recommendation
+          dataToUpdate.attributes.recommendation = this.$store.state.StatementSegment.initial[this.segment.id].attributes.recommendation
           // Set segment in store, without the assignee and with resetted recommendation
           this.setSegment({ ...dataToUpdate, id: this.segment.id })
           this.claimLoading = false
