@@ -34,6 +34,7 @@ use EDT\Querying\Utilities\Reindexer;
 use Exception;
 use LogicException;
 use RuntimeException;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -533,7 +534,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
     /**
      * @param User $user
      */
-    public function upgradePassword(UserInterface $user, string $newHashedPassword): void
+    public function upgradePassword(UserInterface|PasswordAuthenticatedUserInterface $user, string $newHashedPassword): void
     {
         // set the new encoded password on the User object
         $user->setPassword($newHashedPassword);

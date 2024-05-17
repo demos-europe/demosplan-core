@@ -52,7 +52,7 @@ class ConsoleApplication extends Application
     /**
      * @return DemosPlanKernel|KernelInterface
      */
-    public function getKernel()
+    public function getKernel(): KernelInterface
     {
         return parent::getKernel();
     }
