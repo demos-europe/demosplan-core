@@ -366,7 +366,7 @@ class DemosPlanOrganisationAPIController extends APIController
                 $userHandler->setCanUpdateShowList(true);
             }
 
-            if (is_array($orgaDataArray['attributes'])
+            if ($permissions->hasPermission('feature_orga_new_procedure_edit') && is_array($orgaDataArray['attributes'])
                 && array_key_exists('canCreateProcedures', $orgaDataArray['attributes'])) {
                 $role = $roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY])[0];
                 if (true === $orgaDataArray['attributes']['canCreateProcedures']) {
