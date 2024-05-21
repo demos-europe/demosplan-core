@@ -35,6 +35,7 @@
 
       <div class="u-mb">
         <dp-accordion
+          data-cy="simplifiedNewStatementForm:userDetails"
           :title="Translator.trans('user.details')"
           :is-open="expandAll">
           <div class="u-mv">
@@ -187,6 +188,7 @@
 
       <div class="u-mb">
         <dp-accordion
+          data-cy="simplifiedNewStatementForm:statementData"
           :title="Translator.trans('statement.data')"
           :is-open="expandAll">
           <!-- Einreichungsdatum, Verfassungsdatum -->
