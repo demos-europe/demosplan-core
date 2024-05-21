@@ -15,7 +15,6 @@ import Vuex from 'vuex'
 import { VuexApiRoutes } from './VuexApiRoutes'
 
 function registerPresetModules (store, presetStoreModules) {
-  console.log('registerPresetModules', store, presetStoreModules)
   if (Object.keys(presetStoreModules).length > 0) {
     for (const rootModule in presetStoreModules) {
       if (hasOwnProp(presetStoreModules, rootModule)) {

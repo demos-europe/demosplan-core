@@ -801,8 +801,8 @@ export default {
   data () {
     return {
       // We have to use $store.state... notation because at that moment the maps for state/getters are not yet initialized
-      expanded: this.$store.state.assessmentTable.currentTableView === 'statement' || this.$store.state.assessmentTable.currentTableView === 'fragments',
-      tab: this.$store.state.assessmentTable.currentTableView === 'fragments' ? 'fragments' : 'statement',
+      expanded: this.$store.state.AssessmentTable.currentTableView === 'statement' || this.$store.state.AssessmentTable.currentTableView === 'fragments',
+      tab: this.$store.state.AssessmentTable.currentTableView === 'fragments' ? 'fragments' : 'statement',
       updatingClaimState: false,
       fragmentsLoading: false,
       placeholderStatementId: null

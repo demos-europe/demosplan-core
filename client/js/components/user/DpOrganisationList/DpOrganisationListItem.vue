@@ -143,7 +143,7 @@ export default {
     },
 
     initialOrganisation () {
-      return (this.moduleName === '') ? this.$store.state.orga.initial[this.organisation.id] : this.$store.state.orga[this.moduleName].initial[this.organisation.id]
+      return (this.moduleName === '') ? this.$store.state.Orga.initial[this.organisation.id] : this.$store.state.Orga[this.moduleName].initial[this.organisation.id]
     },
 
     /**

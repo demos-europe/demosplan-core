@@ -280,7 +280,7 @@ export default {
 
     reset (segmentId) {
       // Restore initial text value
-      const initText = this.$store.state.statementSegment.initial[segmentId].attributes.text
+      const initText = this.$store.state.StatementSegment.initial[segmentId].attributes.text
       this.updateSegmentText(segmentId, initText)
       if (this.$refs[`editField_${segmentId}`][0]) {
         this.$refs[`editField_${segmentId}`][0].loading = false

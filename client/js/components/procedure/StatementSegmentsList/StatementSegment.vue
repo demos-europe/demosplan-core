@@ -543,7 +543,7 @@ export default {
 
     abort () {
       // Restore initial recommendation value, set it also in tiptap
-      const initText = this.$store.state.statementSegment.initial[this.segment.id].attributes.recommendation
+      const initText = this.$store.state.StatementSegment.initial[this.segment.id].attributes.recommendation
       this.updateSegment('recommendation', initText)
       // Update interface
       this.isFullscreen = false

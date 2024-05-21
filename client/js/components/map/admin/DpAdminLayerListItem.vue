@@ -444,7 +444,7 @@ export default {
      * returns Boolean
      */
     showCurrentIconState () {
-      return this.$store.state.layers.hoverLayerIconIsHovered
+      return this.$store.state.Layers.hoverLayerIconIsHovered
     },
 
     /**
@@ -454,7 +454,7 @@ export default {
      */
     activeLayer () {
       return this.$store.getters['layers/element']({
-        id: this.$store.state.layers.activeLayerId,
+        id: this.$store.state.Layers.activeLayerId,
         type: 'GisLayer'
       }) || { attributes: {} }
     },
@@ -486,7 +486,7 @@ export default {
      * returns String | layerId
      */
     hoverLayerId () {
-      return this.$store.state.layers.hoverLayerId
+      return this.$store.state.Layers.hoverLayerId
     },
     /**
      * Checks if this layer is the active one
@@ -503,7 +503,7 @@ export default {
      * returns String|procedureId
      */
     procedureId () {
-      return this.$store.state.layers.procedureId
+      return this.$store.state.Layers.procedureId
     },
 
     /**
