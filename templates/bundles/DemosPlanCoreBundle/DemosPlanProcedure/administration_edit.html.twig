@@ -399,8 +399,7 @@
                                     {% endfor %}
                                     <participation-phases
                                         autoswitch-hint="{{ 'period.autoswitch.hint'|trans({ phase: 'procedure.phases.internal.evaluating'|trans }) }}"
-                                        data-cy-iterator="internalPhase:iterator"
-                                        data-cy-select="internalPhase:select"
+                                        data-cy="internalPhase"
                                         field-name="r_phase"
                                         help-text="{{ 'text.procedure.edit.internal.change_phase'|trans }}"
                                         label-text="{{ "procedure.phase.institutions"|trans }}"
@@ -548,8 +547,7 @@
                                     {% endfor %}
                                     <participation-phases
                                         autoswitch-hint="{{ 'period.autoswitch.hint'|trans({ phase: 'procedure.phases.external.evaluating'|trans }) }}"
-                                        data-cy-iterator="publicPhase:iterator"
-                                        data-cy-select="publicPhase:select"
+                                        data-cy="publicPhase"
                                         field-name="r_publicParticipationPhase"
                                         help-text="{{ 'text.procedure.edit.external.change_phase'|trans }}"
                                         label-text="{{ "procedure.public.phase"|trans }}"
