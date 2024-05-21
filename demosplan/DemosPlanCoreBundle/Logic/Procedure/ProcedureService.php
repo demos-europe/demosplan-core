@@ -2121,7 +2121,6 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     /**
      * Set setPlanningOffices users to given procedure.
      *
-     *
      * @param string|Procedure $blueprint
      * @param string           $currentUserId
      *
@@ -2133,7 +2132,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     {
         $currentUser = $this->userService->getSingleUser($currentUserId);
 
-        if ($this->accessControlPermissionService->canCreateProcedure($currentUser->getOrga(), $this->customerService->getCurrentCustomer(), $currentUser->getRole() )) {
+        if ($this->accessControlPermissionService->canCreateProcedure($currentUser->getOrga(), $this->customerService->getCurrentCustomer(), $currentUser->getRole())) {
             $newProcedure->setPlanningOffices([$currentUser->getOrga()]);
         }
 

@@ -208,7 +208,7 @@ class OwnsProcedureConditionFactory
      */
     public function userIsExplicitlyAuthorized(): ClauseFunctionInterface
     {
-        return  $this->conditionFactory->true();
+        return $this->conditionFactory->true();
         if ($this->userOrProcedure instanceof User) {
             $user = $this->userOrProcedure;
 
