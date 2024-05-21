@@ -81,15 +81,15 @@ export default {
   },
 
   computed: {
-    ...mapState('SegmentSlidebar', [
+    ...mapState('segmentSlidebar', [
       'isLoading'
     ]),
 
-    ...mapState('StatementSegment', {
+    ...mapState('statementSegment', {
       segments: 'items'
     }),
 
-    ...mapGetters('SegmentSlidebar', [
+    ...mapGetters('segmentSlidebar', [
       'commentsList',
       'procedureId',
       'showForm',
@@ -118,15 +118,15 @@ export default {
   },
 
   methods: {
-    ...mapActions('StatementSegment', {
+    ...mapActions('statementSegment', {
       listSegments: 'list'
     }),
 
-    ...mapActions('SegmentComment', {
+    ...mapActions('segmentComment', {
       listComments: 'list'
     }),
 
-    ...mapMutations('SegmentSlidebar', [
+    ...mapMutations('segmentSlidebar', [
       'setContent'
     ]),
 

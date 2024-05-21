@@ -891,9 +891,9 @@ export default {
   },
 
   computed: {
-    ...mapState('Notify', ['messages']),
+    ...mapState('notify', ['messages']),
 
-    ...mapState('PublicStatement', {
+    ...mapState('publicStatement', {
       initFormDataJSON: 'initForm',
       initDraftStatements: 'initDraftStatements',
       formData: 'statement',
@@ -970,9 +970,9 @@ export default {
   },
 
   methods: {
-    ...mapMutations('Notify', ['remove']),
+    ...mapMutations('notify', ['remove']),
 
-    ...mapMutations('PublicStatement', [
+    ...mapMutations('publicStatement', [
       'addUnsavedDraft',
       'clearDraftState',
       'removeStatementProp',

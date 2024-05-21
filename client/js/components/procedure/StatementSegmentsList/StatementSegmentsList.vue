@@ -263,21 +263,21 @@ export default {
   },
 
   computed: {
-    ...mapState('AssignableUser', {
+    ...mapState('assignableUser', {
       assignableUsersObject: 'items'
     }),
 
-    ...mapState('StatementSegment', {
+    ...mapState('statementSegment', {
       segments: 'items'
     }),
 
-    ...mapState('Statement', {
+    ...mapState('statement', {
       statements: 'items'
     }),
 
-    ...mapState('SegmentSlidebar', ['slidebar']),
+    ...mapState('segmentSlidebar', ['slidebar']),
 
-    ...mapGetters('SegmentSlidebar', ['commentsList']),
+    ...mapGetters('segmentSlidebar', ['commentsList']),
 
     additionalAttachments () {
       /**
@@ -411,16 +411,16 @@ export default {
   },
 
   methods: {
-    ...mapMutations('SegmentSlidebar', [
+    ...mapMutations('segmentSlidebar', [
       'setContent',
       'setProperty'
     ]),
 
-    ...mapMutations('Statement', {
+    ...mapMutations('statement', {
       setStatement: 'setItem'
     }),
 
-    ...mapActions('AssignableUser', {
+    ...mapActions('assignableUser', {
       listAssignableUser: 'list'
     }),
 
@@ -428,14 +428,14 @@ export default {
       fetchProcedureMapSettings: 'fetchProcedureMapSettings'
     }),
 
-    ...mapActions('Statement', {
+    ...mapActions('statement', {
       getStatementAction: 'get',
       saveStatementAction: 'save',
       updateStatementAction: 'update',
       restoreStatementAction: 'restoreFromInitial'
     }),
 
-    ...mapActions('SegmentSlidebar', [
+    ...mapActions('segmentSlidebar', [
       'toggleSlidebarContent'
     ]),
 

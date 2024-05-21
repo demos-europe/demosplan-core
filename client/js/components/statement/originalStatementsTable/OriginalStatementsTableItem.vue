@@ -236,8 +236,8 @@ export default {
   },
 
   computed: {
-    ...mapGetters('AssessmentTable', ['elements', 'paragraph']),
-    ...mapState('Statement', ['statements', 'selectedElements']),
+    ...mapGetters('assessmentTable', ['elements', 'paragraph']),
+    ...mapState('statement', ['statements', 'selectedElements']),
 
     element () {
       let elementTitle = ''
@@ -305,7 +305,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('Statement', [
+    ...mapMutations('statement', [
       'updateStatement'
     ]),
 

@@ -68,7 +68,7 @@ export default {
   },
 
   computed: {
-    ...mapState('PublicStatement', [
+    ...mapState('publicStatement', [
       'activeActionBoxTab',
       'showMapHint',
       'initForm',
@@ -82,7 +82,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('PublicStatement', ['initialiseStore', 'update', 'updateHighlighted', 'updateStatement']),
+    ...mapMutations('publicStatement', ['initialiseStore', 'update', 'updateHighlighted', 'updateStatement']),
 
     checkKeyEvent (event) {
       if (this.isFullscreen) {

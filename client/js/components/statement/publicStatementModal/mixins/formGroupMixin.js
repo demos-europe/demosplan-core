@@ -38,10 +38,10 @@ export default {
   },
 
   computed: {
-    ...mapState('PublicStatement', ['statement'])
+    ...mapState('publicStatement', ['statement'])
   },
   methods: {
-    ...mapMutations('PublicStatement', ['updateStatement']),
+    ...mapMutations('publicStatement', ['updateStatement']),
 
     setStatementData (data) {
       this.updateStatement({ r_ident: this.draftStatementId, ...data })

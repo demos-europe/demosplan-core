@@ -162,12 +162,12 @@ export default {
   },
 
   computed: {
-    ...mapState('User', {
+    ...mapState('user', {
       initialUser (state) {
         return state.initial[this.user.id]
       }
     }),
-    ...mapState('Role', {
+    ...mapState('role', {
       roles: 'items'
     }),
 
@@ -228,12 +228,12 @@ export default {
   },
 
   methods: {
-    ...mapActions('User', {
+    ...mapActions('user', {
       saveUserAction: 'save',
       restoreUser: 'restoreFromInitial'
     }),
 
-    ...mapMutations('User', ['setItem']),
+    ...mapMutations('user', ['setItem']),
 
     // Close item and reset roles multiselect
     reset () {

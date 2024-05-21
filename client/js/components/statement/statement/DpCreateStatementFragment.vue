@@ -79,11 +79,11 @@ export default {
   },
 
   computed: {
-    ...mapGetters('AssessmentTable', ['assessmentBaseLoaded'])
+    ...mapGetters('assessmentTable', ['assessmentBaseLoaded'])
   },
 
   methods: {
-    ...mapActions('AssessmentTable', ['applyBaseData']),
+    ...mapActions('assessmentTable', ['applyBaseData']),
 
     resetSelectMenu (field) {
       this[field] = []

@@ -66,14 +66,14 @@ export default {
   },
 
   computed: {
-    ...mapGetters('AssessmentTable', [
+    ...mapGetters('assessmentTable', [
       'appliedFilters',
       'initFilterHash',
       'procedureId',
       'searchFields'
     ]),
 
-    ...mapState('AssessmentTable', [
+    ...mapState('assessmentTable', [
       'currentUserId',
       'currentUserName',
       'exactSearch',
@@ -99,7 +99,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('AssessmentTable', [
+    ...mapMutations('assessmentTable', [
       'setProperty'
     ])
   }

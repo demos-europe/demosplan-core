@@ -342,11 +342,11 @@ export default {
   },
 
   computed: {
-    ...mapState('Branding', {
+    ...mapState('branding', {
       brandingList: 'items'
     }),
 
-    ...mapState('Customer', {
+    ...mapState('customer', {
       customerList: 'items'
     }),
 
@@ -361,21 +361,21 @@ export default {
   },
 
   methods: {
-    ...mapActions('Branding', {
+    ...mapActions('branding', {
       fetchBranding: 'list',
       saveBranding: 'save'
     }),
 
-    ...mapActions('Customer', {
+    ...mapActions('customer', {
       fetchCustomer: 'list',
       saveCustomer: 'save'
     }),
 
-    ...mapMutations('Branding', {
+    ...mapMutations('branding', {
       updateBranding: 'setItem'
     }),
 
-    ...mapMutations('Customer', {
+    ...mapMutations('customer', {
       updateCustomer: 'setItem'
     }),
 

@@ -23,8 +23,8 @@ import StatementStore from '@DpJs/store/statement/Statement'
 
 const stores = {
   AssessmentTable: AssessmentTableStore,
-  Filter: FilterStore,
-  Statement: StatementStore
+  filter: FilterStore,
+  statement: StatementStore
 }
 
 const components = {

@@ -210,7 +210,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('AssessmentTable', [
+    ...mapMutations('assessmentTable', [
       'setModalProperty'
     ]),
 

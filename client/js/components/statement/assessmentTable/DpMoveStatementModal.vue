@@ -160,9 +160,9 @@ export default {
   },
 
   computed: {
-    ...mapGetters('Fragment', ['fragmentsByStatement']),
-    ...mapState('AssessmentTable', ['currentUserId']),
-    ...mapState('Statement', ['statements']),
+    ...mapGetters('fragment', ['fragmentsByStatement']),
+    ...mapState('assessmentTable', ['currentUserId']),
+    ...mapState('statement', ['statements']),
 
     statement () {
       return this.statementId ? this.statements[this.statementId] : null
@@ -200,7 +200,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('Fragment', ['loadFragments']),
+    ...mapActions('fragment', ['loadFragments']),
     toggleModal (statementId) {
       //  Reset selection when radio list changes
       this.selectedProcedureId = ''
@@ -259,7 +259,7 @@ export default {
       }
 
       //  Fire action from store
-      this.$store.dispatch('Statement/moveStatementAction', {
+      this.$store.dispatch('statement/moveStatementAction', {
         procedureId: this.selectedProcedureId,
         statementId: this.statementId,
         deleteVersionHistory: this.deleteVersionHistory

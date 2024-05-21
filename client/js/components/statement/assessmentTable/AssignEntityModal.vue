@@ -94,7 +94,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('AssessmentTable', [
+    ...mapGetters('assessmentTable', [
       'assignEntityModal'
     ]),
 
@@ -112,7 +112,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('AssessmentTable', [
+    ...mapMutations('assessmentTable', [
       'setModalProperty'
     ]),
 

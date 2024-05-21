@@ -54,16 +54,16 @@ export default {
   },
 
   computed: {
-    ...mapGetters('SegmentSlidebar', [
+    ...mapGetters('segmentSlidebar', [
       'commentsList',
       'currentCommentText'
     ]),
 
-    ...mapState('StatementSegment', {
+    ...mapState('statementSegment', {
       segments: 'items'
     }),
 
-    ...mapState('SegmentSlidebar', [
+    ...mapState('segmentSlidebar', [
       'isLoading'
     ]),
 
@@ -77,21 +77,21 @@ export default {
   },
 
   methods: {
-    ...mapActions('StatementSegment', {
+    ...mapActions('statementSegment', {
       listSegments: 'list',
       restoreSegmentAction: 'restoreFromInitial'
     }),
 
-    ...mapMutations('SegmentSlidebar', [
+    ...mapMutations('segmentSlidebar', [
       'setContent',
       'setProperty'
     ]),
 
-    ...mapMutations('StatementSegment', {
+    ...mapMutations('statementSegment', {
       updateSegment: 'update'
     }),
 
-    ...mapMutations('SegmentComment', {
+    ...mapMutations('segmentComment', {
       setComment: 'setItem'
     }),
 

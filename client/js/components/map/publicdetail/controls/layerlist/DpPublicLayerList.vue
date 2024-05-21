@@ -100,8 +100,8 @@ export default {
       return this.layers.length > 0 && this.isMapLoaded
     },
 
-    ...mapState('Layers', ['isMapLoaded']),
-    ...mapGetters('Layers', ['element'])
+    ...mapState('layers', ['isMapLoaded']),
+    ...mapGetters('layers', ['element'])
   },
 
   watch: {

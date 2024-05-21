@@ -811,8 +811,8 @@ export default {
 
   computed: {
     // Get the Statement from the Store (if not Present there use initial data)
-    ...mapState('Statement', { statement (state) { return state.statements[this.statementId] } }),
-    ...mapGetters('AssessmentTable', [
+    ...mapState('statement', { statement (state) { return state.statements[this.statementId] } }),
+    ...mapGetters('assessmentTable', [
       'adviceValues',
       'assessmentBase',
       'assessmentBaseLoaded',
@@ -827,10 +827,10 @@ export default {
       'status',
       'tags'
     ]),
-    ...mapGetters('Fragment', ['selectedFragments', 'fragmentsByStatement']),
-    ...mapState('Statement', ['selectedElements', 'statements', 'isFiltered']),
+    ...mapGetters('fragment', ['selectedFragments', 'fragmentsByStatement']),
+    ...mapState('statement', ['selectedElements', 'statements', 'isFiltered']),
 
-    ...mapState('AssessmentTable',
+    ...mapState('assessmentTable',
       [
         'accessibleProcedureIds',
         'currentUserId',
@@ -927,26 +927,26 @@ export default {
   },
 
   methods: {
-    ...mapActions('Fragment', [
+    ...mapActions('fragment', [
       'removeFragmentFromSelectionAction',
       'loadFragments',
       'setSelectedFragmentsAction',
       'resetSelection'
     ]),
 
-    ...mapActions('Statement', [
+    ...mapActions('statement', [
       'updateStatementAction',
       'addToSelectionAction',
       'removeFromSelectionAction',
       'setAssigneeAction'
     ]),
 
-    ...mapMutations('AssessmentTable', [
+    ...mapMutations('assessmentTable', [
       'setModalProperty',
       'setProperty'
     ]),
 
-    ...mapMutations('Statement', [
+    ...mapMutations('statement', [
       'addStatement',
       'updateStatement',
       'replaceStatement'

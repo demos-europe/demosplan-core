@@ -144,13 +144,13 @@ export default {
   },
 
   computed: {
-    ...mapGetters('Procedure', [
+    ...mapGetters('procedure', [
       'currentProcedureId',
       'currentView',
       'shouldMapZoomBeSet'
     ]),
 
-    ...mapState('Procedure', {
+    ...mapState('procedure', {
       proceduresFromStore: 'procedures'
     }),
 
@@ -230,7 +230,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('Procedure', [
+    ...mapActions('procedure', [
       'showDetailView'
     ]),
 

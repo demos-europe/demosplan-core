@@ -78,15 +78,15 @@ export default {
   },
 
   computed: {
-    ...mapGetters('Statement', {
+    ...mapGetters('statement', {
       selectedStatementsLength: 'selectedElementsLength'
     }),
 
-    ...mapGetters('Fragment', [
+    ...mapGetters('fragment', [
       'selectedFragmentsLength'
     ]),
 
-    ...mapState('Statement', [
+    ...mapState('statement', [
       'statements'
     ]),
 
@@ -131,7 +131,7 @@ export default {
     resetSelection () {
       this.$store.dispatch(`${this.visibleEntityType}/resetSelection`)
     },
-    ...mapMutations('Statement', ['updateStatement'])
+    ...mapMutations('statement', ['updateStatement'])
   }
 }
 </script>

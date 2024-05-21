@@ -407,26 +407,26 @@ export default {
   },
 
   computed: {
-    ...mapState('AssessmentTable', [
+    ...mapState('assessmentTable', [
       'assessmentBase',
       'assessmentBaseLoaded',
       'currentTableView',
       'sort'
     ]),
 
-    ...mapGetters('AssessmentTable', [
+    ...mapGetters('assessmentTable', [
       'assignEntityModal',
       'consolidateModal',
       'copyStatementModal',
       'isLoading'
     ]),
 
-    ...mapState('Statement', [
+    ...mapState('statement', [
       'selectedElements',
       'pagination'
     ]),
 
-    ...mapGetters('Statement', [
+    ...mapGetters('statement', [
       'getSelectionStateById',
       'selectedElementsFromOtherPages',
       'selectedElementsLength',
@@ -434,7 +434,7 @@ export default {
       'statementsInOrder'
     ]),
 
-    ...mapGetters('Fragment', [
+    ...mapGetters('fragment', [
       'selectedFragments'
     ]),
 
@@ -473,36 +473,36 @@ export default {
   },
 
   methods: {
-    ...mapActions('AssessmentTable', [
+    ...mapActions('assessmentTable', [
       'applyBaseData'
     ]),
 
-    ...mapActions('Statement', [
+    ...mapActions('statement', [
       'addToSelectionAction',
       'getStatementAction',
       'removeFromSelectionAction',
       'updateStatementAction'
     ]),
 
-    ...mapActions('Statement', {
+    ...mapActions('statement', {
       resetStatementSelection: 'resetSelection',
       setProcedureIdForStatement: 'setProcedureIdAction',
       setSelectedStatements: 'setSelectedElementsAction'
     }),
 
-    ...mapActions('Fragment', {
+    ...mapActions('fragment', {
       resetFragmentSelection: 'resetSelection',
       setProcedureIdForFragment: 'setProcedureIdAction',
       setSelectedFragments: 'setSelectedFragmentsAction'
     }),
 
-    ...mapMutations('AssessmentTable', [
+    ...mapMutations('assessmentTable', [
       'setAssessmentBaseProperty',
       'setModalProperty',
       'setProperty'
     ]),
 
-    ...mapMutations('Statement', [
+    ...mapMutations('statement', [
       'updatePagination'
     ]),
 

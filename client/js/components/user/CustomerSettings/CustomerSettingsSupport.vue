@@ -123,7 +123,7 @@ export default {
   },
 
   computed: {
-    ...mapState('CustomerContact', {
+    ...mapState('customerContact', {
       contacts: 'items'
     }),
 
@@ -137,14 +137,14 @@ export default {
   },
 
   methods: {
-    ...mapActions('CustomerContact', {
+    ...mapActions('customerContact', {
       createContact: 'create',
       fetchContacts: 'list',
       deleteContact: 'delete',
       saveContact: 'save'
     }),
 
-    ...mapMutations('CustomerContact', {
+    ...mapMutations('customerContact', {
       updateContact: 'setItem'
     }),
 

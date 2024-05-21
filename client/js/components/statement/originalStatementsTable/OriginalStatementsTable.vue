@@ -206,13 +206,13 @@ export default {
   },
 
   computed: {
-    ...mapState('Statement', [
+    ...mapState('statement', [
       'statements',
       'selectedElements',
       'pagination'
     ]),
 
-    ...mapGetters('Statement', [
+    ...mapGetters('statement', [
       'getSelectionStateById'
     ]),
 
@@ -222,11 +222,11 @@ export default {
   },
 
   methods: {
-    ...mapActions('AssessmentTable', [
+    ...mapActions('assessmentTable', [
       'applyBaseData'
     ]),
 
-    ...mapActions('Statement', [
+    ...mapActions('statement', [
       'addToSelectionAction',
       'getStatementAction',
       'removeFromSelectionAction',
@@ -234,12 +234,12 @@ export default {
       'setSelectionAction'
     ]),
 
-    ...mapMutations('Statement', [
+    ...mapMutations('statement', [
       'updatePagination',
       'updatePersistStatementSelection'
     ]),
 
-    ...mapMutations('AssessmentTable', [
+    ...mapMutations('assessmentTable', [
       'setProperty'
     ]),
 

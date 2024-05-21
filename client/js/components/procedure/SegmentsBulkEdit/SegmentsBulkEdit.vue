@@ -345,11 +345,11 @@ export default {
   },
 
   computed: {
-    ...mapState('Tag', {
+    ...mapState('tag', {
       tagsItems: 'items'
     }),
 
-    ...mapState('TagTopic', {
+    ...mapState('tagTopic', {
       tagTopicsItems: 'items'
     }),
 
@@ -455,10 +455,10 @@ export default {
   },
 
   methods: {
-    ...mapActions('Tag', {
+    ...mapActions('tag', {
       listTags: 'list'
     }),
-    ...mapActions('TagTopic', {
+    ...mapActions('tagTopic', {
       listTagTopics: 'list'
     }),
 

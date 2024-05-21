@@ -13,8 +13,7 @@ import { set } from 'vue'
 const LayersStore = {
 
   namespaced: true,
-
-  name: 'Layers',
+  name: 'layers',
 
   state: {
     originalApiData: {},

@@ -33,7 +33,7 @@ describe('Notify', () => {
 describe('Notify', () => {
   beforeEach(() => {
     StubStore = new Vuex.Store({})
-    StubStore.registerModule('Notify', Notify)
+    StubStore.registerModule('notify', Notify)
   })
 
   it('can add a message', () => {

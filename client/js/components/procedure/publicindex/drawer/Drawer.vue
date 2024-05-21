@@ -66,14 +66,14 @@ export default {
   },
 
   computed: {
-    ...mapGetters('Procedure', [
+    ...mapGetters('procedure', [
       'currentProcedureId',
       'currentView',
       'isDrawerOpened',
       'isLoading'
     ]),
 
-    ...mapState('Procedure', [
+    ...mapState('procedure', [
       'procedures'
     ]),
 
@@ -91,7 +91,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('Procedure', [
+    ...mapMutations('procedure', [
       'setProperty'
     ]),
 

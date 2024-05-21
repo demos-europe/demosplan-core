@@ -314,7 +314,7 @@ export default {
   },
 
   computed: {
-    ...mapState('NewProcedure', [
+    ...mapState('newProcedure', [
       'requireField'
     ]),
 

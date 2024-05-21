@@ -388,7 +388,7 @@ export default {
   },
 
   computed: {
-    ...mapState('PublicStatement', ['unsavedDrafts']),
+    ...mapState('publicStatement', ['unsavedDrafts']),
 
     authoredBy () {
       return this.showAuthor ? this.user : '-'

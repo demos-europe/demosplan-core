@@ -440,9 +440,9 @@ export default {
   },
 
   computed: {
-    ...mapState('SegmentSlidebar', ['slidebar']),
+    ...mapState('segmentSlidebar', ['slidebar']),
 
-    ...mapState('AssignableUser', {
+    ...mapState('assignableUser', {
       assignableUserItems: 'items'
     }),
 
@@ -515,28 +515,28 @@ export default {
   },
 
   methods: {
-    ...mapActions('AssignableUser', {
+    ...mapActions('assignableUser', {
       fetchAssignableUsers: 'list'
     }),
 
-    ...mapActions('Place', {
+    ...mapActions('place', {
       fetchPlaces: 'list'
     }),
 
-    ...mapActions('SegmentSlidebar', [
+    ...mapActions('segmentSlidebar', [
       'toggleSlidebarContent'
     ]),
 
-    ...mapMutations('SegmentSlidebar', [
+    ...mapMutations('segmentSlidebar', [
       'setProperty'
     ]),
 
-    ...mapActions('StatementSegment', {
+    ...mapActions('statementSegment', {
       restoreSegmentAction: 'restoreFromInitial',
       saveSegmentAction: 'save'
     }),
 
-    ...mapMutations('StatementSegment', {
+    ...mapMutations('statementSegment', {
       updateSegment: 'update',
       setSegment: 'setItem'
     }),
@@ -836,7 +836,7 @@ export default {
   mounted () {
     this.fetchPlaces({
       fields: {
-        Place: ['name', 'sortIndex', 'description'].join(),
+        Place: ['name', 'sortIndex', 'description'].join()
       },
       sort: 'sortIndex'
     })

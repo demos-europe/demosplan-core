@@ -370,31 +370,31 @@ export default {
   },
 
   computed: {
-    ...mapGetters('Segmentfilter', {
+    ...mapGetters('segmentfilter', {
       getFilterQuery: 'filterQuery'
     }),
 
-    ...mapState('AssignableUser', {
+    ...mapState('assignableUser', {
       assignableUsersObject: 'items'
     }),
 
-    ...mapState('Orga', {
+    ...mapState('orga', {
       orgaObject: 'items'
     }),
 
-    ...mapState('StatementSegment', {
+    ...mapState('statementSegment', {
       segmentsObject: 'items'
     }),
 
-    ...mapState('Statement', {
+    ...mapState('statement', {
       statementsObject: 'items'
     }),
 
-    ...mapState('Tag', {
+    ...mapState('tag', {
       tagsObject: 'items'
     }),
 
-    ...mapState('Place', {
+    ...mapState('place', {
       placesObject: 'items'
     }),
 
@@ -452,19 +452,19 @@ export default {
   },
 
   methods: {
-    ...mapActions('AssignableUser', {
+    ...mapActions('assignableUser', {
       fetchAssignableUsers: 'list'
     }),
 
-    ...mapActions('StatementSegment', {
+    ...mapActions('statementSegment', {
       listSegments: 'list'
     }),
 
-    ...mapActions('Place', {
+    ...mapActions('place', {
       fetchPlaces: 'list'
     }),
 
-    ...mapMutations('Segmentfilter', ['updateFilterQuery']),
+    ...mapMutations('segmentfilter', ['updateFilterQuery']),
 
     applyQuery (page) {
       lscache.remove(this.lsKey.allSegments)

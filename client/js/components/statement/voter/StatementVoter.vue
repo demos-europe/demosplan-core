@@ -309,7 +309,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('Voter', ['getVoters']),
+    ...mapGetters('voter', ['getVoters']),
 
     preFix () {
       return (index) => {
@@ -337,7 +337,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('Voter', [
+    ...mapMutations('voter', [
       'addNewVoter',
       'removeVoter',
       'setVoters',

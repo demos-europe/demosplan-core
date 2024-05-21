@@ -52,7 +52,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('Splitstatement', {
+    ...mapGetters('splitstatement', {
       tags: 'categorizedTags',
       editingSegment: 'editingSegment',
       uncategorizedTags: 'uncategorizedTags'
@@ -80,7 +80,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('Splitstatement', [
+    ...mapActions('splitstatement', [
       'updateCurrentTags'
     ]),
 

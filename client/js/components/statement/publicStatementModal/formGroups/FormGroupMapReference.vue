@@ -154,7 +154,7 @@ export default {
   },
 
   computed: {
-    ...mapState('PublicStatement', ['activeActionBoxTab', 'highlighted']),
+    ...mapState('publicStatement', ['activeActionBoxTab', 'highlighted']),
 
     isLocationSelected () {
       return this.statement.r_location === 'point' || this.statement.r_location === 'priorityAreaType'
@@ -162,7 +162,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('PublicStatement', ['update']),
+    ...mapMutations('publicStatement', ['update']),
 
     gotoTab (tabName) {
       this.update({ key: 'activeActionBoxTab', val: 'draw' })

@@ -22,9 +22,9 @@ import StatementStore from '@DpJs/store/statement/Statement'
 import VoterStore from '@DpJs/store/statement/Voter'
 
 const stores = {
-  AssessmentTable: AssessmentTableStore,
-  Statement: StatementStore,
-  Voter: VoterStore
+  assessmentTable: AssessmentTableStore,
+  statement: StatementStore,
+  voter: VoterStore
 }
 
 const components = {
@@ -38,6 +38,7 @@ if (hasPermission('area_admin_boilerplates')) {
   stores.boilerplates = BoilerplatesStore
   components.DpBoilerPlateModal = DpBoilerPlateModal
 }
+
 
 initialize(components, stores).then(() => {
   dpValidate()

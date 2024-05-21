@@ -141,11 +141,11 @@ export default {
   },
 
   computed: {
-    ...mapGetters('AssessmentTable', ['counties', 'municipalities', 'priorityAreas', 'tags'])
+    ...mapGetters('assessmentTable', ['counties', 'municipalities', 'priorityAreas', 'tags'])
   },
 
   methods: {
-    ...mapActions('AssessmentTable', ['applyBaseData']),
+    ...mapActions('assessmentTable', ['applyBaseData']),
 
     addTagBoilerplate (value) {
       if (hasPermission('area_admin_boilerplates')) {

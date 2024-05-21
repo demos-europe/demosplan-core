@@ -334,16 +334,16 @@ export default {
   },
 
   computed: {
-    ...mapGetters('Fragment', [
+    ...mapGetters('fragment', [
       'selectedFragments'
     ]),
 
-    ...mapGetters('Statement', [
+    ...mapGetters('statement', [
       'selectedElementsLength',
       'statements'
     ]),
 
-    ...mapState('AssessmentTable', [
+    ...mapState('assessmentTable', [
       'assessmentBaseLoaded',
       'currentTableView',
       'filterSet',
@@ -351,7 +351,7 @@ export default {
       'sort'
     ]),
 
-    ...mapState('Statement', [
+    ...mapState('statement', [
       'selectedElements'
     ]),
 
@@ -418,11 +418,11 @@ export default {
   },
 
   methods: {
-    ...mapActions('Statement', [
+    ...mapActions('statement', [
       'setSelectionAction'
     ]),
 
-    ...mapMutations('AssessmentTable', [
+    ...mapMutations('assessmentTable', [
       'setProperty'
     ]),
 

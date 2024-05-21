@@ -166,11 +166,11 @@ export default {
   },
 
   computed: {
-    ...mapState('InstitutionLocationContact', {
+    ...mapState('institutionLocationContact', {
       institutionLocationContactItems: 'items'
     }),
 
-    ...mapState('InvitableToeb', {
+    ...mapState('invitableToeb', {
       invitableToebItems: 'items'
     }),
 
@@ -197,7 +197,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('InvitableToeb', {
+    ...mapActions('invitableToeb', {
       getInstitutions: 'list'
     }),
 

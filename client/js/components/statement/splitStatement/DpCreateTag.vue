@@ -103,7 +103,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('Splitstatement', {
+    ...mapGetters('splitstatement', {
       availableTags: 'availableTags',
       availableTagTopics: 'tagTopics'
     }),
@@ -124,13 +124,13 @@ export default {
   },
 
   methods: {
-    ...mapActions('Splitstatement', [
+    ...mapActions('splitstatement', [
       'createTagAction',
       'createTopicAction',
       'updateCurrentTags'
     ]),
 
-    ...mapMutations('Splitstatement', [
+    ...mapMutations('splitstatement', [
       'updateProperty'
     ]),
 

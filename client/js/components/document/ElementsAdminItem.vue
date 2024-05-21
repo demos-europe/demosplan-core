@@ -54,7 +54,7 @@ export default {
   },
 
   computed: {
-    ...mapState('Elements', {
+    ...mapState('elements', {
       elements: 'items'
     }),
 
@@ -95,11 +95,11 @@ export default {
   },
 
   methods: {
-    ...mapActions('Elements', {
+    ...mapActions('elements', {
       saveToggleElement: 'save'
     }),
 
-    ...mapMutations('Elements', {
+    ...mapMutations('elements', {
       updateToggleElement: 'setItem'
     })
   }

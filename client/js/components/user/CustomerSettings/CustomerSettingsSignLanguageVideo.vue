@@ -143,7 +143,7 @@ export default {
   },
 
   computed: {
-    ...mapState('Customer', {
+    ...mapState('customer', {
       customerList: 'items'
     }),
 
@@ -162,12 +162,12 @@ export default {
   },
 
   methods: {
-    ...mapActions('Customer', {
+    ...mapActions('customer', {
       fetchCustomer: 'list',
       saveCustomer: 'save'
     }),
 
-    ...mapMutations('Customer', {
+    ...mapMutations('customer', {
       updateCustomer: 'setItem'
     }),
 

@@ -100,20 +100,20 @@ export default {
   },
 
   computed: {
-    ...mapState('CustomerLoginSupportContact', {
+    ...mapState('customerLoginSupportContact', {
       contacts: 'items'
     })
   },
 
   methods: {
-    ...mapActions('CustomerLoginSupportContact', {
+    ...mapActions('customerLoginSupportContact', {
       create: 'create',
       delete: 'delete',
       fetch: 'list',
       save: 'save'
     }),
 
-    ...mapMutations('CustomerLoginSupportContact', {
+    ...mapMutations('customerLoginSupportContact', {
       update: 'setItem'
     }),
 

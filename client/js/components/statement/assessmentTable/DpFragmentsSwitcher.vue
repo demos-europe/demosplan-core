@@ -103,15 +103,15 @@ export default {
   },
 
   computed: {
-    ...mapGetters('Fragment', ['fragmentsByStatement', 'selectedFragments']),
+    ...mapGetters('fragment', ['fragmentsByStatement', 'selectedFragments']),
 
-    ...mapGetters('Filter', ['selectedFilterOptions']),
+    ...mapGetters('filter', ['selectedFilterOptions']),
 
-    ...mapState('AssessmentTable', ['assessmentBase']),
+    ...mapState('assessmentTable', ['assessmentBase']),
 
-    ...mapState('Filter', ['currentSearch']),
+    ...mapState('filter', ['currentSearch']),
 
-    ...mapState('Fragment', ['fragments']),
+    ...mapState('fragment', ['fragments']),
 
     filteredFragmentsLength () {
       if (!this.fragments[this.statementId]) {

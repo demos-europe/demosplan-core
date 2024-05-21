@@ -232,7 +232,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('Segmentfilter', {
+    ...mapGetters('segmentfilter', {
       // All currently selected filters, in this as well as in (possible) neighboring filterFlyouts
       getFilterQuery: 'filterQuery'
     }),
@@ -300,7 +300,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('Segmentfilter', ['updateFilterQuery']),
+    ...mapMutations('segmentfilter', ['updateFilterQuery']),
 
     /**
      * Emit event with currently selected filters as query object.

@@ -174,7 +174,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('Statement', ['setAssigneeAction']),
+    ...mapActions('statement', ['setAssigneeAction']),
 
     /**
      * Force-close multiselect dropdown on selection - because of the bug the menu stays opened

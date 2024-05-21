@@ -120,7 +120,7 @@ export default {
   },
 
   computed: {
-    ...mapState('Elements', {
+    ...mapState('elements', {
       elements: 'items'
     }),
 
@@ -149,12 +149,12 @@ export default {
   },
 
   methods: {
-    ...mapActions('Elements', {
+    ...mapActions('elements', {
       elementList: 'list',
       deleteElement: 'delete'
     }),
 
-    ...mapMutations('Elements', {
+    ...mapMutations('elements', {
       setElement: 'set'
     }),
 

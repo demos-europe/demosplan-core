@@ -11,9 +11,9 @@ import { nextTick, set } from 'vue'
 import { dpApi } from '@demos-europe/demosplan-ui'
 
 const ProcedureStore = {
-  namespaced: true,
 
-  name: 'Procedure',
+  namespaced: true,
+  name: 'procedure',
 
   state: {
     currentProcedureId: '',

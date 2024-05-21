@@ -312,7 +312,7 @@ export default {
   },
 
   computed: {
-    ...mapState('Orga', {
+    ...mapState('orga', {
       items: 'items',
       currentPage: 'currentPage',
       totalPages: 'totalPages'
@@ -334,11 +334,11 @@ export default {
   },
 
   methods: {
-    ...mapActions('Department', {
+    ...mapActions('department', {
       departmentList: 'list'
     }),
 
-    ...mapActions('Orga', {
+    ...mapActions('orga', {
       list: 'list',
       deleteOrganisation: 'delete'
     }),
@@ -347,7 +347,7 @@ export default {
       pendingOrganisationList: 'list'
     }),
 
-    ...mapActions('Role', {
+    ...mapActions('role', {
       roleList: 'list'
     }),
 

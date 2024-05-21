@@ -11,8 +11,7 @@ import { set } from 'vue'
 
 const SegmentSlidebarStore = {
   namespaced: true,
-
-  name: 'SegmentSlidebar',
+  name: 'segmentSlidebar',
 
   state: {
     slidebar: {

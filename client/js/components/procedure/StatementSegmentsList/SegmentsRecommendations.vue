@@ -97,7 +97,7 @@ export default {
   },
 
   computed: {
-    ...mapState('StatementSegment', {
+    ...mapState('statementSegment', {
       segments: 'items'
     }),
 
@@ -111,15 +111,15 @@ export default {
   },
 
   methods: {
-    ...mapMutations('Statement', {
+    ...mapMutations('statement', {
       setStatement: 'setItem'
     }),
 
-    ...mapActions('Statement', {
+    ...mapActions('statement', {
       restoreStatementAction: 'restoreFromInitial'
     }),
 
-    ...mapActions('StatementSegment', {
+    ...mapActions('statementSegment', {
       listSegments: 'list'
     }),
 

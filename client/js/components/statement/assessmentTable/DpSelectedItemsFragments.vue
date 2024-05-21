@@ -68,8 +68,8 @@ export default {
   },
 
   computed: {
-    ...mapGetters('Fragment', ['selectedFragments']),
-    ...mapState('Statement', ['statements']),
+    ...mapGetters('fragment', ['selectedFragments']),
+    ...mapState('statement', ['statements']),
 
     editable () {
       return hasPermission('feature_statement_assignment') ? Object.values(this.selectedFragments).every(fragment => fragment.assignee.id === this.currentUserId) : true
@@ -77,7 +77,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('Statement', ['updateStatement'])
+    ...mapMutations('statement', ['updateStatement'])
   }
 }
 </script>

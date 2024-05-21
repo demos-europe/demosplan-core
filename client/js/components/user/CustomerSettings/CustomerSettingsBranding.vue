@@ -117,22 +117,22 @@ export default {
   },
 
   computed: {
-    ...mapState('Branding', {
+    ...mapState('branding', {
       brandingList: 'items'
     })
   },
 
   methods: {
-    ...mapActions('Branding', {
+    ...mapActions('branding', {
       fetchBranding: 'list',
       saveBranding: 'save'
     }),
 
-    ...mapMutations('Branding', {
+    ...mapMutations('branding', {
       updateBranding: 'setItem'
     }),
 
-    ...mapMutations('File', {
+    ...mapMutations('file', {
       updateFile: 'setItem'
     }),
 

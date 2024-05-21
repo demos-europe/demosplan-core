@@ -73,13 +73,13 @@ export default {
   },
 
   computed: {
-    ...mapState('CustomerContact', {
+    ...mapState('customerContact', {
       contacts: 'items'
     })
   },
 
   methods: {
-    ...mapActions('CustomerContact', {
+    ...mapActions('customerContact', {
       fetchContacts: 'list'
     }),
 

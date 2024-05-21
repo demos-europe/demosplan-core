@@ -168,11 +168,11 @@ export default {
   },
 
   computed: {
-    ...mapState('StatementSegment', {
+    ...mapState('statementSegment', {
       segments: 'items'
     }),
 
-    ...mapState('Statement', {
+    ...mapState('statement', {
       statements: 'items'
     }),
 
@@ -216,23 +216,23 @@ export default {
   },
 
   methods: {
-    ...mapMutations('StatementSegment', {
+    ...mapMutations('statementSegment', {
       updateSegment: 'update',
       setSegment: 'setItem'
     }),
 
-    ...mapActions('StatementSegment', {
+    ...mapActions('statementSegment', {
       updateSegmentAction: 'update',
       restoreSegmentAction: 'restoreFromInitial',
       saveSegmentAction: 'save',
       listSegments: 'list'
     }),
 
-    ...mapActions('Statement', {
+    ...mapActions('statement', {
       restoreStatementAction: 'restoreFromInitial'
     }),
 
-    ...mapMutations('Statement', {
+    ...mapMutations('statement', {
       setStatement: 'setItem'
     }),
 

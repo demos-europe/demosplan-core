@@ -20,9 +20,9 @@ import { initialize } from '@DpJs/InitVue'
 import StatementStore from '@DpJs/store/statement/Statement'
 
 const stores = {
-  AssessmentTable: AssessmentTableStore,
-  Fragment: FragmentStore,
-  Statement: StatementStore
+  assessmentTable: AssessmentTableStore,
+  fragment: FragmentStore,
+  statement: StatementStore
 }
 
 const components = {

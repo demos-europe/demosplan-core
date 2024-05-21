@@ -450,8 +450,8 @@ export default {
   },
 
   computed: {
-    ...mapState('AssessmentTable', ['statementFormDefinitions']),
-    ...mapState('Fragment', ['sideBarInitialized']),
+    ...mapState('assessmentTable', ['statementFormDefinitions']),
+    ...mapState('fragment', ['sideBarInitialized']),
 
     fragmentCreatedDate () {
       return formatDate(this.fragment.created)
@@ -600,12 +600,12 @@ export default {
         'tags'
       ]
     ),
-    ...mapGetters('Fragment', ['fragmentById', 'selectedFragments']),
-    ...mapGetters('Statement', ['selectedElements'])
+    ...mapGetters('fragment', ['fragmentById', 'selectedFragments']),
+    ...mapGetters('statement', ['selectedElements'])
   },
 
   methods: {
-    ...mapActions('Fragment', ['updateFragmentAction', 'addFragmentToSelectionAction', 'deleteFragmentAction', 'removeFragmentFromSelectionAction', 'setAssigneeAction']),
+    ...mapActions('fragment', ['updateFragmentAction', 'addFragmentToSelectionAction', 'deleteFragmentAction', 'removeFragmentFromSelectionAction', 'setAssigneeAction']),
 
     deleteFragment (fragmentId) {
       if (dpconfirm(Translator.trans('check.fragment.delete'))) {

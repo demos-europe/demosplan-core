@@ -13,7 +13,7 @@ import { dpApi } from '@demos-europe/demosplan-ui'
 const BoilerplatesStore = {
   namespaced: true,
 
-  name: 'Boilerplates',
+  name: 'boilerplates',
 
   state: {
     boilerplates: {},

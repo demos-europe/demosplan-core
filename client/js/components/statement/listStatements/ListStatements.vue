@@ -422,15 +422,15 @@ export default {
   },
 
   computed: {
-    ...mapState('AssignableUser', {
+    ...mapState('assignableUser', {
       assignableUsersObject: 'items'
     }),
 
-    ...mapState('Orga', {
+    ...mapState('orga', {
       orgaObject: 'items'
     }),
 
-    ...mapState('Statement', {
+    ...mapState('statement', {
       statementsObject: 'items',
       currentPage: 'currentPage',
       totalFiles: 'totalFiles',
@@ -487,17 +487,17 @@ export default {
   },
 
   methods: {
-    ...mapActions('AssignableUser', {
+    ...mapActions('assignableUser', {
       fetchAssignableUsers: 'list'
     }),
 
-    ...mapActions('Statement', {
+    ...mapActions('statement', {
       deleteStatement: 'delete',
       fetchStatements: 'list',
       restoreStatementAction: 'restoreFromInitial'
     }),
 
-    ...mapMutations('Statement', {
+    ...mapMutations('statement', {
       setStatement: 'setItem'
     }),
 

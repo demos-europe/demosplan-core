@@ -110,7 +110,7 @@ export default {
       return this.elementListForLayerSidebar(this.group.id, this.layerType, true)
     },
 
-    ...mapGetters('Layers', ['rootId', 'element', 'elementListForLayerSidebar'])
+    ...mapGetters('layers', ['rootId', 'element', 'elementListForLayerSidebar'])
   },
 
   methods: {

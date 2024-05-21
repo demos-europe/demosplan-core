@@ -149,7 +149,7 @@ export default {
   },
 
   computed: {
-    ...mapState('Department', {
+    ...mapState('department', {
       departmentsList: 'items'
     }),
 
@@ -164,7 +164,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('User', {
+    ...mapActions('user', {
       saveUserAction: 'save'
     }),
 

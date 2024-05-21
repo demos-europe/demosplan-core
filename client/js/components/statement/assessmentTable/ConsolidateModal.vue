@@ -259,11 +259,11 @@ export default {
   },
 
   computed: {
-    ...mapState('AssessmentTable', [
+    ...mapState('assessmentTable', [
       'currentUserId'
     ]),
 
-    ...mapState('Statement', [
+    ...mapState('statement', [
       'selectedElements',
       'statements'
     ]),
@@ -323,16 +323,16 @@ export default {
   },
 
   methods: {
-    ...mapActions('Statement', [
+    ...mapActions('statement', [
       'createClusterAction',
       'updateClusterAction'
     ]),
 
-    ...mapMutations('AssessmentTable', [
+    ...mapMutations('assessmentTable', [
       'setModalProperty'
     ]),
 
-    ...mapMutations('Statement', [
+    ...mapMutations('statement', [
       'addElementToSelection',
       'removeElementFromSelection',
       'replaceElementSelection'

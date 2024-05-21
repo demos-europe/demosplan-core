@@ -19,7 +19,7 @@ const components = {
   SplitStatementView
 }
 const stores = {
-  Splitstatement: SplitStatementStore
+  splitstatement: SplitStatementStore
 }
 
 initialize(components, stores)

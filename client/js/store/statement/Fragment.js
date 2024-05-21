@@ -12,8 +12,7 @@ import { del, set } from 'vue'
 
 export default {
   namespaced: true,
-
-  name: 'Fragment',
+  name: 'fragment',
 
   state: {
     /**

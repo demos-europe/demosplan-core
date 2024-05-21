@@ -254,11 +254,11 @@ export default {
   },
 
   methods: {
-    ...mapMutations('Statement', {
+    ...mapMutations('statement', {
       updateStatement: 'update'
     }),
 
-    ...mapMutations('SimilarStatementSubmitter', {
+    ...mapMutations('similarStatementSubmitter', {
       setSimilarStatementSubmitter: 'setItem'
     }),
 

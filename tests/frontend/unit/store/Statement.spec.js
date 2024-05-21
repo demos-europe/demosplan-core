@@ -33,14 +33,14 @@ describe('Statement', () => {
 describe('StatementStore', () => {
   beforeEach(() => {
     StubStore = new Vuex.Store({})
-    StubStore.registerModule('Statement', Statement)
+    StubStore.registerModule('statement', Statement)
   })
 
   it('can add a statement', () => {
     expect(Object.keys(StubStore.state.statement.statements)).toHaveLength(0)
 
     const statement = { id: '123-456-234' }
-    StubStore.commit('Statement/addStatement', statement)
+    StubStore.commit('statement/addStatement', statement)
     expect(Object.keys(StubStore.state.statement.statements)).toHaveLength(1)
   })
 })

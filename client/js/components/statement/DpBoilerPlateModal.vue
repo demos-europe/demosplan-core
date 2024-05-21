@@ -86,8 +86,8 @@ export default {
   },
 
   computed: {
-    ...mapState('Boilerplates', ['getBoilerplatesRequestFired', 'moduleRegistered']),
-    ...mapGetters('Boilerplates', ['getGroupedBoilerplates']),
+    ...mapState('boilerplates', ['getBoilerplatesRequestFired', 'moduleRegistered']),
+    ...mapGetters('boilerplates', ['getGroupedBoilerplates']),
 
     displayedBoilerplates () {
       const displayed = JSON.parse(JSON.stringify(this.getGroupedBoilerplates))
@@ -116,7 +116,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('Boilerplates', ['getBoilerPlates']),
+    ...mapActions('boilerplates', ['getBoilerPlates']),
 
     addBoilerplateText (textFromTextArea) {
       this.textToBeAdded = textFromTextArea
