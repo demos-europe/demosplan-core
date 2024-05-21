@@ -466,7 +466,7 @@ export default {
       if (this.segment?.relationships?.assignee?.data?.id && this.segment.relationships.assignee.data.id !== '') {
         const assignee = this.assignableUserItems[this.segment.relationships.assignee.data.id]
         const name = `${assignee.attributes.firstname} ${assignee.attributes.lastname}`
-        const orga = assignee ? assignee.rel('Orga') : ''
+        const orga = assignee ? assignee.rel('orga') : ''
 
         return { id: this.segment.relationships.assignee.data.id, name: name, orgaName: orga ? orga.attributes.name : '' }
       } else {
@@ -496,8 +496,8 @@ export default {
     },
 
     tagsAsString () {
-      if (this.segment.hasRelationship('tags')) {
-        return Object.values(this.segment.rel('Tags')).map(el => el.attributes.title).join(', ')
+      if (this.segment.hasRelationship('tag')) {
+        return Object.values(this.segment.rel('tag')).map(el => el.attributes.title).join(', ')
       }
 
       return '-'

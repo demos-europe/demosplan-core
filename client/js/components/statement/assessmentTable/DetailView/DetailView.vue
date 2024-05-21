@@ -141,7 +141,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('assessmentTable', ['counties', 'municipalities', 'priorityAreas', 'tags'])
+    ...mapGetters('assessmentTable', ['counties', 'municipalities', 'priorityAreas', 'tag'])
   },
 
   methods: {

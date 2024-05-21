@@ -512,7 +512,7 @@ export default {
     getAssignee (statement) {
       if (this.assigneeId(statement)) {
         const assignee = this.assignableUsersObject[this.assigneeId(statement)]
-        const assigneeOrga = assignee ? assignee.rel('Orga') : null
+        const assigneeOrga = assignee ? assignee.rel('orga') : null
 
         if (typeof assignee === 'undefined') {
           return {

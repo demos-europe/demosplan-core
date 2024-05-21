@@ -531,7 +531,7 @@
               :editable="isClaimed"
               ref="tags"
               @field:update="updateStatement"
-              @field:save="data => saveStatement(data, 'relationship', 'tags')" />
+              @field:save="data => saveStatement(data, 'relationship', 'tag')" />
           </dp-item-row>
 
           <!-- Statement / Recommendation Text -->

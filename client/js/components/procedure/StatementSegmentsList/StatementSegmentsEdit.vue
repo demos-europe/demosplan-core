@@ -180,8 +180,8 @@ export default {
       return segmentId => {
         const segment = this.segments[segmentId]
         try {
-          const assignee = segment.rel('Assignee')
-          const orga = assignee ? assignee.rel('Orga') : ''
+          const assignee = segment.rel('assignee')
+          const orga = assignee ? assignee.rel('orga') : ''
 
           return {
             id: assignee.id,
@@ -381,7 +381,7 @@ export default {
     if (Object.keys(this.segments).length === 0 && hasPermission('area_statement_segmentation')) {
       this.isLoading = true
       this.listSegments({
-        include: ['assignee', 'comments', 'place', 'tags', 'assignee.orga', 'comments.submitter', 'comments.place'].join(),
+        include: ['assignee', 'comments', 'place', 'tag', 'assignee.orga', 'comments.submitter', 'comments.place'].join(),
         sort: 'orderInProcedure',
         fields: {
           Place: ['name', 'sortIndex'].join(),
