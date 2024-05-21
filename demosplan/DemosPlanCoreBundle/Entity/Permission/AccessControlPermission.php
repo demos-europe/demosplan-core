@@ -31,6 +31,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
 class AccessControlPermission extends CoreEntity implements UuidEntityInterface
 {
     /**
+     * @var string
+     *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
      *
      * @ORM\Id
@@ -42,11 +44,15 @@ class AccessControlPermission extends CoreEntity implements UuidEntityInterface
     protected string $id;
 
     /**
+     * @var string
+     *
      * @ORM\Column(name="permission", type="string", nullable=false)
      */
     protected string $permission = '';
 
     /**
+     * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      *
      * @ORM\Column(type="datetime", nullable=false)
@@ -89,16 +95,25 @@ class AccessControlPermission extends CoreEntity implements UuidEntityInterface
      */
     protected $customer;
 
+    /**
+     * @return string
+     */
     public function getId(): string
     {
         return $this->id;
     }
 
+    /**
+     * @return string
+     */
     public function getPermission(): string
     {
         return $this->permission;
     }
 
+    /**
+     * @param string $permission
+     */
     public function setPermission(string $permission): void
     {
         $this->permission = $permission;
