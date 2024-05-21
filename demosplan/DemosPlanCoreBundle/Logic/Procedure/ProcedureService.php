@@ -61,6 +61,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Export\EntityPreparator;
 use demosplan\DemosPlanCoreBundle\Logic\Export\FieldConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlPermissionService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
@@ -211,6 +212,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         private readonly TranslatorInterface $translator,
         UserService $userService,
         private readonly ValidatorInterface $validator,
+        private readonly AccessControlPermissionService $accessControlPermissionService,
         private readonly string $environment
     ) {
         $this->contentService = $contentService;
@@ -834,6 +836,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $blueprintId = $data['copymaster'] ?? null;
             $blueprintId = $blueprintId instanceof Procedure ? $blueprintId->getId() : $blueprintId;
             $newProcedure = $this->setAuthorizedUsersToProcedure($newProcedure, $blueprintId, $currentUserId);
+            $newProcedure = $this->setPlanningOffices($newProcedure, $blueprintId, $currentUserId);
+
             if (\array_key_exists('explanation', $data)) {
                 // Create a Paragraph Element from the explanation and add it to the procedure
                 $explanation = $data['explanation'];
@@ -2109,6 +2113,28 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             if ($blueprint->isMasterTemplate() || $blueprint->isCustomerMasterBlueprint()) {
                 $newProcedure->setAuthorizedUsers([$currentUser]);
             }
+        }
+
+        return $newProcedure;
+    }
+
+    /**
+     * Set setPlanningOffices users to given procedure.
+     *
+     *
+     * @param string|Procedure $blueprint
+     * @param string           $currentUserId
+     *
+     * @return Procedure
+     *
+     * @throws Exception
+     */
+    protected function setPlanningOffices(Procedure $newProcedure, $blueprint, $currentUserId)
+    {
+        $currentUser = $this->userService->getSingleUser($currentUserId);
+
+        if ($this->accessControlPermissionService->canCreateProcedure($currentUser->getOrga(), $this->customerService->getCurrentCustomer(), $currentUser->getRole() )) {
+            $newProcedure->setPlanningOffices([$currentUser->getOrga()]);
         }
 
         return $newProcedure;

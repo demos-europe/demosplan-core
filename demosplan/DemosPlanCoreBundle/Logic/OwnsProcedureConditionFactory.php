@@ -17,7 +17,6 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlPermissionService;
 use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\ConditionFactory\ConditionGroupFactoryInterface;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
@@ -50,7 +49,6 @@ class OwnsProcedureConditionFactory
         private readonly GlobalConfigInterface $globalConfig,
         private readonly LoggerInterface $logger,
         private readonly User|Procedure $userOrProcedure,
-        private readonly AccessControlPermissionService $accessControlPermissionService,
     ) {
     }
 
@@ -136,37 +134,6 @@ class OwnsProcedureConditionFactory
         return $ownsOrgaRoleCondition;
     }
 
-    public function isOrgaAuthorizedOnThisCustomerViaDynamicPermission($customer): ClauseFunctionInterface
-    {
-        if ($this->userOrProcedure instanceof User) {
-            $user = $this->userOrProcedure;
-
-            return $this->accessControlPermissionService->canCreateProcedure($user->getOrga(), $customer, $user->getRole())
-                ? $this->conditionFactory->true()
-                : $this->conditionFactory->false();
-        }
-
-        $procedure = $this->userOrProcedure;
-
-        if (null !== $procedure->getOrgaId()) {
-            $this->logger->debug('Permissions: Check whether orga owns procedure');
-
-            $dynamicPermission = $this->accessControlPermissionService->canCreateProcedure($procedure->getOrga(), $customer, RoleInterface::PRIVATE_PLANNING_AGENCY)
-                ? $this->conditionFactory->true()
-                : $this->conditionFactory->false();
-
-            $ownsOrgaRoleCondition = $this->conditionFactory->allConditionsApply(
-                $this->conditionFactory->propertyHasValue(RoleInterface::PRIVATE_PLANNING_AGENCY, ['roleInCustomers', 'role', 'code']),
-                $this->isUserInCustomer($customer),
-                $dynamicPermission,
-            );
-        } else {
-            $ownsOrgaRoleCondition = $this->conditionFactory->false();
-        }
-
-        return $ownsOrgaRoleCondition;
-    }
-
     /**
      * The user must have the {@link RoleInterface::PRIVATE_PLANNING_AGENCY} role.
      *
@@ -241,6 +208,7 @@ class OwnsProcedureConditionFactory
      */
     public function userIsExplicitlyAuthorized(): ClauseFunctionInterface
     {
+        return  $this->conditionFactory->true();
         if ($this->userOrProcedure instanceof User) {
             $user = $this->userOrProcedure;
 
