@@ -86,9 +86,6 @@ class FunctionalTestCase extends WebTestCase
     /** @var CurrentUserService */
     protected $currentUserService;
 
-    /** @var AccessControlPermissionService */
-    protected $accessControlPermissionService;
-
     protected function loadFixtures()
     {
     }
@@ -99,7 +96,6 @@ class FunctionalTestCase extends WebTestCase
 
         self::bootKernel(['environment' => 'test', 'debug' => false]);
 
-        $this->accessControlPermissionService = self::$container->get(AccessControlPermissionService::class);
         $this->currentUserService = self::$container->get(CurrentUserService::class);
         $this->entityManager = self::$container->get(EntityManagerInterface::class);
         $this->databaseTool = self::$container->get(DatabaseToolCollection::class)->get();
