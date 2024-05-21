@@ -88,7 +88,6 @@ class AccessControlPermissionService extends CoreService
         ]);
 
         // If a permission is found, remove it
-        // @todo remove permission
         if ($permission) {
             $this->accessControlPermissionRepository->persistAndDelete([], [$permission]);
         }
