@@ -74,7 +74,7 @@ class ReportService extends CoreService
         );
     }
 
-    public function persistAndFlushWithoutTransaction(ReportEntry ...$reportEntries)
+    public function persistAndFlushWithoutTransaction(ReportEntry ...$reportEntries): void
     {
         foreach ($reportEntries as $reportEntry) {
             $violations = $this->validator->validate($reportEntry);
@@ -83,8 +83,6 @@ class ReportService extends CoreService
             }
             $this->reportRepository->addObject($reportEntry);
         }
-
-        return null;
     }
 
     /**

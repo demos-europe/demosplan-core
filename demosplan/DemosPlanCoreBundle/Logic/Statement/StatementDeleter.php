@@ -79,7 +79,6 @@ class StatementDeleter extends CoreService
      * @throws UserNotFoundException
      * @throws ORMException
      * @throws Exception
-     * @throws \Exception
      */
     private function deleteOriginalStatement(Statement $originalStatement): void
     {
