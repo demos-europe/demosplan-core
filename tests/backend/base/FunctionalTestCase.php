@@ -33,6 +33,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlPermissionService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
@@ -85,6 +86,9 @@ class FunctionalTestCase extends WebTestCase
     /** @var CurrentUserService */
     protected $currentUserService;
 
+    /** @var AccessControlPermissionService */
+    protected $accessControlPermissionService;
+
     protected function loadFixtures()
     {
     }
@@ -95,6 +99,7 @@ class FunctionalTestCase extends WebTestCase
 
         self::bootKernel(['environment' => 'test', 'debug' => false]);
 
+        $this->accessControlPermissionService = self::$container->get(AccessControlPermissionService::class);
         $this->currentUserService = self::$container->get(CurrentUserService::class);
         $this->entityManager = self::$container->get(EntityManagerInterface::class);
         $this->databaseTool = self::$container->get(DatabaseToolCollection::class)->get();
