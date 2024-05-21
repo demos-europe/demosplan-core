@@ -43,7 +43,7 @@ export default {
 
   computed: {
     procedures () {
-      return this.$store.state.Procedure.procedures
+      return this.$store.state.procedure.procedures
     }
   }
 }

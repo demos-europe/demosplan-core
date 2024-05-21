@@ -106,7 +106,7 @@ export default {
     },
 
     statement () {
-      return this.$store.state.Statement.items[this.statementId] || null
+      return this.$store.state.statement.items[this.statementId] || null
     }
   },
 

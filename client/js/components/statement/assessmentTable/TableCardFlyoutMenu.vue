@@ -199,7 +199,7 @@ export default {
 
   data () {
     return {
-      procedureId: this.$store.state.Statement.procedureId
+      procedureId: this.$store.state.statement.procedureId
     }
   },
 
