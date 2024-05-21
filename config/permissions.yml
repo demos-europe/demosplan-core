@@ -133,6 +133,7 @@ area_admin_protocol:
 area_admin_single_document:
     label: 'Verwalten Planungsdokumente'
     loginRequired: true
+    expose: true
     parent: area_admin
 area_admin_statement_list:
     description: 'New list with Statements belonging to a Procedure showing basic info for each Statement so the planner can have a quick overview of the status of the Procedure.'
@@ -1234,6 +1235,13 @@ feature_orga_branding_edit:
     description: 'Allows the editing of the orga branding. At the moment this only includes css styling.'
     expose: true
     label: 'Permission to enable editing of orga branding (css styling).'
+    loginRequired: true
+    parent: [area_manage_orgas, area_manage_orgas_all]
+feature_orga_new_procedure_edit:
+    description: |-
+        Allows the user to update if an orga is allowed to create new procedures.
+    expose: true
+    label: 'Permission to enable orga to create procedures.'
     loginRequired: true
     parent: [area_manage_orgas, area_manage_orgas_all]
 feature_orga_delete:
