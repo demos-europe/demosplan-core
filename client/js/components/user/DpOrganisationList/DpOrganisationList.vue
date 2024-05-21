@@ -178,6 +178,7 @@ const orgaFields = {
     'subdomain'
   ].join(),
   Orga: [
+    'canCreateProcedures',
     'ccEmail2',
     'city',
     'competence',
