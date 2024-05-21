@@ -102,7 +102,6 @@ class ProcedureAccessEvaluator
             return true;
         }
 
-
         // user owns via dynamic permissions
         // user owns via paid feature on organisation on customer
         $dynamicPermissionIsEnabled = $this->conditionFactory->false();
@@ -177,12 +176,11 @@ class ProcedureAccessEvaluator
 
         // user owns via dynamic permissions
         // user owns via paid feature on organisation on customer
-        $dynamicPermission =  $this->conditionFactory->allConditionsApply(
+        $dynamicPermission = $this->conditionFactory->allConditionsApply(
             $ownsProcedureConditionFactory->isAuthorizedViaOrgaOrManually(),
             $ownsProcedureConditionFactory->isOrgaAuthorizedOnThisCustomerViaDynamicPermission($currentCustomer),
             ...$ownsProcedureConditionFactory->hasPlanningAgencyRole($currentCustomer)
         );
-
 
         return [
             $ownsProcedureConditionFactory->isEitherTemplateOrProcedure($template),

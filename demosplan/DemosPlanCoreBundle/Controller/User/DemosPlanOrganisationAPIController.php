@@ -332,14 +332,14 @@ class DemosPlanOrganisationAPIController extends APIController
      */
     #[Route(path: '/api/1.0/organisation/{id}', name: 'organisation_update', options: ['expose' => true], methods: ['PATCH'])]
     public function updateOrgaAction(
-        CustomerHandler                $customerHandler,
-        OrgaHandler                    $orgaHandler,
-        PermissionsInterface           $permissions,
-        Request                        $request,
-        UserHandler                    $userHandler,
+        CustomerHandler $customerHandler,
+        OrgaHandler $orgaHandler,
+        PermissionsInterface $permissions,
+        Request $request,
+        UserHandler $userHandler,
         AccessControlPermissionService $accessControlPermission,
-        RoleHandler                    $roleHandler,
-        string                         $id)
+        RoleHandler $roleHandler,
+        string $id)
     {
         $orgaId = $id;
         try {

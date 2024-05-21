@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Permission;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControlPermission;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
@@ -29,8 +28,8 @@ use demosplan\DemosPlanCoreBundle\Repository\AccessControlPermissionRepository;
  */
 class AccessControlPermissionService extends CoreService
 {
-
     public const CAN_CREATE_PROCEDURES = 'feature_admin_new_procedure';
+
     public function __construct(
         private readonly AccessControlPermissionRepository $accessControlPermissionRepository,
         private readonly RoleHandler $roleHandler,
@@ -63,9 +62,9 @@ class AccessControlPermissionService extends CoreService
             $role = $this->roleHandler->getUserRolesByCodes([$roleName])[0];
 
             $permissions = $this->accessControlPermissionRepository->findBy([
-                'organisation' => [$orga, NULL],
-                'customer'     => [$customer, NULL],
-                'role'         => [$role, NULL]
+                'organisation' => [$orga, null],
+                'customer'     => [$customer, null],
+                'role'         => [$role, null],
             ]);
 
             // Loop through each permission object and get the permission name
@@ -77,7 +76,6 @@ class AccessControlPermissionService extends CoreService
         // Return the permissions array
         return $enabledPermissions;
     }
-
 
     public function removePermission($permissionName, $orga, $customer, $role): void
     {
@@ -97,16 +95,15 @@ class AccessControlPermissionService extends CoreService
     }
 
     /**
-     * @param OrgaInterface $orga
+     * @param OrgaInterface     $orga
      * @param CustomerInterface $orga
-     * @param string $roles
-     * @return bool
+     * @param string            $roles
      */
     public function canCreateProcedure($orga, $customer, $roles): bool
     {
         // Check if the user has the permission to create a procedure
         $permissions = $this->getPermission($orga, $customer, $roles);
-        return in_array('feature_admin_new_procedure', $permissions);
 
+        return in_array('feature_admin_new_procedure', $permissions);
     }
 }

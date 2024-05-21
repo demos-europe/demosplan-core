@@ -148,7 +148,6 @@ class OwnsProcedureConditionFactory
 
         $procedure = $this->userOrProcedure;
 
-
         if (null !== $procedure->getOrgaId()) {
             $this->logger->debug('Permissions: Check whether orga owns procedure');
 
@@ -166,9 +165,6 @@ class OwnsProcedureConditionFactory
         }
 
         return $ownsOrgaRoleCondition;
-
-
-
     }
 
     /**

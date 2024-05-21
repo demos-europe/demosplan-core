@@ -67,9 +67,9 @@ class OrgaHandler extends CoreHandler
             $mandatoryErrors[] = $this->createMandatoryErrorMessage('type');
         } else {
             $regStatus = $data['registrationStatuses'][0];
-            if (!array_key_exists('status', $regStatus) || '' === trim((string) $regStatus['status']) ||
-                !array_key_exists('subdomain', $regStatus) || '' === trim((string) $regStatus['subdomain']) ||
-                !array_key_exists('type', $regStatus) || '' === trim((string) $regStatus['type'])) {
+            if (!array_key_exists('status', $regStatus) || '' === trim((string) $regStatus['status'])
+                || !array_key_exists('subdomain', $regStatus) || '' === trim((string) $regStatus['subdomain'])
+                || !array_key_exists('type', $regStatus) || '' === trim((string) $regStatus['type'])) {
                 $mandatoryErrors[] = $this->createMandatoryErrorMessage('type');
             }
         }
