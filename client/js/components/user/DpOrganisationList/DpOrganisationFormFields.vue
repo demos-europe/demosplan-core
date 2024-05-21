@@ -963,7 +963,7 @@ export default {
   created () {
     this.localOrganisation = JSON.parse(JSON.stringify(this.organisation))
     if (this.organisation && typeof this.organisation.hasRelationship === 'function' && this.organisation.hasRelationship('branding')) {
-      this.localOrganisation.attributes.cssvars = this.organisation.rel('branding').attributes.cssvars
+      this.localOrganisation.attributes.cssvars = this.organisation.rel('Branding').attributes.cssvars
     }
   },
 

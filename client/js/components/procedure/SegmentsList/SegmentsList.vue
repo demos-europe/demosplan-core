@@ -576,11 +576,11 @@ export default {
      * Returns the hash of the original statement attachment
      */
     getOriginalPdfAttachmentHashBySegment (segment) {
-      const parentStatement = segment.rel('parentStatement')
+      const parentStatement = segment.rel('ParentStatement')
       if (parentStatement.hasRelationship('attachments')) {
         const originalAttachment = Object.values(parentStatement.relationships.attachments.list()).filter(attachment => attachment.attributes.attachmentType === 'source_statement')[0]
         if (originalAttachment) {
-          return originalAttachment.rel('file').attributes.hash
+          return originalAttachment.rel('File').attributes.hash
         }
       }
 

@@ -98,7 +98,7 @@ export default {
 
     comments () {
       return this.segment?.hasRelationship('comments')
-        ? Object.values(this.segment.rel('comments'))
+        ? Object.values(this.segment.rel('Comments'))
           .filter(comment => typeof comment !== 'undefined')
           .sort((a, b) => new Date(b.attributes.creationDate) - new Date(a.attributes.creationDate))
         : []
