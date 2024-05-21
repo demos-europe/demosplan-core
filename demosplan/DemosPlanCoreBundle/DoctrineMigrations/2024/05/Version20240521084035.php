@@ -7,7 +7,7 @@ use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
-class Version20240517100302 extends AbstractMigration
+class Version20240521084035 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -33,6 +33,7 @@ class Version20240517100302 extends AbstractMigration
     public function down(Schema $schema): void
     {
         $this->abortIfNotMysql();
+
         $this->addSql('ALTER TABLE access_control_permission DROP FOREIGN KEY FK_5B3A1C1497F068A1');
         $this->addSql('ALTER TABLE access_control_permission DROP FOREIGN KEY FK_5B3A1C14D60322AC');
         $this->addSql('ALTER TABLE access_control_permission DROP FOREIGN KEY FK_5B3A1C149395C3F3');

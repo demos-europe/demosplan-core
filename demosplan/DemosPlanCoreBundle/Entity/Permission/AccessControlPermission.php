@@ -23,11 +23,12 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * Stores the information about the current phase of a procedure.
- * Currently there a two phases related to a procedure, therefore this Entity is related to the procedure twice.
+ *
+ * This entity represents a permission for a specific role, customer and organisation.
  *
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\AccessControlPermissionRepository")
+ * @ORM\Table(name="access_control_permission", uniqueConstraints={@ORM\UniqueConstraint(name="unique_orga_customer_role_permission", columns={"orga_id", "customer_id", "role_id", "permission"})})
  */
 class AccessControlPermission extends CoreEntity implements UuidEntityInterface
 {
