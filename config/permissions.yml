@@ -1237,6 +1237,13 @@ feature_orga_branding_edit:
     label: 'Permission to enable editing of orga branding (css styling).'
     loginRequired: true
     parent: [area_manage_orgas, area_manage_orgas_all]
+feature_orga_new_procedure_edit:
+    description: |-
+        Allows the user to update if an orga is allowed to create new procedures.
+    expose: true
+    label: 'Permission to enable orga to create procedures.'
+    loginRequired: true
+    parent: [area_manage_orgas, area_manage_orgas_all]
 feature_orga_delete:
     description: 'allows the user to delete any organisation, irrespective of the users affiliation to it'
     expose: true
