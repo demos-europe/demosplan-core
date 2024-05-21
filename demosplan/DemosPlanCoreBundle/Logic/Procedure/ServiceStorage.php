@@ -344,6 +344,13 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             }
         }
 
+        $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'phase_iteration');
+        $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'public_participation_phase_iteration');
+        $phaseIterationError = $this->validatePhaseIterations($procedure);
+        if (count($phaseIterationError) > 0) {
+            $mandatoryErrors[] = $phaseIterationError;
+        }
+
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'ident');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'name');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'shortUrl');
@@ -1070,5 +1077,32 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         }
 
         return $token;
+    }
+
+    private function validatePhaseIterations(array $procedure): array
+    {
+        $phaseIteration = 'phase_iteration';
+        if (isset($procedure[$phaseIteration])) {
+            return $this->validatePhaseIterationValue($procedure[$phaseIteration]);
+        }
+
+        $publicPhaseIteration = 'public_participation_phase_iteration';
+        if (isset($procedure[$publicPhaseIteration])) {
+            return $this->validatePhaseIterationValue($procedure[$publicPhaseIteration]);
+        }
+
+        return [];
+    }
+
+    private function validatePhaseIterationValue($value): array
+    {
+        if (!is_numeric($value) || (int) $value < 1) {
+            return [
+                'type'    => 'error',
+                'message' => $this->translator->trans('error.phaseIteration.invalid'),
+            ];
+        }
+
+        return [];
     }
 }

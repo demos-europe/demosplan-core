@@ -80,7 +80,7 @@
           data-cy="newProcedureTitle"
           id="r_name"
           :label="{ text: Translator.trans('name') }"
-          :maxlength="200"
+          maxlength="200"
           name="r_name"
           :required="requireField"
           type="text" />
@@ -111,6 +111,7 @@
         <dp-multiselect
           v-model="currentProcedureType"
           class="layout__item u-1-of-1 u-pl-0 u-mb inline-block"
+          data-cy="procedureType"
           label="name"
           :data-dp-validate-error-fieldname="Translator.trans('text.procedures.type')"
           :options="procedureTypes"
@@ -161,7 +162,8 @@
           for="startdate"
           :hint="Translator.trans('explanation.date.procedure')"
           :required="hasPermission('field_required_procedure_end_date')"
-          :text="Translator.trans('period')" />
+          :text="Translator.trans('period')"
+          :tooltip="Translator.trans('explanation.date.format')" />
 
         <dp-date-range-picker
           class="u-2-of-4"
@@ -169,10 +171,8 @@
           start-name="r_startdate"
           end-id="enddate"
           end-name="r_enddate"
-          :data-cy="{
-            endDate: 'newProcedureForm:endDate',
-            startDate: 'newProcedureForm:startDate'
-          }"
+          data-cy="newProcedureForm"
+          :data-dp-validate-error-fieldname="Translator.trans('period')"
           :required="hasPermission('field_required_procedure_end_date')"
           :calendars-after="2"
           enforce-plausible-dates />

@@ -14,7 +14,7 @@
 \ \\
 \ \\
 \ \\
-	{{ "planningagency.participating"|trans|latex|raw }} {% if procedure.planningOffices is defined %}{% for office in procedure.planningOffices %}{{ office.name|latex|raw }}{% endfor %}{% else %}----{% endif %}\\
+	{{ "planningagency.participating"|trans|latex|raw }}: {% if procedure.planningOffices is defined %}{% for office in procedure.planningOffices %}{{ office.name|latex|raw }}{% endfor %}{% else %}----{% endif %}\\
 \ \\
 \ \\
 \ \\
