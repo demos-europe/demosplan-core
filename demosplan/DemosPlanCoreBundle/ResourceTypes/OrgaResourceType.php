@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Address;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
@@ -20,7 +21,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlPermissionPerOrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlPermissionService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
 use Doctrine\Common\Collections\Collection;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
@@ -86,10 +87,9 @@ final class OrgaResourceType extends DplanResourceType
      */
     private const REGISTRATION_STATUSES_SUBDOMAIN = 'subdomain';
 
-    public function __construct(private readonly RoleService $roleService, protected readonly AccessControlPermissionPerOrgaService $accessControlPermissionPerOrgaService)
+    public function __construct(private readonly RoleService $roleService, protected readonly AccessControlPermissionService $accessControlPermissionService)
     {
     }
-
 
     public function getEntityClass(): string
     {
@@ -217,13 +217,15 @@ final class OrgaResourceType extends DplanResourceType
         if ($this->currentUser->hasPermission('area_manage_users')) {
             $properties[] = $this->createToManyRelationship($this->allowedRoles)
                 ->readable(false, $this->getAllowedRoles(...));
-
-            //@todo make it readable false
-            $properties[] = $this->createAttribute($this->canCreateProcedures)->readable(true, function (Orga $orga) : bool {
-                $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
-                return $this->accessControlPermissionPerOrgaService->canCreateProcedure($orga, $currentCustomer);
-            });
         }
+
+        // @todo make it readable false
+        $properties[] = $this->createAttribute($this->canCreateProcedures)->readable(true, function (Orga $orga): bool {
+            $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
+            $role = $this->roleService->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY])[0];
+
+            return $this->accessControlPermissionService->canCreateProcedure($orga, $currentCustomer, RoleInterface::PRIVATE_PLANNING_AGENCY);
+        });
 
         return $properties;
     }

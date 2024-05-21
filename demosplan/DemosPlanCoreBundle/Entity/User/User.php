@@ -1687,11 +1687,6 @@ class User implements SamlUserInterface, AddonUserInterface
         return '';
     }
 
-    //given a permission, return true or false if it has it, or given an array of permissions?
-    public function hasDynamicPermission($permission): bool {
-        return true;
-    }
-
     /**
      * @return Collection<int, SurveyVoteInterface>
      */

@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Permission;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControlPermission;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
@@ -26,15 +26,17 @@ use demosplan\DemosPlanCoreBundle\Repository\AccessControlPermissionRepository;
  *
  * All rights reserved
  */
-class AccessControlPermissionPerOrgaService extends CoreService
+class AccessControlPermissionService extends CoreService
 {
+    public const CAN_CREATE_PROCEDURES = 'feature_admin_new_procedure';
+
     public function __construct(
         private readonly AccessControlPermissionRepository $accessControlPermissionRepository,
         private readonly RoleHandler $roleHandler,
     ) {
     }
 
-    public function createPermissionForOrga($permissionName, $orga, $customer, $role): AccessControlPermission
+    public function createPermission($permissionName, $orga, $customer, $role): AccessControlPermission
     {
         $permission = new AccessControlPermission();
         $permission->setPermission($permissionName);
@@ -46,7 +48,7 @@ class AccessControlPermissionPerOrgaService extends CoreService
         return $permission;
     }
 
-    public function getPermissionForOrga($orga, $customer, $roles): array
+    public function getPermission($orga, $customer, $roles): array
     {
         // Split the roles string into an array
         $rolesArray = explode(',', $roles);
@@ -60,9 +62,9 @@ class AccessControlPermissionPerOrgaService extends CoreService
             $role = $this->roleHandler->getUserRolesByCodes([$roleName])[0];
 
             $permissions = $this->accessControlPermissionRepository->findBy([
-                'organisation' => $orga,
-                'customer'     => $customer,
-                'role'         => $role,
+                'organisation' => [$orga, null],
+                'customer'     => [$customer, null],
+                'role'         => [$role, null],
             ]);
 
             // Loop through each permission object and get the permission name
@@ -75,7 +77,7 @@ class AccessControlPermissionPerOrgaService extends CoreService
         return $enabledPermissions;
     }
 
-    public function removePermissionForOrga($permissionName, $orga, $customer, $role): void
+    public function removePermission($permissionName, $orga, $customer, $role): void
     {
         // Find the existing permission with the given parameters
         $permission = $this->accessControlPermissionRepository->findOneBy([
@@ -93,14 +95,15 @@ class AccessControlPermissionPerOrgaService extends CoreService
     }
 
     /**
-     * @param OrgaInterface $orga
-     * @return bool
+     * @param OrgaInterface     $orga
+     * @param CustomerInterface $orga
+     * @param string            $roles
      */
-    public function canCreateProcedure($orga, $customer): bool
+    public function canCreateProcedure($orga, $customer, $roles): bool
     {
         // Check if the user has the permission to create a procedure
-        $permissions = $this->getPermissionForOrga($orga, $customer, RoleInterface::PRIVATE_PLANNING_AGENCY);
-        return in_array('feature_admin_new_procedure', $permissions);
+        $permissions = $this->getPermission($orga, $customer, $roles);
 
+        return in_array('feature_admin_new_procedure', $permissions);
     }
 }

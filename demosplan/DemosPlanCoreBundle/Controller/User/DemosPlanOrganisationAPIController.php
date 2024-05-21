@@ -26,7 +26,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\OrgaNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
-use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlPermissionPerOrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlPermissionService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler;
@@ -337,7 +337,7 @@ class DemosPlanOrganisationAPIController extends APIController
         PermissionsInterface $permissions,
         Request $request,
         UserHandler $userHandler,
-        AccessControlPermissionPerOrgaService $accessControlPermissionPerOrga,
+        AccessControlPermissionService $accessControlPermission,
         RoleHandler $roleHandler,
         string $id)
     {
@@ -365,15 +365,14 @@ class DemosPlanOrganisationAPIController extends APIController
                 // explicitly set that show list may be updated
                 $userHandler->setCanUpdateShowList(true);
             }
-            $role = $roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY])[0];
+
             if (is_array($orgaDataArray['attributes'])
                 && array_key_exists('canCreateProcedures', $orgaDataArray['attributes'])) {
                 $role = $roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY])[0];
                 if (true === $orgaDataArray['attributes']['canCreateProcedures']) {
-                    $accessControlPermissionPerOrga->createPermissionForOrga('feature_admin_new_procedure', $preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
+                    $accessControlPermission->createPermission('feature_admin_new_procedure', $preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
                 } else {
-                    // @todo remove permissions
-                    $accessControlPermissionPerOrga->removePermissionForOrga('feature_admin_new_procedure', $preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
+                    $accessControlPermission->removePermission('feature_admin_new_procedure', $preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
                 }
             }
 
