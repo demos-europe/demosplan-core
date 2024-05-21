@@ -62,7 +62,7 @@ class ProcedureAccessEvaluator
             $this->conditionFactory,
             $this->globalConfig,
             $this->logger,
-            $procedure,
+            $procedure
         );
 
         // procedure must not be deleted
