@@ -214,7 +214,7 @@
               </div>
             </div>
           </template>
-          <template>
+          <template v-if="hasPermission('feature_orga_new_procedure_edit')">
             <dp-checkbox
               id="procedureCreatePermission"
               class="my-1.5"
