@@ -23,9 +23,6 @@ class DemosPlanArrayAdapter extends ArrayAdapter
         $this->nbResults = $resultCount;
     }
 
-    /**
-     * @return int
-     */
     public function getNbResults(): int
     {
         return $this->nbResults;
