@@ -166,6 +166,7 @@ class OrgaHandler extends CoreHandler
             'showlist',
             'showlistChangeReason',
             'showname',
+            'canCreateProcedures',
         ];
 
         if ($this->currentUser->hasPermission('field_organisation_email2_cc')) {
