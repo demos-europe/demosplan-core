@@ -48,7 +48,7 @@ class OwnsProcedureConditionFactory
         private readonly ConditionFactoryInterface&ConditionGroupFactoryInterface $conditionFactory,
         private readonly GlobalConfigInterface $globalConfig,
         private readonly LoggerInterface $logger,
-        private readonly User|Procedure $userOrProcedure,
+        private readonly User|Procedure $userOrProcedure
     ) {
     }
 
@@ -208,7 +208,6 @@ class OwnsProcedureConditionFactory
      */
     public function userIsExplicitlyAuthorized(): ClauseFunctionInterface
     {
-        return $this->conditionFactory->true();
         if ($this->userOrProcedure instanceof User) {
             $user = $this->userOrProcedure;
 
