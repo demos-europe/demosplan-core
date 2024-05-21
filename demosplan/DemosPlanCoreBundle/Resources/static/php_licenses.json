@@ -36,11 +36,6 @@
     },
     {
         "license": "MIT",
-        "package": "demos-europe/edt-extra",
-        "website": "https://github.com/demos-europe/edt-extra"
-    },
-    {
-        "license": "MIT",
         "package": "doctrine/annotations",
         "website": "https://github.com/doctrine/annotations"
     },
@@ -518,6 +513,11 @@
         "license": "MIT",
         "package": "symfony/proxy-manager-bridge",
         "website": "https://github.com/symfony/proxy-manager-bridge"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/rate-limiter",
+        "website": "https://github.com/symfony/rate-limiter"
     },
     {
         "license": "MIT",
