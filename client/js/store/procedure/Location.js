@@ -10,9 +10,9 @@
 import { dpApi } from '@demos-europe/demosplan-ui'
 
 const LocationStore = {
-
   namespaced: true,
-  name: 'location',
+
+  name: 'Location',
 
   state: {
     locations: []

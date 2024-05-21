@@ -24,6 +24,7 @@ function registerPresetModules (store, presetStoreModules) {
             presetModule.defaultQuery = {}
           }
 
+          console.log('presetModule', presetModule)
           store.createPresetModule(presetModule.name, {
             base: rootModule,
             defaultQuery: presetModule.defaultQuery
@@ -55,6 +56,7 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
     baseUrl = URL_PATH_PREFIX + baseUrl
   }
 
+  console.log('apiSore Modules', apiStoreModules)
   return router
     .updateRoutes()
     .then(router => {
@@ -71,7 +73,7 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
               'X-JWT-Authorization': 'Bearer ' + dplan.jwtToken,
               'X-Demosplan-Procedure-Id': dplan.procedureId
             },
-            preprocessingCallbacks: [
+            successCallbacks: [
               (response) => {
                 if (typeof response.data !== 'undefined' &&
                 typeof response.data.meta !== 'undefined' &&

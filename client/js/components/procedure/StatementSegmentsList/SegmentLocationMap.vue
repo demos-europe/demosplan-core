@@ -152,11 +152,11 @@ export default {
   },
 
   computed: {
-    ...mapState('statementSegment', {
+    ...mapState('StatementSegment', {
       segments: 'items'
     }),
 
-    ...mapState('segmentSlidebar', ['slidebar']),
+    ...mapState('SegmentSlidebar', ['slidebar']),
 
     pointData () {
       return {
@@ -231,9 +231,9 @@ export default {
   },
 
   methods: {
-    ...mapMutations('statementSegment', ['setItem']),
+    ...mapMutations('StatementSegment', ['setItem']),
 
-    ...mapActions('statementSegment', {
+    ...mapActions('StatementSegment', {
       saveSegmentAction: 'save'
     }),
 

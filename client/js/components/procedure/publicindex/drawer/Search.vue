@@ -104,7 +104,7 @@ export default {
   },
 
   computed: {
-    ...mapState('location', [
+    ...mapState('Location', [
       'locations'
     ]),
 
@@ -118,11 +118,11 @@ export default {
   },
 
   methods: {
-    ...mapActions('location', {
+    ...mapActions('Location', {
       getLocationSuggestions: 'get'
     }),
 
-    ...mapActions('procedure', {
+    ...mapActions('Procedure', {
       getProcedures: 'get'
     }),
 

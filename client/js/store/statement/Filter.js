@@ -11,9 +11,9 @@ import { del, set } from 'vue'
 import { dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
 
 const Filter = {
-
   namespaced: true,
-  name: 'filter',
+
+  name: 'Filter',
 
   state: {
     appliedOptions: [],

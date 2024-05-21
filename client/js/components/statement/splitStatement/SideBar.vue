@@ -145,7 +145,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('splitstatement', {
+    ...mapGetters('Splitstatement', {
       assignableUsers: 'assignableUsers',
       availablePlaces: 'availablePlaces',
       availableTags: 'availableTags',
@@ -211,10 +211,10 @@ export default {
   },
 
   methods: {
-    ...mapActions('splitstatement', [
+    ...mapActions('Splitstatement', [
       'updateCurrentTags'
     ]),
-    ...mapMutations('splitstatement', [
+    ...mapMutations('Splitstatement', [
       'locallyUpdateSegments',
       'setProperty'
     ]),

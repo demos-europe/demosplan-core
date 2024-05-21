@@ -43,7 +43,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('statement', {
+    ...mapGetters('Statement', {
       getToc: 'getToc'
     }),
 

@@ -211,9 +211,9 @@ function setStatementAssignee (statement) {
   return statement
 }
 export default {
-
   namespaced: true,
-  name: 'statement',
+
+  name: 'Statement',
 
   state: {
     statements: {},

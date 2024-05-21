@@ -61,7 +61,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('splitstatement', [
+    ...mapGetters('Splitstatement', [
       'currentlyHighlightedSegmentId',
       'sortedSegments'
     ]),
@@ -72,7 +72,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('splitstatement', [
+    ...mapMutations('Splitstatement', [
       'setProperty'
     ]),
 
