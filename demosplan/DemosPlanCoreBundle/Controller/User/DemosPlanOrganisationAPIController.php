@@ -365,15 +365,13 @@ class DemosPlanOrganisationAPIController extends APIController
                 // explicitly set that show list may be updated
                 $userHandler->setCanUpdateShowList(true);
             }
-            $role = $roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY])[0];
-            //$accessControlPermission->createPermissionForOrga('feature_admin_new_procedure', $preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
+
             if (is_array($orgaDataArray['attributes'])
                 && array_key_exists('canCreateProcedures', $orgaDataArray['attributes'])) {
                 $role = $roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY])[0];
                 if (true === $orgaDataArray['attributes']['canCreateProcedures']) {
                     $accessControlPermission->createPermission('feature_admin_new_procedure', $preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
                 } else {
-                    // @todo remove permissions
                     $accessControlPermission->removePermission('feature_admin_new_procedure', $preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
                 }
             }
