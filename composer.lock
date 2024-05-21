@@ -1369,16 +1369,16 @@
         },
         {
             "name": "demos-europe/demosplan-addon",
-            "version": "v0.33",
+            "version": "v0.35",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "e870b908ba8f5fd9b79a64f427f028205bfc11d7"
+                "reference": "d4bdcddb59c7bc5aa3e0c5963f49ce6e82f9a18d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/e870b908ba8f5fd9b79a64f427f028205bfc11d7",
-                "reference": "e870b908ba8f5fd9b79a64f427f028205bfc11d7",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/d4bdcddb59c7bc5aa3e0c5963f49ce6e82f9a18d",
+                "reference": "d4bdcddb59c7bc5aa3e0c5963f49ce6e82f9a18d",
                 "shasum": ""
             },
             "require": {
@@ -1443,9 +1443,9 @@
             ],
             "description": "This is the base package for all demosplan addons",
             "support": {
-                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.33"
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.35"
             },
-            "time": "2024-05-13T07:18:15+00:00"
+            "time": "2024-05-21T12:11:27+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
