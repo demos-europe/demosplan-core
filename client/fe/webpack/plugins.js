@@ -56,6 +56,10 @@ const webpackDefaultPlugins = [
         from: resolveDir('demosplan/DemosPlanCoreBundle/Resources/public/fonts'),
         to: `${config.projectRoot}/web/fonts`
       },
+      {
+        from: resolveDir('demosplan/DemosPlanCoreBundle/Resources/public/files'),
+        to: `${config.projectRoot}/web/files`
+      },
       // Project specific videos, images, fonts and pdfs, may not exist
       {
         from: `${config.projectRoot}/app/Resources/DemosPlanCoreBundle/public/video`,

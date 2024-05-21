@@ -8,12 +8,11 @@
 </license>
 
 <template>
-  <div :class="{ 'top-0 left-0 w-full h-full fixed z-fixed bg-white': isFullscreen }">
-    <!-- Header -->
+  <div :class="{ 'top-0 left-0 flex flex-col w-full h-full fixed z-fixed bg-white': isFullscreen }">
     <dp-sticky-element
       border
-      class="py-2"
-      :class="{ 'fixed top-0 left-0 w-full h-1/6 px-2': isFullscreen }">
+      class="pt-2 pb-3"
+      :class="{ 'fixed top-0 left-0 w-full px-2': isFullscreen }">
       <div class="flex items-center justify-between mb-2">
         <div class="flex">
           <search-modal
@@ -101,13 +100,15 @@
       </div>
     </dp-sticky-element>
 
-    <dp-loading v-if="isLoading" />
+    <dp-loading
+      class="u-mt"
+      v-if="isLoading" />
 
-    <!-- Statement list -->
-    <template v-if="!isLoading && items.length > 0">
+    <template v-else>
       <dp-data-table
+        v-if="items"
         data-cy="listStatements"
-        :class="{ 'px-2 overflow-y-scroll h-5/6': isFullscreen }"
+        :class="{ 'px-2 overflow-y-scroll grow': isFullscreen }"
         has-flyout
         :is-selectable="isSourceAndCoupledProcedure"
         :header-fields="headerFields"
@@ -289,12 +290,12 @@
           </div>
         </template>
       </dp-data-table>
-    </template>
 
-    <dp-inline-notification
-      v-else-if="!isLoading && items.length === 0"
-      :message="Translator.trans((this.searchValue === '' ? 'statements.none' : 'search.no.results'), {searchterm: this.searchValue})"
-      type="info" />
+      <dp-inline-notification
+        v-else
+        :message="Translator.trans((this.searchValue === '' ? 'statements.none' : 'search.no.results'), {searchterm: this.searchValue})"
+        type="info" />
+    </template>
   </div>
 </template>
 

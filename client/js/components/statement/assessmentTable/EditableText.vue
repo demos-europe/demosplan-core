@@ -333,7 +333,8 @@ export default {
        */
       dpApi.get(
         Routing.generate(this.fullTextFetchRoute, { statementId: this.entityId }),
-        params
+        params,
+        { serialize: true }
       ).then(response => {
         this.fullTextLoaded = true
 

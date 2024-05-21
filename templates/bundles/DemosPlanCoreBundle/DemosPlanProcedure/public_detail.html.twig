@@ -125,7 +125,7 @@
                                 {% if ownsProcedure(proceduresettings) %}
                                     {# Display procedure phase of institutions to enable planner user to quickly check correct settings #}
                                     {{ getProcedurePhase(proceduresettings, 'internal') }}
-                                    {{- contextualHelp('help.public.detail.phase.'~ getProcedurePhaseKey(proceduresettings, 'internal'), ['o-tooltip--question-circle'|prefixClass, 'c-infolist__help u-ml-0_25'|prefixClass]) -}}
+                                    {{- contextualHelp('help.public.detail.phase.'~ getProcedurePhaseKey(proceduresettings, 'internal'), ['c-infolist__help u-ml-0_25'|prefixClass]) -}}
                                     {{ '\n'|nl2br }}
                                 {% endif %}
 
@@ -135,7 +135,7 @@
                                 {% endif %}
                                 {# Display public procedure phase without login or logged as citizen  #}
                                 {{ getProcedurePhase(proceduresettings, 'public') }}
-                                {{- contextualHelp('help.public.detail.phase.'~ getProcedurePhaseKey(proceduresettings, 'public'), ['o-tooltip--question-circle'|prefixClass, 'c-infolist__help u-ml-0_25'|prefixClass]) -}}
+                                {{- contextualHelp('help.public.detail.phase.'~ getProcedurePhaseKey(proceduresettings, 'public'), ['c-infolist__help u-ml-0_25'|prefixClass]) -}}
                         </div><!--
                     {% endif %}
 
@@ -149,7 +149,7 @@
                         </h3>
                         <span id="helpPublicDetailTimelimit">
                             {% include '@DemosPlanCore/DemosPlanProcedure/includes/procedure_date.html.twig' with { 'procedure' : proceduresettings } %}
-                            {{ contextualHelp('help.public.detail.timelimit', ['o-tooltip--question-circle', 'c-infolist__help u-ml-0_25']) }}
+                            {{ contextualHelp('help.public.detail.timelimit', ['c-infolist__help u-ml-0_25']) }}
                         </span>
                     </div><!--
 
@@ -180,7 +180,7 @@
                             </h3>
                             {{ proceduresettings.orgaName }}
                             <span id="helpPublicDetailAdministration">
-                                {{ contextualHelp('help.public.detail.administration', ['o-tooltip--question-circle', 'c-infolist__help']) }}
+                                {{ contextualHelp('help.public.detail.administration', ['c-infolist__help']) }}
                             </span>
                         </div>
                     {% endif %}

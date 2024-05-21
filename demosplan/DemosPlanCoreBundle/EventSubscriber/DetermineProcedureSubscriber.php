@@ -57,10 +57,6 @@ class DetermineProcedureSubscriber implements EventSubscriberInterface
 
             if ($procedure instanceof Procedure) {
                 $this->currentProcedureService->setProcedure($procedure);
-
-                // check whether user may participate in this procedure via Consultation Token
-                // this is temporary and will be better be solved via an SecurityVoter
-                $this->permissions->evaluateUserInvitedInProcedure($procedure, $request->getSession());
             }
         }
 
