@@ -2119,11 +2119,9 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     }
 
     /**
+     * If orga has the permission, add current orga to authorized planning offices to given procedure.
      *
-     * If orga has the permission, add current orga to authorized planning offices to given procedure
-     *
-     * @param Procedure $newProcedure
-     * @param string           $currentUserId
+     * @param string $currentUserId
      *
      * @return Procedure
      *
@@ -2139,6 +2137,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
         return $newProcedure;
     }
+
     /**
      * Will copy Boilerplates including related Boilerplatecategories and also copy emtpy Categories.
      *
