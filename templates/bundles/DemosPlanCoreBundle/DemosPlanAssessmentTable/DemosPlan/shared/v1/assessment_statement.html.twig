@@ -225,7 +225,8 @@
                                     name: 'r_memo',
                                     value: statement.memo|default,
                                     id: 'r_memo',
-                                    disabled: readonly
+                                    disabled: readonly,
+                                    attributes: ['data-cy=statementDetail:r_memo']
                                 }) }}
                             </div>
                         </dp-accordion>
@@ -254,6 +255,7 @@
                                 value="{{ 'save.and.return.to.list'|trans }}">
                             <a
                                 class="btn btn--secondary u-pr-0_5-desk-down u-pl-0_5-desk-down"
+                                data-cy="abort"
                                 href="{{ path('dplan_assessmenttable_view_table', {'procedureId': procedure, 'filterHash': assessmentFilterHash, '_fragment': "itemdisplay_" ~ statement.ident }) }}"
                                 role="button">
                                 {{ 'abort'|trans }}
