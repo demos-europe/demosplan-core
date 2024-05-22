@@ -157,7 +157,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     {
         // In this case, permission is not core permission, then check if permission is DB in table access_control_permissions
 
-        $permissions = $this->accessControlPermission->getPermission($this->user->getOrga(), $this->user->getCurrentCustomer(), $this->user->getRole());
+        $permissions = $this->accessControlPermission->getPermissions($this->user->getOrga(), $this->user->getCurrentCustomer(), $this->user->getRoles());
 
         if (!empty($permissions)) {
             $this->enablePermissions($permissions);
