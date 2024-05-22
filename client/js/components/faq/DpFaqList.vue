@@ -146,7 +146,7 @@ export default {
 
     branchFunc () {
       return function ({ node, id, children }) {
-        return node.type === 'faqCategory'
+        return node.type === 'FaqCategory'
       }
     },
 
