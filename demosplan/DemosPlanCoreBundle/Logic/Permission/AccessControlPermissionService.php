@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Permission;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControlPermission;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
@@ -48,7 +49,7 @@ class AccessControlPermissionService extends CoreService
         return $permission;
     }
 
-    public function getPermission($orga, $customer, $roles): array
+    public function getPermission(?OrgaInterface $orga, ?CustomerInterface $customer, string $roles): array
     {
         // Split the roles string into an array
         $rolesArray = explode(',', $roles);
@@ -61,21 +62,48 @@ class AccessControlPermissionService extends CoreService
             // Try to find an existing permission with the given parameters
             $role = $this->roleHandler->getUserRolesByCodes([$roleName])[0];
 
-            $permissions = $this->accessControlPermissionRepository->findBy([
-                'organisation' => [$orga, null],
-                'customer'     => [$customer, null],
-                'role'         => [$role, null],
-            ]);
+            $permissions = $this->getEnabledPermissionNames($role, $orga, $customer, null);
 
-            // Loop through each permission object and get the permission name
-            foreach ($permissions as $permissionObject) {
-                $enabledPermissions[] = $permissionObject->getPermission();
-            }
+            // Add the permissions to the enabledPermissions array
+            array_push($enabledPermissions, ...$permissions);
         }
 
         // Return the permissions array
         return $enabledPermissions;
     }
+
+    private function getEnabledPermissionNames(?RoleInterface $role, ?OrgaInterface $orga, ?CustomerInterface $customer, ?string $permissionName): array {
+        $enabledPermissions = [];
+
+        $criteria = [];
+
+        if (null !== $role ) {
+            $criteria['role'] = [$role, null];
+        }
+
+        if (null !== $orga ) {
+            $criteria['organisation'] = [$orga, null];
+        }
+
+        if (null !== $customer ) {
+            $criteria['customer'] = [$customer, null];
+        }
+
+        if (null !== $permissionName ) {
+            $criteria['permission'] = $permissionName;
+        }
+
+        $permissions = $this->accessControlPermissionRepository->findBy($criteria);
+
+        // Loop through each permission object and get the permission name
+        foreach ($permissions as $permissionObject) {
+            $enabledPermissions[] = $permissionObject->getPermissionName();
+        }
+
+        return $enabledPermissions;
+    }
+
+
 
     public function removePermission($permissionName, $orga, $customer, $role): void
     {
@@ -96,13 +124,13 @@ class AccessControlPermissionService extends CoreService
     /**
      * @param OrgaInterface     $orga
      * @param CustomerInterface $orga
-     * @param string            $roles
+     * @param ?string $roles
      */
-    public function canCreateProcedure($orga, $customer, $roles): bool
+    public function canCreateProcedure(OrgaInterface $orga = null, CustomerInterface $customer = null , string $roles = null): bool
     {
         // Check if the user has the permission to create a procedure
-        $permissions = $this->getPermission($orga, $customer, $roles);
+        $permissions = $this->getEnabledPermissionNames($roles, $orga, $customer, self::CAN_CREATE_PROCEDURES);
 
-        return in_array('feature_admin_new_procedure', $permissions);
+        return !empty($permissions);
     }
 }

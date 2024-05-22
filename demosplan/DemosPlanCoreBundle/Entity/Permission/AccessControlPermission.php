@@ -60,7 +60,7 @@ class AccessControlPermission extends CoreEntity implements UuidEntityInterface
      *
      * @ORM\Column(type="datetime", nullable=false)
      */
-    private $modificationDate;
+    private DateTime $modificationDate;
 
     /**
      * @var OrgaInterface|null
@@ -87,7 +87,7 @@ class AccessControlPermission extends CoreEntity implements UuidEntityInterface
      *
      * @ORM\JoinColumn(referencedColumnName="_c_id", nullable=true, onDelete="CASCADE")
      */
-    protected $customer;
+    protected ?CustomerInterface $customer;
 
     public function getId(): string
     {
