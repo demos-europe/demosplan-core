@@ -54,8 +54,6 @@ class AccessControlPermission extends CoreEntity implements UuidEntityInterface
     private DateTime $creationDate;
 
     /**
-     * @var DateTime
-     *
      * @Gedmo\Timestampable(on="update")
      *
      * @ORM\Column(type="datetime", nullable=false)
@@ -81,8 +79,6 @@ class AccessControlPermission extends CoreEntity implements UuidEntityInterface
     protected $role;
 
     /**
-     * @var CustomerInterface|null
-     *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
      *
      * @ORM\JoinColumn(referencedColumnName="_c_id", nullable=true, onDelete="CASCADE")

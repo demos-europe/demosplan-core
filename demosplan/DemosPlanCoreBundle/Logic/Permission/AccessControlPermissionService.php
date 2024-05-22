@@ -72,24 +72,25 @@ class AccessControlPermissionService extends CoreService
         return $enabledPermissions;
     }
 
-    private function getEnabledPermissionNames(?RoleInterface $role, ?OrgaInterface $orga, ?CustomerInterface $customer, ?string $permissionName): array {
+    private function getEnabledPermissionNames(?RoleInterface $role, ?OrgaInterface $orga, ?CustomerInterface $customer, ?string $permissionName): array
+    {
         $enabledPermissions = [];
 
         $criteria = [];
 
-        if (null !== $role ) {
+        if (null !== $role) {
             $criteria['role'] = [$role, null];
         }
 
-        if (null !== $orga ) {
+        if (null !== $orga) {
             $criteria['organisation'] = [$orga, null];
         }
 
-        if (null !== $customer ) {
+        if (null !== $customer) {
             $criteria['customer'] = [$customer, null];
         }
 
-        if (null !== $permissionName ) {
+        if (null !== $permissionName) {
             $criteria['permission'] = $permissionName;
         }
 
@@ -102,8 +103,6 @@ class AccessControlPermissionService extends CoreService
 
         return $enabledPermissions;
     }
-
-
 
     public function removePermission($permissionName, $orga, $customer, $role): void
     {
@@ -122,11 +121,10 @@ class AccessControlPermissionService extends CoreService
     }
 
     /**
-     * @param OrgaInterface     $orga
      * @param CustomerInterface $orga
-     * @param ?string $roles
+     * @param ?string           $roles
      */
-    public function canCreateProcedure(OrgaInterface $orga = null, CustomerInterface $customer = null , string $roles = null): bool
+    public function canCreateProcedure(?OrgaInterface $orga = null, ?CustomerInterface $customer = null, ?string $roles = null): bool
     {
         // Check if the user has the permission to create a procedure
         $permissions = $this->getEnabledPermissionNames($roles, $orga, $customer, self::CAN_CREATE_PROCEDURES);
