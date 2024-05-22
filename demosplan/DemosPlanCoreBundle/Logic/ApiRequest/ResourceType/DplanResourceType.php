@@ -91,7 +91,7 @@ abstract class DplanResourceType extends DoctrineResourceType
      */
     public function isCreateAllowed(): bool
     {
-        throw new NotYetImplementedException('Permissions for creation were not set-up. Override the `getRequiredCreatePermissions` according to your use case.');
+        return false;
     }
 
     /**
@@ -99,7 +99,7 @@ abstract class DplanResourceType extends DoctrineResourceType
      */
     public function isDeleteAllowed(): bool
     {
-        throw new NotYetImplementedException('Authorizations for deletion were not set-up. Override the `isDeleteAllowed` according to your use case.');
+        return false;
     }
 
     /**
@@ -107,6 +107,6 @@ abstract class DplanResourceType extends DoctrineResourceType
      */
     public function isUpdateAllowed(): bool
     {
-        throw new NotYetImplementedException('Authorizations for updating were not set-up. Override the `isUpdateAllowed` according to your use case.');
+        return false;
     }
 }
