@@ -94,12 +94,12 @@ class AccessControlPermission extends CoreEntity implements UuidEntityInterface
         return $this->id;
     }
 
-    public function getPermission(): string
+    public function getPermissionName(): string
     {
         return $this->permission;
     }
 
-    public function setPermission(string $permission): void
+    public function setPermissionName(string $permission): void
     {
         $this->permission = $permission;
     }

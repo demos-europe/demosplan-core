@@ -39,7 +39,7 @@ class AccessControlPermissionService extends CoreService
     public function createPermission($permissionName, $orga, $customer, $role): AccessControlPermission
     {
         $permission = new AccessControlPermission();
-        $permission->setPermission($permissionName);
+        $permission->setPermissionName($permissionName);
         $permission->setOrga($orga);
         $permission->setCustomer($customer);
         $permission->setRole($role);
