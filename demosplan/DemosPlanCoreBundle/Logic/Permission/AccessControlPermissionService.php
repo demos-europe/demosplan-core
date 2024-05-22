@@ -105,7 +105,7 @@ class AccessControlPermissionService extends CoreService
 
 
 
-    public function removePermission($permissionName, $orga, $customer, $role): void
+    private function removePermission($permissionName, $orga, $customer, $role): void
     {
         // Find the existing permission with the given parameters
         $permission = $this->accessControlPermissionRepository->findOneBy([
@@ -126,11 +126,42 @@ class AccessControlPermissionService extends CoreService
      * @param CustomerInterface $orga
      * @param ?string $roles
      */
-    public function canCreateProcedure(OrgaInterface $orga = null, CustomerInterface $customer = null , string $roles = null): bool
+    public function canCreateProcedure(OrgaInterface $orga = null, CustomerInterface $customer = null , array $roleCodes = null): bool
     {
-        // Check if the user has the permission to create a procedure
-        $permissions = $this->getEnabledPermissionNames($roles, $orga, $customer, self::CAN_CREATE_PROCEDURES);
+        // Loop through each role
+        $permissions = [];
+
+        if (null !==  $roleCodes ) {
+            foreach ($roleCodes as $roleName) {
+                // Try to find an existing permission with the given parameters
+                $role = $this->roleHandler->getUserRolesByCodes([$roleName])[0];
+                $permissions = $this->getEnabledPermissionNames($role, $orga, $customer, self::CAN_CREATE_PROCEDURES);
+            }
+
+        } else {
+            $permissions = $this->getEnabledPermissionNames(null, $orga, $customer, self::CAN_CREATE_PROCEDURES);
+        }
 
         return !empty($permissions);
+    }
+
+    /**
+     * @param OrgaInterface     $orga
+     * @param CustomerInterface $orga
+     * @param ?string $roles
+     */
+    public function grantCanCreateProcedurePermission(OrgaInterface $orga = null, CustomerInterface $customer = null , ?RoleInterface $role): void
+    {
+        $this->createPermission(self::CAN_CREATE_PROCEDURES, $orga, $customer, $role);
+    }
+
+    /**
+     * @param OrgaInterface     $orga
+     * @param CustomerInterface $orga
+     * @param ?string $roles
+     */
+    public function revokeCanCreateProcedurePermission(OrgaInterface $orga = null, CustomerInterface $customer = null , ?RoleInterface $role): void
+    {
+        $this->removePermission(self::CAN_CREATE_PROCEDURES, $orga, $customer, $role);
     }
 }
