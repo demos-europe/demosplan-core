@@ -836,7 +836,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $blueprintId = $data['copymaster'] ?? null;
             $blueprintId = $blueprintId instanceof Procedure ? $blueprintId->getId() : $blueprintId;
             $newProcedure = $this->setAuthorizedUsersToProcedure($newProcedure, $blueprintId, $currentUserId);
-            $newProcedure = $this->setPlanningOffices($newProcedure, $blueprintId, $currentUserId);
+            $newProcedure = $this->addCurrentOrgaToPlanningOffices($newProcedure, $currentUserId);
 
             if (\array_key_exists('explanation', $data)) {
                 // Create a Paragraph Element from the explanation and add it to the procedure
@@ -2119,26 +2119,26 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     }
 
     /**
-     * Set setPlanningOffices users to given procedure.
      *
-     * @param string|Procedure $blueprint
+     * If orga has the permission, add current orga to authorized planning offices to given procedure
+     *
+     * @param Procedure $newProcedure
      * @param string           $currentUserId
      *
      * @return Procedure
      *
      * @throws Exception
      */
-    protected function setPlanningOffices(Procedure $newProcedure, $blueprint, $currentUserId)
+    protected function addCurrentOrgaToPlanningOffices(Procedure $newProcedure, $currentUserId)
     {
         $currentUser = $this->userService->getSingleUser($currentUserId);
 
         if ($this->accessControlPermissionService->hasPermission(AccessControlPermissionService::CREATE_PROCEDURES_PERMISSION, $currentUser->getOrga(), $this->customerService->getCurrentCustomer(), $currentUser->getRoles())) {
-            $newProcedure->setPlanningOffices([$currentUser->getOrga()]);
+            $newProcedure->addPlanningOffice($currentUser->getOrga());
         }
 
         return $newProcedure;
     }
-
     /**
      * Will copy Boilerplates including related Boilerplatecategories and also copy emtpy Categories.
      *
