@@ -51,7 +51,6 @@ class AccessControlPermissionService extends CoreService
 
     public function getPermissions(?OrgaInterface $orga, ?CustomerInterface $customer, array $roles): array
     {
-
         // Initialize an array to hold the permissions
         $enabledPermissions = [];
 
@@ -70,24 +69,25 @@ class AccessControlPermissionService extends CoreService
         return $enabledPermissions;
     }
 
-    private function getEnabledPermissionNames(?RoleInterface $role, ?OrgaInterface $orga, ?CustomerInterface $customer, ?string $permissionName): array {
+    private function getEnabledPermissionNames(?RoleInterface $role, ?OrgaInterface $orga, ?CustomerInterface $customer, ?string $permissionName): array
+    {
         $enabledPermissions = [];
 
         $criteria = [];
 
-        if (null !== $role ) {
+        if (null !== $role) {
             $criteria['role'] = [$role, null];
         }
 
-        if (null !== $orga ) {
+        if (null !== $orga) {
             $criteria['organisation'] = [$orga, null];
         }
 
-        if (null !== $customer ) {
+        if (null !== $customer) {
             $criteria['customer'] = [$customer, null];
         }
 
-        if (null !== $permissionName ) {
+        if (null !== $permissionName) {
             $criteria['permission'] = $permissionName;
         }
 
@@ -100,8 +100,6 @@ class AccessControlPermissionService extends CoreService
 
         return $enabledPermissions;
     }
-
-
 
     private function removePermission($permissionName, $orga, $customer, $role): void
     {
@@ -119,19 +117,17 @@ class AccessControlPermissionService extends CoreService
         }
     }
 
-
-    public function hasPermission(string $permissionToCheck, OrgaInterface $orga = null, CustomerInterface $customer = null , array $roleCodes = null): bool
+    public function hasPermission(string $permissionToCheck, ?OrgaInterface $orga = null, ?CustomerInterface $customer = null, ?array $roleCodes = null): bool
     {
         // Loop through each role
         $permissions = [];
 
-        if (null !==  $roleCodes ) {
+        if (null !== $roleCodes) {
             foreach ($roleCodes as $roleName) {
                 // Try to find an existing permission with the given parameters
                 $role = $this->roleHandler->getUserRolesByCodes([$roleName])[0];
                 $permissions = $this->getEnabledPermissionNames($role, $orga, $customer, $permissionToCheck);
             }
-
         } else {
             $permissions = $this->getEnabledPermissionNames(null, $orga, $customer, $permissionToCheck);
         }
@@ -140,21 +136,17 @@ class AccessControlPermissionService extends CoreService
     }
 
     /**
-     * @param OrgaInterface     $orga
      * @param CustomerInterface $orga
-     * @param ?string $roles
      */
-    public function grantCanCreateProcedurePermission(OrgaInterface $orga = null, CustomerInterface $customer = null , ?RoleInterface $role): void
+    public function grantCanCreateProcedurePermission(?OrgaInterface $orga = null, ?CustomerInterface $customer = null, ?RoleInterface $role): void
     {
         $this->createPermission(self::CREATE_PROCEDURES_PERMISSION, $orga, $customer, $role);
     }
 
     /**
-     * @param OrgaInterface     $orga
      * @param CustomerInterface $orga
-     * @param ?string $roles
      */
-    public function revokeCanCreateProcedurePermission(OrgaInterface $orga = null, CustomerInterface $customer = null , ?RoleInterface $role): void
+    public function revokeCanCreateProcedurePermission(?OrgaInterface $orga = null, ?CustomerInterface $customer = null, ?RoleInterface $role): void
     {
         $this->removePermission(self::CREATE_PROCEDURES_PERMISSION, $orga, $customer, $role);
     }
