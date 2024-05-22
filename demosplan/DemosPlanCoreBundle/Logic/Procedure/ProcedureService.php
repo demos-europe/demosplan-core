@@ -2132,7 +2132,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     {
         $currentUser = $this->userService->getSingleUser($currentUserId);
 
-        if ($this->accessControlPermissionService->hasPermission(AccessControlPermissionService::CAN_CREATE_PROCEDURES, $currentUser->getOrga(), $this->customerService->getCurrentCustomer(), $currentUser->getRoles())) {
+        if ($this->accessControlPermissionService->hasPermission(AccessControlPermissionService::CREATE_PROCEDURES_PERMISSION, $currentUser->getOrga(), $this->customerService->getCurrentCustomer(), $currentUser->getRoles())) {
             $newProcedure->setPlanningOffices([$currentUser->getOrga()]);
         }
 

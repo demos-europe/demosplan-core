@@ -29,7 +29,7 @@ use demosplan\DemosPlanCoreBundle\Repository\AccessControlPermissionRepository;
  */
 class AccessControlPermissionService extends CoreService
 {
-    public const CAN_CREATE_PROCEDURES = 'feature_admin_new_procedure';
+    public const CREATE_PROCEDURES_PERMISSION = 'feature_admin_new_procedure';
 
     public function __construct(
         private readonly AccessControlPermissionRepository $accessControlPermissionRepository,
@@ -146,7 +146,7 @@ class AccessControlPermissionService extends CoreService
      */
     public function grantCanCreateProcedurePermission(OrgaInterface $orga = null, CustomerInterface $customer = null , ?RoleInterface $role): void
     {
-        $this->createPermission(self::CAN_CREATE_PROCEDURES, $orga, $customer, $role);
+        $this->createPermission(self::CREATE_PROCEDURES_PERMISSION, $orga, $customer, $role);
     }
 
     /**
@@ -156,6 +156,6 @@ class AccessControlPermissionService extends CoreService
      */
     public function revokeCanCreateProcedurePermission(OrgaInterface $orga = null, CustomerInterface $customer = null , ?RoleInterface $role): void
     {
-        $this->removePermission(self::CAN_CREATE_PROCEDURES, $orga, $customer, $role);
+        $this->removePermission(self::CREATE_PROCEDURES_PERMISSION, $orga, $customer, $role);
     }
 }
