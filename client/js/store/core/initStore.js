@@ -23,7 +23,6 @@ function registerPresetModules (store, presetStoreModules) {
             presetModule.defaultQuery = {}
           }
 
-          console.log('presetModule', presetModule)
           store.createPresetModule(presetModule.name, {
             base: rootModule,
             defaultQuery: presetModule.defaultQuery
@@ -38,6 +37,7 @@ function registerPresetModules (store, presetStoreModules) {
 function initStore (storeModules, apiStoreModules, presetStoreModules) {
   Vue.use(Vuex)
 
+  console.log(notify.name, 'notify.name')
   const staticModules = { notify, ...storeModules }
 
   // This should probably be replaced with an adapter to our existing routes

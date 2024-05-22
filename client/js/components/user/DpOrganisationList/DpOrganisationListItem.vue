@@ -134,7 +134,7 @@ export default {
       organisations: 'items'
     }),
 
-    ...mapState('orga/pending', {
+    ...mapState('Orga/pending', {
       pendingOrganisations: 'items'
     }),
 

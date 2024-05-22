@@ -38,12 +38,12 @@ describe('Notify', () => {
 
   it('can add a message', () => {
     expect(StubStore.state.notify.messages).toHaveLength(0)
-    StubStore.commit('notify/add', { text: 'Message Text' })
+    StubStore.commit('Notify/add', { text: 'Message Text' })
     expect(StubStore.state.notify.messages).toHaveLength(1)
   })
 
   it('can remove a message', () => {
-    StubStore.commit('notify/remove', { uid: 1 })
+    StubStore.commit('Notify/remove', { uid: 1 })
     expect(StubStore.state.notify.messages).toHaveLength(0)
   })
 })

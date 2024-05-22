@@ -318,7 +318,7 @@ export default {
       totalPages: 'totalPages'
     }),
 
-    ...mapState('orga/pending', {
+    ...mapState('Orga/pending', {
       pendingOrganisations: 'items',
       pendingOrganisationsCurrentPage: 'currentPage',
       pendingOrganisationsTotalPages: 'totalPages'
@@ -343,7 +343,7 @@ export default {
       deleteOrganisation: 'delete'
     }),
 
-    ...mapActions('orga/pending', {
+    ...mapActions('Orga/pending', {
       pendingOrganisationList: 'list'
     }),
 

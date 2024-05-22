@@ -100,7 +100,7 @@ export const VuexApiRoutes = [
     ]
   },
   {
-    module: 'Report',
+    module: 'report',
     action: 'list',
     url: '/1.0/reports/{procedureId}/{group}',
     parameters: [
