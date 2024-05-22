@@ -12,10 +12,14 @@ namespace demosplan\DemosPlanCoreBundle\Command\ClassGenerator;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\FaqCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FaqInterface;
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
+use DemosEurope\DemosplanAddon\EntityPath\StatementPath;
+use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseStatementResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Entity\PlatformFaq;
 use demosplan\DemosPlanCoreBundle\Entity\PlatformFaqCategory;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ResourceTypeStore;
 use Doctrine\ORM\EntityManagerInterface;
 use EDT\DqlQuerying\ClassGeneration\AbstractTypeFromInterfaceDetector;
 use EDT\DqlQuerying\ClassGeneration\PathClassFromEntityGenerator;
@@ -41,6 +45,13 @@ use Webmozart\Assert\Assert;
  * FIXME: this command should be automatically executed. Approaches may be using the "cache warmer" or coupling it to a doctrine:diff execution.
  *
  * TODO: this class does not automatically delete generated classes whose corresponding entities do no longer exist.
+ *
+ * Generates 4 types of classes:
+ *
+ * * Path classes like {@link StatementPath}, needs to be moved into `demosplan-addon` after generation
+ * * entry point path class: {@link Paths}, needs to be moved into `demosplan-addon` after generation
+ * * easy access to resource: {@link ResourceTypeStore}
+ * * resource property schema config classes: e.g. {@link BaseStatementResourceConfigBuilder}, needs to be moved into `demosplan-addon` after generation
  */
 class EntityCompanionGeneratorCommand extends CoreCommand
 {
