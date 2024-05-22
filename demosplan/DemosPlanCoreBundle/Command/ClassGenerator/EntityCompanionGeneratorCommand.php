@@ -73,7 +73,7 @@ class EntityCompanionGeneratorCommand extends CoreCommand
         protected readonly PathClassFromEntityGenerator $pathClassGenerator,
         protected readonly TypeHolderGenerator $typeHolderGenerator,
         ParameterBagInterface $parameterBag,
-        string $name = null
+        ?string $name = null
     ) {
         parent::__construct($parameterBag, $name);
 

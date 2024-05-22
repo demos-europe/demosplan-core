@@ -3400,7 +3400,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     }
 
     /**
-     * @return user|null
+     * @return User|null
      *
      * @throws Exception
      */

@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\DoctrineResourceType;
-use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\JsonApi\ResourceConfig\Builder\MagicResourceConfigBuilder;
 
