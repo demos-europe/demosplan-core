@@ -222,7 +222,9 @@
                                 {% for agencyExtraEmailAddress in form.agencyExtraEmailAddresses %}
                                     {%  set emailAddresses = emailAddresses|merge([{'mail': agencyExtraEmailAddress.vars.value.fullAddress|default('')}]) %}
                                 {% endfor %}
-                                <dp-email-list :init-emails="JSON.parse('{{ emailAddresses|json_encode|e('js', 'utf-8') }}')">
+                                <dp-email-list
+                                    data-cy="administrationEdit"
+                                    :init-emails="JSON.parse('{{ emailAddresses|json_encode|e('js', 'utf-8') }}')">
                                 </dp-email-list>
                             </div>
 
