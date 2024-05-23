@@ -95,7 +95,6 @@ class AccessControlPermissionServiceTest extends UnitTestCase
         // Assert
         $this->assertIsArray($permissions);
         $this->assertCount(1, $permissions);
-
     }
 
     /**
