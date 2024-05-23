@@ -79,11 +79,39 @@ class AccessControlPermissionServiceTest extends UnitTestCase
         $permissionToCheck = 'my_permission';
 
         // Act
-        $accessControlPermission = $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), null);
+        $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), null);
+        $permissions = $this->sut->getPermissions($this->testOrga->object(), $this->testCustomer->object(), [RoleInterface::PRIVATE_PLANNING_AGENCY]);
 
         // Assert
-        self::assertInstanceOf(AccessControlPermission::class, $accessControlPermission);
-        self::assertEquals($permissionToCheck, $accessControlPermission->getPermissionName());
+        $this->assertIsArray($permissions);
+        $this->assertCount(1, $permissions);
+
+        // Act
+        $permissions = $this->sut->getPermissions($this->testOrga->object(), $this->testCustomer->object(), [RoleInterface::GUEST]);
+
+        // Assert
+        $this->assertIsArray($permissions);
+        $this->assertCount(1, $permissions);
+
+        // Act
+        $permissions = $this->sut->getPermissions($this->testOrga->object(), $this->testCustomer->object(), [RoleInterface::GUEST]);
+
+        // Assert
+        $this->assertIsArray($permissions);
+        $this->assertCount(1, $permissions);
+
+    }
+
+    /**
+     * This tests the creation of a permission for a specific organization with a null role and null customer.
+     * It verifies that the permission is correctly created and can be retrieved for different roles on different customers.
+     */
+    public function testCreatePermissionForOrgaRole(): void
+    {
+        // Arrange
+        $permissionToCheck = 'my_permission';
+        // Act
+        $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), null, null);
 
         // Act
         $permissions = $this->sut->getPermissions($this->testOrga->object(), $this->testCustomer->object(), [RoleInterface::PRIVATE_PLANNING_AGENCY]);
@@ -98,7 +126,6 @@ class AccessControlPermissionServiceTest extends UnitTestCase
         // Assert
         $this->assertIsArray($permissions);
         $this->assertCount(1, $permissions);
-
     }
 
     public function testDuplicatePermissionCreationThrowsException(): void
