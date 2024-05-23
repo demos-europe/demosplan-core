@@ -105,7 +105,7 @@
                                 editor-id="recommendationText"
                                 :entity-id="JSON.parse('{{ statement.id|json_encode|e('js') }}')"
                                 hidden-input="r_recommendation"
-                                data-cy="statementDetail:r_recommendation"
+                                data-cy="statementDetail:recommendation"
                                 :toolbar-items="{
                                     linkButton: true
                                 }"
@@ -255,7 +255,7 @@
                             elementSize: voteElementSize,
                             disabledPlainText: true,
                             disabled: readonly,
-                            attributes: ['data-cy=statementDetail:r_votePla']
+                            attributes: ['data-cy=statementDetail:votePla']
                         }) }}
 
                     {% endif %}
