@@ -37,7 +37,6 @@ function registerPresetModules (store, presetStoreModules) {
 function initStore (storeModules, apiStoreModules, presetStoreModules) {
   Vue.use(Vuex)
 
-  console.log(notify.name, 'notify.name')
   const staticModules = { notify, ...storeModules }
 
   // This should probably be replaced with an adapter to our existing routes
