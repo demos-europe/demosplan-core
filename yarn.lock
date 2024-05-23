@@ -1424,10 +1424,10 @@
   resolved "https://registry.yarnpkg.com/@csstools/utilities/-/utilities-1.0.0.tgz#42f3c213f2fb929324d465684ab9f46a0febd4bb"
   integrity sha512-tAgvZQe/t2mlvpNosA4+CkMiZ2azISW5WPAcdSalZlEjQvUfghHxfQcrCiK/7/CrfAWVxyM88kGFYO82heIGDg==
 
-"@demos-europe/demosplan-ui@^0.3.12":
-  version "0.3.12"
-  resolved "https://registry.yarnpkg.com/@demos-europe/demosplan-ui/-/demosplan-ui-0.3.12.tgz#ddb45e4e265faeae8e35720fe02a90820b4a528e"
-  integrity sha512-2L8Zdy5WPmaWmbqx80MUAwQaxDxUWrGsQCqEdcwtOv+fnOH98GQC+gmehLr4RNtZ3Bl2G2GoeSuWg7buqp+Xzw==
+"@demos-europe/demosplan-ui@^0.3.15":
+  version "0.3.15"
+  resolved "https://registry.yarnpkg.com/@demos-europe/demosplan-ui/-/demosplan-ui-0.3.15.tgz#6d29e70e1a7eb2609a0d136f8a85b14b2862f850"
+  integrity sha512-SvQMqsSynOXTJmJTHG31FU2f0vgzv8f58CjgBC9wz8dsg3b+mRm1v5e8H+bi/EuFzfQP5PC0hY8vhWdLRY+SMg==
   dependencies:
     "@braintree/sanitize-url" "^7.0.0"
     "@floating-ui/dom" "^1.4.5"
