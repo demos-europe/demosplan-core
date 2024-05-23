@@ -61,22 +61,18 @@ class AccessControlPermission extends CoreEntity implements UuidEntityInterface
     private DateTime $modificationDate;
 
     /**
-     * @var OrgaInterface|null
-     *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga")
      *
      * @ORM\JoinColumn(name="orga_id", referencedColumnName="_o_id", nullable=true, onDelete="CASCADE")
      */
-    protected $organisation;
+    protected ?OrgaInterface $organisation;
 
     /**
-     * @var RoleInterface|null
-     *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Role")
      *
      * @ORM\JoinColumn(referencedColumnName="_r_id", nullable=true, onDelete="CASCADE")
      */
-    protected $role;
+    protected ?RoleInterface $role;
 
     /**
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
@@ -100,26 +96,17 @@ class AccessControlPermission extends CoreEntity implements UuidEntityInterface
         $this->permission = $permission;
     }
 
-    /**
-     * @param OrgaInterface $orga
-     */
-    public function setOrga($orga)
+    public function setOrga(?OrgaInterface $orga)
     {
         $this->organisation = $orga;
     }
 
-    /**
-     * @param RoleInterface $role
-     */
-    public function setRole($role)
+    public function setRole(?RoleInterface $role)
     {
         $this->role = $role;
     }
 
-    /**
-     * @param CustomerInterface $customer
-     */
-    public function setCustomer($customer)
+    public function setCustomer(?CustomerInterface $customer)
     {
         $this->customer = $customer;
     }

@@ -22,7 +22,7 @@ class AccessControlPermissionRepository extends CoreRepository
      *
      * @throws Exception
      */
-    public function add($permission): AccessControlPermission
+    public function add(AccessControlPermission $permission): AccessControlPermission
     {
         try {
             $em = $this->getEntityManager();

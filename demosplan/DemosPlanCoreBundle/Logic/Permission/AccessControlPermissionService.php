@@ -37,7 +37,7 @@ class AccessControlPermissionService extends CoreService
     ) {
     }
 
-    public function createPermission($permissionName, $orga, $customer, $role): AccessControlPermission
+    public function createPermission(string $permissionName, ?OrgaInterface $orga, ?CustomerInterface $customer, ?RoleInterface $role): AccessControlPermission
     {
         $permission = new AccessControlPermission();
         $permission->setPermissionName($permissionName);
@@ -101,7 +101,7 @@ class AccessControlPermissionService extends CoreService
         return $enabledPermissions;
     }
 
-    private function removePermission($permissionName, $orga, $customer, $role): void
+    private function removePermission(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, RoleInterface $role): void
     {
         // Find the existing permission with the given parameters
         $permission = $this->accessControlPermissionRepository->findOneBy([
