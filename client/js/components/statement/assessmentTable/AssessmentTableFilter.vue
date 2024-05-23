@@ -118,7 +118,7 @@
                   v-for="option in Object.values(filteredAssessmentExportOptions)"
                   :key="Object.keys(option)[0]"
                   class="c-actionmenu__menuitem"
-                  :data-cy="`assessmentTableFilter:${Object.values(option)[0].buttonLabel}`"
+                  :data-cy="`statementsExport:${Object.values(option)[0].buttonLabel}`"
                   data-actionmenu-menuitem
                   role="menuitem"
                   tabindex="-1"

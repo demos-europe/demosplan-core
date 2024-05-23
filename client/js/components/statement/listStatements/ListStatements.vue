@@ -57,13 +57,13 @@
             aria-hidden="true" />
         </template>
         <a
-          data-cy="listStatements:exportStatementsDocx"
+          data-cy="statementsExport:export.docx"
           href="#"
           @click="showHintAndDoExport('dplan_statement_segments_export')">
           {{ Translator.trans('export.statements.docx') }}
         </a>
         <a
-          data-cy="listStatements:exportStatementsZip"
+          data-cy="statementsExport:export.zip"
           href="#"
           @click="showHintAndDoExport('dplan_statement_segments_export_packaged')">
           {{ Translator.trans('export.statements.zip') }}
@@ -71,7 +71,7 @@
         <a
           v-if="hasPermission('feature_admin_assessmenttable_export_statement_generic_xlsx')"
           :href="exportRoute('dplan_statement_xls_export')"
-          data-cy="listStatements:exportStatementsXlsx"
+          data-cy="statementsExport:export.xlsx"
           rel="noopener">
           {{ Translator.trans('export.statements.xlsx') }}
         </a>

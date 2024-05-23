@@ -28,6 +28,7 @@
 
       <dp-button
         class="float-right"
+        data-cy="editSelectedItemsMenu:unselect"
         :text="Translator.trans('unselect')"
         variant="outline"
         @click="resetSelection" />
