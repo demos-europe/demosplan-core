@@ -218,7 +218,7 @@ final class OrgaResourceType extends DplanResourceType
                 ->readable(false, $this->getAllowedRoles(...));
         }
 
-        if ($this->currentUser->hasPermission('feature_orga_new_procedure_edit')) {
+        if ($this->currentUser->hasPermission('feature_manage_procedure_creation_permission')) {
             $properties[] = $this->createAttribute($this->canCreateProcedures)->readable(true, function (Orga $orga): bool {
                 $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
 
