@@ -63,28 +63,73 @@ class AccessControlPermissionServiceTest extends UnitTestCase
 
     public function testCreatePermission(): void
     {
+        // Arrange
+        $permissionToCheck = 'my_permission';
 
-        $accessControlPermission = $this->sut->createPermission('my_permission', $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
+        // Act
+        $accessControlPermission = $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
+
+        // Assert
         self::assertInstanceOf(AccessControlPermission::class, $accessControlPermission);
-        self::assertEquals('my_permission', $accessControlPermission->getPermissionName());
+        self::assertEquals($permissionToCheck, $accessControlPermission->getPermissionName());
 
     }
 
     public function testDuplicatePermissionCreationThrowsException(): void
     {
+        $permissionToCheck = 'my_permission';
         $this->expectException(UniqueConstraintViolationException::class);
-        $this->sut->createPermission('my_permission', $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
-        $this->sut->createPermission('my_permission', $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
+        $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
+        $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
     }
 
     public function testGetPermissions(): void
     {
-        $permissions = $this->sut->getPermissions($this->testOrga->object(), $this->testCustomer->object(), [RoleInterface::PRIVATE_PLANNING_AGENCY]);
+        // Arrange
+        $permissionToCheckA = 'my_permission_a';
+        $permissionToCheckB = 'my_permission_b';
+        $roleCodes = [RoleInterface::PRIVATE_PLANNING_AGENCY];
+
+        // Act
+        $permissions = $this->sut->getPermissions($this->testOrga->object(), $this->testCustomer->object(), $roleCodes);
+
+        // Assert
         $this->assertEmpty($permissions);
 
-        $this->sut->createPermission('my_permission', $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
+        // Arrange
+        $this->sut->createPermission($permissionToCheckA, $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
+        $this->sut->createPermission($permissionToCheckB, $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
+
+        // Act
         $permissions = $this->sut->getPermissions($this->testOrga->object(), $this->testCustomer->object(), [RoleInterface::PRIVATE_PLANNING_AGENCY]);
-        $this->assertCount(1, $permissions);
+
+        // Assert
+        $this->assertIsArray($permissions);
+        $this->assertCount(2, $permissions);
+    }
+
+    public function testHasPermission(): void
+    {
+        // Arrange
+        $permissionToCheck = 'my_permission';
+        $roleCodes = [RoleInterface::PRIVATE_PLANNING_AGENCY];
+
+        // Act
+        $hasPermission = $this->sut->hasPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), $roleCodes);
+
+        // Assert
+        $this->assertFalse($hasPermission);
+
+
+        // Arrange
+        $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
+
+        // Act
+        $hasPermission = $this->sut->hasPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), $roleCodes);
+
+        // Assert
+        $this->assertTrue($hasPermission);
+
     }
 
 }
