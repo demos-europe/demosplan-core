@@ -159,7 +159,7 @@
     "postcss-preset-env": "^9.5.4",
     "purgecss-webpack-plugin": "^6.0.0",
     "sass-embedded": "^1.75.0",
-    "sass-loader": "^14.1.1",
+    "sass-loader": "^14.2.1",
     "source-map-loader": "^5.0.0",
     "stylelint": "^14.16.1",
     "stylelint-config-standard-scss": "^6.1.0",
