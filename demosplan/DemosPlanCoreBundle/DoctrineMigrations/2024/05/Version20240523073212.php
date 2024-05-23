@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 /**
  * This file is part of the package demosplan.
@@ -17,7 +17,7 @@ use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
-class Version20240521084035 extends AbstractMigration
+class Version20240523073212 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -30,8 +30,7 @@ class Version20240521084035 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->abortIfNotMysql();
-
-        $this->addSql('CREATE TABLE access_control_permission (id CHAR(36) NOT NULL, orga_id CHAR(36) DEFAULT NULL, role_id CHAR(36) DEFAULT NULL, customer_id CHAR(36) DEFAULT NULL, permission VARCHAR(255) NOT NULL, creation_date DATETIME NOT NULL, modification_date DATETIME NOT NULL, INDEX IDX_5B3A1C1497F068A1 (orga_id), INDEX IDX_5B3A1C14D60322AC (role_id), INDEX IDX_5B3A1C149395C3F3 (customer_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET UTF8 COLLATE `UTF8_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE access_control_permission (id CHAR(36) NOT NULL, orga_id CHAR(36) DEFAULT NULL, role_id CHAR(36) DEFAULT NULL, customer_id CHAR(36) DEFAULT NULL, permission VARCHAR(255) NOT NULL, creation_date DATETIME NOT NULL, modification_date DATETIME NOT NULL, INDEX IDX_5B3A1C1497F068A1 (orga_id), INDEX IDX_5B3A1C14D60322AC (role_id), INDEX IDX_5B3A1C149395C3F3 (customer_id), UNIQUE INDEX unique_orga_customer_role_permission (orga_id, customer_id, role_id, permission), PRIMARY KEY(id)) DEFAULT CHARACTER SET UTF8 COLLATE `UTF8_unicode_ci` ENGINE = InnoDB');
         $this->addSql('ALTER TABLE access_control_permission ADD CONSTRAINT FK_5B3A1C1497F068A1 FOREIGN KEY (orga_id) REFERENCES _orga (_o_id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE access_control_permission ADD CONSTRAINT FK_5B3A1C14D60322AC FOREIGN KEY (role_id) REFERENCES _role (_r_id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE access_control_permission ADD CONSTRAINT FK_5B3A1C149395C3F3 FOREIGN KEY (customer_id) REFERENCES customer (_c_id) ON DELETE CASCADE');
@@ -56,7 +55,7 @@ class Version20240521084035 extends AbstractMigration
     private function abortIfNotMysql(): void
     {
         $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof MySQLPlatform,
+            !$this->connection->getDatabasePlatform() instanceof MySqlPlatform,
             "Migration can only be executed safely on 'mysql'."
         );
     }
