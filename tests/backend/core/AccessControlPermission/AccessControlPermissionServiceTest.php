@@ -28,18 +28,17 @@ use Zenstruck\Foundry\Proxy;
 
 class AccessControlPermissionServiceTest extends UnitTestCase
 {
-
     /**
      * @var AccessControlPermissionService|null
      */
     protected $sut;
-    protected null|RoleHandler|Proxy $roleHandler;
+    protected RoleHandler|Proxy|null $roleHandler;
 
-    private null|Orga|Proxy $testOrga;
+    private Orga|Proxy|null $testOrga;
 
-    private null|Role|Proxy $testRole;
+    private Role|Proxy|null $testRole;
 
-    private null|Customer|Proxy $testCustomer;
+    private Customer|Proxy|null $testCustomer;
 
     protected function setUp(): void
     {
@@ -49,7 +48,7 @@ class AccessControlPermissionServiceTest extends UnitTestCase
 
         $this->roleHandler = $this->getContainer()->get(RoleHandler::class);
 
-        $this->testRole =  $this->roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY])[0];
+        $this->testRole = $this->roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY])[0];
 
         if (null === $this->testRole) {
             $this->testRole = RoleFactory::createOne();
@@ -63,11 +62,9 @@ class AccessControlPermissionServiceTest extends UnitTestCase
 
     public function testCreatePermission(): void
     {
-
         $accessControlPermission = $this->sut->createPermission('my_permission', $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
         self::assertInstanceOf(AccessControlPermission::class, $accessControlPermission);
         self::assertEquals('my_permission', $accessControlPermission->getPermissionName());
-
     }
 
     public function testDuplicatePermissionCreationThrowsException(): void
@@ -86,5 +83,4 @@ class AccessControlPermissionServiceTest extends UnitTestCase
         $permissions = $this->sut->getPermissions($this->testOrga->object(), $this->testCustomer->object(), [RoleInterface::PRIVATE_PLANNING_AGENCY]);
         $this->assertCount(1, $permissions);
     }
-
 }
