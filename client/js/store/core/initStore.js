@@ -54,7 +54,6 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
     baseUrl = URL_PATH_PREFIX + baseUrl
   }
 
-  console.log('apiSore Modules', apiStoreModules)
   return router
     .updateRoutes()
     .then(router => {
