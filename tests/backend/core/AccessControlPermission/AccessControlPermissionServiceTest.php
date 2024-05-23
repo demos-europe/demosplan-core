@@ -15,7 +15,6 @@ namespace Tests\Project\AccessControlPermission\Unit;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\RoleFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControlPermission;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -28,17 +27,18 @@ use Zenstruck\Foundry\Proxy;
 
 class AccessControlPermissionServiceTest extends UnitTestCase
 {
+
     /**
      * @var AccessControlPermissionService|null
      */
     protected $sut;
-    protected RoleHandler|Proxy|null $roleHandler;
+    protected null|RoleHandler|Proxy $roleHandler;
 
-    private Orga|Proxy|null $testOrga;
+    private null|Orga|Proxy $testOrga;
 
-    private Role|Proxy|null $testRole;
+    private null|Role|Proxy $testRole;
 
-    private Customer|Proxy|null $testCustomer;
+    private null|Customer|Proxy $testCustomer;
 
     protected function setUp(): void
     {
@@ -48,14 +48,7 @@ class AccessControlPermissionServiceTest extends UnitTestCase
 
         $this->roleHandler = $this->getContainer()->get(RoleHandler::class);
 
-        $this->testRole = $this->roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY])[0];
-
-        if (null === $this->testRole) {
-            $this->testRole = RoleFactory::createOne();
-            $this->testRole->setCode(RoleInterface::PRIVATE_PLANNING_AGENCY);
-            $this->testRole->save();
-        }
-
+        $this->testRole =  $this->roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY])[0];
         $this->testOrga = OrgaFactory::createOne();
         $this->testCustomer = CustomerFactory::createOne();
     }
@@ -71,6 +64,41 @@ class AccessControlPermissionServiceTest extends UnitTestCase
         // Assert
         self::assertInstanceOf(AccessControlPermission::class, $accessControlPermission);
         self::assertEquals($permissionToCheck, $accessControlPermission->getPermissionName());
+
+    }
+
+
+    /**
+     *
+     * The purpose of this test is to ensure that when a permission is created with a null role,
+     * it is granted to all roles.
+     */
+    public function testCreatePermissionForOrgaCustomer(): void
+    {
+        // Arrange
+        $permissionToCheck = 'my_permission';
+
+        // Act
+        $accessControlPermission = $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), null);
+
+        // Assert
+        self::assertInstanceOf(AccessControlPermission::class, $accessControlPermission);
+        self::assertEquals($permissionToCheck, $accessControlPermission->getPermissionName());
+
+        // Act
+        $permissions = $this->sut->getPermissions($this->testOrga->object(), $this->testCustomer->object(), [RoleInterface::PRIVATE_PLANNING_AGENCY]);
+
+        // Assert
+        $this->assertIsArray($permissions);
+        $this->assertCount(1, $permissions);
+
+        // Act
+        $permissions = $this->sut->getPermissions($this->testOrga->object(), $this->testCustomer->object(), [RoleInterface::GUEST]);
+
+        // Assert
+        $this->assertIsArray($permissions);
+        $this->assertCount(1, $permissions);
+
     }
 
     public function testDuplicatePermissionCreationThrowsException(): void
@@ -118,6 +146,7 @@ class AccessControlPermissionServiceTest extends UnitTestCase
         // Assert
         $this->assertFalse($hasPermission);
 
+
         // Arrange
         $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
 
@@ -126,5 +155,7 @@ class AccessControlPermissionServiceTest extends UnitTestCase
 
         // Assert
         $this->assertTrue($hasPermission);
+
     }
+
 }
