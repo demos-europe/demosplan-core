@@ -95,7 +95,7 @@
                         elementStyle: 'inline-block',
                         elementClass: 'u-pl-0_5',
                         disabled: departmentDisabled|default(false),
-                        attributes: ['data-cy=statementDetail:r_departmentName']
+                        attributes: ['data-cy=statementDetail:departmentName']
                     }) }}
                 {% endif %}
             {% endif %}
@@ -261,7 +261,7 @@
                     elementStyle: submitterEmailAddressStyle|default,
                     elementClass: submitterEmailAddressClass|default,
                     disabled: submitterEmailAddressDisabled|default(false),
-                    attributes: ['data-cy=statementDetail:r_submitterEmailAddress']
+                    attributes: ['data-cy=statementDetail:submitterEmailAddress']
                 }) }}
             {% endif %}
 
@@ -391,7 +391,7 @@
                                 elementClass: 'u-5-of-6 u-pr-0_5',
                                 elementStyle: 'inline-block',
                                 disabled: streetDisabled|default(false),
-                                attributes: ['data-cy=statementDetail:r_orga_street']
+                                attributes: ['data-cy=statementDetail:orgaStreet']
                             }) }}
 
                             {% if formDefinitions.streetAndHouseNumber.enabled == true %}
@@ -403,7 +403,7 @@
                                     elementSize: 'tiny',
                                     elementStyle: 'inline-block',
                                     disabled: houseNumberDisabled|default(false),
-                                    attributes: ['data-cy=statementDetail:r_houseNumber']
+                                    attributes: ['data-cy=statementDetail:houseNumber']
                                 }) }}
                             {% endif %}
                         </div>
@@ -418,7 +418,7 @@
                                 elementStyle: 'inline-block',
                                 elementSize: 'tiny',
                                 disabled: postalCodeDisabled|default(false),
-                                attributes: ['data-cy=statementDetail:r_orga_postalcode']
+                                attributes: ['data-cy=statementDetail:orgaPostalcode']
                             }) }}
 
                             {% set cityClasses = 'u-5-of-6 u-pl-0_5' %}
@@ -775,7 +775,7 @@
                         elementStyle: 'inline-block',
                         disabledPlainText: true,
                         disabled: submitTypeSelectDisabled|default(false),
-                        attributes: ['data-cy=statementDetail:r_submit_type']
+                        attributes: ['data-cy=statementDetail:submitType']
                     }]) %}
                 {% endif %}
 
@@ -810,7 +810,7 @@
                             elementStyle: 'inline-block',
                             disabledPlainText: true,
                             disabled: processingStatusDisabled|default(false),
-                            attributes: ['data-cy=statementDetail:r_status']
+                            attributes: ['data-cy=statementDetail:status']
                         }) }}
                     {% endif %}
 
@@ -852,7 +852,7 @@
                                 elementClass: 'u-pr',
                                 disabledPlainText: true,
                                 disabled: prioritySelectDisabled|default(false),
-                                attributes: ['data-cy=statementDetail:r_priority']
+                                attributes: ['data-cy=statementDetail:priority']
                             }) }}
                         {% endif %}
                     {% endblock priority %}
@@ -973,7 +973,7 @@
                                             type: 'checkbox',
                                             elementClass: 'u-mb-0_5',
                                             id: 'r_delete_element',
-                                            attributes: ['data-cy=statementDetail:r_delete_element']
+                                            attributes: ['data-cy=statementDetail:deleteElement']
                                         }) }}
                                     {% endif %}
 
@@ -1086,7 +1086,7 @@
                                 type: 'select',
                                 id: 'elementSelect',
                                 elementStyle: 'inline-block',
-                                attributes: ['data-cy=statementDetail:r_element_new']
+                                attributes: ['data-cy=statementDetail:elementNew']
                             }) }}
                         {% endif %}
 
