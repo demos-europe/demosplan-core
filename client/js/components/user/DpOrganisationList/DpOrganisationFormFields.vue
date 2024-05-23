@@ -82,7 +82,7 @@
           :id="organisation.id + 'addressHouseNumber'"
           class="w-full u-mb-0_5"
           style="height: 27px;"
-          data-cy="orgaFormField:addressJouseNumber"
+          data-cy="orgaFormField:addressHouseNumber"
           @input="emitOrganisationUpdate"
           v-model="localOrganisation.attributes.houseNumber">
         <p
