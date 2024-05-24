@@ -276,6 +276,21 @@ export default {
     },
 
     /**
+     * Move an element in treeData from one index to another
+     * @param {Object} data
+     * @param {Number} data.indexToMoveFrom old index of the element
+     * @param {Number} data.indexToMoveTo new index of the element
+     */
+    moveElementInList (data) {
+      const { indexToMoveFrom, indexToMoveTo } = data
+
+      // Remove element from oldIndex in treeData
+      const removedItem = this.treeData.splice(indexToMoveFrom, 1)[0]
+      // Add element again at newIndex
+      this.treeData.splice(indexToMoveTo, 0, removedItem)
+    },
+
+    /**
      * Set the selection state for the different items.
      *
      * @param selected{Array<Object>}
@@ -294,9 +309,11 @@ export default {
      * Callback that is executed whenever an item is dragged over a new target.
      * Here it is used to cancel the drag action when dragging over singleDocument (=!isBranch)
      * elements, hereby keeping folders above files.
+     * @param event
+     * @param {Boolean} isAllowedTarget Is the item allowed to be dragged into the target list?
      */
-    onMove (e) {
-      return e.related.__vnode.context.isBranch
+    onMove (event, isAllowedTarget) {
+      return isAllowedTarget
     },
 
     resetSelection () {
@@ -315,20 +332,28 @@ export default {
      * @param {String} item.type
      * @param {String} parentId
      */
-    saveNewSort (event, item, parentId ) {
-      const { newIndex } = event
-      const elementId = item.id
+    saveNewSort (event, item, parentId) {
+      const { newIndex, oldIndex } = event
+      const { id } = item
 
-      // if item hasn't been moved, do nothing
-      if (newIndex === item.attributes.index) {
+      // If item is not moved, do nothing
+      if (newIndex === oldIndex) {
         return
       }
+
+      // Do an optimistic FE update, so there is no lag until item is displayed in new position
+      this.moveElementInList({ indexToMoveFrom: oldIndex, indexToMoveTo: newIndex})
+
+      // Find the element that is directly following the moved element (only folders, no files)
+      const nextSibling = this.treeData.filter(node => node.type === 'elements')[newIndex + 1]
+      // Either send the index of the element that is being "pushed down" or null (if the moved element is the last item)
+      const index = nextSibling ? nextSibling.attributes.index : null
 
       this.canDrag = false
 
       dpRpc('planningCategoryList.reorder', {
-        elementId: elementId,
-        newIndex: newIndex,
+        elementId: id,
+        newIndex: newIndex === 0 ? newIndex : index,
         parentId: parentId
       })
         .then(response => {
@@ -359,6 +384,9 @@ export default {
           dplan.notify.confirm(Translator.trans('confirm.saved'))
         })
         .catch(error => {
+          // Undo optimistic FE update
+          this.moveElementInList({indexToMoveFrom: newIndex, indexToMoveTo: oldIndex})
+
           console.error(error)
           dplan.notify.error(Translator.trans('error.changes.not.saved'))
         })
@@ -397,7 +425,7 @@ export default {
       if (hasOwnProp(updatedSort, 'newOrder')) {
         updatedSort.newOrder
           // Filter out items not represented in this.elements (files)
-          .filter((el) => typeof this.elements[el.id] !== 'undefined')
+          .filter(el => typeof this.elements[el.id] !== 'undefined')
           /*
            * Iterate over items that are present in updated order, set new index and parentId
            * in order to rebuild the tree structure to apply the new state to draggable inside DpTreeList.
