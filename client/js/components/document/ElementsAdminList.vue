@@ -92,6 +92,7 @@ import {
   hasOwnProp
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 import ElementsAdminItem from './ElementsAdminItem'
 import lscache from 'lscache'
 
@@ -103,9 +104,9 @@ export default {
     DpBulkEditHeader,
     DpLoading,
     DpTreeList,
-    FileInfo: () => import(/* webpackChunkName: "elements-list-file" */ '@DpJs/components/document/ElementsList/FileInfo'),
-    IconPublished: () => import(/* webpackChunkName: "elements-list-icon-published" */ '@DpJs/components/document/ElementsList/IconPublished'),
-    IconStatementEnabled: () => import(/* webpackChunkName: "elements-list-icon-statement-enabled" */ '@DpJs/components/document/ElementsList/IconStatementEnabled')
+    FileInfo: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList/FileInfo')),
+    IconPublished: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList/IconPublished')),
+    IconStatementEnabled: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList/IconStatementEnabled'))
   },
 
   data () {
