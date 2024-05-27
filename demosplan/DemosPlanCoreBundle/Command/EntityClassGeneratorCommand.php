@@ -52,7 +52,7 @@ class EntityClassGeneratorCommand extends Command
         //todo: make this a parameter
         $namespace = "DemosEurope\DemosplanAddon\Contracts\Entities";
         $targetNamespace = "DemosEurope\DemosplanAddon\Contracts\Entities\GeneratedTestClasses";
-        $outputDirectory = "vendor\demos-europe\demosplan-addon\src\Contracts\Entities\GeneratedTestClasses";
+        $outputDirectory = "vendor/demos-europe/demosplan-addon/src/Contracts/Entities/GeneratedTestClasses";
 
 //        TypeResolver::class
 //        $entityClass = ClassOrInterfaceType::fromFqcn($namespace);
@@ -60,8 +60,6 @@ class EntityClassGeneratorCommand extends Command
         $classes = collect(get_declared_classes()); // fixme: does not got all classes!?
 //        generator(klasse) (im addon) jeweil der klasse aufrufen so wie TypeHolderGenerator(!)
 //        generator im core aufrufen (command)
-
-
 
         $relevantClasses = $classes->filter(function ($fqdn) {
             if ("demosplan\DemosPlanCoreBundle\Entity" !== $fqdn) {
@@ -224,8 +222,8 @@ class EntityClassGeneratorCommand extends Command
         foreach($properties as $property) {
             $isTyped = null !== $property->getType();
             if ($isTyped && !$property->getType()->allowsNull()) {
-                $propertyName = $property->getType()->getName();
-                switch ($propertyName) {
+                $propertyName = lcfirst($property->getType()->getName());
+                switch ($property->getType()->getName()) {
                     case 'int':
                         $generatedMethod->addBody("\$this->".$propertyName." = 0;");
                     case 'string':
@@ -246,19 +244,19 @@ class EntityClassGeneratorCommand extends Command
     private function generateSetterBody(ReflectionMethod $method, \Nette\PhpGenerator\Method $generatedMethod): void
     {
         $propertyName = substr($method->getName(), 3);
-        $generatedMethod->addBody("\$this->".$propertyName." = \$$propertyName;");
+        $generatedMethod->addBody("\$this->".lcfirst($propertyName)." = \$".lcfirst($propertyName).";");
     }
 
     private function generateGetterBody(ReflectionMethod $method, \Nette\PhpGenerator\Method $generatedMethod): void
     {
         $propertyName = substr($method->getName(), 3);
-        $generatedMethod->addBody("return \$this->".$propertyName.";");
+        $generatedMethod->addBody("return \$this->".lcfirst($propertyName).";");
     }
 
     private function generateIsserBody(ReflectionMethod $method, \Nette\PhpGenerator\Method $generatedMethod)
     {
         $propertyName = substr($method->getName(), 3);
-        $generatedMethod->addBody("return \$this->".$propertyName.";");
+        $generatedMethod->addBody("return \$this->".lcfirst($propertyName).";");
     }
 
 }
