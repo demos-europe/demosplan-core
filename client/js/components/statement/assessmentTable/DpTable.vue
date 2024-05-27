@@ -175,7 +175,7 @@
           :csrf-token="csrfToken"
           :data-cy="`statementCard:index:${index}`"
           :ref="'itemdisplay_' + statement.id"
-          :key="`statement:${key}`"
+          :key="`statement:${statement.id}`"
           class="o-list__item"
           :init-statement="{}"
           :statement-procedure-id="statement.procedureId"
