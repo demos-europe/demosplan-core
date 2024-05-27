@@ -1209,6 +1209,7 @@ error.organisation.not.existent: "Ausgewählte Organisation wurde nicht gefunden
 error.organisation.not.selected: "Es wurden keine zwei Organisationen ausgewählt"
 error.organisation.not.switched: "Die Organisation konnte nicht gewechselt werden"
 error.organisation.of.user.not.found: "Es konnte keine Organisation zum/-r Nutzer*in gefunden werden."
+error.organisation.permission.notgranted: "Die Genehmigung konnte nicht erteilt werden. Die Organisation ist kein Planungsbüro."
 error.paragraph.no_circular_references: "Ein Kapitel darf keinem seiner eigenen Unterkapitel als Unterkapitel zugewiesen werden."
 error.paragraph.no_self_references: "Ein Kapitel darf sich nicht selbst als Unterkapitel zugewiesen werden."
 error.password.change: "Das Passwort konnte nicht geändert werden."

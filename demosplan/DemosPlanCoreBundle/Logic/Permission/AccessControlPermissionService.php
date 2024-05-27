@@ -16,9 +16,11 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControlPermission;
+use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Repository\AccessControlPermissionRepository;
+use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 
 /**
  * This file is part of the package demosplan.
@@ -34,6 +36,7 @@ class AccessControlPermissionService extends CoreService
     public function __construct(
         private readonly AccessControlPermissionRepository $accessControlPermissionRepository,
         private readonly RoleHandler $roleHandler,
+        private readonly GlobalConfig $globalConfig
     ) {
     }
 
@@ -95,7 +98,9 @@ class AccessControlPermissionService extends CoreService
 
         // Loop through each permission object and get the permission name
         foreach ($permissions as $permissionObject) {
-            $enabledPermissions[] = $permissionObject->getPermissionName();
+            if($this->checkIfPermissionIsAvailableForOrgaType($permissionObject->getPermissionName(), $orga)) {
+                $enabledPermissions[] = $permissionObject->getPermissionName();
+            }
         }
 
         return $enabledPermissions;
@@ -138,9 +143,20 @@ class AccessControlPermissionService extends CoreService
     /**
      * @param CustomerInterface $orga
      */
-    public function grantCanCreateProcedurePermission(?OrgaInterface $orga = null, ?CustomerInterface $customer = null, ?RoleInterface $role): void
+    public function grantCanCreateProcedurePermission(?OrgaInterface $orga = null, ?CustomerInterface $customer = null, ?RoleInterface $role): bool
     {
-        $this->createPermission(self::CREATE_PROCEDURES_PERMISSION, $orga, $customer, $role);
+        // Get the available permissions for the organization type
+
+        if (null === $orga) {
+            $this->createPermission(self::CREATE_PROCEDURES_PERMISSION, $orga, $customer, $role);
+            return true;
+        }
+        if ($this->checkIfPermissionIsAvailableForOrgaType(self::CREATE_PROCEDURES_PERMISSION , $orga)) {
+            $this->createPermission(self::CREATE_PROCEDURES_PERMISSION, $orga, $customer, $role);
+            return true;
+        }
+        return false;
+
     }
 
     /**
@@ -149,5 +165,23 @@ class AccessControlPermissionService extends CoreService
     public function revokeCanCreateProcedurePermission(?OrgaInterface $orga = null, ?CustomerInterface $customer = null, ?RoleInterface $role): void
     {
         $this->removePermission(self::CREATE_PROCEDURES_PERMISSION, $orga, $customer, $role);
+    }
+
+    private function checkIfPermissionIsAvailableForOrgaType(string $permission, ?OrgaInterface $orga) : bool {
+        //It will be granted because it is not checking on orga level
+        if (null === $orga) {
+            return true;
+        }
+
+        $availablePermissions = $this->getAvailablePermissionsPerOrgaType($orga);
+        return in_array($permission, $availablePermissions);
+    }
+
+    private function getAvailablePermissionsPerOrgaType(OrgaInterface $orga) : array {
+        $availablePermissions = [];
+        if ($orga->hasType(OrgaType::PLANNING_AGENCY, $this->globalConfig->getSubdomain())) {
+            $availablePermissions[] = self::CREATE_PROCEDURES_PERMISSION;
+        }
+        return $availablePermissions;
     }
 }
