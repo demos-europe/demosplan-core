@@ -170,11 +170,12 @@
       <!-- Loop statements in default viewMode -->
       <template
         v-else
-        v-for="statement in statements">
+        v-for="(statement, key, index) in statements">
         <dp-assessment-table-card
           :csrf-token="csrfToken"
+          :data-cy="`statementCard:index:${index}`"
           :ref="'itemdisplay_' + statement.id"
-          :key="`statement:${statement.id}`"
+          :key="`statement:${key}`"
           class="o-list__item"
           :init-statement="{}"
           :statement-procedure-id="statement.procedureId"
