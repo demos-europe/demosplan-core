@@ -366,7 +366,6 @@ class DemosPlanOrganisationAPIController extends APIController
                 $userHandler->setCanUpdateShowList(true);
             }
 
-
             $updatedOrga = $userHandler->updateOrga($orgaId, $orgaDataArray);
 
             if ($permissions->hasPermission('feature_manage_procedure_creation_permission') && is_array($orgaDataArray['attributes'])
@@ -379,7 +378,6 @@ class DemosPlanOrganisationAPIController extends APIController
                             'error',
                             'error.organisation.permission.notgranted'
                         );
-
                     } else {
                         $accessControlPermission->revokeCanCreateProcedurePermission($preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
                     }

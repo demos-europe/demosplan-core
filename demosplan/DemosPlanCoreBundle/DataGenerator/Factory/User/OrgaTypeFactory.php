@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
@@ -64,7 +72,7 @@ final class OrgaTypeFactory extends ModelFactory
     {
         return [
             'label' => self::faker()->text(45),
-            'name' => self::faker()->text(6),
+            'name'  => self::faker()->text(6),
         ];
     }
 

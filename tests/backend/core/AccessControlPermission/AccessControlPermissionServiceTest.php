@@ -62,17 +62,11 @@ class AccessControlPermissionServiceTest extends UnitTestCase
 
         $this->globalConfig = $this->getContainer()->get(GlobalConfig::class);
 
-
-
-
-
-
         $this->testRole = $this->roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY])[0];
-
 
         $this->testOrgaType = OrgaTypeFactory::createOne();
         $this->testOrgaType->setName(OrgaTypeInterface::PLANNING_AGENCY);
-        //$this->testOrgaType->setLabel(OrgaTypeInterface::PLANNING_AGENCY);
+        // $this->testOrgaType->setLabel(OrgaTypeInterface::PLANNING_AGENCY);
         $this->testOrgaType->save();
 
         $this->testOrga = OrgaFactory::createOne();
@@ -83,8 +77,7 @@ class AccessControlPermissionServiceTest extends UnitTestCase
 
         $this->testOrgaStatusInCustomer = OrgaStatusInCustomerFactory::createOne();
 
-
-        $this->testOrgaStatusInCustomer->setOrga( $this->testOrga->object());
+        $this->testOrgaStatusInCustomer->setOrga($this->testOrga->object());
         $this->testOrgaStatusInCustomer->save();
 
         $this->testOrgaStatusInCustomer->setCustomer($this->testCustomer->object());
@@ -96,11 +89,8 @@ class AccessControlPermissionServiceTest extends UnitTestCase
         $this->testOrgaStatusInCustomer->setStatus(OrgaStatusInCustomerInterface::STATUS_ACCEPTED);
         $this->testOrgaStatusInCustomer->save();
 
-
-
         $this->testOrga->addStatusInCustomer($this->testOrgaStatusInCustomer->object());
         $this->testOrga->save();
-
     }
 
     public function testCreatePermission(): void

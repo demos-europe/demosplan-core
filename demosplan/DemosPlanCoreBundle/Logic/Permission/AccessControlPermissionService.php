@@ -98,7 +98,7 @@ class AccessControlPermissionService extends CoreService
 
         // Loop through each permission object and get the permission name
         foreach ($permissions as $permissionObject) {
-            if($this->checkIfPermissionIsAvailableForOrgaType($permissionObject->getPermissionName(), $orga)) {
+            if ($this->checkIfPermissionIsAvailableForOrgaType($permissionObject->getPermissionName(), $orga)) {
                 $enabledPermissions[] = $permissionObject->getPermissionName();
             }
         }
@@ -149,14 +149,16 @@ class AccessControlPermissionService extends CoreService
 
         if (null === $orga) {
             $this->createPermission(self::CREATE_PROCEDURES_PERMISSION, $orga, $customer, $role);
-            return true;
-        }
-        if ($this->checkIfPermissionIsAvailableForOrgaType(self::CREATE_PROCEDURES_PERMISSION , $orga)) {
-            $this->createPermission(self::CREATE_PROCEDURES_PERMISSION, $orga, $customer, $role);
-            return true;
-        }
-        return false;
 
+            return true;
+        }
+        if ($this->checkIfPermissionIsAvailableForOrgaType(self::CREATE_PROCEDURES_PERMISSION, $orga)) {
+            $this->createPermission(self::CREATE_PROCEDURES_PERMISSION, $orga, $customer, $role);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -167,21 +169,25 @@ class AccessControlPermissionService extends CoreService
         $this->removePermission(self::CREATE_PROCEDURES_PERMISSION, $orga, $customer, $role);
     }
 
-    private function checkIfPermissionIsAvailableForOrgaType(string $permission, ?OrgaInterface $orga) : bool {
-        //It will be granted because it is not checking on orga level
+    private function checkIfPermissionIsAvailableForOrgaType(string $permission, ?OrgaInterface $orga): bool
+    {
+        // It will be granted because it is not checking on orga level
         if (null === $orga) {
             return true;
         }
 
         $availablePermissions = $this->getAvailablePermissionsPerOrgaType($orga);
+
         return in_array($permission, $availablePermissions);
     }
 
-    private function getAvailablePermissionsPerOrgaType(OrgaInterface $orga) : array {
+    private function getAvailablePermissionsPerOrgaType(OrgaInterface $orga): array
+    {
         $availablePermissions = [];
         if ($orga->hasType(OrgaType::PLANNING_AGENCY, $this->globalConfig->getSubdomain())) {
             $availablePermissions[] = self::CREATE_PROCEDURES_PERMISSION;
         }
+
         return $availablePermissions;
     }
 }
