@@ -33,7 +33,6 @@ class Version20240318172346 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-
         // mariadb 10.1 needs to drop the foreign key before changing the column
         $this->addSql('ALTER TABLE _procedure DROP FOREIGN KEY FK_D1A01D0299091188');
         $this->addSql('ALTER TABLE _procedure DROP FOREIGN KEY FK_D1A01D0230F7E25B');
