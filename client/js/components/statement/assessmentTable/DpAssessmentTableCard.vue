@@ -28,7 +28,7 @@
 <template>
   <li
     :id="'itemdisplay_' + statement.id"
-    data-cy="statementCard"
+    :data-cy="dataCy"
     class="c-at-item"
     v-cloak>
     <!--  item header  -->
@@ -776,6 +776,12 @@ export default {
     csrfToken: {
       type: String,
       required: true
+    },
+
+    dataCy: {
+      type: String,
+      required: false,
+      default: 'statementCard'
     },
 
     isSelected: {
