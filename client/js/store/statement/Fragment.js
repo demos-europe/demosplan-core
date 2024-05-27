@@ -483,17 +483,17 @@ export default {
           // If the reviewer has been set, update fragment assignment
           if (hasOwnProp(data, 'departmentId')) {
             if (hasOwnProp(data, 'lastClaimed') && hasOwnProp(responseRelationships, 'lastClaimedUser')) {
-              dataToUpdate.lastClaimedUserId = responseRelationships.lastClaimedUser.data.id
+              dataToUpdate.lastClaimedUserId = responserelationships.LastClaimedUser.data.id
             }
 
-            dataToUpdate.departmentId = hasOwnProp(responseRelationships, 'department') ? responseRelationships.department.data.id : ''
+            dataToUpdate.departmentId = hasOwnProp(responseRelationships, 'department') ? responserelationships.Department.data.id : ''
 
             if (dataToUpdate.departmentId) { // If departmentId is in response and is not null
               // we reset the assignee with the values from BE
-              if (responseRelationships.assignee?.data) {
-                const newAssigneeId = responseRelationships.assignee.data.id
+              if (responserelationships.Assignee?.data) {
+                const newAssigneeId = responserelationships.Assignee.data.id
                 const newAssignee = response.included.find(elem => elem.type === 'User' && elem.id === newAssigneeId)
-                const orgaId = newAssignee.relationships.orga.data.id
+                const orgaId = newAssignee.relationships.Orga.data.id
 
                 dataToUpdate.assignee = {
                   id: newAssigneeId,
@@ -517,7 +517,7 @@ export default {
 
           //  Keep id to find fragment in mutation
           dataToUpdate.fragmentId = response.data.id
-          dataToUpdate.statementId = responseRelationships.statement.data.id
+          dataToUpdate.statementId = responserelationships.Statement.data.id
 
           //  Update store
           commit('updateFragment', { ...dataToUpdate })

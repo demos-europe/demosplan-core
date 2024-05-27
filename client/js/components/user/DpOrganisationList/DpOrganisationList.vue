@@ -35,7 +35,7 @@
             :available-orga-types="availableOrgaTypes"
             :organisation="item"
             :selectable="false"
-            module-name="pending"
+            module-name="Pending"
             data-cy="pendingOrganisationListBlk" />
         </ul>
         <dp-sliding-pagination
@@ -318,7 +318,7 @@ export default {
       totalPages: 'totalPages'
     }),
 
-    ...mapState('Orga/pending', {
+    ...mapState('Orga/Pending', {
       pendingOrganisations: 'items',
       pendingOrganisationsCurrentPage: 'currentPage',
       pendingOrganisationsTotalPages: 'totalPages'
@@ -343,7 +343,7 @@ export default {
       deleteOrganisation: 'delete'
     }),
 
-    ...mapActions('Orga/pending', {
+    ...mapActions('Orga/Pending', {
       pendingOrganisationList: 'list'
     }),
 

@@ -440,7 +440,7 @@ const Filter = {
      */
     userFilterSetFilterHash: state => userFilterSet => {
       if (hasOwnProp(userFilterSet, 'relationships') && hasOwnProp(userFilterSet.relationships, 'filterSet')) {
-        const filter = state.userFilterSets.included.filter(filterSet => filterSet.id === userFilterSet.relationships.filterSet.data.id)
+        const filter = state.userFilterSets.included.filter(filterSet => filterSet.id === userFilterSet.relationships.FilterSet.data.id)
         return filter[0].attributes.hash
       } else {
         return ''
