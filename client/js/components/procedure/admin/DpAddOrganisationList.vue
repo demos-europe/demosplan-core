@@ -14,14 +14,15 @@
     <dp-data-table-extended
       ref="dataTable"
       class="mt-2"
+      :default-sort-order="sortOrder"
       :header-fields="headerFields"
-      :table-items="rowItems"
+      :init-items-per-page="itemsPerPage"
       is-expandable
       is-selectable
       :items-per-page-options="itemsPerPageOptions"
-      :default-sort-order="sortOrder"
-      @items-selected="setSelectedItems"
-      :init-items-per-page="itemsPerPage">
+      lock-checkbox-by="hasNoEmail"
+      :table-items="rowItems"
+      @items-selected="setSelectedItems">
       <template v-slot:expandedContent="{ participationFeedbackEmailAddress, locationContacts, ccEmailAddresses, contactPerson }">
         <div class="lg:w-2/3 lg:flex pt-4">
           <dl class="pl-4 w-full">
@@ -96,11 +97,11 @@
         </div>
       </template>
       <template v-slot:footer>
-        <div class="pt-2">
+        <div class="pt-2 flex">
           <div class="w-1/3 inline-block">
             <span
-              class="weight--bold line-height--1_6"
-              v-if="selectedItems.length">
+              v-if="selectedItems.length"
+              class="weight--bold line-height--1_6">
               {{ selectedItems.length }} {{ (selectedItems.length === 1 && Translator.trans('entry.selected')) || Translator.trans('entries.selected') }}
             </span>
           </div>
@@ -178,6 +179,7 @@ export default {
       return Object.values(this.invitableToebItems).reduce((acc, item) => {
         const locationContactId = item.relationships.locationContacts.data[0].id
         const locationContact = this.getLocationContactById(locationContactId)
+        const hasNoEmail = item.attributes.participationFeedbackEmailAddress === null
 
         return [
           ...acc,
@@ -188,7 +190,8 @@ export default {
               locationContacts: {
                 id: locationContact.id,
                 ...locationContact.attributes
-              }
+              },
+              hasNoEmail
             }
           ]
         ]
