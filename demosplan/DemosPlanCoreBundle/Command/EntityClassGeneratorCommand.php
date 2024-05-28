@@ -64,10 +64,7 @@ class EntityClassGeneratorCommand extends Command
         );
     }
 
-    /**
-     * @throws ReflectionException
-     */
-    private function generateParameters(\Nette\PhpGenerator\Method $generatedMethod, ReflectionMethod $method): void
+    private function generateParameters(Method $generatedMethod, ReflectionMethod $method): void
     {
         foreach($method->getParameters() as $parameter) {
             $generatedMethod->addParameter($parameter->getName());
@@ -106,17 +103,6 @@ class EntityClassGeneratorCommand extends Command
                 $this->generateIsserBody($method, $generatedMethod);
             }
         }
-
-
-        //todo: needed?
-//        $generatedMethod->setAttributes($method->getAttributes()); //fixme: type of attributes wrong!
-
-
-        //is method name starts with, get, set, is, has,
-        //cut this part und check if we already have this as a property
-        //if not, create it.
-
-
     }
 
     /**
@@ -139,7 +125,7 @@ class EntityClassGeneratorCommand extends Command
             if ('CoreEntity' !== $classMock->getName()) {
 //                $namespace->addUse('DemosEurope\DemosplanAddon\Contracts\Entities\GeneratedTestClasses\CoreEntity', 'CoreEntity');
 //                $namespace->addUse('demosplan\DemosPlanCoreBundle\Entity\CoreEntity');
-                $classMock->setExtends('CoreEntity');
+                $classMock->setExtends('DemosEurope\DemosplanAddon\Contracts\Entities\GeneratedTestClasses\CoreEntity');
             }
 
             $this->generateMethods($classMock, $reflectionClass);
