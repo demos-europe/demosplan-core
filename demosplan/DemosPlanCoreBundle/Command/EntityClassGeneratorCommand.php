@@ -220,23 +220,37 @@ class EntityClassGeneratorCommand extends Command
     private function generateConstructorBody(array $properties, \Nette\PhpGenerator\Method $generatedMethod): void
     {
         foreach($properties as $property) {
-            $isTyped = null !== $property->getType();
-            if ($isTyped && !$property->getType()->allowsNull()) {
-                $propertyName = lcfirst($property->getType()->getName());
-                switch ($property->getType()->getName()) {
-                    case 'int':
-                        $generatedMethod->addBody("\$this->".$propertyName." = 0;");
-                    case 'string':
-                        $generatedMethod->addBody("\$this->".$propertyName." = '';");
-                    case 'DateTime':
-                        $generatedMethod->addBody("\$this->".$propertyName." = DateTime::createFromFormat('d.m.Y', '2.1.1970');");
-                    case 'array':
-                    case 'Collection':
-                    $generatedMethod->addBody("\$this->".$propertyName." = new ArrayCollection();");
-                    case 'bool':
-                        $generatedMethod->addBody("\$this->".$propertyName." = false;");
-                }
 
+            $isTyped = null !== $property->getType();
+            $propertyName = lcfirst($property->getName());
+
+            if ($isTyped && !$property->getType()->allowsNull()) {
+                $extractedType = $property->getType()->getName();
+            } else {
+                $extractedType = self::extractTypeFromDocComment(
+                    $property->getDocComment()
+                );
+            }
+
+            switch ($extractedType) {
+                case 'int':
+                    $generatedMethod->addBody("\$this->".$propertyName." = 0;");
+                    break;
+                case 'string':
+                    $generatedMethod->addBody("\$this->".$propertyName." = '';");
+                    break;
+                case 'DateTime':
+                    $generatedMethod->addBody("\$this->".$propertyName." = DateTime::createFromFormat('d.m.Y', '2.1.1970');");
+                    break;
+                case 'array':
+                case 'Collection':
+                case 'ArrayCollection':
+                    $generatedMethod->addBody("\$this->".$propertyName." = new ArrayCollection();");
+                    break;
+                case 'bool':
+                    $generatedMethod->addBody("\$this->".$propertyName." = false;");
+                    break;
+                default:
             }
         }
     }
@@ -258,5 +272,37 @@ class EntityClassGeneratorCommand extends Command
         $propertyName = substr($method->getName(), 3);
         $generatedMethod->addBody("return \$this->".lcfirst($propertyName).";");
     }
+
+    /**
+     * Try to extract tye of property from docblock.
+     */
+    private static function extractTypeFromDocComment(string $docComment): ?string
+    {
+        $parts = explode("\n", $docComment);
+        foreach($parts as $part) {
+            if (str_contains($part, 'null')) {
+                return null;
+            }
+
+            if (str_contains($part, '@var ')) {
+                $typeAsString = str_replace('@var ', '', trim($part));
+                $typeAsString = str_replace('|', '', $typeAsString);
+                $typeAsString = str_replace('*', '', $typeAsString);
+                $typeAsString = str_replace(' ', '', $typeAsString);
+                $typeAsString = str_replace('null', '',$typeAsString);
+
+                if (str_contains($part, 'Collection')
+                    || str_contains($part, 'ArrayCollection')
+                    || str_contains($part, 'ArrayCollection')) {
+                    $typeAsString = 'ArrayCollection';
+                }
+
+                    return $typeAsString;
+            }
+        }
+        return null;
+    }
+
+
 
 }
