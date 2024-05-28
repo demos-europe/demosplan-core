@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Command;
 
 use demosplan\DemosPlanCoreBundle\Command\ClassGenerator\EntityClassGeneratorTrait;
+use Doctrine\ORM\EntityManagerInterface;
 use EDT\DqlQuerying\ClassGeneration\PathClassFromEntityGenerator;
-use EDT\DqlQuerying\ClassGeneration\ResourceConfigBuilderFromEntityGenerator;
-use EDT\Parsing\Utilities\TypeResolver;
 use EDT\Parsing\Utilities\Types\ClassOrInterfaceType;
 use Nette\PhpGenerator\ClassType;
-use Nette\PhpGenerator\Parameter;
+use Nette\PhpGenerator\Method;
 use Nette\PhpGenerator\PhpFile;
-use phpDocumentor\Reflection\DocBlock\Tags\Method;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
@@ -36,6 +34,7 @@ class EntityClassGeneratorCommand extends Command
 
     public function __construct(
         protected readonly PathClassFromEntityGenerator $pathClassGenerator,
+        protected readonly EntityManagerInterface $entityManager,
         string $name = null
     ) {
         parent::__construct($name);
@@ -46,76 +45,14 @@ class EntityClassGeneratorCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-
-        //im core ausfphren, aber in der contracktschicht haben
-
-        //todo: make this a parameter
+        //execute in cored ,but stored in contractlayer
         $namespace = "DemosEurope\DemosplanAddon\Contracts\Entities";
         $targetNamespace = "DemosEurope\DemosplanAddon\Contracts\Entities\GeneratedTestClasses";
         $outputDirectory = "vendor/demos-europe/demosplan-addon/src/Contracts/Entities/GeneratedTestClasses";
 
-//        TypeResolver::class
-//        $entityClass = ClassOrInterfaceType::fromFqcn($namespace);
-
-        $classes = collect(get_declared_classes()); // fixme: does not got all classes!?
-//        generator(klasse) (im addon) jeweil der klasse aufrufen so wie TypeHolderGenerator(!)
-//        generator im core aufrufen (command)
-
-        $relevantClasses = $classes->filter(function ($fqdn) {
-            if ("demosplan\DemosPlanCoreBundle\Entity" !== $fqdn) {
-                return str_starts_with($fqdn, "demosplan\\DemosPlanCoreBundle\\Entity\\");
-            }
-        });
-
+        $relevantClasses = collect($this->getEntities($this->entityManager));
+        $this->generateCoreEntity($targetNamespace, $outputDirectory);
         $this->generateClasses($relevantClasses, $targetNamespace, $outputDirectory);
-
-
-
-
-        // get list of all classes
-        // mit stream io oder sowas?
-        // for each class create new class, or overwrite it
-        //
-        /**
-         * php documenter oder php docparser
-         */
-
-        // classes in subfolders? = muss im entites ordner sein und subfolders inkludieren
-        // ich lasse mir den pfad geben (default?) und per default alle subfolder
-        // ordner geben lassen (liste kann später)
-        // namespace der zu generierenden klassen
-        // outputfolder ziel
-        // option für lvl of deepness?
-        // statt ordner namespace geben lassen!?
-
-        //mit reflection class kann ich mir alles aus der klasese raus ziehen (methoden, properties, namespaces)
-        // kann ich davon ausgehen dass alle classes die ich bruache bereits autoloaded sind? -> muss ich, ja
-        // gib mir alle typen die du kennst (classes gemischt mit klassen?!)
-
-
-
-        // 1. ich will alle classes in einem betsimmten namespace potentiell in nested namespaces
-            // villt gibt es dazu shortcuts?! (alle classes aber dann filtern nach namespace)
-            // oder alle typen innerhalb eines namespaces?!
-            // 1.1 (fallback) zur not alle bekanntne klassen und classes geben lassen. (als fully quallified names)
-            // 1.2 start string with string with... bla bla
-//        (new \ReflectionClass(fqdn))->isInterface() filter by type
-//        voila: liste der classes i want als reflection class instanzes
-
-        // 2. refelction class nutzen um alle methoden namen zu holen
-
-//    use Nette\PhpGenerator\PhpFile;
-        //PathClassFromEntityGenerator::generateEntryPointClass
-        // andere beispiele:
-            // TypeHolderGenerator
-            // ResourceConfigBuilderFromEntityGenerator
-            // test like testGenerateConfigBuilderClass
-
-
-
-    // 1. io/read/instream/ folder with classes
-        //namespace: namespace DemosEurope\DemosplanAddon\Contracts\Entities;
-
 
         return Command::SUCCESS;
     }
@@ -157,15 +94,15 @@ class EntityClassGeneratorCommand extends Command
                 $this->generateConstructorBody($reflectionClass->getProperties(), $generatedMethod);
             }
 
-            if (str_starts_with($method->getName(), 'set')) {
+            if (str_starts_with($method->getName(), 'set') && 3 < strlen($method->getName())) {
                 $this->generateSetterBody($method, $generatedMethod);
             }
 
-            if (str_starts_with($method->getName(), 'get')) {
+            if (str_starts_with($method->getName(), 'get') && 3 < strlen($method->getName())) {
                 $this->generateGetterBody($method, $generatedMethod);
             }
 
-            if (str_starts_with($method->getName(), 'is')) {
+            if (str_starts_with($method->getName(), 'is') && 2 < strlen($method->getName())) {
                 $this->generateIsserBody($method, $generatedMethod);
             }
         }
@@ -197,14 +134,13 @@ class EntityClassGeneratorCommand extends Command
 
             $newFile->setStrictTypes();
             $namespace = $newFile->addNamespace($targetNamespace);
-            //  todo   $namespace->addUse()?;
 
             $classMock = $namespace->addClass($reflectionClass->getShortName());
-            $classMock->setExtends('CoreEntity'); // fixme: fqdn needed
-//            $classMock->addImplement($reflectionClass->getName());//fixme needed?
-            $namespace->addUse('CoreEntity');// fixme: fqdn needed
-//            $namespace->addUse($reflectionClass->getName());
-
+            if ('CoreEntity' !== $classMock->getName()) {
+//                $namespace->addUse('DemosEurope\DemosplanAddon\Contracts\Entities\GeneratedTestClasses\CoreEntity', 'CoreEntity');
+//                $namespace->addUse('demosplan\DemosPlanCoreBundle\Entity\CoreEntity');
+                $classMock->setExtends('CoreEntity');
+            }
 
             $this->generateMethods($classMock, $reflectionClass);
 
@@ -223,10 +159,11 @@ class EntityClassGeneratorCommand extends Command
 
             $isTyped = null !== $property->getType();
             $propertyName = lcfirst($property->getName());
+            $extractedType = null;
 
             if ($isTyped && !$property->getType()->allowsNull()) {
                 $extractedType = $property->getType()->getName();
-            } else {
+            } elseif (false !== $property->getDocComment()) {
                 $extractedType = self::extractTypeFromDocComment(
                     $property->getDocComment()
                 );
@@ -255,19 +192,19 @@ class EntityClassGeneratorCommand extends Command
         }
     }
 
-    private function generateSetterBody(ReflectionMethod $method, \Nette\PhpGenerator\Method $generatedMethod): void
+    private function generateSetterBody(ReflectionMethod $method, Method $generatedMethod): void
     {
         $propertyName = substr($method->getName(), 3);
         $generatedMethod->addBody("\$this->".lcfirst($propertyName)." = \$".lcfirst($propertyName).";");
     }
 
-    private function generateGetterBody(ReflectionMethod $method, \Nette\PhpGenerator\Method $generatedMethod): void
+    private function generateGetterBody(ReflectionMethod $method, Method $generatedMethod): void
     {
         $propertyName = substr($method->getName(), 3);
         $generatedMethod->addBody("return \$this->".lcfirst($propertyName).";");
     }
 
-    private function generateIsserBody(ReflectionMethod $method, \Nette\PhpGenerator\Method $generatedMethod)
+    private function generateIsserBody(ReflectionMethod $method, Method $generatedMethod)
     {
         $propertyName = substr($method->getName(), 3);
         $generatedMethod->addBody("return \$this->".lcfirst($propertyName).";");
@@ -303,6 +240,18 @@ class EntityClassGeneratorCommand extends Command
         return null;
     }
 
+    private function generateCoreEntity(string $targetNamespace, string $outputDirectory): void
+    {
+        $reflectionClass = new ReflectionClass("demosplan\DemosPlanCoreBundle\Entity\CoreEntity");
+        $newFile = new PhpFile();
+
+        $newFile->setStrictTypes();
+        $namespace = $newFile->addNamespace($targetNamespace);
+        $classMock = $namespace->addClass($reflectionClass->getShortName());
+
+        $this->generateMethods($classMock, $reflectionClass);
+        $this->overwriteFile($outputDirectory, $classMock->getName(), (string) $newFile);
+    }
 
 
 }
