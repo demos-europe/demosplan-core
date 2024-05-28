@@ -1146,11 +1146,12 @@ feature_map_layer_legend_file:
     loginRequired: false
     parent: area_map_participation_area
 feature_map_max_extent:
-        description: |-
-            Restrict the access to get the max extension of the public map (in the admin area)
-        label: 'Restrict the access to get the max extension of the public map (in the admin area)'
-        loginRequired: true
-        parent: area_admin_map
+    description: |-
+        Restrict the access to get the max extension of the public map (in the admin area)
+    label: 'Restrict the access to get the max extension of the public map (in the admin area)'
+    expose: true
+    loginRequired: true
+    parent: area_admin_map
 feature_map_new_statement:
     expose: true
     label: 'Planzeichnung Neue Stellungnahme'
