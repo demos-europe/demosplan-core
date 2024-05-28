@@ -61,6 +61,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Export\EntityPreparator;
 use demosplan\DemosPlanCoreBundle\Logic\Export\FieldConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
+use demosplan\DemosPlanCoreBundle\Logic\ManualListSortService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
@@ -211,7 +212,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         private readonly TranslatorInterface $translator,
         UserService $userService,
         private readonly ValidatorInterface $validator,
-        private readonly string $environment
+        private readonly string $environment,
+        private readonly ManualListSortService $listSortService
     ) {
         $this->contentService = $contentService;
         $this->elementsService = $elementsService;
@@ -2690,8 +2692,12 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         // copy gisCategories (incl. gis):
         $this->gisLayerCategoryRepository->copy($blueprintId, $newProcedure->getId());
 
+        $this->newsRepository->copy2($blueprintId, $newProcedure->getId());
+
         // copy news:
-        $this->newsRepository->copy($blueprintId, $newProcedure->getId());
+        //$this->newsRepository->copy($blueprintId, $newProcedure->getId());
+
+        //$this->listSortService->copyManualListSort($blueprintId, $newProcedure->getId());
 
         // copy elements
         $this->elementsService->copy($blueprintId, $newProcedure);

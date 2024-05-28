@@ -70,6 +70,11 @@ class ManualListSort extends CoreEntity implements UuidEntityInterface, ManualLi
         return $this->id;
     }
 
+    public function setId(?string $id): void
+    {
+        $this->id = $id;
+    }
+
     /**
      * Set pId.
      *

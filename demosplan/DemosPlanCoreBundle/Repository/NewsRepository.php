@@ -13,9 +13,14 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 use demosplan\DemosPlanCoreBundle\Entity\ManualListSort;
 use demosplan\DemosPlanCoreBundle\Entity\News\News;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
+use demosplan\DemosPlanCoreBundle\Logic\News\ProcedureNewsService;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
+use Doctrine\Persistence\ManagerRegistry;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\Querying\Utilities\Reindexer;
 use Exception;
 
 /**
@@ -23,6 +28,18 @@ use Exception;
  */
 class NewsRepository extends CoreRepository implements ArrayInterface
 {
+    public function __construct(
+        DqlConditionFactory $conditionFactory,
+        ManagerRegistry $registry,
+        Reindexer $reindexer,
+        SortMethodFactory $sortMethodFactory,
+        string $entityClass,
+        private readonly ProcedureNewsService $procedureNewsService
+    )
+    {
+        parent::__construct($conditionFactory, $registry, $reindexer, $sortMethodFactory, $entityClass);
+    }
+
     /**
      * Get a news entry from DB by id.
      *
@@ -48,6 +65,58 @@ class NewsRepository extends CoreRepository implements ArrayInterface
             $this->logger->error('Get singleNews failed, Id: '.$id.' Message:', [$e]);
 
             return null;
+        }
+    }
+
+    /**
+     * Copy the non-generated values of all news of a specific procedure.
+     * Set the generated values to null, for regeneration.
+     *
+     * @param string $sourceProcedureId
+     * @param string $newProcedureId
+     *
+     * @throws Exception
+     */
+    public function copy2($sourceProcedureId, $newProcedureId)
+    {
+        try {
+
+            $sourceProcedureNews = $this->procedureNewsService->getProcedureNewsAdminList(
+                $sourceProcedureId,
+                'procedure:'.$sourceProcedureId
+            );
+
+            $sourceProcedureNews = array_reverse($sourceProcedureNews['result'],true);
+
+            foreach ($sourceProcedureNews as $procedureNews)
+            {
+                $news = new News();
+                $news->setIdent(null);
+                $news->setpId($newProcedureId);
+                $news->setTitle($procedureNews['title']);
+                $news->setPdf($procedureNews['pdf']);
+                $news->setPicture($procedureNews['picture']);
+                $news->setText($procedureNews['text']);
+                $news->setPictitle($procedureNews['pictitle']);
+                $news->setDescription($procedureNews['description']);
+                $news->setEnabled($procedureNews['enabled']);
+                $news->setDeleted($procedureNews['deleted']);
+                $news->setPdftitle($procedureNews['pdftitle']);
+                $news->setRoles([]);
+                $news->setCreateDate(null);
+                $news->setDeleteDate(null);
+                $news->setModifyDate(null);
+
+                $this->getEntityManager()->persist($news);
+
+                $this->getEntityManager()->flush();
+            }
+
+
+
+        } catch (Exception $e) {
+            $this->logger->warning('Copy news failed. Message: ', [$e]);
+            throw $e;
         }
     }
 
@@ -113,6 +182,9 @@ class NewsRepository extends CoreRepository implements ArrayInterface
                 $identList = $news->getIdent().','.$identList;
                 $manualListSortRepos->addList($news->getPId(), $manualSortScope, $type, $identList);
             }
+            $this->getEntityManager()->persist($manualListSort);
+            $this->getEntityManager()->flush();
+
             $em->flush();
 
             return $news;
