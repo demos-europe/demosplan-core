@@ -18,9 +18,11 @@
       :table-items="rowItems"
       is-expandable
       is-selectable
+      :lock-checkbox-by="item => !item.participationFeedbackEmailAddress"
       :items-per-page-options="itemsPerPageOptions"
       :default-sort-order="sortOrder"
       @items-selected="setSelectedItems"
+      :translations="{ lockedForSelection: Translator.trans('add_orga.email_hint') }"
       :init-items-per-page="itemsPerPage">
       <template v-slot:expandedContent="{ participationFeedbackEmailAddress, locationContacts, ccEmailAddresses, contactPerson }">
         <div class="lg:w-2/3 lg:flex pt-4">
