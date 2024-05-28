@@ -290,6 +290,8 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
     public function isAvailable(): bool
     {
+
+        return true;
         return null !== $this->currentProcedureService->getProcedure()
             && $this->currentUser->hasAnyPermissions('area_admin_map', 'area_admin_initial_map_view_page'); // @todo update permission
     }
@@ -311,6 +313,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
     protected function getAccessConditions(): array
     {
+        $this->conditionFactory->true();
         $currentProcedure = $this->currentProcedureService->getProcedure();
         if (null === $currentProcedure) {
             return [$this->conditionFactory->false()];
