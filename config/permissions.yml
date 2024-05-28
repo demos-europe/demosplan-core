@@ -2374,6 +2374,7 @@ feature_user_list_extended:
     loginRequired: true
 feature_xplan_defaultlayers:
     label: 'Benutze vordefinierte XPlanLayer'
+    expose: true
     loginRequired: true
 field_county_list:
     label: 'betroffene Kreise'
