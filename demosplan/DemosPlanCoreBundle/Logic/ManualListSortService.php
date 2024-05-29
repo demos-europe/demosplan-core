@@ -43,7 +43,6 @@ class ManualListSortService extends CoreService
 
             $newManualListSort->setIdents(implode(',', $mlsIdents));
 
-            $this->manualListSortRepository->persistEntities($newManualListSort);
 
             $this->manualListSortRepository->persistEntities([$newManualListSort]);
             $this->manualListSortRepository->flushEverything();
