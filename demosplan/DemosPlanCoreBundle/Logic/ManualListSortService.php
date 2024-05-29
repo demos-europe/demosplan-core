@@ -1,10 +1,17 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Entity\News\News;
-use demosplan\DemosPlanCoreBundle\Repository\ManualListSortRepository;
 use demosplan\DemosPlanCoreBundle\Entity\ManualListSort;
+use demosplan\DemosPlanCoreBundle\Repository\ManualListSortRepository;
 use demosplan\DemosPlanCoreBundle\Repository\NewsRepository;
 use Exception;
 
@@ -14,7 +21,7 @@ class ManualListSortService extends CoreService
         private readonly ManualListSortRepository $manualListSortRepository,
         private readonly NewsRepository $newsRepository,
         private readonly ArrayHelper $arrayHelper,
-    ){
+    ) {
     }
 
     /**
@@ -34,14 +41,12 @@ class ManualListSortService extends CoreService
 
             $mlsIdents = $this->getMlsIdents($sourceProcedureManualListSort, $newProcedureId);
 
-
-            $newManualListSort->setIdents(implode( ",", $mlsIdents));
+            $newManualListSort->setIdents(implode(',', $mlsIdents));
 
             $this->manualListSortRepository->persistEntities($newManualListSort);
 
             $this->getEntityManager()->persist($newManualListSort);
             $this->getEntityManager()->flush();
-
         } catch (Exception $e) {
             $this->logger->warning('Copy Manual List Sort failed. Message: ', [$e]);
             throw $e;
@@ -50,31 +55,27 @@ class ManualListSortService extends CoreService
 
     private function getMlsIdents(array $sourceProcedureManualListSort, string $newProcedureId): array
     {
-        $sourceMlsIdents = explode(',', (string)$sourceProcedureManualListSort[0]->getIdents());
+        $sourceMlsIdents = explode(',', (string) $sourceProcedureManualListSort[0]->getIdents());
 
         $sourceNews = $this->newsRepository->findBy(['ident' => $sourceMlsIdents]);
 
         $sourceNewsArray = [];
 
-        foreach ($sourceNews as $news)
-        {
+        foreach ($sourceNews as $news) {
             $sourceNewsArray[] = $news->toArray();
         }
 
-        $sortSourceNewsArray = $this->arrayHelper->orderArrayByIds($sourceMlsIdents,$sourceNewsArray,'ident');
+        $sortSourceNewsArray = $this->arrayHelper->orderArrayByIds($sourceMlsIdents, $sourceNewsArray, 'ident');
 
         $newProcedureNews = $this->newsRepository->findBy(['pId' => $newProcedureId]);
 
-        foreach ($newProcedureNews as $news)
-        {
+        foreach ($newProcedureNews as $news) {
             $newProcedureNewsArray[] = $news->toArray();
         }
 
         $newProcedureMlsIdents = [];
-        foreach ($sortSourceNewsArray as $key => $value)
-        {
-            foreach ($newProcedureNewsArray as $newNews)
-            {
+        foreach ($sortSourceNewsArray as $key => $value) {
+            foreach ($newProcedureNewsArray as $newNews) {
                 if (
                     $value['title'] === $newNews['title']
                 && $value['description'] === $newNews['description']
@@ -85,23 +86,18 @@ class ManualListSortService extends CoreService
                 && $value['pdftitle'] === $newNews['pdftitle']
                 && $value['enabled'] === $newNews['enabled']
                 && $value['deleted'] === $newNews['deleted']
-            ){
-                $newProcedureMlsIdents[$key] = $newNews['ident'];
+                ) {
+                    $newProcedureMlsIdents[$key] = $newNews['ident'];
+                }
             }
-            }
+
             return $newProcedureMlsIdents;
         }
 
-
-
-
-
-        //$commonNews = array_intersect(array_column($sortSourceNews, 'id'), array_column($newProcedureNews, 'id'));
-
+        // $commonNews = array_intersect(array_column($sortSourceNews, 'id'), array_column($newProcedureNews, 'id'));
 
         $x = 1;
+
         return [];
-
     }
-
 }

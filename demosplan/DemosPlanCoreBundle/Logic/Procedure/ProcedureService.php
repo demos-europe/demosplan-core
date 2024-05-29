@@ -2695,9 +2695,9 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         $this->newsRepository->copy2($blueprintId, $newProcedure->getId());
 
         // copy news:
-        //$this->newsRepository->copy($blueprintId, $newProcedure->getId());
+        // $this->newsRepository->copy($blueprintId, $newProcedure->getId());
 
-        //$this->listSortService->copyManualListSort($blueprintId, $newProcedure->getId());
+        // $this->listSortService->copyManualListSort($blueprintId, $newProcedure->getId());
 
         // copy elements
         $this->elementsService->copy($blueprintId, $newProcedure);

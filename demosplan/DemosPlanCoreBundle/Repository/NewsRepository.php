@@ -35,8 +35,7 @@ class NewsRepository extends CoreRepository implements ArrayInterface
         SortMethodFactory $sortMethodFactory,
         string $entityClass,
         private readonly ProcedureNewsService $procedureNewsService
-    )
-    {
+    ) {
         parent::__construct($conditionFactory, $registry, $reindexer, $sortMethodFactory, $entityClass);
     }
 
@@ -80,16 +79,14 @@ class NewsRepository extends CoreRepository implements ArrayInterface
     public function copy2($sourceProcedureId, $newProcedureId)
     {
         try {
-
             $sourceProcedureNews = $this->procedureNewsService->getProcedureNewsAdminList(
                 $sourceProcedureId,
                 'procedure:'.$sourceProcedureId
             );
 
-            $sourceProcedureNews = array_reverse($sourceProcedureNews['result'],true);
+            $sourceProcedureNews = array_reverse($sourceProcedureNews['result'], true);
 
-            foreach ($sourceProcedureNews as $procedureNews)
-            {
+            foreach ($sourceProcedureNews as $procedureNews) {
                 $news = new News();
                 $news->setIdent(null);
                 $news->setpId($newProcedureId);
@@ -111,9 +108,6 @@ class NewsRepository extends CoreRepository implements ArrayInterface
 
                 $this->getEntityManager()->flush();
             }
-
-
-
         } catch (Exception $e) {
             $this->logger->warning('Copy news failed. Message: ', [$e]);
             throw $e;
