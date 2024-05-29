@@ -37,7 +37,7 @@
         <button
           :class="prefixClass('btn--blank o-link--default')"
           :aria-label="tool.title + ' ' + Translator.trans('map.interactive.pointer.needed')"
-          :data-cy="`mapTools:${tool.title.replace(/\s+/g, '-').toLowerCase()}`">
+          :data-cy="`mapTools:${tool.id}`">
           <!-- Active and inactive tool icons -->
           <svg
             v-if="tool.isActive"
