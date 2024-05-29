@@ -45,8 +45,10 @@ class ManualListSortService extends CoreService
 
             $this->manualListSortRepository->persistEntities($newManualListSort);
 
-            $this->getEntityManager()->persist($newManualListSort);
-            $this->getEntityManager()->flush();
+            $this->manualListSortRepository->persistEntities([$newManualListSort]);
+            $this->manualListSortRepository->flushEverything();
+
+
         } catch (Exception $e) {
             $this->logger->warning('Copy Manual List Sort failed. Message: ', [$e]);
             throw $e;
@@ -91,13 +93,8 @@ class ManualListSortService extends CoreService
                 }
             }
 
-            return $newProcedureMlsIdents;
         }
+        return $newProcedureMlsIdents;
 
-        // $commonNews = array_intersect(array_column($sortSourceNews, 'id'), array_column($newProcedureNews, 'id'));
-
-        $x = 1;
-
-        return [];
     }
 }

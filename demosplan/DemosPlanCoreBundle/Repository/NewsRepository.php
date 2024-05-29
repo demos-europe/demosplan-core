@@ -84,9 +84,10 @@ class NewsRepository extends CoreRepository implements ArrayInterface
                 'procedure:'.$sourceProcedureId
             );
 
-            $sourceProcedureNews = array_reverse($sourceProcedureNews['result'], true);
+            //$sourceProcedureNews = array_reverse($sourceProcedureNews['result'],true);
 
-            foreach ($sourceProcedureNews as $procedureNews) {
+            foreach ($sourceProcedureNews['result'] as $procedureNews)
+            {
                 $news = new News();
                 $news->setIdent(null);
                 $news->setpId($newProcedureId);
@@ -105,9 +106,11 @@ class NewsRepository extends CoreRepository implements ArrayInterface
                 $news->setModifyDate(null);
 
                 $this->getEntityManager()->persist($news);
-
-                $this->getEntityManager()->flush();
             }
+
+            $this->getEntityManager()->flush();
+
+
         } catch (Exception $e) {
             $this->logger->warning('Copy news failed. Message: ', [$e]);
             throw $e;
