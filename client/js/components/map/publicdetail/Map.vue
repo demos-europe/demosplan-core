@@ -1544,20 +1544,25 @@ export default {
       const layerArray = Array.isArray(layer.attributes.layers) ? layer.attributes.layers : layer.attributes.layers.split(',')
       const url = this.addGetCapabilityParamToUrl(layer.attributes.url)
 
-      return $.ajax({
-        dataType: 'xml',
-        url: url || '',
-        async: false,
-        success: response => {
-          const result = this.parser.read(response)
-          const options = optionsFromCapabilities(result, {
-            layer: layerArray[0] || '',
-            matrixSet: layer.attributes.tileMatrixSet
-          })
+      let xml
 
-          return new WMTS({ ...options, layers: layerArray })
-        }
+      const xhr = new XMLHttpRequest()
+      xhr.open('GET', url, false)
+      xhr.send(null)
+
+      if (xhr.status === 200) {
+        xml = xhr.responseXML
+      } else {
+        throw new Error(`Error fetching WMTS source: ${xhr.statusText}`)
+      }
+
+      const result = this.parser.read(xml)
+      const options = optionsFromCapabilities(result, {
+        layer: layerArray[0] || '',
+        matrixSet: layer.attributes.tileMatrixSet
       })
+
+      return new WMTS({ ...options, layers: layerArray })
     },
 
     getWMSSource (layer) {
