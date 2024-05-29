@@ -11,6 +11,7 @@
   <div>
     <div :class="prefixClass('c-map__group u-mt-0_5')">
       <button
+        data-cy="publicLayerListWrapper:mapLayerShowHide"
         @click="toggle"
         :class="[dimmed ? prefixClass('color--grey'): '', unfolded ? prefixClass('is-active'): '', prefixClass('btn--blank o-link--default u-pv-0_25 c-map__group-header c-map__group-item u-m-0')]">
         {{ Translator.trans('maplayer.show/hide') }}

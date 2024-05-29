@@ -21,6 +21,7 @@
       <button
         :class="prefixClass('btn--blank btn--focus w-3 text-left')"
         :aria-label="layer.attributes.name + ' ' + statusAriaText"
+        :data-cy="`publicLayerListLayer:${layerTitle.replace(/\s+/g, '-').toLowerCase()}`"
         @focus="toggleOpacityControl(true)"
         @click.prevent.stop="toggleFromSelf(true)"
         @keydown.tab.shift.exact="toggleOpacityControl(false)">
