@@ -179,7 +179,7 @@ export default {
       return Object.values(this.invitableToebItems).reduce((acc, item) => {
         const locationContactId = item.relationships.locationContacts.data[0].id
         const locationContact = this.getLocationContactById(locationContactId)
-        const hasNoEmail = item.attributes.participationFeedbackEmailAddress === null
+        const hasNoEmail = !item.attributes.participationFeedbackEmailAddress
 
         return [
           ...acc,
