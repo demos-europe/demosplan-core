@@ -47,8 +47,6 @@ class ManualListSortService extends CoreService
 
             $this->manualListSortRepository->persistEntities([$newManualListSort]);
             $this->manualListSortRepository->flushEverything();
-
-
         } catch (Exception $e) {
             $this->logger->warning('Copy Manual List Sort failed. Message: ', [$e]);
             throw $e;
@@ -92,9 +90,8 @@ class ManualListSortService extends CoreService
                     $newProcedureMlsIdents[$key] = $newNews['ident'];
                 }
             }
-
         }
-        return $newProcedureMlsIdents;
 
+        return $newProcedureMlsIdents;
     }
 }

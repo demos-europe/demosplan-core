@@ -2692,7 +2692,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         // copy gisCategories (incl. gis):
         $this->gisLayerCategoryRepository->copy($blueprintId, $newProcedure->getId());
 
-        //$this->newsRepository->copy2($blueprintId, $newProcedure->getId());
+        // $this->newsRepository->copy2($blueprintId, $newProcedure->getId());
 
         // copy news:
         $this->newsRepository->copy($blueprintId, $newProcedure->getId());
