@@ -56,17 +56,17 @@ class ManualListSortService extends CoreService
 
     private function getMlsIdents(string $sourceProcedureId, string $newProcedureId): array
     {
-//        $sourceMlsIdents = explode(',', (string) $sourceProcedureManualListSort[0]->getIdents());
-//
-//        $sourceNews = $this->newsRepository->findBy(['ident' => $sourceMlsIdents]);
-//
-//        $sourceNewsArray = [];
-//
-//        foreach ($sourceNews as $news) {
-//            $sourceNewsArray[] = $news->toArray();
-//        }
-//
-//        $sortSourceNewsArray = $this->arrayHelper->orderArrayByIds($sourceMlsIdents, $sourceNewsArray, 'ident');
+        //        $sourceMlsIdents = explode(',', (string) $sourceProcedureManualListSort[0]->getIdents());
+        //
+        //        $sourceNews = $this->newsRepository->findBy(['ident' => $sourceMlsIdents]);
+        //
+        //        $sourceNewsArray = [];
+        //
+        //        foreach ($sourceNews as $news) {
+        //            $sourceNewsArray[] = $news->toArray();
+        //        }
+        //
+        //        $sortSourceNewsArray = $this->arrayHelper->orderArrayByIds($sourceMlsIdents, $sourceNewsArray, 'ident');
 
         $sourceMlsIdents = $this->procedureNewsService->getProcedureNewsAdminList(
             $sourceProcedureId,
@@ -78,11 +78,11 @@ class ManualListSortService extends CoreService
         $newProcedureNewsArray = [];
         foreach ($newProcedureNews as $news) {
             $newProcedureNewsArray[] = $this->procedureNewsService->convertToLegacy($news);
-            //$newProcedureNewsArray[] = $news->toArray();
-            //$newProcedureNewsArray[] = $this->entityHelper->toArray($news);
+            // $newProcedureNewsArray[] = $news->toArray();
+            // $newProcedureNewsArray[] = $this->entityHelper->toArray($news);
         }
 
-//        $newProcedureNews = $this->procedureNewsService->getNewsList($newProcedureId, null);
+        //        $newProcedureNews = $this->procedureNewsService->getNewsList($newProcedureId, null);
 
         $newProcedureMlsIdents = [];
         foreach ($sourceMlsIdents['result'] as $key => $value) {
