@@ -14,11 +14,13 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Permission;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControlPermission;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Repository\AccessControlPermissionRepository;
+use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 
 /**
  * This file is part of the package demosplan.
@@ -34,6 +36,7 @@ class AccessControlPermissionService extends CoreService
     public function __construct(
         private readonly AccessControlPermissionRepository $accessControlPermissionRepository,
         private readonly RoleHandler $roleHandler,
+        private readonly GlobalConfig $globalConfig
     ) {
     }
 
@@ -117,8 +120,29 @@ class AccessControlPermissionService extends CoreService
         }
     }
 
+    /**
+     * Checks if the given permission is allowed for the organization type.
+     *
+     * Returns true if the permission is allowed for the organization type or if the permission is not 'CREATE_PROCEDURES_PERMISSION'.
+     * Returns false if the permission is 'CREATE_PROCEDURES_PERMISSION' and the organization type is not 'PLANNING_AGENCY'.
+     */
+    private function checkPermissionForOrgaType(string $permissionToCheck, OrgaInterface $orga): bool
+    {
+        if ($permissionToCheck === self::CREATE_PROCEDURES_PERMISSION) {
+            return in_array(OrgaTypeInterface::PLANNING_AGENCY, $orga->getTypes($this->globalConfig->getSubdomain(), true));
+        }
+
+        return true;
+    }
+
+
     public function hasPermission(string $permissionToCheck, ?OrgaInterface $orga = null, ?CustomerInterface $customer = null, ?array $roleCodes = null): bool
     {
+
+        if (null !== $orga && false === $this->checkPermissionForOrgaType($permissionToCheck, $orga )) {
+            return false;
+        }
+
         // Loop through each role
         $permissions = [];
 
