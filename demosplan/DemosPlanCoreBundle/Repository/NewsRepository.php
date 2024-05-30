@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use Carbon\Carbon;
 use demosplan\DemosPlanCoreBundle\Entity\ManualListSort;
 use demosplan\DemosPlanCoreBundle\Entity\News\News;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
@@ -76,7 +77,7 @@ class NewsRepository extends CoreRepository implements ArrayInterface
      *
      * @throws Exception
      */
-    public function copy2($sourceProcedureId, $newProcedureId)
+    public function copy($sourceProcedureId, $newProcedureId)
     {
         try {
             $sourceProcedureNews = $this->procedureNewsService->getProcedureNewsAdminList(
@@ -84,9 +85,10 @@ class NewsRepository extends CoreRepository implements ArrayInterface
                 'procedure:'.$sourceProcedureId
             );
 
-            // $sourceProcedureNews = array_reverse($sourceProcedureNews['result'],true);
+            $date = Carbon::now();
 
             foreach ($sourceProcedureNews['result'] as $procedureNews) {
+                $date->subSecond();
                 $news = new News();
                 $news->setIdent(null);
                 $news->setpId($newProcedureId);
@@ -100,46 +102,13 @@ class NewsRepository extends CoreRepository implements ArrayInterface
                 $news->setDeleted($procedureNews['deleted']);
                 $news->setPdftitle($procedureNews['pdftitle']);
                 $news->setRoles([]);
-                $news->setCreateDate(null);
-                $news->setDeleteDate(null);
-                $news->setModifyDate(null);
+                $news->setCreateDate($date);
 
                 $this->getEntityManager()->persist($news);
-            }
 
-            $this->getEntityManager()->flush();
-        } catch (Exception $e) {
-            $this->logger->warning('Copy news failed. Message: ', [$e]);
-            throw $e;
-        }
-    }
+                $news->setCreateDate($date);
 
-    /**
-     * Copy the non-generated values of all news of a specific procedure.
-     * Set the generated values to null, for regeneration.
-     *
-     * @param string $sourceProcedureId
-     * @param string $newProcedureId
-     *
-     * @throws Exception
-     */
-    public function copy($sourceProcedureId, $newProcedureId)
-    {
-        try {
-            /** @var News[] $news */
-            $news = $this->findBy(['pId' => $sourceProcedureId]);
-
-            if (0 < sizeof($news)) {
-                foreach ($news as $singleNews) {
-                    $newNews = clone $singleNews;
-                    $newNews->setIdent(null);
-                    $newNews->setPId($newProcedureId);
-                    $newNews->setCreateDate(null);
-                    $newNews->setDeleteDate(null);
-                    $newNews->setModifyDate(null);
-
-                    $this->getEntityManager()->persist($newNews);
-                }
+                $this->getEntityManager()->persist($news);
                 $this->getEntityManager()->flush();
             }
         } catch (Exception $e) {

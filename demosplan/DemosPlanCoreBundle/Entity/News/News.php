@@ -618,33 +618,4 @@ class News extends CoreEntity implements UuidEntityInterface, NewsInterface
 
         return $this;
     }
-
-    /**
-     * Wandle das Objekt in ein Array um.
-     *
-     * @return array
-     */
-    public function toArray()
-    {
-        return [
-            'ident'             		      => $this->ident,
-            'pId'           			         => $this->pId,
-            'title' 				                => $this->title,
-            'description'       		      => $this->description,
-            'text'             			      => $this->text,
-            'picture'         			       => $this->picture,
-            'pictitle'            		    => $this->pictitle,
-            'pdf'            			        => $this->pdf,
-            'pdftitle'              	   => $this->pdftitle,
-            'enabled'           		      => $this->enabled,
-            'deleted'       			         => $this->deleted,
-            'createdDate'             	 => $this->createDate,
-            'modifyDate'             	  => $this->modifyDate,
-            'deleteDate'              	 => $this->deleteDate,
-            'roles'               		    => $this->roles,
-            'designatedSwitchDate'      => $this->designatedSwitchDate,
-            'designatedState'           => $this->designatedState,
-            'determinedToSwitch'       	=> $this->determinedToSwitch,
-        ];
-    }
 }
