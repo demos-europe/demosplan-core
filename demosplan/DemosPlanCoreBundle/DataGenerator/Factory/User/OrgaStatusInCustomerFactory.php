@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
@@ -66,9 +74,9 @@ final class OrgaStatusInCustomerFactory extends ModelFactory
     {
         return [
             'customer' => CustomerFactory::new(),
-            'orga' => OrgaFactory::new(),
+            'orga'     => OrgaFactory::new(),
             'orgaType' => OrgaTypeFactory::new(),
-            'status' => OrgaStatusInCustomerInterface::STATUS_ACCEPTED
+            'status'   => OrgaStatusInCustomerInterface::STATUS_ACCEPTED,
         ];
     }
 
