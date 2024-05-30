@@ -12,22 +12,15 @@ declare(strict_types=1);
 
 namespace Tests\Project\AccessControlPermission\Unit;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\OrgaStatusInCustomerFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\OrgaTypeFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControlPermission;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
-use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlPermissionService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Tests\Base\UnitTestCase;
 use Zenstruck\Foundry\Proxy;
@@ -40,17 +33,11 @@ class AccessControlPermissionServiceTest extends UnitTestCase
     protected $sut;
     protected RoleHandler|Proxy|null $roleHandler;
 
-    protected GlobalConfig|Proxy|null $globalConfig;
-
     private Orga|Proxy|null $testOrga;
 
     private Role|Proxy|null $testRole;
 
     private Customer|Proxy|null $testCustomer;
-
-    private OrgaType|Proxy|null $testOrgaType;
-
-    private OrgaStatusInCustomer|Proxy|null $testOrgaStatusInCustomer;
 
     protected function setUp(): void
     {
@@ -60,37 +47,9 @@ class AccessControlPermissionServiceTest extends UnitTestCase
 
         $this->roleHandler = $this->getContainer()->get(RoleHandler::class);
 
-        $this->globalConfig = $this->getContainer()->get(GlobalConfig::class);
-
         $this->testRole = $this->roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY])[0];
-
-        $this->testOrgaType = OrgaTypeFactory::createOne();
-        $this->testOrgaType->setName(OrgaTypeInterface::PLANNING_AGENCY);
-        // $this->testOrgaType->setLabel(OrgaTypeInterface::PLANNING_AGENCY);
-        $this->testOrgaType->save();
-
         $this->testOrga = OrgaFactory::createOne();
-
         $this->testCustomer = CustomerFactory::createOne();
-        $this->testCustomer->setSubdomain($this->globalConfig->getSubdomain());
-        $this->testCustomer->save();
-
-        $this->testOrgaStatusInCustomer = OrgaStatusInCustomerFactory::createOne();
-
-        $this->testOrgaStatusInCustomer->setOrga($this->testOrga->object());
-        $this->testOrgaStatusInCustomer->save();
-
-        $this->testOrgaStatusInCustomer->setCustomer($this->testCustomer->object());
-        $this->testOrgaStatusInCustomer->save();
-
-        $this->testOrgaStatusInCustomer->setOrgaType($this->testOrgaType->object());
-        $this->testOrgaStatusInCustomer->save();
-
-        $this->testOrgaStatusInCustomer->setStatus(OrgaStatusInCustomerInterface::STATUS_ACCEPTED);
-        $this->testOrgaStatusInCustomer->save();
-
-        $this->testOrga->addStatusInCustomer($this->testOrgaStatusInCustomer->object());
-        $this->testOrga->save();
     }
 
     public function testCreatePermission(): void
@@ -113,7 +72,7 @@ class AccessControlPermissionServiceTest extends UnitTestCase
     public function testCreatePermissionForOrgaCustomer(): void
     {
         // Arrange
-        $permissionToCheck = AccessControlPermissionService::CREATE_PROCEDURES_PERMISSION;
+        $permissionToCheck = 'my_permission';
 
         // Act
         $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), null);
@@ -145,7 +104,7 @@ class AccessControlPermissionServiceTest extends UnitTestCase
     public function testCreatePermissionForOrgaRole(): void
     {
         // Arrange
-        $permissionToCheck = AccessControlPermissionService::CREATE_PROCEDURES_PERMISSION;
+        $permissionToCheck = 'my_permission';
         // Act
         $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), null, null);
 
@@ -166,7 +125,7 @@ class AccessControlPermissionServiceTest extends UnitTestCase
 
     public function testDuplicatePermissionCreationThrowsException(): void
     {
-        $permissionToCheck = AccessControlPermissionService::CREATE_PROCEDURES_PERMISSION;
+        $permissionToCheck = 'my_permission';
         $this->expectException(UniqueConstraintViolationException::class);
         $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
         $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
@@ -175,7 +134,8 @@ class AccessControlPermissionServiceTest extends UnitTestCase
     public function testGetPermissions(): void
     {
         // Arrange
-        $permissionToCheck = AccessControlPermissionService::CREATE_PROCEDURES_PERMISSION;
+        $permissionToCheckA = 'my_permission_a';
+        $permissionToCheckB = 'my_permission_b';
         $roleCodes = [RoleInterface::PRIVATE_PLANNING_AGENCY];
 
         // Act
@@ -185,20 +145,21 @@ class AccessControlPermissionServiceTest extends UnitTestCase
         $this->assertEmpty($permissions);
 
         // Arrange
-        $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
+        $this->sut->createPermission($permissionToCheckA, $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
+        $this->sut->createPermission($permissionToCheckB, $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
 
         // Act
         $permissions = $this->sut->getPermissions($this->testOrga->object(), $this->testCustomer->object(), [RoleInterface::PRIVATE_PLANNING_AGENCY]);
 
         // Assert
         $this->assertIsArray($permissions);
-        $this->assertCount(1, $permissions);
+        $this->assertCount(2, $permissions);
     }
 
     public function testHasPermission(): void
     {
         // Arrange
-        $permissionToCheck = AccessControlPermissionService::CREATE_PROCEDURES_PERMISSION;
+        $permissionToCheck = 'my_permission';
         $roleCodes = [RoleInterface::PRIVATE_PLANNING_AGENCY];
 
         // Act

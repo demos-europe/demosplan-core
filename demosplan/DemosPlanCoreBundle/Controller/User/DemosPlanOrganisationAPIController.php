@@ -366,23 +366,17 @@ class DemosPlanOrganisationAPIController extends APIController
                 $userHandler->setCanUpdateShowList(true);
             }
 
-            $updatedOrga = $userHandler->updateOrga($orgaId, $orgaDataArray);
-
             if ($permissions->hasPermission('feature_manage_procedure_creation_permission') && is_array($orgaDataArray['attributes'])
                 && array_key_exists('canCreateProcedures', $orgaDataArray['attributes'])) {
                 $role = $roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY])[0];
                 if (true === $orgaDataArray['attributes']['canCreateProcedures']) {
-                    $permissionGranted = $accessControlPermission->grantCanCreateProcedurePermission($preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
-                    if (!$permissionGranted) {
-                        $this->messageBag->add(
-                            'error',
-                            'error.organisation.permission.notgranted'
-                        );
-                    } else {
-                        $accessControlPermission->revokeCanCreateProcedurePermission($preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
-                    }
+                    $accessControlPermission->grantCanCreateProcedurePermission($preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
+                } else {
+                    $accessControlPermission->revokeCanCreateProcedurePermission($preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
                 }
             }
+
+            $updatedOrga = $userHandler->updateOrga($orgaId, $orgaDataArray);
 
             if ($updatedOrga instanceof Orga) {
                 $this->messageBag->add(
