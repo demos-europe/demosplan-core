@@ -176,9 +176,6 @@ class NewsRepository extends CoreRepository implements ArrayInterface
                 $identList = $news->getIdent().','.$identList;
                 $manualListSortRepos->addList($news->getPId(), $manualSortScope, $type, $identList);
             }
-            $this->getEntityManager()->persist($manualListSort);
-            $this->getEntityManager()->flush();
-
             $em->flush();
 
             return $news;

@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use demosplan\DemosPlanCoreBundle\Entity\ManualListSort;
+use demosplan\DemosPlanCoreBundle\Logic\News\ProcedureNewsService;
 use demosplan\DemosPlanCoreBundle\Repository\ManualListSortRepository;
 use demosplan\DemosPlanCoreBundle\Repository\NewsRepository;
 use Exception;
@@ -21,6 +22,8 @@ class ManualListSortService extends CoreService
         private readonly ManualListSortRepository $manualListSortRepository,
         private readonly NewsRepository $newsRepository,
         private readonly ArrayHelper $arrayHelper,
+        private readonly EntityHelper $entityHelper,
+        private readonly ProcedureNewsService $procedureNewsService
     ) {
     }
 
@@ -39,7 +42,7 @@ class ManualListSortService extends CoreService
             $newManualListSort->setPId($newProcedureId);
             $newManualListSort->setContext('procedure:'.$newProcedureId);
 
-            $mlsIdents = $this->getMlsIdents($sourceProcedureManualListSort, $newProcedureId);
+            $mlsIdents = $this->getMlsIdents($sourceProcedureId, $newProcedureId);
 
             $newManualListSort->setIdents(implode(',', $mlsIdents));
 
@@ -52,39 +55,49 @@ class ManualListSortService extends CoreService
         }
     }
 
-    private function getMlsIdents(array $sourceProcedureManualListSort, string $newProcedureId): array
+    private function getMlsIdents(string $sourceProcedureId, string $newProcedureId): array
     {
-        $sourceMlsIdents = explode(',', (string) $sourceProcedureManualListSort[0]->getIdents());
+//        $sourceMlsIdents = explode(',', (string) $sourceProcedureManualListSort[0]->getIdents());
+//
+//        $sourceNews = $this->newsRepository->findBy(['ident' => $sourceMlsIdents]);
+//
+//        $sourceNewsArray = [];
+//
+//        foreach ($sourceNews as $news) {
+//            $sourceNewsArray[] = $news->toArray();
+//        }
+//
+//        $sortSourceNewsArray = $this->arrayHelper->orderArrayByIds($sourceMlsIdents, $sourceNewsArray, 'ident');
 
-        $sourceNews = $this->newsRepository->findBy(['ident' => $sourceMlsIdents]);
-
-        $sourceNewsArray = [];
-
-        foreach ($sourceNews as $news) {
-            $sourceNewsArray[] = $news->toArray();
-        }
-
-        $sortSourceNewsArray = $this->arrayHelper->orderArrayByIds($sourceMlsIdents, $sourceNewsArray, 'ident');
+        $sourceMlsIdents = $this->procedureNewsService->getProcedureNewsAdminList(
+            $sourceProcedureId,
+            'procedure:'.$sourceProcedureId
+        );
 
         $newProcedureNews = $this->newsRepository->findBy(['pId' => $newProcedureId]);
 
+        $newProcedureNewsArray = [];
         foreach ($newProcedureNews as $news) {
-            $newProcedureNewsArray[] = $news->toArray();
+            $newProcedureNewsArray[] = $this->procedureNewsService->convertToLegacy($news);
+            //$newProcedureNewsArray[] = $news->toArray();
+            //$newProcedureNewsArray[] = $this->entityHelper->toArray($news);
         }
 
+//        $newProcedureNews = $this->procedureNewsService->getNewsList($newProcedureId, null);
+
         $newProcedureMlsIdents = [];
-        foreach ($sortSourceNewsArray as $key => $value) {
+        foreach ($sourceMlsIdents['result'] as $key => $value) {
             foreach ($newProcedureNewsArray as $newNews) {
-                if (
-                    $value['title'] === $newNews['title']
+                if ($value['title'] === $newNews['title']
                 && $value['description'] === $newNews['description']
                 && $value['text'] === $newNews['text']
-                && $value['title'] === $newNews['title']
+                && $value['picture'] === $newNews['picture']
                 && $value['pictitle'] === $newNews['pictitle']
                 && $value['pdf'] === $newNews['pdf']
                 && $value['pdftitle'] === $newNews['pdftitle']
                 && $value['enabled'] === $newNews['enabled']
                 && $value['deleted'] === $newNews['deleted']
+                && $value['roles'] === $newNews['roles']
                 ) {
                     $newProcedureMlsIdents[$key] = $newNews['ident'];
                 }
