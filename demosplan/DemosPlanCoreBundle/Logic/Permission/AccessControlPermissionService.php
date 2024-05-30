@@ -128,18 +128,16 @@ class AccessControlPermissionService extends CoreService
      */
     private function checkPermissionForOrgaType(string $permissionToCheck, OrgaInterface $orga): bool
     {
-        if ($permissionToCheck === self::CREATE_PROCEDURES_PERMISSION) {
+        if (self::CREATE_PROCEDURES_PERMISSION === $permissionToCheck) {
             return in_array(OrgaTypeInterface::PLANNING_AGENCY, $orga->getTypes($this->globalConfig->getSubdomain(), true));
         }
 
         return true;
     }
 
-
     public function hasPermission(string $permissionToCheck, ?OrgaInterface $orga = null, ?CustomerInterface $customer = null, ?array $roleCodes = null): bool
     {
-
-        if (null !== $orga && false === $this->checkPermissionForOrgaType($permissionToCheck, $orga )) {
+        if (null !== $orga && false === $this->checkPermissionForOrgaType($permissionToCheck, $orga)) {
             return false;
         }
 

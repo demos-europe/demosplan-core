@@ -65,7 +65,7 @@ class AccessControlPermissionServiceTest extends UnitTestCase
 
         $this->testOrgaType = OrgaTypeFactory::createOne();
         $this->testOrgaType->setName(OrgaTypeInterface::PLANNING_AGENCY);
-        //$this->testOrgaType->setLabel(OrgaTypeInterface::PLANNING_AGENCY);
+        // $this->testOrgaType->setLabel(OrgaTypeInterface::PLANNING_AGENCY);
         $this->testOrgaType->save();
 
         $this->testOrga = OrgaFactory::createOne();
@@ -75,8 +75,7 @@ class AccessControlPermissionServiceTest extends UnitTestCase
 
         $this->testOrgaStatusInCustomer = OrgaStatusInCustomerFactory::createOne();
 
-
-        $this->testOrgaStatusInCustomer->setOrga( $this->testOrga->object());
+        $this->testOrgaStatusInCustomer->setOrga($this->testOrga->object());
         $this->testOrgaStatusInCustomer->save();
 
         $this->testOrgaStatusInCustomer->setCustomer($this->testCustomer->object());
@@ -87,8 +86,6 @@ class AccessControlPermissionServiceTest extends UnitTestCase
 
         $this->testOrgaStatusInCustomer->setStatus(OrgaStatusInCustomerInterface::STATUS_ACCEPTED);
         $this->testOrgaStatusInCustomer->save();
-
-
 
         $this->testOrga->addStatusInCustomer($this->testOrgaStatusInCustomer->object());
         $this->testOrga->save();
@@ -230,7 +227,6 @@ class AccessControlPermissionServiceTest extends UnitTestCase
 
         $this->testOrgaStatusInCustomer->setOrgaType($this->testOrgaType->object());
         $this->testOrgaStatusInCustomer->save();
-
 
         // Act
         $hasPermission = $this->sut->hasPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), $roleCodes);
