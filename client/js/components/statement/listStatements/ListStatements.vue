@@ -8,22 +8,33 @@
 </license>
 
 <template>
-  <div>
-    <!-- Header -->
+  <div :class="{ 'top-0 left-0 flex flex-col w-full h-full fixed z-fixed bg-white': isFullscreen }">
     <dp-sticky-element
       border
-      class="u-pv-0_5 space-stack-s">
-      <div class="flex space-inline-xs">
-        <search-modal
-          :search-in-fields="searchFields"
-          @search="(term, selectedFields) => applySearch(term, selectedFields)"
-          ref="searchModal" />
+      class="pt-2 pb-3"
+      :class="{ 'fixed top-0 left-0 w-full px-2': isFullscreen }">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex">
+          <search-modal
+            :search-in-fields="searchFields"
+            @search="(term, selectedFields) => applySearch(term, selectedFields)"
+            ref="searchModal" />
+          <dp-button
+            class="ml-2"
+            variant="outline"
+            data-cy="listStatements:searchReset"
+            :href="Routing.generate('dplan_procedure_statement_list', { procedureId: procedureId })"
+            :disabled="searchValue === ''"
+            :text="Translator.trans('search.reset')" />
+        </div>
         <dp-button
-          class="ml-auto"
+          data-cy="editorFullscreen"
+          :icon="isFullscreen ? 'compress' : 'expand'"
+          icon-size="medium"
+          hide-text
           variant="outline"
-          :href="Routing.generate('dplan_procedure_statement_list', { procedureId: procedureId })"
-          :disabled="searchValue === ''"
-          :text="Translator.trans('search.reset')" />
+          :text="isFullscreen ? Translator.trans('editor.fullscreen.close') : Translator.trans('editor.fullscreen')"
+          @click="handleFullscreenMode()" />
       </div>
       <dp-bulk-edit-header
         class="layout__item u-12-of-12 u-mt-0_5"
@@ -35,33 +46,50 @@
           @click.prevent="handleBulkShare"
           :text="Translator.trans('procedure.share_statements.bulk.share')" />
       </dp-bulk-edit-header>
-      <div class="flex space-inline-xs">
-        <dp-flyout
-          ref="flyout"
-          :align="'left'">
-          <template v-slot:trigger>
-            {{ Translator.trans('export.verb') }}
-            <i
-              class="fa fa-angle-down"
-              aria-hidden="true" />
-          </template>
-          <a
-            href="#"
-            @click="showHintAndDoExport('dplan_statement_segments_export')">
-            {{ Translator.trans('export.statements.docx') }}
-          </a>
-          <a
-            href="#"
-            @click="showHintAndDoExport('dplan_statement_segments_export_packaged')">
-            {{ Translator.trans('export.statements.zip') }}
-          </a>
-          <a
-            v-if="hasPermission('feature_admin_assessmenttable_export_statement_generic_xlsx')"
-            :href="exportRoute('dplan_statement_xls_export')"
-            rel="noopener">
-            {{ Translator.trans('export.statements.xlsx') }}
-          </a>
-        </dp-flyout>
+      <dp-flyout
+        ref="flyout"
+        data-cy="listStatements:export"
+        :align="'left'">
+        <template v-slot:trigger>
+          {{ Translator.trans('export.verb') }}
+          <i
+            class="fa fa-angle-down"
+            aria-hidden="true" />
+        </template>
+        <a
+          data-cy="statementsExport:export.docx"
+          href="#"
+          @click="showHintAndDoExport('dplan_statement_segments_export')">
+          {{ Translator.trans('export.statements.docx') }}
+        </a>
+        <a
+          data-cy="statementsExport:export.zip"
+          href="#"
+          @click="showHintAndDoExport('dplan_statement_segments_export_packaged')">
+          {{ Translator.trans('export.statements.zip') }}
+        </a>
+        <a
+          v-if="hasPermission('feature_admin_assessmenttable_export_statement_generic_xlsx')"
+          :href="exportRoute('dplan_statement_xls_export')"
+          data-cy="statementsExport:export.xlsx"
+          rel="noopener">
+          {{ Translator.trans('export.statements.xlsx') }}
+        </a>
+      </dp-flyout>
+      <div
+        v-if="items.length > 0"
+        class="flex mt-2">
+        <dp-pager
+          v-if="pagination.currentPage"
+          :class="{ 'invisible': isLoading }"
+          :current-page="pagination.currentPage"
+          :total-pages="pagination.totalPages"
+          :total-items="pagination.total"
+          :per-page="pagination.perPage"
+          :limits="pagination.limits"
+          @page-change="getItemsByPage"
+          @size-change="handleSizeChange"
+          :key="`pager1_${pagination.currentPage}_${pagination.count}`" />
         <div class="ml-auto flex items-center space-inline-xs">
           <label class="u-mb-0">
             {{ Translator.trans('sorting') }}
@@ -74,11 +102,15 @@
       </div>
     </dp-sticky-element>
 
-    <dp-loading v-if="isLoading" />
+    <dp-loading
+      class="u-mt"
+      v-if="isLoading" />
 
-    <!-- Statement list -->
-    <template v-if="!isLoading && items.length > 0">
+    <template v-else>
       <dp-data-table
+        v-if="items.length > 0"
+        data-cy="listStatements"
+        :class="{ 'px-2 overflow-y-scroll grow': isFullscreen }"
         has-flyout
         :is-selectable="isSourceAndCoupledProcedure"
         :header-fields="headerFields"
@@ -145,9 +177,10 @@
             v-cleanhtml="text" />
         </template>
         <template v-slot:flyout="{ assignee, id, originalPdf, segmentsCount, synchronized }">
-          <dp-flyout>
+          <dp-flyout data-cy="listStatements:statementActionsMenu">
             <button
               v-if="hasPermission('area_statement_segmentation')"
+              data-cy="listStatements:statementSplit"
               :class="`${(segmentsCount > 0 && segmentsCount !== '-') ? 'is-disabled' : '' } btn--blank o-link--default`"
               :disabled="segmentsCount > 0 && segmentsCount !== '-'"
               @click.prevent="handleStatementSegmentation(id, assignee, segmentsCount)"
@@ -155,12 +188,14 @@
               {{ Translator.trans('split') }}
             </button>
             <a
+              data-cy="listStatements:statementDetailsAndRecommendation"
               :href="Routing.generate('dplan_statement_segments_list', { statementId: id, procedureId: procedureId })"
               rel="noopener">
               {{ Translator.trans('statement.details_and_recommendation') }}
             </a>
             <a
               v-if="hasPermission('feature_read_source_statement_via_api')"
+              data-cy="listStatements:originalPDF"
               :class="{'is-disabled': originalPdf === null}"
               :href="Routing.generate('core_file_procedure', { hash: originalPdf, procedureId: procedureId })"
               rel="noreferrer noopener"
@@ -168,6 +203,7 @@
               {{ Translator.trans('original.pdf') }}
             </a>
             <button
+              data-cy="listStatements:statementDelete"
               :class="`${ !synchronized || assignee.id === currentUserId ? 'hover:underline--hover' : 'is-disabled' } btn--blank o-link--default`"
               :disabled="synchronized || assignee.id !== currentUserId"
               type="button"
@@ -257,24 +293,12 @@
         </template>
       </dp-data-table>
 
-      <dp-pager
-        v-if="pagination.currentPage"
-        :class="{ 'invisible': isLoading }"
-        class="u-pt-0_5 text-right u-1-of-1"
-        :current-page="pagination.currentPage"
-        :total-pages="pagination.totalPages"
-        :total-items="pagination.total"
-        :per-page="pagination.perPage"
-        :limits="pagination.limits"
-        @page-change="getItemsByPage"
-        @size-change="handleSizeChange"
-        :key="`pager1_${pagination.currentPage}_${pagination.count}`" />
+      <dp-inline-notification
+        v-else
+        :class="{ 'mx-2': isFullscreen }"
+        :message="Translator.trans((this.searchValue === '' ? 'statements.none' : 'search.no.results'), {searchterm: this.searchValue})"
+        type="info" />
     </template>
-
-    <dp-inline-notification
-      v-else-if="!isLoading && items.length === 0"
-      :message="Translator.trans((this.searchValue === '' ? 'statements.none' : 'search.no.results'), {searchterm: this.searchValue})"
-      type="info" />
   </div>
 </template>
 
@@ -362,6 +386,7 @@ export default {
         limits: [10, 25, 50, 100],
         perPage: 10
       },
+      isFullscreen: false,
       headerFields: [
         { field: 'externId', label: Translator.trans('id') },
         { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'w-8' },
@@ -823,7 +848,7 @@ export default {
     },
 
     getStatementsFullText (statementId) {
-      return dpApi.get(Routing.generate('api_resource_get', { resourceType: 'Statement', resourceId: statementId }), { fields: { Statement: ['fullText'].join() } }, { serialize: true })
+      return dpApi.get(Routing.generate('api_resource_get', { resourceType: 'Statement', resourceId: statementId }), { fields: { Statement: ['fullText'].join() } })
         .then((response) => {
           const oldStatement = Object.values(this.statementsObject).find(el => el.id === statementId)
           const fullText = response.data.data.attributes.fullText
@@ -852,6 +877,15 @@ export default {
           .catch(e => {
             console.error(e)
           })
+      }
+    },
+
+    handleFullscreenMode () {
+      this.isFullscreen = !this.isFullscreen
+      if (this.isFullscreen) {
+        document.querySelector('html').setAttribute('style', 'overflow: hidden')
+      } else {
+        document.querySelector('html').removeAttribute('style')
       }
     },
 

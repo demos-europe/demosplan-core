@@ -94,7 +94,8 @@
             <div class="{{ 'u-mb-0_75'|prefixClass }}">
                 <dp-label
                     for="r_emailText"
-                    text="{{ 'email.body'|trans }}">
+                    text="{{ 'email.body'|trans }}"
+                    tooltip="{{ 'explanation.unregistered.publicagency.email'|trans }}">
                 </dp-label>
                 <dp-editor
                     id="r_emailText"
@@ -106,7 +107,7 @@
                         linkButton: true
                     }"
                     value="{{ templateVars.emailText|default }}">
-                    {% include '@DemosPlanCore/DemosPlanProcedure/includes/email_editor_boilerplates_modal.html.twig' %}
+                    {% include '@DemosPlanCore/DemosPlanProcedure/includes/email_editor_boilerplate_modal.html.twig' %}
                 </dp-editor>
             </div>
 

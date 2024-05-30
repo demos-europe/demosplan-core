@@ -241,10 +241,7 @@ const Filter = {
 
       return dpApi({
         method: 'GET',
-        responseType: 'json',
-        url: Routing.generate(route, {
-          procedureId: state.procedureId
-        })
+        url: Routing.generate(route, { procedureId: state.procedureId })
       })
         .then(this.api.checkResponse)
         .then(data => {
@@ -273,11 +270,7 @@ const Filter = {
 
       return dpApi({
         method: 'GET',
-        responseType: 'json',
-        url: Routing.generate(route, {
-          procedureId: state.procedureId,
-          filterHash: data.filterHash
-        })
+        url: Routing.generate(route, { procedureId: state.procedureId, filterHash: data.filterHash })
       })
         .then(this.api.checkResponse)
         .then(response => {
@@ -305,18 +298,20 @@ const Filter = {
     /**
      * Get UserFilterSets for current procedure
      */
-    getUserFilterSetsAction ({ commit, state }) {
-      return dpApi({
-        method: 'GET',
-        url: Routing.generate(
-          'api_resource_list',
-          { resourceType: 'UserFilterSet' }
-        )
-      }).then(this.api.checkResponse)
-        .then(data => {
-          commit('updateUserFilterSets', data)
-        }).catch(() => {
-          console.error('filter.saveFilterSet.load.error')
+    getUserFilterSetsAction ({ commit }) {
+      const url = Routing.generate('api_resource_list', { resourceType: 'UserFilterSet' })
+      const params = {
+        include: 'filterSet',
+        fields: {
+          UserFilterSet: ['filterSet', 'name'].join(),
+          FilterSet: ['hash', 'name'].join()
+        }
+      }
+      return dpApi.get(url, params)
+        .then(this.api.checkResponse)
+        .then(data => commit('updateUserFilterSets', data))
+        .catch((err) => {
+          console.error('filter.saveFilterSet.load.error', err)
         })
     },
 
@@ -328,7 +323,6 @@ const Filter = {
     removeUserFilterSetAction ({ commit, state }, userFilterSetId) {
       return dpApi({
         method: 'DELETE',
-        responseType: 'json',
         url: Routing.generate('dplan_api_procedure_delete_statement_filter', {
           procedureId: state.procedureId,
           filterSetId: userFilterSetId

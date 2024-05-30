@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
+use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use demosplan\DemosPlanCoreBundle\ValueObject\CellExportStyle;
 use demosplan\DemosPlanCoreBundle\ValueObject\ExportOrgaInfoHeader;
 use PhpOffice\PhpWord\Element\Row;
@@ -51,6 +52,7 @@ class SegmentsExporter
 
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
+        private readonly HTMLSanitizer $HTMLSanitizer,
         Slugify $slugify,
         TranslatorInterface $translator)
     {
@@ -76,16 +78,19 @@ class SegmentsExporter
         return IOFactory::createWriter($phpWord);
     }
 
-    public function addSimilarStatementSubmitters(Section $section, Statement $statement): void
+    protected function addSimilarStatementSubmitters(Section $section, Statement $statement): void
     {
-        $similarStatementSubmittersText = $this->translator->trans('segments.export.statement.similar.submitters', ['similarSubmitters' => $this->getSimilarStatementSubmitters($statement)]);
-        $section->addText(
-            $similarStatementSubmittersText,
-            $this->styles['globalFont'],
-            $this->styles['globalSection']
-        );
+        $similarStatementSubmitters = $this->getSimilarStatementSubmitters($statement);
+        if ('' !== $similarStatementSubmitters) {
+            $similarStatementSubmittersText = $this->translator->trans('segments.export.statement.similar.submitters', ['similarSubmitters' => $similarStatementSubmitters]);
+            $section->addText(
+                $similarStatementSubmittersText,
+                $this->styles['globalFont'],
+                $this->styles['globalSection']
+            );
 
-        $section->addTextBreak(2);
+            $section->addTextBreak(2);
+        }
     }
 
     protected function addHeader(Section $section, Procedure $procedure): void
@@ -105,7 +110,7 @@ class SegmentsExporter
         );
     }
 
-    public function getSimilarStatementSubmitters(Statement $statement): string
+    private function getSimilarStatementSubmitters(Statement $statement): string
     {
         $submitterStrings = [];
         foreach ($statement->getSimilarStatementSubmitters() as $submitter) {
@@ -276,7 +281,14 @@ class SegmentsExporter
 
     private function getHtmlValidText(string $text): string
     {
-        return str_replace('<br>', '<br/>', $text);
+        $text = str_replace('<br>', '<br/>', $text);
+
+        // strip all a tags without href
+        $pattern = '/<a\s+(?!.*?\bhref\s*=\s*([\'"])\S*\1)(.*?)>(.*?)<\/a>/i';
+        $text = preg_replace($pattern, '$3', $text);
+
+        // avoid problems in phpword parser
+        return $this->HTMLSanitizer->purify($text);
     }
 
     private function addSegmentCell(Row $row, string $text, CellExportStyle $cellExportStyle): void

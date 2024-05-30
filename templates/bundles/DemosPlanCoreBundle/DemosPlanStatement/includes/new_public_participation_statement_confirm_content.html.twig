@@ -37,7 +37,9 @@
     {% block user_data_hint %}
         <p>
             {% if projectType == 'gateway' %}
-                {{ "explanation.data.user.change"|trans({ href: gatewayURL, label: 'gateway'|trans })|wysiwyg }}
+                {% if not hasPermission('feature_show_notice_draft_statement') %}
+                    {{ "explanation.data.user.change"|trans({ href: gatewayURL, label: 'gateway'|trans })|wysiwyg }}
+                {% endif %}
             {% else %}
                 {{ "explanation.data.user.change.portal"|trans({ url: path('DemosPlan_user_portal'), label: 'profile'|trans })|wysiwyg }}
             {% endif %}

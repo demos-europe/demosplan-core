@@ -23,8 +23,8 @@ Diese Einladung zur Beteiligung wurde verschickt von:
 {% if templateVars.organisation.nameLegal is defined %}
 {{ templateVars.organisation.nameLegal }}
 {% endif %}
-{% if address.street is defined %}
-{{ address.street }}
+{% if address.street is defined %}{{ address.street }} {% if address.houseNumber is defined %}{{ address.houseNumber }}
+{% endif %}
 {% endif %}
 {% if address.postalcode is defined %}
 {{ address.postalcode }}

@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 use EDT\Querying\Contracts\PaginationException;
 use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\SortException;
+use EDT\Wrapping\Contracts\Types\TransferableTypeInterface;
 use EDT\Wrapping\WrapperFactories\WrapperObject;
 
 use function strlen;
@@ -56,5 +57,10 @@ class TwigableWrapperObject extends WrapperObject
         }
 
         return parent::__call($methodName, $arguments);
+    }
+
+    protected function createWrapper(object $entity, TransferableTypeInterface $type): WrapperObject
+    {
+        return new TwigableWrapperObject($entity, $type);
     }
 }

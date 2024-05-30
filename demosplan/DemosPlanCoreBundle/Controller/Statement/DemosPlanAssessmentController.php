@@ -22,8 +22,10 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
+use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\MunicipalityService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\PriorityAreaService;
@@ -155,6 +157,7 @@ class DemosPlanAssessmentController extends BaseController
         ServiceOutput $serviceOutput,
         StatementHandler $statementHandler,
         StatementService $statementService,
+        AssessmentHandler $assessmentHandler,
         string $procedureId
     ): ?Response {
         $rParams = $request->request->all();
@@ -189,11 +192,27 @@ class DemosPlanAssessmentController extends BaseController
                 if (null !== $headStatement) {
                     $statementHandler->addStatementToCluster($headStatement, $newStatement->getChildren()[0], true, true);
                 }
-
+                $filterSet = $assessmentHandler->handleFilterHash($request, $procedureId);
+                $routeName = $currentUser->getUser()->hasRole(Role::PROCEDURE_DATA_INPUT) ?
+                    'DemosPlan_statement_orga_list' : 'dplan_assessmenttable_view_table';
+                $routeParameters = 'DemosPlan_statement_orga_list' === $routeName ?
+                    [
+                        'procedureId' => $procedureId,
+                    ] :
+                    [
+                        'procedureId' => $procedureId,
+                        'filterHash'  => $filterSet->getHash(),
+                        '_fragment'   => $request->query->get('fragment', ''),
+                    ];
                 if ($newStatement instanceof Statement) {
-                    $this->getMessageBag()->add(
-                        'confirm', 'confirm.statement.new', ['externId' => $newStatement->getExternId()]
-                    );
+                    $this->getMessageBag()->addObject(LinkMessageSerializable::createLinkMessage(
+                        'confirm',
+                        'confirm.statement.new',
+                        ['externId' => $newStatement->getExternId()],
+                        $routeName,
+                        $routeParameters,
+                        $newStatement->getExternId()
+                    ));
 
                     return $this->redirectToRoute(
                         'DemosPlan_statement_new_submitted',
@@ -441,8 +460,6 @@ class DemosPlanAssessmentController extends BaseController
 
     /**
      * Save Filter params from Request to keep Filters between page loads e.g pager.
-     *
-     * @return mixed
      */
     protected function rememberFilters(Request $request)
     {
@@ -454,11 +471,6 @@ class DemosPlanAssessmentController extends BaseController
             $request->getSession()->set(
                 'fragmentListKeepPost',
                 $requestKeepPost
-            );
-        } else {
-            $requestPost = $request->getSession()->get(
-                'fragmentListKeepPost',
-                $requestPost
             );
         }
 

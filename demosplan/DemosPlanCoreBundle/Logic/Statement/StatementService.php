@@ -311,13 +311,13 @@ class StatementService extends CoreService implements StatementServiceInterface
         // Create and use versions of paragraph and SingleDocument
         if (\array_key_exists('paragraphId', $data) && 0 < \strlen((string) $data['paragraphId']) && '-' != $data['paragraphId']) {
             $data['paragraph'] = $this->paragraphService->createParagraphVersion(
-                $em->getReference(Paragraph::class, $data['paragraphId'])
+                $em->find(Paragraph::class, $data['paragraphId'])
             );
         }
 
         if (\array_key_exists('documentId', $data) && 0 < \strlen((string) $data['documentId'])) {
             $data['document'] = $this->singleDocumentService->createSingleDocumentVersion(
-                $em->getReference(SingleDocument::class, $data['documentId'])
+                $em->find(SingleDocument::class, $data['documentId'])
             );
         }
 
@@ -544,7 +544,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     public function submitDraftStatement(
         DraftStatement $draftStatement,
         $user,
-        NotificationReceiver $notificationReceiver = null,
+        ?NotificationReceiver $notificationReceiver = null,
         bool $gdprConsentReceived = false
     ) {
         try {
@@ -1737,6 +1737,13 @@ class StatementService extends CoreService implements StatementServiceInterface
             $newVote->setUser($user);
             $newVote->setFirstName($user->getFirstname());
             $newVote->setLastName($user->getLastname());
+            $fullName = $newVote->getFirstName().' '.$newVote->getLastName();
+            $newVote->setUserName($fullName);
+            $newVote->setUserCity($user->getCity());
+            $newVote->setDepartmentName($user->getDepartmentName());
+            $newVote->setOrganisationName($user->getOrgaName());
+            $newVote->setUserMail($user->getEmail());
+            $newVote->setUserPostcode($user->getPostalcode());
 
             $existingVotes = $statement->getVotes();
             $existingVotes->add($newVote);
@@ -1763,16 +1770,16 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @return StatementLike|false
      */
-    public function addLike($statementId, User $user = null)
+    public function addLike($statementId, ?User $user = null)
     {
         try {
             $em = $this->getDoctrine()->getManager();
 
             $data = [
-                'statement' => $em->getReference(Statement::class, $statementId),
+                'statement' => $em->find(Statement::class, $statementId),
             ];
             if ($user instanceof User) {
-                $data['user'] = $em->getReference(User::class, $user->getId());
+                $data['user'] = $em->find(User::class, $user->getId());
             }
 
             return $this->statementRepository->addLike($data);
@@ -1961,7 +1968,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             && 0 < \strlen((string) $data['paragraphId'])
             && $data['paragraphId'] != $currentStatement->getParagraphId()) {
             $data['paragraph'] = $this->paragraphService->createParagraphVersion(
-                $em->getReference(Paragraph::class, $data['paragraphId'])
+                $em->find(Paragraph::class, $data['paragraphId'])
             );
         }
 
@@ -1974,7 +1981,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             && 0 < \strlen((string) $data['documentId'])
             && $data['documentId'] != $currentStatement->getDocumentId()) {
             $data['document'] = $this->singleDocumentService->createSingleDocumentVersion(
-                $em->getReference(SingleDocument::class, $data['documentId'])
+                $em->find(SingleDocument::class, $data['documentId'])
             );
         }
 
@@ -2179,8 +2186,11 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @throws Exception
      */
-    public function createElementsGroupStructure(string $procedureId, array $statementsIds, array $fragmentIds): StatementEntityGroup
-    {
+    public function createElementsGroupStructure(
+        string $procedureId,
+        array $statementsIds,
+        array $fragmentIds
+    ): StatementEntityGroup {
         $statements = $this->getStatementsByIds($statementsIds);
         $fragments = $this->statementFragmentRepository->getFragmentsById($fragmentIds);
         $entities = \array_merge($statements, $fragments);
