@@ -227,7 +227,7 @@ class ProcedureNewsService extends CoreService implements ProcedureNewsServiceIn
      *
      * @return array|mixed
      */
-    public function convertToLegacy($singleNews)
+    protected function convertToLegacy($singleNews)
     {
         // returnValue, if newsId doesn't exist
         if (!$singleNews instanceof News) {
