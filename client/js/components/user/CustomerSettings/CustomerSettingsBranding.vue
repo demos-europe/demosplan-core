@@ -50,6 +50,7 @@
           style="max-width: 300px">
         <dp-button
           class="mt-2"
+          data-cy="customerBranding:deleteLogo"
           variant="outline"
           @click.prevent="deleteLogo"
           :text="Translator.trans('logo.delete')" />
