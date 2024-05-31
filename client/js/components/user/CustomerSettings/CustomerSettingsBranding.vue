@@ -24,6 +24,7 @@
           :hint="Translator.trans('explanation.upload.logo.dimensions')"
           for="r_customerLogo" />
         <dp-upload-files
+          ref="logoUpload"
           allowed-file-types="img"
           id="r_customerLogo"
           :basic-auth="dplan.settings.basicAuth"
@@ -47,15 +48,11 @@
           :src="Routing.generate('core_logo', { hash: branding.logoHash })"
           :alt="Translator.trans('logo.alt.customer')"
           style="max-width: 300px">
-        <dp-checkbox
-          id="r_logoDelete"
-          class="mb-1"
-          v-model="isLogoDeletable"
-          :label="{
-            bold: true,
-            text: Translator.trans('logo.delete')
-          }"
-          name="r_logoDelete" />
+        <dp-button
+          class="mt-2"
+          variant="outline"
+          @click.prevent="deleteLogo"
+          :text="Translator.trans('logo.delete')" />
       </div>
     </template>
     <div
@@ -81,15 +78,15 @@
 </template>
 
 <script>
-import { DpButtonRow, DpCheckbox, DpDetails, DpLabel, DpTextArea, DpUploadFiles } from '@demos-europe/demosplan-ui'
+import { DpButton, DpButtonRow, DpDetails, DpLabel, DpTextArea, DpUploadFiles } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 
 export default {
   name: 'CustomerSettingsBranding',
 
   components: {
+    DpButton,
     DpButtonRow,
-    DpCheckbox,
     DpDetails,
     DpLabel,
     DpTextArea,
@@ -110,7 +107,6 @@ export default {
 
   data () {
     return {
-      isLogoDeletable: false,
       isBusy: false,
       uploadedFileId: '',
     }
@@ -137,46 +133,66 @@ export default {
     }),
 
     setFile (file) {
-      this.branding.logoHash = file.hash
       this.updateFile({ id: file.fileId, attributes: { hash: file.hash }})
       this.uploadedFileId = file.fileId
     },
 
-    saveBrandingSettings () {
-      if (this.uploadedFileId || this.isLogoDeletable) {
-        this.isBusy = true
-        const payload = {
-          id: this.brandingId,
-          type: 'Branding',
-          attributes: {
-            ...this.brandingList[this.brandingId].attributes
-          },
-          relationships: {
-            logo: {
-              data: this.isLogoDeletable ? null : { id: this.uploadedFileId, type: 'file' }
-            }
+    deleteLogo () {
+      if (!dpconfirm(Translator.trans('check.item.delete'))) {
+        return false
+      }
+
+      const payload = {
+        id: this.brandingId,
+        type: 'Branding',
+        attributes: {
+          ...this.brandingList[this.brandingId].attributes
+        },
+        relationships: {
+          logo: {
+            data: null
           }
         }
-
-        if (this.isLogoDeletable) {
-          this.branding.logoHash = null
-        }
-
-        this.updateBranding(payload)
-        this.saveBranding(this.brandingId).then(() => {
-          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-          this.isBusy = false
-          this.isLogoDeletable = false
-        })
-      } else {
-        this.isBusy = false
-
-        return
       }
+      this.updateBranding(payload)
+      this.saveBranding(this.brandingId).then(() => {
+        dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+        this.branding.logoHash = null
+      })
     },
 
-    unsetFile (file) {
-      this.updateFile({ id: file.fileId, attributes: { hash: null }})
+    saveBrandingSettings () {
+      if (!this.uploadedFileId) {
+        this.isBusy = false
+        return
+      }
+
+      this.isBusy = true
+      const payload = {
+        id: this.brandingId,
+        type: 'Branding',
+        attributes: {
+          ...this.brandingList[this.brandingId].attributes
+        },
+        relationships: {
+          logo: {
+            data: { id: this.uploadedFileId, type: 'file' }
+          }
+        }
+      }
+
+      this.updateBranding(payload)
+      this.saveBranding(this.brandingId).then(() => {
+        dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+        this.isBusy = false
+        this.branding.logoHash = this.brandingList[this.brandingId].relationships?.logo?.data.id
+        this.unsetFile()
+        this.$refs.logoUpload.clearFilesList()
+      })
+    },
+
+    unsetFile () {
+      this.updateFile({ id: null, attributes: { hash: null }})
       this.uploadedFileId = null
     }
   }
