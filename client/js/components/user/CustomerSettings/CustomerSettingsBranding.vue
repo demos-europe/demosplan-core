@@ -133,11 +133,6 @@ export default {
       updateFile: 'setItem'
     }),
 
-    setFile (file) {
-      this.updateFile({ id: file.fileId, attributes: { hash: file.hash }})
-      this.uploadedFileId = file.fileId
-    },
-
     deleteLogo () {
       if (!dpconfirm(Translator.trans('check.item.delete'))) {
         return false
@@ -160,6 +155,11 @@ export default {
         dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
         this.branding.logoHash = null
       })
+    },
+
+    setFile (file) {
+      this.updateFile({ id: file.fileId, attributes: { hash: file.hash }})
+      this.uploadedFileId = file.fileId
     },
 
     saveBrandingSettings () {
