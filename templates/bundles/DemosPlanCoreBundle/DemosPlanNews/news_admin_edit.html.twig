@@ -367,7 +367,7 @@
         {% endif %}
 
         {{ uiComponent('button-row', {
-            primary: uiComponent('button', {type: 'submit'}),
+            primary: uiComponent('button', {type: 'submit', attributes: ['data-cy=saveNews']}),
             secondary: uiComponent('button', {color: 'secondary', href: cancelPath, attributes: ['data-cy=saveChangesMessage']})
         }) }}
     </form>
