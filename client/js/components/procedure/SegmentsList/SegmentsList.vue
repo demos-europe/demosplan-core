@@ -374,7 +374,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('Segmentfilter', {
+    ...mapGetters('SegmentFilter', {
       getFilterQuery: 'filterQuery'
     }),
 
@@ -468,7 +468,7 @@ export default {
       fetchPlaces: 'list'
     }),
 
-    ...mapMutations('Segmentfilter', ['updateFilterQuery']),
+    ...mapMutations('SegmentFilter', ['updateFilterQuery']),
 
     applyQuery (page) {
       lscache.remove(this.lsKey.allSegments)
