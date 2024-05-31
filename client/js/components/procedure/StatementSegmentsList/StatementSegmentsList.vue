@@ -311,7 +311,6 @@ export default {
 
     attachments () {
       if (this?.statement?.hasRelationship('attachments')) {
-        console.log('this.statement.relationships.attachments', this.statement.relationships.attachments)
         const attachments = this.statement.relationships.attachments.list()
 
         return Object.values(attachments).map(attachment => {
