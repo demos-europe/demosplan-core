@@ -51,9 +51,9 @@
         <dp-button
           class="mt-2"
           data-cy="customerBranding:deleteLogo"
+          :text="Translator.trans('logo.delete')"
           variant="outline"
-          @click.prevent="deleteLogo"
-          :text="Translator.trans('logo.delete')" />
+          @click.prevent="deleteLogo" />
       </div>
     </template>
     <div
