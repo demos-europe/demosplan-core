@@ -141,7 +141,6 @@ export default {
     },
 
     saveBrandingSettings () {
-
       if (!this.uploadedFileId) {
         this.isBusy = false
 
@@ -157,7 +156,7 @@ export default {
         },
         relationships: {
           logo: {
-            data: this.isLogoDeleted ? null : { id: this.uploadedFileId, type: 'file' }
+            data: this.isLogoDeleted ? null : { id: this.uploadedFileId, type: 'File' }
           }
         }
       }
