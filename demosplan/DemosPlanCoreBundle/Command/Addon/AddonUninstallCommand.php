@@ -19,9 +19,11 @@ use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\Addon\Composer\PackageInformation;
 use demosplan\DemosPlanCoreBundle\Addon\Registrator;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
 use RuntimeException;
+use SplFileInfo;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -141,12 +143,16 @@ class AddonUninstallCommand extends CoreCommand
         $filesystem = new Filesystem();
         // remove files in symlinked target if they exist
         $symlinkedPath = $filesystem->readlink($installPath, true);
-        if (null !== $symlinkedPath) {
-            // do not delete files in symlinked target if they are symlinked from somewhere else
-            $symlinkedDevPath = $filesystem->readlink($symlinkedPath, true);
-            if (null === $symlinkedDevPath) {
-                $filesystem->remove($symlinkedPath);
-            }
+        $pathInfo = new SplFileInfo($installPath);
+        $cachePath = DemosPlanPath::getRootPath(Registrator::ADDON_CACHE_DIRECTORY.$pathInfo->getBasename());
+        $symlinkedCachePath = $filesystem->readlink($cachePath, true);
+        // do not delete files in symlinked target if they are symlinked from somewhere else
+        if ((null !== $symlinkedPath) && null === $symlinkedCachePath) {
+            // addon is installed regularly, remove it entirely
+            $filesystem->remove($symlinkedPath);
+        } else {
+            // remove cache symlink to dev directory
+            unlink($cachePath);
         }
         $filesystem->remove($installPath);
         $output->info('Addon successfully deleted from cache directory.');
