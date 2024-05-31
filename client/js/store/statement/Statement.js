@@ -15,12 +15,12 @@ import { dpApi, handleResponseMessages, hasAnyPermissions, hasOwnProp } from '@d
  * @param data {Object}
  */
 function addTitleAttr (data) {
-  const hasElement = data.data.relationships?.elements && Object.keys(data.data.relationships.Elements.data).length
+  const hasElement = data.data.relationships?.elements && Object.keys(data.data.relationships.elements.data).length
   let titleAttrs = {}
 
   if (hasElement) {
     titleAttrs = {
-      elementId: data.data.relationships.Elements.data.id,
+      elementId: data.data.relationships.elements.data.id,
       elementTitle: ''
     }
   }
@@ -42,16 +42,16 @@ function addTitleAttr (data) {
  */
 function addIdAttr (dataToUpdate, data) {
   const idAttrs = {}
-  if (dataToUpdate.elementId && data.data.relationships.Paragraph.data === null) {
+  if (dataToUpdate.elementId && data.data.relationships.paragraph.data === null) {
     idAttrs.paragraphParentId = ''
   }
 
-  if (dataToUpdate.elementId && data.data.relationships.Document.data === null) {
+  if (dataToUpdate.elementId && data.data.relationships.document.data === null) {
     idAttrs.documentParentId = ''
   }
 
   //  If element was deleted, there is no field `deleted` in responseRelationships, so it has to be updated manually
-  if (data.data.relationships?.elements && data.data.relationships.Elements?.data === null) {
+  if (data.data.relationships?.elements && data.data.relationships.elements?.data === null) {
     idAttrs.elementId = ''
   }
 
@@ -143,7 +143,7 @@ function transformStatementStructure ({ el, includes, meta }) {
     const relationships = Object.keys(el.relationships)
 
     // Get the data for the relationships and put it into the statement-element
-    relationships.ForEach(relationKey => {
+    relationships.forEach(relationKey => {
       const relation = el.relationships[relationKey]
       // For 1-n Relations
       if (relation.data instanceof Array) {
@@ -162,7 +162,7 @@ function transformStatementStructure ({ el, includes, meta }) {
             if (hasOwnProp(attachment[0], 'relationships')) {
               const sourceAttachment = includes
                 .filter(incl => incl.type === 'File')
-                .filter(incl => attachment[0].relationships.File.data.id === incl.id)
+                .filter(incl => attachment[0].relationships.file.data.id === incl.id)
                 .map(sourceAtt => Object.assign(sourceAtt.attributes, { id: sourceAtt.id }))
 
               statement.sourceAttachment = sourceAttachment[0]
@@ -446,7 +446,7 @@ export default {
           dispatch('resetSelection') // The selected statements were deleted, so we can completely reset selection
 
           // delete all selected statements from store and sessionStorage because they are now in cluster
-          data.relationships.Statements.data.forEach(stn => dispatch('removeStatementAction', stn.id))
+          data.relationships.statements.data.forEach(stn => dispatch('removeStatementAction', stn.id))
 
           // Transform newCluster from BE from JSON:API structure into our old structure
           const transformedStatement = transformStatementStructure({ el: response.data, includes: response.included, meta: response.meta })
@@ -526,7 +526,7 @@ export default {
             number: data.pagination.current_page,
             size: data.pagination.count
           },
-          view_mode: rootState.assessmentTable.viewMode,
+          view_mode: rootState.AssessmentTable.viewMode,
           sort: data.sort,
           // Size: data.pagination.size,
           fields: {
@@ -921,7 +921,7 @@ export default {
           dispatch('resetSelection')
 
           // Delete all selected statements from store (except for the headStatement) because they are now in cluster
-          data.relationships.Statements.data.filter(stn => stn.id !== data.attributes.headStatementId).forEach(stn => dispatch('removeStatementAction', stn.id))
+          data.relationships.statements.data.filter(stn => stn.id !== data.attributes.headStatementId).forEach(stn => dispatch('removeStatementAction', stn.id))
 
           commit('updateStatement', { id: response.data.attributes.id, isCluster: true })
           return response

@@ -381,7 +381,7 @@ const SplitStatementStore = {
           commit('setProperty', { prop: 'tagTopics', val: tagTopics })
 
           const { uncategorizedTags, categorizedTags } = tags.data.reduce((acc, tag) => {
-            if (tag.relationships && tag.relationships.Topic) {
+            if (tag.relationships && tag.relationships.topic) {
               return { ...acc, categorizedTags: [...acc.categorizedTags, tag] }
             } else if (tag.relationships) {
               return { ...acc, uncategorizedTags: [...acc.uncategorizedTags, tag] }
@@ -542,7 +542,7 @@ const SplitStatementStore = {
     segmentById: (state) => (id) => state.segments.find((el) => el.id === id),
     tagById: (state) => (id) => state.availableTags.find((el) => el.id === id),
     tagTopics: (state) => state.tagTopics,
-    tagsByCategoryId: (state) => (categoryId) => state.categorizedTags.filter(tag => tag.relationships.Topic.data.id === categoryId),
+    tagsByCategoryId: (state) => (categoryId) => state.categorizedTags.filter(tag => tag.relationships.topic.data.id === categoryId),
     uncategorizedTagById: (state) => (id) => state.uncategorizedTags.find((el) => el.id === id),
     uncategorizedTags: (state) => state.uncategorizedTags
   }

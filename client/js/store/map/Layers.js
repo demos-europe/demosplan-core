@@ -110,11 +110,11 @@ const LayersStore = {
       }
 
       // Get index of data in relationships based on above switch
-      indexRelationships = relationships.FindIndex(elem => elem.id === element.id)
+      indexRelationships = relationships.findIndex(elem => elem.id === element.id)
 
       // Delete data
       included.splice(indexIncluded, 1)
-      relationships.Splice(indexRelationships, 1)
+      relationships.splice(indexRelationships, 1)
     },
 
     /**
@@ -156,8 +156,8 @@ const LayersStore = {
         })
 
         // Update the store-state
-        set(category.relationships.Categories, 'data', categories)
-        set(category.relationships.GisLayers, 'data', layers)
+        set(category.relationships.categories, 'data', categories)
+        set(category.relationships.gisLayers, 'data', layers)
       }
     },
 

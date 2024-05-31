@@ -40,8 +40,8 @@ const UserFormFields = {
           response.data.data.forEach(org => {
             const newOrg = { ...org.attributes, id: org.id, type: org.type }
 
-            if (org.relationships && org.relationships.Departments) {
-              const departments = org.relationships.Departments.data
+            if (org.relationships && org.relationships.departments) {
+              const departments = org.relationships.departments.data
               const orgaDepartments = {}
               departments.forEach(dep => {
                 orgaDepartments[dep.id] = inclDepartments[dep.id]
