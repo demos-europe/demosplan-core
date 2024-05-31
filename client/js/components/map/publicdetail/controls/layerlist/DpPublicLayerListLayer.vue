@@ -21,7 +21,7 @@
       <button
         :class="prefixClass('btn--blank btn--focus w-3 text-left')"
         :aria-label="layer.attributes.name + ' ' + statusAriaText"
-        :data-cy="`publicLayerListLayer:${layerTitle.replace(/\s+/g, '-').toLowerCase()}`"
+        :data-cy="dataCy"
         @focus="toggleOpacityControl(true)"
         @click.prevent.stop="toggleFromSelf(true)"
         @keydown.tab.shift.exact="toggleOpacityControl(false)">
@@ -69,6 +69,12 @@ export default {
   components: { DpContextualHelp },
 
   props: {
+    dataCy: {
+      type: String,
+      required: false,
+      default: 'publicLayerListLayer'
+    },
+
     layer: {
       type: Object,
       required: true
