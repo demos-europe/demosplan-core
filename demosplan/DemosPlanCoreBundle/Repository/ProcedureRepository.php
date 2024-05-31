@@ -133,7 +133,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
      *
      * @throws Exception
      */
-    public function getFullList(bool $master = null, bool $idsOnly = false): array
+    public function getFullList(?bool $master = null, bool $idsOnly = false): array
     {
         try {
             $em = $this->getEntityManager();
