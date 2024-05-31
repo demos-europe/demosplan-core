@@ -40,7 +40,7 @@ class AccessControlPermissionService extends CoreService
     ) {
     }
 
-    public function createPermission(string $permissionName, ?OrgaInterface $orga, ?CustomerInterface $customer, ?RoleInterface $role): AccessControlPermission
+    public function createPermission(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, RoleInterface $role): AccessControlPermission
     {
         $permission = new AccessControlPermission();
         $permission->setPermissionName($permissionName);
@@ -79,15 +79,15 @@ class AccessControlPermissionService extends CoreService
         $criteria = [];
 
         if (null !== $role) {
-            $criteria['role'] = [$role, null];
+            $criteria['role'] = [$role];
         }
 
         if (null !== $orga) {
-            $criteria['organisation'] = [$orga, null];
+            $criteria['organisation'] = [$orga];
         }
 
         if (null !== $customer) {
-            $criteria['customer'] = [$customer, null];
+            $criteria['customer'] = [$customer];
         }
 
         if (null !== $permissionName) {
@@ -100,6 +100,9 @@ class AccessControlPermissionService extends CoreService
         foreach ($permissions as $permissionObject) {
             $enabledPermissions[] = $permissionObject->getPermissionName();
         }
+
+        // Remove duplicates
+        $enabledPermissions = array_unique($enabledPermissions);
 
         return $enabledPermissions;
     }

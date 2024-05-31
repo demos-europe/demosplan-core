@@ -63,23 +63,23 @@ class AccessControlPermission extends CoreEntity implements UuidEntityInterface
     /**
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga")
      *
-     * @ORM\JoinColumn(name="orga_id", referencedColumnName="_o_id", nullable=true, onDelete="CASCADE")
+     * @ORM\JoinColumn(name="orga_id", referencedColumnName="_o_id", nullable=false, onDelete="CASCADE")
      */
-    protected ?OrgaInterface $organisation;
+    protected OrgaInterface $organisation;
 
     /**
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Role")
      *
-     * @ORM\JoinColumn(referencedColumnName="_r_id", nullable=true, onDelete="CASCADE")
+     * @ORM\JoinColumn(referencedColumnName="_r_id", nullable=false, onDelete="CASCADE")
      */
-    protected ?RoleInterface $role;
+    protected RoleInterface $role;
 
     /**
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
      *
-     * @ORM\JoinColumn(referencedColumnName="_c_id", nullable=true, onDelete="CASCADE")
+     * @ORM\JoinColumn(referencedColumnName="_c_id", nullable=false, onDelete="CASCADE")
      */
-    protected ?CustomerInterface $customer;
+    protected CustomerInterface $customer;
 
     public function getId(): string
     {

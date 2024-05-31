@@ -65,7 +65,6 @@ class AccessControlPermissionServiceTest extends UnitTestCase
 
         $this->testOrgaType = OrgaTypeFactory::createOne();
         $this->testOrgaType->setName(OrgaTypeInterface::PLANNING_AGENCY);
-        // $this->testOrgaType->setLabel(OrgaTypeInterface::PLANNING_AGENCY);
         $this->testOrgaType->save();
 
         $this->testOrga = OrgaFactory::createOne();
@@ -102,64 +101,6 @@ class AccessControlPermissionServiceTest extends UnitTestCase
         // Assert
         self::assertInstanceOf(AccessControlPermission::class, $accessControlPermission);
         self::assertEquals($permissionToCheck, $accessControlPermission->getPermissionName());
-    }
-
-    /**
-     * The purpose of this test is to ensure that when a permission is created with a null role,
-     * it is granted to all roles.
-     */
-    public function testCreatePermissionForOrgaCustomer(): void
-    {
-        // Arrange
-        $permissionToCheck = 'my_permission';
-
-        // Act
-        $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), null);
-        $permissions = $this->sut->getPermissions($this->testOrga->object(), $this->testCustomer->object(), [RoleInterface::PRIVATE_PLANNING_AGENCY]);
-
-        // Assert
-        $this->assertIsArray($permissions);
-        $this->assertCount(1, $permissions);
-
-        // Act
-        $permissions = $this->sut->getPermissions($this->testOrga->object(), $this->testCustomer->object(), [RoleInterface::GUEST]);
-
-        // Assert
-        $this->assertIsArray($permissions);
-        $this->assertCount(1, $permissions);
-
-        // Act
-        $permissions = $this->sut->getPermissions($this->testOrga->object(), $this->testCustomer->object(), [RoleInterface::GUEST]);
-
-        // Assert
-        $this->assertIsArray($permissions);
-        $this->assertCount(1, $permissions);
-    }
-
-    /**
-     * This tests the creation of a permission for a specific organization with a null role and null customer.
-     * It verifies that the permission is correctly created and can be retrieved for different roles on different customers.
-     */
-    public function testCreatePermissionForOrgaRole(): void
-    {
-        // Arrange
-        $permissionToCheck = 'my_permission';
-        // Act
-        $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), null, null);
-
-        // Act
-        $permissions = $this->sut->getPermissions($this->testOrga->object(), $this->testCustomer->object(), [RoleInterface::PRIVATE_PLANNING_AGENCY]);
-
-        // Assert
-        $this->assertIsArray($permissions);
-        $this->assertCount(1, $permissions);
-
-        // Act
-        $permissions = $this->sut->getPermissions($this->testOrga->object(), $this->testCustomer->object(), [RoleInterface::GUEST]);
-
-        // Assert
-        $this->assertIsArray($permissions);
-        $this->assertCount(1, $permissions);
     }
 
     public function testDuplicatePermissionCreationThrowsException(): void
