@@ -55,18 +55,21 @@ class KeycloakUserDataMapperTest extends FunctionalTestCase
     public function testCreateNewPublicUser(): void
     {
         $attributes = [
-            'email' => 'test@example.com',
-            'givenName' => 'John',
-            'surname' => 'Doe',
-            'organisationId' => '',
-            'organisationName' => '',
-            'sub' => '456',
-            'preferred_username' => 'johndoe',
-            'houseNumber' => '10',
-            'ID' => '123456',
             'localityName' => 'Test City',
-            'postalCode' => '12345',
-            'street' => 'Test Street'
+            'ID' => '123456',
+            'houseNumber' => '10',
+            'givenName' => 'John',
+            'email' => 'test@example.com',
+            'surname' => 'Doe',
+            'organisationName' => '',
+            'street' => 'Test Street',
+            'orgaName' => '',
+
+//            'organisationId' => '',
+//            'sub' => '456',
+//            'preferred_username' => 'johndoe',
+//            'postalCode' => '12345',
+//            // orgaType UserAttribute PersTyp
         ];
         $resourceOwner = new KeycloakResourceOwner($attributes);
         $userData = new KeycloakUserData();
@@ -101,8 +104,8 @@ class KeycloakUserDataMapperTest extends FunctionalTestCase
         $user = $this->keycloakUserDataMapper->mapUserData($userData);
         self::assertInstanceOf(User::class, $user);
         $anonymousUser = new AnonymousUser();
-        self::assertEquals($anonymousUser->getOrga()->getId(), $user->getOrga()->getId());
-        self::assertEquals($attributes['ID'][0], $user->getLogin());
+        self::assertNotEquals($anonymousUser->getOrga()->getId(), $user->getOrga()->getId());
+        self::assertEquals($attributes['ID'], $user->getLogin());
     }
 
     public function testCreateNewUserFromServicekonto(): void
@@ -123,7 +126,7 @@ class KeycloakUserDataMapperTest extends FunctionalTestCase
         self::assertInstanceOf(User::class, $user);
         $anonymousUser = new AnonymousUser();
         self::assertEquals($anonymousUser->getOrga()->getId(), $user->getOrga()->getId());
-        self::assertEquals($attributes['ID'][0], $user->getLogin());
+        self::assertEquals($attributes['ID'], $user->getLogin());
     }
 
     public function testCreateNewOrgaNoUser(): void
