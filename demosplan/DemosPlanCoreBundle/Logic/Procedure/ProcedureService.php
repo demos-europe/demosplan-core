@@ -14,6 +14,7 @@ use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostNewProcedureCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureDeletedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureUpdatedEventInterface;
@@ -72,6 +73,7 @@ use demosplan\DemosPlanCoreBundle\Repository\BoilerplateGroupRepository;
 use demosplan\DemosPlanCoreBundle\Repository\BoilerplateRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ElementsRepository;
 use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
+use demosplan\DemosPlanCoreBundle\Repository\FileRepository;
 use demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository;
 use demosplan\DemosPlanCoreBundle\Repository\InstitutionMailRepository;
 use demosplan\DemosPlanCoreBundle\Repository\NewsRepository;
@@ -164,6 +166,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     protected $fieldConfigurator;
 
     public function __construct(
+        private readonly FileRepository $fileRepository,
         private readonly BoilerplateCategoryRepository $boilerplateCategoryRepository,
         private readonly BoilerplateGroupRepository $boilerplateGroupRepository,
         private readonly BoilerplateRepository $boilerplateRepository,
@@ -2726,6 +2729,9 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         // copy NotificationReceiver (Email to counties T433)
         $this->notificationReceiverRepository->copy($blueprintId, $newProcedure->getId());
 
+        // copy procedure legend file.
+        $this->copyLegend($blueprintId, $newProcedure);
+
         // copy demosplan\DemosPlanCoreBundle\Entity\Setting.php: (not procedure.settings)
         $this->settingRepository->copy($blueprintId, $newProcedure);
 
@@ -2735,6 +2741,35 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         $additionalDataEvent = $this->eventDispatcher->dispatch(new NewProcedureAdditionalDataEvent($newProcedure));
 
         return $additionalDataEvent->getProcedure();
+    }
+
+    /**
+     * Will copy legend file and reference it to the created procedure.
+     *
+     * @throws Exception
+     */
+    private function copyLegend($blueprintId, ProcedureInterface $newProcedure): void
+    {
+        try {
+            $blueprint = $this->getProcedureWithCertainty($blueprintId);
+            $legendStringFromBlueprint = $blueprint->getSettings()->getPlanPDF();
+
+            if ('' === $legendStringFromBlueprint) {
+                return;
+            }
+
+            // copy legend
+            $copiedFile = $this->fileService->copyByFileString($legendStringFromBlueprint, $newProcedure->getId());
+
+            // set planPDF with the referenced legends file and update procedure setting
+            $newProcedurePlanPdf = $copiedFile->getFileString();
+            $newProcedureSettings = $newProcedure->getSettings();
+
+            $newProcedureSettings->setPlanPDF($newProcedurePlanPdf);
+        } catch (Exception $e) {
+            $this->logger->warning('Copy legends file failed. Message: ', [$e]);
+            throw $e;
+        }
     }
 
     private function copyPlaces(string $sourceProcedureTemplateId, Procedure $targetProcedure): void

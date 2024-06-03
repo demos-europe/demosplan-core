@@ -32,6 +32,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
@@ -158,13 +159,20 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_user_password_recover', path: '/password/recover', options: ['expose' => true])]
-    public function recoverPasswordAction(Request $request)
+    public function recoverPasswordAction(RateLimiterFactory $userRegisterLimiter, Request $request)
     {
         $requestPost = $request->request;
 
         if ($requestPost->has('email')) {
             $email = $requestPost->get('email');
             if (is_string($email)) {
+                // avoid brute force attacks
+                $limiter = $userRegisterLimiter->create($request->getClientIp());
+                if (false === $limiter->consume()->isAccepted()) {
+                    $this->messageBag->add('warning', 'warning.user.pass.reset.throttle');
+
+                    return $this->redirectToRoute('core_home');
+                }
                 $this->userHandler->recoverPasswordHandler($email);
             }
         }

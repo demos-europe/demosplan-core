@@ -10,6 +10,7 @@
 <template>
   <button
     class="o-link--default text-left btn--blank weight--bold block u-1-of-1"
+    data-cy="backToResultsList"
     type="button"
     @click="$emit('input', 'DpList')">
     {{ Translator.trans('back.to.results.list') }}
