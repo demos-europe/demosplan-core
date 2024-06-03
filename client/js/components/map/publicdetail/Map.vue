@@ -197,7 +197,7 @@ export default {
     },
 
     layers () {
-      return this.$store.getters['layers/gisLayerList']()
+      return this.$store.getters['Layers/gisLayerList']()
     },
 
     mapx () {
@@ -2035,7 +2035,7 @@ export default {
   },
 
   mounted () {
-    this.$store.dispatch('layers/get', this.procedureId).then(() => {
+    this.$store.dispatch('Layers/get', this.procedureId).then(() => {
       this.baseLayers = []
       this.overlayLayers = []
       this.progress = new Progress(document.getElementById('mapProgress'))
@@ -2052,7 +2052,7 @@ export default {
       this.addLayersToMap()
       this.doAllTheOtherExcitingStuff()
       this.addCustomZoomControls()
-      this.$store.commit('layers/setIsMapLoaded')
+      this.$store.commit('Layers/setIsMapLoaded')
 
       if (JSON.stringify(this.procedureInitialExtent) === JSON.stringify(this.procedureDefaultInitialExtent) && this.procedureSettings.coordinate !== '') {
         this.panToCoordinate(JSON.parse('[' + this.procedureSettings.coordinate + ']'))

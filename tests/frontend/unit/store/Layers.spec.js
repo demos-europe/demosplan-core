@@ -47,13 +47,13 @@ describe('Layers', () => {
 
   it('can store data', () => {
     expect(StubStore.state.layers.apiData).toEqual({})
-    StubStore.commit('layers/updateApiData', apiData)
+    StubStore.commit('Layers/updateApiData', apiData)
     expect(typeof StubStore.state.layers.apiData.data).toBe('object')
   })
 
   it('can store the original data to restore the loaded state which is a real clone of the data which gets manipulated', () => {
-    StubStore.commit('layers/updateApiData', apiData)
-    StubStore.commit('layers/saveOriginalState', JSON.parse(JSON.stringify(apiData)))
+    StubStore.commit('Layers/updateApiData', apiData)
+    StubStore.commit('Layers/saveOriginalState', JSON.parse(JSON.stringify(apiData)))
     expect(StubStore.state.layers.apiData).toEqual(StubStore.state.layers.originalApiData)
 
     StubStore.state.layers.apiData.data.id = 'xxx-xxx-xxx'

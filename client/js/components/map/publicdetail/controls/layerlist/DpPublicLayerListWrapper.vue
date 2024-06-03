@@ -68,11 +68,11 @@ export default {
     },
 
     overlayLayers () {
-      return this.$store.getters['layers/elementListForLayerSidebar'](null, 'overlay', true)
+      return this.$store.getters['Layers/elementListForLayerSidebar'](null, 'overlay', true)
     },
 
     baseLayers () {
-      return this.$store.getters['layers/elementListForLayerSidebar'](null, 'base', false)
+      return this.$store.getters['Layers/elementListForLayerSidebar'](null, 'base', false)
     },
 
     dimmed () {
