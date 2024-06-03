@@ -44,6 +44,7 @@
       :aria-label="Translator.trans('search')"
       class="c-search__icon btn--blank absolute"
       :class="{ 'hidden': !changed }"
+      data-cy="search:searchButton"
       type="button"
       @click="submit">
       <i

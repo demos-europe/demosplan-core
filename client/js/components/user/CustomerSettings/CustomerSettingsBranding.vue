@@ -153,7 +153,7 @@ export default {
           },
           relationships: {
             logo: {
-              data: this.isLogoDeletable ? null : { id: this.uploadedFileId, type: 'file' }
+              data: this.isLogoDeletable ? null : { id: this.uploadedFileId, type: 'File' }
             }
           }
         }

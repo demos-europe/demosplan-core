@@ -390,6 +390,7 @@
             type="reset"
             :disabled="isLoading"
             :class="prefixClass('btn btn--secondary u-1-of-1-palm')"
+            data-cy="statementModal:discardStatement"
             @click.prevent="() => reset()">
             {{ Translator.trans('discard.statement') }}
           </button>
