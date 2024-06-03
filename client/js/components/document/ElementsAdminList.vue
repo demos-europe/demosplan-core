@@ -232,7 +232,7 @@ export default {
      * Nodes can be of type "singleDocument" or "elements" [sic!]
      */
     isBranch ({ node }) {
-      return node.type === 'elements'
+      return node.type === 'Elements'
     },
 
     /**
@@ -293,7 +293,7 @@ export default {
      * elements, hereby keeping folders above files.
      */
     onMove ({ relatedContext }) {
-      return relatedContext.element.type !== 'singleDocument'
+      return relatedContext.element.type !== 'SingleDocument'
     },
 
     resetSelection () {
@@ -313,7 +313,7 @@ export default {
       // On the root level, treeData represents the children
       const children = parentId ? parentNode.children : this.treeData
       // Find the element that is directly following the moved element (only folders, no files)
-      const nextChild = children.filter(node => node.type === 'elements')[newIndex + 1]
+      const nextChild = children.filter(node => node.type === 'Elements')[newIndex + 1]
       // Either send the index of the element that is being "pushed down" or undefined (if the moved element is the last item)
       const index = nextChild ? nextChild.attributes.index : null
       this.canDrag = false
@@ -361,9 +361,9 @@ export default {
      */
     sortRecursive (tree, sortField) {
       tree.sort((a, b) => {
-        if (a.type !== 'singleDocument' && b.type === 'singleDocument') { return -1 }
-        if (a.type === 'singleDocument' && b.type !== 'singleDocument') { return 1 }
-        if (a.type === 'singleDocument' && b.type === 'singleDocument') {
+        if (a.type !== 'SingleDocument' && b.type === 'SingleDocument') { return -1 }
+        if (a.type === 'SingleDocument' && b.type !== 'SingleDocument') { return 1 }
+        if (a.type === 'SingleDocument' && b.type === 'SingleDocument') {
           return a.attributes.index - b.attributes.index
         }
         return a.attributes[sortField] - b.attributes[sortField]
