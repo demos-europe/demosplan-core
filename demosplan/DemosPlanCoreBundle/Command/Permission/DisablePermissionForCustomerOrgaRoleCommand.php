@@ -14,14 +14,17 @@ namespace demosplan\DemosPlanCoreBundle\Command\Permission;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -42,6 +45,7 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         ParameterBagInterface $parameterBag,
         private readonly CustomerService $customerService,
         private readonly OrgaRepository $orgaRepository,
+        private readonly RoleService $roleService,
         string $name = null
     ) {
         parent::__construct($parameterBag, $name);
@@ -100,6 +104,35 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
             }
         }
 
+
+
+        // Fetch roles from the database
+        $roles = $this->getRolesFromDatabase();
+
+        // Prepare choices for the question
+        $choices = [];
+        foreach ($roles as $role) {
+            $choices[] = $role->getName();
+        }
+
+        // Loop for role
+        while (true) {
+            // Ask the user to select a role
+            $question = new ChoiceQuestion('Please select a role', $choices);
+            $roleChoice = $helper->ask($input, $output, $question);
+
+            // Ask the user to confirm the selected role
+            $confirmationQuestion = new ConfirmationQuestion('You have selected: ' . $roleChoice . '. Is this correct? (yes/no) ', false);
+
+            if (!$helper->ask($input, $output, $confirmationQuestion)) {
+                $output->writeln('Please select the role again.');
+                continue;
+            }
+
+            $output->writeln('You have confirmed: ' . $roleChoice);
+            break;
+        }
+
         return Command::SUCCESS;
     }
 
@@ -115,6 +148,13 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
     private function getOrgaFromDatabase($orgaId): ?OrgaInterface
     {
         return $this->orgaRepository->get($orgaId);
+    }
+
+    private function getRolesFromDatabase(): array
+    {
+        // Replace this with your actual database query
+        // This is just a placeholder
+        return $this->roleService->getRoles();
     }
 
 }
