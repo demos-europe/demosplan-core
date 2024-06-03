@@ -13,9 +13,12 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Command\Permission;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -38,6 +41,7 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
     public function __construct(
         ParameterBagInterface $parameterBag,
         private readonly CustomerService $customerService,
+        private readonly OrgaRepository $orgaRepository,
         string $name = null
     ) {
         parent::__construct($parameterBag, $name);
@@ -71,7 +75,30 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
             }
         }
 
-        // Continue with your logic here...
+        // Loop for organization
+        while (true) {
+            // Ask the user to enter an organization ID
+            $question = new Question('Please enter an organization ID: ');
+            $orgaId = $helper->ask($input, $output, $question);
+
+            // Fetch the organization from the database
+            $orga = $this->getOrgaFromDatabase($orgaId);
+
+            if (null !== $orga) {
+                // Ask the user to confirm the selected organization
+                $confirmationQuestion = new ConfirmationQuestion('You have selected: ' . $orga->getName() . '. Is this correct? (yes/no) ', false);
+
+                if (!$helper->ask($input, $output, $confirmationQuestion)) {
+                    $output->writeln('Please enter the organization ID again.');
+                    continue;
+                }
+
+                $output->writeln('You have confirmed: ' . $orga->getName());
+                break;
+            } else {
+                $output->writeln('No organization found with the provided ID. Please try again.');
+            }
+        }
 
         return Command::SUCCESS;
     }
@@ -83,6 +110,11 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         } catch (CustomerNotFoundException $e) {
             return null;
         }
+    }
+
+    private function getOrgaFromDatabase($orgaId): ?OrgaInterface
+    {
+        return $this->orgaRepository->get($orgaId);
     }
 
 }
