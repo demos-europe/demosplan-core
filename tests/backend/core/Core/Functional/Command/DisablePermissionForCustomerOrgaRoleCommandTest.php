@@ -16,8 +16,6 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Application\ConsoleApplication;
-use demosplan\DemosPlanCoreBundle\Command\Data\DeleteOrgaCommand;
-use demosplan\DemosPlanCoreBundle\Command\Data\DeleteProcedureCommand;
 use demosplan\DemosPlanCoreBundle\Command\Permission\DisablePermissionForCustomerOrgaRoleCommand;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
@@ -28,15 +26,12 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
-use demosplan\DemosPlanCoreBundle\Logic\Orga\OrgaDeleter;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlPermissionService;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeleter;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Tests\Base\FunctionalTestCase;
@@ -44,8 +39,6 @@ use Zenstruck\Foundry\Proxy;
 
 class DisablePermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
 {
-
-
     protected $customerService;
 
     protected $orgaRepository;
@@ -57,8 +50,6 @@ class DisablePermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
     protected $accessControlPermissionService;
 
     protected RoleHandler|Proxy|null $roleHandler;
-
-
 
     private Orga|Proxy|null $testOrga;
 
@@ -107,15 +98,12 @@ class DisablePermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
 
         $this->testOrga->addStatusInCustomer($this->testOrgaStatusInCustomer->object());
         $this->testOrga->save();
-
     }
-
 
     public function testExecute(): CommandTester
     {
         $kernel = self::bootKernel();
         $application = new ConsoleApplication($kernel, false);
-
 
         $application->add(new DisablePermissionForCustomerOrgaRoleCommand(
             $this->createMock(ParameterBagInterface::class),
@@ -147,5 +135,4 @@ class DisablePermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
 
         return $commandTester;
     }
-
 }
