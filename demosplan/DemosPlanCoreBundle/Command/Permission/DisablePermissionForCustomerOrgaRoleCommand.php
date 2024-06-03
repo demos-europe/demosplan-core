@@ -185,7 +185,7 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
 
         $output->writeln('You have confirmed all the options.');
 
-        //$this->removePermission($permissionChoice, $orga, $customer, $role);
+        $this->enablePermissionForAllExceptOrga($permissionChoice, $orga, $customer, $role);
 
         // Continue with your logic here...
 
@@ -222,10 +222,23 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         return array_keys($reflection->getConstants());
     }
 
-    private function removePermission(mixed $permissionChoice, OrgaInterface $excludedOrga, CustomerInterface $customer, RoleInterface $role)
+    private function enablePermissionForAllExceptOrga(mixed $permissionChoice, OrgaInterface $excludedOrga, CustomerInterface $customer, RoleInterface $role)
     {
-       $this->accessControlPermissionService->enablePermissionForAllExceptOrga($permissionChoice, $customer, $excludedOrga, $role);
+        $constantValue = $this->getConstantValueByName($permissionChoice);
 
+       $this->accessControlPermissionService->enablePermissionForAllExceptOrga($constantValue, $customer, $excludedOrga, $role);
+
+    }
+
+    private function getConstantValueByName($constantName): string
+    {
+        $className = AccessControlPermissionService::class;
+        $constantFullName = $className . '::' . $constantName;
+        if (defined($constantFullName)) {
+            return constant($constantFullName);
+        } else {
+            throw new Exception("Constant {$constantFullName} does not exist");
+        }
     }
 
 }
