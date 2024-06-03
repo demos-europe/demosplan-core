@@ -162,7 +162,31 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
             break;
         }
 
+
+
+        // Display the selected options
+        $output->writeln('You have selected the following options:');
+        $output->writeln('Customer: ' . $customer->getName());
+        $output->writeln('Organization: ' . $orga->getName());
+        $output->writeln('Role: ' . $roleChoice);
+        $output->writeln('Permission: ' . $permissionChoice);
+
+        // Ask the user to confirm the selected options
+        $confirmationQuestion = new ConfirmationQuestion('Are these options correct? (yes/no) ', false);
+
+        if (!$helper->ask($input, $output, $confirmationQuestion)) {
+            $output->writeln('The command has ended.');
+            return Command::FAILURE;
+        }
+
+        $output->writeln('You have confirmed all the options.');
+
+        // Continue with your logic here...
+
         return Command::SUCCESS;
+
+
+
     }
 
     private function getCustomerFromDatabase($customerSubdomain): ?CustomerInterface
