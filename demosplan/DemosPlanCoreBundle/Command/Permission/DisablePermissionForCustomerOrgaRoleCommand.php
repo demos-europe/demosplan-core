@@ -19,7 +19,6 @@ use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlPermissionService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
-use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use Symfony\Component\Console\Command\Command;
