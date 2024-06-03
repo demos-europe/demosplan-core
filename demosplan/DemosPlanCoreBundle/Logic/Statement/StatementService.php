@@ -429,7 +429,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @param array<string,mixed> $data
      *
-     * @return statement|bool - Statement as array if successfully, otherwise false
+     * @return Statement|bool - Statement as array if successfully, otherwise false
      *
      * @deprecated use {@link StatementService::createOriginalStatement()} instead and handle exceptions properly
      */
@@ -1262,7 +1262,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     /**
      * Determines if one of the fields which only can be modified on a manual statement, should be updated.
      *
-     * @param statement|array $statement        - Statement as array or object
+     * @param Statement|array $statement        - Statement as array or object
      * @param Statement       $currentStatement - current unmodified statement object, to compare with incoming update data
      *
      * @return bool - true if one of the 'critical' fields should be updated, otherwise false
@@ -2563,7 +2563,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         $boolMustFilter = [
             $this->searchService->getElasticaTermsInstance('pId', [$procedureId]),
             $this->searchService->getElasticaTermsInstance('deleted', [false]),
-            ];
+        ];
 
         $boolMustNotFilter = [
             // exclude clustered Statements
