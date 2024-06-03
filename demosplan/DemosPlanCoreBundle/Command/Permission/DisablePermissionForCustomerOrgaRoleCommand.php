@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlPermissionService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
@@ -133,6 +134,34 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
             break;
         }
 
+
+        // Fetch permissions from the AccessControlPermissionService class
+        $permissions = $this->getPermissionsFromAccessControlPermissionService();
+
+        // Prepare choices for the question
+        $choices = [];
+        foreach ($permissions as $permission) {
+            $choices[] = $permission;
+        }
+
+        // Loop for permission
+        while (true) {
+            // Ask the user to select a permission
+            $question = new ChoiceQuestion('Please select a permission', $choices);
+            $permissionChoice = $helper->ask($input, $output, $question);
+
+            // Ask the user to confirm the selected permission
+            $confirmationQuestion = new ConfirmationQuestion('You have selected: ' . $permissionChoice . '. Is this correct? (yes/no) ', false);
+
+            if (!$helper->ask($input, $output, $confirmationQuestion)) {
+                $output->writeln('Please select the permission again.');
+                continue;
+            }
+
+            $output->writeln('You have confirmed: ' . $permissionChoice);
+            break;
+        }
+
         return Command::SUCCESS;
     }
 
@@ -155,6 +184,12 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         // Replace this with your actual database query
         // This is just a placeholder
         return $this->roleService->getRoles();
+    }
+
+    private function getPermissionsFromAccessControlPermissionService(): array
+    {
+        $reflection = new \ReflectionClass(AccessControlPermissionService::class);
+        return $reflection->getConstants();
     }
 
 }
