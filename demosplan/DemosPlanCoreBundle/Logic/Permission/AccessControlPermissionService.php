@@ -18,6 +18,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControlPermission;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Repository\AccessControlPermissionRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
@@ -36,6 +37,7 @@ class AccessControlPermissionService extends CoreService
     public function __construct(
         private readonly AccessControlPermissionRepository $accessControlPermissionRepository,
         private readonly RoleHandler $roleHandler,
+        private readonly OrgaService $orgaService,
         private readonly GlobalConfig $globalConfig
     ) {
     }
@@ -174,5 +176,19 @@ class AccessControlPermissionService extends CoreService
     public function revokeCanCreateProcedurePermission(?OrgaInterface $orga = null, ?CustomerInterface $customer = null, ?RoleInterface $role): void
     {
         $this->removePermission(self::CREATE_PROCEDURES_PERMISSION, $orga, $customer, $role);
+    }
+
+    public function enablePermissionForAllExceptOrga(string $permissionToEnable, CustomerInterface $customer, OrgaInterface $excludedOrga, RoleInterface $role): void
+    {
+        // Fetch all organizations and roles from the database
+        $orgas = $this->orgaService->getOrgasInCustomer($customer);
+
+        // Loop through each organization
+        foreach ($orgas as $orga) {
+            if (true === $this->checkPermissionForOrgaType($permissionToEnable, $orga) && $orga->getId() !== $excludedOrga->getId()) {
+                // Enable the permission
+                $this->createPermission($permissionToEnable, $orga, $customer, $role);
+            }
+        }
     }
 }

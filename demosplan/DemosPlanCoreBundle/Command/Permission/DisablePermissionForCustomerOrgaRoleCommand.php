@@ -47,6 +47,7 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         private readonly CustomerService $customerService,
         private readonly OrgaRepository $orgaRepository,
         private readonly RoleService $roleService,
+        private readonly AccessControlPermissionService $accessControlPermissionService,
         string $name = null
     ) {
         parent::__construct($parameterBag, $name);
@@ -113,7 +114,7 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         // Prepare choices for the question
         $choices = [];
         foreach ($roles as $role) {
-            $choices[] = $role->getName();
+            $choices[] = $role->getId() . ' - ' . $role->getName();
         }
 
         // Loop for role
@@ -121,9 +122,12 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
             // Ask the user to select a role
             $question = new ChoiceQuestion('Please select a role', $choices);
             $roleChoice = $helper->ask($input, $output, $question);
+            $parts = explode(' - ', $roleChoice);
+            $roleId = $parts[0];
 
+            $role = $this->roleService->getRole($roleId);
             // Ask the user to confirm the selected role
-            $confirmationQuestion = new ConfirmationQuestion('You have selected: ' . $roleChoice . '. Is this correct? (yes/no) ', false);
+            $confirmationQuestion = new ConfirmationQuestion('You have selected: ' . $role->getName() . '. Is this correct? (yes/no) ', false);
 
             if (!$helper->ask($input, $output, $confirmationQuestion)) {
                 $output->writeln('Please select the role again.');
@@ -168,7 +172,7 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         $output->writeln('You have selected the following options:');
         $output->writeln('Customer: ' . $customer->getName());
         $output->writeln('Organization: ' . $orga->getName());
-        $output->writeln('Role: ' . $roleChoice);
+        $output->writeln('Role: ' . $role->getName());
         $output->writeln('Permission: ' . $permissionChoice);
 
         // Ask the user to confirm the selected options
@@ -180,6 +184,8 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         }
 
         $output->writeln('You have confirmed all the options.');
+
+        //$this->removePermission($permissionChoice, $orga, $customer, $role);
 
         // Continue with your logic here...
 
@@ -213,7 +219,13 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
     private function getPermissionsFromAccessControlPermissionService(): array
     {
         $reflection = new \ReflectionClass(AccessControlPermissionService::class);
-        return $reflection->getConstants();
+        return array_keys($reflection->getConstants());
+    }
+
+    private function removePermission(mixed $permissionChoice, OrgaInterface $excludedOrga, CustomerInterface $customer, RoleInterface $role)
+    {
+       $this->accessControlPermissionService->enablePermissionForAllExceptOrga($permissionChoice, $customer, $excludedOrga, $role);
+
     }
 
 }
