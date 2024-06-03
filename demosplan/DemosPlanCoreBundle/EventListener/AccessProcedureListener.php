@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\EventListener;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use EFrane\TusBundle\Controller\TusController;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 
@@ -29,6 +30,12 @@ class AccessProcedureListener
     public function onKernelController(ControllerEvent $controllerEvent): void
     {
         if (null === $this->currentProcedureService->getProcedure()) {
+            return;
+        }
+
+        // file uploads itself should not be checked for procedure permissions
+        // permissions are checked during access
+        if ($controllerEvent->getController()[0] instanceof TusController) {
             return;
         }
 
