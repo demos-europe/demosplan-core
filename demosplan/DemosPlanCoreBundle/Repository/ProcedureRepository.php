@@ -133,7 +133,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
      *
      * @throws Exception
      */
-    public function getFullList(bool $master = null, bool $idsOnly = false): array
+    public function getFullList(?bool $master = null, bool $idsOnly = false): array
     {
         try {
             $em = $this->getEntityManager();
@@ -1189,8 +1189,9 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
 
             $query = $this->getEntityManager()
                 ->createQueryBuilder()
-                ->select('procedure')
+                ->select('procedure', 'customer')
                 ->from(Procedure::class, 'procedure')
+                ->leftJoin('procedure.customer', 'customer') // assumes the relationship is set up like this
                 ->where('procedure.deleted = 0')
                 ->andWhere('procedure.master = 0')
                 ->andWhere($endDate.' < :currentDate')
