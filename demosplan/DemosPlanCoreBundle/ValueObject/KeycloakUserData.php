@@ -65,14 +65,6 @@ class KeycloakUserData extends CommonUserData implements KeycloakUserDataInterfa
             $missingMandatoryValues[] = 'name';
         }
 
-        if ('' === $this->userId) {
-            $missingMandatoryValues[] = 'userId';
-        }
-
-        if ('' === $this->userName) {
-            $missingMandatoryValues[] = 'userName';
-        }
-
         if ([] !== $missingMandatoryValues) {
             throw new AuthenticationCredentialsNotFoundException(
                 implode(
