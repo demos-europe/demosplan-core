@@ -129,7 +129,7 @@ class AccessControlPermissionService extends CoreService
      * Returns true if the permission is allowed for the organization type or if the permission is not 'CREATE_PROCEDURES_PERMISSION'.
      * Returns false if the permission is 'CREATE_PROCEDURES_PERMISSION' and the organization type is not 'PLANNING_AGENCY'.
      */
-    private function checkPermissionForOrgaType(string $permissionToCheck, OrgaInterface $orga): bool
+    public function checkPermissionForOrgaType(string $permissionToCheck, OrgaInterface $orga): bool
     {
         if (self::CREATE_PROCEDURES_PERMISSION === $permissionToCheck) {
             return in_array(OrgaTypeInterface::PLANNING_AGENCY, $orga->getTypes($this->globalConfig->getSubdomain(), true));
@@ -140,10 +140,6 @@ class AccessControlPermissionService extends CoreService
 
     public function hasPermission(string $permissionToCheck, ?OrgaInterface $orga = null, ?CustomerInterface $customer = null, ?array $roleCodes = null): bool
     {
-        if (null !== $orga && false === $this->checkPermissionForOrgaType($permissionToCheck, $orga)) {
-            return false;
-        }
-
         // Loop through each role
         $permissions = [];
 
