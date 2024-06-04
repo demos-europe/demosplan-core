@@ -178,17 +178,29 @@ class AccessControlPermissionService extends CoreService
         $this->removePermission(self::CREATE_PROCEDURES_PERMISSION, $orga, $customer, $role);
     }
 
-    public function enablePermissionForAllExceptOrga(string $permissionToEnable, CustomerInterface $customer, OrgaInterface $excludedOrga, RoleInterface $role): void
+    public function enablePermissionForAllExceptOrga(string $permissionToEnable, CustomerInterface $customer, OrgaInterface $excludedOrga, RoleInterface $role, bool $dryRun = false): array
     {
         // Fetch all organizations and roles from the database
         $orgas = $this->orgaService->getOrgasInCustomer($customer);
+
+        $updatedOrgas = [];
 
         // Loop through each organization
         foreach ($orgas as $orga) {
             if (true === $this->checkPermissionForOrgaType($permissionToEnable, $orga) && $orga->getId() !== $excludedOrga->getId()) {
                 // Enable the permission
-                $this->createPermission($permissionToEnable, $orga, $customer, $role);
+
+                if (false === $dryRun) {
+                    $this->createPermission($permissionToEnable, $orga, $customer, $role);
+                }
+
+                // Save the impacted orga in the array
+                $updatedOrgas[] = $orga;
             }
         }
+
+
+        // Return the array of impacted orgas
+        return $updatedOrgas;
     }
 }

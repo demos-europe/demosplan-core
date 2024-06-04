@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use ReflectionClass;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
@@ -51,6 +52,17 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         ?string $name = null
     ) {
         parent::__construct($parameterBag, $name);
+    }
+
+    public function configure(): void
+    {
+
+        $this->addOption(
+            'dry-run',
+            '',
+            InputOption::VALUE_NONE,
+            'Initiates a dry run with verbose output to see what would happen.'
+        );
     }
 
 
@@ -115,7 +127,15 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
 
     $output->writeln('You have confirmed all the options.');
 
-    $this->enablePermissionForAllExceptOrga($permissionChoice, $orga, $customer, $role);
+    $dryRun = $input->getOption('dry-run');
+
+    $updatedOrgas = $this->enablePermissionForAllExceptOrga($permissionChoice, $orga, $customer, $role, $dryRun);
+
+    $output->writeln('Impacted orgas are:');
+    foreach ($updatedOrgas as $orga) {
+        $output->writeln('Orga ID: ' . $orga->getId());
+        $output->writeln('Orga Name: ' . $orga->getName());
+    }
 
     return Command::SUCCESS;
 
@@ -194,11 +214,11 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         return array_keys($reflection->getConstants());
     }
 
-    private function enablePermissionForAllExceptOrga(mixed $permissionChoice, OrgaInterface $excludedOrga, CustomerInterface $customer, RoleInterface $role) : void
+    private function enablePermissionForAllExceptOrga(mixed $permissionChoice, OrgaInterface $excludedOrga, CustomerInterface $customer, RoleInterface $role, bool $dryRun) : array
     {
         $constantValue = $this->getConstantValueByName($permissionChoice);
 
-        $this->accessControlPermissionService->enablePermissionForAllExceptOrga($constantValue, $customer, $excludedOrga, $role);
+        return $this->accessControlPermissionService->enablePermissionForAllExceptOrga($constantValue, $customer, $excludedOrga, $role, $dryRun);
     }
 
     private function getConstantValueByName($constantName): string
