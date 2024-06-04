@@ -47,7 +47,6 @@ export default {
 
   methods: {
     loadComponents () {
-      console.log('Loading addons for hook ' + this.hookName, window.dplan.loadedAddons)
       if (window.dplan.loadedAddons[this.hookName]) {
         return
       }
