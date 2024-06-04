@@ -12,7 +12,7 @@ import { initJsonApiPlugin, prepareModuleHashMap, StaticRouter } from '@efrane/v
 import notify from './Notify'
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { VuexApiRoutes } from './VuexApiRoutes'
+import { api1Routes, generateApiRoutes } from './VuexApiRoutes'
 
 function registerPresetModules (store, presetStoreModules) {
   if (Object.keys(presetStoreModules).length > 0) {
@@ -38,7 +38,7 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
   Vue.use(Vuex)
 
   const staticModules = { notify, ...storeModules }
-
+  const VuexApiRoutes = api1Routes.concat(generateApiRoutes(apiStoreModules))
   // This should probably be replaced with an adapter to our existing routes
   const router = new StaticRouter(VuexApiRoutes)
 
