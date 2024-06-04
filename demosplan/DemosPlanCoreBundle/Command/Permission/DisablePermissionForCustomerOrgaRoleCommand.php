@@ -52,7 +52,6 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         parent::__construct($parameterBag, $name);
     }
 
-
     public function execute(InputInterface $input, OutputInterface $output): int
     {
         $output = new SymfonyStyle($input, $output);
@@ -61,67 +60,63 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
             $input,
             $output,
             'Please enter a customer subdomain: ',
-            fn($answer) => $this->getCustomerFromDatabase($answer),
-            fn($result) => 'You have selected: '.$result->getSubdomain().$result->getName().'. Is this correct? (yes/no) '
+            fn ($answer) => $this->getCustomerFromDatabase($answer),
+            fn ($result) => 'You have selected: '.$result->getSubdomain().$result->getName().'. Is this correct? (yes/no) '
         );
 
         $orga = $this->askAndConfirm(
             $input,
             $output,
             'Please enter an organization ID: ',
-            fn($answer) => $this->getOrgaFromDatabase($answer),
-            fn($result) => 'You have selected: '.$result->getName().'. Is this correct? (yes/no) '
+            fn ($answer) => $this->getOrgaFromDatabase($answer),
+            fn ($result) => 'You have selected: '.$result->getName().'. Is this correct? (yes/no) '
         );
 
         $role = $this->askAndConfirm(
             $input,
             $output,
             'Please enter an Role ID: ',
-            fn($answer) => $this->getRolesFromDatabase($answer),
-            fn($result) => 'You have selected: '.$result->getName().'. Is this correct? (yes/no) '
-    );
+            fn ($answer) => $this->getRolesFromDatabase($answer),
+            fn ($result) => 'You have selected: '.$result->getName().'. Is this correct? (yes/no) '
+        );
 
-    // Fetch permissions from the AccessControlPermissionService class
-    $permissions = $this->getPermissionsFromAccessControlPermissionService();
+        // Fetch permissions from the AccessControlPermissionService class
+        $permissions = $this->getPermissionsFromAccessControlPermissionService();
 
-    // Prepare choices for the question
-    $choices = [];
-    foreach ($permissions as $permission) {
-        $choices[] = $permission;
+        // Prepare choices for the question
+        $choices = [];
+        foreach ($permissions as $permission) {
+            $choices[] = $permission;
+        }
+
+        $permissionChoice = $this->askAndConfirmPermission($input, $output);
+
+        // Display the selected options
+        $output->writeln('You have selected the following options:');
+        $output->writeln('Customer: '.$customer->getName());
+        $output->writeln('Organization: '.$orga->getName());
+        $output->writeln('Role: '.$role->getName());
+        $output->writeln('Permission: '.$permissionChoice);
+
+        // Ask the user to confirm the selected options
+        $confirmationQuestion = new ConfirmationQuestion('Are these options correct? (yes/no) ', false);
+
+        $helper = $this->getHelper('question');
+
+        if (!$helper->ask($input, $output, $confirmationQuestion)) {
+            $output->writeln('The command has ended.');
+
+            return Command::FAILURE;
+        }
+
+        $output->writeln('You have confirmed all the options.');
+
+        $this->enablePermissionForAllExceptOrga($permissionChoice, $orga, $customer, $role);
+
+        // Continue with your logic here...
+
+        return Command::SUCCESS;
     }
-
-
-
-    $permissionChoice = $this->askAndConfirmPermission($input, $output);
-
-    // Display the selected options
-    $output->writeln('You have selected the following options:');
-    $output->writeln('Customer: '.$customer->getName());
-    $output->writeln('Organization: '.$orga->getName());
-    $output->writeln('Role: '.$role->getName());
-    $output->writeln('Permission: '.$permissionChoice);
-
-    // Ask the user to confirm the selected options
-    $confirmationQuestion = new ConfirmationQuestion('Are these options correct? (yes/no) ', false);
-
-    $helper = $this->getHelper('question');
-
-    if (!$helper->ask($input, $output, $confirmationQuestion)) {
-        $output->writeln('The command has ended.');
-
-        return Command::FAILURE;
-    }
-
-    $output->writeln('You have confirmed all the options.');
-
-    $this->enablePermissionForAllExceptOrga($permissionChoice, $orga, $customer, $role);
-
-    // Continue with your logic here...
-
-    return Command::SUCCESS;
-
-    }
-
 
     private function askAndConfirm(InputInterface $input, OutputInterface $output, string $questionText, callable $fetch, callable $confirm): mixed
     {
@@ -140,7 +135,8 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
                     continue;
                 }
 
-                $output->writeln('You have confirmed: ' . $result->getName());
+                $output->writeln('You have confirmed: '.$result->getName());
+
                 return $result;
             } else {
                 $output->writeln('No valid input found. Please try again.');
@@ -148,7 +144,8 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         }
     }
 
-    private function askAndConfirmPermission(InputInterface $input, OutputInterface $output) {
+    private function askAndConfirmPermission(InputInterface $input, OutputInterface $output)
+    {
         $helper = $this->getHelper('question');
         // Fetch permissions from the AccessControlPermissionService class
         $permissions = $this->getPermissionsFromAccessControlPermissionService();
@@ -174,6 +171,7 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
             }
 
             $output->writeln('You have confirmed: '.$permissionChoice);
+
             return $permissionChoice;
         }
     }
