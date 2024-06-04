@@ -47,6 +47,10 @@ export default {
 
   methods: {
     loadComponents () {
+      if (window.dplan.loadedAddons[this.hookName]) {
+        return
+      }
+
       dpRpc('addons.assets.load', { hookName: this.hookName })
         .then(response => checkResponse(response))
         .then(response => {
@@ -80,6 +84,7 @@ export default {
           }
 
           this.$emit('addons:loaded', this.loadedAddons)
+          window.dplan.loadedAddons[this.hookName] = true
         })
     }
   },
