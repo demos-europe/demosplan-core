@@ -10,7 +10,7 @@
 /*
  * Hardcoded API 1.0 Routes
  */
-const api1Routes = [
+const api1_0Routes = [
   {
     module: 'report',
     action: 'list',
@@ -83,7 +83,7 @@ const api1Routes = [
   }
 ]
 
-const generateApiRoutes = (apiModules) => {
+const generateApi2_0Routes = (apiModules) => {
   const routes = []
 
   apiModules.forEach(typeName => {
@@ -130,4 +130,4 @@ const generateApiRoutes = (apiModules) => {
   return routes
 }
 
-export { api1Routes, generateApiRoutes }
+export { api1_0Routes, generateApi2_0Routes }
