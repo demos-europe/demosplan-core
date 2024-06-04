@@ -292,11 +292,11 @@ class DemosPlanOrganisationAPIController extends APIController
      */
     #[Route(path: '/api/1.0/organisation/', options: ['expose' => true], methods: ['POST'], name: 'organisation_create')]
     public function createOrgaAction(Request $request,
-                                     UserHandler $userHandler,
-                                     CustomerHandler $customerHandler,
-                                     PermissionsInterface $permissions,
-                                     AccessControlPermissionService $accessControlPermission,
-                                     RoleHandler $roleHandler)
+        UserHandler $userHandler,
+        CustomerHandler $customerHandler,
+        PermissionsInterface $permissions,
+        AccessControlPermissionService $accessControlPermission,
+        RoleHandler $roleHandler)
     {
         try {
             if (!($this->requestData instanceof TopLevel)) {
@@ -319,7 +319,7 @@ class DemosPlanOrganisationAPIController extends APIController
                 throw new InvalidArgumentException('Can\'t create orga since mandatory fields are missing.');
             }
 
-            //Add new permission in case it is present in the request
+            // Add new permission in case it is present in the request
 
             if ($permissions->hasPermission('feature_manage_procedure_creation_permission')
                 && array_key_exists('canCreateProcedures', $orgaDataArray)) {
@@ -328,7 +328,6 @@ class DemosPlanOrganisationAPIController extends APIController
                     $accessControlPermission->grantCanCreateProcedurePermission($newOrga, $customerHandler->getCurrentCustomer(), $role);
                 }
             }
-
 
             $item = $this->resourceService->makeItemOfResource($newOrga, OrgaResourceType::getName());
 
