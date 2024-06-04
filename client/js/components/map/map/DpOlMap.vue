@@ -105,6 +105,7 @@
       <!-- Map container -->
       <div
         ref="mapContainer"
+        data-cy="map:mapContainer"
         :class="[(isValid === false) ? 'border--error' : '', prefixClass('c-ol-map__canvas u-1-of-1 relative')]"
         id="map">
         <dp-loading

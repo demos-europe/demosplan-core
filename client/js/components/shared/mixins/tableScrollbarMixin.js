@@ -33,7 +33,7 @@ export default {
       const tableWidth = window.getComputedStyle(this.dataTableElement).width
       const tableContainerWidth = window.getComputedStyle(this.dataTableContainerElement).width
 
-      if (tableWidth > tableContainerWidth) {
+      if (parseFloat(tableWidth) > parseFloat(tableContainerWidth)) {
         this.scrollbar.classList.remove('hidden')
         this.scrollbar.firstChild.setAttribute('style', 'width:' + tableWidth + ';height:1px;')
       } else {
@@ -53,9 +53,12 @@ export default {
       }
 
       this.$nextTick(() => {
-        this.scrollbar = this.$refs.scrollBar
-        this.dataTableContainerElement = this.$refs.dataTable.$el
-        this.dataTableElement = this.$refs.dataTable.$refs.tableEl
+        this.scrollbar = this.$refs?.scrollBar
+        this.dataTableContainerElement = this.$refs?.dataTable?.$el
+        this.dataTableElement = this.$refs?.dataTable?.$refs?.tableEl
+        if (!this.dataTableContainerElement) {
+          return
+        }
 
         // Bind behaviour and position of the footer scrollbar to the scroll position of the dataTableContainerElement.
         this.scrollbar.addEventListener('scroll', () => {
@@ -69,6 +72,7 @@ export default {
         // Observe changes to dataTable to update scrollbar accordingly
         this.dataTableObserver = new ResizeObserver(this.updateScrollbarStyles.bind(this))
         this.dataTableObserver.observe(this.dataTableElement)
+        this.dataTableObserver.observe(this.dataTableContainerElement)
 
         // Set scrollbar width or conditionally hide it.
         this.updateScrollbarStyles()
