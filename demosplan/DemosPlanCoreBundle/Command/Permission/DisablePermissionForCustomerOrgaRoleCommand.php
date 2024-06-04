@@ -56,7 +56,6 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
 
     public function configure(): void
     {
-
         $this->addOption(
             'dry-run',
             '',
@@ -64,7 +63,6 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
             'Initiates a dry run with verbose output to see what would happen.'
         );
     }
-
 
     public function execute(InputInterface $input, OutputInterface $output): int
     {
@@ -74,8 +72,8 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
             $input,
             $output,
             'Please enter a customer subdomain: ',
-            fn($answer) => $this->getCustomerFromDatabase($answer),
-            fn($result) => 'You have selected: '.$result->getSubdomain().$result->getName().'. Is this correct? (yes/no) ',
+            fn ($answer) => $this->getCustomerFromDatabase($answer),
+            fn ($result) => 'You have selected: '.$result->getSubdomain().$result->getName().'. Is this correct? (yes/no) ',
             self::$SIMPLE_QUESTION
         );
 
@@ -83,8 +81,8 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
             $input,
             $output,
             'Please enter an organization ID: ',
-            fn($answer) => $this->getOrgaFromDatabase($answer),
-            fn($result) => 'You have selected: '.$result->getName().'. Is this correct? (yes/no) ',
+            fn ($answer) => $this->getOrgaFromDatabase($answer),
+            fn ($result) => 'You have selected: '.$result->getName().'. Is this correct? (yes/no) ',
             self::$SIMPLE_QUESTION
         );
 
@@ -92,8 +90,8 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
             $input,
             $output,
             'Please enter an Role ID: ',
-            fn($answer) => $this->getRolesFromDatabase($answer),
-            fn($result) => 'You have selected: '. $result->getName().'. Is this correct? (yes/no) ',
+            fn ($answer) => $this->getRolesFromDatabase($answer),
+            fn ($result) => 'You have selected: '.$result->getName().'. Is this correct? (yes/no) ',
             self::$SIMPLE_QUESTION
         );
 
@@ -101,51 +99,49 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
             $input,
             $output,
             'Please select a permission: ',
-            fn($answer) => $this->getConstant($answer),
-            fn($result) => 'You have selected: '. $result .'. Is this correct? (yes/no) ',
+            fn ($answer) => $this->getConstant($answer),
+            fn ($result) => 'You have selected: '.$result.'. Is this correct? (yes/no) ',
             self::$CHOICE_QUESTION,
             $this->getPermissions()
         );
 
-    // Display the selected options
-    $output->writeln('You have selected the following options:');
-    $output->writeln('Customer: '.$customer->getName());
-    $output->writeln('Organization: '.$orga->getName());
-    $output->writeln('Role: '.$role->getName());
-    $output->writeln('Permission: '.$permissionChoice);
+        // Display the selected options
+        $output->writeln('You have selected the following options:');
+        $output->writeln('Customer: '.$customer->getName());
+        $output->writeln('Organization: '.$orga->getName());
+        $output->writeln('Role: '.$role->getName());
+        $output->writeln('Permission: '.$permissionChoice);
 
-    // Ask the user to confirm the selected options
-    $confirmationQuestion = new ConfirmationQuestion('Are these options correct? (yes/no) ', false);
+        // Ask the user to confirm the selected options
+        $confirmationQuestion = new ConfirmationQuestion('Are these options correct? (yes/no) ', false);
 
-    $helper = $this->getHelper('question');
+        $helper = $this->getHelper('question');
 
-    if (!$helper->ask($input, $output, $confirmationQuestion)) {
-        $output->writeln('The command has ended.');
+        if (!$helper->ask($input, $output, $confirmationQuestion)) {
+            $output->writeln('The command has ended.');
 
-        return Command::FAILURE;
+            return Command::FAILURE;
+        }
+
+        $output->writeln('You have confirmed all the options.');
+
+        $dryRun = $input->getOption('dry-run');
+
+        $updatedOrgas = $this->enablePermissionForAllExceptOrga($permissionChoice, $orga, $customer, $role, $dryRun);
+
+        $output->writeln('Impacted orgas are:');
+        foreach ($updatedOrgas as $orga) {
+            $output->writeln('Orga ID: '.$orga->getId());
+            $output->writeln('Orga Name: '.$orga->getName());
+        }
+
+        return Command::SUCCESS;
     }
 
-    $output->writeln('You have confirmed all the options.');
-
-    $dryRun = $input->getOption('dry-run');
-
-    $updatedOrgas = $this->enablePermissionForAllExceptOrga($permissionChoice, $orga, $customer, $role, $dryRun);
-
-    $output->writeln('Impacted orgas are:');
-    foreach ($updatedOrgas as $orga) {
-        $output->writeln('Orga ID: ' . $orga->getId());
-        $output->writeln('Orga Name: ' . $orga->getName());
-    }
-
-    return Command::SUCCESS;
-
-    }
-
-    private function askAndConfirm(InputInterface $input, OutputInterface $output, string $questionText, callable $fetchEntityBasedOnInsertedId, callable $formatConfirmationMessage, string $questionType, array $choices = null): CustomerInterface | OrgaInterface | RoleInterface | string
+    private function askAndConfirm(InputInterface $input, OutputInterface $output, string $questionText, callable $fetchEntityBasedOnInsertedId, callable $formatConfirmationMessage, string $questionType, ?array $choices = null): CustomerInterface|OrgaInterface|RoleInterface|string
     {
         $helper = $this->getHelper('question');
         while (true) {
-
             if (self::$SIMPLE_QUESTION === $questionType) {
                 $question = new Question($questionText);
                 $answer = $helper->ask($input, $output, $question);
@@ -164,7 +160,7 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
                     continue;
                 }
 
-                //$output->writeln('You have confirmed: ' . $result->getName());
+                // $output->writeln('You have confirmed: ' . $result->getName());
                 return $result;
             } else {
                 $output->writeln('No valid input found. Please try again.');
@@ -172,7 +168,8 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         }
     }
 
-    private function getPermissions() : array {
+    private function getPermissions(): array
+    {
         // Fetch permissions from the AccessControlPermissionService class
         $permissions = $this->getPermissionsFromAccessControlPermissionService();
 
@@ -183,7 +180,6 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         }
 
         return $choices;
-
     }
 
     private function getCustomerFromDatabase($customerSubdomain): ?CustomerInterface
@@ -214,7 +210,7 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         return array_keys($reflection->getConstants());
     }
 
-    private function enablePermissionForAllExceptOrga(mixed $permissionChoice, OrgaInterface $excludedOrga, CustomerInterface $customer, RoleInterface $role, bool $dryRun) : array
+    private function enablePermissionForAllExceptOrga(mixed $permissionChoice, OrgaInterface $excludedOrga, CustomerInterface $customer, RoleInterface $role, bool $dryRun): array
     {
         $constantValue = $this->getConstantValueByName($permissionChoice);
 
@@ -231,16 +227,16 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
             throw new Exception("Constant {$constantFullName} does not exist");
         }
     }
-    private function getConstant(string $constantName) : ?string
+
+    private function getConstant(string $constantName): ?string
     {
         $reflection = new ReflectionClass(AccessControlPermissionService::class);
         $constants = $reflection->getConstants();
 
-        if( array_key_exists($constantName, $constants)) {
+        if (array_key_exists($constantName, $constants)) {
             return $constantName;
         }
 
         return null;
-
     }
 }

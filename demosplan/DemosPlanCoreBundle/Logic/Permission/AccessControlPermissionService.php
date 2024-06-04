@@ -199,7 +199,6 @@ class AccessControlPermissionService extends CoreService
             }
         }
 
-
         // Return the array of impacted orgas
         return $updatedOrgas;
     }
