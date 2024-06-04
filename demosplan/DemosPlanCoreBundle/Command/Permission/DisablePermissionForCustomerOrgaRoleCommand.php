@@ -53,6 +53,7 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         parent::__construct($parameterBag, $name);
     }
 
+
     public function execute(InputInterface $input, OutputInterface $output): int
     {
         $output = new SymfonyStyle($input, $output);
@@ -61,8 +62,8 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
             $input,
             $output,
             'Please enter a customer subdomain: ',
-            fn ($answer) => $this->getCustomerFromDatabase($answer),
-            fn ($result) => 'You have selected: '.$result->getSubdomain().$result->getName().'. Is this correct? (yes/no) ',
+            fn($answer) => $this->getCustomerFromDatabase($answer),
+            fn($result) => 'You have selected: '.$result->getSubdomain().$result->getName().'. Is this correct? (yes/no) ',
             self::$SIMPLE_QUESTION
         );
 
@@ -70,8 +71,8 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
             $input,
             $output,
             'Please enter an organization ID: ',
-            fn ($answer) => $this->getOrgaFromDatabase($answer),
-            fn ($result) => 'You have selected: '.$result->getName().'. Is this correct? (yes/no) ',
+            fn($answer) => $this->getOrgaFromDatabase($answer),
+            fn($result) => 'You have selected: '.$result->getName().'. Is this correct? (yes/no) ',
             self::$SIMPLE_QUESTION
         );
 
@@ -79,8 +80,8 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
             $input,
             $output,
             'Please enter an Role ID: ',
-            fn ($answer) => $this->getRolesFromDatabase($answer),
-            fn ($result) => 'You have selected: '.$result->getName().'. Is this correct? (yes/no) ',
+            fn($answer) => $this->getRolesFromDatabase($answer),
+            fn($result) => 'You have selected: '. $result->getName().'. Is this correct? (yes/no) ',
             self::$SIMPLE_QUESTION
         );
 
@@ -88,43 +89,43 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
             $input,
             $output,
             'Please select a permission: ',
-            fn ($answer) => $this->getConstant($answer),
-            fn ($result) => 'You have selected: '.$result.'. Is this correct? (yes/no) ',
+            fn($answer) => $this->getConstant($answer),
+            fn($result) => 'You have selected: '. $result .'. Is this correct? (yes/no) ',
             self::$CHOICE_QUESTION,
             $this->getPermissions()
         );
 
-        // $permissionChoice = $this->askAndConfirmPermission($input, $output);
+    // Display the selected options
+    $output->writeln('You have selected the following options:');
+    $output->writeln('Customer: '.$customer->getName());
+    $output->writeln('Organization: '.$orga->getName());
+    $output->writeln('Role: '.$role->getName());
+    $output->writeln('Permission: '.$permissionChoice);
 
-        // Display the selected options
-        $output->writeln('You have selected the following options:');
-        $output->writeln('Customer: '.$customer->getName());
-        $output->writeln('Organization: '.$orga->getName());
-        $output->writeln('Role: '.$role->getName());
-        $output->writeln('Permission: '.$permissionChoice);
+    // Ask the user to confirm the selected options
+    $confirmationQuestion = new ConfirmationQuestion('Are these options correct? (yes/no) ', false);
 
-        // Ask the user to confirm the selected options
-        $confirmationQuestion = new ConfirmationQuestion('Are these options correct? (yes/no) ', false);
+    $helper = $this->getHelper('question');
 
-        $helper = $this->getHelper('question');
+    if (!$helper->ask($input, $output, $confirmationQuestion)) {
+        $output->writeln('The command has ended.');
 
-        if (!$helper->ask($input, $output, $confirmationQuestion)) {
-            $output->writeln('The command has ended.');
-
-            return Command::FAILURE;
-        }
-
-        $output->writeln('You have confirmed all the options.');
-
-        $this->enablePermissionForAllExceptOrga($permissionChoice, $orga, $customer, $role);
-
-        return Command::SUCCESS;
+        return Command::FAILURE;
     }
 
-    private function askAndConfirm(InputInterface $input, OutputInterface $output, string $questionText, callable $fetchEntityBasedOnInsertedId, callable $formatConfirmationMessage, string $questionType, ?array $choices = null): mixed
+    $output->writeln('You have confirmed all the options.');
+
+    $this->enablePermissionForAllExceptOrga($permissionChoice, $orga, $customer, $role);
+
+    return Command::SUCCESS;
+
+    }
+
+    private function askAndConfirm(InputInterface $input, OutputInterface $output, string $questionText, callable $fetchEntityBasedOnInsertedId, callable $formatConfirmationMessage, string $questionType, array $choices = null): CustomerInterface | OrgaInterface | RoleInterface | string
     {
         $helper = $this->getHelper('question');
         while (true) {
+
             if (self::$SIMPLE_QUESTION === $questionType) {
                 $question = new Question($questionText);
                 $answer = $helper->ask($input, $output, $question);
@@ -143,7 +144,7 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
                     continue;
                 }
 
-                // $output->writeln('You have confirmed: ' . $result->getName());
+                //$output->writeln('You have confirmed: ' . $result->getName());
                 return $result;
             } else {
                 $output->writeln('No valid input found. Please try again.');
@@ -151,9 +152,7 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         }
     }
 
-    private function getPermissions(): array
-    {
-        $helper = $this->getHelper('question');
+    private function getPermissions() : array {
         // Fetch permissions from the AccessControlPermissionService class
         $permissions = $this->getPermissionsFromAccessControlPermissionService();
 
@@ -164,48 +163,7 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         }
 
         return $choices;
-    }
 
-    private function askUsingChoices(InputInterface $input, OutputInterface $output, $choices)
-    {
-        $helper = $this->getHelper('question');
-        // Ask the user to select a permission
-        $question = new ChoiceQuestion('Please select a permission', $choices);
-        $permissionChoice = $helper->ask($input, $output, $question);
-
-        return $permissionChoice;
-    }
-
-    private function askAndConfirmPermission(InputInterface $input, OutputInterface $output)
-    {
-        $helper = $this->getHelper('question');
-        // Fetch permissions from the AccessControlPermissionService class
-        $permissions = $this->getPermissionsFromAccessControlPermissionService();
-
-        // Prepare choices for the question
-        $choices = [];
-        foreach ($permissions as $permission) {
-            $choices[] = $permission;
-        }
-
-        // Loop for permission
-        while (true) {
-            // Ask the user to select a permission
-            $question = new ChoiceQuestion('Please select a permission', $choices);
-            $permissionChoice = $helper->ask($input, $output, $question);
-
-            // Ask the user to confirm the selected permission
-            $confirmationQuestion = new ConfirmationQuestion('You have selected: '.$permissionChoice.'. Is this correct? (yes/no) ', false);
-
-            if (!$helper->ask($input, $output, $confirmationQuestion)) {
-                $output->writeln('Please select the permission again.');
-                continue;
-            }
-
-            $output->writeln('You have confirmed: '.$permissionChoice);
-
-            return $permissionChoice;
-        }
     }
 
     private function getCustomerFromDatabase($customerSubdomain): ?CustomerInterface
@@ -236,7 +194,7 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         return array_keys($reflection->getConstants());
     }
 
-    private function enablePermissionForAllExceptOrga(mixed $permissionChoice, OrgaInterface $excludedOrga, CustomerInterface $customer, RoleInterface $role)
+    private function enablePermissionForAllExceptOrga(mixed $permissionChoice, OrgaInterface $excludedOrga, CustomerInterface $customer, RoleInterface $role) : void
     {
         $constantValue = $this->getConstantValueByName($permissionChoice);
 
@@ -253,16 +211,16 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
             throw new Exception("Constant {$constantFullName} does not exist");
         }
     }
-
-    private function getConstant(string $constantName)
+    private function getConstant(string $constantName) : ?string
     {
         $reflection = new ReflectionClass(AccessControlPermissionService::class);
         $constants = $reflection->getConstants();
 
-        if (array_key_exists($constantName, $constants)) {
+        if( array_key_exists($constantName, $constants)) {
             return $constantName;
         }
 
         return null;
+
     }
 }
