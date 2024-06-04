@@ -119,10 +119,8 @@ class DisablePermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
         $commandTester->setInputs([
             $this->globalConfig->getSubdomain(), 'yes',
             $this->testOrga->getId(), 'yes',
-            '0',
-            'yes',
-            '0',
-            'yes',
+            $this->testRole->getId(), 'yes',
+            '0', 'yes',
             'yes']);
 
         $commandTester->execute([

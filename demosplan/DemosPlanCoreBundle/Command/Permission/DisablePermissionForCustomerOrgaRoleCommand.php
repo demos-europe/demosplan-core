@@ -52,90 +52,104 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         parent::__construct($parameterBag, $name);
     }
 
+
     public function execute(InputInterface $input, OutputInterface $output): int
     {
         $output = new SymfonyStyle($input, $output);
+
+        $customer = $this->askAndConfirm(
+            $input,
+            $output,
+            'Please enter a customer subdomain: ',
+            fn($answer) => $this->getCustomerFromDatabase($answer),
+            fn($result) => 'You have selected: '.$result->getSubdomain().$result->getName().'. Is this correct? (yes/no) '
+        );
+
+        $orga = $this->askAndConfirm(
+            $input,
+            $output,
+            'Please enter an organization ID: ',
+            fn($answer) => $this->getOrgaFromDatabase($answer),
+            fn($result) => 'You have selected: '.$result->getName().'. Is this correct? (yes/no) '
+        );
+
+        $role = $this->askAndConfirm(
+            $input,
+            $output,
+            'Please enter an Role ID: ',
+            fn($answer) => $this->getRolesFromDatabase($answer),
+            fn($result) => 'You have selected: '.$result->getName().'. Is this correct? (yes/no) '
+    );
+
+    // Fetch permissions from the AccessControlPermissionService class
+    $permissions = $this->getPermissionsFromAccessControlPermissionService();
+
+    // Prepare choices for the question
+    $choices = [];
+    foreach ($permissions as $permission) {
+        $choices[] = $permission;
+    }
+
+
+
+    $permissionChoice = $this->askAndConfirmPermission($input, $output);
+
+    // Display the selected options
+    $output->writeln('You have selected the following options:');
+    $output->writeln('Customer: '.$customer->getName());
+    $output->writeln('Organization: '.$orga->getName());
+    $output->writeln('Role: '.$role->getName());
+    $output->writeln('Permission: '.$permissionChoice);
+
+    // Ask the user to confirm the selected options
+    $confirmationQuestion = new ConfirmationQuestion('Are these options correct? (yes/no) ', false);
+
+    $helper = $this->getHelper('question');
+
+    if (!$helper->ask($input, $output, $confirmationQuestion)) {
+        $output->writeln('The command has ended.');
+
+        return Command::FAILURE;
+    }
+
+    $output->writeln('You have confirmed all the options.');
+
+    $this->enablePermissionForAllExceptOrga($permissionChoice, $orga, $customer, $role);
+
+    // Continue with your logic here...
+
+    return Command::SUCCESS;
+
+    }
+
+
+    private function askAndConfirm(InputInterface $input, OutputInterface $output, string $questionText, callable $fetch, callable $confirm): mixed
+    {
         $helper = $this->getHelper('question');
-
         while (true) {
-            // Ask the user to enter a customer ID
-            $question = new Question('Please enter a customer subdomain: ');
-            $customerSubdomain = $helper->ask($input, $output, $question);
+            $question = new Question($questionText);
+            $answer = $helper->ask($input, $output, $question);
 
-            // Fetch the customer from the database
-            $customer = $this->getCustomerFromDatabase($customerSubdomain);
+            $result = $fetch($answer);
 
-            if (null !== $customer) {
-                // Ask the user to confirm the selected customer
-                $confirmationQuestion = new ConfirmationQuestion('You have selected: '.$customer->getSubdomain().$customer->getName().'. Is this correct? (yes/no) ', false);
+            if (null !== $result) {
+                $confirmationQuestion = new ConfirmationQuestion($confirm($result), false);
 
                 if (!$helper->ask($input, $output, $confirmationQuestion)) {
-                    $output->writeln('Please enter the customer subdomain again.');
+                    $output->writeln('Please enter the information again.');
                     continue;
                 }
 
-                $output->writeln('You have confirmed: '.$customer->getName());
-                break;
+                $output->writeln('You have confirmed: ' . $result->getName());
+                return $result;
             } else {
-                $output->writeln('No customer found with the provided subdomain. Please try again.');
+                $output->writeln('No valid input found. Please try again.');
             }
         }
+    }
 
-        // Loop for organization
-        while (true) {
-            // Ask the user to enter an organization ID
-            $question = new Question('Please enter an organization ID: ');
-            $orgaId = $helper->ask($input, $output, $question);
-
-            // Fetch the organization from the database
-            $orga = $this->getOrgaFromDatabase($orgaId);
-
-            if (null !== $orga) {
-                // Ask the user to confirm the selected organization
-                $confirmationQuestion = new ConfirmationQuestion('You have selected: '.$orga->getName().'. Is this correct? (yes/no) ', false);
-
-                if (!$helper->ask($input, $output, $confirmationQuestion)) {
-                    $output->writeln('Please enter the organization ID again.');
-                    continue;
-                }
-
-                $output->writeln('You have confirmed: '.$orga->getName());
-                break;
-            } else {
-                $output->writeln('No organization found with the provided ID. Please try again.');
-            }
-        }
-
-        // Fetch roles from the database
-        $roles = $this->getRolesFromDatabase();
-
-        // Prepare choices for the question
-        $choices = [];
-        foreach ($roles as $role) {
-            $choices[] = $role->getId().' - '.$role->getName();
-        }
-
-        // Loop for role
-        while (true) {
-            // Ask the user to select a role
-            $question = new ChoiceQuestion('Please select a role', $choices);
-            $roleChoice = $helper->ask($input, $output, $question);
-            $parts = explode(' - ', $roleChoice);
-            $roleId = $parts[0];
-
-            $role = $this->roleService->getRole($roleId);
-            // Ask the user to confirm the selected role
-            $confirmationQuestion = new ConfirmationQuestion('You have selected: '.$role->getName().'. Is this correct? (yes/no) ', false);
-
-            if (!$helper->ask($input, $output, $confirmationQuestion)) {
-                $output->writeln('Please select the role again.');
-                continue;
-            }
-
-            $output->writeln('You have confirmed: '.$roleChoice);
-            break;
-        }
-
+    private function askAndConfirmPermission(InputInterface $input, OutputInterface $output) {
+        $helper = $this->getHelper('question');
         // Fetch permissions from the AccessControlPermissionService class
         $permissions = $this->getPermissionsFromAccessControlPermissionService();
 
@@ -160,32 +174,8 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
             }
 
             $output->writeln('You have confirmed: '.$permissionChoice);
-            break;
+            return $permissionChoice;
         }
-
-        // Display the selected options
-        $output->writeln('You have selected the following options:');
-        $output->writeln('Customer: '.$customer->getName());
-        $output->writeln('Organization: '.$orga->getName());
-        $output->writeln('Role: '.$role->getName());
-        $output->writeln('Permission: '.$permissionChoice);
-
-        // Ask the user to confirm the selected options
-        $confirmationQuestion = new ConfirmationQuestion('Are these options correct? (yes/no) ', false);
-
-        if (!$helper->ask($input, $output, $confirmationQuestion)) {
-            $output->writeln('The command has ended.');
-
-            return Command::FAILURE;
-        }
-
-        $output->writeln('You have confirmed all the options.');
-
-        $this->enablePermissionForAllExceptOrga($permissionChoice, $orga, $customer, $role);
-
-        // Continue with your logic here...
-
-        return Command::SUCCESS;
     }
 
     private function getCustomerFromDatabase($customerSubdomain): ?CustomerInterface
@@ -202,11 +192,11 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         return $this->orgaRepository->get($orgaId);
     }
 
-    private function getRolesFromDatabase(): array
+    private function getRolesFromDatabase($roleId): ?RoleInterface
     {
         // Replace this with your actual database query
         // This is just a placeholder
-        return $this->roleService->getRoles();
+        return $this->roleService->getRole($roleId);
     }
 
     private function getPermissionsFromAccessControlPermissionService(): array
