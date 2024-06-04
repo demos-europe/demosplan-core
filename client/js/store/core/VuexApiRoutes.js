@@ -191,7 +191,7 @@ export const VuexApiRoutes = [
   {
     module: 'FaqCategory',
     action: 'list',
-    url: '/1.0/faq-category/'
+    url: '/1.0/FaqCategory/'
   },
   {
     module: 'Faq',
