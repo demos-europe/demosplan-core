@@ -13,7 +13,7 @@ and the reasoning behind the solution. -->
 <!-- 
 ### Linked PRs (optional)
 List other PRs that are somehow connected to this and explain the connection. Don't
-link private repositories in public ones.
+link private repositories in public ones, but the other way around is fine.
 
 - Other PR1 #{PR-number1}
 - Other PR2 #{PR-number2}
