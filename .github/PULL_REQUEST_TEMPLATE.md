@@ -4,10 +4,6 @@ or
 https://www.dev.diplanung.de/DefaultCollection/EfA%20DiPlanung/_workitems/edit/XXXXX
 
 
-
-
-
-
 <!-- Description: Clearly and concisely describe the intention of your PR including the problem you're solving 
 and the reasoning behind the solution. -->
 
