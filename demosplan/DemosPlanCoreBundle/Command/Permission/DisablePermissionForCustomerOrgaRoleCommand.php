@@ -32,9 +32,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 /**
- * dplan:update.
- *
- * Update current project
+ * This Command is used to disable a specific permission for a given customer, organization, and role.
  */
 class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
 {
@@ -78,19 +76,8 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
             $output,
             'Please enter an Role ID: ',
             fn($answer) => $this->getRolesFromDatabase($answer),
-            fn($result) => 'You have selected: '.$result->getName().'. Is this correct? (yes/no) '
+            fn($result) => 'You have selected: '. $result->getName().'. Is this correct? (yes/no) '
     );
-
-    // Fetch permissions from the AccessControlPermissionService class
-    $permissions = $this->getPermissionsFromAccessControlPermissionService();
-
-    // Prepare choices for the question
-    $choices = [];
-    foreach ($permissions as $permission) {
-        $choices[] = $permission;
-    }
-
-
 
     $permissionChoice = $this->askAndConfirmPermission($input, $output);
 
@@ -116,24 +103,22 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
 
     $this->enablePermissionForAllExceptOrga($permissionChoice, $orga, $customer, $role);
 
-    // Continue with your logic here...
-
     return Command::SUCCESS;
 
     }
 
 
-    private function askAndConfirm(InputInterface $input, OutputInterface $output, string $questionText, callable $fetch, callable $confirm): mixed
+    private function askAndConfirm(InputInterface $input, OutputInterface $output, string $questionText, callable $fetchEntityBasedOnInsertedId, callable $formatConfirmationMessage): mixed
     {
         $helper = $this->getHelper('question');
         while (true) {
             $question = new Question($questionText);
             $answer = $helper->ask($input, $output, $question);
 
-            $result = $fetch($answer);
+            $result = $fetchEntityBasedOnInsertedId($answer);
 
             if (null !== $result) {
-                $confirmationQuestion = new ConfirmationQuestion($confirm($result), false);
+                $confirmationQuestion = new ConfirmationQuestion($formatConfirmationMessage($result), false);
 
                 if (!$helper->ask($input, $output, $confirmationQuestion)) {
                     $output->writeln('Please enter the information again.');
