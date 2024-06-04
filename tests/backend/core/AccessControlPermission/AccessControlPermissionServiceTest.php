@@ -179,7 +179,7 @@ class AccessControlPermissionServiceTest extends UnitTestCase
         $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
 
         // Act
-        $hasPermission = $this->sut->hasPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), $roleCodes);
+        $hasPermission = $this->sut->checkPermissionForOrgaType($permissionToCheck, $this->testOrga->object());
 
         // Assert
         $this->assertFalse($hasPermission);
