@@ -187,16 +187,12 @@ class AccessControlPermissionService extends CoreService
 
         // Loop through each organization
         foreach ($orgas as $orga) {
-            if (true === $this->checkPermissionForOrgaType($permissionToEnable, $orga) && $orga->getId() !== $excludedOrga->getId()) {
-                // Enable the permission
-
-                if (false === $dryRun) {
-                    $this->createPermission($permissionToEnable, $orga, $customer, $role);
-                }
-
-                // Save the impacted orga in the array
-                $updatedOrgas[] = $orga;
+            // Enable the permission
+            if (false === $dryRun) {
+                $this->createPermission($permissionToEnable, $orga, $customer, $role);
             }
+            // Save the impacted orga in the array
+            $updatedOrgas[] = $orga;
         }
 
         // Return the array of impacted orgas
