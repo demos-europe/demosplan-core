@@ -8,8 +8,8 @@
  */
 
 import DpLayerLegend from '@DpJs/components/map/publicdetail/controls/legendList/DpLayerLegend'
-import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 import LayersStore from '@DpJs/store/map/Layers'
+import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 import Vuex from 'vuex'
 
 describe('DpLayerLegend', () => {
