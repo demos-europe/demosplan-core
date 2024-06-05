@@ -206,7 +206,7 @@ export default {
             this.deleteUser(id)
               .then(() => {
                 // Remove deleted item from itemSelections
-                Vue.delete(this.itemSelections, id)
+                delete this.itemSelections[id]
                 dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
               })
           })
