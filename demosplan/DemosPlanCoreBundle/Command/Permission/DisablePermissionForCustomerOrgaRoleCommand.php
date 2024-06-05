@@ -82,7 +82,7 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
             $output,
             'Please enter organization IDs (comma separated): ',
             fn ($answer) => $this->getOrgasFromDatabase($answer),
-            fn ($result) => 'You have selected: '.implode(', ', array_map(fn($orga) => $orga->getName(), $result)).'. Is this correct? (yes/no) ',
+            fn ($result) => 'You have selected: '.implode(', ', array_map(fn ($orga) => $orga->getName(), $result)).'. Is this correct? (yes/no) ',
             self::$SIMPLE_QUESTION
         );
 
@@ -199,10 +199,11 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         $orgas = [];
         foreach ($orgaIds as $orgaId) {
             $orga = $this->orgaRepository->get(trim($orgaId));
-            if ($orga !== null) {
+            if (null !== $orga) {
                 $orgas[] = $orga;
             }
         }
+
         return $orgas;
     }
 
@@ -223,6 +224,7 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
     private function enablePermissionForAllExceptOrgas(mixed $permissionChoice, array $excludedOrgas, CustomerInterface $customer, RoleInterface $role, bool $dryRun): array
     {
         $constantValue = $this->getConstantValueByName($permissionChoice);
+
         return $this->accessControlPermissionService->enablePermissionForAllExceptOrga($constantValue, $customer, $excludedOrgas, $role, $dryRun);
     }
 

@@ -134,18 +134,15 @@ class DisablePermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
         $output = $commandTester->getDisplay();
         $this->assertStringContainsString('You have confirmed all the options.', $output);
 
-        //$orgasForCustomer = $this->getAllOrgasForCustomer();
+        // $orgasForCustomer = $this->getAllOrgasForCustomer();
 
-
-
-        $this->assertStringContainsString('You have confirmed all the options.' , $output);
+        $this->assertStringContainsString('You have confirmed all the options.', $output);
 
         return $commandTester;
     }
 
     public function getAllOrgasForCustomer(): array
     {
-
-        return $this->orgaService->getOrgasInCustomer( $this->testCustomer->object());
+        return $this->orgaService->getOrgasInCustomer($this->testCustomer->object());
     }
 }

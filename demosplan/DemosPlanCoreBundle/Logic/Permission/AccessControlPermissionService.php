@@ -185,13 +185,11 @@ class AccessControlPermissionService extends CoreService
 
         $updatedOrgas = [];
 
-        $excludedOrgaIds = array_map(fn($orga) => $orga->getId(), $excludedOrgas);
-
+        $excludedOrgaIds = array_map(fn ($orga) => $orga->getId(), $excludedOrgas);
 
         // Loop through each organization
         foreach ($orgas as $orga) {
             if (!in_array($orga->getId(), $excludedOrgaIds)) {
-
                 if (false === $dryRun) {
                     $this->createPermission($permissionToEnable, $orga, $customer, $role);
                 }
@@ -200,6 +198,7 @@ class AccessControlPermissionService extends CoreService
                 $updatedOrgas[] = $orga;
             }
         }
+
         return $updatedOrgas;
     }
 }
