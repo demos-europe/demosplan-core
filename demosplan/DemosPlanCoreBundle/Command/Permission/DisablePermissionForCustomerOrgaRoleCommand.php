@@ -77,12 +77,12 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
             self::$SIMPLE_QUESTION
         );
 
-        $orga = $this->askAndConfirm(
+        $orgas = $this->askAndConfirm(
             $input,
             $output,
-            'Please enter an organization ID: ',
-            fn ($answer) => $this->getOrgaFromDatabase($answer),
-            fn ($result) => 'You have selected: '.$result->getName().'. Is this correct? (yes/no) ',
+            'Please enter organization IDs (comma separated): ',
+            fn ($answer) => $this->getOrgasFromDatabase($answer),
+            fn ($result) => 'You have selected: '.implode(', ', array_map(fn($orga) => $orga->getName(), $result)).'. Is this correct? (yes/no) ',
             self::$SIMPLE_QUESTION
         );
 
@@ -108,7 +108,10 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         // Display the selected options
         $output->writeln('You have selected the following options:');
         $output->writeln('Customer: '.$customer->getName());
-        $output->writeln('Organization: '.$orga->getName());
+        // Loop through the organizations and display their names
+        foreach ($orgas as $orga) {
+            $output->writeln('Organization: '.$orga->getName());
+        }
         $output->writeln('Role: '.$role->getName());
         $output->writeln('Permission: '.$permissionChoice);
 
@@ -127,7 +130,7 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
 
         $dryRun = $input->getOption('dry-run');
 
-        $updatedOrgas = $this->enablePermissionForAllExceptOrga($permissionChoice, $orga, $customer, $role, $dryRun);
+        $updatedOrgas = $this->enablePermissionForAllExceptOrgas($permissionChoice, $orgas, $customer, $role, $dryRun);
 
         $output->writeln('Impacted orgas are:');
         foreach ($updatedOrgas as $orga) {
@@ -138,7 +141,7 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         return Command::SUCCESS;
     }
 
-    private function askAndConfirm(InputInterface $input, OutputInterface $output, string $questionText, callable $fetchEntityBasedOnInsertedId, callable $formatConfirmationMessage, string $questionType, ?array $choices = null): CustomerInterface|OrgaInterface|RoleInterface|string
+    private function askAndConfirm(InputInterface $input, OutputInterface $output, string $questionText, callable $fetchEntityBasedOnInsertedId, callable $formatConfirmationMessage, string $questionType, ?array $choices = null): CustomerInterface|OrgaInterface|RoleInterface|array|string
     {
         $helper = $this->getHelper('question');
         while (true) {
@@ -160,7 +163,6 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
                     continue;
                 }
 
-                // $output->writeln('You have confirmed: ' . $result->getName());
                 return $result;
             } else {
                 $output->writeln('No valid input found. Please try again.');
@@ -191,9 +193,17 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         }
     }
 
-    private function getOrgaFromDatabase($orgaId): ?OrgaInterface
+    private function getOrgasFromDatabase($orgaIds): array
     {
-        return $this->orgaRepository->get($orgaId);
+        $orgaIds = explode(',', $orgaIds);
+        $orgas = [];
+        foreach ($orgaIds as $orgaId) {
+            $orga = $this->orgaRepository->get(trim($orgaId));
+            if ($orga !== null) {
+                $orgas[] = $orga;
+            }
+        }
+        return $orgas;
     }
 
     private function getRolesFromDatabase($roleId): ?RoleInterface
@@ -210,11 +220,10 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         return array_keys($reflection->getConstants());
     }
 
-    private function enablePermissionForAllExceptOrga(mixed $permissionChoice, OrgaInterface $excludedOrga, CustomerInterface $customer, RoleInterface $role, bool $dryRun): array
+    private function enablePermissionForAllExceptOrgas(mixed $permissionChoice, array $excludedOrgas, CustomerInterface $customer, RoleInterface $role, bool $dryRun): array
     {
         $constantValue = $this->getConstantValueByName($permissionChoice);
-
-        return $this->accessControlPermissionService->enablePermissionForAllExceptOrga($constantValue, $customer, $excludedOrga, $role, $dryRun);
+        return $this->accessControlPermissionService->enablePermissionForAllExceptOrga($constantValue, $customer, $excludedOrgas, $role, $dryRun);
     }
 
     private function getConstantValueByName($constantName): string

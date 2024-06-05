@@ -28,6 +28,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlPermissionService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
@@ -42,6 +43,8 @@ class DisablePermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
     protected $customerService;
 
     protected $orgaRepository;
+
+    protected $orgaService;
 
     protected $roleService;
 
@@ -67,6 +70,7 @@ class DisablePermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
         $this->roleHandler = $this->getContainer()->get(RoleHandler::class);
         $this->customerService = $this->getContainer()->get(CustomerService::class);
         $this->orgaRepository = $this->getContainer()->get(OrgaRepository::class);
+        $this->orgaService = $this->getContainer()->get(OrgaService::class);
         $this->roleService = $this->getContainer()->get(RoleService::class);
         $this->accessControlPermissionService = $this->getContainer()->get(AccessControlPermissionService::class);
         $this->globalConfig = $this->getContainer()->get(GlobalConfig::class);
@@ -127,10 +131,21 @@ class DisablePermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
             'command'  => $command->getName(),
         ]);
 
-        // You can also check the output of the command if necessary
         $output = $commandTester->getDisplay();
         $this->assertStringContainsString('You have confirmed all the options.', $output);
 
+        //$orgasForCustomer = $this->getAllOrgasForCustomer();
+
+
+
+        $this->assertStringContainsString('You have confirmed all the options.' , $output);
+
         return $commandTester;
+    }
+
+    public function getAllOrgasForCustomer(): array
+    {
+
+        return $this->orgaService->getOrgasInCustomer( $this->testCustomer->object());
     }
 }
