@@ -26,7 +26,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
-use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlPermissionService;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
@@ -51,7 +50,7 @@ class EnablePermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
 
     protected GlobalConfig|Proxy|null $globalConfig;
 
-    protected AccessControlService|Proxy|null  $accessControlService;
+    protected AccessControlService|Proxy|null $accessControlService;
 
     protected RoleHandler|Proxy|null $roleHandler;
 
