@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
+use InvalidArgumentException;
 use ReflectionClass;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -76,7 +77,6 @@ class EnablePermissionForCustomerOrgaRoleCommand extends CoreCommand
 
     public function execute(InputInterface $input, OutputInterface $output): int
     {
-
         $customerId = $input->getArgument('customerId');
         $roleId = $input->getArgument('roleId');
         $permissionName = $input->getArgument('permission');
@@ -111,7 +111,6 @@ class EnablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         }
     }
 
-
     private function getRolesFromDatabase($roleId): ?RoleInterface
     {
         // Replace this with your actual database query
@@ -119,7 +118,7 @@ class EnablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         return $this->roleService->getRole($roleId);
     }
 
-    private function enablePermissionForCustomerOrgaRole(mixed $permissionChoice, CustomerInterface $customer, RoleInterface $role, OrgaInterface $orga = null, bool $dryRun): array
+    private function enablePermissionForCustomerOrgaRole(mixed $permissionChoice, CustomerInterface $customer, RoleInterface $role, ?OrgaInterface $orga = null, bool $dryRun): array
     {
         $constantValue = $this->getConstantValueByName($permissionChoice);
 
@@ -134,7 +133,7 @@ class EnablePermissionForCustomerOrgaRoleCommand extends CoreCommand
             return constant($constantFullName);
         }
 
-        throw new \InvalidArgumentException('Permission does not exit');
+        throw new InvalidArgumentException('Permission does not exit');
     }
 
     private function getConstant(string $constantName): ?string
