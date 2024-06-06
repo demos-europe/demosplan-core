@@ -16,11 +16,10 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
-use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControlPermission;
+use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControl;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
-use demosplan\DemosPlanCoreBundle\Repository\AccessControlPermissionRepository;
+use demosplan\DemosPlanCoreBundle\Repository\AccessControlRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use Webmozart\Assert\Assert;
 
@@ -31,21 +30,20 @@ use Webmozart\Assert\Assert;
  *
  * All rights reserved
  */
-class AccessControlPermissionService extends CoreService
+class AccessControlService extends CoreService
 {
     public const CREATE_PROCEDURES_PERMISSION = 'feature_admin_new_procedure';
 
     public function __construct(
-        private readonly AccessControlPermissionRepository $accessControlPermissionRepository,
+        private readonly AccessControlRepository $accessControlPermissionRepository,
         private readonly RoleHandler $roleHandler,
-        private readonly OrgaService $orgaService,
         private readonly GlobalConfig $globalConfig
     ) {
     }
 
-    public function createPermission(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, RoleInterface $role): AccessControlPermission
+    public function createPermission(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, RoleInterface $role): AccessControl
     {
-        $permission = new AccessControlPermission();
+        $permission = new AccessControl();
         $permission->setPermissionName($permissionName);
         $permission->setOrga($orga);
         $permission->setCustomer($customer);
@@ -62,7 +60,6 @@ class AccessControlPermissionService extends CoreService
 
         // Loop through each role
         foreach ($roles as $roleName) {
-
             // Try to find an existing permission with the given parameters
 
             $roles = $this->roleHandler->getUserRolesByCodes([$roleName]);
@@ -114,7 +111,7 @@ class AccessControlPermissionService extends CoreService
         return $enabledPermissions;
     }
 
-    private function removePermission(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, RoleInterface $role): void
+    public function removePermission(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, RoleInterface $role): void
     {
         // Find the existing permission with the given parameters
         $permission = $this->accessControlPermissionRepository->findOneBy([
@@ -161,45 +158,5 @@ class AccessControlPermissionService extends CoreService
         }
 
         return !empty($permissions);
-    }
-
-    /**
-     * @param CustomerInterface $orga
-     */
-    public function grantCanCreateProcedurePermission(?OrgaInterface $orga = null, ?CustomerInterface $customer = null, ?RoleInterface $role): void
-    {
-        $this->createPermission(self::CREATE_PROCEDURES_PERMISSION, $orga, $customer, $role);
-    }
-
-    /**
-     * @param CustomerInterface $orga
-     */
-    public function revokeCanCreateProcedurePermission(?OrgaInterface $orga = null, ?CustomerInterface $customer = null, ?RoleInterface $role): void
-    {
-        $this->removePermission(self::CREATE_PROCEDURES_PERMISSION, $orga, $customer, $role);
-    }
-
-    public function enablePermissionForAllExceptOrga(string $permissionToEnable, CustomerInterface $customer, array $excludedOrgas, RoleInterface $role, bool $dryRun = false): array
-    {
-        // Fetch all organizations and roles from the database
-        $orgas = $this->orgaService->getOrgasInCustomer($customer);
-
-        $updatedOrgas = [];
-
-        $excludedOrgaIds = array_map(fn ($orga) => $orga->getId(), $excludedOrgas);
-
-        // Loop through each organization
-        foreach ($orgas as $orga) {
-            if (!in_array($orga->getId(), $excludedOrgaIds)) {
-                if (false === $dryRun) {
-                    $this->createPermission($permissionToEnable, $orga, $customer, $role);
-                }
-
-                // Save the impacted orga in the array
-                $updatedOrgas[] = $orga;
-            }
-        }
-
-        return $updatedOrgas;
     }
 }

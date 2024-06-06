@@ -324,7 +324,6 @@ class DemosPlanOrganisationAPIController extends APIController
 
             if ($permissions->hasPermission('feature_manage_procedure_creation_permission')
                 && array_key_exists('canCreateProcedures', $orgaDataArray)) {
-
                 $roles = $roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY]);
                 Assert::count($roles, 1);
                 $role = $roles[0];
@@ -388,7 +387,6 @@ class DemosPlanOrganisationAPIController extends APIController
 
             if ($permissions->hasPermission('feature_manage_procedure_creation_permission') && is_array($orgaDataArray['attributes'])
                 && array_key_exists('canCreateProcedures', $orgaDataArray['attributes'])) {
-
                 $roles = $roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY]);
                 Assert::count($roles, 1);
                 $role = $roles[0];
