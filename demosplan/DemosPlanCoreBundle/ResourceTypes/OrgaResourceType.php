@@ -222,7 +222,7 @@ final class OrgaResourceType extends DplanResourceType
             $properties[] = $this->createAttribute($this->canCreateProcedures)->readable(true, function (Orga $orga): bool {
                 $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
 
-                return $this->accessControlPermissionService->hasPermission(AccessControlService::CREATE_PROCEDURES_PERMISSION, $orga, $currentCustomer);
+                return $this->accessControlPermissionService->permissionExist(AccessControlService::CREATE_PROCEDURES_PERMISSION, $orga, $currentCustomer);
             });
         }
 

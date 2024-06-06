@@ -138,7 +138,7 @@ class AccessControlService extends CoreService
         return true;
     }
 
-    public function hasPermission(string $permissionToCheck, ?OrgaInterface $orga = null, ?CustomerInterface $customer = null, ?array $roleCodes = null): bool
+    public function permissionExist(string $permissionToCheck, ?OrgaInterface $orga = null, ?CustomerInterface $customer = null, ?array $roleCodes = null): bool
     {
         // Loop through each role
         $permissions = [];
