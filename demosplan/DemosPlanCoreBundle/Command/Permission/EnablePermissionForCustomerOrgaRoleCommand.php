@@ -12,18 +12,13 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Permission;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanCoreBundle\Exception\PermissionException;
 use demosplan\DemosPlanCoreBundle\Exception\RoleNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
 use InvalidArgumentException;
-use ReflectionClass;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -89,7 +84,7 @@ class EnablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         $dryRun = $input->getOption('dry-run');
 
         $customerChoice = $this->customerService->findCustomerById($customerId);
-        $roleChoice =  $this->roleService->getRole($roleId);
+        $roleChoice = $this->roleService->getRole($roleId);
         $permissionChoice = $this->getConstantValueByName($permissionName);
 
         // Return Exception for RoleChoice as Customer ias already throign exception if null, and permission exception is handled in getConstantValueByName
@@ -109,7 +104,7 @@ class EnablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         $output->writeln('******************************************************');
         $output->writeln('Permission has been enabled for mentioned orgas on:');
         $output->writeln('Customer '.$customerChoice->getId().' '.$customerChoice->getName());
-        $output->writeln('Role '.$roleChoice->getId().' '. $roleChoice->getName());
+        $output->writeln('Role '.$roleChoice->getId().' '.$roleChoice->getName());
 
         return Command::SUCCESS;
     }
@@ -124,5 +119,4 @@ class EnablePermissionForCustomerOrgaRoleCommand extends CoreCommand
 
         throw new InvalidArgumentException('Permission does not exit');
     }
-
 }

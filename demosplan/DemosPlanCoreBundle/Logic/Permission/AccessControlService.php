@@ -182,7 +182,6 @@ class AccessControlService extends CoreService
 
             // Save the impacted orga in the array
             $updatedOrgas[] = $orgaInCustomer;
-
         }
 
         return $updatedOrgas;
