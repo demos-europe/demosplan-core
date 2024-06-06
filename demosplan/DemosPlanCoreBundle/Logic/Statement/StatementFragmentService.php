@@ -75,7 +75,7 @@ use Elastica\Query\MatchAll;
 use Elastica\Query\Terms;
 use Elastica\ResultSet;
 use Exception;
-use Pagerfanta\Adapter\ElasticaAdapter;
+use Pagerfanta\Elastica\ElasticaAdapter;
 use Pagerfanta\Exception\NotValidCurrentPageException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
