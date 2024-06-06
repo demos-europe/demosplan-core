@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Repository\AccessControlRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
+use Webmozart\Assert\Assert;
 
 /**
  * This file is part of the package demosplan.
@@ -59,8 +60,12 @@ class AccessControlService extends CoreService
 
         // Loop through each role
         foreach ($roles as $roleName) {
+
             // Try to find an existing permission with the given parameters
-            $role = $this->roleHandler->getUserRolesByCodes([$roleName])[0];
+
+            $roles = $this->roleHandler->getUserRolesByCodes([$roleName]);
+            Assert::count($roles, 1);
+            $role = $roles[0];
 
             $permissions = $this->getEnabledPermissionNames($role, $orga, $customer, null);
 

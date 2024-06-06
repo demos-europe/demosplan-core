@@ -44,6 +44,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use UnexpectedValueException;
+use Webmozart\Assert\Assert;
 
 class DemosPlanOrganisationAPIController extends APIController
 {
@@ -323,7 +324,11 @@ class DemosPlanOrganisationAPIController extends APIController
 
             if ($permissions->hasPermission('feature_manage_procedure_creation_permission')
                 && array_key_exists('canCreateProcedures', $orgaDataArray)) {
-                $role = $roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY])[0];
+
+                $roles = $roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY]);
+                Assert::count($roles, 1);
+                $role = $roles[0];
+
                 if (true === $orgaDataArray['canCreateProcedures']) {
                     $accessControlPermission->createPermission(AccessControlService::CREATE_PROCEDURES_PERMISSION, $newOrga, $customerHandler->getCurrentCustomer(), $role);
                 }
@@ -383,7 +388,11 @@ class DemosPlanOrganisationAPIController extends APIController
 
             if ($permissions->hasPermission('feature_manage_procedure_creation_permission') && is_array($orgaDataArray['attributes'])
                 && array_key_exists('canCreateProcedures', $orgaDataArray['attributes'])) {
-                $role = $roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY])[0];
+
+                $roles = $roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY]);
+                Assert::count($roles, 1);
+                $role = $roles[0];
+
                 if (true === $orgaDataArray['attributes']['canCreateProcedures']) {
                     $accessControlPermission->createPermission(AccessControlService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
                 } else {
