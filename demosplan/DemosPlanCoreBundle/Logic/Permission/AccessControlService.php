@@ -164,20 +164,18 @@ class AccessControlService extends CoreService
 
     public function enablePermissionCustomerOrgaRole(string $permissionToEnable, CustomerInterface $customer, RoleInterface $role, bool $dryRun = false): array
     {
-
         // enable permission for all orga on the given customer and role
 
         $orgasInCustomer = $this->orgaService->getOrgasInCustomer($customer);
         $updatedOrgas = [];
 
         foreach ($orgasInCustomer as $orgaInCustomer) {
-
-            //If permisison is already stored, skip it
+            // If permisison is already stored, skip it
             if (true === $this->permissionExist($permissionToEnable, $orgaInCustomer, $customer, [$role->getCode()])) {
                 continue;
             }
 
-            //Do not store permission if it is dryrun
+            // Do not store permission if it is dryrun
             if (false === $dryRun) {
                 $this->createPermission($permissionToEnable, $orgaInCustomer, $customer, $role);
             }
