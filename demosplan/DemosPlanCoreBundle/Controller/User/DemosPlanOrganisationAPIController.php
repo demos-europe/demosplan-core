@@ -291,12 +291,12 @@ class DemosPlanOrganisationAPIController extends APIController
      * @throws MessageBagException
      */
     #[Route(path: '/api/1.0/organisation/', options: ['expose' => true], methods: ['POST'], name: 'organisation_create')]
-    public function createOrgaAction(Request              $request,
-                                     UserHandler          $userHandler,
-                                     CustomerHandler      $customerHandler,
-                                     PermissionsInterface $permissions,
-                                     AccessControlService $accessControlPermission,
-                                     RoleHandler          $roleHandler)
+    public function createOrgaAction(Request $request,
+        UserHandler $userHandler,
+        CustomerHandler $customerHandler,
+        PermissionsInterface $permissions,
+        AccessControlService $accessControlPermission,
+        RoleHandler $roleHandler)
     {
         try {
             if (!($this->requestData instanceof TopLevel)) {
@@ -347,14 +347,14 @@ class DemosPlanOrganisationAPIController extends APIController
      */
     #[Route(path: '/api/1.0/organisation/{id}', name: 'organisation_update', options: ['expose' => true], methods: ['PATCH'])]
     public function updateOrgaAction(
-        CustomerHandler      $customerHandler,
-        OrgaHandler          $orgaHandler,
+        CustomerHandler $customerHandler,
+        OrgaHandler $orgaHandler,
         PermissionsInterface $permissions,
-        Request              $request,
-        UserHandler          $userHandler,
+        Request $request,
+        UserHandler $userHandler,
         AccessControlService $accessControlPermission,
-        RoleHandler          $roleHandler,
-        string               $id)
+        RoleHandler $roleHandler,
+        string $id)
     {
         $orgaId = $id;
         try {
