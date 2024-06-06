@@ -16,10 +16,10 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
-use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControlPermission;
+use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControl;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
-use demosplan\DemosPlanCoreBundle\Repository\AccessControlPermissionRepository;
+use demosplan\DemosPlanCoreBundle\Repository\AccessControlRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 
 /**
@@ -29,20 +29,20 @@ use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
  *
  * All rights reserved
  */
-class AccessControlPermissionService extends CoreService
+class AccessControlService extends CoreService
 {
     public const CREATE_PROCEDURES_PERMISSION = 'feature_admin_new_procedure';
 
     public function __construct(
-        private readonly AccessControlPermissionRepository $accessControlPermissionRepository,
-        private readonly RoleHandler $roleHandler,
-        private readonly GlobalConfig $globalConfig
+        private readonly AccessControlRepository $accessControlPermissionRepository,
+        private readonly RoleHandler             $roleHandler,
+        private readonly GlobalConfig            $globalConfig
     ) {
     }
 
-    public function createPermission(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, RoleInterface $role): AccessControlPermission
+    public function createPermission(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, RoleInterface $role): AccessControl
     {
-        $permission = new AccessControlPermission();
+        $permission = new AccessControl();
         $permission->setPermissionName($permissionName);
         $permission->setOrga($orga);
         $permission->setCustomer($customer);
