@@ -162,22 +162,29 @@ class AccessControlService extends CoreService
         return !empty($permissions);
     }
 
-    public function enablePermissionCustomerOrgaRole(string $permissionToEnable, ?CustomerInterface $customer = null, ?RoleInterface $role = null, ?OrgaInterface $orga = null, bool $dryRun = false): array
+    public function enablePermissionCustomerOrgaRole(string $permissionToEnable, ?CustomerInterface $customer = null, ?RoleInterface $role = null, bool $dryRun = false): array
     {
-        if (null === $orga) {
-            // enable permission for all orga on the given customer and role
-            $orgasInCustomer = $this->orgaService->getOrgasInCustomer($customer);
-            $updatedOrgas = [];
 
-            foreach ($orgasInCustomer as $orgaInCustomer) {
-                if (false === $dryRun) {
-                    $this->createPermission($permissionToEnable, $orgaInCustomer, $customer, $role);
-                }
+        // enable permission for all orga on the given customer and role
 
-                $updatedOrgas[] = $orgaInCustomer;
+        $orgasInCustomer = $this->orgaService->getOrgasInCustomer($customer);
+        $updatedOrgas = [];
 
-                // Save the impacted orga in the array
+        foreach ($orgasInCustomer as $orgaInCustomer) {
+
+            //If permisison is already stored, skip it
+            if (true === $this->permissionExist($permissionToEnable, $orgaInCustomer, $customer, [$role->getCode()])) {
+                continue;
             }
+
+            //Do not store permission if it is dryrun
+            if (false === $dryRun) {
+                $this->createPermission($permissionToEnable, $orgaInCustomer, $customer, $role);
+            }
+
+            $updatedOrgas[] = $orgaInCustomer;
+
+            // Save the impacted orga in the array
         }
 
         return $updatedOrgas;

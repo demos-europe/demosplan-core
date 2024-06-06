@@ -17,6 +17,8 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\PermissionException;
+use demosplan\DemosPlanCoreBundle\Exception\RoleNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
@@ -75,6 +77,10 @@ class EnablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         );
     }
 
+    /**
+     * @throws RoleNotFoundException
+     * @throws CustomerNotFoundException
+     */
     public function execute(InputInterface $input, OutputInterface $output): int
     {
         $customerId = $input->getArgument('customerId');
@@ -82,10 +88,20 @@ class EnablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         $permissionName = $input->getArgument('permission');
         $dryRun = $input->getOption('dry-run');
 
-        $customer = $this->getCustomerFromDatabase($customerId);
-        $role = $this->getRolesFromDatabase($roleId);
-        $permissionChoice = $this->getConstant($permissionName);
-        $updatedOrgas = $this->enablePermissionForCustomerOrgaRole($permissionChoice, $customer, $role, null, $dryRun);
+        $customerChoice = $this->customerService->findCustomerById($customerId);
+        $roleChoice =  $this->roleService->getRole($roleId);
+        $permissionChoice = $this->getConstantValueByName($permissionName);
+
+        if (null === $customerChoice) {
+            throw new CustomerNotFoundException('Customer not found');
+        }
+
+
+        if (null === $roleChoice) {
+            throw new RoleNotFoundException('Role not found');
+        }
+
+        $updatedOrgas = $this->accessControlPermissionService->enablePermissionCustomerOrgaRole($permissionChoice, $customerChoice, $roleChoice, null, $dryRun);
 
         foreach ($updatedOrgas as $orga) {
             $output->writeln('Orga ID: '.$orga->getId());
@@ -96,33 +112,10 @@ class EnablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         $output->writeln($dryRun ? 'This is a dry run. No changes have been made to the database.' : 'Changes have been applied to the database.');
         $output->writeln('******************************************************');
         $output->writeln('Permission has been enabled for mentioned orgas on:');
-        $output->writeln('Customer '.$customer->getId().' '.$customer->getName());
-        $output->writeln('Role '.$role->getId().' '.$role->getName());
+        $output->writeln('Customer '.$customerChoice->getId().' '.$customerChoice->getName());
+        $output->writeln('Role '.$roleChoice->getId().' '. $roleChoice->getName());
 
         return Command::SUCCESS;
-    }
-
-    private function getCustomerFromDatabase($customerId): ?CustomerInterface
-    {
-        try {
-            return $this->customerService->findCustomerById($customerId);
-        } catch (CustomerNotFoundException $e) {
-            return null;
-        }
-    }
-
-    private function getRolesFromDatabase($roleId): ?RoleInterface
-    {
-        // Replace this with your actual database query
-        // This is just a placeholder
-        return $this->roleService->getRole($roleId);
-    }
-
-    private function enablePermissionForCustomerOrgaRole(mixed $permissionChoice, CustomerInterface $customer, RoleInterface $role, ?OrgaInterface $orga = null, bool $dryRun): array
-    {
-        $constantValue = $this->getConstantValueByName($permissionChoice);
-
-        return $this->accessControlPermissionService->enablePermissionCustomerOrgaRole($constantValue, $customer, $role, $orga, $dryRun);
     }
 
     private function getConstantValueByName($constantName): string
@@ -136,15 +129,4 @@ class EnablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         throw new InvalidArgumentException('Permission does not exit');
     }
 
-    private function getConstant(string $constantName): ?string
-    {
-        $reflection = new ReflectionClass(AccessControlService::class);
-        $constants = $reflection->getConstants();
-
-        if (array_key_exists($constantName, $constants)) {
-            return $constantName;
-        }
-
-        return null;
-    }
 }

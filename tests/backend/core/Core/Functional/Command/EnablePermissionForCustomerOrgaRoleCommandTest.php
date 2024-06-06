@@ -27,6 +27,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlPermissionService;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
@@ -38,7 +39,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Tests\Base\FunctionalTestCase;
 use Zenstruck\Foundry\Proxy;
 
-class DisablePermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
+class EnablePermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
 {
     protected $customerService;
 
@@ -50,7 +51,7 @@ class DisablePermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
 
     protected GlobalConfig|Proxy|null $globalConfig;
 
-    protected $accessControlPermissionService;
+    protected AccessControlService|Proxy|null  $accessControlService;
 
     protected RoleHandler|Proxy|null $roleHandler;
 
@@ -72,7 +73,7 @@ class DisablePermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
         $this->orgaRepository = $this->getContainer()->get(OrgaRepository::class);
         $this->orgaService = $this->getContainer()->get(OrgaService::class);
         $this->roleService = $this->getContainer()->get(RoleService::class);
-        $this->accessControlPermissionService = $this->getContainer()->get(AccessControlPermissionService::class);
+        $this->accessControlService = $this->getContainer()->get(AccessControlService::class);
         $this->globalConfig = $this->getContainer()->get(GlobalConfig::class);
 
         $this->testRole = $this->roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY])[0];
@@ -114,7 +115,7 @@ class DisablePermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
             $this->customerService,
             $this->orgaRepository,
             $this->roleService,
-            $this->accessControlPermissionService,
+            $this->accessControlService,
         ));
 
         $command = $application->find(EnablePermissionForCustomerOrgaRoleCommand::getDefaultName());
