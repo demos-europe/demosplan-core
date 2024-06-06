@@ -24,11 +24,11 @@ use Gedmo\Mapping\Annotation as Gedmo;
 /**
  * This entity represents a permission for a specific role, customer and organisation.
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\AccessControlPermissionRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\AccessControlRepository")
  *
- * @ORM\Table(name="access_control_permission", uniqueConstraints={@ORM\UniqueConstraint(name="unique_orga_customer_role_permission", columns={"orga_id", "customer_id", "role_id", "permission"})})
+ * @ORM\Table(name="access_control", uniqueConstraints={@ORM\UniqueConstraint(name="unique_orga_customer_role_permission", columns={"orga_id", "customer_id", "role_id", "permission"})})
  */
-class AccessControlPermission extends CoreEntity implements UuidEntityInterface
+class AccessControl extends CoreEntity implements UuidEntityInterface
 {
     /**
      * @ORM\Column(type="string", length=36, options={"fixed":true})

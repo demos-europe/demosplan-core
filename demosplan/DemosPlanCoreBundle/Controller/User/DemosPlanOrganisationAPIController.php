@@ -26,7 +26,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\OrgaNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
-use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlPermissionService;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler;
@@ -291,12 +291,12 @@ class DemosPlanOrganisationAPIController extends APIController
      * @throws MessageBagException
      */
     #[Route(path: '/api/1.0/organisation/', options: ['expose' => true], methods: ['POST'], name: 'organisation_create')]
-    public function createOrgaAction(Request $request,
-        UserHandler $userHandler,
-        CustomerHandler $customerHandler,
-        PermissionsInterface $permissions,
-        AccessControlPermissionService $accessControlPermission,
-        RoleHandler $roleHandler)
+    public function createOrgaAction(Request              $request,
+                                     UserHandler          $userHandler,
+                                     CustomerHandler      $customerHandler,
+                                     PermissionsInterface $permissions,
+                                     AccessControlService $accessControlPermission,
+                                     RoleHandler          $roleHandler)
     {
         try {
             if (!($this->requestData instanceof TopLevel)) {
@@ -325,7 +325,7 @@ class DemosPlanOrganisationAPIController extends APIController
                 && array_key_exists('canCreateProcedures', $orgaDataArray)) {
                 $role = $roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY])[0];
                 if (true === $orgaDataArray['canCreateProcedures']) {
-                    $accessControlPermission->createPermission(AccessControlPermissionService::CREATE_PROCEDURES_PERMISSION, $newOrga, $customerHandler->getCurrentCustomer(), $role);
+                    $accessControlPermission->createPermission(AccessControlService::CREATE_PROCEDURES_PERMISSION, $newOrga, $customerHandler->getCurrentCustomer(), $role);
                 }
             }
 
@@ -347,14 +347,14 @@ class DemosPlanOrganisationAPIController extends APIController
      */
     #[Route(path: '/api/1.0/organisation/{id}', name: 'organisation_update', options: ['expose' => true], methods: ['PATCH'])]
     public function updateOrgaAction(
-        CustomerHandler $customerHandler,
-        OrgaHandler $orgaHandler,
+        CustomerHandler      $customerHandler,
+        OrgaHandler          $orgaHandler,
         PermissionsInterface $permissions,
-        Request $request,
-        UserHandler $userHandler,
-        AccessControlPermissionService $accessControlPermission,
-        RoleHandler $roleHandler,
-        string $id)
+        Request              $request,
+        UserHandler          $userHandler,
+        AccessControlService $accessControlPermission,
+        RoleHandler          $roleHandler,
+        string               $id)
     {
         $orgaId = $id;
         try {
@@ -385,9 +385,9 @@ class DemosPlanOrganisationAPIController extends APIController
                 && array_key_exists('canCreateProcedures', $orgaDataArray['attributes'])) {
                 $role = $roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY])[0];
                 if (true === $orgaDataArray['attributes']['canCreateProcedures']) {
-                    $accessControlPermission->createPermission(AccessControlPermissionService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
+                    $accessControlPermission->createPermission(AccessControlService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
                 } else {
-                    $accessControlPermission->removePermission(AccessControlPermissionService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
+                    $accessControlPermission->removePermission(AccessControlService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
                 }
             }
 

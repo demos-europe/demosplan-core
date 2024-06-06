@@ -20,7 +20,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlPermissionService;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
 use Doctrine\Common\Collections\Collection;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
@@ -86,7 +86,7 @@ final class OrgaResourceType extends DplanResourceType
      */
     private const REGISTRATION_STATUSES_SUBDOMAIN = 'subdomain';
 
-    public function __construct(private readonly RoleService $roleService, protected readonly AccessControlPermissionService $accessControlPermissionService)
+    public function __construct(private readonly RoleService $roleService, protected readonly AccessControlService $accessControlPermissionService)
     {
     }
 
@@ -222,7 +222,7 @@ final class OrgaResourceType extends DplanResourceType
             $properties[] = $this->createAttribute($this->canCreateProcedures)->readable(true, function (Orga $orga): bool {
                 $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
 
-                return $this->accessControlPermissionService->hasPermission(AccessControlPermissionService::CREATE_PROCEDURES_PERMISSION, $orga, $currentCustomer);
+                return $this->accessControlPermissionService->hasPermission(AccessControlService::CREATE_PROCEDURES_PERMISSION, $orga, $currentCustomer);
             });
         }
 

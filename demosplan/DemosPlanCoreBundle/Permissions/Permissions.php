@@ -26,7 +26,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
 use demosplan\DemosPlanCoreBundle\Exception\PermissionException;
-use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlPermissionService;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
@@ -124,7 +124,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         ProcedureAccessEvaluator $procedureAccessEvaluator,
         private ProcedureRepository $procedureRepository,
         private readonly ValidatorInterface $validator,
-        private readonly AccessControlPermissionService $accessControlPermission
+        private readonly AccessControlService $accessControlPermission
     ) {
         $this->addonPermissionInitializers = $addonRegistry->getPermissionInitializers();
         $this->globalConfig = $globalConfig;

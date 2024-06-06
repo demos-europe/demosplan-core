@@ -19,13 +19,13 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\OrgaStatusInCustomerFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\OrgaTypeFactory;
-use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControlPermission;
+use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControl;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
-use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlPermissionService;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
@@ -35,7 +35,7 @@ use Zenstruck\Foundry\Proxy;
 class AccessControlPermissionServiceTest extends UnitTestCase
 {
     /**
-     * @var AccessControlPermissionService|null
+     * @var AccessControlService|null
      */
     protected $sut;
     protected RoleHandler|Proxy|null $roleHandler;
@@ -56,7 +56,7 @@ class AccessControlPermissionServiceTest extends UnitTestCase
     {
         parent::setUp();
 
-        $this->sut = $this->getContainer()->get(AccessControlPermissionService::class);
+        $this->sut = $this->getContainer()->get(AccessControlService::class);
 
         $this->roleHandler = $this->getContainer()->get(RoleHandler::class);
         $this->globalConfig = $this->getContainer()->get(GlobalConfig::class);
@@ -99,7 +99,7 @@ class AccessControlPermissionServiceTest extends UnitTestCase
         $accessControlPermission = $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
 
         // Assert
-        self::assertInstanceOf(AccessControlPermission::class, $accessControlPermission);
+        self::assertInstanceOf(AccessControl::class, $accessControlPermission);
         self::assertEquals($permissionToCheck, $accessControlPermission->getPermissionName());
     }
 
@@ -161,7 +161,7 @@ class AccessControlPermissionServiceTest extends UnitTestCase
     public function testDoesNotHavePermissionCreateProceduresPermission(): void
     {
         // Arrange
-        $permissionToCheck = AccessControlPermissionService::CREATE_PROCEDURES_PERMISSION;
+        $permissionToCheck = AccessControlService::CREATE_PROCEDURES_PERMISSION;
         $roleCodes = [RoleInterface::PRIVATE_PLANNING_AGENCY];
         $this->testOrgaType->setName(OrgaTypeInterface::PUBLIC_AGENCY);
         $this->testOrgaType->save();
@@ -188,7 +188,7 @@ class AccessControlPermissionServiceTest extends UnitTestCase
     public function testHasPermissionCreateProceduresPermission(): void
     {
         // Arrange
-        $permissionToCheck = AccessControlPermissionService::CREATE_PROCEDURES_PERMISSION;
+        $permissionToCheck = AccessControlService::CREATE_PROCEDURES_PERMISSION;
         $roleCodes = [RoleInterface::PRIVATE_PLANNING_AGENCY];
 
         // Act

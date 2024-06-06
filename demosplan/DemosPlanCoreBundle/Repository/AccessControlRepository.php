@@ -12,17 +12,17 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControlPermission;
+use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControl;
 use Exception;
 
-class AccessControlPermissionRepository extends CoreRepository
+class AccessControlRepository extends CoreRepository
 {
     /**
      * Add Entity to database.
      *
      * @throws Exception
      */
-    public function add(AccessControlPermission $permission): AccessControlPermission
+    public function add(AccessControl $permission): AccessControl
     {
         try {
             $em = $this->getEntityManager();
