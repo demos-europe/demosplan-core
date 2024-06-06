@@ -18,6 +18,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControl;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Repository\AccessControlRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
@@ -37,7 +38,8 @@ class AccessControlService extends CoreService
     public function __construct(
         private readonly AccessControlRepository $accessControlPermissionRepository,
         private readonly RoleHandler $roleHandler,
-        private readonly GlobalConfig $globalConfig
+        private readonly GlobalConfig $globalConfig,
+        private readonly OrgaService $orgaService,
     ) {
     }
 
@@ -158,5 +160,25 @@ class AccessControlService extends CoreService
         }
 
         return !empty($permissions);
+    }
+
+    public function enablePermissionCustomerOrgaRole(string $permissionToEnable, CustomerInterface $customer = null, RoleInterface $role = null, OrgaInterface $orga = null, bool $dryRun = false): array {
+
+        if (null === $orga) {
+            //enable permission for all orga on the given customer and role
+            $orgasInCustomer = $this->orgaService->getOrgasInCustomer($customer);
+            $updatedOrgas = [];
+
+            foreach ($orgasInCustomer as $orgaInCustomer) {
+                if (false === $dryRun) {
+                    $this->createPermission($permissionToEnable, $orgaInCustomer, $customer, $role);
+                }
+
+                $updatedOrgas[] = $orgaInCustomer;
+
+                // Save the impacted orga in the array
+            }
+        }
+        return $updatedOrgas;
     }
 }

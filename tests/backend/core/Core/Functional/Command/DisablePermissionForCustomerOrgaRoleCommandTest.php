@@ -16,7 +16,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Application\ConsoleApplication;
-use demosplan\DemosPlanCoreBundle\Command\Permission\DisablePermissionForCustomerOrgaRoleCommand;
+use demosplan\DemosPlanCoreBundle\Command\Permission\EnablePermissionForCustomerOrgaRoleCommand;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\OrgaStatusInCustomerFactory;
@@ -109,7 +109,7 @@ class DisablePermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
         $kernel = self::bootKernel();
         $application = new ConsoleApplication($kernel, false);
 
-        $application->add(new DisablePermissionForCustomerOrgaRoleCommand(
+        $application->add(new EnablePermissionForCustomerOrgaRoleCommand(
             $this->createMock(ParameterBagInterface::class),
             $this->customerService,
             $this->orgaRepository,
@@ -117,7 +117,7 @@ class DisablePermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
             $this->accessControlPermissionService,
         ));
 
-        $command = $application->find(DisablePermissionForCustomerOrgaRoleCommand::getDefaultName());
+        $command = $application->find(EnablePermissionForCustomerOrgaRoleCommand::getDefaultName());
         $commandTester = new CommandTester($command);
 
         $commandTester->setInputs([
