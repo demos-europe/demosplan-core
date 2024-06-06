@@ -92,16 +92,12 @@ class EnablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         $roleChoice =  $this->roleService->getRole($roleId);
         $permissionChoice = $this->getConstantValueByName($permissionName);
 
-        if (null === $customerChoice) {
-            throw new CustomerNotFoundException('Customer not found');
-        }
-
-
+        // Return Exception for RoleChoice as Customer ias already throign exception if null, and permission exception is handled in getConstantValueByName
         if (null === $roleChoice) {
             throw new RoleNotFoundException('Role not found');
         }
 
-        $updatedOrgas = $this->accessControlPermissionService->enablePermissionCustomerOrgaRole($permissionChoice, $customerChoice, $roleChoice, null, $dryRun);
+        $updatedOrgas = $this->accessControlPermissionService->enablePermissionCustomerOrgaRole($permissionChoice, $customerChoice, $roleChoice, $dryRun);
 
         foreach ($updatedOrgas as $orga) {
             $output->writeln('Orga ID: '.$orga->getId());
