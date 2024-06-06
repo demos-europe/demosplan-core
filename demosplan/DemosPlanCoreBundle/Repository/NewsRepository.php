@@ -72,10 +72,9 @@ class NewsRepository extends CoreRepository implements ArrayInterface
     private function getProcedureNewsAsArrayOfRoles(array $procedureRolesArray): array
     {
         $roles = [];
-        foreach ($procedureRolesArray as $role)
-            {
-                $roles[] = $this->roleRepository->get($role['id']);
-            }
+        foreach ($procedureRolesArray as $role) {
+            $roles[] = $this->roleRepository->get($role['id']);
+        }
 
         return $roles;
     }
