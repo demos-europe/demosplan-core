@@ -86,12 +86,12 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
     public function isAvailable(): bool
     {
         return true;
+
         return $this->hasAdminPermissions() || $this->currentUser->hasPermission('area_public_participation');
     }
 
     protected function getAccessConditions(): array
     {
-
         return [$this->conditionFactory->true()];
 
         $user = $this->currentUser->getUser();

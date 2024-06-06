@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace backend\integration;
 
-use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureSettingsFactory;
@@ -27,18 +26,16 @@ use Zenstruck\Foundry\Proxy;
 
 class ProcedureMapSettingApiTest extends HttpTestCase
 {
+    protected Procedure|Proxy|null $procedure;
 
-    protected null|Procedure|Proxy $procedure;
+    protected ProcedureSettings|Proxy|null $procedureMapSetting;
 
-    protected null|ProcedureSettings|Proxy $procedureMapSetting;
+    protected User|Proxy|null $user;
 
-    protected null|User|Proxy $user;
-
-    protected null|JWTManager|Proxy $tokenManager;
+    protected JWTManager|Proxy|null $tokenManager;
 
     public function testProcedureMapSetting(): void
     {
-
         $this->user = $this->getUserReference(LoadUserData::TEST_USER_2_PLANNER_ADMIN);
         $this->procedure = ProcedureFactory::createOne();
         $this->procedureMapSetting = ProcedureSettingsFactory::createOne();
@@ -48,7 +45,7 @@ class ProcedureMapSettingApiTest extends HttpTestCase
         $this->tokenManager = $this->getContainer()->get(JWTTokenManagerInterface::class);
 
         $jwtToken = $this->initializeUser($this->user);
-        $headers = $this->getAdditionalHeaders($jwtToken,  $this->procedure->object());
+        $headers = $this->getAdditionalHeaders($jwtToken, $this->procedure->object());
 
         $this->enablePermissions([
             'area_public_participation',
@@ -56,21 +53,21 @@ class ProcedureMapSettingApiTest extends HttpTestCase
 
         $this->client->request(
             'GET',
-            '/api/2.0/Procedure/' . $this->procedure->getId() .
-            '?include=mapSetting&' .
-            'fields[Procedure]=mapSetting&' .
-            'fields[ProcedureMapSetting]=' .
-            'boundingBox,' .
-            'mapExtent,' .
-            'scales,' .
-            'informationUrl,' .
-            'copyright,' .
-            'showOnlyOverlayCategory,' .
-            'availableScales,' .
-            'coordinate,' .
-            'territory,' .
-            'defaultBoundingBox,' .
-            'defaultMapExtent,' .
+            '/api/2.0/Procedure/'.$this->procedure->getId().
+            '?include=mapSetting&'.
+            'fields[Procedure]=mapSetting&'.
+            'fields[ProcedureMapSetting]='.
+            'boundingBox,'.
+            'mapExtent,'.
+            'scales,'.
+            'informationUrl,'.
+            'copyright,'.
+            'showOnlyOverlayCategory,'.
+            'availableScales,'.
+            'coordinate,'.
+            'territory,'.
+            'defaultBoundingBox,'.
+            'defaultMapExtent,'.
             'useGlobalInformationUrl',
             [],
             [],
@@ -79,10 +76,9 @@ class ProcedureMapSettingApiTest extends HttpTestCase
 
         $content = $this->client->getResponse()->getContent();
 
-
         // Validate a successful response and some content
         self::assertResponseIsSuccessful();
-        //self::assertSelectorTextContains('h1', 'registrieren', $this->client->getResponse()->getContent());
+        // self::assertSelectorTextContains('h1', 'registrieren', $this->client->getResponse()->getContent());
     }
 
     protected function initializeUser(User $user): string
@@ -105,6 +101,4 @@ class ProcedureMapSettingApiTest extends HttpTestCase
 
         return $headers;
     }
-
-
 }

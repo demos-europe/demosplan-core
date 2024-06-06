@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
@@ -64,43 +72,43 @@ final class ProcedureSettingsFactory extends ModelFactory
     {
         return [
             'availableScale' => self::faker()->text(2048),
-            'boundingBox' => implode(',', [
+            'boundingBox'    => implode(',', [
                 self::faker()->randomFloat(7, 100000, 2000000), // generates a random float number between 100000 and 2000000 with 7 digits precision
                 self::faker()->randomFloat(7, 100000, 2000000),
                 self::faker()->randomFloat(7, 100000, 2000000),
-                self::faker()->randomFloat(7, 100000, 2000000)
+                self::faker()->randomFloat(7, 100000, 2000000),
             ]),
             /*'coordinate' => implode(',', [
                 self::faker()->randomFloat(7, 100000, 2000000), // generates a random float number between 100000 and 2000000 with 7 digits precision
                 self::faker()->randomFloat(7, 100000, 2000000),
             ]),*/
-            'copyright' => self::faker()->text(),
-            'defaultLayer' => self::faker()->text(2048),
-            'emailCc' => self::faker()->text(25000),
-            'emailText' => self::faker()->text(65535),
-            'emailTitle' => self::faker()->text(2048),
+            'copyright'      => self::faker()->text(),
+            'defaultLayer'   => self::faker()->text(2048),
+            'emailCc'        => self::faker()->text(25000),
+            'emailText'      => self::faker()->text(65535),
+            'emailTitle'     => self::faker()->text(2048),
             'informationUrl' => self::faker()->text(2048),
-            'legalNotice' => self::faker()->text(),
-            'links' => self::faker()->text(),
-            'mapExtent' => implode(',', [
+            'legalNotice'    => self::faker()->text(),
+            'links'          => self::faker()->text(),
+            'mapExtent'      => implode(',', [
                 self::faker()->randomFloat(7, 100000, 2000000), // generates a random float number between 100000 and 2000000 with 7 digits precision
                 self::faker()->randomFloat(7, 100000, 2000000),
                 self::faker()->randomFloat(7, 100000, 2000000),
-                self::faker()->randomFloat(7, 100000, 2000000)
+                self::faker()->randomFloat(7, 100000, 2000000),
             ]),
-            'mapHint' => self::faker()->text(2000),
-            'planDrawPDF' => self::faker()->text(256),
-            'planDrawText' => self::faker()->text(65535),
-            'planEnable' => self::faker()->boolean(),
-            'planPDF' => self::faker()->text(256),
-            'planPara1PDF' => self::faker()->text(256),
-            'planPara2PDF' => self::faker()->text(256),
-            'planText' => self::faker()->text(65535),
-            'planningArea' => self::faker()->text(),
-            'procedure' => ProcedureFactory::new(),
+            'mapHint'             => self::faker()->text(2000),
+            'planDrawPDF'         => self::faker()->text(256),
+            'planDrawText'        => self::faker()->text(65535),
+            'planEnable'          => self::faker()->boolean(),
+            'planPDF'             => self::faker()->text(256),
+            'planPara1PDF'        => self::faker()->text(256),
+            'planPara2PDF'        => self::faker()->text(256),
+            'planText'            => self::faker()->text(65535),
+            'planningArea'        => self::faker()->text(),
+            'procedure'           => ProcedureFactory::new(),
             'sendMailsToCounties' => self::faker()->boolean(),
-            'startScale' => self::faker()->text(2048),
-            'territory' => self::faker()->text(65535),
+            'startScale'          => self::faker()->text(2048),
+            'territory'           => self::faker()->text(65535),
         ];
     }
 
