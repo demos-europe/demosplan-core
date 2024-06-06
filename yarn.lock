@@ -1909,14 +1909,14 @@
   resolved "https://registry.yarnpkg.com/@mapbox/unitbezier/-/unitbezier-0.0.0.tgz#15651bd553a67b8581fb398810c98ad86a34524e"
   integrity sha512-HPnRdYO0WjFjRTSwO3frz1wKaU649OBFPX3Zo/2WZvuRi6zMiRGui8SnPQiQABgqCf8YikDe5t3HViTVw1WUzA==
 
-"@masterportal/masterportalapi@^2.19.2":
-  version "2.19.2"
-  resolved "https://registry.yarnpkg.com/@masterportal/masterportalapi/-/masterportalapi-2.19.2.tgz#b6a3d0fe84e4e1cc968eb459d0eeb8605960be72"
-  integrity sha512-By/MtU71pzQOAxH7/JlcbYud0dmPtgffFeifRs1WyqKeHywdKmZ2lMQDWgmaUksR9bAJT4TKmaVgaAl79bwAqw==
+"@masterportal/masterportalapi@2.22.0":
+  version "2.22.0"
+  resolved "https://registry.yarnpkg.com/@masterportal/masterportalapi/-/masterportalapi-2.22.0.tgz#d9fbca21c364aa92e8826fc0b13888212d0ffae1"
+  integrity sha512-sMH7mAwO4HdFuBS+4DuHkqVCHrpF+GkpO2XtZLwZLfr5lK9N4qZaC0srA/WY2bPAYskfVzP6ACkvYnne4nUQhQ==
   dependencies:
     core-js "^3.30.2"
     dayjs "^1.11.7"
-    ol "7.3.0"
+    ol "7.4.0"
     olcs "^2.14.0"
     proj4 "^2.9.0"
     xml2js "^0.5.0"
@@ -7345,22 +7345,14 @@ ol-mapbox-style@^10.1.0:
     mapbox-to-css-font "^2.4.1"
     ol "^7.3.0"
 
-ol-mapbox-style@^9.2.0:
-  version "9.2.4"
-  resolved "https://registry.yarnpkg.com/ol-mapbox-style/-/ol-mapbox-style-9.2.4.tgz#d7d47208b83576455dd28531eb2e3d9b4e71493f"
-  integrity sha512-Q+G1YvYcC2XSZm9UcrSkW4hxe1K3YFTKBM7FmGhsfXaqty1wRTbsDCLUx7RBAC08RPIaPl0IkHs6SRdJx3BwsQ==
-  dependencies:
-    "@mapbox/mapbox-gl-style-spec" "^13.23.1"
-    mapbox-to-css-font "^2.4.1"
-
-ol@7.3.0:
-  version "7.3.0"
-  resolved "https://registry.yarnpkg.com/ol/-/ol-7.3.0.tgz#7ffb5f258dafa4a3e218208aad9054d61f6fe786"
-  integrity sha512-08vJE4xITKPazQ9qJjeqYjRngnM9s+1eSv219Pdlrjj3LpLqjEH386ncq+76Dw1oGPGR8eLVEePk7FEd9XqqMw==
+ol@7.4.0:
+  version "7.4.0"
+  resolved "https://registry.yarnpkg.com/ol/-/ol-7.4.0.tgz#935436c0843d1f939972e076d4fcb130530ce9d7"
+  integrity sha512-bgBbiah694HhC0jt8ptEFNRXwgO8d6xWH3G97PCg4bmn9Li5nLLbi59oSrvqUI6VPVwonPQF1YcqJymxxyMC6A==
   dependencies:
     earcut "^2.2.3"
     geotiff "^2.0.7"
-    ol-mapbox-style "^9.2.0"
+    ol-mapbox-style "^10.1.0"
     pbf "3.2.1"
     rbush "^3.0.1"
 
