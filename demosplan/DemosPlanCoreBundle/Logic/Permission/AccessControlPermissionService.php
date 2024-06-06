@@ -107,7 +107,7 @@ class AccessControlPermissionService extends CoreService
         return $enabledPermissions;
     }
 
-    private function removePermission(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, RoleInterface $role): void
+    public function removePermission(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, RoleInterface $role): void
     {
         // Find the existing permission with the given parameters
         $permission = $this->accessControlPermissionRepository->findOneBy([
@@ -154,21 +154,5 @@ class AccessControlPermissionService extends CoreService
         }
 
         return !empty($permissions);
-    }
-
-    /**
-     * @param CustomerInterface $orga
-     */
-    public function grantCanCreateProcedurePermission(?OrgaInterface $orga = null, ?CustomerInterface $customer = null, ?RoleInterface $role): void
-    {
-        $this->createPermission(self::CREATE_PROCEDURES_PERMISSION, $orga, $customer, $role);
-    }
-
-    /**
-     * @param CustomerInterface $orga
-     */
-    public function revokeCanCreateProcedurePermission(?OrgaInterface $orga = null, ?CustomerInterface $customer = null, ?RoleInterface $role): void
-    {
-        $this->removePermission(self::CREATE_PROCEDURES_PERMISSION, $orga, $customer, $role);
     }
 }
