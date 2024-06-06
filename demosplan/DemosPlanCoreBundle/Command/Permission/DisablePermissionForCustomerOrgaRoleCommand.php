@@ -17,7 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlPermissionService;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
@@ -48,7 +48,7 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         private readonly CustomerService $customerService,
         private readonly OrgaRepository $orgaRepository,
         private readonly RoleService $roleService,
-        private readonly AccessControlPermissionService $accessControlPermissionService,
+        private readonly AccessControlService $accessControlPermissionService,
         ?string $name = null
     ) {
         parent::__construct($parameterBag, $name);
@@ -216,7 +216,7 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
 
     private function getPermissionsFromAccessControlPermissionService(): array
     {
-        $reflection = new ReflectionClass(AccessControlPermissionService::class);
+        $reflection = new ReflectionClass(AccessControlService::class);
 
         return array_keys($reflection->getConstants());
     }
@@ -230,7 +230,7 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
 
     private function getConstantValueByName($constantName): string
     {
-        $className = AccessControlPermissionService::class;
+        $className = AccessControlService::class;
         $constantFullName = $className.'::'.$constantName;
         if (defined($constantFullName)) {
             return constant($constantFullName);
@@ -241,7 +241,7 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
 
     private function getConstant(string $constantName): ?string
     {
-        $reflection = new ReflectionClass(AccessControlPermissionService::class);
+        $reflection = new ReflectionClass(AccessControlService::class);
         $constants = $reflection->getConstants();
 
         if (array_key_exists($constantName, $constants)) {
