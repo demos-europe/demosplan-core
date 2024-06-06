@@ -205,18 +205,18 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         private readonly ProcedureRepository $procedureRepository,
         private readonly ProcedureSubscriptionRepository $procedureSubscriptionRepository,
         private readonly ProcedureToLegacyConverter $procedureToLegacyConverter,
-        private readonly ProcedureTypeService      $procedureTypeService,
-        private readonly SettingRepository         $settingRepository,
-        private readonly SingleDocumentRepository  $singleDocumentRepository,
-        private readonly SortMethodFactory         $sortMethodFactory,
-        private readonly StatementRepository       $statementRepository,
-        private readonly TagTopicRepository        $tagTopicRepository,
+        private readonly ProcedureTypeService $procedureTypeService,
+        private readonly SettingRepository $settingRepository,
+        private readonly SingleDocumentRepository $singleDocumentRepository,
+        private readonly SortMethodFactory $sortMethodFactory,
+        private readonly StatementRepository $statementRepository,
+        private readonly TagTopicRepository $tagTopicRepository,
         private readonly InstitutionMailRepository $institutionMailRepository,
-        private readonly TranslatorInterface       $translator,
-        UserService                                $userService,
-        private readonly ValidatorInterface        $validator,
-        private readonly AccessControlService      $accessControlPermissionService,
-        private readonly string                    $environment
+        private readonly TranslatorInterface $translator,
+        UserService $userService,
+        private readonly ValidatorInterface $validator,
+        private readonly AccessControlService $accessControlPermissionService,
+        private readonly string $environment
     ) {
         $this->contentService = $contentService;
         $this->elementsService = $elementsService;
