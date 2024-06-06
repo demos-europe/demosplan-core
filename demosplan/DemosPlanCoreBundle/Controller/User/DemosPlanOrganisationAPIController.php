@@ -325,7 +325,7 @@ class DemosPlanOrganisationAPIController extends APIController
                 && array_key_exists('canCreateProcedures', $orgaDataArray)) {
                 $role = $roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY])[0];
                 if (true === $orgaDataArray['canCreateProcedures']) {
-                    $accessControlPermission->grantCanCreateProcedurePermission($newOrga, $customerHandler->getCurrentCustomer(), $role);
+                    $accessControlPermission->createPermission(AccessControlPermissionService::CREATE_PROCEDURES_PERMISSION, $newOrga, $customerHandler->getCurrentCustomer(), $role);
                 }
             }
 
@@ -385,9 +385,9 @@ class DemosPlanOrganisationAPIController extends APIController
                 && array_key_exists('canCreateProcedures', $orgaDataArray['attributes'])) {
                 $role = $roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY])[0];
                 if (true === $orgaDataArray['attributes']['canCreateProcedures']) {
-                    $accessControlPermission->grantCanCreateProcedurePermission($preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
+                    $accessControlPermission->createPermission(AccessControlPermissionService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
                 } else {
-                    $accessControlPermission->revokeCanCreateProcedurePermission($preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
+                    $accessControlPermission->removePermission(AccessControlPermissionService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
                 }
             }
 
