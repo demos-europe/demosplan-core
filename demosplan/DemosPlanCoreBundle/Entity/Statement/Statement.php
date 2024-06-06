@@ -782,6 +782,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * Kind of vote advice.
      *
      * @var string
+     *
      * @ORM\Column(name="_st_vote_pla", type="string", length=16, nullable=true, options={"fixed":true})
      */
     protected $votePla;
@@ -3399,7 +3400,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     }
 
     /**
-     * @return user|null
+     * @return User|null
      *
      * @throws Exception
      */
