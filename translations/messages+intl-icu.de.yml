@@ -2587,7 +2587,7 @@ procedure.by.phase.public: |
         =0 {Verfahren nach Phase (Öffentlichkeit)}
         other {# Verfahren nach Phase (Öffentlichkeit)}
     }
-procedure.public.view: "Öffentlichkeit/Institutions-Ansicht"
+procedure.canCreate: 'Darf Verfahren anlegen'
 procedure.create: "Neues Verfahren anlegen"
 procedure.created: "Verfahren angelegt"
 procedure.current: "Dieses Verfahren"
@@ -2674,6 +2674,7 @@ procedure.public.phase.autoswitch: "Verfahrensschritt automatisch umstellen"
 procedure.public.phase.intern: "Verfahrensschritt Institutionen"
 procedure.public.phase.extern: "Verfahrensschritt Öffentlichkeit"
 procedure.public.search.placeholder: "Ort, PLZ oder Verfahrensname"
+procedure.public.view: "Öffentlichkeit/Institutions-Ansicht"
 procedure.selected.none: "Kein Verfahren ausgewählt."
 procedure.shorturl.explanation: "Unter dieser URL ist das Verfahren öffentlich abrufbar. Wenn Sie die URL ändern, kann das Verfahren weiterhin auch über die zuvor vergebenen URLs erreicht werden."
 procedure.show.similar.recommendations: "Ähnliche Erwiderungen aus folgenden Verfahren anzeigen"
