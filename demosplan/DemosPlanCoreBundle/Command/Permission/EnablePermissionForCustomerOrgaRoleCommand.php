@@ -27,10 +27,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ChoiceQuestion;
-use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\Question;
-use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 /**
@@ -88,15 +85,14 @@ class EnablePermissionForCustomerOrgaRoleCommand extends CoreCommand
 
     public function execute(InputInterface $input, OutputInterface $output): int
     {
-
         $customerId = $input->getArgument('customerId');
-        //$orgaId = $input->getArgument('orgaId');
+        // $orgaId = $input->getArgument('orgaId');
         $roleId = $input->getArgument('roleId');
         $permissionName = $input->getArgument('permission');
         $dryRun = $input->getOption('dry-run');
 
         $customer = $this->getCustomerFromDatabase($customerId);
-       // $orgas = $this->getOrgasFromDatabase($orgaId)?:[];
+        // $orgas = $this->getOrgasFromDatabase($orgaId)?:[];
         $role = $this->getRolesFromDatabase($roleId);
         $permissionChoice = $this->getConstant($permissionName);
         $updatedOrgas = $this->enablePermissionForCustomerOrgaRole($permissionChoice, $customer, $role, null, $dryRun);
@@ -106,14 +102,12 @@ class EnablePermissionForCustomerOrgaRoleCommand extends CoreCommand
             $output->writeln('Orga Name: '.$orga->getName());
         }
 
-
         $output->writeln('******************************************************');
-        $output->writeln($dryRun? 'This is a dry run. No changes have been made to the database.' : 'Changes have been applied to the database.');
+        $output->writeln($dryRun ? 'This is a dry run. No changes have been made to the database.' : 'Changes have been applied to the database.');
         $output->writeln('******************************************************');
         $output->writeln('Permission has been enabled for mentioned orgas on:');
-        $output->writeln('Customer ' . $customer->getId() . ' ' . $customer->getName());
-        $output->writeln('Role ' . $role->getId() . ' ' . $role->getName());
-
+        $output->writeln('Customer '.$customer->getId().' '.$customer->getName());
+        $output->writeln('Role '.$role->getId().' '.$role->getName());
 
         return Command::SUCCESS;
     }
@@ -169,7 +163,7 @@ class EnablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         return array_keys($reflection->getConstants());
     }
 
-    private function enablePermissionForCustomerOrgaRole(mixed $permissionChoice, CustomerInterface $customer, RoleInterface $role, OrgaInterface $orga = null, bool $dryRun): array
+    private function enablePermissionForCustomerOrgaRole(mixed $permissionChoice, CustomerInterface $customer, RoleInterface $role, ?OrgaInterface $orga = null, bool $dryRun): array
     {
         $constantValue = $this->getConstantValueByName($permissionChoice);
 

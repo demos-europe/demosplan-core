@@ -162,10 +162,10 @@ class AccessControlService extends CoreService
         return !empty($permissions);
     }
 
-    public function enablePermissionCustomerOrgaRole(string $permissionToEnable, CustomerInterface $customer = null, RoleInterface $role = null, OrgaInterface $orga = null, bool $dryRun = false): array {
-
+    public function enablePermissionCustomerOrgaRole(string $permissionToEnable, ?CustomerInterface $customer = null, ?RoleInterface $role = null, ?OrgaInterface $orga = null, bool $dryRun = false): array
+    {
         if (null === $orga) {
-            //enable permission for all orga on the given customer and role
+            // enable permission for all orga on the given customer and role
             $orgasInCustomer = $this->orgaService->getOrgasInCustomer($customer);
             $updatedOrgas = [];
 
@@ -179,6 +179,7 @@ class AccessControlService extends CoreService
                 // Save the impacted orga in the array
             }
         }
+
         return $updatedOrgas;
     }
 }
