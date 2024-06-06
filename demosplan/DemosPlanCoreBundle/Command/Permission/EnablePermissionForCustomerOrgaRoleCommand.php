@@ -20,14 +20,12 @@ use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
-use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use ReflectionClass;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\Question;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 /**
@@ -41,7 +39,6 @@ class EnablePermissionForCustomerOrgaRoleCommand extends CoreCommand
     public function __construct(
         ParameterBagInterface $parameterBag,
         private readonly CustomerService $customerService,
-        private readonly OrgaRepository $orgaRepository,
         private readonly RoleService $roleService,
         private readonly AccessControlService $accessControlPermissionService,
         ?string $name = null
@@ -56,12 +53,6 @@ class EnablePermissionForCustomerOrgaRoleCommand extends CoreCommand
             InputArgument::REQUIRED,
             'The ID of the customer you want to enable the permission.'
         );
-
-        /*$this->addArgument(
-            'orgaId',
-            InputArgument::OPTIONAL,
-            'The ID of the orga you want to enable the permission.'
-        );*/
 
         $this->addArgument(
             'roleId',
@@ -85,14 +76,13 @@ class EnablePermissionForCustomerOrgaRoleCommand extends CoreCommand
 
     public function execute(InputInterface $input, OutputInterface $output): int
     {
+
         $customerId = $input->getArgument('customerId');
-        // $orgaId = $input->getArgument('orgaId');
         $roleId = $input->getArgument('roleId');
         $permissionName = $input->getArgument('permission');
         $dryRun = $input->getOption('dry-run');
 
         $customer = $this->getCustomerFromDatabase($customerId);
-        // $orgas = $this->getOrgasFromDatabase($orgaId)?:[];
         $role = $this->getRolesFromDatabase($roleId);
         $permissionChoice = $this->getConstant($permissionName);
         $updatedOrgas = $this->enablePermissionForCustomerOrgaRole($permissionChoice, $customer, $role, null, $dryRun);
@@ -112,20 +102,6 @@ class EnablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         return Command::SUCCESS;
     }
 
-    private function getPermissions(): array
-    {
-        // Fetch permissions from the AccessControlPermissionService class
-        $permissions = $this->getPermissionsFromAccessControlPermissionService();
-
-        // Prepare choices for the question
-        $choices = [];
-        foreach ($permissions as $permission) {
-            $choices[] = $permission;
-        }
-
-        return $choices;
-    }
-
     private function getCustomerFromDatabase($customerId): ?CustomerInterface
     {
         try {
@@ -135,19 +111,6 @@ class EnablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         }
     }
 
-    private function getOrgasFromDatabase($orgaIds): array
-    {
-        $orgaIds = explode(',', $orgaIds);
-        $orgas = [];
-        foreach ($orgaIds as $orgaId) {
-            $orga = $this->orgaRepository->get(trim($orgaId));
-            if (null !== $orga) {
-                $orgas[] = $orga;
-            }
-        }
-
-        return $orgas;
-    }
 
     private function getRolesFromDatabase($roleId): ?RoleInterface
     {
@@ -156,14 +119,7 @@ class EnablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         return $this->roleService->getRole($roleId);
     }
 
-    private function getPermissionsFromAccessControlPermissionService(): array
-    {
-        $reflection = new ReflectionClass(AccessControlService::class);
-
-        return array_keys($reflection->getConstants());
-    }
-
-    private function enablePermissionForCustomerOrgaRole(mixed $permissionChoice, CustomerInterface $customer, RoleInterface $role, ?OrgaInterface $orga = null, bool $dryRun): array
+    private function enablePermissionForCustomerOrgaRole(mixed $permissionChoice, CustomerInterface $customer, RoleInterface $role, OrgaInterface $orga = null, bool $dryRun): array
     {
         $constantValue = $this->getConstantValueByName($permissionChoice);
 
@@ -176,9 +132,9 @@ class EnablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         $constantFullName = $className.'::'.$constantName;
         if (defined($constantFullName)) {
             return constant($constantFullName);
-        } else {
-            throw new Exception("Constant {$constantFullName} does not exist");
         }
+
+        throw new \InvalidArgumentException('Permission does not exit');
     }
 
     private function getConstant(string $constantName): ?string
