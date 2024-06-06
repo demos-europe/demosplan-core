@@ -35,6 +35,7 @@ class NewsRepository extends CoreRepository implements ArrayInterface
         Reindexer $reindexer,
         SortMethodFactory $sortMethodFactory,
         private readonly ProcedureNewsService $procedureNewsService,
+        private readonly RoleRepository $roleRepository,
         string $entityClass)
     {
         parent::__construct($conditionFactory, $registry, $reindexer, $sortMethodFactory, $entityClass);
@@ -66,6 +67,17 @@ class NewsRepository extends CoreRepository implements ArrayInterface
 
             return null;
         }
+    }
+
+    private function getProcedureNewsAsArrayOfRoles(array $procedureRolesArray): array
+    {
+        $roles = [];
+        foreach ($procedureRolesArray as $role)
+            {
+                $roles[] = $this->roleRepository->get($role['id']);
+            }
+
+        return $roles;
     }
 
     /**
@@ -101,7 +113,10 @@ class NewsRepository extends CoreRepository implements ArrayInterface
                 $news->setEnabled($procedureNews['enabled']);
                 $news->setDeleted($procedureNews['deleted']);
                 $news->setPdftitle($procedureNews['pdftitle']);
-                $news->setRoles([]);
+
+                // Roles has to be an array of Roles
+                $roles = $this->getProcedureNewsAsArrayOfRoles($procedureNews['roles']);
+                $news->setRoles($roles);
 
                 $this->getEntityManager()->persist($news);
 
