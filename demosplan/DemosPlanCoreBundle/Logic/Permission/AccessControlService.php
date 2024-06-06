@@ -60,7 +60,6 @@ class AccessControlService extends CoreService
 
         // Loop through each role
         foreach ($roles as $roleName) {
-
             // Try to find an existing permission with the given parameters
 
             $roles = $this->roleHandler->getUserRolesByCodes([$roleName]);
