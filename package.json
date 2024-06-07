@@ -51,7 +51,7 @@
     "@demos-europe/demosplan-ui": "^0.3.17",
     "@demos-europe/dp-consent": "^1.1.2",
     "@efrane/vuex-json-api": "0.0.38",
-    "@masterportal/masterportalapi": "2.22.0",
+    "@masterportal/masterportalapi": "2.32.0",
     "@sentry/browser": "^8.2.1",
     "@sentry/integrations": "^7.114.0",
     "@sentry/tracing": "^7.114.0",
@@ -61,6 +61,7 @@
     "@uppy/drag-drop": "^3.0.3",
     "@uppy/progress-bar": "^3.0.4",
     "a11y-datepicker": " ^0.9.0",
+    "cesium": "^1.118.2",
     "core-js": "^3.37.1",
     "d3": "^7.8.5",
     "d3-sankey-diagram": "^0.7.3",
@@ -179,7 +180,7 @@
   },
   "engines": {
     "npm": ">= 6.0.0",
-    "node": ">= 18.18.0"
+    "node": ">= 20.2.0"
   },
   "browserslist": [
     "last 5 versions",
