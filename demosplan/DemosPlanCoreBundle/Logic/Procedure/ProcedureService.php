@@ -2086,8 +2086,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     /**
      * Set authorized users to given procedure.
      * Will set at least the current user as authorized user to ensure one user will be authorized.
-     * Will set all users of organisation of the current user in case of given blueprint is the master blueprint.
      * Will set all authorized users of given blueprint.
+     * Will set only the current user in case of given blueprint is the master blueprint.
      *
      * @param string|Procedure $blueprint
      * @param string           $currentUserId
