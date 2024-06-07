@@ -151,7 +151,7 @@
     "fs": "0.0.1-security",
     "glob": "^10.3.16",
     "glob-all": "^3.3.1",
-    "jest": "^27.3.1",
+    "jest": "^27.0.6",
     "jest-junit": "^16.0.0",
     "jsdom": "^24.0.0",
     "mini-css-extract-plugin": "^2.9.0",
@@ -180,7 +180,7 @@
   },
   "engines": {
     "npm": ">= 6.0.0",
-    "node": ">= 20.9.0"
+    "node": ">= 20.12.2"
   },
   "browserslist": [
     "last 5 versions",
@@ -190,5 +190,6 @@
   ],
   "resolutions": {
     "@mapbox/mapbox-gl-style-spec": "13.23.1"
-  }
+  },
+  "packageManager": "yarn@4.2.2"
 }
