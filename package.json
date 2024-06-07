@@ -175,7 +175,7 @@
     "webpack-merge": "^5.10.0"
   },
   "engines": {
-    "npm": ">= 6.0.0",
+    "npm": ">= 9.8.1",
     "node": ">= 18.18.0"
   },
   "browserslist": [
