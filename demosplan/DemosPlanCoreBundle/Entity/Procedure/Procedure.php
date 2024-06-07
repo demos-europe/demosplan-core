@@ -1693,6 +1693,15 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return $this;
     }
 
+    public function addPlanningOffice(OrgaInterface $planningOffice): self
+    {
+        if (!$this->planningOffices->contains($planningOffice)) {
+            $this->planningOffices->add($planningOffice);
+        }
+
+        return $this;
+    }
+
     /**
      * @return Collection<int, Orga>
      */
