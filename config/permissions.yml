@@ -1098,6 +1098,13 @@ feature_layer_groups_alternate_visibility:
     label: 'Hide other layer categories if overlay from another category is visible'
     expose: true
     loginRequired: true
+feature_manage_procedure_creation_permission:
+    description: |-
+        Allows the user to update if an orga is allowed to create new procedures.
+    expose: true
+    label: 'Permission to enable orga to create procedures.'
+    loginRequired: true
+    parent: [area_manage_orgas, area_manage_orgas_all]
 feature_map_attribution:
     description: |-
         Restrict the access to edit the public map copyright/attribution (in the admin area)
