@@ -667,6 +667,8 @@ services:
 
     demosplan\DemosPlanCoreBundle\Tools\DocxImporterInterface: '@demosplan\DemosPlanCoreBundle\Tools\DocxImporterRabbitmq'
 
+    DemosEurope\DemosplanAddon\Contracts\Tools\DocxAddonImporterInterface: '@demosplan\DemosPlanCoreBundle\Tools\DocxImporterInterface'
+
 
     demosplan\DemosPlanCoreBundle\Tools\ServiceImporter:
         arguments:
