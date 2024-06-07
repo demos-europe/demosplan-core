@@ -31,8 +31,7 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
-use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Tests\Base\FunctionalTestCase;
@@ -40,16 +39,11 @@ use Zenstruck\Foundry\Proxy;
 
 class EnablePermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
 {
-    protected $customerService;
+    protected CustomerService|Proxy|null $customerService;
 
-    protected $orgaRepository;
+    protected OrgaService|Proxy|null $orgaService;
 
-    protected $orgaService;
-
-    protected $roleService;
-
-    protected GlobalConfig|Proxy|null $globalConfig;
-
+    protected RoleService|Proxy|null $roleService;
     protected AccessControlService|Proxy|null $accessControlService;
 
     protected RoleHandler|Proxy|null $roleHandler;
@@ -69,12 +63,9 @@ class EnablePermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
         parent::setUp();
         $this->roleHandler = $this->getContainer()->get(RoleHandler::class);
         $this->customerService = $this->getContainer()->get(CustomerService::class);
-        $this->orgaRepository = $this->getContainer()->get(OrgaRepository::class);
         $this->orgaService = $this->getContainer()->get(OrgaService::class);
         $this->roleService = $this->getContainer()->get(RoleService::class);
         $this->accessControlService = $this->getContainer()->get(AccessControlService::class);
-        $this->globalConfig = $this->getContainer()->get(GlobalConfig::class);
-
         $this->testRole = $this->roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY])[0];
 
         $this->testOrgaType = OrgaTypeFactory::createOne();
@@ -83,8 +74,6 @@ class EnablePermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
 
         $this->testOrga = OrgaFactory::createOne();
         $this->testCustomer = CustomerFactory::createOne();
-        $this->testCustomer->setSubdomain($this->globalConfig->getSubdomain());
-        $this->testCustomer->save();
 
         $this->testOrgaStatusInCustomer = OrgaStatusInCustomerFactory::createOne();
 
@@ -102,6 +91,14 @@ class EnablePermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
 
         $this->testOrga->addStatusInCustomer($this->testOrgaStatusInCustomer->object());
         $this->testOrga->save();
+
+        $orgaStatusesCollection = new ArrayCollection([$this->testOrgaStatusInCustomer->object()]);
+        $this->testCustomer->setOrgaStatuses($orgaStatusesCollection);
+        $this->testCustomer->save();
+
+        $this->testOrga->setStatusInCustomers($orgaStatusesCollection);
+        $this->testOrga->save();
+
     }
 
     public function testExecute(): CommandTester
@@ -112,7 +109,6 @@ class EnablePermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
         $application->add(new EnablePermissionForCustomerOrgaRoleCommand(
             $this->createMock(ParameterBagInterface::class),
             $this->customerService,
-            $this->orgaRepository,
             $this->roleService,
             $this->accessControlService,
         ));
@@ -120,29 +116,37 @@ class EnablePermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
         $command = $application->find(EnablePermissionForCustomerOrgaRoleCommand::getDefaultName());
         $commandTester = new CommandTester($command);
 
-        $commandTester->setInputs([
-            $this->globalConfig->getSubdomain(), 'yes',
-            $this->testOrga->getId(), 'yes',
-            $this->testRole->getId(), 'yes',
-            '0', 'yes',
-            'yes']);
+
+        // Define the arguments
+        $customerId = $this->testCustomer->getId();
+        $roleId = $this->testRole->getId();
+        $permission = 'CREATE_PROCEDURES_PERMISSION';
 
         $commandTester->execute([
-            'command'  => $command->getName(),
+            'customerId' => $customerId,
+            'roleId' => $roleId,
+            'permission' => $permission,
+            '--dry-run' => true
         ]);
 
         $output = $commandTester->getDisplay();
-        $this->assertStringContainsString('You have confirmed all the options.', $output);
+        $this->assertStringContainsString('This is a dry run. No changes have been made to the database.', $output);
+        $this->assertStringContainsString('Customer '. $this->testCustomer->getId() . ' ' . $this->testCustomer->getName() , $output);
+        $this->assertStringContainsString('Role '. $this->testRole->getId() . ' ' . $this->testRole->getName(), $output);
 
-        // $orgasForCustomer = $this->getAllOrgasForCustomer();
+        // Test without dry-run option
+        $commandTester->execute([
+            'customerId' => $customerId,
+            'roleId' => $roleId,
+            'permission' => $permission
+        ]);
 
-        $this->assertStringContainsString('You have confirmed all the options.', $output);
+        $output = $commandTester->getDisplay();
+        $this->assertStringContainsString('Changes have been applied to the database.', $output);
+        $this->assertStringContainsString('Customer '. $this->testCustomer->getId() . ' ' . $this->testCustomer->getName() , $output);
+        $this->assertStringContainsString('Role '. $this->testRole->getId() . ' ' . $this->testRole->getName(), $output);
 
         return $commandTester;
     }
 
-    public function getAllOrgasForCustomer(): array
-    {
-        return $this->orgaService->getOrgasInCustomer($this->testCustomer->object());
-    }
 }

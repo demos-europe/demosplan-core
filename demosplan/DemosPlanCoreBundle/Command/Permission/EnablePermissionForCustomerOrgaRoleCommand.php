@@ -87,26 +87,33 @@ class EnablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         $roleChoice = $this->roleService->getRole($roleId);
         $permissionChoice = $this->getConstantValueByName($permissionName);
 
-        // Return Exception for RoleChoice as Customer ias already throign exception if null, and permission exception is handled in getConstantValueByName
+        // Return Exception for RoleChoice as Customer already throws exception if null, and permission exception is handled in getConstantValueByName
         if (null === $roleChoice) {
             throw new RoleNotFoundException('Role not found');
         }
 
         $updatedOrgas = $this->accessControlPermissionService->enablePermissionCustomerOrgaRole($permissionChoice, $customerChoice, $roleChoice, $dryRun);
 
-        foreach ($updatedOrgas as $orga) {
-            $output->writeln('Orga ID: '.$orga->getId());
-            $output->writeln('Orga Name: '.$orga->getName());
-        }
+        $this->displayUpdatedOrgas($output, $updatedOrgas);
 
         $output->writeln('******************************************************');
         $output->writeln($dryRun ? 'This is a dry run. No changes have been made to the database.' : 'Changes have been applied to the database.');
         $output->writeln('******************************************************');
+        $output->writeln('Permission has been enabled for '. count($updatedOrgas) . ' orgas');
         $output->writeln('Permission has been enabled for mentioned orgas on:');
         $output->writeln('Customer '.$customerChoice->getId().' '.$customerChoice->getName());
         $output->writeln('Role '.$roleChoice->getId().' '.$roleChoice->getName());
 
         return Command::SUCCESS;
+    }
+
+    private function displayUpdatedOrgas(OutputInterface $output, array $updatedOrgas): void
+    {
+        foreach ($updatedOrgas as $orga) {
+            $output->writeln('Orga ID: '.$orga->getId());
+            $output->writeln('Orga Name: '.$orga->getName());
+        }
+
     }
 
     private function getConstantValueByName($constantName): string
