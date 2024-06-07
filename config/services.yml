@@ -667,7 +667,10 @@ services:
 
     demosplan\DemosPlanCoreBundle\Tools\DocxImporterInterface: '@demosplan\DemosPlanCoreBundle\Tools\DocxImporterRabbitmq'
 
-    DemosEurope\DemosplanAddon\Contracts\Tools\DocxAddonImporterInterface: '@demosplan\DemosPlanCoreBundle\Tools\DocxImporterInterface'
+    demosplan\DemosPlanCoreBundle\Tools\DocxAddonImporter: ~
+
+    DemosEurope\DemosplanAddon\Contracts\Tools\DocxAddonImporterInterface:
+        class: demosplan\DemosPlanCoreBundle\Tools\DocxAddonImporter
 
 
     demosplan\DemosPlanCoreBundle\Tools\ServiceImporter:
