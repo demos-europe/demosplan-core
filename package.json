@@ -180,7 +180,7 @@
   },
   "engines": {
     "npm": ">= 6.0.0",
-    "node": ">= 20.2.0"
+    "node": ">= 20.9.0"
   },
   "browserslist": [
     "last 5 versions",
