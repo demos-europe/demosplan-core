@@ -99,7 +99,7 @@ class EnablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         $output->writeln('******************************************************');
         $output->writeln($dryRun ? 'This is a dry run. No changes have been made to the database.' : 'Changes have been applied to the database.');
         $output->writeln('******************************************************');
-        $output->writeln('Permission has been enabled for '. count($updatedOrgas) . ' orgas');
+        $output->writeln('Permission has been enabled for '.count($updatedOrgas).' orgas');
         $output->writeln('Permission has been enabled for mentioned orgas on:');
         $output->writeln('Customer '.$customerChoice->getId().' '.$customerChoice->getName());
         $output->writeln('Role '.$roleChoice->getId().' '.$roleChoice->getName());
@@ -113,7 +113,6 @@ class EnablePermissionForCustomerOrgaRoleCommand extends CoreCommand
             $output->writeln('Orga ID: '.$orga->getId());
             $output->writeln('Orga Name: '.$orga->getName());
         }
-
     }
 
     private function getConstantValueByName($constantName): string
