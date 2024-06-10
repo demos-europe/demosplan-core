@@ -32,7 +32,7 @@ use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Tests\Base\UnitTestCase;
 use Zenstruck\Foundry\Proxy;
 
-class AccessControlPermissionServiceTest extends UnitTestCase
+class AccessControlServiceTest extends UnitTestCase
 {
     /**
      * @var AccessControlService|null
@@ -69,7 +69,7 @@ class AccessControlPermissionServiceTest extends UnitTestCase
 
         $this->testOrga = OrgaFactory::createOne();
         $this->testCustomer = CustomerFactory::createOne();
-        $this->testCustomer->setSubdomain($this->globalConfig->getSubdomain());
+        $this->testCustomer->setSubdomain('bb');
         $this->testCustomer->save();
 
         $this->testOrgaStatusInCustomer = OrgaStatusInCustomerFactory::createOne();
@@ -179,7 +179,7 @@ class AccessControlPermissionServiceTest extends UnitTestCase
         $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
 
         // Act
-        $hasPermission = $this->sut->checkPermissionForOrgaType($permissionToCheck, $this->testOrga->object());
+        $hasPermission = $this->sut->checkPermissionForOrgaType($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object());
 
         // Assert
         $this->assertFalse($hasPermission);

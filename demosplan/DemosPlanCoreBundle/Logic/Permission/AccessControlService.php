@@ -20,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControl;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Repository\AccessControlRepository;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use Webmozart\Assert\Assert;
 
 /**
@@ -37,7 +36,6 @@ class AccessControlService extends CoreService
     public function __construct(
         private readonly AccessControlRepository $accessControlPermissionRepository,
         private readonly RoleHandler $roleHandler,
-        private readonly GlobalConfig $globalConfig
     ) {
     }
 
@@ -128,15 +126,15 @@ class AccessControlService extends CoreService
     }
 
     /**
-     * Checks if the given permission is allowed for the organization type.
+     * Checks if the given permission is allowed for the organization type in that customer
      *
      * Returns true if the permission is allowed for the organization type or if the permission is not 'CREATE_PROCEDURES_PERMISSION'.
      * Returns false if the permission is 'CREATE_PROCEDURES_PERMISSION' and the organization type is not 'PLANNING_AGENCY'.
      */
-    public function checkPermissionForOrgaType(string $permissionToCheck, OrgaInterface $orga): bool
+    public function checkPermissionForOrgaType(string $permissionToCheck, OrgaInterface $orga, CustomerInterface $customer): bool
     {
         if (self::CREATE_PROCEDURES_PERMISSION === $permissionToCheck) {
-            return in_array(OrgaTypeInterface::PLANNING_AGENCY, $orga->getTypes($this->globalConfig->getSubdomain(), true));
+            return in_array(OrgaTypeInterface::PLANNING_AGENCY, $orga->getTypes($customer->getSubdomain(), true));
         }
 
         return true;
