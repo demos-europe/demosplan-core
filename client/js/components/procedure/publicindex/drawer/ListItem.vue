@@ -10,7 +10,7 @@
 <template>
   <li
     class="c-publicindex__list-item"
-    data-cy="listItem">
+    data-cy="procedureListItem">
     <a
       @click.prevent="showDetailView(procedure.id)"
       class="block o-link--default cursor-pointer o-hellip"
