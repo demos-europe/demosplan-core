@@ -17,12 +17,12 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControl;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Repository\AccessControlRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use Webmozart\Assert\Assert;
+use Webmozart\Assert\InvalidArgumentException;
 
 /**
  * This file is part of the package demosplan.
