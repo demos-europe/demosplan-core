@@ -14,7 +14,7 @@
     v-scroller>
     <ul
       class="u-m-0 u-pb-0_25"
-      data-cy="list">
+      data-cy="procedureList">
       <dp-list-item
         v-for="procedure in procedures"
         :key="procedure.id"
