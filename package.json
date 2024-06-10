@@ -186,6 +186,5 @@
   ],
   "resolutions": {
     "@mapbox/mapbox-gl-style-spec": "13.23.1"
-  },
-  "packageManager": "yarn@4.2.2"
+  }
 }
