@@ -39,7 +39,7 @@
                                         class="c-actionmenu__menuitem whitespace-normal"
                                         data-actionmenu-menuitem
                                         data-actionmenu-current
-                                        :data-cy="`baseHeader:{{ project.name | wysiwyg }}`"
+                                        :data-cy="`baseHeader:platformSwitcher:{{ loop.index }}`"
                                         aria-disabled="true"
                                         aria-label="{{ project.ariaName }}"
                                         role="menuitem"
@@ -48,7 +48,7 @@
                                     <a
                                         href="{{ project.url }}"
                                         data-actionmenu-menuitem
-                                        :data-cy="`baseHeader:{{ project.name|wysiwyg }}`"
+                                        :data-cy="`baseHeader:platformSwitcher:{{ loop.index }}`"
                                         aria-label="{{ project.ariaName }}"
                                         class="c-actionmenu__menuitem whitespace-normal"
                                         role="menuitem">{{ project.name|wysiwyg }}</a>
