@@ -17,9 +17,9 @@
         v-model="currentAutocompleteSearch"
         :class="prefixClass('c-proceduresearch__search-field')"
         data-cy="searchProcedureMapForm:procedureSearch"
+        height="34px"
         label="value"
         name="search"
-        :height="'34px'"
         :options="autocompleteOptions"
         :placeholder="Translator.trans('procedure.public.search.placeholder')"
         :route-generator="(searchString) => {
