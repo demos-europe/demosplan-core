@@ -126,7 +126,7 @@ class AccessControlService extends CoreService
     }
 
     /**
-     * Checks if the given permission is allowed for the organization type in that customer
+     * Checks if the given permission is allowed for the organization type in that customer.
      *
      * Returns true if the permission is allowed for the organization type or if the permission is not 'CREATE_PROCEDURES_PERMISSION'.
      * Returns false if the permission is 'CREATE_PROCEDURES_PERMISSION' and the organization type is not 'PLANNING_AGENCY'.
