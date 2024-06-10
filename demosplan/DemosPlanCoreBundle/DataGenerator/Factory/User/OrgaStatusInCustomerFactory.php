@@ -58,7 +58,6 @@ final class OrgaStatusInCustomerFactory extends ModelFactory
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
      *
-     * @todo inject services if required
      */
     public function __construct()
     {
@@ -68,7 +67,6 @@ final class OrgaStatusInCustomerFactory extends ModelFactory
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
      *
-     * @todo add your default values here
      */
     protected function getDefaults(): array
     {
@@ -85,9 +83,7 @@ final class OrgaStatusInCustomerFactory extends ModelFactory
      */
     protected function initialize(): self
     {
-        return $this
-            // ->afterInstantiate(function(OrgaStatusInCustomer $orgaStatusInCustomer): void {})
-        ;
+        return $this;
     }
 
     protected static function getClass(): string

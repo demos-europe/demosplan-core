@@ -2124,13 +2124,9 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     /**
      * If orga has the permission, add current orga to authorized planning offices to given procedure.
      *
-     * @param string $currentUserId
-     *
-     * @return Procedure
-     *
      * @throws Exception
      */
-    protected function addCurrentOrgaToPlanningOffices(Procedure $newProcedure, $currentUserId)
+    protected function addCurrentOrgaToPlanningOffices(Procedure $newProcedure, string $currentUserId): Procedure
     {
         $currentUser = $this->userService->getSingleUser($currentUserId);
 
