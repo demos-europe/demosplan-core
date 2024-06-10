@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Repository\AccessControlRepository;
 use Webmozart\Assert\Assert;
+use Webmozart\Assert\InvalidArgumentException;
 
 /**
  * This file is part of the package demosplan.
@@ -60,9 +61,7 @@ class AccessControlService extends CoreService
         foreach ($roles as $roleName) {
             // Try to find an existing permission with the given parameters
 
-            $roles = $this->roleHandler->getUserRolesByCodes([$roleName]);
-            Assert::count($roles, 1);
-            $role = $roles[0];
+            $role = $this->getRoleByCode($roleName);
 
             $permissions = $this->getEnabledPermissionNames($role, $orga, $customer, null);
 
@@ -72,6 +71,24 @@ class AccessControlService extends CoreService
 
         // Return the permissions array
         return $enabledPermissions;
+    }
+
+    private function getRoleByCode(string $roleCode): RoleInterface
+    {
+        $roles = $this->roleHandler->getUserRolesByCodes([$roleCode]);
+
+        try {
+            Assert::count($roles, 1);
+        } catch (InvalidArgumentException $e) {
+            // Log the warning
+            $this->logger->warning('More than one role found for the given role name. Using the first one.', [
+                'roleName' => $roleCode,
+                'roles'    => $roles,
+            ]);
+        }
+
+        // Use the first role
+        return $roles[0];
     }
 
     private function getEnabledPermissionNames(?RoleInterface $role, ?OrgaInterface $orga, ?CustomerInterface $customer, ?string $permissionName): array
