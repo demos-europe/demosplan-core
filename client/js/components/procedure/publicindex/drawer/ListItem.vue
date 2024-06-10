@@ -8,7 +8,9 @@
 </license>
 
 <template>
-  <li class="c-publicindex__list-item">
+  <li
+    class="c-publicindex__list-item"
+    data-cy="listItem">
     <a
       @click.prevent="showDetailView(procedure.id)"
       class="block o-link--default cursor-pointer o-hellip"

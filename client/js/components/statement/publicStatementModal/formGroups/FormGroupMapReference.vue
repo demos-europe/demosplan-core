@@ -46,6 +46,7 @@
       <a
         href="#"
         class="o-link--default"
+        data-cy="formGroupMap:procedureDetailsMap"
         v-show="isLocationSelected"
         @click.prevent="gotoTab('procedureDetailsMap')">
         <template v-if="statement.r_location_point !== ''">
