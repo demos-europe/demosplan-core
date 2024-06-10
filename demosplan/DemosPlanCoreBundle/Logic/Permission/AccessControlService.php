@@ -75,17 +75,17 @@ class AccessControlService extends CoreService
         return $enabledPermissions;
     }
 
-    private function getRoleByCode(string $roleCode): RoleInterface {
+    private function getRoleByCode(string $roleCode): RoleInterface
+    {
         $roles = $this->roleHandler->getUserRolesByCodes([$roleCode]);
 
         try {
             Assert::count($roles, 1);
         } catch (InvalidArgumentException $e) {
-
             // Log the warning
             $this->logger->warning('More than one role found for the given role name. Using the first one.', [
                 'roleName' => $roleCode,
-                'roles' => $roles,
+                'roles'    => $roles,
             ]);
         }
 
