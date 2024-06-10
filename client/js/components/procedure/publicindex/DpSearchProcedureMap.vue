@@ -195,6 +195,7 @@
         <h2
           v-if="isSearch"
           id="searchResultHeading"
+          aria-live="polite"
           role="status"
           :class="prefixClass('layout__item font-size-h2 u-pr u-mb c-proceduresearch__result')">
           Die Suche nach <span :class="prefixClass('c-proceduresearch__term weight--bold')">{{ currentSearch }}</span> hatte {{ resultCount }} Ergebnis
