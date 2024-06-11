@@ -158,4 +158,24 @@ class AccessControlService extends CoreService
 
         return !empty($permissions);
     }
+
+    public function addPermissionToGivenRole(OrgaInterface $orga, CustomerInterface $customer, string $roleName): void {
+        $role = $this->roleHandler->getRoleByCode($roleName);
+
+        if ($role === null) {
+            return;
+        }
+
+        $this->createPermission(self::CREATE_PROCEDURES_PERMISSION, $orga, $customer, $role);
+    }
+
+    public function removePermissionToGivenRole(OrgaInterface $orga, CustomerInterface $customer, string $roleName): void {
+        $role = $this->roleHandler->getRoleByCode($roleName);
+
+        if ($role === null) {
+            return;
+        }
+
+        $this->removePermission(self::CREATE_PROCEDURES_PERMISSION, $orga, $customer, $role);
+    }
 }

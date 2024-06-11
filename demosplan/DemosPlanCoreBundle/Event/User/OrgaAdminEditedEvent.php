@@ -16,15 +16,15 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 
-class NewOrgaCreatedEvent extends DPlanEvent
+class OrgaAdminEditedEvent extends DPlanEvent
 {
     protected OrgaInterface $orga;
 
     protected ?bool $canCreateProcedures;
 
-    public function __construct(Orga $newOrga, ?bool $canCreateProcedures)
+    public function __construct(Orga $updatedOrga, ?bool $canCreateProcedures)
     {
-        $this->orga = $newOrga;
+        $this->orga = $updatedOrga;
         $this->canCreateProcedures = $canCreateProcedures;
     }
 
