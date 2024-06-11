@@ -4,7 +4,7 @@
 
 {% block component_part %}
     {% apply spaceless -%}
-        <h1 class="hide-visually">{{ "public.index.heading"|trans({ projectName: projectName } }}</h1>
+        <h1 class="sr-only">{{ "public.index.heading"|trans({ projectName: projectName }) }}</h1>
 
         {# onboarding / welcome panel #}
         {% block panel %}
