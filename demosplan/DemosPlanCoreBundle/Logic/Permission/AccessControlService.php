@@ -201,4 +201,27 @@ class AccessControlService extends CoreService
 
         return $updatedOrgas;
     }
+
+    public function disablePermissionCustomerOrgaRole(string $permissionToEnable, CustomerInterface $customer, RoleInterface $role, bool $dryRun = false): array
+    {
+        $orgasInCustomer = $this->orgaService->getOrgasInCustomer($customer);
+        $updatedOrgas = [];
+
+        foreach ($orgasInCustomer as $orgaInCustomer) {
+            // If permisison is already stored, skip it
+            if (false === $this->permissionExist($permissionToEnable, $orgaInCustomer, $customer, [$role->getCode()])) {
+                continue;
+            }
+
+            // Do not remove permission if it is dryrun
+            if (false === $dryRun) {
+                $this->removePermission($permissionToEnable, $orgaInCustomer, $customer, $role);
+            }
+
+            // Save the impacted orga in the array
+            $updatedOrgas[] = $orgaInCustomer;
+        }
+
+        return $updatedOrgas;
+    }
 }
