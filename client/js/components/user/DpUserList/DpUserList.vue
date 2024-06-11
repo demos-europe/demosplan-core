@@ -89,11 +89,11 @@
         data-cy="userList:userListWrapper">
         <dp-user-list-item
           class="o-list__item"
-          v-for="(item, idx) in items"
+          v-for="(item, idx, index) in items"
           :key="idx"
           :selected="hasOwnProp(itemSelections, item.id) && itemSelections[item.id] === true"
           :user="item"
-          data-cy="userList:userListBlk"
+          :data-cy="`userList:userListBlk:${index}`"
           :project-name="projectName"
           @item:selected="dpToggleOne" />
       </ul>
