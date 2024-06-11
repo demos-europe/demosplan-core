@@ -45,7 +45,6 @@ class EnablePermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
     private Customer|Proxy|null $testCustomer;
     private OrgaType|Proxy|null $testOrgaType;
 
-
     public function setUp(): void
     {
         parent::setUp();
@@ -62,7 +61,6 @@ class EnablePermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
 
         $this->testOrga = OrgaFactory::createOne();
         $this->testCustomer = CustomerFactory::createOne();
-
     }
 
     public function testExecute(): CommandTester
