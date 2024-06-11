@@ -38,7 +38,6 @@ class AccessControlService extends CoreService
     public function __construct(
         private readonly AccessControlRepository $accessControlPermissionRepository,
         private readonly RoleHandler $roleHandler,
-        private readonly GlobalConfig $globalConfig,
         private readonly OrgaService $orgaService
     ) {
     }
