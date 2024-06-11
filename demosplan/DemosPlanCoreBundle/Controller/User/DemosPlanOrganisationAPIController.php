@@ -48,7 +48,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use UnexpectedValueException;
-use Webmozart\Assert\Assert;
 
 class DemosPlanOrganisationAPIController extends APIController
 {
@@ -329,7 +328,6 @@ class DemosPlanOrganisationAPIController extends APIController
             $canCreateProcedures = null;
             if ($permissions->hasPermission('feature_manage_procedure_creation_permission')
                 && array_key_exists('canCreateProcedures', $orgaDataArray)) {
-
                 $role = $roleHandler->getRoleByCode(RoleInterface::PRIVATE_PLANNING_AGENCY);
 
                 try {
@@ -340,7 +338,7 @@ class DemosPlanOrganisationAPIController extends APIController
                 } catch (NullPointerException $e) {
                     $this->logger->warning('Role was not found in Customer. Permission is not created', [
                         'roleName'   => RoleInterface::PRIVATE_PLANNING_AGENCY,
-                        'permission' => AccessControlService::CREATE_PROCEDURES_PERMISSION
+                        'permission' => AccessControlService::CREATE_PROCEDURES_PERMISSION,
                     ]);
                 }
             }
@@ -408,7 +406,6 @@ class DemosPlanOrganisationAPIController extends APIController
             $canCreateProcedures = null;
             if ($permissions->hasPermission('feature_manage_procedure_creation_permission') && is_array($orgaDataArray['attributes'])
                 && array_key_exists('canCreateProcedures', $orgaDataArray['attributes'])) {
-
                 $role = $roleHandler->getRoleByCode(RoleInterface::PRIVATE_PLANNING_AGENCY);
 
                 try {
@@ -422,10 +419,9 @@ class DemosPlanOrganisationAPIController extends APIController
                 } catch (NullPointerException $e) {
                     $this->logger->warning('Role was not found in Customer. Permission is not created', [
                         'roleName'   => RoleInterface::PRIVATE_PLANNING_AGENCY,
-                        'permission' => AccessControlService::CREATE_PROCEDURES_PERMISSION
+                        'permission' => AccessControlService::CREATE_PROCEDURES_PERMISSION,
                     ]);
                 }
-
             }
 
             $updatedOrga = $userHandler->updateOrga($orgaId, $orgaDataArray);
