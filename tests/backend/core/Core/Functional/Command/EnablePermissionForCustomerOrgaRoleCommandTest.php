@@ -115,35 +115,26 @@ class EnablePermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
         $command = $application->find(EnablePermissionForCustomerOrgaRoleCommand::getDefaultName());
         $commandTester = new CommandTester($command);
 
-        // Define the arguments
-        $customerId = $this->testCustomer->getId();
-        $roleId = $this->testRole->getId();
-        $permission = 'CREATE_PROCEDURES_PERMISSION';
-
-        $commandTester->execute([
-            'customerId' => $customerId,
-            'roleId'     => $roleId,
-            'permission' => $permission,
-            '--dry-run'  => true,
-        ]);
-
-        $output = $commandTester->getDisplay();
-        $this->assertStringContainsString('This is a dry run. No changes have been made to the database.', $output);
-        $this->assertStringContainsString('Customer '.$this->testCustomer->getId().' '.$this->testCustomer->getName(), $output);
-        $this->assertStringContainsString('Role '.$this->testRole->getId().' '.$this->testRole->getName(), $output);
+        $this->assertStringsInCommandOutput($commandTester, true, 'This is a dry run. No changes have been made to the database.');
 
         // Test without dry-run option
+        $this->assertStringsInCommandOutput($commandTester, false, 'Changes have been applied to the database.');
+
+        return $commandTester;
+    }
+
+    private function assertStringsInCommandOutput(CommandTester $commandTester, bool $dryRun, string $expectedMessage): void
+    {
         $commandTester->execute([
-            'customerId' => $customerId,
-            'roleId'     => $roleId,
-            'permission' => $permission,
+            'customerId' => $this->testCustomer->getId(),
+            'roleId'     => $this->testRole->getId(),
+            'permission' => 'CREATE_PROCEDURES_PERMISSION',
+            '--dry-run'  => $dryRun,
         ]);
 
         $output = $commandTester->getDisplay();
-        $this->assertStringContainsString('Changes have been applied to the database.', $output);
+        $this->assertStringContainsString($expectedMessage, $output);
         $this->assertStringContainsString('Customer '.$this->testCustomer->getId().' '.$this->testCustomer->getName(), $output);
         $this->assertStringContainsString('Role '.$this->testRole->getId().' '.$this->testRole->getName(), $output);
-
-        return $commandTester;
     }
 }
