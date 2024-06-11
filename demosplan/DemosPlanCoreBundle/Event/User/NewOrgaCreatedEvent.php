@@ -16,9 +16,10 @@ use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 
 class NewOrgaCreatedEvent extends DPlanEvent
 {
-
     protected OrgaInterface $orga;
-    public function __construct(Orga $newOrga) {
+
+    public function __construct(Orga $newOrga)
+    {
         $this->orga = $newOrga;
     }
 

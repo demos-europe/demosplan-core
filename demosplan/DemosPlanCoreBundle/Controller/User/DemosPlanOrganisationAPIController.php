@@ -336,7 +336,6 @@ class DemosPlanOrganisationAPIController extends APIController
                 }
             }
 
-
             try {
                 $newOrgaCreatedEvent = new NewOrgaCreatedEvent($newOrga);
                 $eventDispatcher->dispatch($newOrgaCreatedEvent);
