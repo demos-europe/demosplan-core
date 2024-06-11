@@ -20,8 +20,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControl;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Repository\AccessControlRepository;
-use Webmozart\Assert\Assert;
-use Webmozart\Assert\InvalidArgumentException;
 
 /**
  * This file is part of the package demosplan.
@@ -63,7 +61,7 @@ class AccessControlService extends CoreService
 
             $role = $this->roleHandler->getRoleByCode($roleName);
 
-            if ($role === null) {
+            if (null === $role) {
                 continue;
             }
 
