@@ -12,18 +12,15 @@ declare(strict_types=1);
 
 namespace Tests\Core\Core\Functional\Command;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Application\ConsoleApplication;
 use demosplan\DemosPlanCoreBundle\Command\Permission\EnablePermissionForCustomerOrgaRoleCommand;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\OrgaStatusInCustomerFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\OrgaTypeFactory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
@@ -31,7 +28,6 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
-use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Tests\Base\FunctionalTestCase;
@@ -40,23 +36,15 @@ use Zenstruck\Foundry\Proxy;
 class EnablePermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
 {
     protected CustomerService|Proxy|null $customerService;
-
     protected OrgaService|Proxy|null $orgaService;
-
     protected RoleService|Proxy|null $roleService;
     protected AccessControlService|Proxy|null $accessControlService;
-
     protected RoleHandler|Proxy|null $roleHandler;
-
     private Orga|Proxy|null $testOrga;
-
     private Role|Proxy|null $testRole;
-
     private Customer|Proxy|null $testCustomer;
-
     private OrgaType|Proxy|null $testOrgaType;
 
-    private OrgaStatusInCustomer|Proxy|null $testOrgaStatusInCustomer;
 
     public function setUp(): void
     {
@@ -75,29 +63,6 @@ class EnablePermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
         $this->testOrga = OrgaFactory::createOne();
         $this->testCustomer = CustomerFactory::createOne();
 
-        $this->testOrgaStatusInCustomer = OrgaStatusInCustomerFactory::createOne();
-
-        $this->testOrgaStatusInCustomer->setOrga($this->testOrga->object());
-        $this->testOrgaStatusInCustomer->save();
-
-        $this->testOrgaStatusInCustomer->setCustomer($this->testCustomer->object());
-        $this->testOrgaStatusInCustomer->save();
-
-        $this->testOrgaStatusInCustomer->setOrgaType($this->testOrgaType->object());
-        $this->testOrgaStatusInCustomer->save();
-
-        $this->testOrgaStatusInCustomer->setStatus(OrgaStatusInCustomerInterface::STATUS_ACCEPTED);
-        $this->testOrgaStatusInCustomer->save();
-
-        $this->testOrga->addStatusInCustomer($this->testOrgaStatusInCustomer->object());
-        $this->testOrga->save();
-
-        $orgaStatusesCollection = new ArrayCollection([$this->testOrgaStatusInCustomer->object()]);
-        $this->testCustomer->setOrgaStatuses($orgaStatusesCollection);
-        $this->testCustomer->save();
-
-        $this->testOrga->setStatusInCustomers($orgaStatusesCollection);
-        $this->testOrga->save();
     }
 
     public function testExecute(): CommandTester
@@ -116,8 +81,6 @@ class EnablePermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
         $commandTester = new CommandTester($command);
 
         $this->assertStringsInCommandOutput($commandTester, true, 'This is a dry run. No changes have been made to the database.');
-
-        // Test without dry-run option
         $this->assertStringsInCommandOutput($commandTester, false, 'Changes have been applied to the database.');
 
         return $commandTester;
