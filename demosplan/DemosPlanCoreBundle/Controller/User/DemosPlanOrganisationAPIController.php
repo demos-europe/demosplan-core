@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
+use demosplan\DemosPlanCoreBundle\Event\User\NewOrgaCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -40,6 +41,7 @@ use EDT\JsonApi\RequestHandling\PaginatorFactory;
 use Exception;
 use League\Fractal\Resource\Collection;
 use Pagerfanta\Adapter\ArrayAdapter;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -297,7 +299,8 @@ class DemosPlanOrganisationAPIController extends APIController
         CustomerHandler $customerHandler,
         PermissionsInterface $permissions,
         AccessControlService $accessControlPermission,
-        RoleHandler $roleHandler)
+        RoleHandler $roleHandler,
+        EventDispatcherInterface $eventDispatcher)
     {
         try {
             if (!($this->requestData instanceof TopLevel)) {
@@ -331,6 +334,14 @@ class DemosPlanOrganisationAPIController extends APIController
                 if (true === $orgaDataArray['canCreateProcedures']) {
                     $accessControlPermission->createPermission(AccessControlService::CREATE_PROCEDURES_PERMISSION, $newOrga, $customerHandler->getCurrentCustomer(), $role);
                 }
+            }
+
+
+            try {
+                $newOrgaCreatedEvent = new NewOrgaCreatedEvent($newOrga);
+                $eventDispatcher->dispatch($newOrgaCreatedEvent);
+            } catch (Exception $e) {
+                $this->logger->warning('Could not successfully perform orga created event', [$e]);
             }
 
             $item = $this->resourceService->makeItemOfResource($newOrga, OrgaResourceType::getName());
