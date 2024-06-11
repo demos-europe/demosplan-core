@@ -336,7 +336,6 @@ class DemosPlanOrganisationAPIController extends APIController
                     $canCreateProcedures = true;
                     $accessControlPermission->createPermission(AccessControlService::CREATE_PROCEDURES_PERMISSION, $newOrga, $customerHandler->getCurrentCustomer(), $role);
                 }
-
             }
 
             try {
@@ -345,8 +344,6 @@ class DemosPlanOrganisationAPIController extends APIController
             } catch (Exception $e) {
                 $this->logger->warning('Could not successfully perform orga created event', [$e]);
             }
-
-
 
             $item = $this->resourceService->makeItemOfResource($newOrga, OrgaResourceType::getName());
 
@@ -439,15 +436,12 @@ class DemosPlanOrganisationAPIController extends APIController
 
                 $item = $this->resourceService->makeItemOfResource($updatedOrga, OrgaResourceType::getName());
 
-
                 try {
                     $newOrgaCreatedEvent = new OrgaAdminEditedEvent($updatedOrga, $canCreateProcedures);
                     $eventDispatcher->dispatch($newOrgaCreatedEvent);
                 } catch (Exception $e) {
                     $this->logger->warning('Could not successfully perform orga created event', [$e]);
                 }
-
-
 
                 return $this->renderResource($item);
             }
