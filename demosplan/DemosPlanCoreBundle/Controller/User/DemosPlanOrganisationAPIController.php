@@ -26,6 +26,7 @@ use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Exception\NullPointerException;
 use demosplan\DemosPlanCoreBundle\Exception\OrgaNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
@@ -328,13 +329,19 @@ class DemosPlanOrganisationAPIController extends APIController
             $canCreateProcedures = null;
             if ($permissions->hasPermission('feature_manage_procedure_creation_permission')
                 && array_key_exists('canCreateProcedures', $orgaDataArray)) {
-                $roles = $roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY]);
-                Assert::count($roles, 1);
-                $role = $roles[0];
 
-                if (true === $orgaDataArray['canCreateProcedures']) {
-                    $canCreateProcedures = true;
-                    $accessControlPermission->createPermission(AccessControlService::CREATE_PROCEDURES_PERMISSION, $newOrga, $customerHandler->getCurrentCustomer(), $role);
+                $role = $roleHandler->getRoleByCode(RoleInterface::PRIVATE_PLANNING_AGENCY);
+
+                try {
+                    if (true === $orgaDataArray['canCreateProcedures']) {
+                        $canCreateProcedures = true;
+                        $accessControlPermission->createPermission(AccessControlService::CREATE_PROCEDURES_PERMISSION, $newOrga, $customerHandler->getCurrentCustomer(), $role);
+                    }
+                } catch (NullPointerException $e) {
+                    $this->logger->warning('Role was not found in Customer. Permission is not created', [
+                        'roleName'   => RoleInterface::PRIVATE_PLANNING_AGENCY,
+                        'permission' => AccessControlService::CREATE_PROCEDURES_PERMISSION
+                    ]);
                 }
             }
 
@@ -401,17 +408,24 @@ class DemosPlanOrganisationAPIController extends APIController
             $canCreateProcedures = null;
             if ($permissions->hasPermission('feature_manage_procedure_creation_permission') && is_array($orgaDataArray['attributes'])
                 && array_key_exists('canCreateProcedures', $orgaDataArray['attributes'])) {
-                $roles = $roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY]);
-                Assert::count($roles, 1);
-                $role = $roles[0];
 
-                if (true === $orgaDataArray['attributes']['canCreateProcedures']) {
-                    $accessControlPermission->createPermission(AccessControlService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
-                    $canCreateProcedures = true;
-                } else {
-                    $accessControlPermission->removePermission(AccessControlService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
-                    $canCreateProcedures = false;
+                $role = $roleHandler->getRoleByCode(RoleInterface::PRIVATE_PLANNING_AGENCY);
+
+                try {
+                    if (true === $orgaDataArray['attributes']['canCreateProcedures']) {
+                        $accessControlPermission->createPermission(AccessControlService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
+                        $canCreateProcedures = true;
+                    } else {
+                        $accessControlPermission->removePermission(AccessControlService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
+                        $canCreateProcedures = false;
+                    }
+                } catch (NullPointerException $e) {
+                    $this->logger->warning('Role was not found in Customer. Permission is not created', [
+                        'roleName'   => RoleInterface::PRIVATE_PLANNING_AGENCY,
+                        'permission' => AccessControlService::CREATE_PROCEDURES_PERMISSION
+                    ]);
                 }
+
             }
 
             $updatedOrga = $userHandler->updateOrga($orgaId, $orgaDataArray);
