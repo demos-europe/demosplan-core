@@ -14,7 +14,7 @@
       v-if="hasActiveFilters || searchTerm !== ''"
       class="u-mt-0_5 u-pb-0 border--bottom">
       <legend
-        class="hide-visually"
+        class="sr-only"
         v-text="Translator.trans('filter.searchterm.active')" />
 
       <div
