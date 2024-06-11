@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\AccessControlPermission;
 
-
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
