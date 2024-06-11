@@ -898,7 +898,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
         return $this;
     }
 
-    public function getNotifications()
+    public function getNotifications(): array
     {
         if ($this->notifications instanceof Collection) {
             return $this->notifications->toArray();
@@ -1023,7 +1023,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
         return $this;
     }
 
-    public function getProcedures()
+    public function getProcedures(): ArrayCollection|Collection
     {
         return $this->procedures;
     }
@@ -1067,7 +1067,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
         return $users->unique();
     }
 
-    public function getAddressBookEntries()
+    public function getAddressBookEntries(): Collection
     {
         return $this->addressBookEntries;
     }
@@ -1260,7 +1260,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
         return false;
     }
 
-    public function getMainCustomer()
+    public function getMainCustomer(): ?CustomerInterface
     {
         /** @var OrgaStatusInCustomer $customerOrgaTypes */
         foreach ($this->getStatusInCustomers() as $customerOrgaTypes) {
