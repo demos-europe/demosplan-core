@@ -28,7 +28,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Tests\Base\UnitTestCase;
 use Zenstruck\Foundry\Proxy;
 

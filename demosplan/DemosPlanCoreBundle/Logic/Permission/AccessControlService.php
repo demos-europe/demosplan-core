@@ -48,20 +48,19 @@ class AccessControlService extends CoreService
             $permission->setCustomer($customer);
             $permission->setRole($role);
             $this->accessControlPermissionRepository->add($permission);
-            return $permission;
 
+            return $permission;
         } catch (UniqueConstraintViolationException $exception) {
             $this->logger->warning('Unique constraint violation occurred while trying to create a permission.', [
-                'exception' => $exception->getMessage(),
+                'exception'      => $exception->getMessage(),
                 'permissionName' => $permissionName,
-                'orga' => $orga->getId(),
-                'customer' => $customer->getId(),
-                'role' => $role->getId(),
+                'orga'           => $orga->getId(),
+                'customer'       => $customer->getId(),
+                'role'           => $role->getId(),
             ]);
         }
 
         return null;
-
     }
 
     public function getPermissions(?OrgaInterface $orga, ?CustomerInterface $customer, array $roles): array
