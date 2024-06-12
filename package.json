@@ -156,7 +156,7 @@
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-loader": "^8.1.1",
     "postcss-prefix-selector": "^1.16.1",
-    "postcss-preset-env": "^9.5.4",
+    "postcss-preset-env": "^9.5.14",
     "purgecss-webpack-plugin": "^6.0.0",
     "sass-embedded": "^1.75.0",
     "sass-loader": "^14.2.1",
