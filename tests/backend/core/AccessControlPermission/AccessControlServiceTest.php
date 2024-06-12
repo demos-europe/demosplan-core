@@ -38,6 +38,7 @@ class AccessControlServiceTest extends UnitTestCase
      * @var AccessControlService|null
      */
     protected $sut;
+
     protected RoleHandler|Proxy|null $roleHandler;
 
     protected GlobalConfig|Proxy|null $globalConfig;
@@ -106,9 +107,9 @@ class AccessControlServiceTest extends UnitTestCase
     public function testDuplicatePermissionCreationThrowsException(): void
     {
         $permissionToCheck = 'my_permission';
-        $this->expectException(UniqueConstraintViolationException::class);
         $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
-        $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
+        $createdPermission = $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
+        $this->assertNull($createdPermission);
     }
 
     public function testGetPermissions(): void

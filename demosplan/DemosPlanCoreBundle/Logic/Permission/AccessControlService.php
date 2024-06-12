@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControl;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Repository\AccessControlRepository;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 
 /**
  * This file is part of the package demosplan.
@@ -38,16 +39,29 @@ class AccessControlService extends CoreService
     ) {
     }
 
-    public function createPermission(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, RoleInterface $role): AccessControl
+    public function createPermission(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, RoleInterface $role): ?AccessControl
     {
-        $permission = new AccessControl();
-        $permission->setPermissionName($permissionName);
-        $permission->setOrga($orga);
-        $permission->setCustomer($customer);
-        $permission->setRole($role);
-        $this->accessControlPermissionRepository->add($permission);
+        try {
+            $permission = new AccessControl();
+            $permission->setPermissionName($permissionName);
+            $permission->setOrga($orga);
+            $permission->setCustomer($customer);
+            $permission->setRole($role);
+            $this->accessControlPermissionRepository->add($permission);
+            return $permission;
 
-        return $permission;
+        } catch (UniqueConstraintViolationException $exception) {
+            $this->logger->warning('Unique constraint violation occurred while trying to create a permission.', [
+                'exception' => $exception->getMessage(),
+                'permissionName' => $permissionName,
+                'orga' => $orga->getId(),
+                'customer' => $customer->getId(),
+                'role' => $role->getId(),
+            ]);
+        }
+
+        return null;
+
     }
 
     public function getPermissions(?OrgaInterface $orga, ?CustomerInterface $customer, array $roles): array
