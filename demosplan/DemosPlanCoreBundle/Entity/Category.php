@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\CategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -22,7 +23,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\CategoryRepository")
  */
-class Category extends CoreEntity implements UuidEntityInterface
+class Category extends CoreEntity implements UuidEntityInterface, CategoryInterface
 {
     /**
      * @var string|null
@@ -56,7 +57,7 @@ class Category extends CoreEntity implements UuidEntityInterface
      *
      * @ORM\Column(name="_c_description", type="text", length=65535, nullable=true, options={"default":null})
      */
-    protected $description = null;
+    protected $description;
 
     /**
      * @var string

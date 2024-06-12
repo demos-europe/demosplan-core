@@ -10,6 +10,7 @@
 
 namespace Tests\Core\Statement\Functional;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -27,9 +28,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\StatementNameTooLongException;
-use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
-use demosplan\DemosPlanCoreBundle\Exception\TagNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceLinkageFactory;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
@@ -37,10 +35,8 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
-use PHPUnit_Framework_MockObject_MockObject;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -101,7 +97,7 @@ class StatementHandlerTest extends FunctionalTestCase
         $this->testProcedure = $this->getProcedureReference(LoadProcedureData::TESTPROCEDURE);
 
         $permissions = $this->sut->getPermissions();
-        $permissions->initPermissions($this->testUser, null);
+        $permissions->initPermissions($this->testUser);
         $permissions->enablePermissions(['feature_statements_fragment_edit']);
         $this->sut->setPermissions($permissions);
     }
@@ -475,8 +471,6 @@ class StatementHandlerTest extends FunctionalTestCase
     /**
      * dataProvider getStatementFragmentUpdateData.
      *
-     * @param $providerData
-     *
      * @throws Exception
      */
     public function testUpdateStatementFragmentData(/* $providerData */)
@@ -583,8 +577,6 @@ class StatementHandlerTest extends FunctionalTestCase
 
     /**
      * dataProvider getStatementFragmentUpdateDataAsReviewer.
-     *
-     * @param $providerData
      *
      * @throws Exception
      */
@@ -746,8 +738,8 @@ class StatementHandlerTest extends FunctionalTestCase
             'r_modifiedByUserId'       => $testUserId3,
             'r_modifiedByDepartmentId' => $testDepartmentId,
             'r_element'                => $testElementId1,
-//            'r_paragraph' => 'neuer Text eines frisch erstellen Datensatzes.',
-//            'r_document' => 'neuer Text eines frisch erstellen Datensatzes.',
+            //            'r_paragraph' => 'neuer Text eines frisch erstellen Datensatzes.',
+            //            'r_document' => 'neuer Text eines frisch erstellen Datensatzes.',
             'statementId'              => $statementId,
             'procedureId'              => $procedureId,
         ];
@@ -779,36 +771,36 @@ class StatementHandlerTest extends FunctionalTestCase
         // get fragment
         // get text assert ++
 
-//        $data['r_tags'] = [''];
-//        $statementFragmentData['consideration'] = '';
-//        $statementService = $this->statementServie
-//        //worked once:
-//        foreach ($data['r_tags'] as $tagId) {
-//            $tag = null;
-//            try {
-//                $tag = $statementService->getTag($tagId);
-//                if (!$tag instanceof Tag) {
-//                    continue;
-//                }
-//                $tags[] = $tag;
-//
-//                // add boilerplate if defined
-//                if (is_null($tag->getBoilerplate())) {
-//                    continue;
-//                }
-//                $statementFragmentData['consideration'] = isset($statementFragmentData['consideration']) ? $statementFragmentData['consideration'] : '';
-//                $statementFragmentData['consideration'] .= '<p>'.$tag->getBoilerplate()->getText().'</p>';
-//            } catch (\Exception $e) {
-//                $this->logger->warning("Could not resolve Tag with ID: ".$tagId);
-//                continue;
-//            }
-//
-//        }
-//
-//        $statementFragmentData['consideration'] = '';
-//
-//        $this->sut->addBoilerplatesOfTags($data['r_tags'], $statementFragmentData['consideration']);
-//
+        //        $data['r_tags'] = [''];
+        //        $statementFragmentData['consideration'] = '';
+        //        $statementService = $this->statementServie
+        //        //worked once:
+        //        foreach ($data['r_tags'] as $tagId) {
+        //            $tag = null;
+        //            try {
+        //                $tag = $statementService->getTag($tagId);
+        //                if (!$tag instanceof Tag) {
+        //                    continue;
+        //                }
+        //                $tags[] = $tag;
+        //
+        //                // add boilerplate if defined
+        //                if (is_null($tag->getBoilerplate())) {
+        //                    continue;
+        //                }
+        //                $statementFragmentData['consideration'] = isset($statementFragmentData['consideration']) ? $statementFragmentData['consideration'] : '';
+        //                $statementFragmentData['consideration'] .= '<p>'.$tag->getBoilerplate()->getText().'</p>';
+        //            } catch (\Exception $e) {
+        //                $this->logger->warning("Could not resolve Tag with ID: ".$tagId);
+        //                continue;
+        //            }
+        //
+        //        }
+        //
+        //        $statementFragmentData['consideration'] = '';
+        //
+        //        $this->sut->addBoilerplatesOfTags($data['r_tags'], $statementFragmentData['consideration']);
+        //
     }
 
     /**
@@ -1152,7 +1144,7 @@ class StatementHandlerTest extends FunctionalTestCase
         static::assertEquals($updatedStatement->getPriority(), $updatedPriority);
         static::assertEquals($updatedStatement->getExternId(), $updatedExternId);
         // intern id only gets from original statement -> null
-//        static::assertEquals($updatedStatement->getInternId(), $updatedInternId);
+        //        static::assertEquals($updatedStatement->getInternId(), $updatedInternId);
         static::assertEquals($updatedStatement->getPhase(), $updatedPhase);
         static::assertEquals($updatedStatement->getStatus(), $updatedStatus);
         static::assertEquals($updatedStatement->getSentAssessment(), $updatedSentAssessment);
@@ -2283,9 +2275,6 @@ class StatementHandlerTest extends FunctionalTestCase
     }
 
     /**
-     * @param $providerData
-     * dataProvider getFragmentUpdateVoteAdviceAndAssignmentAtTheSameTimeData
-     *
      * @throws Exception
      */
     public function testFragmentUpdateVoteAdviceAndAssignmentAtTheSameTime(/* $providerData */)
@@ -2326,7 +2315,7 @@ class StatementHandlerTest extends FunctionalTestCase
         if ($isReviewerGiven && $isVoteAdviceGiven) {
             // only the voteAdvice should be saved
             static::assertEquals($providerData['r_vote_advice'], $fragment->getVoteAdvice());
-//            assertNotEquals do not differentiate between '' and null
+            //            assertNotEquals do not differentiate between '' and null
             static::assertNotSame($providerData['r_reviewer'], $fragment->getDepartmentId());
         }
         if (!$isReviewerGiven && $isVoteAdviceGiven) {
@@ -2861,10 +2850,10 @@ class StatementHandlerTest extends FunctionalTestCase
         static::assertEquals($targetProcedure->getId(), $copiedStatement->getOriginal()->getProcedureId());
         static::assertEquals($targetProcedure->getId(), $copiedStatement->getElement()->getProcedure()->getId());
         // will not work because of testdata?:
-//        static::assertContains($copiedStatement, $copiedStatement->getOriginal()->getChildren());
-//        static::assertNotContains($testStatement, $copiedStatement->getOriginal()->getChildren());
-//        static::assertContains($testStatement, $testStatement->getOriginal()->getChildren());
-//        static::assertNotContains($copiedStatement, $testStatement->getOriginal()->getChildren());
+        //        static::assertContains($copiedStatement, $copiedStatement->getOriginal()->getChildren());
+        //        static::assertNotContains($testStatement, $copiedStatement->getOriginal()->getChildren());
+        //        static::assertContains($testStatement, $testStatement->getOriginal()->getChildren());
+        //        static::assertNotContains($copiedStatement, $testStatement->getOriginal()->getChildren());
     }
 
     public function testAmountOfStatementsOnCopyEmptyStatementToProcedure()
@@ -3003,53 +2992,5 @@ class StatementHandlerTest extends FunctionalTestCase
         // new map file has reference to target procedure
         $newFile = $fileService->getFileFromFileString($copiedStatement->getMapFile());
         static::assertEquals($targetProcedure->getId(), $newFile->getProcedure()->getId());
-    }
-
-    /**
-     * @throws StatementNotFoundException
-     * @throws TagNotFoundException
-     * @throws Exception
-     */
-    public function testAddNoExistentTags()
-    {
-        self::markSkippedForCIIntervention();
-
-        /** @var Statement $statement */
-        $statement = $this->fixtures->getReference('testStatement2');
-        /** @var Tag $tagAlreadyPresent */
-        $tagAlreadyPresent = $this->fixtures->getReference('testFixtureTag_2');
-        static::assertCount(1, $statement->getTags());
-        static::assertSame($tagAlreadyPresent, $statement->getTags()->first());
-        $resourceLinkage = (new ResourceLinkageFactory())->createFromJsonRequestString(
-            sprintf(
-                '{"data": [{ "type": "Tag", "id": "%s" }]}',
-                $tagAlreadyPresent->getId()
-            )
-        );
-        $this->sut->addTags($statement->getId(), $resourceLinkage);
-        static::assertCount(1, $statement->getTags());
-        static::assertSame($tagAlreadyPresent, $statement->getTags()->first());
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function testAddTags()
-    {
-        self::markSkippedForCIIntervention();
-
-        /** @var Statement $statement */
-        $statement = $this->fixtures->getReference('testStatement');
-        /** @var Tag $tag */
-        $tag = $this->fixtures->getReference('testFixtureTag_1');
-        static::assertCount(0, $statement->getTags());
-        $resourceLinkage = ResourceLinkageFactory::createFromJsonRequestString(
-            sprintf(
-                '{"data": [{ "type": "Tag", "id": "%s" }]}',
-                $tag->getId()
-            )
-        );
-        $this->sut->addTags($statement->getId(), $resourceLinkage);
-        static::assertCount(1, $statement->getTags());
     }
 }

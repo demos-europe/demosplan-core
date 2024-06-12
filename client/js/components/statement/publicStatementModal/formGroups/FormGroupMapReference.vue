@@ -27,7 +27,7 @@
       v-if="isMapEnabled && hasPermission('area_map_participation_area')"
       :class="[
         isLocationSelected ? prefixClass('bg-color--grey-light-2') : '',
-        prefixClass('c-statement__formblock layout__item height-90 height-auto-lap-down u-3-of-10 u-1-of-1-palm'),
+        prefixClass('c-statement__formblock layout__item sm:h-8 u-3-of-10 u-1-of-1-palm'),
         highlighted.location ? prefixClass('animation--bg-highlight-grey--light-2') : ''
       ]"
       ref="mapStatementRadio">
@@ -35,6 +35,7 @@
         id="locationPoint"
         name="r_location"
         class="u-mb-0_25"
+        data-cy="formGroupMap:statementMapReference"
         :checked="isLocationSelected"
         @change="() => { const location = (statement.r_location_priority_area_key !== '' ? 'priority_area' :'point'); setStatementData({r_location: 'point', location_is_set: location})}"
         :label="{
@@ -45,6 +46,7 @@
       <a
         href="#"
         class="o-link--default"
+        data-cy="formGroupMap:procedureDetailsMap"
         v-show="isLocationSelected"
         @click.prevent="gotoTab('procedureDetailsMap')">
         <template v-if="statement.r_location_point !== ''">
@@ -66,7 +68,7 @@
       v-if="hasPermission('field_statement_county')"
       :class="[
         statement.r_location === 'county' ? 'bg-color--grey-light-2' : '',
-        'c-statement__formblock layout__item height-90 height-auto-lap-down u-3-of-10 u-1-of-1-palm'
+        'c-statement__formblock layout__item sm:h-8 u-3-of-10 u-1-of-1-palm'
       ]">
       <dp-radio
         id="locationcounty"
@@ -101,7 +103,7 @@
       :class="[
         statement.r_location === 'notLocated' ? prefixClass('bg-color--grey-light-2') : '',
         loggedIn ? prefixClass('u-1-of-3') : prefixClass('u-2-of-10'),
-        prefixClass('c-statement__formblock layout__item height-90 height-auto-lap-down u-1-of-1-palm')
+        prefixClass('c-statement__formblock layout__item sm:h-8 u-1-of-1-palm')
       ]">
       <dp-radio
         id="locationNone"
@@ -110,7 +112,7 @@
         }"
         name="r_location"
         class="u-mb-0_25"
-        data-cy="notLocated"
+        data-cy="formGroupMap:notLocated"
         :checked="statement.r_location === 'notLocated'"
         @change="() => { setStatementData({r_location: 'notLocated', location_is_set: 'notLocated'}) }"
         value="notLocated" />

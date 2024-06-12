@@ -38,7 +38,7 @@ class ContainerInitCommand extends CoreCommand
     private const OPTION_CUSTOMER_CONFIG = 'customerConfig';
 
     protected static $defaultName = 'dplan:container:init';
-    protected static $defaultDescription = 'Perform startup tasks as an init container in kubernetes setup';
+    protected static $defaultDescription = 'Perform startup tasks that may be used e.g. as an init container in kubernetes setup';
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
@@ -47,7 +47,7 @@ class ContainerInitCommand extends CoreCommand
         private readonly CustomerService $customerService,
         private readonly UserService $userService,
         ParameterBagInterface $parameterBag,
-        string $name = null
+        ?string $name = null
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -57,7 +57,7 @@ class ContainerInitCommand extends CoreCommand
         $this
            ->setHelp(
                <<<EOT
-Perform startup tasks as an init container in kubernetes setup. Usage:
+Perform startup tasks that may be used e.g. as an init container in kubernetes setup. Usage:
     php bin/<project> dplan:container:init
 EOT
            );
@@ -74,6 +74,12 @@ EOT
             InputOption::VALUE_NONE,
             'Override existing database'
         );
+        $this->addOption(
+            'skip-es-populate',
+            null,
+            InputOption::VALUE_NONE,
+            'Skip populating elasticsearch'
+        );
     }
 
     /**
@@ -85,7 +91,9 @@ EOT
             $this->initializeDatabase($input, $output);
             $this->initializeCustomer($input, $output);
             $this->migrateDatabase($output);
-            $this->elasticsearchPopulate($output);
+            if (!$input->getOption('skip-es-populate')) {
+                $this->elasticsearchPopulate($output);
+            }
         } catch (Exception) {
             return Command::FAILURE;
         }

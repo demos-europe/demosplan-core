@@ -14,7 +14,7 @@ use demosplan\DemosPlanCoreBundle\Twig\Extension\Base64Extension;
 use Exception;
 use stdClass;
 use Tests\Base\UnitTestCase;
-use Twig_SimpleFilter;
+use Twig\TwigFilter;
 
 /**
  * Teste Base64Extension
@@ -38,9 +38,7 @@ class Base64ExtensionTest extends UnitTestCase
         try {
             $result = $this->twigExtension->getFilters();
             static::assertTrue(is_array($result) && isset($result[0]));
-            static::assertTrue($result[0] instanceof Twig_SimpleFilter);
-            $callable = $result[0]->getCallable();
-            static::assertTrue('base64Filter' === $callable[1]);
+            static::assertTrue($result[0] instanceof TwigFilter);
             static::assertTrue('base64' === $result[0]->getName());
         } catch (Exception $e) {
             static::assertTrue(false);

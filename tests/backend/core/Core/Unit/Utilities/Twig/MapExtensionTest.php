@@ -13,7 +13,7 @@ namespace Tests\Core\Core\Unit\Utilities\Twig;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\MapExtension;
 use Exception;
 use Tests\Base\FunctionalTestCase;
-use Twig_SimpleFilter;
+use Twig\TwigFilter;
 
 /**
  * Teste MapExtension
@@ -40,10 +40,8 @@ class MapExtensionTest extends FunctionalTestCase
         try {
             $result = $this->twigExtension->getFilters();
             static::assertTrue(is_array($result) && isset($result[0]));
-            static::assertTrue($result[0] instanceof Twig_SimpleFilter);
-            $callable = $result[0]->getCallable();
-            static::assertTrue('convertLegacyPolygonFilter' === $callable[1]);
-            static::assertTrue('convertLegacyPolygon' === $result[0]->getName());
+            static::assertInstanceOf(TwigFilter::class, $result[0]);
+            static::assertSame('convertLegacyPolygon', $result[0]->getName());
         } catch (Exception $e) {
             static::assertTrue(false);
 

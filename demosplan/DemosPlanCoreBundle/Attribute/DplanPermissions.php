@@ -17,7 +17,7 @@ use Attribute;
 #[Attribute(Attribute::TARGET_METHOD)]
 class DplanPermissions
 {
-    private array $permissions;
+    private readonly array $permissions;
 
     public function __construct(string|array $permissions)
     {

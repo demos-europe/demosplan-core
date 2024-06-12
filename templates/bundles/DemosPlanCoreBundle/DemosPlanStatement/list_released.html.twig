@@ -29,6 +29,7 @@
     <div class="{{ 'o-page__padded--spaced u-pv'|prefixClass }}">
 
         <form class="{{ 'layout flow-root'|prefixClass }}" name="sortform" action="{{ path('DemosPlan_statement_list_released',{'procedure':procedure}) }}" method="post">
+            {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
             {#  filter fieldsets  #}
             {%  include '@DemosPlanCore/DemosPlanStatement/includes/form_filter.html.twig'
@@ -37,6 +38,7 @@
         </form>
 
         <form class="{{ 'layout flow-root'|prefixClass }}" name="printform" action="{{ path('DemosPlan_statement_list_released',{'procedure':procedure}) }}" method="post">
+            {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
             <fieldset class="{{ 'u-ml u-pb-0 flow-root'|prefixClass }}">
 

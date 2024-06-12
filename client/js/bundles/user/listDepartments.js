@@ -7,7 +7,8 @@
  * All rights reserved
  */
 
-import { DpAccordion, DpTableCard } from '@demos-europe/demosplan-ui'
+import { DpAccordion } from '@demos-europe/demosplan-ui'
+import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {

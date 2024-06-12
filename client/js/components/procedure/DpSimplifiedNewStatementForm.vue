@@ -28,14 +28,21 @@
         type="hidden"
         name="r_ident"
         :value="procedureId">
+      <input
+        name="_token"
+        type="hidden"
+        :value="csrfToken">
+
       <div class="u-mb">
         <dp-accordion
+          data-cy="simplifiedNewStatementForm:userDetails"
           :title="Translator.trans('user.details')"
           :is-open="expandAll">
           <div class="u-mv">
             <dp-radio
               name="r_role"
               value="0"
+              data-cy="simplifiedNewStatementForm:citizenButton"
               :id="`${instanceId}r_role_0`"
               :label="{
                 text: Translator.trans('citizen')
@@ -45,6 +52,7 @@
             <dp-radio
               name="r_role"
               value="1"
+              data-cy="simplifiedNewStatementForm:institutionButton"
               :id="`${instanceId}r_role_1`"
               :label="{
                 text: Translator.trans('institution')
@@ -60,6 +68,7 @@
               :class="fieldsFullWidth ? 'space-stack-s' : 'layout'">
               <dp-input
                 id="r_orga_name"
+                data-cy="simplifiedNewStatementForm:institution"
                 v-model="values.submitter.orga"
                 :class="{ 'layout__item u-1-of-2': !fieldsFullWidth }"
                 :label="{
@@ -68,6 +77,7 @@
                 name="r_orga_name" /><!--
            --><dp-input
                 id="r_orga_department_name"
+                data-cy="simplifiedNewStatementForm:department"
                 v-model="values.submitter.department"
                 :class="{ 'layout__item u-1-of-2': !fieldsFullWidth }"
                 :label="{
@@ -81,6 +91,7 @@
               <div :class="{ 'layout__item u-1-of-2': !fieldsFullWidth }">
                 <dp-input
                   id="r_author_name"
+                  data-cy="simplifiedNewStatementForm:name"
                   v-model="values.submitter.name"
                   :label="{
                     text: Translator.trans('name')
@@ -90,6 +101,7 @@
            --><div :class="{ 'layout__item u-1-of-2': !fieldsFullWidth }">
                 <dp-input
                   id="r_orga_email"
+                  data-cy="simplifiedNewStatementForm:email"
                   v-model="values.submitter.email"
                   :label="{
                     text: Translator.trans('email')
@@ -108,6 +120,7 @@
                 <div class="o-form__group">
                   <dp-input
                     id="r_orga_street"
+                    data-cy="simplifiedNewStatementForm:street"
                     v-model="values.submitter.street"
                     class="o-form__group-item"
                     :label="{
@@ -116,6 +129,7 @@
                     name="r_orga_street" />
                   <dp-input
                     id="r_houseNumber"
+                    data-cy="simplifiedNewStatementForm:streetNumberShort"
                     v-model="values.submitter.housenumber"
                     class="o-form__group-item shrink"
                     :label="{
@@ -129,6 +143,7 @@
                 <div class="o-form__group">
                   <dp-input
                     id="r_orga_postalcode"
+                    data-cy="simplifiedNewStatementForm:postalCode"
                     v-model="values.submitter.plz"
                     class="o-form__group-item shrink"
                     :label="{
@@ -139,7 +154,8 @@
                     :size="5" />
                   <dp-input
                     id="r_orga_city"
-                    v-model="values.submitter.city"
+                    data-cy="simplifiedNewStatementForm:city"
+                    v-model="values.submitter.ort"
                     class="o-form__group-item"
                     name="r_orga_city"
                     :label="{
@@ -151,6 +167,7 @@
               Note
            --><dp-text-area
                 v-if="hasPermission('field_statement_memo')"
+                data-cy="simplifiedNewStatementForm:memo"
                 :class="{ 'layout__item u-1-of-2': !fieldsFullWidth }"
                 :grow-to-parent="!fieldsFullWidth"
                 id="r_memo"
@@ -171,6 +188,7 @@
 
       <div class="u-mb">
         <dp-accordion
+          data-cy="simplifiedNewStatementForm:statementData"
           :title="Translator.trans('statement.data')"
           :is-open="expandAll">
           <!-- Einreichungsdatum, Verfassungsdatum -->
@@ -183,6 +201,7 @@
               for="r_submitted_date" />
             <dp-datepicker
               class="o-form__control-wrapper"
+              data-cy="simplifiedNewStatementForm:statementDateSubmitted"
               name="r_submitted_date"
               value=""
               :calendars-before="2"
@@ -200,6 +219,7 @@
               for="r_authored_date" />
             <dp-datepicker
               class="o-form__control-wrapper"
+              data-cy="simplifiedNewStatementForm:statementDateAuthored"
               name="r_authored_date"
               value=""
               :calendars-before="2"
@@ -214,6 +234,7 @@
             :class="{ 'u-pr-0_5 u-1-of-2 inline-block': !fieldsFullWidth }">
             <dp-select
               id="r_submit_type"
+              data-cy="simplifiedNewStatementForm:submitType"
               :label="{
                 hint: Translator.trans('explanation.statement.submit.type'),
                 text: Translator.trans('submit.type')
@@ -228,6 +249,7 @@
             :class="{ 'u-pl-0_5 u-1-of-2 inline-block': !fieldsFullWidth }">
             <dp-input
               id="r_internId"
+              data-cy="simplifiedNewStatementForm:internId"
               :data-dp-validate-error="Translator.trans('validation.error.internId')"
               :label="{
                 hint: Translator.trans('last.used') + ' ' + newestInternId,
@@ -376,13 +398,13 @@ import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/Simila
 import { v4 as uuid } from 'uuid'
 
 const submitterProperties = {
-  city: '',
   date: '',
   department: '',
   email: '',
   institution: false,
   name: '',
   orga: '',
+  ort: '',
   plz: ''
 }
 
@@ -414,6 +436,11 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+
+    csrfToken: {
+      type: String,
+      required: true
     },
 
     currentProcedurePhase: {

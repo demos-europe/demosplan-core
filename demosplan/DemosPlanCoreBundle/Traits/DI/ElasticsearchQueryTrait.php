@@ -61,7 +61,7 @@ trait ElasticsearchQueryTrait
      */
     private function areSortsAvailable(array $sorts, array $availableSorts): bool
     {
-        $getSortname = fn($sort) => $sort->getName();
+        $getSortname = fn ($sort) => $sort->getName();
 
         $availableSortNames = array_map($getSortname, $availableSorts);
         $sortNames = array_map($getSortname, $sorts);
@@ -86,9 +86,9 @@ trait ElasticsearchQueryTrait
      * @param Index|null    $index   if set this will be used instead of {@link index}
      */
     public function getElasticsearchResult(
-              $esQuery,
-              $limit = -1,
-              $page = 1,
+        $esQuery,
+        $limit = -1,
+        $page = 1,
         Index $index = null): array
     {
         $result = [];
@@ -488,7 +488,7 @@ trait ElasticsearchQueryTrait
      *
      * @param array $elasticsearchResult
      */
-    protected function toLegacyResultES($elasticsearchResult): array
+    public function toLegacyResultES($elasticsearchResult): array
     {
         $list = [];
         // avoid undefined index
@@ -507,8 +507,6 @@ trait ElasticsearchQueryTrait
      * Konvertiere das Ergebnis aus Elasticsearch zu Legacy.
      *
      * @param array $hit
-     *
-     * @return mixed
      */
     protected function convertElasticsearchHitToLegacy($hit)
     {
@@ -539,7 +537,7 @@ trait ElasticsearchQueryTrait
         foreach ($filters as $filter) {
             $labelMap = array_key_exists($filter->getName(), $labelMaps) ? $labelMaps[$filter->getName()] : [];
             $filterValues = $this->generateFilterValues($aggregationsFilterResult[$filter->getName()], $labelMap);
-            $filterValues = collect($filterValues)->sortBy(fn($filterValue) =>
+            $filterValues = collect($filterValues)->sortBy(fn ($filterValue) =>
                 /* @var FilterValue $filterValue */
                 $filterValue->getLabel())->toArray();
             if ($filter->hasNoAssignmentSelectOption()) {

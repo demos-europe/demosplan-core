@@ -12,9 +12,14 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Application;
 
+/**
+ * Should be lowercase.
+ *
+ * @see https://httpwg.org/specs/rfc7540.html#HttpHeaders
+ */
 class Header
 {
-    final public const FILE_HASH = 'X-Demosplan-File-Hash';
-    final public const FILE_ID = 'X-Demosplan-File-Id';
-    final public const PROCEDURE_ID = 'X-Demosplan-Procedure-Id';
+    final public const FILE_HASH = 'x-demosplan-file-hash';
+    final public const FILE_ID = 'x-demosplan-file-id';
+    final public const PROCEDURE_ID = 'x-demosplan-procedure-id';
 }

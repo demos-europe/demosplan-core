@@ -43,6 +43,7 @@
       <div class="convert-annotated-pdf__form">
         <dp-simplified-new-statement-form
           :allow-file-upload="false"
+          :csrf-token="csrfToken"
           :current-procedure-phase="currentProcedurePhase"
           :document-id="documentId"
           :expand-all="false"
@@ -78,6 +79,11 @@ export default {
   },
 
   props: {
+    csrfToken: {
+      type: String,
+      required: true
+    },
+
     currentProcedurePhase: {
       type: String,
       required: false,
@@ -177,7 +183,7 @@ export default {
   methods: {
     async getInitialData () {
       this.isLoading = true
-      const url = Routing.generate('api_resource_list', { procedureId: this.procedureId, resourceType: 'AnnotatedStatementPdf' })
+      const url = Routing.generate('api_resource_list', { resourceType: 'AnnotatedStatementPdf' })
       const params = {
         filter: {
           annotatedStatementPdf: {
@@ -187,12 +193,13 @@ export default {
             }
           }
         },
+        procedureId: this.procedureId,
         page: {
           size: 1
         },
         include: 'annotatedStatementPdfPages'
       }
-      const documentResponse = await dpApi.get(url, params, { serialize: true })
+      const documentResponse = await dpApi.get(url, params)
       this.document = documentResponse.data.data.find(el => el.type === 'AnnotatedStatementPdf')
       this.formValues = { ...this.formValues, text: this.document.attributes.text }
       this.pages = documentResponse.data.included.filter(el => el.type === 'AnnotatedStatementPdfPage')

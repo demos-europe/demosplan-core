@@ -11,6 +11,7 @@
   <ul class="o-list o-list--card">
     <assessment-table-group
       v-for="subgroup in subgroups"
+      :csrf-token="csrfToken"
       :key="`subGroup:${subgroup.title}`"
       :count="1"
       :group="subgroup" />
@@ -29,6 +30,11 @@ export default {
   },
 
   props: {
+    csrfToken: {
+      type: String,
+      required: true
+    },
+
     formDefinitions: {
       type: Object,
       required: false,

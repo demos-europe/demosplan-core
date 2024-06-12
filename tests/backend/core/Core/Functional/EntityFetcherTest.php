@@ -98,7 +98,7 @@ class EntityFetcherTest extends FunctionalTestCase
 
         $this->enablePermissions(['area_admin_procedures', 'area_search_submitter_in_procedures']);
         $expected = $this->getProcedureReference(LoadProcedureData::TESTPROCEDURE);
-        $actual = $this->procedureResourceType->getEntityAsReadTarget($expected->getId());
+        $actual = $this->procedureResourceType->getEntity($expected->getId());
         self::assertSame($expected, $actual);
     }
 
@@ -109,7 +109,7 @@ class EntityFetcherTest extends FunctionalTestCase
         $sortMethods = $this->sortingParser->createFromQueryParamValue('submitName');
 
         $referenceStatements = $this->getStatementListSortedBySubmitName($this->testProcedure->getId(), 'submitName');
-        $statements = $this->statementResourceType->listEntities([$this->condition], $sortMethods);
+        $statements = $this->statementResourceType->getEntities([$this->condition], $sortMethods);
 
         static::assertSameSize($referenceStatements, $statements);
         $count = 0;
@@ -126,7 +126,7 @@ class EntityFetcherTest extends FunctionalTestCase
         $sortMethods = $this->sortingParser->createFromQueryParamValue('submitDate');
 
         $referenceStatements = $this->getStatementListSortedBySubmitName($this->testProcedure->getId(), 'submitDate');
-        $statements = $this->statementResourceType->listEntities([$this->condition], $sortMethods);
+        $statements = $this->statementResourceType->getEntities([$this->condition], $sortMethods);
 
         static::assertSameSize($referenceStatements, $statements);
         $count = 0;
@@ -143,7 +143,7 @@ class EntityFetcherTest extends FunctionalTestCase
         $sortMethods = $this->sortingParser->createFromQueryParamValue('initialOrganisationName');
 
         $referenceStatements = $this->getStatementListSortedBySubmitName($this->testProcedure->getId(), 'initialOrganisationName');
-        $statements = $this->statementResourceType->listEntities([$this->condition], $sortMethods);
+        $statements = $this->statementResourceType->getEntities([$this->condition], $sortMethods);
 
         static::assertSameSize($referenceStatements, $statements);
         $count = 0;
@@ -161,7 +161,7 @@ class EntityFetcherTest extends FunctionalTestCase
 
     public function testListProcedures(): void
     {
-        $procedures = $this->procedureResourceType->listEntities([]);
+        $procedures = $this->procedureResourceType->getEntities([], []);
         self::assertNotEmpty($procedures);
     }
 
@@ -227,8 +227,7 @@ class EntityFetcherTest extends FunctionalTestCase
         $expectedIdA = $expectedStatementA->getId();
         $expectedStatementB = $this->getStatementReference('testStatement1');
         $expectedIdB = $expectedStatementB->getId();
-
-        $filters = $this->filterParser->parseFilter([
+        $filters = [
             'condition_a' => [
                 'condition' => [
                     'operator' => '=',
@@ -250,7 +249,9 @@ class EntityFetcherTest extends FunctionalTestCase
                     'conjunction' => 'OR',
                 ],
             ],
-        ]);
+        ];
+        $filters = $this->filterParser->validateFilter($filters);
+        $filters = $this->filterParser->parseFilter($filters);
 
         $actualStatements = $this->sut->listEntitiesUnrestricted(Statement::class, $filters);
 
@@ -271,7 +272,7 @@ class EntityFetcherTest extends FunctionalTestCase
         self::assertIsString($expectedAuthorName);
         self::assertIsString($expectedSubmitName);
 
-        $filters = $this->filterParser->parseFilter([
+        $filters = [
             'condition_a' => [
                 'condition' => [
                     'operator' => '=',
@@ -291,7 +292,10 @@ class EntityFetcherTest extends FunctionalTestCase
                     'value' => $expectedId,
                 ],
             ],
-        ]);
+        ];
+
+        $filters = $this->filterParser->validateFilter($filters);
+        $filters = $this->filterParser->parseFilter($filters);
 
         $actualStatements = $this->sut->listEntitiesUnrestricted(Statement::class, $filters);
 
@@ -308,7 +312,7 @@ class EntityFetcherTest extends FunctionalTestCase
         $expectedId = $expectedStatement->getId();
         $expectedProcedureId = $expectedStatement->getProcedure()->getId();
 
-        $filters = $this->filterParser->parseFilter([
+        $filters = [
             'condition_a' => [
                 'condition' => [
                     'path'  => 'procedure.id',
@@ -321,7 +325,10 @@ class EntityFetcherTest extends FunctionalTestCase
                     'value' => $expectedId,
                 ],
             ],
-        ]);
+        ];
+
+        $filters = $this->filterParser->validateFilter($filters);
+        $filters = $this->filterParser->parseFilter($filters);
 
         $actualStatements = $this->sut->listEntitiesUnrestricted(Statement::class, $filters);
 
@@ -338,7 +345,7 @@ class EntityFetcherTest extends FunctionalTestCase
         $expectedId = $expectedStatement->getId();
         $expectedProcedureOrgaId = $expectedStatement->getProcedure()->getOrga()->getId();
 
-        $filters = $this->filterParser->parseFilter([
+        $filters = [
             'condition_a' => [
                 'condition' => [
                     'path'  => 'procedure.orga.id',
@@ -351,7 +358,10 @@ class EntityFetcherTest extends FunctionalTestCase
                     'value' => $expectedId,
                 ],
             ],
-        ]);
+        ];
+
+        $filters = $this->filterParser->validateFilter($filters);
+        $filters = $this->filterParser->parseFilter($filters);
 
         $actualStatements = $this->sut->listEntitiesUnrestricted(Statement::class, $filters);
 
@@ -367,14 +377,17 @@ class EntityFetcherTest extends FunctionalTestCase
         $expectedStatement = $this->getStatementReference('testStatement');
         $expectedId = $expectedStatement->getId();
 
-        $filters = $this->filterParser->parseFilter([
+        $filters = [
             'condition_a' => [
                 'condition' => [
                     'path'  => 'meta.statement.id',
                     'value' => $expectedId,
                 ],
             ],
-        ]);
+        ];
+
+        $filters = $this->filterParser->validateFilter($filters);
+        $filters = $this->filterParser->parseFilter($filters);
 
         $actualStatements = $this->sut->listEntitiesUnrestricted(Statement::class, $filters);
 
@@ -390,14 +403,17 @@ class EntityFetcherTest extends FunctionalTestCase
         $expectedStatement = $this->getStatementReference('testStatement');
         $expectedId = $expectedStatement->getId();
 
-        $filters = $this->filterParser->parseFilter([
+        $filters = [
             'condition_a' => [
                 'condition' => [
                     'path'  => 'meta.statement.meta.statement.meta.statement.meta.statement.meta.statement.meta.statement.meta.statement.meta.statement.id',
                     'value' => $expectedId,
                 ],
             ],
-        ]);
+        ];
+
+        $filters = $this->filterParser->validateFilter($filters);
+        $filters = $this->filterParser->parseFilter($filters);
 
         $actualStatements = $this->sut->listEntitiesUnrestricted(Statement::class, $filters);
 
@@ -414,7 +430,7 @@ class EntityFetcherTest extends FunctionalTestCase
         $expectedId = $expectedStatement->getId();
         $expectedVotes = $expectedStatement->getNumberOfAnonymVotes();
 
-        $filters = $this->filterParser->parseFilter([
+        $filters = [
             'condition_a' => [
                 'condition' => [
                     'operator' => 'BETWEEN',
@@ -428,7 +444,10 @@ class EntityFetcherTest extends FunctionalTestCase
                     'value' => $expectedId,
                 ],
             ],
-        ]);
+        ];
+
+        $filters = $this->filterParser->validateFilter($filters);
+        $filters = $this->filterParser->parseFilter($filters);
 
         $actualStatements = $this->sut->listEntitiesUnrestricted(Statement::class, $filters);
 
@@ -453,49 +472,50 @@ class EntityFetcherTest extends FunctionalTestCase
         self::assertNotSame($authorNameB, $authorNameA);
         self::assertNotSame($submitNameB, $submitNameA);
 
-        $filters = $this->filterParser->parseFilter(
-            [
-                'condition_a' => [
-                    'condition' => [
-                        'path'     => 'meta.authorName',
-                        'value'    => $authorNameA,
-                        'memberOf' => 'group_and',
-                    ],
+        $filters = [
+            'condition_a' => [
+                'condition' => [
+                    'path'     => 'meta.authorName',
+                    'value'    => $authorNameA,
+                    'memberOf' => 'group_and',
                 ],
-                'condition_b' => [
-                    'condition' => [
-                        'path'     => 'meta.submitName',
-                        'value'    => $submitNameA,
-                        'memberOf' => 'group_and',
-                    ],
+            ],
+            'condition_b' => [
+                'condition' => [
+                    'path'     => 'meta.submitName',
+                    'value'    => $submitNameA,
+                    'memberOf' => 'group_and',
                 ],
-                'group_and'   => [
-                    'group' => [
-                        'conjunction' => 'AND',
-                        'memberOf'    => 'group_or',
-                    ],
+            ],
+            'group_and'   => [
+                'group' => [
+                    'conjunction' => 'AND',
+                    'memberOf'    => 'group_or',
                 ],
-                'condition_c' => [
-                    'condition' => [
-                        'path'     => 'id',
-                        'value'    => $expectedIdA,
-                        'memberOf' => 'group_and',
-                    ],
+            ],
+            'condition_c' => [
+                'condition' => [
+                    'path'     => 'id',
+                    'value'    => $expectedIdA,
+                    'memberOf' => 'group_and',
                 ],
-                'condition_d' => [
-                    'condition' => [
-                        'path'     => 'id',
-                        'value'    => $expectedIdB,
-                        'memberOf' => 'group_or',
-                    ],
+            ],
+            'condition_d' => [
+                'condition' => [
+                    'path'     => 'id',
+                    'value'    => $expectedIdB,
+                    'memberOf' => 'group_or',
                 ],
-                'group_or'    => [
-                    'group' => [
-                        'conjunction' => 'OR',
-                    ],
+            ],
+            'group_or'    => [
+                'group' => [
+                    'conjunction' => 'OR',
                 ],
-            ]
-        );
+            ],
+        ];
+
+        $filters = $this->filterParser->validateFilter($filters);
+        $filters = $this->filterParser->parseFilter($filters);
 
         $actualStatements = $this->sut->listEntitiesUnrestricted(Statement::class, $filters);
 
@@ -512,17 +532,18 @@ class EntityFetcherTest extends FunctionalTestCase
         $unexpectedStatement = $this->getStatementReference('testStatement20');
         $unexpectedId = $unexpectedStatement->getId();
 
-        $filters = $this->filterParser->parseFilter(
-            [
-                'condition_a' => [
-                    'condition' => [
-                        'operator' => '<>',
-                        'path'     => 'id',
-                        'value'    => $unexpectedId,
-                    ],
+        $filters = [
+            'condition_a' => [
+                'condition' => [
+                    'operator' => '<>',
+                    'path'     => 'id',
+                    'value'    => $unexpectedId,
                 ],
-            ]
-        );
+            ],
+        ];
+
+        $filters = $this->filterParser->validateFilter($filters);
+        $filters = $this->filterParser->parseFilter($filters);
 
         $actualStatements = $this->sut->listEntitiesUnrestricted(Statement::class, $filters);
 

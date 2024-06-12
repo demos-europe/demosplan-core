@@ -60,7 +60,7 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
      *
      * @var Collection<int,BoilerplateCategoryInterface>
      *
-     * @ORM\ManyToMany(targetEntity="BoilerplateCategory", mappedBy="boilerplates")
+     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateCategory", mappedBy="boilerplates")
      *
      * @ORM\JoinTable(
      *     name="predefined_texts_categories",
@@ -77,7 +77,7 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
      *
      * This Class/Entity is the owning side
      *
-     * @ORM\ManyToOne(targetEntity="BoilerplateGroup", inversedBy="boilerplates")
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup", inversedBy="boilerplates")
      *
      * @ORM\JoinColumn(referencedColumnName="id", nullable = true)
      */
@@ -319,7 +319,7 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
     /**
      * Returns this Boilerplate's categories.
      *
-     * @return ArrayCollection[BoilerplateCategory]
+     * @return Collection<int,BoilerplateCategoryInterface>
      */
     public function getCategories()
     {

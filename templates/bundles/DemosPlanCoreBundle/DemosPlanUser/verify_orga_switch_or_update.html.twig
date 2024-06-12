@@ -58,12 +58,14 @@
             </p>
 
             <form action="{{ path('DemosPlan_user_login_osi_legacy', {'Token': templateVars.lastUsername|default, 'TokenTest': templateVars.lastUsername|default, 'project': 'bobhh'}) }}" method="post">
+                {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
                 <h3 class="u-mt-2 u-mb-0_75">{{ translations.changed_question }}</h3>
 
                 {% if false == hasOrphanedFragments %}
 
                     <div>
-                        <button name="Changed{{ type }}" class="btn btn--primary u-mr-0_75 width-100" data-form-actions-confirm="{{ translations.check_changed }}">{{ "yes"|trans }}</button>
+                        <button name="Changed{{ type }}" class="btn btn--primary u-mr-0_75 w-8" data-form-actions-confirm="{{ translations.check_changed }}">{{ "yes"|trans }}</button>
                         {{ translations.changed }}
                     </div>
 
@@ -76,11 +78,11 @@
                 {% endif %}
 
                 <div>
-                    <button name="Updated{{ type }}" class="btn btn--primary u-mr-0_75 width-100" data-form-actions-confirm="{{ translations.check_renamed }}">{{ "no"|trans }}</button>
+                    <button name="Updated{{ type }}" class="btn btn--primary u-mr-0_75 w-8" data-form-actions-confirm="{{ translations.check_renamed }}">{{ "no"|trans }}</button>
                     {{ translations.renamed }}
                 </div>
                 <div>
-                    <a href="{{ gatewayURL }}" class="btn btn--secondary u-ph-0 u-mr-0_75 width-100">{{ "abort"|trans }}</a>
+                    <a href="{{ gatewayURL }}" class="btn btn--secondary u-ph-0 u-mr-0_75 w-8">{{ "abort"|trans }}</a>
                     {{ translations.unclear }}
                 </div>
             </form>

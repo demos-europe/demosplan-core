@@ -278,6 +278,8 @@ export default {
       // Show available layers in layers dropdown
       if (Array.isArray(this.currentCapabilities.Capability.Layer.Layer)) {
         this.addLayerToOptions(this.currentCapabilities.Capability.Layer.Layer, 'Name')
+      } else if (this.currentCapabilities.Capability.Layer.Name) {
+        this.layersOptions.push({ value: this.currentCapabilities.Capability.Layer, label: this.currentCapabilities.Capability.Layer.Name })
       } else {
         this.layersOptions = []
       }
@@ -413,22 +415,21 @@ export default {
 
       externalApi(url)
         .then(response => {
+          return response.text()
+        })
+        .then(capabilities => {
           this.serviceType = hasWMTSType ? 'wmts' : 'wms'
           parser = this.serviceType === 'wmts' ? new WMTSCapabilities() : new WMSCapabilities()
-          this.currentCapabilities = parser.read(response.data)
+          this.currentCapabilities = parser.read(capabilities)
 
           if (this.currentCapabilities !== null) {
             this.version = this.currentCapabilities.version
             this.serviceType === 'wmts' ? this.extractDataFromWMTSCapabilities() : this.extractDataFromWMSCapabilities()
           }
         })
-        .catch(err => {
+        .catch(() => {
           dplan.notify.error(Translator.trans('maplayer.capabilities.fetch.error'))
-
-          if (err.code === 'ERR_NETWORK') {
-            dplan.notify.notify('warning', Translator.trans('maplayer.capabilities.fetch.warning.cors.policy'))
-          }
-
+          dplan.notify.notify('warning', Translator.trans('maplayer.capabilities.fetch.warning.cors.policy'))
           this.clearSelections()
         })
         .finally(() => {

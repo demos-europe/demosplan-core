@@ -45,7 +45,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\FluentStatementQuery;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityNotFoundException;
@@ -59,22 +58,29 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\FluentQueries\FluentQuery;
 use EDT\Querying\Pagination\PagePagination;
+use EDT\Querying\Utilities\Reindexer;
 use Exception;
 use Pagerfanta\Pagerfanta;
 use ReflectionException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Tightenco\Collect\Support\Collection;
 
-class StatementRepository extends FluentRepository implements ArrayInterface, ObjectInterface
+use function array_combine;
+
+/**
+ * @template-extends CoreRepository<Statement>
+ */
+class StatementRepository extends CoreRepository implements ArrayInterface, ObjectInterface
 {
     public function __construct(
         DqlConditionFactory $dqlConditionFactory,
+        Reindexer $reindexer,
         private readonly EventDispatcherInterface $eventDispatcher,
         ManagerRegistry $registry,
         SortMethodFactory $sortMethodFactory,
         string $entityClass
     ) {
-        parent::__construct($dqlConditionFactory, $registry, $sortMethodFactory, $entityClass);
+        parent::__construct($dqlConditionFactory, $registry, $reindexer, $sortMethodFactory, $entityClass);
     }
 
     /**
@@ -132,7 +138,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
     /**
      * Add new ClusterStatement, what basically is a Statement with a cluster of Statements.
      *
-     * @return statement - headStatement of the created statement-cluster
+     * @return Statement - headStatement of the created statement-cluster
      *
      * @throws Exception
      */
@@ -473,17 +479,56 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
     /**
      * @return array<int, Statement|Segment>
      */
-    public function getEntities(array $conditions, array $sortMethods, int $offset = 0, int $limit = null): array
+    public function getEntities(array $conditions, array $sortMethods, int $offset = 0, ?int $limit = null): array
     {
         return parent::getEntities($conditions, $sortMethods, $offset, $limit);
     }
 
     /**
-     * @return DemosPlanPaginator&Pagerfanta<Statement|Segment>
+     * @return Pagerfanta<Statement|Segment>
      */
-    public function getEntitiesForPage(array $conditions, array $sortMethods, PagePagination $pagination): DemosPlanPaginator
+    public function getEntitiesForPage(array $conditions, array $sortMethods, PagePagination $pagination): Pagerfanta
     {
         return parent::getEntitiesForPage($conditions, $sortMethods, $pagination);
+    }
+
+    /**
+     * @param non-empty-string $procedureId
+     *
+     * @return array<non-empty-string, non-empty-string>
+     */
+    public function getExternIdsInUse(string $procedureId): array
+    {
+        $query = $this->getEntityManager()
+            ->createQueryBuilder()
+            ->select('statement.externId')
+            ->from(Statement::class, 'statement')
+            ->where('statement.procedure = :procedureId')
+            ->setParameter('procedureId', $procedureId)
+            ->getQuery();
+        $externIds = array_column($query->getScalarResult(), 'externId');
+
+        return array_combine($externIds, $externIds);
+    }
+
+    /**
+     * @param non-empty-string $procedureId
+     *
+     * @return array<non-empty-string, non-empty-string>
+     */
+    public function getInternIdsInUse(string $procedureId): array
+    {
+        $query = $this->getEntityManager()
+            ->createQueryBuilder()
+            ->select('statement.internId')
+            ->from(Statement::class, 'statement')
+            ->where('statement.procedure = :procedureId')
+            ->andWhere('statement.internId IS NOT NULL')
+            ->setParameter('procedureId', $procedureId)
+            ->getQuery();
+        $internIds = array_column($query->getScalarResult(), 'internId');
+
+        return array_combine($internIds, $internIds);
     }
 
     /**
@@ -751,15 +796,15 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         }
 
         // nutze die paragraphId nur, wenn nicht schon das Objekt direkt gesetzt wurde
-        if (!array_key_exists('paragraph', $data) &&
-            array_key_exists('paragraphId', $data) &&
-            36 === strlen((string) $data['paragraphId'])) {
+        if (!array_key_exists('paragraph', $data)
+            && array_key_exists('paragraphId', $data)
+            && 36 === strlen((string) $data['paragraphId'])) {
             $statement->setParagraph($em->getReference(ParagraphVersion::class, $data['paragraphId']));
         }
 
-        if (!array_key_exists('paragraph', $data) &&
-            array_key_exists('paragraphId', $data) &&
-            '' === $data['paragraphId']) {
+        if (!array_key_exists('paragraph', $data)
+            && array_key_exists('paragraphId', $data)
+            && '' === $data['paragraphId']) {
             $statement->setParagraph(null);
         }
 
@@ -966,7 +1011,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
      * StatementVotes, which are not contained in $votesToSet, will be deleted.
      * StatementVotes, which are contained in $votesToSet, will be created if not existing, or updated.
      *
-     * @param statement        $statement  - related Statement
+     * @param Statement        $statement  - related Statement
      * @param array|Collection $votesToSet - StatementVotes to set on the given Statement
      *
      * @return Collection<int, StatementVote>
@@ -1738,7 +1783,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
     public function copyOriginalStatement(
         Statement $originalToCopy,
         Procedure $targetProcedure,
-        GdprConsent $gdprConsentToSet = null,
+        ?GdprConsent $gdprConsentToSet = null,
         $internIdToSet = null
     ): Statement {
         if (!$originalToCopy->isOriginal()) {
@@ -1818,7 +1863,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         }
 
         // todo. load clusterprefix from config
-//            $clusterPrefix = $this->getServiceStatement()->getGlobalConfig()->getClusterPrefix();
+        //            $clusterPrefix = $this->getServiceStatement()->getGlobalConfig()->getClusterPrefix();
         if ($originalToCopy->isClusterStatement()) {
             $newExternId = 'G'.$newExternId;
         }

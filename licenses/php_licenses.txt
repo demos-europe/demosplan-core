@@ -5,9 +5,6 @@ cebe/php-openapi: MIT
 cocur/slugify: MIT
 composer/package-versions-deprecated: MIT
 demos-europe/demosplan-addon: MIT
-demos-europe/edt-dql: MIT
-demos-europe/edt-extra: MIT
-demos-europe/edt-paths: MIT
 doctrine/annotations: MIT
 doctrine/common: MIT
 doctrine/doctrine-bundle: MIT
@@ -53,7 +50,6 @@ nelmio/security-bundle: MIT
 nesbot/carbon: MIT
 openlss/lib-array2xml: Apache-2.0
 patchwork/utf8: (Apache-2.0 or GPL-2.0)
-phayes/geophp: GPL-2 or New-BSD
 php-amqplib/rabbitmq-bundle: MIT
 php-parallel-lint/php-console-highlighter: MIT
 phpdocumentor/reflection-docblock: MIT
@@ -105,6 +101,7 @@ symfony/process: MIT
 symfony/property-access: MIT
 symfony/property-info: MIT
 symfony/proxy-manager-bridge: MIT
+symfony/rate-limiter: MIT
 symfony/security-bundle: MIT
 symfony/security-csrf: MIT
 symfony/serializer: MIT
@@ -121,9 +118,9 @@ symfony/web-profiler-bundle: MIT
 symfony/yaml: MIT
 tightenco/collect: MIT
 timeweb/phpstan-enum: MIT
-twig/twig: BSD-3-Clause
 vimeo/psalm: MIT
 weirdan/doctrine-psalm-plugin: MIT
+wgirhad/geophp: GPL-2.0-or-later
 willdurand/geocoder-bundle: MIT
 willdurand/js-translation-bundle: MIT
 wrep/daemonizable-command: MIT
@@ -131,4 +128,4 @@ wsdltophp/packagegenerator: MIT
 yectep/phpspreadsheet-bundle: MIT
 zenstruck/foundry: MIT
 
-As of 14.09.2023 07:03
+As of 06.06.2024 07:03

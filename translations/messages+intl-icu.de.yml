@@ -2,6 +2,58 @@
 # you can also use `php app/console lint:yaml $filename` for a general yaml check
 abort: "Abbrechen"
 abort.and.back: "Abbrechen und zurück"
+about.introduction: >-
+    <p>Wenn räumliche Entwicklungen geplant oder vorbereitet werden, berührt das viele Interessengruppen.  Verschiedene
+    Planwerke werden auf allen Ebenen der Verwaltung - vom Bund bis zu den Kommunen - ausgearbeitet und sind, abhängig
+    vom Plangeber, unterschiedlich in ihren inhaltlichen Schwerpunkten. Eine Aufgabe der behördlichen Planung ist,
+    wesentliche Interessen abzuwägen, Konflikte zwischen verschiedenen Bereichen zu minimieren und Flächen bestmöglich
+    zu nutzen.</p>
+
+    <p>Darum darf die Öffentlichkeit sowie Träger öffentlicher Belange (TöB) bei den Planungen mitreden. Bei
+    landesweiten Planungen sind weitere Institutionen, wie zum Beispiel Umwelt- und Naturschutzvereinigungen, je nach
+    Planungsanlass ebenfalls aufgefordert Stellung zu nehmen.</p>
+
+    <p>Die Beteiligung in der Bauleitplanung steht im Baugesetzbuch. In einem festgelegten Zeitraum werden Stellungnahmen
+    der Öffentlichkeit und TöB gesammelt und von der zuständigen Sachbearbeitung ausgewertet. Die Inhalte der Stellungnahmen
+    müssen bei der Abwägung aller Belange aufgenommen und adressiert werden, bevor die Bebauungs- und Flächennutzungspläne
+    verabschiedet werden.</p>
+
+    <p>Das Raumordnungsgesetz, ergänzt um die entsprechenden Landesplanungsgesetze, sieht eine Beteiligung der
+    Öffentlichkeit sowie die in ihren Belangen berührten öffentlichen Stellen an raumordnerischen Verfahren vor. Hierzu
+    zählen z.B. Raumordnungspläne des Landes oder des Bundes, Regionalpläne, sowie Raumordnungsverfahren.</p>
+
+    <p>Bei einem Planfeststellungsverfahren nach dem Verwaltungsverfahrensgesetz handelt es sich um ein Genehmigungsverfahren
+    für größere Vorhaben in der Infrastruktur. Das können z.B. Straßen, Eisenbahnen, Stadtbahnen, Flugplätze,
+    Hoch-/Höchstspannungsleitungen des Stromnetzes, Deponien oder auch Gewässerausbauten sein. Diese berühren bei ihrer
+    Erstellung eine große Menge an öffentlichen wie auch zumeist eine Vielzahl an Interessen des privaten Lebens. Alle
+    betroffenen Behörden, deren Aufgabenbereiche hier berührt werden, sind zur Stellungnahme aufgefordert.</p>
+
+    <p><strong>DiPlanBeteiligung ist eine Plattform, auf der Sie Ihr Recht zur Mitsprache online wahrnehmen können.</strong></p>
+
+    <p>Die planenden Behörden laden öffentliche Bekanntmachungen, Unterlagen und Pläne über DiPlanBeteiligung hoch. Die
+    Öffentlichkeit und TöB können sich z.B. über geplante städtebauliche Entwicklungen und andere Vorhaben in den Behörden
+    informieren und Stellungnahmen einreichen.</p>
+
+    <p>DiPlanBeteiligung ist ein gemeinsames Projekt der Freien und Hansestadt Hamburg und dem Bund in Zusammenarbeit
+    mit den Bundesländern Berlin und Bremen. Es wurde im Rahmen des Onlinezugangsgesetz gefördert und weiterentwickelt.
+    Der Funktionsumfang wird in den folgenden Monaten um Beteiligungen an der Raumordnung und Anhörungen im Zuge von
+    Planfeststellungsverfahren schrittweise erweitert. Auch sind Beteiligungen im Rahmen der Landschaftsplanung und bei
+    Verfahren nach dem  Bundes-Immissionsschutzgesetz vorgesehen.</p>
+
+    <p>Eine bundesweite Übersicht über alle raumbezogenen Planwerke und formalen Beteiligungsverfahren des Baugesetzbuches
+    sowie perspektivisch der Raumordnung und Planfeststellung finden Sie in unserem
+    <a class="o-link--external" href="{diplanportalurl}" target="_blank" rel="noopener">DiPlanPortal</a>.
+    </p>
+
+    <p>DiPlanBeteiligung ist als freie Software unter der Open-Source-Lizenz für die Europäische Union
+    „European Union Public License“ (EUPL) auf der Open CoDE Plattform der öffentlichen Verwaltung bereitgestellt
+    <a class="o-link--external" href="https://gitlab.opencode.de/diplanung/" target="_blank" rel="noopener">
+    DiPlanung · GitLab (opencode.de)</a>.
+    </p>
+
+    <p>DiPlanBeteiligung ist eine Software-Komponente der DiPlanung-Produktfamilie. Mehr Informationen zur DiPlanung finden Sie
+    <a class="o-link--external" href="https://diplanung.de/" target="_blank" rel="noopener">hier</a>.
+    </p>
 about.project: "Über demosplan"
 accept: "Übernehmen"
 access.authorized: "Zugriffsberechtigt"
@@ -11,6 +63,7 @@ access.token.send: "Zugangscode versenden"
 access.token.copied: "Zugangscode wurde kopiert."
 accessibility: "Barrierefreiheit"
 accessibility.explanation: "Erklärung zur Barrierefreiheit"
+accessibility.report_barrier: "Barriere melden"
 act: "Vorgang"
 action.irreversible: "Dieser Vorgang kann nicht rückgängig gemacht werden."
 
@@ -81,6 +134,7 @@ activate: "aktivieren"
 activated: "Aktiviert"
 add: "Hinzufügen"
 add.entity: "{entity} anlegen"
+add_orga.email_hint: "Institutionen können erst hinzugefügt werden sobald eine E-Mail-Adresse hinterlegt ist."
 address: "Adresse"
 adjustments.advanced: "Erweiterte Einstellungen"
 adjustments.general: "Grundeinstellungen"
@@ -88,7 +142,7 @@ adjustments.general.error.public.participation.maxlength: "\"Ansprechperson für
 adjustments.general.error.public.procedure.description.maxlength: "\"Öffentliche Verfahrensbeschreibung\" darf nicht länger als 10.000 Zeichen sein"
 adjustments: "Einstellungen"
 administer: "Verwalten"
-administration.alt: "Institution"
+administration.alt: "durchführende Organisation"
 administration: "Verwaltung"
 affirmative: "Zustimmend"
 advisory.board.activities: "Aktivitäten im virtuellen Anwenderbeirat"
@@ -217,8 +271,6 @@ boilerplates.categories.explanation: "Um einen Textbaustein hier auswählen zu k
 boilerplates.category: "Textbausteine des Bereichs \"{category}\""
 boilerplates.category.hint: "Über den Bereich stellen Sie ein, wo in der Anwendung Ihnen der Textbaustein zur Verfügung steht."
 boilerplates.in.group: "Textbausteine in Gruppe"
-boundingbox: "Kartenbegrenzung"
-boundingbox.not.set: 'Sie haben noch keine Kartenbegrenzung festgesetzt.'
 bounds.apply: "Kartenbegrenzung übernehmen"
 
 branding.label: "Branding-Anpassungen"
@@ -332,6 +384,7 @@ check.fragment.delete: "Sind Sie sicher, dass Sie den Datensatz löschen möchte
 check.fragment.save: "Wenn Sie die Bearbeitung dieses Datensatzes abschliessen, können Sie die Bearbeitung nicht wieder aufnehmen."
 check.item.delete: "Sind Sie sicher, dass Sie dieses Element löschen möchten?"
 check.items.marked.delete: "Sind Sie sicher, dass Sie alle markierten Elemente löschen möchten?"
+check.mastertoeb.delete: "Sind Sie sicher, dass Sie diesen Eintrag löschen möchten?"
 check.mail.result: >-
     Sind Sie sicher, dass Sie die Informationen über das Abwägungsergebnis versenden möchten?
     {sentTo}
@@ -382,8 +435,6 @@ city.name: "Wohnort"
 city: "Ort"
 clipboard.copied: "Der Text wurde in die Zwischenablage kopiert."
 clipboard.copy_to: "In die Zwischenablage kopieren"
-clipping: "Startkartenausschnitt"
-clipping.not.set: 'Sie haben noch keinen Startkartenausschnitt festgesetzt.'
 clipping.set: 'Startkartenausschnitt festsetzen'
 clipping.is.set: 'Startkartenausschnitt ist festgesetzt'
 clock: "Uhr"
@@ -605,7 +656,12 @@ confirm.statements.marked.numbertext: |
     }
 confirm.statements.marked.released: "Die markierten Stellungnahmen wurden an Ihre Koordination freigegeben. Die Stellungnahmen müssen von Ihrer Koordination anschließend noch aus dem Ordner \"Freigaben der Organisation\" an den Verfahrensträger eingereicht werden."
 confirm.statements.marked.submitted: "Die markierten Stellungnahmen wurden eingereicht."
-confirm.statements.imported.from.xlsx: "{count} Stellungnahmen wurden aus {fileName} importiert."
+confirm.statements.imported.from.files.xlsx.format: |
+    {count, plural,
+            =0 {Es wurde keine Stellungnahme aus {fileName} importiert.}
+            =1 {Es wurde eine Stellungnahme aus {fileName} importiert.}
+            other {Es wurden {numbers} Stellungnahmen aus {fileName} importiert.}
+    }
 confirm.story.created: "Die Userstory wurde angelegt."
 confirm.story.deleted: "Die Userstory wurde gelöscht."
 confirm.story.updated: "Die Userstory wurde aktualisiert."
@@ -635,6 +691,11 @@ confirm.users.invited: "An {count} Nutzende wurde die Einladungsemail verschickt
 confirm.userStory.voting.offline: "Die Bewertung der Sitzung vor Ort wurde gespeichert."
 confirm.userStory.voting.reset: "Ihre Bewertung wurde zurückgesetzt."
 confirm.userStory.voting: "Ihre Bewertung wurde gespeichert."
+
+console.info.application: "Application information"
+console.info.versions: "Versions"
+console.info.none: "Diese Information steht nicht zur Verfügung."
+
 consideration: "Begründung"
 consideration.text.add: "Begründungstext ergänzen"
 consideration.text.add.error: "Bitte geben Sie einen Begründungstext ein."
@@ -679,10 +740,25 @@ consultation.notification.mail.on.token.creation.confirmation: "Ein Zugangscode 
 consultation.notification.mail.on.token.creation.error: "Es konnte keine Email versendet werden."
 consultation.notification.mail.subject.on.token.creation: "Ihre Stellungnahme zum Verfahren {procedureName} ist eingegangen"
 
+contact: "Kontakt"
 contact.data: "Kontaktdaten"
+contact.add: "Kontakt hinzufügen"
+contact.change: "Kontakt bearbeiten"
+contact.delete: "Kontakt löschen"
+contact.deleted: "Der Kontakt wurde gelöscht."
+contact.name: "Name"
+contact.new: "Neuen Kontakt anlegen"
+contact.no_entries: "Keine Kontakte angelegt"
 contact.person: "Ansprechperson"
 contact.person.noname: "Es wurde keine Ansprechperson benannt."
-contact: "Kontakt"
+contact.phone_number: "Telefonnummer"
+contact.update: "Kontakt aktualisieren"
+contact.visible: "Diesen Kontakt sichtbar anzeigen"
+contact.visibleText: |
+    {isVisible, select,
+        true {Dieser Kontakt wird sichtbar angezeigt.}
+        other {Dieser Kontakt wird nicht sichtbar angezeigt.}
+    }
 content: "Inhalt"
 contextual.help.edit: "Kontexthilfe bearbeiten"
 contextual.help.new: "Kontexthilfe neu anlegen"
@@ -728,9 +804,10 @@ customer.accessibility.explanation.label: "Geben Sie hier die Informationen ein,
 customer.branding.label: "Plattform-Branding"
 customer.branding.logo: "Plattform-Logo"
 customer.branding.logo.hint: "(wird im Kopfbereich der Seite angezeigt)"
+customer.data: "Nutzerbezogene Daten"
 customer.data.protection.explanation: "Der hier eingegebene Text wird an die Datenschutzhinweise der Plattform angehängt."
 customer.imprint.explanation: "Bitte geben Sie hier einen Text für das Impressum ein. Diese Eingabe ist verpflichtend. Der Text wird neben den Anbieter-Informationen unter <a href=\"{url}\"><strong>{url}</strong></a> angezeigt."
-customer.master.blueprint.already.exists: "Blaupause konnte nicht als Plattform-Blaupause gespeichert werden, da bereits eine  Plattform-Blaupause für den Mandanten {customerName} existiert."
+customer.master.blueprint.changed: "Die Blaupause ersetzt die bisherige Plattform-Blaupause, da bereits eine Plattform-Blaupause für den Mandanten {customerName} existierte."
 customer.settings: "Plattform-Einstellungen"
 customer.settings.update.mail.default.subject: "Aktualisierung der Datenschutzbestimmungen und der Nutzungsbedingungen"
 customer.settings.update.mail.default.text: |
@@ -891,7 +968,11 @@ elements.bulk.edit.change.state.hint: "Planungsdokumente, die bereits den hier g
 elements.bulk.edit.change.state.success: "Die automatische Umstellung wurde bei <strong>{changed}</strong> von <strong>{total}</strong> Planungsdokumenten erfolgreich aktiviert."
 elements.create.subcategory: "Neue Unterkategorie erstellen"
 elements.export: "Planungsdokumente herunterladen"
-elements.selected: "Elemente ausgewählt"
+elements.selected: |
+    {count, plural,
+        =1 { Ein Element ausgewählt }
+        other { # Elemente ausgewählt }
+    }
 elements.statement.global.explanation: "Hier können Sie eine Stellungnahme zum gesamten Verfahren abgeben"
 elements.statement.indicationerror.explanation: "Hier können Sie eine Fehlanzeige zum gesamten Verfahren abgeben."
 elements: "Planungsdokumente"
@@ -972,7 +1053,7 @@ email.text.notification_for_unsubmitted_statement.end_days: |
         =1 { einem Tag}
         other { # Tagen }
     }
-email.text.notification_for_unsubmitted_statement.statements: |
+email.text.notification_for_unsubmitted_statement.statements: >
     {count, plural,
         =1 { einen noch nicht eingereichten Entwurf einer Stellungnahme }
         other { # noch nicht eingereichte Stellungnahmen-Entwürfe }
@@ -998,6 +1079,7 @@ error.annotated.statement.boxes.already.being.reviewed: "Dieses Dokument wird ak
 error.annotated.statement.text.already.being.reviewed: "Der Import wird aktuell durch {user} geprüft."
 error.annotated.statement.not.being.reviewed: "Das Dokument wird nicht überprüft."
 error.api.generic: "Während der Verarbeitung der Anfrage ist ein Fehler aufgetreten."
+error.csrf.missing: "Der CSRF-Token fehlt. Bitte @DemosPlanCore/DemosPlanCore/includes/csrf.html.twig in dem Formular zur Route {uri} importieren."
 error.procedure.token.creation: "Fehler beim Generieren des Verfahrenstokens."
 error.procedure.token.not.found: "Der eingegebene Token konnte nicht gefunden werden."
 error.procedure.token.already.used: "Der eingegebene Token wurde bereits verwendet."
@@ -1011,14 +1093,21 @@ error.copy: "Leider ist beim Kopieren ein Fehler aufgetreten."
 error.copy.files: "Die Dateien der Stellungnahme {externId} konnten nicht kopiert werden."
 error.copy.mapfile: "Die Einzeichnung der Stellungnahme {externId} konnte nicht kopiert werden."
 error.changes.not.saved: "Beim Speichern der Änderungen ist ein Fehler aufgetreten."
+error.customer.contact.phone_or_email: "Bitte geben Sie entweder eine gültige E-Mail-Adresse oder Telefonnummer ein."
+error.customer.contact.title: "Bitte geben Sie einen Namen für den Kontakt ein."
 error.date.authored: "Bitte geben Sie ein Verfassungsdatum ein."
 error.in.fields: "Bitte korrigieren Sie Ihre Eingabe in folgenden Feldern: "
+error.phone_or_email.required: "Bitte geben Sie entweder eine gültige E-Mail-Adresse oder Telefonnummer ein."
+error.phone.pattern: "Bitte geben Sie gültige Telefonnummer ein."
+error.phone.required: "Bitte geben Sie eine Telefonnummer ein."
 error.startdate.required: "Bitte geben Sie ein Startdatum ein"
 error.enddate.required: "Bitte geben Sie ein Enddatum ein"
 error.date.endbeforestart: "Das Enddatum kann nicht vor dem Startdatum liegen."
+error.phaseIteration.invalid: "Die Durchgangsnummer einer Phase muss eine positive Ganzzahl sein."
 error.date: "Bitte geben Sie ein Datum ein."
 error.date.invalid: "Das angegebene Datum ist ungültig"
 error.delete.addressBookEntry: "Der Adressbucheintrag konnte nicht gelöscht werden"
+error.delete.annotatedStatementPdf: "Beim PdfLöschen ist ein Fehler aufgetreten"
 error.delete.department.related.users: "Die Abteilung konnte nicht gelöscht werden, weil ihr noch Nutzende zugewiesen sind. Löschen Sie bitte zunächst die Nutzenden."
 error.delete.department: "Leider ist beim Löschen der Abteilung ein Fehler aufgetreten."
 error.delete.last.admin.user.of.orga.with.open.procedures: "Nutzer*in kann nicht gelöscht werden, weil er der letzte Administrator der Organisation \"{organisationName}\" mit {numberOfOpenProcedures} offenen Verfahren ist."
@@ -1065,6 +1154,7 @@ error.featureinfo.failed: "Die Sachdaten können derzeit nicht abgerufen werden"
 error.featureinfourl.global.updated: "Die globale Sachdaten-URL konnte nicht erfolgreich verändert werden."
 error.fileupload.mimetype: "Der von Ihnen hochgeladene Dateityp ist nicht erlaubt. Beim Upload der Datei ist ein Fehler aufgetreten."
 error.fileupload: "Beim Upload der Datei ist ein Fehler aufgetreten."
+error.file.could.not.be.read: "Es ist ein Fehler beim Verarbeiten der Datei(en) aufgetreten."
 error.file.notFound: "Die Datei {fileName} konnte nicht gefunden werden."
 error.fragment.assignment.assigned: "Der Datensatz konnte nicht erfolgreich zugewiesen werden."
 error.fragment.assignment.changed: "Die Zuweisung des Datensatzes wurde nicht erfolgreich geändert."
@@ -1090,6 +1180,8 @@ error.mandatoryfields.no_asterisk: "Bitte füllen Sie alle Pflichtfelder korrekt
 error.mandatoryfields.missing_fields: "Bitte korrigieren Sie Ihre Eingabe in folgenden Feldern: {fields}. Erst dann können Sie Ihre Angaben speichern."
 error.mandatoryfields.send_email: "Bitte füllen Sie alle Pflichtfelder korrekt aus. Erst dann können Sie Ihre Stellungnahme versenden."
 error.missing.required.info: "Bitte füllen Sie alle Pflichtfelder(*) korrekt aus. Erst dann können Sie Ihre Angaben speichern."
+error.name.required: "Bitte geben Sie einen Namen ein."
+error.name.unique: "Bitte verwenden Sie einen Namen, der nicht bereits vergeben ist."
 error.news.text.toolong: "Der Mitteilungstext ist zu lang. Bitte kürzen Sie ihn."
 error.news.description.toolong: "Der Kurztext für die Mitteilung ist zu lang. Bitte kürzen Sie ihn."
 error.map.getcapabilities: "Fehler beim Abruf der Layerdaten. Ist die URL korrekt eingegeben?"
@@ -1111,6 +1203,7 @@ error.orga.register.request: "Beim Anlegen der Organisation ist ein Fehler aufge
 error.organisation.duplicated.slug: "Der Direktlink zu Verfahren mit der Endung {slug} ist bereits vergeben."
 error.organisation.invalid: "In den Daten der Organisation sind folgende Felder ungültig: {fields}. Bitte korrigieren Sie diese Werte, um Änderungen speichern zu können."
 error.organisation.cssvars.invalid: "Die eingetragenen CSS-Variablen sind ungültig. Es dürfen nur ausgewählte Variablen mit gültigen Farbwerten verwendet werden."
+error.organisation.merge.statements.existing: "Die neue Organisation hat bereits Stellungnahmen angelegt und/oder eingereicht und kann daher nicht mit einem bestehenden Eintrag zusammengeführt werden."
 error.organisation.not.created: "Die neue Organisation konnte nicht gespeichert werden"
 error.organisation.not.deleted: "Die ausgewählte Organisation konnte nicht gelöscht werden"
 error.organisation.not.existent: "Ausgewählte Organisation wurde nicht gefunden"
@@ -1144,6 +1237,7 @@ error.save.email: "Die E-Mail-Adresse konnte nicht gespeichert werden."
 error.save.organisation: "Leider ist beim Speichern der Organisation {organisationName} ein Fehler aufgetreten."
 error.save.organisation.slug.bulk: "Der gleiche Direktlink zu Verfahren kann nicht für mehrere Organisationen verwendet werden"
 error.savedFilterSet.deleted: "Die Filterkombination konnte nicht gelöscht werden."
+error.split_statement.segments: "Aufgrund von fehlerhaften Daten können keine von KI vorgeschlagenenen Abschnitte angezeigt werden."
 error.statement.anonymize: "Ihre Daten konnten nicht von der Stellungnahme {externId} entfernt werden."
 error.statement.already.segmented: "Diese Stellungnahme wurde bereits aufgeteilt"
 error.statement.assignment.assigned: "Die Stellungnahme konnte nicht erfolgreich zugewiesen werden."
@@ -1181,6 +1275,7 @@ error.statement.move.unownedprocedure: "Stellungnahme kann nicht verschoben werd
 error.statement.new: "Beim Anlegen der Stellungnahme ist ein Fehler aufgetreten."
 error.statement.not.found: "Die Stellungnahme konnte nicht gefunden werden"
 error.statement.not.saved: "Die Stellungnahme konnte nicht gespeichert werden, bitte überprüfen Sie noch einmal alle Eingabefelder."
+error.statement.not.saved.throttle: "Die Stellungnahme konnte nicht gespeichert werden, da das Formular zu häufig abgeschickt wurde. Bitte warten Sie einen Moment."
 error.statement.no.county: "Bitte wählen Sie die Kreiszugehörigkeit aus."
 error.statement.not.assigned: "Sie können keine Stellungnahmen bearbeiten, die Ihnen nicht zugewiesen sind."
 error.statement.orgaedit.submissiontype.short: "Beim Einrichten des verkürzten Stellungnahmeprozesses ist ein Fehler aufgetreten. Bitte schalten Sie zurück in den Standardprozess und versuchen es erneut. Sollte dies fehlschlagen überprüfen Sie bitte die freigegebenen Stellungnahmen"
@@ -1190,6 +1285,22 @@ error.statement.submit.nowriteaccess: "In dem Verfahren können derzeit keine St
 error.statement.submit.phase: "In der aktuellen Phase des Verfahrens können keine Stellungnahmen eingereicht werden."
 error.statement.update: "Beim Aktualisieren der Stellungnahme ist ein Fehler aufgetreten."
 error.statements.marked.submitted: "Die Stellungnahmen konnten nicht eingereicht werden!"
+error.statements.zip.export: "Das ZIP-Archiv konnte nicht erstellt werden."
+error.statements.zip.export.column.missing: "In der XLSX-Datei konnte die Spalte für die Referenzen auf weitere Anhänge nicht gefüllt werden."
+error.statements.zip.export.generic.xlsx: "Die XLSX-Datei konnte dem ZIP-Archiv nicht hinzugefügt werden."
+error.statements.zip.export.incomplete.xlsx: "Die generierte XLSX-Datei war unvollständig. Export abgebrochen."
+error.statements.zip.export.generic.attachment: |
+    {count, plural,
+    =1 { Beim Hinzufügen eines Anhangs ist ein unbekannter Fehler aufgetreten.}
+    other { Beim Hinzufügen eines Anhangs sind # unbekannte Fehler aufgetreten.}
+    }
+error.statments.zip.export.attachment: |
+    {count, plural,
+    =1 { Ein Anhang konnte dem ZIP-Archiv nicht hinzugefügt werden.}
+    other { # Anhänge konnten dem ZIP-Archiv nicht hinzugefügt werden.}
+    }
+error.statements.zip.export.attachments.not.addable: 'Es konnten dem ZIP-Archiv keine Anhänge hinzugefügt werden. Export abgebrochen.'
+error.statements.zip.import.contains.error.textfile: 'Es wurde versucht, ein fehlerhaft erstelltes ZIP-Archiv zu importieren. Bitte versuchen Sie das Zip-Archiv zu ersetzen.'
 error.survey.votes.publication: "Die Veröffentlichung der Antwort konnte nicht verändert werden."
 error.tag.notfound: "Das Schlagwort konnte nicht gefunden werden."
 error.topic.notfound: "Das Thema wurde nicht gefunden. Möglicherweise wurde es zwischenzeitlich gelöscht."
@@ -1226,11 +1337,12 @@ error.internal: "Ein interner Fehler ist aufgetreten"
 # evaluation used?
 evaluating: "Auswertung"
 evaluation: "Auswertung"
+evaluation.assessment.table.export: "Auswertung_Abwaegungstabelle_Export"
 example.file: "Beispieldatei"
 excel.import.error: |
     {count, plural,
-        =1 {Beim Hochladen des Excel-Dokuments ist ein Fehler aufgetreten. Die {entities} wurden nicht importiert. Bitte überprüfen Sie die Daten auf Korrektheit.}
-        other {Beim Hochladen des Excel-Dokuments sind Fehler aufgetreten. Die {entities} wurden nicht importiert. Bitte überprüfen Sie die Daten auf Korrektheit.}
+        =1 {Beim Verarbeiten des Excel-Dokuments ist ein Fehler aufgetreten. Die {entities} wurden nicht importiert. Bitte überprüfen Sie die Daten auf Korrektheit.}
+        other {Beim Verarbeiten des Excel-Dokuments sind Fehler aufgetreten. Die {entities} wurden nicht importiert. Bitte überprüfen Sie die Daten auf Korrektheit.}
     }
 excel.import.errors.checklist.hint: "Markieren Sie die unten stehenden Fehler als erledigt, sobald Sie diese im Excel-Dokument behoben haben. Alternativ können Sie auch direkt zum {entities}-Import zurückkehren."
 existing: "vorhanden"
@@ -1250,6 +1362,7 @@ explanation.data.protection.before.vote: "Die Stellungnahme muss für den öffen
 explanation.data.user.change: "Sollten sich Ihre Daten geändert haben, ändern Sie sie bitte vor der Einreichung der Stellungnahme(n) im <a class=\"o-link--default\" href=\"{href}\"><i class=\"fa fa-external-link\" aria-hidden=\"true\"></i> {label}</a> unter Menüpunkt \"Benutzerprofil/Daten ändern\" (Sie verlassen diese Seite)."
 explanation.data.user.change.portal: "Sollte sich Ihr Name oder Ihre E-Mail-Adresse geändert haben, ändern Sie sie bitte vor der Einreichung der Stellungnahme(n) unter \"<a href=\"{url}\">{label}</a>\"."
 explanation.data.user: "Hier können Sie Ihre persönlichen Daten einsehen, mit denen Sie registriert sind."
+explanation.date.format: "Bitte beachten Sie: Das erwartete Datumsformat ist 'dd.mm.yyyy'"
 explanation.date.procedure: ""
 explanation.date.empty: "Wird der Zeitraum leer gelassen, setzt das System automatisch das aktuelle Datum ein."
 explanation.drawing.configuration: "Die Konfiguration der Karten, Pläne und Legende erfolgt unter nachfolgendem Link im Menü „Planzeichnung“."
@@ -1264,7 +1377,16 @@ explanation.export.disabled.viewMode: "Die Exporte mit Datensätzen sind in der 
 explanation.export.docx: "Es werden die Daten entsprechend der Auswahl in den Grundeinstellungen exportiert. Bei diesem Export werden ausschließlich Stellungnahmen exportiert."
 explanation.export.potentialAreas: "Es werden die Begründungen zu den Stellungnahmen mit Potenzialflächen exportiert."
 explanation.export.projectlogin: "Bitte melden Sie sich bei {projectName} an, um das Archiv herunterzuladen."
-explanation.export.statements: "Exportiert ausgewählte Stellungnahmen mit allen Daten als XLSX."
+explanation.export.statements: |
+    {hasSelectedElements, select,
+        true {Exportiert ausgewählte Stellungnahmen mit allen Daten als XLSX.}
+        other {Exportiert alle Stellungnahmen mit allen Daten als XLSX.}
+    }
+explanation.export.statements.zip: |
+    {hasSelectedElements, select,
+        true {Exportiert ausgewählte Stellungnahmen mit allen Daten und Anhängen als ZIP-Archiv für den Import in das Einwendungsmanagement (EWM).}
+        other {Exportiert alle Stellungnahmen mit allen Daten und Anhängen als ZIP-Archiv für den Import in das Einwendungsmanagement (EWM).}
+    }
 explanation.export.statementsAndFragments: "Es wird die Stellungnahme exportiert, wenn kein Datensatz vorhanden ist."
 explanation.export.topicsAndTags: "Es werden die Begründungen zu den Stellungnahmen mit Themen und Schlagworten exportiert."
 explanation.feedback.email: "An die hinterlegte E-Mail-Adresse erhalten Sie die Bestätigung Ihrer Stellungnahme und eine Information, sobald die Ergebnisse der Online-Beteiligung vorliegen."
@@ -1330,9 +1452,9 @@ explanation.organisation.copies.kind: "Spezifizieren Sie über eine Eintragung i
 explanation.organisation.copies.paper: "Anzahl der Papierexemplare, die trotz elektronischer Beteiligung verschickt werden sollen."
 explanation.organisation.email.cc: "Alle E-Mails an die oben genannte E-Mail-Adresse werden auch an diese Adressen versendet."
 explanation.organisation.email.participation: "Sie erhalten Benachrichtigungen an diese Adresse bezüglich Ihrer Stellungnahme(n).<br />Hier sollte ein Funktionspostfach eingetragen werden."
-explanation.organisation.email.procedure.agency: "Die hier angegebene E-Mail-Adresse wird im Einladungstext an Institutionen als Absender*in eingesetzt. Sie erhalten Benachrichtigungen an diese Adresse, falls bei einer Einladung zur Beteiligung, die Sie an Ihre Institutionen verschickt haben, E-Mails nicht bei dem/der Empfänger*in angekommen sind. Weiterhin werden Kopien der Beteiligungseinladungen und der Schlussmitteilungen von Stellungnahmen an diese E-Mail-Adresse verschickt. <strong>Hier sollte ein Funktionspostfach eingetragen werden.</strong>"
+explanation.organisation.email.procedure.agency: "Die hier angegebene E-Mail-Adresse wird im Einladungstext an Institutionen als Absender*in eingesetzt. Sie erhalten Benachrichtigungen an diese Adresse, falls bei einer Einladung zur Beteiligung, die Sie an Ihre Institutionen verschickt haben, E-Mails nicht bei dem/der Empfänger*in angekommen sind. Weiterhin werden Kopien der Beteiligungseinladungen und der Schlussmitteilungen von Stellungnahmen an diese E-Mail-Adresse verschickt."
 explanation.organisation.email.reviewer.admin: "Diese Adresse erhält Benachrichtigungen zu zugewiesenen und zurückgewiesenen Datensätzen aller untergeordneten Abteilungen zur Information."
-explanation.organisation.email: "An die als <strong>E-Mail für Beteiligung</strong> angegebene Adresse schicken Verfahrensträger die Einladung zur Beteiligung. Stellen Sie daher sicher, dass die zuständige(n) Person(en) diese E-Mail empfangen kann.<br />Hier sollte ein Funktionspostfach eingetragen werden."
+explanation.organisation.email: "Sie erhalten Benachrichtigungen an diese Adresse bezüglich Ihrer Beteiligung. Stellen Sie daher sicher, dass zuständige Personen diese E-Mail empfangen. Hier sollte ein Funktionspostfach stehen."
 explanation.paste: "Beim Kopieren, z.B. aus Word, kann es Fehler bei der Formatierung geben. Bitte kontrollieren Sie Ihren Text anschließend noch einmal auf Formatfehler."
 explanation.pdf.document: "Über den Button „Neu“ können Sie der Kategorie ein PDF-Dokument hinzufügen."
 explanation.pdf.download: "Benutzen Sie die PDF-Download-Funktion, um eine für Druck und Archivierung optimierte Ansicht zu erhalten."
@@ -1417,6 +1539,7 @@ explanation.territory.help.edit: "Mit dem Werkzeug <strong>\"{editTool}\"</stron
 explanation.territory.help.delete.selected: "Durch Klick auf <strong>\"{deleteSelectedTool}\"</strong> löschen Sie die aktuell mit \"{editTool}\" ausgewählten Formen."
 explanation.territory.help.delete.all: "Durch Klick auf <strong>\"{deleteAllTool}\"</strong> löschen Sie alle Formen."
 explanation.territory.is.defined: "Sie haben bereits den <strong>GIS-Layer {layerName}</strong> als Geltungsbereich definiert. Dieser wird im öffentlichen Bereich dem hier eingezeichneten Geltungsbereich vorgezogen."
+explanation.unregistered.publicagency.email: "Der E-Mail-Text kann angepasst werden."
 explanation.upload.logo.dimensions: "Für eine optimale Darstellung sollte das Logo höchstens 300 x 100 Pixel (72dpi) groß sein. Sie können es im JPEG-, PNG- oder GIF-Format hochladen."
 explanation.url.set: "Diese Informationsseite ist unter dieser Webadresse <a href=\"/info/{infopageURL}\">{infopageURL}</a> aufrufbar."
 explanation.user.email: "Mit der E-Mail-Adresse meldet sich der/die Nutzer*in später bei {projectName} an."
@@ -1456,6 +1579,7 @@ export.potentialAreas: "Potenzialflächen"
 export.settings.hint: "Wählen Sie aus, welche Daten im Export der Stellungnahmen in der Abwägungstabelle enthalten sein sollen. Die Einstellungen betreffen nur den DOCX-Export \"Querformat\"."
 export.statements.zip: "Stellungnahmen als einzelne DOCX-Dateien"
 export.statements.docx: "Stellungnahmen in einer DOCX-Datei"
+export.statements.hint: "Achtung: Falls weitere Einreichende zu einer Stellungnahme hinzugefügt wurden, werden diese auch im DOCX-Export aufgeführt."
 export.statements.xlsx: "Stellungnahmen in einer XLSX-Datei"
 export.structure: "Gliederung des Exports"
 export.topicsAndTags: "Themen und Schlagworte"
@@ -1466,6 +1590,7 @@ export.type: "Art des Exports"
 export.verb: "Exportieren"
 export.xls: "XLS"
 export.xlsx: "XLSX"
+export.zip: "ZIP"
 exported.on: "Exportiert am {date} um {time} Uhr."
 
 extern: "Extern"
@@ -1731,8 +1856,10 @@ images.saved: "Gespeicherte Bilder"
 import: "Import"
 import.confirm: "Import bestätigen"
 import.edited.by.user: "Diese Datei wird von einer anderen Person bearbeitet."
+import.menu: "Import (Stellungnahmen)"
 import.options.form: "Direkteingabe"
 import.options.none: "Es stehen keine Import-Optionen zur Verfügung."
+import.options.participation: "Beteiligungs-Import"
 import.options.pdf: "PDF-Import"
 import.options.xls: "Excel-Import"
 import.process.running: "In Verarbeitung (Boxen-Erkennung)"
@@ -1774,6 +1901,8 @@ information.short: "Kurzinfo"
 information.short.empty: "Zu diesem Verfahren wurde keine Kurzinfo hinterlegt."
 informations: "Informationen"
 information.pin: "Informationen anheften"
+initial_extent: "Startkartenausschnitt"
+initial_extent.not.set: 'Sie haben noch keinen Startkartenausschnitt festgesetzt.'
 input.text.maxlength: "Der eingegebene Text kann bis zu {maxlength} Zeichen lang sein. Es sind noch <input class=\"o-char-count\" disabled value=\"{maxlength}\" id=\"{id}\"> Zeichen verfügbar."
 insert: "Einfügen"
 institution: "Institution"
@@ -1802,6 +1931,7 @@ invitable_institution.list.show.text: "Die Organisation wird in der landesweiten
 invitable_institution.master.gatewayGroup: "GW-Gruppe"
 invitable_institution.master.merge: "Institutionen zusammenführen"
 invitable_institution.master.organisations.new: "Neu angelegte Organisationen"
+invitable_institutions.master.organisations.master_toeb_list: "Eintrag aus Master-TöB-Liste"
 invitable_institution.master.report.nounread: "Keine Änderungen seit dem letzten Protokollaufruf."
 invitable_institution.master.report.unread: "Neue Änderungen von Institutionen in ihren Organisationen"
 invitable_institution.master.report: "Änderungen Master-TöB-Liste"
@@ -1841,6 +1971,11 @@ items.selected: |
         =1 { Ein Eintrag ausgewählt}
         other { # Einträge ausgewählt}
     }
+items.deleted: |
+    {count, plural,
+        =1 { Ein Eintrag wurde gelöscht}
+        other { # Einträge wurden gelöscht}
+    }
 jumpTo.login: "Direkt zum Login springen"
 jumpTo.mainContent: "Direkt zum Inhalt springen"
 jumpTo.mainNavigation: "Direkt zur Hauptnavigation springen"
@@ -1875,6 +2010,8 @@ liked.by.persons: |
         other {Unterstützt von # Personen.}
     }
 line: "Zeile {line}:"
+link.external.to: "Externer Link zu {source}"
+link.open: "Link öffnet in einem neuen Fenster"
 link.text.drawing: "Zur Planzeichnung"
 link.text.privacy: "Zur Datenschutzerklärung"
 link.text.reason: "Zu den Kapiteln der Begründung"
@@ -1928,7 +2065,7 @@ logo.delete: "Logo löschen"
 logo.upload.new: "Neues Logo hochladen"
 logout: "Abmelden"
 # map.attribution.default supports both {linkImprint} and {currentYear} placeholders.
-map.attribution.default: "Lizenzrechtliche Angaben im <a href=\"{linkImprint}\">Impressum</a>"
+map.attribution.default: "© basemap.de / BKG {currentYear}"
 map.attribution.exports: "© basemap.de BKG (www.basemap.de) / LVermGeo SH (www.LVermGeoSH.schleswig-holstein.de)"
 map.attribution: "Copyright-Vermerk"
 map.attribution.hint: "Der Copyright-Vermerk bzw. die Quellengabe wird in einer Leiste unterhalb der Karte angezeigt."
@@ -1943,7 +2080,6 @@ map.base.minimap.hint: "Legen Sie hier eine eigene Kartenebene für die Übersic
 # uhuh...
 map.default.bounds: "Startkartenausschnitt übernehmen"
 map.default: "Startkarte"
-map.editarea.title: "Passen Sie hier Ihre Karteneinstellungen an"
 map.getfeatureinfo.description: "Aktivieren, um die Kriterien durch einen Klick in den entsprechenden Bereich der Karte einzusehen."
 map.getfeatureinfo.label: "Kriterien am Ort abfragen"
 map.getfeatureinfo.none: "An diesem Punkt wurden keine Entscheidungskriterien ermittelt."
@@ -1978,6 +2114,7 @@ map.scale: "Maßstab"
 map.scales: "Verfügbare Maßstäbe"
 map.set.order.tree: "Reihenfolge für die Navigation"
 map.set.order.map: "Reihenfolge für die Karte"
+map_settings.menu: "Karteneinstellungen"
 map.territory: "Geltungsbereich"
 map.territory.define: "Geltungsbereich zeichnen"
 map.territory.delete: "Geltungsbereich löschen"
@@ -1991,6 +2128,7 @@ map.tilematrixset: "MatrixSet (nur WMTS)"
 map: "Karte"
 map.allow.procedure.type.activate: "Karte für Verfahrenstyp aktivieren"
 map.scales.select.hint: "Achten Sie bei der Wahl der Maßstäbe auf die Differenzen zwischen einzelnen Maßstäben. Zu große Unterschiede können dazu führen, dass die Karte nicht mehr nutzbar ist."
+map.scales.select.error: "Wählen Sie die Maßstäbe so, daß zwischen zwei Maßstäben kein zu großer Abstand liegt."
 map.to: "Zur Karte..."
 map.zoom.in: "In Karte hineinzoomen"
 map.zoom.reset: "Zoom der Karte zurücksetzen"
@@ -2029,6 +2167,8 @@ master.select.hint: "Wählen Sie eine Blaupause aus, um ihre Einstellungen in da
 master.toeb.list: "Master TöB-Liste"
 master.toeb.list.export.file: "masterToebListe"
 matrixset.no.supported.projections: "Für das ausgewählte Matrix-Set gibt es keine unterstützten Projektionen."
+max_extent: "Kartenbegrenzung"
+max_extent.not.set: 'Sie haben noch keine Kartenbegrenzung festgesetzt.'
 memo: "Notiz"
 memo.unset: "Keine Notiz vorhanden"
 menu.currentPage: "Aktuelle Seite"
@@ -2081,6 +2221,11 @@ news.create: "Neue Mitteilung anlegen"
 news.edit: "Mitteilung bearbeiten"
 news.new: "Neue Mitteilung"
 news.notes: "Aktuelle Mitteilungen"
+news.notes.selected: |
+    {count, plural,
+        =1 { Eine aktuelle Mitteilung ausgewählt }
+        other { # aktuelle Mitteilungen ausgewählt }
+    }
 news.see.all: "zu allen Neuigkeiten"
 news.text: "Mitteilungstext"
 news: "Aktuelles"
@@ -2296,7 +2441,7 @@ plandocument.and.chapter: "Planungsdokument und -kapitel"
 plandocument.edit: "Planungsdokument bearbeiten"
 plandocument.file.attach: "Planungsdokument als Datei anhängen"
 plandocument.import.docx: "Planungsdokument direkt importieren"
-plandocument.import.hint: "Bitte nutzen Sie für Überschriften die Formatvorlagen, damit diese erkannt und Absätze korrekt importiert werden."
+plandocument.import.hint: "Bitte nutzen Sie für Überschriften die Formatvorlagen, damit diese erkannt und Absätze korrekt importiert werden. Sie können sich an dem bereitgestellten Beispieldokument orientieren."
 plandocument.name.displayed: "Angezeigter Name"
 plandocument.new: "Planungsdokument neu"
 plandocument.zip.file.name: 'Planungsdokumente.zip'
@@ -2313,7 +2458,7 @@ plandocuments.delete: "Planungsdokumente löschen"
 plandocuments.menu: "Planungs&shy;dokumente"
 plandocuments.uploaded: "Hochgeladene Planungsdokumente"
 planningagency: "Planungsbüro"
-planningagency.participating: "beteiligtes Planungsbüro:"
+planningagency.participating: "beteiligtes Planungsbüro"
 planningArea: "Planungsraum"
 planningArea1: "Planungsraum1"
 planningArea2: "Planungsraum2"
@@ -2442,7 +2587,7 @@ procedure.by.phase.public: |
         =0 {Verfahren nach Phase (Öffentlichkeit)}
         other {# Verfahren nach Phase (Öffentlichkeit)}
     }
-procedure.public.view: "Öffentlichkeit/Institutions-Ansicht"
+procedure.canCreate: 'Darf Verfahren anlegen'
 procedure.create: "Neues Verfahren anlegen"
 procedure.created: "Verfahren angelegt"
 procedure.current: "Dieses Verfahren"
@@ -2496,6 +2641,7 @@ procedure.notifyCountry.setEmails.invalidEmail.notSaved: "E-Mail-Adresse ungült
 procedure.phase.autoswitch.enddate: "Neues Enddatum:"
 procedure.phase.autoswitch.targetphase: "Neuer Verfahrensschritt"
 procedure.phase.institutions: "Verfahrensschritt für Institutionen"
+procedure.phase.phasecounter: "Durchgangsnummer"
 procedure.phase.public: "Verfahrensschritt für Bürger*innen"
 procedure.phase.select: "Verfahrensschritt auswählen"
 procedure.phases.internal.configuration: "Konfiguration TöB"
@@ -2528,6 +2674,7 @@ procedure.public.phase.autoswitch: "Verfahrensschritt automatisch umstellen"
 procedure.public.phase.intern: "Verfahrensschritt Institutionen"
 procedure.public.phase.extern: "Verfahrensschritt Öffentlichkeit"
 procedure.public.search.placeholder: "Ort, PLZ oder Verfahrensname"
+procedure.public.view: "Öffentlichkeit/Institutions-Ansicht"
 procedure.selected.none: "Kein Verfahren ausgewählt."
 procedure.shorturl.explanation: "Unter dieser URL ist das Verfahren öffentlich abrufbar. Wenn Sie die URL ändern, kann das Verfahren weiterhin auch über die zuvor vergebenen URLs erreicht werden."
 procedure.show.similar.recommendations: "Ähnliche Erwiderungen aus folgenden Verfahren anzeigen"
@@ -2723,7 +2870,7 @@ role.editor.abbr: "Red."
 role.editor: "Redaktion"
 role.falst: "Fachliche Leitstelle"
 role.fp: "Fachplanung"
-role.fp.for: "für Fachplaner"
+role.fp.for: "für Fachplanung"
 role.fpa.abbr: "FP-A"
 role.fpa: "Fachplanung-Admin"
 role.fpfb.abbr: "FP-FB"
@@ -2879,9 +3026,10 @@ segments.export.statement.export.date: "Synopse vom {date}"
 segments.export.statement.extern.id: "ID: {externId}"
 segments.export.statement.intern.id: "Eingangsnummer: {internId}"
 segments.export.statement.label: "Einwendung / Stellungnahme"
+segments.export.statement.similar.submitters: 'Weitere Einreichende der gleichen Stellungnahme: {similarSubmitters}'
 segments.import: "Abschnitte importieren"
 segments.import.error.submitType: "Unbekannte Einreichungsart {value}, valide Arten sind: {translatedSubmitTypes}."
-segments.none.yet: "Es sind noch keine Abschnitte vorhanden."
+segments.none: "Es sind noch keine Abschnitte vorhanden."
 segments.recommendations.create: "Erwiderungen verfassen"
 segments.recommendations.oracle: "Vorschläge zu inhaltlicher Ähnlichkeit"
 segments.recommendations.oracle.none: "Zu diesem Abschnitt konnten keine ähnlichen Abschnitte mit Erwiderung gefunden werden."
@@ -2889,8 +3037,8 @@ segments.recommendations.tags: "Vorschläge zu Schlagworten"
 segments.recommendations.tags.none: "Da für diesen Abschnitt keine Schlagworte hinterlegt sind, können keine Erwiderungs-Vorschläge angezeigt werden."
 items.selected.multi.page: |
     {count, plural,
-        =1 { Element ausgewählt (u.U. nicht auf Seite 1). }
-        other { Elemente (u.U. auf mehreren Seiten) ausgewählt. }
+        =1 { Ein Element ausgewählt (u.U. nicht auf Seite 1). }
+        other { # Elemente (u.U. auf mehreren Seiten) ausgewählt. }
     }
 select.all.on.page: "Alle auf dieser Seite auswählen"
 selection.no: "Keine Auswahl"
@@ -2981,6 +3129,8 @@ statement.assignment.assigned: "Bearbeitet durch: {name} ({organisation})"
 statement.assignment.override: "Stellungnahme mir zuweisen"
 statement.assignment.release: "Stellungnahme freigeben"
 statement.assignment.unassigned: "Aktuell nicht in Bearbeitung"
+statement.attachments.reference: "Referenzen auf Anhänge"
+statement.original.attachment.reference: "Originalanhang"
 statement.change.failed: "Änderung der Stellungnahme fehlgeschlagen"
 statement.pdfs.checkable.now: |
     {count, plural,
@@ -3187,6 +3337,7 @@ statement.participate.hint: "Starten Sie hier Ihre Stellung&shy;nahme."
 statement.participate.resume.hint: "Eine angefangene Stellungnahme können Sie hier wiederfinden und bearbeiten."
 statement.participate.resume: "Reden Sie weiter..."
 statement.participate: "Reden Sie mit!"
+statement.participation.import: "Hier kann der Export aus den demos-Beteiligungslösungen in EWM importiert werden. Übernommen werden hierbei die Einreichendendaten, der Stellungnahmetext, die zugehörige ID und Eingangsnummer, Einreichungs-und Verfassungsdatum, sowie eine eventuell hinzugefügte Notiz und weitere Anhänge."
 statement.possible: "Stellungnahme möglich"
 statement.priority.a: "A-Punkt"
 statement.priority.b: "B-Punkt"
@@ -3288,6 +3439,7 @@ statements.import: "Stellungnahmen importieren"
 statements.import.error.line.summary: "In Zeile {lineNr}:"
 statements.import.error.document.summary: "Im Dokument {doc} traten folgende Fehler auf:"
 statements.import.error.document.unexpected: "Im Dokument {doc} trat ein Fehler auf. Bitte überprüfen Sie die Daten auf Korrektheit."
+statements.import.error.property.constraint.violation: "Beim Import der Stellungnahme aus Zeile {lineNumber} der Excel Datei ist folgender Fehler aufgetreten: {message}."
 statements.import.hint: "Dateien, die gerade von anderen Nutzer*innen bearbeitet werden, sind unten nicht dargestellt."
 statements.imported.by.status: "Importierte Stellungnahmen nach Status"
 statements.imported.none: "Sie haben noch keine Stellungnahmen importiert."
@@ -3398,6 +3550,17 @@ statement.name_source.unknown: "Einreichende Person unbekannt"
 submitters: "Einreichende"
 summary: "Gliederung"
 summary.colon: "Gliederung:"
+support: "Inhaltlicher Support"
+support.contact.advice: "Sie haben eine Frage zur Technik? Dann hilft Ihnen unser technischer Support gerne weiter."
+support.contact.exception: "Ausgenommen an gesetzlichen Feiertagen."
+support.contact.number: "--"
+support.contact.office_hours: "Montag bis Freitag: 8 - 18 Uhr"
+support.contact.service: "Servicezeiten"
+support.heading: "Sie haben Fragen?"
+support.introduction: "Wir helfen Ihnen gerne! Bei inhaltlichen und fachlichen Fragen zu unserem Portal können Sie sich gerne an den inhaltlichen Support wenden.
+Hier steht Ihnen sowohl eine bundesweite Telefonnummer als auch unser anbieterspezifischer Kontakt zur Verfügung."
+support.login: "Kontakt für fehlende Berechtigungen"
+support.technical: "Technischer Support"
 survey: "Umfrage"
 survey.comment: "Begründung"
 survey.comment.created: "Ihre Antwort wurde erfolgreich eingereicht."
@@ -3459,7 +3622,7 @@ tag.name: "Name des neuen Schlagwortes"
 tag.new: "Neues Schlagwort"
 tag.rename: "Schlagwort umbenennen"
 tag.search: "Schlagwort suchen"
-tag.topic.new: "Schlagwort oder Thema anlegen…"
+tag.topic.new: "Schlagwort/Thema anlegen…"
 tag.topic.select.create: "Bitte wählen Sie ein Thema aus oder legen Sie ein neues Thema an."
 tag.update: "Schlagwort bearbeiten"
 tag: "Schlagwort"
@@ -3499,6 +3662,7 @@ text.invitable_institution.administer: "Hier ordnen Sie Behörden und Institutio
 text.invite.unregistered.recipient: ""
 text.mapsection: "Sie können die Kartenbegrenzung aus der Karte übernehmen. Navigieren Sie dazu zu dem Ausschnitt, den Sie auswählen wollen und klicken Sie \"Kartenbegrenzung übernehmen\", um die generelle Kartenbegrenzung der Karte zu übernehmen und \"Startkartenausschnitt übernehmen\", um den Startkartenausschnitt zu übernehmen. Speichern Sie das Formular nach der Auswahl."
 text.mapsection.hint: "Bitte beachten Sie, dass sich die Verortung des Verfahrens (Grundeinstellungen) innerhalb des gewählten Startkartenausschnitts und der Startkartenausschnitt innerhalb der Kartenbegrenzung befinden muss."
+text.mapsection.updated: "Die Kartendaten wurde erfolgreich aktualisiert."
 text.master.new: "Im folgenden Formular können Sie eine neue Blaupause anlegen. Aus Ihren Blaupausen können Sie dann Verfahren ableiten. Möchten Sie eine neue Blaupause aus einer bestehenden Blaupause kopieren, wählen Sie die entsprechende Blaupause aus. Soll die neue Blaupause ohne Einstellungen erzeugt werden, wählen Sie \"leere Blaupause\" aus."
 text.masters.list: "In der Listenansicht sehen Sie alle Blaupausen Ihrer Organisation."
 text.mydata.citizen: "Hier können Sie Ihre persönlichen Daten einsehen, mit denen Sie registriert sind. Möchten Sie Ihre Daten ändern, tun Sie dies bitte unter \"Meine Daten\"."
@@ -3519,7 +3683,7 @@ text.procedure.edit.additional.notifyCounty.setEmails.hint: "Bitte stellen Sie s
 text.procedure.edit.data_input_orgas: "Sie können Organisationen beauftragen, Stellungnahmen für dieses Verfahren zu erfassen."
 text.procedure.edit.link_box: "In diesem Feld können Links zu anderen Verfahren eingetragen werden, diese werden dann auf der Verfahrensseite in einer Linkbox angezeigt."
 text.procedure.edit.note: "In diesem Feld können interne Notizen für die Kolleg*innen eingetragen werden."
-text.procedure.edit.planning_agency: "Alle Einstellungen eines Verfahrens und die Auswertung können von einem oder mehreren Planungsbüros vorgenommen werden. Wählen Sie aus der Liste Ihr beauftragtes Planungsbüro aus. Planungsbüros müssen sich vorher auch registrieren."
+text.procedure.edit.planning_agency: "Ein oder mehrere Planungsbüros können durch die verfahrensführende Organisation an einem Verfahren beteiligt werden. Beteiligte Planungsbüros können alle Einstellungen eines Verfahrens und die Auswertung vornehmen. Wählen Sie aus der Liste Ihr beauftragtes Planungsbüro aus. Planungsbüros müssen sich vorher auch registrieren."
 text.procedure.edit.external.change_phase: "Der Verfahrensschritt (Öffentlichkeit) steuert die Sichtbarkeit aller Dokumente und Informationen im Verfahren und die Stellungnahmefunktionen für die Bürger*innen. Sobald die „Frühzeitige Beteiligung Öffentlichkeit“ oder die „Öffentliche Auslegung“ eingeschaltet sind, ist das Verfahren öffentlich im Internet aufrufbar und es können Stellungnahmen abgegeben werden."
 text.procedure.edit.external.contact_person: "Bitte nennen Sie eine oder mehrere Ansprechpersonen im Verfahren für die Bürger*innen. Idealerweise stellen Sie auch Kontaktmöglichkeiten durch Telefon, E-Mail und/oder Sprechzeiten zur Verfügung."
 text.procedure.edit.external.coordinates: "Setzen Sie den Punkt hier in der Karte, um das Verfahren in der Beteiligungsebene als Markierung in der Karte anzuzeigen. Es kann so komfortabel von Bürger*innen über die Karte gefunden werden."
@@ -3542,6 +3706,7 @@ text.procedure.show.similar.recommendations: "Legen Sie fest, aus welchen Verfah
 text.procedure.upload.antragx: 'Der Verfahrensname wird beim Speichern aus der hochgeladenen Datei extrahiert.'
 text.procedures.invited.list: "Alle Verfahren, zu denen Ihre Organisation als Institution beteiligt wird."
 text.procedures.list: "Alle Verfahren Ihrer Organisation."
+text.procedure.phasecounter: "Bitte geben Sie die Durchgangsnummer für den jeweiligen Verfahrensschritt ein. Verfahrensschritte können beliebig oft durchlaufen werden. Diese Durchläufe werden durch Angabe einer Durchgangsnummer (>0) gekennzeichnet."
 text.procedures.public.participation.list: "Die Liste enthält alle Online-Beteiligungsverfahren, die bei demosplan eingestellt und für die Öffentlichkeit freigegeben wurden. Über den Filter \"Phase\" können Sie sich laufende Verfahren, solche in der Auswertung oder abgeschlossene Verfahren anzeigen lassen."
 text.procedure.types.guests.only: "Beteiligung auf unangemeldete Nutzende beschränken"
 text.procedure.types.guests.only.tipp: "Die Einstellung ist vordefiniert und kann nicht verändert werden.<br /> Nur wenn die Checkbox aktiv ist, können die Stellungnahmefelder weiter unten konfiguriert werden."
@@ -3562,9 +3727,9 @@ text.profile.edit: "Hier können Sie Ihre Daten bearbeiten. Der Nutzendenname is
 text.protocol.drawing: "Planzeichnungs-WMS \"{layerName}\""
 text.protocol.finalMails: "Schlussmitteilungen"
 text.protocol.no.entries: "Noch keine Protokolleinträge vorhanden"
-text.protocol.phase: "Institutionsbeteiligung: \"Verfahrensschritt\" von \"{oldPhase}\" auf \"{newPhase}\" verändert"
+text.protocol.phase: "Institutionsbeteiligung: Verfahrensschritt von \"{oldPhase} {oldIteration}\" auf \"{newPhase} {newIteration}\" verändert"
 text.protocol.phase.date: "Zeitraum von {oldPhaseStart} bis {oldPhaseEnd} auf {newPhaseStart} bis {newPhaseEnd} geändert"
-text.protocol.phase.system: "Institutionsbeteiligung: \"Verfahrensschritt\" automatisch von \"{oldPhase}\" auf \"{newPhase}\" verändert"
+text.protocol.phase.system: "Institutionsbeteiligung: Verfahrensschritt automatisch von \"{oldPhase} {oldIteration}\" auf \"{newPhase} {newIteration}\" verändert"
 text.protocol.procedure.changed.generic: "Das Verfahren wurde verändert"
 text.protocol.procedure.designated.phase.changed: "Zielverfahrensschritt bei automatischer Umstellung von \"{oldDesignatedPhase}\" zu \"{newDesignatedPhase}\" geändert."
 text.protocol.procedure.designated.phase.changed.fromNull: "Zielverfahrensschritt bei automatischer Umstellung wurde auf \"{newDesignatedPhase}\" gesetzt."
@@ -3584,8 +3749,8 @@ text.protocol.procedure.coupled.targetProcedure: "Dieses Verfahren wurde mit dem
 text.protocol.procedure.time.changed: "Zeitraum geändert von {oldStartDate} - {oldEndDate} in {newStartDate} - {newEndDate}"
 text.protocol.procedure.time.set: "Zeitraum gesetzt auf {startDate} - {endDate}"
 text.protocol.procedure.finalMail: "Eine Schlussmitteilung wurde zu der Stellungnahme <a href=\"{url}\">{externId}</a> versendet."
-text.protocol.publicphase: "Öffentlichkeitsbeteiligung: \"Verfahrensschritt\" von \"{oldPublicPhase}\" auf \"{newPublicPhase}\" verändert"
-text.protocol.publicphase.system: "Öffentlichkeitsbeteiligung: \"Verfahrensschritt\" automatisch von \"{oldPublicPhase}\" auf \"{newPublicPhase}\" verändert"
+text.protocol.publicphase: "Öffentlichkeitsbeteiligung: Verfahrensschritt von \"{oldPublicPhase} {oldPublicPhaseIteration}\" auf \"{newPublicPhase} {newPublicPhaseIteration}\" verändert"
+text.protocol.publicphase.system: "Öffentlichkeitsbeteiligung: Verfahrensschritt automatisch von \"{oldPublicPhase} {oldPublicPhaseIteration}\" auf \"{newPublicPhase} {newPublicPhaseIteration}\" verändert"
 text.protocol.published.documents: "Bei der Umstellung eingestellte Unterlagen:"
 text.recommend.project: "> {projectname} kann ab sofort von Verfahrensträgern und den beteiligten Behörden und sonstigen Trägern öffentlicher Belange eingesetzt werden. Über das folgende Formular können Sie auf die Online-Beteiligung aufmerksam machen, indem Sie Kolleg*innen, Verfahrensträgern und zu beteiligenden Stellen die offizielle {projectname} Webseite empfehlen."
 text.servicemode: |
@@ -3600,10 +3765,10 @@ text.statements.citizen.draft: |
     Die Stellungnahme ist dann eingereicht und kann nicht mehr verändert werden.
 text.statements.final.citizen: "Diese Liste enthält Ihre eingereichten Stellungnahmen. Die Stellungnahmen sind abgeschickt und können nicht mehr verändert werden. Mit der Funktion \"Download als PDF\" haben Sie die Möglichkeit, Ihre Stellungnahmen zu dokumentieren."
 text.statements.final: "Diese Liste enthält alle <strong>eingereichten</strong> Stellungnahmen Ihrer Organisation."
-text.statements.grouprelease: "Die Liste enthält alle <strong>freigegebenen</strong> Stellungnahmen Ihrer Organisation. Hinweis: \"Bitte reichen Sie die abgestimmten Stellungnahme(n) an den Verfahrensträger ein. Zur weiteren internen Bearbeitung können Sie die Stellungnahmen an die Verfassenden zurückweisen.\""
+text.statements.grouprelease: "Die Liste enthält alle <strong>freigegebenen</strong> Stellungnahmen Ihrer Organisation. Hinweis: Bitte reichen Sie die abgestimmten Stellungnahme(n) an den Verfahrensträger ein. Zur weiteren internen Bearbeitung können Sie die Stellungnahmen an die Verfassenden zurückweisen."
 text.statements.hidehint: "Diesen Hinweis zukünftig nicht mehr anzeigen"
 text.statements.owndraft.shorthand.submission: "Diese Liste enthält Ihre noch bearbeitbaren Stellungnahmeentwürfe. Markieren Sie sie mit einem Häkchen und klicken Sie den Button \"Markierte Stellungnahmen einreichen\", um die Stellungnahmen an den Verfahrensträger zu schicken."
-text.statements.owndraft: "Diese Liste enthält Ihre noch bearbeitbaren Stellungnahmeentwürfe.<br /> Hinweis: \"Bitte geben Sie Ihre fertigen Stellungnahme(n) an die Koordination Ihrer Organisation frei.\""
+text.statements.owndraft: "Diese Liste enthält Ihre noch bearbeitbaren Stellungnahmeentwürfe.<br /> Hinweis: Bitte geben Sie Ihre fertigen Stellungnahme(n) an die Koordination Ihrer Organisation frei."
 text.statements.owndraft.reminder: "Es existieren noch nicht eingereichte Stellungnahmeentwürfe!"
 text.statements.ownreleased: "Diese Liste enthält Ihre an die Koordination freigegebenen Stellungnahmen."
 text.statements.public.published: "Diese Liste enthält die Stellungnahmen, die von Bürger*innen eingereicht und veröffentlicht wurden. Sie können diese mitzeichnen und damit die Stellungnahme unterstützen."
@@ -3656,6 +3821,7 @@ upload.files.uploaded.not.saved: "Folgende Dateien wurden bereits hochgeladen, a
 upload.files.scan.for.virus: "Die hochgeladenen Daten werden auf Viren überprüft, dieser Vorgang kann je nach Dateigröße mehrere Minuten dauern."
 uploaded.file: "Hochgeladene Datei"
 uploaded.files: "Hochgeladene Dateien"
+uploaded.files.but.incomplete.import: "Nur Dateien anzeigen, die der Importprozess noch nicht abgeschlossen hat"
 upload.pdf: "PDF hochladen"
 url.information.global: "Globale Sachdaten-URL"
 url.information: "Sachdaten-URL"
@@ -3758,6 +3924,7 @@ warning.edit.selection.statements.not.claimed: "Sie können die aktuelle Auswahl
 warning.edit.selection.contains.moved.statements: "Sie können die aktuelle Auswahl nicht bearbeiten, weil sie Stellungnahmen enthält, die in ein anderes Verfahren verschoben wurden."
 warning.date.authored: "Ein leeres Verfassungsdatum ist ungültig und wurde nicht übernommen."
 warning.date.submitted: "Ein leeres Einreichungsdatum ist ungültig und wurde nicht übernommen."
+warning.delete.annotatedStatementPdf: "Vollständig geteilte PDFs können nicht gelöscht werden"
 warning.delete.statement.because.of.assignment: "Die Stellungnahme {externId} konnte nicht entfernt werden, weil sie einer Person zugewiesen ist."
 warning.delete.statement.because.of.fragments.not.claimed.by.current.user: "Die Stellungnahme {externId} konnte nicht entfernt werden, da deren Datensätze Ihnen nicht alle zugewiesen sind."
 warning.delete.statement.metadata.inconsistent.fragments.county: "Die Kreise an der Stellungnahme konnten nicht gelöscht werden, da sie auch an Datensätzen vergeben sind."
@@ -3812,6 +3979,7 @@ warning.isolated.tag: "Der Stellungnahme {parentStatementExternalId} ist (weiter
 warning.limited.input.field: "Das Eingabefeld  \"{fieldname}\" ist auf {limit} Zeichen begrenzt."
 warning.local.participant.confirm: "Bitte bestätigen Sie, dass Sie in der/einer Gemeinde wohnen, die dieses Thema betrifft."
 warning.login.failed: "Der Login war nicht erfolgreich. Bitte versuchen Sie es erneut."
+warning.login.failed.throttle: "Sie haben sich zu häufig erfolglos eingeloggt. Bitte versuchen Sie es in {minutes} Minute erneut."
 warning.login.welcomepage.failed: "Der Login war nicht erfolgreich. Die Vollständigkeit der Daten Ihrer Organisation konnte nicht erfolgreich geprüft werden."
 warning.new.entry.not.possible: "Ein neuer Beitrag ist in dieser Phase nicht möglich."
 warning.no.selected.procedures: "Es wurden keine Verfahren ausgewählt."
@@ -3823,6 +3991,7 @@ warning.password.weak: "Ihr Passwort ist leicht zu erraten. Bitte ändern Sie es
 warning.phase.voting.not.possible: "In dieser Phase können keine {points} vergeben werden!"
 warning.privacy.confirm: "Bitte bestätigen Sie, dass Sie keine anderen Personen namentlich genannt oder beschrieben haben."
 warning.procedure.proposal.notfound: "Der Verfahrensvorschlag konnte nicht gefunden werden."
+warning.resistFingerPrinting: "Um alle Funktionen dieser Seite nutzen zu können, deaktivieren Sie in Ihrem Browser die Einstellung \"privacy.resistFingerprinting\" unter \"about:config\"."
 warning.search.query.invalid: "Folgende Zeichen haben eine Sonderfunktion und können deshalb nicht ohne Weiteres verwendet werden:<br /><br /><strong> . ? + * | &lbrace; &rbrace; [ ] ( ) \" \\ # @ & < > ~ </strong><br /><br />Sonderzeichen können aufgrund ihrer besonderen Funktion nicht gefunden werden.<br /><br />Wenn ein Sonderzeichen in Ihrer Suche enthalten ist, schreiben Sie \"\\\" vor das Zeichen.<br />Haben Sie z.B. ein \"?\" in Ihrer Suche, müssen Sie \"\\?\" eingeben."
 warning.segment.needLock.generic: "Dieser Abschnitt ist zur Zeit in Bearbeitung. Um ihn zu bearbeiten, müssen Sie den Abschnitt zunächst für sich beanspruchen."
 warning.select.entries: "Bitte wählen Sie Einträge aus."
@@ -3849,6 +4018,7 @@ warning.statement.delete: |
         =1 { Eine Stellungnahme wurde nicht gefunden. Wurde sie möglicherweise bereits gelöscht?}
         other { # Stellungnahmen wurden nicht gefunden. Wurden sie möglicherweise bereits gelöscht?}
     }
+warning.statement.in.segmentation.cannot.be.edited: "Der Stellungnahmetext kann nicht mehr bearbeitet werden, da die Stellungnahme bereits aufgeteilt wird."
 warning.statement.move: "Stellungnahme konnte nicht verschoben werden."
 warning.statement.needLock.generic: "Diese Stellungnahme ist zur Zeit in Bearbeitung. Um sie zu bearbeiten, müssen Sie diese zunächst für sich beanspruchen."
 warning.statement.needLock: "Die Stellungnahme {externId} ist zur Zeit niemandem zugewiesen. Um Ihre Änderungen speichern zu können, müssen Sie die Bearbeitung zunächst für sich beanspruchen."
@@ -3868,6 +4038,7 @@ warning.story.exist: "Die Userstory existiert bereits."
 warning.story.missing: "Die Userstory existiert nicht."
 warning.tag.deleted: "Das Schlagwort {tagname} konnte nicht gelöscht werden."
 warning.tag.empty: "Der Name des Schlagwortes darf nicht leer sein."
+warning.tag.multiple.tags.found: "Im Verfahren wurden mehrere Schlagworte mit dem Namen {tagname} gefunden. Bitte prüfen Sie, ob das korrekte Schlagwort {tagname} den Abschnitten hinzugefügt wurde und passen Sie es ggf. an."
 warning.tag.in.use: "Das Schlagwort {tagname} kann nicht gelöscht werden, weil es verwendet wird."
 warning.tag.moved: "Das Schlagwort konnte nicht verschoben werden."
 warning.tag.renamed: "Das Schlagwort {tagname} konnte nicht umbenannt werden."
@@ -3879,6 +4050,8 @@ warning.topic.empty: "Der Name des Themas darf nicht leer sein."
 warning.topic.in.use: "Das Thema {topicname} kann nicht gelöscht werden, weil es verwendet wird."
 warning.topic.renamed: "Das Thema {topicname} konnte nicht umbenannt werden."
 warning.use.login: "Anmeldung fehlgeschlagen. Bitte nutzen Sie Ihren Nutzendennamen, um sich anzumelden."
+warning.user.register.throttle: "Es können im Moment keine weiteren Accounts angelegt werden. Bitte versuchen Sie es später erneut."
+warning.user.pass.reset.throttle: "Es können keine weiteren Passwort zurücksetzen Anfragen gestellt werden. Bitte versuchen Sie es später erneut."
 warning.virus.found: "In der Datei {filename} wurde ein Virus gefunden."
 warning.gisLayerCategory.delete.because.of.children: "Die Kategorie {categoryName} konnte nicht gelöscht werden, weil sie noch Kategorien oder Kartenebenen enthält."
 warning.gisLayer.automatic.removed.from.group: "Die Kartenebene \"{gisLayerName}\" wurde aus der Sichtbarkeitsgruppe gelöst, weil es nicht erlaubt ist, die Kartenebene in der Beteiligungsebene auszublenden."

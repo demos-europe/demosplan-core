@@ -10,130 +10,134 @@
 
 namespace demosplan\DemosPlanCoreBundle\DataFixtures\ORM\ProdData;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use Doctrine\Persistence\ObjectManager;
 
-/**
- * @deprecated loading fixture data via Foundry-Factories instead
- */
 class LoadRolesData extends ProdFixture
 {
     public function load(ObjectManager $manager): void
     {
         $roles = [
             [
-                'code'      => Role::PLANNING_AGENCY_ADMIN,
+                'code'      => RoleInterface::PLANNING_AGENCY_ADMIN,
                 'name'      => 'Fachplaner-Admin',
-                'groupCode' => Role::GLAUTH,
+                'groupCode' => RoleInterface::GLAUTH,
                 'groupName' => 'Kommune',
             ],
             [
-                'code'      => Role::PLANNING_AGENCY_WORKER,
+                'code'      => RoleInterface::PLANNING_AGENCY_WORKER,
                 'name'      => 'Fachplaner-Sachbearbeiter',
-                'groupCode' => Role::GLAUTH,
+                'groupCode' => RoleInterface::GLAUTH,
                 'groupName' => 'Kommune',
             ],
             [
-                'code'      => Role::HEARING_AUTHORITY_ADMIN,
+                'code'      => RoleInterface::HEARING_AUTHORITY_ADMIN,
                 'name'      => 'Anhörungsbehörde-Admin',
                 'groupCode' => 'GHEAUT',
                 'groupName' => 'Anhörungsbehörde',
             ],
             [
-                'code'      => Role::HEARING_AUTHORITY_WORKER,
+                'code'      => RoleInterface::HEARING_AUTHORITY_WORKER,
                 'name'      => 'Anhörungsbehörde-Sachbearbeiter',
                 'groupCode' => 'GHEAUT',
                 'groupName' => 'Anhörungsbehörde',
             ],
             [
-                'code'      => Role::PRIVATE_PLANNING_AGENCY,
+                'code'      => RoleInterface::PRIVATE_PLANNING_AGENCY,
                 'name'      => 'Fachplaner-Planungsbüro',
-                'groupCode' => Role::GLAUTH,
+                'groupCode' => RoleInterface::GLAUTH,
                 'groupName' => 'Kommune',
             ],
             [
-                'code'      => Role::PLANNING_SUPPORTING_DEPARTMENT,
+                'code'      => RoleInterface::PLANNING_SUPPORTING_DEPARTMENT,
                 'name'      => 'Fachplaner-Fachbehörde',
-                'groupCode' => Role::GLAUTH,
+                'groupCode' => RoleInterface::GLAUTH,
                 'groupName' => 'Kommune',
             ],
             [
-                'code'      => Role::PUBLIC_AGENCY_COORDINATION,
+                'code'      => RoleInterface::PUBLIC_AGENCY_COORDINATION,
                 'name'      => 'TöB-Koordinator',
-                'groupCode' => Role::GPSORG,
+                'groupCode' => RoleInterface::GPSORG,
                 'groupName' => 'Institution',
             ],
             [
-                'code'      => Role::PUBLIC_AGENCY_WORKER,
+                'code'      => RoleInterface::PUBLIC_AGENCY_WORKER,
                 'name'      => 'TöB-Sachbearbeiter',
-                'groupCode' => Role::GPSORG,
+                'groupCode' => RoleInterface::GPSORG,
                 'groupName' => 'Institution',
             ],
             [
-                'code'      => Role::CITIZEN,
+                'code'      => RoleInterface::CITIZEN,
                 'name'      => 'Bürger',
-                'groupCode' => Role::GCITIZ,
+                'groupCode' => RoleInterface::GCITIZ,
                 'groupName' => 'Bürgergruppe',
             ],
             [
-                'code'      => Role::PROSPECT,
+                'code'      => RoleInterface::PROSPECT,
                 'name'      => 'Interessent',
-                'groupCode' => Role::GINTPA,
+                'groupCode' => RoleInterface::GINTPA,
                 'groupName' => 'Interessent',
             ],
             [
-                'code'      => Role::GUEST,
+                'code'      => RoleInterface::GUEST,
                 'name'      => 'Gast',
-                'groupCode' => Role::GGUEST,
+                'groupCode' => RoleInterface::GGUEST,
                 'groupName' => 'Gast',
             ],
             [
-                'code'      => Role::PLATFORM_SUPPORT,
+                'code'      => RoleInterface::PLATFORM_SUPPORT,
                 'name'      => 'Verfahrenssupport',
-                'groupCode' => Role::GTSUPP,
+                'groupCode' => RoleInterface::GTSUPP,
                 'groupName' => 'Verfahrenssupport',
             ],
             [
-                'code'      => Role::ORGANISATION_ADMINISTRATION,
+                'code'      => RoleInterface::ORGANISATION_ADMINISTRATION,
                 'name'      => 'Fachplaner-Masteruser',
-                'groupCode' => Role::GLAUTH,
+                'groupCode' => RoleInterface::GLAUTH,
                 'groupName' => 'Kommune',
             ],
             [
-                'code'      => Role::BOARD_MODERATOR,
+                'code'      => RoleInterface::BOARD_MODERATOR,
                 'name'      => 'Moderator',
-                'groupCode' => Role::GMODER,
+                'groupCode' => RoleInterface::GMODER,
                 'groupName' => 'Moderator',
             ],
             [
-                'code'      => Role::PLANNING_AGENCY_ADMIN,
+                'code'      => RoleInterface::PLANNING_AGENCY_ADMIN,
                 'name'      => 'Fachplaner-Admin',
-                'groupCode' => Role::GLAUTH,
+                'groupCode' => RoleInterface::GLAUTH,
                 'groupName' => 'Kommune',
             ],
             [
-                'code'      => Role::CONTENT_EDITOR,
+                'code'      => RoleInterface::CONTENT_EDITOR,
                 'name'      => 'Redakteur',
-                'groupCode' => Role::GTEDIT,
+                'groupCode' => RoleInterface::GTEDIT,
                 'groupName' => 'Redakteur',
             ],
             [
-                'code'      => Role::PROCEDURE_CONTROL_UNIT,
+                'code'      => RoleInterface::PROCEDURE_CONTROL_UNIT,
                 'name'      => 'Fachliche Leitstelle',
-                'groupCode' => Role::GFALST,
+                'groupCode' => RoleInterface::GFALST,
                 'groupName' => 'Fachliche Leitstelle',
             ],
             [
-                'code'      => Role::PROCEDURE_DATA_INPUT,
+                'code'      => RoleInterface::PROCEDURE_DATA_INPUT,
                 'name'      => 'Datenerfassung',
-                'groupCode' => Role::GDATA,
+                'groupCode' => RoleInterface::GDATA,
                 'groupName' => 'Datenerfassung',
             ],
             [
-                'code'      => Role::CUSTOMER_MASTER_USER,
+                'code'      => RoleInterface::CUSTOMER_MASTER_USER,
                 'name'      => 'Mandanten-Masteruser',
-                'groupCode' => Role::CUSTOMERMASTERUSERGROUP,
+                'groupCode' => RoleInterface::CUSTOMERMASTERUSERGROUP,
                 'groupName' => 'Mandant',
+            ],
+            [
+                'code'      => RoleInterface::API_AI_COMMUNICATOR,
+                'name'      => 'AI API Communicator',
+                'groupCode' => RoleInterface::GAICOM,
+                'groupName' => 'Data',
             ],
         ];
 

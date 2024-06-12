@@ -284,16 +284,19 @@ class PermissionsTest extends FunctionalTestCase
                     'area_data_protection_text',
                     'area_demosplan',
                     'area_demosplan',
+                    'area_mydata_password',
                     'area_portal_user',
                     'area_preferences',
                     'feature_admin_export_procedure',
                     'feature_assessmenttable_export',
+                    'feature_assessmenttable_use_pager',
                     'feature_documents_category_use_file',
                     'feature_documents_category_use_paragraph',
                     'feature_json_api_get',
                     'feature_json_rpc_post',
                     'feature_map_search_location',
                     'feature_original_statements_export',
+                    'feature_original_statements_use_pager',
                     'feature_procedure_change_phase',
                     'feature_procedure_export_include_public_interest_bodies_member_list',
                     'feature_procedure_filter_external_orga_name',
@@ -773,6 +776,7 @@ class PermissionsTest extends FunctionalTestCase
                     'area_demosplan',
                     'area_manage_users',
                     'area_mydata',
+                    'area_mydata_password',
                     'area_portal_user',
                     'area_preferences',
                     'feature_orga_edit',
@@ -868,8 +872,8 @@ class PermissionsTest extends FunctionalTestCase
                     'field_statement_user_position',
                     'field_statement_user_state',
                     'role_participant',
-//                    'feature_user_add', //fixme: this permission was both here and in featuresAllowed. Please check.
-//                    'feature_user_edit', //fixme: this permission was both here and in featuresAllowed. Please check.
+                    //                    'feature_user_add', //fixme: this permission was both here and in featuresAllowed. Please check.
+                    //                    'feature_user_edit', //fixme: this permission was both here and in featuresAllowed. Please check.
                 ],
             ],
             'planning agency master user #2'    => [
@@ -993,6 +997,7 @@ class PermissionsTest extends FunctionalTestCase
                     'area_demosplan',
                     'area_demosplan',
                     'area_manage_orgadata',
+                    'area_mydata_password',
                     'area_portal_user',
                     'area_preferences',
                     'feature_admin_export_procedure',
@@ -1225,6 +1230,7 @@ class PermissionsTest extends FunctionalTestCase
                     'area_demosplan',
                     'area_manage_orgadata',
                     'feature_admin_export_procedure',
+                    'feature_assessmenttable_use_pager',
                     'feature_procedure_single_document_upload_zip',
                 ],
                 'featuresDenied'                    => [
@@ -1367,6 +1373,7 @@ class PermissionsTest extends FunctionalTestCase
                     'area_demosplan',
                     'area_demosplan',
                     'area_mydata_organisation',
+                    'area_mydata_password',
                     'area_portal_user',
                     'area_preferences',
                     'feature_admin_export_procedure',
@@ -1662,6 +1669,7 @@ class PermissionsTest extends FunctionalTestCase
                     'area_data_protection_text',
                     'area_demosplan',
                     'area_demosplan',
+                    'area_mydata_password',
                     'area_portal_user',
                     'feature_admin_export_procedure',
                     'feature_map_use_drawing_tools',
@@ -1881,6 +1889,7 @@ class PermissionsTest extends FunctionalTestCase
                     'area_demosplan',
                     'area_demosplan',
                     'area_mydata_organisation',
+                    'area_mydata_password',
                     'area_portal_user',
                     'area_statements',
                     'area_statements_public',
@@ -2106,6 +2115,7 @@ class PermissionsTest extends FunctionalTestCase
                     'area_demosplan',
                     'area_demosplan',
                     'area_mydata',
+                    'area_mydata_password',
                     'area_portal_user',
                     'feature_map_use_location_relation',
                     'feature_procedure_single_document_upload_zip',
@@ -2289,6 +2299,7 @@ class PermissionsTest extends FunctionalTestCase
                     'area_data_protection_text',
                     'area_demosplan',
                     'area_demosplan',
+                    'area_mydata_password',
                     'area_portal_user',
                     'feature_admin_export_procedure',
                     'feature_draft_statement_citizen_immediate_submit',
@@ -2610,10 +2621,16 @@ class PermissionsTest extends FunctionalTestCase
                     'area_data_protection_text',
                     'area_demosplan',
                     'area_demosplan',
+                    'area_mydata_password',
                     'area_portal_user',
                     'feature_orga_get',
                     'feature_procedure_report_public_phase',
                     'feature_procedure_single_document_upload_zip',
+                    'feature_user_add', // fixme: this permission was both here and in featuresDenied. Please check.
+                    'feature_user_delete',
+                    'feature_user_edit', // fixme: this permission was both here and in featuresDenied. Please check.
+                    'feature_user_get',
+                    'feature_user_list',
                     'field_statement_recommendation',
                 ],
                 'featuresDenied'                    => [
@@ -2674,15 +2691,12 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_to_entire_document',
                     'feature_statements_vote_may_vote',
                     'feature_surveyvote_may_vote',
-                    'feature_user_add',
-                    'feature_user_delete',
-                    'feature_user_edit',
-                    'feature_user_get',
-                    'feature_user_list',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
                     'field_statement_submitter_email_address',
                     'role_participant',
+                    //                    'feature_user_add', //fixme: this permission was both here and in featuresAllowed. Please check.
+                    //                    'feature_user_edit', //fixme: this permission was both here and in featuresAllowed. Please check.
                 ],
             ],
             // ################### Moderator###################
@@ -2697,6 +2711,7 @@ class PermissionsTest extends FunctionalTestCase
                     'area_data_protection_text',
                     'area_demosplan',
                     'area_demosplan',
+                    'area_mydata_password',
                     'area_portal_user',
                     'feature_forum_dev_release_edit',
                     'feature_forum_thread_edit',
@@ -2843,7 +2858,7 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statement_data_input_orga',
                     'feature_procedure_get_base_data',
                     'feature_procedure_single_document_upload_zip',
-//                  'feature_statement_data_input_orga', //fixme: permission is not set and it is unclear why this line is here - area_statement_data_input_orga instead is set - might be a mismatch
+                    //                  'feature_statement_data_input_orga', //fixme: permission is not set and it is unclear why this line is here - area_statement_data_input_orga instead is set - might be a mismatch
                 ],
                 'featuresDenied'                    => [
                     'area_admin',
@@ -2917,7 +2932,7 @@ class PermissionsTest extends FunctionalTestCase
                     'area_data_protection_text',
                     'area_demosplan',
                     'feature_procedure_single_document_upload_zip',
-//                  'feature_statement_data_input_orga', //fixme: permission is not set and it is unclear why this line is here - area_statement_data_input_orga instead is set - might be a mismatch
+                    //                  'feature_statement_data_input_orga', //fixme: permission is not set and it is unclear why this line is here - area_statement_data_input_orga instead is set - might be a mismatch
                 ],
                 'featuresDenied'                    => [
                     'area_admin',
@@ -3144,7 +3159,7 @@ class PermissionsTest extends FunctionalTestCase
                 $procedureRepositoryMock = $this->setUpProcedureRepositoryForTestCase($procedureMock);
                 $this->permissions->setProcedureRepository($procedureRepositoryMock);
             }
-            $this->permissions->initPermissions($user, ['area_demosplan']);
+            $this->permissions->initPermissions($user);
             if ($isInProcedure) {
                 $this->permissions->checkProcedurePermission();
             }

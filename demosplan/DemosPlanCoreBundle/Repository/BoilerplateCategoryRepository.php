@@ -22,6 +22,9 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
 
+/**
+ * @template-extends CoreRepository<BoilerplateCategory>
+ */
 class BoilerplateCategoryRepository extends CoreRepository implements ArrayInterface, ObjectInterface
 {
     /**
@@ -334,8 +337,6 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
 
     /**
      * @param CoreEntity $entity
-     *
-     * @return bool
      */
     public function deleteObject($entity): never
     {

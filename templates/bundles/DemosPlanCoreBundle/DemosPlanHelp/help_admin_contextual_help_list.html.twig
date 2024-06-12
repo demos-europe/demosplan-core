@@ -8,6 +8,8 @@
     </h1>
 
     <form method="post" action="{{ path('dplan_contextual_help_list') }}" name="contextualHelpForm">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
         <div class="flow-root">
             <button
                 class="btn-icns"
@@ -35,7 +37,7 @@
 
             <thead>
                 <tr>
-                    <th class="width-20">
+                    <th class="w-3">
                         <label class="inline-block u-mb-0 u-mr-0_5">
                             <input
                                 id="select_all"
@@ -70,7 +72,7 @@
                                 <input
                                     type="checkbox"
                                     name="r_delete[]"
-                                    ata-cy="contextualHelpSelect"
+                                    data-cy="contextualHelpSelect"
                                     value="{{ contextualHelp.ident }}"
                                     data-checkable-item>
                             </td>

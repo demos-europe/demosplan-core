@@ -10,6 +10,8 @@
 
     {% if templateVars.orgaList is defined and templateVars.orgaList == true and templateVars.orgaList|length > 0 %}
         <form action="{{ path('DemosPlan_department_list', {'orgaId': templateVars.organisation.ident})}}" method="post">
+            {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
             <label class="push--bottom">
                 <p class="u-mb-0_25">
                     {{ "organisation"|trans }}
@@ -41,6 +43,7 @@
             type="hidden"
             name="orgaId"
             value="{{ templateVars.organisation.ident|default() }}">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         <dp-accordion
             title="{{ "department.create"|trans }}"
@@ -61,7 +64,7 @@
                     value=""
                     data-cy="newDepartment">
 
-                <div class="text-right u-mt-0_5 u-mr-0_5 space-inline-s">
+                <div class="text-right u-mt-0_5 u-mr-0_5 u-pb-0_5 space-inline-s">
                     <input
                         class="btn btn--primary"
                         type="submit"
@@ -69,6 +72,7 @@
                         data-cy="saveNewDepartment">
                     <input
                         class="btn btn--secondary color--white"
+                        data-cy="listDepartments:abort"
                         type="reset"
                         @click="$refs['accordion-new-department'].toggle(false)"
                         value="{{ "abort"|trans }}">
@@ -100,8 +104,9 @@
             action="{{ path('DemosPlan_departments_admin', { orgaId: templateVars.organisation.ident } ) }}"
             method="post"
             name="departmentsList">
+            {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
-            <div class="u-mt u-mb-0_5 layout">
+            <div class="u-mt u-mb-0_5 layout flex">
                 {% if hasPermission('feature_department_delete') %}
                     <div class="layout__item u-3-of-7">
                         <input
@@ -119,26 +124,32 @@
                     </div><!--
               -->{% endif %}<!--
               --><div class="text-right layout__item {% if hasPermission('feature_department_delete') %}u-4-of-7 {% endif %}space-inline-s">
-                    <button type="submit" class="btn btn--primary" name="manageDepartments" value="saveAll">
+                    <button
+                        type="submit"
+                        class="btn btn--primary mb-1.5"
+                        data-cy="listDepartments:saveAllChanges"
+                        name="manageDepartments"
+                        value="saveAll">
                         {{ 'save.all.changes'|trans }}
                     </button><!--
 
                   -->{% if hasPermission('feature_department_delete') %}<!--
                       --><button
                             type="submit"
-                            class="btn btn--warning"
+                            class="btn btn--warning mb-1.5"
                             data-cy="deleteSelectedItem"
                             name="manageDepartments"
                             data-form-actions-confirm-value="deleteSelected"
-                            data-form-actions-confirm="{{ 'check.entries.marked.delete'|trans }}"
-                        >
+                            data-form-actions-confirm="{{ 'check.entries.marked.delete'|trans }}">
                             {{ 'departments.marked.delete'|trans }}
                         </button><!--
                   -->{% endif %}<!--
                --></div>
             </div>
 
-            <ul class="o-list o-list--card">
+            <ul
+                class="o-list o-list--card"
+                data-cy="listDepartments:departmentListWrapper">
                 {% for department in templateVars.departmentList %}
                     <dp-table-card
                         data-cy="departmentList"

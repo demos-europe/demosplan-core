@@ -21,6 +21,8 @@ use PhpOffice\PhpWord\Writer\PDF;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use ZipStream\Exception\FileNotFoundException;
+use ZipStream\Exception\FileNotReadableException;
 use ZipStream\Option\Archive;
 use ZipStream\Option\File;
 use ZipStream\Option\Method;
@@ -66,6 +68,10 @@ class ZipExportService
         });
     }
 
+    /**
+     * @throws FileNotFoundException
+     * @throws FileNotReadableException
+     */
     public function addFileToZipStream(string $filePath, string $zipPath, ZipStream $zip): void
     {
         $fileOptions = new File();
@@ -189,7 +195,7 @@ class ZipExportService
 
         $date = date('YmdHis');
         $randomInt = random_int(0, mt_getrandmax());
-        $tempFileName = "$prefix$date'_'$randomInt$suffix";
+        $tempFileName = sprintf('%s%s_%s%s', $prefix, $date, $randomInt, $suffix);
         $temporaryFullFilePath = DemosPlanPath::getTemporaryPath($tempFileName);
         // `PDF` doesn't implement `WriterInterface`, but has a `save` method available via
         // magic `call` method

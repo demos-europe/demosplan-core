@@ -13,11 +13,15 @@
 
             {# Pager #}
             <form class="layout__item u-4-of-5 u-mt-0_5" action="{{ path("DemosPlan_statement_fragment_list_fragment_reviewer", {}) }}" method="post">
+                {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
                 {{ macros.pager( templateVars|default() ) }}
             </form>
 
             {# Bulk actions + Filters #}
             <form action="{{ path("DemosPlan_statement_fragment_list_fragment_reviewer", {}) }}" method="post">
+                {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
                 {% include '@DemosPlanCore/DemosPlanStatement/includes/fragment_list_filter.html.twig' with { 'backpath' : 'DemosPlan_statement_fragment_list_fragment_reviewer' } %}
             </form>
         </header>
@@ -29,6 +33,7 @@
         <section class="u-mb">
             {% set advice_values = templateVars.adviceValues|default([]) %}
             <dp-fragment-list
+                :csrf-token="{{ csrf_token('csrf')|json_encode }}"
                 :is-archive="false"
                 current-user-id="{{ user.ident }}"
                 current-user-name="{{ username }}"
@@ -38,6 +43,8 @@
 
             {# Pager #}
             <form class="layout__item u-1-of-1 u-mt-0_5" action="{{ path("DemosPlan_statement_fragment_list_fragment_reviewer", {}) }}" method="post">
+                {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
                 {{ macros.pager( templateVars|default() ) }}
             </form>
 

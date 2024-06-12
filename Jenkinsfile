@@ -55,7 +55,7 @@ pipeline {
                 script{
                     containerName = "testContainer" + env.BRANCH_NAME + env.BUILD_NUMBER
                     commandDockerRun = 'docker run --cpus=1 -d --name ' + containerName + ' -v ${PWD}:/srv/www -v /var/cache/demosplanCI/:/srv/www/.cache/ --env CURRENT_HOST_USERNAME=$(whoami) --env CURRENT_HOST_USERID=$(id -u $(whoami)) demosdeutschland/demosplan-base:latest'
-                    commandExecYarn =  _dockerExecAsRoot('yarn install --prefer-offline --frozen-lockfile', containerName)
+                    commandExecYarn =  _dockerExecAsUser('yarn install --cache-folder=/srv/www/.cache/yarn --prefer-offline --frozen-lockfile', containerName)
                     commandExecComposer = _dockerExecAsRoot('composer install --no-interaction', containerName)
                     sh "mkdir -p .cache"
                     sh "echo ${PWD}"
@@ -74,12 +74,8 @@ pipeline {
                 stage('PHPUnit: Core') {
                     steps{
                         script {
-                            try {
-                                commandExec = _dockerExecAsUser("APP_TEST_SHARD=core SYMFONY_DEPRECATIONS_HELPER=disabled vendor/bin/phpunit --testsuite core", containerName)
-                                sh "$commandExec"
-                            } catch (err) {
-                                echo "PHPUnit Failed: ${err}"
-                            }
+                            commandExec = _dockerExecAsUser("APP_TEST_SHARD=core SYMFONY_DEPRECATIONS_HELPER=disabled vendor/bin/phpunit --testsuite core", containerName)
+                            sh "$commandExec"
                         }
                     }
                 }

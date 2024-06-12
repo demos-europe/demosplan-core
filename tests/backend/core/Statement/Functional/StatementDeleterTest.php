@@ -13,6 +13,9 @@ declare(strict_types=1);
 namespace Tests\Core\Statement\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
@@ -97,6 +100,46 @@ class StatementDeleterTest extends FunctionalTestCase
 
         $createdCopy = $this->statementService->getStatement($createdCopy->getId());
         static::assertInstanceOf(Statement::class, $createdCopy);
+    }
+
+    /**
+     * testDeleteStatementWithSimilarStatementSubmitters
+     * Cover deletion of a single statement with related procedure person, by just asserting that the statement
+     * is correctly deleted.
+     */
+    public function testDeleteStatementWithRelatedProcedurePerson()
+    {
+        $testStatement = $this->getStatementReference('testFixtureStatement');
+        $testStatementId = $testStatement->getId();
+        static::assertGreaterThan(0, $testStatement->getSimilarStatementSubmitters()->count());
+
+        $deleted = $this->sut->deleteStatementObject($testStatement);
+        static::assertTrue($deleted);
+        $testStatement = $this->find(Statement::class, $testStatementId);
+        static::assertNull($testStatement);
+    }
+
+    /**
+     * Cover deletion of related ProcedurePerson on deletion of a Statement.
+     */
+    public function testCascadeDeleteRelatedSubmitterOnDeleteStatement()
+    {
+        $testStatement = $this->getStatementReference('testFixtureStatement');
+        $testStatementId = $testStatement->getId();
+        $submitters = $testStatement->getSimilarStatementSubmitters();
+        static::assertGreaterThan(0, $submitters->count());
+        $relatedSubmittersIds =
+            collect($submitters)->map(fn (ProcedurePerson $procedurePerson) => $procedurePerson->getId());
+
+        $deleted = $this->sut->deleteStatementObject($testStatement);
+        static::assertTrue($deleted);
+        $testStatement = $this->find(Statement::class, $testStatementId);
+        static::assertNull($testStatement);
+
+        // orphan removal deletes "detached" ProcedurePerson, even if another Statement is connected!
+        foreach ($relatedSubmittersIds as $id) {
+            static::assertNull($this->find(ProcedurePerson::class, $id));
+        }
     }
 
     public function testDeleteStatement(): void
@@ -254,5 +297,107 @@ class StatementDeleterTest extends FunctionalTestCase
 
         static::assertNotInstanceOf(Statement::class, $this->statementService->getStatement($statementId));
         static::assertNull($this->statementService->getStatement($statementId));
+    }
+
+    /**
+     * Deleting a statement which is the only child of the related original-statement while
+     * "feature_auto_delete_original_statement" is enabled.
+     * The related original-statement should also been deleted.
+     */
+    public function testCascadeDeleteOriginalStatement(): void
+    {
+        $testStatement = $this->getStatementReference('testStatementWithElementOnly');
+        $testStatementId = $testStatement->getId();
+        $testOriginalStatementId = $testStatement->getOriginal()->getId();
+        $this->enablePermissions(['feature_auto_delete_original_statement']);
+
+        self::assertFalse($testStatement->isOriginal());
+        self::assertCount(1, $testStatement->getOriginal()->getChildren());
+        $successful = $this->sut->deleteStatementObject($testStatement);
+        self::assertTrue($successful);
+
+        self::assertNull($this->find(Statement::class, $testStatementId));
+        self::assertNull($this->find(Statement::class, $testOriginalStatementId));
+    }
+
+    /**
+     * Deleting a statement which is the only child of the related original-statement while
+     * "feature_auto_delete_original_statement" is disabled.
+     * The related original-statement should be still existing.
+     */
+    public function testNotCascadeDeleteOriginalStatement()
+    {
+        $testStatement = $this->getStatementReference('testStatementWithElementOnly');
+        $testStatementId = $testStatement->getId();
+        $testOriginalStatementId = $testStatement->getOriginal()->getId();
+
+        self::assertFalse($testStatement->isOriginal());
+        self::assertCount(1, $testStatement->getOriginal()->getChildren());
+        $successful = $this->sut->deleteStatementObject($testStatement);
+        self::assertTrue($successful);
+
+        self::assertNull($this->find(Statement::class, $testStatementId));
+        self::assertInstanceOf(Statement::class, $this->find(Statement::class, $testOriginalStatementId));
+    }
+
+    /**
+     * Deleting a statement which is one of multiple children of the related original-statement while
+     * "feature_auto_delete_original_statement" is enabled.
+     * The related original-statement should be still existing.
+     */
+    public function testNotCascadeDeleteOriginalStatement2()
+    {
+        $testStatement = $this->getStatementReference('normalStatement');
+        $testStatementId = $testStatement->getId();
+        $testOriginalStatementId = $testStatement->getOriginal()->getId();
+        $this->enablePermissions(['feature_auto_delete_original_statement']);
+
+        self::assertFalse($testStatement->isOriginal());
+        self::assertGreaterThan(1, $testStatement->getOriginal()->getChildren()->count());
+        $successful = $this->sut->deleteStatementObject($testStatement);
+        self::assertTrue($successful);
+
+        self::assertNull($this->find(Statement::class, $testStatementId));
+        self::assertInstanceOf(Statement::class, $this->find(Statement::class, $testOriginalStatementId));
+    }
+
+    /**
+     * T22439.
+     *
+     * Deleting a statement which is the only child of the related original-statement while
+     * "feature_auto_delete_original_statement" is enabled.
+     * The related original-statement should also been deleted.
+     * The non-original statement, has segments, which also should been deleted.
+     */
+    public function testCascadeDeleteOriginalStatementWithSegments(): void
+    {
+        $ooo = StatementFactory::createOne();
+        $testStatement = StatementFactory::createOne(['original' => $ooo]);
+        $ooo->setChildren([$testStatement->object()]);
+
+        $testSegment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $testStatement]);
+        $testSegment2 = SegmentFactory::createOne(['parentStatementOfSegment' => $testStatement]);
+
+        //        $testStatement = $this->getStatementReference('statementTestTagsBulkEdit1');
+        $testOriginalStatement = $testStatement->getOriginal();
+        self::assertFalse($testStatement->isOriginal());
+        self::assertNotNull($testOriginalStatement);
+        self::assertNotEmpty($testOriginalStatement->getChildren());
+
+        $testStatementId = $testStatement->getId();
+        $testOriginalStatementId = $testStatement->getOriginal()->getId();
+        $this->enablePermissions(['feature_auto_delete_original_statement']);
+
+        // Segments are stored on non-original statement:
+        self::assertNotEmpty($testStatement->getSegmentsOfStatement());
+
+        // Expect exactly one children, to keep this testcase simple.
+        self::assertCount(1, $testStatement->getOriginal()->getChildren());
+        $successful = $this->sut->deleteStatementObject($testStatement->object());
+        self::assertTrue($successful);
+
+        // Use find() to search for IDs directly in DB to avoid doctrine cache
+        self::assertNull($this->find(Statement::class, $testStatementId));
+        self::assertNull($this->find(Statement::class, $testOriginalStatementId));
     }
 }

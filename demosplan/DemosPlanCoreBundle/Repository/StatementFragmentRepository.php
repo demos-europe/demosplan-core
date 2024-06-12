@@ -37,7 +37,10 @@ use InvalidArgumentException;
 use RuntimeException;
 use Symfony\Component\Validator\Validation;
 
-class StatementFragmentRepository extends FluentRepository implements ArrayInterface, ObjectInterface
+/**
+ * @template-extends CoreRepository<StatementFragment>
+ */
+class StatementFragmentRepository extends CoreRepository implements ArrayInterface, ObjectInterface
 {
     /**
      * Get Entity by Id.
@@ -54,6 +57,31 @@ class StatementFragmentRepository extends FluentRepository implements ArrayInter
             $this->logger->warning('Get StatementFragment failed: ', [$e]);
 
             return null;
+        }
+    }
+
+    /**
+     * Get Entity by Id and return as Array.
+     *
+     * @return array<string, mixed>
+     *
+     * @throws Exception
+     */
+    public function getAsArray(string $fragmentId): array
+    {
+        try {
+            $query = $this->getEntityManager()->createQueryBuilder()
+                ->select('sf')
+                ->from(StatementFragment::class, 'sf')
+                ->where('sf.id = :id')
+                ->setParameter('id', $fragmentId)
+                ->getQuery();
+
+            return $query->getSingleResult(Query::HYDRATE_ARRAY);
+        } catch (Exception $e) {
+            $this->logger->warning('Get StatementFragment failed: ', [$e]);
+
+            throw $e;
         }
     }
 

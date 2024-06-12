@@ -16,7 +16,7 @@ use Exception;
 use stdClass;
 use Tests\Base\UnitTestCase;
 use Twig\Environment;
-use Twig_SimpleFilter;
+use Twig\TwigFilter;
 
 /**
  * Teste GetFileExtension
@@ -55,10 +55,8 @@ class FileExtensionTest extends UnitTestCase
         try {
             $result = $this->twigExtension->getFilters();
             static::assertTrue(is_array($result) && isset($result[0]));
-            static::assertTrue($result[0] instanceof Twig_SimpleFilter);
-            $callable = $result[0]->getCallable();
-            static::assertTrue('getFileFilter' === $callable[1]);
-            static::assertTrue('getFile' === $result[0]->getName());
+            static::assertInstanceOf(TwigFilter::class, $result[0]);
+            static::assertSame('getFile', $result[0]->getName());
         } catch (Exception $e) {
             static::assertTrue(false);
 

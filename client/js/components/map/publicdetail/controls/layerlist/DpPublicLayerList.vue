@@ -12,13 +12,14 @@
     :class="prefixClass('c-map__group')"
     v-if="layers.length"
     v-show="unfolded">
-    <template v-for="layer in attributedLayers">
+    <template v-for="(layer, idx) in attributedLayers">
       <dp-public-layer-list-layer
         v-if="layer.type === 'GisLayer' && (layerType === 'overlay' || showBaseLayers)"
+        :data-cy="`publicLayerListLayer:${layerType}:${idx}`"
         :key="layer.id"
         :layer="layer"
         :layer-type="layerType"
-        :visible="layer.attributes.type === 'overlay' ? layer.attributes.hasDefaultVisibility : (layer.id === firstActiveBaseLayerId)"
+        :visible="layer.attributes.layerType === 'overlay' ? layer.attributes.hasDefaultVisibility : (layer.id === firstActiveBaseLayerId)"
         :layer-groups-alternate-visibility="layerGroupsAlternateVisibility" />
       <dp-public-layer-list-category
         v-else
@@ -89,7 +90,7 @@ export default {
       let layer
       for (; i < l; i++) {
         layer = layers[i]
-        if (layer.attributes.hasDefaultVisibility && layer.attributes.type === 'base') {
+        if (layer.attributes.hasDefaultVisibility && layer.attributes.layerType === 'base') {
           return layer.id
         }
       }

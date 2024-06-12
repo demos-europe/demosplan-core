@@ -112,10 +112,6 @@ class DraftStatementService extends CoreService
      * @var StatementValidator
      */
     protected $statementValidator;
-    /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface
-     */
-    private $messageBag;
 
     public function __construct(
         CurrentUserInterface $currentUser,
@@ -130,7 +126,7 @@ class DraftStatementService extends CoreService
         FileService $fileService,
         private readonly ManualListSorter $manualListSorter,
         MapService $serviceMap,
-        MessageBagInterface $messageBag,
+        private readonly MessageBagInterface $messageBag,
         private readonly NotificationReceiverRepository $notificationReceiverRepository,
         OrgaService $orgaService,
         ParagraphService $paragraphService,
@@ -149,7 +145,6 @@ class DraftStatementService extends CoreService
         $this->currentUser = $currentUser;
         $this->elementsService = $elementsService;
         $this->fileService = $fileService;
-        $this->messageBag = $messageBag;
         $this->orgaService = $orgaService;
         $this->paragraphService = $paragraphService;
         $this->serviceImporter = $serviceImporter;
@@ -498,7 +493,7 @@ class DraftStatementService extends CoreService
     /**
      * Set all draftStatements of the given organisation, which are released and not submitted, to unreleased.
      *
-     * @param orga $organisation - organisation, whose draftStatements will be set to unreleased
+     * @param Orga $organisation - organisation, whose draftStatements will be set to unreleased
      *
      * @return bool - true, if all found draftStatements are successfully reset
      */
@@ -602,7 +597,7 @@ class DraftStatementService extends CoreService
     public function submitDraftStatement(
         $draftStatementIds,
         $user,
-        NotificationReceiver $notificationReceiver = null,
+        ?NotificationReceiver $notificationReceiver = null,
         bool $gdprConsentReceived = false,
         bool $convertToLegacy = true
     ): array {
@@ -631,7 +626,7 @@ class DraftStatementService extends CoreService
     protected function submitDraftStatements(
         array $draftStatementIds,
         $user,
-        NotificationReceiver $notificationReceiver = null,
+        ?NotificationReceiver $notificationReceiver = null,
         bool $gdprConsentReceived = false,
         bool $convertToLegacy = true
     ): array {
@@ -743,7 +738,7 @@ class DraftStatementService extends CoreService
         }
 
         /** @var DraftStatement $draftStatement */
-        $draftStatement = $this->draftStatementRepository->executeAndFlushInTransaction(function () use ($data): DraftStatement {
+        $draftStatement = $this->draftStatementRepository->executeAndFlushInTransaction(function ($em) use ($data): DraftStatement {
             // Create and use versions of paragraph and Element
             $data = $this->getEntityVersions($data);
             $draftStatement = $this->draftStatementRepository->add($data);
@@ -909,6 +904,8 @@ class DraftStatementService extends CoreService
         $outputResult['statementlist'] = $filteredStatementList;
         $templateVars['list'] = $outputResult;
         $templateVars['procedure'] = $procedureId;
+        // set listLineWidth for pdf vertical format (portrait) view not split - Text only
+        $templateVars['listwidth'] = 17;
         $procedure = $this->procedureService->getProcedure($procedureId);
 
         $content = $this->twig->render('@DemosPlanCore/DemosPlanStatement/'.$template.'.tex.twig', [
@@ -1244,7 +1241,7 @@ class DraftStatementService extends CoreService
             // check whether existing paragraph equals given paragraphId
             if (is_null($entity) || $data['paragraphId'] != $entity->getParagraphId()) {
                 $data['paragraph'] = $this->createParagraphVersion(
-                    $em->getReference(
+                    $em->find(
                         Paragraph::class,
                         $data['paragraphId']
                     )
@@ -1264,7 +1261,7 @@ class DraftStatementService extends CoreService
             // check whether existing document equals given documentId
             if (is_null($entity) || $data['documentId'] != $entity->getDocumentId()) {
                 $data['document'] = $this->createSingleDocumentVersion(
-                    $em->getReference(
+                    $em->find(
                         SingleDocument::class,
                         $data['documentId']
                     )

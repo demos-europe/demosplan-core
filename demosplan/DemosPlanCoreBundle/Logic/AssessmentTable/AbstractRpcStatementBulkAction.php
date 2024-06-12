@@ -89,8 +89,6 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
      */
     protected $statementCopier;
 
-    protected readonly StatementDeleter $statementDeleter;
-
     public function __construct(
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
         DqlConditionFactory $conditionFactory,
@@ -103,7 +101,7 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
         StatementService $statementService,
         StatementCopier $statementCopier,
         private readonly TransactionService $transactionService,
-        StatementDeleter $statementDeleter
+        protected readonly StatementDeleter $statementDeleter
     ) {
         $this->assessmentTableServiceOutput = $assessmentTableServiceOutput;
         $this->conditionFactory = $conditionFactory;
@@ -115,7 +113,6 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
         $this->statementResourceType = $statementResourceType;
         $this->statementService = $statementService;
         $this->statementCopier = $statementCopier;
-        $this->statementDeleter = $statementDeleter;
     }
 
     abstract protected function checkIfAuthorized(string $procedureId): bool;
@@ -178,7 +175,7 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
             $this->statementResourceType->procedure->id
         );
 
-        return $this->statementResourceType->listEntities([$idCondition, $procedureCondition]);
+        return $this->statementResourceType->getEntities([$idCondition, $procedureCondition], []);
     }
 
     /**

@@ -13,9 +13,6 @@ namespace demosplan\DemosPlanCoreBundle\DataFixtures\ORM\ProdData;
 use demosplan\DemosPlanCoreBundle\Entity\MailTemplate;
 use Doctrine\Persistence\ObjectManager;
 
-/**
- * @deprecated loading fixture data via Foundry-Factories instead
- */
 class LoadMailTemplateData extends ProdFixture
 {
     public function load(ObjectManager $manager): void

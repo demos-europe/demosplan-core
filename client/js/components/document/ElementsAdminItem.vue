@@ -20,9 +20,9 @@
       })">
       {{ element.attributes.title }}
     </a>
-    <dp-tooltip-icon
+    <dp-contextual-help
       v-if="hasPermission('feature_auto_switch_element_state') && element.attributes.designatedSwitchDate !== null"
-      icon="fa-clock-o"
+      icon="clock"
       large
       :text="designatedSwitchDate" />
     <dp-toggle
@@ -35,15 +35,15 @@
 </template>
 
 <script>
-import { DpToggle, DpTooltipIcon, formatDate } from '@demos-europe/demosplan-ui'
+import { DpContextualHelp, DpToggle, formatDate } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 
 export default {
   name: 'ElementsAdminItem',
 
   components: {
-    DpToggle,
-    DpTooltipIcon
+    DpContextualHelp,
+    DpToggle
   },
 
   props: {

@@ -32,6 +32,7 @@
           <input
             type="radio"
             name="r_role"
+            :data-cy="`roleInput-${role.label}`"
             :value="role.value"
             @change="() => $emit('role-changed', currentRole)"
             :id="`r_role_${role.value}`"
@@ -60,31 +61,32 @@
         class="u-mb-0_25 flow-root"
         for="submitterSelect">
         {{ Translator.trans('statement.form.autofill.label') }} ({{ Translator.trans(currentRoleKeyword) }})
-        <i
-          class="fa fa-question-circle float-right"
-          :aria-label="Translator.trans('contextual.help')"
-          v-tooltip="autoFillLabel" />
+        <dp-contextual-help
+          class="float-right"
+          :text="autoFillLabel" />
       </label>
 
        <!--Multiselect component-->
       <dp-multiselect
         id="submitterSelect"
+        data-cy="submitterForm:submitterSelect"
         v-model="submitter"
         :custom-label="customOption"
         :disabled="currentListIsEmpty"
         label="submitter"
         :options="submitterOptions"
         :placeholder="Translator.trans('choose.search')"
+        :sub-slots="['option', 'singleLabel']"
         track-by="entityId"
         @input="emitSubmitterData">
         <!-- Template for select options -->
           <template v-slot:option="{ props }">
-            <div v-cleanhtml="customOption(props.option, true)" />
+            <span v-cleanhtml="customOption(props.option, true)" />
           </template>
 
           <!-- Template for element that is visible when Multiselect is closed -->
           <template v-slot:singleLabel="{ props }">
-            {{ customSingleLabel(props.option) }}
+            <span v-cleanhtml="customSingleLabel(props.option)" />
           </template>
       </dp-multiselect>
     </div>
@@ -147,7 +149,7 @@
 </template>
 
 <script>
-import { CleanHtml, DpInput, DpMultiselect, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpContextualHelp, DpInput, DpMultiselect, hasOwnProp } from '@demos-europe/demosplan-ui'
 
 const emptySubmitterData = {
   city: '',
@@ -163,6 +165,7 @@ const emptySubmitterData = {
 export default {
   name: 'DpAutofillSubmitterData',
   components: {
+    DpContextualHelp,
     DpInput,
     DpMultiselect
   },

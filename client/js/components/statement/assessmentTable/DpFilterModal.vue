@@ -57,6 +57,7 @@
             v-if="userFilterSetSaveEnabled">
             <dp-multiselect
               id="userFilterSets"
+              data-cy="userFilterSets"
               v-model="selectedUserFilterSet"
               :custom-label="nameFromAttributes"
               :options="userFilterSets"
@@ -81,6 +82,7 @@
               <button
                 type="button"
                 class="btn btn--primary"
+                data-cy="loadUserFilterSet"
                 @click.prevent="loadUserFilterSet">
                 {{ Translator.trans('filter.saveFilterSet.load') }}
               </button>
@@ -156,6 +158,7 @@
             <button
               type="button"
               class="btn btn--secondary"
+              data-cy="filterReset"
               @click="reset"
               v-text="Translator.trans('filter.reset')" />
           </div>

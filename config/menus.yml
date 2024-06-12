@@ -16,7 +16,7 @@ sidemenu:
                 path_params: ['procedureId']
                 permission: 'area_admin_import'
                 link_attributes:
-                    data-cy: 'Import'
+                    data-cy: 'importDataEntry'
     fragment_menu:
         label: 'fragment.menu'
         path: ~
@@ -290,16 +290,6 @@ submenu_procedures:
         link_attributes:
             data-cy: 'generalSettings'
             data-extern-dataport: 'generalSettings'
-    import:
-        label: 'import'
-        path: 'DemosPlan_procedure_import'
-        child_paths: [
-            'DemosPlan_statement_import',
-        ]
-        path_params: ['procedureId']
-        permission: 'area_admin_import'
-        link_attributes:
-            data-cy: 'Import'
     news:
         label: 'news'
         path: 'DemosPlan_news_administration_news'
@@ -323,10 +313,17 @@ submenu_procedures:
             'DemosPlan_singledocument_administration_new',
         ]
         path_params: ['procedure']
-        permission: ['area_admin_single_document', 'area_admin_paragraphed_document', 'area_admin_map']
+        permission: ['area_admin_single_document'] # Necessary if Project has Documents and Map Features
         link_attributes:
             data-cy: 'documentsAndMapSettings'
             data-extern-dataport: 'documentsAndMapSettings'
+    map_settings:
+        label: 'map_settings.menu'
+        path: 'DemosPlan_map_administration_map'
+        permission: ['area_admin_initial_map_view'] # Only controls the menu item. 'area_admin_map' is required for the map settings
+        path_params: [ 'procedureId' ]
+        link_attributes:
+            data-cy: 'mapSettings'
     invitable_institution_administer:
         label: 'invitable_institution.administer'
         path: 'DemosPlan_procedure_member_index'
@@ -355,6 +352,16 @@ submenu_procedures:
         link_attributes:
             data-cy: 'assessmenttable'
             data-extern-dataport: 'assessmenttable'
+    import:
+        label: 'import.menu'
+        path: 'DemosPlan_procedure_import'
+        child_paths: [
+            'DemosPlan_statement_import',
+        ]
+        path_params: [ 'procedureId' ]
+        permission: 'area_admin_import'
+        link_attributes:
+            data-cy: 'Import'
     statements:
         label: 'statements'
         path: 'dplan_procedure_statement_list'

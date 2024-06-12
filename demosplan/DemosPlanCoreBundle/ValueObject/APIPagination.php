@@ -17,14 +17,14 @@ class APIPagination extends ValueObject implements ApiPaginationInterface
     /**
      * Number of items on a page.
      */
-    protected int $size;
+    protected int $size = 0;
 
     /**
      * Page number.
      */
-    protected int $number;
-    protected string $sortBy;
-    protected string $sortDirection;
+    protected int $number = 0;
+    protected string $sortBy = '';
+    protected string $sortDirection = '';
 
     /**
      * @param string $sortString
@@ -49,7 +49,7 @@ class APIPagination extends ValueObject implements ApiPaginationInterface
 
     public function getSort()
     {
-        if (null === $this->getSortBy() || null === $this->getSortDirection()) {
+        if ('' === $this->getSortBy() || '' === $this->getSortDirection()) {
             return null;
         }
 

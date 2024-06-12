@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
@@ -20,6 +21,9 @@ use Doctrine\ORM\NoResultException;
 use Exception;
 use InvalidArgumentException;
 
+/**
+ * @template-extends FluentRepository<Municipality>
+ */
 class MunicipalityRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
     /**
@@ -92,8 +96,6 @@ class MunicipalityRepository extends FluentRepository implements ArrayInterface,
      * Update Entity.
      *
      * @param string $entityId
-     *
-     * @return CoreEntity
      */
     public function update($entityId, array $data): never
     {
@@ -206,8 +208,6 @@ class MunicipalityRepository extends FluentRepository implements ArrayInterface,
 
     /**
      * @param CoreEntity $entity
-     *
-     * @return bool
      */
     public function deleteObject($entity): never
     {

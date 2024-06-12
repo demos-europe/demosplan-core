@@ -15,9 +15,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\Help\HelpService;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresRouterTrait;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresTranslatorTrait;
-
-use const ENT_QUOTES;
-
+use Doctrine\Common\Collections\Collection;
 use Exception;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
@@ -70,12 +68,11 @@ class Breadcrumb
     /**
      * Gib das Markup der Breadcrumb aus.
      *
-     * @param User        $user
      * @param string|null $titleKey  Key aus der page-title.yml
      * @param array|null  $procedure
      * @param bool        $isOwner
      */
-    public function getMarkup(User $user = null, $titleKey = null, $procedure = null, $isOwner = false): string
+    public function getMarkup(?User $user = null, $titleKey = null, $procedure = null, $isOwner = false): string
     {
         // Override title only if title hasn't been set before
         if (null !== $titleKey && $titleKey !== $this->title) {
@@ -124,18 +121,23 @@ class Breadcrumb
                 }
             } else {
                 foreach ($this->userRoles as $role) {
-                    match ($role) {
-                        Role::PROCEDURE_DATA_INPUT => $markup .= $this->getSnippetMarkup(
+                    $result = match ($role) {
+                        Role::PROCEDURE_DATA_INPUT => $this->getSnippetMarkup(
                             $this->getRouter()->generate('DemosPlan_procedure_list_data_input_orga_procedures'),
                             $this->translator->trans('procedure'),
                             $liCounter++
                         ),
-                        default => $markup .= $this->getSnippetMarkup(
+                        default => $this->getSnippetMarkup(
                             $this->getRouter()->generate('core_home'),
                             $this->translator->trans('participation'),
                             $liCounter++
                         ),
                     };
+
+                    if ($result) {
+                        $markup .= $result;
+                        break;
+                    }
                 }
             }
 
@@ -160,8 +162,11 @@ class Breadcrumb
                         ['procedure' => $procedure['id']]
                     );
                 }
-
-                if (in_array(Role::PROCEDURE_DATA_INPUT, $this->userRoles, true)) {
+                /** @var Collection $dataInputOrganisations */
+                $dataInputOrganisations = $procedure['dataInputOrganisations'];
+                if (in_array(Role::PROCEDURE_DATA_INPUT, $this->userRoles, true)
+                    && $dataInputOrganisations->contains($user->getOrga())
+                ) {
                     $route = $this->getRouter()->generate(
                         'DemosPlan_statement_orga_list',
                         ['procedureId' => $procedure['ident']]

@@ -16,7 +16,9 @@ import DpSearchProcedureMap from '@DpJs/components/procedure/publicindex/DpSearc
 import { initialize } from '@DpJs/InitVue'
 
 const stores = {}
-const components = { DpSearchProcedureMap }
+const components = {
+  DpSearchProcedureMap
+}
 window.prefixClass = prefixClass
 
 initialize(components, stores).then(() => {
@@ -40,9 +42,8 @@ initialize(components, stores).then(() => {
 
       dpApi({
         method: 'POST',
-        data: { procedureId: procedureId },
-        responseType: 'json',
-        url: Routing.generate(route, { procedureId: procedureId })
+        url: Routing.generate(route, { procedureId: procedureId }),
+        data: { procedureId: procedureId }
       })
         .then(() => {
           checkbox.closest(prefixClass('.c-procedurelist__item')).classList.toggle(prefixClass('is-done'))

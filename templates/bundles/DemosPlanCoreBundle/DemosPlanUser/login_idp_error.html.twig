@@ -1,0 +1,49 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+
+{% block component_part %}
+
+    <div class="o-page__padded flex justify-center">
+        <div class="layout__item u-1-of-1 text-center u-mt-1 max-w-xl justify-center u-p-0_5-palm u-p-lap-up">
+            <svg
+                class="inline-block color-highlight u-mb"
+                width="70"
+                height="70"
+                viewBox="0 0 32 44"
+                xmlns="http://www.w3.org/2000/svg">
+                <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M6.34591 10.4673C6.34591 5.14697 10.6682 0.833984 16 0.833984C21.3318 0.833984 25.6541 5.14697 25.6541 10.4673V15.8342H28.1929C30.0194 15.8342 31.5 17.3116 31.5 19.1342V40.1342C31.5 41.9567 30.0194 43.4342 28.1929 43.4342H3.80711C1.98065 43.4342 0.5 41.9567 0.5 40.1342V19.1342C0.5 17.3116 1.98064 15.8342 3.80711 15.8342H6.34591V10.4673ZM8.95151 15.8342H23.0485V10.4673C23.0485 6.58291 19.8928 3.43398 16 3.43398C12.1072 3.43398 8.95151 6.58292 8.95151 10.4673V15.8342ZM3.80711 18.4342C3.41968 18.4342 3.1056 18.7476 3.1056 19.1342V40.1342C3.1056 40.5208 3.41968 40.8342 3.80711 40.8342H28.1929C28.5803 40.8342 28.8944 40.5208 28.8944 40.1342V19.1342C28.8944 18.7476 28.5803 18.4342 28.1929 18.4342H3.80711Z" />
+                <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M9.41742 23.5004C9.90627 23.0116 10.6988 23.0116 11.1877 23.5004L16.0508 28.3636L20.9139 23.5005C21.4027 23.0117 22.1953 23.0117 22.6841 23.5005C23.173 23.9894 23.173 24.782 22.6841 25.2708L17.8211 30.1338L22.6841 34.9969C23.173 35.4857 23.173 36.2783 22.6841 36.7672C22.1953 37.256 21.4027 37.256 20.9139 36.7672L16.0508 31.9041L11.1877 36.7673C10.6988 37.2561 9.90627 37.2561 9.41742 36.7673C8.92857 36.2784 8.92857 35.4858 9.41742 34.997L14.2806 30.1338L9.41742 25.2707C8.92857 24.7819 8.92857 23.9893 9.41742 23.5004Z" />
+            </svg>
+
+            <h1>Fehlende Berechtigung</h1>
+            <p class="font-size-large">
+                Ihnen fehlt das Zugriffsrecht für die aufgerufene Seite.
+            </p>
+            <p class="font-size-large u-mt">
+                Bitte wenden Sie sich gegebenenfalls an ihre fachliche Leitstelle, um den Zugriff zu beantragen.
+            </p>
+
+            {% if templateVars.customerLoginSupport.title|default != '' %}
+                <div class="justify-center flex">
+                    <dp-support-card
+                        class="u-pv-0_75 u-ph-0_75 text-left u-mt-2 w-full max-w-sm bg-gray-50"
+                        email="{{ templateVars.customerLoginSupport.eMailAddress|default }}"
+                        phone-number="{{ templateVars.customerLoginSupport.phoneNumber|default }}"
+                        :reachability="{ officeHours: '{{ templateVars.customerLoginSupport.text|default }}' }"
+                        title="{{ templateVars.customerLoginSupport.title|default }}">
+                    </dp-support-card>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock component_part %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['user-idpError.js']) }}
+{% endblock javascripts %}

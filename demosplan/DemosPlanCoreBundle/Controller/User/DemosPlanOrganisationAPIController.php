@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
@@ -25,10 +26,12 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\OrgaNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\OrgaResourceType;
 use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
@@ -41,6 +44,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use UnexpectedValueException;
+use Webmozart\Assert\Assert;
 
 class DemosPlanOrganisationAPIController extends APIController
 {
@@ -97,8 +101,8 @@ class DemosPlanOrganisationAPIController extends APIController
         JsonApiPaginationParser $paginationParser
     ) {
         try {
-            if ($permissions->hasPermission('area_organisations_view_of_customer') ||
-                $permissions->hasPermission('area_manage_orgas_all')
+            if ($permissions->hasPermission('area_organisations_view_of_customer')
+                || $permissions->hasPermission('area_manage_orgas_all')
             ) {
                 $currentCustomer = $customerHandler->getCurrentCustomer();
                 $orgaList = $orgaService->getOrgasInCustomer($currentCustomer);
@@ -255,20 +259,24 @@ class DemosPlanOrganisationAPIController extends APIController
     {
         $orgaId = $id;
         try {
-            $isOrgaDeleted = $userHandler->wipeOrganisationData($orgaId);
-            if ($isOrgaDeleted) {
-                $this->messageBag->addChoice(
-                    'confirm',
-                    'confirm.orga.deleted',
-                    ['count' => 1]
-                );
+            $result = $userHandler->wipeOrganisationData($orgaId);
 
-                return $this->renderEmpty();
+            if (is_array($result)) {
+                // Handle errors here
+                foreach ($result as $error) {
+                    $this->messageBag->add('error', $error);
+                }
+
+                return $this->renderEmpty(Response::HTTP_UNAUTHORIZED);
             }
+            // Handle successful wipe
+            $this->messageBag->addChoice(
+                'confirm',
+                'confirm.orga.deleted',
+                ['count' => 1]
+            );
 
-            $this->messageBag->add('error', 'error.organisation.not.deleted');
-
-            return $this->renderEmpty(Response::HTTP_UNAUTHORIZED);
+            return $this->renderEmpty();
         } catch (Exception $e) {
             return $this->handleApiError($e);
         }
@@ -284,7 +292,12 @@ class DemosPlanOrganisationAPIController extends APIController
      * @throws MessageBagException
      */
     #[Route(path: '/api/1.0/organisation/', options: ['expose' => true], methods: ['POST'], name: 'organisation_create')]
-    public function createOrgaAction(Request $request, UserHandler $userHandler, CustomerHandler $customerHandler)
+    public function createOrgaAction(Request $request,
+        UserHandler $userHandler,
+        CustomerHandler $customerHandler,
+        PermissionsInterface $permissions,
+        AccessControlService $accessControlPermission,
+        RoleHandler $roleHandler)
     {
         try {
             if (!($this->requestData instanceof TopLevel)) {
@@ -305,6 +318,19 @@ class DemosPlanOrganisationAPIController extends APIController
             if (is_array($newOrga) && array_key_exists('mandatoryfieldwarning', $newOrga)) {
                 $this->messageBag->add('error', 'error.mandatoryfields');
                 throw new InvalidArgumentException('Can\'t create orga since mandatory fields are missing.');
+            }
+
+            // Add new permission in case it is present in the request
+
+            if ($permissions->hasPermission('feature_manage_procedure_creation_permission')
+                && array_key_exists('canCreateProcedures', $orgaDataArray)) {
+                $roles = $roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY]);
+                Assert::count($roles, 1);
+                $role = $roles[0];
+
+                if (true === $orgaDataArray['canCreateProcedures']) {
+                    $accessControlPermission->createPermission(AccessControlService::CREATE_PROCEDURES_PERMISSION, $newOrga, $customerHandler->getCurrentCustomer(), $role);
+                }
             }
 
             $item = $this->resourceService->makeItemOfResource($newOrga, OrgaResourceType::getName());
@@ -330,6 +356,8 @@ class DemosPlanOrganisationAPIController extends APIController
         PermissionsInterface $permissions,
         Request $request,
         UserHandler $userHandler,
+        AccessControlService $accessControlPermission,
+        RoleHandler $roleHandler,
         string $id)
     {
         $orgaId = $id;
@@ -356,6 +384,20 @@ class DemosPlanOrganisationAPIController extends APIController
                 // explicitly set that show list may be updated
                 $userHandler->setCanUpdateShowList(true);
             }
+
+            if ($permissions->hasPermission('feature_manage_procedure_creation_permission') && is_array($orgaDataArray['attributes'])
+                && array_key_exists('canCreateProcedures', $orgaDataArray['attributes'])) {
+                $roles = $roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY]);
+                Assert::count($roles, 1);
+                $role = $roles[0];
+
+                if (true === $orgaDataArray['attributes']['canCreateProcedures']) {
+                    $accessControlPermission->createPermission(AccessControlService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
+                } else {
+                    $accessControlPermission->removePermission(AccessControlService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
+                }
+            }
+
             $updatedOrga = $userHandler->updateOrga($orgaId, $orgaDataArray);
 
             if ($updatedOrga instanceof Orga) {

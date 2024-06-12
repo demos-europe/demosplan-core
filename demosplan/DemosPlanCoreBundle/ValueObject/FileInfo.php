@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
+use DemosEurope\DemosplanAddon\Contracts\ValueObject\FileInfoInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 
 /**
@@ -21,7 +22,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
  * @method string         getAbsolutePath()
  * @method Procedure|null getProcedure()
  */
-class FileInfo extends ValueObject
+class FileInfo extends ValueObject implements FileInfoInterface
 {
     /**
      * @var string

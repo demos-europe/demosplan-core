@@ -14,7 +14,7 @@
     <template v-if="video.id">
       <div class="flex space-inline-m">
         <dp-video-player
-          class="shadow height-fit-content width-300"
+          class="shadow h-fit w-12"
           :sources="videoSources"
           :id="`file${video.file}`"
           icon-url="/img/plyr.svg" />
@@ -28,10 +28,8 @@
       </div>
 
       <dp-button
-        :busy="isBusy"
         color="warning"
         :text="Translator.trans('delete')"
-        variant="outline"
         @click="deleteVideo" />
     </template>
 
@@ -71,12 +69,13 @@
         v-model="video.description"
         reduced-height />
 
-      <dp-button
+      <dp-button-row
+        class="u-mt"
+        primary
+        secondary
         :busy="isBusy"
-        :disabled="hasNoVideoInput"
-        :text="Translator.trans('save')"
-        variant="outline"
-        @click="dpValidateAction('signLanguageVideo', createVideo, false)" />
+        :secondary-text="Translator.trans('reset')"
+        @primary-action="dpValidateAction('signLanguageVideo', saveSignLanguageVideo, false)" />
     </template>
   </div>
 </template>
@@ -84,19 +83,20 @@
 <script>
 import {
   dpApi,
-  DpButton,
+  DpButtonRow,
   DpInput,
   DpTextArea,
   DpUploadFiles,
   dpValidateMixin,
   getFileIdsByHash
 } from '@demos-europe/demosplan-ui'
+import { mapActions, mapMutations, mapState } from 'vuex'
 
 export default {
   name: 'CustomerSettingsSignLanguageVideo',
 
   components: {
-    DpButton,
+    DpButtonRow,
     DpInput,
     DpTextArea,
     DpUploadFiles,
@@ -109,6 +109,11 @@ export default {
   mixins: [dpValidateMixin],
 
   props: {
+    currentCustomerId: {
+      type: String,
+      required: true
+    },
+
     signLanguageOverviewVideo: {
       required: false,
       type: Object,
@@ -121,6 +126,12 @@ export default {
           title: ''
         }
       }
+    },
+
+    signLanguageOverviewDescription: {
+      required: false,
+      type: String,
+      default: ''
     }
   },
 
@@ -132,6 +143,10 @@ export default {
   },
 
   computed: {
+    ...mapState('customer', {
+      customerList: 'items'
+    }),
+
     hasNoVideoInput () {
       return this.video.title === '' && this.video.file === '' && this.video.description === ''
     },
@@ -147,10 +162,23 @@ export default {
   },
 
   methods: {
-    createVideo () {
+    ...mapActions('customer', {
+      fetchCustomer: 'list',
+      saveCustomer: 'save'
+    }),
+
+    ...mapMutations('customer', {
+      updateCustomer: 'setItem'
+    }),
+
+    saveSignLanguageVideo () {
       this.isBusy = true
+      this.saveSignLanguageOverviewDescription()
       this.saveVideo()
-        .then(() => this.$emit('created'))
+        .then(() => {
+          this.$emit('created')
+          this.isBusy = false
+        })
     },
 
     deleteVideo () {
@@ -162,7 +190,23 @@ export default {
         .then(() => this.$emit('deleted'))
     },
 
+    saveSignLanguageOverviewDescription () {
+      const payload = {
+        id: this.currentCustomerId,
+        type: 'Customer',
+        attributes: {
+          ...this.customerList[this.currentCustomerId].attributes,
+          signLanguageOverviewDescription: this.signLanguageOverviewDescription
+        }
+      }
+      this.updateCustomer(payload)
+      this.saveCustomer(this.currentCustomerId).then(() => {
+        dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+      })
+    },
+
     async saveVideo () {
+      this.isBusy = true
       const fileIds = await getFileIdsByHash([this.video.file], Routing.generate('api_resource_list', { resourceType: 'File' }))
 
       const payload = {

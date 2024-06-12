@@ -33,13 +33,17 @@ use Exception;
 use RuntimeException;
 use SplFileInfo;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Yaml\Yaml;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 use ZipArchive;
 
 /**
@@ -59,8 +63,12 @@ class AddonInstallFromZipCommand extends CoreCommand
     private string $addonsDirectory;
     private string $addonsCacheDirectory;
 
-    public function __construct(private readonly Registrator $installer, ParameterBagInterface $parameterBag, string $name = null)
-    {
+    public function __construct(
+        private readonly HttpClientInterface $httpClient,
+        private readonly Registrator $installer,
+        ParameterBagInterface $parameterBag,
+        ?string $name = null
+    ) {
         parent::__construct($parameterBag, $name);
     }
 
@@ -68,11 +76,19 @@ class AddonInstallFromZipCommand extends CoreCommand
     {
         $this->addArgument(
             'path',
-            InputArgument::REQUIRED,
+            InputArgument::OPTIONAL,
             'Path to zip'
         );
 
         $this->addOption('reinstall', '', InputOption::VALUE_NONE, 'Re-install an addon (useful for debugging)');
+        $this->addOption('no-enable', '', InputOption::VALUE_NONE, 'Do not immediately enable addon during installation');
+        $this->addOption('local', '', InputOption::VALUE_NONE, 'Only use locally available addons, do not connect GitHub');
+        $this->addOption('github', '', InputOption::VALUE_NONE, 'Directly load addons from GitHub');
+        $this->addOption('branch', '', InputOption::VALUE_NONE, 'Install specific branch from GitHub');
+        $this->addOption('repos', '', InputOption::VALUE_NONE, 'Call demosplan addon repository');
+        $this->addOption('force-download', '', InputOption::VALUE_NONE, 'Force download repository from GitHub');
+        $this->addOption('folder', '', InputOption::VALUE_REQUIRED, 'Folder to read addon zips from', 'addonZips');
+        $this->addOption('develop', 'd', InputOption::VALUE_NONE, 'Install local addon repository');
     }
 
     /**
@@ -84,8 +100,40 @@ class AddonInstallFromZipCommand extends CoreCommand
         $output = new SymfonyStyle($input, $output);
 
         $reinstall = $input->getOption('reinstall');
+        $enable = !$input->getOption('no-enable');
+        $path = $input->getArgument('path');
+        $folder = $input->getOption('folder');
+        $branch = $input->getOption('branch');
 
-        $this->setPaths($input->getArgument('path'));
+        $this->createDirectoryIfNecessary(DemosPlanPath::getRootPath($folder));
+
+        $this->setGlobalPaths();
+
+        if (null === $path) {
+            try {
+                if ($input->getOption('local')) {
+                    $path = $this->getPathFromZip($input, $output, $folder);
+                    $this->setZipPaths($path);
+                } elseif ($input->getOption('github')) {
+                    $path = $this->loadFromGithub($input, $output, $folder, $branch);
+                    $this->setZipPaths($path);
+                } elseif ($input->getOption('repos')) {
+                    $path = $this->loadFromApiRepository($input, $output, $folder);
+                    $this->setZipPaths($path);
+                } elseif ($input->getOption('develop')) {
+                    $path = $this->getPathFromLocalDevelopment($input, $output, $folder);
+                    $this->setDevelopPaths($path);
+                } else {
+                    $path = $this->getPathFromZip($input, $output, $folder);
+                    $this->setZipPaths($path);
+                }
+            } catch (Exception $e) {
+                $output->error($e->getMessage());
+
+                return Command::FAILURE;
+            }
+        }
+
         try {
             $this->initializeAddonsInfrastructure();
         } catch (JsonException|RuntimeException $e) {
@@ -102,14 +150,10 @@ class AddonInstallFromZipCommand extends CoreCommand
             $this->checkReinstall($packageDefinition, $reinstall);
 
             $this->addAddonToComposerRequire($packageDefinition);
-        } catch (JsonException $e) {
+        } catch (JsonException|AddonException $e) {
             $output->error($e->getMessage());
 
             return Command::FAILURE;
-        } catch (AddonException $e) {
-            $output->success($e->getMessage());
-
-            return Command::SUCCESS;
         }
 
         try {
@@ -132,22 +176,32 @@ class AddonInstallFromZipCommand extends CoreCommand
             return Command::FAILURE;
         }
 
-        // If composer update went well, add the addon to the registry
-        $name = $this->installer->register($packageDefinition);
-
         try {
+            // If composer update went well, add the addon to the registry
+            $name = $this->installer->register($packageDefinition, $enable);
+
+            $kernel = $this->getApplication()->getKernel();
+            $environment = $kernel->getEnvironment();
             $activeProject = $this->getApplication()->getKernel()->getActiveProject();
 
             $batchReturn = Batch::create($this->getApplication(), $output)
-                ->addShell(["bin/{$activeProject}", 'cache:clear'])
-                ->addShell(["bin/{$activeProject}", 'dplan:addon:build-frontend', $name])
+                ->addShell(["bin/{$activeProject}", 'cache:clear', '-e', $environment])
+                ->addShell(["bin/{$activeProject}", 'dplan:addon:build-frontend', $name, '-e', $environment])
                 ->run();
 
             if (0 === $batchReturn) {
+                $output->success("Addon {$name} successfully installed. Please remember to ".
+                    'build the frontend assets of the core and deployment to webserver folder when needed.');
+
                 return Command::SUCCESS;
             }
         } catch (Exception $e) {
             $output->error($e->getMessage());
+            // this hint may be removed in symfony6 when we can update the efrane/console-additions
+            // to a version bigger than 0.7, as the batch will not swallow the exception anymore
+            $output->info('If you have no clue why this happened, you may try to install '.
+                'the addon manually by performing
+                `composer bin addons update --prefer-lowest -a -o`');
         }
 
         return Command::FAILURE;
@@ -172,7 +226,7 @@ class AddonInstallFromZipCommand extends CoreCommand
         // If composer.json does not exist, create it
         if (!file_exists($this->addonsDirectory.'composer.json')) {
             $content = [
-                'minimum-stability' => 'dev',
+                'minimum-stability' => 'stable',
                 'require'           => [],
                 'config'            => [
                     'sort-packages' => true,
@@ -209,17 +263,21 @@ class AddonInstallFromZipCommand extends CoreCommand
     }
 
     /**
-     * Sets all necessary paths for the command.
+     * Sets zip paths for the command.
      */
-    private function setPaths(string $path): void
+    private function setZipPaths(string $path): void
     {
-        $this->addonsDirectory = DemosPlanPath::getRootPath(Registrator::ADDON_DIRECTORY);
-        $this->addonsCacheDirectory = DemosPlanPath::getRootPath(Registrator::ADDON_CACHE_DIRECTORY);
         $this->zipSourcePath = realpath($path);
-
         $pathInfo = new SplFileInfo($path);
-
         $this->zipCachePath = DemosPlanPath::getRootPath(Registrator::ADDON_CACHE_DIRECTORY.$pathInfo->getBasename('.zip').'/');
+    }
+
+    private function setDevelopPaths(string $path): void
+    {
+        // do not use realpath as we need the path within the container
+        $this->zipSourcePath = $path;
+        $pathInfo = new SplFileInfo($path);
+        $this->zipCachePath = DemosPlanPath::getRootPath(Registrator::ADDON_CACHE_DIRECTORY.$pathInfo->getBasename().'/');
     }
 
     /**
@@ -280,7 +338,8 @@ class AddonInstallFromZipCommand extends CoreCommand
 
         $composerContent = Json::decodeToArray(file_get_contents($this->addonsDirectory.'composer.json'));
 
-        if (!array_key_exists($addonName, $composerContent['require'])) {
+        if (!array_key_exists('require', $composerContent)
+            || !array_key_exists($addonName, $composerContent['require'])) {
             $composerContent['require'][$addonName] = $addonVersion;
             file_put_contents(
                 $this->addonsDirectory.'composer.json',
@@ -295,5 +354,224 @@ class AddonInstallFromZipCommand extends CoreCommand
         if (array_key_exists($packageDefinition->getName(), $addons) && !$reinstall) {
             throw AddonException::alreadyInstalled();
         }
+    }
+
+    private function getPathFromZip(InputInterface $input, OutputInterface $output, string $folder): string
+    {
+        $zips = glob(DemosPlanPath::getRootPath($folder).'/*.zip');
+
+        if (!is_array($zips) || 0 === count($zips)) {
+            throw new RuntimeException("No Addon zips found in Folder {$folder}");
+        }
+
+        $question = new ChoiceQuestion('Which addon do you want to install? When you want to install the addon directly via GitHub use --github ', $zips);
+        /** @var QuestionHelper $questionHelper */
+        $questionHelper = $this->getHelper('question');
+
+        return $questionHelper->ask($input, $output, $question);
+    }
+
+    private function loadFromApiRepository(InputInterface $input, SymfonyStyle $output, mixed $folder): string
+    {
+        $addonRepositoryUrl = $this->parameterBag->get('addon_repository_url');
+        try {
+            $addonRepositoryToken = $this->parameterBag->get('addon_repository_token');
+        } catch (Exception) {
+            throw new RuntimeException('You need to set an environment variable ADDON_REPOSITORY_TOKEN to access the addon repository. You may use the option --local to only use locally available addons.');
+        }
+        $addonRepositoryOptions = [
+            'headers' => [
+                'Authorization'        => 'Bearer '.$addonRepositoryToken,
+            ],
+        ];
+
+        // fetch a list of available repositories
+        $repositoryListUrl = sprintf('%s/api/list', $addonRepositoryUrl);
+        $existingReposResponse = $this->httpClient->request('GET', $repositoryListUrl, $addonRepositoryOptions);
+        if (401 === $existingReposResponse->getStatusCode()) {
+            throw new RuntimeException('Could not access repository. Did you purchase an addon repository personal access token?');
+        }
+        $existingTagsContent = $existingReposResponse->getContent(false);
+        try {
+            $availableAddons = Json::decodeToArray($existingTagsContent);
+        } catch (JsonException $exception) {
+            throw new RuntimeException('Could not decode response from repository. '.$exception->getMessage().' Response was '.$existingTagsContent);
+        }
+        $repoQuestion = new ChoiceQuestion('Which addon do you want to install? ', $availableAddons);
+        /** @var QuestionHelper $questionHelper */
+        $questionHelper = $this->getHelper('question');
+        $repo = $questionHelper->ask($input, $output, $repoQuestion);
+
+        // fetch a list of available tags
+        $tagsUrl = sprintf('%s/api/list/tags/%s', $addonRepositoryUrl, $repo);
+        $existingTagsResponse = $this->httpClient->request('GET', $tagsUrl, $addonRepositoryOptions);
+        $existingTagsContent = $existingTagsResponse->getContent(false);
+        $tag = $this->askItem($existingTagsContent, $input, $output);
+
+        // tags are prefixed with v, but the zip file is not
+        $path = DemosPlanPath::getRootPath($folder).'/'.$repo.'-'.str_replace('v', '', $tag).'.zip';
+        if (file_exists($path) && !$input->getOption('force-download')) {
+            $output->info('File '.$path.' already exists, skipping download. You may use the --force-download option to force a download.');
+        } else {
+            $zipUrl = sprintf('%s/api/get/%s/%s', $addonRepositoryUrl, $repo, $tag);
+            $zipResponse = $this->httpClient->request('GET', $zipUrl, $addonRepositoryOptions);
+
+            $zipContent = $zipResponse->getContent(false);
+            file_put_contents($path, $zipContent);
+        }
+
+        return $path;
+    }
+
+    private function loadFromGithub(InputInterface $input, SymfonyStyle $output, mixed $folder, bool $branch): string
+    {
+        try {
+            $ghToken = $this->parameterBag->get('github_token');
+        } catch (Exception) {
+            throw new RuntimeException('You need to set an environment variable GITHUB_TOKEN to access GitHub. You may use the option --local to only use locally available addons.');
+        }
+        $ghOptions = [
+            'headers' => [
+                'Accept'               => 'application/vnd.github.v3+json',
+                'X-GitHub-Api-Version' => '2022-11-28',
+                'Authorization'        => 'Bearer '.$ghToken,
+            ],
+        ];
+
+        $ghReposUrl = 'https://api.github.com/orgs/demos-europe/repos?per_page=100';
+        $availableRepositories = $this->fetchRepositories($ghOptions, $ghReposUrl);
+        $availableAddons = collect($availableRepositories)->filter(function ($repo) {
+            return str_contains($repo['name'], 'demosplan-addon-');
+        })
+            ->map(function ($repo) {
+                return $repo['name'];
+            })
+            ->sortBy(function ($repo) {
+                return $repo;
+            })
+            ->values()
+            ->toArray();
+        $question = new ChoiceQuestion('Which addon do you want to install? ', $availableAddons);
+        /** @var QuestionHelper $questionHelper */
+        $questionHelper = $this->getHelper('question');
+        $repo = $questionHelper->ask($input, $output, $question);
+
+        // default: show tags
+        if (false === $branch) {
+            // fetch a list of available tags
+            $ghUrl = 'https://api.github.com/repos/demos-europe/'.$repo.'/tags';
+            $tag = $this->getGithubItem($ghUrl, $ghOptions, $input, $output);
+            $zipUrl = sprintf('https://github.com/demos-europe/%s/archive/refs/tags/%s.zip', $repo, $tag);
+            // tags are prefixed with v, but the zip file in GitHub is not
+            $path = DemosPlanPath::getRootPath($folder).'/'.$repo.'-'.str_replace('v', '', $tag).'.zip';
+        } else {
+            // fetch a list of available branches
+            $ghUrl = sprintf('https://api.github.com/repos/demos-europe/%s/branches', $repo);
+            $branch = $this->getGithubItem($ghUrl, $ghOptions, $input, $output);
+            $zipUrl = sprintf('https://github.com/demos-europe/%s/archive/refs/heads/%s.zip', $repo, $branch);
+            $path = DemosPlanPath::getRootPath($folder).'/'.$repo.'-'.$branch.'.zip';
+        }
+
+        // branches should always be downloaded
+        if (file_exists($path) && !$input->getOption('force-download') && !$input->getOption('branch')) {
+            $output->info('File '.$path.' already exists, skipping download. You may use the --force-download option to force a download.');
+        } else {
+            // $zipUrl url is hardcoded by purpose as the zip otherwise extracts to a folder containing the hash, not the tag
+            // which makes it harder to recognize the installed addon version
+            $zipResponse = $this->httpClient->request('GET', $zipUrl, $ghOptions);
+
+            $zipContent = $zipResponse->getContent(false);
+            file_put_contents($path, $zipContent);
+        }
+
+        return $path;
+    }
+
+    private function fetchRepositories(array $ghOptions, string $githubUrl): array
+    {
+        $repositories = [];
+        $existingReposResponse = $this->httpClient->request('GET', $githubUrl, $ghOptions);
+        if (404 === $existingReposResponse->getStatusCode()) {
+            throw new RuntimeException('Could not access repository. Did you create a GitHub personal access token?');
+        }
+        $existingReposContent = $existingReposResponse->getContent(false);
+        $repositories = array_merge($repositories, Json::decodeToArray($existingReposContent));
+        if (array_key_exists('link', $existingReposResponse->getHeaders())) {
+            $links = explode(',', $existingReposResponse->getHeaders()['link'][0]);
+            foreach ($links as $link) {
+                if (str_contains($link, 'rel="next"')) {
+                    $nextLink = str_replace(['<', '>', 'rel="next"'], '', $link);
+                    $nextRepositories = $this->fetchRepositories($ghOptions, $nextLink);
+                }
+            }
+        }
+
+        return array_merge($repositories, $nextRepositories ?? []);
+    }
+
+    private function askItem(string $existingContent, InputInterface $input, SymfonyStyle $output): mixed
+    {
+        $items = collect(Json::decodeToArray($existingContent))->filter(
+            function ($item) {
+                return !str_contains($item['name'], 'rc');
+            }
+        )->map(function ($item) {
+            return $item['name'];
+        })
+            ->reverse()
+            ->values()
+            ->toArray();
+
+        if (0 === count($items)) {
+            throw new RuntimeException('Nothing found for this repository. Please install the addon via --local');
+        }
+
+        $question = new ChoiceQuestion(
+            'What do you want to install? ',
+            $items
+        );
+        /** @var QuestionHelper $questionHelper */
+        $questionHelper = $this->getHelper('question');
+
+        return $questionHelper->ask($input, $output, $question);
+    }
+
+    private function getGithubItem(string $ghUrl, array $ghOptions, InputInterface $input, SymfonyStyle $output): mixed
+    {
+        $response = $this->httpClient->request('GET', $ghUrl, $ghOptions);
+        if (404 === $response->getStatusCode()) {
+            throw new RuntimeException('Could not access repository. Did you create a GitHub personal access token?');
+        }
+        $existingItemsContent = $response->getContent(false);
+
+        return $this->askItem($existingItemsContent, $input, $output);
+    }
+
+    private function getPathFromLocalDevelopment(InputInterface $input, SymfonyStyle $output, mixed $folder): string
+    {
+        $fs = new Filesystem();
+        $addonDevFolder = DemosPlanPath::getRootPath('addonDev');
+        if (!file_exists($addonDevFolder)) {
+            throw new RuntimeException("No folder {$addonDevFolder} found. To develop addons locally, create a folder {$addonDevFolder} and put your addons in there.");
+        }
+
+        $localAddons = glob($addonDevFolder.'/*');
+        if (!is_array($localAddons) || 0 === count($localAddons)) {
+            throw new RuntimeException("No local addons found in folder {$addonDevFolder}. Please check out the demosplan-addon-* repositories into this folder.");
+        }
+        $question = new ChoiceQuestion('Which addon do you want to install from your local development environment?', $localAddons);
+        $path = $this->getHelper('question')->ask($input, $output, $question);
+
+        // create symlink from cache to addonsDev
+        $addonFolder = explode('/', $path)[count(explode('/', $path)) - 1];
+        $fs->symlink($path, $this->addonsCacheDirectory.'/'.$addonFolder);
+
+        return $path;
+    }
+
+    private function setGlobalPaths(): void
+    {
+        $this->addonsDirectory = DemosPlanPath::getRootPath(Registrator::ADDON_DIRECTORY);
+        $this->addonsCacheDirectory = DemosPlanPath::getRootPath(Registrator::ADDON_CACHE_DIRECTORY);
     }
 }

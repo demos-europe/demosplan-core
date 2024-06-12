@@ -16,6 +16,7 @@
     </p>
 
     <dp-convert-annotated-pdf
+        :csrf-token="{{ csrf_token('csrf')|json_encode }}"
         current-procedure-phase="{{ templateVars.currentProcedurePhase|default('analysis') }}"
         document-id="{{ templateVars.documentId }}"
         :init-submitter="{{ templateVars.submitter|default({}) }}"

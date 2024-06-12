@@ -23,17 +23,17 @@
           v-model="searchValue"
           class="o-form__control-input u-mb-0_5"
           style="height: 28px;"
-          data-cy="searchUser"
+          data-cy="userList:searchUser"
           @keypress.enter.prevent="getFilteredItems"
           :placeholder="Translator.trans('search')"><!--
      --><dp-button
           class="u-ml-0_5"
+          data-cy="userList:searchUserBtn"
           :text="Translator.trans('searching')"
           @click="getFilteredItems" />
-        <i
-          class="fa fa-question-circle"
-          :aria-label="Translator.trans('contextual.help')"
-          v-tooltip="{ content: tooltipContent }" />
+        <dp-contextual-help
+          class="float-right"
+          :text="tooltipContent" />
       </div>
     </div>
 
@@ -42,30 +42,11 @@
       class="u-ml u-mt" />
     <!-- List of all items -->
     <div
-      class="layout u-mb"
+      class="layout"
       v-if="false === isLoading">
-      <div class="u-mt">
-      <!--Button row --><!--
-     --><div class="text-right float-right inline-block u-4-of-7 u-mb-0_5">
-          <button
-            class="btn btn--primary inline"
-            value="inviteSelected"
-            name="manageUsers"
-            type="submit">
-            {{ Translator.trans('user.marked.invite') }}
-          </button>
-
-          <button
-            v-if="hasPermission('feature_user_delete') || true"
-            class="btn btn--warning inline"
-            type="button"
-            data-cy="deleteSelectedItems"
-            @click="deleteItems(selectedItems)">
-            {{ deleteSelectedUsersLabel }}
-          </button>
-        </div><!--
-   --><!-- 'Select all'-Checkbox --><!--
-     --><div class="layout__item u-3-of-7 inline-block">
+      <div class="u-mt flex">
+        <!-- 'Select all'-Checkbox -->
+        <div class="layout__item u-3-of-7">
           <input
             type="checkbox"
             id="select_all"
@@ -79,18 +60,40 @@
             {{ Translator.trans('select.all.on.page') }}
           </label>
         </div>
+        <!--Button row -->
+        <div class="text-right u-4-of-7 u-mb-0_5">
+          <button
+            class="btn btn--primary mb-1.5"
+            data-cy="userList:manageUsers"
+            value="inviteSelected"
+            name="manageUsers"
+            type="submit">
+            {{ Translator.trans('user.marked.invite') }}
+          </button>
+
+          <button
+            v-if="hasPermission('feature_user_delete') || true"
+            class="btn btn--warning mb-1.5"
+            type="button"
+            data-cy="deleteSelectedItems"
+            @click="deleteItems(selectedItems)">
+            {{ deleteSelectedUsersLabel }}
+          </button>
+        </div>
       </div>
     </div>
     <template
       v-if="false === isLoading">
-      <ul class="o-list o-list--card u-mb">
+      <ul
+        class="o-list o-list--card u-mb"
+        data-cy="userList:userListWrapper">
         <dp-user-list-item
           class="o-list__item"
-          v-for="(item, idx) in items"
+          v-for="(item, idx, index) in items"
           :key="idx"
           :selected="hasOwnProp(itemSelections, item.id) && itemSelections[item.id] === true"
           :user="item"
-          :data-cy="`userListBlk`"
+          :data-cy="`userList:userListBlk:${index}`"
           :project-name="projectName"
           @item:selected="dpToggleOne" />
       </ul>
@@ -105,7 +108,7 @@
 </template>
 
 <script>
-import { debounce, DpButton, DpLoading, dpSelectAllMixin, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { debounce, DpButton, DpContextualHelp, DpLoading, dpSelectAllMixin, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 
 export default {
@@ -113,6 +116,7 @@ export default {
 
   components: {
     DpButton,
+    DpContextualHelp,
     DpLoading,
     DpSlidingPagination: async () => {
       const { DpSlidingPagination } = await import('@demos-europe/demosplan-ui')
@@ -206,7 +210,7 @@ export default {
             this.deleteUser(id)
               .then(() => {
                 // Remove deleted item from itemSelections
-                Vue.delete(this.itemSelections, id)
+                delete this.itemSelections[id]
                 dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
               })
           })

@@ -25,11 +25,13 @@
           <dp-multiselect
             :id="filterItem.id"
             :close-on-select="false"
+            :data-cy="filterItem.attributes.name"
             label="label"
             :loading="isLoading"
             multiple
             :name="filterItem.attributes.name + '_multiselect'"
             :options="availableOptions"
+            selection-controls
             track-by="label"
             :value="selected"
             @close="updateFilterOptions"
@@ -38,7 +40,9 @@
             @select="selectFilterOption">
             <!-- selected options -->
             <template v-slot:tag="{ props }">
-              <span class="multiselect__tag">
+              <span
+                class="multiselect__tag"
+                :data-cy="'tag-' + generateDataCy(filterItem.attributes.name, props.option.label)">
                 <span>
                   {{ props.option.label }}
                   <template v-if="'fragment' !== filterGroup.type">
@@ -70,7 +74,9 @@
             <!-- selectable options -->
             <template
               v-slot:option="{ props }">
-              {{ props.option.label }}
+              <span :data-cy="'option-' + generateDataCy(filterItem.attributes.name, props.option.label)">
+                {{ props.option.label }}
+              </span>
               <template v-if="'fragment' !== filterGroup.type">
                 ({{ props.option.count }})
               </template>
@@ -192,6 +198,10 @@ export default {
       'sortFilterOptions',
       'updateSelectedOptions'
     ]),
+
+    generateDataCy (name, option) {
+      return name + '-' + option.replace(/\s+/g, '-').toLowerCase()
+    },
 
     /**
      * Called when opening filter dropdown

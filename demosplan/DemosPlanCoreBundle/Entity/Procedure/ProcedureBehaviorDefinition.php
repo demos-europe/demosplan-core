@@ -74,7 +74,7 @@ class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterf
      *
      * @var ProcedureInterface|null
      *
-     * @ORM\OneToOne(targetEntity="Procedure", mappedBy="procedureBehaviorDefinition")
+     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", mappedBy="procedureBehaviorDefinition")
      *
      * @JoinColumn(referencedColumnName="_p_id")
      */
@@ -87,7 +87,7 @@ class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterf
      *
      * @var ProcedureTypeInterface|null
      *
-     * @ORM\OneToOne(targetEntity="ProcedureType", mappedBy="procedureBehaviorDefinition")
+     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType", mappedBy="procedureBehaviorDefinition")
      *
      * @JoinColumn() // Without this, Doctrine doesn't add the column to table, so please don't delete.
      */
@@ -120,6 +120,11 @@ class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterf
     public function getId(): ?string
     {
         return $this->id;
+    }
+
+    public function setId(string $id): void
+    {
+        $this->id = $id;
     }
 
     public function getProcedure(): ?ProcedureInterface

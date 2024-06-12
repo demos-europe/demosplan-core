@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Event\Procedure;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureUpdatedEventInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
@@ -49,6 +50,15 @@ class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdat
     private function determineModifiedValues(object $oldObject, object $newObject): array
     {
         $modifiedValues = [];
+
+        if ($oldObject instanceof DateTime && $newObject instanceof DateTime) {
+            if ($oldObject->getTimestamp() !== $newObject->getTimestamp()) {
+                $modifiedValues['old'] = $oldObject;
+                $modifiedValues['new'] = $newObject;
+            }
+
+            return $modifiedValues;
+        }
 
         $reflectionClass = new ReflectionClass($oldObject);
         $properties = $reflectionClass->getProperties();

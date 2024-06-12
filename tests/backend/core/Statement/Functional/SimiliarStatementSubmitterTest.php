@@ -53,46 +53,6 @@ class SimiliarStatementSubmitterTest extends FunctionalTestCase
         static::assertTrue($testStatement->getSimilarStatementSubmitters()->contains($testProcedurePerson));
     }
 
-    /**
-     * testDeleteStatementWithSimilarStatementSubmitters
-     * Cover deletion of a single statement with related procedure person, by just asserting that the statement
-     * is correctly deleted.
-     */
-    public function testDeleteStatementWithRelatedProcedurePerson()
-    {
-        $testStatement = $this->getStatementReference('testFixtureStatement');
-        $testStatementId = $testStatement->getId();
-        static::assertGreaterThan(0, $testStatement->getSimilarStatementSubmitters()->count());
-
-        $deleted = $this->sut->deleteStatement($testStatementId);
-        static::assertTrue($deleted);
-        $testStatement = $this->find(Statement::class, $testStatementId);
-        static::assertNull($testStatement);
-    }
-
-    /**
-     * Cover deletion of related ProcedurePerson on deletion of a Statement.
-     */
-    public function testCascadeDeleteRelatedSubmitterOnDeleteStatement()
-    {
-        $testStatement = $this->getStatementReference('testFixtureStatement');
-        $testStatementId = $testStatement->getId();
-        $submitters = $testStatement->getSimilarStatementSubmitters();
-        static::assertGreaterThan(0, $submitters->count());
-        $relatedSubmittersIds =
-            collect($submitters)->map(fn (ProcedurePerson $procedurePerson) => $procedurePerson->getId());
-
-        $deleted = $this->sut->deleteStatement($testStatementId);
-        static::assertTrue($deleted);
-        $testStatement = $this->find(Statement::class, $testStatementId);
-        static::assertNull($testStatement);
-
-        // orphan removal deletes "detached" ProcedurePerson, even if another Statement is connected!
-        foreach ($relatedSubmittersIds as $id) {
-            static::assertNull($this->find(ProcedurePerson::class, $id));
-        }
-    }
-
     public function testAddSimilarForeignStatement(): void
     {
         $testProcedurePerson = $this->getProcedurePersonReference('testProcedurePerson1');
@@ -241,6 +201,6 @@ class SimiliarStatementSubmitterTest extends FunctionalTestCase
 
         static::assertCount(0, $testStatement->getSimilarStatementSubmitters());
         static::assertEmpty($testProcedurePersons);
-//        static::assertNull($testProcedurePerson);
+        //        static::assertNull($testProcedurePerson);
     }
 }

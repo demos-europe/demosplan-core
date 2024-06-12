@@ -8,10 +8,9 @@
 </license>
 
 <template>
-  <ul class="o-list">
+  <ul class="o-list space-x-1">
     <li
-      class="inline-block border bg-color--white color--grey-dark"
-      style="border-radius: 4px; padding: 4px 8px; margin-right: 12px;"
+      class="inline-block border bg-color--white color--grey-dark rounded-md px-1 py-0.5"
       :key="tag.id"
       v-for="tag in selectedTags">
       {{ tag.title }}

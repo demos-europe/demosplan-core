@@ -14,7 +14,7 @@ use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\WysiwygExtension;
 use Exception;
 use Tests\Base\UnitTestCase;
-use Twig_SimpleFilter;
+use Twig\TwigFilter;
 
 /**
  * Teste WysiwygExtension
@@ -41,10 +41,8 @@ class WysiwygExtensionTest extends UnitTestCase
         try {
             $result = $this->twigExtension->getFilters();
             static::assertTrue(is_array($result) && isset($result[0]));
-            static::assertTrue($result[0] instanceof Twig_SimpleFilter);
-            $callable = $result[0]->getCallable();
-            static::assertTrue('wysiwygFilter' === $callable[1]);
-            static::assertTrue('wysiwyg' === $result[0]->getName());
+            static::assertInstanceOf(TwigFilter::class, $result[0]);
+            static::assertSame('wysiwyg', $result[0]->getName());
         } catch (Exception $e) {
             static::assertTrue(false);
 

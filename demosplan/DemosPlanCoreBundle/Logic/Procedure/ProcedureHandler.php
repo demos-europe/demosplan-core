@@ -37,12 +37,12 @@ use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\Sort;
 use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\InvitationEmailResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use Doctrine\ORM\EntityManagerInterface;
-use EDT\JsonApi\Schema\ToManyResourceLinkage;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 use Tightenco\Collect\Support\Collection;
 use Twig\Environment;
+
 use function array_key_exists;
 
 class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
@@ -134,8 +134,8 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         $esQuery->addFilterMust('deleted', false);
 
         foreach ($esQuery->getAvailableFilters() as $availableFilter) {
-            if (array_key_exists($availableFilter->getName(), $requestValues) &&
-                !$esQuery->isFilterValueEmpty($requestValues[$availableFilter->getName()])) {
+            if (array_key_exists($availableFilter->getName(), $requestValues)
+                && !$esQuery->isFilterValueEmpty($requestValues[$availableFilter->getName()])) {
                 // Field "Amtlicher Regionalschlüssel" needs to be queried as Prefixquery
                 // which equals db query "LIKE $ars%"
                 if ('ars' === $availableFilter->getField()) {
@@ -183,7 +183,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
             $orga = $this->orgaService->findOrgaBySlug($requestValues['orgaSlug']);
             $orgaId = $orga->getId();
 
-            $outputResult = array_filter($outputResult, static fn(array $procedure): bool => $procedure['orgaId'] === $orgaId);
+            $outputResult = array_filter($outputResult, static fn (array $procedure): bool => $procedure['orgaId'] === $orgaId);
         }
 
         // sorting by end date is a special case and requires extra steps
@@ -676,8 +676,6 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
      * @param string $procedureId
      * @param bool   $useDistance
      *
-     * @return mixed
-     *
      * @throws Exception
      */
     public function getProcedureSubscriptionList($procedureId, $useDistance = true)
@@ -778,16 +776,18 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
     }
 
     /**
+     * @param array{data: list<array{type: non-empty-string, id: non-empty-string}>} $resourceLinkage
+     *
      * @throws ProcedureNotFoundException          Thrown if no Procedure resource was found for the given procedureId
      * @throws PublicAffairsAgentNotFoundException thrown if the PublicAffairsAgent for at least one of the IDs provided in the given ResourceLinkage was not found
-     * @throws InvalidArgumentException            thrown if at least one {@link EDT\JsonApi\Schema\ResourceIdentifierObject} retrieved from the given
-     *                                             {@link ToManyResourceLinkage} object is not of type 'publicAffairsAgent'
+     * @throws InvalidArgumentException            thrown if at least one item in the given
+     *                                             linkage object is not of type 'publicAffairsAgent'
      * @throws Exception
      */
-    public function addInvitedPublicAffairsAgents(string $procedureId, ToManyResourceLinkage $resourceLinkage)
+    public function addInvitedPublicAffairsAgents(string $procedureId, array $resourceLinkage)
     {
         $procedure = $this->getProcedureWithCertainty($procedureId);
-        $publicAffairsAgents = $this->publicAffairsAgentHandler->getFromResourceLinkage($resourceLinkage);
+        $publicAffairsAgents = $this->publicAffairsAgentHandler->getFromResourceLinkage($resourceLinkage['data']);
         $this->procedureService->addOrganisations($procedure, $publicAffairsAgents);
     }
 
@@ -806,13 +806,13 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
     }
 
     /**
-     * @param array<int, Procedure>
+     * @param array<int, Procedure> $procedures
      *
      * @return array<int, array{id: string, name: string}> A list of undeleted, non-template procedures
      */
     public function convertProceduresForTwigAdminList(array $procedures): array
     {
-        return array_map(static fn(Procedure $procedure): array => [
+        return array_map(static fn (Procedure $procedure): array => [
             'id'   => $procedure->getId(),
             'name' => $procedure->getName(),
         ], $procedures);
@@ -861,7 +861,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
 
         // internal:
         $internalWritePhaseKeys = $this->getDemosplanConfig()->getInternalPhaseKeys('write');
-        $endedInternalProcedures = $this->procedureService->getProceduresWithEndedParticipation($internalWritePhaseKeys, true, true);
+        $endedInternalProcedures = $this->procedureService->getProceduresWithEndedParticipation($internalWritePhaseKeys);
 
         $internalPhaseKey = 'evaluating';
         $internalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityInternal($internalPhaseKey);
@@ -871,20 +871,21 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
             $internalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityInternal($internalPhaseKey);
         }
 
+        /** @var Procedure $endedInternalProcedure */
         foreach ($endedInternalProcedures as $endedInternalProcedure) {
-            if (null !== $endedInternalProcedure['endDate']
-                && !$endedInternalProcedure['master'] && !$endedInternalProcedure['deleted']) {
-                $endedInternalProcedure['phase'] = $internalPhaseKey;
-                $endedInternalProcedure['phaseName'] = $internalPhaseName;
+            if (null !== $endedInternalProcedure->getEndDate()
+                && !$endedInternalProcedure->getMaster() && !$endedInternalProcedure->isDeleted()) {
+                $endedInternalProcedure->setPhaseKey($internalPhaseKey);
+                $endedInternalProcedure->setPhaseName($internalPhaseName);
 
-                $updatedProcedure = $this->procedureService->updateProcedure($endedInternalProcedure);
+                $updatedProcedure = $this->procedureService->updateProcedureObject($endedInternalProcedure);
                 $changedInternalProcedures->push($updatedProcedure);
             }
         }
 
         // external:
         $externalWritePhaseKeys = $this->getDemosplanConfig()->getExternalPhaseKeys('write');
-        $endedExternalProcedures = $this->procedureService->getProceduresWithEndedParticipation($externalWritePhaseKeys, false, true);
+        $endedExternalProcedures = $this->procedureService->getProceduresWithEndedParticipation($externalWritePhaseKeys, false);
 
         $externalPhaseKey = 'evaluating';
         $externalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityExternal($externalPhaseKey);
@@ -894,13 +895,14 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
             $externalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityExternal($externalPhaseKey);
         }
 
+        /** @var Procedure $endedExternalProcedure */
         foreach ($endedExternalProcedures as $endedExternalProcedure) {
-            if (null !== $endedExternalProcedure['publicParticipationEndDate']
-                && !$endedExternalProcedure['master'] && !$endedExternalProcedure['deleted']) {
-                $endedExternalProcedure['publicParticipationPhase'] = $externalPhaseKey;
-                $endedExternalProcedure['publicParticipationPhaseName'] = $externalPhaseName;
+            if (null !== $endedExternalProcedure->getPublicParticipationEndDate()
+                && !$endedExternalProcedure->getMaster() && !$endedExternalProcedure->isDeleted()) {
+                $endedExternalProcedure->setPublicParticipationPhase($externalPhaseKey);
+                $endedExternalProcedure->setPublicParticipationPhaseName($externalPhaseName);
 
-                $updatedProcedure = $this->procedureService->updateProcedure($endedExternalProcedure);
+                $updatedProcedure = $this->procedureService->updateProcedureObject($endedExternalProcedure);
                 $changedExternalProcedures->push($updatedProcedure);
             }
         }
@@ -909,7 +911,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         $this->getLogger()->info('Switched phases to evaluation of '.$changedInternalProcedures->count().' internal/toeb procedures.');
         $this->getLogger()->info('Switched phases to evaluation of '.$changedExternalProcedures->count().' external/public procedures.');
 
-        return $changedExternalProcedures->merge($changedInternalProcedures);
+        return $changedExternalProcedures->merge($changedInternalProcedures)->unique();
     }
 
     /**

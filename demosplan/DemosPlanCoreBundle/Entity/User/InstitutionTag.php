@@ -66,7 +66,7 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface, Institut
      *
      * @var Orga
      *
-     * @ORM\ManyToOne(targetEntity="Orga", inversedBy="ownInstitutionTags", cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", inversedBy="ownInstitutionTags", cascade={"persist"})
      *
      * @ORM\JoinColumn(referencedColumnName="_o_id", nullable=false)
      */
@@ -90,9 +90,9 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface, Institut
      */
     private $modificationDate;
 
-    public function __construct(string $title, Orga $owningOrganisation)
+    public function __construct(string $label, Orga $owningOrganisation)
     {
-        $this->label = $title;
+        $this->label = $label;
         $this->owningOrganisation = $owningOrganisation;
         $owningOrganisation->addOwnInstitutionTag($this);
         $this->taggedInstitutions = new ArrayCollection();

@@ -1,13 +1,23 @@
-<?php declare(strict_types=1);
+<?php
 
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
+use Stringable;
 
 /**
  * Used to store various information as string of (event) classes found in any directories.
  */
-class UnnamedEventMatch
+class UnnamedEventMatch implements Stringable
 {
     public function __construct(
         protected readonly string $filePath,
@@ -34,5 +44,4 @@ class UnnamedEventMatch
     {
         return $this->nameSpace;
     }
-
 }

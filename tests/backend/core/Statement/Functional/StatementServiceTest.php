@@ -12,6 +12,7 @@ namespace Tests\Core\Statement\Functional;
 
 use Carbon\Carbon;
 use Closure;
+use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -1281,5 +1282,12 @@ class StatementServiceTest extends FunctionalTestCase
             $emailAddressAnonymized = $testStatement->hasBeenSubmittedAndAuthoredByUnregisteredCitizen() && User::ANONYMOUS_USER_NAME === $testStatement->getAuthorName();
             self::assertSame($emailAddressNeedsToBeAnonymized, $emailAddressAnonymized, $key);
         }
+    }
+
+    public function testExternIds(): void
+    {
+        $procedure = $this->getProcedureReference(LoadProcedureData::TESTPROCEDURE);
+        $result = $this->sut->getExternIdsInUse($procedure->getId());
+        $this->assertCount(31, $result);
     }
 }

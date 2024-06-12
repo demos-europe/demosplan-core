@@ -15,7 +15,7 @@ use demosplan\DemosPlanCoreBundle\Twig\Extension\LatexExtension;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Tests\Base\UnitTestCase;
-use Twig_SimpleFilter;
+use Twig\TwigFilter;
 
 /**
  * Teste LatexExtension
@@ -47,10 +47,8 @@ class LatexExtensionTest extends UnitTestCase
     {
         $result = $this->sut->getFilters();
         static::assertTrue(is_array($result) && isset($result[0]));
-        static::assertTrue($result[0] instanceof Twig_SimpleFilter);
-        $callable = $result[0]->getCallable();
-        static::assertTrue('latexFilter' === $callable[1]);
-        static::assertTrue('latex' === $result[0]->getName());
+        static::assertInstanceOf(TwigFilter::class, $result[0]);
+        static::assertSame('latex', $result[0]->getName());
     }
 
     /**
@@ -433,8 +431,8 @@ class LatexExtensionTest extends UnitTestCase
 
     public function testKeyWordReplacement(): void
     {
-        $html = LatexExtension::HTMLTOREPLACE;
-        $latex = LatexExtension::REPLACEBYLATEX;
+        $html = array_keys(LatexExtension::HTML_TO_LATEX);
+        $latex = LatexExtension::HTML_TO_LATEX;
 
         self::assertCount(count($html), $latex);
 
@@ -452,5 +450,62 @@ class LatexExtensionTest extends UnitTestCase
         $partsExpectedToBeEqual = preg_replace($pattern, '', [$ul, $ol]);
         self::assertCount(2, $partsExpectedToBeEqual);
         self::assertSame($partsExpectedToBeEqual[0], $partsExpectedToBeEqual[1]);
+    }
+
+    public function testListWidthUlOl(): void
+    {
+        // Test the default list width value
+        $ul = $this->sut->latexFilter('<ul>');
+        $ol = $this->sut->latexFilter('<ol>');
+        self::assertStringContainsString('linewidth-7cm-', $ul);
+        self::assertStringContainsString('linewidth-7cm-', $ol);
+
+        // Test with custome list width
+        $ul = $this->sut->latexFilter('<ul>', 12);
+        $ol = $this->sut->latexFilter('<ol>', 12);
+        self::assertStringContainsString('linewidth-12cm-', $ul);
+        self::assertStringContainsString('linewidth-12cm-', $ol);
+        self::assertStringNotContainsString('linewidth-7cm-', $ul);
+        self::assertStringNotContainsString('linewidth-7cm-', $ol);
+    }
+
+    public function testStrikeTagReplacement(): void
+    {
+        $text = '<p>test</p><p></p><p><strong>bold</strong></p><p><em>kursiv</em></p><p><u>unterstrichen</u></p><p><s>durchgestrichen</s></p><p><mark title="markierter Text">markiert</mark></p><p><dp-obscure>geschwärzt</dp-obscure></p>';
+
+        self::assertStringContainsString('<s>', $text);
+        self::assertStringContainsString('</s>', $text);
+        self::assertStringNotContainsString('<del>', $text);
+        self::assertStringNotContainsString('</del>', $text);
+
+        $handledText = $this->sut->latexFilter($text);
+
+        self::assertStringContainsString('\sout{', $handledText);
+    }
+
+    public function testDeletionTagReplacement(): void
+    {
+        $text = '<p>test</p><p></p><p><strong>bold</strong></p><p><em>kursiv</em></p><p><u>unterstrichen</u></p><p><del>durchgestrichen</del></p><p><mark title="markierter Text">markiert</mark></p><p><dp-obscure>geschwärzt</dp-obscure></p>';
+
+        self::assertStringNotContainsString('<s>', $text);
+        self::assertStringNotContainsString('</s>', $text);
+        self::assertStringContainsString('<del>', $text);
+        self::assertStringContainsString('</del>', $text);
+
+        $handledText = $this->sut->latexFilter($text);
+
+        self::assertStringContainsString('\sout{', $handledText);
+    }
+
+    public function testHighlightTagReplacement(): void
+    {
+        $text = '<p><strong>bold</strong></p> <p><em>kursiv</em></p> <p><em><u>kusrivunterstrichen</u></em></p> <p><u>unterstrichen</u></p> <p><s>durchgestrichen</s></p> <p><mark title="markierter Text">markiert</mark></p> <p><mark title="markierter Text"><strong>boldmarkiert</strong></mark></p> <p><dp-obscure>geschwärzt</dp-obscure></p> ';
+
+        self::assertStringContainsString('<mark title="markierter Text">', $text);
+        self::assertStringContainsString('</mark>', $text);
+
+        $handledText = $this->sut->latexFilter($text);
+
+        self::assertStringContainsString('\colorbox{yellow}{', $handledText);
     }
 }

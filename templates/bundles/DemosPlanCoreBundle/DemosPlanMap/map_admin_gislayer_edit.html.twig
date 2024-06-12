@@ -15,6 +15,7 @@
 
             <input type="hidden" value="{{ gislayer.ident|default() }}" name="r_ident">
             <input type="hidden" value="{{ isGlobalLayer == true ? '1' : '0' }}" name="r_isGlobalLayer">
+            {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
             {% if isGlobalLayer %}
 
@@ -38,8 +39,13 @@
                 </p>
                 <div class="u-mb-0_5">
                     {% if gislayer.legend is defined and gislayer.legend != '' %}
+                        {#
+                            global gis layer can use core_file_procedure as check for procedure
+                            is automatically skipped, when no procedure is saved at the file.
+                            It is better to use core_file_procedure here as it checks the procedure permissions and declines the access to the file via this route.
+                        #}
                         <a
-                            href="{{ path("core_file", { 'hash': gislayer.legend|getFile('hash') }) }}"
+                            href="{{ path("core_file_procedure", { 'hash': gislayer.legend|getFile('hash'), 'procedureId': procedure }) }}"
                             target="_blank"
                             rel="noopener">
                             <i class="fa fa-file-o"></i>
@@ -157,7 +163,7 @@
                         </p>
                         <div class="u-mb-0_5">
                             <a
-                                href="{{ path("core_file", { 'hash': gislayer.legend|getFile('hash') }) }}"
+                                href="{{ path("core_file_procedure", { 'hash': gislayer.legend|getFile('hash'), 'procedureId': procedure }) }}"
                                 target="_blank"
                                 rel="noopener">
                                 <i class="fa fa-file-o"></i>
@@ -196,7 +202,7 @@
                 elements: [
                     {
                         label: { text: 'opacity.percent'|trans },
-                        control: { name: 'r_opacity', value: gislayer.opacity|default(100), pattern: "^\\d{1,2}?([.|,]\\d{1,2})?$|^100$", size: 'tiny' },
+                        control: { name: 'r_opacity', value: gislayer.opacity|default(100), pattern: "^\\d{1,2}?([\\.,]\\d{1,2})?$|^100$", size: 'tiny' },
                         id: 'r_opacity',
                         type: 'text',
                         required: true
@@ -227,7 +233,7 @@
                 {{ "explanation.gislayer.print"|trans }}
                 {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                     helpText: 'explanation.gislayer.print.help'|trans,
-                    cssClasses:'o-tooltip--question-circle float-right u-mt-0_125'
+                    cssClasses:'float-right u-mt-0_125'
                 } %}
             </label>
 
@@ -250,6 +256,7 @@
 
             <label class="u-mb-0_5">
                 <input
+                    id="user_toggle_visibility"
                     type="checkbox"
                     name="r_user_toggle_visibility"
                     value="1"

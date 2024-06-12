@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Command\Helpers\Helpers;
+use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -45,7 +46,7 @@ class RegisterUserForCustomerCommand extends CoreCommand
         ParameterBagInterface $parameterBag,
         private readonly RoleRepository $roleRepository,
         private readonly UserRepository $userRepository,
-        string $name = null
+        ?string $name = null
     ) {
         parent::__construct($parameterBag, $name);
         $this->helper = new QuestionHelper();
@@ -60,7 +61,7 @@ class RegisterUserForCustomerCommand extends CoreCommand
             return Command::FAILURE;
         }
         $customer = $this->helpers->askCustomer($input, $output);
-        $roles = $this->helpers->askRoles($input, $output);
+        $roles = $this->helpers->askRoles($input, $output, $this->parameterBag->get('roles_allowed'));
 
         try {
             // add user to customer
@@ -71,7 +72,7 @@ class RegisterUserForCustomerCommand extends CoreCommand
             $orga = $userToRegister->getOrga();
             $orgaTypes = $this->getOrgaTypesByRoles($roles);
             foreach ($orgaTypes as $orgaType) {
-                $orga->addCustomerAndOrgaType($customer, $orgaType);
+                $orga->addCustomerAndOrgaType($customer, $orgaType, OrgaStatusInCustomer::STATUS_ACCEPTED);
             }
             $this->orgaRepository->updateObject($orga);
 

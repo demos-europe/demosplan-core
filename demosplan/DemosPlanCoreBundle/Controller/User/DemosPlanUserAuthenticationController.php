@@ -32,6 +32,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
@@ -158,13 +159,20 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_user_password_recover', path: '/password/recover', options: ['expose' => true])]
-    public function recoverPasswordAction(Request $request)
+    public function recoverPasswordAction(RateLimiterFactory $userRegisterLimiter, Request $request)
     {
         $requestPost = $request->request;
 
         if ($requestPost->has('email')) {
             $email = $requestPost->get('email');
             if (is_string($email)) {
+                // avoid brute force attacks
+                $limiter = $userRegisterLimiter->create($request->getClientIp());
+                if (false === $limiter->consume()->isAccepted()) {
+                    $this->messageBag->add('warning', 'warning.user.pass.reset.throttle');
+
+                    return $this->redirectToRoute('core_home');
+                }
                 $this->userHandler->recoverPasswordHandler($email);
             }
         }
@@ -227,6 +235,9 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         }
 
         $users = [];
+        $currentCustomer = $customerService->getCurrentCustomer()->getSubdomain();
+        $availableCustomers = $customerService->getReservedCustomerNamesAndSubdomains();
+        $customers = array_map(static fn(array $availableCustomer): string => $availableCustomer[1], $availableCustomers);
         $usersOsi = [];
         $customerKey = $customerService->getCurrentCustomer()->getSubdomain();
         $useIdp = false;
@@ -268,6 +279,8 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
             [
                 'title'     => 'user.login',
                 'useSaml'   => $useSaml,
+                'customers' => $customers,
+                'currentCustomer' => $currentCustomer,
                 'loginList' => [
                     'enabled'  => 0 < count($users) || 0 < count($usersOsi),
                     'useIdp'   => $useIdp,
@@ -279,48 +292,12 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     }
 
     /**
-     * Ausloggen.
-     *
-     * Ausloggen bedeutet, dass ein Redirect auf die Homepage durchgeführt wird und bei diesem Response gleich
-     * noch der Cookie mit dem ident-Code entwertet wird.
-     *
-     * @DplanPermissions("area_demosplan")
-     *
-     * @param bool $toGateway
-     *
-     * @throws Exception
+     * Logout via security system.
      */
     #[Route(name: 'DemosPlan_user_logout', path: '/user/logout')]
-    #[Route(name: 'DemosPlan_user_logout_gateway', path: '/user/logout/gateway', defaults: ['toGateway' => true])]
-    public function logoutAction(
-        ParameterBagInterface $parameterBag,
-        PermissionsInterface $permissions,
-        Request $request,
-        SessionHandler $sessionHandler,
-        $toGateway = false): RedirectResponse
+    public function logoutAction(): void
     {
-        // let SAML handle logout when defined. It does no harm when user is logged in locally
-        if ('' !== $parameterBag->get('saml_idp_slo_url')) {
-            return $this->redirectToRoute('saml_logout');
-        }
-
-        $sessionHandler->logoutUser($request);
-        $response = $this->redirectToRoute('core_home');
-
-        if ($permissions->hasPermission('feature_has_logout_landing_page')) {
-            $response = $this->redirectToRoute('DemosPlan_user_logout_success');
-        }
-
-        if ($toGateway) {
-            $response = $this->redirect($this->globalConfig->getGatewayURL());
-        }
-
-        // clear dplan Cookies
-        foreach ($this->allowedCookieNames as $cookieName) {
-            $response->headers->clearCookie($cookieName);
-        }
-
-        return $response;
+        // special cases are handled by the LogoutSubscriber
     }
 
     /**

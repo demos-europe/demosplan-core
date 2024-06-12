@@ -467,7 +467,7 @@
                                             title="{{ source_stn.file.name|default('original.pdf'|trans) }}"
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            href="{{ path("core_file", { 'hash': source_stn.file.hash|default }) }}">
+                                            href="{{ path("core_file_procedure", { 'hash': source_stn.file.hash|default, 'procedureId': procedure  }) }}">
                                             {{ source_stn.file.name|default('original.pdf'|trans) }}
                                         </a>
                                     {% endif %}
@@ -502,14 +502,14 @@
                     </div>
                     <span class="layout__item u-5-of-8" id="statementText">
                         {% set statementTextHeightShortened = statement.text|default("notspecified"|trans)|heightLimitShorten %}
-                        <dp-height-limit
+                        <height-limit
                             short-text="{{ statementTextHeightShortened|default("notspecified"|trans) }}"
                             full-text="{{ statement.text|default("notspecified"|trans) }}"
                             :is-shortened="{{ statementTextHeightShortened|length }} < {{ statement.text|length }}"
                             element="statement"
                             no-event
                             class="c-styled-html u-mr"
-                        ></dp-height-limit>
+                        ></height-limit>
                     </span>
                     {% endapply -%}
                 </div>

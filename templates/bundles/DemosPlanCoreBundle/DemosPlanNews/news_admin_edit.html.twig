@@ -55,6 +55,7 @@
         novalidate>
         <input name="action" type="hidden" value="newsedit">
         <input name="r_ident" type="hidden" value="{% if news.ident is defined %}{{ news.ident }}{% endif %}">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         {% set currentState = '0' %}
         {% set defaultNewState = '1' %}
@@ -250,24 +251,7 @@
                     linkButton: true
                 }"
                 value="{{ news.text }}">
-                <template v-slot:modal="modalProps">
-                    <dp-boiler-plate-modal
-                        ref="boilerPlateModal"
-                        boiler-plate-type="news.notes"
-                        editor-id="newsText"
-                        procedure-id="{{ procedure }}"
-                        @insert="text => modalProps.handleInsertText(text)">
-                    </dp-boiler-plate-modal>
-                </template>
-                <template v-slot:button>
-                    <button
-                        class="{{ 'menubar__button'|prefixClass }}"
-                        type="button"
-                        v-tooltip="'{{ 'boilerplate.insert'|trans }})'"
-                        @click.stop="$refs.boilerPlateModal.toggleModal()">
-                        <i class="{{ 'fa fa-puzzle-piece'|prefixClass }}"></i>
-                    </button>
-                </template>
+                {% include '@DemosPlanCore/DemosPlanNews/includes/news_editor_boilerplate_modal.html.twig' %}
             </dp-editor>
         </div>
 
@@ -342,7 +326,7 @@
                     class="o-hellip break-words u-mb-0_25"
                     target="_blank"
                     rel="noopener"
-                    href="{{ path("core_file", { 'hash': news.pdf|getFile('hash') }) }}">
+                    href="{{ path("core_file_procedure", { 'procedureId': procedure, 'hash': news.pdf|getFile('hash') }) }}">
                     <i class="fa fa-file-o"></i>
                     {{ news.pdftitle|default(news.pdf|getFile('name')) }}
                     {% if ( news.pdf|getFile('size')|length > 0 or news.pdf|getFile('mimeType')|length > 0 ) %}
@@ -383,7 +367,7 @@
         {% endif %}
 
         {{ uiComponent('button-row', {
-            primary: uiComponent('button', {type: 'submit'}),
+            primary: uiComponent('button', {type: 'submit', attributes: ['data-cy=saveNews']}),
             secondary: uiComponent('button', {color: 'secondary', href: cancelPath, attributes: ['data-cy=saveChangesMessage']})
         }) }}
     </form>

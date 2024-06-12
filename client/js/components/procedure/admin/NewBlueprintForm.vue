@@ -26,6 +26,10 @@
       type="hidden"
       name="r_master"
       value="true">
+    <input
+      name="_token"
+      type="hidden"
+      :value="csrfToken">
 
     <fieldset>
       <legend
@@ -188,6 +192,11 @@ export default {
       default: () => []
     },
 
+    csrfToken: {
+      type: String,
+      required: true
+    },
+
     initEmailAddresses: {
       type: Array,
       default: () => []
@@ -247,7 +256,7 @@ export default {
         },
         include: 'agencyExtraEmailAddresses'
       }
-      return dpApi.get(url, params, { serialize: true })
+      return dpApi.get(url, params)
         .then(({ data }) => {
           this.isLoading = false
           return {

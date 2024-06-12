@@ -10,9 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Exception\AssessmentTableZipExportException;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidPostParameterTypeException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingPostParameterException;
@@ -45,24 +47,41 @@ class DemosPlanAssessmentExportController extends BaseController
      *
      * @DplanPermissions("area_admin_assessmenttable")
      *
-     * @return Response
-     *
      * @throws Exception
      */
-    #[Route(name: 'DemosPlan_assessment_table_export', methods: ['POST', 'GET'], path: '/verfahren/abwaegung/export/{procedureId}', options: ['expose' => true])]
-    #[Route(name: 'DemosPlan_assessment_table_original_export', path: '/verfahren/abwaegung/original/export/{procedureId}', defaults: ['original' => true], options: ['expose' => true])]
+    #[Route(
+        path: '/verfahren/abwaegung/export/{procedureId}',
+        name: 'DemosPlan_assessment_table_export',
+        options: ['expose' => true],
+        methods: ['POST', 'GET']
+    )]
+    #[Route(path: '/verfahren/abwaegung/original/export/{procedureId}',
+        name: 'DemosPlan_assessment_table_original_export',
+        options: ['expose' => true],
+        defaults: ['original' => true]
+    )]
     public function exportAction(
         Request $request,
         AssessmentTableExporterStrategy $assessmentExporter,
         FileResponseGeneratorStrategy $responseGenerator,
+        PermissionsInterface $permissions,
         string $procedureId,
-        bool $original = false): ?Response
-    {
-        $exportParameters = $this->getExportParameters($request, $procedureId, $original);
+        bool $original = false
+    ): ?Response {
         $exportFormat = $request->request->get('r_export_format');
+        // in case that only docx in elements view mode should be exportable override the view mode
+        if ('docx' === $exportFormat && $permissions->hasPermission('feature_export_docx_elements_view_mode_only')) {
+            $request->request->set('r_view_mode', AssessmentTableViewMode::ELEMENTS_VIEW);
+        }
+        $exportParameters = $this->getExportParameters($request, $procedureId, $original);
         try {
             $file = $assessmentExporter->export($exportFormat, $exportParameters);
+
             $response = $responseGenerator($exportFormat, $file);
+        } catch (AssessmentTableZipExportException $e) {
+            $this->getMessageBag()->add($e->getLevel(), $e->getUserMsg());
+
+            return $this->redirectBack($request);
         } catch (DemosException $e) {
             $this->getMessageBag()->add('warning', $e->getUserMsg());
 

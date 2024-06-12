@@ -13,7 +13,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Exception\AssessmentExportOptionsException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use Illuminate\Contracts\Support\Jsonable;
 use JsonSerializable;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Yaml\Yaml;
@@ -31,7 +30,7 @@ use Tightenco\Collect\Support\Collection;
  * and can be overriden in the project's statement bundle in a similar way to the existing
  * override mechanisms.
  */
-class AssessmentExportOptions implements JsonSerializable, Jsonable
+class AssessmentExportOptions implements JsonSerializable
 {
     /**
      * @var TranslatorInterface
@@ -60,6 +59,7 @@ class AssessmentExportOptions implements JsonSerializable, Jsonable
         'docx',
         'pdf',
         'xlsx',
+        'zip',
     ];
 
     /**
@@ -103,7 +103,7 @@ class AssessmentExportOptions implements JsonSerializable, Jsonable
 
             $optionsFiles[] = DemosPlanPath::getConfigPath('statement/assessment_export_options.yml');
 
-            $optionsYaml = collect($optionsFiles)->map(static fn($filename) => file_exists($filename) ? file_get_contents($filename) : null)->filter(static fn($yaml) => null !== $yaml && is_string($yaml))->all();
+            $optionsYaml = collect($optionsFiles)->map(static fn ($filename) => file_exists($filename) ? file_get_contents($filename) : null)->filter(static fn ($yaml) => null !== $yaml && is_string($yaml))->all();
 
             $coreOptions = [];
             $projectOptions = [];

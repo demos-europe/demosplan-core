@@ -10,13 +10,15 @@
 <template>
   <div
     ref="statementSegment"
-    class="border-radius segment-list-row"
-    :class="{'segment-list-row--assigned': isAssignedToMe, 'fullscreen': isFullscreen}"
+    class="segment-list-row"
+    :class="{'segment-list-row--assigned': isAssignedToMe, 'fullscreen': isFullscreen, 'rounded-lg': !isFullscreen}"
     @mouseenter="isHover = true"
     @mouseleave="isHover = false"
-    :id="'segment_' + segment.id">
+    :id="`segment_${segment.id}`">
     <div class="flex flex-col justify-start basis-1/5 u-pt-0_5 u-pl-0_5">
-      <v-popover :container="$refs.statementSegment">
+      <v-popover
+        :container="$refs.statementSegment"
+        trigger="hover focus">
         <i
           class="fa fa-hashtag color--grey-light"
           :class="{'color--grey-dark': isAssignedToMe || isHover}"
@@ -109,6 +111,7 @@
           @input="value => updateSegment('recommendation', value)">
           <template v-slot:modal="modalProps">
             <dp-boiler-plate-modal
+              v-if="hasPermission('area_admin_boilerplates')"
               ref="boilerPlateModal"
               boiler-plate-type="consideration"
               editor-id="recommendationText"
@@ -118,7 +121,7 @@
               ref="recommendationModal"
               class="recommendation-modal"
               content-classes="u-2-of-3">
-              <div class="flex width-100p">
+              <div class="flex w-full">
                 <h3 class="u-mb">
                   {{ Translator.trans('segment.recommendation.insert.similar') }}
                 </h3>
@@ -130,7 +133,7 @@
                   :text="Translator.trans('segment.oracle.tooltip')" />
                 <dp-badge
                   v-if="activeId === 'oracleRec'"
-                  class="absolute u-right-0 u-mr-0_75"
+                  class="absolute right-4"
                   size="smaller"
                   :text="Translator.trans('segment.oracle.beta')"
                   v-tooltip="Translator.trans('segment.oracle.beta.tooltip')" />
@@ -158,6 +161,7 @@
           </template>
           <template v-slot:button>
             <button
+              v-if="hasPermission('area_admin_boilerplates')"
               :class="prefixClass('menubar__button')"
               type="button"
               v-tooltip="Translator.trans('boilerplate.insert')"
@@ -237,7 +241,7 @@
           data-cy="editorFullscreen"
           :aria-label="Translator.trans('editor.fullscreen')"
           v-tooltip="{
-            container: this.$refs.statementSegment,
+            container: `#segment_${segment.id}`,
             content: Translator.trans('editor.fullscreen')
           }"
           @click="isFullscreen = !isFullscreen">
@@ -253,7 +257,7 @@
           data-cy="segmentEdit"
           :aria-label="Translator.trans('edit')"
           v-tooltip="{
-            container: this.$refs.statementSegment,
+            container: `#segment_${segment.id}`,
             content: Translator.trans('edit')
           }"
           @click="startEditing">
@@ -268,7 +272,7 @@
           type="button"
           :aria-label="Translator.trans('history')"
           v-tooltip="{
-            container: this.$refs.statementSegment,
+            container: `#segment_${segment.id}`,
             content: Translator.trans('history')
           }"
           @click.prevent="showSegmentVersionHistory"
@@ -285,7 +289,7 @@
           type="button"
           :aria-label="Translator.trans('comments')"
           v-tooltip="{
-            container: this.$refs.statementSegment,
+            container: `#segment_${segment.id}`,
             content: Translator.trans('comments')
           }"
           data-cy="segmentComments"
@@ -306,7 +310,7 @@
           type="button"
           :aria-label="Translator.trans('public.participation.relation')"
           v-tooltip="{
-            container: this.$refs.statementSegment,
+            container: `#segment_${segment.id}`,
             content: Translator.trans('public.participation.relation')
           }"
           data-cy="segmentMap"
@@ -462,7 +466,7 @@ export default {
       if (this.segment?.relationships?.assignee?.data?.id && this.segment.relationships.assignee.data.id !== '') {
         const assignee = this.assignableUserItems[this.segment.relationships.assignee.data.id]
         const name = `${assignee.attributes.firstname} ${assignee.attributes.lastname}`
-        const orga = assignee ? Object.values(assignee.rel('orga'))[0] : ''
+        const orga = assignee ? assignee.rel('orga') : ''
 
         return { id: this.segment.relationships.assignee.data.id, name: name, orgaName: orga ? orga.attributes.name : '' }
       } else {
@@ -569,7 +573,7 @@ export default {
           }
         }
       }
-      this.setSegment({ ...dataToUpdate, id: this.segment.id, group: null })
+      this.setSegment({ ...dataToUpdate, id: this.segment.id })
 
       const payload = {
         data: {
@@ -610,7 +614,9 @@ export default {
     },
 
     openBoilerPlate () {
-      this.$refs.boilerPlateModal.toggleModal()
+      if (hasPermission('area_admin_boilerplates')) {
+        this.$refs.boilerPlateModal.toggleModal()
+      }
     },
 
     /**
@@ -633,7 +639,7 @@ export default {
             comments: comments
           }
         }
-        this.setSegment({ ...segmentWithComments, id: this.segment.id, group: null })
+        this.setSegment({ ...segmentWithComments, id: this.segment.id })
       }
     },
 
@@ -764,7 +770,7 @@ export default {
           // Reset recommendation text in store (segment might have been in edit mode with some changes)
           dataToUpdate.attributes.recommendation = this.$store.state.statementSegment.initial[this.segment.id].attributes.recommendation
           // Set segment in store, without the assignee and with resetted recommendation
-          this.setSegment({ ...dataToUpdate, id: this.segment.id, group: null })
+          this.setSegment({ ...dataToUpdate, id: this.segment.id })
           this.claimLoading = false
           this.selectedAssignee = { id: '', name: '' }
         })
@@ -818,12 +824,12 @@ export default {
         relationships: relations
       }
 
-      this.setSegment({ ...updated, id: this.segment.id, group: null })
+      this.setSegment({ ...updated, id: this.segment.id })
     },
 
     updateSegment (key, val) {
       const updated = { ...this.segment, ...{ attributes: { ...this.segment.attributes, ...{ [key]: val } } } }
-      this.setSegment({ ...updated, id: this.segment.id, group: null })
+      this.setSegment({ ...updated, id: this.segment.id })
     }
   },
 
@@ -848,12 +854,15 @@ export default {
 
     loadAddonComponents('segment.recommendationModal.tab')
       .then(response => {
-        this.asyncComponents = response
-        this.allComponentsLoaded = true
+        if (response.length > 0) {
+          this.asyncComponents = response
+          this.activeId = response[0].options.id || ''
+          this.allComponentsLoaded = true
 
-        response.forEach(component => {
-          this.$options.components[component.name] = window[component.name].default
-        })
+          response.forEach(component => {
+            this.$options.components[component.name] = window[component.name].default
+          })
+        }
       })
   }
 }

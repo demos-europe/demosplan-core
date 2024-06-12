@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<Municipality>
@@ -56,12 +55,12 @@ final class MunicipalityResourceType extends DplanResourceType
         return $this->currentUser->hasPermission('field_statement_municipality');
     }
 
-    public function isReferencable(): bool
+    public function isGetAllowed(): bool
     {
-        return true;
+        return false;
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isListAllowed(): bool
     {
         return false;
     }
@@ -74,9 +73,9 @@ final class MunicipalityResourceType extends DplanResourceType
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true),
+            $this->createIdentifier()->readable(),
             // @improve T22478
-            $this->createAttribute($this->name)->readable(true, static fn(Municipality $municipality): string => $municipality->getName()),
+            $this->createAttribute($this->name)->readable(true, static fn (Municipality $municipality): string => $municipality->getName()),
         ];
     }
 }

@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
@@ -28,6 +29,9 @@ use Exception;
 
 use function array_key_exists;
 
+/**
+ * @template-extends FluentRepository<Paragraph>
+ */
 class ParagraphRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
     /**
@@ -456,8 +460,6 @@ class ParagraphRepository extends FluentRepository implements ArrayInterface, Ob
 
     /**
      * @param Paragraph $entity
-     *
-     * @return bool
      */
     public function deleteObject($entity): never
     {

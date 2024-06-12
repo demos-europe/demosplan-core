@@ -52,6 +52,8 @@ class MigrateCommand extends CoreCommand
         $commands = [
             "dplan:migrations:cache --env={$env}",
             "doctrine:migrations:sync-metadata-storage {$db} --env={$env}",
+            // delete migration named "on" that was created by initial database creation
+            "doctrine:migrations:version on --delete {$db} --env={$env} ",
         ];
 
         $migrationsConfigurationPath = DemosPlanPath::getProjectPath('app/config/project_migrations.yml');

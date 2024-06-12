@@ -9,6 +9,102 @@
 
 export const VuexApiRoutes = [
   {
+    module: 'branding',
+    action: 'list',
+    url: '/2.0/Branding'
+  },
+  {
+    module: 'branding',
+    action: 'update',
+    url: '/2.0/Branding/{id}',
+    parameters: [
+      'id'
+    ]
+  },
+  {
+    module: 'customer',
+    action: 'create',
+    url: '/2.0/Customer'
+  },
+  {
+    module: 'customer',
+    action: 'list',
+    url: '/2.0/Customer'
+  },
+  {
+    module: 'customer',
+    action: 'delete',
+    url: '/2.0/Customer/{id}',
+    parameters: [
+      'id'
+    ]
+  },
+  {
+    module: 'customer',
+    action: 'update',
+    url: '/2.0/Customer/{id}',
+    parameters: [
+      'id'
+    ]
+  },
+  {
+    module: 'customerContact',
+    action: 'create',
+    url: '/2.0/CustomerContact'
+  },
+  {
+    module: 'customerContact',
+    action: 'delete',
+    url: '/2.0/CustomerContact/{id}',
+    parameters: [
+      'id'
+    ]
+  },
+  {
+    module: 'customerContact',
+    action: 'list',
+    url: '/2.0/CustomerContact'
+  },
+  {
+    module: 'customerContact',
+    action: 'update',
+    url: '/2.0/CustomerContact/{id}',
+    parameters: [
+      'id'
+    ]
+  },
+  {
+    module: 'customerLoginSupportContact',
+    action: 'create',
+    url: '/2.0/CustomerLoginSupportContact'
+  },
+  {
+    module: 'customerLoginSupportContact',
+    action: 'delete',
+    url: '/2.0/CustomerLoginSupportContact/{id}',
+    parameters: [
+      'id'
+    ]
+  },
+  {
+    module: 'customerLoginSupportContact',
+    action: 'list',
+    url: '/2.0/CustomerLoginSupportContact'
+  },
+  {
+    module: 'customerLoginSupportContact',
+    action: 'update',
+    url: '/2.0/CustomerLoginSupportContact/{id}',
+    parameters: [
+      'id'
+    ]
+  },
+  {
+    module: 'file',
+    action: 'list',
+    url: '/2.0/File'
+  },
+  {
     module: 'report',
     action: 'list',
     url: '/1.0/reports/{procedureId}/{group}',
@@ -121,10 +217,7 @@ export const VuexApiRoutes = [
   {
     module: 'invitableToeb',
     action: 'list',
-    url: '/1.0/procedure/{procedureId}/InvitableToeb',
-    parameters: [
-      'procedureId'
-    ]
+    url: '/2.0/InvitableToeb'
   },
   {
     module: 'invitableInstitution',

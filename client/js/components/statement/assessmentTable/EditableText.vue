@@ -78,7 +78,7 @@
       class="relative u-pr"
       v-else>
       <template v-if="shortText !== ''">
-        <dp-height-limit
+        <height-limit
           class="c-styled-html"
           :short-text="shortText"
           :full-text="fullText"
@@ -117,9 +117,10 @@
 </template>
 
 <script>
-import { dpApi, DpButton, DpHeightLimit, DpLoading, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpLoading, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { Base64 } from 'js-base64'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
+import HeightLimit from '@DpJs/components/statement/HeightLimit'
 
 export default {
   name: 'EditableText',
@@ -127,7 +128,7 @@ export default {
   components: {
     DpBoilerPlateModal,
     DpButton,
-    DpHeightLimit,
+    HeightLimit,
     DpLoading,
     DpEditor: async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
@@ -254,7 +255,9 @@ export default {
 
   methods: {
     openBoilerPlate () {
-      this.$refs.boilerPlateModal.toggleModal()
+      if (hasPermission('area_admin_boilerplates')) {
+        this.$refs.boilerPlateModal.toggleModal()
+      }
     },
 
     reset () {
@@ -329,7 +332,9 @@ export default {
        *
        */
       dpApi.get(
-        Routing.generate(this.fullTextFetchRoute, { statementId: this.entityId }), params
+        Routing.generate(this.fullTextFetchRoute, { statementId: this.entityId }),
+        params,
+        { serialize: true }
       ).then(response => {
         this.fullTextLoaded = true
 

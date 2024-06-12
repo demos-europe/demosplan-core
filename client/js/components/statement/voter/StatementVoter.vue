@@ -119,6 +119,7 @@
             <div>
               <dp-radio
                 id="role_0"
+                data-cy="statementVoter:roleCitizen"
                 :label="{
                   text: Translator.trans('role.citizen')
                 }"
@@ -127,6 +128,7 @@
                 @change="formFields.role = 0" />
               <dp-radio
                 id="role_1"
+                data-cy="statementVoter:invitableInstitution"
                 :label="{
                   text: Translator.trans('invitable_institution')
                 }"
@@ -141,6 +143,7 @@
               <dp-input
                 v-show="hasPermission('field_statement_meta_orga_name')"
                 id="voter_publicagency"
+                data-cy="voterPublicAgency"
                 v-model="formFields.organisationName"
                 class="layout__item u-1-of-2"
                 :label="{
@@ -149,6 +152,7 @@
            --><dp-input
                 v-show="hasPermission('field_statement_meta_orga_department_name')"
                 id="voter_department"
+                data-cy="voterDepartment"
                 v-model="formFields.departmentName"
                 class="layout__item u-1-of-2"
                 :label="{
@@ -160,6 +164,7 @@
               <dp-input
                 v-if="hasPermission('field_statement_meta_submit_name')"
                 id="voter_username"
+                data-cy="voterUsername"
                 v-model="formFields.userName"
                 class="layout__item u-1-of-2"
                 :label="{
@@ -168,6 +173,7 @@
            --><dp-input
                 v-if="hasPermission('field_statement_meta_email')"
                 id="voter_email"
+                data-cy="voterEmail"
                 v-model="formFields.userMail"
                 class="layout__item u-1-of-2"
                 :label="{
@@ -180,6 +186,7 @@
               <dp-input
                 v-if="hasPermission('field_statement_meta_postal_code')"
                 id="voter_postalcode"
+                data-cy="voterPostalCode"
                 v-model="formFields.userPostcode"
                 class="layout__item u-1-of-8"
                 :label="{
@@ -189,6 +196,7 @@
            --><dp-input
                 v-if="hasPermission('field_statement_meta_city')"
                 id="voter_city"
+                data-cy="voterCity"
                 v-model="formFields.userCity"
                 :class="hasPermission('field_statement_meta_postal_code') ? 'layout__item u-3-of-8' : 'layout__item'"
                 :label="{
@@ -208,6 +216,7 @@
           <input
             id="r_voters_anonym"
             name="r_voters_anonym"
+            data-cy="votersAnonym"
             class="layout__item text-center align-baseline o-form__control-input u-3-of-12 u-mr-0_125"
             :disabled="('1' === readonly)"
             type="number"

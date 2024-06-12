@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
+use DemosEurope\DemosplanAddon\Contracts\Services\ParagraphServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -25,7 +26,7 @@ use Doctrine\ORM\ORMException;
 use Exception;
 use ReflectionException;
 
-class ParagraphService extends CoreService
+class ParagraphService extends CoreService implements ParagraphServiceInterface
 {
     public function __construct(
         private readonly DateHelper $dateHelper,

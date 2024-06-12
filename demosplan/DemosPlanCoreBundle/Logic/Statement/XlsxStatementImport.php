@@ -12,15 +12,14 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
-use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualOriginalStatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Statement\StatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
+use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
 use demosplan\DemosPlanCoreBundle\Exception\RowAwareViolationsException;
 use demosplan\DemosPlanCoreBundle\Exception\UnexpectedWorksheetNameException;
-use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\ExcelImporter;
-use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
+use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\AbstractStatementSpreadsheetImporter;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Doctrine\DBAL\ConnectionException;
@@ -32,46 +31,39 @@ use Symfony\Component\Finder\SplFileInfo;
 class XlsxStatementImport
 {
     /**
-     * @var LoggerInterface
+     * @var list<Statement>
      */
-    protected $logger;
-
-    /**
-     * @var array
-     */
-    private $createdStatements;
+    private $createdStatements = [];
 
     public function __construct(
-        private readonly CurrentUserInterface $currentUser,
         private readonly EventDispatcherPostInterface $eventDispatcher,
-        private readonly ExcelImporter $xlsxStatementImporter,
-        LoggerInterface $logger,
+        private readonly AbstractStatementSpreadsheetImporter $xlsxStatementImporter,
+        protected readonly LoggerInterface $logger,
         private readonly StatementRepository $statementRepository,
         private readonly StatementService $statementService,
         private readonly EntityManagerInterface $entityManager,
-        private readonly Permissions $permissions
     ) {
-        $this->logger = $logger;
-        $this->createdStatements = [];
     }
 
     /**
      * Import statements from excel document, which is located in the given FileInfo.
      * The extracted statements will be validated, persisted and indexed.
-     * Also report-entries will be generated and the StatementCreatedEvent dispatched.
-     * In case of an occurring error on generating the statements, the process will continued to getting all
+     * Also, report-entries will be generated and the StatementCreatedEvent dispatched.
+     * In case of an occurring error on generating the statements, the process will continue to get all
      * invalid cases and therefore allow to return collection of errors.
      * The generated Statements will only be persisted, if the document was processed without an error.
      *
      * @param FileInfo $file Hands over basic information about the file
      *
-     * @throws Exception
      * @throws RowAwareViolationsException
-     * @throws ConnectionException|UnexpectedWorksheetNameException
+     * @throws ConnectionException
+     * @throws \Doctrine\DBAL\Driver\Exception
+     * @throws MissingDataException
+     * @throws UnexpectedWorksheetNameException
+     * @throws Exception
      */
-    public function importFromFile(FileInfo $file): void
+    public function importFromFile(SplFileInfo $fileInfo): void
     {
-        $fileInfo = new SplFileInfo($file->getAbsolutePath(), '', $file->getHash());
         $this->createdStatements = [];
 
         // allow to rollback all in case of error
@@ -88,9 +80,8 @@ class XlsxStatementImport
             }
 
             foreach ($generatedStatements as $statement) {
-                $this->statementRepository->addObject($statement);
-
                 try {
+                    $this->statementRepository->addObject($statement);
                     $statementArray = $this->statementService->convertToLegacy($statement);
                     $this->statementService->addReportNewStatement($statementArray);
                 } catch (Exception $exception) {
@@ -127,10 +118,18 @@ class XlsxStatementImport
     }
 
     /**
-     * @return array<int, array>
+     * @return list<array{id: int, currentWorksheet: string, lineNumber: int, message: string}>
      */
     public function getErrorsAsArray(): array
     {
         return $this->xlsxStatementImporter->getErrorsAsArray();
+    }
+
+    /**
+     * @return array<non-empty-string, int<0, max>>
+     */
+    public function getSkippedStatements(): array
+    {
+        return $this->xlsxStatementImporter->getSkippedStatements();
     }
 }

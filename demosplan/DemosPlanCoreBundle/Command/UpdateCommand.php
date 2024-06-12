@@ -141,6 +141,7 @@ EOT
         $this->removeCacheData($output, $fs, 'prod');
 
         $fs->remove(DemosPlanPath::getConfigPath('config_dev_container'));
+        $fs->remove(DemosPlanPath::getConfigPath('config_dev_container_services'));
 
         if ($isDeployment) {
             // delete files not suitable for deployment

@@ -9,7 +9,7 @@
 
 {# set login url - override in bobhh which treats users from intranet differently #}
 {% block login_path %}
-    {{ setStaticVariable('login_path', gatewayURL) }}
+    {{ setLoginPath(gatewayURL) }}
 {% endblock login_path %}
 
 {% import "@DemosPlanCore/macros.html.twig" as partial %}
@@ -81,7 +81,7 @@
             <main id="mainContent" class="o-page__main layout bg-color--white relative">
 
                 {% block maincontent_section %}
-                    <section id="jumpContent" class="o-page__content layout__item relative" role="main">
+                    <section id="jumpContent" class="o-page__content layout__item relative pb-4" role="main">
 
                         {% block breadcrumb %}
                             <div class="flex items-center justify-between u-pv-0_25">
@@ -109,7 +109,7 @@
                         {# Name of procedure #}
                         <div class="flow-root border--top">
                             {% if proceduresettings.name|default != '' %}
-                                <span class="o-hellip--nowrap color--grey inline-block u-pt-0_5 u-mb-0_25 u-pr-2">
+                                <span class="color--grey inline-block u-pt-0_5 u-mb-0_25">
                                     {{ proceduresettings.name|default }}
                                 </span>
                             {% else %}
@@ -151,12 +151,14 @@
                                 data-sticky="lap-up"
                                 data-sticky-context="mainContent">
                                 <button
+                                    data-cy="sideMenuButton"
                                     data-toggle-sidebar-menu-trigger
                                     type="button"
                                     class="o-link--default btn--blank whitespace-nowrap u-mv-0_25">
                                     <i
                                         aria-hidden="true"
-                                        class="fa fa-chevron-right"></i>
+                                        class="fa fa-chevron-right"
+                                        data-cy="sideMenuButtonIcon"></i>
                                     {{ 'menu'|trans }}
                                 </button>
                                 <div

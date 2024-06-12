@@ -40,6 +40,8 @@
     ] %}
 
     <form method="post" id="orgalistForm" class="flow-root" action="">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
         <dp-master-toeb-list
             user-id="{{ currentUser.ident|default }}"
             :fields="JSON.parse('{{ fields|json_encode|e('js', 'utf-8') }}')"

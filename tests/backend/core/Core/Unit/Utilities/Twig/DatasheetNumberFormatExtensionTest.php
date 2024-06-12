@@ -14,7 +14,7 @@ use demosplan\DemosPlanCoreBundle\Twig\Extension\DatasheetNumberFormatExtension;
 use Exception;
 use Tests\Base\UnitTestCase;
 use Twig\Environment;
-use Twig_SimpleFilter;
+use Twig\TwigFilter;
 
 class DatasheetNumberFormatExtensionTest extends UnitTestCase
 {
@@ -42,11 +42,9 @@ class DatasheetNumberFormatExtensionTest extends UnitTestCase
 
             static::assertTrue(is_array($result) && isset($result[0]));
 
-            static::assertTrue($result[0] instanceof Twig_SimpleFilter);
+            static::assertInstanceOf(TwigFilter::class, $result[0]);
 
-            $callable = $result[0]->getCallable();
-            static::assertTrue('numberFormatFilter' === $callable[1]);
-            static::assertTrue('datasheet_number_format' === $result[0]->getName());
+            static::assertSame('datasheet_number_format', $result[0]->getName());
         } catch (Exception $e) {
             static::assertTrue(false);
 

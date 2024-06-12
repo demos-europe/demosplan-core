@@ -73,9 +73,17 @@ area_admin_import:
     loginRequired: true
     parent: area_admin
 area_admin_map:
+    description: |-
+        Controls ResourceType and Access to Map Settings.
     label: 'Verwalten Planzeichnung'
     loginRequired: true
     parent: area_admin
+area_admin_initial_map_view:
+    description: |-
+        Enable only menu item to show the initial map section in the procedure.
+    label: 'Karteneinstellungen'
+    loginRequired: true
+    parent: area_admin_map
 area_admin_map_description:
     label: 'Verwalten Planzeichenerkl.'
     loginRequired: true
@@ -125,6 +133,7 @@ area_admin_protocol:
 area_admin_single_document:
     label: 'Verwalten Planungsdokumente'
     loginRequired: true
+    expose: true
     parent: area_admin
 area_admin_statement_list:
     description: 'New list with Statements belonging to a Procedure showing basic info for each Statement so the planner can have a quick overview of the status of the Procedure.'
@@ -413,7 +422,7 @@ area_search_submitter_in_procedures:
         Planners may need to find all statements of a person in all (or some) procedures they have access to.
         There already was a search tool to find statements in a specific procedure
         by different criteria, including the submitters name. To keep the implementation
-        simple (and not duplicate the procedure specific search) this new search over multiple procuderes is limited
+        simple (and not duplicate the procedure specific search) this new search over multiple procedures is limited
         to the submitters name and will not result in a list of statements but in a list
         of procedures where the submitter name was found in a statement. The user can then
         search in each listed procedure using the procedure specific search to get the actual statements.
@@ -727,6 +736,23 @@ field_customer_accessibility_explanation_edit:
     expose: true
     loginRequired: true
     parent: area_customer_settings
+feature_customer_support_contact_administration:
+    description: |-
+        Enables the option to create/edit/delete supportContact entities.
+        A customer-admin can post support contact information visible to everyone who is in that customer context.
+        visible under /informationen
+    label: 'Enables the option to create/edit/delete supportContact entities.'
+    expose: true
+    loginRequired: true
+feature_customer_login_support_contact_administration:
+    description: |-
+        Enables the option to create/edit/delete the customer supportLoginContact entity.
+        A customer-admin can post login support contact information visible to everyone who is in that customer context.
+        Shown when keycloak authentication failed.
+        visible under /idp/login/error
+    label: 'Enables the option to create/edit/delete customer loginSupportContact entities shown if keycloak login authentication failed.'
+    expose: true
+    loginRequired: true
 feature_customer_branding_edit:
     description: 'Allows the editing of the customer branding. At the moment this only includes css styling.'
     expose: true
@@ -816,6 +842,11 @@ feature_email_invitable_institution_additional_invitation_text:
     description: 'Adds predefined text to institution invitations.'
     label: 'Text automatically added to institution invitations'
     loginRequired: true
+feature_export_docx_elements_view_mode_only:
+    expose: false
+    label: 'always export elements view in docx export'
+    loginRequired: true
+    parent: area_admin_assessmenttable
 feature_export_protocol:
     expose: true
     label: 'Exportieren des Verfahrensprotokolls'
@@ -1065,7 +1096,22 @@ feature_layer_groups_alternate_visibility:
         Activate feature to show only layers from one category simultaneously.
         Disable showing layers from different categories at once.
     label: 'Hide other layer categories if overlay from another category is visible'
+    expose: true
     loginRequired: true
+feature_manage_procedure_creation_permission:
+    description: |-
+        Allows the user to update if an orga is allowed to create new procedures.
+    expose: true
+    label: 'Permission to enable orga to create procedures.'
+    loginRequired: true
+    parent: [area_manage_orgas, area_manage_orgas_all]
+feature_map_attribution:
+    description: |-
+        Restrict the access to edit the public map copyright/attribution (in the admin area)
+    label: 'Restrict the access to edit the public map copyright/attribution (in the admin area)'
+    expose: true
+    loginRequired: true
+    parent: area_admin_map
 feature_map_category:
     expose: true
     label: 'Kategorien in Kartenlayer'
@@ -1075,6 +1121,13 @@ feature_map_deactivate:
     expose: true
     label: 'Planungsdokumentenkategorie Map deaktivieren'
     loginRequired: false
+    parent: area_admin_map
+feature_map_feature_info:
+    description: |-
+        Restrict the access to edit the public map information url (in the admin area)
+    label: 'Restrict the access to edit the public map information url (in the admin area)'
+    expose: true
+    loginRequired: true
     parent: area_admin_map
 feature_map_hint:
     expose: true
@@ -1095,6 +1148,13 @@ feature_map_layer_legend_file:
     label: 'Enables uploading/displaying of legend files for specific layers.'
     loginRequired: false
     parent: area_map_participation_area
+feature_map_max_extent:
+    description: |-
+        Restrict the access to get the max extension of the public map (in the admin area)
+    label: 'Restrict the access to get the max extension of the public map (in the admin area)'
+    expose: true
+    loginRequired: true
+    parent: area_admin_map
 feature_map_new_statement:
     expose: true
     label: 'Planzeichnung Neue Stellungnahme'
@@ -1144,6 +1204,11 @@ feature_new_statement_form:
     label: 'Stell. verf. Formular anzeigen'
     loginRequired: true
     parent: feature_statement
+feature_show_notice_draft_statement:
+    description: 'some project with Gateway as a project type (diplanbeteiligung) should not be shown for the submitter in the public statement'
+    expose: false
+    label: 'note show'
+    loginRequired: true
 feature_notification_citizen_statement_submitted:
     label: 'Benachrichtigung an den Bürger bei eingereichten Stellungnahmen'
     loginRequired: true
@@ -1600,6 +1665,10 @@ feature_project_switcher:
     label: 'Display a dropdown menu in global header to allow users to quickly move to other instances of the SH platform.'
     loginRequired: false
     parent: area_admin
+feature_profile_editable:
+    description: 'If enabled the user can edit his/her data'
+    label: 'Speichern/Abrechnen Formular anzeigen'
+    loginRequired: true
 feature_public_consultation:
     description: 'When a procedure is in the consultation phase, participants must have a way to access it.'
     expose: true
@@ -1631,6 +1700,11 @@ feature_require_locality_confirmation:
         to was configured for.
     expose: false
     label: 'Submission of draft statements as statements requires to confirm the locality'
+    loginRequired: true
+feature_require_procedure_contact_person:
+    description: 'When a procedure be created, in diplanbeteiligung should contact person be required, therefore field should be empty otherwise be k.A'
+    expose: false
+    lable: 'Allows to set contact person without use default value'
     loginRequired: true
 feature_screenshot_map_nonpublic_printlayers:
     description: 'Enables having a gislayer which is not published but is used only as print/export layer.'
@@ -2111,6 +2185,16 @@ feature_statements_import_excel:
     label: 'Generate statements from uploaded excel file'
     loginRequired: true
     parent: area_statements
+feature_statements_participation_import_excel:
+    description: |-
+        Allows the user to upload a spreadsheet workbook file (e.g. an Excel-file) containing statements.
+        The spreadsheets in the file must use the same format as the assessment table export.
+        If the extern ID of a statement to be imported is already in use that statement will be skipped (i.e.
+        not imported).
+    expose: true
+    label: 'Generate statements from uploaded assessment table spreadsheet export'
+    loginRequired: true
+    parent: area_statements
 feature_statements_like:
     label: 'Feature Stellungnahme als anonymer Nutzer liken aktiviert'
     loginRequired: false
@@ -2277,7 +2361,7 @@ feature_user_delete:
     label: 'delete user'
     loginRequired: true
 feature_user_edit:
-    description: 'allows the user to create a new user'
+    description: 'allows the user to edit a user'
     expose: true
     label: 'edit user'
     loginRequired: true
@@ -2292,8 +2376,15 @@ feature_user_list:
     expose: true
     label: 'fetch users from the API route.'
     loginRequired: true
+# Only needed for user list in one specific project
+feature_user_list_extended:
+    description: 'Allows the current user to fetch an extended list of users the current user is allowed to see from the JSON:API route.'
+    expose: true
+    label: 'fetch extended list of users from the API route.'
+    loginRequired: true
 feature_xplan_defaultlayers:
     label: 'Benutze vordefinierte XPlanLayer'
+    expose: true
     loginRequired: true
 field_county_list:
     label: 'betroffene Kreise'
@@ -2392,6 +2483,11 @@ field_paragraph_lock_statement:
     description: 'Block the possibility to submit statements to chosen paragraph.'
     label: 'Statements can be locked for some paragraphs'
     loginRequired: false
+field_phase_iterator:
+    description: 'Additional counter for procedurephases to identify and count the number of itertions a specific phase is in because it is kind of usual that a phase is used and iteratet through more than once.'
+    label: 'Procedrephases extended/enhanced by a counter to identify the iteration the phase is currently in.'
+    loginRequired: false
+    expose: true
 field_priority_area_list:
     label: 'betroffene Gemeinden'
     loginRequired: true
@@ -2469,6 +2565,10 @@ field_required_procedure_end_date:
     descriptiom: this permission makes the end date required when creating procedure
     label: 'require procedure end date'
     expose: true
+    loginRequired: true
+field_segment_assignee_filter:
+    description: 'Allow assignee facet search in segments of current procedure.'
+    label: 'Filter segment list by assignee'
     loginRequired: true
 field_send_final_email:
     label: 'Schlussmitteilung versenden'

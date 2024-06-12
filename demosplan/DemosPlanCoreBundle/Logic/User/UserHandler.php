@@ -251,7 +251,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             throw ViolationsException::fromConstraintViolationList($violations);
         }
 
-        $citizenRoleArray = array_map(static fn(Role $role) => $role->getId(), $this->roleHandler->getUserRolesByCodes([Role::CITIZEN]));
+        $citizenRoleArray = array_map(static fn (Role $role) => $role->getId(), $this->roleHandler->getUserRolesByCodes([Role::CITIZEN]));
 
         $parameterBag = new ParameterBag([
             'email'          => $emailAddress,
@@ -321,7 +321,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             $checkID = $data['departmentId'];
 
             $departments = $orga->getDepartments()->filter(
-                static fn(Department $department) => $department->getId() === $checkID
+                static fn (Department $department) => $department->getId() === $checkID
             );
 
             if (1 === $departments->count() && $departments->first() instanceof Department) {
@@ -341,7 +341,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
 
             // map role ids to role entities
             $resolvedRoles = $this->roleHandler->getRolesByIds($requestedRoleIds);
-            $resolvedRoleIds = array_map(static fn(Role $role) => $role->getId(), $resolvedRoles);
+            $resolvedRoleIds = array_map(static fn (Role $role) => $role->getId(), $resolvedRoles);
             $missingRoleIds = array_diff($requestedRoleIds, $resolvedRoleIds);
             if ([] !== $missingRoleIds) {
                 $this->logger->warning('Tried to add unknown roles: ', [$missingRoleIds]);
@@ -508,9 +508,9 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         $hash = $this->userHasher->getPasswordEditHash($user);
 
         $templateName = match ($type) {
-            'new' => '@DemosPlanCore/DemosPlanUser/email_user_new.html.twig',
+            'new'     => '@DemosPlanCore/DemosPlanUser/email_user_new.html.twig',
             'recover' => '@DemosPlanCore/DemosPlanUser/email_user_recover.html.twig',
-            default => throw new RuntimeException('Unsupported invitation type: '.$type),
+            default   => throw new RuntimeException('Unsupported invitation type: '.$type),
         };
 
         $emailtextInviteUser = $this->twig
@@ -543,7 +543,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         // Notiere, dass mail verschickt wurde
         $this->logger->info("Invitation mail of type '{$type}' was sent to user {$user->getId()}");
         if ('new' === $type) {
-            $this->userService->updateUser($user->getId(), [UserFlagKey::INVITED => true]);
+            $this->userService->updateUser($user->getId(), [UserFlagKey::INVITED->value => true]);
         }
 
         return $user;
@@ -644,38 +644,38 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         // prüfe den status der Checkboxen
 
         // set Newsletter
-        if (array_key_exists(UserFlagKey::SUBSCRIBED_TO_NEWSLETTER, $data)) {
-            $data[UserFlagKey::SUBSCRIBED_TO_NEWSLETTER] = 'on' === $data[UserFlagKey::SUBSCRIBED_TO_NEWSLETTER];
+        if (array_key_exists(UserFlagKey::SUBSCRIBED_TO_NEWSLETTER->value, $data)) {
+            $data[UserFlagKey::SUBSCRIBED_TO_NEWSLETTER->value] = 'on' === $data[UserFlagKey::SUBSCRIBED_TO_NEWSLETTER->value];
         } else {
-            $data[UserFlagKey::SUBSCRIBED_TO_NEWSLETTER] = false;
+            $data[UserFlagKey::SUBSCRIBED_TO_NEWSLETTER->value] = false;
         }
 
         // ignore status in case an external newsletterservice is used
         if ($this->permissions->hasPermission('feature_alternative_newsletter')) {
-            $data[UserFlagKey::SUBSCRIBED_TO_NEWSLETTER] = false;
+            $data[UserFlagKey::SUBSCRIBED_TO_NEWSLETTER->value] = false;
         }
 
-        if (array_key_exists(UserFlagKey::WANTS_FORUM_NOTIFICATIONS, $data)) {
-            $data[UserFlagKey::WANTS_FORUM_NOTIFICATIONS] = 'on' === $data[UserFlagKey::WANTS_FORUM_NOTIFICATIONS];
+        if (array_key_exists(UserFlagKey::WANTS_FORUM_NOTIFICATIONS->value, $data)) {
+            $data[UserFlagKey::WANTS_FORUM_NOTIFICATIONS->value] = 'on' === $data[UserFlagKey::WANTS_FORUM_NOTIFICATIONS->value];
         } else {
-            $data[UserFlagKey::WANTS_FORUM_NOTIFICATIONS] = false;
+            $data[UserFlagKey::WANTS_FORUM_NOTIFICATIONS->value] = false;
         }
 
-        if (array_key_exists(UserFlagKey::NO_USER_TRACKING, $data)) {
-            $data[UserFlagKey::NO_USER_TRACKING] = 'on' === $data[UserFlagKey::NO_USER_TRACKING];
+        if (array_key_exists(UserFlagKey::NO_USER_TRACKING->value, $data)) {
+            $data[UserFlagKey::NO_USER_TRACKING->value] = 'on' === $data[UserFlagKey::NO_USER_TRACKING->value];
         } else {
-            $data[UserFlagKey::NO_USER_TRACKING] = false;
+            $data[UserFlagKey::NO_USER_TRACKING->value] = false;
         }
 
-        $data[UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED] =
-            array_key_exists(UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED, $data)
-            && 'on' === $data[UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED];
+        $data[UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED->value] =
+            array_key_exists(UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED->value, $data)
+            && 'on' === $data[UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED->value];
 
         // Sets notifications for newly assigned tasks
-        if (array_key_exists(UserFlagKey::ASSIGNED_TASK_NOTIFICATION, $data)) {
-            $data[UserFlagKey::ASSIGNED_TASK_NOTIFICATION] = 'on' === $data[UserFlagKey::ASSIGNED_TASK_NOTIFICATION];
+        if (array_key_exists(UserFlagKey::ASSIGNED_TASK_NOTIFICATION->value, $data)) {
+            $data[UserFlagKey::ASSIGNED_TASK_NOTIFICATION->value] = 'on' === $data[UserFlagKey::ASSIGNED_TASK_NOTIFICATION->value];
         } else {
-            $data[UserFlagKey::ASSIGNED_TASK_NOTIFICATION] = false;
+            $data[UserFlagKey::ASSIGNED_TASK_NOTIFICATION->value] = false;
         }
 
         // make user editing work with unset department
@@ -718,7 +718,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             });
 
             if (0 < count($invitationFailedList)) {
-                $names = $invitationFailedList->map(static fn(User $user) => $user->getFullname())->implode(', ');
+                $names = $invitationFailedList->map(static fn (User $user) => $user->getFullname())->implode(', ');
 
                 $this->getMessageBag()->add(
                     'error',
@@ -796,8 +796,8 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
      */
     public function handleWipeSelectedUsers(ParameterBag $requestData)
     {
-        if ($requestData->has('elementsToAdminister') &&
-            0 < (is_countable($requestData->get('elementsToAdminister')) ? count($requestData->get('elementsToAdminister')) : 0)) {
+        if ($requestData->has('elementsToAdminister')
+            && 0 < (is_countable($requestData->get('elementsToAdminister')) ? count($requestData->get('elementsToAdminister')) : 0)) {
             $usersToDelete = $requestData->get('elementsToAdminister');
 
             foreach ($usersToDelete as $userId) {
@@ -854,11 +854,11 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
 
         $wipedUser = $this->userService->wipeUser($userId);
 
-        if ($resultOfRemoveSettings &&
-            $resultOfDeleteAddresses &&
-            $resultOfDeleteDraftStatements &&
-            $resultOfClearedVotes &&
-            ($wipedUser instanceof User)) {
+        if ($resultOfRemoveSettings
+            && $resultOfDeleteAddresses
+            && $resultOfDeleteDraftStatements
+            && $resultOfClearedVotes
+            && ($wipedUser instanceof User)) {
             return $wipedUser;
         }
 
@@ -1063,7 +1063,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
     {
         $slugify = new Slugify();
         // Do not use array_columns because array keys will be lost
-        $orgaSlugs = array_map(static fn($item) => $slugify->slugify($item['slug']), $orgas);
+        $orgaSlugs = array_map(static fn ($item) => $slugify->slugify($item['slug']), $orgas);
         $uniqueOrgaSlugs = array_unique($orgaSlugs);
         if (count($uniqueOrgaSlugs) !== count($orgaSlugs)) {
             $this->getMessageBag()->add('error', 'error.save.organisation.slug.bulk');
@@ -1272,9 +1272,11 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
 
         foreach ($data as $ident => $department) {
             try {
-                $result = $this->updateDepartment($ident, $department);
-                if (is_array($result) && array_key_exists('mandatoryfieldwarning', $result)) {
-                    return $this->getSession()->getFlashBag()->get('error.mandatoryfields', 'error');
+                if ('_token' !== $ident) {
+                    $result = $this->updateDepartment($ident, $department);
+                    if (is_array($result) && array_key_exists('mandatoryfieldwarning', $result)) {
+                        return $this->getSession()->getFlashBag()->get('error.mandatoryfields', 'error');
+                    }
                 }
             } catch (Exception) {
                 $this->logger->error("Failed updating Department {$ident}.");
@@ -1750,61 +1752,67 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
      *
      * @param string $organisationId Indicates the organisation whose data will be wiped
      *
-     * @return orga|bool The wiped organisation if all operations are successful, otherwise false
+     * @return orga|array The wiped organisation if all operations are successful, otherwise errors
      *
      * @throws MessageBagException
      */
     public function wipeOrganisationData(string $organisationId)
     {
+        $errors = [];
         $requiredRelationsAreSolved = true;
 
         $organisation = $this->orgaHandler->getOrga($organisationId);
         if (!$organisation instanceof Orga) {
-            $this->getMessageBag()->add('error', 'error.delete.organisation.not.found');
-
-            return false;
-        }
-
-        // related Entities, which have do be solved, before wiping organisation:
-        if (false === $organisation->getProcedures()->isEmpty()) {
             $requiredRelationsAreSolved = false;
-            $this->getMessageBag()->add('error', 'error.delete.organisation.related.procedure');
+            $errors[] = 'error.delete.organisation.not.found';
         }
-
-        if (!$organisation->getUsers()->isEmpty()) {
-            $requiredRelationsAreSolved = false;
-            $this->getMessageBag()->add('error', 'error.delete.organisation.related.user');
-        }
-
-        // if one of the related departments have a user, return false
-        /** @var Department[] $departments */
-        $departments = $organisation->getDepartments();
-        foreach ($departments as $department) {
-            if ($requiredRelationsAreSolved && !$department->getUsers()->isEmpty()) {
+        if ($organisation instanceof Orga) {
+            // related Entities, which have do be solved, before wiping organisation:
+            if (false === $organisation->getProcedures()->isEmpty()) {
                 $requiredRelationsAreSolved = false;
-                $this->getMessageBag()->add('error', 'error.delete.organisation.related.departments');
+                $errors[] = 'error.delete.organisation.related.procedure';
+            }
+
+            if (!$organisation->getUsers()->isEmpty()) {
+                $requiredRelationsAreSolved = false;
+                $errors[] = 'error.delete.organisation.related.user';
+            }
+
+            // if one of the related departments have a user, return false
+            /** @var Department[] $departments */
+            $departments = $organisation->getDepartments();
+            foreach ($departments as $department) {
+                if ($requiredRelationsAreSolved && !$department->getUsers()->isEmpty()) {
+                    $requiredRelationsAreSolved = false;
+                    $errors[] = 'error.delete.organisation.related.departments';
+                }
+            }
+
+            if ($requiredRelationsAreSolved) {
+                $successfulDeletedDepartments = $this->wipeDepartmentsOfOrga($organisation);
+                $successfulDeletedAddresses = $this->orgaService->deleteAddressesOfOrga($organisationId);
+                $successfulDeletedDraftStatements = $this->draftStatementService->deleteDraftStatementsOfOrga($organisationId);
+                $successfulRemovedSettings = $this->contentService->deleteSettingsOfOrga($organisationId);
+                $successfulDeletedMasterToebs = $this->masterToebService->detachMasterToebOfOrga($organisationId);
+                $successfulDeletedMasterToebMail = $this->procedureService->deleteInstitutionMailOfOrga($organisationId);
+
+                if ($successfulRemovedSettings
+                    && $successfulDeletedAddresses
+                    && $successfulDeletedDraftStatements
+                    && $successfulDeletedMasterToebs
+                    && $successfulDeletedMasterToebMail
+                    && $successfulDeletedDepartments) {
+                    $result = $this->orgaService->wipeOrganisation($organisationId);
+                    if ($result instanceof Orga) {
+                        return $result;
+                    }
+                    $errors[] = 'error.delete.organisation.not.found';
+                }
+                $errors[] = 'error.organisation.not.deleted';
             }
         }
 
-        if ($requiredRelationsAreSolved) {
-            $successfulDeletedDepartments = $this->wipeDepartmentsOfOrga($organisation);
-            $successfulDeletedAddresses = $this->orgaService->deleteAddressesOfOrga($organisationId);
-            $successfulDeletedDraftStatements = $this->draftStatementService->deleteDraftStatementsOfOrga($organisationId);
-            $successfulRemovedSettings = $this->contentService->deleteSettingsOfOrga($organisationId);
-            $successfulDeletedMasterToebs = $this->masterToebService->detachMasterToebOfOrga($organisationId);
-            $successfulDeletedMasterToebMail = $this->procedureService->deleteInstitutionMailOfOrga($organisationId);
-
-            if ($successfulRemovedSettings &&
-                $successfulDeletedAddresses &&
-                $successfulDeletedDraftStatements &&
-                $successfulDeletedMasterToebs &&
-                $successfulDeletedMasterToebMail &&
-                $successfulDeletedDepartments) {
-                return $this->orgaService->wipeOrganisation($organisationId);
-            }
-        }
-
-        return false;
+        return $errors;
     }
 
     /**
@@ -1820,10 +1828,10 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
 
         return collect($departmentsToWipe)
             // keep only non-default departments
-            ->filter(static fn(Department $department) => Department::DEFAULT_DEPARTMENT_NAME !== $department->getName())
+            ->filter(static fn (Department $department) => Department::DEFAULT_DEPARTMENT_NAME !== $department->getName())
             // execute wipe for every remaining department
             // (aborts on the first failing wipe)
-            ->every(fn(Department $department) => $this->wipeDepartmentData($department));
+            ->every(fn (Department $department) => $this->wipeDepartmentData($department));
     }
 
     /**
@@ -1895,7 +1903,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                 'roles'          => collect(
                     data_get($resourceObject, 'relationships.roles.data')
                 )->map(
-                    static fn($relationship) => $relationship['id']
+                    static fn ($relationship) => $relationship['id']
                 )->toArray(),
             ]
         );
@@ -1944,7 +1952,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         $canManageAllOrgas = $this->permissions->hasPermission('area_manage_orgas_all');
         $registrationStatuses = $this->orgaService->getActivationChanges($data);
         $registrationStatuses = array_filter($registrationStatuses,
-            fn($registrationStatus) => $registrationStatus['subdomain'] === $currentSubdomain || $canManageAllOrgas
+            fn ($registrationStatus) => $registrationStatus['subdomain'] === $currentSubdomain || $canManageAllOrgas
         );
 
         $registrationStatuses = array_map(
@@ -2019,7 +2027,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         if (null !== $currentCustomer) {
             $customers = array_filter(
                 $customers,
-                static fn(Customer $customer) => $customer->getSubdomain() === $currentCustomer->getSubdomain()
+                static fn (Customer $customer) => $customer->getSubdomain() === $currentCustomer->getSubdomain()
             );
         }
 
@@ -2103,7 +2111,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
 
         foreach ($customers as $customer) {
             // check whether at least one user already has minimal required role
-            $usersWithMinimalRole = $orga->getUsers()->filter(static fn(User $user) => in_array($minimumRoles[$orgaTypeName], $user->getDplanRolesArray($customer), true));
+            $usersWithMinimalRole = $orga->getUsers()->filter(static fn (User $user) => in_array($minimumRoles[$orgaTypeName], $user->getDplanRolesArray($customer), true));
             if (0 < $usersWithMinimalRole->count() || 0 === $orga->getUsers()->count()) {
                 continue;
             }
@@ -2282,8 +2290,8 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             ];
         }
 
-        if ((!array_key_exists('password_new_2', $data) || '' === trim((string) $data['password_new_2'])) &&
-            !is_array($newPasswordFieldMissing)) {
+        if ((!array_key_exists('password_new_2', $data) || '' === trim((string) $data['password_new_2']))
+            && !is_array($newPasswordFieldMissing)) {
             $newPasswordFieldMissing = [
                 'type'    => 'error',
                 'message' => $this->flashMessageHandler->createFlashMessage(

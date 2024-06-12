@@ -23,9 +23,9 @@
           class="c-at-item__row-icon inline-block"
           entity-type="fragment"
           :ignore-last-claimed="true"
-          :assigned-id="(fragment.assignee.id || '')"
-          :assigned-name="(fragment.assignee.name || '')"
-          :assigned-organisation="(fragment.assignee.orgaName || '')"
+          :assigned-id="(fragment.assignee?.id || '')"
+          :assigned-name="(fragment.assignee?.name || '')"
+          :assigned-organisation="(fragment.assignee?.orgaName || '')"
           :current-user-id="currentUserId"
           :current-user-name="currentUserName"
           :is-loading="updatingClaimState"
@@ -33,7 +33,10 @@
           v-if="!isArchive && hasPermission('feature_statement_assignment')"
           @click="updateClaim" />
 
-        <v-popover class="inline-block u-mr">
+        <v-popover
+          class="inline-block u-mr"
+          placement="top"
+          trigger="hover focus">
           <div>
             <span
               v-if="isArchive"
@@ -142,6 +145,7 @@
             <v-popover
               v-for="tag in fragment.tags"
               :key="tag.id"
+              placement="top"
               class="o-list__item">
               <li>{{ tag.title }}</li>
               <template v-slot:popover>
@@ -277,7 +281,7 @@
       <dp-item-row
         icon="fa-comment"
         title="fragment.text">
-        <dp-text-wrapper :text="fragment.text" />
+        <text-content-renderer :text="fragment.text" />
       </dp-item-row>
 
       <!-- fragment consideration -->
@@ -324,6 +328,7 @@
           v-if="editable && editing">
           <dp-fragment-edit
             @closeEditMode="closeEditMode"
+            :csrf-token="csrfToken"
             :fragment-id="fragment.id"
             :procedure-id="fragment.procedureId"
             :consideration-advice-initial="fragment.considerationAdvice"
@@ -352,6 +357,7 @@
             <v-popover
               v-for="(tag, idx) in fragment.statement.tags"
               :key="idx"
+              placement="top"
               class="o-list__item inline">
               <li>{{ tag.title }}</li>
               <template v-slot:popover>
@@ -480,7 +486,7 @@
         icon="fa-comment"
         title="statement.text"
         :border-bottom="false">
-        <dp-height-limit
+        <height-limit
           :short-text="fragment.statement.textShort"
           :full-text="fragment.statement.text"
           element="statement"
@@ -495,8 +501,6 @@
 <script>
 import {
   CleanHtml,
-  DpHeightLimit,
-  DpTextWrapper,
   formatDate,
   getFileInfo,
   hasOwnProp,
@@ -508,6 +512,8 @@ import DpFragmentEdit from '../fragment/Edit'
 import DpFragmentStatus from '../fragment/Status'
 import DpFragmentVersions from '../fragment/Version'
 import DpItemRow from '../assessmentTable/ItemRow'
+import HeightLimit from '@DpJs/components/statement/HeightLimit'
+import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 
 export default {
   name: 'DpStatementFragment',
@@ -517,9 +523,9 @@ export default {
     DpFragmentEdit,
     DpFragmentStatus,
     DpFragmentVersions,
-    DpHeightLimit,
+    HeightLimit,
     DpItemRow,
-    DpTextWrapper,
+    TextContentRenderer,
     VPopover
   },
 
@@ -528,6 +534,11 @@ export default {
   },
 
   props: {
+    csrfToken: {
+      type: String,
+      required: true
+    },
+
     isArchive: {
       type: Boolean,
       required: false,
@@ -575,14 +586,14 @@ export default {
 
   computed: {
     assigneeId () {
-      if (hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee.id) {
+      if (hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee?.id) {
         return this.fragment.assignee.id
       }
       return ''
     },
 
     assigneeName () {
-      if (hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee.name) {
+      if (hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee?.name) {
         return this.fragment.assignee.name
       }
       return ''
@@ -593,11 +604,7 @@ export default {
     },
 
     fragmentDocumentTitle () {
-      if (hasOwnProp(this.fragment, 'document')) {
-        return Translator.trans(this.fragment.document.title)
-      } else {
-        return Translator.trans('file.notavailable')
-      }
+      return this.fragment.document ? Translator.trans(this.fragment.document.title) : Translator.trans('file.notavailable')
     },
 
     hasFile () {
@@ -608,7 +615,7 @@ export default {
     },
 
     assigneeOrgaName () {
-      if (hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee.orgaName) {
+      if (hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee?.orgaName) {
         return this.fragment.assignee.orgaName
       }
       return ''
@@ -658,10 +665,10 @@ export default {
        * If we reset the assignee (give fragment back to FP), the lastClaimed should be ignored. Otherwise not, because we have to show the empty user-icon to FP (so that they know that fragment is being edited by FB)
        * let shouldIgnoreLastClaimed = (hasOwnProp(this.fragment.assignee, 'id') && this.fragment.assignee.id === this.currentUserId)
        */
-      this.setAssigneeAction({ fragmentId: this.fragmentId, statementId: this.statementId, ignoreLastClaimed: true, assigneeId: (hasOwnProp(this.fragment.assignee, 'id') && this.fragment.assignee.id === this.currentUserId ? '' : this.currentUserId) })
+      this.setAssigneeAction({ fragmentId: this.fragmentId, statementId: this.statementId, ignoreLastClaimed: true, assigneeId: (hasOwnProp(this.fragment.assignee, 'id') && this.fragment.assignee?.id === this.currentUserId ? '' : this.currentUserId) })
         .then(() => {
           this.updatingClaimState = false
-          this.editable = hasOwnProp(this.fragment.assignee, 'id') && this.fragment.assignee.id !== ''
+          this.editable = hasOwnProp(this.fragment.assignee, 'id') && this.fragment.assignee?.id !== ''
         })
     },
 
@@ -676,7 +683,7 @@ export default {
   mounted () {
     this.status = this.fragment.voteAdvice
     this.considerationAdvice = this.fragment.considerationAdvice
-    this.editable = hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee.id === this.currentUserId
+    this.editable = hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee?.id === this.currentUserId
     //  Sync contents of child components on save
     this.$root.$on('fragment-saved', data => {
       if (this.fragmentId === data.id) {

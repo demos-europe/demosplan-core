@@ -68,7 +68,7 @@
             name="controls" />
           <div :class="prefixClass('float-right')">
             <dp-autocomplete
-              :class="prefixClass('u-mb inline-block width-250 bg-color--white')"
+              :class="prefixClass('u-mb inline-block w-11 bg-color--white')"
               v-if="_options.autoSuggest.enabled"
               :options="autoCompleteOptions"
               :route-generator="(searchString) => {
@@ -105,6 +105,7 @@
       <!-- Map container -->
       <div
         ref="mapContainer"
+        data-cy="map:mapContainer"
         :class="[(isValid === false) ? 'border--error' : '', prefixClass('c-ol-map__canvas u-1-of-1 relative')]"
         id="map">
         <dp-loading
@@ -220,7 +221,8 @@ export default {
       baselayer: '',
       baselayerLayers: '',
       baseLayerProjection: '',
-      maxExtent: []
+      maxExtent: [],
+      scales: []
     }
   },
 
@@ -289,18 +291,20 @@ export default {
     /**
      * Define extent for map
      * @param mapOptions
-     * @return void
+     * @return {Array}
      */
     defineExtent (mapOptions) {
-      if (this._options.procedureExtent && mapOptions.procedureMaxExtent?.length > 0) {
-        return mapOptions.procedureMaxExtent
+      let extent = mapOptions.defaultMapExtent
+
+      if (this._options.procedureExtent) {
+        if (mapOptions.procedureMaxExtent && mapOptions.procedureMaxExtent.length > 0) {
+          extent = mapOptions.procedureMaxExtent
+        } else if (mapOptions.procedureDefaultMaxExtent && mapOptions.procedureDefaultMaxExtent.length > 0) {
+          extent = mapOptions.procedureDefaultMaxExtent
+        }
       }
 
-      if (mapOptions.procedureDefaultMaxExtent?.length > 0) {
-        return mapOptions.procedureDefaultMaxExtent
-      }
-
-      return mapOptions.defaultMapExtent
+      return extent
     },
 
     /**
@@ -330,7 +334,7 @@ export default {
         return this.mapOptions
       }
       return dpApi({
-        method: 'get',
+        method: 'GET',
         url: Routing.generate(this.mapOptionsRoute, { procedureId: this.procedureId })
       })
         .then(checkResponse)
@@ -383,7 +387,7 @@ export default {
     },
 
     updateMapInstance () {
-      if (this.map === 'undefined') {
+      if (this.map === 'undefined' || this.map === null) {
         return
       }
 
@@ -425,9 +429,13 @@ export default {
     this.baselayer = mapOptions.baseLayer
     this.baseLayerProjection = mapOptions.baseLayerProjection
 
-    //  ProcedureScales = 'procedure.settings.scales', scales = 'map_global_available_scales'
-    this.scales = mapOptions.procedureScales.length > 0 ? mapOptions.procedureScales : mapOptions.globalAvailableScales
-
+    if (this.mapOptions.scales) {
+      this.scales = this.mapOptions.scales
+    } else if (mapOptions.procedureScales.length > 0) {
+      this.scales = mapOptions.procedureScales
+    } else {
+      this.scales = mapOptions.globalAvailableScales
+    }
     //  Calculate resolutions from given scales
     this.resolutions = getResolutionsFromScales(this.scales, this._options.projection.units)
 

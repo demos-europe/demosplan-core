@@ -55,7 +55,7 @@ class OrgaType extends CoreEntity implements UuidEntityInterface, OrgaTypeInterf
     /**
      * @var Collection<int, OrgaStatusInCustomerInterface>
      *
-     * @ORM\OneToMany(targetEntity="OrgaStatusInCustomer", mappedBy="orgaType")
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer", mappedBy="orgaType")
      */
     protected $orgaStatusInCustomers;
 

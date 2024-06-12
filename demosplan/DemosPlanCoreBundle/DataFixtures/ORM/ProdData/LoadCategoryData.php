@@ -13,9 +13,6 @@ namespace demosplan\DemosPlanCoreBundle\DataFixtures\ORM\ProdData;
 use demosplan\DemosPlanCoreBundle\Entity\Category;
 use Doctrine\Persistence\ObjectManager;
 
-/**
- * @deprecated loading fixture data via Foundry-Factories instead
- */
 class LoadCategoryData extends ProdFixture
 {
     public function load(ObjectManager $manager): void
