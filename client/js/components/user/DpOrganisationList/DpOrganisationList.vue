@@ -68,6 +68,7 @@
         @reset="resetSearch" />
       <dp-checkbox-group
         class="inline-block u-pv-0_5 float-right"
+        data-cy="organisationList:filterItems"
         :label="filterLabel"
         :options="filterItems"
         inline
