@@ -40,6 +40,14 @@ describe('DpProcedureCoordinateInput', () => {
     expect(wrapper.vm.convertToFloat('123,456')).toBe(123.456)
   })
 
+  it('should set coordinate prop and check types of latitudeValue and longitudeValue', async () => {
+    await wrapper.setProps({ coordinate: ['123', '456'] })
+    expect(typeof wrapper.vm.latitudeValue).toBe('string')
+    expect(typeof wrapper.vm.longitudeValue).toBe('string')
+    expect(typeof wrapper.vm.convertToFloat(wrapper.vm.latitudeValue)).toBe('number')
+    expect(typeof wrapper.vm.convertToFloat(wrapper.vm.longitudeValue)).toBe('number')
+  })
+
   it('should enable the button with valid and disable with invalid input from props', async () => {
     await wrapper.setProps({ coordinate: ['123', '456'] })
     expect(wrapper.html()).not.toContain('disabled="disabled"')
