@@ -174,7 +174,6 @@ class AccessControlService extends CoreService
         return !empty($permissions);
     }
 
-
     public function addPermissionToGivenRole(OrgaInterface $orga, CustomerInterface $customer, string $roleName): void
     {
         $role = $this->roleHandler->getRoleByCode($roleName);
@@ -195,7 +194,6 @@ class AccessControlService extends CoreService
         }
 
         $this->removePermission(self::CREATE_PROCEDURES_PERMISSION, $orga, $customer, $role);
-
     }
 
     public function enablePermissionCustomerOrgaRole(string $permissionToEnable, CustomerInterface $customer, RoleInterface $role, bool $dryRun = false): array
@@ -221,6 +219,5 @@ class AccessControlService extends CoreService
         }
 
         return $updatedOrgas;
-
     }
 }
