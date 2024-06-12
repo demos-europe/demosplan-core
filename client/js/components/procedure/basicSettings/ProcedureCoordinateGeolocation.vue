@@ -20,6 +20,7 @@
       class="flex">
       <dp-input
         id="postalcode"
+        data-cy="procedureCoordinate:postalCode"
         :disabled="readonly"
         :label="{
           text: Translator.trans('postalcode')
@@ -30,6 +31,7 @@
       <dp-input
         id="locationName"
         class="u-ml-0_25"
+        data-cy="procedureCoordinate:city"
         :disabled="readonly"
         :label="{
           text: Translator.trans('city')
@@ -40,6 +42,7 @@
       <dp-input
         id="municipalCode"
         class="u-ml-0_25"
+        data-cy="procedureCoordinate:municipalCode"
         :disabled="readonly"
         :label="{
           text: Translator.trans('municipal_code')
@@ -50,6 +53,7 @@
       <dp-input
         id="ars"
         class="u-ml-0_25"
+        data-cy="procedureCoordinate:regionKey"
         :disabled="readonly"
         :label="{
           text: Translator.trans('ars')

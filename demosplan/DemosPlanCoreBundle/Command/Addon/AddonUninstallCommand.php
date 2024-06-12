@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
 use RuntimeException;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -74,7 +75,9 @@ class AddonUninstallCommand extends CoreCommand
                 static fn ($addonInfo) => $addonInfo->getName(), $addonsInfos
             ));
             $question = new ChoiceQuestion('Which addon do you want to uninstall? ', $addons);
-            $name = $this->getHelper('question')->ask($input, $output, $question);
+            /** @var QuestionHelper $questionHelper */
+            $questionHelper = $this->getHelper('question');
+            $name = $questionHelper->ask($input, $output, $question);
         }
 
         if (!array_key_exists($name, $addonsInfos)) {
@@ -140,7 +143,11 @@ class AddonUninstallCommand extends CoreCommand
         // remove files in symlinked target if they exist
         $symlinkedPath = $filesystem->readlink($installPath, true);
         if (null !== $symlinkedPath) {
-            $filesystem->remove($symlinkedPath);
+            // do not delete files in symlinked target if they are symlinked from somewhere else
+            $symlinkedDevPath = $filesystem->readlink($symlinkedPath, true);
+            if (null === $symlinkedDevPath) {
+                $filesystem->remove($symlinkedPath);
+            }
         }
         $filesystem->remove($installPath);
         $output->info('Addon successfully deleted from cache directory.');

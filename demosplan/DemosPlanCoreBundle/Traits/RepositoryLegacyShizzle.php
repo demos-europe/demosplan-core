@@ -72,8 +72,6 @@ trait RepositoryLegacyShizzle
     /**
      * @param string $entityId
      *
-     * @return CoreEntity|void
-     *
      * @throws BadMethodCallException
      */
     public function get($entityId): never

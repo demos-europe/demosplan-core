@@ -872,8 +872,8 @@ class PermissionsTest extends FunctionalTestCase
                     'field_statement_user_position',
                     'field_statement_user_state',
                     'role_participant',
-//                    'feature_user_add', //fixme: this permission was both here and in featuresAllowed. Please check.
-//                    'feature_user_edit', //fixme: this permission was both here and in featuresAllowed. Please check.
+                    //                    'feature_user_add', //fixme: this permission was both here and in featuresAllowed. Please check.
+                    //                    'feature_user_edit', //fixme: this permission was both here and in featuresAllowed. Please check.
                 ],
             ],
             'planning agency master user #2'    => [
@@ -2695,8 +2695,8 @@ class PermissionsTest extends FunctionalTestCase
                     'field_required_procedure_end_date',
                     'field_statement_submitter_email_address',
                     'role_participant',
-//                    'feature_user_add', //fixme: this permission was both here and in featuresAllowed. Please check.
-//                    'feature_user_edit', //fixme: this permission was both here and in featuresAllowed. Please check.
+                    //                    'feature_user_add', //fixme: this permission was both here and in featuresAllowed. Please check.
+                    //                    'feature_user_edit', //fixme: this permission was both here and in featuresAllowed. Please check.
                 ],
             ],
             // ################### Moderator###################
@@ -2858,7 +2858,7 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statement_data_input_orga',
                     'feature_procedure_get_base_data',
                     'feature_procedure_single_document_upload_zip',
-//                  'feature_statement_data_input_orga', //fixme: permission is not set and it is unclear why this line is here - area_statement_data_input_orga instead is set - might be a mismatch
+                    //                  'feature_statement_data_input_orga', //fixme: permission is not set and it is unclear why this line is here - area_statement_data_input_orga instead is set - might be a mismatch
                 ],
                 'featuresDenied'                    => [
                     'area_admin',
@@ -2932,7 +2932,7 @@ class PermissionsTest extends FunctionalTestCase
                     'area_data_protection_text',
                     'area_demosplan',
                     'feature_procedure_single_document_upload_zip',
-//                  'feature_statement_data_input_orga', //fixme: permission is not set and it is unclear why this line is here - area_statement_data_input_orga instead is set - might be a mismatch
+                    //                  'feature_statement_data_input_orga', //fixme: permission is not set and it is unclear why this line is here - area_statement_data_input_orga instead is set - might be a mismatch
                 ],
                 'featuresDenied'                    => [
                     'area_admin',
@@ -3159,7 +3159,7 @@ class PermissionsTest extends FunctionalTestCase
                 $procedureRepositoryMock = $this->setUpProcedureRepositoryForTestCase($procedureMock);
                 $this->permissions->setProcedureRepository($procedureRepositoryMock);
             }
-            $this->permissions->initPermissions($user, ['area_demosplan']);
+            $this->permissions->initPermissions($user);
             if ($isInProcedure) {
                 $this->permissions->checkProcedurePermission();
             }

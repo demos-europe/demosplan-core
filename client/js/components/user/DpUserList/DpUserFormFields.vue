@@ -92,7 +92,7 @@
         :options="departmentSelectOptions"
         required
         :selected="localUser.relationships.department.data.id"
-        @change="changeUserDepartment" />
+        @select="changeUserDepartment" />
     </div>
 
     <!-- Role -->
@@ -107,7 +107,7 @@
       <dp-multiselect
         :id="userId + ':userRoles'"
         ref="rolesDropdown"
-        class="u-mb-0_5"
+        class="u-mb-0_5 whitespace-normal"
         :custom-label="option =>`${ roles[option.id].attributes.name }`"
         data-cy="role"
         label="name"
@@ -295,8 +295,7 @@ export default {
       this.emitUserUpdate('relationships.roles.data', role, 'roles', 'add')
     },
 
-    changeUserDepartment (e) {
-      const departmentId = e.target.value
+    changeUserDepartment (departmentId) {
       this.localUser.relationships.department.data = {
         id: departmentId,
         type: 'department'

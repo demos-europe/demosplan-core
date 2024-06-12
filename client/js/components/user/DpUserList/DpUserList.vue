@@ -23,17 +23,17 @@
           v-model="searchValue"
           class="o-form__control-input u-mb-0_5"
           style="height: 28px;"
-          data-cy="searchUser"
+          data-cy="userList:searchUser"
           @keypress.enter.prevent="getFilteredItems"
           :placeholder="Translator.trans('search')"><!--
      --><dp-button
           class="u-ml-0_5"
+          data-cy="userList:searchUserBtn"
           :text="Translator.trans('searching')"
           @click="getFilteredItems" />
-        <i
-          class="fa fa-question-circle"
-          :aria-label="Translator.trans('contextual.help')"
-          v-tooltip="{ content: tooltipContent }" />
+        <dp-contextual-help
+          class="float-right"
+          :text="tooltipContent" />
       </div>
     </div>
 
@@ -64,6 +64,7 @@
         <div class="text-right u-4-of-7 u-mb-0_5">
           <button
             class="btn btn--primary mb-1.5"
+            data-cy="userList:manageUsers"
             value="inviteSelected"
             name="manageUsers"
             type="submit">
@@ -83,14 +84,16 @@
     </div>
     <template
       v-if="false === isLoading">
-      <ul class="o-list o-list--card u-mb">
+      <ul
+        class="o-list o-list--card u-mb"
+        data-cy="userList:userListWrapper">
         <dp-user-list-item
           class="o-list__item"
-          v-for="(item, idx) in items"
+          v-for="(item, idx, index) in items"
           :key="idx"
           :selected="hasOwnProp(itemSelections, item.id) && itemSelections[item.id] === true"
           :user="item"
-          :data-cy="`userListBlk`"
+          :data-cy="`userList:userListBlk:${index}`"
           :project-name="projectName"
           @item:selected="dpToggleOne" />
       </ul>
@@ -105,7 +108,7 @@
 </template>
 
 <script>
-import { debounce, DpButton, DpLoading, dpSelectAllMixin, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { debounce, DpButton, DpContextualHelp, DpLoading, dpSelectAllMixin, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 
 export default {
@@ -113,6 +116,7 @@ export default {
 
   components: {
     DpButton,
+    DpContextualHelp,
     DpLoading,
     DpSlidingPagination: async () => {
       const { DpSlidingPagination } = await import('@demos-europe/demosplan-ui')
@@ -206,7 +210,7 @@ export default {
             this.deleteUser(id)
               .then(() => {
                 // Remove deleted item from itemSelections
-                Vue.delete(this.itemSelections, id)
+                delete this.itemSelections[id]
                 dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
               })
           })

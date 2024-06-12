@@ -28,7 +28,7 @@
 <template>
   <li
     :id="'itemdisplay_' + statement.id"
-    data-cy="statementCard"
+    :data-cy="dataCy"
     class="c-at-item"
     v-cloak>
     <!--  item header  -->
@@ -302,8 +302,8 @@
 
         <!--  statement tab  -->
         <div
-          class="bg-color-light flow-root"
-          v-show="tab === 'statement'">
+          v-show="tab === 'statement'"
+          class="bg-color-light">
           <!--  status / priorities  -->
           <dp-item-row
             v-if="hasPermission('field_statement_status') || hasPermission('field_statement_priority')"
@@ -600,11 +600,9 @@
                     v-slot:hint
                     v-if="recommendationPubliclyVisible">
                     {{ Translator.trans('recommendation.publicly.visible.short') }}
-                    <i
-                      v-tooltip="Translator.trans('recommendation.publicly.visible')"
-                      tabindex="0"
-                      class="fa fa-question-circle float-right u-pt-0_125"
-                      aria-hidden="true" />
+                    <dp-contextual-help
+                      class="float-right u-mt-0_125"
+                      :text="Translator.trans('recommendation.publicly.visible')" />
                   </template>
                 </editable-text>
               </dl>
@@ -649,7 +647,7 @@
         <!-- Fragments Tab -->
         <div
           v-if="hasPermission('area_statements_fragment')"
-          class="bg-color-light flow-root"
+          class="bg-color-light"
           v-show="tab==='fragments'">
           <div class="layout--flush u-p-0_5 u-pt-0_25 border--top u-nojs-show--block">
             <div class="layout__item c-at-item__row-icon color--grey" /><!--
@@ -748,7 +746,7 @@
 </template>
 
 <script>
-import { dpApi, formatDate, hasOwnProp, VPopover } from '@demos-europe/demosplan-ui'
+import { dpApi, DpContextualHelp, formatDate, hasOwnProp, VPopover } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
 import DpClaim from '../DpClaim'
@@ -762,6 +760,7 @@ export default {
   name: 'DpAssessmentTableCard',
 
   components: {
+    DpContextualHelp,
     DpClaim,
     DpEditFieldMultiSelect,
     DpEditFieldSingleSelect,
@@ -777,6 +776,12 @@ export default {
     csrfToken: {
       type: String,
       required: true
+    },
+
+    dataCy: {
+      type: String,
+      required: false,
+      default: 'statementCard'
     },
 
     isSelected: {

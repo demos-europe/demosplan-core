@@ -1,12 +1,17 @@
 <template>
   <div class="space-stack-xs">
+    <label
+      for="r_scales"
+      class="mb-0"
+      v-text="Translator.trans('map.scales')" />
     <dp-multiselect
       v-model="scales"
       label="label"
+      data-cy="map:mapAdminScales"
       multiple
       :options="availableScales"
       track-by="value"
-      @input="sortSelected('scales')">
+      @input="updateScales">
       <template v-slot:option="{ props }">
         {{ props.option.label }}
       </template>
@@ -39,7 +44,7 @@
 import { DpInlineNotification, DpMultiselect } from '@demos-europe/demosplan-ui'
 
 export default {
-  name: 'DpMapAdminScales',
+  name: 'MapAdminScales',
 
   components: {
     DpInlineNotification,
@@ -62,11 +67,18 @@ export default {
 
   data () {
     return {
+      areScalesSuitable: false,
       scales: this.selectedScales
     }
   },
 
-  computed: {
+  watch: {
+    selectedScales (newVal) {
+      this.scales = newVal
+    }
+  },
+
+  methods: {
     /**
      * To allow users to pick scales individually but prevent a combination
      * of scales that will cause performance issues (which is triggered by
@@ -74,7 +86,7 @@ export default {
      * a scale must not be bigger than 50x the preceding scale.
      * @return {boolean}
      */
-    areScalesSuitable () {
+    checkIfScalesAreSuitable () {
       if (this.scales.length < 2) {
         return true
       }
@@ -89,23 +101,24 @@ export default {
       }
 
       return true
-    }
-  },
+    },
 
-  watch: {
-    areScalesSuitable (value) {
-      this.$emit('change', value)
-    }
-  },
-
-  methods: {
     sortSelected () {
       this.scales.sort((a, b) => parseInt(a.value) - parseInt(b.value))
+    },
+
+    updateScales (scales) {
+      this.areScalesSuitable = this.checkIfScalesAreSuitable()
+      this.sortSelected()
+      this.$emit('suitableScalesChange', this.areScalesSuitable)
+      this.$emit('update', scales)
     }
   },
 
   mounted () {
+    this.areScalesSuitable = this.checkIfScalesAreSuitable()
     this.sortSelected()
+    this.$emit('suitableScalesChange', this.areScalesSuitable)
   }
 }
 </script>

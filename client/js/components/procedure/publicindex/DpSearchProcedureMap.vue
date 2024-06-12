@@ -12,39 +12,39 @@
     <div :class="prefixClass('c-proceduresearch__search-wrapper layout__item flex')">
       <dp-autocomplete
         v-if="dplan.settings.useOpenGeoDb"
-        data-cy="searchProcedureMapForm:procedureSearch"
-        name="search"
         id="procedure_search"
-        :class="prefixClass('c-proceduresearch__search-field')"
         ref="autocomplete"
         v-model="currentAutocompleteSearch"
+        :class="prefixClass('c-proceduresearch__search-field')"
+        data-cy="searchProcedureMapForm:procedureSearch"
+        height="34px"
+        label="value"
+        name="search"
+        :options="autocompleteOptions"
+        :placeholder="Translator.trans('procedure.public.search.placeholder')"
         :route-generator="(searchString) => {
           return Routing.generate('DemosPlan_procedure_public_suggest_procedure_location_json', {
             maxResults: 12,
             query: searchString
           })
         }"
-        :height="'34px'"
-        :options="autocompleteOptions"
-        :placeholder="Translator.trans('procedure.public.search.placeholder')"
         @search-changed="updateSuggestions"
-        @selected="search => setValueAndSubmitForm({ target: { value: search.value } }, 'search')"
         @searched="search => setValueAndSubmitForm({ target: { value: search } }, 'search')"
-        label="value" />
+        @selected="search => setValueAndSubmitForm({ target: { value: search.value } }, 'search')" />
 
       <template v-else>
-        <label
-          for="procedure_search_simple"
-          class="hide-visually"
-          v-html="Translator.trans('procedure.public.search.placeholder')" />
         <dp-input
-          :class="prefixClass('c-proceduresearch__search-field')"
           id="procedure_search_simple"
+          v-model="currentAutocompleteSearch"
+          :class="prefixClass('c-proceduresearch__search-field')"
+          :label="{
+            hidden: true,
+            text: Translator.trans('procedure.public.search.placeholder')
+          }"
           name="search"
-          width="auto"
-          @enter="form.search = currentAutocompleteSearch; submitForm();"
           :placeholder="Translator.trans('procedure.public.search.placeholder')"
-          v-model="currentAutocompleteSearch" />
+          width="auto"
+          @enter="form.search = currentAutocompleteSearch; submitForm();" />
       </template>
 
       <button
@@ -152,12 +152,10 @@
           :for="filter.name"
           :class="prefixClass('c-proceduresearch__filter-label layout__item u-mb-0_25 u-1-of-1')">
           {{ filter.title }}
-          <i
+          <dp-contextual-help
             v-if="filter.contextHelp !== ''"
-            tabindex="0"
-            class="fa fa-question-circle u-ml-0_25"
-            :aria-label="Translator.trans('contextual.help')"
-            v-tooltip="{ content: filter.contextHelp }" />
+            class="u-ml-0_25"
+            :text="filter.contextHelp" />
         </label><!--
      --><div
           :key="'select_' + filter.name"
@@ -197,6 +195,7 @@
         <h2
           v-if="isSearch"
           id="searchResultHeading"
+          aria-live="polite"
           role="status"
           :class="prefixClass('layout__item font-size-h2 u-pr u-mb c-proceduresearch__result')">
           Die Suche nach <span :class="prefixClass('c-proceduresearch__term weight--bold')">{{ currentSearch }}</span> hatte {{ resultCount }} Ergebnis
@@ -226,6 +225,7 @@
 <script>
 import {
   DpAutocomplete,
+  DpContextualHelp,
   DpInput,
   DpLoading,
   hasOwnProp,
@@ -239,6 +239,7 @@ export default {
 
   components: {
     DpAutocomplete,
+    DpContextualHelp,
     DpInput,
     DpLoading
   },
