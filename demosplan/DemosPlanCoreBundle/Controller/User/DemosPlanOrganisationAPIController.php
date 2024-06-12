@@ -20,10 +20,13 @@ use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
+use demosplan\DemosPlanCoreBundle\Event\User\NewOrgaCreatedEvent;
+use demosplan\DemosPlanCoreBundle\Event\User\OrgaAdminEditedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Exception\NullPointerException;
 use demosplan\DemosPlanCoreBundle\Exception\OrgaNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
@@ -40,11 +43,11 @@ use EDT\JsonApi\RequestHandling\PaginatorFactory;
 use Exception;
 use League\Fractal\Resource\Collection;
 use Pagerfanta\Adapter\ArrayAdapter;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use UnexpectedValueException;
-use Webmozart\Assert\Assert;
 
 class DemosPlanOrganisationAPIController extends APIController
 {
@@ -297,7 +300,8 @@ class DemosPlanOrganisationAPIController extends APIController
         CustomerHandler $customerHandler,
         PermissionsInterface $permissions,
         AccessControlService $accessControlPermission,
-        RoleHandler $roleHandler)
+        RoleHandler $roleHandler,
+        EventDispatcherInterface $eventDispatcher)
     {
         try {
             if (!($this->requestData instanceof TopLevel)) {
@@ -321,16 +325,29 @@ class DemosPlanOrganisationAPIController extends APIController
             }
 
             // Add new permission in case it is present in the request
-
+            $canCreateProcedures = null;
             if ($permissions->hasPermission('feature_manage_procedure_creation_permission')
                 && array_key_exists('canCreateProcedures', $orgaDataArray)) {
-                $roles = $roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY]);
-                Assert::count($roles, 1);
-                $role = $roles[0];
+                $role = $roleHandler->getRoleByCode(RoleInterface::PRIVATE_PLANNING_AGENCY);
 
-                if (true === $orgaDataArray['canCreateProcedures']) {
-                    $accessControlPermission->createPermission(AccessControlService::CREATE_PROCEDURES_PERMISSION, $newOrga, $customerHandler->getCurrentCustomer(), $role);
+                try {
+                    if (true === $orgaDataArray['canCreateProcedures']) {
+                        $canCreateProcedures = true;
+                        $accessControlPermission->createPermission(AccessControlService::CREATE_PROCEDURES_PERMISSION, $newOrga, $customerHandler->getCurrentCustomer(), $role);
+                    }
+                } catch (NullPointerException $e) {
+                    $this->logger->warning('Role was not found in Customer. Permission is not created', [
+                        'roleName'   => RoleInterface::PRIVATE_PLANNING_AGENCY,
+                        'permission' => AccessControlService::CREATE_PROCEDURES_PERMISSION,
+                    ]);
                 }
+            }
+
+            try {
+                $newOrgaCreatedEvent = new NewOrgaCreatedEvent($newOrga, $canCreateProcedures);
+                $eventDispatcher->dispatch($newOrgaCreatedEvent);
+            } catch (Exception $e) {
+                $this->logger->warning('Could not successfully perform orga created event', [$e]);
             }
 
             $item = $this->resourceService->makeItemOfResource($newOrga, OrgaResourceType::getName());
@@ -358,6 +375,7 @@ class DemosPlanOrganisationAPIController extends APIController
         UserHandler $userHandler,
         AccessControlService $accessControlPermission,
         RoleHandler $roleHandler,
+        EventDispatcherInterface $eventDispatcher,
         string $id)
     {
         $orgaId = $id;
@@ -385,16 +403,24 @@ class DemosPlanOrganisationAPIController extends APIController
                 $userHandler->setCanUpdateShowList(true);
             }
 
+            $canCreateProcedures = null;
             if ($permissions->hasPermission('feature_manage_procedure_creation_permission') && is_array($orgaDataArray['attributes'])
                 && array_key_exists('canCreateProcedures', $orgaDataArray['attributes'])) {
-                $roles = $roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY]);
-                Assert::count($roles, 1);
-                $role = $roles[0];
+                $role = $roleHandler->getRoleByCode(RoleInterface::PRIVATE_PLANNING_AGENCY);
 
-                if (true === $orgaDataArray['attributes']['canCreateProcedures']) {
-                    $accessControlPermission->createPermission(AccessControlService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
-                } else {
-                    $accessControlPermission->removePermission(AccessControlService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
+                try {
+                    if (true === $orgaDataArray['attributes']['canCreateProcedures']) {
+                        $accessControlPermission->createPermission(AccessControlService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
+                        $canCreateProcedures = true;
+                    } else {
+                        $accessControlPermission->removePermission(AccessControlService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
+                        $canCreateProcedures = false;
+                    }
+                } catch (NullPointerException $e) {
+                    $this->logger->warning('Role was not found in Customer. Permission is not created', [
+                        'roleName'   => RoleInterface::PRIVATE_PLANNING_AGENCY,
+                        'permission' => AccessControlService::CREATE_PROCEDURES_PERMISSION,
+                    ]);
                 }
             }
 
@@ -419,6 +445,13 @@ class DemosPlanOrganisationAPIController extends APIController
                 $userHandler->manageStatusChangeNotifications($updatedOrga, OrgaType::PLANNING_AGENCY, $customersWithPendingPlanningAgency, $currentCustomer);
 
                 $item = $this->resourceService->makeItemOfResource($updatedOrga, OrgaResourceType::getName());
+
+                try {
+                    $newOrgaCreatedEvent = new OrgaAdminEditedEvent($updatedOrga, $canCreateProcedures);
+                    $eventDispatcher->dispatch($newOrgaCreatedEvent);
+                } catch (Exception $e) {
+                    $this->logger->warning('Could not successfully perform orga created event', [$e]);
+                }
 
                 return $this->renderResource($item);
             }
