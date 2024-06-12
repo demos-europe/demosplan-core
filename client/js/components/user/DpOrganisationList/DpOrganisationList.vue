@@ -29,7 +29,7 @@
       <template v-if="Object.keys(pendingOrgs).length > 0 && pendingOrganisationsLoading === false">
         <ul
           class="o-list o-list--card u-mb"
-          data-cy="organisationList:organisationListWrapper">
+          data-cy="pendingOrganisationList">
           <dp-organisation-list-item
             class="o-list__item"
             v-for="(item, idx) in pendingOrgs"
