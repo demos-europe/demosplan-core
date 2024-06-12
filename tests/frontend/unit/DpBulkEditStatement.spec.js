@@ -35,24 +35,24 @@ describe('DpBulkEditStatement', () => {
   it('should enable the newAssignee option when checked', async () => {
     wrapper.setData({ options: { newAssignee: { checked: true, value: '' } } })
     await wrapper.vm.$nextTick()
-    expect(wrapper.vm.options.newAssignee.checked).toBe(true)
+    expect(wrapper.find('#r_new_assignee').element.checked).toBe(true)
   })
 
   it('should disable the newAssignee option when unchecked', async () => {
     wrapper.setData({ options: { newAssignee: { checked: false, value: '' } } })
     await wrapper.vm.$nextTick()
-    expect(wrapper.vm.options.newAssignee.checked).toBe(false)
+    expect(wrapper.find('#r_new_assignee').element.checked).toBe(false)
   })
 
   it('should enable the recommendation option when checked', async () => {
     wrapper.setData({ options: { recommendation: { checked: true, value: '' } } })
     await wrapper.vm.$nextTick()
-    expect(wrapper.vm.options.recommendation.checked).toBe(true)
+    expect(wrapper.find('#r_recommendation').element.checked).toBe(true)
   })
 
   it('should disable the recommendation option when unchecked', async () => {
     wrapper.setData({ options: { recommendation: { checked: false, value: '' } } })
     await wrapper.vm.$nextTick()
-    expect(wrapper.vm.options.recommendation.checked).toBe(false)
+    expect(wrapper.find('#r_recommendation').element.checked).toBe(false)
   })
 })
