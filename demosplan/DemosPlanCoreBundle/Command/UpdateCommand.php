@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Command;
 
 use Carbon\Carbon;
+use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\Exception\UpdateException;
 use demosplan\DemosPlanCoreBundle\Logic\DemosFilesystem;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
@@ -72,9 +73,10 @@ EOT
         $updateLockFile = DemosPlanPath::getRootPath('update.lock');
         $env = $isDeployment ? 'prod' : 'dev';
         $rootPath = DemosPlanPath::getRootPath();
-
+        /** @var DemosPlanKernel $kernel */
+        $kernel = $this->getApplication()->getKernel();
         if (null !== $this->getApplication()
-            && $this->getApplication()->getKernel()->isLocalContainer()) {
+            && $kernel->isLocalContainer()) {
             $output->writeln('Will not run in your container to prevent damage.');
 
             return Command::FAILURE;
@@ -157,8 +159,9 @@ EOT
                 $fs->remove($jmsSerializerDocpath);
             }
         }
-
-        $bin = $this->getApplication()->getKernel()->getActiveProject();
+        /** @var DemosPlanKernel $kernel */
+        $kernel = $this->getApplication()->getKernel();
+        $bin = $kernel->getActiveProject();
 
         Batch::create($this->getApplication(), $output)
             // clear any caches and rebuild container before syncing files
@@ -228,8 +231,9 @@ EOT
         if (null === $this->getApplication()) {
             throw UpdateException::assetBuildImpossible();
         }
-
-        $projectName = $this->getApplication()->getKernel()->getActiveProject();
+        /** @var DemosPlanKernel $kernel */
+        $kernel = $this->getApplication()->getKernel();
+        $projectName = $kernel->getActiveProject();
 
         $feCommand = ['./fe', 'build', $projectName];
 

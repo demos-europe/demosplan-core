@@ -769,7 +769,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * Votum der Statskanzlei.
-     * Kind of vote advice.
+     * Concrete vote of this statement.
      *
      * @var string
      *
@@ -778,8 +778,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     protected $voteStk;
 
     /**
-     * Votum des Planungsbüros
-     * Concrete vote of this statement.
+     * Votum (Empfehlung) des Planungsbüros
+     * Kind of vote advice.
      *
      * @var string
      *
@@ -3400,7 +3400,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     }
 
     /**
-     * @return user|null
+     * @return User|null
      *
      * @throws Exception
      */

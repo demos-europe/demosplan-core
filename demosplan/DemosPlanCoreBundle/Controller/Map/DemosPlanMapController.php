@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
 use demosplan\DemosPlanCoreBundle\Exception\MapValidationException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapHandler;
@@ -30,7 +29,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceStorage as ProcedureSer
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Services\Map\GetFeatureInfo;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use Exception;
 use InvalidArgumentException;
 use SimpleXMLElement;
@@ -61,43 +59,10 @@ class DemosPlanMapController extends BaseController
      */
     #[Route(name: 'DemosPlan_map_administration_map', path: '/verfahren/{procedureId}/verwalten/globaleGisEinstellungen', options: ['expose' => true])]
     public function mapAdminAction(
-        ProcedureServiceStorage $procedureServiceStorage,
         Breadcrumb $breadcrumb,
-        ContentService $contentService,
-        CurrentProcedureService $currentProcedureService,
-        GetFeatureInfo $getFeatureInfo,
-        MapService $mapService,
-        ProcedureService $procedureService,
-        Request $request,
         TranslatorInterface $translator,
         $procedureId
     ) {
-        $templateVars = [];
-        $inData = $this->prepareIncomingData($request, 'mapglobals');
-        // Wenn das Formular abgeschickt wurde, wird editStatementAction erneut aufgerufen, handlet die Daten und leitet dann auf die passende Liste weiter.
-
-        if (array_key_exists('action', $inData) && 'mapglobals' === $inData['action']) {
-            $storageResult = $procedureServiceStorage->administrationGlobalGisHandler($inData, $procedureId);
-
-            if (false != $storageResult && array_key_exists('ident', $storageResult) && !array_key_exists('mandatoryfieldwarning', $storageResult)) {
-                // Erfolgsmeldung
-                $this->getMessageBag()->add('confirm', 'confirm.mapsection.saved');
-                if ($request->request->has('submit_item_return_button')) {
-                    return new RedirectResponse($this->generateUrl('DemosPlan_element_administration', ['procedure' => $procedureId]));
-                }
-
-                return $this->redirectToRoute('DemosPlan_map_administration_map', ['procedureId' => $procedureId]);
-            }
-        }
-
-        $outputResult = $currentProcedureService->getProcedureArray();
-        $templateVars['mapglobals'] = $outputResult['settings'];
-        // globale Sachdatenabfrage hinzufügen
-        $templateVars['mapglobals']['featureInfoUrl'] = $getFeatureInfo;
-        //  to be interpreted as json, the string begins with '[' and ends with ']'; those have to be removed first
-        $scales = str_replace(['[', ']'], '', (string) $this->globalConfig->getMapPublicAvailableScales());
-        $templateVars['availableScales'] = explode(',', $scales);
-
         // reichere die breadcrumb mit extraItem an
         $breadcrumb->addItem(
             [
@@ -109,27 +74,9 @@ class DemosPlanMapController extends BaseController
             ]
         );
 
-        // get settings of current procedure
-        $settings = $contentService->getSettings(
-            'layerGroupsAlternateVisibility',
-            SettingsFilter::whereProcedureId($procedureId)->lock(),
-            false
-        );
-
-        $layerGroupsAlternateVisibility = (1 === count((array) $settings)) ? $settings[0]->getContent() : false;
-        if (false === is_bool($layerGroupsAlternateVisibility)) {
-            $layerGroupsAlternateVisibility = filter_var($layerGroupsAlternateVisibility, FILTER_VALIDATE_BOOLEAN);
-        }
-        $templateVars['mapglobals']['layerGroupsAlternateVisibility'] = $layerGroupsAlternateVisibility;
-        // @improve T14122
-        $templateVars['mapOptions'] = $mapService->getMapOptions($procedureId);
-        $procedureObject = $procedureService->getProcedure($procedureId);
-        $templateVars['coordinate'] = $procedureObject->getCoordinate();
-        $templateVars['territory'] = $procedureObject->getSettings()->getTerritory();
-
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanMap/map_admin.html.twig',
-            ['templateVars' => $templateVars, 'procedure' => $procedureId, 'title' => 'drawing.admin.adjustments.gis']
+            ['procedure' => $procedureId, 'title' => 'drawing.admin.adjustments.gis']
         );
     }
 

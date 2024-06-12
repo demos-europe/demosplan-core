@@ -18,10 +18,12 @@ use demosplan\DemosPlanCoreBundle\Addon\AddonInfo;
 use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\Addon\Composer\PackageInformation;
 use demosplan\DemosPlanCoreBundle\Addon\Registrator;
+use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
 use RuntimeException;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -40,7 +42,7 @@ class AddonUninstallCommand extends CoreCommand
         private readonly AddonRegistry $registry,
         private readonly Registrator $registrator,
         ParameterBagInterface $parameterBag,
-        string $name = null
+        ?string $name = null
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -73,7 +75,9 @@ class AddonUninstallCommand extends CoreCommand
                 static fn ($addonInfo) => $addonInfo->getName(), $addonsInfos
             ));
             $question = new ChoiceQuestion('Which addon do you want to uninstall? ', $addons);
-            $name = $this->getHelper('question')->ask($input, $output, $question);
+            /** @var QuestionHelper $questionHelper */
+            $questionHelper = $this->getHelper('question');
+            $name = $questionHelper->ask($input, $output, $question);
         }
 
         if (!array_key_exists($name, $addonsInfos)) {
@@ -139,7 +143,11 @@ class AddonUninstallCommand extends CoreCommand
         // remove files in symlinked target if they exist
         $symlinkedPath = $filesystem->readlink($installPath, true);
         if (null !== $symlinkedPath) {
-            $filesystem->remove($symlinkedPath);
+            // do not delete files in symlinked target if they are symlinked from somewhere else
+            $symlinkedDevPath = $filesystem->readlink($symlinkedPath, true);
+            if (null === $symlinkedDevPath) {
+                $filesystem->remove($symlinkedPath);
+            }
         }
         $filesystem->remove($installPath);
         $output->info('Addon successfully deleted from cache directory.');
@@ -156,7 +164,8 @@ class AddonUninstallCommand extends CoreCommand
     {
         $kernel = $this->getApplication()->getKernel();
         $environment = $kernel->getEnvironment();
-        $activeProject = $this->getApplication()->getKernel()->getActiveProject();
+        /** @var DemosPlanKernel $kernel */
+        $activeProject = $kernel->getActiveProject();
         $batchReturn = Batch::create($this->getApplication(), $output)
             ->addShell(['composer', 'remove', $addonInfo->getName(), '--working-dir=addons'])
             ->addShell(['composer', 'bin', 'addons', 'update', '-a', '-o', '--prefer-lowest'])

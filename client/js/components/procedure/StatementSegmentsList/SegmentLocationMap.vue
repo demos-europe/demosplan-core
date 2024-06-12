@@ -17,8 +17,13 @@
       <dp-ol-map
         ref="map"
         :procedure-id="procedureId"
+        :map-options="{
+          procedureMaxExtent: mapData.mapExtent ?? []
+        }"
         :options="{
-          autoSuggest: false
+          autoSuggest: false,
+          defaultAttribution: mapData.copyright,
+          initialExtent: mapData.boundingBox ?? [],
         }">
         <template v-if="hasPermission('feature_segment_polygon_set')">
           <dp-ol-map-draw-feature
@@ -103,6 +108,7 @@ import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature'
 import DpOlMapEditFeature from '@DpJs/components/map/map/DpOlMapEditFeature'
 import { extend } from 'ol/extent'
+import { fromExtent } from 'ol/geom/Polygon'
 
 export default {
   name: 'SegmentLocationMap',
@@ -111,10 +117,16 @@ export default {
     DpButtonRow,
     DpOlMap,
     DpOlMapDrawFeature,
-    DpOlMapEditFeature
+    DpOlMapEditFeature,
   },
 
   props: {
+    mapData: {
+      type: Object,
+      required: false,
+      default: () => ({})
+    },
+
     procedureId: {
       type: String,
       required: true
@@ -135,8 +147,7 @@ export default {
     return {
       currentPolygons: [],
       hasChanges: true,
-      initPolygons: [],
-      mapData: null
+      initPolygons: []
     }
   },
 
@@ -151,6 +162,24 @@ export default {
       return {
         type: 'FeatureCollection',
         features: this.initPolygons.filter(f => f.geometry.type === 'Point') || []
+      }
+    },
+
+    features () {
+      /*
+       *  Transform the value that is saved as a string into valid GeoJSON
+       *  to be able to use it with a generic vector layer component
+       */
+      return {
+        boundingBox: this.mapData.boundingBox
+          ? {
+              type: 'Feature',
+              geometry: {
+                type: 'Polygon',
+                coordinates: fromExtent(JSON.parse(`[${this.mapData.boundingBox}]`)).getCoordinates()
+              }
+            }
+          : null
       }
     },
 
@@ -191,6 +220,10 @@ export default {
         if (this.featuresObject.features.length > 0) {
           this.$nextTick(() => {
             this.setCenterAndExtent()
+          })
+        } else if (this.mapData.boundingBox) {
+          this.$nextTick(() => {
+            this.setInitExtent()
           })
         }
       }
@@ -242,6 +275,13 @@ export default {
         .catch(() => {
           dplan.notify.error(Translator.trans('error.changes.not.saved'))
         })
+    },
+
+    setInitExtent () {
+      this.$refs.map.map.updateSize()
+      this.$nextTick(() => {
+        this.$refs.map.map.getView().fit(JSON.parse(`[${this.mapData.boundingBox}]`), { size: this.$refs.map.map.getSize() })
+      })
     },
 
     /*

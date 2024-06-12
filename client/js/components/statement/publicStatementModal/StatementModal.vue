@@ -390,6 +390,7 @@
             type="reset"
             :disabled="isLoading"
             :class="prefixClass('btn btn--secondary u-1-of-1-palm')"
+            data-cy="statementModal:discardStatement"
             @click.prevent="() => reset()">
             {{ Translator.trans('discard.statement') }}
           </button>
@@ -617,6 +618,7 @@
             <a
               :class="prefixClass('btn btn--primary u-1-of-1-palm')"
               :href="Routing.generate('DemosPlan_statement_single_export_pdf',{ sId: draftStatementId , procedure: procedureId })"
+              data-cy="statementModal:downloadPDF"
               rel="noopener"
               target="_blank">
               <i
@@ -630,6 +632,7 @@
                 :class="prefixClass('btn btn--secondary')"
                 @click="toggleModal"
                 :href="Routing.generate('DemosPlan_procedure_public_detail', { procedure: procedureId })"
+                data-cy="statementModal:close"
                 rel="noopener">
                 {{ Translator.trans('close') }}
               </a>
@@ -1283,6 +1286,16 @@ export default {
 
       return makeFormPost(this.formData, route)
         .then(response => {
+          if (response.status === 429) {
+            dplan.notify.notify('error', Translator.trans('error.statement.not.saved.throttle'))
+
+            return false;
+          }
+          if (response.status !== 200) {
+            dplan.notify.notify('error', Translator.trans('error.statement.not.saved'))
+
+            return false;
+          }
           /*
            * Handling for successful responses
            * if its not an HTML-Response like after creating a new one
@@ -1325,7 +1338,9 @@ export default {
           // @IMPROVE throw success message instead of sending it as Html with the response
           if (response.data && response.data.data && response.data.data.submitRoute) {
             // Go to confirm page to submit draft immediately
-            window.location.href = response.data.data.submitRoute
+            setTimeout(() => {
+              window.location.href = response.data.data.submitRoute
+            }, 2000)
           } else if (this.draftStatementId !== '') {
             // Go to draft statement list and highlight current draft
             this.toggleModal(false)

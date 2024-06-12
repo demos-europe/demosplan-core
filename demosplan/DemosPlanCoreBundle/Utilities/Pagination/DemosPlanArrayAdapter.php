@@ -23,10 +23,7 @@ class DemosPlanArrayAdapter extends ArrayAdapter
         $this->nbResults = $resultCount;
     }
 
-    /**
-     * @return int
-     */
-    public function getNbResults()
+    public function getNbResults(): int
     {
         return $this->nbResults;
     }
@@ -37,7 +34,7 @@ class DemosPlanArrayAdapter extends ArrayAdapter
      *
      * @return array|Traversable
      */
-    public function getSlice($offset, $length)
+    public function getSlice($offset, $length): iterable
     {
         return $this->getArray();
     }

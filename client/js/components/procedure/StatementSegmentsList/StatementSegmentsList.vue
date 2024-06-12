@@ -23,6 +23,7 @@
       <segment-location-map
         v-show="slidebar.showTab === 'map'"
         ref="locationMap"
+        :map-data="procedureMapSettings"
         :procedure-id="procedure.id"
         :segment-id="slidebar.segmentId"
         :statement-id="statementId" />
@@ -312,6 +313,7 @@ export default {
     return {
       currentAction: 'addRecommendation',
       isLoading: false,
+      procedureMapSettings: {},
       segmentDraftList: '',
       // Add key to meta box to rerender the component in case the save request fails and the data is store in set back to initial values
       showInfobox: false,
@@ -477,15 +479,19 @@ export default {
       setStatement: 'setItem'
     }),
 
+    ...mapActions('assignableUser', {
+      listAssignableUser: 'list'
+    }),
+
+    ...mapActions('ProcedureMapSettings', {
+      fetchProcedureMapSettings: 'fetchProcedureMapSettings'
+    }),
+
     ...mapActions('statement', {
       getStatementAction: 'get',
       saveStatementAction: 'save',
       updateStatementAction: 'update',
       restoreStatementAction: 'restoreFromInitial'
-    }),
-
-    ...mapActions('assignableUser', {
-      listAssignableUser: 'list'
     }),
 
     ...mapActions('segmentSlidebar', [
@@ -766,6 +772,10 @@ export default {
       }
     })
     this.setContent({ prop: 'commentsList', val: { ...this.commentsList, procedureId: this.procedure.id, statementId: this.statementId } })
+    this.fetchProcedureMapSettings(this.procedureId)
+      .then(response => {
+        this.procedureMapSettings = response.attributes
+      })
   }
 }
 </script>

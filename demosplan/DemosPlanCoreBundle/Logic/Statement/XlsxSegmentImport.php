@@ -13,9 +13,11 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\StatementCreatedViaExcelEventInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualOriginalStatementCreatedEvent;
+use demosplan\DemosPlanCoreBundle\Event\Statement\StatementCreatedViaExcelEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\RowAwareViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\ExcelImporter;
@@ -27,6 +29,7 @@ use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Finder\SplFileInfo;
 
 class XlsxSegmentImport
@@ -44,6 +47,7 @@ class XlsxSegmentImport
         private readonly CurrentUserInterface $currentUser,
         private readonly EntityManagerInterface $entityManager,
         private readonly EventDispatcherPostInterface $eventDispatcher,
+        private readonly EventDispatcherInterface $dispatcher,
         private readonly ExcelImporter $xlsxSegmentImporter,
         private readonly LoggerInterface $logger,
         private readonly SegmentRepository $segmentRepository,
@@ -104,6 +108,15 @@ class XlsxSegmentImport
             $this->entityManager->flush();
 
             $doctrineConnection->commit();
+
+            foreach ($importResult->getStatements() as $statement) {
+                // this event allows to send segmentation proposals requests
+                $this->dispatcher->dispatch(
+                    new StatementCreatedViaExcelEvent($statement),
+                    StatementCreatedViaExcelEventInterface::class
+                );
+            }
+
 
             return $importResult;
         } catch (Exception $exception) {
