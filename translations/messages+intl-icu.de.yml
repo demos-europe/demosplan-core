@@ -2764,6 +2764,7 @@ public.index.filter.gfk.location.results: |
         =0 {Es wurden zu der Kommune folgende Verfahren gefunden:}
         =1 {Es wurden zu der Kommune {locationName} folgende Verfahren gefunden:}
     }
+public.index.heading: "{projectName}: Plattform zur öffentlichen Mitwirkung bei räumlichen Planungen und Genehmigungsverfahren"
 public.or.invitable_institution: "Öffentlichkeit/Institutionen"
 public.participation.contact: "Ansprechperson"
 public.participation.contribute: "Mitreden"
