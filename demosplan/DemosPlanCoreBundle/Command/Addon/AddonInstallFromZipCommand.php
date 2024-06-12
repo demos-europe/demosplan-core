@@ -25,6 +25,7 @@ use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Addon\AddonManifestCollection;
 use demosplan\DemosPlanCoreBundle\Addon\Composer\PackageInformation;
 use demosplan\DemosPlanCoreBundle\Addon\Registrator;
+use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Exception\AddonException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
@@ -182,7 +183,8 @@ class AddonInstallFromZipCommand extends CoreCommand
 
             $kernel = $this->getApplication()->getKernel();
             $environment = $kernel->getEnvironment();
-            $activeProject = $this->getApplication()->getKernel()->getActiveProject();
+            /** @var DemosPlanKernel $kernel */
+            $activeProject = $kernel->getActiveProject();
 
             $batchReturn = Batch::create($this->getApplication(), $output)
                 ->addShell(["bin/{$activeProject}", 'cache:clear', '-e', $environment])
