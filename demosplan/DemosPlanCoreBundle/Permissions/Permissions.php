@@ -270,7 +270,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             $this->enablePermissions([
                 'area_manage_departments',  // Abteilungen
                 'area_manage_orgadata',  // Daten der eignen Organisation verwalten
-                'area_manage_users',  // User verwalten
                 'area_mydata_organisation',  // Daten der Organisation
                 'area_organisations_view_of_customer',
                 'area_preferences',  // Einstellungen
@@ -278,14 +277,8 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'feature_json_api_delete',
                 'feature_json_api_list',
                 'feature_json_api_update',
-                'feature_orga_edit',
                 'feature_orga_edit_all_fields',
                 'feature_orga_get',
-                'feature_user_add',
-                'feature_user_delete',
-                'feature_user_edit',
-                'feature_user_get',
-                'feature_user_list',
                 'field_statement_recommendation',
             ]);
         }
