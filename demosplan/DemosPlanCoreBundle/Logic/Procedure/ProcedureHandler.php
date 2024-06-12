@@ -876,6 +876,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
                 && !$endedInternalProcedure['master'] && !$endedInternalProcedure['deleted']) {
                 $endedInternalProcedure['phase'] = $internalPhaseKey;
                 $endedInternalProcedure['phaseName'] = $internalPhaseName;
+                $endedInternalProcedure['customer'] = $endedInternalProcedure['customer']['id'];
 
                 $updatedProcedure = $this->procedureService->updateProcedure($endedInternalProcedure);
                 $changedInternalProcedures->push($updatedProcedure);
@@ -899,6 +900,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
                 && !$endedExternalProcedure['master'] && !$endedExternalProcedure['deleted']) {
                 $endedExternalProcedure['publicParticipationPhase'] = $externalPhaseKey;
                 $endedExternalProcedure['publicParticipationPhaseName'] = $externalPhaseName;
+                $endedExternalProcedure['customer'] = $endedExternalProcedure['customer']['id'];
 
                 $updatedProcedure = $this->procedureService->updateProcedure($endedExternalProcedure);
                 $changedExternalProcedures->push($updatedProcedure);
