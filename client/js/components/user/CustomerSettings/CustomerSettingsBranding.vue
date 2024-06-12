@@ -177,7 +177,7 @@ export default {
         },
         relationships: {
           logo: {
-            data: { id: this.uploadedFileId, type: 'file' }
+            data: { id: this.uploadedFileId, type: 'File' }
           }
         }
       }

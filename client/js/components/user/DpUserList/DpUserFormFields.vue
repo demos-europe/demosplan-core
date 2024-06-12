@@ -107,7 +107,7 @@
       <dp-multiselect
         :id="userId + ':userRoles'"
         ref="rolesDropdown"
-        class="u-mb-0_5"
+        class="u-mb-0_5 whitespace-normal"
         :custom-label="option =>`${ roles[option.id].attributes.name }`"
         data-cy="role"
         label="name"

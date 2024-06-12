@@ -36,9 +36,9 @@
               {{ locationContacts.street }}
             </dd>
             <dd
-              v-if="locationContacts.postalCode"
+              v-if="locationContacts.postalcode"
               class="ml-0">
-              {{ locationContacts.postalCode }}
+              {{ locationContacts.postalcode }}
             </dd>
             <dd
               v-if="locationContacts.city"
