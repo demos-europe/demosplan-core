@@ -1,7 +1,9 @@
 .idea/
 */vendor
+addonDev
 addonZip
 addonZips
+addonDev
 addons
 node_modules
 yarn-error.log
@@ -33,6 +35,7 @@ logs
 /projects/core/web/img
 /projects/core/web/js
 /projects/core/web/video
+/projects/core/web/files
 
 ###> symfony/framework-bundle ###
 /.env.local

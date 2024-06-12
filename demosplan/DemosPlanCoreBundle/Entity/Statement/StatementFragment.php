@@ -308,7 +308,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
      *
      * @ORM\JoinColumn(name="last_claimed", referencedColumnName="_u_id", onDelete="SET NULL")
      */
-    protected $lastClaimed = null;
+    protected $lastClaimed;
 
     /**
      * Virtuelle Eigenschaft für die ElementId.
@@ -1439,7 +1439,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
             $this->paragraphTitle = $this->paragraph->getTitle();
         }
 
-        return trim($this->paragraphTitle);
+        return trim($this->paragraphTitle ?? '');
     }
 
     /**

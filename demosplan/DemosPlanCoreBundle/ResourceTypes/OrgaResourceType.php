@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
 use Doctrine\Common\Collections\Collection;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
@@ -66,6 +67,7 @@ use Illuminate\Support\Collection as IlluminateCollection;
  * @property-read BrandingResourceType             $branding
  * @property-read RoleResourceType                 $allowedRoles
  * @property-read InstitutionTagResourceType       $ownInstitutionTags
+ * @property-read End                              $canCreateProcedures
  */
 final class OrgaResourceType extends DplanResourceType
 {
@@ -84,7 +86,7 @@ final class OrgaResourceType extends DplanResourceType
      */
     private const REGISTRATION_STATUSES_SUBDOMAIN = 'subdomain';
 
-    public function __construct(private readonly RoleService $roleService)
+    public function __construct(private readonly RoleService $roleService, protected readonly AccessControlService $accessControlPermissionService)
     {
     }
 
@@ -214,6 +216,14 @@ final class OrgaResourceType extends DplanResourceType
         if ($this->currentUser->hasPermission('area_manage_users')) {
             $properties[] = $this->createToManyRelationship($this->allowedRoles)
                 ->readable(false, $this->getAllowedRoles(...));
+        }
+
+        if ($this->currentUser->hasPermission('feature_manage_procedure_creation_permission')) {
+            $properties[] = $this->createAttribute($this->canCreateProcedures)->readable(true, function (Orga $orga): bool {
+                $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
+
+                return $this->accessControlPermissionService->permissionExist(AccessControlService::CREATE_PROCEDURES_PERMISSION, $orga, $currentCustomer);
+            });
         }
 
         return $properties;

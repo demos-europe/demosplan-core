@@ -5,7 +5,6 @@ cebe/php-openapi: MIT
 cocur/slugify: MIT
 composer/package-versions-deprecated: MIT
 demos-europe/demosplan-addon: MIT
-demos-europe/edt-extra: MIT
 doctrine/annotations: MIT
 doctrine/common: MIT
 doctrine/doctrine-bundle: MIT
@@ -102,6 +101,7 @@ symfony/process: MIT
 symfony/property-access: MIT
 symfony/property-info: MIT
 symfony/proxy-manager-bridge: MIT
+symfony/rate-limiter: MIT
 symfony/security-bundle: MIT
 symfony/security-csrf: MIT
 symfony/serializer: MIT
@@ -128,4 +128,4 @@ wsdltophp/packagegenerator: MIT
 yectep/phpspreadsheet-bundle: MIT
 zenstruck/foundry: MIT
 
-As of 07.05.2024 07:02
+As of 06.06.2024 07:03

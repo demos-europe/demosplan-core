@@ -7,6 +7,7 @@
     <dp-multiselect
       v-model="scales"
       label="label"
+      data-cy="map:mapAdminScales"
       multiple
       :options="availableScales"
       track-by="value"
