@@ -1338,7 +1338,9 @@ export default {
           // @IMPROVE throw success message instead of sending it as Html with the response
           if (response.data && response.data.data && response.data.data.submitRoute) {
             // Go to confirm page to submit draft immediately
-            window.location.href = response.data.data.submitRoute
+            setTimeout(() => {
+              window.location.href = response.data.data.submitRoute
+            }, 2000)
           } else if (this.draftStatementId !== '') {
             // Go to draft statement list and highlight current draft
             this.toggleModal(false)

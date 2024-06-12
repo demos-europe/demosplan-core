@@ -36,9 +36,9 @@
               {{ locationContacts.street }}
             </dd>
             <dd
-              v-if="locationContacts.postalCode"
+              v-if="locationContacts.postalcode"
               class="ml-0">
-              {{ locationContacts.postalCode }}
+              {{ locationContacts.postalcode }}
             </dd>
             <dd
               v-if="locationContacts.city"
@@ -113,6 +113,7 @@
               @click="addPublicInterestBodies(selectedItems)" />
             <a
               :href="Routing.generate('DemosPlan_procedure_member_index', { procedure: procedureId })"
+              data-cy="organisationList:abortAndBack"
               class="btn btn--secondary">
               {{ Translator.trans('abort.and.back') }}
             </a>

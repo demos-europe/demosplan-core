@@ -27,7 +27,9 @@
         v-if="pendingOrganisationsLoading"
         class="u-ml u-mt u-mb-2" />
       <template v-if="Object.keys(pendingOrgs).length > 0 && pendingOrganisationsLoading === false">
-        <ul class="o-list o-list--card u-mb">
+        <ul
+          class="o-list o-list--card u-mb"
+          data-cy="pendingOrganisationList">
           <dp-organisation-list-item
             class="o-list__item"
             v-for="(item, idx) in pendingOrgs"
@@ -66,6 +68,7 @@
         @reset="resetSearch" />
       <dp-checkbox-group
         class="inline-block u-pv-0_5 float-right"
+        data-cy="organisationList:filterItems"
         :label="filterLabel"
         :options="filterItems"
         inline
@@ -178,6 +181,7 @@ const orgaFields = {
     'subdomain'
   ].join(),
   Orga: [
+    'canCreateProcedures',
     'ccEmail2',
     'city',
     'competence',
