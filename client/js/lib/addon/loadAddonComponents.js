@@ -1,6 +1,12 @@
 import { checkResponse, dpRpc } from '@demos-europe/demosplan-ui'
 
 export default async function loadAddonComponents (hookName) {
+  if (window.dplan.loadedAddons[hookName]) {
+    return []
+  }
+
+  window.dplan.loadedAddons[hookName] = true
+
   const params = {
     hookName: hookName
   }
@@ -13,6 +19,14 @@ export default async function loadAddonComponents (hookName) {
 
       for (const key of Object.keys(result)) {
         const addon = result[key]
+        if (addon === undefined) {
+          /*
+           * If for some reason we don't receive a valid response object from the backend
+           * we'll just skip it.
+           */
+          console.debug('Skipping addon hook response evaluation for ' + key)
+          continue
+        }
         const contentKey = addon.entry + '.umd.js'
         const content = addon.content[contentKey]
 
@@ -22,10 +36,14 @@ export default async function loadAddonComponents (hookName) {
           options: addon.options ?? ''
         })
 
+        /*
+         * While eval is generally a BAD IDEA, we really need to evaluate the code
+         * we're adding dynamically to use the provided addon's script from now on.
+         */
+        // eslint-disable-next-line no-eval
         eval(content)
       }
 
       return addons
     })
 }
-
