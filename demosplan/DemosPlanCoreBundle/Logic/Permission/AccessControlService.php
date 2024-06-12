@@ -196,6 +196,8 @@ class AccessControlService extends CoreService
 
         $this->removePermission(self::CREATE_PROCEDURES_PERMISSION, $orga, $customer, $role);
 
+    }
+
     public function enablePermissionCustomerOrgaRole(string $permissionToEnable, CustomerInterface $customer, RoleInterface $role, bool $dryRun = false): array
     {
         // enable permission for all orga on the given customer and role
