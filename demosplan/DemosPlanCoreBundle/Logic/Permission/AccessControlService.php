@@ -35,7 +35,6 @@ class AccessControlService extends CoreService
 {
     public const CREATE_PROCEDURES_PERMISSION = 'feature_admin_new_procedure';
 
-
     public function __construct(
         private readonly AccessControlRepository $accessControlPermissionRepository,
         private readonly RoleHandler $roleHandler,
@@ -216,30 +215,24 @@ class AccessControlService extends CoreService
             if (null !== $updatedOrga) {
                 $updatedOrgas[] = $updatedOrga;
             }
-
         }
 
         return $updatedOrgas;
     }
 
-
     /**
-    $orgatype = getorgatype
-
-    $orgatypeForRole = getOrgaTypebasedonRole
-    if $orgatype === $orgatypeForRole --> add permission
-
+     * $orgatype = getorgatype.
+     *
+     * $orgatypeForRole = getOrgaTypebasedonRole
+     * if $orgatype === $orgatypeForRole --> add permission
      */
-
-    private function addPermissionBasedOnOrgaType(string $permissionToEnable, RoleInterface $role, OrgaInterface $orgaInCustomer, CustomerInterface $customer, bool $dryRun): ?OrgaInterface {
-
+    private function addPermissionBasedOnOrgaType(string $permissionToEnable, RoleInterface $role, OrgaInterface $orgaInCustomer, CustomerInterface $customer, bool $dryRun): ?OrgaInterface
+    {
         $orgaTypesInCustomer = $orgaInCustomer->getTypes($customer->getSubdomain(), true);
         foreach ($orgaTypesInCustomer as $orgaTypeInCustomer) {
-
-            if (self::CREATE_PROCEDURES_PERMISSION === $permissionToEnable &&
-                OrgaTypeInterface::PLANNING_AGENCY === $orgaTypeInCustomer &&
-                RoleInterface::PRIVATE_PLANNING_AGENCY !== $role->getCode()){
-
+            if (self::CREATE_PROCEDURES_PERMISSION === $permissionToEnable
+                && OrgaTypeInterface::PLANNING_AGENCY === $orgaTypeInCustomer
+                && RoleInterface::PRIVATE_PLANNING_AGENCY !== $role->getCode()) {
                 continue;
             }
 
@@ -252,8 +245,7 @@ class AccessControlService extends CoreService
             return $orgaInCustomer;
         }
 
-        //Return null if no orga is impacted
+        // Return null if no orga is impacted
         return null;
     }
-
 }
