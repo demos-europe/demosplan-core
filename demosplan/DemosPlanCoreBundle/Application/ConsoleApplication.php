@@ -22,6 +22,7 @@ class ConsoleApplication extends Application
         parent::__construct($kernel);
 
         /* @var DemosPlanKernel $kernel */
+        // @phpstan-ignore-next-line
         $this->setName('demosplan.'.$kernel->getActiveProject().' on Symfony');
     }
 
@@ -41,8 +42,9 @@ class ConsoleApplication extends Application
     private function addProjectFolderConsoleDeprecationNotice(OutputInterface $output): void
     {
         if ($this->isDeprecatedFrontController) {
-            $activeProject = $this->getKernel()->getActiveProject();
-
+            /** @var DemosPlanKernel $kernel */
+            $kernel = $this->getKernel();
+            $activeProject = $kernel->getActiveProject();
             $message = "Warning, this console is moving to bin/{$activeProject}, please adjust your usage accordingly.";
 
             $output->write("\e[31m{$message}\e[0m\n");
