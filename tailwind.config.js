@@ -13,7 +13,10 @@ const config = {
     './projects/**/templates/**/*.twig',
     './templates/bundles/DemosPlanCoreBundle/**/*.twig',
     './addons/vendor/demos-europe/demosplan-addon-*/client/**/*.{js,vue}'
-  ]
+  ],
+  corePlugins: {
+    preflight: false,
+  }
 }
 
 module.exports = config
