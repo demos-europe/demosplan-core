@@ -220,16 +220,13 @@ class AccessControlService extends CoreService
         return $updatedOrgas;
     }
 
-    /**
-     * $orgatype = getorgatype.
-     *
-     * $orgatypeForRole = getOrgaTypebasedonRole
-     * if $orgatype === $orgatypeForRole --> add permission
-     */
+
     private function addPermissionBasedOnOrgaType(string $permissionToEnable, RoleInterface $role, OrgaInterface $orgaInCustomer, CustomerInterface $customer, bool $dryRun): ?OrgaInterface
     {
         $orgaTypesInCustomer = $orgaInCustomer->getTypes($customer->getSubdomain(), true);
         foreach ($orgaTypesInCustomer as $orgaTypeInCustomer) {
+
+            //If permission is 'CREATE_PROCEDURES_PERMISSION' and orga type is 'PLANNING_AGENCY' and role is not 'PRIVATE_PLANNING_AGENCY', skip it
             if (self::CREATE_PROCEDURES_PERMISSION === $permissionToEnable
                 && OrgaTypeInterface::PLANNING_AGENCY === $orgaTypeInCustomer
                 && RoleInterface::PRIVATE_PLANNING_AGENCY !== $role->getCode()) {
