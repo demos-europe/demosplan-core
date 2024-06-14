@@ -74,7 +74,7 @@ class KeycloakUserDataMapper
 
     private function getUserForNewCitizen(KeycloakUserData $keycloakUserData): User
     {
-        $login = $keycloakUserData->getId();
+        $login = $keycloakUserData->getUserName();
 
         // check whether existing user needs to be updated.
         // when user with email exists, update login field to saml login
@@ -111,7 +111,7 @@ class KeycloakUserDataMapper
     private function getUserForOrga(KeycloakUserData $keycloakUserData): UserInterface
     {
         // in this context the given Id is the GatewayName of the organisation
-        $orgas = $this->orgaService->getOrgaByFields(['gatewayName' => $keycloakUserData->getUserName()]);
+        $orgas = $this->orgaService->getOrgaByFields(['gwId' => $keycloakUserData->getOrganisationId()]);
         if (null === $orgas || (is_array($orgas) && empty($orgas))) {
             return $this->createNewUserAndOrgaFromOrga($keycloakUserData);
         }
@@ -200,7 +200,7 @@ class KeycloakUserDataMapper
         // Orga has exactly one master user so far
         $user = $orga->getUsers()->first();
         // set Orga Id as User login to be able to login as the default Orga user on login
-        $user->setLogin($keycloakUserData->getId());
+        $user->setLogin($keycloakUserData->getUserName());
         $user->setProvidedByIdentityProvider(true);
 
         return $this->userService->updateUserObject($user);
@@ -239,7 +239,8 @@ class KeycloakUserDataMapper
         $orga->setCity($keycloakUserData->getLocalityName());
         $orga->setStreet($keycloakUserData->getStreet());
         $orga->setHouseNumber($keycloakUserData->getHouseNumber());
-        $orga->setGatewayName($keycloakUserData->getId());
+        $orga->setGatewayName($keycloakUserData->getOrganisationId());
+        $orga->setGwId($keycloakUserData->getOrganisationId());
 
         return $this->orgaService->updateOrga($orga);
     }

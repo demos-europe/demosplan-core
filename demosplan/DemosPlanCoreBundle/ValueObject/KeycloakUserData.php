@@ -16,7 +16,6 @@ use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundE
 
 /**
  * @method string getHouseNumber()
- * @method string getId()
  * @method string getLocalityName()
  * @method string getPostalCode()
  * @method string getStreet()
@@ -24,7 +23,6 @@ use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundE
 class KeycloakUserData extends CommonUserData implements KeycloakUserDataInterface, Stringable
 {
 
-    protected string $id;
     protected string $houseNumber;
     protected string $localityName;
     protected string $postalCode;
@@ -37,15 +35,14 @@ class KeycloakUserData extends CommonUserData implements KeycloakUserDataInterfa
         $this->emailAddress = $userInformation['email'] ?? '';
         $this->firstName = $userInformation['givenName'] ?? '';
         $this->houseNumber = $userInformation['houseNumber'] ?? '';
-        $this->id = $userInformation['ID'] ?? '';
         $this->lastName = $userInformation['surname'] ?? '';
         $this->localityName = $userInformation['localityName'] ?? '';
-        $this->organisationId = $userInformation['organisationId'] ?? '';
+        $this->organisationId = $userInformation['organisationId'] ?? ''; // gets orga gwId
         $this->organisationName = $userInformation['organisationName'] ?? '';
         $this->postalCode = $userInformation['postalCode'] ?? '';
         $this->street = $userInformation['street'] ?? '';
-        $this->userId = $userInformation['sub'] ?? '';
-        $this->userName = $userInformation['preferred_username'] ?? ''; // kind of "login" //has to be unique?
+        $this->userId = $userInformation['sub'] ?? ''; // gets user gwId, always empty
+        $this->userName = $userInformation['email'] ?? ''; // gets user login
 
         $this->lock();
         $this->checkMandatoryValuesExist();
