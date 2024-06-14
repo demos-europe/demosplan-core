@@ -29,7 +29,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 /**
  * This Command is used to disable a specific permission for a given customer, organization, and role.
  */
-class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
+class DisablePermissionForCustomerOrgaRoleCommand extends PermissionForCustomerOrgaRoleCommand
 {
     protected static $defaultName = 'dplan:permission:disable:customer-orga-role';
     protected static $defaultDescription = 'Disables a specific permission for a given customer, organization, and role';
@@ -44,33 +44,6 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         parent::__construct($parameterBag, $name);
     }
 
-    public function configure(): void
-    {
-        $this->addArgument(
-            'customerId',
-            InputArgument::REQUIRED,
-            'The ID of the customer you want to disable the permission.'
-        );
-
-        $this->addArgument(
-            'roleId',
-            InputArgument::REQUIRED,
-            'The ID of the role you want to disable the permission.'
-        );
-
-        $this->addArgument(
-            'permission',
-            InputArgument::REQUIRED,
-            'The name of the permission to be disabled.'
-        );
-
-        $this->addOption(
-            'dry-run',
-            '',
-            InputOption::VALUE_NONE,
-            'Initiates a dry run with verbose output to see what would happen.'
-        );
-    }
 
     /**
      * @throws RoleNotFoundException
@@ -107,22 +80,4 @@ class DisablePermissionForCustomerOrgaRoleCommand extends CoreCommand
         return Command::SUCCESS;
     }
 
-    private function displayUpdatedOrgas(OutputInterface $output, array $updatedOrgas): void
-    {
-        foreach ($updatedOrgas as $orga) {
-            $output->writeln('Orga ID: '.$orga->getId());
-            $output->writeln('Orga Name: '.$orga->getName());
-        }
-    }
-
-    private function getConstantValueByName($constantName): string
-    {
-        $className = AccessControlService::class;
-        $constantFullName = $className.'::'.$constantName;
-        if (defined($constantFullName)) {
-            return constant($constantFullName);
-        }
-
-        throw new InvalidArgumentException('Permission does not exit');
-    }
 }
