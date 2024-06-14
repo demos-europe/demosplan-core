@@ -28,13 +28,7 @@ class DemosPlanArrayAdapter extends ArrayAdapter
         return $this->nbResults;
     }
 
-    /**
-     * @param int $offset
-     * @param int $length
-     *
-     * @return array|Traversable
-     */
-    public function getSlice($offset, $length): iterable
+    public function getSlice(int $offset, int $length): iterable
     {
         return $this->getArray();
     }
