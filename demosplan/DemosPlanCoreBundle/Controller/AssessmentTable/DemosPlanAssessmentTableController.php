@@ -138,8 +138,6 @@ class DemosPlanAssessmentTableController extends BaseController
             $this->setHashforEmptyFilters($request, $assessmentHandler, $procedureId, $filterSet);
         }
 
-
-
         $type = self::HASH_TYPE_ASSESSMENT;
 
         // Get the AssessmentQueryValueObject → holds all we need
@@ -287,6 +285,7 @@ class DemosPlanAssessmentTableController extends BaseController
     private function setHashforEmptyFilters(Request $request, AssessmentHandler $assessmentHandler, string $procedureId, HashedQuery $filterSet)
     {
         $request = $this->updateFilterSetParametersInRequest($request, $assessmentHandler);
+
         return $this->redirectToRoute(
             'dplan_assessmenttable_view_table',
             [
