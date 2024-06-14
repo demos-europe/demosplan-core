@@ -542,7 +542,7 @@ class User implements SamlUserInterface, AddonUserInterface
      */
     public function getUserIdentifier(): string
     {
-        return $this->getLogin();
+        return $this->getLogin() ?? '';
     }
 
     public function setPassword(?string $password): void
