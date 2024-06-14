@@ -1,9 +1,14 @@
 <template>
-  <component
-    :is="component"
-    :ref="refComponent"
-    v-bind="addonProps"
-    @addonEvent:emit="(event) => $emit(event.name, event.payload)" />
+  <div>
+    <component
+      v-for="addon in loadedAddons"
+      :is="addon.component"
+      :key="`addon:${addon.name}`"
+      :data-cy="`addon:${addon.name}`"
+      :ref="refComponent"
+      v-bind="addonProps"
+      @addonEvent:emit="(event) => $emit(event.name, event.payload)" />
+  </div>
 </template>
 
 <script>
@@ -14,7 +19,7 @@ export default {
 
   props: {
     /**
-     * The addonProps prop will be bound to the addon component to add props dynamically.
+     * The addonProps prop will be bound to the addon components to add props dynamically.
      */
     addonProps: {
       type: Object,
@@ -40,28 +45,23 @@ export default {
 
   data () {
     return {
-      component: '',
       loadedAddons: []
     }
   },
 
-  methods: {
-    loadComponents () {
-      loadAddonComponents(this.hookName)
-        .then(addons => {
-          addons.forEach(addon => {
-            this.$options.components[addon.name] = window[addon.name].default
-            this.component = window[addon.name].default
-            this.loadedAddons.push(addon.name)
-          })
-
-          this.$emit('addons:loaded', this.loadedAddons)
-        })
-    }
-  },
-
   mounted () {
-    this.loadComponents()
+    loadAddonComponents(this.hookName)
+      .then(addons => {
+        addons.forEach(addon => {
+          this.$options.components[addon.name] = window[addon.name].default
+          this.loadedAddons.push({
+            component: window[addon.name].default,
+            name: addon.name
+          })
+        })
+
+        this.$emit('addons:loaded', this.loadedAddons.map(addon => addon.name))
+      })
   }
 }
 </script>
