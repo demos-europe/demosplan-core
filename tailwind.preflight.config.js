@@ -3,6 +3,7 @@
  * It is configured to only output the "css reset" of Tailwind.
  */
 const config = {
+  content: ['./suppress-no-content-configured-warning-in-console/'],
   corePlugins: {
     preflight: true,
   },

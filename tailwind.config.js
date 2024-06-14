@@ -16,7 +16,8 @@ const config = {
   ],
   corePlugins: {
     preflight: false,
-  }
+  },
+  important: false
 }
 
 module.exports = config
