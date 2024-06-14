@@ -30,18 +30,18 @@ export default async function loadAddonComponents (hookName) {
         const contentKey = addon.entry + '.umd.js'
         const content = addon.content[contentKey]
 
-        addons.push({
-          entry: content,
-          name: addon.entry,
-          options: addon.options ?? ''
-        })
-
         /*
          * While eval is generally a BAD IDEA, we really need to evaluate the code
          * we're adding dynamically to use the provided addon's script from now on.
          */
         // eslint-disable-next-line no-eval
         eval(content)
+
+        addons.push({
+          entry: content,
+          name: addon.entry,
+          options: addon.options ?? ''
+        })
       }
 
       return addons
