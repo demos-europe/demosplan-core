@@ -17,10 +17,8 @@ use demosplan\DemosPlanCoreBundle\Command\Permission\DisablePermissionForCustome
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
-
 class DisablePermissionForCustomerOrgaRoleCommandTest extends PermissionForCustomerOrgaRoleCommandTest
 {
-
     public function testExecute(): CommandTester
     {
         $kernel = self::bootKernel();
@@ -41,5 +39,4 @@ class DisablePermissionForCustomerOrgaRoleCommandTest extends PermissionForCusto
 
         return $commandTester;
     }
-
 }
