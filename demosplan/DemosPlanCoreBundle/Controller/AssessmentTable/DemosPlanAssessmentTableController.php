@@ -114,18 +114,26 @@ class DemosPlanAssessmentTableController extends BaseController
         $rParams = $assessmentHandler->getFormValues($request->request->all());
 
         // handle the filterHash thing → always returns FilterSet Entity, except → see next comment
-        $firstFilterSet = $filterSetService->findHashedQueryWithHash($filterHash);
+        $findHash = $filterSetService->findHashedQueryWithHash($filterHash);
         if ($filterHash) {
-            $storedQuery = $firstFilterSet->getStoredQuery();
+            $storedQuery = $findHash->getStoredQuery();
             if (
                 $rParams['search'] === $storedQuery->getSearchWord()
             ) {
-                $filterSet = $firstFilterSet;
+                $filterSet = $findHash;
             } else {
+                /*
+                * If rParams contain filters, those win against the hash in url.
+                * Doing this via redirect to same action.
+                */
                 $filterSet = $assessmentHandler->handleFilterHash($request, $procedureId, null, $original);
                 $this->setHashforEmptyFilters($request, $assessmentHandler, $procedureId, $filterSet);
             }
         } else {
+            /*
+            * If rParams contain filters, those win against the hash in url.
+            * Doing this via redirect to same action.
+            */
             $filterSet = $assessmentHandler->handleFilterHash($request, $procedureId, null, $original);
             $this->setHashforEmptyFilters($request, $assessmentHandler, $procedureId, $filterSet);
         }
@@ -133,24 +141,6 @@ class DemosPlanAssessmentTableController extends BaseController
 
 
         $type = self::HASH_TYPE_ASSESSMENT;
-
-        /*
-         * If rParams contain filters, those win against the hash in url.
-         * Doing this via redirect to same action.
-
-        if (null === $filterSet) {
-            $request = $this->updateFilterSetParametersInRequest($request, $assessmentHandler);
-            $filterSet = $assessmentHandler->handleFilterHash($request, $procedureId, null, $original);
-
-            return $this->redirectToRoute(
-                'dplan_assessmenttable_view_table',
-                [
-                    'procedureId' => $procedureId,
-                    'filterHash'  => $filterSet->getHash(),
-                    '_fragment'   => $request->query->get('fragment', ''),
-                ]
-            );
-        }*/
 
         // Get the AssessmentQueryValueObject → holds all we need
         /** @var AssessmentTableQuery $assessmentTableQuery */
