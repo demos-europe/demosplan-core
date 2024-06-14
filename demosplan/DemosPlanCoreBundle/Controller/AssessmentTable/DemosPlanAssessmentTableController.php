@@ -198,7 +198,6 @@ class DemosPlanAssessmentTableController extends BaseController
         // Put viewMode and filterHash in templateVars
         /** @var AssessmentTableViewMode|null $viewMode */
         $viewMode = $original ? null : $assessmentTableQuery->getViewMode();
-        $assessmentHandler->updateHashListInSession($procedureId, $viewMode?false:true, $filterSet, $rParams);
         $rParams = $statementService->integrateFilterSetIntoArray(
             $filterSet,
             $rParams,
