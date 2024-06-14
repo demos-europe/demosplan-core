@@ -19,7 +19,6 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class EnablePermissionForCustomerOrgaRoleCommandTest extends PermissionForCustomerOrgaRoleCommandTest
 {
-
     public function testExecute(): CommandTester
     {
         $kernel = self::bootKernel();
@@ -40,5 +39,4 @@ class EnablePermissionForCustomerOrgaRoleCommandTest extends PermissionForCustom
 
         return $commandTester;
     }
-
 }
