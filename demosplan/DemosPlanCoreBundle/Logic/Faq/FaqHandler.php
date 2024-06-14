@@ -36,7 +36,7 @@ use Doctrine\ORM\ORMException;
 use Exception;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 use UnexpectedValueException;
 
 class FaqHandler extends CoreHandler implements FaqHandlerInterface
