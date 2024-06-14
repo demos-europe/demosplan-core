@@ -66,8 +66,6 @@ class EnablePermissionForCustomerOrgaRoleCommand extends PermissionForCustomerOr
 
         $this->displayOutcome($output, $dryRun, $updatedOrgas, $customerChoice, $roleChoice, 'enabled');
 
-
-
         return Command::SUCCESS;
     }
 }

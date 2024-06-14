@@ -55,20 +55,16 @@ abstract class PermissionForCustomerOrgaRoleCommand extends CoreCommand
         );
     }
 
-    protected function displayOutcome( OutputInterface $output, $dryRun, array $updatedOrgas, CustomerInterface $customerChoice, RoleInterface $roleChoice, string $action): void
+    protected function displayOutcome(OutputInterface $output, $dryRun, array $updatedOrgas, CustomerInterface $customerChoice, RoleInterface $roleChoice, string $action): void
     {
-
         $output->writeln('******************************************************');
         $output->writeln($dryRun ? 'This is a dry run. No changes have been made to the database.' : 'Changes have been applied to the database.');
         $output->writeln('******************************************************');
-        $output->writeln('Permission has been ' . $action . ' for '. count($updatedOrgas).' orgas');
-        $output->writeln('Permission has been ' . $action . ' for mentioned orgas on:');
+        $output->writeln('Permission has been '.$action.' for '.count($updatedOrgas).' orgas');
+        $output->writeln('Permission has been '.$action.' for mentioned orgas on:');
         $output->writeln('Customer '.$customerChoice->getId().' '.$customerChoice->getName());
         $output->writeln('Role '.$roleChoice->getId().' '.$roleChoice->getName());
-
     }
-
-
 
     protected function displayUpdatedOrgas(OutputInterface $output, array $updatedOrgas): void
     {
