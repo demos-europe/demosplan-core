@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControl;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
+use demosplan\DemosPlanCoreBundle\Permissions\Permission;
 use demosplan\DemosPlanCoreBundle\Repository\AccessControlRepository;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 
@@ -209,16 +210,38 @@ class AccessControlService extends CoreService
                 continue;
             }
 
+            $updatedOrga = $this->addPermissionBasedOnOrgaType($permissionToEnable, $role, $orgaInCustomer, $customer, $dryRun);
+
+            if (null !== $updatedOrga) {
+                $updatedOrgas[] = $updatedOrga;
+            }
+        }
+
+        return $updatedOrgas;
+    }
+
+    private function addPermissionBasedOnOrgaType(string $permissionToEnable, RoleInterface $role, OrgaInterface $orgaInCustomer, CustomerInterface $customer, bool $dryRun): ?OrgaInterface
+    {
+        $orgaTypesInCustomer = $orgaInCustomer->getTypes($customer->getSubdomain(), true);
+        foreach ($orgaTypesInCustomer as $orgaTypeInCustomer) {
+            // If permission is 'CREATE_PROCEDURES_PERMISSION' and orga type is 'PLANNING_AGENCY' and role is not 'PRIVATE_PLANNING_AGENCY', skip it
+            if (self::CREATE_PROCEDURES_PERMISSION === $permissionToEnable
+                && OrgaTypeInterface::PLANNING_AGENCY === $orgaTypeInCustomer
+                && RoleInterface::PRIVATE_PLANNING_AGENCY !== $role->getCode()) {
+                continue;
+            }
+
             // Do not store permission if it is dryrun
             if (false === $dryRun) {
                 $this->createPermission($permissionToEnable, $orgaInCustomer, $customer, $role);
             }
 
-            // Save the impacted orga in the array
-            $updatedOrgas[] = $orgaInCustomer;
+            // Return orga where permission was stored
+            return $orgaInCustomer;
         }
 
-        return $updatedOrgas;
+        // Return null if no orga is impacted
+        return null;
     }
 
     public function disablePermissionCustomerOrgaRole(string $permissionToEnable, CustomerInterface $customer, RoleInterface $role, bool $dryRun = false): array
