@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\Logic\Deployment\StrategyLoader;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -30,7 +31,7 @@ class DeployCommand extends CoreCommand
 
     protected $strategyLoader;
 
-    public function __construct(ParameterBagInterface $parameterBag, StrategyLoader $strategyLoader, string $name = null)
+    public function __construct(ParameterBagInterface $parameterBag, StrategyLoader $strategyLoader, ?string $name = null)
     {
         parent::__construct($parameterBag, $name);
 
@@ -62,9 +63,10 @@ class DeployCommand extends CoreCommand
         $output = new SymfonyStyle($input, $output);
 
         $strategy = $this->strategyLoader->get($input->getOption('strategy'));
-
         $strategy->setApplication($this->getApplication());
-        $strategy->setProjectName($this->getApplication()->getKernel()->getActiveProject());
+        /** @var DemosPlanKernel $kernel */
+        $kernel = $this->getApplication()->getKernel();
+        $strategy->setProjectName($kernel->getActiveProject());
         $strategy->setGitReference($input->getOption('reference'));
         $strategy->execute($input, $output);
 

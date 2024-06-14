@@ -47,6 +47,11 @@ export default {
 
   methods: {
     loadComponents () {
+      if (window.dplan.loadedAddons[this.hookName]) {
+        return
+      }
+
+      window.dplan.loadedAddons[this.hookName] = true
       dpRpc('addons.assets.load', { hookName: this.hookName })
         .then(response => checkResponse(response))
         .then(response => {

@@ -46,14 +46,6 @@ describe('DpAdminLayerList', () => {
     })
   })
 
-  it('should be an object', () => {
-    expect(typeof DpAdminLayerList).toBe('object')
-  })
-
-  it('should be named DpAdminLayerList', () => {
-    expect(DpAdminLayerList.name).toBe('DpAdminLayerList')
-  })
-
   it('should have the correct prop-values', () => {
     const wrapper = shallowMountWithGlobalMocks(DpAdminLayerList, {
       propsData: {

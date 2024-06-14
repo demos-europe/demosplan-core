@@ -23,7 +23,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 class VendorlistUpdateCommand extends CoreCommand
 {

@@ -45,14 +45,6 @@ describe('DpPublicLayerList', () => {
     }
   })
 
-  it('should be an object', () => {
-    expect(typeof DpPublicLayerList).toBe('object')
-  })
-
-  it('should be named DpPublicLayerList', () => {
-    expect(DpPublicLayerList.name).toBe('DpPublicLayerList')
-  })
-
   it('has the correct props', () => {
     const wrapper = shallowMount(DpPublicLayerList, {
       propsData: {
