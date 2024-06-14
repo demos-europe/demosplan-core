@@ -11,7 +11,6 @@
 namespace demosplan\DemosPlanCoreBundle\Utilities\Pagination;
 
 use Pagerfanta\Adapter\ArrayAdapter;
-use Traversable;
 
 class DemosPlanArrayAdapter extends ArrayAdapter
 {
