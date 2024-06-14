@@ -166,8 +166,8 @@ class KeycloakUserDataMapper
 
         $orgaName = $keycloakUserData->getOrganisationName();
         $phone = '';
-        $userFirstName = '';
-        $userLastName = User::DEFAULT_ORGA_USER_NAME;
+        $userFirstName = $keycloakUserData->getFirstName();
+        $userLastName = $keycloakUserData->getLastName();
         $userEmail = $keycloakUserData->getEmailAddress();
         $orgaTypeNames = [OrgaType::PUBLIC_AGENCY];
 
