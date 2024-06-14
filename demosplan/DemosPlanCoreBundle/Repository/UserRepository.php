@@ -32,13 +32,13 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Utilities\Reindexer;
 use Exception;
+use Illuminate\Support\Collection;
 use LogicException;
 use RuntimeException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\Cache\CacheInterface;
-use Illuminate\Support\Collection;
 
 /**
  * @template-extends CoreRepository<User>
