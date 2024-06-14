@@ -15,6 +15,7 @@ use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
@@ -113,14 +114,30 @@ class DemosPlanAssessmentTableController extends BaseController
         $rParams = $assessmentHandler->getFormValues($request->request->all());
 
         // handle the filterHash thing → always returns FilterSet Entity, except → see next comment
-        $filterSet = $filterSetService->findHashedQueryWithHash($filterHash);
+        $firstFilterSet = $filterSetService->findHashedQueryWithHash($filterHash);
+        if ($filterHash) {
+            $storedQuery = $firstFilterSet->getStoredQuery();
+            if (
+                $rParams['search'] === $storedQuery->getSearchWord()
+            ) {
+                $filterSet = $firstFilterSet;
+            } else {
+                $filterSet = $assessmentHandler->handleFilterHash($request, $procedureId, null, $original);
+                $this->setHashforEmptyFilters($request, $assessmentHandler, $procedureId, $filterSet);
+            }
+        } else {
+            $filterSet = $assessmentHandler->handleFilterHash($request, $procedureId, null, $original);
+            $this->setHashforEmptyFilters($request, $assessmentHandler, $procedureId, $filterSet);
+        }
+
+
 
         $type = self::HASH_TYPE_ASSESSMENT;
 
         /*
          * If rParams contain filters, those win against the hash in url.
          * Doing this via redirect to same action.
-         */
+
         if (null === $filterSet) {
             $request = $this->updateFilterSetParametersInRequest($request, $assessmentHandler);
             $filterSet = $assessmentHandler->handleFilterHash($request, $procedureId, null, $original);
@@ -133,7 +150,7 @@ class DemosPlanAssessmentTableController extends BaseController
                     '_fragment'   => $request->query->get('fragment', ''),
                 ]
             );
-        }
+        }*/
 
         // Get the AssessmentQueryValueObject → holds all we need
         /** @var AssessmentTableQuery $assessmentTableQuery */
@@ -191,7 +208,7 @@ class DemosPlanAssessmentTableController extends BaseController
         // Put viewMode and filterHash in templateVars
         /** @var AssessmentTableViewMode|null $viewMode */
         $viewMode = $original ? null : $assessmentTableQuery->getViewMode();
-
+        $assessmentHandler->updateHashListInSession($procedureId, $viewMode?false:true, $filterSet, $rParams);
         $rParams = $statementService->integrateFilterSetIntoArray(
             $filterSet,
             $rParams,
@@ -274,6 +291,19 @@ class DemosPlanAssessmentTableController extends BaseController
                 'title'        => 'assessment.table',
                 'procedure'    => $procedureId,
                 'filters'      => $usedFilters,
+            ]
+        );
+    }
+
+    private function setHashforEmptyFilters(Request $request, AssessmentHandler $assessmentHandler, string $procedureId, HashedQuery $filterSet)
+    {
+        $request = $this->updateFilterSetParametersInRequest($request, $assessmentHandler);
+        return $this->redirectToRoute(
+            'dplan_assessmenttable_view_table',
+            [
+                'procedureId' => $procedureId,
+                'filterHash'  => $filterSet->getHash(),
+                '_fragment'   => $request->query->get('fragment', ''),
             ]
         );
     }
