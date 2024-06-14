@@ -12,17 +12,13 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Permission;
 
-use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\RoleNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
-use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
@@ -43,7 +39,6 @@ class DisablePermissionForCustomerOrgaRoleCommand extends PermissionForCustomerO
     ) {
         parent::__construct($parameterBag, $name);
     }
-
 
     /**
      * @throws RoleNotFoundException
@@ -73,5 +68,4 @@ class DisablePermissionForCustomerOrgaRoleCommand extends PermissionForCustomerO
 
         return Command::SUCCESS;
     }
-
 }
