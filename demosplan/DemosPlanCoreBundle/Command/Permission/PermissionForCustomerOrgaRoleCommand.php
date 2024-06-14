@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Permission;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\RoleNotFoundException;
@@ -58,6 +60,21 @@ abstract class PermissionForCustomerOrgaRoleCommand extends CoreCommand
             'Initiates a dry run with verbose output to see what would happen.'
         );
     }
+
+    protected function displayOutcome( OutputInterface $output, $dryRun, array $updatedOrgas, CustomerInterface $customerChoice, RoleInterface $roleChoice, string $action): void
+    {
+
+        $output->writeln('******************************************************');
+        $output->writeln($dryRun ? 'This is a dry run. No changes have been made to the database.' : 'Changes have been applied to the database.');
+        $output->writeln('******************************************************');
+        $output->writeln('Permission has been ' . $action . ' for '. count($updatedOrgas).' orgas');
+        $output->writeln('Permission has been ' . $action . ' for mentioned orgas on:');
+        $output->writeln('Customer '.$customerChoice->getId().' '.$customerChoice->getName());
+        $output->writeln('Role '.$roleChoice->getId().' '.$roleChoice->getName());
+
+    }
+
+
 
     protected function displayUpdatedOrgas(OutputInterface $output, array $updatedOrgas): void
     {

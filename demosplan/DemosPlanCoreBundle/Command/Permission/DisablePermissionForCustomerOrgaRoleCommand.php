@@ -69,13 +69,7 @@ class DisablePermissionForCustomerOrgaRoleCommand extends PermissionForCustomerO
 
         $this->displayUpdatedOrgas($output, $updatedOrgas);
 
-        $output->writeln('******************************************************');
-        $output->writeln($dryRun ? 'This is a dry run. No changes have been made to the database.' : 'Changes have been applied to the database.');
-        $output->writeln('******************************************************');
-        $output->writeln('Permission has been disabled for '.count($updatedOrgas).' orgas');
-        $output->writeln('Permission has been disabled for mentioned orgas on:');
-        $output->writeln('Customer '.$customerChoice->getId().' '.$customerChoice->getName());
-        $output->writeln('Role '.$roleChoice->getId().' '.$roleChoice->getName());
+        $this->displayOutcome($output, $dryRun, $updatedOrgas, $customerChoice, $roleChoice, 'disabled');
 
         return Command::SUCCESS;
     }
