@@ -325,7 +325,9 @@
           reduced-height
           @input="emitOrganisationUpdate"
           v-model="localOrganisation.attributes.cssvars" />
-        <dp-details :summary="Translator.trans('branding.styling.details')">
+        <dp-details
+          data-cy="organisationFormFields:brandingStyling"
+          :summary="Translator.trans('branding.styling.details')">
           <span v-html="Translator.trans('branding.styling.details.description')" />
         </dp-details>
       </div>

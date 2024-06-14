@@ -38,7 +38,7 @@ use Psr\Log\LoggerInterface;
 use stdClass;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 class MapScreenshotter
 {
