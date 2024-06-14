@@ -23,12 +23,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 /**
- * This Command is used to enable a specific permission for a given customer, organization, and role.
+ * This Command is used to disable a specific permission for a given customer, organization, and role.
  */
-class EnablePermissionForCustomerOrgaRoleCommand extends PermissionForCustomerOrgaRoleCommand
+class DisablePermissionForCustomerOrgaRoleCommand extends PermissionForCustomerOrgaRoleCommand
 {
-    protected static $defaultName = 'dplan:permission:enable:customer-orga-role';
-    protected static $defaultDescription = 'Enables a specific permission for a given customer, organization, and role';
+    protected static $defaultName = 'dplan:permission:disable:customer-orga-role';
+    protected static $defaultDescription = 'Disables a specific permission for a given customer, organization, and role';
 
     public function __construct(
         ParameterBagInterface $parameterBag,
@@ -60,11 +60,11 @@ class EnablePermissionForCustomerOrgaRoleCommand extends PermissionForCustomerOr
             throw new RoleNotFoundException('Role not found');
         }
 
-        $updatedOrgas = $this->accessControlPermissionService->enablePermissionCustomerOrgaRole($permissionChoice, $customerChoice, $roleChoice, $dryRun);
+        $updatedOrgas = $this->accessControlPermissionService->disablePermissionCustomerOrgaRole($permissionChoice, $customerChoice, $roleChoice, $dryRun);
 
         $this->displayUpdatedOrgas($output, $updatedOrgas);
 
-        $this->displayOutcome($output, $dryRun, $updatedOrgas, $customerChoice, $roleChoice, 'enabled');
+        $this->displayOutcome($output, $dryRun, $updatedOrgas, $customerChoice, $roleChoice, 'disabled');
 
         return Command::SUCCESS;
     }

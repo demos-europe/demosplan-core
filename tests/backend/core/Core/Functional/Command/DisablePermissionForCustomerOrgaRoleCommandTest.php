@@ -13,25 +13,25 @@ declare(strict_types=1);
 namespace Tests\Core\Core\Functional\Command;
 
 use demosplan\DemosPlanCoreBundle\Application\ConsoleApplication;
-use demosplan\DemosPlanCoreBundle\Command\Permission\EnablePermissionForCustomerOrgaRoleCommand;
+use demosplan\DemosPlanCoreBundle\Command\Permission\DisablePermissionForCustomerOrgaRoleCommand;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
-class EnablePermissionForCustomerOrgaRoleCommandTest extends PermissionForCustomerOrgaRoleCommandTest
+class DisablePermissionForCustomerOrgaRoleCommandTest extends PermissionForCustomerOrgaRoleCommandTest
 {
     public function testExecute(): CommandTester
     {
         $kernel = self::bootKernel();
         $application = new ConsoleApplication($kernel, false);
 
-        $application->add(new EnablePermissionForCustomerOrgaRoleCommand(
+        $application->add(new DisablePermissionForCustomerOrgaRoleCommand(
             $this->createMock(ParameterBagInterface::class),
             $this->customerService,
             $this->roleService,
             $this->accessControlService,
         ));
 
-        $command = $application->find(EnablePermissionForCustomerOrgaRoleCommand::getDefaultName());
+        $command = $application->find(DisablePermissionForCustomerOrgaRoleCommand::getDefaultName());
         $commandTester = new CommandTester($command);
 
         $this->assertStringsInCommandOutput($commandTester, true, 'This is a dry run. No changes have been made to the database.');
