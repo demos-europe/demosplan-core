@@ -5,7 +5,7 @@
       :is="addon.component"
       :key="`addon:${addon.name}`"
       :data-cy="`addon:${addon.name}`"
-      :ref="refComponent"
+      :ref="`${addon.name}${refComponent}`"
       v-bind="addonProps"
       @addonEvent:emit="(event) => $emit(event.name, event.payload)" />
   </div>
@@ -39,7 +39,7 @@ export default {
     refComponent: {
       type: String,
       required: false,
-      default: ''
+      default: 'Addon'
     }
   },
 
