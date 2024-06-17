@@ -20,8 +20,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControl;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Repository\AccessControlRepository;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use Webmozart\Assert\Assert;
+use Webmozart\Assert\InvalidArgumentException;
 
 /**
  * This file is part of the package demosplan.
@@ -37,7 +37,6 @@ class AccessControlService extends CoreService
     public function __construct(
         private readonly AccessControlRepository $accessControlPermissionRepository,
         private readonly RoleHandler $roleHandler,
-        private readonly GlobalConfig $globalConfig
     ) {
     }
 
@@ -62,9 +61,7 @@ class AccessControlService extends CoreService
         foreach ($roles as $roleName) {
             // Try to find an existing permission with the given parameters
 
-            $roles = $this->roleHandler->getUserRolesByCodes([$roleName]);
-            Assert::count($roles, 1);
-            $role = $roles[0];
+            $role = $this->getRoleByCode($roleName);
 
             $permissions = $this->getEnabledPermissionNames($role, $orga, $customer, null);
 
@@ -74,6 +71,24 @@ class AccessControlService extends CoreService
 
         // Return the permissions array
         return $enabledPermissions;
+    }
+
+    private function getRoleByCode(string $roleCode): RoleInterface
+    {
+        $roles = $this->roleHandler->getUserRolesByCodes([$roleCode]);
+
+        try {
+            Assert::count($roles, 1);
+        } catch (InvalidArgumentException $e) {
+            // Log the warning
+            $this->logger->warning('More than one role found for the given role name. Using the first one.', [
+                'roleName' => $roleCode,
+                'roles'    => $roles,
+            ]);
+        }
+
+        // Use the first role
+        return $roles[0];
     }
 
     private function getEnabledPermissionNames(?RoleInterface $role, ?OrgaInterface $orga, ?CustomerInterface $customer, ?string $permissionName): array
@@ -128,15 +143,15 @@ class AccessControlService extends CoreService
     }
 
     /**
-     * Checks if the given permission is allowed for the organization type.
+     * Checks if the given permission is allowed for the organization type in that customer.
      *
      * Returns true if the permission is allowed for the organization type or if the permission is not 'CREATE_PROCEDURES_PERMISSION'.
      * Returns false if the permission is 'CREATE_PROCEDURES_PERMISSION' and the organization type is not 'PLANNING_AGENCY'.
      */
-    public function checkPermissionForOrgaType(string $permissionToCheck, OrgaInterface $orga): bool
+    public function checkPermissionForOrgaType(string $permissionToCheck, OrgaInterface $orga, CustomerInterface $customer): bool
     {
         if (self::CREATE_PROCEDURES_PERMISSION === $permissionToCheck) {
-            return in_array(OrgaTypeInterface::PLANNING_AGENCY, $orga->getTypes($this->globalConfig->getSubdomain(), true));
+            return in_array(OrgaTypeInterface::PLANNING_AGENCY, $orga->getTypes($customer->getSubdomain(), true));
         }
 
         return true;

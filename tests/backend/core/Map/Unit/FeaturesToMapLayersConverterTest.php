@@ -23,7 +23,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayerTilePosition;
 use geoPHP\Geometry\Point;
 use Intervention\Image\ImageManager;
 use Tests\Base\UnitTestCase;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 use function imagecolorallocate;
 

@@ -36,6 +36,7 @@
             type="{{ type }}"></dp-inline-notification>
 
         <dp-accordion
+            data-cy="administrationMemberEmail:recipients"
             title="{{ 'recipients'|trans }}"
             class="u-mb"
             compressed>
@@ -87,7 +88,14 @@
             elements: [
                 {
                     label: { text: 'subject'|trans },
-                    control: { name: 'r_emailTitle', value: templateVars.procedure.settings.emailTitle, attributes: ['data-dp-validate-error=error.mandatoryfields'] },
+                    control: {
+                        name: 'r_emailTitle',
+                        value: templateVars.procedure.settings.emailTitle,
+                        attributes: [
+                            'data-dp-validate-error=error.mandatoryfields',
+                            'data-cy="administrationMemberEmail:emailTitle"'
+                        ]
+                    },
                     type: 'text',
                     required: true
                 }
@@ -118,6 +126,7 @@
             <dp-editor
                 id="r_emailText"
                 ref="r_emailText"
+                data-cy="administrationMemberEmail:emailText"
                 hidden-input="r_emailText"
                 :toolbar-items="{
                     headings: [1, 2, 3],
@@ -147,19 +156,22 @@
 
         <a
             href="{{ path('DemosPlan_procedure_member_index', {'procedure': procedureId}) }}"
-            class="btn btn--secondary text-left u-mt-0_5">
+            class="btn btn--secondary text-left u-mt-0_5"
+            data-cy="administrationMemberEmail:back">
             {{ 'back'|trans }}
         </a>
 
         <div class="flow-root inline text-right float-right u-mt-0_5 space-inline-s">
             <input
                 class="btn btn--secondary"
+                data-cy="administrationMemberEmail:draftSave"
                 type="submit"
                 value="{{ "draft.save"|trans }}"
                 name="updateEmailText">
             <button
                 type="submit"
                 class="btn btn--primary"
+                data-cy="administrationMemberEmail:sendInvitationEmail"
                 name="sendInvitationEmail"
                 {% if selectedPublicAgencies|length == 0 %}disabled{% endif %}>
                 {{ "email.send"|trans }}
