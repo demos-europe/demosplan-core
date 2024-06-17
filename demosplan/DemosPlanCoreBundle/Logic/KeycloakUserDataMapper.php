@@ -55,6 +55,20 @@ class KeycloakUserDataMapper
      */
     public function mapUserData(KeycloakUserData $keycloakUserData): UserInterface
     {
+        // login existing user
+        $user = $this->userService->findDistinctUserByEmailOrLogin($keycloakUserData->getEmailAddress());
+
+        if ($user instanceof User) {
+            $this->logger->info('Found user in Keycloak request', ['data' => $keycloakUserData]);
+
+            // only orga needs to be updated as user data is not editable via idp
+            // as "Nutzerkonto X" is not implemented at the moment
+            $this->updateOrgaWithKnownValues($user->getOrga(), $keycloakUserData);
+
+            return $user;
+
+        }
+
         $this->logger->info('Eventually create new User from Keycloak', ['data' => $keycloakUserData]);
 
         // At this state the login attempt may be from different Identity Providers (IdP).
