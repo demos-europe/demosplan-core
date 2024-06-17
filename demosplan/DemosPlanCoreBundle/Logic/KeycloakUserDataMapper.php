@@ -52,7 +52,7 @@ class KeycloakUserDataMapper
      *
      * @throws Exception
      */
-    public function mapUserData(KeycloakUserDataInterface $keycloakUserData): UserInterface
+    public function mapUserData(KeycloakUserData $keycloakUserData): UserInterface
     {
         // login existing user
         $user = $this->userService->findDistinctUserByEmailOrLogin($keycloakUserData->getEmailAddress());
