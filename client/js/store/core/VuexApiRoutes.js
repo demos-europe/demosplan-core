@@ -7,103 +7,10 @@
  * All rights reserved
  */
 
-export const VuexApiRoutes = [
-  {
-    module: 'Branding',
-    action: 'list',
-    url: '/2.0/Branding'
-  },
-  {
-    module: 'Branding',
-    action: 'update',
-    url: '/2.0/Branding/{id}',
-    parameters: [
-      'id'
-    ]
-  },
-  {
-    module: 'Customer',
-    action: 'create',
-    url: '/2.0/Customer'
-  },
-  {
-    module: 'Customer',
-    action: 'list',
-    url: '/2.0/Customer'
-  },
-  {
-    module: 'Customer',
-    action: 'delete',
-    url: '/2.0/Customer/{id}',
-    parameters: [
-      'id'
-    ]
-  },
-  {
-    module: 'Customer',
-    action: 'update',
-    url: '/2.0/Customer/{id}',
-    parameters: [
-      'id'
-    ]
-  },
-  {
-    module: 'CustomerContact',
-    action: 'create',
-    url: '/2.0/CustomerContact'
-  },
-  {
-    module: 'CustomerContact',
-    action: 'delete',
-    url: '/2.0/CustomerContact/{id}',
-    parameters: [
-      'id'
-    ]
-  },
-  {
-    module: 'CustomerContact',
-    action: 'list',
-    url: '/2.0/CustomerContact'
-  },
-  {
-    module: 'CustomerContact',
-    action: 'update',
-    url: '/2.0/CustomerContact/{id}',
-    parameters: [
-      'id'
-    ]
-  },
-  {
-    module: 'CustomerLoginSupportContact',
-    action: 'create',
-    url: '/2.0/CustomerLoginSupportContact'
-  },
-  {
-    module: 'CustomerLoginSupportContact',
-    action: 'delete',
-    url: '/2.0/CustomerLoginSupportContact/{id}',
-    parameters: [
-      'id'
-    ]
-  },
-  {
-    module: 'CustomerLoginSupportContact',
-    action: 'list',
-    url: '/2.0/CustomerLoginSupportContact'
-  },
-  {
-    module: 'CustomerLoginSupportContact',
-    action: 'update',
-    url: '/2.0/CustomerLoginSupportContact/{id}',
-    parameters: [
-      'id'
-    ]
-  },
-  {
-    module: 'file',
-    action: 'list',
-    url: '/2.0/File'
-  },
+/*
+ * Hardcoded API 1.0 Routes
+ */
+const api1_0Routes = [
   {
     module: 'report',
     action: 'list',
@@ -114,12 +21,12 @@ export const VuexApiRoutes = [
     ]
   },
   {
-    module: 'User',
+    module: 'user',
     action: 'list',
     url: '/1.0/user/'
   },
   {
-    module: 'User',
+    module: 'user',
     action: 'get',
     url: '/1.0/user/{userId}',
     parameters: [
@@ -127,7 +34,7 @@ export const VuexApiRoutes = [
     ]
   },
   {
-    module: 'User',
+    module: 'user',
     action: 'update',
     url: '/1.0/user/{id}',
     parameters: [
@@ -135,71 +42,31 @@ export const VuexApiRoutes = [
     ]
   },
   {
-    module: 'User',
+    module: 'user',
     action: 'create',
     url: '/1.0/user/'
   },
   {
-    module: 'User',
+    module: 'user',
     action: 'delete',
     url: '/1.0/user/{id}',
     parameters: [
       'id'
     ]
   },
+
   {
-    module: 'Department',
-    action: 'list',
-    url: '/2.0/Department'
-  },
-  {
-    module: 'AssignableUser',
-    action: 'list',
-    url: '/2.0/AssignableUser'
-  },
-  {
-    module: 'Orga',
-    action: 'list',
-    url: '/2.0/Orga'
-  },
-  {
-    module: 'Orga',
-    action: 'update',
-    url: '/1.0/organisation/{id}',
-    parameters: [
-      'id'
-    ]
-  },
-  {
-    module: 'Orga',
-    action: 'create',
-    url: '/1.0/organisation/'
-  },
-  {
-    module: 'Orga',
-    action: 'delete',
-    url: '/1.0/organisation/{id}',
-    parameters: [
-      'id'
-    ]
-  },
-  {
-    module: 'Role',
-    action: 'list',
-    url: '/1.0/role/'
-  },
-  {
-    module: 'FaqCategory',
+    module: 'faqCategory',
     action: 'list',
     url: '/1.0/FaqCategory/'
   },
   {
-    module: 'Faq',
+    module: 'faq',
     action: 'list',
     url: '/1.0/faq/'
   },
   {
-    module: 'Faq',
+    module: 'faq',
     action: 'delete',
     url: '/1.0/faq/{id}',
     parameters: [
@@ -207,143 +74,60 @@ export const VuexApiRoutes = [
     ]
   },
   {
-    module: 'Faq',
+    module: 'faq',
     action: 'update',
     url: '/1.0/faq/{id}',
-    parameters: [
-      'id'
-    ]
-  },
-  {
-    module: 'InvitableToeb',
-    action: 'list',
-    url: '/2.0/InvitableToeb'
-  },
-  {
-    module: 'InvitableInstitution',
-    action: 'list',
-    url: '/2.0/InvitableInstitution'
-  },
-  {
-    module: 'InvitableInstitution',
-    action: 'update',
-    url: '/2.0/InvitableInstitution/{id}',
-    parameters: [
-      'id'
-    ]
-  },
-  {
-    module: 'Place',
-    action: 'list',
-    url: '/2.0/Place'
-  },
-  {
-    module: 'SegmentComment',
-    action: 'list',
-    url: '/2.0/SegmentComment'
-  },
-  {
-    module: 'StatementSegment',
-    action: 'list',
-    url: '/2.0/StatementSegment'
-  },
-  {
-    module: 'StatementSegment',
-    action: 'update',
-    url: '/2.0/StatementSegment/{id}',
-    parameters: [
-      'id'
-    ]
-  },
-  {
-    module: 'Statement',
-    action: 'list',
-    url: '/2.0/Statement'
-  },
-  {
-    module: 'Statement',
-    action: 'get',
-    url: '/2.0/Statement/{id}',
-    parameters: [
-      'id'
-    ]
-  },
-  {
-    module: 'Statement',
-    action: 'update',
-    url: '/2.0/Statement/{id}',
-    parameters: [
-      'id'
-    ]
-  },
-  {
-    module: 'Statement',
-    action: 'delete',
-    url: '/2.0/Statement/{id}',
-    parameters: [
-      'id'
-    ]
-  },
-  {
-    module: 'StatementAttachment',
-    action: 'create',
-    url: '/2.0/StatementAttachment'
-  },
-  {
-    module: 'Tag',
-    action: 'list',
-    url: '/2.0/Tag'
-  },
-  {
-    module: 'InstitutionTag',
-    action: 'create',
-    url: '/2.0/InstitutionTag'
-  },
-  {
-    module: 'InstitutionTag',
-    action: 'list',
-    url: '/2.0/InstitutionTag'
-  },
-  {
-    module: 'InstitutionTag',
-    action: 'update',
-    url: '/2.0/InstitutionTag/{id}',
-    parameters: [
-      'id'
-    ]
-  },
-  {
-    module: 'InstitutionTag',
-    action: 'delete',
-    url: '/2.0/InstitutionTag/{id}',
-    parameters: [
-      'id'
-    ]
-  },
-  {
-    module: 'TagTopic',
-    action: 'list',
-    url: '/2.0/TagTopic'
-  },
-  {
-    module: 'Elements',
-    action: 'list',
-    url: '/2.0/Elements'
-  },
-  {
-    module: 'Elements',
-    action: 'update',
-    url: '/2.0/Elements/{id}',
-    parameters: [
-      'id'
-    ]
-  },
-  {
-    module: 'Elements',
-    action: 'delete',
-    url: '/2.0/Elements/{id}',
     parameters: [
       'id'
     ]
   }
 ]
+
+const generateApi2_0Routes = (apiModules) => {
+  const routes = []
+
+  apiModules.forEach(typeName => {
+    routes.push({
+      module: typeName,
+      action: 'list',
+      url: `/2.0/${typeName}`
+    })
+
+    routes.push({
+      module: typeName,
+      action: 'get',
+      url: `/2.0/${typeName}/{id}`,
+      parameters: [
+        'id'
+      ]
+    })
+
+    routes.push({
+      module: typeName,
+      action: 'update',
+      url: `/2.0/${typeName}/{id}`,
+      parameters: [
+        'id'
+      ]
+    })
+
+    routes.push({
+      module: typeName,
+      action: 'create',
+      url: `/2.0/${typeName}`
+    })
+
+    routes.push({
+      module: typeName,
+      action: 'delete',
+      url: `/2.0/${typeName}/{id}`,
+      parameters: [
+        'id'
+      ]
+    })
+  })
+
+  return routes
+}
+
+export { api1_0Routes, generateApi2_0Routes }
