@@ -36,7 +36,6 @@ class KeycloakUserBadgeCreator
 
                 $this->entityManager->getConnection()->commit();
                 $this->logger->info('doctrine transaction commit.');
-                $s = $request->getSession();
                 $request->getSession()->set('userId', $user->getId());
 
                 return $user;
