@@ -344,7 +344,6 @@ import {
   VPopover
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
@@ -355,7 +354,6 @@ export default {
   inject: ['procedureId'],
 
   components: {
-    AddonWrapper,
     DpBadge,
     DpBoilerPlateModal,
     DpButtonRow,
