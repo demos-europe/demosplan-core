@@ -77,10 +77,12 @@ class KeycloakUserDataMapper
 
         // Does the payload carry an organisation?
         if ('' !== $keycloakUserData->getOrganisationName()) {
+            $this->logger->info('User is Orgauser');
             return $this->getUserForOrga($keycloakUserData);
         }
 
         // otherwise we assume that it is a citizen
+        $this->logger->info('User is citizen');
         return $this->getUserForNewCitizen($keycloakUserData);
 
     }
@@ -126,18 +128,22 @@ class KeycloakUserDataMapper
         // in this context the given Id is the GatewayName of the organisation
         $orgas = $this->orgaService->getOrgaByFields(['gwId' => $keycloakUserData->getOrganisationId()]);
         if (null === $orgas || (is_array($orgas) && empty($orgas))) {
+            $this->logger->info('Create new User and Orga from Keycloak');
+
             return $this->createNewUserAndOrgaFromOrga($keycloakUserData);
         }
 
         // orga is already registered in customer, return default user
         // or acting user, if any is given
 
+        $this->logger->info('Orga is already registered in customer');
         $orga = $orgas[0] ?? null;
         if (!$orga instanceof Orga) {
             $this->logger->error('Could not find valid orga in Keycloak request', [$orgas]);
             throw new InvalidArgumentException('Could not find valid orga in Keycloak request');
         }
 
+        $this->logger->info('Update existing Orga with Keycloak data');
         $orga = $this->updateOrgaWithKnownValues($orga, $keycloakUserData);
 
         $users = $orga->getUsers();
@@ -145,9 +151,13 @@ class KeycloakUserDataMapper
         // return the orga default user
         $user = $users->filter(fn (User $user) => UserInterface::DEFAULT_ORGA_USER_NAME === $user->getLastname());
 
+        $this->logger->info('Fetched users', ['users' => $user]);
+
         if (1 === $user->count()) {
             return $user->first();
         }
+
+        $this->logger->error('No valid users found');
 
         throw new InvalidArgumentException('Invalid Keycloak user attributes given');
     }
