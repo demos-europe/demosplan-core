@@ -136,6 +136,7 @@ class ParagraphExporter
 
         $templateVars['list'] = ['documentlist' => $documentList];
         $templateVars['procedure'] = $procedure;
+        $templateVars['listwidth'] = 17;
 
         $content = $this->twig->render(
             '@DemosPlanCore/DemosPlanDocument/paragraph_list_export.tex.twig',
