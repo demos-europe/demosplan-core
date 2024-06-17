@@ -11,6 +11,7 @@
   <l-map
     class="c-publicindex__map isolate"
     ref="map"
+    :aria-label="Translator.trans('map')"
     :zoom="initialZoom"
     :center="initialLocation"
     :min-zoom="7"
