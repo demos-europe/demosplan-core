@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface as UserInterfaceDplan;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -130,7 +130,7 @@ class KeycloakUserDataMapper
         $users = $orga->getUsers();
 
         // return the orga default user
-        $user = $users->filter(fn (User $user) => UserInterfaceDplan::DEFAULT_ORGA_USER_NAME === $user->getLastname());
+        $user = $users->filter(fn (User $user) => UserInterface::DEFAULT_ORGA_USER_NAME === $user->getLastname());
 
         if (1 === $user->count()) {
             return $user->first();
