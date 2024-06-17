@@ -50,7 +50,7 @@
   "dependencies": {
     "@demos-europe/demosplan-ui": "^0.3.17",
     "@demos-europe/dp-consent": "^1.1.2",
-    "@efrane/vuex-json-api": "github:eFrane/vuex-json-api#7d70712dd3fccd2532312ae5dd19b1542e2aadfe",
+    "@efrane/vuex-json-api": "github:eFrane/vuex-json-api#19c2354ad97c17bdda02358dc9ee4a2ffce181dd",
     "@masterportal/masterportalapi": "^2.19.2",
     "@sentry/browser": "^8.9.1",
     "@sentry/integrations": "^7.114.0",
