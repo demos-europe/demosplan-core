@@ -34,12 +34,12 @@ const presetStoreModules = {
         registerStatus: {
           condition: {
             path: 'statusInCustomers.status',
-            value: 'pending'
+            value: 'Pending'
           }
         }
       },
       include: ['branding', 'currentSlug', 'statusInCustomers'].join(),
-      group: 'pending'
+      group: 'Pending'
     }
   }]
 }

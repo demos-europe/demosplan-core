@@ -466,7 +466,7 @@ export default {
               ? payloadRel.allowedRoles.data.map(el => {
                 return {
                   ...el,
-                  type: 'role'
+                  type: 'Role'
                 }
               })
               : null
