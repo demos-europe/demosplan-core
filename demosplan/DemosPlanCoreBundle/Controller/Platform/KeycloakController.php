@@ -62,6 +62,6 @@ class KeycloakController extends AbstractController
     public function connectKeycloakCheckAction(Request $request, ClientRegistry $clientRegistry): void
     {
         // ** if you want to *authenticate* the user, then
-        // leave this method blank and create a Guard authenticator
+        // leave this method blank and create an authenticator
     }
 }

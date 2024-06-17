@@ -49,7 +49,6 @@ class KeycloakUserDataMapper
 
     /**
      * Maps incoming data to dplan:user.
-     * Creates.
      *
      * @throws Exception
      */
@@ -91,14 +90,14 @@ class KeycloakUserDataMapper
         $login = $keycloakUserData->getUserName();
 
         // check whether existing user needs to be updated.
-        // when user with email exists, update login field to saml login
-        // to allow Login via saml and dplan
+        // when user with email exists, update login field to idp login
+        // to allow Login via idp and dplan
 
         $user = $this->userService->findDistinctUserByEmailOrLogin($keycloakUserData->getEmailAddress());
 
         if ($user instanceof User) {
             $this->logger->info('Tie existing user to Keycloak-Login');
-            // user exists with email. Just update login to tie user to saml and at the same time
+            // user exists with email. Just update login to tie user to idp and at the same time
             // allow to login locally via email
             $user->setLogin($login);
             $user->setProvidedByIdentityProvider(true);
@@ -210,7 +209,7 @@ class KeycloakUserDataMapper
             );
             $this->eventDispatcherPost->post($newOrgaRegisteredEvent);
         } catch (Exception $e) {
-            $this->logger->warning('Could not successfully perform orga registered from SAML event', [$e]);
+            $this->logger->warning('Could not successfully perform orga registered from OAuth login event', [$e]);
         }
 
         // Orga has exactly one master user so far
