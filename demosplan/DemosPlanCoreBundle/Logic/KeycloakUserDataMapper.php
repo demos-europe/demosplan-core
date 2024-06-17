@@ -27,9 +27,9 @@ use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\ValueObject\KeycloakUserData;
+use demosplan\DemosPlanCoreBundle\ValueObject\KeycloakUserDataInterface;
 use Exception;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * Supposed to handle the request from @see KeycloakAuthenticator to log in a user. Therefore, the information from
@@ -53,7 +53,7 @@ class KeycloakUserDataMapper
      *
      * @throws Exception
      */
-    public function mapUserData(KeycloakUserData $keycloakUserData): UserInterface
+    public function mapUserData(KeycloakUserDataInterface $keycloakUserData): UserInterface
     {
         // login existing user
         $user = $this->userService->findDistinctUserByEmailOrLogin($keycloakUserData->getEmailAddress());
@@ -180,8 +180,10 @@ class KeycloakUserDataMapper
 
         $orgaName = $keycloakUserData->getOrganisationName();
         $phone = '';
-        $userFirstName = $keycloakUserData->getFirstName();
-        $userLastName = $keycloakUserData->getLastName();
+        // we need to hardcode the initial user name here to be able to
+        // login as the default Orga user on login
+        $userFirstName = '';
+        $userLastName = UserInterface::DEFAULT_ORGA_USER_NAME;
         $userEmail = $keycloakUserData->getEmailAddress();
         $orgaTypeNames = [OrgaType::PUBLIC_AGENCY];
 
@@ -213,7 +215,7 @@ class KeycloakUserDataMapper
 
         // Orga has exactly one master user so far
         $user = $orga->getUsers()->first();
-        // set Orga Id as User login to be able to login as the default Orga user on login
+        // set Orga Email as User login to be able to login as the default Orga user on login
         $user->setLogin($keycloakUserData->getUserName());
         $user->setProvidedByIdentityProvider(true);
 
