@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
 use Psr\Log\LoggerInterface;
@@ -57,6 +58,13 @@ class KeycloakAuthenticator extends OAuth2Authenticator implements Authenticatio
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
+        /** @var User $user */
+        $user = $token->getUser();
+        $this->logger->info('User was logged in via OAuth', ['id' => $user->getId(), 'roles' => $user->getDplanRolesString()]);
+
+        // propagate user login to session
+        $request->getSession()->set('userId', $user->getId());
+
         // change "app_homepage" to some route in your app
         $targetUrl = $this->router->generate('core_home_loggedin');
 
