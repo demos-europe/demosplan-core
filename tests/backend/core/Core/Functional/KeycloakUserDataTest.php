@@ -11,6 +11,7 @@ use Tests\Base\FunctionalTestCase;
 class KeycloakUserDataTest extends FunctionalTestCase
 {
 
+    const TEST_EMAIL = 'test@example.com';
     private ?KeycloakUserData $keycloakUserData;
 
     protected function setUp(): void
@@ -23,7 +24,7 @@ class KeycloakUserDataTest extends FunctionalTestCase
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
             ->willReturn([
-                'email' => 'test@example.com',
+                'email' => self::TEST_EMAIL,
                 'givenName' => 'John',
                 'surname' => 'Doe',
                 'organisationId' => '123',
@@ -38,7 +39,7 @@ class KeycloakUserDataTest extends FunctionalTestCase
         $this->keycloakUserData->fill($resourceOwner);
 
         $this->assertEquals(
-            'test@example.com',
+            self::TEST_EMAIL,
             $this->keycloakUserData->getEmailAddress()
         );
         $this->assertEquals('John', $this->keycloakUserData->getFirstName());
@@ -52,7 +53,7 @@ class KeycloakUserDataTest extends FunctionalTestCase
             $this->keycloakUserData->getOrganisationName()
         );
         $this->assertEquals('456', $this->keycloakUserData->getUserId());
-        $this->assertEquals('test@example.com', $this->keycloakUserData->getUserName());
+        $this->assertEquals(self::TEST_EMAIL, $this->keycloakUserData->getUserName());
         $this->assertEquals('10', $this->keycloakUserData->getHouseNumber());
         $this->assertEquals('Test City', $this->keycloakUserData->getLocalityName());
         $this->assertEquals('12345', $this->keycloakUserData->getPostalCode());
@@ -65,7 +66,7 @@ class KeycloakUserDataTest extends FunctionalTestCase
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
             ->willReturn([
-                'email' => 'test@example.com',
+                'email' => self::TEST_EMAIL,
                 'givenName' => 'John',
                 'surname' => 'Doe',
                 'sub' => '456',
@@ -78,7 +79,7 @@ class KeycloakUserDataTest extends FunctionalTestCase
         $this->keycloakUserData->fill($resourceOwner);
 
         $this->assertEquals(
-            'test@example.com',
+            self::TEST_EMAIL,
             $this->keycloakUserData->getEmailAddress()
         );
         $this->assertEquals('John', $this->keycloakUserData->getFirstName());
@@ -86,7 +87,7 @@ class KeycloakUserDataTest extends FunctionalTestCase
         $this->assertEquals('', $this->keycloakUserData->getOrganisationId());
         $this->assertEquals('', $this->keycloakUserData->getOrganisationName());
         $this->assertEquals('456', $this->keycloakUserData->getUserId());
-        $this->assertEquals('test@example.com', $this->keycloakUserData->getUserName());
+        $this->assertEquals(self::TEST_EMAIL, $this->keycloakUserData->getUserName());
     }
 
     public function testCheckMandatoryValuesExistThrowsExceptionWhenValuesAreMissing(): void
