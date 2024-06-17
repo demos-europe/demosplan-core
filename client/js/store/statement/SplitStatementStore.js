@@ -15,7 +15,7 @@ import { transformHTMLPositionsToProsemirrorPositions } from './storeHelpers/Spl
 const SplitStatementStore = {
   namespaced: true,
 
-  name: 'Splitstatement',
+  name: 'SplitStatement',
 
   state: {
     assignableUsers: [],

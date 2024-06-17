@@ -73,7 +73,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('Splitstatement', {
+    ...mapGetters('SplitStatement', {
       availableTags: 'availableTags',
       currentSegment: 'editingSegment',
       tagById: 'tagById',
@@ -82,7 +82,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('Splitstatement', [
+    ...mapActions('SplitStatement', [
       'updateCurrentTags'
     ]),
 
