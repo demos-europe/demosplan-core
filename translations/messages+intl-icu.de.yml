@@ -2587,7 +2587,7 @@ procedure.by.phase.public: |
         =0 {Verfahren nach Phase (Öffentlichkeit)}
         other {# Verfahren nach Phase (Öffentlichkeit)}
     }
-procedure.canCreate: 'Darf Verfahren anlegen'
+procedure.canCreate: 'Kommune oder Planungsbüro darf Verfahren anlegen'
 procedure.create: "Neues Verfahren anlegen"
 procedure.created: "Verfahren angelegt"
 procedure.current: "Dieses Verfahren"
