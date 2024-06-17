@@ -11,12 +11,14 @@
 {# Needed for colspan in collapsible <tr> bwlow #}
 {% set colspan = 5 %}
 
-<tr class="border--top o-sortablelist__item">
+<tr
+    class="border--top o-sortablelist__item"
+    :data-cy="`administrationMemberListEntry:row:{{ loop.index }}`">
     <td class="u-pr-0_25">
         <input
             name="orga_selected[]"
             class="u-ml-0_5"
-            data-cy="administrationMemberListEntry:CheckboxEntry"
+            :data-cy="`administrationMemberListEntry:checkbox:{{ loop.index }}`"
             type="checkbox"
             value="{{ orga.ident|default("notspecified"|trans)}}"
             data-checkable-item>

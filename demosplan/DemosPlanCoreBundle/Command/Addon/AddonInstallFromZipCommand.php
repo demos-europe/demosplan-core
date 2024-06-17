@@ -85,7 +85,7 @@ class AddonInstallFromZipCommand extends CoreCommand
         $this->addOption('no-enable', '', InputOption::VALUE_NONE, 'Do not immediately enable addon during installation');
         $this->addOption('local', '', InputOption::VALUE_NONE, 'Only use locally available addons, do not connect GitHub');
         $this->addOption('github', '', InputOption::VALUE_NONE, 'Directly load addons from GitHub');
-        $this->addOption('branch', '', InputOption::VALUE_NONE, 'Install specific branch from GitHub');
+        $this->addOption('branch', 'b', InputOption::VALUE_REQUIRED, 'Install specific branch from GitHub');
         $this->addOption('repos', '', InputOption::VALUE_NONE, 'Call demosplan addon repository');
         $this->addOption('force-download', '', InputOption::VALUE_NONE, 'Force download repository from GitHub');
         $this->addOption('folder', '', InputOption::VALUE_REQUIRED, 'Folder to read addon zips from', 'addonZips');
@@ -425,7 +425,7 @@ class AddonInstallFromZipCommand extends CoreCommand
         return $path;
     }
 
-    private function loadFromGithub(InputInterface $input, SymfonyStyle $output, mixed $folder, bool $branch): string
+    private function loadFromGithub(InputInterface $input, SymfonyStyle $output, mixed $folder, ?string $branch): string
     {
         try {
             $ghToken = $this->parameterBag->get('github_token');
@@ -459,7 +459,7 @@ class AddonInstallFromZipCommand extends CoreCommand
         $repo = $questionHelper->ask($input, $output, $question);
 
         // default: show tags
-        if (false === $branch) {
+        if (null === $branch) {
             // fetch a list of available tags
             $ghUrl = 'https://api.github.com/repos/demos-europe/'.$repo.'/tags';
             $tag = $this->getGithubItem($ghUrl, $ghOptions, $input, $output);
@@ -467,9 +467,6 @@ class AddonInstallFromZipCommand extends CoreCommand
             // tags are prefixed with v, but the zip file in GitHub is not
             $path = DemosPlanPath::getRootPath($folder).'/'.$repo.'-'.str_replace('v', '', $tag).'.zip';
         } else {
-            // fetch a list of available branches
-            $ghUrl = sprintf('https://api.github.com/repos/demos-europe/%s/branches', $repo);
-            $branch = $this->getGithubItem($ghUrl, $ghOptions, $input, $output);
             $zipUrl = sprintf('https://github.com/demos-europe/%s/archive/refs/heads/%s.zip', $repo, $branch);
             $path = DemosPlanPath::getRootPath($folder).'/'.$repo.'-'.$branch.'.zip';
         }
