@@ -909,7 +909,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     {
         return \collect($statements)
             ->flatMap(
-                fn (Statement $statement): \Tightenco\Collect\Support\Collection => $this->getStatementAndItsFragmentsInOneFlatList(
+                fn (Statement $statement): \Illuminate\Support\Collection => $this->getStatementAndItsFragmentsInOneFlatList(
                     $statement,
                     $entityClassesToInclude
                 )
@@ -3737,7 +3737,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @param array $statementIds
      */
-    public function getHeadStatementIdsOfStatements($statementIds): \Tightenco\Collect\Support\Collection
+    public function getHeadStatementIdsOfStatements($statementIds): \Illuminate\Support\Collection
     {
         $result = \collect([]);
         try {
@@ -4514,7 +4514,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     /**
      * @param array<int,class-string> $entityClassesToInclude
      */
-    private function getStatementAndItsFragmentsInOneFlatList(Statement $statement, array $entityClassesToInclude): \Tightenco\Collect\Support\Collection
+    private function getStatementAndItsFragmentsInOneFlatList(Statement $statement, array $entityClassesToInclude): \Illuminate\Support\Collection
     {
         $explodedStatement = \collect();
 
