@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Core\Functional;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadCustomerData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
@@ -56,20 +57,12 @@ class KeycloakUserDataMapperTest extends FunctionalTestCase
     {
         $attributes = [
             'localityName' => 'Test City',
-            'ID' => '123456',
             'houseNumber' => '10',
             'givenName' => 'John',
             'email' => 'test@example.com',
             'surname' => 'Doe',
             'organisationName' => '',
             'street' => 'Test Street',
-            'orgaName' => '',
-
-//            'organisationId' => '',
-//            'sub' => '456',
-//            'preferred_username' => 'johndoe',
-//            'postalCode' => '12345',
-//            // orgaType UserAttribute PersTyp
         ];
         $resourceOwner = new KeycloakResourceOwner($attributes);
         $userData = new KeycloakUserData();
@@ -79,7 +72,7 @@ class KeycloakUserDataMapperTest extends FunctionalTestCase
         self::assertInstanceOf(User::class, $user);
         $anonymousUser = new AnonymousUser();
         self::assertEquals($anonymousUser->getOrga()->getId(), $user->getOrga()->getId());
-        self::assertEquals($attributes['ID'], $user->getLogin());
+        self::assertEquals($attributes['email'], $user->getLogin());
     }
     public function testCreateNewOrgaUser(): void
     {
@@ -92,7 +85,6 @@ class KeycloakUserDataMapperTest extends FunctionalTestCase
             'sub' => '456',
             'preferred_username' => 'johndoe',
             'houseNumber' => '10',
-            'ID' => '123456',
             'localityName' => 'Test City',
             'postalCode' => '12345',
             'street' => 'Test Street'
@@ -105,7 +97,7 @@ class KeycloakUserDataMapperTest extends FunctionalTestCase
         self::assertInstanceOf(User::class, $user);
         $anonymousUser = new AnonymousUser();
         self::assertNotEquals($anonymousUser->getOrga()->getId(), $user->getOrga()->getId());
-        self::assertEquals($attributes['ID'], $user->getLogin());
+        self::assertEquals($attributes['email'], $user->getLogin());
     }
 
     public function testCreateNewUserFromServicekonto(): void
@@ -126,7 +118,10 @@ class KeycloakUserDataMapperTest extends FunctionalTestCase
         self::assertInstanceOf(User::class, $user);
         $anonymousUser = new AnonymousUser();
         self::assertEquals($anonymousUser->getOrga()->getId(), $user->getOrga()->getId());
-        self::assertEquals($attributes['ID'], $user->getLogin());
+        self::assertEquals($attributes['email'], $user->getLogin());
+        self::assertEquals($attributes['email'], $user->getEmail());
+        self::assertEquals($attributes['givenName'], $user->getFirstname());
+        self::assertEquals($attributes['surname'], $user->getLastname());
     }
 
     public function testCreateNewOrgaNoUser(): void
@@ -139,14 +134,14 @@ class KeycloakUserDataMapperTest extends FunctionalTestCase
         $user = $this->keycloakUserDataMapper->mapUserData($userData);
         self::assertInstanceOf(User::class, $user);
         $orga = $user->getOrga();
-        self::assertEquals($attributes['orgaName'][0], $orga->getName());
-        self::assertEquals($attributes['houseNumber'][0], $orga->getHouseNumber());
-        self::assertEquals($attributes['localityName'][0], $orga->getCity());
-        self::assertEquals($attributes['postalCode'][0], $orga->getPostalcode());
-        self::assertEquals($attributes['street'][0], $orga->getStreet());
-        self::assertEquals($attributes['ID'][0], $orga->getGatewayName());
-
-        self::assertEquals($attributes['ID'][0], $user->getLogin());
+        self::assertEquals($attributes['organisationName'], $orga->getName());
+        self::assertEquals($attributes['houseNumber'], $orga->getHouseNumber());
+        self::assertEquals($attributes['localityName'], $orga->getCity());
+        self::assertEquals($attributes['postalCode'], $orga->getPostalcode());
+        self::assertEquals($attributes['street'], $orga->getStreet());
+        self::assertEquals(UserInterface::DEFAULT_ORGA_USER_NAME, $user->getLastname());
+        self::assertEquals($attributes['email'], $user->getLogin());
+        self::assertTrue($user->isProvidedByIdentityProvider());
     }
 
     public function testUpdateOrga(): void
@@ -159,38 +154,38 @@ class KeycloakUserDataMapperTest extends FunctionalTestCase
         $user = $this->keycloakUserDataMapper->mapUserData($userData);
         self::assertInstanceOf(User::class, $user);
 
-        $attributes['localityName'] = ['Neustadt'];
+        $attributes['localityName'] = 'Neustadt';
         $resourceOwner = new KeycloakResourceOwner($attributes);
         $userData = new KeycloakUserData();
         $userData->fill($resourceOwner);
         $user = $this->keycloakUserDataMapper->mapUserData($userData);
 
         $orga = $user->getOrga();
-        self::assertEquals($attributes['orgaName'][0], $orga->getName());
-        self::assertEquals($attributes['houseNumber'][0], $orga->getHouseNumber());
-        self::assertEquals($attributes['localityName'][0], $orga->getCity());
-        self::assertEquals($attributes['postalCode'][0], $orga->getPostalcode());
-        self::assertEquals($attributes['street'][0], $orga->getStreet());
-        self::assertEquals($attributes['ID'][0], $orga->getGatewayName());
+        self::assertEquals($attributes['organisationName'], $orga->getName());
+        self::assertEquals($attributes['houseNumber'], $orga->getHouseNumber());
+        self::assertEquals($attributes['localityName'], $orga->getCity());
+        self::assertEquals($attributes['postalCode'], $orga->getPostalcode());
+        self::assertEquals($attributes['street'], $orga->getStreet());
+        self::assertEquals($attributes['organisationId'], $orga->getGatewayName());
+        self::assertEquals($attributes['email'], $user->getLogin());
 
-        self::assertEquals($attributes['ID'][0], $user->getLogin());
     }
 
     private function getOrgaLoginAttributes(): array
     {
         return [
             'country'       => 'de',
-            'givenName'     => '',
+            'givenName'     => 'Organisation',
+            'surname'     => 'Administration',
             'houseNumber'   => '14',
-            'ID'            => 'du-886227c04d14045c16c42d706427d8392fd64417',
             'localityName'  => 'Erlangen',
             'email'         => 'mail.needs@tobes.et',
             'orgaMail'      => 'orgaMailneeds@tobes.et',
-            'orgaName'      => 'Franken Plus GmbH & Co. KGaA',
+            'organisationName'      => 'Franken Plus GmbH & Co. KGaA',
+            'organisationId'            => 'du-886227c04d14045c16c42d706427d8392fd64417',
             'orgaType'      => 'NNatPers',
             'postalCode'    => '91058',
             'street'        => 'Frauenweiherstr.',
-            'surname'       => '',
         ];
     }
 

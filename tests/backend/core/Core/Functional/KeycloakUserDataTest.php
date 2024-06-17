@@ -29,9 +29,7 @@ class KeycloakUserDataTest extends FunctionalTestCase
                 'organisationId' => '123',
                 'organisationName' => 'Test Organisation',
                 'sub' => '456',
-                'preferred_username' => 'johndoe',
                 'houseNumber' => '10',
-                'ID' => '123456',
                 'localityName' => 'Test City',
                 'postalCode' => '12345',
                 'street' => 'Test Street'
@@ -54,9 +52,8 @@ class KeycloakUserDataTest extends FunctionalTestCase
             $this->keycloakUserData->getOrganisationName()
         );
         $this->assertEquals('456', $this->keycloakUserData->getUserId());
-        $this->assertEquals('johndoe', $this->keycloakUserData->getUserName());
+        $this->assertEquals('test@example.com', $this->keycloakUserData->getUserName());
         $this->assertEquals('10', $this->keycloakUserData->getHouseNumber());
-        $this->assertEquals('123456', $this->keycloakUserData->getId());
         $this->assertEquals('Test City', $this->keycloakUserData->getLocalityName());
         $this->assertEquals('12345', $this->keycloakUserData->getPostalCode());
         $this->assertEquals('Test Street', $this->keycloakUserData->getStreet());
@@ -72,9 +69,7 @@ class KeycloakUserDataTest extends FunctionalTestCase
                 'givenName' => 'John',
                 'surname' => 'Doe',
                 'sub' => '456',
-                'preferred_username' => 'johndoe',
                 'houseNumber' => '',
-                'ID' => '',
                 'localityName' => '',
                 'postalCode' => '',
                 'street' => ''
@@ -91,7 +86,7 @@ class KeycloakUserDataTest extends FunctionalTestCase
         $this->assertEquals('', $this->keycloakUserData->getOrganisationId());
         $this->assertEquals('', $this->keycloakUserData->getOrganisationName());
         $this->assertEquals('456', $this->keycloakUserData->getUserId());
-        $this->assertEquals('johndoe', $this->keycloakUserData->getUserName());
+        $this->assertEquals('test@example.com', $this->keycloakUserData->getUserName());
     }
 
     public function testCheckMandatoryValuesExistThrowsExceptionWhenValuesAreMissing(): void
@@ -103,7 +98,6 @@ class KeycloakUserDataTest extends FunctionalTestCase
                 'givenName' => '',
                 'surname' => '',
                 'sub' => '',
-                'preferred_username' => ''
             ]);
 
         $this->expectException(AuthenticationCredentialsNotFoundException::class);
