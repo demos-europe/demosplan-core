@@ -300,7 +300,7 @@
 
         <dp-checkbox
           v-if="hasPermission('feature_manage_procedure_creation_permission')"
-          id="procedureCreatePermission"
+          :id="`${organisation.id}:procedureCreatePermission`"
           class="mt-2"
           data-cy="orgaFormField:procedureCreatePermission"
           :label="{
