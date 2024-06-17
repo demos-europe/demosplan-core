@@ -42,7 +42,7 @@
             <dp-radio
               name="r_role"
               value="0"
-              data-cy="roleInput:role.citizen"
+              :data-cy="`roleInput:${Translator.trans('citizen').toLowerCase()}`"
               :id="`${instanceId}r_role_0`"
               :label="{
                 text: Translator.trans('citizen')
@@ -52,7 +52,7 @@
             <dp-radio
               name="r_role"
               value="1"
-              data-cy="roleInput:invitable_institution"
+              :data-cy="`roleInput:${Translator.trans('institution').toLowerCase()}`"
               :id="`${instanceId}r_role_1`"
               :label="{
                 text: Translator.trans('institution')
