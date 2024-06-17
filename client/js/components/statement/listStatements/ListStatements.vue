@@ -760,7 +760,6 @@ export default {
      */
     getOriginalPdfAttachmentHash (el) {
       if (el.hasRelationship('attachments')) {
-        console.log(el.relationships.attachments)
         const originalAttachment = Object.values(el.relationships.attachments.list())
           .filter(attachment => attachment.attributes.attachmentType === 'source_statement')
         if (originalAttachment.length === 1) {
