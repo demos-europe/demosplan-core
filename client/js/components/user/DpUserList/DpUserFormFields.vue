@@ -208,23 +208,23 @@ export default {
   },
 
   computed: {
-    ...mapGetters('role', {
+    ...mapGetters('Role', {
       rolesInRelationshipFormat: 'itemsInRelationshipFormat'
     }),
 
-    ...mapGetters('orga', {
+    ...mapGetters('Orga', {
       orgasInRelationshipFormat: 'itemsInRelationshipFormat'
     }),
 
-    ...mapState('orga', {
+    ...mapState('Orga', {
       organisations: 'items'
     }),
 
-    ...mapState('department', {
+    ...mapState('Department', {
       departments: 'items'
     }),
 
-    ...mapState('role', {
+    ...mapState('Role', {
       roles: 'items'
     }),
 
@@ -284,11 +284,11 @@ export default {
   },
 
   methods: {
-    ...mapActions('orga', {
+    ...mapActions('Orga', {
       organisationList: 'list'
     }),
 
-    ...mapMutations('orga', ['setItem']),
+    ...mapMutations('Orga', ['setItem']),
 
     addRole (role) {
       this.localUser.relationships.roles.data.push(role)
@@ -466,7 +466,7 @@ export default {
               ? payloadRel.allowedRoles.data.map(el => {
                 return {
                   ...el,
-                  type: 'role'
+                  type: 'Role'
                 }
               })
               : null

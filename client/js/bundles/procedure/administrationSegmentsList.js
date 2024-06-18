@@ -24,6 +24,6 @@ const components = {
 const stores = {
   filter: SegmentFilterStore
 }
-const apiStores = ['assignableUser', 'place', 'statementSegment', 'tag', 'tagTopic']
+const apiStores = ['AssignableUser', 'Place', 'StatementSegment', 'Tag', 'TagTopic']
 
 initialize(components, stores, apiStores)

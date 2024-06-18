@@ -70,7 +70,7 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
               'X-JWT-Authorization': 'Bearer ' + dplan.jwtToken,
               'X-Demosplan-Procedure-Id': dplan.procedureId
             },
-            preprocessingCallbacks: [
+            successCallbacks: [
               (response) => {
                 if (typeof response.data !== 'undefined' &&
                 typeof response.data.meta !== 'undefined' &&
