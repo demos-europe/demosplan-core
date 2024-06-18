@@ -290,6 +290,25 @@ class ParagraphRepository extends FluentRepository implements ArrayInterface, Ob
         }
     }
 
+    public function deleteByProcedureIdAndElementId($procedureId, $elementId)
+    {
+        try {
+            $query = $this->getEntityManager()->createQueryBuilder()
+                ->delete(Paragraph::class, 'p')
+                ->andWhere('p.procedure = :procedureId')
+                ->andWhere('p.element = :elementId')
+                ->setParameter('procedureId', $procedureId)
+                ->setParameter('elementId', $elementId)
+                ->getQuery();
+            $query->execute();
+
+            return true;
+        } catch (Exception $e) {
+            $this->logger->warning('Delete Paragraphs of a procedure failed ', [$e]);
+            throw $e;
+        }
+    }
+
     /**
      * Kopiert alle Paragraph (Begründung und textliche Festsetzung) von einem Verfahren in ein anderes.
      *
