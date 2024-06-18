@@ -79,11 +79,11 @@ export default {
   },
 
   computed: {
-    ...mapGetters('assessmentTable', ['assessmentBaseLoaded'])
+    ...mapGetters('AssessmentTable', ['assessmentBaseLoaded'])
   },
 
   methods: {
-    ...mapActions('assessmentTable', ['applyBaseData']),
+    ...mapActions('AssessmentTable', ['applyBaseData']),
 
     resetSelectMenu (field) {
       this[field] = []
@@ -97,7 +97,7 @@ export default {
   mounted () {
     this.applyBaseData([this.procedureId])
       .then(() => {
-        const tagsFromStore = this.$store.getters['assessmentTable/tags']
+        const tagsFromStore = this.$store.getters['AssessmentTable/tags']
         const selectedTags = []
         Object.values(tagsFromStore).forEach(group => {
           this.initTags.forEach(tag => {

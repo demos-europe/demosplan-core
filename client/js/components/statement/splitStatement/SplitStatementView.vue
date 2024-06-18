@@ -285,7 +285,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('splitstatement', [
+    ...mapGetters('SplitStatement', [
       'currentlyHighlightedSegmentId',
       'editingSegment',
       'editingSegmentId',
@@ -343,14 +343,14 @@ export default {
   },
 
   methods: {
-    ...mapMutations('splitstatement', [
+    ...mapMutations('SplitStatement', [
       'locallyDeleteSegments',
       'locallyUpdateSegments',
       'resetSegments',
       'setProperty'
     ]),
 
-    ...mapActions('splitstatement', [
+    ...mapActions('SplitStatement', [
       'acceptSegmentProposal',
       'deleteSegmentAction',
       'setInitialData',

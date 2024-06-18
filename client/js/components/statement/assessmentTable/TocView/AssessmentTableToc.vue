@@ -52,17 +52,17 @@ export default {
   },
 
   computed: {
-    ...mapGetters('assessmentTable', [
+    ...mapGetters('AssessmentTable', [
       'isRefreshButtonVisible'
     ]),
 
-    ...mapGetters('statement', [
+    ...mapGetters('Statement', [
       'getToc'
     ])
   },
 
   methods: {
-    ...mapMutations('assessmentTable', [
+    ...mapMutations('AssessmentTable', [
       'setRefreshButtonVisibility'
     ]),
 
