@@ -12,6 +12,7 @@
     <div :class="prefixClass('layout')">
       <dp-input
         id="r_postalCode"
+        aria-labelledby="postalcode"
         autocomplete="postal-code"
         data-cy="postalCode"
         :class="prefixClass('layout__item')"
