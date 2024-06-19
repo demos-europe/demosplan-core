@@ -10,17 +10,23 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
+use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ParagraphHandler extends CoreHandler
 {
-    /** @var ParagraphService */
-    protected $service;
-
-    public function __construct(ParagraphService $paragraphService, private readonly FlashMessageHandler $flashMessageHandler, MessageBag $messageBag, private readonly TranslatorInterface $translator)
+    public function __construct(
+        protected readonly ParagraphService $paragraphService,
+        protected readonly ParagraphRepository $paragraphRepository,
+        private readonly FlashMessageHandler $flashMessageHandler,
+        MessageBag $messageBag,
+        private readonly TranslatorInterface $translator
+    )
     {
         parent::__construct($messageBag);
         $this->service = $paragraphService;
@@ -163,6 +169,11 @@ class ParagraphHandler extends CoreHandler
         }
 
         return $this->service->updateParaDocument($document);
+    }
+
+    public function administrationDocumentDeleteHandler(ProcedureInterface $procedure, ElementsInterface $element)
+    {
+        return $this->paragraphRepository->deleteByProcedureIdAndElementId($procedure->getId(), $element->getId());
     }
 
     /**
