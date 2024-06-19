@@ -642,7 +642,7 @@ class DemosPlanDocumentController extends BaseController
         ProcedureHandler $procedureHandler,
         Request $request,
         EventDispatcherInterface $eventDispatcher,
-        $procedure
+        String $procedure
     ) {
         $result = [];
         $templateVars = [];
