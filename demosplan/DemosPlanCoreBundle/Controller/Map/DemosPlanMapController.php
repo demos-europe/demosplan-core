@@ -60,7 +60,7 @@ class DemosPlanMapController extends BaseController
         CurrentProcedureService $currentProcedureService,
         MapService $mapService,
         ProcedureHandler $procedureHandler,
-        String $procedureId
+        string $procedureId
     ) {
         $templateVars = [];
         $procedure = $procedureId; // To use the same Template as in DocumentController

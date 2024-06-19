@@ -625,8 +625,6 @@ class DemosPlanDocumentController extends BaseController
      *
      * @DplanPermissions("area_admin_single_document")
      *
-     * @param string $procedure
-     *
      * @return Response
      *
      * @throws Exception
@@ -642,7 +640,7 @@ class DemosPlanDocumentController extends BaseController
         ProcedureHandler $procedureHandler,
         Request $request,
         EventDispatcherInterface $eventDispatcher,
-        String $procedure
+        string $procedure
     ) {
         $result = [];
         $templateVars = [];
@@ -1209,8 +1207,8 @@ class DemosPlanDocumentController extends BaseController
                 $this->getMessageBag()->add('confirm', 'confirm.plandocument.category.saved');
 
                 return $this->redirectToRoute('DemosPlan_elements_administration_edit', [
-                  'procedure' => $procedure,
-                  'elementId' => $storageResult['ident'],
+                    'procedure' => $procedure,
+                    'elementId' => $storageResult['ident'],
                 ]);
             }
         }
@@ -1233,9 +1231,9 @@ class DemosPlanDocumentController extends BaseController
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanDocument/elements_admin_edit.html.twig',
             [
-            'procedure'    => $procedure,
-            'templateVars' => $templateVars,
-            'title'        => $title,
+                'procedure'    => $procedure,
+                'templateVars' => $templateVars,
+                'title'        => $title,
             ]
         );
     }
