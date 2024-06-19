@@ -231,7 +231,7 @@ export default {
 
       this.userList({
         page: {
-          number: page
+          number: page ?? 1
         },
         search: (this.searchValue !== '') ? search : {},
         include: ['roles', 'orga', 'department', 'orga.allowedRoles'].join()
