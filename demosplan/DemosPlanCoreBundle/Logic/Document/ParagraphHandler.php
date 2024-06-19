@@ -12,13 +12,14 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Handler\ParagraphHandlerInterface;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class ParagraphHandler extends CoreHandler
+class ParagraphHandler extends CoreHandler implements ParagraphHandlerInterface
 {
     public function __construct(
         protected readonly ParagraphService $paragraphService,
