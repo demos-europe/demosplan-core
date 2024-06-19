@@ -12,6 +12,32 @@
  */
 const api1_0Routes = [
   {
+    module: 'orga',
+    action: 'update',
+    url: '/1.0/organisation/{id}',
+    parameters: [
+      'id'
+    ]
+  },
+  {
+    module: 'orga',
+    action: 'create',
+    url: '/1.0/organisation/'
+  },
+  {
+    module: 'orga',
+    action: 'delete',
+    url: '/1.0/organisation/{id}',
+    parameters: [
+      'id'
+    ]
+  },
+  {
+    module: 'role',
+    action: 'list',
+    url: '/1.0/role/'
+  },
+  {
     module: 'report',
     action: 'list',
     url: '/1.0/reports/{procedureId}/{group}',

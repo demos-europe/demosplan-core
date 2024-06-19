@@ -297,7 +297,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_preferences',  // Einstellungen
                 'feature_admin_delete_procedure',  // Verfahren loeschen
                 'feature_admin_export_procedure',  // Verfahren exportieren
-                'feature_admin_new_procedure',  // Neues Verfahren anlegen
                 'feature_procedure_export_include_public_interest_bodies_member_list',
                 'feature_json_api_get', // allow get requests to generic api
             ]);

@@ -21,6 +21,10 @@ All rights reserved
         type="hidden"
         :value="csrfToken">
 
+      <p
+        class="color--grey"
+        v-text="Translator.trans('statement.participation.import.hint')" />
+
       <dp-upload-files
         allowed-file-types="zip"
         :basic-auth="dplan.settings.basicAuth"

@@ -38,7 +38,7 @@
           v-model="currentAutocompleteSearch"
           :class="prefixClass('c-proceduresearch__search-field')"
           :label="{
-            hidden: true,
+            hide: true,
             text: Translator.trans('procedure.public.search.placeholder')
           }"
           name="search"
