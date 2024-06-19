@@ -17,6 +17,27 @@ export default {
   },
 
   actions: {
+    fetchLayers ({ commit }, procedureId) {
+      const url = Routing.generate('api_resource_list', { resourceType: 'GisLayer' })
+
+      const params = {
+        fields: {
+          GisLayer: [
+            'name',
+            'url',
+            'isEnabled',
+            'mapOrder',
+            'hasDefaultVisibility',
+            'layers',
+            'projectionValue'
+          ].join()
+        }
+      }
+
+      return dpApi.get(url, params)
+        .then(response => checkResponse(response))
+    },
+
     fetchProcedureMapSettings ({ commit }, procedureId) {
       try {
         const url = Routing.generate('api_resource_get', { resourceId: procedureId, resourceType: 'Procedure' })

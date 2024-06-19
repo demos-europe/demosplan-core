@@ -37,6 +37,12 @@ export default {
       default: 'baselayer_global'
     },
 
+    order: {
+      required: false,
+      type: Number,
+      default: 0
+    },
+
     projection: {
       required: false,
       type: String,
@@ -98,7 +104,7 @@ export default {
       const layer = createTileLayer(this.title, this.name, this.source)
 
       //  Insert layer at pos 0, making it the background layer
-      this.map.getLayers().insertAt(0, layer)
+      this.map.getLayers().insertAt(this.order, layer)
     }
   },
 
