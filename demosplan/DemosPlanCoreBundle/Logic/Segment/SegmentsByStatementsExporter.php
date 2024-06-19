@@ -56,7 +56,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     /**
      * @throws Exception
      */
-    public function exportAll(Procedure $procedure, Statement ...$statements): WriterInterface
+    public function exportAll(array $tableHeaders, Procedure $procedure, Statement ...$statements): WriterInterface
     {
         Settings::setOutputEscapingEnabled(true);
 
@@ -66,7 +66,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             return $this->exportEmptyStatements($phpWord, $procedure);
         }
 
-        return $this->exportStatements($phpWord, $procedure, $statements);
+        return $this->exportStatements($phpWord, $procedure, $statements, $tableHeaders);
     }
 
     /**
@@ -114,34 +114,41 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      *
      * @throws Exception
      */
-    private function exportStatements(PhpWord $phpWord, Procedure $procedure, array $statements): WriterInterface
-    {
+    private function exportStatements(
+        PhpWord $phpWord,
+        Procedure $procedure,
+        array $statements,
+        array $tableHeaders
+    ): WriterInterface {
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure);
 
         for ($i = 0; $i < count($statements); ++$i) {
-            $this->exportStatement($section, $statements[$i]);
+            $this->exportStatement($section, $statements[$i], $tableHeaders);
             $section = $this->getNewSectionIfNeeded($phpWord, $section, $i, $statements);
         }
 
         return IOFactory::createWriter($phpWord);
     }
 
-    public function exportStatementSegmentsInSeparateDocx(Statement $statement, Procedure $procedure): PhpWord
-    {
+    public function exportStatementSegmentsInSeparateDocx(
+        Statement $statement,
+        Procedure $procedure,
+        array $tableHeaders
+    ): PhpWord {
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure);
-        $this->exportStatement($section, $statement);
+        $this->exportStatement($section, $statement, $tableHeaders);
 
         return $phpWord;
     }
 
-    public function exportStatement(Section $section, Statement $statement): void
+    public function exportStatement(Section $section, Statement $statement, array $tableHeaders): void
     {
         $this->addStatementInfo($section, $statement);
         $this->addSimilarStatementSubmitters($section, $statement);
-        $this->addSegments($section, $statement);
+        $this->addSegments($section, $statement, $tableHeaders);
         $this->addFooter($section, $statement);
     }
 

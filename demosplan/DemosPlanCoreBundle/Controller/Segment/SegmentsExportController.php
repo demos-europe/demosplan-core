@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 
 use Cocur\Slugify\Slugify;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -45,7 +46,7 @@ class SegmentsExportController extends BaseController
         path: '/verfahren/{procedureId}/{statementId}/abschnitte/export',
         name: 'dplan_segments_export',
         options: ['expose' => true],
-        methods: 'GET'
+        methods: 'POST'
     )]
     public function exportAction(
         NameGenerator $nameGenerator,
@@ -53,14 +54,18 @@ class SegmentsExportController extends BaseController
         SegmentsExporter $exporter,
         Slugify $slugify,
         StatementHandler $statementHandler,
+        Request $request,
         string $procedureId,
         string $statementId
     ): StreamedResponse {
+        $tableHeaders = $this->getTableHeadersFromRequest(
+            Json::decodeToArray($request->getContent())
+        );
         $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
         $statement = $statementHandler->getStatementWithCertainty($statementId);
         $response = new StreamedResponse(
-            static function () use ($procedure, $statement, $exporter) {
-                $exportedDoc = $exporter->export($procedure, $statement);
+            static function () use ($procedure, $statement, $exporter, $tableHeaders) {
+                $exportedDoc = $exporter->export($procedure, $statement, $tableHeaders);
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
         );
@@ -83,7 +88,7 @@ class SegmentsExportController extends BaseController
         path: '/verfahren/{procedureId}/abschnitte/export/gruppiert',
         name: 'dplan_statement_segments_export',
         options: ['expose' => true],
-        methods: 'GET'
+        methods: 'POST'
     )]
     public function exportByStatementsFilterAction(
         NameGenerator $nameGenerator,
@@ -94,6 +99,9 @@ class SegmentsExportController extends BaseController
         Request $request,
         string $procedureId
     ): StreamedResponse {
+        $tableHeaders = $this->getTableHeadersFromRequest(
+            Json::decodeToArray($request->getContent())
+        );
         $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
@@ -101,8 +109,8 @@ class SegmentsExportController extends BaseController
         );
 
         $response = new StreamedResponse(
-            static function () use ($procedure, $statementEntities, $exporter) {
-                $exportedDoc = $exporter->exportAll($procedure, ...$statementEntities);
+            static function () use ($procedure, $statementEntities, $exporter, $tableHeaders) {
+                $exportedDoc = $exporter->exportAll($tableHeaders, $procedure, ...$statementEntities);
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
         );
@@ -171,7 +179,7 @@ class SegmentsExportController extends BaseController
     #[Route(path: '/verfahren/{procedureId}/abschnitte/export/gepackt',
         name: 'dplan_statement_segments_export_packaged',
         options: ['expose' => true],
-        methods: 'GET'
+        methods: 'POST'
     )]
     public function exportPackagedStatementsAction(
         SegmentsByStatementsExporter $exporter,
@@ -182,6 +190,9 @@ class SegmentsExportController extends BaseController
         ZipExportService $zipExportService,
         string $procedureId
     ): StreamedResponse {
+        $tableHeaders = $this->getTableHeadersFromRequest(
+            Json::decodeToArray($request->getContent())
+        );
         $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
         // Using this method we apply mostly the same restrictions that are applied when the generic
         // API is accessed to retrieve statements. Things like filter and search parameters are
@@ -196,13 +207,14 @@ class SegmentsExportController extends BaseController
 
         return $zipExportService->buildZipStreamResponse(
             $exporter->getSynopseFileName($procedure, 'zip'),
-            static function (ZipStream $zipStream) use ($statements, $exporter, $zipExportService, $procedure): void {
+            static function (ZipStream $zipStream)
+            use ($statements, $exporter, $zipExportService, $procedure, $tableHeaders): void {
                 array_map(
                     static function (
                         Statement $statement,
                         string $filePathInZip
-                    ) use ($exporter, $zipExportService, $zipStream, $procedure): void {
-                        $docx = $exporter->exportStatementSegmentsInSeparateDocx($statement, $procedure);
+                    ) use ($exporter, $zipExportService, $zipStream, $procedure, $tableHeaders): void {
+                        $docx = $exporter->exportStatementSegmentsInSeparateDocx($statement, $procedure, $tableHeaders);
                         $writer = IOFactory::createWriter($docx);
                         $zipExportService->addWriterToZipStream(
                             $writer,
@@ -230,5 +242,15 @@ class SegmentsExportController extends BaseController
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document; charset=utf-8'
         );
         $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename($filename));
+    }
+
+    private function getTableHeadersFromRequest(array $requestContent): array
+    {
+        $tableHeaders = [];
+        if (isset($requestContent['table_header'])) {
+            $tableHeaders = $requestContent['table_header'];
+        }
+
+        return $tableHeaders;
     }
 }
