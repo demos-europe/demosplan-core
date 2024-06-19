@@ -14,7 +14,6 @@
     "dev:robobsh": "cross-env ./fe build robobsh",
     "dev:teilhabe": "cross-env ./fe build teilhabe",
     "dev:wmmsh": "cross-env ./fe build wmmsh",
-    "preinstall": "if cat /proc/mounts | grep -q '/srv/www/node_modules/@demos-europe/demosplan-ui'; then echo 'Aborting install. Please restart container with disabled demosplan-ui.'; exit 1; fi",
     "prod:blp": "cross-env ./fe build --prod blp",
     "prod:bimschgsh": "cross-env ./fe build --prod bimschgsh",
     "prod:bobhh": "cross-env ./fe build --prod bobhh",
