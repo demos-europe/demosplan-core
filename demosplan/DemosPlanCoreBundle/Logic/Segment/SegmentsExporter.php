@@ -64,7 +64,7 @@ class SegmentsExporter
     /**
      * @throws Exception
      */
-    public function export(Procedure $procedure, Statement $statement): WriterInterface
+    public function export(Procedure $procedure, Statement $statement, array $tableHeaders): WriterInterface
     {
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $phpWord->addFontStyle('global', $this->styles['globalFont']);
@@ -72,7 +72,7 @@ class SegmentsExporter
         $this->addHeader($section, $procedure);
         $this->addStatementInfo($section, $statement);
         $this->addSimilarStatementSubmitters($section, $statement);
-        $this->addSegments($section, $statement);
+        $this->addSegments($section, $statement, $tableHeaders);
         $this->addFooter($section, $statement);
 
         return IOFactory::createWriter($phpWord);
@@ -180,12 +180,12 @@ class SegmentsExporter
         $section->addTextBreak(2);
     }
 
-    protected function addSegments(Section $section, Statement $statement): void
+    protected function addSegments(Section $section, Statement $statement, array $tableHeaders): void
     {
         if ($statement->getSegmentsOfStatement()->isEmpty()) {
             $this->addNoSegmentsMessage($section);
         } else {
-            $this->addSegmentsTable($section, $statement);
+            $this->addSegmentsTable($section, $statement, $tableHeaders);
         }
     }
 
@@ -213,9 +213,9 @@ class SegmentsExporter
         $section->addText($noEntriesMessage, $this->styles['noInfoMessageFont']);
     }
 
-    private function addSegmentsTable(Section $section, Statement $statement): void
+    private function addSegmentsTable(Section $section, Statement $statement, array $tableHeaders): void
     {
-        $table = $this->addSegmentsTableHeader($section);
+        $table = $this->addSegmentsTableHeader($section, $tableHeaders);
         $sortedSegments = $statement->getSegmentsOfStatement()->toArray();
         uasort($sortedSegments, static fn (Segment $segmentA, Segment $segmentB) => $segmentA->getOrderInProcedure() - $segmentB->getOrderInProcedure());
 
@@ -224,7 +224,7 @@ class SegmentsExporter
         }
     }
 
-    private function addSegmentsTableHeader(Section $section): Table
+    private function addSegmentsTableHeader(Section $section, array $tableHeaders): Table
     {
         $table = $section->addTable($this->styles['segmentsTable']);
         $headerRow = $table->addRow(
@@ -233,17 +233,17 @@ class SegmentsExporter
         );
         $this->addSegmentCell(
             $headerRow,
-            $this->translator->trans('segments.export.segment.id'),
+            $tableHeaders['c_left'] ?? $this->translator->trans('segments.export.segment.id'),
             $this->styles['segmentsTableHeaderCellID']
         );
         $this->addSegmentCell(
             $headerRow,
-            $this->translator->trans('segments.export.statement.label'),
+            $tableHeaders['c_middle'] ?? $this->translator->trans('segments.export.statement.label'),
             $this->styles['segmentsTableHeaderCell']
         );
         $this->addSegmentCell(
             $headerRow,
-            $this->translator->trans('segment.recommendation'),
+            $tableHeaders['c_right'] ?? $this->translator->trans('segment.recommendation'),
             $this->styles['segmentsTableHeaderCell']
         );
 
