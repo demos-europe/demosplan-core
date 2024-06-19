@@ -26,8 +26,7 @@ class ParagraphHandler extends CoreHandler
         private readonly FlashMessageHandler $flashMessageHandler,
         MessageBag $messageBag,
         private readonly TranslatorInterface $translator
-    )
-    {
+    ) {
         parent::__construct($messageBag);
         $this->service = $paragraphService;
     }
@@ -211,10 +210,10 @@ class ParagraphHandler extends CoreHandler
             return $document;
         } elseif (isset($documentId)
             && (
-                $this->service->isDirectParentOf($parentParagraphId, $documentId) ||
-                (
-                    null === $parentParagraphId &&
-                    !$this->service->hasParent($document['ident'])
+                $this->service->isDirectParentOf($parentParagraphId, $documentId)
+                || (
+                    null === $parentParagraphId
+                    && !$this->service->hasParent($document['ident'])
                 )
             )
         ) {
