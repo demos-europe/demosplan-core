@@ -241,7 +241,7 @@ class ServiceImporter implements ServiceImporterInterface
                                 ).DIRECTORY_SEPARATOR.$ca[0]
                             );
                             // Ersetze Platzhalter im Text mit FileService Hash
-                            $stringToReplace = '/file/'.substr((string) $f, 2);//
+                            $stringToReplace = '/file/'.substr((string) $f, 2);
                             $paragraph['text'] = $this->fixImageSize($paragraph['text'], $stringToReplace, $hash);
                             $paragraph['text'] = str_replace(
                                 $stringToReplace,
