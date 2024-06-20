@@ -46,4 +46,9 @@ class EnablePermissionForCustomerOrgaRoleCommand extends PermissionForCustomerOr
             $dryRun
         );
     }
+
+    protected function getActionName(): string
+    {
+        return 'enabled';
+    }
 }

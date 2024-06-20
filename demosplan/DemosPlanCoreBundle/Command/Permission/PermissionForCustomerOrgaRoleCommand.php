@@ -109,7 +109,7 @@ abstract class PermissionForCustomerOrgaRoleCommand extends CoreCommand
 
                 $this->displayUpdatedOrgas($output, $updatedOrgas);
 
-                $this->displayOutcome($output, $dryRun, $updatedOrgas, $customerChoice, $roleChoice, 'disabled');
+                $this->displayOutcome($output, $dryRun, $updatedOrgas, $customerChoice, $roleChoice, $this->getActionName());
             }
         }
 
@@ -136,4 +136,5 @@ abstract class PermissionForCustomerOrgaRoleCommand extends CoreCommand
     }
 
     abstract protected function doExecuteAction(string $permissionChoice, CustomerInterface $customerChoice, RoleInterface $roleChoice, mixed $dryRun): array;
+    abstract protected function getActionName(): string;
 }
