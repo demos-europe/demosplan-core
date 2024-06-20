@@ -21,6 +21,7 @@ phpstan.neon
 !.editorconfig
 !.env
 !.env.test
+!.yarnrc.yml
 .ssh/
 .lnav
 !.github
