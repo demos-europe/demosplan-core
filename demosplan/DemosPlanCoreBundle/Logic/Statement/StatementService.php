@@ -2083,10 +2083,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         return $this->priorityAreaService;
     }
 
-    /**
-     * @return Type
-     */
-    protected function getEsStatementType()
+    protected function getEsStatementType(): Index
     {
         return $this->esStatementType;
     }

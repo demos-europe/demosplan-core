@@ -92,14 +92,24 @@ class NotificationReceiverRepository extends CoreRepository implements ArrayInte
      * @param NotificationReceiver $entity
      *
      * @return NotificationReceiver
+     *
+     * @throws Exception
      */
     public function generateObjectValues($entity, array $data)
     {
+        $em = $this->getEntityManager();
+        $procedureRepository = $em->getRepository(Procedure::class);
         if (array_key_exists('label', $data)) {
             $entity->setLabel($data['label']);
         }
         if (array_key_exists('procedureId', $data)) {
-            $entity->setProcedureId($data['procedureId']);
+            try {
+                $procedure = $procedureRepository->find($data['procedureId']);
+                $entity->setProcedure($procedure);
+            } catch (Exception $e) {
+                $this->logger->warning('There is no related Entity to the given ID: ', [$e]);
+                throw $e;
+            }
         }
         if (array_key_exists('email', $data)) {
             $entity->setEmail($data['email']);

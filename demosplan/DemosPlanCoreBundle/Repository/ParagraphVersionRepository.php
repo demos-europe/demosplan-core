@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
@@ -244,9 +245,12 @@ class ParagraphVersionRepository extends CoreRepository implements ArrayInterfac
      * @return ParagraphVersion
      *
      * @throws ORMException
+     * @throws Exception
      */
     public function generateObjectValues($entity, array $data)
     {
+        $em = $this->getEntityManager();
+        $elementRepository = $em->getRepository(Elements::class);
         if (array_key_exists('title', $data)) {
             $entity->setTitle($data['title']);
         }
@@ -254,10 +258,22 @@ class ParagraphVersionRepository extends CoreRepository implements ArrayInterfac
             $entity->setText($data['text']);
         }
         if (array_key_exists('pId', $data)) {
-            $entity->setPId($data['pId']);
+            try {
+                $procedure = $elementRepository->find($data['pId']);
+                $entity->setProcedure($procedure);
+            } catch (Exception $e) {
+                $this->logger->warning('There is no related Entity to the given ID: ', [$e]);
+                throw $e;
+            }
         }
         if (array_key_exists('elementId', $data)) {
-            $entity->setElementId($data['elementId']);
+            try {
+                $element = $elementRepository->find($data['elementId']);
+                $entity->setElement($element);
+            } catch (Exception $e) {
+                $this->logger->warning('There is no related Entity to the given ID: ', [$e]);
+                throw $e;
+            }
         }
         if (array_key_exists('category', $data)) {
             $entity->setCategory($data['category']);
@@ -271,7 +287,7 @@ class ParagraphVersionRepository extends CoreRepository implements ArrayInterfac
                 $parent = $this->getEntityManager()->getReference(
                     ParagraphVersion::class, $data['parentId']);
             }
-            $entity->setParent($parent);
+            $entity->setParagraph($parent);
         }
 
         return $entity;

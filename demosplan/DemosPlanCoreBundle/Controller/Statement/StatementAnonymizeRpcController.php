@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\RpcController;
+use demosplan\DemosPlanCoreBundle\Event\RpcEvent;
 use demosplan\DemosPlanCoreBundle\Event\StatementAnonymizeRpcEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementAnonymizeHandler;
@@ -47,6 +48,7 @@ class StatementAnonymizeRpcController extends RpcController
             $statement = $statementHandler->getStatementWithCertainty($statementId);
 
             $event = new StatementAnonymizeRpcEvent($actions, $statement, $currentUser);
+            /** @var RpcEvent $postedEvent */
             $postedEvent = $eventDispatcherPost->post($event);
             if ($postedEvent->hasException()) {
                 $this->getLogger()->warning('Could not anonymize statement.', [$postedEvent->getException()]);

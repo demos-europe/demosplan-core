@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Util\ClassUtils;
+use Doctrine\ORM\PersistentCollection;
 use Exception;
 use InvalidArgumentException;
 use Jfcherng\Diff\DiffHelper;
@@ -215,7 +216,7 @@ class EntityContentChangeService extends CoreService
             // we use `null` as pre update value.
             $preUpdateValue = $preUpdateArray[$propertyName] ?? null;
             $postUpdateValue = $incomingUpdatedObject->$methodName();
-            if ($preUpdateValue instanceof Collection) {
+            if ($preUpdateValue instanceof PersistentCollection) {
                 // getOriginalEntityData() seems to be ignore n:m association.
                 // use getSnapshot() to get "pre update" data
                 $preUpdateValue->initialize();
@@ -327,7 +328,7 @@ class EntityContentChangeService extends CoreService
      *
      * @return array<int, EntityContentChange> (whitelisted) changes of Entity of given ID
      */
-    public function getChangesByEntityId(string $entityId, array $whitelistedFields = null): array
+    public function getChangesByEntityId(string $entityId, ?array $whitelistedFields = null): array
     {
         return $this->entityContentChangeRepository->getChangesByEntityId($entityId, $whitelistedFields);
     }

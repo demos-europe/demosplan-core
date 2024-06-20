@@ -98,8 +98,6 @@ class StatementFactory extends FactoryBase
     }
 
     /**
-     * @return mixed
-     *
      * @throws DataProviderException
      */
     protected function makeStatement(): Statement
@@ -196,11 +194,9 @@ class StatementFactory extends FactoryBase
      *
      * @param array $baseData
      *
-     * @return mixed
-     *
      * @throws InvalidUserDataException on invalid user value
      */
-    protected function determineUserInfo($baseData)
+    protected function determineUserInfo($baseData): array
     {
         // NOTE: Currently, only anonymous and named public users are being chosen
         // TODO (SG): Modify this to do everything the method comment says this does
@@ -286,8 +282,6 @@ class StatementFactory extends FactoryBase
     }
 
     /**
-     * @param string $userLogin
-     *
      * @throws DataProviderException
      */
     protected function fetchUser(?string $userLogin): void
@@ -306,8 +300,6 @@ class StatementFactory extends FactoryBase
     }
 
     /**
-     * @param string $orgaId
-     *
      * @throws DataProviderException
      */
     protected function fetchOrga(?string $orgaId): void
@@ -320,8 +312,6 @@ class StatementFactory extends FactoryBase
     }
 
     /**
-     * @param string $procedureId
-     *
      * @throws DataProviderException
      */
     protected function fetchProcedure(?string $procedureId): void
