@@ -93,7 +93,15 @@
                     <p class="lbl__hint u-mb-0_75">
                         {{ 'map.hint.warning.tooshort'|trans({ minLength: 50, maxLength: 2000 }) }} {{ 'map.hint.set.to.default'|trans }}
                     </p>
-                    <textarea id="r_mapHint" name="r_mapHint" class="o-form__control-textarea u-p-0_5" required minlength="50" maxlength="2000">{{ templateVars.procedure.settings.mapHint|default(templateVars.procedure.procedureUiDefinition.mapHintDefault) }}</textarea>
+                    <textarea
+                        id="r_mapHint"
+                        name="r_mapHint"
+                        class="o-form__control-textarea u-p-0_5"
+                        data-cy="mapAdminGislayerList:mapHint"
+                        required minlength="50"
+                        maxlength="2000">
+                        {{ templateVars.procedure.settings.mapHint|default(templateVars.procedure.procedureUiDefinition.mapHintDefault) }}
+                    </textarea>
                 </fieldset>
             {% endif %}
 
@@ -110,7 +118,13 @@
                     data-cy="saveAndReturn"
                     value="{{ "save.and.return.to.list"|trans }}">
                 {% if canEditMapHint %}
-                    <input class="btn btn--secondary" type="submit" data-skip-validation name="reset_map_hint" value="{{ "map.hint.use.default"|trans }}">
+                    <input
+                        class="btn btn--secondary"
+                        type="submit"
+                        data-cy="mapAdminGislayerList:mapHintUseDefault"
+                        data-skip-validation
+                        name="reset_map_hint"
+                        value="{{ "map.hint.use.default"|trans }}">
                 {% endif %}
             </div>
 
