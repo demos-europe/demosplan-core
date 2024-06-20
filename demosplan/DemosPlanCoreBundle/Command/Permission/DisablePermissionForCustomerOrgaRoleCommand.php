@@ -12,14 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Permission;
 
-use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanCoreBundle\Exception\RoleNotFoundException;
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 /**
@@ -32,40 +29,21 @@ class DisablePermissionForCustomerOrgaRoleCommand extends PermissionForCustomerO
 
     public function __construct(
         ParameterBagInterface $parameterBag,
-        private readonly CustomerService $customerService,
-        private readonly RoleService $roleService,
+        CustomerService $customerService,
+        RoleService $roleService,
         private readonly AccessControlService $accessControlPermissionService,
         ?string $name = null
     ) {
-        parent::__construct($parameterBag, $name);
+        parent::__construct($parameterBag, $customerService, $roleService, $name);
     }
 
-    /**
-     * @throws RoleNotFoundException
-     * @throws CustomerNotFoundException
-     */
-    public function execute(InputInterface $input, OutputInterface $output): int
+    protected function doExecuteAction(string $permissionChoice, CustomerInterface $customerChoice, RoleInterface $roleChoice, mixed $dryRun): array
     {
-        $customerId = $input->getArgument('customerId');
-        $roleId = $input->getArgument('roleId');
-        $permissionName = $input->getArgument('permission');
-        $dryRun = $input->getOption('dry-run');
-
-        $customerChoice = $this->customerService->findCustomerById($customerId);
-        $roleChoice = $this->roleService->getRole($roleId);
-        $permissionChoice = $this->getConstantValueByName($permissionName);
-
-        // Return Exception for RoleChoice as Customer already throws exception if null, and permission exception is handled in getConstantValueByName
-        if (null === $roleChoice) {
-            throw new RoleNotFoundException('Role not found');
-        }
-
-        $updatedOrgas = $this->accessControlPermissionService->disablePermissionCustomerOrgaRole($permissionChoice, $customerChoice, $roleChoice, $dryRun);
-
-        $this->displayUpdatedOrgas($output, $updatedOrgas);
-
-        $this->displayOutcome($output, $dryRun, $updatedOrgas, $customerChoice, $roleChoice, 'disabled');
-
-        return Command::SUCCESS;
+        return $this->accessControlPermissionService->disablePermissionCustomerOrgaRole(
+            $permissionChoice,
+            $customerChoice,
+            $roleChoice,
+            $dryRun
+        );
     }
 }
