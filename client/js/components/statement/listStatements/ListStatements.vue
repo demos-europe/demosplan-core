@@ -46,7 +46,9 @@
           @click.prevent="handleBulkShare"
           :text="Translator.trans('procedure.share_statements.bulk.share')" />
       </dp-bulk-edit-header>
-      <dp-flyout
+      <export-modal
+        @export="showHintAndDoExport" />
+      <!--      <dp-flyout
         ref="flyout"
         data-cy="listStatements:export"
         :align="'left'">
@@ -75,7 +77,7 @@
           rel="noopener">
           {{ Translator.trans('export.statements.xlsx') }}
         </a>
-      </dp-flyout>
+      </dp-flyout>-->
       <div
         v-if="items.length > 0"
         class="flex mt-2">
@@ -322,6 +324,7 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpClaim from '@DpJs/components/statement/DpClaim'
+import ExportModal from '@DpJs/components/statement/listStatements/ExportModal'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import SearchModal from '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
@@ -340,6 +343,7 @@ export default {
     DpPager,
     DpSelect,
     DpStickyElement,
+    ExportModal,
     SearchModal,
     StatementMetaData
   },
@@ -537,6 +541,14 @@ export default {
         id: '',
         name: '',
         orgaName: ''
+      }
+    },
+
+    handleExport (uploadPath) {
+      console.log('here', uploadPath)
+
+      if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
+        window.location.href = this.exportRoute(uploadPath)
       }
     },
 
@@ -919,7 +931,7 @@ export default {
       if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
         window.location.href = this.exportRoute(route)
       }
-      this.$refs.flyout.toggle()
+      // This.$refs.flyout.toggle()
     },
 
     triggerStatementDeletion (id) {
