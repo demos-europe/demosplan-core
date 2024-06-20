@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bc1b96375a50e62f4953abbd1eda7c03",
+    "content-hash": "366b4018f4c9a3cb044fca4a97315c8c",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -1369,24 +1369,24 @@
         },
         {
             "name": "demos-europe/demosplan-addon",
-            "version": "v0.36",
+            "version": "dev-test-upgrade-edt-to-0.26",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "1e82c78a524ceac42873924d05217ef84471d313"
+                "reference": "4451e09d1870a0617c94245b910f4521c8a5abe5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/1e82c78a524ceac42873924d05217ef84471d313",
-                "reference": "1e82c78a524ceac42873924d05217ef84471d313",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/4451e09d1870a0617c94245b910f4521c8a5abe5",
+                "reference": "4451e09d1870a0617c94245b910f4521c8a5abe5",
                 "shasum": ""
             },
             "require": {
                 "composer-plugin-api": "^2.0",
-                "demos-europe/edt-dql": "^0.24.0",
-                "demos-europe/edt-extra": "^0.24.0",
-                "demos-europe/edt-jsonapi": "^0.24.0",
-                "demos-europe/edt-paths": "^0.24.0",
+                "demos-europe/edt-dql": "^0.26",
+                "demos-europe/edt-extra": "^0.26",
+                "demos-europe/edt-jsonapi": "^0.26",
+                "demos-europe/edt-paths": "^0.26",
                 "doctrine/doctrine-bundle": "^2",
                 "illuminate/collections": "^10.48",
                 "nesbot/carbon": "^2.0.0",
@@ -1420,7 +1420,7 @@
             "require-dev": {
                 "composer/composer": "^2.1",
                 "ergebnis/phpstan-rules": "^2.0",
-                "phpstan/phpstan": "^1.9",
+                "phpstan/phpstan": "^1.11",
                 "phpstan/phpstan-deprecation-rules": "^1.1",
                 "phpstan/phpstan-strict-rules": "^1.4.2",
                 "phpstan/phpstan-webmozart-assert": "^1.2",
@@ -1443,26 +1443,26 @@
             ],
             "description": "This is the base package for all demosplan addons",
             "support": {
-                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.36"
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/test-upgrade-edt-to-0.26"
             },
-            "time": "2024-06-12T07:27:08+00:00"
+            "time": "2024-06-20T11:35:20+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
-            "version": "0.24.42",
+            "version": "0.26.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/edt-access-definitions.git",
-                "reference": "08df561afb6b6f28c1380e9edad50eef670b52f0"
+                "reference": "1c79609fe8b7ed77ccec3223af242fb756ce5b67"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/edt-access-definitions/zipball/08df561afb6b6f28c1380e9edad50eef670b52f0",
-                "reference": "08df561afb6b6f28c1380e9edad50eef670b52f0",
+                "url": "https://api.github.com/repos/demos-europe/edt-access-definitions/zipball/1c79609fe8b7ed77ccec3223af242fb756ce5b67",
+                "reference": "1c79609fe8b7ed77ccec3223af242fb756ce5b67",
                 "shasum": ""
             },
             "require": {
-                "demos-europe/edt-queries": "^0.24.42",
+                "demos-europe/edt-queries": "^0.26",
                 "pagerfanta/core": "^2.7 || ^3 || ^4.2",
                 "php": "^8.1",
                 "thecodingmachine/safe": "^2.4.0"
@@ -1491,31 +1491,31 @@
             ],
             "description": "Tools to regulate access to entities and their properties.",
             "support": {
-                "source": "https://github.com/demos-europe/edt-access-definitions/tree/0.24.42"
+                "source": "https://github.com/demos-europe/edt-access-definitions/tree/0.26.0"
             },
-            "time": "2024-02-13T14:06:12+00:00"
+            "time": "2024-05-21T13:16:41+00:00"
         },
         {
             "name": "demos-europe/edt-dql",
-            "version": "0.24.42",
+            "version": "0.26.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/edt-dql.git",
-                "reference": "2508d12660417ed8234e60950610b66db1dcb13a"
+                "reference": "b6e6ba4eeebcfc73ebc02a3fbd44ff02a4657014"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/edt-dql/zipball/2508d12660417ed8234e60950610b66db1dcb13a",
-                "reference": "2508d12660417ed8234e60950610b66db1dcb13a",
+                "url": "https://api.github.com/repos/demos-europe/edt-dql/zipball/b6e6ba4eeebcfc73ebc02a3fbd44ff02a4657014",
+                "reference": "b6e6ba4eeebcfc73ebc02a3fbd44ff02a4657014",
                 "shasum": ""
             },
             "require": {
-                "demos-europe/edt-paths": "^0.24.42",
-                "demos-europe/edt-queries": "^0.24.42",
+                "demos-europe/edt-paths": "^0.26",
+                "demos-europe/edt-queries": "^0.26",
                 "doctrine/orm": "^2.5",
                 "nette/php-generator": "^4.0",
                 "php": "^8.1",
-                "symfony/cache": "^5 || ^6"
+                "symfony/cache": "^5 || ^6 || ^7"
             },
             "conflict": {
                 "demos-europe/edt-access-definitions": "<0.17.1",
@@ -1541,26 +1541,26 @@
             ],
             "description": "Extension for demos-europe/edt-queries to use Doctrine ORM as data source.",
             "support": {
-                "source": "https://github.com/demos-europe/edt-dql/tree/0.24.42"
+                "source": "https://github.com/demos-europe/edt-dql/tree/0.26.0"
             },
-            "time": "2024-02-13T14:05:33+00:00"
+            "time": "2024-05-21T13:16:44+00:00"
         },
         {
             "name": "demos-europe/edt-extra",
-            "version": "0.24.42",
+            "version": "0.26.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/edt-extra.git",
-                "reference": "ee9c7fcce0a682455ac4cc0df62dc1afbf77f912"
+                "reference": "5b936ca5a3ef4bce562b1739e2cdea3364fe9893"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/edt-extra/zipball/ee9c7fcce0a682455ac4cc0df62dc1afbf77f912",
-                "reference": "ee9c7fcce0a682455ac4cc0df62dc1afbf77f912",
+                "url": "https://api.github.com/repos/demos-europe/edt-extra/zipball/5b936ca5a3ef4bce562b1739e2cdea3364fe9893",
+                "reference": "5b936ca5a3ef4bce562b1739e2cdea3364fe9893",
                 "shasum": ""
             },
             "require": {
-                "demos-europe/edt-jsonapi": "^0.24.42",
+                "demos-europe/edt-jsonapi": "^0.26",
                 "php": "^8.1",
                 "thecodingmachine/safe": "^2.4.0"
             },
@@ -1588,42 +1588,45 @@
             ],
             "description": "Extension for edt-queries containing various convenience and use-case specific functionality.",
             "support": {
-                "source": "https://github.com/demos-europe/edt-extra/tree/0.24.42"
+                "source": "https://github.com/demos-europe/edt-extra/tree/0.26.0"
             },
-            "time": "2024-02-13T14:05:34+00:00"
+            "time": "2024-05-21T13:16:40+00:00"
         },
         {
             "name": "demos-europe/edt-jsonapi",
-            "version": "0.24.42",
+            "version": "0.26.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/edt-jsonapi.git",
-                "reference": "7fa534271e6a94a2b45216c4af335553fa1e41ea"
+                "reference": "d7fcdc34da82188e1d2c851b16b9c8f3f50af702"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/edt-jsonapi/zipball/7fa534271e6a94a2b45216c4af335553fa1e41ea",
-                "reference": "7fa534271e6a94a2b45216c4af335553fa1e41ea",
+                "url": "https://api.github.com/repos/demos-europe/edt-jsonapi/zipball/d7fcdc34da82188e1d2c851b16b9c8f3f50af702",
+                "reference": "d7fcdc34da82188e1d2c851b16b9c8f3f50af702",
                 "shasum": ""
             },
             "require": {
                 "cebe/php-openapi": "^1.5",
-                "demos-europe/edt-access-definitions": "^0.24.42",
-                "demos-europe/edt-queries": "^0.24.42",
+                "demos-europe/edt-access-definitions": "^0.26",
+                "demos-europe/edt-queries": "^0.26",
                 "doctrine/collections": "^1.5 || ^2.1",
                 "ext-json": "*",
                 "league/fractal": "^0.19 || ^0.20",
                 "php": "^8.1",
                 "psr/log": "^1.1.4 || ^3.0.0",
-                "symfony/http-foundation": "5.*.* || ^6.1.12",
-                "symfony/routing": "5.*.* || ^6.3.5",
-                "symfony/validator": "5.*.* || 6.*.*"
+                "symfony/http-foundation": "5.*.* || ^6.1.12 || ^7",
+                "symfony/routing": "5.*.* || ^6.3.5 || ^7",
+                "symfony/validator": "5.*.* || 6.*.* || ^7"
             },
             "conflict": {
                 "demos-europe/edt-dql": "<0.17.1",
                 "demos-europe/edt-extra": "<0.17.1",
                 "demos-europe/edt-paths": "<0.17.1"
             },
+            "bin": [
+                "bin/generate_type_config"
+            ],
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -1647,27 +1650,27 @@
             "description": "Expose Doctrine entities as JSON:API resources.",
             "support": {
                 "issues": "https://github.com/demos-europe/edt-jsonapi/issues",
-                "source": "https://github.com/demos-europe/edt-jsonapi/tree/0.24.42"
+                "source": "https://github.com/demos-europe/edt-jsonapi/tree/0.26.0"
             },
-            "time": "2024-02-13T14:05:30+00:00"
+            "time": "2024-05-21T13:16:40+00:00"
         },
         {
             "name": "demos-europe/edt-paths",
-            "version": "0.24.42",
+            "version": "0.26.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/edt-paths.git",
-                "reference": "004db56efadcf67b1e048fd1127058ce703024a3"
+                "reference": "c20073afae4b3f558352b2cd5c921e38b4e242ea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/edt-paths/zipball/004db56efadcf67b1e048fd1127058ce703024a3",
-                "reference": "004db56efadcf67b1e048fd1127058ce703024a3",
+                "url": "https://api.github.com/repos/demos-europe/edt-paths/zipball/c20073afae4b3f558352b2cd5c921e38b4e242ea",
+                "reference": "c20073afae4b3f558352b2cd5c921e38b4e242ea",
                 "shasum": ""
             },
             "require": {
-                "demos-europe/edt-queries": "^0.24.42",
-                "nikic/php-parser": "^4.14",
+                "demos-europe/edt-queries": "^0.26",
+                "nikic/php-parser": "^4.14 || ^5",
                 "php": "^8.1",
                 "phpdocumentor/reflection-docblock": "^5.1.0",
                 "thecodingmachine/safe": "^2.4.0"
@@ -1697,22 +1700,22 @@
             ],
             "description": "Tools to create paths between entities and entity properties.",
             "support": {
-                "source": "https://github.com/demos-europe/edt-paths/tree/0.24.42"
+                "source": "https://github.com/demos-europe/edt-paths/tree/0.26.0"
             },
-            "time": "2024-02-13T14:05:35+00:00"
+            "time": "2024-05-21T13:24:25+00:00"
         },
         {
             "name": "demos-europe/edt-queries",
-            "version": "0.24.42",
+            "version": "0.26.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/edt-queries.git",
-                "reference": "4622cfb305d44d16a4fcf4a468d872ad9cf10204"
+                "reference": "c569ed69fdfba8aeddde37073191690c05b87284"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/edt-queries/zipball/4622cfb305d44d16a4fcf4a468d872ad9cf10204",
-                "reference": "4622cfb305d44d16a4fcf4a468d872ad9cf10204",
+                "url": "https://api.github.com/repos/demos-europe/edt-queries/zipball/c569ed69fdfba8aeddde37073191690c05b87284",
+                "reference": "c569ed69fdfba8aeddde37073191690c05b87284",
                 "shasum": ""
             },
             "require": {
@@ -1745,9 +1748,9 @@
             ],
             "description": "Eases querying entities via property paths.",
             "support": {
-                "source": "https://github.com/demos-europe/edt-queries/tree/0.24.42"
+                "source": "https://github.com/demos-europe/edt-queries/tree/0.26.0"
             },
-            "time": "2024-02-13T14:05:34+00:00"
+            "time": "2024-05-21T13:16:41+00:00"
         },
         {
             "name": "doctrine/annotations",
@@ -14561,16 +14564,16 @@
         },
         {
             "name": "symfony/polyfill-ctype",
-            "version": "v1.29.0",
+            "version": "v1.30.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-ctype.git",
-                "reference": "ef4d7e442ca910c4764bce785146269b30cb5fc4"
+                "reference": "0424dff1c58f028c451efff2045f5d92410bd540"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/ef4d7e442ca910c4764bce785146269b30cb5fc4",
-                "reference": "ef4d7e442ca910c4764bce785146269b30cb5fc4",
+                "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/0424dff1c58f028c451efff2045f5d92410bd540",
+                "reference": "0424dff1c58f028c451efff2045f5d92410bd540",
                 "shasum": ""
             },
             "require": {
@@ -14620,7 +14623,7 @@
                 "portable"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-ctype/tree/v1.29.0"
+                "source": "https://github.com/symfony/polyfill-ctype/tree/v1.30.0"
             },
             "funding": [
                 {
@@ -14636,20 +14639,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-01-29T20:11:03+00:00"
+            "time": "2024-05-31T15:07:36+00:00"
         },
         {
             "name": "symfony/polyfill-intl-grapheme",
-            "version": "v1.29.0",
+            "version": "v1.30.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-intl-grapheme.git",
-                "reference": "32a9da87d7b3245e09ac426c83d334ae9f06f80f"
+                "reference": "64647a7c30b2283f5d49b874d84a18fc22054b7a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-intl-grapheme/zipball/32a9da87d7b3245e09ac426c83d334ae9f06f80f",
-                "reference": "32a9da87d7b3245e09ac426c83d334ae9f06f80f",
+                "url": "https://api.github.com/repos/symfony/polyfill-intl-grapheme/zipball/64647a7c30b2283f5d49b874d84a18fc22054b7a",
+                "reference": "64647a7c30b2283f5d49b874d84a18fc22054b7a",
                 "shasum": ""
             },
             "require": {
@@ -14698,7 +14701,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-intl-grapheme/tree/v1.29.0"
+                "source": "https://github.com/symfony/polyfill-intl-grapheme/tree/v1.30.0"
             },
             "funding": [
                 {
@@ -14714,7 +14717,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-01-29T20:11:03+00:00"
+            "time": "2024-05-31T15:07:36+00:00"
         },
         {
             "name": "symfony/polyfill-intl-icu",
@@ -14802,16 +14805,16 @@
         },
         {
             "name": "symfony/polyfill-intl-idn",
-            "version": "v1.29.0",
+            "version": "v1.30.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-intl-idn.git",
-                "reference": "a287ed7475f85bf6f61890146edbc932c0fff919"
+                "reference": "a6e83bdeb3c84391d1dfe16f42e40727ce524a5c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-intl-idn/zipball/a287ed7475f85bf6f61890146edbc932c0fff919",
-                "reference": "a287ed7475f85bf6f61890146edbc932c0fff919",
+                "url": "https://api.github.com/repos/symfony/polyfill-intl-idn/zipball/a6e83bdeb3c84391d1dfe16f42e40727ce524a5c",
+                "reference": "a6e83bdeb3c84391d1dfe16f42e40727ce524a5c",
                 "shasum": ""
             },
             "require": {
@@ -14866,7 +14869,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-intl-idn/tree/v1.29.0"
+                "source": "https://github.com/symfony/polyfill-intl-idn/tree/v1.30.0"
             },
             "funding": [
                 {
@@ -14882,7 +14885,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-01-29T20:11:03+00:00"
+            "time": "2024-05-31T15:07:36+00:00"
         },
         {
             "name": "symfony/polyfill-intl-messageformatter",
@@ -14967,16 +14970,16 @@
         },
         {
             "name": "symfony/polyfill-intl-normalizer",
-            "version": "v1.29.0",
+            "version": "v1.30.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-intl-normalizer.git",
-                "reference": "bc45c394692b948b4d383a08d7753968bed9a83d"
+                "reference": "a95281b0be0d9ab48050ebd988b967875cdb9fdb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-intl-normalizer/zipball/bc45c394692b948b4d383a08d7753968bed9a83d",
-                "reference": "bc45c394692b948b4d383a08d7753968bed9a83d",
+                "url": "https://api.github.com/repos/symfony/polyfill-intl-normalizer/zipball/a95281b0be0d9ab48050ebd988b967875cdb9fdb",
+                "reference": "a95281b0be0d9ab48050ebd988b967875cdb9fdb",
                 "shasum": ""
             },
             "require": {
@@ -15028,7 +15031,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-intl-normalizer/tree/v1.29.0"
+                "source": "https://github.com/symfony/polyfill-intl-normalizer/tree/v1.30.0"
             },
             "funding": [
                 {
@@ -15044,20 +15047,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-01-29T20:11:03+00:00"
+            "time": "2024-05-31T15:07:36+00:00"
         },
         {
             "name": "symfony/polyfill-mbstring",
-            "version": "v1.29.0",
+            "version": "v1.30.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
-                "reference": "9773676c8a1bb1f8d4340a62efe641cf76eda7ec"
+                "reference": "fd22ab50000ef01661e2a31d850ebaa297f8e03c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/9773676c8a1bb1f8d4340a62efe641cf76eda7ec",
-                "reference": "9773676c8a1bb1f8d4340a62efe641cf76eda7ec",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/fd22ab50000ef01661e2a31d850ebaa297f8e03c",
+                "reference": "fd22ab50000ef01661e2a31d850ebaa297f8e03c",
                 "shasum": ""
             },
             "require": {
@@ -15108,7 +15111,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.29.0"
+                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.30.0"
             },
             "funding": [
                 {
@@ -15124,7 +15127,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-01-29T20:11:03+00:00"
+            "time": "2024-06-19T12:30:46+00:00"
         },
         {
             "name": "symfony/polyfill-php56",
@@ -15196,16 +15199,16 @@
         },
         {
             "name": "symfony/polyfill-php72",
-            "version": "v1.29.0",
+            "version": "v1.30.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-php72.git",
-                "reference": "861391a8da9a04cbad2d232ddd9e4893220d6e25"
+                "reference": "10112722600777e02d2745716b70c5db4ca70442"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-php72/zipball/861391a8da9a04cbad2d232ddd9e4893220d6e25",
-                "reference": "861391a8da9a04cbad2d232ddd9e4893220d6e25",
+                "url": "https://api.github.com/repos/symfony/polyfill-php72/zipball/10112722600777e02d2745716b70c5db4ca70442",
+                "reference": "10112722600777e02d2745716b70c5db4ca70442",
                 "shasum": ""
             },
             "require": {
@@ -15249,7 +15252,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-php72/tree/v1.29.0"
+                "source": "https://github.com/symfony/polyfill-php72/tree/v1.30.0"
             },
             "funding": [
                 {
@@ -15265,20 +15268,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-01-29T20:11:03+00:00"
+            "time": "2024-06-19T12:30:46+00:00"
         },
         {
             "name": "symfony/polyfill-php73",
-            "version": "v1.29.0",
+            "version": "v1.30.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-php73.git",
-                "reference": "21bd091060673a1177ae842c0ef8fe30893114d2"
+                "reference": "ec444d3f3f6505bb28d11afa41e75faadebc10a1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-php73/zipball/21bd091060673a1177ae842c0ef8fe30893114d2",
-                "reference": "21bd091060673a1177ae842c0ef8fe30893114d2",
+                "url": "https://api.github.com/repos/symfony/polyfill-php73/zipball/ec444d3f3f6505bb28d11afa41e75faadebc10a1",
+                "reference": "ec444d3f3f6505bb28d11afa41e75faadebc10a1",
                 "shasum": ""
             },
             "require": {
@@ -15325,7 +15328,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-php73/tree/v1.29.0"
+                "source": "https://github.com/symfony/polyfill-php73/tree/v1.30.0"
             },
             "funding": [
                 {
@@ -15341,20 +15344,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-01-29T20:11:03+00:00"
+            "time": "2024-05-31T15:07:36+00:00"
         },
         {
             "name": "symfony/polyfill-php80",
-            "version": "v1.29.0",
+            "version": "v1.30.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-php80.git",
-                "reference": "87b68208d5c1188808dd7839ee1e6c8ec3b02f1b"
+                "reference": "77fa7995ac1b21ab60769b7323d600a991a90433"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-php80/zipball/87b68208d5c1188808dd7839ee1e6c8ec3b02f1b",
-                "reference": "87b68208d5c1188808dd7839ee1e6c8ec3b02f1b",
+                "url": "https://api.github.com/repos/symfony/polyfill-php80/zipball/77fa7995ac1b21ab60769b7323d600a991a90433",
+                "reference": "77fa7995ac1b21ab60769b7323d600a991a90433",
                 "shasum": ""
             },
             "require": {
@@ -15405,7 +15408,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-php80/tree/v1.29.0"
+                "source": "https://github.com/symfony/polyfill-php80/tree/v1.30.0"
             },
             "funding": [
                 {
@@ -15421,20 +15424,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-01-29T20:11:03+00:00"
+            "time": "2024-05-31T15:07:36+00:00"
         },
         {
             "name": "symfony/polyfill-php81",
-            "version": "v1.29.0",
+            "version": "v1.30.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-php81.git",
-                "reference": "c565ad1e63f30e7477fc40738343c62b40bc672d"
+                "reference": "3fb075789fb91f9ad9af537c4012d523085bd5af"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-php81/zipball/c565ad1e63f30e7477fc40738343c62b40bc672d",
-                "reference": "c565ad1e63f30e7477fc40738343c62b40bc672d",
+                "url": "https://api.github.com/repos/symfony/polyfill-php81/zipball/3fb075789fb91f9ad9af537c4012d523085bd5af",
+                "reference": "3fb075789fb91f9ad9af537c4012d523085bd5af",
                 "shasum": ""
             },
             "require": {
@@ -15481,7 +15484,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-php81/tree/v1.29.0"
+                "source": "https://github.com/symfony/polyfill-php81/tree/v1.30.0"
             },
             "funding": [
                 {
@@ -15497,7 +15500,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-01-29T20:11:03+00:00"
+            "time": "2024-06-19T12:30:46+00:00"
         },
         {
             "name": "symfony/process",
@@ -23270,7 +23273,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "demos-europe/demosplan-addon": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
