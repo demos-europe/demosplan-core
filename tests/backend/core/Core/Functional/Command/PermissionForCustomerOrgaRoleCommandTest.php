@@ -63,8 +63,23 @@ class PermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
     protected function assertStringsInCommandOutput(CommandTester $commandTester, bool $dryRun, string $expectedMessage): void
     {
         $commandTester->execute([
-            'customerId' => $this->testCustomer->getId(),
-            'roleId'     => $this->testRole->getId(),
+            'customerIds' => $this->testCustomer->getId(),
+            'roleIds'     => $this->testRole->getId(),
+            'permission' => 'CREATE_PROCEDURES_PERMISSION',
+            '--dry-run'  => $dryRun,
+        ]);
+
+        $output = $commandTester->getDisplay();
+        $this->assertStringContainsString($expectedMessage, $output);
+        $this->assertStringContainsString('Customer '.$this->testCustomer->getId().' '.$this->testCustomer->getName(), $output);
+        $this->assertStringContainsString('Role '.$this->testRole->getId().' '.$this->testRole->getName(), $output);
+    }
+
+    protected function assertStringArraysInCommandOutput(CommandTester $commandTester, bool $dryRun, string $expectedMessage): void
+    {
+        $commandTester->execute([
+            'customerIds' => sprintf('%s,%s', $this->testCustomer->getId(), $this->testCustomer->getId()),
+            'roleIds' => sprintf('%s,%s', $this->testRole->getId(), $this->testRole->getId()),
             'permission' => 'CREATE_PROCEDURES_PERMISSION',
             '--dry-run'  => $dryRun,
         ]);
