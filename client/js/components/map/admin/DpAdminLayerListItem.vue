@@ -251,7 +251,7 @@ export default {
   computed: {
     parentCategory () {
       // Get parentLayer and check if if it hides his children
-      const parentLayer = this.$store.getters['layers/element']({
+      const parentLayer = this.$store.getters['Layers/element']({
         id: this.layer.attributes.categoryId,
         type: 'GisLayerCategory'
       })
@@ -273,7 +273,7 @@ export default {
     },
 
     layer () {
-      return this.$store.getters['layers/element']({ id: this.element.id, type: this.element.type })
+      return this.$store.getters['Layers/element']({ id: this.element.id, type: this.element.type })
     },
 
     hasDefaultVisibility () {
@@ -444,7 +444,7 @@ export default {
      * returns Boolean
      */
     showCurrentIconState () {
-      return this.$store.state.layers.hoverLayerIconIsHovered
+      return this.$store.state.Layers.hoverLayerIconIsHovered
     },
 
     /**
@@ -453,8 +453,8 @@ export default {
      * returns Object|active Layer
      */
     activeLayer () {
-      return this.$store.getters['layers/element']({
-        id: this.$store.state.layers.activeLayerId,
+      return this.$store.getters['Layers/element']({
+        id: this.$store.state.Layers.activeLayerId,
         type: 'GisLayer'
       }) || { attributes: {} }
     },
@@ -465,7 +465,7 @@ export default {
      * returns String|VisiblitygroupId
      */
     visibilityGroupIdOfHoveredLayer () {
-      return this.$store.getters['layers/attributeForElement']({
+      return this.$store.getters['Layers/attributeForElement']({
         id: this.hoverLayerId,
         attribute: 'visibilityGroupId'
       })
@@ -477,7 +477,7 @@ export default {
      * returns Integer
      */
     currentGroupSize () {
-      return this.$store.getters['layers/visibilityGroupSize'](this.layer.attributes.visibilityGroupId)
+      return this.$store.getters['Layers/visibilityGroupSize'](this.layer.attributes.visibilityGroupId)
     },
 
     /**
@@ -486,7 +486,7 @@ export default {
      * returns String | layerId
      */
     hoverLayerId () {
-      return this.$store.state.layers.hoverLayerId
+      return this.$store.state.Layers.hoverLayerId
     },
     /**
      * Checks if this layer is the active one
@@ -503,7 +503,7 @@ export default {
      * returns String|procedureId
      */
     procedureId () {
-      return this.$store.state.layers.procedureId
+      return this.$store.state.Layers.procedureId
     },
 
     /**
@@ -660,8 +660,8 @@ export default {
       }
     },
 
-    ...mapState('layers', ['draggableOptions', 'draggableOptionsForBaseLayer']),
-    ...mapGetters('layers', ['elementListForLayerSidebar'])
+    ...mapState('Layers', ['draggableOptions', 'draggableOptionsForBaseLayer']),
+    ...mapGetters('Layers', ['elementListForLayerSidebar'])
   },
 
   watch: {
@@ -707,7 +707,7 @@ export default {
           relationshipType: 'gisLayers'
         }
       }
-      this.$store.dispatch('layers/deleteElement', deleteData)
+      this.$store.dispatch('Layers/deleteElement', deleteData)
     },
 
     onAddToCategoryWithChildrenHidden () {
@@ -764,9 +764,9 @@ export default {
       }
       if (this.preventActiveFromToggeling === false) {
         if (this.isActive) {
-          this.$store.commit('layers/setActiveLayerId', '')
+          this.$store.commit('Layers/setActiveLayerId', '')
         } else {
-          this.$store.commit('layers/setActiveLayerId', this.layer.id)
+          this.$store.commit('Layers/setActiveLayerId', this.layer.id)
         }
       } else {
         this.preventActiveFromToggeling = false
@@ -788,11 +788,11 @@ export default {
       if (this.isLoading || this.layer.attributes.layerType !== 'overlay') {
         return false
       }
-      this.$store.commit('layers/setHoverLayerId', this.layer.id)
+      this.$store.commit('Layers/setHoverLayerId', this.layer.id)
     },
 
     mouseOutElement () {
-      this.$store.commit('layers/setHoverLayerId', '')
+      this.$store.commit('Layers/setHoverLayerId', '')
     },
 
     /**
@@ -803,14 +803,14 @@ export default {
         return false
       }
       if (this.layer.attributes.layerType === 'overlay' && typeof this.activeLayer.id !== 'undefined') {
-        this.$store.commit('layers/setHoverLayerIconIsHovered', true)
+        this.$store.commit('Layers/setHoverLayerIconIsHovered', true)
       } else {
         this.unsetIconHoverState()
       }
     },
 
     unsetIconHoverState () {
-      this.$store.commit('layers/setHoverLayerIconIsHovered', false)
+      this.$store.commit('Layers/setHoverLayerIconIsHovered', false)
     },
 
     /**
@@ -874,7 +874,7 @@ export default {
          * Deselect visibilitygroup
          * if this is just one Element left (next to it self), unchain it too
          */
-        const relatedLayers = this.$store.getters['layers/elementsListByAttribute']({
+        const relatedLayers = this.$store.getters['Layers/elementsListByAttribute']({
           type: 'visibilityGroupId',
           value: newVisibilityGroupId
         })
@@ -903,7 +903,7 @@ export default {
       }
     },
 
-    ...mapMutations('layers', ['setAttributeForLayer', 'setChildrenFromCategory'])
+    ...mapMutations('Layers', ['setAttributeForLayer', 'setChildrenFromCategory'])
   },
 
   beforeCreate () {

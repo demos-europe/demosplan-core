@@ -187,7 +187,7 @@ export default {
     /**
      * Needed for entity === 'user'
      */
-    ...mapState('role', {
+    ...mapState('Role', {
       roles: 'items'
     }),
 
@@ -212,10 +212,10 @@ export default {
   },
 
   methods: {
-    ...mapActions('orga', {
+    ...mapActions('Orga', {
       createOrganisation: 'create'
     }),
-    ...mapActions('user', {
+    ...mapActions('User', {
       createUser: 'create'
     }),
 

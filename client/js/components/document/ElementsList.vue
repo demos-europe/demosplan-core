@@ -100,7 +100,7 @@ export default {
   },
 
   computed: {
-    ...mapState('elements', {
+    ...mapState('Elements', {
       elements: 'items'
     }),
 
@@ -141,7 +141,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('elements', {
+    ...mapActions('Elements', {
       elementList: 'list'
     }),
 

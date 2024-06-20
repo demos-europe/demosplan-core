@@ -113,10 +113,10 @@ export default {
   },
 
   computed: {
-    ...mapState('faq', {
+    ...mapState('Faq', {
       faqItems: 'items'
     }),
-    ...mapState('faqCategory', {
+    ...mapState('FaqCategory', {
       faqCategories: 'items'
     }),
 
@@ -189,14 +189,14 @@ export default {
   },
 
   methods: {
-    ...mapActions('faq', {
+    ...mapActions('Faq', {
       deleteFaq: 'delete',
       saveFaq: 'save'
     }),
-    ...mapMutations('faq', {
+    ...mapMutations('Faq', {
       updateFaq: 'setItem'
     }),
-    ...mapMutations('faqCategory', {
+    ...mapMutations('FaqCategory', {
       updateCategory: 'setItem'
     }),
 

@@ -117,7 +117,7 @@
                   v-for="option in Object.values(filteredAssessmentExportOptions)"
                   :key="Object.keys(option)[0]"
                   class="c-actionmenu__menuitem"
-                  :data-cy="`assessmentTableFilter:${Object.values(option)[0].buttonLabel}`"
+                  :data-cy="`statementsExport:${Object.values(option)[0].buttonLabel}`"
                   data-actionmenu-menuitem
                   role="menuitem"
                   tabindex="-1"
@@ -338,16 +338,16 @@ export default {
   },
 
   computed: {
-    ...mapGetters('fragment', [
+    ...mapGetters('Fragment', [
       'selectedFragments'
     ]),
 
-    ...mapGetters('statement', [
+    ...mapGetters('Statement', [
       'selectedElementsLength',
       'statements'
     ]),
 
-    ...mapState('assessmentTable', [
+    ...mapState('AssessmentTable', [
       'assessmentBaseLoaded',
       'currentTableView',
       'filterSet',
@@ -355,7 +355,7 @@ export default {
       'sort'
     ]),
 
-    ...mapState('statement', [
+    ...mapState('Statement', [
       'selectedElements'
     ]),
 
@@ -422,11 +422,11 @@ export default {
   },
 
   methods: {
-    ...mapActions('statement', [
+    ...mapActions('Statement', [
       'setSelectionAction'
     ]),
 
-    ...mapMutations('assessmentTable', [
+    ...mapMutations('AssessmentTable', [
       'setProperty'
     ]),
 

@@ -46,6 +46,7 @@
       <a
         href="#"
         class="o-link--default"
+        data-cy="formGroupMap:procedureDetailsMap"
         v-show="isLocationSelected"
         @click.prevent="gotoTab('procedureDetailsMap')">
         <template v-if="statement.r_location_point !== ''">
@@ -158,7 +159,7 @@ export default {
   ],
 
   computed: {
-    ...mapState('publicStatement', ['activeActionBoxTab', 'highlighted']),
+    ...mapState('PublicStatement', ['activeActionBoxTab', 'highlighted']),
 
     isLocationSelected () {
       return this.statement.r_location === 'point' || this.statement.r_location === 'priorityAreaType'
@@ -166,7 +167,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('publicStatement', ['update']),
+    ...mapMutations('PublicStatement', ['update']),
 
     gotoTab (tabName) {
       this.update({ key: 'activeActionBoxTab', val: 'draw' })

@@ -35,13 +35,14 @@
 
       <div class="u-mb">
         <dp-accordion
+          data-cy="simplifiedNewStatementForm:userDetails"
           :title="Translator.trans('user.details')"
           :is-open="expandAll">
           <div class="u-mv">
             <dp-radio
               name="r_role"
               value="0"
-              data-cy="simplifiedNewStatementForm:citizenButton"
+              data-cy="roleInput:citizen"
               :id="`${instanceId}r_role_0`"
               :label="{
                 text: Translator.trans('citizen')
@@ -51,7 +52,7 @@
             <dp-radio
               name="r_role"
               value="1"
-              data-cy="simplifiedNewStatementForm:institutionButton"
+              data-cy="roleInput:invitableInstitution"
               :id="`${instanceId}r_role_1`"
               :label="{
                 text: Translator.trans('institution')
@@ -187,6 +188,7 @@
 
       <div class="u-mb">
         <dp-accordion
+          data-cy="simplifiedNewStatementForm:statementData"
           :title="Translator.trans('statement.data')"
           :is-open="expandAll">
           <!-- Einreichungsdatum, Verfassungsdatum -->

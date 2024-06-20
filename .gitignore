@@ -3,6 +3,7 @@
 addonDev
 addonZip
 addonZips
+addonDev
 addons
 node_modules
 yarn-error.log
@@ -20,6 +21,7 @@ phpstan.neon
 !.editorconfig
 !.env
 !.env.test
+!.yarnrc.yml
 .ssh/
 .lnav
 !.github

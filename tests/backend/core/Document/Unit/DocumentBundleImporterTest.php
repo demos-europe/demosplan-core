@@ -328,4 +328,36 @@ class DocumentBundleImporterTest extends FunctionalTestCase
         static::assertNotNull($procedureParagraphsAfter[6]['parent']);
         static::assertEquals($procedureParagraphsAfter[5]['id'], $procedureParagraphsAfter[6]['parent']->getId());
     }
+
+    public function testParagraphImportCreateParagraphsWithPicture(): void
+    {
+        $procedureId = $this->fixtures->getReference('testProcedure')->getId();
+        $elementId = $this->fixtures->getReference('testElement1')->getId();
+        $paragraphs = [
+            [
+                'text'         => "<p>Standard Absatztext</p><p><img src='/file/khaeti4c3lmqpjfnqtped251ka' width='0' height='0'>nochmal</p><p><img src='/file/ha3qod8qfr0s413ghve7vqqeqi' width='0' height='0'></p>",
+                'title'        => 'Meine Überschrift',
+                'files'        => [
+                    ['##khaeti4c3lmqpjfnqtped251ka' => 'khaeti4c3lmqpjfnqtped251ka.png::iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4//8/AAX+Av4N70a4AAAAAElFTkSuQmCC'],
+                    ['##ha3qod8qfr0s413ghve7vqqeqi' => 'ha3qod8qfr0s413ghve7vqqeqi.png::iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGNgYGAAAAAEAAH2FzhVAAAAAElFTkSuQmCC']
+                ],
+                'nestingLevel' => 0,
+            ],
+        ];
+
+        $importResult = [
+            'procedure'  => $procedureId,
+            'elementId'  => $elementId,
+            'category'   => 'paragraph',
+            'paragraphs' => $paragraphs,
+        ];
+        $paragraphService = static::getContainer()->get(ParagraphService::class);
+        $this->sut->createParagraphsFromImportResult($importResult, $procedureId);
+
+        $procedureParagraphsAfter = $paragraphService->getParaDocumentObjectList($procedureId, $elementId);
+        //check only for the width and height as the hash always differs
+        $expectedPart = "width='1' height='1'";
+        static::assertStringContainsString($expectedPart, $procedureParagraphsAfter[count($procedureParagraphsAfter) - 1]->getText());
+
+    }
 }

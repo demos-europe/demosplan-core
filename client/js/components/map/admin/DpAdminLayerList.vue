@@ -365,8 +365,8 @@ export default {
       }
     },
 
-    ...mapState('layers', ['draggableOptions', 'draggableOptionsForBaseLayer', 'draggableOptionsForCategorysWithHiddenLayers']),
-    ...mapGetters('layers', ['gisLayerList', 'elementListForLayerSidebar', 'minimapLayer'])
+    ...mapState('Layers', ['draggableOptions', 'draggableOptionsForBaseLayer', 'draggableOptionsForCategorysWithHiddenLayers']),
+    ...mapGetters('Layers', ['gisLayerList', 'elementListForLayerSidebar', 'minimapLayer'])
   },
 
   methods: {
@@ -385,8 +385,8 @@ export default {
       lscache.set('layerOrderTab', sortOrder, 300)
     },
 
-    ...mapActions('layers', ['save', 'get']),
-    ...mapMutations('layers', ['setChildrenFromCategory', 'resetOrder', 'setDraggableOptions', 'setDraggableOptionsForCategorysWithHiddenLayers', 'setDraggableOptionsForBaseLayer', 'setMinimapBaseLayer'])
+    ...mapActions('Layers', ['save', 'get']),
+    ...mapMutations('Layers', ['setChildrenFromCategory', 'resetOrder', 'setDraggableOptions', 'setDraggableOptionsForCategorysWithHiddenLayers', 'setDraggableOptionsForBaseLayer', 'setMinimapBaseLayer'])
   },
 
   mounted () {

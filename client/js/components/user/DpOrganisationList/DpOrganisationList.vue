@@ -20,7 +20,9 @@
         v-if="pendingOrganisationsLoading"
         class="u-ml u-mt u-mb-2" />
       <template v-if="Object.keys(pendingOrgs).length > 0 && pendingOrganisationsLoading === false">
-        <ul class="o-list o-list--card u-mb">
+        <ul
+          class="o-list o-list--card u-mb"
+          data-cy="pendingOrganisationList">
           <dp-organisation-list-item
             class="o-list__item"
             v-for="(item, idx) in pendingOrgs"
@@ -28,7 +30,7 @@
             :available-orga-types="availableOrgaTypes"
             :organisation="item"
             :selectable="false"
-            module-name="pending"
+            module-name="Pending"
             data-cy="pendingOrganisationListBlk" />
         </ul>
         <dp-sliding-pagination
@@ -59,6 +61,7 @@
         @reset="resetSearch" />
       <dp-checkbox-group
         class="inline-block u-pv-0_5 float-right"
+        data-cy="organisationList:filterItems"
         :label="filterLabel"
         :options="filterItems"
         inline
@@ -171,6 +174,7 @@ const orgaFields = {
     'subdomain'
   ].join(),
   Orga: [
+    'canCreateProcedures',
     'ccEmail2',
     'city',
     'competence',
@@ -305,13 +309,13 @@ export default {
   },
 
   computed: {
-    ...mapState('orga', {
+    ...mapState('Orga', {
       items: 'items',
       currentPage: 'currentPage',
       totalPages: 'totalPages'
     }),
 
-    ...mapState('orga/pending', {
+    ...mapState('Orga/Pending', {
       pendingOrganisations: 'items',
       pendingOrganisationsCurrentPage: 'currentPage',
       pendingOrganisationsTotalPages: 'totalPages'
@@ -327,20 +331,20 @@ export default {
   },
 
   methods: {
-    ...mapActions('department', {
+    ...mapActions('Department', {
       departmentList: 'list'
     }),
 
-    ...mapActions('orga', {
+    ...mapActions('Orga', {
       list: 'list',
       deleteOrganisation: 'delete'
     }),
 
-    ...mapActions('orga/pending', {
+    ...mapActions('Orga/Pending', {
       pendingOrganisationList: 'list'
     }),
 
-    ...mapActions('role', {
+    ...mapActions('Role', {
       roleList: 'list'
     }),
 

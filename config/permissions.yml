@@ -1096,11 +1096,20 @@ feature_layer_groups_alternate_visibility:
         Activate feature to show only layers from one category simultaneously.
         Disable showing layers from different categories at once.
     label: 'Hide other layer categories if overlay from another category is visible'
+    expose: true
     loginRequired: true
+feature_manage_procedure_creation_permission:
+    description: |-
+        Allows the user to update if an orga is allowed to create new procedures.
+    expose: true
+    label: 'Permission to enable orga to create procedures.'
+    loginRequired: true
+    parent: [area_manage_orgas, area_manage_orgas_all]
 feature_map_attribution:
     description: |-
         Restrict the access to edit the public map copyright/attribution (in the admin area)
     label: 'Restrict the access to edit the public map copyright/attribution (in the admin area)'
+    expose: true
     loginRequired: true
     parent: area_admin_map
 feature_map_category:
@@ -1114,11 +1123,12 @@ feature_map_deactivate:
     loginRequired: false
     parent: area_admin_map
 feature_map_feature_info:
-        description: |-
-            Restrict the access to edit the public map information url (in the admin area)
-        label: 'Restrict the access to edit the public map information url (in the admin area)'
-        loginRequired: true
-        parent: area_admin_map
+    description: |-
+        Restrict the access to edit the public map information url (in the admin area)
+    label: 'Restrict the access to edit the public map information url (in the admin area)'
+    expose: true
+    loginRequired: true
+    parent: area_admin_map
 feature_map_hint:
     expose: true
     label: Kartenhinweis
@@ -1139,11 +1149,12 @@ feature_map_layer_legend_file:
     loginRequired: false
     parent: area_map_participation_area
 feature_map_max_extent:
-        description: |-
-            Restrict the access to get the max extension of the public map (in the admin area)
-        label: 'Restrict the access to get the max extension of the public map (in the admin area)'
-        loginRequired: true
-        parent: area_admin_map
+    description: |-
+        Restrict the access to get the max extension of the public map (in the admin area)
+    label: 'Restrict the access to get the max extension of the public map (in the admin area)'
+    expose: true
+    loginRequired: true
+    parent: area_admin_map
 feature_map_new_statement:
     expose: true
     label: 'Planzeichnung Neue Stellungnahme'
@@ -2373,6 +2384,7 @@ feature_user_list_extended:
     loginRequired: true
 feature_xplan_defaultlayers:
     label: 'Benutze vordefinierte XPlanLayer'
+    expose: true
     loginRequired: true
 field_county_list:
     label: 'betroffene Kreise'

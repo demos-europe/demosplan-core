@@ -11,7 +11,8 @@ import { dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
 
 const AssessmentTable = {
   namespaced: true,
-  name: 'assessmentTable',
+
+  name: 'AssessmentTable',
 
   state: {
     accessibleProcedureIds: [],

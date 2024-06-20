@@ -32,7 +32,7 @@
         :key="role.value">
         <input
           type="radio"
-          :data-cy="`roleInput-${role.label}`"
+          :data-cy="`roleInput-${role.dataCy}`"
           name="r_role"
           :value="role.value"
           @change="() => $emit('role-changed', currentRole)"
@@ -238,11 +238,13 @@ export default {
       roles: [
         {
           value: '0',
-          label: 'role.citizen'
+          label: 'role.citizen',
+          dataCy: 'citizen'
         },
         {
           value: '1',
-          label: 'invitable_institution'
+          label: 'invitable_institution',
+          dataCy: 'invitableInstitution'
         }
       ],
 

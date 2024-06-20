@@ -71,7 +71,9 @@
           variant="outline"
           @click.prevent="handleBulkEdit" />
       </dp-bulk-edit-header>
-      <div class="flex justify-between items-center mt-4">
+      <div
+        v-if="items.length > 0"
+        class="flex justify-between items-center mt-4">
         <dp-pager
           v-if="pagination.currentPage"
           :class="{ 'invisible': isLoading }"
@@ -98,11 +100,11 @@
       v-if="isLoading" />
 
     <template v-else>
-      <template v-if="items">
+      <template v-if="items.length > 0">
         <dp-data-table
           ref="dataTable"
-          class="overflow-x-auto"
-          :class="isFullscreen ? 'px-2 overflow-y-scroll grow' : '-mt-3'"
+          class="overflow-x-auto pb-3"
+          :class="{ 'px-2 overflow-y-scroll grow': isFullscreen, 'scrollbar-none': !isFullscreen }"
           has-flyout
           :header-fields="headerFields"
           is-resizable
@@ -240,14 +242,16 @@
         </dp-data-table>
 
         <div
+          v-show="!isFullscreen"
           ref="scrollBar"
-          class="sticky bottom-0 left-0 right-0 -mt-3 overflow-x-scroll overflow-y-hidden">
+          class="sticky bottom-0 left-0 right-0 h-3 overflow-x-scroll overflow-y-hidden">
           <div />
         </div>
       </template>
 
       <dp-inline-notification
         v-else
+        :class="{ 'mx-2': isFullscreen }"
         :message="Translator.trans('segments.none')"
         type="info" />
     </template>
@@ -370,31 +374,31 @@ export default {
   },
 
   computed: {
-    ...mapGetters('segmentfilter', {
+    ...mapGetters('SegmentFilter', {
       getFilterQuery: 'filterQuery'
     }),
 
-    ...mapState('assignableUser', {
+    ...mapState('AssignableUser', {
       assignableUsersObject: 'items'
     }),
 
-    ...mapState('orga', {
+    ...mapState('Orga', {
       orgaObject: 'items'
     }),
 
-    ...mapState('statementSegment', {
+    ...mapState('StatementSegment', {
       segmentsObject: 'items'
     }),
 
-    ...mapState('statement', {
+    ...mapState('Statement', {
       statementsObject: 'items'
     }),
 
-    ...mapState('tag', {
+    ...mapState('Tag', {
       tagsObject: 'items'
     }),
 
-    ...mapState('place', {
+    ...mapState('Place', {
       placesObject: 'items'
     }),
 
@@ -452,19 +456,19 @@ export default {
   },
 
   methods: {
-    ...mapActions('assignableUser', {
+    ...mapActions('AssignableUser', {
       fetchAssignableUsers: 'list'
     }),
 
-    ...mapActions('statementSegment', {
+    ...mapActions('StatementSegment', {
       listSegments: 'list'
     }),
 
-    ...mapActions('place', {
+    ...mapActions('Place', {
       fetchPlaces: 'list'
     }),
 
-    ...mapMutations('segmentfilter', ['updateFilterQuery']),
+    ...mapMutations('SegmentFilter', ['updateFilterQuery']),
 
     applyQuery (page) {
       lscache.remove(this.lsKey.allSegments)

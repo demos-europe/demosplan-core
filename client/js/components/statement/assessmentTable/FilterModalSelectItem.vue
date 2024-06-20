@@ -160,7 +160,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('filter', {
+    ...mapGetters('Filter', {
       // Available options for current filter
       getFilterOptionsByFilter: 'filterOptionsByFilter',
       // Selected options for current filter
@@ -168,7 +168,7 @@ export default {
       optionsForFilterHash: 'allSelectedFilterOptionsWithFilterName'
     }),
 
-    ...mapState('filter', [
+    ...mapState('Filter', [
       'original',
       'procedureId',
       'selectedOptions'
@@ -197,11 +197,11 @@ export default {
   },
 
   methods: {
-    ...mapActions('filter', [
+    ...mapActions('Filter', [
       'getFilterOptionsAction'
     ]),
 
-    ...mapMutations('filter', [
+    ...mapMutations('Filter', [
       'sortFilterOptions',
       'updateSelectedOptions'
     ]),

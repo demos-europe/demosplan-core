@@ -390,6 +390,7 @@
             type="reset"
             :disabled="isLoading"
             :class="prefixClass('btn btn--secondary u-1-of-1-palm')"
+            data-cy="statementModal:discardStatement"
             @click.prevent="() => reset()">
             {{ Translator.trans('discard.statement') }}
           </button>
@@ -617,6 +618,7 @@
             <a
               :class="prefixClass('btn btn--primary u-1-of-1-palm')"
               :href="Routing.generate('DemosPlan_statement_single_export_pdf',{ sId: draftStatementId , procedure: procedureId })"
+              data-cy="statementModal:downloadPDF"
               rel="noopener"
               target="_blank">
               <i
@@ -630,6 +632,7 @@
                 :class="prefixClass('btn btn--secondary')"
                 @click="toggleModal"
                 :href="Routing.generate('DemosPlan_procedure_public_detail', { procedure: procedureId })"
+                data-cy="statementModal:close"
                 rel="noopener">
                 {{ Translator.trans('close') }}
               </a>
@@ -892,9 +895,9 @@ export default {
   },
 
   computed: {
-    ...mapState('notify', ['messages']),
+    ...mapState('Notify', ['messages']),
 
-    ...mapState('publicStatement', {
+    ...mapState('PublicStatement', {
       initFormDataJSON: 'initForm',
       initDraftStatements: 'initDraftStatements',
       formData: 'statement',
@@ -971,9 +974,9 @@ export default {
   },
 
   methods: {
-    ...mapMutations('notify', ['remove']),
+    ...mapMutations('Notify', ['remove']),
 
-    ...mapMutations('publicStatement', [
+    ...mapMutations('PublicStatement', [
       'addUnsavedDraft',
       'clearDraftState',
       'removeStatementProp',
@@ -1336,7 +1339,9 @@ export default {
           // @IMPROVE throw success message instead of sending it as Html with the response
           if (response.data && response.data.data && response.data.data.submitRoute) {
             // Go to confirm page to submit draft immediately
-            window.location.href = response.data.data.submitRoute
+            setTimeout(() => {
+              window.location.href = response.data.data.submitRoute
+            }, 2000)
           } else if (this.draftStatementId !== '') {
             // Go to draft statement list and highlight current draft
             this.toggleModal(false)

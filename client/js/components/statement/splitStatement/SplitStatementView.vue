@@ -285,7 +285,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('splitstatement', [
+    ...mapGetters('SplitStatement', [
       'currentlyHighlightedSegmentId',
       'editingSegment',
       'editingSegmentId',
@@ -343,14 +343,14 @@ export default {
   },
 
   methods: {
-    ...mapMutations('splitstatement', [
+    ...mapMutations('SplitStatement', [
       'locallyDeleteSegments',
       'locallyUpdateSegments',
       'resetSegments',
       'setProperty'
     ]),
 
-    ...mapActions('splitstatement', [
+    ...mapActions('SplitStatement', [
       'acceptSegmentProposal',
       'deleteSegmentAction',
       'setInitialData',
@@ -722,12 +722,14 @@ export default {
           try {
             // Set data with html not only charStart and charEnd
             const ranges = this.prosemirror.keyAccess.rangeTrackerKey.getState(this.prosemirror.view.state)
-            const segmentsWithText = this.segments.map(segment => {
-              return {
-                ...segment,
-                text: ranges[segment.id].text
-              }
-            })
+            const segmentsWithText = this.segments
+              .filter(segment => !!ranges[segment.id])
+              .map(segment => {
+                return {
+                  ...segment,
+                  text: ranges[segment.id].text
+                }
+              })
             this.setProperty({ prop: 'segmentsWithText', val: segmentsWithText })
             const currentStatementText = this.prosemirror.getContent(this.prosemirror.view.state)
             this.setProperty({ prop: 'statementText', val: currentStatementText })

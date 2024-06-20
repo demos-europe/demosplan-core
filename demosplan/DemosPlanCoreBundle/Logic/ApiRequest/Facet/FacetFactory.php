@@ -19,7 +19,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Filters\AggregationFilterItem;
 use demosplan\DemosPlanCoreBundle\ValueObject\Filters\AggregationFilterType;
 use Enqueue\Util\UUID;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 use Webmozart\Assert\Assert;
 
 use function collect;

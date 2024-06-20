@@ -21,6 +21,7 @@
       <button
         :class="prefixClass('btn--blank btn--focus w-3 text-left')"
         :aria-label="layer.attributes.name + ' ' + statusAriaText"
+        :data-cy="dataCy"
         @focus="toggleOpacityControl(true)"
         @click.prevent.stop="toggleFromSelf(true)"
         @keydown.tab.shift.exact="toggleOpacityControl(false)">
@@ -68,6 +69,12 @@ export default {
   components: { DpContextualHelp },
 
   props: {
+    dataCy: {
+      type: String,
+      required: false,
+      default: 'publicLayerListLayer'
+    },
+
     layer: {
       type: Object,
       required: true
@@ -116,7 +123,7 @@ export default {
 
   computed: {
     contextualHelpText () {
-      const contextualHelp = this.$store.getters['layers/element']({ id: this.layer.id, type: 'ContextualHelp' })
+      const contextualHelp = this.$store.getters['Layers/element']({ id: this.layer.id, type: 'ContextualHelp' })
       const hasContextualHelp = contextualHelp && contextualHelp.attributes.text
       return hasContextualHelp ? contextualHelp.attributes.text : ''
     },
@@ -252,7 +259,7 @@ export default {
 
     setOpacity (e) {
       let val = e.target.value
-      this.$store.commit('layers/setAttributeForLayer', { id: this.id, attribute: 'opacity', value: val })
+      this.$store.commit('Layers/setAttributeForLayer', { id: this.id, attribute: 'opacity', value: val })
       if (isNaN(val * 1)) return false
       val /= 100
       this.$root.$emit('layer-opacity:change', { id: this.id, opacity: val })
