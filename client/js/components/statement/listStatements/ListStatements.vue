@@ -455,7 +455,7 @@ export default {
     },
 
     exportRoute: function () {
-      return (exportRoute) => Routing.generate(exportRoute, {
+      return (exportRoute, columnTitles) => Routing.generate(exportRoute, {
         filter: {
           procedureId: {
             condition: {
@@ -469,7 +469,10 @@ export default {
           value: this.searchValue,
           ...this.searchFieldsSelected !== null ? { fieldsToSearch: this.searchFieldsSelected } : {}
         },
-        sort: this.selectedSort
+        sort: this.selectedSort,
+        c_left: columnTitles.c_left,
+        c_middle: columnTitles.c_middle,
+        c_right: columnTitles.c_right
       })
     },
 
@@ -927,9 +930,9 @@ export default {
       }
     },
 
-    showHintAndDoExport (route) {
+    showHintAndDoExport ({ route, columns }) {
       if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
-        window.location.href = this.exportRoute(route)
+        window.location.href = this.exportRoute(route, columns)
       }
       // This.$refs.flyout.toggle()
     },
