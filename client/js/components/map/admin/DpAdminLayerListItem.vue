@@ -101,6 +101,7 @@
      --><div class="layout__item u-1-of-12 text-right">
           <input
             type="checkbox"
+            data-cy="adminLayerListItem:toggleDefaultVisibility"
             :disabled="'' !== layer.attributes.visibilityGroupId || (true === isChildOfCategoryThatAppearsAsLayer)"
             @change.prevent="toggleHasDefaultVisibility"
             :checked="hasDefaultVisibility"
@@ -114,6 +115,7 @@
      --><div class="layout__item u-2-of-12 text-right">
           <input
             type="checkbox"
+            data-cy="adminLayerListItem:toggleDefaultVisibility"
             @change.prevent="toggleHasDefaultVisibility"
             :checked="hasDefaultVisibility"
             :class="iconClass">
@@ -136,6 +138,7 @@
         </a>
         <button
           class="btn--blank o-link--default u-mr-0_5"
+          data-cy="adminLayerListItem:deleteElement"
           :title="Translator.trans('delete')"
           @click.prevent="deleteElement"
           v-if="childElements.length <= 0">
