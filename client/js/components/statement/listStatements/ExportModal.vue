@@ -12,7 +12,7 @@
     <button
       type="button"
       @click.prevent="openModal"
-      class="btn--blank text-blue-base inline-block"
+      class="btn--blank o-link--default inline-block"
       data-cy="exportModal:open">
       {{ Translator.trans('export.verb') }}
     </button>
@@ -54,7 +54,7 @@
           :text="Translator.trans('docx.export.column.title.hint')" />
         <div class="grid grid-cols-5 gap-3 mt-1 mb-5">
           <dp-input
-            v-for="(column, key) in columns"
+            v-for="(column, key) in docxColumns"
             :key="key"
             :id="key"
             type="text"
@@ -105,20 +105,20 @@ export default {
   data () {
     return {
       active: 'docx',
-      columns: {
-        c_left: {
+      docxColumns: {
+        left: {
           width: 'col-span-1',
           dataCy: 'exportModal:input:colLeft',
           placeholder: Translator.trans('segments.export.segment.id'),
           title: null
         },
-        c_middle: {
+        middle: {
           width: 'col-span-2',
           dataCy: 'exportModal:input:colMiddle',
           placeholder: Translator.trans('segments.export.statement.label'),
           title: null
         },
-        c_right: {
+        right: {
           width: 'col-span-2',
           dataCy: 'exportModal:input:colRight',
           placeholder: Translator.trans('segment.recommendation'),
@@ -147,19 +147,19 @@ export default {
 
   methods: {
     applyDefaultPlaceholdersForEmptyNames () {
-      Object.keys(this.columns).forEach(key => {
-        if (!this.columns[key].title) {
-          this.columns[key].title = null
-          this.columns[key].placeholder = this.getDefaultPlaceholderByKey(key)
+      Object.keys(this.docxColumns).forEach(key => {
+        if (!this.docxColumns[key].title) {
+          this.docxColumns[key].title = null
+          this.docxColumns[key].placeholder = this.getDefaultPlaceholderByKey(key)
         }
       })
     },
 
     getDefaultPlaceholderByKey (key) {
       const defaultPlaceholders = {
-        c_left: Translator.trans('segments.export.segment.id'),
-        c_middle: Translator.trans('segments.export.statement.label'),
-        c_right: Translator.trans('segment.recommendation')
+        left: Translator.trans('segments.export.segment.id'),
+        middle: Translator.trans('segments.export.statement.label'),
+        right: Translator.trans('segment.recommendation')
       }
 
       return defaultPlaceholders[key]
@@ -175,24 +175,26 @@ export default {
     handleExport () {
       const columnTitles = {}
 
-      Object.keys(this.columns).forEach(key => {
-        const columnTitle = this.columns[key].title
+      Object.keys(this.docxColumns).forEach(key => {
+        const columnTitle = this.docxColumns[key].title
+        const storageKey = `exportModal:docxCol:${key}`
 
         if (columnTitle) {
-          this.updateSessionStorage(key, columnTitle)
-          this.columns[key].placeholder = columnTitle
+          this.updateSessionStorage(storageKey, columnTitle)
+          this.docxColumns[key].placeholder = columnTitle
           columnTitles[key] = columnTitle
         } else {
-          this.removeFromSessionStorage(key)
-          this.columns[key].placeholder = this.getDefaultPlaceholderByKey(key)
+          this.removeFromSessionStorage(storageKey)
+          this.docxColumns[key].placeholder = this.getDefaultPlaceholderByKey(key)
           columnTitles[key] = null /** Setting the value to null will trigger the display of the default column titles */
         }
       })
 
       this.$emit('export', {
         route: this.exportTypes[this.active].uploadPath,
-        columnTitles: columnTitles
+        docxHeaders: ['docx', 'zip'].includes(this.active) ? columnTitles : null
       })
+      this.$refs.exportModalInner.toggle()
     },
 
     handleInput () {
@@ -209,21 +211,22 @@ export default {
     },
 
     resetUnsavedValues () {
-      Object.keys(this.columns).forEach(key => {
+      Object.keys(this.docxColumns).forEach(key => {
         this.setTitleAndPlaceholderByKey(key)
       })
     },
 
     setInitialValues () {
-      Object.keys(this.columns).forEach(key => {
+      Object.keys(this.docxColumns).forEach(key => {
         this.setTitleAndPlaceholderByKey(key)
       })
     },
 
     setTitleAndPlaceholderByKey (key) {
-      const storedColumnTitle = this.getItemFromSessionStorage(key)
-      this.columns[key].title = storedColumnTitle || null /** Setting the value to null will trigger the display of the default column titles */
-      this.columns[key].placeholder = storedColumnTitle || this.getDefaultPlaceholderByKey(key)
+      const storageKey = `exportModal:docxCol:${key}`
+      const storedColumnTitle = this.getItemFromSessionStorage(storageKey)
+      this.docxColumns[key].title = storedColumnTitle || null /** Setting the value to null will trigger the display of the default column titles */
+      this.docxColumns[key].placeholder = storedColumnTitle || this.getDefaultPlaceholderByKey(key)
     }
   },
 

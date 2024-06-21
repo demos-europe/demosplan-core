@@ -426,27 +426,34 @@ export default {
     },
 
     exportRoute: function () {
-      return (exportRoute, columnTitles) => Routing.generate(exportRoute, {
-        filter: {
-          procedureId: {
-            condition: {
-              path: 'procedure.id',
-              value: this.procedureId
+      return (exportRoute, docxHeaders) => {
+        const parameters = {
+          filter: {
+            procedureId: {
+              condition: {
+                path: 'procedure.id',
+                value: this.procedureId
+              }
             }
+          },
+          procedureId: this.procedureId,
+          search: {
+            value: this.searchValue,
+            ...this.searchFieldsSelected !== null ? { fieldsToSearch: this.searchFieldsSelected } : {}
+          },
+          sort: this.selectedSort
+        }
+
+        if (docxHeaders) {
+          parameters.tableHeaders = {
+            c_left: docxHeaders.left,
+            c_middle: docxHeaders.middle,
+            c_right: docxHeaders.right
           }
-        },
-        procedureId: this.procedureId,
-        search: {
-          value: this.searchValue,
-          ...this.searchFieldsSelected !== null ? { fieldsToSearch: this.searchFieldsSelected } : {}
-        },
-        tableHeaders: { // ToDo: discuss with the BE how these parameters should be passed
-          c_left: columnTitles.c_left,
-          c_middle: columnTitles.c_middle,
-          c_right: columnTitles.c_right
-        },
-        sort: this.selectedSort
-      })
+        }
+
+        return Routing.generate(exportRoute, parameters)
+      }
     },
 
     items () {
@@ -895,11 +902,10 @@ export default {
       }
     },
 
-    showHintAndDoExport ({ route, columnTitles }) {
+    showHintAndDoExport ({ route, docxHeaders }) {
       if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
-        window.location.href = this.exportRoute(route, columnTitles)
+        window.location.href = this.exportRoute(route, docxHeaders)
       }
-      // This.$refs.flyout.toggle()
     },
 
     triggerStatementDeletion (id) {
