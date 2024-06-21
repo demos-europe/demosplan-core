@@ -110,7 +110,7 @@ export default {
           width: 'col-span-1',
           dataCy: 'exportModal:input:colLeft',
           placeholder: Translator.trans('segments.export.segment.id'),
-          title: null /** Set the value to null to display the initial names provided by the backend */
+          title: null
         },
         c_middle: {
           width: 'col-span-2',
@@ -222,7 +222,7 @@ export default {
 
     setTitleAndPlaceholderByKey (key) {
       const storedColumnTitle = this.getItemFromSessionStorage(key)
-      this.columns[key].title = storedColumnTitle || null /** Set the value to null to display the initial names provided by the backend */
+      this.columns[key].title = storedColumnTitle || null /** Setting the value to null will trigger the display of the default column titles both in the FE and BE */
       this.columns[key].placeholder = storedColumnTitle || this.getDefaultPlaceholderByKey(key)
     }
   },
