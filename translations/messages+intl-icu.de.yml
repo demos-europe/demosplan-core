@@ -1582,8 +1582,6 @@ export.settings.hint: "Wählen Sie aus, welche Daten im Export der Stellungnahme
 export.statements: "Stellungnahmen exportieren"
 export.statements.zip: "einzelne DOCX-Dateien"
 export.statements.docx: "DOCX-Datei"
-export.statements.docx.columnTitles: "Spaltennamen in DOXC-Exporten"
-export.statements.docx.columnTitles.hint: "Um die Spaltennamen auf die Ursprungswerte zurückzusetzen, entfernen Sie die Einträge in den Textfeldern."
 export.statements.hint: "Achtung: Falls weitere Einreichende zu einer Stellungnahme hinzugefügt wurden, werden diese auch im DOCX-Export aufgeführt."
 export.statements.xlsx: "XLSX-Datei"
 export.structure: "Gliederung des Exports"
