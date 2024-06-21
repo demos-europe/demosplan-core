@@ -158,7 +158,7 @@
         :opts="draggableOptionsForBaseLayer"
         v-model="currentBaseList"
         :class="{'color--grey': false === isEditable}">
-        <admin-layer-list-item
+        <dp-admin-layer-list-item
           v-for="(item, idx) in currentBaseList"
           :key="item.id"
           :element="item"
@@ -175,6 +175,7 @@
      --><div class="layout__item u-2-of-3">
           <select
             class="o-form__control-select"
+            data-cy="adminLayerList:currentMinimapLayer"
             v-model="currentMinimapLayer">
             <option :value="{id: '', attributes: { name: 'default' }}">
               {{ Translator.trans('selection.no') }}
@@ -196,15 +197,18 @@
         class="text-right u-mv space-inline-s"
         v-if="false === isLoading">
         <dp-button
+          data-cy="adminLayerList:save"
           :busy="!isEditable"
           :text="Translator.trans('save')"
           @click="saveOrder" />
         <dp-button
+          data-cy="adminLayerList:saveAndReturn"
           :busy="!isEditable"
           :text="Translator.trans('save.and.return.to.list')"
           @click="saveOrder(true)" />
         <button
           class="btn btn--secondary"
+          data-cy="adminLayerList:resetOrder"
           type="reset"
           @click.prevent="resetOrder">
           {{ Translator.trans('reset.order') }}

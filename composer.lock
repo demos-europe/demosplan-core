@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4552ee6120b93b8c86b1df2d7147c6fa",
+    "content-hash": "bc1b96375a50e62f4953abbd1eda7c03",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -742,16 +742,16 @@
         },
         {
             "name": "composer/class-map-generator",
-            "version": "1.3.3",
+            "version": "1.3.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/class-map-generator.git",
-                "reference": "61804f9973685ec7bead0fb7fe022825e3cd418e"
+                "reference": "b1b3fd0b4eaf3ddf3ee230bc340bf3fff454a1a3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/class-map-generator/zipball/61804f9973685ec7bead0fb7fe022825e3cd418e",
-                "reference": "61804f9973685ec7bead0fb7fe022825e3cd418e",
+                "url": "https://api.github.com/repos/composer/class-map-generator/zipball/b1b3fd0b4eaf3ddf3ee230bc340bf3fff454a1a3",
+                "reference": "b1b3fd0b4eaf3ddf3ee230bc340bf3fff454a1a3",
                 "shasum": ""
             },
             "require": {
@@ -795,7 +795,7 @@
             ],
             "support": {
                 "issues": "https://github.com/composer/class-map-generator/issues",
-                "source": "https://github.com/composer/class-map-generator/tree/1.3.3"
+                "source": "https://github.com/composer/class-map-generator/tree/1.3.4"
             },
             "funding": [
                 {
@@ -811,7 +811,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-06-10T11:53:54+00:00"
+            "time": "2024-06-12T14:13:04+00:00"
         },
         {
             "name": "composer/composer",
@@ -2165,16 +2165,16 @@
         },
         {
             "name": "doctrine/dbal",
-            "version": "3.8.5",
+            "version": "3.8.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/dbal.git",
-                "reference": "0e3536ba088a749985c8801105b6b3ac6c1280b6"
+                "reference": "b7411825cf7efb7e51f9791dea19d86e43b399a1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/dbal/zipball/0e3536ba088a749985c8801105b6b3ac6c1280b6",
-                "reference": "0e3536ba088a749985c8801105b6b3ac6c1280b6",
+                "url": "https://api.github.com/repos/doctrine/dbal/zipball/b7411825cf7efb7e51f9791dea19d86e43b399a1",
+                "reference": "b7411825cf7efb7e51f9791dea19d86e43b399a1",
                 "shasum": ""
             },
             "require": {
@@ -2190,12 +2190,12 @@
                 "doctrine/coding-standard": "12.0.0",
                 "fig/log-test": "^1",
                 "jetbrains/phpstorm-stubs": "2023.1",
-                "phpstan/phpstan": "1.11.1",
+                "phpstan/phpstan": "1.11.5",
                 "phpstan/phpstan-strict-rules": "^1.6",
                 "phpunit/phpunit": "9.6.19",
                 "psalm/plugin-phpunit": "0.18.4",
                 "slevomat/coding-standard": "8.13.1",
-                "squizlabs/php_codesniffer": "3.9.2",
+                "squizlabs/php_codesniffer": "3.10.1",
                 "symfony/cache": "^5.4|^6.0|^7.0",
                 "symfony/console": "^4.4|^5.4|^6.0|^7.0",
                 "vimeo/psalm": "4.30.0"
@@ -2258,7 +2258,7 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/dbal/issues",
-                "source": "https://github.com/doctrine/dbal/tree/3.8.5"
+                "source": "https://github.com/doctrine/dbal/tree/3.8.6"
             },
             "funding": [
                 {
@@ -2274,7 +2274,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-06-08T17:49:56+00:00"
+            "time": "2024-06-19T10:38:17+00:00"
         },
         {
             "name": "doctrine/deprecations",
@@ -3314,32 +3314,34 @@
         },
         {
             "name": "dompdf/dompdf",
-            "version": "v2.0.8",
+            "version": "v3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/dompdf/dompdf.git",
-                "reference": "c20247574601700e1f7c8dab39310fca1964dc52"
+                "reference": "fbc7c5ee5d94f7a910b78b43feb7931b7f971b59"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dompdf/dompdf/zipball/c20247574601700e1f7c8dab39310fca1964dc52",
-                "reference": "c20247574601700e1f7c8dab39310fca1964dc52",
+                "url": "https://api.github.com/repos/dompdf/dompdf/zipball/fbc7c5ee5d94f7a910b78b43feb7931b7f971b59",
+                "reference": "fbc7c5ee5d94f7a910b78b43feb7931b7f971b59",
                 "shasum": ""
             },
             "require": {
+                "dompdf/php-font-lib": "^1.0.0",
+                "dompdf/php-svg-lib": "^1.0.0",
                 "ext-dom": "*",
                 "ext-mbstring": "*",
                 "masterminds/html5": "^2.0",
-                "phenx/php-font-lib": ">=0.5.4 <1.0.0",
-                "phenx/php-svg-lib": ">=0.5.2 <1.0.0",
                 "php": "^7.1 || ^8.0"
             },
             "require-dev": {
+                "ext-gd": "*",
                 "ext-json": "*",
                 "ext-zip": "*",
                 "mockery/mockery": "^1.3",
-                "phpunit/phpunit": "^7.5 || ^8 || ^9",
-                "squizlabs/php_codesniffer": "^3.5"
+                "phpunit/phpunit": "^7.5 || ^8 || ^9 || ^10",
+                "squizlabs/php_codesniffer": "^3.5",
+                "symfony/process": "^4.4 || ^5.4 || ^6.2 || ^7.0"
             },
             "suggest": {
                 "ext-gd": "Needed to process images",
@@ -3370,9 +3372,100 @@
             "homepage": "https://github.com/dompdf/dompdf",
             "support": {
                 "issues": "https://github.com/dompdf/dompdf/issues",
-                "source": "https://github.com/dompdf/dompdf/tree/v2.0.8"
+                "source": "https://github.com/dompdf/dompdf/tree/v3.0.0"
             },
-            "time": "2024-04-29T13:06:17+00:00"
+            "time": "2024-04-29T14:01:28+00:00"
+        },
+        {
+            "name": "dompdf/php-font-lib",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dompdf/php-font-lib.git",
+                "reference": "991d6a954f6bbd7e41022198f00586b230731441"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dompdf/php-font-lib/zipball/991d6a954f6bbd7e41022198f00586b230731441",
+                "reference": "991d6a954f6bbd7e41022198f00586b230731441",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "php": "^7.1 || ^8.0"
+            },
+            "require-dev": {
+                "symfony/phpunit-bridge": "^3 || ^4 || ^5 || ^6"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "FontLib\\": "src/FontLib"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "The FontLib Community",
+                    "homepage": "https://github.com/dompdf/php-font-lib/blob/master/AUTHORS.md"
+                }
+            ],
+            "description": "A library to read, parse, export and make subsets of different types of font files.",
+            "homepage": "https://github.com/dompdf/php-font-lib",
+            "support": {
+                "issues": "https://github.com/dompdf/php-font-lib/issues",
+                "source": "https://github.com/dompdf/php-font-lib/tree/1.0.0"
+            },
+            "time": "2024-04-29T13:40:38+00:00"
+        },
+        {
+            "name": "dompdf/php-svg-lib",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dompdf/php-svg-lib.git",
+                "reference": "eb045e518185298eb6ff8d80d0d0c6b17aecd9af"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dompdf/php-svg-lib/zipball/eb045e518185298eb6ff8d80d0d0c6b17aecd9af",
+                "reference": "eb045e518185298eb6ff8d80d0d0c6b17aecd9af",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "php": "^7.1 || ^8.0",
+                "sabberworm/php-css-parser": "^8.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^7.5 || ^8.5 || ^9.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Svg\\": "src/Svg"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "The SvgLib Community",
+                    "homepage": "https://github.com/dompdf/php-svg-lib/blob/master/AUTHORS.md"
+                }
+            ],
+            "description": "A library to read, parse and export to PDF SVG files.",
+            "homepage": "https://github.com/dompdf/php-svg-lib",
+            "support": {
+                "issues": "https://github.com/dompdf/php-svg-lib/issues",
+                "source": "https://github.com/dompdf/php-svg-lib/tree/1.0.0"
+            },
+            "time": "2024-04-29T13:26:35+00:00"
         },
         {
             "name": "efrane/console-additions",
@@ -5512,16 +5605,16 @@
         },
         {
             "name": "illuminate/collections",
-            "version": "v10.48.12",
+            "version": "v10.48.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/collections.git",
-                "reference": "f9589f1063a449111dcaa1d68285b507d9483a95"
+                "reference": "994cedcd2060b65918efe46da805ac31b0563034"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/collections/zipball/f9589f1063a449111dcaa1d68285b507d9483a95",
-                "reference": "f9589f1063a449111dcaa1d68285b507d9483a95",
+                "url": "https://api.github.com/repos/illuminate/collections/zipball/994cedcd2060b65918efe46da805ac31b0563034",
+                "reference": "994cedcd2060b65918efe46da805ac31b0563034",
                 "shasum": ""
             },
             "require": {
@@ -5563,11 +5656,11 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2024-03-20T20:09:13+00:00"
+            "time": "2024-06-04T13:31:47+00:00"
         },
         {
             "name": "illuminate/conditionable",
-            "version": "v10.48.12",
+            "version": "v10.48.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/conditionable.git",
@@ -5613,7 +5706,7 @@
         },
         {
             "name": "illuminate/contracts",
-            "version": "v10.48.12",
+            "version": "v10.48.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/contracts.git",
@@ -5661,7 +5754,7 @@
         },
         {
             "name": "illuminate/macroable",
-            "version": "v10.48.12",
+            "version": "v10.48.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/macroable.git",
@@ -6721,16 +6814,16 @@
         },
         {
             "name": "laminas/laminas-code",
-            "version": "4.13.0",
+            "version": "4.14.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laminas/laminas-code.git",
-                "reference": "7353d4099ad5388e84737dd16994316a04f48dbf"
+                "reference": "562e02b7d85cb9142b5116cc76c4c7c162a11a1c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laminas/laminas-code/zipball/7353d4099ad5388e84737dd16994316a04f48dbf",
-                "reference": "7353d4099ad5388e84737dd16994316a04f48dbf",
+                "url": "https://api.github.com/repos/laminas/laminas-code/zipball/562e02b7d85cb9142b5116cc76c4c7c162a11a1c",
+                "reference": "562e02b7d85cb9142b5116cc76c4c7c162a11a1c",
                 "shasum": ""
             },
             "require": {
@@ -6742,7 +6835,7 @@
                 "laminas/laminas-coding-standard": "^2.5.0",
                 "laminas/laminas-stdlib": "^3.17.0",
                 "phpunit/phpunit": "^10.3.3",
-                "psalm/plugin-phpunit": "^0.18.4",
+                "psalm/plugin-phpunit": "^0.19.0",
                 "vimeo/psalm": "^5.15.0"
             },
             "suggest": {
@@ -6780,7 +6873,7 @@
                     "type": "community_bridge"
                 }
             ],
-            "time": "2023-10-18T10:00:55+00:00"
+            "time": "2024-06-17T08:50:25+00:00"
         },
         {
             "name": "lcobucci/clock",
@@ -8470,24 +8563,24 @@
         },
         {
             "name": "paragonie/constant_time_encoding",
-            "version": "v2.7.0",
+            "version": "v3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/paragonie/constant_time_encoding.git",
-                "reference": "52a0d99e69f56b9ec27ace92ba56897fe6993105"
+                "reference": "df1e7fde177501eee2037dd159cf04f5f301a512"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/paragonie/constant_time_encoding/zipball/52a0d99e69f56b9ec27ace92ba56897fe6993105",
-                "reference": "52a0d99e69f56b9ec27ace92ba56897fe6993105",
+                "url": "https://api.github.com/repos/paragonie/constant_time_encoding/zipball/df1e7fde177501eee2037dd159cf04f5f301a512",
+                "reference": "df1e7fde177501eee2037dd159cf04f5f301a512",
                 "shasum": ""
             },
             "require": {
-                "php": "^7|^8"
+                "php": "^8"
             },
             "require-dev": {
-                "phpunit/phpunit": "^6|^7|^8|^9",
-                "vimeo/psalm": "^1|^2|^3|^4"
+                "phpunit/phpunit": "^9",
+                "vimeo/psalm": "^4|^5"
             },
             "type": "library",
             "autoload": {
@@ -8533,7 +8626,7 @@
                 "issues": "https://github.com/paragonie/constant_time_encoding/issues",
                 "source": "https://github.com/paragonie/constant_time_encoding"
             },
-            "time": "2024-05-08T12:18:48+00:00"
+            "time": "2024-05-08T12:36:18+00:00"
         },
         {
             "name": "paragonie/random_compat",
@@ -8661,96 +8754,6 @@
             ],
             "abandoned": "symfony/polyfill-mbstring or symfony/string",
             "time": "2021-01-07T16:38:58+00:00"
-        },
-        {
-            "name": "phenx/php-font-lib",
-            "version": "0.5.6",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/dompdf/php-font-lib.git",
-                "reference": "a1681e9793040740a405ac5b189275059e2a9863"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/dompdf/php-font-lib/zipball/a1681e9793040740a405ac5b189275059e2a9863",
-                "reference": "a1681e9793040740a405ac5b189275059e2a9863",
-                "shasum": ""
-            },
-            "require": {
-                "ext-mbstring": "*"
-            },
-            "require-dev": {
-                "symfony/phpunit-bridge": "^3 || ^4 || ^5 || ^6"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "FontLib\\": "src/FontLib"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "LGPL-2.1-or-later"
-            ],
-            "authors": [
-                {
-                    "name": "Fabien Ménager",
-                    "email": "fabien.menager@gmail.com"
-                }
-            ],
-            "description": "A library to read, parse, export and make subsets of different types of font files.",
-            "homepage": "https://github.com/PhenX/php-font-lib",
-            "support": {
-                "issues": "https://github.com/dompdf/php-font-lib/issues",
-                "source": "https://github.com/dompdf/php-font-lib/tree/0.5.6"
-            },
-            "time": "2024-01-29T14:45:26+00:00"
-        },
-        {
-            "name": "phenx/php-svg-lib",
-            "version": "0.5.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/dompdf/php-svg-lib.git",
-                "reference": "46b25da81613a9cf43c83b2a8c2c1bdab27df691"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/dompdf/php-svg-lib/zipball/46b25da81613a9cf43c83b2a8c2c1bdab27df691",
-                "reference": "46b25da81613a9cf43c83b2a8c2c1bdab27df691",
-                "shasum": ""
-            },
-            "require": {
-                "ext-mbstring": "*",
-                "php": "^7.1 || ^8.0",
-                "sabberworm/php-css-parser": "^8.4"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^7.5 || ^8.5 || ^9.5"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Svg\\": "src/Svg"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "LGPL-3.0-or-later"
-            ],
-            "authors": [
-                {
-                    "name": "Fabien Ménager",
-                    "email": "fabien.menager@gmail.com"
-                }
-            ],
-            "description": "A library to read, parse and export to PDF SVG files.",
-            "homepage": "https://github.com/PhenX/php-svg-lib",
-            "support": {
-                "issues": "https://github.com/dompdf/php-svg-lib/issues",
-                "source": "https://github.com/dompdf/php-svg-lib/tree/0.5.4"
-            },
-            "time": "2024-04-08T12:52:34+00:00"
         },
         {
             "name": "php-amqplib/php-amqplib",
@@ -9678,20 +9681,20 @@
         },
         {
             "name": "phpseclib/phpseclib",
-            "version": "3.0.37",
+            "version": "3.0.38",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "cfa2013d0f68c062055180dd4328cc8b9d1f30b8"
+                "reference": "b18b8788e51156c4dd97b7f220a31149a0052067"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/cfa2013d0f68c062055180dd4328cc8b9d1f30b8",
-                "reference": "cfa2013d0f68c062055180dd4328cc8b9d1f30b8",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/b18b8788e51156c4dd97b7f220a31149a0052067",
+                "reference": "b18b8788e51156c4dd97b7f220a31149a0052067",
                 "shasum": ""
             },
             "require": {
-                "paragonie/constant_time_encoding": "^1|^2",
+                "paragonie/constant_time_encoding": "^1|^2|^3",
                 "paragonie/random_compat": "^1.4|^2.0|^9.99.99",
                 "php": ">=5.6.1"
             },
@@ -9768,7 +9771,7 @@
             ],
             "support": {
                 "issues": "https://github.com/phpseclib/phpseclib/issues",
-                "source": "https://github.com/phpseclib/phpseclib/tree/3.0.37"
+                "source": "https://github.com/phpseclib/phpseclib/tree/3.0.38"
             },
             "funding": [
                 {
@@ -9784,7 +9787,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-03-03T02:14:58+00:00"
+            "time": "2024-06-17T10:11:32+00:00"
         },
         {
             "name": "phpstan/phpdoc-parser",
@@ -9835,16 +9838,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.11.4",
+            "version": "1.11.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "9100a76ce8015b9aa7125b9171ae3a76887b6c82"
+                "reference": "490f0ae1c92b082f154681d7849aee776a7c1443"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/9100a76ce8015b9aa7125b9171ae3a76887b6c82",
-                "reference": "9100a76ce8015b9aa7125b9171ae3a76887b6c82",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/490f0ae1c92b082f154681d7849aee776a7c1443",
+                "reference": "490f0ae1c92b082f154681d7849aee776a7c1443",
                 "shasum": ""
             },
             "require": {
@@ -9889,7 +9892,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-06-06T12:19:22+00:00"
+            "time": "2024-06-17T15:10:54+00:00"
         },
         {
             "name": "predis/predis",
@@ -19799,16 +19802,16 @@
         },
         {
             "name": "myclabs/deep-copy",
-            "version": "1.11.1",
+            "version": "1.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "7284c22080590fb39f2ffa3e9057f10a4ddd0e0c"
+                "reference": "3a6b9a42cd8f8771bd4295d13e1423fa7f3d942c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/7284c22080590fb39f2ffa3e9057f10a4ddd0e0c",
-                "reference": "7284c22080590fb39f2ffa3e9057f10a4ddd0e0c",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/3a6b9a42cd8f8771bd4295d13e1423fa7f3d942c",
+                "reference": "3a6b9a42cd8f8771bd4295d13e1423fa7f3d942c",
                 "shasum": ""
             },
             "require": {
@@ -19816,11 +19819,12 @@
             },
             "conflict": {
                 "doctrine/collections": "<1.6.8",
-                "doctrine/common": "<2.13.3 || >=3,<3.2.2"
+                "doctrine/common": "<2.13.3 || >=3 <3.2.2"
             },
             "require-dev": {
                 "doctrine/collections": "^1.6.8",
                 "doctrine/common": "^2.13.3 || ^3.2.2",
+                "phpspec/prophecy": "^1.10",
                 "phpunit/phpunit": "^7.5.20 || ^8.5.23 || ^9.5.13"
             },
             "type": "library",
@@ -19846,7 +19850,7 @@
             ],
             "support": {
                 "issues": "https://github.com/myclabs/DeepCopy/issues",
-                "source": "https://github.com/myclabs/DeepCopy/tree/1.11.1"
+                "source": "https://github.com/myclabs/DeepCopy/tree/1.12.0"
             },
             "funding": [
                 {
@@ -19854,7 +19858,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-03-08T13:26:56+00:00"
+            "time": "2024-06-12T14:39:25+00:00"
         },
         {
             "name": "netresearch/jsonmapper",
@@ -23171,16 +23175,16 @@
         },
         {
             "name": "zenstruck/foundry",
-            "version": "v1.38.0",
+            "version": "v1.38.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zenstruck/foundry.git",
-                "reference": "fd3c763de120445878077e54c608d8d75a3cc22d"
+                "reference": "841bb70df8e6fa5110b85dec1e851a28b7ac496e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zenstruck/foundry/zipball/fd3c763de120445878077e54c608d8d75a3cc22d",
-                "reference": "fd3c763de120445878077e54c608d8d75a3cc22d",
+                "url": "https://api.github.com/repos/zenstruck/foundry/zipball/841bb70df8e6fa5110b85dec1e851a28b7ac496e",
+                "reference": "841bb70df8e6fa5110b85dec1e851a28b7ac496e",
                 "shasum": ""
             },
             "require": {
@@ -23253,7 +23257,7 @@
             ],
             "support": {
                 "issues": "https://github.com/zenstruck/foundry/issues",
-                "source": "https://github.com/zenstruck/foundry/tree/v1.38.0"
+                "source": "https://github.com/zenstruck/foundry/tree/v1.38.2"
             },
             "funding": [
                 {
@@ -23261,7 +23265,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-06-07T23:04:21+00:00"
+            "time": "2024-06-19T12:38:34+00:00"
         }
     ],
     "aliases": [],
