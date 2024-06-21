@@ -60,11 +60,9 @@ class KeycloakUserDataMapper
         if ($user instanceof User) {
             $this->logger->info('Found user in Keycloak request', ['data' => $keycloakUserData]);
 
-            // only orga needs to be updated as user data is not editable via idp
-            // as "Nutzerkonto X" is not implemented at the moment
             $this->updateOrgaWithKnownValues($user->getOrga(), $keycloakUserData);
 
-            return $user;
+            return $this->updateUserWithKnownValues($user, $keycloakUserData);
 
         }
 
@@ -268,5 +266,15 @@ class KeycloakUserDataMapper
         $orga->setGwId($keycloakUserData->getOrganisationId());
 
         return $this->orgaService->updateOrga($orga);
+    }
+
+    private function updateUserWithKnownValues(User $user, KeycloakUserData $keycloakUserData): User
+    {
+        $user->setEmail($keycloakUserData->getEmailAddress());
+        $user->setFirstname($keycloakUserData->getFirstName());
+        $user->setLastname($keycloakUserData->getLastName());
+        // do not update login, as it is used to identify the user
+
+        return $this->userService->updateUserObject($user);
     }
 }
