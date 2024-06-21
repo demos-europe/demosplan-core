@@ -38,6 +38,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\Statement\AdditionalStatementDataEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
+use demosplan\DemosPlanCoreBundle\Exception\DuplicateInternIdException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementAlreadyConnectedToGdprConsentRevokeTokenException;
@@ -192,6 +193,9 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             return $statement;
         } catch (Exception $e) {
             $this->getLogger()->warning('Add StatementObject failed Message: ', [$e]);
+            if (str_contains($e->getMessage(), 'internId_procedure')) {
+                throw DuplicateInternIdException::create('Eingangsnummer', $statement->getProcedureId());
+            }
             throw $e;
         }
     }
