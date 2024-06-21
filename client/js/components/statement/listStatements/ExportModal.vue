@@ -47,11 +47,11 @@
         <h3
           id="docxColumnTitles"
           class="inline-block text-lg mr-1">
-          {{ Translator.trans('docx.export.column.name') }}
+          {{ Translator.trans('docx.export.column.title') }}
         </h3>
         <dp-contextual-help
           aria-labelledby="docxColumnTitles"
-          :text="Translator.trans('docx.export.column.name.hint')" />
+          :text="Translator.trans('docx.export.column.title.hint')" />
         <div class="grid grid-cols-5 gap-3 mt-1 mb-5">
           <dp-input
             v-for="(column, key) in columns"
