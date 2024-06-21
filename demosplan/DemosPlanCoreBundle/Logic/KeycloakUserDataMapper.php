@@ -116,7 +116,6 @@ class KeycloakUserDataMapper
         }
 
         // orga is already registered in customer, return default user
-        // or acting user, if any is given
 
         $this->logger->info('Orga is already registered in customer');
         $orga = $orgas[0] ?? null;
