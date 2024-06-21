@@ -155,6 +155,12 @@ export default {
       })
     },
 
+    closeModalAndResetValues () {
+      this.$refs.exportModalInner.toggle()
+      this.active = 'docx'
+      this.resetColumnsUnsavedValues()
+    },
+
     getDefaultPlaceholderByKey (key) {
       const defaultPlaceholders = {
         left: Translator.trans('segments.export.segment.id'),
@@ -167,9 +173,7 @@ export default {
 
     handleAbort () {
       this.$emit('abort')
-      this.$refs.exportModalInner.toggle()
-      this.active = 'docx'
-      this.resetUnsavedValues()
+      this.closeModalAndResetValues()
     },
 
     handleExport () {
@@ -194,7 +198,7 @@ export default {
         route: this.exportTypes[this.active].uploadPath,
         docxHeaders: ['docx', 'zip'].includes(this.active) ? columnTitles : null
       })
-      this.$refs.exportModalInner.toggle()
+      this.closeModalAndResetValues()
     },
 
     handleInput () {
@@ -210,7 +214,7 @@ export default {
       this.$refs.exportModalInner.toggle()
     },
 
-    resetUnsavedValues () {
+    resetColumnsUnsavedValues () {
       Object.keys(this.docxColumns).forEach(key => {
         this.setTitleAndPlaceholderByKey(key)
       })
