@@ -89,22 +89,6 @@ class KeycloakUserDataMapper
     {
         $login = $keycloakUserData->getUserName();
 
-        // check whether existing user needs to be updated.
-        // when user with email exists, update login field to idp login
-        // to allow Login via idp and dplan
-
-        $user = $this->userService->findDistinctUserByEmailOrLogin($keycloakUserData->getEmailAddress());
-
-        if ($user instanceof User) {
-            $this->logger->info('Tie existing user to Keycloak-Login');
-            // user exists with email. Just update login to tie user to idp and at the same time
-            // allow to login locally via email
-            $user->setLogin($login);
-            $user->setProvidedByIdentityProvider(true);
-
-            return $this->userService->updateUserObject($user);
-        }
-
         $this->logger->info('Create new User from Keycloak data');
 
         // user does not yet exist
