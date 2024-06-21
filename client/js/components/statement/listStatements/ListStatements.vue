@@ -47,37 +47,8 @@
           :text="Translator.trans('procedure.share_statements.bulk.share')" />
       </dp-bulk-edit-header>
       <export-modal
-        @export="showHintAndDoExport" />
-      <!--      <dp-flyout
-        ref="flyout"
         data-cy="listStatements:export"
-        :align="'left'">
-        <template v-slot:trigger>
-          {{ Translator.trans('export.verb') }}
-          <i
-            class="fa fa-angle-down"
-            aria-hidden="true" />
-        </template>
-        <a
-          data-cy="statementsExport:export.docx"
-          href="#"
-          @click="showHintAndDoExport('dplan_statement_segments_export')">
-          {{ Translator.trans('export.statements.docx') }}
-        </a>
-        <a
-          data-cy="statementsExport:export.zip"
-          href="#"
-          @click="showHintAndDoExport('dplan_statement_segments_export_packaged')">
-          {{ Translator.trans('export.statements.zip') }}
-        </a>
-        <a
-          v-if="hasPermission('feature_admin_assessmenttable_export_statement_generic_xlsx')"
-          :href="exportRoute('dplan_statement_xls_export')"
-          data-cy="statementsExport:export.xlsx"
-          rel="noopener">
-          {{ Translator.trans('export.statements.xlsx') }}
-        </a>
-      </dp-flyout>-->
+        @export="showHintAndDoExport" />
       <div
         v-if="items.length > 0"
         class="flex mt-2">
@@ -469,10 +440,12 @@ export default {
           value: this.searchValue,
           ...this.searchFieldsSelected !== null ? { fieldsToSearch: this.searchFieldsSelected } : {}
         },
-        sort: this.selectedSort,
-        c_left: columnTitles.c_left,
-        c_middle: columnTitles.c_middle,
-        c_right: columnTitles.c_right
+        tableHeaders: { // ToDo: discuss with the BE how these parameters should be passed
+          c_left: columnTitles.c_left,
+          c_middle: columnTitles.c_middle,
+          c_right: columnTitles.c_right
+        },
+        sort: this.selectedSort
       })
     },
 
@@ -544,14 +517,6 @@ export default {
         id: '',
         name: '',
         orgaName: ''
-      }
-    },
-
-    handleExport (uploadPath) {
-      console.log('here', uploadPath)
-
-      if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
-        window.location.href = this.exportRoute(uploadPath)
       }
     },
 
@@ -930,9 +895,9 @@ export default {
       }
     },
 
-    showHintAndDoExport ({ route, columns }) {
+    showHintAndDoExport ({ route, columnTitles }) {
       if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
-        window.location.href = this.exportRoute(route, columns)
+        window.location.href = this.exportRoute(route, columnTitles)
       }
       // This.$refs.flyout.toggle()
     },
