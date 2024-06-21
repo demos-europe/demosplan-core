@@ -2764,6 +2764,7 @@ public.index.filter.gfk.location.results: |
         =0 {Es wurden zu der Kommune folgende Verfahren gefunden:}
         =1 {Es wurden zu der Kommune {locationName} folgende Verfahren gefunden:}
     }
+public.index.heading: "{projectName}: Plattform zur öffentlichen Mitwirkung bei räumlichen Planungen und Genehmigungsverfahren"
 public.or.invitable_institution: "Öffentlichkeit/Institutionen"
 public.participation.contact: "Ansprechperson"
 public.participation.contribute: "Mitreden"
@@ -3338,6 +3339,7 @@ statement.participate.resume.hint: "Eine angefangene Stellungnahme können Sie h
 statement.participate.resume: "Reden Sie weiter..."
 statement.participate: "Reden Sie mit!"
 statement.participation.import: "Hier kann der Export aus den demos-Beteiligungslösungen in EWM importiert werden. Übernommen werden hierbei die Einreichendendaten, der Stellungnahmetext, die zugehörige ID und Eingangsnummer, Einreichungs-und Verfassungsdatum, sowie eine eventuell hinzugefügte Notiz und weitere Anhänge."
+statement.participation.import.hint: "Hinweis: Bei mehrfachem Import werden Stellungnahmen mit im System bereits existierenden IDs nicht erneut importiert."
 statement.possible: "Stellungnahme möglich"
 statement.priority.a: "A-Punkt"
 statement.priority.b: "B-Punkt"

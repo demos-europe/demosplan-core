@@ -100,7 +100,7 @@ class ParagraphExporter
                     if (is_file($file->getAbsolutePath())) {
                         $this->logger->info('Pdf: Bild auf der Platte gefunden');
                         $fileContent = file_get_contents($file->getAbsolutePath());
-                        $pictures['picture'.$i] = $file->getHash().'###'.$file->getFileName().'###'.base64_encode($fileContent);
+                        $pictures['picture'.$i] = $match.'###'.$file->getFileName().'###'.base64_encode($fileContent);
                         ++$i;
                     }
                 } catch (Exception) {

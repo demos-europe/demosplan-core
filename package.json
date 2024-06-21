@@ -14,7 +14,6 @@
     "dev:robobsh": "cross-env ./fe build robobsh",
     "dev:teilhabe": "cross-env ./fe build teilhabe",
     "dev:wmmsh": "cross-env ./fe build wmmsh",
-    "preinstall": "if cat /proc/mounts | grep -q '/srv/www/node_modules/@demos-europe/demosplan-ui'; then echo 'Aborting install. Please restart container with disabled demosplan-ui.'; exit 1; fi",
     "prod:blp": "cross-env ./fe build --prod blp",
     "prod:bimschgsh": "cross-env ./fe build --prod bimschgsh",
     "prod:bobhh": "cross-env ./fe build --prod bobhh",
@@ -48,10 +47,10 @@
     "lint:scss": "stylelint {demosplan/DemosPlanCoreBundle/Resources/client/scss,projects}/**/*.scss"
   },
   "dependencies": {
-    "@demos-europe/demosplan-ui": "^0.3.17",
+    "@demos-europe/demosplan-ui": "^0.3.18",
     "@demos-europe/dp-consent": "^1.1.2",
     "@efrane/vuex-json-api": "github:eFrane/vuex-json-api#19c2354ad97c17bdda02358dc9ee4a2ffce181dd",
-    "@masterportal/masterportalapi": "^2.19.2",
+    "@masterportal/masterportalapi": "2.22.0",
     "@sentry/browser": "^8.9.1",
     "@sentry/integrations": "^7.114.0",
     "@sentry/tracing": "^7.114.0",
@@ -131,19 +130,19 @@
     "cross-env": "^7.0.3",
     "css-loader": "^6.8.1",
     "css-minimizer-webpack-plugin": "^7.0.0",
-    "eslint": "^7.32.0",
-    "eslint-config-standard": "^16.0.3",
+    "eslint": "^8.57.0",
+    "eslint-config-standard": "^17.1.0",
     "eslint-friendly-formatter": "^4.0.1",
     "eslint-import-resolver-webpack": "^0.13.8",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-jest": "^27.9.0",
     "eslint-plugin-jquery": "^1.5.1",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^5.2.0",
+    "eslint-plugin-promise": "^6.2.0",
     "eslint-plugin-standard": "^5.0.0",
     "eslint-plugin-vue": "^9.26.0",
     "eslint-plugin-vuejs-accessibility": "^2.3.0",
-    "eslint-webpack-plugin": "^3.2.0",
+    "eslint-webpack-plugin": "^4.2.0",
     "fs": "0.0.1-security",
     "glob": "^10.3.16",
     "glob-all": "^3.3.1",
@@ -175,8 +174,8 @@
     "webpack-merge": "^5.10.0"
   },
   "engines": {
-    "npm": ">= 6.0.0",
-    "node": ">= 18.13.0"
+    "npm": ">= 9.8.1",
+    "node": ">= 18.18.0"
   },
   "browserslist": [
     "last 5 versions",
@@ -185,6 +184,7 @@
     "ff esr"
   ],
   "resolutions": {
-    "@mapbox/mapbox-gl-style-spec": "13.14.0"
-  }
+    "@mapbox/mapbox-gl-style-spec": "13.23.1"
+  },
+  "packageManager": "yarn@4.2.2"
 }
