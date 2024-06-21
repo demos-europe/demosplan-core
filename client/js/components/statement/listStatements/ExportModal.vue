@@ -185,7 +185,7 @@ export default {
         } else {
           this.removeFromSessionStorage(key)
           this.columns[key].placeholder = this.getDefaultPlaceholderByKey(key)
-          columnTitles[key] = null /** Setting the value to null will trigger the display of the default column titles both in the FE and BE */
+          columnTitles[key] = null /** Setting the value to null will trigger the display of the default column titles */
         }
       })
 
@@ -222,7 +222,7 @@ export default {
 
     setTitleAndPlaceholderByKey (key) {
       const storedColumnTitle = this.getItemFromSessionStorage(key)
-      this.columns[key].title = storedColumnTitle || null /** Setting the value to null will trigger the display of the default column titles both in the FE and BE */
+      this.columns[key].title = storedColumnTitle || null /** Setting the value to null will trigger the display of the default column titles */
       this.columns[key].placeholder = storedColumnTitle || this.getDefaultPlaceholderByKey(key)
     }
   },
