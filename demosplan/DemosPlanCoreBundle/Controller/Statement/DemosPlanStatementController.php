@@ -56,7 +56,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\GdprConsentRevokeTokenService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListHandlerResult;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
@@ -2472,7 +2471,7 @@ class DemosPlanStatementController extends BaseController
         }
         try {
             $importer->importFromFile($fileInfo);
-        }catch (RowAwareViolationsException $e) {
+        } catch (RowAwareViolationsException $e) {
             $this->getMessageBag()->add(
                 'error',
                 'statements.import.error.document.summary',

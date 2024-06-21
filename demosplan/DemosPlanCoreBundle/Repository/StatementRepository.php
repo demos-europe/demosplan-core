@@ -61,10 +61,10 @@ use EDT\Querying\FluentQueries\FluentQuery;
 use EDT\Querying\Pagination\PagePagination;
 use EDT\Querying\Utilities\Reindexer;
 use Exception;
+use Illuminate\Support\Collection;
 use Pagerfanta\Pagerfanta;
 use ReflectionException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Illuminate\Support\Collection;
 
 use function array_combine;
 
