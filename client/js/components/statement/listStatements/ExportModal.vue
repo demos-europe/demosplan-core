@@ -10,8 +10,7 @@
 
     <dp-modal
       ref="exportModalInner"
-      content-classes="w-10/12 md:w-9/12 lg:w-5/12"
-      @modal:toggled="isOpen => resetUnsavedOptions(isOpen)">
+      content-classes="w-10/12 md:w-9/12 lg:w-5/12">
       <dp-loading v-if="isLoading" />
 
       <template v-else>
@@ -214,16 +213,6 @@ export default {
     openModal () {
       this.setInitialValues()
       this.$refs.exportModalInner.toggle()
-    },
-
-    /**
-     **
-     * Reset only the unsaved selected filter options, but only when closing modal
-     */
-    resetUnsavedOptions (isOpen) {
-      if (!isOpen) {
-        this.$emit('close')
-      }
     }
   },
 
