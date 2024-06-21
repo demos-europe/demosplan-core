@@ -185,7 +185,7 @@ export default {
         } else {
           this.removeFromSessionStorage(key)
           this.columns[key].placeholder = this.getDefaultPlaceholderByKey(key)
-          columnTitles[key] = null
+          columnTitles[key] = null /** Setting the value to null will trigger the display of the default column titles both in the FE and BE */
         }
       })
 
