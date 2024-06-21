@@ -203,8 +203,7 @@ class SegmentsExportController extends BaseController
 
         return $zipExportService->buildZipStreamResponse(
             $exporter->getSynopseFileName($procedure, 'zip'),
-            static function (ZipStream $zipStream)
-            use ($statements, $exporter, $zipExportService, $procedure, $tableHeaders): void {
+            static function (ZipStream $zipStream) use ($statements, $exporter, $zipExportService, $procedure, $tableHeaders): void {
                 array_map(
                     static function (
                         Statement $statement,
