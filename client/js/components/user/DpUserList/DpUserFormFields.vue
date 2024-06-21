@@ -298,7 +298,7 @@ export default {
     changeUserDepartment (departmentId) {
       this.localUser.relationships.department.data = {
         id: departmentId,
-        type: 'department'
+        type: 'Department'
       }
 
       this.$emit('user-update', this.localUser)
@@ -349,7 +349,7 @@ export default {
 
       this.fetchOrgaById(orgaId).then((orga) => {
         this.setOrga(orga.data.data)
-        if (hasOwnProp(this.organisations[this.currentUserOrga.id].relationships, 'allowedRoles')) {
+        if (this.currentUserOrga.id && hasOwnProp(this.organisations[this.currentUserOrga.id].relationships, 'allowedRoles')) {
           allowedRoles = this.organisations[this.currentUserOrga.id].relationships.allowedRoles.list()
         }
       })
@@ -474,7 +474,7 @@ export default {
           currentSlug: {
             data: {
               id: payloadRel.currentSlug.data.id,
-              type: 'slug'
+              type: 'Slug'
             }
           },
           departments: {
@@ -482,7 +482,7 @@ export default {
               ? payloadRel.departments.data.map(el => {
                 return {
                   ...el,
-                  type: 'department'
+                  type: 'Department'
                 }
               })
               : null
