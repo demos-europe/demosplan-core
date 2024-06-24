@@ -27,7 +27,9 @@
 </documentation>
 
 <template>
-  <fieldset class="layout--flush" id="gislayers">
+  <fieldset 
+        class="layout--flush" 
+        id="gisLayers">
     <div class="layout__item u-1-of-4">
       <legend>
         {{ Translator.trans('gislayer') }}
