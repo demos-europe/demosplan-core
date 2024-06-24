@@ -445,7 +445,7 @@ export default {
         }
 
         if (docxHeaders) {
-          parameters.tableHeaders = { // ToDo: how should it be passed, discuss it with the BE
+          parameters['table-headers'] = { // ToDo: how should it be passed, discuss it with the BE
             c_left: docxHeaders.left,
             c_middle: docxHeaders.middle,
             c_right: docxHeaders.right
