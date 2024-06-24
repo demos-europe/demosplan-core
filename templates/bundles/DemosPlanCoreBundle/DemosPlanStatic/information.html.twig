@@ -5,27 +5,22 @@
     'content_heading': "informations"|trans
     } %}
         {% block content %}
-            <h1>{{ "informations"|trans }}</h1>
+            <img
+                src="{{ asset('img/landingpage.png') }}"
+                alt="Schleswig-Holstein-Service">
 
-            <p>
-                DEMOS-Plan ermöglicht es allen Akteuren in der Bauleitplanung, den Beteiligungsprozess einfacher und effizienter zu gestalten.
-            </p>
-            <p>
-                Das spart Zeit und Kosten und bringt Vorteile für alle Beteiligten.
-            </p>
-            <p>
-                <a href="{{ path('DemosPlan_faq') }}" target="_top">Häufige Fragen</a>
-                <br>
+            <p class="u-mt">
+                Bauleitplanung Online begleitet Sie digital und unkompliziert durch die Beteiligung der Öffentlichkeit sowie der Behörden und sonstiger Träger öffentlicher Belange. Mit dem webbasierten Tool können Sie Ihre formelle Beteiligung ganz einfach digital und medienbruchfrei durchführen. Über Bauleitplanung Online können sich Bürger*innen und Träger öffentlicher Belange leicht über laufende Planungsverfahren informieren und bequem Stellungnahmen zum Gesamtprojekt oder zu spezifischen Teilaspekten abgeben.
             </p>
 
-            <h2>DEMOS-Plan Video</h2>
-
-            <video class="{{ 'border'|prefixClass }}" id="demos_plan_video" controls width="504" height="304" data-poster="{{ asset('video/demos-plan-500-300.jpg') }}">
-                <source src="{{ asset('video/demosplan.mp4') }}" type='video/mp4' />
-                <p class="vjs-no-js">
-                    Für die Ansicht dieses Videos wird JavaScript benötigt. Bitte aktivieren Sie es in den Einstellungen Ihres Browsers.
-                </p>
-            </video>
+            <p class="u-mt">
+                Mehr Informationen über Bauleitplanung Online finden Sie unter
+                <a
+                    href="https://bauleitplanung-online.de/"
+                    target="_blank">
+                    bauleitplanung-online.de
+                </a>
+            </p>
         {% endblock content %}
     {% endembed %}
 {% endblock %}
