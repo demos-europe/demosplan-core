@@ -58,7 +58,7 @@ class SegmentsExportController extends BaseController
         string $statementId
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
-        $tableHeaders = $request->query->get('table-headers', []);
+        $tableHeaders = $request->query->get('tableHeaders', []);
         $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
         $statement = $statementHandler->getStatementWithCertainty($statementId);
         $response = new StreamedResponse(
@@ -98,7 +98,7 @@ class SegmentsExportController extends BaseController
         string $procedureId
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
-        $tableHeaders = $request->query->get('table-headers', []);
+        $tableHeaders = $request->query->get('tableHeaders', []);
         $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
@@ -188,7 +188,7 @@ class SegmentsExportController extends BaseController
         string $procedureId
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
-        $tableHeaders = $request->query->get('table-headers', []);
+        $tableHeaders = $request->query->get('tableHeaders', []);
         $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
         // Using this method we apply mostly the same restrictions that are applied when the generic
         // API is accessed to retrieve statements. Things like filter and search parameters are
