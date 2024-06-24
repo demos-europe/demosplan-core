@@ -192,16 +192,12 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             $manager->flush();
 
             return $statement;
-        }
-
-        catch (UniqueConstraintViolationException $e) {
+        } catch (UniqueConstraintViolationException $e) {
             if (str_contains($e->getMessage(), 'internId_procedure')) {
                 throw DuplicateInternIdException::create('Eingangsnummer', $statement->getProcedureId());
             }
             throw $e;
-        }
-
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->warning('Add StatementObject failed Message: ', [$e]);
             throw $e;
         }

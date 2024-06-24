@@ -2471,8 +2471,7 @@ class DemosPlanStatementController extends BaseController
         }
         try {
             $importer->importFromFile($fileInfo);
-        }
-        catch (RowAwareViolationsException $e) {
+        } catch (RowAwareViolationsException $e) {
             $this->getMessageBag()->add(
                 'error',
                 'statements.import.error.document.summary',
@@ -2508,15 +2507,13 @@ class DemosPlanStatementController extends BaseController
                 );
             }
             throw new DemosException(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS);
-        }
-        catch (DuplicateInternIdException $e) {
+        } catch (DuplicateInternIdException $e) {
             $this->getMessageBag()->add(
                 'error',
                 'statements.import.error.document.duplicate.internid'
             );
             throw new DemosException(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS, ['exception' => $e]);
             $this->getMessageBag()->add(
                 'error',
