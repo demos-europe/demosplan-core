@@ -938,6 +938,11 @@ services:
         tags:
             - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\Statement\Statement, lazy: true }
 
+    demosplan\DemosPlanCoreBundle\EventListener\StatementSegmentsSynchronizerListener:
+        lazy: true
+        tags:
+            - { name: doctrine.orm.entity_listener, event: preUpdate, entity: demosplan\DemosPlanCoreBundle\Entity\Statement\Statement, lazy: true }
+
 
     demosplan\DemosPlanCoreBundle\EventListener\IndexFilesListener:
         tags:
