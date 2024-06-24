@@ -61,8 +61,7 @@
             :data-cy="column.defaultValue"
             :placeholder="Translator.trans(column.placeholder)"
             :width="column.width"
-            v-model="column.title"
-            @input="handleInput" />
+            v-model="column.title" />
         </div>
       </section>
 
@@ -146,34 +145,13 @@ export default {
   },
 
   methods: {
-    applyDefaultPlaceholdersForEmptyNames () {
-      Object.keys(this.docxColumns).forEach(key => {
-        if (!this.docxColumns[key].title) {
-          this.docxColumns[key].title = null
-          this.docxColumns[key].placeholder = this.getDefaultPlaceholderByKey(key)
-        }
-      })
-    },
-
-    closeModalAndResetValues () {
+    closeModal () {
       this.$refs.exportModalInner.toggle()
-      this.active = 'docx'
-      this.resetColumnsUnsavedValues()
-    },
-
-    getDefaultPlaceholderByKey (key) {
-      const defaultPlaceholders = {
-        left: Translator.trans('segments.export.segment.id'),
-        middle: Translator.trans('segments.export.statement.label'),
-        right: Translator.trans('segment.recommendation')
-      }
-
-      return defaultPlaceholders[key]
     },
 
     handleAbort () {
       this.$emit('abort')
-      this.closeModalAndResetValues()
+      this.closeModal()
     },
 
     handleExport () {
@@ -185,11 +163,9 @@ export default {
 
         if (columnTitle) {
           this.updateSessionStorage(storageKey, columnTitle)
-          this.docxColumns[key].placeholder = columnTitle
           columnTitles[key] = columnTitle
         } else {
           this.removeFromSessionStorage(storageKey)
-          this.docxColumns[key].placeholder = this.getDefaultPlaceholderByKey(key)
           columnTitles[key] = null /** Setting the value to null will trigger the display of the default column titles */
         }
       })
@@ -198,11 +174,7 @@ export default {
         route: this.exportTypes[this.active].uploadPath,
         docxHeaders: ['docx', 'zip'].includes(this.active) ? columnTitles : null
       })
-      this.closeModalAndResetValues()
-    },
-
-    handleInput () {
-      this.applyDefaultPlaceholdersForEmptyNames()
+      this.closeModal()
     },
 
     isActive (key) {
@@ -214,28 +186,18 @@ export default {
       this.$refs.exportModalInner.toggle()
     },
 
-    resetColumnsUnsavedValues () {
-      Object.keys(this.docxColumns).forEach(key => {
-        this.setTitleAndPlaceholderByKey(key)
-      })
-    },
-
-    setInitialValues () {
-      Object.keys(this.docxColumns).forEach(key => {
-        this.setTitleAndPlaceholderByKey(key)
-      })
-    },
-
-    setTitleAndPlaceholderByKey (key) {
+    setColumnTitleByKey (key) {
       const storageKey = `exportModal:docxCol:${key}`
       const storedColumnTitle = this.getItemFromSessionStorage(storageKey)
       this.docxColumns[key].title = storedColumnTitle || null /** Setting the value to null will trigger the display of the default column titles */
-      this.docxColumns[key].placeholder = storedColumnTitle || this.getDefaultPlaceholderByKey(key)
-    }
-  },
+    },
 
-  mounted () {
-    this.setInitialValues()
+    setInitialValues () {
+      this.active = 'docx'
+      Object.keys(this.docxColumns).forEach(key => {
+        this.setColumnTitleByKey(key)
+      })
+    }
   }
 }
 </script>

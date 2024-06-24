@@ -166,7 +166,8 @@ import {
   DpButton,
   DpFlyout,
   DpSlidebar,
-  DpStickyElement
+  DpStickyElement,
+  sessionStorageMixin
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import DpClaim from '@DpJs/components/statement/DpClaim'
@@ -181,6 +182,8 @@ import StatementSegmentsEdit from './StatementSegmentsEdit'
 
 export default {
   name: 'StatementSegmentsList',
+
+  mixins: [sessionStorageMixin],
 
   components: {
     DpClaim,
@@ -398,6 +401,12 @@ export default {
       return this.attachments.find((attachment) => attachment.type === 'source_statement') || {}
     },
 
+    setDocxColumnTitle (key) {
+      const storageKey = `exportModal:docxCol:${key}`
+      const storedColumnTitle = this.getItemFromSessionStorage(storageKey)
+      return storedColumnTitle || null /** Setting the value to null will trigger the display of the default column titles */
+    },
+
     statement () {
       return this.statements[this.statementId] || null
     }
@@ -612,6 +621,12 @@ export default {
     },
 
     showHintAndDoExport () {
+      const tableHeaders = {
+        c_left: this.setDocxColumnTitle('left'),
+        c_middle: this.setDocxColumnTitle('middle'),
+        c_right: this.setDocxColumnTitle('right')
+      }
+
       if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
         window.location.href = Routing.generate('dplan_segments_export', {
           procedureId: this.procedureId,
