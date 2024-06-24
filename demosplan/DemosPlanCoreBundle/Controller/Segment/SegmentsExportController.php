@@ -11,8 +11,6 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 
 use Cocur\Slugify\Slugify;
-use DemosEurope\DemosplanAddon\Exception\JsonException;
-use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -29,7 +27,6 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use Doctrine\ORM\Query\QueryException;
 use Exception;
 use PhpOffice\PhpWord\IOFactory;
-use Symfony\Component\HttpFoundation\HeaderBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
