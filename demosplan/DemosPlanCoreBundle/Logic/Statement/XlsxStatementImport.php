@@ -98,7 +98,10 @@ class XlsxStatementImport
                 $this->createdStatements[] = $statementCreatedEvent->getStatement();
             }
         } catch (Exception $exception) {
-            $doctrineConnection->rollBack();
+
+            if($doctrineConnection->isConnected() && $doctrineConnection->isTransactionActive()) {
+                $doctrineConnection->rollBack();
+            }
             throw $exception;
         }
         $doctrineConnection->commit();

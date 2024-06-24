@@ -2471,7 +2471,8 @@ class DemosPlanStatementController extends BaseController
         }
         try {
             $importer->importFromFile($fileInfo);
-        } catch (RowAwareViolationsException $e) {
+        }
+        catch (RowAwareViolationsException $e) {
             $this->getMessageBag()->add(
                 'error',
                 'statements.import.error.document.summary',
@@ -2507,20 +2508,21 @@ class DemosPlanStatementController extends BaseController
                 );
             }
             throw new DemosException(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS);
-        } catch (Exception $e) {
+        }
+        catch (DuplicateInternIdException $e) {
+            $this->getMessageBag()->add(
+                'error',
+                'statements.import.error.document.duplicate.internid'
+            );
+            throw new DemosException(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS);
+        }
+        catch (Exception $e) {
             $this->logger->error(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS, ['exception' => $e]);
-            if (DuplicateInternIdException::class) {
-                $this->getMessageBag()->add(
-                    'error',
-                    'statements.import.error.document.duplicate.internid'
-                );
-            } else {
-                $this->getMessageBag()->add(
-                    'error',
-                    'statements.import.error.document.unexpected',
-                    ['doc' => $fileInfo->getFileName()]
-                );
-            }
+            $this->getMessageBag()->add(
+                'error',
+                'statements.import.error.document.unexpected',
+                ['doc' => $fileInfo->getFileName()]
+            );
             throw new DemosException(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS);
         }
     }

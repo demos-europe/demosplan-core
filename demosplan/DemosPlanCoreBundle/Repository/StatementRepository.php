@@ -48,6 +48,7 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
@@ -191,11 +192,17 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             $manager->flush();
 
             return $statement;
-        } catch (Exception $e) {
-            $this->getLogger()->warning('Add StatementObject failed Message: ', [$e]);
+        }
+
+        catch (UniqueConstraintViolationException $e) {
             if (str_contains($e->getMessage(), 'internId_procedure')) {
                 throw DuplicateInternIdException::create('Eingangsnummer', $statement->getProcedureId());
             }
+            throw $e;
+        }
+
+        catch (Exception $e) {
+            $this->getLogger()->warning('Add StatementObject failed Message: ', [$e]);
             throw $e;
         }
     }
