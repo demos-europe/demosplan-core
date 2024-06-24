@@ -221,7 +221,7 @@
 </template>
 
 <script>
-import { DpButton, DpDraggable, DpLoading } from '@demos-europe/demosplan-ui'
+import { DpButton, DpDraggable, DpLoading, DpSplitButton } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import AdminLayerListItem from './AdminLayerListItem'
 import lscache from 'lscache'
@@ -234,7 +234,8 @@ export default {
     AdminLayerListItem,
     DpDraggable,
     DpButton,
-    DpLoading
+    DpLoading,
+    DpSplitButton
   },
 
   props: {
