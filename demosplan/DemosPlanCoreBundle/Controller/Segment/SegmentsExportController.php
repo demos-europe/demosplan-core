@@ -60,7 +60,8 @@ class SegmentsExportController extends BaseController
         string $procedureId,
         string $statementId
     ): StreamedResponse {
-        $tableHeaders = $this->getTableHeadersForExportFromRequestHeaders($request->headers);
+        /** @var array<string, string> $tableHeaders */
+        $tableHeaders = $request->query->get('table-headers', []);
         $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
         $statement = $statementHandler->getStatementWithCertainty($statementId);
         $response = new StreamedResponse(
@@ -99,7 +100,8 @@ class SegmentsExportController extends BaseController
         Request $request,
         string $procedureId
     ): StreamedResponse {
-        $tableHeaders = $this->getTableHeadersForExportFromRequestHeaders($request->headers);
+        /** @var array<string, string> $tableHeaders */
+        $tableHeaders = $request->query->get('table-headers', []);
         $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
@@ -188,7 +190,8 @@ class SegmentsExportController extends BaseController
         ZipExportService $zipExportService,
         string $procedureId
     ): StreamedResponse {
-        $tableHeaders = $this->getTableHeadersForExportFromRequestHeaders($request->headers);
+        /** @var array<string, string> $tableHeaders */
+        $tableHeaders = $request->query->get('table-headers', []);
         $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
         // Using this method we apply mostly the same restrictions that are applied when the generic
         // API is accessed to retrieve statements. Things like filter and search parameters are
@@ -237,18 +240,5 @@ class SegmentsExportController extends BaseController
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document; charset=utf-8'
         );
         $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename($filename));
-    }
-
-    /**
-     * @throws JsonException
-     */
-    private function getTableHeadersForExportFromRequestHeaders(HeaderBag $headerBag): array
-    {
-        $tableHeaders = [];
-        if ($headerBag->has('table-headers')) {
-            $tableHeaders = Json::decodeToArray($headerBag->get('table-headers'));
-        }
-
-        return $tableHeaders;
     }
 }
