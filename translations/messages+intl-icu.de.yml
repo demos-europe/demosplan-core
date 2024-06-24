@@ -3343,6 +3343,7 @@ statement.participate.resume.hint: "Eine angefangene Stellungnahme können Sie h
 statement.participate.resume: "Reden Sie weiter..."
 statement.participate: "Reden Sie mit!"
 statement.participation.import: "Hier kann der Export aus den demos-Beteiligungslösungen in EWM importiert werden. Übernommen werden hierbei die Einreichendendaten, der Stellungnahmetext, die zugehörige ID und Eingangsnummer, Einreichungs-und Verfassungsdatum, sowie eine eventuell hinzugefügte Notiz und weitere Anhänge."
+statement.participation.import.hint: "Hinweis: Bei mehrfachem Import werden Stellungnahmen mit im System bereits existierenden IDs nicht erneut importiert."
 statement.possible: "Stellungnahme möglich"
 statement.priority.a: "A-Punkt"
 statement.priority.b: "B-Punkt"

@@ -31,6 +31,7 @@ goetas-webservices/xsd2php: MIT
 goetas-webservices/xsd2php-runtime: MIT
 guzzlehttp/guzzle: MIT
 hslavich/oneloginsaml-bundle: MIT
+illuminate/collections: MIT
 intervention/image: MIT
 intriro/csv-bundle: MIT
 jfcherng/php-diff: BSD-3-Clause
@@ -64,7 +65,6 @@ psalm/plugin-symfony: MIT
 ramsey/uuid: MIT
 rector/rector: MIT
 rollerworks/password-strength-bundle: MIT
-sensio/framework-extra-bundle: MIT
 sentry/sentry-symfony: MIT
 squizlabs/php_codesniffer: BSD-3-Clause
 stevenmaguire/oauth2-keycloak: MIT
@@ -116,7 +116,6 @@ symfony/var-dumper: MIT
 symfony/var-exporter: MIT
 symfony/web-profiler-bundle: MIT
 symfony/yaml: MIT
-tightenco/collect: MIT
 timeweb/phpstan-enum: MIT
 vimeo/psalm: MIT
 weirdan/doctrine-psalm-plugin: MIT
@@ -128,4 +127,4 @@ wsdltophp/packagegenerator: MIT
 yectep/phpspreadsheet-bundle: MIT
 zenstruck/foundry: MIT
 
-As of 06.06.2024 07:03
+As of 19.06.2024 07:03
