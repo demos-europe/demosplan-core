@@ -27,7 +27,9 @@
 </documentation>
 
 <template>
-  <fieldset class="layout--flush" id="gislayers">
+  <fieldset 
+        class="layout--flush" 
+        id="gisLayers">
     <div class="layout__item u-1-of-4">
       <legend>
         {{ Translator.trans('gislayer') }}
@@ -219,7 +221,7 @@
 </template>
 
 <script>
-import { DpButton, DpDraggable, DpLoading } from '@demos-europe/demosplan-ui'
+import { DpButton, DpDraggable, DpLoading, DpSplitButton } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import AdminLayerListItem from './AdminLayerListItem'
 import lscache from 'lscache'
@@ -232,7 +234,8 @@ export default {
     AdminLayerListItem,
     DpDraggable,
     DpButton,
-    DpLoading
+    DpLoading,
+    DpSplitButton
   },
 
   props: {
