@@ -233,17 +233,29 @@ class SegmentsExporter
         );
         $this->addSegmentCell(
             $headerRow,
-            $tableHeaders['c_left'] ?? $this->translator->trans('segments.export.segment.id'),
+            htmlspecialchars(
+                    $tableHeaders['c_left'] ?? $this->translator->trans('segments.export.segment.id'),
+                    ENT_NOQUOTES,
+                    'UTF-8'
+            ),
             $this->styles['segmentsTableHeaderCellID']
         );
         $this->addSegmentCell(
             $headerRow,
-            $tableHeaders['c_middle'] ?? $this->translator->trans('segments.export.statement.label'),
+            htmlspecialchars(
+                $tableHeaders['c_middle'] ?? $this->translator->trans('segments.export.statement.label'),
+                    ENT_NOQUOTES,
+                'UTF-8'
+            ),
             $this->styles['segmentsTableHeaderCell']
         );
         $this->addSegmentCell(
             $headerRow,
-            $tableHeaders['c_right'] ?? $this->translator->trans('segment.recommendation'),
+            htmlspecialchars(
+                $tableHeaders['c_right'] ?? $this->translator->trans('segment.recommendation'),
+                    ENT_NOQUOTES,
+                'UTF-8'
+            ),
             $this->styles['segmentsTableHeaderCell']
         );
 
