@@ -186,16 +186,13 @@ export default {
       this.$refs.exportModalInner.toggle()
     },
 
-    setColumnTitleByKey (key) {
-      const storageKey = `exportModal:docxCol:${key}`
-      const storedColumnTitle = this.getItemFromSessionStorage(storageKey)
-      this.docxColumns[key].title = storedColumnTitle || null /** Setting the value to null will trigger the display of the default column titles */
-    },
-
     setInitialValues () {
       this.active = 'docx'
+
       Object.keys(this.docxColumns).forEach(key => {
-        this.setColumnTitleByKey(key)
+        const storageKey = `exportModal:docxCol:${key}`
+        const storedColumnTitle = this.getItemFromSessionStorage(storageKey)
+        this.docxColumns[key].title = storedColumnTitle || null /** Setting the value to null will trigger the display of the default column titles */
       })
     }
   }
