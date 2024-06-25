@@ -64,15 +64,14 @@
         </div>
       </section>
 
-      <div class="flex justify-end">
         <dp-button-row
+          class="text-right"
           primary
           secondary
           :primary-text="Translator.trans('export.statements')"
           :secondary-text="Translator.trans('abort')"
           @primary-action="handleExport"
           @secondary-action="closeModal" />
-      </div>
     </dp-modal>
   </div>
 </template>
@@ -88,7 +87,7 @@ import {
 } from '@demos-europe/demosplan-ui'
 
 export default {
-  name: 'ExportModal',
+  name: 'StatementExportModal',
 
   components: {
     DpButtonRow,

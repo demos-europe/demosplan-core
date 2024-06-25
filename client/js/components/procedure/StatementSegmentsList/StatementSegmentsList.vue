@@ -68,7 +68,7 @@
               @click="toggleClaimStatement" />
           </li>
           <li>
-            <ExportModal
+            <statement-export-modal
               data-cy="statementSegmentsList:export"
               @export="showHintAndDoExport"
               is-single-statement-export />
@@ -170,10 +170,10 @@ import {
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory'
-import ExportModal from '../../statement/listStatements/ExportModal.vue'
 import SegmentCommentsList from './SegmentCommentsList'
 import SegmentLocationMap from './SegmentLocationMap'
 import SegmentsRecommendations from './SegmentsRecommendations'
+import StatementExportModal from '../../statement/listStatements/StatementExportModal'
 import StatementMeta from './StatementMeta/StatementMeta'
 import StatementMetaAttachmentsLink from './StatementMeta/StatementMetaAttachmentsLink'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
@@ -189,10 +189,10 @@ export default {
     DpSlidebar,
     DpStickyElement,
     DpVersionHistory,
-    ExportModal,
     SegmentCommentsList,
     SegmentLocationMap,
     SegmentsRecommendations,
+    StatementExportModal,
     StatementMeta,
     StatementMetaAttachmentsLink,
     StatementMetaTooltip,

@@ -46,7 +46,7 @@
           @click.prevent="handleBulkShare"
           :text="Translator.trans('procedure.share_statements.bulk.share')" />
       </dp-bulk-edit-header>
-      <export-modal
+      <statement-export-modal
         data-cy="listStatements:export"
         @export="showHintAndDoExport" />
       <div
@@ -295,9 +295,9 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpClaim from '@DpJs/components/statement/DpClaim'
-import ExportModal from '@DpJs/components/statement/listStatements/ExportModal'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import SearchModal from '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'
+import StatementExportModal from '@DpJs/components/statement/listStatements/StatementExportModal'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
 
 export default {
@@ -314,8 +314,8 @@ export default {
     DpPager,
     DpSelect,
     DpStickyElement,
-    ExportModal,
     SearchModal,
+    StatementExportModal,
     StatementMetaData
   },
 
