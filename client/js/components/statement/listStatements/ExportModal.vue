@@ -24,7 +24,7 @@
         {{ Translator.trans('export.statements') }}
       </h2>
 
-      <section>
+      <section v-if="!exportRoute">
         <h3 class="text-lg">
           {{ Translator.trans('file.format') }}
         </h3>
@@ -43,7 +43,7 @@
         </div>
       </section>
 
-      <section v-if="['docx', 'zip'].includes(active)">
+      <section v-if="active !== 'xlsx'">
         <h3
           id="docxColumnTitles"
           class="inline-block text-lg mr-1">
@@ -141,6 +141,14 @@ export default {
           dataCy: 'exportModal:export:xlsx'
         }
       }
+    }
+  },
+
+  props: {
+    exportRoute: {
+      required: false,
+      type: String,
+      default: ''
     }
   },
 

@@ -68,11 +68,15 @@
               @click="toggleClaimStatement" />
           </li>
           <li>
-            <dp-button
+            <ExportModal
+              data-cy="listStatements:export"
+              @export="showHintAndDoExport"
+              export-route="test" />
+<!--            <dp-button
               class="u-ph-0_25"
               @click="showHintAndDoExport()"
               :text="Translator.trans('export.verb')"
-              variant="subtle" />
+              variant="subtle" />-->
           </li>
           <li v-if="hasPermission('feature_read_source_statement_via_api')">
             <dp-flyout :disabled="isDisabledAttachmentFlyout">
@@ -178,11 +182,13 @@ import StatementMeta from './StatementMeta/StatementMeta'
 import StatementMetaAttachmentsLink from './StatementMeta/StatementMetaAttachmentsLink'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
 import StatementSegmentsEdit from './StatementSegmentsEdit'
+import ExportModal from '../../statement/listStatements/ExportModal.vue'
 
 export default {
   name: 'StatementSegmentsList',
 
   components: {
+    ExportModal,
     DpClaim,
     DpButton,
     DpFlyout,
@@ -611,12 +617,22 @@ export default {
       this.currentAction = action || defaultAction
     },
 
-    showHintAndDoExport () {
+    showHintAndDoExport ({ route, docxHeaders }) {
+      const parameters = {
+        procedureId: this.procedureId,
+        statementId: this.statementId
+      }
+
+      if (docxHeaders) {
+        parameters.tableHeaders = {
+          c_left: docxHeaders.left,
+          c_middle: docxHeaders.middle,
+          c_right: docxHeaders.right
+        }
+      }
+
       if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
-        window.location.href = Routing.generate('dplan_segments_export', {
-          procedureId: this.procedureId,
-          statementId: this.statementId
-        })
+        window.location.href = Routing.generate('dplan_segments_export', parameters)
       }
     },
 
