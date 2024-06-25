@@ -10,20 +10,25 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Handler\ParagraphHandlerInterface;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
+use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class ParagraphHandler extends CoreHandler
+class ParagraphHandler extends CoreHandler implements ParagraphHandlerInterface
 {
-    /** @var ParagraphService */
-    protected $service;
-
-    public function __construct(ParagraphService $paragraphService, private readonly FlashMessageHandler $flashMessageHandler, MessageBag $messageBag, private readonly TranslatorInterface $translator)
-    {
+    public function __construct(
+        protected readonly ParagraphService $paragraphService,
+        protected readonly ParagraphRepository $paragraphRepository,
+        private readonly FlashMessageHandler $flashMessageHandler,
+        MessageBag $messageBag,
+        private readonly TranslatorInterface $translator
+    ) {
         parent::__construct($messageBag);
-        $this->service = $paragraphService;
     }
 
     public function administrationDocumentNewHandler(string $procedure, string $category, array $data, $elementId)
@@ -94,7 +99,7 @@ class ParagraphHandler extends CoreHandler
             $document['elementId'] = $data['r_elementId'];
             // set max possible order only if no parent paragraph is set
             if (!array_key_exists('r_parentId', $data) && 0 < strlen((string) $data['r_parentId'])) {
-                $document['order'] = $this->service->getMaxOrderFromElement(
+                $document['order'] = $this->paragraphService->getMaxOrderFromElement(
                     $document['elementId']
                 ) + 1;
             }
@@ -111,7 +116,7 @@ class ParagraphHandler extends CoreHandler
         $document['pId'] = $procedure;
         $document['category'] = $category;
 
-        return $this->service->addParaDocument($document);
+        return $this->paragraphService->addParaDocument($document);
     }
 
     /**
@@ -162,7 +167,12 @@ class ParagraphHandler extends CoreHandler
             );
         }
 
-        return $this->service->updateParaDocument($document);
+        return $this->paragraphService->updateParaDocument($document);
+    }
+
+    public function administrationDocumentDeleteHandler(ProcedureInterface $procedure, ElementsInterface $element)
+    {
+        return $this->paragraphRepository->deleteByProcedureIdAndElementId($procedure->getId(), $element->getId());
     }
 
     /**
@@ -179,7 +189,7 @@ class ParagraphHandler extends CoreHandler
         $parentParagraphId = '0' === $data['r_parentId'] ? null : $data['r_parentId'];
         $documentId = $document['ident'] ?? null;
 
-        if ($this->service->isChildOf($parentParagraphId, $documentId)) {
+        if ($this->paragraphService->isChildOf($parentParagraphId, $documentId)) {
             // Prohibits assigning own children as the parent.
 
             $this->getSession()->getFlashBag()->add(
@@ -200,10 +210,10 @@ class ParagraphHandler extends CoreHandler
             return $document;
         } elseif (isset($documentId)
             && (
-                $this->service->isDirectParentOf($parentParagraphId, $documentId) ||
-                (
-                    null === $parentParagraphId &&
-                    !$this->service->hasParent($document['ident'])
+                $this->paragraphService->isDirectParentOf($parentParagraphId, $documentId)
+                || (
+                    null === $parentParagraphId
+                    && !$this->paragraphService->hasParent($document['ident'])
                 )
             )
         ) {
@@ -215,20 +225,20 @@ class ParagraphHandler extends CoreHandler
             $document['parentId'] = $parentParagraphId;
             // get max order of new parent level
             if (null === $parentParagraphId) {
-                $maxOrder = $this->service->getMaxOrderFromElement($elementId);
+                $maxOrder = $this->paragraphService->getMaxOrderFromElement($elementId);
             } else {
-                $maxOrder = $this->service->calculateLastOrder($parentParagraphId);
+                $maxOrder = $this->paragraphService->calculateLastOrder($parentParagraphId);
             }
 
             $document['order'] = $maxOrder + 1;
 
-            $offset = $this->service->incrementChildrenOrders(
+            $offset = $this->paragraphService->incrementChildrenOrders(
                 $documentId,
                 $maxOrder + 1
             );
 
             // update paragraph ordering for subsequent paragraphs
-            $this->service->incrementSubsequentOrders(
+            $this->paragraphService->incrementSubsequentOrders(
                 $maxOrder,
                 $elementId,
                 $offset + 1
