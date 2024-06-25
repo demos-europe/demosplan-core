@@ -71,7 +71,7 @@
           :primary-text="Translator.trans('export.statements')"
           :secondary-text="Translator.trans('abort')"
           @primary-action="handleExport"
-          @secondary-action="handleAbort" />
+          @secondary-action="closeModal" />
       </div>
     </dp-modal>
   </div>
@@ -161,11 +161,6 @@ export default {
   methods: {
     closeModal () {
       this.$refs.exportModalInner.toggle()
-    },
-
-    handleAbort () {
-      this.$emit('abort')
-      this.closeModal()
     },
 
     handleExport () {
