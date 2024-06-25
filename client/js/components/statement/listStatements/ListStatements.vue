@@ -446,9 +446,9 @@ export default {
 
         if (docxHeaders) {
           parameters.tableHeaders = {
-            c_left: docxHeaders.left,
-            c_middle: docxHeaders.middle,
-            c_right: docxHeaders.right
+            col1: docxHeaders.col1,
+            col2: docxHeaders.col2,
+            col3: docxHeaders.col3
           }
         }
 

@@ -28,17 +28,16 @@
         <h3 class="text-lg">
           {{ Translator.trans('file.format') }}
         </h3>
-        <div class="flex flex-row mb-5 mt-1">
+        <div class="flex flex-row mb-5 mt-1 gap-3">
           <dp-radio
             v-for="(exportType, key) in exportTypes"
             :key="key"
             :id="key"
-            class="mr-4"
             :label="{
               text: Translator.trans(exportType.label)
             }"
             :value="key"
-            :checked="isActive(key)"
+            :checked="active === key"
             @change="active = key" />
         </div>
       </section>
@@ -105,19 +104,19 @@ export default {
     return {
       active: 'docx',
       docxColumns: {
-        left: {
+        col1: {
           width: 'col-span-1',
           dataCy: 'exportModal:input:colLeft',
           placeholder: Translator.trans('segments.export.segment.id'),
           title: null
         },
-        middle: {
+        col2: {
           width: 'col-span-2',
           dataCy: 'exportModal:input:colMiddle',
           placeholder: Translator.trans('segments.export.statement.label'),
           title: null
         },
-        right: {
+        col3: {
           width: 'col-span-2',
           dataCy: 'exportModal:input:colRight',
           placeholder: Translator.trans('segment.recommendation'),
@@ -190,10 +189,6 @@ export default {
         docxHeaders: ['docx', 'zip'].includes(this.active) ? columnTitles : null
       })
       this.closeModal()
-    },
-
-    isActive (key) {
-      return key === this.active
     },
 
     openModal () {
