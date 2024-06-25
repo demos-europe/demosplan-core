@@ -21,10 +21,10 @@
       ref="exportModalInner"
       content-classes="w-11/12 sm:w-10/12 md:w-8/12 lg:w-6/12 xl:w-5/12">
       <h2 class="mb-5">
-        {{ Translator.trans('export.statements') }}
+        {{ exportModalTitle }}
       </h2>
 
-      <section v-if="!exportRoute">
+      <section v-if="!isSingleStatementExport">
         <h3 class="text-lg">
           {{ Translator.trans('file.format') }}
         </h3>
@@ -43,7 +43,7 @@
         </div>
       </section>
 
-      <section v-if="active !== 'xlsx'">
+      <section v-if="['docx', 'zip'].includes(this.active)">
         <h3
           id="docxColumnTitles"
           class="inline-block text-lg mr-1">
@@ -127,28 +127,35 @@ export default {
       exportTypes: {
         docx: {
           label: 'export.statements.docx',
-          uploadPath: 'dplan_statement_segments_export',
+          exportPath: 'dplan_statement_segments_export',
           dataCy: 'exportModal:export:docx'
         },
         zip: {
           label: 'export.statements.zip',
-          uploadPath: 'dplan_statement_segments_export_packaged',
+          exportPath: 'dplan_statement_segments_export_packaged',
           dataCy: 'exportModal:export:zip'
         },
         xlsx: {
           label: 'export.statements.xlsx',
-          uploadPath: 'dplan_statement_xls_export',
+          exportPath: 'dplan_statement_xls_export',
           dataCy: 'exportModal:export:xlsx'
         }
-      }
+      },
+      singleStatementExportPath: 'dplan_segments_export' /** used in the statements detail page */
     }
   },
 
   props: {
-    exportRoute: {
+    isSingleStatementExport: {
       required: false,
-      type: String,
-      default: ''
+      type: Boolean,
+      default: false
+    }
+  },
+
+  computed: {
+    exportModalTitle () {
+      return this.isSingleStatementExport ? Translator.trans('statement.export.do') : Translator.trans('export.statements')
     }
   },
 
@@ -179,7 +186,7 @@ export default {
       })
 
       this.$emit('export', {
-        route: this.exportTypes[this.active].uploadPath,
+        route: this.isSingleStatementExport ? this.singleStatementExportPath : this.exportTypes[this.active].exportPath,
         docxHeaders: ['docx', 'zip'].includes(this.active) ? columnTitles : null
       })
       this.closeModal()

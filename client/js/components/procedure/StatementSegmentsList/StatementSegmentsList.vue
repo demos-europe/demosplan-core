@@ -54,7 +54,7 @@
             </button>
           </div>
         </div>
-        <ul class="float-right space-inline-s flex">
+        <ul class="float-right space-inline-s flex items-center">
           <li v-if="!statement.attributes.synchronized">
             <dp-claim
               class="o-flyout__trigger u-ph-0_25 line-height--2"
@@ -71,12 +71,7 @@
             <ExportModal
               data-cy="listStatements:export"
               @export="showHintAndDoExport"
-              export-route="test" />
-<!--            <dp-button
-              class="u-ph-0_25"
-              @click="showHintAndDoExport()"
-              :text="Translator.trans('export.verb')"
-              variant="subtle" />-->
+              is-single-statement-export />
           </li>
           <li v-if="hasPermission('feature_read_source_statement_via_api')">
             <dp-flyout :disabled="isDisabledAttachmentFlyout">
@@ -632,7 +627,7 @@ export default {
       }
 
       if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
-        window.location.href = Routing.generate('dplan_segments_export', parameters)
+        window.location.href = Routing.generate(route, parameters)
       }
     },
 
