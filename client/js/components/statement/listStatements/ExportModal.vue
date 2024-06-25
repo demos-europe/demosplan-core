@@ -197,7 +197,7 @@ export default {
       Object.keys(this.docxColumns).forEach(key => {
         const storageKey = `exportModal:docxCol:${key}`
         const storedColumnTitle = this.getItemFromSessionStorage(storageKey)
-        this.docxColumns[key].title = storedColumnTitle || null /** Setting the value to null will trigger the display of the default column titles */
+        this.docxColumns[key].title = storedColumnTitle || null /** Setting the value to null will display the placeholder titles of the column */
       })
     }
   }
