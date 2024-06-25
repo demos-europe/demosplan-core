@@ -57,7 +57,7 @@ class SegmentsExportController extends BaseController
         string $procedureId,
         string $statementId
     ): StreamedResponse {
-        /** @var array<int, string> $tableHeaders */
+        /** @var array<string, string> $tableHeaders */
         $tableHeaders = $request->query->get('tableHeaders', []);
         $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
         $statement = $statementHandler->getStatementWithCertainty($statementId);
@@ -97,7 +97,7 @@ class SegmentsExportController extends BaseController
         Request $request,
         string $procedureId
     ): StreamedResponse {
-        /** @var array<int, string> $tableHeaders */
+        /** @var array<string, string> $tableHeaders */
         $tableHeaders = $request->query->get('tableHeaders', []);
         $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
         /** @var Statement[] $statementEntities */
@@ -187,7 +187,7 @@ class SegmentsExportController extends BaseController
         ZipExportService $zipExportService,
         string $procedureId
     ): StreamedResponse {
-        /** @var array<int, string> $tableHeaders */
+        /** @var array<string, string> $tableHeaders */
         $tableHeaders = $request->query->get('tableHeaders', []);
         $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
         // Using this method we apply mostly the same restrictions that are applied when the generic

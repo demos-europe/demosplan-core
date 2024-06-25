@@ -234,7 +234,7 @@ class SegmentsExporter
         $this->addSegmentCell(
             $headerRow,
             htmlspecialchars(
-                $tableHeaders[0] ?? $this->translator->trans('segments.export.segment.id'),
+                $tableHeaders['col1'] ?? $this->translator->trans('segments.export.segment.id'),
                 ENT_NOQUOTES,
                 'UTF-8'
             ),
@@ -243,7 +243,7 @@ class SegmentsExporter
         $this->addSegmentCell(
             $headerRow,
             htmlspecialchars(
-                $tableHeaders[1] ?? $this->translator->trans('segments.export.statement.label'),
+                $tableHeaders['col2'] ?? $this->translator->trans('segments.export.statement.label'),
                 ENT_NOQUOTES,
                 'UTF-8'
             ),
@@ -252,7 +252,7 @@ class SegmentsExporter
         $this->addSegmentCell(
             $headerRow,
             htmlspecialchars(
-                $tableHeaders[2] ?? $this->translator->trans('segment.recommendation'),
+                $tableHeaders['col3'] ?? $this->translator->trans('segment.recommendation'),
                 ENT_NOQUOTES,
                 'UTF-8'
             ),
