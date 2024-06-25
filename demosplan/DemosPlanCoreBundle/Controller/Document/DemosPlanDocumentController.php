@@ -639,9 +639,7 @@ class DemosPlanDocumentController extends BaseController
         MapService $mapService,
         ProcedureHandler $procedureHandler,
         Request $request,
-        EventDispatcherInterface $eventDispatcher,
-        string $procedure
-    ) {
+        EventDispatcherInterface $eventDispatcher) {
         $result = [];
         $templateVars = [];
         $session = $request->getSession();
@@ -673,14 +671,14 @@ class DemosPlanDocumentController extends BaseController
                 $requestPost,
                 $session->get('sessionId'),
                 $sessionElementImportList,
-                $procedure,
+                $currentProcedureService->getProcedure()->getId(),
                 $this->getElementImportDir($currentProcedureArray['id'], $currentUser->getUser())
             );
 
             // Redirect, damit die Dokumente nicht bei einem Reload neu geladen werden & die Dateien gleich mit angezeigt werden
             $session->getFlashBag()->add('errorReports', $errorReport);
 
-            return $this->redirectToRoute('DemosPlan_element_administration', ['procedure' => $procedure]);
+            return $this->redirectToRoute('DemosPlan_element_administration', ['procedure' => $currentProcedureService->getProcedure()->getId()]);
         }
 
         // bereinige die Dateien nach einem Export oder einem Abbruch auf der Zwischenseite
@@ -692,14 +690,14 @@ class DemosPlanDocumentController extends BaseController
         // die Rekursion der Elemente wird im Twig erledigt, hole nur top-level elements (Elements ohne parent) aus dem repository,
         // jedoch ohne solche die eines der Kriterien aus $filterCriteria erfüllen, diese sollen momentan nicht im template angezeigt werden
         $result['elementlist'] = $elementsService->getTopElementsByProcedureId(
-            $procedure,
+            $currentProcedureService->getProcedure()->getId(),
             $filterCriteria,
             true
         );
 
         $templateVars['list'] = $result;
 
-        $templateVars['procedure'] = $procedureHandler->getProcedure($procedure);
+        $templateVars['procedure'] = $procedureHandler->getProcedure($currentProcedureService->getProcedure()->getId());
 
         $errorReports = $session->getFlashBag()->get('errorReports');
         $templateVars['errorReport'] = [];
@@ -713,7 +711,7 @@ class DemosPlanDocumentController extends BaseController
         // Füge die kontextuelle Hilfe dazu
         $templateVars['contextualHelpBreadcrumb'] = $breadcrumb->getContextualHelp($title);
         // @improve T14122
-        $mapOptions = $mapService->getMapOptions($procedure);
+        $mapOptions = $mapService->getMapOptions($currentProcedureService->getProcedure()->getId());
         $templateVars['procedureDefaultInitialExtent'] = $mapOptions->getProcedureDefaultInitialExtent();
 
         $procedureSettings = $currentProcedureArray['settings'];
@@ -722,12 +720,12 @@ class DemosPlanDocumentController extends BaseController
         // properly transformed into FlashBag messages, since the method for that is called in the
         // DemosPlanResponseListener, see bug T17790.
         if (0 !== (is_countable($requestPost) ? count($requestPost) : 0)) {
-            return $this->redirectToRoute('DemosPlan_element_administration', ['procedure' => $procedure]);
+            return $this->redirectToRoute('DemosPlan_element_administration', ['procedure' => $currentProcedureService->getProcedure()->getId()]);
         }
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanDocument/elements_admin_list.html.twig',
-            compact('templateVars', 'procedure', 'title', 'procedureSettings')
+            compact('templateVars', 'title', 'procedureSettings')
         );
     }
 
