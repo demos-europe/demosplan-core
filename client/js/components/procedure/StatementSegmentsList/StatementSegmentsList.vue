@@ -69,7 +69,7 @@
           </li>
           <li>
             <ExportModal
-              data-cy="listStatements:export"
+              data-cy="statementSegmentsList:export"
               @export="showHintAndDoExport"
               is-single-statement-export />
           </li>
@@ -170,6 +170,7 @@ import {
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory'
+import ExportModal from '../../statement/listStatements/ExportModal.vue'
 import SegmentCommentsList from './SegmentCommentsList'
 import SegmentLocationMap from './SegmentLocationMap'
 import SegmentsRecommendations from './SegmentsRecommendations'
@@ -177,19 +178,18 @@ import StatementMeta from './StatementMeta/StatementMeta'
 import StatementMetaAttachmentsLink from './StatementMeta/StatementMetaAttachmentsLink'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
 import StatementSegmentsEdit from './StatementSegmentsEdit'
-import ExportModal from '../../statement/listStatements/ExportModal.vue'
 
 export default {
   name: 'StatementSegmentsList',
 
   components: {
-    ExportModal,
     DpClaim,
     DpButton,
     DpFlyout,
     DpSlidebar,
     DpStickyElement,
     DpVersionHistory,
+    ExportModal,
     SegmentCommentsList,
     SegmentLocationMap,
     SegmentsRecommendations,
