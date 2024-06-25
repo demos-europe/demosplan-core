@@ -205,7 +205,8 @@
                                 </button>
                                 <input
                                     class="btn btn--secondary color--white"
-                                    type="reset"
+                                    data-cy="abort"
+                                    type="abortEditDepartment"
                                     value="{{ "abort"|trans }}"
                                     @click="$refs['table-card-{{ department.ident }}'].toggle(false)">
                             </div>
