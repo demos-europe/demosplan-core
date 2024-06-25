@@ -26,7 +26,7 @@
 
       <section v-if="!isSingleStatementExport">
         <h3 class="text-lg">
-          {{ Translator.trans('file.format') }}
+          {{ Translator.trans('export.type') }}
         </h3>
         <div class="flex flex-row mb-5 mt-1 gap-3">
           <dp-radio
@@ -125,17 +125,17 @@ export default {
       },
       exportTypes: {
         docx: {
-          label: 'export.statements.docx',
+          label: 'export.docx',
           exportPath: 'dplan_statement_segments_export',
           dataCy: 'exportModal:export:docx'
         },
         zip: {
-          label: 'export.statements.zip',
+          label: 'export.zip',
           exportPath: 'dplan_statement_segments_export_packaged',
           dataCy: 'exportModal:export:zip'
         },
         xlsx: {
-          label: 'export.statements.xlsx',
+          label: 'export.xlsx',
           exportPath: 'dplan_statement_xls_export',
           dataCy: 'exportModal:export:xlsx'
         }
