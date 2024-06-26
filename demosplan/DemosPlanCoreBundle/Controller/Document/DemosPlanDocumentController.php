@@ -637,15 +637,15 @@ class DemosPlanDocumentController extends BaseController
         MapService $mapService,
         ProcedureHandler $procedureHandler,
         Request $request,
-        string $procedure) {
-
+        string $procedure)
+    {
         $templateVars = [];
         $session = $request->getSession();
         $title = 'elements.dashboard';
 
         $currentProcedureArray = $currentProcedureService->getProcedureArray();
 
-        /**
+        /*
          * Remove files from the session when import was cancelled
          * @see DemosPlanDocumentController::importElementDirToArraySaveHashInSession
          * */
@@ -655,7 +655,8 @@ class DemosPlanDocumentController extends BaseController
 
         /**
          * Collect errors, if any, produced during the saving of imported elements
-         * and store them in a variable to display in the UI
+         * and store them in a variable to display in the UI.
+         *
          * @see DemosPlanDocumentController::saveImportedElementsAdminAction
          * */
         $errorReports = $session->getFlashBag()->get('errorReports');
@@ -665,10 +666,10 @@ class DemosPlanDocumentController extends BaseController
             $templateVars['errorReport'] = $errorReports[0];
         }
 
-        $templateVars['procedure'] = $procedureHandler->getProcedure($procedure,);
+        $templateVars['procedure'] = $procedureHandler->getProcedure($procedure);
 
         $templateVars['contextualHelpBreadcrumb'] = $breadcrumb->getContextualHelp($title);
-        $mapOptions = $mapService->getMapOptions($procedure,);
+        $mapOptions = $mapService->getMapOptions($procedure);
         $templateVars['procedureDefaultInitialExtent'] = $mapOptions->getProcedureDefaultInitialExtent();
 
         $procedureSettings = $currentProcedureArray['settings'];
@@ -679,9 +680,8 @@ class DemosPlanDocumentController extends BaseController
         );
     }
 
-
     /**
-     * Save imported elements and redirect to route: @see elementAdminListAction
+     * Save imported elements and redirect to route: @see elementAdminListAction.
      *
      * @DplanPermissions("area_admin_single_document")
      *
@@ -696,11 +696,11 @@ class DemosPlanDocumentController extends BaseController
         DocumentHandler $documentHandler,
         Request $request,
         EventDispatcherInterface $eventDispatcher,
-        string $procedure) {
-
+        string $procedure)
+    {
         $session = $request->getSession();
 
-        //Set the Max_execution_time for the import
+        // Set the Max_execution_time for the import
         set_time_limit(3600);
 
         $currentProcedureArray = $currentProcedureService->getProcedureArray();
@@ -723,10 +723,10 @@ class DemosPlanDocumentController extends BaseController
             $this->getElementImportDir($currentProcedureArray['id'], $currentUser->getUser())
         );
 
-        //Redirect so that the documents are not recharged with a reload and the files are displayed immediately
+        // Redirect so that the documents are not recharged with a reload and the files are displayed immediately
         $session->getFlashBag()->add('errorReports', $errorReport);
 
-        return $this->redirectToRoute('DemosPlan_element_administration', ['procedure' => $procedure,]);
+        return $this->redirectToRoute('DemosPlan_element_administration', ['procedure' => $procedure]);
     }
 
     /**
