@@ -119,9 +119,9 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure);
 
-        for ($i = 0; $i < count($statements); ++$i) {
-            $this->exportStatement($section, $statements[$i], $tableHeaders);
-            $section = $this->getNewSectionIfNeeded($phpWord, $section, $i, $statements);
+        foreach ($statements as $index => $statement) {
+            $this->exportStatement($section, $statement, $tableHeaders);
+            $section = $this->getNewSectionIfNeeded($phpWord, $section, $index, $statements);
         }
 
         return IOFactory::createWriter($phpWord);
