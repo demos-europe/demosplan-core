@@ -48,7 +48,7 @@ describe('StatementExportModal', () => {
     expect(wrapper.vm.docxColumns.col3.title).toBe(null)
   })
 
-  it('renders input fields when export type is docx or zip', async () => {
+  it('renders input fields when export type is docx or zip', () => {
     const exportTypes = ['docx', 'zip']
 
     exportTypes.map(async exportType => {
