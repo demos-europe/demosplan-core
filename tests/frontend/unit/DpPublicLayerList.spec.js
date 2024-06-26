@@ -34,7 +34,13 @@ describe('DpPublicLayerList', () => {
 
   beforeEach(() => {
     store = new Vuex.Store({
-      getters
+      modules: {
+        Layers: {
+          namespaced: true,
+          state: {},
+          getters
+        }
+      }
     })
 
     getters = {
