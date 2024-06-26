@@ -723,7 +723,7 @@ class DemosPlanDocumentController extends BaseController
      *
      * @throws Exception
      */
-    #[Route(name: 'DemosPlan_element_import_administration', path: '/verfahren/{procedure}/verwalten/planunterlagenimport', options: ['expose' => true])]
+    #[Route(name: 'DemosPlan_save_imported_elements_administration', path: '/verfahren/{procedure}/verwalten/planunterlagen/import/speichern', options: ['expose' => true])]
     public function elementImportAdminListAction(
         CurrentUserInterface $currentUser,
         CurrentProcedureService $currentProcedureService,
