@@ -19,11 +19,18 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
+use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
+use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryUser;
 use EDT\PathBuilding\End;
+use Elastica\Index;
 
 /**
+ * @template-implements ReadableEsResourceTypeInterface<UserInterface>
+ *
  * @template-extends DplanResourceType<UserInterface>
  *
  * @property-read End $firstname
@@ -41,9 +48,13 @@ use EDT\PathBuilding\End;
  * @property-read DepartmentResourceType $department
  * @property-read RoleResourceType $roles
  */
-final class UserResourceType extends DplanResourceType implements UserResourceTypeInterface
+final class UserResourceType extends DplanResourceType implements UserResourceTypeInterface, ReadableEsResourceTypeInterface
 {
-    public function __construct(private readonly ProcedureService $procedureService)
+    public function __construct(
+        private readonly ProcedureService $procedureService,
+        private readonly QueryUser $esQuery,
+        private readonly JsonApiEsService $jsonApiEsService
+    )
     {
     }
 
@@ -101,6 +112,26 @@ final class UserResourceType extends DplanResourceType implements UserResourceTy
         }
 
         return [$this->conditionFactory->propertyHasValue($user->getId(), $this->id)];
+    }
+
+    public function getQuery(): AbstractQuery
+    {
+        return $this->esQuery;
+    }
+
+    public function getScopes(): array
+    {
+        return [];
+    }
+
+    public function getSearchType(): Index
+    {
+        return $this->jsonApiEsService->getElasticaTypeForTypeName(self::getName());
+    }
+
+    public function getFacetDefinitions(): array
+    {
+        return [];
     }
 
     protected function getProperties(): array
