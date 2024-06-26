@@ -634,55 +634,25 @@ class DemosPlanDocumentController extends BaseController
         Breadcrumb $breadcrumb,
         CurrentUserInterface $currentUser,
         CurrentProcedureService $currentProcedureService,
-        ElementsService $elementsService,
         MapService $mapService,
         ProcedureHandler $procedureHandler,
         Request $request,
         EventDispatcherInterface $eventDispatcher,
         string $procedure) {
-        $result = [];
+
         $templateVars = [];
         $session = $request->getSession();
-        // setze für den Import die Max_execution_time hoch
-        set_time_limit(3600);
 
         $currentProcedureArray = $currentProcedureService->getProcedureArray();
         $requestPost = $request->request->all();
-        if ($request->isMethod('POST')) {
-            // if you need the event, this method returns it :)
-            $eventDispatcher->dispatch(
-                new ElementsAdminListSaveEvent($request),
-                ElementsAdminListSaveEventInterface::class
-            );
-        }
-
-        // get title filter from configuration
-        $hideTitlesArray = $this->globalConfig->getAdminlistElementsHiddenByTitle();
-        // build criteria array by which elements are removed from the list of elements to display
-        $filterCriteria = [
-            'category' => ['map'], // elements must not be in the 'map' category
-            'title'    => $hideTitlesArray, // elements must not have one of the configured titles
-            'deleted'  => [true], // elements must not be deleted
-        ];
 
         // bereinige die Dateien nach einem Export oder einem Abbruch auf der Zwischenseite
         if ($session->has('element_import_list')) {
             $this->cleanElementImport($request, $currentProcedureArray['id'], $currentUser->getUser());
         }
 
-        // Template Variable aus Storage Ergebnis erstellen(Output)
-        // die Rekursion der Elemente wird im Twig erledigt, hole nur top-level elements (Elements ohne parent) aus dem repository,
-        // jedoch ohne solche die eines der Kriterien aus $filterCriteria erfüllen, diese sollen momentan nicht im template angezeigt werden
-        $result['elementlist'] = $elementsService->getTopElementsByProcedureId(
-            $procedure,
-            $filterCriteria,
-            true
-        );
-
-        $templateVars['list'] = $result;
 
         $templateVars['procedure'] = $procedureHandler->getProcedure($procedure,);
-
         $errorReports = $session->getFlashBag()->get('errorReports');
         $templateVars['errorReport'] = [];
 
