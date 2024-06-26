@@ -689,7 +689,7 @@ class DemosPlanDocumentController extends BaseController
 
 
     /**
-     * Planunterlagen Kategorie Adminliste.
+     * Save imported elements and redirect to route: @see elementAdminListAction
      *
      * @DplanPermissions("area_admin_single_document")
      *
@@ -707,11 +707,13 @@ class DemosPlanDocumentController extends BaseController
         string $procedure) {
 
         $session = $request->getSession();
-        // setze für den Import die Max_execution_time hoch
+
+        //Set the Max_execution_time for the import
         set_time_limit(3600);
 
         $currentProcedureArray = $currentProcedureService->getProcedureArray();
         $requestPost = $request->request->all();
+
         if ($request->isMethod('POST')) {
             // if you need the event, this method returns it :)
             $eventDispatcher->dispatch(
@@ -729,7 +731,7 @@ class DemosPlanDocumentController extends BaseController
             $this->getElementImportDir($currentProcedureArray['id'], $currentUser->getUser())
         );
 
-        // Redirect, damit die Dokumente nicht bei einem Reload neu geladen werden & die Dateien gleich mit angezeigt werden
+        //Redirect so that the documents are not recharged with a reload and the files are displayed immediately
         $session->getFlashBag()->add('errorReports', $errorReport);
 
         return $this->redirectToRoute('DemosPlan_element_administration', ['procedure' => $procedure,]);
