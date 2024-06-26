@@ -666,22 +666,6 @@ class DemosPlanDocumentController extends BaseController
             'deleted'  => [true], // elements must not be deleted
         ];
 
-        if (!empty($requestPost['action']) && 'importElements' === $requestPost['action']) {
-            $sessionElementImportList = $session->get('element_import_list');
-            $errorReport = $documentHandler->saveElementsFromImport(
-                $requestPost,
-                $session->get('sessionId'),
-                $sessionElementImportList,
-                $procedure,
-                $this->getElementImportDir($currentProcedureArray['id'], $currentUser->getUser())
-            );
-
-            // Redirect, damit die Dokumente nicht bei einem Reload neu geladen werden & die Dateien gleich mit angezeigt werden
-            $session->getFlashBag()->add('errorReports', $errorReport);
-
-            return $this->redirectToRoute('DemosPlan_element_administration', ['procedure' => $procedure,]);
-        }
-
         // bereinige die Dateien nach einem Export oder einem Abbruch auf der Zwischenseite
         if ($session->has('element_import_list')) {
             $this->cleanElementImport($request, $currentProcedureArray['id'], $currentUser->getUser());
