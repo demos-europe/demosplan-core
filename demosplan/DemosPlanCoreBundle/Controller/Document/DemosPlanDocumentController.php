@@ -634,7 +634,6 @@ class DemosPlanDocumentController extends BaseController
         Breadcrumb $breadcrumb,
         CurrentUserInterface $currentUser,
         CurrentProcedureService $currentProcedureService,
-        DocumentHandler $documentHandler,
         ElementsService $elementsService,
         MapService $mapService,
         ProcedureHandler $procedureHandler,
