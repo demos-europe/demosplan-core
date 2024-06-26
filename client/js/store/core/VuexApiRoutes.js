@@ -48,6 +48,11 @@ const api1_0Routes = [
   },
   {
     module: 'User',
+    action: 'list',
+    url: '/1.0/user/'
+  },
+  {
+    module: 'User',
     action: 'update',
     url: '/1.0/user/{id}',
     parameters: [
