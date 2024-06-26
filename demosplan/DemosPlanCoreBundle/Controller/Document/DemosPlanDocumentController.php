@@ -641,17 +641,24 @@ class DemosPlanDocumentController extends BaseController
 
         $templateVars = [];
         $session = $request->getSession();
+        $title = 'elements.dashboard';
 
         $currentProcedureArray = $currentProcedureService->getProcedureArray();
         $requestPost = $request->request->all();
 
-        // bereinige die Dateien nach einem Export oder einem Abbruch auf der Zwischenseite
+        /**
+         * Remove files from the session when import was cancelled
+         * @see DemosPlanDocumentController::importElementDirToArraySaveHashInSession
+         * */
         if ($session->has('element_import_list')) {
             $this->cleanElementImport($request, $currentProcedureArray['id'], $currentUser->getUser());
         }
 
-
-        $templateVars['procedure'] = $procedureHandler->getProcedure($procedure,);
+        /**
+         * Collect errors, if any, produced during the saving of imported elements
+         * and store them in a variable to display in the UI
+         * @see DemosPlanDocumentController::elementImportAdminListAction
+         * */
         $errorReports = $session->getFlashBag()->get('errorReports');
         $templateVars['errorReport'] = [];
 
@@ -659,11 +666,9 @@ class DemosPlanDocumentController extends BaseController
             $templateVars['errorReport'] = $errorReports[0];
         }
 
-        $title = 'elements.dashboard';
+        $templateVars['procedure'] = $procedureHandler->getProcedure($procedure,);
 
-        // Füge die kontextuelle Hilfe dazu
         $templateVars['contextualHelpBreadcrumb'] = $breadcrumb->getContextualHelp($title);
-        // @improve T14122
         $mapOptions = $mapService->getMapOptions($procedure,);
         $templateVars['procedureDefaultInitialExtent'] = $mapOptions->getProcedureDefaultInitialExtent();
 
