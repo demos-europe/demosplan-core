@@ -644,7 +644,6 @@ class DemosPlanDocumentController extends BaseController
         $title = 'elements.dashboard';
 
         $currentProcedureArray = $currentProcedureService->getProcedureArray();
-        $requestPost = $request->request->all();
 
         /**
          * Remove files from the session when import was cancelled
@@ -673,13 +672,6 @@ class DemosPlanDocumentController extends BaseController
         $templateVars['procedureDefaultInitialExtent'] = $mapOptions->getProcedureDefaultInitialExtent();
 
         $procedureSettings = $currentProcedureArray['settings'];
-
-        // This redirect ensures that any messagesBag notifications created in events related to this action are
-        // properly transformed into FlashBag messages, since the method for that is called in the
-        // DemosPlanResponseListener, see bug T17790.
-        if (0 !== (is_countable($requestPost) ? count($requestPost) : 0)) {
-            return $this->redirectToRoute('DemosPlan_element_administration', ['procedure' => $procedure,]);
-        }
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanDocument/elements_admin_list.html.twig',
