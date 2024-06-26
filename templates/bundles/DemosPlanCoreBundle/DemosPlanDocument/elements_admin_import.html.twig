@@ -3,7 +3,7 @@
     {% set depth = 0 %}
     <h1>{{ "elementimport"|trans }}</h1>
     <p>{{ "text.elementimport"|trans }}</p>
-    <form action="{{ path('DemosPlan_element_administration', {'procedure':templateVars.procedure}) }}" method="post">
+    <form action="{{ path('DemosPlan_element_import_administration', {'procedure':templateVars.procedure}) }}" method="post">
         <input type="hidden" name="action" value="importElements">
         {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
@@ -33,7 +33,7 @@
                 type="submit"
                 value="{{ "save"|trans }}">
             <a class="btn btn--secondary"
-               href="{{ path('DemosPlan_element_administration', {'procedure':templateVars.procedure}) }}">
+               href="{{ path('DemosPlan_element_import_administration', {'procedure':templateVars.procedure}) }}">
                 {{ "abort"|trans }}
             </a>
         </div>
