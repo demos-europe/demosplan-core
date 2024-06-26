@@ -166,7 +166,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         foreach ($statements as $statement) {
             $pathInZip = $this->getPathInZip($statement, false);
             // in case of a duplicate, add the database ID to the name
-            if (\array_key_exists($pathInZip, $pathedStatements)) {
+            if (array_key_exists($pathInZip, $pathedStatements)) {
                 $duplicate = $pathedStatements[$pathInZip];
                 $previousKeysOfReaddedDuplicates[$pathInZip] = $pathInZip;
                 $duplicateExtendedPathInZip = $this->getPathInZip($duplicate, true);
@@ -174,7 +174,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
                 $pathInZip = $this->getPathInZip($statement, true);
             }
 
-            if (\array_key_exists($pathInZip, $pathedStatements)) {
+            if (array_key_exists($pathInZip, $pathedStatements)) {
                 throw new InvalidArgumentException('duplicated statement given');
             }
 
