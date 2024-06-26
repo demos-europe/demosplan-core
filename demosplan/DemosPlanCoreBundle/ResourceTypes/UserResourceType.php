@@ -54,8 +54,7 @@ final class UserResourceType extends DplanResourceType implements UserResourceTy
         private readonly ProcedureService $procedureService,
         private readonly QueryUser $esQuery,
         private readonly JsonApiEsService $jsonApiEsService
-    )
-    {
+    ) {
     }
 
     public function getEntityClass(): string
