@@ -57,7 +57,7 @@
             :key="key"
             :id="key"
             type="text"
-            :data-cy="column.defaultValue"
+            :data-cy="column.dataCy"
             :placeholder="Translator.trans(column.placeholder)"
             :width="column.width"
             v-model="column.title" />
@@ -105,19 +105,19 @@ export default {
       docxColumns: {
         col1: {
           width: 'col-span-1',
-          dataCy: 'exportModal:input:colLeft',
+          dataCy: 'exportModal:input:col1',
           placeholder: Translator.trans('segments.export.segment.id'),
           title: null
         },
         col2: {
           width: 'col-span-2',
-          dataCy: 'exportModal:input:colMiddle',
+          dataCy: 'exportModal:input:col2',
           placeholder: Translator.trans('segments.export.statement.label'),
           title: null
         },
         col3: {
           width: 'col-span-2',
-          dataCy: 'exportModal:input:colRight',
+          dataCy: 'exportModal:input:col3',
           placeholder: Translator.trans('segment.recommendation'),
           title: null
         }
