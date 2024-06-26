@@ -777,68 +777,20 @@ class DemosPlanDocumentController extends BaseController
             'deleted'  => [true], // elements must not be deleted
         ];
 
-        if (!empty($requestPost['action']) && 'importElements' === $requestPost['action']) {
-            $sessionElementImportList = $session->get('element_import_list');
-            $errorReport = $documentHandler->saveElementsFromImport(
-                $requestPost,
-                $session->get('sessionId'),
-                $sessionElementImportList,
-                $procedure,
-                $this->getElementImportDir($currentProcedureArray['id'], $currentUser->getUser())
-            );
 
-            // Redirect, damit die Dokumente nicht bei einem Reload neu geladen werden & die Dateien gleich mit angezeigt werden
-            $session->getFlashBag()->add('errorReports', $errorReport);
-
-            return $this->redirectToRoute('DemosPlan_element_administration', ['procedure' => $procedure,]);
-        }
-
-        // bereinige die Dateien nach einem Export oder einem Abbruch auf der Zwischenseite
-        if ($session->has('element_import_list')) {
-            $this->cleanElementImport($request, $currentProcedureArray['id'], $currentUser->getUser());
-        }
-
-        // Template Variable aus Storage Ergebnis erstellen(Output)
-        // die Rekursion der Elemente wird im Twig erledigt, hole nur top-level elements (Elements ohne parent) aus dem repository,
-        // jedoch ohne solche die eines der Kriterien aus $filterCriteria erfüllen, diese sollen momentan nicht im template angezeigt werden
-        $result['elementlist'] = $elementsService->getTopElementsByProcedureId(
+        $sessionElementImportList = $session->get('element_import_list');
+        $errorReport = $documentHandler->saveElementsFromImport(
+            $requestPost,
+            $session->get('sessionId'),
+            $sessionElementImportList,
             $procedure,
-            $filterCriteria,
-            true
+            $this->getElementImportDir($currentProcedureArray['id'], $currentUser->getUser())
         );
 
-        $templateVars['list'] = $result;
+        // Redirect, damit die Dokumente nicht bei einem Reload neu geladen werden & die Dateien gleich mit angezeigt werden
+        $session->getFlashBag()->add('errorReports', $errorReport);
 
-        $templateVars['procedure'] = $procedureHandler->getProcedure($procedure,);
-
-        $errorReports = $session->getFlashBag()->get('errorReports');
-        $templateVars['errorReport'] = [];
-
-        if ((is_countable($errorReports) ? count($errorReports) : 0) > 0) {
-            $templateVars['errorReport'] = $errorReports[0];
-        }
-
-        $title = 'elements.dashboard';
-
-        // Füge die kontextuelle Hilfe dazu
-        $templateVars['contextualHelpBreadcrumb'] = $breadcrumb->getContextualHelp($title);
-        // @improve T14122
-        $mapOptions = $mapService->getMapOptions($procedure,);
-        $templateVars['procedureDefaultInitialExtent'] = $mapOptions->getProcedureDefaultInitialExtent();
-
-        $procedureSettings = $currentProcedureArray['settings'];
-
-        // This redirect ensures that any messagesBag notifications created in events related to this action are
-        // properly transformed into FlashBag messages, since the method for that is called in the
-        // DemosPlanResponseListener, see bug T17790.
-        if (0 !== (is_countable($requestPost) ? count($requestPost) : 0)) {
-            return $this->redirectToRoute('DemosPlan_element_administration', ['procedure' => $procedure,]);
-        }
-
-        return $this->renderTemplate(
-            '@DemosPlanCore/DemosPlanDocument/elements_admin_list.html.twig',
-            compact('templateVars', 'title', 'procedureSettings')
-        );
+        return $this->redirectToRoute('DemosPlan_element_administration', ['procedure' => $procedure,]);
     }
 
     /**
