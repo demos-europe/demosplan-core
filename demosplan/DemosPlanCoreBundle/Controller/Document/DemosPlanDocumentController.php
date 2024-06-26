@@ -657,7 +657,7 @@ class DemosPlanDocumentController extends BaseController
         /**
          * Collect errors, if any, produced during the saving of imported elements
          * and store them in a variable to display in the UI
-         * @see DemosPlanDocumentController::elementImportAdminListAction
+         * @see DemosPlanDocumentController::saveImportedElementsAdminAction
          * */
         $errorReports = $session->getFlashBag()->get('errorReports');
         $templateVars['errorReport'] = [];
@@ -698,7 +698,7 @@ class DemosPlanDocumentController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_save_imported_elements_administration', path: '/verfahren/{procedure}/verwalten/planunterlagen/import/speichern', options: ['expose' => true])]
-    public function elementImportAdminListAction(
+    public function saveImportedElementsAdminAction(
         CurrentUserInterface $currentUser,
         CurrentProcedureService $currentProcedureService,
         DocumentHandler $documentHandler,
