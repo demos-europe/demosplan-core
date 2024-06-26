@@ -173,7 +173,7 @@ import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHist
 import SegmentCommentsList from './SegmentCommentsList'
 import SegmentLocationMap from './SegmentLocationMap'
 import SegmentsRecommendations from './SegmentsRecommendations'
-import StatementExportModal from '../../statement/listStatements/StatementExportModal'
+import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
 import StatementMeta from './StatementMeta/StatementMeta'
 import StatementMetaAttachmentsLink from './StatementMeta/StatementMetaAttachmentsLink'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
