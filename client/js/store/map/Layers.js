@@ -272,7 +272,6 @@ const LayersStore = {
     },
 
     save ({ state, commit, dispatch }) {
-      console.log('save', state.apiData.data)
 
       return dpApi({
         method: 'POST',
