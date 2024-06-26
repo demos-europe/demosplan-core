@@ -742,18 +742,13 @@ class DemosPlanDocumentController extends BaseController
      */
     #[Route(name: 'DemosPlan_element_import_administration', path: '/verfahren/{procedure}/verwalten/planunterlagenimport', options: ['expose' => true])]
     public function elementImportAdminListAction(
-        Breadcrumb $breadcrumb,
         CurrentUserInterface $currentUser,
         CurrentProcedureService $currentProcedureService,
         DocumentHandler $documentHandler,
-        ElementsService $elementsService,
-        MapService $mapService,
-        ProcedureHandler $procedureHandler,
         Request $request,
         EventDispatcherInterface $eventDispatcher,
         string $procedure) {
-        $result = [];
-        $templateVars = [];
+
         $session = $request->getSession();
         // setze für den Import die Max_execution_time hoch
         set_time_limit(3600);
@@ -767,16 +762,6 @@ class DemosPlanDocumentController extends BaseController
                 ElementsAdminListSaveEventInterface::class
             );
         }
-
-        // get title filter from configuration
-        $hideTitlesArray = $this->globalConfig->getAdminlistElementsHiddenByTitle();
-        // build criteria array by which elements are removed from the list of elements to display
-        $filterCriteria = [
-            'category' => ['map'], // elements must not be in the 'map' category
-            'title'    => $hideTitlesArray, // elements must not have one of the configured titles
-            'deleted'  => [true], // elements must not be deleted
-        ];
-
 
         $sessionElementImportList = $session->get('element_import_list');
         $errorReport = $documentHandler->saveElementsFromImport(
