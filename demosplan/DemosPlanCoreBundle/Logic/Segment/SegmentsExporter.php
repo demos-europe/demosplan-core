@@ -46,7 +46,7 @@ class SegmentsExporter
 
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
-        private readonly HTMLSanitizer $HTMLSanitizer,
+        private readonly HTMLSanitizer $htmlSanitizer,
         Slugify $slugify,
         TranslatorInterface $translator)
     {
@@ -295,7 +295,7 @@ class SegmentsExporter
         $text = preg_replace($pattern, '$3', $text);
 
         // avoid problems in phpword parser
-        return $this->HTMLSanitizer->purify($text);
+        return $this->htmlSanitizer->purify($text);
     }
 
     private function addSegmentCell(Row $row, string $text, CellExportStyle $cellExportStyle): void
