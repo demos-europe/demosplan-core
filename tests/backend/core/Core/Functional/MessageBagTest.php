@@ -12,7 +12,7 @@ namespace Tests\Core\Core\Functional;
 
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use Tests\Base\FunctionalTestCase;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 /**
  * Teste MessageBag.

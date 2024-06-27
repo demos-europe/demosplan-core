@@ -13,7 +13,8 @@ import { set } from 'vue'
 const LayersStore = {
 
   namespaced: true,
-  name: 'layers',
+
+  name: 'Layers',
 
   state: {
     originalApiData: {},
@@ -179,7 +180,7 @@ const LayersStore = {
       })
     },
 
-    setMinimapBaseLayer (state, id) { // Used in DpAdminLayerList component
+    setMinimapBaseLayer (state, id) { // Used in AdminLayerList component
       const previousMinimap = state.apiData.included.find(elem => elem.attributes.isMinimap === true)
       if (previousMinimap) { previousMinimap.attributes.isMinimap = false }
 
@@ -199,15 +200,34 @@ const LayersStore = {
     get ({ commit, dispatch }, procedureId) {
       commit('setProcedureId', procedureId)
 
-      return dpApi({
-        method: 'GET',
-        url: Routing.generate('dplan_api_procedure_layer_list',
-          {
-            procedureId: procedureId,
-            include: ['categories', 'gisLayers'].join()
-          }
-        )
-      })
+      return dpApi.get(Routing.generate('api_resource_list', {
+        resourceType: 'GisLayerCategory',
+        include: 'gisLayers',
+        fields: {
+          GisLayerCategory: [
+            'categories',
+            'gisLayers',
+            'name',
+            'layerWithChildrenHidden',
+            'treeOrder',
+            'isVisible',
+            'hasDefaultVisibility',
+            'parentId'
+          ].join(),
+          GisLayer: [
+            'name',
+            'url',
+            'isEnabled',
+            'treeOrder',
+            'mapOrder',
+            'hasDefaultVisibility',
+            'layers',
+            'layerType',
+            'visibilityGroupId',
+            'isMinimap'
+          ].join()
+        }
+      }))
         .then(checkResponse)
         .then(data => {
           commit('updateApiData', data)
@@ -252,9 +272,10 @@ const LayersStore = {
     },
 
     save ({ state, commit, dispatch }) {
+
       return dpApi({
         method: 'POST',
-        url: Routing.generate('dplan_api_procedure_layer_update', { procedureId: state.procedureId }),
+        url: Routing.generate('api_resource_update', { resourceType: state.apiData.data.type, resourceId: state.apiData.data.id }),
         data: { data: state.apiData }
       })
         .then(checkResponse)
@@ -273,18 +294,15 @@ const LayersStore = {
     },
 
     deleteElement ({ state, commit }, element) {
-      let url = Routing.generate('dplan_api_procedure_layer_delete', {
-        layerId: element.id,
-        procedureId: state.procedureId
-      })
+      let currentType = 'GisLayer'
+      let id = element.id
 
       if (element.route === 'layer_category') {
-        url = Routing.generate('dplan_api_procedure_layer_category_delete', {
-          layerCategoryId: element.categoryId
-        })
+        currentType = 'GisLayerCategory'
+        id = element.categoryId
       }
 
-      return dpApi.delete(url)
+      return dpApi.delete(Routing.generate('api_resource_delete', { resourceType: currentType, resourceId: id }))
         .then(this.api.checkResponse)
         .then(() => {
           commit('removeElement', {

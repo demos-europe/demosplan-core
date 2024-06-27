@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 use Twig\TwigFunction;
 
 /**

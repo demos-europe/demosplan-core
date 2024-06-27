@@ -83,6 +83,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Grouping\EntityGrouper;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGroup;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGrouper;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
+use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
@@ -409,6 +410,17 @@ class StatementService extends CoreService implements StatementServiceInterface
 
         /** @var StatementCreatedEvent $statementCreatedEvent */
         $statementCreatedEvent = $this->eventDispatcher->dispatch(new ManualOriginalStatementCreatedEvent($statement));
+
+        if (null !== $statementCreatedEvent) {
+            $this->messageBag->addObject(LinkMessageSerializable::createLinkMessage(
+                'confirm',
+                'confirm.statement.new',
+                ['externId' => $statementCreatedEvent->getStatement()->getExternId()],
+                'dplan_procedure_statement_list',
+                ['procedureId' => $statementCreatedEvent->getStatement()->getProcedure()->getId()],
+                $statementCreatedEvent->getStatement()->getExternId()
+            ));
+        }
 
         // statement similarities are calculated?
         $statementSimilarities = $statementCreatedEvent->getStatementSimilarities();
@@ -909,7 +921,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     {
         return \collect($statements)
             ->flatMap(
-                fn (Statement $statement): \Tightenco\Collect\Support\Collection => $this->getStatementAndItsFragmentsInOneFlatList(
+                fn (Statement $statement): \Illuminate\Support\Collection => $this->getStatementAndItsFragmentsInOneFlatList(
                     $statement,
                     $entityClassesToInclude
                 )
@@ -3737,7 +3749,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @param array $statementIds
      */
-    public function getHeadStatementIdsOfStatements($statementIds): \Tightenco\Collect\Support\Collection
+    public function getHeadStatementIdsOfStatements($statementIds): \Illuminate\Support\Collection
     {
         $result = \collect([]);
         try {
@@ -4514,7 +4526,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     /**
      * @param array<int,class-string> $entityClassesToInclude
      */
-    private function getStatementAndItsFragmentsInOneFlatList(Statement $statement, array $entityClassesToInclude): \Tightenco\Collect\Support\Collection
+    private function getStatementAndItsFragmentsInOneFlatList(Statement $statement, array $entityClassesToInclude): \Illuminate\Support\Collection
     {
         $explodedStatement = \collect();
 

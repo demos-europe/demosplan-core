@@ -53,8 +53,10 @@
             {% endif %}
         </div>
 
-        <elements-admin-list>
-        </elements-admin-list>
+        {% if hasPermission("area_admin_elements") %}
+            <elements-admin-list>
+            </elements-admin-list>
+        {% endif %}
     </div>
 
 

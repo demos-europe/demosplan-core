@@ -25,7 +25,7 @@ use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 class StatementFactory extends FactoryBase
 {

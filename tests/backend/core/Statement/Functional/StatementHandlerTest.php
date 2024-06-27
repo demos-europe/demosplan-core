@@ -44,7 +44,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Tests\Base\FunctionalTestCase;
 use Throwable;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 class StatementHandlerTest extends FunctionalTestCase
 {

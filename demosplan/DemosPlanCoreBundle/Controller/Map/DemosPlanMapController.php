@@ -46,6 +46,43 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class DemosPlanMapController extends BaseController
 {
     /**
+     * Map Settings Overview.
+     *
+     * @DplanPermissions("area_admin_map")
+     *
+     * @return Response
+     *
+     * @throws Exception
+     */
+    #[Route(name: 'DemosPlan_map_administration_overview', path: '/verfahren/{procedureId}/verwalten/karten')]
+    public function elementAdminListAction(
+        Breadcrumb $breadcrumb,
+        CurrentProcedureService $currentProcedureService,
+        MapService $mapService,
+        ProcedureHandler $procedureHandler,
+        string $procedureId,
+        TranslatorInterface $translator,
+    ) {
+        $templateVars = [];
+        $procedure = $procedureId; // To use the same Template as in DocumentController
+        $title = $translator->trans('maps.dashboard');
+
+        $currentProcedureArray = $currentProcedureService->getProcedureArray();
+        $templateVars['procedure'] = $procedureHandler->getProcedure($procedureId);
+
+        $templateVars['contextualHelpBreadcrumb'] = $breadcrumb->getContextualHelp($title);
+        $mapOptions = $mapService->getMapOptions($procedureId);
+        $templateVars['procedureDefaultInitialExtent'] = $mapOptions->getProcedureDefaultInitialExtent();
+
+        $procedureSettings = $currentProcedureArray['settings'];
+
+        return $this->renderTemplate(
+            '@DemosPlanCore/DemosPlanDocument/elements_admin_list.html.twig',
+            compact('templateVars', 'procedure', 'title', 'procedureSettings')
+        );
+    }
+
+    /**
      * //improve T12925
      * Karte zum Verwalten der Karteneigenschaften wie BoundingBox & Startkartenausschnitt.
      *
@@ -94,7 +131,7 @@ class DemosPlanMapController extends BaseController
      *
      * @throws MessageBagException
      */
-    #[Route(name: 'DemosPlan_map_administration_gislayer_new', path: '/verfahren/{procedure}/verwalten/gislayer/neu')]
+    #[Route(name: 'DemosPlan_map_administration_gislayer_new', path: '/verfahren/{procedure}/verwalten/gislayer/neu', options: ['expose' => true])]
     public function mapAdminGislayerNewAction(
         Breadcrumb $breadcrumb,
         FileUploadService $fileUploadService,

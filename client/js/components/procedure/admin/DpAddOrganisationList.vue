@@ -113,6 +113,7 @@
               @click="addPublicInterestBodies(selectedItems)" />
             <a
               :href="Routing.generate('DemosPlan_procedure_member_index', { procedure: procedureId })"
+              data-cy="organisationList:abortAndBack"
               class="btn btn--secondary">
               {{ Translator.trans('abort.and.back') }}
             </a>
@@ -168,11 +169,11 @@ export default {
   },
 
   computed: {
-    ...mapState('institutionLocationContact', {
+    ...mapState('InstitutionLocationContact', {
       institutionLocationContactItems: 'items'
     }),
 
-    ...mapState('invitableToeb', {
+    ...mapState('InvitableToeb', {
       invitableToebItems: 'items'
     }),
 
@@ -201,7 +202,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('invitableToeb', {
+    ...mapActions('InvitableToeb', {
       getInstitutions: 'list'
     }),
 

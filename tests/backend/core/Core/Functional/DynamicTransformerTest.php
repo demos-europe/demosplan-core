@@ -34,7 +34,7 @@ use stdClass;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Base\JsonApiTest;
 use Tests\Base\MockMethodDefinition;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 class DynamicTransformerTest extends JsonApiTest
 {

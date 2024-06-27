@@ -133,7 +133,11 @@
                         {% if hasPermission('feature_xplan_defaultlayers') %}
                             <label class="layout__item u-1-of-5 u-mb-0_5 cursor-pointer"
                                    title="Mit XPlan können Sie einen XPlanlayer anlegen.">
-                                <input type="checkbox" name="r_xplan" {% if gislayer.xplan == true %}checked{% endif %}>
+                                <input
+                                    data-cy="mapAdminGislayerEdit:xplan"
+                                    type="checkbox"
+                                    name="r_xplan"
+                                    {% if gislayer.xplan == true %}checked{% endif %}>
                                 {{ "xplan"|trans }}
                             </label>
                         {% endif %}
@@ -229,7 +233,12 @@
             {% endif %}
 
             <label class="u-mb-0_5">
-                <input type="checkbox" name="r_print" value="1" {% if gislayer.print is defined and gislayer.print == 1 %}checked{% endif %}>
+                <input
+                    data-cy="editMapLayerPrint"
+                    type="checkbox"
+                    name="r_print"
+                    value="1"
+                    {% if gislayer.print is defined and gislayer.print == 1 %}checked{% endif %}>
                 {{ "explanation.gislayer.print"|trans }}
                 {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                     helpText: 'explanation.gislayer.print.help'|trans,
@@ -239,6 +248,7 @@
 
             <label class="u-mb-0_5">
                 <input
+                    data-cy="editMapLayerDefaultVisibility"
                     type="checkbox"
                     name="r_default_visibility"
                     value="1"
@@ -257,6 +267,7 @@
             <label class="u-mb-0_5">
                 <input
                     id="user_toggle_visibility"
+                    data-cy="editMapLayerToggleVisibility"
                     type="checkbox"
                     name="r_user_toggle_visibility"
                     value="1"
@@ -279,8 +290,16 @@
 
 
             <div class="text-right u-mt-0_5 space-inline-s">
-                <input class="btn btn--primary" type="submit" name="saveLayer" value="{{ "save"|trans }}">
-                <a class="btn btn--secondary" href="{{ path('DemosPlan_map_administration_gislayer',{'procedureId':procedure}) }}">
+                <input
+                    class="btn btn--primary"
+                    data-cy="editMapAdminGislayer:saveLayer"
+                    type="submit"
+                    name="saveLayer"
+                    value="{{ "save"|trans }}">
+                <a
+                    class="btn btn--secondary"
+                    data-cy="editMapAdminGislayer:abort"
+                    href="{{ path('DemosPlan_map_administration_gislayer',{'procedureId':procedure}) }}">
                     {{ "abort"|trans }}
                 </a>
             </div>
