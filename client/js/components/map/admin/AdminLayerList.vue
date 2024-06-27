@@ -20,50 +20,48 @@
 
   -->
   <usage>
-    <admin-layer-list
-      procedure-id="procedureId"
-    ></admin-layer-list>
+    <admin-layer-list procedure-id="procedureId" />
   </usage>
 </documentation>
 
 <template>
-  <fieldset 
-        class="layout--flush" 
-        id="gisLayers">
-    <div class="layout__item u-1-of-4">
-      <legend>
-        {{ Translator.trans('gislayer') }}
-      </legend>
-
-    </div>
-    <div class="layout__item u-3-of-4 text-right">
-      <dp-split-button>
-        <a
-          :class="{'has-dropdown': hasPermission('feature_map_category')}"
-          class="btn btn--primary"
-          data-cy="createNewGisLayer"
-          :href="Routing.generate('DemosPlan_map_administration_gislayer_new',{ procedure: procedureId })">
-          {{ Translator.trans('gislayer.create') }}
-        </a>
-        <template
-          v-slot:dropdown
-          v-if="hasPermission('feature_map_category')">
-          <a :href="Routing.generate('DemosPlan_map_administration_gislayer_category_new',{ procedureId: procedureId })">
-            {{ Translator.trans('maplayer.category.new') }}
+  <fieldset
+    id="gisLayers">
+    <div class="flex">
+      <div class="flex-1 w-1/4">
+        <legend>
+          {{ Translator.trans('gislayer') }}
+        </legend>
+      </div>
+      <div class="flex-1 w-3/4 text-right">
+        <dp-split-button>
+          <a
+            :class="{'has-dropdown': hasPermission('feature_map_category')}"
+            class="btn btn--primary"
+            data-cy="createNewGisLayer"
+            :href="Routing.generate('DemosPlan_map_administration_gislayer_new',{ procedure: procedureId })">
+            {{ Translator.trans('gislayer.create') }}
           </a>
-        </template>
-      </dp-split-button>
+          <template
+            v-slot:dropdown
+            v-if="hasPermission('feature_map_category')">
+            <a :href="Routing.generate('DemosPlan_map_administration_gislayer_category_new',{ procedureId: procedureId })">
+              {{ Translator.trans('maplayer.category.new') }}
+            </a>
+          </template>
+        </dp-split-button>
+      </div>
     </div>
 
     <div
       class="relative"
       :class="{'pointer-events-none': false === isEditable}">
-      <div class="layout--flush u-mt">
-        <h3 class="layout__item u-1-of-3">
+      <div class="u-mt flex">
+        <h3 class="flex-1 w-1/3">
           {{ Translator.trans('map.overlays') }}
-        </h3><!--
-     --><div
-          class="layout__item u-2-of-3 text-right"
+        </h3>
+        <div
+          class="flex-1 w-2/3 text-right"
           v-if="canHaveCategories">
           <button
             @click.prevent="setActiveTab('treeOrder')"
@@ -82,26 +80,25 @@
 
       <!-- List-Head -->
       <div class="color--grey u-mb-0_25 u-mt-0_5 u-mr-0_5">
-        <div class="c-at-item__row-icon layout__item u-pl-0">
+        <div class="c-at-item__row-icon u-pl-0">
           <!-- DragHandler -->
-        </div><!--
-     --><div class="layout--flush layout__item c-at-item__row u-pl-0_5">
-          <div class="layout__item u-9-of-12">
+        </div>
+        <div class="c-at-item__row u-pl-0_5">
+          <div class="layout__item w-9/12">
             {{ Translator.trans('description') }}
-          </div><!--
-       --><div class="layout__item u-1-of-12 text-right">
+          </div>
+          <div class="w-1/12 text-right">
               <i
                 class="fa fa-link u-mr-0_5"
                 v-tooltip="{ content: Translator.trans('explanation.gislayer.visibilitygroup'), classes: 'max-w-none' }" />
-          </div><!--
-
-       --><div class="layout__item u-1-of-12 text-right">
+          </div>
+          <div class="w-1/12 text-right">
               <i
                 class="fa fa-eye u-mr-0_5"
                 v-tooltip="Translator.trans('explanation.gislayer.visibility')" />
-          </div><!--
+          </div>
 
-       --><div class="layout__item u-1-of-12 text-right">
+          <div class="w-1/12 text-right">
             {{ Translator.trans('edit') }}
           </div>
         </div>
@@ -131,9 +128,9 @@
         v-if="(0 === currentList.length ) && false === isLoading"
         class="list__item u-pv-0_5 border--top color--grey">
         {{ Translator.trans('no.data') }}
-      </div>
+      </div><!--
 
-      <h3 class="u-mt">
+   --><h3 class="u-mt">
         {{ Translator.trans('map.bases') }}
       </h3>
       <!-- List-Head -->
@@ -142,15 +139,15 @@
           <!-- DragHandler -->
         </div><!--
      --><div class="layout--flush layout__item c-at-item__row">
-            <div class="layout__item u-10-of-12 u-pl-0_5">
+            <div class="layout__item w-10/12 u-pl-0_5">
               {{ Translator.trans('description') }}
             </div><!--
-         --><div class="layout__item u-1-of-12 text-right">
+         --><div class="layout__item w-1/12 text-right">
             <i
               class="fa fa-eye u-mr-0_5"
               v-tooltip="Translator.trans('explanation.gislayer.visibility')" />
             </div><!--
-         --><div class="layout__item u-1-of-12 text-right">
+         --><div class="layout__item w-1/12 text-right">
                 {{ Translator.trans('edit') }}
             </div>
         </div>
@@ -171,10 +168,10 @@
           :index="idx" />
       </dp-draggable>
       <div class="layout--flush u-mt u-mb">
-        <h3 class="layout__item u-1-of-3">
+        <h3 class="layout__item w-1/3">
           {{ Translator.trans('map.base.minimap') }}
         </h3><!--
-     --><div class="layout__item u-2-of-3">
+     --><div class="layout__item w-2/3">
           <select
             class="o-form__control-select"
             data-cy="adminLayerList:currentMinimapLayer"
