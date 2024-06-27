@@ -293,6 +293,7 @@ class SegmentsExporter
 
     private function getHtmlValidText(string $text): string
     {
+        /** @var string $text $text */
         $text = str_replace('<br>', '<br/>', $text);
 
         // strip all a tags without href
