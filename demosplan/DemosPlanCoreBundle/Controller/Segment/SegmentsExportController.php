@@ -85,6 +85,7 @@ class SegmentsExportController extends BaseController
     /**
      * @throws QueryException
      * @throws UserNotFoundException
+     * @throws Exception
      */
     #[DplanPermissions('feature_segments_of_statement_list')]
     #[Route(
