@@ -15,11 +15,11 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
@@ -213,7 +213,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
 
         $orgaName = $statement->getMeta()->getOrgaName();
         $authorSourceName = $orgaName;
-        if (User::ANONYMOUS_USER_NAME === $orgaName) {
+        if (UserInterface::ANONYMOUS_USER_NAME === $orgaName) {
             $authorSourceName = $statement->getUserName();
         }
         if (null === $authorSourceName || '' === trim((string) $authorSourceName)) {
