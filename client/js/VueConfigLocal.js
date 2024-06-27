@@ -51,7 +51,10 @@ const dplan = {
     debug: false,
     publicCSSClassPrefix: 'dp-'
   },
-  debug: false
+  debug: false,
+  paths: {
+    tusEndpoint: 'localhost'
+  }
 }
 
 const dpApi = jest.fn(() => Promise.resolve())
