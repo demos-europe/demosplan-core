@@ -18,6 +18,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -25,6 +26,7 @@ use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
+use Doctrine\Common\Collections\ArrayCollection;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Exception\Exception;
@@ -294,9 +296,13 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             $exportData['submitDateString'] = $segmentOrStatement->getParentStatementOfSegment()->getSubmitDateString();
         }
         $exportData['tagNames'] = $segmentOrStatement->getTagNames();
-        $exportData['tags'] = array_map($this->entityHelper->toArray(...), $exportData['tags']->toArray());
+        /** @var ArrayCollection $tagsCollection */
+        $tagsCollection = $exportData['tags'];
+        $exportData['tags'] = array_map($this->entityHelper->toArray(...), $tagsCollection->toArray());
         foreach ($exportData['tags'] as $key => $tag) {
-            $exportData['tags'][$key]['topicTitle'] = $tag['topic']->getTitle();
+            /** @var TagTopic $tagTopic */
+            $tagTopic = $tag['topic'];
+            $exportData['tags'][$key]['topicTitle'] = $tagTopic->getTitle();
         }
         $exportData['topicNames'] = $segmentOrStatement->getTopicNames();
         $exportData['isClusterStatement'] = $segmentOrStatement->isClusterStatement();
