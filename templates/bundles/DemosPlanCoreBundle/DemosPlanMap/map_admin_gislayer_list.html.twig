@@ -136,40 +136,10 @@
         <input type="hidden" name="manualsort" value="">
         {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
-        <fieldset class="layout--flush" id="gislayers">
-
-            <div class="layout__item u-1-of-4">
-                <legend>
-                    {{ "gislayer"|trans }}
-                </legend>
-
-            </div><!--
-         --><div class="layout__item u-3-of-4 text-right">
-
-                <dp-split-button>
-                    <a
-                        :class="{'has-dropdown':hasPermission('feature_map_category')}"
-                        class="btn btn--primary"
-                        data-cy="createNewGisLayer"
-                        href="{{ path('DemosPlan_map_administration_gislayer_new',{'procedure':procedure}) }}">
-                        {{ "gislayer.create"|trans }}
-                    </a><!--
-                 --><template
-                        v-slot:dropdown
-                        v-if="hasPermission('feature_map_category')">
-                        <a href="{{ path('DemosPlan_map_administration_gislayer_category_new',{'procedureId':procedure}) }}">
-                            {{ "maplayer.category.new"|trans }}
-                        </a>
-                    </template>
-                </dp-split-button>
-
-            </div>
-
-            <dp-admin-layer-list
-                class="w-full u-mt"
-                procedure-id="{{ templateVars.procedure.id|default('nö') }}"
-            ></dp-admin-layer-list>
-        </fieldset>
+        <admin-layer-list
+            class="w-full u-mt"
+            procedure-id="{{ templateVars.procedure.id|default('nö') }}">
+        </admin-layer-list>
     </form>
 
 {% endblock %}

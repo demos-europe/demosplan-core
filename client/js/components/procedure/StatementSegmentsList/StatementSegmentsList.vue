@@ -425,6 +425,7 @@ export default {
     }),
 
     ...mapActions('ProcedureMapSettings', {
+      fetchLayers: 'fetchLayers',
       fetchProcedureMapSettings: 'fetchProcedureMapSettings'
     }),
 
@@ -720,7 +721,14 @@ export default {
     this.setContent({ prop: 'commentsList', val: { ...this.commentsList, procedureId: this.procedureId, statementId: this.statementId } })
     this.fetchProcedureMapSettings(this.procedureId)
       .then(response => {
-        this.procedureMapSettings = response.attributes
+        this.procedureMapSettings = { ...this.procedureMapSettings, ...response.attributes }
+      })
+
+    this.fetchLayers(this.procedureId)
+      .then(response => {
+        this.procedureMapSettings.layers = response.data
+          .filter(layer => layer.attributes.isEnabled && layer.attributes.hasDefaultVisibility)
+          .map(layer => layer.attributes)
       })
   }
 }
