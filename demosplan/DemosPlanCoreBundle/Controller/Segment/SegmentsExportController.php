@@ -53,14 +53,17 @@ class SegmentsExportController extends BaseController
         SegmentsExporter $exporter,
         Slugify $slugify,
         StatementHandler $statementHandler,
+        Request $request,
         string $procedureId,
         string $statementId
     ): StreamedResponse {
+        /** @var array<string, string> $tableHeaders */
+        $tableHeaders = $request->query->get('tableHeaders', []);
         $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
         $statement = $statementHandler->getStatementWithCertainty($statementId);
         $response = new StreamedResponse(
-            static function () use ($procedure, $statement, $exporter) {
-                $exportedDoc = $exporter->export($procedure, $statement);
+            static function () use ($procedure, $statement, $exporter, $tableHeaders) {
+                $exportedDoc = $exporter->export($procedure, $statement, $tableHeaders);
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
         );
@@ -94,6 +97,8 @@ class SegmentsExportController extends BaseController
         Request $request,
         string $procedureId
     ): StreamedResponse {
+        /** @var array<string, string> $tableHeaders */
+        $tableHeaders = $request->query->get('tableHeaders', []);
         $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
@@ -101,8 +106,8 @@ class SegmentsExportController extends BaseController
         );
 
         $response = new StreamedResponse(
-            static function () use ($procedure, $statementEntities, $exporter) {
-                $exportedDoc = $exporter->exportAll($procedure, ...$statementEntities);
+            static function () use ($tableHeaders, $procedure, $statementEntities, $exporter) {
+                $exportedDoc = $exporter->exportAll($tableHeaders, $procedure, ...$statementEntities);
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
         );
@@ -182,6 +187,8 @@ class SegmentsExportController extends BaseController
         ZipExportService $zipExportService,
         string $procedureId
     ): StreamedResponse {
+        /** @var array<string, string> $tableHeaders */
+        $tableHeaders = $request->query->get('tableHeaders', []);
         $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
         // Using this method we apply mostly the same restrictions that are applied when the generic
         // API is accessed to retrieve statements. Things like filter and search parameters are
@@ -196,13 +203,13 @@ class SegmentsExportController extends BaseController
 
         return $zipExportService->buildZipStreamResponse(
             $exporter->getSynopseFileName($procedure, 'zip'),
-            static function (ZipStream $zipStream) use ($statements, $exporter, $zipExportService, $procedure): void {
+            static function (ZipStream $zipStream) use ($statements, $exporter, $zipExportService, $procedure, $tableHeaders): void {
                 array_map(
                     static function (
                         Statement $statement,
                         string $filePathInZip
-                    ) use ($exporter, $zipExportService, $zipStream, $procedure): void {
-                        $docx = $exporter->exportStatementSegmentsInSeparateDocx($statement, $procedure);
+                    ) use ($exporter, $zipExportService, $zipStream, $procedure, $tableHeaders): void {
+                        $docx = $exporter->exportStatementSegmentsInSeparateDocx($statement, $procedure, $tableHeaders);
                         $writer = IOFactory::createWriter($docx);
                         $zipExportService->addWriterToZipStream(
                             $writer,

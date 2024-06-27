@@ -54,7 +54,7 @@
             </button>
           </div>
         </div>
-        <ul class="float-right space-inline-s flex">
+        <ul class="float-right space-inline-s flex items-center">
           <li v-if="!statement.attributes.synchronized">
             <dp-claim
               class="o-flyout__trigger u-ph-0_25 line-height--2"
@@ -68,11 +68,10 @@
               @click="toggleClaimStatement" />
           </li>
           <li>
-            <dp-button
-              class="u-ph-0_25"
-              @click="showHintAndDoExport()"
-              :text="Translator.trans('export.verb')"
-              variant="subtle" />
+            <statement-export-modal
+              data-cy="statementSegmentsList:export"
+              @export="showHintAndDoExport"
+              is-single-statement-export />
           </li>
           <li v-if="hasPermission('feature_read_source_statement_via_api')">
             <dp-flyout :disabled="isDisabledAttachmentFlyout">
@@ -174,6 +173,7 @@ import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHist
 import SegmentCommentsList from './SegmentCommentsList'
 import SegmentLocationMap from './SegmentLocationMap'
 import SegmentsRecommendations from './SegmentsRecommendations'
+import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
 import StatementMeta from './StatementMeta/StatementMeta'
 import StatementMetaAttachmentsLink from './StatementMeta/StatementMetaAttachmentsLink'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
@@ -192,6 +192,7 @@ export default {
     SegmentCommentsList,
     SegmentLocationMap,
     SegmentsRecommendations,
+    StatementExportModal,
     StatementMeta,
     StatementMetaAttachmentsLink,
     StatementMetaTooltip,
@@ -612,12 +613,22 @@ export default {
       this.currentAction = action || defaultAction
     },
 
-    showHintAndDoExport () {
+    showHintAndDoExport ({ route, docxHeaders }) {
+      const parameters = {
+        procedureId: this.procedureId,
+        statementId: this.statementId
+      }
+
+      if (docxHeaders) {
+        parameters.tableHeaders = {
+          col1: docxHeaders.col1,
+          col2: docxHeaders.col2,
+          col3: docxHeaders.col3
+        }
+      }
+
       if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
-        window.location.href = Routing.generate('dplan_segments_export', {
-          procedureId: this.procedureId,
-          statementId: this.statementId
-        })
+        window.location.href = Routing.generate(route, parameters)
       }
     },
 
