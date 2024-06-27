@@ -36,6 +36,13 @@ class SegmentsExportController extends BaseController
 {
     private const OUTPUT_DESTINATION = 'php://output';
 
+    public function __construct(
+        private readonly Request $request,
+        private readonly NameGenerator $nameGenerator,
+        private readonly ProcedureHandler $procedureHandler,
+    ) {
+    }
+
     /**
      * @throws StatementNotFoundException
      * @throws Exception
@@ -48,18 +55,15 @@ class SegmentsExportController extends BaseController
         methods: 'GET'
     )]
     public function exportAction(
-        NameGenerator $nameGenerator,
-        ProcedureHandler $procedureHandler,
         SegmentsExporter $exporter,
         Slugify $slugify,
         StatementHandler $statementHandler,
-        Request $request,
         string $procedureId,
         string $statementId
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
-        $tableHeaders = $request->query->get('tableHeaders', []);
-        $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
+        $tableHeaders = $this->request->query->get('tableHeaders', []);
+        $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         $statement = $statementHandler->getStatementWithCertainty($statementId);
         $response = new StreamedResponse(
             static function () use ($procedure, $statement, $exporter, $tableHeaders) {
@@ -69,10 +73,10 @@ class SegmentsExportController extends BaseController
         );
 
         $filename = $slugify->slugify($procedure->getName())
-                    .'-'
-                    .$statement->getExternId().'.docx';
+            .'-'
+            .$statement->getExternId().'.docx';
 
-        $this->setResponseHeaders($response, $filename, $nameGenerator);
+        $this->setResponseHeaders($response, $filename);
 
         return $response;
     }
@@ -89,20 +93,17 @@ class SegmentsExportController extends BaseController
         methods: 'GET'
     )]
     public function exportByStatementsFilterAction(
-        NameGenerator $nameGenerator,
         SegmentsByStatementsExporter $exporter,
         StatementResourceType $statementResourceType,
         JsonApiActionService $requestHandler,
-        ProcedureHandler $procedureHandler,
-        Request $request,
         string $procedureId
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
-        $tableHeaders = $request->query->get('tableHeaders', []);
-        $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
+        $tableHeaders = $this->request->query->get('tableHeaders', []);
+        $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
-            $requestHandler->getObjectsByQueryParams($request->query, $statementResourceType)->getList()
+            $requestHandler->getObjectsByQueryParams($this->request->query, $statementResourceType)->getList()
         );
 
         $response = new StreamedResponse(
@@ -112,7 +113,7 @@ class SegmentsExportController extends BaseController
             }
         );
 
-        $this->setResponseHeaders($response, $exporter->getSynopseFileName($procedure, 'docx'), $nameGenerator);
+        $this->setResponseHeaders($response, $exporter->getSynopseFileName($procedure, 'docx'));
 
         return $response;
     }
@@ -133,16 +134,13 @@ class SegmentsExportController extends BaseController
     )]
     public function exportByStatementsFilterXlsAction(
         JsonApiActionService $jsonApiActionService,
-        NameGenerator $nameGenerator,
-        ProcedureHandler $procedureHandler,
-        Request $request,
         SegmentsByStatementsExporter $exporter,
         StatementResourceType $statementResourceType,
         string $procedureId
     ): StreamedResponse {
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
-            $jsonApiActionService->getObjectsByQueryParams($request->query, $statementResourceType)->getList()
+            $jsonApiActionService->getObjectsByQueryParams($this->request->query, $statementResourceType)->getList()
         );
 
         $response = new StreamedResponse(
@@ -159,8 +157,8 @@ class SegmentsExportController extends BaseController
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=utf-8'
         );
 
-        $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
-        $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename(
+        $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
+        $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename(
             $exporter->getSynopseFileName($procedure, 'xlsx'))
         );
 
@@ -182,21 +180,19 @@ class SegmentsExportController extends BaseController
         SegmentsByStatementsExporter $exporter,
         StatementResourceType $statementResourceType,
         JsonApiActionService $requestHandler,
-        ProcedureHandler $procedureHandler,
-        Request $request,
         ZipExportService $zipExportService,
         string $procedureId
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
-        $tableHeaders = $request->query->get('tableHeaders', []);
-        $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
+        $tableHeaders = $this->request->query->get('tableHeaders', []);
+        $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         // Using this method we apply mostly the same restrictions that are applied when the generic
         // API is accessed to retrieve statements. Things like filter and search parameters are
         // validated and the returned statement entities limited to such that the user is allowed to
         // see. However, what segments of the statements are included in the export and what
         // properties of the statements and segments are exposed is hardcoded by the actual
         // exporter.
-        $statementResult = $requestHandler->getObjectsByQueryParams($request->query, $statementResourceType);
+        $statementResult = $requestHandler->getObjectsByQueryParams($this->request->query, $statementResourceType);
         /** @var Statement[] $statements */
         $statements = array_values($statementResult->getList());
         $statements = $exporter->mapStatementsToPathInZip($statements);
@@ -228,14 +224,13 @@ class SegmentsExportController extends BaseController
 
     private function setResponseHeaders(
         StreamedResponse $response,
-        string $filename,
-        NameGenerator $nameGenerator
+        string $filename
     ): void {
         $response->headers->set('Pragma', 'public');
         $response->headers->set(
             'Content-Type',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document; charset=utf-8'
         );
-        $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename($filename));
+        $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename($filename));
     }
 }
