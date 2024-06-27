@@ -60,11 +60,12 @@ class DemosPlanMapController extends BaseController
         CurrentProcedureService $currentProcedureService,
         MapService $mapService,
         ProcedureHandler $procedureHandler,
-        string $procedureId
+        string $procedureId,
+        TranslatorInterface $translator,
     ) {
         $templateVars = [];
         $procedure = $procedureId; // To use the same Template as in DocumentController
-        $title = 'maps.dashboard';
+        $title = $translator->trans('maps.dashboard');
 
         $currentProcedureArray = $currentProcedureService->getProcedureArray();
         $templateVars['procedure'] = $procedureHandler->getProcedure($procedureId);
