@@ -43,11 +43,11 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         private readonly AssessmentTableXlsExporter $assessmentTableXlsExporter,
         CurrentUserInterface $currentUser,
         private readonly EntityHelper $entityHelper,
-        HTMLSanitizer $HTMLSanitizer,
+        HTMLSanitizer $htmlSanitizer,
         Slugify $slugify,
         TranslatorInterface $translator
     ) {
-        parent::__construct($currentUser, $HTMLSanitizer, $slugify, $translator);
+        parent::__construct($currentUser, $htmlSanitizer, $slugify, $translator);
     }
 
     public function getSynopseFileName(Procedure $procedure, string $suffix): string
