@@ -113,7 +113,7 @@ class SegmentsExporter
                 $submitter->getStreetNameWithStreetNumber(),
                 $submitter->getPostalCodeWithCity(),
             ];
-            $values = array_filter($values, fn (?string $value): bool =>null !== $value);
+            $values = array_filter($values, static fn (?string $value): bool =>null !== $value);
             $values = implode(', ', $values);
             $values = trim($values);
             if ('' !== $values) {
