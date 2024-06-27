@@ -623,7 +623,7 @@ class DemosPlanDocumentController extends BaseController
     /**
      * Planunterlagen Kategorie Adminliste.
      *
-     * @DplanPermissions("area_admin_single_document")
+     * @DplanPermissions("area_admin_map")
      *
      * @return Response
      *
@@ -1229,9 +1229,9 @@ class DemosPlanDocumentController extends BaseController
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanDocument/elements_admin_edit.html.twig',
             [
-                'procedure'    => $procedure,
-                'templateVars' => $templateVars,
-                'title'        => $title,
+            'procedure'    => $procedure,
+            'templateVars' => $templateVars,
+            'title'        => $title,
             ]
         );
     }
