@@ -130,7 +130,7 @@
         {{ Translator.trans('no.data') }}
       </div>
 
-   --><h3 class="u-mt">
+      <h3 class="u-mt">
         {{ Translator.trans('map.bases') }}
       </h3>
       <!-- List-Head -->
