@@ -1229,9 +1229,9 @@ class DemosPlanDocumentController extends BaseController
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanDocument/elements_admin_edit.html.twig',
             [
-            'procedure'    => $procedure,
-            'templateVars' => $templateVars,
-            'title'        => $title,
+                'procedure'    => $procedure,
+                'templateVars' => $templateVars,
+                'title'        => $title,
             ]
         );
     }
