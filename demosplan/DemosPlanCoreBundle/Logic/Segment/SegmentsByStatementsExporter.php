@@ -216,13 +216,13 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         if (UserInterface::ANONYMOUS_USER_NAME === $orgaName) {
             $authorSourceName = $statement->getUserName();
         }
-        if (null === $authorSourceName || '' === trim((string) $authorSourceName)) {
+        if (null === $authorSourceName || '' === trim($authorSourceName)) {
             $authorSourceName = $this->translator->trans('statement.name_source.unknown');
         }
 
         // determine and return the file name
 
-        if ('' === trim((string) $externId)) {
+        if ('' === trim($externId)) {
             return $withDbId
                 ? "$authorSourceName [$dbId].docx"
                 : "$authorSourceName.docx";
