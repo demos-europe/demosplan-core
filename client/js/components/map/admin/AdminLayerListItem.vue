@@ -10,7 +10,7 @@
 <documentation>
 <!--
 
-  This Component is the Child of "DpAdminLayerList"
+  This Component is the Child of "AdminLayerList"
   go there for Details
 
 -->
@@ -156,7 +156,7 @@
       :class="[childElements.length <= 0 ? 'o-sortablelist__empty' :'']"
       :opts="draggableOptions"
       v-model="childElements">
-      <dp-admin-layer-list-item
+      <admin-layer-list-item
         v-for="(item, idx) in childElements"
         :key="item.id"
         :element="{ id: item.id, type: item.type }"
@@ -177,7 +177,7 @@
       :opts="draggableOptions"
       v-model="childElements"
       @add="onAddToCategoryWithChildrenHidden">
-      <dp-admin-layer-list-item
+      <admin-layer-list-item
         v-for="(item, idx) in childElements"
         :key="item.id"
         :element="item"
@@ -195,11 +195,11 @@
 <script>
 import { DpDraggable, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapGetters, mapMutations, mapState } from 'vuex'
-import DpAdminLayerListItem from './DpAdminLayerListItem'
+import AdminLayerListItem from './AdminLayerListItem'
 import { v4 as uuid } from 'uuid'
 
 export default {
-  name: 'DpAdminLayerListItem',
+  name: 'AdminLayerListItem',
 
   components: {
     DpDraggable
@@ -910,7 +910,7 @@ export default {
   },
 
   beforeCreate () {
-    this.$options.components.DpAdminLayerListItem = DpAdminLayerListItem
+    this.$options.components.AdminLayerListItem = AdminLayerListItem
   }
 }
 </script>
