@@ -128,7 +128,7 @@
         v-if="(0 === currentList.length ) && false === isLoading"
         class="list__item u-pv-0_5 border--top color--grey">
         {{ Translator.trans('no.data') }}
-      </div><!--
+      </div>
 
    --><h3 class="u-mt">
         {{ Translator.trans('map.bases') }}
