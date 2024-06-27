@@ -80,7 +80,7 @@ area_admin_map:
     parent: area_admin
 area_admin_elements:
     description: |-
-        Display the list of elements (documents) of the procedure map
+        Display the admin list of elements (documents) of the procedure
     label: 'Dokumente des Verfahrens'
     loginRequired: true
     parent: area_admin
