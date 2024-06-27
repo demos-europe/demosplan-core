@@ -38,17 +38,11 @@ class SegmentsExporter
     /**
      * @var array<string, mixed>
      */
-    protected $styles;
+    protected array $styles;
 
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
+    protected TranslatorInterface $translator;
 
-    /**
-     * @var Slugify
-     */
-    protected $slugify;
+    protected Slugify $slugify;
 
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
