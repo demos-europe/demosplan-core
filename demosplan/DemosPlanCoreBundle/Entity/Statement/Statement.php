@@ -221,7 +221,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     /**
      * Virtuelle Eigenschaft des UserName.
      */
-    protected ?string $uName;
+    protected ?string $uName = null;
 
     /**
      * @var Orga|null
