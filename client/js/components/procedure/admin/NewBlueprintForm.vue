@@ -33,7 +33,7 @@
 
     <fieldset>
       <legend
-        class="hide-visually"
+        class="sr-only"
         v-text="Translator.trans('blueprint.data')" />
       <dp-form-row class="u-mb-0_75">
         <dp-input

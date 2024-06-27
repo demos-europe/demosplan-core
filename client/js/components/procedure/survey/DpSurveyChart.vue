@@ -11,7 +11,7 @@
   <dl :class="prefixClass(`survey-chart ${ branded ? 'survey-chart--branded' : null } border relative u-ml-0 flow-root`)">
     <dt
       v-text="title"
-      :class="prefixClass('hide-visually')" />
+      :class="prefixClass('sr-only')" />
     <dd
       :class="prefixClass('u-m-0 u-mb-0_5')">
       {{ Translator.trans('survey.votes.total') }}: <strong>{{ votes.total }}</strong> (100%)

@@ -9,15 +9,14 @@
 
 <template>
   <div>
-    <label
-      class="hide-visually"
-      for="searchinput">
-      {{ Translator.trans('search.submitter') }}
-    </label>
     <dp-input
       id="searchinput"
       v-model="searchTerm"
       class="layout__item u-1-of-3"
+      :label="{
+        hide: true,
+        text: Translator.trans('search.submitter')
+      }"
       @enter="search" />
     <dp-button
       class="u-ml-0_5"

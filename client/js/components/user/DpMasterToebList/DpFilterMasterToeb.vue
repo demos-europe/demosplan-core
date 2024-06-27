@@ -9,7 +9,7 @@
 
 <template>
   <fieldset class="u-pb-0 inline">
-    <legend class="hide-visually">
+    <legend class="sr-only">
       {{ Translator.trans('filter') }}
     </legend>
     <select

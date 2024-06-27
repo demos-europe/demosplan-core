@@ -21,7 +21,7 @@
                 {% if (hasPermission('area_statements_draft') and (statementCounts.drafts > 0 or statementCounts.ownDrafts > 0)) or
                     (hasPermission('area_statements_released_group') and statementCounts.groupReleased > 0) %}
                     <i class="{{ 'fa fa-bell color-status-failed-fill'|prefixClass }}" aria-hidden="true"></i>
-                    <em class="hide-visually">{{ 'text.statements.owndraft.reminder'|trans }}</em>
+                    <em class="sr-only">{{ 'text.statements.owndraft.reminder'|trans }}</em>
                 {% endif %}
             </span>
         </button>

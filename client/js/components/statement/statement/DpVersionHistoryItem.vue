@@ -18,7 +18,7 @@
     data-cy="versionHistoryItem">
     <td colspan="4">
       <table>
-        <tr class="hide-visually">
+        <tr class="sr-only">
           <th>{{ Translator.trans('time') }}</th>
           <th v-if="time.userName !== null">
             {{ Translator.trans('user') }}
@@ -83,7 +83,7 @@
         <tr>
           <td colspan="4">
             <table>
-              <tr class="hide-visually">
+              <tr class="sr-only">
                 <th
                   colspan="4"
                   v-if="isOpen && isLoading">
@@ -107,7 +107,7 @@
                   colspan="4"
                   v-if="isOpen && !isLoading">
                   <table v-if="time.displayChange">
-                    <tr class="hide-visually">
+                    <tr class="sr-only">
                       <th>{{ Translator.trans('field') }}</th>
                       <th>{{ Translator.trans('change') }}</th>
                     </tr>
@@ -141,7 +141,7 @@
 
                   <!-- if data is too old, don't show details since the data is incorrect -->
                   <table v-else>
-                    <tr class="hide-visually">
+                    <tr class="sr-only">
                       <th>
                         {{ Translator.trans('details') }}
                       </th>

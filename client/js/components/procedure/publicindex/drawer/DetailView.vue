@@ -19,7 +19,7 @@
           <i
             class="c-publicindex__icon-content fa fa-calendar"
             aria-hidden="true" />
-          <span class="hide-visually">
+          <span class="sr-only">
             {{ Translator.trans('period') }}
           </span>
         </h3>
@@ -32,7 +32,7 @@
           <i
             class="c-publicindex__icon-content fa fa-puzzle-piece"
             aria-hidden="true" />
-          <span class="hide-visually">
+          <span class="sr-only">
             {{ Translator.trans('procedure.public.phase') }}
           </span>
         </h3>
@@ -45,7 +45,7 @@
           <i
             class="c-publicindex__icon-content fa fa-university"
             aria-hidden="true" />
-          <span class="hide-visually">
+          <span class="sr-only">
             {{ Translator.trans('administration.alt') }}
           </span>
         </h3>
@@ -59,7 +59,7 @@
           <i
             class="c-publicindex__icon-content fa fa-comment-o"
             aria-hidden="true" />
-          <span class="hide-visually">
+          <span class="sr-only">
             {{ Translator.trans('statements.submitted.institution') }}
           </span>
         </h3>
