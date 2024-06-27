@@ -540,9 +540,9 @@ class User implements SamlUserInterface, AddonUserInterface
     /**
      * Symfony > 6 needs getUserIdentifier() for auth system.
      */
-    public function getUserIdentifier(): ?string
+    public function getUserIdentifier(): string
     {
-        return $this->getLogin();
+        return $this->getLogin() ?? '';
     }
 
     public function setPassword(?string $password): void
