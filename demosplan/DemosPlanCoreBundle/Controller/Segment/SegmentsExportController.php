@@ -188,12 +188,10 @@ class SegmentsExportController extends BaseController
         /** @var array<string, string> $tableHeaders */
         $tableHeaders = $this->request->query->get('tableHeaders', []);
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
-        // Using this method we apply mostly the same restrictions that are applied when the generic
-        // API is accessed to retrieve statements. Things like filter and search parameters are
-        // validated and the returned statement entities limited to such that the user is allowed to
-        // see. However, what segments of the statements are included in the export and what
-        // properties of the statements and segments are exposed is hardcoded by the actual
-        // exporter.
+        // This method applies mostly the same restrictions as the generic API access to retrieve statements.
+        // It validates filter and search parameters and limits the returned statement entities to those
+        // the user is allowed to see. The actual exporter hardcodes which segments of the statements are included
+        // in the export and which properties of the statements and segments are exposed.
         $statementResult = $requestHandler->getObjectsByQueryParams($this->request->query, $statementResourceType);
         /** @var Statement[] $statements */
         $statements = array_values($statementResult->getList());
