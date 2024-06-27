@@ -29,6 +29,7 @@ use Doctrine\ORM\Query\QueryException;
 use Exception;
 use PhpOffice\PhpWord\IOFactory;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use ZipStream\ZipStream;
@@ -38,9 +39,9 @@ class SegmentsExportController extends BaseController
     private const OUTPUT_DESTINATION = 'php://output';
 
     public function __construct(
-        private readonly Request $request,
         private readonly NameGenerator $nameGenerator,
         private readonly ProcedureHandler $procedureHandler,
+        private readonly RequestStack $requestStack,
     ) {
     }
 
@@ -63,7 +64,7 @@ class SegmentsExportController extends BaseController
         string $statementId
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
-        $tableHeaders = $this->request->query->get('tableHeaders', []);
+        $tableHeaders = $this->requestStack->getCurrentRequest()->query->get('tableHeaders', []);
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         $statement = $statementHandler->getStatementWithCertainty($statementId);
         $response = new StreamedResponse(
@@ -101,11 +102,11 @@ class SegmentsExportController extends BaseController
         string $procedureId
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
-        $tableHeaders = $this->request->query->get('tableHeaders', []);
+        $tableHeaders = $this->requestStack->getCurrentRequest()->query->get('tableHeaders', []);
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
-            $requestHandler->getObjectsByQueryParams($this->request->query, $statementResourceType)->getList()
+            $requestHandler->getObjectsByQueryParams($this->requestStack->getCurrentRequest()->query, $statementResourceType)->getList()
         );
 
         $response = new StreamedResponse(
@@ -142,7 +143,10 @@ class SegmentsExportController extends BaseController
     ): StreamedResponse {
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
-            $jsonApiActionService->getObjectsByQueryParams($this->request->query, $statementResourceType)->getList()
+            $jsonApiActionService->getObjectsByQueryParams(
+                $this->requestStack->getCurrentRequest()->query,
+                $statementResourceType
+            )->getList()
         );
 
         $response = new StreamedResponse(
@@ -186,13 +190,16 @@ class SegmentsExportController extends BaseController
         string $procedureId
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
-        $tableHeaders = $this->request->query->get('tableHeaders', []);
+        $tableHeaders = $this->requestStack->getCurrentRequest()->query->get('tableHeaders', []);
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         // This method applies mostly the same restrictions as the generic API access to retrieve statements.
         // It validates filter and search parameters and limits the returned statement entities to those
         // the user is allowed to see. The actual exporter hardcodes which segments of the statements are included
         // in the export and which properties of the statements and segments are exposed.
-        $statementResult = $requestHandler->getObjectsByQueryParams($this->request->query, $statementResourceType);
+        $statementResult = $requestHandler->getObjectsByQueryParams(
+            $this->requestStack->getCurrentRequest()->query,
+            $statementResourceType
+        );
         /** @var Statement[] $statements */
         $statements = array_values($statementResult->getList());
         $statements = $exporter->mapStatementsToPathInZip($statements);
