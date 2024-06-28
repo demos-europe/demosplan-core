@@ -1875,6 +1875,7 @@ class StatementService extends CoreService implements StatementServiceInterface
 
     /**
      * @throws ReflectionException
+     * @throws Exception
      */
     private function handleDocumentConversion(array $statementArray): array
     {
@@ -1901,7 +1902,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         if (null !== $statementArray['documentId']) {
             $singleDocument = $this->singleDocumentVersionRepository->get($statementArray['documentId']);
             // Angezeigt wird das parent Singledocument
-            $statementArray['document'] = $this->entityHelper->toArray($singleDocument->getSingleDocument());
+            $statementArray['document'] = $this->entityHelper->toArray($singleDocument?->getSingleDocument());
         } else {
             unset($statementArray['documentId']);
 
