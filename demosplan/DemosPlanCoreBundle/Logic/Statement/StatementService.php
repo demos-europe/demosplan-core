@@ -1829,135 +1829,183 @@ class StatementService extends CoreService implements StatementServiceInterface
         if (null === $statement) {
             return null;
         }
-        $statementId = $statement->getId();
+
         try {
-            $statementAttributes = $statement->getStatementAttributes();
-            $numberOfAnonymVotes = $statement->getNumberOfAnonymVotes();
-            $submitterEmailAddress = $statement->getSubmitterEmailAddress();
-            $createdByInstitution = $statement->isCreatedByInvitableInstitution();
-            $createdByCitizen = $statement->isCreatedByCitizen();
-            $votesNum = $statement->getVotesNum();
-            $statement = $this->entityHelper->toArray($statement);
-
-            $statement['createdByToeb'] = $createdByInstitution;
-            $statement['createdByCitizen'] = $createdByCitizen;
-            $statement['submitterEmailAddress'] = $submitterEmailAddress;
-
-            $statement['numberOfAnonymVotes'] = $numberOfAnonymVotes;
-            $statement['votesNum'] = $votesNum;
-            $statement['categories'] = [];
-            if ($statement['element'] instanceof Elements) {
-                $statement['element'] = $this->serviceElements->convertElementToArray($statement['element']);
-            }
-            if ($statement['paragraph'] instanceof ParagraphVersion) {
-                try {
-                    // Legacy wird der Paragraph und nicht ParagraphVersion zurückgegeben!
-                    $parentParagraph = $statement['paragraph']->getParagraph();
-                    $statement['paragraph'] = $this->entityHelper->toArray($parentParagraph);
-                } catch (Exception) {
-                    // Einige alte Einträge verweisen möcglicherweise noch nicht auf eine ParagraphVersion
-                    $this->logger->error(
-                        'No ParagraphVersion found for Id '.DemosPlanTools::varExport($statement['paragraph']->getId(), true)
-                    );
-                    unset($statement['paragraph']);
-                    $statement['paragraphId'] = null;
-                }
-            }
-            if ($statement['procedure'] instanceof Procedure) {
-                try {
-                    $statement['procedure'] = $this->entityHelper->toArray($statement['procedure']);
-                    $statement['procedure']['settings'] = $this->entityHelper->toArray($statement['procedure']['settings']);
-                    $statement['procedure']['organisation'] = $this->entityHelper->toArray($statement['procedure']['organisation']);
-                    $statement['procedure']['planningOffices'] =
-                        isset($statement['procedure']['planningOffices']) ?
-                            $this->entityHelper->toArray($statement['procedure']['planningOffices']) :
-                            [];
-                    $statement['procedure']['planningOfficeIds'] =
-                        isset($statement['procedure']['planningOffices']) ?
-                            $this->entityHelper->toArray($statement['procedure']['planningOffices']) :
-                            [];
-                } catch (Exception $e) {
-                    $this->logger->warning(
-                        'Could not convert  Statement Procedure to Legacy. Statement: '.DemosPlanTools::varExport(
-                            $statement['id'],
-                            true
-                        ).$e
-                    );
-                }
-            }
-            if ($statement['organisation'] instanceof Orga) {
-                try {
-                    $statement['organisation'] = $this->entityHelper->toArray($statement['organisation']);
-                } catch (Exception $e) {
-                    $this->logger->warning(
-                        'Could not convert Statement Organisation to Legacy. Statement: '.DemosPlanTools::varExport(
-                            $statement['id'],
-                            true
-                        ).$e
-                    );
-                }
-            }
-            if ($statement['meta'] instanceof StatementMeta) {
-                try {
-                    $statement['meta'] = $this->entityHelper->toArray($statement['meta']);
-                } catch (Exception $e) {
-                    $this->logger->warning(
-                        'Could not convert Statement Meta to Legacy. Statement: '.DemosPlanTools::varExport($statement['id'], true).$e
-                    );
-                }
-            }
-
-            // Enter StatementAttributes
-            if ((is_countable($statementAttributes) ? count($statementAttributes) : 0) > 0) {
-                $statement['statementAttributes'] = [];
-            }
-            foreach ($statementAttributes as $sa) {
-                if (isset($statement['statementAttributes'][$sa->getType()])) {
-                    if (\is_array($statement['statementAttributes'][$sa->getType()])) {
-                        $statement['statementAttributes'][$sa->getType()][] = $sa->getValue();
-                    } else {
-                        $v = $statement['statementAttributes'][$sa->getType()];
-                        $statement['statementAttributes'][$sa->getType()] = [$v];
-                    }
-                } else {
-                    $statement['statementAttributes'][$sa->getType()] = $sa->getValue();
-                }
-            }
-
-            // Lege ein mit der Stellungnahme verknüpftes SingleDocument auf oberster Ebene in das Array
-            if (null !== $statement['documentId']) {
-                $singleDocument = $this->singleDocumentVersionRepository->get($statement['documentId']);
-                // Angezeigt wird das parent Singledocument
-                $statement['document'] = $this->entityHelper->toArray($singleDocument->getSingleDocument());
-            } else {
-                unset($statement['documentId']);
-
-                if (\array_key_exists('documentTitle', $statement)) {
-                    unset($statement['documentTitle']);
-                }
-
-                if (\array_key_exists('document', $statement)) {
-                    unset($statement['document']);
-                }
-            }
-            $votes = [];
-            if ($statement['votes'] instanceof Collection) {
-                $votesArray = $statement['votes']->toArray();
-                foreach ($votesArray as $vote) {
-                    $votes[] = $this->dateHelper->convertDatesToLegacy($this->entityHelper->toArray($vote));
-                }
-            }
-            $statement['votes'] = $votes;
-
-            $statement = $this->dateHelper->convertDatesToLegacy($statement);
+            $statementArray = $this->prepareStatementForConversion($statement);
+            $statementArray = $this->convertStatementAttributes($statementArray, $statement->getStatementAttributes());
+            $statementArray = $this->handleDocumentConversion($statementArray);
+            $statementArray = $this->convertProcedure($statementArray);
+            $statementArray = $this->convertOrga($statementArray);
+            $statementArray = $this->convertStatementMeta($statementArray);
+            $statementArray = $this->convertVotes($statementArray);
+            $statementArray = $this->dateHelper->convertDatesToLegacy($statementArray);
         } catch (Exception $e) {
             $this->logger->warning(
                 'Could not convert Statement to Legacy.',
-                [$statementId, $e]
+                [$statement->getId();, $e]
             );
         }
 
         return $statement;
+    }
+
+    private function prepareStatementForConversion(Statement $statement): array
+    {
+        $numberOfAnonymVotes = $statement->getNumberOfAnonymVotes();
+        $submitterEmailAddress = $statement->getSubmitterEmailAddress();
+        $createdByInstitution = $statement->isCreatedByInvitableInstitution();
+        $createdByCitizen = $statement->isCreatedByCitizen();
+        $votesNum = $statement->getVotesNum();
+        $statementArray = $this->entityHelper->toArray($statement);
+
+        $statementArray['createdByToeb'] = $createdByInstitution;
+        $statementArray['createdByCitizen'] = $createdByCitizen;
+        $statementArray['submitterEmailAddress'] = $submitterEmailAddress;
+
+        $statementArray['numberOfAnonymVotes'] = $numberOfAnonymVotes;
+        $statementArray['votesNum'] = $votesNum;
+        $statementArray['categories'] = [];
+
+        return $statementArray;
+    }
+
+    private function handleDocumentConversion(array $statementArray): array
+    {
+        if ($statementArray['element'] instanceof Elements) {
+            $statementArray['element'] = $this->serviceElements->convertElementToArray($statementArray['element']);
+        }
+        if ($statementArray['paragraph'] instanceof ParagraphVersion) {
+            try {
+                // Legacy wird der Paragraph und nicht ParagraphVersion zurückgegeben!
+                $parentParagraph = $statementArray['paragraph']->getParagraph();
+                $statementArray['paragraph'] = $this->entityHelper->toArray($parentParagraph);
+            } catch (Exception) {
+                // Einige alte Einträge verweisen möcglicherweise noch nicht auf eine ParagraphVersion
+                $this->logger->error(
+                    'No ParagraphVersion found for Id '
+                    .DemosPlanTools::varExport($statementArray['paragraph']->getId(), true)
+                );
+                unset($statementArray['paragraph']);
+                $statementArray['paragraphId'] = null;
+            }
+        }
+
+        // Lege ein mit der Stellungnahme verknüpftes SingleDocument auf oberster Ebene in das Array
+        if (null !== $statementArray['documentId']) {
+            $singleDocument = $this->singleDocumentVersionRepository->get($statementArray['documentId']);
+            // Angezeigt wird das parent Singledocument
+            $statementArray['document'] = $this->entityHelper->toArray($singleDocument->getSingleDocument());
+        } else {
+            unset($statementArray['documentId']);
+
+            if (array_key_exists('documentTitle', $statementArray)) {
+                unset($statementArray['documentTitle']);
+            }
+
+            if (array_key_exists('document', $statementArray)) {
+                unset($statementArray['document']);
+            }
+        }
+
+        return $statementArray;
+    }
+
+    private function convertStatementAttributes(array $statementArray, ArrayCollection $statementAttributes): array
+    {
+        if ((is_countable($statementAttributes) ? count($statementAttributes) : 0) > 0) {
+            $statement['statementAttributes'] = [];
+        }
+        foreach ($statementAttributes as $sa) {
+            if (isset($statement['statementAttributes'][$sa->getType()])) {
+                if (\is_array($statement['statementAttributes'][$sa->getType()])) {
+                    $statement['statementAttributes'][$sa->getType()][] = $sa->getValue();
+                } else {
+                    $v = $statement['statementAttributes'][$sa->getType()];
+                    $statement['statementAttributes'][$sa->getType()] = [$v];
+                }
+            } else {
+                $statement['statementAttributes'][$sa->getType()] = $sa->getValue();
+            }
+        }
+    }
+
+    private function convertProcedure(array $statementArray): array
+    {
+        if ($statementArray['procedure'] instanceof Procedure) {
+            try {
+                $statementArray['procedure'] = $this->entityHelper->toArray($statementArray['procedure']);
+                $statementArray['procedure']['settings'] = $this->entityHelper->toArray(
+                    $statementArray['procedure']['settings']
+                );
+                $statementArray['procedure']['organisation'] = $this->entityHelper->toArray(
+                    $statementArray['procedure']['organisation']
+                );
+                $statementArray['procedure']['planningOffices'] =
+                    isset($statementArray['procedure']['planningOffices']) ?
+                        $this->entityHelper->toArray($statementArray['procedure']['planningOffices']) :
+                        [];
+                $statementArray['procedure']['planningOfficeIds'] =
+                    isset($statementArray['procedure']['planningOffices']) ?
+                        $this->entityHelper->toArray($statementArray['procedure']['planningOffices']) :
+                        [];
+            } catch (Exception $e) {
+                $this->logger->warning(
+                    'Could not convert  Statement Procedure to Legacy. Statement: '.DemosPlanTools::varExport(
+                        $statementArray['id'],
+                        true
+                    ).$e
+                );
+            }
+        }
+
+        return $statementArray;
+    }
+
+    private function convertOrga(array $statementArray): array
+    {
+        if ($statementArray['organisation'] instanceof Orga) {
+            try {
+                $statementArray['organisation'] = $this->entityHelper->toArray($statementArray['organisation']);
+            } catch (Exception $e) {
+                $this->logger->warning(
+                    'Could not convert Statement Organisation to Legacy. Statement: '.DemosPlanTools::varExport(
+                        $statementArray['id'],
+                        true
+                    ).$e
+                );
+            }
+        }
+
+        return $statementArray;
+    }
+
+    private function convertStatementMeta(array $statementArray): array
+    {
+        if ($statementArray['meta'] instanceof StatementMeta) {
+            try {
+                $statementArray['meta'] = $this->entityHelper->toArray($statementArray['meta']);
+            } catch (Exception $e) {
+                $this->logger->warning(
+                    'Could not convert Statement Meta to Legacy. Statement: '
+                    .DemosPlanTools::varExport($statementArray['id'], true)
+                    .$e
+                );
+            }
+        }
+
+        return $statementArray;
+    }
+
+    private function convertVotes(array $statementArray): array
+    {
+        $votes = [];
+        if ($statementArray['votes'] instanceof Collection) {
+            $votesArray = $statementArray['votes']->toArray();
+            foreach ($votesArray as $vote) {
+                $votes[] = $this->dateHelper->convertDatesToLegacy($this->entityHelper->toArray($vote));
+            }
+        }
+        $statementArray['votes'] = $votes;
     }
 
     /**
