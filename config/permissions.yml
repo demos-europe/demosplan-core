@@ -1135,6 +1135,13 @@ feature_map_feature_info:
     expose: true
     loginRequired: true
     parent: area_admin_map
+feature_map_layer_visibility:
+    description: |-
+        Manage visibility settings related to the map layer (in the admin area)
+    label: 'Manage visibility settings related to the map layer (in the admin area)'
+    expose: true
+    loginRequired: true
+    parent: area_admin_map
 feature_map_hint:
     expose: true
     label: Kartenhinweis
