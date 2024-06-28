@@ -1846,7 +1846,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             );
         }
 
-        return $statement;
+        return $statementArray;
     }
 
     private function prepareStatementForConversion(Statement $statement): array
