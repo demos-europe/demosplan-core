@@ -37,6 +37,7 @@
         class="u-mb-0_25"
         data-cy="formGroupMap:statementMapReference"
         :checked="isLocationSelected"
+        :disabled="disabled"
         @change="() => { const location = (statement.r_location_priority_area_key !== '' ? 'priority_area' :'point'); setStatementData({r_location: 'point', location_is_set: location})}"
         :label="{
           text: Translator.trans('statement.map.reference.add_on_map')
@@ -78,6 +79,7 @@
         name="r_location"
         class="u-mb-0_25"
         :checked="statement.r_location === 'county'"
+        :disabled="disabled"
         @change="() => { setStatementData({ r_location: 'county', location_is_set: 'county'}) }"
         value="county" />
       <select
@@ -139,6 +141,12 @@ export default {
       type: Array,
       required: false,
       default: () => []
+    },
+
+    disabled: {
+      type: Boolean,
+      required: false,
+      default: false
     },
 
     loggedIn: {

@@ -65,8 +65,8 @@ class PermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
         $commandTester->execute([
             'customerIds' => $this->testCustomer->getId(),
             'roleIds'     => $this->testRole->getId(),
-            'permission' => 'CREATE_PROCEDURES_PERMISSION',
-            '--dry-run'  => $dryRun,
+            'permission'  => 'CREATE_PROCEDURES_PERMISSION',
+            '--dry-run'   => $dryRun,
         ]);
 
         $output = $commandTester->getDisplay();
@@ -79,9 +79,9 @@ class PermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
     {
         $commandTester->execute([
             'customerIds' => sprintf('%s,%s', $this->testCustomer->getId(), $this->testCustomer->getId()),
-            'roleIds' => sprintf('%s,%s', $this->testRole->getId(), $this->testRole->getId()),
-            'permission' => 'CREATE_PROCEDURES_PERMISSION',
-            '--dry-run'  => $dryRun,
+            'roleIds'     => sprintf('%s,%s', $this->testRole->getId(), $this->testRole->getId()),
+            'permission'  => 'CREATE_PROCEDURES_PERMISSION',
+            '--dry-run'   => $dryRun,
         ]);
 
         $output = $commandTester->getDisplay();
