@@ -1,13 +1,7 @@
 import { checkResponse, dpRpc } from '@demos-europe/demosplan-ui'
 
 export default async function loadAddonComponents (hookName) {
-  if (window.dplan.loadedAddons[hookName]) {
-    return []
-  }
-
-  window.dplan.loadedAddons[hookName] = true
-
-  const params = {
+const params = {
     hookName: hookName
   }
 
