@@ -153,67 +153,66 @@
               </div>
           </div>
         </div>
-      </div>
-      <dp-draggable
-        v-if="false === this.isLoading && hasPermission('feature_map_layer_visibility')"
-        :opts="draggableOptionsForBaseLayer"
-        v-model="currentBaseList"
-        :class="{'color--grey': false === isEditable}">
-        <dp-admin-layer-list-item
-          v-for="(item, idx) in currentBaseList"
-          :key="item.id"
-          :element="item"
-          :sorting-type="currentTab"
-          :is-loading="(false === isEditable)"
-          layer-type="base"
-          data-cy="baseMapLayerListItem"
-          :index="idx" />
-      </dp-draggable>
-      <div v-if="hasPermission('feature_map_layer_visibility')" class="layout--flush u-mt u-mb">
-        <h3 class="layout__item w-1/3">
-          {{ Translator.trans('map.base.minimap') }}
-        </h3><!--
-     --><div class="layout__item w-2/3">
-          <select
-            class="o-form__control-select"
-            data-cy="adminLayerList:currentMinimapLayer"
-            v-model="currentMinimapLayer">
-            <option :value="{id: '', attributes: { name: 'default' }}">
-              {{ Translator.trans('selection.no') }}
-            </option>
-            <option
-              v-for="item in mapBaseList"
-              :key="item.id"
-              :value="item">
-              {{ item.attributes.name }}
-            </option>
-          </select>
+        <dp-draggable
+          v-if="false === this.isLoading"
+          :opts="draggableOptionsForBaseLayer"
+          v-model="currentBaseList"
+          :class="{'color--grey': false === isEditable}">
+          <dp-admin-layer-list-item
+            v-for="(item, idx) in currentBaseList"
+            :key="item.id"
+            :element="item"
+            :sorting-type="currentTab"
+            :is-loading="(false === isEditable)"
+            layer-type="base"
+            data-cy="baseMapLayerListItem"
+            :index="idx" />
+        </dp-draggable>
+        <div class="layout--flush u-mt u-mb">
+          <h3 class="layout__item w-1/3">
+            {{ Translator.trans('map.base.minimap') }}
+          </h3><!--
+      --><div class="layout__item w-2/3">
+            <select
+              class="o-form__control-select"
+              data-cy="adminLayerList:currentMinimapLayer"
+              v-model="currentMinimapLayer">
+              <option :value="{id: '', attributes: { name: 'default' }}">
+                {{ Translator.trans('selection.no') }}
+              </option>
+              <option
+                v-for="item in mapBaseList"
+                :key="item.id"
+                :value="item">
+                {{ item.attributes.name }}
+              </option>
+            </select>
+          </div>
+          <p class="font-size-small">
+            {{ Translator.trans('map.base.minimap.hint') }}
+          </p>
         </div>
-        <p class="font-size-small">
-          {{ Translator.trans('map.base.minimap.hint') }}
-        </p>
-      </div>
-
-      <div
-        class="text-right u-mv space-inline-s"
-        v-if="false === isLoading && hasPermission('feature_map_layer_visibility')">
-        <dp-button
-          data-cy="adminLayerList:save"
-          :busy="!isEditable"
-          :text="Translator.trans('save')"
-          @click="saveOrder" />
-        <dp-button
-          data-cy="adminLayerList:saveAndReturn"
-          :busy="!isEditable"
-          :text="Translator.trans('save.and.return.to.list')"
-          @click="saveOrder(true)" />
-        <button
-          class="btn btn--secondary"
-          data-cy="adminLayerList:resetOrder"
-          type="reset"
-          @click.prevent="resetOrder">
-          {{ Translator.trans('reset.order') }}
-        </button>
+        <div
+          class="text-right u-mv space-inline-s"
+          v-if="false === isLoading">
+          <dp-button
+            data-cy="adminLayerList:save"
+            :busy="!isEditable"
+            :text="Translator.trans('save')"
+            @click="saveOrder" />
+          <dp-button
+            data-cy="adminLayerList:saveAndReturn"
+            :busy="!isEditable"
+            :text="Translator.trans('save.and.return.to.list')"
+            @click="saveOrder(true)" />
+          <button
+            class="btn btn--secondary"
+            data-cy="adminLayerList:resetOrder"
+            type="reset"
+            @click.prevent="resetOrder">
+            {{ Translator.trans('reset.order') }}
+          </button>
+        </div>
       </div>
     </div>
   </fieldset>
