@@ -44,7 +44,7 @@ class StatementToLegacyConverter extends CoreService
     /**
      * Convert StatementObject to legacy.
      */
-    public function convertToLegacy(?Statement $statement): ?array
+    public function convert(?Statement $statement): ?array
     {
         if (null === $statement) {
             return null;

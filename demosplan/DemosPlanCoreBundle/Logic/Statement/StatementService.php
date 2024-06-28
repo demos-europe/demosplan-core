@@ -1825,11 +1825,11 @@ class StatementService extends CoreService implements StatementServiceInterface
     /**
      * Convert StatementObject to legacy.
      *
-     * @deprecated Use {@see StatementToLegacyConverter::convertToLegacy} instead.
+     * @deprecated Use {@see StatementToLegacyConverter::convert} instead.
      */
     public function convertToLegacy(?Statement $statement): ?array
     {
-        return $this->statementToLegacyConverter->convertToLegacy($statement);
+        return $this->statementToLegacyConverter->convert($statement);
     }
 
     /**
