@@ -240,7 +240,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         $customers = array_map(static fn(array $availableCustomer): string => $availableCustomer[1], $availableCustomers);
         $usersOsi = [];
         $customerKey = $customerService->getCurrentCustomer()->getSubdomain();
-        $useIdp = false;
+        $useLoginListIdp = false;
 
         if (true === $parameterBag->get('alternative_login_use_testuser')) {
             // collect users for Login as
@@ -256,7 +256,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
             // add access to test external identity provider
             // do not display link when it targets same site
             $gatewayUrl = $parameterBag->get('gateway_url');
-            $useIdp = '' !== $gatewayUrl && !str_contains($gatewayUrl, $request->getPathInfo());
+            $useLoginListIdp = '' !== $gatewayUrl && !str_contains($gatewayUrl, $request->getPathInfo());
         }
 
         if (true === $parameterBag->get('alternative_login_use_testuser_osi')) {
@@ -283,6 +283,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
                 'currentCustomer' => $currentCustomer,
                 'loginList' => [
                     'enabled'  => 0 < count($users) || 0 < count($usersOsi),
+                    'useIdp'   => $useLoginListIdp,
                     'users'    => $users,
                     'usersOsi' => $usersOsi,
                 ],

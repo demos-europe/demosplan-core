@@ -17,7 +17,7 @@
         {% endblock content %}
     {% endembed %}
 
-    {% if useIdp %}
+    {% if loginList.useIdp %}
         <p>Login with <a href="{{ gatewayURL }}">external provider</a></p>
     {% endif %}
 
