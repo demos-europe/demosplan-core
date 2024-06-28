@@ -1920,18 +1920,18 @@ class StatementService extends CoreService implements StatementServiceInterface
     private function convertStatementAttributes(array $statementArray, ArrayCollection $statementAttributes): array
     {
         if ((is_countable($statementAttributes) ? count($statementAttributes) : 0) > 0) {
-            $statement['statementAttributes'] = [];
+            $statementArray['statementAttributes'] = [];
         }
         foreach ($statementAttributes as $sa) {
-            if (isset($statement['statementAttributes'][$sa->getType()])) {
-                if (\is_array($statement['statementAttributes'][$sa->getType()])) {
-                    $statement['statementAttributes'][$sa->getType()][] = $sa->getValue();
+            if (isset($statementArray['statementAttributes'][$sa->getType()])) {
+                if (\is_array($statementArray['statementAttributes'][$sa->getType()])) {
+                    $statementArray['statementAttributes'][$sa->getType()][] = $sa->getValue();
                 } else {
-                    $v = $statement['statementAttributes'][$sa->getType()];
-                    $statement['statementAttributes'][$sa->getType()] = [$v];
+                    $v = $statementArray['statementAttributes'][$sa->getType()];
+                    $statementArray['statementAttributes'][$sa->getType()] = [$v];
                 }
             } else {
-                $statement['statementAttributes'][$sa->getType()] = $sa->getValue();
+                $statementArray['statementAttributes'][$sa->getType()] = $sa->getValue();
             }
         }
     }
@@ -2016,6 +2016,8 @@ class StatementService extends CoreService implements StatementServiceInterface
             }
         }
         $statementArray['votes'] = $votes;
+
+        return $statementArray;
     }
 
     /**
