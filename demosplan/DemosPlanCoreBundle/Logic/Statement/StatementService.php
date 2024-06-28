@@ -1842,7 +1842,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         } catch (Exception $e) {
             $this->logger->warning(
                 'Could not convert Statement to Legacy.',
-                [$statement->getId();, $e]
+                [$statement->getId(), $e]
             );
         }
 
