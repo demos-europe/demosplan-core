@@ -31,8 +31,6 @@ security:
             id: demosplan\DemosPlanCoreBundle\Security\Authentication\Provider\AiApiUserProvider
         api_provider:
             id: demosplan\DemosPlanCoreBundle\Security\Authentication\Provider\ApiUserProvider
-        saml_provider:
-            id: demosplan\DemosPlanCoreBundle\Security\Authentication\Provider\SamlUserProvider
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
@@ -58,26 +56,6 @@ security:
             provider: api_provider
             jwt:
                 authenticator: demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\ApiAuthenticator
-        saml:
-            pattern: ^/saml
-            saml:
-                provider: saml_provider
-                # Match SAML attribute 'uid' with username.
-                # Uses getNameId() method by default.
-                username_attribute: ID
-                # Use the attribute's friendlyName instead of the name
-                use_attribute_friendly_name: false
-                check_path: saml_acs
-                login_path: saml_login
-                failure_path: /dplan/login
-                default_target_path: core_home_loggedin
-                # avoid infinitive redirects
-                always_use_default_target_path: true
-                success_handler: demosplan\DemosPlanCoreBundle\Security\Authentication\SamlAuthenticationSuccessHandler
-                user_factory: demosplan\DemosPlanCoreBundle\Security\User\SamlUserFactory
-                persist_user: true
-            logout:
-                path: /saml/logout
         main:
             provider: dplan_default_user_provider
             lazy: true

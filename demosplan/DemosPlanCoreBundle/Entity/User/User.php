@@ -26,13 +26,11 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface as AddonUserInte
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserRoleInCustomerInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\RoleAllowedConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\UserWithMatchingDepartmentInOrgaConstraint;
-use demosplan\DemosPlanCoreBundle\Logic\SAML\SamlAttributesParser;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Hslavich\OneloginSamlBundle\Security\User\SamlUserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use UnexpectedValueException;
 
@@ -49,7 +47,7 @@ use function in_array;
  *
  * @UserWithMatchingDepartmentInOrgaConstraint()
  */
-class User implements SamlUserInterface, AddonUserInterface
+class User implements AddonUserInterface
 {
     public const HEARING_AUTHORITY_ROLES = [RoleInterface::HEARING_AUTHORITY_ADMIN, RoleInterface::HEARING_AUTHORITY_WORKER];
     public const PLANNING_AGENCY_ROLES = [RoleInterface::PLANNING_AGENCY_ADMIN, RoleInterface::PLANNING_AGENCY_WORKER];
@@ -1723,17 +1721,6 @@ class User implements SamlUserInterface, AddonUserInterface
     public function shouldBeIndexed(): bool
     {
         return !$this->deleted;
-    }
-
-    /**
-     * This method will be used to fill user properties from saml providers.
-     */
-    public function setSamlAttributes(array $attributes): void
-    {
-        // later on this could be a factory e.g to distinguish between akdb and osi
-        // identity provider
-        $parser = new SamlAttributesParser($this, $attributes);
-        $parser->parse();
     }
 
     public function isDefaultGuestUser(): bool
