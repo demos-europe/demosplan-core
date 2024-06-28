@@ -623,7 +623,7 @@ class DemosPlanDocumentController extends BaseController
     /**
      * Planunterlagen Kategorie Adminliste.
      *
-     * @DplanPermissions("area_admin_map")
+     * @DplanPermissions("area_admin_single_document")
      *
      * @return Response
      *
