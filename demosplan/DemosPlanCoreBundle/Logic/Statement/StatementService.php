@@ -1830,6 +1830,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             return null;
         }
 
+        $statementArray = null;
         try {
             $statementArray = $this->prepareStatementForConversion($statement);
             $statementArray = $this->convertStatementAttributes($statementArray, $statement->getStatementAttributes());
