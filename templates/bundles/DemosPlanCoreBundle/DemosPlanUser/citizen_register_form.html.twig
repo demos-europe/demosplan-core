@@ -7,8 +7,8 @@
     }%}
         {% block content %}
             <citizen-register-form
-                :is-saml="{{ useSaml|json_encode }}"
-                :saml-login-path="{{ path('saml_login')|json_encode }}"
+                :is-idp="{{ useIdp|json_encode }}"
+                idp-login-path="{{ gatewayURL }}"
                 :csrf-token="{{ csrf_token('register-user')|json_encode }}">
                 {{ extensionPointMarkup('formExtraFields')|raw }}
             </citizen-register-form>

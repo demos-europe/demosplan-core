@@ -311,6 +311,8 @@ parameters:
     use_opengeodb: true
 
     # knpu_oauth2_client settings
+    # oath client referenced by knpu_oauth2_client when oauth is used
+    oauth_client: ''
     oauth_keycloak_client_id: ''
     oauth_keycloak_client_secret: ''
     oauth_keycloak_auth_server_url: ''

@@ -267,23 +267,22 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
             });
         }
 
-        $useSaml = false;
-        // this check needs to be reworked once we know better how to save saml parameters by customer
-        if ('' !== $parameterBag->get('saml_idp_entityid') &&
+        $useIdp = false;
+        // this check needs to be reworked once we know better how to save oauth parameters by customer
+        if ('' !== $parameterBag->get('oauth_client') &&
             'bb' === $customerService->getCurrentCustomer()->getSubdomain()) {
-            $useSaml = true;
+            $useIdp = true;
         }
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanUser/alternative_login.html.twig',
             [
                 'title'     => 'user.login',
-                'useSaml'   => $useSaml,
+                'useIdp'   => $useIdp,
                 'customers' => $customers,
                 'currentCustomer' => $currentCustomer,
                 'loginList' => [
                     'enabled'  => 0 < count($users) || 0 < count($usersOsi),
-                    'useIdp'   => $useIdp,
                     'users'    => $users,
                     'usersOsi' => $usersOsi,
                 ],
