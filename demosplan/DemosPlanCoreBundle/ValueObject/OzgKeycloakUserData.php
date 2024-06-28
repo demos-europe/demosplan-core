@@ -16,7 +16,6 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInterface, Stringable
 {
-
     private readonly string $keycloakGroupRoleString;
 
     public function __construct(ParameterBagInterface $parameterBag)
@@ -67,5 +66,4 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
             }
         }
     }
-
 }

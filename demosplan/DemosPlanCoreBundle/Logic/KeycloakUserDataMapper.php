@@ -27,7 +27,6 @@ use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\ValueObject\KeycloakUserData;
-use demosplan\DemosPlanCoreBundle\ValueObject\KeycloakUserDataInterface;
 use Exception;
 use Psr\Log\LoggerInterface;
 
@@ -63,7 +62,6 @@ class KeycloakUserDataMapper
             $this->updateOrgaWithKnownValues($user->getOrga(), $keycloakUserData);
 
             return $this->updateUserWithKnownValues($user, $keycloakUserData);
-
         }
 
         $this->logger->info('Eventually create new User from Keycloak', ['data' => $keycloakUserData]);
@@ -76,13 +74,14 @@ class KeycloakUserDataMapper
         // Does the payload carry an organisation?
         if ('' !== $keycloakUserData->getOrganisationName()) {
             $this->logger->info('User is Orgauser');
+
             return $this->getUserForOrga($keycloakUserData);
         }
 
         // otherwise we assume that it is a citizen
         $this->logger->info('User is citizen');
-        return $this->getUserForNewCitizen($keycloakUserData);
 
+        return $this->getUserForNewCitizen($keycloakUserData);
     }
 
     private function getUserForNewCitizen(KeycloakUserData $keycloakUserData): User

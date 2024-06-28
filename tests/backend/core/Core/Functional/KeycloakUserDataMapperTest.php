@@ -1,5 +1,14 @@
 <?php
+
 declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace Tests\Core\Core\Functional;
 
@@ -15,7 +24,6 @@ use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\ValueObject\KeycloakUserData;
-use Liip\FunctionalTestBundle\Test\WebTestCase;
 use Psr\Log\NullLogger;
 use Stevenmaguire\OAuth2\Client\Provider\KeycloakResourceOwner;
 use Tests\Base\FunctionalTestCase;
@@ -23,7 +31,6 @@ use Tests\Base\MockMethodDefinition;
 
 class KeycloakUserDataMapperTest extends FunctionalTestCase
 {
-
     private ?KeycloakUserDataMapper $keycloakUserDataMapper;
 
     /**
@@ -56,13 +63,13 @@ class KeycloakUserDataMapperTest extends FunctionalTestCase
     public function testCreateNewPublicUser(): void
     {
         $attributes = [
-            'localityName' => 'Test City',
-            'houseNumber' => '10',
-            'givenName' => 'John',
-            'email' => 'test@example.com',
-            'surname' => 'Doe',
+            'localityName'     => 'Test City',
+            'houseNumber'      => '10',
+            'givenName'        => 'John',
+            'email'            => 'test@example.com',
+            'surname'          => 'Doe',
             'organisationName' => '',
-            'street' => 'Test Street',
+            'street'           => 'Test Street',
         ];
         $resourceOwner = new KeycloakResourceOwner($attributes);
         $userData = new KeycloakUserData();
@@ -74,20 +81,21 @@ class KeycloakUserDataMapperTest extends FunctionalTestCase
         self::assertEquals($anonymousUser->getOrga()->getId(), $user->getOrga()->getId());
         self::assertEquals($attributes['email'], $user->getLogin());
     }
+
     public function testCreateNewOrgaUser(): void
     {
         $attributes = [
-            'email' => 'test@example.com',
-            'givenName' => 'John',
-            'surname' => 'Doe',
-            'organisationId' => '123',
-            'organisationName' => 'Test Organisation',
-            'sub' => '456',
+            'email'              => 'test@example.com',
+            'givenName'          => 'John',
+            'surname'            => 'Doe',
+            'organisationId'     => '123',
+            'organisationName'   => 'Test Organisation',
+            'sub'                => '456',
             'preferred_username' => 'johndoe',
-            'houseNumber' => '10',
-            'localityName' => 'Test City',
-            'postalCode' => '12345',
-            'street' => 'Test Street'
+            'houseNumber'        => '10',
+            'localityName'       => 'Test City',
+            'postalCode'         => '12345',
+            'street'             => 'Test Street',
         ];
         $resourceOwner = new KeycloakResourceOwner($attributes);
         $userData = new KeycloakUserData();
@@ -168,26 +176,23 @@ class KeycloakUserDataMapperTest extends FunctionalTestCase
         self::assertEquals($attributes['street'], $orga->getStreet());
         self::assertEquals($attributes['organisationId'], $orga->getGatewayName());
         self::assertEquals($attributes['email'], $user->getLogin());
-
     }
 
     private function getOrgaLoginAttributes(): array
     {
         return [
-            'country'       => 'de',
-            'givenName'     => 'Organisation',
-            'surname'     => 'Administration',
-            'houseNumber'   => '14',
-            'localityName'  => 'Erlangen',
-            'email'         => 'mail.needs@tobes.et',
-            'orgaMail'      => 'orgaMailneeds@tobes.et',
-            'organisationName'      => 'Franken Plus GmbH & Co. KGaA',
+            'country'                   => 'de',
+            'givenName'                 => 'Organisation',
+            'surname'                   => 'Administration',
+            'houseNumber'               => '14',
+            'localityName'              => 'Erlangen',
+            'email'                     => 'mail.needs@tobes.et',
+            'orgaMail'                  => 'orgaMailneeds@tobes.et',
+            'organisationName'          => 'Franken Plus GmbH & Co. KGaA',
             'organisationId'            => 'du-886227c04d14045c16c42d706427d8392fd64417',
-            'orgaType'      => 'NNatPers',
-            'postalCode'    => '91058',
-            'street'        => 'Frauenweiherstr.',
+            'orgaType'                  => 'NNatPers',
+            'postalCode'                => '91058',
+            'street'                    => 'Frauenweiherstr.',
         ];
     }
-
-
 }

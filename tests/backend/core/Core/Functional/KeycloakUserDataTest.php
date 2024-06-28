@@ -1,5 +1,14 @@
 <?php
+
 declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace Tests\Core\Core\Functional;
 
@@ -10,8 +19,7 @@ use Tests\Base\FunctionalTestCase;
 
 class KeycloakUserDataTest extends FunctionalTestCase
 {
-
-    const TEST_EMAIL = 'test@example.com';
+    public const TEST_EMAIL = 'test@example.com';
     private ?KeycloakUserData $keycloakUserData;
 
     protected function setUp(): void
@@ -24,16 +32,16 @@ class KeycloakUserDataTest extends FunctionalTestCase
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
             ->willReturn([
-                'email' => self::TEST_EMAIL,
-                'givenName' => 'John',
-                'surname' => 'Doe',
-                'organisationId' => '123',
+                'email'            => self::TEST_EMAIL,
+                'givenName'        => 'John',
+                'surname'          => 'Doe',
+                'organisationId'   => '123',
                 'organisationName' => 'Test Organisation',
-                'sub' => '456',
-                'houseNumber' => '10',
-                'localityName' => 'Test City',
-                'postalCode' => '12345',
-                'street' => 'Test Street'
+                'sub'              => '456',
+                'houseNumber'      => '10',
+                'localityName'     => 'Test City',
+                'postalCode'       => '12345',
+                'street'           => 'Test Street',
             ]);
 
         $this->keycloakUserData->fill($resourceOwner);
@@ -58,7 +66,6 @@ class KeycloakUserDataTest extends FunctionalTestCase
         $this->assertEquals('Test City', $this->keycloakUserData->getLocalityName());
         $this->assertEquals('12345', $this->keycloakUserData->getPostalCode());
         $this->assertEquals('Test Street', $this->keycloakUserData->getStreet());
-
     }
 
     public function testUserInformationIsCorrectlyFilledFromIncompleteResourceOwner(): void
@@ -66,14 +73,14 @@ class KeycloakUserDataTest extends FunctionalTestCase
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
             ->willReturn([
-                'email' => self::TEST_EMAIL,
-                'givenName' => 'John',
-                'surname' => 'Doe',
-                'sub' => '456',
-                'houseNumber' => '',
+                'email'        => self::TEST_EMAIL,
+                'givenName'    => 'John',
+                'surname'      => 'Doe',
+                'sub'          => '456',
+                'houseNumber'  => '',
                 'localityName' => '',
-                'postalCode' => '',
-                'street' => ''
+                'postalCode'   => '',
+                'street'       => '',
             ]);
 
         $this->keycloakUserData->fill($resourceOwner);
@@ -95,15 +102,14 @@ class KeycloakUserDataTest extends FunctionalTestCase
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
             ->willReturn([
-                'email' => '',
+                'email'     => '',
                 'givenName' => '',
-                'surname' => '',
-                'sub' => '',
+                'surname'   => '',
+                'sub'       => '',
             ]);
 
         $this->expectException(AuthenticationCredentialsNotFoundException::class);
 
         $this->keycloakUserData->fill($resourceOwner);
     }
-
 }

@@ -566,22 +566,22 @@ class FunctionalTestCase extends WebTestCase
         $mock = $this->getMockBuilder(EntityManager::class)
             ->disableOriginalConstructor()
             ->onlyMethods(
-                array(
+                [
                     'getConnection',
                     'getClassMetadata',
                     'close',
-                )
+                ]
             )
             ->getMock();
 
         $connectionMock = $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
             ->onlyMethods(
-                array(
+                [
                     'beginTransaction',
                     'commit',
                     'rollback',
-                )
+                ]
             )
             ->getMock();
 

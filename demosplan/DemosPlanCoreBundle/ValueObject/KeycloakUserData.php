@@ -22,7 +22,6 @@ use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundE
  */
 class KeycloakUserData extends CommonUserData implements KeycloakUserDataInterface, Stringable
 {
-
     protected string $houseNumber;
     protected string $localityName;
     protected string $postalCode;
@@ -63,12 +62,7 @@ class KeycloakUserData extends CommonUserData implements KeycloakUserDataInterfa
         }
 
         if ([] !== $missingMandatoryValues) {
-            throw new AuthenticationCredentialsNotFoundException(
-                implode(
-                    ', ',
-                    $missingMandatoryValues
-                ) . ' are missing in requestValues'
-            );
+            throw new AuthenticationCredentialsNotFoundException(implode(', ', $missingMandatoryValues).' are missing in requestValues');
         }
     }
 }

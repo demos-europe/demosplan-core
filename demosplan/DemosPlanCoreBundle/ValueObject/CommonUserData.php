@@ -1,7 +1,17 @@
 <?php
+
 declare(strict_types=1);
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\ValueObject;
+
 use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
 
 /**
@@ -16,7 +26,6 @@ use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundE
  */
 class CommonUserData extends ValueObject
 {
-
     protected string $firstName = '';
     protected string $lastName = '';
     /**
@@ -48,21 +57,21 @@ class CommonUserData extends ValueObject
     {
         $customerRoleRelationString = '';
         foreach ($this->customerRoleRelations as $subdomain => $roleNames) {
-            $customerRoleRelationString .= $subdomain . ': [' . implode(
-                    ', ',
-                    $roleNames
-                ) . '] ';
+            $customerRoleRelationString .= $subdomain.': ['.implode(
+                ', ',
+                $roleNames
+            ).'] ';
         }
 
         return
-            'userId: ' . $this->userId .
-            ', userName: ' . $this->userName .
-            ', firstName: ' . $this->firstName .
-            ', lastName: ' . $this->lastName .
-            ', organisationId: ' . $this->organisationId .
-            ', organisationName: ' . $this->organisationName .
-            ', emailAddress: ' . $this->emailAddress .
-            ', roles: ' . $customerRoleRelationString;
+            'userId: '.$this->userId.
+            ', userName: '.$this->userName.
+            ', firstName: '.$this->firstName.
+            ', lastName: '.$this->lastName.
+            ', organisationId: '.$this->organisationId.
+            ', organisationName: '.$this->organisationName.
+            ', emailAddress: '.$this->emailAddress.
+            ', roles: '.$customerRoleRelationString;
     }
 
     /**
@@ -96,12 +105,7 @@ class CommonUserData extends ValueObject
         }
 
         if ([] !== $missingMandatoryValues) {
-            throw new AuthenticationCredentialsNotFoundException(
-                implode(
-                    ', ',
-                    $missingMandatoryValues
-                ) . 'are missing in requestValues'
-            );
+            throw new AuthenticationCredentialsNotFoundException(implode(', ', $missingMandatoryValues).'are missing in requestValues');
         }
     }
 }

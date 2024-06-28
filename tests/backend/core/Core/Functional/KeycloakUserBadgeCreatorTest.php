@@ -1,5 +1,14 @@
 <?php
+
 declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace Tests\Core\Core\Functional;
 
@@ -14,11 +23,9 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Tests\Base\FunctionalTestCase;
 use Tests\Base\MockMethodDefinition;
 
-class KeycloakUserBadgeCreatorTest  extends FunctionalTestCase
+class KeycloakUserBadgeCreatorTest extends FunctionalTestCase
 {
-
     protected ?KeycloakUserBadgeCreator $keycloakUserBadgeCreator;
-
 
     protected function setUp(): void
     {
@@ -38,8 +45,6 @@ class KeycloakUserBadgeCreatorTest  extends FunctionalTestCase
             $keycloakUserDataMapper
         );
     }
-
-
 
     public function testAuthenticate()
     {
