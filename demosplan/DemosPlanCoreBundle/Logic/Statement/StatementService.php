@@ -1850,6 +1850,9 @@ class StatementService extends CoreService implements StatementServiceInterface
         return $statementArray;
     }
 
+    /**
+     * @throws ReflectionException
+     */
     private function prepareStatementForConversion(Statement $statement): array
     {
         $numberOfAnonymVotes = $statement->getNumberOfAnonymVotes();
@@ -1870,6 +1873,9 @@ class StatementService extends CoreService implements StatementServiceInterface
         return $statementArray;
     }
 
+    /**
+     * @throws ReflectionException
+     */
     private function handleDocumentConversion(array $statementArray): array
     {
         if ($statementArray['element'] instanceof Elements) {
@@ -1997,6 +2003,9 @@ class StatementService extends CoreService implements StatementServiceInterface
         return $statementArray;
     }
 
+    /**
+     * @throws ReflectionException
+     */
     private function convertVotes(array $statementArray): array
     {
         $votes = [];
