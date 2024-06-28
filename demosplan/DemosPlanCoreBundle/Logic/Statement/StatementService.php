@@ -1937,6 +1937,8 @@ class StatementService extends CoreService implements StatementServiceInterface
                 $statementArray['statementAttributes'][$sa->getType()] = $sa->getValue();
             }
         }
+
+        return $statementArray;
     }
 
     private function convertProcedure(array $statementArray): array
