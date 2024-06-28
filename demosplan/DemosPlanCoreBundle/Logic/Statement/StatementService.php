@@ -1917,7 +1917,10 @@ class StatementService extends CoreService implements StatementServiceInterface
         return $statementArray;
     }
 
-    private function convertStatementAttributes(array $statementArray, ArrayCollection $statementAttributes): array
+    /**
+     * @param StatementAttribute[]|ArrayCollection $statementAttributes
+     */
+    private function convertStatementAttributes(array $statementArray, array|ArrayCollection $statementAttributes): array
     {
         if ((is_countable($statementAttributes) ? count($statementAttributes) : 0) > 0) {
             $statementArray['statementAttributes'] = [];
