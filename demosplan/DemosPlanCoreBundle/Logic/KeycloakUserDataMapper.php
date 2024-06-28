@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
@@ -174,7 +175,7 @@ class KeycloakUserDataMapper
         $userFirstName = '';
         $userLastName = UserInterface::DEFAULT_ORGA_USER_NAME;
         $userEmail = $keycloakUserData->getEmailAddress();
-        $orgaTypeNames = [OrgaType::PUBLIC_AGENCY];
+        $orgaTypeNames = [OrgaTypeInterface::PUBLIC_AGENCY];
 
         $orga = $this->orgaService->createOrgaRegister(
             $orgaName,
@@ -182,7 +183,7 @@ class KeycloakUserDataMapper
             $userFirstName,
             $userLastName,
             $userEmail,
-            $this->customerService->getCurrentCustomer(),
+            $customer,
             $orgaTypeNames
         );
 

@@ -69,9 +69,6 @@ class KeycloakAuthenticator extends OAuth2Authenticator implements Authenticatio
         $targetUrl = $this->router->generate('core_home_loggedin');
 
         return new RedirectResponse($targetUrl);
-
-        // or, on success, let the request continue to be handled by the controller
-        // return null;
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
