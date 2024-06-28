@@ -38,6 +38,7 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Doctrine\Common\DataFixtures\ReferenceRepository;
 use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
@@ -558,6 +559,37 @@ class FunctionalTestCase extends WebTestCase
         $session->set('userId', $this->fixtures->getReference($userReferenceName)->getId());
 
         return $session;
+    }
+
+    public function getEntityManagerMock(): EntityManager
+    {
+        $mock = $this->getMockBuilder(EntityManager::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(
+                [
+                    'getConnection',
+                    'getClassMetadata',
+                    'close',
+                ]
+            )
+            ->getMock();
+
+        $connectionMock = $this->getMockBuilder(Connection::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(
+                [
+                    'beginTransaction',
+                    'commit',
+                    'rollback',
+                ]
+            )
+            ->getMock();
+
+        $mock
+            ->method('getConnection')
+            ->willReturn($connectionMock);
+
+        return $mock;
     }
 
     protected function getConsultationTokenReference(string $name): ConsultationToken
