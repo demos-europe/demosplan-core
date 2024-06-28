@@ -23,7 +23,6 @@ use DemosEurope\DemosplanAddon\Contracts\Services\StatementServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
-use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
@@ -43,7 +42,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
-use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualOriginalStatementCreatedEvent;
@@ -1825,7 +1823,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     /**
      * Convert StatementObject to legacy.
      *
-     * @deprecated Use {@see StatementToLegacyConverter::convert} instead.
+     * @deprecated use {@see StatementToLegacyConverter::convert} instead
      */
     public function convertToLegacy(?Statement $statement): ?array
     {

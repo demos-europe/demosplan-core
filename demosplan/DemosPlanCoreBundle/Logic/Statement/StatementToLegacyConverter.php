@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -9,9 +10,7 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
-
 
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
