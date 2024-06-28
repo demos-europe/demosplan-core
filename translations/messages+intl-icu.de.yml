@@ -4061,6 +4061,7 @@ warning.user.pass.reset.throttle: "Es können keine weiteren Passwort zurückset
 warning.virus.found: "In der Datei {filename} wurde ein Virus gefunden."
 warning.gisLayerCategory.delete.because.of.children: "Die Kategorie {categoryName} konnte nicht gelöscht werden, weil sie noch Kategorien oder Kartenebenen enthält."
 warning.gisLayer.automatic.removed.from.group: "Die Kartenebene \"{gisLayerName}\" wurde aus der Sichtbarkeitsgruppe gelöst, weil es nicht erlaubt ist, die Kartenebene in der Beteiligungsebene auszublenden."
+website: "Webseite"
 welcome: "Herzlich Willkommen in der Bauleitplanung!"
 welcome.back.continue: "Willkommen zurück! Machen Sie dort weiter, wo Sie aufgehört haben."
 wizard.next: "Speichern und zum nächsten Schritt"
