@@ -136,5 +136,6 @@ abstract class PermissionForCustomerOrgaRoleCommand extends CoreCommand
     }
 
     abstract protected function doExecuteAction(string $permissionChoice, CustomerInterface $customerChoice, RoleInterface $roleChoice, mixed $dryRun): array;
+
     abstract protected function getActionName(): string;
 }
