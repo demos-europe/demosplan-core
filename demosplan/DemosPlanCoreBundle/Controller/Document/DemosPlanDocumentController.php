@@ -637,11 +637,12 @@ class DemosPlanDocumentController extends BaseController
         MapService $mapService,
         ProcedureHandler $procedureHandler,
         Request $request,
-        string $procedure)
+        string $procedure,
+        TranslatorInterface $translator)
     {
         $templateVars = [];
         $session = $request->getSession();
-        $title = 'elements.dashboard';
+        $title = $translator->trans('elements.dashboard');
 
         $currentProcedureArray = $currentProcedureService->getProcedureArray();
 
