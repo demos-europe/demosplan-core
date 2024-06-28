@@ -155,35 +155,37 @@
             }) }}
         {% endif %}
 
-        <label class="u-mb-0_5">
-            <input
-                type="checkbox"
-                name="r_print"
-                data-cy="newMapLayerPrint"
-                value="1"
-                {% if templateVars.inData.r_print|default() == 1 %}checked{% endif %}>
-            {{ "explanation.gislayer.print"|trans }}
-        </label>
-        <label class="u-mb-0_5">
-            <input
-                type="checkbox"
-                name="r_default_visibility"
-                data-cy="mapLayerDefaultVisibility"
-                value="1"
-                checked> {# @todo SM Wie können die Werte nach einer fehlerhaften Eingabe übernommen werden? #}
-            {{ "explanation.gislayer.default.visibility"|trans }}
-        </label>
+        {% if hasPermission('feature_map_options') %}
+            <label class="u-mb-0_5">
+                <input
+                    type="checkbox"
+                    name="r_print"
+                    data-cy="newMapLayerPrint"
+                    value="1"
+                    {% if templateVars.inData.r_print|default() == 1 %}checked{% endif %}>
+                {{ "explanation.gislayer.print"|trans }}
+            </label>
+            <label class="u-mb-0_5">
+                <input
+                    type="checkbox"
+                    name="r_default_visibility"
+                    data-cy="mapLayerDefaultVisibility"
+                    value="1"
+                    checked> {# @todo SM Wie können die Werte nach einer fehlerhaften Eingabe übernommen werden? #}
+                {{ "explanation.gislayer.default.visibility"|trans }}
+            </label>
 
-        <label class="u-mb-0_5">
-            <input
-                id="user_toggle_visibility"
-                type="checkbox"
-                name="r_user_toggle_visibility"
-                data-cy="newMapLayerUserToggleVisibility"
-                value="1"
-                checked>
-            {{ "explanation.gislayer.usertoggle.visibility"|trans }}
-        </label>
+            <label class="u-mb-0_5">
+                <input
+                    id="user_toggle_visibility"
+                    type="checkbox"
+                    name="r_user_toggle_visibility"
+                    data-cy="newMapLayerUserToggleVisibility"
+                    value="1"
+                    checked>
+                {{ "explanation.gislayer.usertoggle.visibility"|trans }}
+            </label>
+        {% endif %}
 
         <label class="u-mt u-mb-0_5">
             <input
