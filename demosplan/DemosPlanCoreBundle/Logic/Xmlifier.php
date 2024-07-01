@@ -2,8 +2,15 @@
 
 declare(strict_types=1);
 
-namespace demosplan\DemosPlanCoreBundle\Logic;
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
+namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use Exception;
 
@@ -21,8 +28,6 @@ final class Xmlifier
 
     /**
      * Take a shot at transforming roughly valid html5 into valid xml.
-     *
-     * @return string
      */
     public function xmlify(string $html5): string
     {
@@ -45,7 +50,7 @@ final class Xmlifier
                 }
 
                 $src = 'src="'.$absolutePath.'"';
-                //$matches[4] = $this->removeWidthAttribute($matches[4]);
+                // $matches[4] = $this->removeWidthAttribute($matches[4]);
 
                 return '<img'.$matches[1].$src.$matches[4].'/><br/>';
             },

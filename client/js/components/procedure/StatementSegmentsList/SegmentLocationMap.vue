@@ -166,6 +166,24 @@ export default {
       }
     },
 
+    features () {
+      /*
+       *  Transform the value that is saved as a string into valid GeoJSON
+       *  to be able to use it with a generic vector layer component
+       */
+      return {
+        boundingBox: this.mapData.boundingBox
+          ? {
+              type: 'Feature',
+              geometry: {
+                type: 'Polygon',
+                coordinates: fromExtent(JSON.parse(`[${this.mapData.boundingBox}]`)).getCoordinates()
+              }
+            }
+          : null
+      }
+    },
+
     lineData () {
       return {
         type: 'FeatureCollection',
@@ -204,7 +222,7 @@ export default {
           this.$nextTick(() => {
             this.setCenterAndExtent()
           })
-        } else if (this.mapData.boundingBox.length > 0) {
+        } else if (this.mapData.boundingBox) {
           this.$nextTick(() => {
             this.setInitExtent()
           })

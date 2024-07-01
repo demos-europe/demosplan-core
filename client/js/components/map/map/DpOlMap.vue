@@ -495,7 +495,7 @@ export default {
       this.updateMapInstance()
 
       // If startkartenausschnitt is defined by user, show it on mounted
-      if (this._options.initialExtent.length > 0 && JSON.stringify(this.maxExtent) !== JSON.stringify(this.initialExtent)) {
+      if (this._options.initialExtent && JSON.stringify(this.maxExtent) !== JSON.stringify(this.initialExtent)) {
         this.map.getView().fit(this.initialExtent, { size: this.map.getSize() })
         // If it is not defined, but procedure has coordinates, zoom the map to the coordinates
       } else if (this.initCenter) {
