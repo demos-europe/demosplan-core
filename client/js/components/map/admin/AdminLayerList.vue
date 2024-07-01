@@ -158,7 +158,7 @@
           :opts="draggableOptionsForBaseLayer"
           v-model="currentBaseList"
           :class="{'color--grey': false === isEditable}">
-          <admin-layer-list-item
+          <dp-admin-layer-list-item
             v-for="(item, idx) in currentBaseList"
             :key="item.id"
             :element="item"
