@@ -139,7 +139,7 @@
           <div class="c-at-item__row-icon layout__item u-pl-0">
             <!-- DragHandler -->
           </div><!--
-     -  -><div class="layout--flush layout__item c-at-item__row">
+        --><div class="layout--flush layout__item c-at-item__row">
               <div class="layout__item w-10/12 u-pl-0_5">
                 {{ Translator.trans('description') }}
               </div><!--
@@ -158,7 +158,7 @@
           :opts="draggableOptionsForBaseLayer"
           v-model="currentBaseList"
           :class="{'color--grey': false === isEditable}">
-          <dp-admin-layer-list-item
+          <admin-layer-list-item
             v-for="(item, idx) in currentBaseList"
             :key="item.id"
             :element="item"
