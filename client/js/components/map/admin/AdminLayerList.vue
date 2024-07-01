@@ -83,8 +83,8 @@
         <div class="c-at-item__row-icon u-pl-0">
           <!-- DragHandler -->
         </div>
-        <div class="c-at-item__row u-pl-0_5">
-          <div class="layout__item w-9/12">
+        <div class="flex u-pl-0_5">
+          <div class="w-9/12">
             {{ Translator.trans('description') }}
           </div>
           <div class="w-1/12 text-right">
@@ -158,7 +158,7 @@
           :opts="draggableOptionsForBaseLayer"
           v-model="currentBaseList"
           :class="{'color--grey': false === isEditable}">
-          <dp-admin-layer-list-item
+          <admin-layer-list-item
             v-for="(item, idx) in currentBaseList"
             :key="item.id"
             :element="item"
