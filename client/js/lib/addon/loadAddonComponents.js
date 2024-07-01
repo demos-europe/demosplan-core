@@ -1,7 +1,17 @@
 import { checkResponse, dpRpc } from '@demos-europe/demosplan-ui'
 
 export default async function loadAddonComponents (hookName) {
-const params = {
+  while (window.dplan.loadedAddons[hookName] === 'pending') {
+    await new Promise(resolve => setTimeout(resolve, 100))
+  }
+
+  if (window.dplan.loadedAddons[hookName] && typeof window.dplan.loadedAddons[hookName] === 'object') {
+    return window.dplan.loadedAddons[hookName]
+  }
+
+  window.dplan.loadedAddons[hookName] = 'pending'
+
+  const params = {
     hookName: hookName
   }
 
@@ -37,6 +47,8 @@ const params = {
           options: addon.options ?? ''
         })
       }
+
+      window.dplan.loadedAddons[hookName] = addons
 
       return addons
     })
