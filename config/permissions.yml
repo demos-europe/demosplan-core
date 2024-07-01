@@ -78,6 +78,12 @@ area_admin_map:
     label: 'Verwalten Planzeichnung'
     loginRequired: true
     parent: area_admin
+area_admin_elements:
+    description: |-
+        Display the admin list of elements (documents) of the procedure
+    label: 'Dokumente des Verfahrens'
+    loginRequired: true
+    parent: area_admin
 area_admin_initial_map_view:
     description: |-
         Enable only menu item to show the initial map section in the procedure.
@@ -1126,6 +1132,13 @@ feature_map_feature_info:
     description: |-
         Restrict the access to edit the public map information url (in the admin area)
     label: 'Restrict the access to edit the public map information url (in the admin area)'
+    expose: true
+    loginRequired: true
+    parent: area_admin_map
+feature_map_layer_visibility:
+    description: |-
+        Manage visibility settings related to the map layer (in the admin area)
+    label: 'Manage visibility settings related to the map layer (in the admin area)'
     expose: true
     loginRequired: true
     parent: area_admin_map

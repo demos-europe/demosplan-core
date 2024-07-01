@@ -16,6 +16,7 @@
     <div class="c-slidebar__content overflow-y-auto u-mr">
       <dp-ol-map
         ref="map"
+        :layers="mapData.layers"
         :procedure-id="procedureId"
         :map-options="{
           procedureMaxExtent: mapData.mapExtent ?? []
@@ -23,7 +24,7 @@
         :options="{
           autoSuggest: false,
           defaultAttribution: mapData.copyright,
-          initialExtent: mapData.boundingBox ?? [],
+          initialExtent: mapData.boundingBox ?? mapData.mapExtent ?? []
         }">
         <template v-if="hasPermission('feature_segment_polygon_set')">
           <dp-ol-map-draw-feature
