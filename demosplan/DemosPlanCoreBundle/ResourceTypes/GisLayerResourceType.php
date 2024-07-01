@@ -101,7 +101,17 @@ final class GisLayerResourceType extends DplanResourceType
 
     protected function getAccessConditions(): array
     {
-        return [];
+        $currentProcedure = $this->currentProcedureService->getProcedure();
+        if (null === $currentProcedure) {
+            return [$this->conditionFactory->false()];
+        }
+
+        $procedureId = $currentProcedure->getId();
+
+        return [
+            $this->conditionFactory->propertyHasValue($procedureId, Paths::gisLayer()->category->procedure->id),
+            $this->conditionFactory->propertyHasValue(false, Paths::gisLayer()->category->procedure->deleted),
+        ];
     }
 
     protected function getProperties(): array
