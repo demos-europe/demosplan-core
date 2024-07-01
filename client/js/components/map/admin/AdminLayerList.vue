@@ -318,7 +318,6 @@ export default {
         return this.gisLayerList('overlay')
       },
       set (value) {
-        console.log('set mapList', value)
         this.setChildrenFromCategory({
           categoryId: null,
           data: value,
