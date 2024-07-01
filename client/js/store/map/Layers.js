@@ -92,7 +92,6 @@ const LayersStore = {
      * @param element|Object {'id': elementId, 'categoryId': parentId, 'relationshipType': categories|gisLayers }
      */
     removeElement (state, element) {
-      console.log('remove Element', element)
       const included = state.apiData.included
       let relationships
       let indexRelationships = []
