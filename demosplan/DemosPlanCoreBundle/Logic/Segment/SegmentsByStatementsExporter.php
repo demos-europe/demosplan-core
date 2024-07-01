@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
+use demosplan\DemosPlanCoreBundle\Logic\Xmlifier;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use PhpOffice\PhpWord\Element\Section;
@@ -43,9 +44,10 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         private readonly EntityHelper $entityHelper,
         HTMLSanitizer $HTMLSanitizer,
         Slugify $slugify,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        private readonly Xmlifier $xmlifier
     ) {
-        parent::__construct($currentUser, $HTMLSanitizer, $slugify, $translator);
+        parent::__construct($currentUser, $HTMLSanitizer, $slugify, $translator, $xmlifier);
     }
 
     public function getSynopseFileName(Procedure $procedure, string $suffix): string
