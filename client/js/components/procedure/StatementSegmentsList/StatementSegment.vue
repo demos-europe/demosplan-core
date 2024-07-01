@@ -105,9 +105,15 @@
           editor-id="recommendationText"
           :toolbar-items="{
             fullscreenButton: false,
+            imageButton: true,
             linkButton: true
           }"
           :value="segment.attributes.recommendation"
+          :basic-auth="dplan.settings.basicAuth"
+          :routes="{
+            getFileByHash: (hash) => Routing.generate('core_file_procedure', { procedureId: procedureId, hash: hash})
+          }"
+          :tus-endpoint="dplan.paths.tusEndpoint"
           @input="value => updateSegment('recommendation', value)">
           <template v-slot:modal="modalProps">
             <dp-boiler-plate-modal
