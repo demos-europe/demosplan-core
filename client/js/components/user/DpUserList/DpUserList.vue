@@ -231,14 +231,13 @@ export default {
           number: page ?? 1
         },
         filter: {
-          namefilter: {
+          firstnameFilter: {
             condition: {
               path: 'firstname',
               operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
               value: this.searchValue
             }
-          }
-        },
+          },
         include: ['roles', 'orga', 'department', 'orga.allowedRoles'].join()
       })
         .then(() => {
