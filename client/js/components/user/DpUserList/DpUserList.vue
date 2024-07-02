@@ -237,7 +237,8 @@ export default {
               operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
               value: this.searchValue
             }
-          },
+          }
+        },
         include: ['roles', 'orga', 'department', 'orga.allowedRoles'].join()
       })
         .then(() => {
