@@ -106,7 +106,7 @@ const LayersStore = {
       if (indexParent >= 0) {
         relationships = state.apiData.included[indexParent].relationships[element.relationshipType].data
       } else {
-        relationships = state.apiData.data.relationships[element.relationshipType].data
+        relationships = state.apiData.data[0].relationships[element.relationshipType].data
       }
 
       // Get index of data in relationships based on above switch
