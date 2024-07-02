@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Permissions\CachingYamlPermissionCollection;
@@ -129,6 +130,7 @@ class PermissionsTest extends FunctionalTestCase
         $validator = self::$container->get(ValidatorInterface::class);
         $procedureRepository = $this->getProcedureRepositoryMock();
         $permissionsClass = $this->getPermissionsClass();
+        $accessControlService = self::$container->get(AccessControlService::class);
 
         $customerService = static::$container->get(CustomerService::class);
         $addonRegistry = static::$container->get(AddonRegistry::class);
@@ -149,7 +151,8 @@ class PermissionsTest extends FunctionalTestCase
                 $permissionsResolver,
                 $procedureAccessEvaluator,
                 $procedureRepository,
-                $validator
+                $validator,
+                $accessControlService
             );
 
         return $permissions;
