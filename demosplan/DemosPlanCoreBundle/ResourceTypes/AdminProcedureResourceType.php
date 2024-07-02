@@ -16,6 +16,9 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use EDT\PathBuilding\End;
+use EDT\Wrapping\ResourceBehavior\ResourceInstantiability;
+use EDT\Wrapping\ResourceBehavior\ResourceReadability;
+use EDT\Wrapping\ResourceBehavior\ResourceUpdatability;
 
 /**
  * This class limits the access to {@link Procedure} instances to those, that are allowed
@@ -146,5 +149,30 @@ final class AdminProcedureResourceType extends DplanResourceType
         $resourceTypeConditions = $this->procedureResourceType->getResourceTypeConditions();
 
         return array_merge($adminProcedureConditions, $resourceTypeConditions);
+    }
+
+    protected function getInstantiability(): ResourceInstantiability
+    {
+        // TODO: Implement getInstantiability() method.
+    }
+
+    public function getFilteringProperties(): array
+    {
+        // TODO: Implement getFilteringProperties() method.
+    }
+
+    public function getReadability(): ResourceReadability
+    {
+        // TODO: Implement getReadability() method.
+    }
+
+    public function getUpdatability(): ResourceUpdatability
+    {
+        // TODO: Implement getUpdatability() method.
+    }
+
+    public function getSortingProperties(): array
+    {
+        // TODO: Implement getSortingProperties() method.
     }
 }
