@@ -63,15 +63,21 @@
         :hint="Translator.trans('branding.styling.hint')"
         id="r_cssvars"
         name="r_cssvars"
+        data-cy="customerSettingsBranding:brandingStylingInput"
         :label="Translator.trans('branding.styling.input')"
         reduced-height
         :value="branding.cssvars" />
-      <dp-details :summary="Translator.trans('branding.styling.details')">
-        <span v-html="Translator.trans('branding.styling.details.description')" />
+      <dp-details
+        :summary="Translator.trans('branding.styling.details')"
+        data-cy="customerSettingsBranding:brandingStylingDetails">
+        <span
+          v-html="Translator.trans('branding.styling.details.description')"
+          data-cy="customerSettingsBranding:brandingStylingDetailsDescription"/>
       </dp-details>
     </div>
     <dp-button-row
       class="layout__item u-1-of-1"
+      data-cy="customerSettingsBranding"
       primary
       :busy="isBusy"
       @primary-action="saveBrandingSettings" />

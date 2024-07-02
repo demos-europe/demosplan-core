@@ -17,6 +17,7 @@
       class="hide-visually"
       v-text="title" />
     <dp-accordion
+      :data-cy="dataCy !== '' ? dataCy : false"
       :is-open="isOpen"
       :title="title">
       <div class="o-box--dark u-p">
@@ -37,6 +38,12 @@ export default {
   },
 
   props: {
+    dataCy: {
+      type: String,
+      required: false,
+      default: ''
+    },
+
     isOpen: {
       type: Boolean,
       required: false,

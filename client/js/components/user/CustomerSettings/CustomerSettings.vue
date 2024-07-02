@@ -18,7 +18,8 @@
       <customer-settings-section
         v-if="hasPermission('feature_platform_logo_edit') || hasPermission('feature_customer_branding_edit')"
         is-open
-        :title="Translator.trans('customer.branding.label')">
+        :title="Translator.trans('customer.branding.label')"
+        data-cy="customerSettings:customerBrandingLabel">
         <customer-settings-branding
           :branding="branding"
           :branding-id="customerBrandingId"
@@ -29,7 +30,8 @@
       <customer-settings-section
         v-if="hasPermission('feature_platform_public_index_map_settings')"
         is-open
-        :title="Translator.trans('map.mainpage.settings')">
+        :title="Translator.trans('map.mainpage.settings')"
+        data-cy="customerSettings:mapMainPageSettings">
         <customer-settings-map
           :current-customer-id="currentCustomerId"
           :init-layer="initLayer"
@@ -41,12 +43,14 @@
       <!-- Imprint -->
       <customer-settings-section
         v-if="hasPermission('feature_imprint_text_customized_view')"
-        :title="Translator.trans('imprint')">
+        :title="Translator.trans('imprint')"
+        data-cy="customerSettings:imprint">
         <dp-label
           for="r_imprint"
           :text="Translator.trans('customer.imprint.explanation', { url: imprintUrl })" />
         <dp-editor
           id="r_imprint"
+          data-cy="customerSettings:imprintTextEditor"
           v-model="customer.imprint"
           hidden-input="r_imprint"
           :toolbar-items="{
@@ -56,6 +60,7 @@
           }" />
         <dp-button-row
           class="u-mt"
+          data-cy="customerSettings:imprintTextEditor"
           primary
           secondary
           :busy="isBusy"
@@ -67,12 +72,14 @@
       <!-- Data Protection -->
       <customer-settings-section
         v-if="hasPermission('feature_data_protection_text_customized_view')"
-        :title="Translator.trans('data.protection.notes')">
+        :title="Translator.trans('data.protection.notes')"
+        data-cy="customerSettings:dataProtectionNotes">
         <dp-label
           for="r_dataProtection"
           :text="Translator.trans('customer.data.protection.explanation')" />
         <dp-editor
           id="r_dataProtection"
+          data-cy="customerSettings:dataProtection"
           v-model="customer.dataProtection"
           hidden-input="r_dataProtection"
           :toolbar-items="{
@@ -82,6 +89,7 @@
           }" />
         <dp-button-row
           class="u-mt"
+          data-cy="customerSettings:dataProtectionNotes"
           primary
           secondary
           :busy="isBusy"
