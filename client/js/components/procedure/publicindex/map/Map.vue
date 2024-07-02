@@ -11,6 +11,7 @@
   <l-map
     class="c-publicindex__map isolate"
     ref="map"
+    :aria-label="Translator.trans('map')"
     :zoom="initialZoom"
     :center="initialLocation"
     :min-zoom="7"
@@ -144,13 +145,13 @@ export default {
   },
 
   computed: {
-    ...mapGetters('procedure', [
+    ...mapGetters('Procedure', [
       'currentProcedureId',
       'currentView',
       'shouldMapZoomBeSet'
     ]),
 
-    ...mapState('procedure', {
+    ...mapState('Procedure', {
       proceduresFromStore: 'procedures'
     }),
 
@@ -230,7 +231,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('procedure', [
+    ...mapActions('Procedure', [
       'showDetailView'
     ]),
 

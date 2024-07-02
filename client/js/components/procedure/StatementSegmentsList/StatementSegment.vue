@@ -344,7 +344,6 @@ import {
   VPopover
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
@@ -355,7 +354,6 @@ export default {
   inject: ['procedureId'],
 
   components: {
-    AddonWrapper,
     DpBadge,
     DpBoilerPlateModal,
     DpButtonRow,
@@ -440,9 +438,9 @@ export default {
   },
 
   computed: {
-    ...mapState('segmentSlidebar', ['slidebar']),
+    ...mapState('SegmentSlidebar', ['slidebar']),
 
-    ...mapState('assignableUser', {
+    ...mapState('AssignableUser', {
       assignableUserItems: 'items'
     }),
 
@@ -483,8 +481,8 @@ export default {
     },
 
     places () {
-      return this.$store.state.place
-        ? Object.values(this.$store.state.place.items)
+      return this.$store.state.Place
+        ? Object.values(this.$store.state.Place.items)
           .map(pl => ({ ...pl.attributes, id: pl.id }))
         : []
     },
@@ -496,8 +494,8 @@ export default {
     },
 
     tagsAsString () {
-      if (this.segment.hasRelationship('tags')) {
-        return Object.values(this.segment.rel('tags')).map(el => el.attributes.title).join(', ')
+      if (this.segment.hasRelationship('tag')) {
+        return Object.values(this.segment.rel('tag')).map(el => el.attributes.title).join(', ')
       }
 
       return '-'
@@ -515,35 +513,35 @@ export default {
   },
 
   methods: {
-    ...mapActions('assignableUser', {
+    ...mapActions('AssignableUser', {
       fetchAssignableUsers: 'list'
     }),
 
-    ...mapActions('place', {
+    ...mapActions('Place', {
       fetchPlaces: 'list'
     }),
 
-    ...mapActions('segmentSlidebar', [
+    ...mapActions('SegmentSlidebar', [
       'toggleSlidebarContent'
     ]),
 
-    ...mapMutations('segmentSlidebar', [
+    ...mapMutations('SegmentSlidebar', [
       'setProperty'
     ]),
 
-    ...mapActions('statementSegment', {
+    ...mapActions('StatementSegment', {
       restoreSegmentAction: 'restoreFromInitial',
       saveSegmentAction: 'save'
     }),
 
-    ...mapMutations('statementSegment', {
+    ...mapMutations('StatementSegment', {
       updateSegment: 'update',
       setSegment: 'setItem'
     }),
 
     abort () {
       // Restore initial recommendation value, set it also in tiptap
-      const initText = this.$store.state.statementSegment.initial[this.segment.id].attributes.recommendation
+      const initText = this.$store.state.StatementSegment.initial[this.segment.id].attributes.recommendation
       this.updateSegment('recommendation', initText)
       // Update interface
       this.isFullscreen = false
@@ -768,7 +766,7 @@ export default {
           const dataToUpdate = JSON.parse(JSON.stringify(this.segment))
           delete dataToUpdate.relationships.assignee
           // Reset recommendation text in store (segment might have been in edit mode with some changes)
-          dataToUpdate.attributes.recommendation = this.$store.state.statementSegment.initial[this.segment.id].attributes.recommendation
+          dataToUpdate.attributes.recommendation = this.$store.state.StatementSegment.initial[this.segment.id].attributes.recommendation
           // Set segment in store, without the assignee and with resetted recommendation
           this.setSegment({ ...dataToUpdate, id: this.segment.id })
           this.claimLoading = false

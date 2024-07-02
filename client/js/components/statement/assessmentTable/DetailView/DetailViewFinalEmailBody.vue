@@ -9,6 +9,7 @@
 
 <template>
   <dp-editor
+    :data-cy="dataCy"
     hidden-input="r_send_body"
     :toolbar-items="toolbarItems"
     v-model="text">
@@ -51,6 +52,12 @@ export default {
   mixins: [prefixClassMixin],
 
   props: {
+    dataCy: {
+      type: String,
+      required: false,
+      default: 'statementDetailFinalEmailBody'
+    },
+
     initText: {
       type: String,
       required: true

@@ -21,11 +21,11 @@ export default class NotificationStoreAdapter {
     } else {
       message = { type, text, linkUrl, linkText }
     }
-    this.store.commit('notify/add', message)
+    this.store.commit('Notify/add', message)
   }
 
   remove (notification) {
-    this.store.commit('notify/remove', notification)
+    this.store.commit('Notify/remove', notification)
   }
 
   info (...args) {

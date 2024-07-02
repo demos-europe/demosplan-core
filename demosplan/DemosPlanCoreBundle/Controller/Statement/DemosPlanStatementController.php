@@ -30,6 +30,7 @@ use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\CookieException;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\DraftStatementNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\DuplicateInternIdException;
 use demosplan\DemosPlanCoreBundle\Exception\GdprConsentRequiredException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
@@ -55,7 +56,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\GdprConsentRevokeTokenService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListHandlerResult;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
@@ -81,6 +81,8 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -848,9 +850,9 @@ class DemosPlanStatementController extends BaseController
     public function newPublicStatementAjaxAction(
         CurrentProcedureService $currentProcedureService,
         EventDispatcherPostInterface $eventDispatcherPost,
+        RateLimiterFactory $anonymousStatementLimiter,
         Request $request,
         StatementHandler $statementHandler,
-        GdprConsentRevokeTokenService $gdprConsentRevokeTokenService,
         FileUploadService $fileUploadService,
         EventDispatcherInterface $eventDispatcher,
         string $procedure
@@ -860,6 +862,14 @@ class DemosPlanStatementController extends BaseController
                 throw new Exception('In der aktuellen Phase darf keine Stellungnahme abgegeben werden');
             }
 
+            $limiter = $anonymousStatementLimiter->create($request->getClientIp());
+
+            // avoid brute force attacks
+            // if the limit bites during development or testing, you can increase the limit in the config via setting
+            // framework.rate_limiter.anonymous_statement.limit in the parameters.yml to a higher value
+            if (false === $limiter->consume(1)->isAccepted()) {
+                throw new TooManyRequestsHttpException();
+            }
             $requestPost = $request->request->all();
             $this->logger->debug('Received ajaxrequest to save statement', ['request' => $requestPost, 'procedure' => $procedure]);
 
@@ -2496,6 +2506,12 @@ class DemosPlanStatementController extends BaseController
                     ]
                 );
             }
+            throw new DemosException(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS);
+        } catch (DuplicateInternIdException $e) {
+            $this->getMessageBag()->add(
+                'error',
+                'statements.import.error.document.duplicate.internid'
+            );
             throw new DemosException(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS);
         } catch (Exception $e) {
             $this->logger->error(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS, ['exception' => $e]);

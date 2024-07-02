@@ -8,12 +8,11 @@
 </license>
 
 <template>
-  <div :class="{ 'top-0 left-0 w-full h-full fixed z-fixed bg-white': isFullscreen }">
-    <!-- Header -->
+  <div :class="{ 'top-0 left-0 flex flex-col w-full h-full fixed z-fixed bg-white': isFullscreen }">
     <dp-sticky-element
       border
-      class="py-2"
-      :class="{ 'fixed top-0 left-0 w-full h-1/6 px-2': isFullscreen }">
+      class="pt-2 pb-3"
+      :class="{ 'fixed top-0 left-0 w-full px-2': isFullscreen }">
       <div class="flex items-center justify-between mb-2">
         <div class="flex">
           <search-modal
@@ -47,37 +46,12 @@
           @click.prevent="handleBulkShare"
           :text="Translator.trans('procedure.share_statements.bulk.share')" />
       </dp-bulk-edit-header>
-      <dp-flyout
-        ref="flyout"
+      <statement-export-modal
         data-cy="listStatements:export"
-        :align="'left'">
-        <template v-slot:trigger>
-          {{ Translator.trans('export.verb') }}
-          <i
-            class="fa fa-angle-down"
-            aria-hidden="true" />
-        </template>
-        <a
-          data-cy="listStatements:exportStatementsDocx"
-          href="#"
-          @click="showHintAndDoExport('dplan_statement_segments_export')">
-          {{ Translator.trans('export.statements.docx') }}
-        </a>
-        <a
-          data-cy="listStatements:exportStatementsZip"
-          href="#"
-          @click="showHintAndDoExport('dplan_statement_segments_export_packaged')">
-          {{ Translator.trans('export.statements.zip') }}
-        </a>
-        <a
-          v-if="hasPermission('feature_admin_assessmenttable_export_statement_generic_xlsx')"
-          :href="exportRoute('dplan_statement_xls_export')"
-          data-cy="listStatements:exportStatementsXlsx"
-          rel="noopener">
-          {{ Translator.trans('export.statements.xlsx') }}
-        </a>
-      </dp-flyout>
-      <div class="flex mt-2">
+        @export="showHintAndDoExport" />
+      <div
+        v-if="items.length > 0"
+        class="flex mt-2">
         <dp-pager
           v-if="pagination.currentPage"
           :class="{ 'invisible': isLoading }"
@@ -101,13 +75,15 @@
       </div>
     </dp-sticky-element>
 
-    <dp-loading v-if="isLoading" />
+    <dp-loading
+      class="u-mt"
+      v-if="isLoading" />
 
-    <!-- Statement list -->
-    <template v-if="!isLoading && items.length > 0">
+    <template v-else>
       <dp-data-table
+        v-if="items.length > 0"
         data-cy="listStatements"
-        :class="{ 'px-2 overflow-y-scroll h-5/6': isFullscreen }"
+        :class="{ 'px-2 overflow-y-scroll grow': isFullscreen }"
         has-flyout
         :is-selectable="isSourceAndCoupledProcedure"
         :header-fields="headerFields"
@@ -289,12 +265,13 @@
           </div>
         </template>
       </dp-data-table>
-    </template>
 
-    <dp-inline-notification
-      v-else-if="!isLoading && items.length === 0"
-      :message="Translator.trans((this.searchValue === '' ? 'statements.none' : 'search.no.results'), {searchterm: this.searchValue})"
-      type="info" />
+      <dp-inline-notification
+        v-else
+        :class="{ 'mx-2': isFullscreen }"
+        :message="Translator.trans((this.searchValue === '' ? 'statements.none' : 'search.no.results'), {searchterm: this.searchValue})"
+        type="info" />
+    </template>
   </div>
 </template>
 
@@ -320,6 +297,7 @@ import { mapActions, mapMutations, mapState } from 'vuex'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import SearchModal from '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'
+import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
 
 export default {
@@ -337,6 +315,7 @@ export default {
     DpSelect,
     DpStickyElement,
     SearchModal,
+    StatementExportModal,
     StatementMetaData
   },
 
@@ -421,15 +400,15 @@ export default {
   },
 
   computed: {
-    ...mapState('assignableUser', {
+    ...mapState('AssignableUser', {
       assignableUsersObject: 'items'
     }),
 
-    ...mapState('orga', {
+    ...mapState('Orga', {
       orgaObject: 'items'
     }),
 
-    ...mapState('statement', {
+    ...mapState('Statement', {
       statementsObject: 'items',
       currentPage: 'currentPage',
       totalFiles: 'totalFiles',
@@ -447,22 +426,34 @@ export default {
     },
 
     exportRoute: function () {
-      return (exportRoute) => Routing.generate(exportRoute, {
-        filter: {
-          procedureId: {
-            condition: {
-              path: 'procedure.id',
-              value: this.procedureId
+      return (exportRoute, docxHeaders) => {
+        const parameters = {
+          filter: {
+            procedureId: {
+              condition: {
+                path: 'procedure.id',
+                value: this.procedureId
+              }
             }
+          },
+          procedureId: this.procedureId,
+          search: {
+            value: this.searchValue,
+            ...this.searchFieldsSelected !== null ? { fieldsToSearch: this.searchFieldsSelected } : {}
+          },
+          sort: this.selectedSort
+        }
+
+        if (docxHeaders) {
+          parameters.tableHeaders = {
+            col1: docxHeaders.col1,
+            col2: docxHeaders.col2,
+            col3: docxHeaders.col3
           }
-        },
-        procedureId: this.procedureId,
-        search: {
-          value: this.searchValue,
-          ...this.searchFieldsSelected !== null ? { fieldsToSearch: this.searchFieldsSelected } : {}
-        },
-        sort: this.selectedSort
-      })
+        }
+
+        return Routing.generate(exportRoute, parameters)
+      }
     },
 
     items () {
@@ -486,17 +477,17 @@ export default {
   },
 
   methods: {
-    ...mapActions('assignableUser', {
+    ...mapActions('AssignableUser', {
       fetchAssignableUsers: 'list'
     }),
 
-    ...mapActions('statement', {
+    ...mapActions('Statement', {
       deleteStatement: 'delete',
       fetchStatements: 'list',
       restoreStatementAction: 'restoreFromInitial'
     }),
 
-    ...mapMutations('statement', {
+    ...mapMutations('Statement', {
       setStatement: 'setItem'
     }),
 
@@ -911,11 +902,10 @@ export default {
       }
     },
 
-    showHintAndDoExport (route) {
+    showHintAndDoExport ({ route, docxHeaders }) {
       if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
-        window.location.href = this.exportRoute(route)
+        window.location.href = this.exportRoute(route, docxHeaders)
       }
-      this.$refs.flyout.toggle()
     },
 
     triggerStatementDeletion (id) {

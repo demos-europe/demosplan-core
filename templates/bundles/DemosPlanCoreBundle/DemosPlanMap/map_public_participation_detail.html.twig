@@ -25,7 +25,11 @@
                         class="{{ 'layout__item'|prefixClass }} {{ procedureStatementPriorityArea ? 'u-1-of-3'|prefixClass : 'u-1-of-2'|prefixClass }}"
                         :class="activeActionBoxTab === 'talk' ? prefixClass('is-visible-actionbox-toggle') : ''"
                         @click.prevent="update({ key: 'activeActionBoxTab', val: 'talk' })">
-                        <a class="{{ 'c-actionbox__toggle'|prefixClass }}" href="#statementAction" aria-label="{{ 'statement.new'|trans }}">
+                        <a
+                            class="{{ 'c-actionbox__toggle'|prefixClass }}"
+                            data-cy="mapPublicParticipationDetail:statementAction"
+                            href="#statementAction"
+                            aria-label="{{ 'statement.new'|trans }}">
                             <i :class="activeStatement ? prefixClass('fa fa-commenting') : prefixClass('fa fa-comment')" aria-hidden="true"></i>
                         </a>
                     </li><!--
@@ -43,7 +47,12 @@
     {#                    data-toggle="#queryArea"#}
                         :class="activeActionBoxTab === 'priorityArea' ? prefixClass('is-visible-actionbox-toggle') : ''"
                         @click.prevent="update({ key: 'activeActionBoxTab', val: 'priorityArea' })">
-                        <a class="{{ 'c-actionbox__toggle'|prefixClass }}" href="#queryAreaButton" aria-label="{{ 'statement.map.choose_priority_area'|trans}}"><i class="{{ 'fa fa-flag-o'|prefixClass }}" aria-hidden="true"></i></a>
+                        <a
+                            class="{{ 'c-actionbox__toggle'|prefixClass }}"
+                            data-cy="mapPublicParticipationDetail:queryAreaButton"
+                            href="#queryAreaButton"
+                            aria-label="{{ 'statement.map.choose_priority_area'|trans}}">
+                            <i class="{{ 'fa fa-flag-o'|prefixClass }}" aria-hidden="true"></i></a>
                     </li><!--
                     {% endif %}
 
@@ -58,7 +67,11 @@
                         class="{{ 'layout__item'|prefixClass }} {{ procedureStatementPriorityArea ? 'u-1-of-3'|prefixClass : 'u-1-of-2'|prefixClass }}"
                         :class="activeActionBoxTab === 'draw' ? prefixClass('is-visible-actionbox-toggle') : ''"
                         @click.prevent="update({ key: 'activeActionBoxTab', val: 'draw' })">
-                        <a class="{{ 'c-actionbox__toggle'|prefixClass }}" href="#markLocationButton" aria-label="{{ "statement.map.draw_to_map"|trans }}" aria-describedby="statementMapDrawHint">
+                        <a
+                            class="{{ 'c-actionbox__toggle'|prefixClass }}"
+                            data-cy="mapPublicParticipationDetail:markLocationButton"
+                            href="#markLocationButton"
+                            aria-label="{{ "statement.map.draw_to_map"|trans }}" aria-describedby="statementMapDrawHint">
                             <i class="{{ 'fa fa-map-marker'|prefixClass }}" aria-hidden="true"></i>
                         </a>
                     </li>
@@ -130,6 +143,7 @@
                                 <button
                                     type="button"
                                     class="{{ 'c-actionbox__tool btn--blank js__mapcontrol'|prefixClass }}"
+                                    data-cy="mapPublicParticipationDetail:drawMarkPlace"
                                     id="markLocationButton"
                                     aria-label="{{ "statement.map.draw.mark_place"|trans }}"
                                     title="{{ "statement.map.draw.mark_place"|trans }}">
@@ -139,6 +153,7 @@
                                     type="button"
                                     id="drawPointButton"
                                     class="{{ 'c-actionbox__tool btn--blank js__mapcontrol'|prefixClass }}"
+                                    data-cy="mapPublicParticipationDetail:drawMarkPoint"
                                     aria-label="{{ "statement.map.draw.mark_point"|trans }}"
                                     title="{{ "statement.map.draw.mark_point"|trans }}">
                                     <i class="{{ 'fa fa-lg fa-pencil'|prefixClass }}" aria-hidden="true"></i>
@@ -147,6 +162,7 @@
                                     type="button"
                                     id="drawLineButton"
                                     class="{{ 'c-actionbox__tool btn--blank js__mapcontrol'|prefixClass }}"
+                                    data-cy="mapPublicParticipationDetail:drawMarkLine"
                                     aria-label="{{ "statement.map.draw.mark_line"|trans }}"
                                     title="{{ "statement.map.draw.mark_line"|trans }}">
                                     <i class="{{ 'fa fa-lg fa-minus'|prefixClass }}" aria-hidden="true"></i>
@@ -155,6 +171,7 @@
                                     type="button"
                                     id="drawPolygonButton"
                                     class="{{ 'c-actionbox__tool btn--blank js__mapcontrol'|prefixClass }}"
+                                    data-cy="mapPublicParticipationDetail:drawMarkPolygon"
                                     aria-label="{{ "statement.map.draw.mark_polygon"|trans }}"
                                     title="{{ "statement.map.draw.mark_polygon"|trans }}">
                                     <i class="{{ 'fa fa-lg fa-pencil-square-o'|prefixClass }}" aria-hidden="true"></i>
@@ -163,6 +180,7 @@
                                     type="button"
                                     id="clearDrawingButton"
                                     class="{{ 'c-actionbox__tool btn--blank c-actionbox__tool--dimmed js__mapcontrol'|prefixClass }}"
+                                    data-cy="mapPublicParticipationDetail:drawDropAll"
                                     aria-label="{{ "statement.map.draw.drop_all"|trans }}"
                                     title="{{ "statement.map.draw.drop_all"|trans }}">
                                     <i class="{{ 'fa fa-lg fa-eraser'|prefixClass }}" aria-hidden="true"></i>

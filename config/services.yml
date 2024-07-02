@@ -25,6 +25,10 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\Factory\GisLayerFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\GisLayerFactory'
 
+    DemosEurope\DemosplanAddon\Contracts\Factory\BoilerplateFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\BoilerplateFactory'
+
+    DemosEurope\DemosplanAddon\Contracts\Factory\BoilerplateCategoryFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\BoilerplateCategoryFactory'
+
     DemosEurope\DemosplanAddon\Contracts\Factory\PercentageDistributionFactoryInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\Factory\PercentageDistributionFactory'
 
@@ -230,10 +234,11 @@ services:
         arguments:
             - !tagged dplan.data.generator
 
+    demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\ApiAuthenticator:
+        parent: lexik_jwt_authentication.security.jwt_authenticator
+
     demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\AiApiAuthenticator:
-        autowire: true
-        public: false
-        parent: lexik_jwt_authentication.security.guard.jwt_token_authenticator
+        parent: lexik_jwt_authentication.security.jwt_authenticator
 
     demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher: ~
 

@@ -10,6 +10,7 @@
 <fieldset>
     <dp-accordion
         class="u-mt-0_75"
+        data-cy="statementDetail:statementData"
         is-open
         title="{{ 'statement.data'|trans }}">
         <div class="o-box--dark u-ph u-pv-0_5">
@@ -70,7 +71,8 @@
                                 elementSize: 'large',
                                 elementClass: orgaNameClass|default,
                                 elementStyle: orgaNameStyle|default,
-                                disabled: orgaNameDisabled|default(false)
+                                disabled: orgaNameDisabled|default(false),
+                                attributes: ['data-cy=statementDetail:submitterType']
                             }) }}
                         {% endif %}
                     {% endif %}
@@ -93,7 +95,8 @@
                         elementSize: 'large',
                         elementStyle: 'inline-block',
                         elementClass: 'u-pl-0_5',
-                        disabled: departmentDisabled|default(false)
+                        disabled: departmentDisabled|default(false),
+                        attributes: ['data-cy=statementDetail:departmentName']
                     }) }}
                 {% endif %}
             {% endif %}
@@ -203,7 +206,8 @@
                             name: submittedAuthorId,
                             class: submittedAuthorClass|default,
                             value: submittedAuthorValue,
-                            disabled: submittedAuthorDisabled|default(false)
+                            disabled: submittedAuthorDisabled|default(false),
+                            attributes: ['data-cy=statementDetail:' ~ submittedAuthorId]
                         }) }}
                     {% endif %}
                 </div>
@@ -257,7 +261,8 @@
                     elementSize: 'large',
                     elementStyle: submitterEmailAddressStyle|default,
                     elementClass: submitterEmailAddressClass|default,
-                    disabled: submitterEmailAddressDisabled|default(false)
+                    disabled: submitterEmailAddressDisabled|default(false),
+                    attributes: ['data-cy=statementDetail:submitterEmailAddress']
                 }) }}
             {% endif %}
 
@@ -386,7 +391,8 @@
                                 id: 'r_orga_street',
                                 elementClass: 'u-5-of-6 u-pr-0_5',
                                 elementStyle: 'inline-block',
-                                disabled: streetDisabled|default(false)
+                                disabled: streetDisabled|default(false),
+                                attributes: ['data-cy=statementDetail:orgaStreet']
                             }) }}
 
                             {% if formDefinitions.streetAndHouseNumber.enabled == true %}
@@ -397,7 +403,8 @@
                                     id: 'r_houseNumber',
                                     elementSize: 'tiny',
                                     elementStyle: 'inline-block',
-                                    disabled: houseNumberDisabled|default(false)
+                                    disabled: houseNumberDisabled|default(false),
+                                    attributes: ['data-cy=statementDetail:houseNumber']
                                 }) }}
                             {% endif %}
                         </div>
@@ -411,7 +418,8 @@
                                 id: 'r_orga_postalcode',
                                 elementStyle: 'inline-block',
                                 elementSize: 'tiny',
-                                disabled: postalCodeDisabled|default(false)
+                                disabled: postalCodeDisabled|default(false),
+                                attributes: ['data-cy=statementDetail:orgaPostalcode']
                             }) }}
 
                             {% set cityClasses = 'u-5-of-6 u-pl-0_5' %}
@@ -426,7 +434,8 @@
                                 id: 'r_orga_city',
                                 elementStyle: 'inline-block',
                                 elementClass: cityClasses,
-                                disabled: cityDisabled|default(false)
+                                disabled: cityDisabled|default(false),
+                                attributes: ['data-cy=statementDetail:orgaCity']
                             }) }}
                         </div>
                         {% endif %}
@@ -668,7 +677,8 @@
                                     elementSize: 'large',
                                     elementClass: 'u-pr-0_5',
                                     disabledPlainText: true,
-                                    disabled: procedurePhaseSelectDisabled|default(false)
+                                    disabled: procedurePhaseSelectDisabled|default(false),
+                                    attributes: ['data-cy=statementDetail:Phase']
                                 }
                             ]
                         }) }}
@@ -698,7 +708,14 @@
 
                     {% set authorDateRowElements = authorDateRowElements|merge([{
                         label: { text: 'statement.date.authored'|trans },
-                        control: { name: 'r_authored_date', value: authoredDateValue, calendarsBefore: 2, class: 'u-5-of-6 o-form__control-wrapper', maxDate: 'now'|date('d.m.Y') },
+                        control: {
+                            name: 'r_authored_date',
+                            value: authoredDateValue,
+                            calendarsBefore: 2,
+                            class: 'u-5-of-6 o-form__control-wrapper',
+                            dataCy: 'statementDetail:authoredDate',
+                            maxDate: 'now'|date('d.m.Y')
+                        },
                         type: submitDateDisabled|default(false) ? 'text' : 'datepicker',
                         id: 'r_authored_date',
                         elementSize: 'small',
@@ -709,7 +726,15 @@
 
                 {% set authorDateRowElements = authorDateRowElements|merge([{
                     label: { text: 'statement.date.submitted'|trans },
-                    control: { name: 'r_submitted_date', value: statement.submit|default()|dplanDate(), calendarsBefore: 2, maxDate: 'now'|date('d.m.Y'), class: 'u-5-of-6 o-form__control-wrapper' },
+                    control: {
+                        name: 'r_submitted_date',
+                        value:
+                        statement.submit|default()|dplanDate(),
+                        calendarsBefore: 2,
+                        maxDate: 'now'|date('d.m.Y'),
+                        class: 'u-5-of-6 o-form__control-wrapper',
+                        dataCy: 'statementDetail:submittedDate'
+                    },
                     type: submitDateDisabled|default(false) ? 'text' : 'datepicker',
                     id: 'r_submitted_date',
                     elementSize: 'small',
@@ -750,7 +775,8 @@
                         elementSize: 'small',
                         elementStyle: 'inline-block',
                         disabledPlainText: true,
-                        disabled: submitTypeSelectDisabled|default(false)
+                        disabled: submitTypeSelectDisabled|default(false),
+                        attributes: ['data-cy=statementDetail:submitType']
                     }]) %}
                 {% endif %}
 
@@ -784,7 +810,8 @@
                             elementClass: 'u-pr',
                             elementStyle: 'inline-block',
                             disabledPlainText: true,
-                            disabled: processingStatusDisabled|default(false)
+                            disabled: processingStatusDisabled|default(false),
+                            attributes: ['data-cy=statementDetail:status']
                         }) }}
                     {% endif %}
 
@@ -825,7 +852,8 @@
                                 elementStyle: 'inline-block',
                                 elementClass: 'u-pr',
                                 disabledPlainText: true,
-                                disabled: prioritySelectDisabled|default(false)
+                                disabled: prioritySelectDisabled|default(false),
+                                attributes: ['data-cy=statementDetail:priority']
                             }) }}
                         {% endif %}
                     {% endblock priority %}
@@ -945,7 +973,8 @@
                                             control: { name: 'r_delete_element', value: '1' },
                                             type: 'checkbox',
                                             elementClass: 'u-mb-0_5',
-                                            id: 'r_delete_element'
+                                            id: 'r_delete_element',
+                                            attributes: ['data-cy=statementDetail:deleteElement']
                                         }) }}
                                     {% endif %}
 
@@ -1057,7 +1086,8 @@
                                 control: { name: 'r_element_new', options: planDocumentOptions },
                                 type: 'select',
                                 id: 'elementSelect',
-                                elementStyle: 'inline-block'
+                                elementStyle: 'inline-block',
+                                attributes: ['data-cy=statementDetail:elementNew']
                             }) }}
                         {% endif %}
 

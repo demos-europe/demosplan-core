@@ -16,23 +16,18 @@
 
 <template>
   <div>
-    <input
-      name="r_territory"
-      type="hidden"
-      :value="JSON.stringify(territory)">
-
-    <input
-      name="r_coordinate"
-      type="hidden"
-      :value="coordinate">
-
     <dp-ol-map
       ref="map"
+      :map-options="{
+        procedureMaxExtent: maxExtent,
+        procedureExtent: true,
+        initialExtent: true,
+        initCenter: center,
+        scales: scales.map(s => s.value)
+      }"
       :options="{
         autoSuggest: false,
-        procedureExtent: false,
-        initialExtent: true,
-        initCenter: center
+        defaultAttribution: defaultAttribution
       }"
       :procedure-id="procedureId">
       <template v-slot:controls>
@@ -40,14 +35,28 @@
           <i
             aria-hidden="true"
             class="fa fa-map u-ml-0_25 color--grey-light" />
+          <dp-ol-map-layer-vector
+            v-if="boundingBox"
+            class="u-mb-0_5"
+            :features="boundingBox"
+            name="mapSettingsPreviewInitExtent"
+            zoom-to-drawing />
+
+          <dp-ol-map-layer-vector
+            v-if="mapExtent"
+            class="u-mb-0_5"
+            :draw-style="drawingStyles.mapExtent"
+            :features="mapExtent"
+            name="mapSettingsPreviewMapExtent" />
           <dp-ol-map-set-extent
             data-cy="mapDefaultBounds"
             translation-key="map.default.bounds"
-            @extentSet="data => setExtent({ field: 'mapExtend_of_project_epsg25832', extent: data })" />
+            @extentSet="data => emitFieldUpdate({ field: 'boundingBox', data: data })" />
           <dp-ol-map-set-extent
+            v-if="hasPermission('feature_map_max_extent')"
             data-cy="boundsApply"
             translation-key="bounds.apply"
-            @extentSet="data => setExtent({ field: 'bbox_of_project_epsg25832', extent: data })" />
+            @extentSet="data => emitFieldUpdate({ field: 'mapExtent', data: data })" />
           <dp-contextual-help
             class="float-right"
             :text="Translator.trans('text.mapsection')" />
@@ -74,7 +83,7 @@
               strokeLineDash: [4,4],
               strokeLineWidth: 3
             }"
-            :features="initTerritory"
+            :features="procedureInitTerritory"
             icon-class="fa fa-pencil-square-o"
             :label="Translator.trans('map.territory.define')"
             name="Territory"
@@ -127,25 +136,59 @@ import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapDragZoom from '@DpJs/components/map/map/DpOlMapDragZoom'
 import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature'
 import DpOlMapEditFeature from '@DpJs/components/map/map/DpOlMapEditFeature'
+import DpOlMapLayerVector from '@DpJs/components/map/map/DpOlMapLayerVector'
 import DpOlMapSetExtent from '@DpJs/components/map/map/DpOlMapSetExtent'
 
 export default {
-  name: 'DpMapView',
+  name: 'MapView',
 
   components: {
     DpContextualHelp,
     DpOlMap,
     DpOlMapDragZoom,
-    DpOlMapSetExtent,
     DpOlMapDrawFeature,
-    DpOlMapEditFeature
+    DpOlMapEditFeature,
+    DpOlMapLayerVector,
+    DpOlMapSetExtent
   },
 
   props: {
-    procedureCoordinates: {
+    /* GeoJSON object */
+    boundingBox: {
+      type: Object,
       required: false,
+      default: () => ({})
+    },
+
+    defaultAttribution: {
       type: String,
+      required: false,
       default: ''
+    },
+
+    /* GeoJSON object */
+    mapExtent: {
+      type: Object,
+      required: false,
+      default: () => ({})
+    },
+
+    maxExtent: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
+    scales: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
+    procedureCoordinates: {
+      type: Array,
+      required: false,
+      default: () => []
     },
 
     procedureId: {
@@ -154,25 +197,33 @@ export default {
       default: ''
     },
 
-    procedureTerritory: {
+    procedureInitTerritory: {
+      type: Object,
       required: false,
-      type: String,
-      default: '{}'
+      default: () => {}
     }
   },
 
   data () {
     return {
-      coordinate: this.procedureCoordinates.split(','),
-      initTerritory: JSON.parse(this.procedureTerritory),
+      coordinate: this.procedureCoordinates,
+      drawingStyles: {
+        mapExtent: JSON.stringify({
+          fillColor: 'rgba(0,0,0,0.1)',
+          strokeColor: '#000',
+          imageColor: '#fff',
+          strokeLineDash: [4, 4],
+          strokeLineWidth: 3
+        })
+      },
       isActive: '',
-      territory: JSON.parse(this.procedureTerritory)
+      territory: {}
     }
   },
 
   computed: {
     procedureCoordinatesFeature () {
-      if (this.procedureCoordinates !== '') {
+      if (this.procedureCoordinates.length > 0) {
         return {
           type: 'FeatureCollection',
           features: [{
@@ -189,33 +240,32 @@ export default {
     },
 
     center () {
-      if (this.procedureCoordinates) {
-        const array = this.procedureCoordinates.split(',')
-        return [
-          Number(array[0]),
-          Number(array[1])
-        ]
-      } else {
-        return false
-      }
+      return this.procedureCoordinates?.length > 0 ? this.procedureCoordinates : false
+    }
+  },
+
+  watch: {
+    defaultAttribution () {
+      this.$refs.map.updateMapInstance()
     }
   },
 
   methods: {
     updateTerritory (data) {
       this.territory = JSON.parse(data)
+      this.emitFieldUpdate({ field: 'territory', data: this.territory })
     },
 
     updateCoordinates (data) {
       const features = JSON.parse(data).features
       if (JSON.parse(data).features.length > 0) {
         this.coordinate = features[0].geometry.coordinates
+        this.emitFieldUpdate({ field: 'coordinate', data: this.coordinate })
       }
     },
 
-    setExtent (data) {
-      document.querySelector('p[data-coordinates="' + data.field + '"]').innerText = data.extent
-      document.querySelector('input[data-coordinates="' + data.field + '"]').setAttribute('value', data.extent)
+    emitFieldUpdate (data) {
+      this.$emit('field:update', data)
     }
   }
 }

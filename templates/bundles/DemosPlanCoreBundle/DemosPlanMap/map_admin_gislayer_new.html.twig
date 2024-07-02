@@ -82,6 +82,7 @@
                         class="layout__item u-1-of-5 cursor-pointer"
                         title="Mit XPlan können Sie einen XPlanlayer anlegen.">
                         <input
+                            data-cy="mapAdminGislayerNew:xplan"
                             type="checkbox"
                             name="r_xplan"
                             {% if templateVars.inData.r_xplan|default() == "bplan" %}checked{% endif %}
@@ -112,7 +113,13 @@
             elements: [
                 {
                     label: { text: 'opacity.percent'|trans },
-                    control: { name: 'r_opacity', value: templateVars.inData.r_opacity|default(100), pattern: "^\\d{1,2}?([\\.,]\\d{1,2})?$|^100$", size: 'tiny' },
+                    control: {
+                        name: 'r_opacity',
+                        value: templateVars.inData.r_opacity|default(100),
+                        pattern: "^\\d{1,2}?([\\.,]\\d{1,2})?$|^100$",
+                        size: 'tiny',
+                        dataCy: 'mapAdminGislayerNew:opacity'
+                    },
                     id: 'r_opacity',
                     type: 'text',
                     required: true
@@ -121,7 +128,9 @@
         }) }}
 
         {% if hasPermission('feature_map_layer_legend_file') %}
-            <div class="u-mb-0_75">
+            <div
+                class="u-mb-0_75"
+                data-cy="mapAdminGislayerNew:uploadFile">
                 {{
                     fileupload(
                         "r_legend",
@@ -146,35 +155,37 @@
             }) }}
         {% endif %}
 
-        <label class="u-mb-0_5">
-            <input
-                type="checkbox"
-                name="r_print"
-                data-cy="newMapLayerPrint"
-                value="1"
-                {% if templateVars.inData.r_print|default() == 1 %}checked{% endif %}>
-            {{ "explanation.gislayer.print"|trans }}
-        </label>
-        <label class="u-mb-0_5">
-            <input
-                type="checkbox"
-                name="r_default_visibility"
-                data-cy="mapLayerDefaultVisibilit"
-                value="1"
-                checked> {# @todo SM Wie können die Werte nach einer fehlerhaften Eingabe übernommen werden? #}
-            {{ "explanation.gislayer.default.visibility"|trans }}
-        </label>
+        {% if hasPermission('feature_map_layer_visibility') %}
+            <label class="u-mb-0_5">
+                <input
+                    type="checkbox"
+                    name="r_print"
+                    data-cy="newMapLayerPrint"
+                    value="1"
+                    {% if templateVars.inData.r_print|default() == 1 %}checked{% endif %}>
+                {{ "explanation.gislayer.print"|trans }}
+            </label>
+            <label class="u-mb-0_5">
+                <input
+                    type="checkbox"
+                    name="r_default_visibility"
+                    data-cy="mapLayerDefaultVisibility"
+                    value="1"
+                    checked> {# @todo SM Wie können die Werte nach einer fehlerhaften Eingabe übernommen werden? #}
+                {{ "explanation.gislayer.default.visibility"|trans }}
+            </label>
 
-        <label class="u-mb-0_5">
-            <input
-                id="user_toggle_visibility"
-                type="checkbox"
-                name="r_user_toggle_visibility"
-                data-cy="newMapLayerUserToggleVisibility"
-                value="1"
-                checked>
-            {{ "explanation.gislayer.usertoggle.visibility"|trans }}
-        </label>
+            <label class="u-mb-0_5">
+                <input
+                    id="user_toggle_visibility"
+                    type="checkbox"
+                    name="r_user_toggle_visibility"
+                    data-cy="newMapLayerUserToggleVisibility"
+                    value="1"
+                    checked>
+                {{ "explanation.gislayer.usertoggle.visibility"|trans }}
+            </label>
+        {% endif %}
 
         <label class="u-mt u-mb-0_5">
             <input
@@ -193,7 +204,10 @@
                 name="saveLayer"
                 data-cy="saveNewMapLayer"
                 value="{{ "save"|trans }}">
-            <a class="btn btn--secondary" href="{{ path('DemosPlan_map_administration_gislayer',{'procedureId':procedure}) }}">
+            <a
+                class="btn btn--secondary"
+                data-cy="abortNewMapLayer"
+                href="{{ path('DemosPlan_map_administration_gislayer',{'procedureId':procedure}) }}">
                 {{ "abort"|trans }}
             </a>
         </div>

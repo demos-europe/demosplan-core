@@ -10,7 +10,7 @@
 const NewProcedure = {
   namespaced: true,
 
-  name: 'newProcedure',
+  name: 'NewProcedure',
 
   state: {
     requireField: true
