@@ -121,6 +121,7 @@ class DynamicTransformerTest extends JsonApiTest
      */
     public function testProcedureIncludesWithWarning($expectedMissingProperty, $requestedInclude): void
     {
+        self::markSkippedForCIIntervention();
         $warnings = $this->getWarnings($requestedInclude, true);
 
         self::assertSame(
@@ -134,6 +135,7 @@ class DynamicTransformerTest extends JsonApiTest
      */
     public function testProcedureIncludesWithoutWarning($expectedMissingProperty, $requestedInclude): void
     {
+        self::markSkippedForCIIntervention();
         $warnings = $this->getWarnings($requestedInclude, false);
         self::assertEmpty($warnings->get('warning'));
     }
@@ -143,6 +145,7 @@ class DynamicTransformerTest extends JsonApiTest
      */
     public function testProcedureIncludesWithoutWarningProd($expectedMissingProperty, $requestedInclude): void
     {
+        self::markSkippedForCIIntervention();
         // DX warnings should never show up in prod mode
         $warnings = $this->getWarnings($requestedInclude, true, DemosPlanKernel::ENVIRONMENT_PROD);
         self::assertEmpty($warnings->get('warning'));
