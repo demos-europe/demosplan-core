@@ -25,15 +25,12 @@
 </documentation>
 
 <template>
-  <fieldset
-    id="gisLayers">
+  <fieldset id="gisLayers">
     <div class="flex">
-      <div class="flex-1 w-1/4">
-        <legend>
-          {{ Translator.trans('gislayer') }}
-        </legend>
-      </div>
-      <div class="flex-1 w-3/4 text-right">
+      <legend class="w-1/4">
+        {{ Translator.trans('gislayer') }}
+      </legend>
+      <div class="w-3/4 text-right">
         <dp-split-button>
           <a
             :class="{'has-dropdown': hasPermission('feature_map_category')}"
@@ -57,7 +54,9 @@
       class="relative"
       :class="{'pointer-events-none': false === isEditable}">
       <div class="u-mt flex">
-        <h3 class="flex-1 w-1/3">
+        <h3
+          v-if="hasPermission('feature_map_baselayer')"
+          class="flex-1 w-1/3">
           {{ Translator.trans('map.overlays') }}
         </h3>
         <div
@@ -84,15 +83,19 @@
           <!-- DragHandler -->
         </div>
         <div class="flex u-pl-0_5">
-          <div class="w-9/12">
+          <div class="flex-1">
             {{ Translator.trans('description') }}
           </div>
-          <div class="w-1/12 text-right">
+          <div
+            v-if="hasPermission('feature_map_layer_visibility')"
+            class="w-1/12 text-right">
               <i
                 class="fa fa-link u-mr-0_5"
                 v-tooltip="{ content: Translator.trans('explanation.gislayer.visibilitygroup'), classes: 'max-w-none' }" />
           </div>
-          <div class="w-1/12 text-right">
+          <div
+            v-if="hasPermission('feature_map_layer_visibility')"
+            class="w-1/12 text-right">
               <i
                 class="fa fa-eye u-mr-0_5"
                 v-tooltip="Translator.trans('explanation.gislayer.visibility')" />
@@ -130,25 +133,27 @@
         {{ Translator.trans('no.data') }}
       </div>
 
-      <div v-if="hasPermission('feature_map_layer_visibility')">
+      <template v-if="hasPermission('feature_map_baselayer')">
         <h3 class="u-mt">
           {{ Translator.trans('map.bases') }}
         </h3>
         <!-- List-Head -->
         <div class="color--grey u-mb-0_25 u-mt-0_5 u-mr-0_5">
-          <div class="c-at-item__row-icon layout__item u-pl-0">
+          <div class="c-at-item__row-icon u-pl-0">
             <!-- DragHandler -->
-          </div><!--
-        --><div class="layout--flush layout__item c-at-item__row">
-              <div class="layout__item w-10/12 u-pl-0_5">
+          </div>
+          <div class="flex c-at-item__row">
+              <div class="flex-1 u-pl-0_5">
                 {{ Translator.trans('description') }}
-              </div><!--
-           --><div class="layout__item w-1/12 text-right">
-              <i
-                class="fa fa-eye u-mr-0_5"
-                v-tooltip="Translator.trans('explanation.gislayer.visibility')" />
-              </div><!--
-           --><div class="layout__item w-1/12 text-right">
+              </div>
+              <div
+                v-if="hasPermission('feature_map_layer_visibility')"
+                class="w-1/12 text-right">
+                <i
+                  class="fa fa-eye u-mr-0_5"
+                  v-tooltip="Translator.trans('explanation.gislayer.visibility')" />
+              </div>
+              <div class="w-1/12 text-right">
                   {{ Translator.trans('edit') }}
               </div>
           </div>
@@ -168,11 +173,11 @@
             data-cy="baseMapLayerListItem"
             :index="idx" />
         </dp-draggable>
-        <div class="layout--flush u-mt u-mb">
-          <h3 class="layout__item w-1/3">
+        <div class="flex u-mt u-mb">
+          <h3 class="w-1/3">
             {{ Translator.trans('map.base.minimap') }}
-          </h3><!--
-      --><div class="layout__item w-2/3">
+          </h3>
+          <div class="w-2/3">
             <select
               class="o-form__control-select"
               data-cy="adminLayerList:currentMinimapLayer"
@@ -213,7 +218,7 @@
             {{ Translator.trans('reset.order') }}
           </button>
         </div>
-      </div>
+      </template>
     </div>
   </fieldset>
 </template>

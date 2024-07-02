@@ -17,7 +17,7 @@
 </documentation>
 <template>
   <div
-    class="o-sortablelist__item u-pv-0_5 u-pl-0_5 border--top"
+    class="o-sortablelist__item u-pv-0_5 u-pl-0_5 border--top flex"
     :class="{
       'is-active' : isActive,
       'cursor-pointer' : (false === layer.attributes.isBaseLayer && 'GisLayerCategory' !== layer.type && false === isChildOfCategoryThatAppearsAsLayer),
@@ -30,11 +30,11 @@
       <i
         class="fa fa-bars handle w-[20px] cursor-grab"
         :title="Translator.trans('move')" />
-    </div><!--
- --><div
-      class="layout--flush layout__item c-at-item__row"
+    </div>
+    <div
+      class="flex w-full"
       data-cy="mapLayerListItem">
-      <div class="layout__item u-9-of-12">
+      <div class="flex-1">
         <!-- regular categories -->
         <i
           v-if="layer.type === 'GisLayerCategory' && false === layer.attributes.layerWithChildrenHidden"
@@ -82,13 +82,12 @@
           v-if="layer.attributes.isPrint">
           <br>{{ Translator.trans('explanation.gislayer.useas.print') }}
         </span>
-      </div><!--
-
-            Show this Stuff (Visibility-group / show initially on load) only for layer, not for Categories
-   --><template
-        v-if="(layer.type === 'GisLayer')">
-<!--
-     --><div class="layout__item u-1-of-12 text-right">
+      </div>
+      <!--
+        Show this Stuff (Visibility-group / show initially on load) only for layer, not for Categories
+      -->
+      <template v-if="(layer.type === 'GisLayer') && hasPermission('feature_map_layer_visibility')">
+        <div class="w-1/12 text-right">
           <a
             v-if="('undefined' !== typeof activeLayer.id || '' !== hoverLayerId) && false === layer.attributes.isBaseLayer && (false === isChildOfCategoryThatAppearsAsLayer)"
             @click.stop.prevent="toggleVisibilityGroup"
@@ -97,8 +96,8 @@
             :title="hintTextForLockedLayer">
             <i :class="[iconClass,showGroupableIcon]" />
           </a>
-        </div><!--
-     --><div class="layout__item u-1-of-12 text-right">
+        </div>
+        <div class="w-1/12 text-right">
           <input
             type="checkbox"
             data-cy="adminLayerListItem:toggleDefaultVisibility"
@@ -106,28 +105,27 @@
             @change.prevent="toggleHasDefaultVisibility"
             :checked="hasDefaultVisibility"
             :class="iconClass">
-        </div><!--
-   -->
-</template><!--
-            Show this Stuff for 'special category that looks like an Layer and hides all his children'
-   --><template v-if="(layer.type === 'GisLayerCategory' && layer.attributes.layerWithChildrenHidden)">
-<!--
-     --><div class="layout__item u-2-of-12 text-right">
-          <input
-            type="checkbox"
-            data-cy="adminLayerListItem:toggleDefaultVisibility"
-            @change.prevent="toggleHasDefaultVisibility"
-            :checked="hasDefaultVisibility"
-            :class="iconClass">
-        </div><!--
-   -->
-</template><!--
-   --><div
+        </div>
+      </template>
+      <!--
+        Show this Stuff for 'special category that looks like an Layer and hides all his children'
+      -->
+      <div
+        v-if="(layer.type === 'GisLayerCategory' && layer.attributes.layerWithChildrenHidden)"
+        class="w-2/12 text-right">
+        <input
+          type="checkbox"
+          data-cy="adminLayerListItem:toggleDefaultVisibility"
+          @change.prevent="toggleHasDefaultVisibility"
+          :checked="hasDefaultVisibility"
+          :class="iconClass">
+      </div>
+      <div
         v-if="(layer.type !== 'GisLayer' && (false === layer.attributes.layerWithChildrenHidden))"
-        class="layout__item u-2-of-12 text-right">
+        class="w-2/12 text-right">
         <!-- spacer for groups -->
-      </div><!--
-   --><div class="layout__item u-1-of-12 text-right">
+      </div>
+      <div class="w-1/12 text-right">
         <a
           :href="editLink"
           data-cy="editLink">
