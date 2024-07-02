@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType;
 use EDT\JsonApi\OutputHandling\DynamicTransformer;
 use EDT\JsonApi\RequestHandling\MessageFormatter;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
+use Illuminate\Support\Collection;
 use League\Fractal\Manager;
 use League\Fractal\ParamBag;
 use League\Fractal\Resource\Item;
@@ -34,7 +35,6 @@ use stdClass;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Base\JsonApiTest;
 use Tests\Base\MockMethodDefinition;
-use Illuminate\Support\Collection;
 
 class DynamicTransformerTest extends JsonApiTest
 {
