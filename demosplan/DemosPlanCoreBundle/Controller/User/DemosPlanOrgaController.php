@@ -180,6 +180,7 @@ class DemosPlanOrgaController extends BaseController
                 }
             }
         }
+
         // Lade die Seite neu, damit das Formular nicht erneut abgeschickt werden kann
         return $this->redirectToRoute('DemosPlan_orga_edit_view', ['orgaId' => $orgaId]);
     }
