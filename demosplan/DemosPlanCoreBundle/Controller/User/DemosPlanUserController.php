@@ -502,13 +502,13 @@ class DemosPlanUserController extends BaseController
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_citizen_registration_form', path: '/user/register', methods: ['GET'], options: ['expose' => true])]
-    public function showRegisterCitizenFormAction(CustomerService $customerService, ParameterBagInterface $parameterBag, Request $request)
+    public function showRegisterCitizenFormAction()
     {
         $title = 'user.register';
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanUser/citizen_register_form.html.twig',
-            ['title' => $title, 'useSaml' => false]
+            ['title' => $title, 'useIdp' => false]
         );
     }
 

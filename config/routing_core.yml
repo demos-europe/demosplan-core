@@ -5,6 +5,3 @@ csp_report:
     path: /nelmio/csp/report
     methods: [POST]
     defaults: { _controller: nelmio_security.csp_reporter_controller:indexAction }
-
-hslavich_saml_sp:
-    resource: "@HslavichOneloginSamlBundle/Resources/config/routing.yml"
