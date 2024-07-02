@@ -110,6 +110,7 @@
 <script>
 import { debounce, DpButton, DpContextualHelp, DpLoading, dpSelectAllMixin, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 
 export default {
   name: 'DpUserList',
@@ -118,11 +119,11 @@ export default {
     DpButton,
     DpContextualHelp,
     DpLoading,
-    DpSlidingPagination: async () => {
+    DpSlidingPagination: defineAsyncComponent(async () => {
       const { DpSlidingPagination } = await import('@demos-europe/demosplan-ui')
       return DpSlidingPagination
-    },
-    DpUserListItem: () => import(/* webpackChunkName: "user-list-item" */ './DpUserListItem')
+    }),
+    DpUserListItem: defineAsyncComponent(() => import('./DpUserListItem'))
   },
 
   mixins: [dpSelectAllMixin],

@@ -17,6 +17,10 @@
         }
 
         $(function ($) {
+            if (!document.querySelector('#map')) {
+                return
+            }
+
             //Global default bounds
             var mapExtent = {{ map.publicExtent }};
 
@@ -185,5 +189,4 @@
                     :  map.setView(map.options.center, map.options.zoom)
             }
         });
-
     </script>

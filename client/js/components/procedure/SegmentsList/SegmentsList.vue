@@ -31,8 +31,8 @@
             {{ Translator.trans('filter') }}
           </span>
           <filter-flyout
-            v-for="filter in filters"
-            ref="filterFlyout"
+            v-for="(filter, idx) in filters"
+            :ref="`filterFlyout${idx}`"
             :additional-query-params="{ searchPhrase: searchTerm }"
             :data-cy="`segmentsListFilter:${filter.labelTranslationKey}`"
             :initial-query="queryIds"
@@ -189,9 +189,9 @@
           </template>
           <template v-slot:tags="rowData">
             <span
+              v-for="tag in getTagsBySegment(rowData.id)"
               :key="tag.id"
               class="rounded-md"
-              v-for="tag in getTagsBySegment(rowData.id)"
               style="color: #63667e; background: #EBE9E9; padding: 2px 4px; margin: 4px 2px; display: inline-block;">
               {{ tag.attributes.title }}
             </span>
@@ -610,7 +610,7 @@ export default {
       this.$refs.customSearch.reset()
       this.appliedFilterQuery = []
       Object.keys(this.filters).forEach((filter, idx) => {
-        this.$refs.filterFlyout[idx].reset()
+        this.$refs[`filterFlyout${idx}`].reset()
       })
       this.updateQueryHash()
       this.resetSelection()

@@ -8,6 +8,7 @@
 </license>
 
 <script>
+import { defineAsyncComponent } from 'vue'
 import { DpContextualHelp, DpMultiselect } from '@demos-europe/demosplan-ui'
 import DpEmailList from './DpEmailList'
 
@@ -18,14 +19,14 @@ export default {
     DpContextualHelp,
     DpEmailList,
     DpMultiselect,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    },
-    DpUploadFiles: async () => {
+    }),
+    DpUploadFiles: defineAsyncComponent(async () => {
       const { DpUploadFiles } = await import('@demos-europe/demosplan-ui')
       return DpUploadFiles
-    }
+    })
   },
 
   props: {

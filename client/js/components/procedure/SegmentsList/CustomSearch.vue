@@ -21,7 +21,7 @@
         class="u-top-0 u-right-0 absolute p-0.5"
         :has-menu="false"
         :padded="false">
-        <template v-slot:trigger>
+        <template #trigger>
           <dp-icon
             :class="{ 'color-message-severe-fill': selectedFields.length > 0 }"
             icon="settings" />

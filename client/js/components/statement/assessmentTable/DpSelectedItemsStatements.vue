@@ -137,6 +137,12 @@ export default {
     }
   },
 
+  emits: [
+    'exportModal:toggle',
+    'update-assessment-table',
+    'update-pagination-assessment-table'
+  ],
+
   data () {
     return {
       loading: false

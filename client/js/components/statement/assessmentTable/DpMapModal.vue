@@ -8,44 +8,39 @@
 </license>
 
 <template>
-  <portal to="vueModals">
-    <dp-modal
-      ref="mapModal"
-      content-classes="u-1-of-2 u-pb"
-      @modal:toggled="(open) => {isModalOpen = open}">
-      <template>
-        <dp-ol-map
-          :class="prefixClass('u-mv-0_5')"
-          v-if="isModalOpen"
-          :procedure-id="procedureId"
-          :map-options-route="mapOptionsRoute"
-          ref="map"
-          :options="{
-            autoSuggest: false,
-            scaleSelect: false,
-            procedureExtent: true
-          }">
-          <template>
-            <dp-ol-map-layer-vector
-              zoom-to-drawing
-              :features="drawing" />
-          </template>
-        </dp-ol-map>
-      </template>
-    </dp-modal>
-  </portal>
+  <dp-modal
+    ref="mapModal"
+    content-classes="u-1-of-2 u-pb"
+    @modal:toggled="(open) => {isModalOpen = open}">
+    <dp-ol-map
+      :class="prefixClass('u-mv-0_5')"
+      v-if="isModalOpen"
+      :procedure-id="procedureId"
+      :map-options-route="mapOptionsRoute"
+      ref="map"
+      :options="{
+        autoSuggest: false,
+        scaleSelect: false,
+        procedureExtent: false,
+      }">
+      <dp-ol-map-layer-vector
+        zoom-to-drawing
+        :features="drawing" />
+    </dp-ol-map>
+  </dp-modal>
 </template>
 
 <script>
 import { DpModal, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { defineAsyncComponent } from 'vue'
 
 export default {
   name: 'DpMapModal',
 
   components: {
     DpModal,
-    DpOlMap: () => import('@DpJs/components/map/map/DpOlMap'),
-    DpOlMapLayerVector: () => import('@DpJs/components/map/map/DpOlMapLayerVector')
+    DpOlMap: defineAsyncComponent(() => import('@DpJs/components/map/map/DpOlMap')),
+    DpOlMapLayerVector: defineAsyncComponent(() => import('@DpJs/components/map/map/DpOlMapLayerVector'))
   },
 
   mixins: [prefixClassMixin],
