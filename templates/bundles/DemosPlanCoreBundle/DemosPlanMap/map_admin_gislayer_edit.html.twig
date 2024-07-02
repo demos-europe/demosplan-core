@@ -231,58 +231,59 @@
                     ]
                 }) }}
             {% endif %}
-
-            <label class="u-mb-0_5">
-                <input
-                    data-cy="editMapLayerPrint"
-                    type="checkbox"
-                    name="r_print"
-                    value="1"
-                    {% if gislayer.print is defined and gislayer.print == 1 %}checked{% endif %}>
-                {{ "explanation.gislayer.print"|trans }}
-                {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                    helpText: 'explanation.gislayer.print.help'|trans,
-                    cssClasses:'float-right u-mt-0_125'
-                } %}
-            </label>
-
-            <label class="u-mb-0_5">
-                <input
-                    data-cy="editMapLayerDefaultVisibility"
-                    type="checkbox"
-                    name="r_default_visibility"
-                    value="1"
-                    {% if gislayer.HasDefaultVisibility is defined and gislayer.HasDefaultVisibility == 1 %}checked{% endif %}
-                    {% if gislayer.visibilityGroupId is defined and gislayer.visibilityGroupId != '' %}disabled{% endif %}
-                >
-                {{ "explanation.gislayer.default.visibility"|trans }}
-                {% if gislayer.visibilityGroupId is defined and gislayer.visibilityGroupId != '' %}
-                    {% if gislayer.HasDefaultVisibility is defined and gislayer.HasDefaultVisibility == 1 %}
-                        <input type="hidden" name="r_default_visibility" value="1">
+            {% if hasPermission('feature_map_print_layer') %}
+                <label class="u-mb-0_5">
+                    <input
+                        data-cy="editMapLayerPrint"
+                        type="checkbox"
+                        name="r_print"
+                        value="1"
+                        {% if gislayer.print is defined and gislayer.print == 1 %}checked{% endif %}>
+                    {{ "explanation.gislayer.print"|trans }}
+                    {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
+                        helpText: 'explanation.gislayer.print.help'|trans,
+                        cssClasses:'float-right u-mt-0_125'
+                    } %}
+                </label>
+            {% endif %}
+            {% if hasPermission('feature_map_layer_visibility') %}
+                <label class="u-mb-0_5">
+                    <input
+                        data-cy="editMapLayerDefaultVisibility"
+                        type="checkbox"
+                        name="r_default_visibility"
+                        value="1"
+                        {% if gislayer.HasDefaultVisibility is defined and gislayer.HasDefaultVisibility == 1 %}checked{% endif %}
+                        {% if gislayer.visibilityGroupId is defined and gislayer.visibilityGroupId != '' %}disabled{% endif %}
+                    >
+                    {{ "explanation.gislayer.default.visibility"|trans }}
+                    {% if gislayer.visibilityGroupId is defined and gislayer.visibilityGroupId != '' %}
+                        {% if gislayer.HasDefaultVisibility is defined and gislayer.HasDefaultVisibility == 1 %}
+                            <input type="hidden" name="r_default_visibility" value="1">
+                        {% endif %}
+                        <br /><span class="hint">{{ "explanation.gislayer.visibility.group.locked"|trans }}</span>
                     {% endif %}
-                    <br /><span class="hint">{{ "explanation.gislayer.visibility.group.locked"|trans }}</span>
-                {% endif %}
-            </label>
+                </label>
 
-            <label class="u-mb-0_5">
-                <input
-                    id="user_toggle_visibility"
-                    data-cy="editMapLayerToggleVisibility"
-                    type="checkbox"
-                    name="r_user_toggle_visibility"
-                    value="1"
-                    {% if gislayer.visibilityGroupId is defined and gislayer.visibilityGroupId != '' %}disabled{% endif %}
-                    {% if (gislayer.userToggleVisibility is defined and gislayer.userToggleVisibility == 1) %}checked{% endif %}
-                >
-                {{ "explanation.gislayer.usertoggle.visibility"|trans }}
-                {% if gislayer.visibilityGroupId is defined and gislayer.visibilityGroupId != '' %}
-                    {% if (gislayer.userToggleVisibility is defined and gislayer.userToggleVisibility == 1) %}
-                        <input type="hidden" name="r_user_toggle_visibility" value="1">
+                <label class="u-mb-0_5">
+                    <input
+                        id="user_toggle_visibility"
+                        data-cy="editMapLayerToggleVisibility"
+                        type="checkbox"
+                        name="r_user_toggle_visibility"
+                        value="1"
+                        {% if gislayer.visibilityGroupId is defined and gislayer.visibilityGroupId != '' %}disabled{% endif %}
+                        {% if (gislayer.userToggleVisibility is defined and gislayer.userToggleVisibility == 1) %}checked{% endif %}
+                    >
+                    {{ "explanation.gislayer.usertoggle.visibility"|trans }}
+                    {% if gislayer.visibilityGroupId is defined and gislayer.visibilityGroupId != '' %}
+                        {% if (gislayer.userToggleVisibility is defined and gislayer.userToggleVisibility == 1) %}
+                            <input type="hidden" name="r_user_toggle_visibility" value="1">
+                        {% endif %}
+                        <br /><span class="hint">{{ "explanation.gislayer.visibility.group.locked"|trans }}</span>
                     {% endif %}
-                    <br /><span class="hint">{{ "explanation.gislayer.visibility.group.locked"|trans }}</span>
-                {% endif %}
-            </label>
-
+                </label>
+            {% endif %}
             <label class="u-mt u-mb-0_5">
                 <input type="checkbox" name="r_enabled" value="1" {% if gislayer.enabled is defined and gislayer.enabled == 1  %}checked{% endif %}>
                 {{ "explanation.gislayer.enabled"|trans }}
