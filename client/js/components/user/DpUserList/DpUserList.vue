@@ -223,9 +223,6 @@ export default {
     }, 500),
 
     getItemsByPage (page) {
-      const search = {
-        value: this.searchValue
-      }
       this.isLoading = true
       page = page || this.currentPage
 
@@ -233,7 +230,15 @@ export default {
         page: {
           number: page ?? 1
         },
-        search: (this.searchValue !== '') ? search : {},
+        filter: {
+          namefilter: {
+            condition: {
+              path: 'firstname',
+              operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
+              value: this.searchValue
+            }
+          }
+        },
         include: ['roles', 'orga', 'department', 'orga.allowedRoles'].join()
       })
         .then(() => {
