@@ -14,69 +14,78 @@
                 <label class="u-mt-0_5 u-mb-0_5">
                     {{ "map"|trans }}*
                 </label>
-                <ul class="layout__item u-4-of-5 o-list bg-color--grey-light-2 u-p-0_5 u-mb">
-                    <li>
-                        <label class="cursor-pointer u-mb-0_25" title="Mit Grundkarte können Sie weitere Karten anlegen.">
-                            <input
-                                type="radio"
-                                name="r_type"
-                                data-cy="base"
-                                value="base"
-                                required
-                                {% if templateVars.inData.r_layer|default() == "base" %}checked{% endif %}
-                            >
-                            {{ "map.base"|trans }}
-                        </label>
+               {% if hasPermission('feature_map_baselayer') %}
+                    <ul class="layout__item u-4-of-5 o-list bg-color--grey-light-2 u-p-0_5 u-mb">
+                        <li>
+                            <label class="cursor-pointer u-mb-0_25" title="Mit Grundkarte können Sie weitere Karten anlegen.">
+                                <input
+                                    type="radio"
+                                    name="r_type"
+                                    data-cy="base"
+                                    value="base"
+                                    required
+                                    {% if templateVars.inData.r_layer|default() == "base" %}checked{% endif %}
+                                >
+                                {{ "map.base"|trans }}
+                            </label>
 
-                    </li>
-                    <li>
-                        <label class="cursor-pointer u-mb-0_25" title="Mit Overlay erstellen Sie weitere Ebenen (Layer) ein-/ausblendbar über den Grundkarten.">
-                            <input
-                                type="radio"
-                                name="r_type"
-                                data-cy="overlay"
-                                value="overlay"
-                                required
-                                {% if templateVars.inData.r_layer|default() != "base" %}checked{% endif %}
-                            >
-                            {{ "overlay"|trans }}
-                        </label>
-                        <ul class="u-pl">
-                            {% if hasPermission('area_public_participation') and hasPermission('feature_map_use_territory') %}
-                                <li>
-                                    <label class="cursor-pointer u-mb-0_25" title="Mit Planzeichnung können Sie einen B-Plan anlegen. Dieser wird ein-/ausblendbar über die Grundkarten gelegt.">
-                                        <input
-                                            type="checkbox"
-                                            id="bPlan"
-                                            name="r_bplan"
-                                            data-cy="r_bplan"
-                                            data-requires="[name=r_type][value=overlay]"
-                                            data-to-disable="#scope"
-                                            value="1"
-                                            {% if gislayer.bplan|default(false) == true %}checked="checked"{% endif %}
-                                        >
-                                        {{ "drawing"|trans }}
-                                    </label>
-                                </li>
-                                <li>
-                                    <label class="cursor-pointer u-mb-0_25" title="Geltungsbereich zeigt nur in der Beteiligungsebene die Umrandung des Plans über der Grundkarte an.">
-                                        <input
-                                            type="checkbox"
-                                            id="scope"
-                                            name="r_scope"
-                                            data-cy="r_scope"
-                                            data-requires="[name=r_type][value=overlay]"
-                                            data-to-disable="#bPlan"
-                                            value="1"
-                                            {% if gislayer.scope|default(false) == true %}checked="checked"{% endif %}
-                                        >
-                                        {{ "layer.territory"|trans }}
-                                    </label>
-                                </li>
-                            {% endif %}
-                        </ul>
-                    </li>
-                </ul>
+                        </li>
+                        <li>
+                            <label class="cursor-pointer u-mb-0_25" title="Mit Overlay erstellen Sie weitere Ebenen (Layer) ein-/ausblendbar über den Grundkarten.">
+                                <input
+                                    type="radio"
+                                    name="r_type"
+                                    data-cy="overlay"
+                                    value="overlay"
+                                    required
+                                    {% if templateVars.inData.r_layer|default() != "base" %}checked{% endif %}
+                                >
+                                {{ "overlay"|trans }}
+                            </label>
+                            <ul class="u-pl">
+                                {% if hasPermission('area_public_participation') and hasPermission('feature_map_use_territory') %}
+                                    <li>
+                                        <label class="cursor-pointer u-mb-0_25" title="Mit Planzeichnung können Sie einen B-Plan anlegen. Dieser wird ein-/ausblendbar über die Grundkarten gelegt.">
+                                            <input
+                                                type="checkbox"
+                                                id="bPlan"
+                                                name="r_bplan"
+                                                data-cy="r_bplan"
+                                                data-requires="[name=r_type][value=overlay]"
+                                                data-to-disable="#scope"
+                                                value="1"
+                                                {% if gislayer.bplan|default(false) == true %}checked="checked"{% endif %}
+                                            >
+                                            {{ "drawing"|trans }}
+                                        </label>
+                                    </li>
+                                    <li>
+                                        <label class="cursor-pointer u-mb-0_25" title="Geltungsbereich zeigt nur in der Beteiligungsebene die Umrandung des Plans über der Grundkarte an.">
+                                            <input
+                                                type="checkbox"
+                                                id="scope"
+                                                name="r_scope"
+                                                data-cy="r_scope"
+                                                data-requires="[name=r_type][value=overlay]"
+                                                data-to-disable="#bPlan"
+                                                value="1"
+                                                {% if gislayer.scope|default(false) == true %}checked="checked"{% endif %}
+                                            >
+                                            {{ "layer.territory"|trans }}
+                                        </label>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </li>
+                    </ul>
+                {% else %}
+                    <input
+                        type="hidden"
+                        name="r_type"
+                        data-cy="overlay"
+                        value="overlay"
+                        checked>
+                {% endif %}
                 {% if hasPermission('feature_xplan_defaultlayers') %}
                     <label
                         class="layout__item u-1-of-5 cursor-pointer"
