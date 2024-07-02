@@ -155,7 +155,7 @@
             }) }}
         {% endif %}
 
-        {% if hasPermission('feature_map_layer_visibility') %}
+        {% if hasPermission('feature_map_print_layer') %}
             <label class="u-mb-0_5">
                 <input
                     type="checkbox"
@@ -165,6 +165,8 @@
                     {% if templateVars.inData.r_print|default() == 1 %}checked{% endif %}>
                 {{ "explanation.gislayer.print"|trans }}
             </label>
+        {% endif %}
+        {% if hasPermission('feature_map_layer_visibility') %}
             <label class="u-mb-0_5">
                 <input
                     type="checkbox"
@@ -185,6 +187,13 @@
                     checked>
                 {{ "explanation.gislayer.usertoggle.visibility"|trans }}
             </label>
+        {% else %}
+            <input
+                type="hidden"
+                name="r_default_visibility"
+                data-cy="mapLayerDefaultVisibility"
+                value="1"
+                checked>
         {% endif %}
 
         <label class="u-mt u-mb-0_5">
