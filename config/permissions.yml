@@ -1119,6 +1119,8 @@ feature_map_attribution:
     loginRequired: true
     parent: area_admin_map
 feature_map_baselayer:
+    description: |-
+        Enables the usage of custom baselayers (next to the overlays) in the map
     label: 'Allow configuring baselayers'
     expose: true
     loginRequired: true
@@ -1179,9 +1181,11 @@ feature_map_new_statement:
     loginRequired: false
     parent: area_map_participation_area
 feature_map_print_layer:
+    description: |-
+        Allow configuring (in the map admin area) if a layer is displayed in the map screenshot (in the exports)
+    label: 'Toggle layer visibility in exports'
     expose: true
-    label: 'Allow setting of print layers'
-    loginRequired: false
+    loginRequired: true
     parent: area_admin_map
 feature_map_search_location:
     expose: true
