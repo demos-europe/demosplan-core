@@ -30,7 +30,6 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class CopyFaqCommand extends CoreCommand
 {
-
     protected static $defaultName = 'dplan:data:copy-faq';
     protected static $defaultDescription = 'Copies the FAQ from one customer to another.';
 
@@ -42,7 +41,7 @@ class CopyFaqCommand extends CoreCommand
         private readonly FaqRepository $faqRepository,
         private readonly EntityManagerInterface $entityManager,
         ParameterBagInterface $parameterBag,
-        string $name = null
+        ?string $name = null
     ) {
         parent::__construct($parameterBag, $name);
         $this->helper = new QuestionHelper();
@@ -64,15 +63,14 @@ class CopyFaqCommand extends CoreCommand
             $faqCategories = collect($this->faqCategoryRepository->getFaqCategoriesByCustomer($fromCustomer));
             // only "valid" faq categories should be copied
             $faqCategories = $faqCategories->filter(
-                static fn (FaqCategory $faqCategory) =>
-                    in_array($faqCategory->getType(), FaqCategoryInterface::FAQ_CATEGORY_TYPES_MANDATORY, true)
+                static fn (FaqCategory $faqCategory) => in_array($faqCategory->getType(), FaqCategoryInterface::FAQ_CATEGORY_TYPES_MANDATORY, true)
                     || $faqCategory->isCustom()
             );
 
             $categoryCount = 0;
             $faqCount = 0;
             foreach ($faqCategories as $faqCategory) {
-                $categoryCount++;
+                ++$categoryCount;
                 $copiedFaqCategory = new FaqCategory();
                 $copiedFaqCategory->setCustomer($toCustomer);
                 $copiedFaqCategory->setTitle($faqCategory->getTitle());
@@ -81,7 +79,7 @@ class CopyFaqCommand extends CoreCommand
 
                 $faqs = $this->faqRepository->findBy(['faqCategory' => $faqCategory]);
                 foreach ($faqs as $faq) {
-                    $faqCount++;
+                    ++$faqCount;
                     $copiedFaq = new Faq();
                     $copiedFaq->setCategory($copiedFaqCategory);
                     $copiedFaq->setEnabled($faq->getEnabled());
@@ -94,9 +92,9 @@ class CopyFaqCommand extends CoreCommand
 
             $this->entityManager->flush();
 
-            $output->info('Copied ' . $categoryCount . ' FAQ categories with ' . $faqCount . ' FAQs.');
-            $timeSaved = ceil(($categoryCount * 30 + $faqCount * 45)/60);
-            $output->success("Faq where successfully copied. Saved approx $timeSaved minutes and lots of nerves.");
+            $output->info('Copied '.$categoryCount.' FAQ categories with '.$faqCount.' FAQs.');
+            $timeSaved = ceil(($categoryCount * 30 + $faqCount * 45) / 60);
+            $output->success("Faq where successfully copied. Saved approx $timeSaved minutes and a lots of nerves.");
 
             return Command::SUCCESS;
         } catch (Exception $e) {
