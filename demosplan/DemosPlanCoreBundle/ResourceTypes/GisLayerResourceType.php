@@ -156,6 +156,7 @@ final class GisLayerResourceType extends DplanResourceType
             $this->createAttribute($this->isXplan)
                 ->readable(true)->aliasedPath($this->xplan),
             $this->createAttribute($this->mapOrder)
+                ->updatable()
                 ->readable(true)->aliasedPath($this->order),
             $this->createAttribute($this->canUserToggleVisibility)
                 ->readable(true)->aliasedPath($this->userToggleVisibility),
