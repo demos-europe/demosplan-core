@@ -18,21 +18,15 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureSetti
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use Lexik\Bundle\JWTAuthenticationBundle\Security\Authentication\Token\JWTUserToken;
-use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTManager;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Tests\Base\HttpTestCase;
-use Zenstruck\Foundry\Proxy;
 
 class ProcedureMapSettingApiTest extends HttpTestCase
 {
-    protected Procedure|Proxy|null $procedure;
+    protected Procedure|null $procedure;
+    protected ProcedureSettings|null $procedureMapSetting;
+    protected User|null $user;
 
-    protected ProcedureSettings|Proxy|null $procedureMapSetting;
-
-    protected User|Proxy|null $user;
-
-    protected JWTManager|Proxy|null $tokenManager;
 
     public function testProcedureMapSetting(): void
     {
@@ -81,24 +75,4 @@ class ProcedureMapSettingApiTest extends HttpTestCase
         // self::assertSelectorTextContains('h1', 'registrieren', $this->client->getResponse()->getContent());
     }
 
-    protected function initializeUser(User $user): string
-    {
-        $token = $this->tokenManager->create($user);
-        $userToken = new JWTUserToken($user->getDplanRolesArray(), $user, $token);
-        $this->tokenStorage->setToken($userToken);
-
-        return $token;
-    }
-
-    protected function getAdditionalHeaders(string $jwtToken, ?Procedure $procedure): array
-    {
-        $headers = [
-            'HTTP_X-JWT-Authorization' => "Bearer $jwtToken",
-        ];
-        if (null !== $procedure) {
-            $headers['HTTP_X_DEMOSPLAN_PROCEDURE_ID'] = $procedure->getId();
-        }
-
-        return $headers;
-    }
 }
