@@ -1182,7 +1182,7 @@ feature_map_new_statement:
     parent: area_map_participation_area
 feature_map_print_layer:
     description: |-
-        Allow configuring (in the map admin area) if a layer is displayed in the map screenshot (in the exports) 
+        Allow configuring (in the map admin area) if a layer is displayed in the map screenshot (in the exports)
     label: 'Toggle layer visibility in exports'
     expose: true
     loginRequired: true
