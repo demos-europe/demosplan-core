@@ -757,11 +757,12 @@ export default {
      * Set active state when clicking on an overlay
      */
     setActiveState () {
-      if (this.layer.type !== 'GisLayer' ||
+      if (!hasPermission('feature_map_category') ||
+          this.layer.type !== 'GisLayer' ||
           this.layer.attributes.isBaseLayer ||
           this.isLoading ||
           this.isChildOfCategoryThatAppearsAsLayer) {
-        return false
+        return
       }
       if (this.preventActiveFromToggeling === false) {
         if (this.isActive) {

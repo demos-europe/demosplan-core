@@ -129,8 +129,8 @@ const LayersStore = {
       let category = {}
 
       if (data.categoryId === null) {
-        data.categoryId = state.apiData.data.id
-        category = state.apiData.data
+        data.categoryId = state.apiData.data[0].id
+        category = state.apiData.data[0]
       } else {
         category = state.apiData.included.find(elem => elem.id === data.categoryId)
       }
@@ -145,11 +145,11 @@ const LayersStore = {
           if (data.orderType === 'treeOrder') {
             if (el.type === 'GisLayerCategory') {
               set(el.attributes, 'parentId', data.categoryId)
-              categories.push(el)
+              categories.push({ id: el.id, type: 'GisLayerCategory' })
             } else if (el.type === 'GisLayer') {
               set(el.attributes, 'categoryId', data.categoryId)
               if (el.attributes.isEnabled) {
-                layers.push(el)
+                layers.push({ id: el.id, type: 'GisLayer' })
               }
             }
           }
@@ -273,11 +273,25 @@ const LayersStore = {
 
     save ({ state, commit, dispatch }) {
 
-      return dpApi({
-        method: 'POST',
-        url: Routing.generate('api_resource_update', { resourceType: state.apiData.data.type, resourceId: state.apiData.data.id }),
-        data: { data: state.apiData }
-      })
+      console.log('save')
+      const resource = state.apiData.data[0]
+
+      const payload = {
+        data: {
+          id: resource.id,
+          type: resource.type,
+          relationships: {
+            categories: {
+              data: resource.relationships.categories.data
+            },
+            gisLayers: {
+              data: resource.relationships.gisLayers.data
+            }
+          }
+        }
+      }
+
+      return dpApi.patch(Routing.generate('api_resource_update', { resourceType: resource.type, resourceId: resource.id }), {}, payload)
         .then(checkResponse)
         .then(() => {
           dispatch('get', state.procedureId)

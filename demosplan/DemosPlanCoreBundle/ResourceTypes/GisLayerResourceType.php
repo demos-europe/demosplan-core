@@ -86,15 +86,24 @@ final class GisLayerResourceType extends DplanResourceType
 
     public function isDeleteAllowed(): bool
     {
-        return $this->currentUser->hasPermission('area_map_participation_area');
+        return $this->hasManagementPermission();
     }
 
     public function isGetAllowed(): bool
     {
-        return $this->currentUser->hasPermission('area_map_participation_area');
+        return $this->hasManagementPermission();
     }
 
     public function isListAllowed(): bool
+    {
+        return $this->hasManagementPermission();
+    }
+
+    public function isUpdateAllowed(): bool
+    {
+        return $this->hasManagementPermission();
+    }
+    protected function hasManagementPermission(): bool
     {
         return $this->currentUser->hasPermission('area_map_participation_area');
     }

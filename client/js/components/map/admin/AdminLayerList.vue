@@ -197,28 +197,28 @@
             {{ Translator.trans('map.base.minimap.hint') }}
           </p>
         </div>
-        <div
-          class="text-right u-mv space-inline-s"
-          v-if="false === isLoading">
-          <dp-button
-            data-cy="adminLayerList:save"
-            :busy="!isEditable"
-            :text="Translator.trans('save')"
-            @click="saveOrder" />
-          <dp-button
-            data-cy="adminLayerList:saveAndReturn"
-            :busy="!isEditable"
-            :text="Translator.trans('save.and.return.to.list')"
-            @click="saveOrder(true)" />
-          <button
-            class="btn btn--secondary"
-            data-cy="adminLayerList:resetOrder"
-            type="reset"
-            @click.prevent="resetOrder">
-            {{ Translator.trans('reset.order') }}
-          </button>
-        </div>
       </template>
+      <div
+        class="text-right u-mv space-inline-s"
+        v-if="false === isLoading">
+        <dp-button
+          data-cy="adminLayerList:save"
+          :busy="!isEditable"
+          :text="Translator.trans('save')"
+          @click="saveOrder" />
+        <dp-button
+          data-cy="adminLayerList:saveAndReturn"
+          :busy="!isEditable"
+          :text="Translator.trans('save.and.return.to.list')"
+          @click="saveOrder(true)" />
+        <button
+          class="btn btn--secondary"
+          data-cy="adminLayerList:resetOrder"
+          type="reset"
+          @click.prevent="resetOrder">
+          {{ Translator.trans('reset.order') }}
+        </button>
+      </div>
     </div>
   </fieldset>
 </template>
@@ -305,6 +305,7 @@ export default {
         return this.elementListForLayerSidebar(null, 'overlay', true)
       },
       set (value) {
+        console.log('set treeList', value)
         this.setChildrenFromCategory({
           categoryId: null,
           data: value,
@@ -324,6 +325,7 @@ export default {
         return this.gisLayerList('overlay')
       },
       set (value) {
+        console.log('set mapList', value)
         this.setChildrenFromCategory({
           categoryId: null,
           data: value,
@@ -435,7 +437,11 @@ export default {
           scrollTo('#gislayers', { offset: -10 })
         }
       })
-    this.currentTab = lscache.get('layerOrderTab') || 'treeOrder'
+    if (this.canHaveCategories) {
+      this.currentTab = lscache.get('layerOrderTab') || 'treeOrder'
+    } else {
+      this.currentTab = 'mapOrder'
+    }
 
     const basicOptions = {
       animation: 150,
