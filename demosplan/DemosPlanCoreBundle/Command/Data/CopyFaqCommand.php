@@ -96,7 +96,7 @@ class CopyFaqCommand extends CoreCommand
 
             $output->info('Copied ' . $categoryCount . ' FAQ categories with ' . $faqCount . ' FAQs.');
             $timeSaved = ceil(($categoryCount * 30 + $faqCount * 45)/60);
-            $output->success("Faq where successfully copied. Saved approx $timeSaved minutes and a lots of nerves.");
+            $output->success("Faq where successfully copied. Saved approx $timeSaved minutes and lots of nerves.");
 
             return Command::SUCCESS;
         } catch (Exception $e) {
