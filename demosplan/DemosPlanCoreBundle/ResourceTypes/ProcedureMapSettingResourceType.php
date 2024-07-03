@@ -383,7 +383,6 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
     protected function getAccessConditions(): array
     {
-        $this->conditionFactory->true();
         $currentProcedure = $this->currentProcedureService->getProcedure();
         if (null === $currentProcedure) {
             return [$this->conditionFactory->false()];
