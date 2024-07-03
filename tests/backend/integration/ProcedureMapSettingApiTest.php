@@ -69,10 +69,13 @@ class ProcedureMapSettingApiTest extends HttpTestCase
             $headers
         );
 
-        $content = $this->client->getResponse()->getContent();
-
-        // Validate a successful response and some content
         self::assertResponseIsSuccessful();
-        // self::assertSelectorTextContains('h1', 'registrieren', $this->client->getResponse()->getContent());
+
+        $content = $this->client->getResponse()->getContent();
+        $decodedContent = json_decode($content, true);
+
+        self::assertEquals('ProcedureMapSetting', $decodedContent['included'][0]['type']);
+        self::assertEquals($this->procedureMapSetting->getId(), $decodedContent['included'][0]['id']);
+
     }
 }
