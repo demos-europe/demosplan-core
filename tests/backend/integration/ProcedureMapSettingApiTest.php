@@ -76,6 +76,5 @@ class ProcedureMapSettingApiTest extends HttpTestCase
 
         self::assertEquals('ProcedureMapSetting', $decodedContent['included'][0]['type']);
         self::assertEquals($this->procedureMapSetting->getId(), $decodedContent['included'][0]['id']);
-
     }
 }
