@@ -103,6 +103,7 @@ final class GisLayerResourceType extends DplanResourceType
     {
         return $this->hasManagementPermission();
     }
+
     protected function hasManagementPermission(): bool
     {
         return $this->currentUser->hasPermission('area_map_participation_area');

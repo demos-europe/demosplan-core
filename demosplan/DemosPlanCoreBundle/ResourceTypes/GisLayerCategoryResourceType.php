@@ -58,11 +58,11 @@ final class GisLayerCategoryResourceType extends DplanResourceType
     {
         return $this->hasManagementPermission();
     }
+
     public function isDeleteAllowed(): bool
     {
         return $this->hasManagementPermission();
     }
-
 
     public function isUpdateAllowed(): bool
     {
