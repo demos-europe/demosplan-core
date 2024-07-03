@@ -362,8 +362,6 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
     public function isAvailable(): bool
     {
-        return true;
-
         return null !== $this->currentProcedureService->getProcedure()
             && $this->currentUser->hasAnyPermissions('area_admin_map');
     }

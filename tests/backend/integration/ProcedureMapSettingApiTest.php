@@ -20,12 +20,14 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Tests\Base\HttpTestCase;
+use Zenstruck\Foundry\Persistence\Proxy;
+
 
 class ProcedureMapSettingApiTest extends HttpTestCase
 {
-    protected Procedure|null $procedure;
-    protected ProcedureSettings|null $procedureMapSetting;
-    protected User|null $user;
+    protected Procedure|Proxy|null $procedure;
+    protected ProcedureSettings|Proxy|null $procedureMapSetting;
+    protected User|Proxy|null $user;
 
 
     public function testProcedureMapSetting(): void
@@ -33,15 +35,16 @@ class ProcedureMapSettingApiTest extends HttpTestCase
         $this->user = $this->getUserReference(LoadUserData::TEST_USER_2_PLANNER_ADMIN);
         $this->procedure = ProcedureFactory::createOne();
         $this->procedureMapSetting = ProcedureSettingsFactory::createOne();
-        $this->procedureMapSetting->setProcedure($this->procedure->object());
-        $this->procedureMapSetting->save();
+        $this->procedureMapSetting->setProcedure($this->procedure->_real());
+        $this->procedureMapSetting->_save();
 
         $this->tokenManager = $this->getContainer()->get(JWTTokenManagerInterface::class);
 
         $jwtToken = $this->initializeUser($this->user);
-        $headers = $this->getAdditionalHeaders($jwtToken, $this->procedure->object());
+        $headers = $this->getAdditionalHeaders($jwtToken, $this->procedure->_real());
 
         $this->enablePermissions([
+            'area_admin_map',
             'area_public_participation',
             'area_admin_initial_map_view_page']);
 
