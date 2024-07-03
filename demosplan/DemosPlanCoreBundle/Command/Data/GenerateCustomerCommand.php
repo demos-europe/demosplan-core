@@ -62,7 +62,7 @@ class GenerateCustomerCommand extends CoreCommand
         ParameterBagInterface $parameterBag,
         private readonly RoleRepository $roleRepository,
         private readonly UserService $userService,
-        string $name = null
+        ?string $name = null
     ) {
         parent::__construct($parameterBag, $name);
         $this->helper = new QuestionHelper();
