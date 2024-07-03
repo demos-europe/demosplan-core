@@ -22,13 +22,11 @@ use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Tests\Base\HttpTestCase;
 use Zenstruck\Foundry\Persistence\Proxy;
 
-
 class ProcedureMapSettingApiTest extends HttpTestCase
 {
     protected Procedure|Proxy|null $procedure;
     protected ProcedureSettings|Proxy|null $procedureMapSetting;
     protected User|Proxy|null $user;
-
 
     public function testProcedureMapSetting(): void
     {
@@ -77,5 +75,4 @@ class ProcedureMapSettingApiTest extends HttpTestCase
         self::assertResponseIsSuccessful();
         // self::assertSelectorTextContains('h1', 'registrieren', $this->client->getResponse()->getContent());
     }
-
 }
