@@ -23,10 +23,9 @@ use Tests\Base\HttpTestCase;
 
 class ProcedureMapSettingApiTest extends HttpTestCase
 {
-    protected Procedure|null $procedure;
-    protected ProcedureSettings|null $procedureMapSetting;
-    protected User|null $user;
-
+    protected ?Procedure $procedure;
+    protected ?ProcedureSettings $procedureMapSetting;
+    protected ?User $user;
 
     public function testProcedureMapSetting(): void
     {
@@ -74,5 +73,4 @@ class ProcedureMapSettingApiTest extends HttpTestCase
         self::assertResponseIsSuccessful();
         // self::assertSelectorTextContains('h1', 'registrieren', $this->client->getResponse()->getContent());
     }
-
 }

@@ -17,15 +17,14 @@ use Lexik\Bundle\JWTAuthenticationBundle\Security\Authentication\Token\JWTUserTo
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTManager;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Zenstruck\Foundry\Proxy;
 
 class HttpTestCase extends FunctionalTestCase
 {
-    const JWT_AUTHORIZATION_HEADER = 'HTTP_X-JWT-Authorization';
-    const DEMOSPLAN_PROCEDURE_ID_HEADER = 'HTTP_X_DEMOSPLAN_PROCEDURE_ID';
+    public const JWT_AUTHORIZATION_HEADER = 'HTTP_X-JWT-Authorization';
+    public const DEMOSPLAN_PROCEDURE_ID_HEADER = 'HTTP_X_DEMOSPLAN_PROCEDURE_ID';
 
     protected ?KernelBrowser $client;
-    protected JWTManager|null $tokenManager;
+    protected ?JWTManager $tokenManager;
 
     protected function setUp(): void
     {
@@ -49,7 +48,6 @@ class HttpTestCase extends FunctionalTestCase
      * This method is essential for simulating an authenticated user in tests.
      * Initializes a user for authentication by creating a JWT token,
      * setting it in a JWTUserToken, and then setting this token in the token storage.
-     *
      */
     protected function initializeUser(User $user): string
     {
@@ -65,7 +63,6 @@ class HttpTestCase extends FunctionalTestCase
      *
      * This method prepares the HTTP headers required for authenticated requests. It includes the JWT token for
      * authorization and, if provided, the procedure ID to specify the context of the request.
-     *
      */
     protected function getAdditionalHeaders(string $jwtToken, ?Procedure $procedure): array
     {
