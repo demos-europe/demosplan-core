@@ -259,7 +259,7 @@ class LatexExtension extends ExtensionBase
 
             $postlatex = [
                 '',
-                '\\\\', // "\\\\\n",
+                '\\newline', // "\\\\\n",
                 '\\newline', // "\\\\\n",
                 '\\newline', // "\\\\\n"
             ];
