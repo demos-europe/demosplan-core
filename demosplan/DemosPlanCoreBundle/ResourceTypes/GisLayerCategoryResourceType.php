@@ -109,7 +109,11 @@ final class GisLayerCategoryResourceType extends DplanResourceType
              */
             $this->createToManyRelationship($this->categories)
                 ->readable(true, null, true)->sortable()->filterable()->aliasedPath($this->children),
-            $this->createToManyRelationship($this->gisLayers)->readable(true, null, true)->sortable()->filterable(),
+            $this->createToManyRelationship($this->gisLayers)
+                ->updatable()
+                ->readable(true, null, true)
+                ->sortable()
+                ->filterable(),
         ];
     }
 }

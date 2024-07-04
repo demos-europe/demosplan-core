@@ -175,7 +175,6 @@ final class GisLayerResourceType extends DplanResourceType
             $this->createAttribute($this->url)
                 ->readable(true, static fn (GisLayer $gisLayer): string => $gisLayer->getUrl()),
             $this->createAttribute($this->categoryId)
-                ->updatable()
                 ->readable(true, static fn (GisLayer $gisLayer): string => $gisLayer->getCategoryId()),
             $this->createAttribute($this->visibilityGroupId)
                 ->readable(true, static fn (GisLayer $gisLayer): string => $gisLayer->getVisibilityGroupId() ?? ''),
