@@ -143,6 +143,22 @@ class LatexExtension extends ExtensionBase
                 return '';
             }
 
+            if (str_contains($text, "matisch am 29.11.2021")) {
+                $a = str_contains($text, "\xC2\xA0");
+                $b = str_contains($text, "\xA0");
+                $c = str_contains($text, "\xE2\x80\xAF");
+                $berak = 'here';
+            }
+            $text = str_replace(
+                [
+                  "\xA0", // &nbsp;
+                  "\xC2\xA0", // utf8 &nbsp;
+                  "\xE2\x80\xAF", // utf8 narrow non breaking space
+                ],
+                ' ',
+                $text
+            );
+
             $this->logger->debug('latexFilter start: '.$text);
             // replace tilde temporary
             $text = str_replace('~', 'LATEXtextasciitildeLATEX', $text);
@@ -244,8 +260,8 @@ class LatexExtension extends ExtensionBase
             $postlatex = [
                 '',
                 '\\\\', // "\\\\\n",
-                '\\\\', // "\\\\\n",
-                '\\\\', // "\\\\\n"
+                '\\newline', // "\\\\\n",
+                '\\newline', // "\\\\\n"
             ];
 
             // Kill situations in which a end{itemize} is directly followed by a latex paragraph feed
@@ -253,6 +269,7 @@ class LatexExtension extends ExtensionBase
 
             // Eliminate all occurences of carriage returns
             $text = preg_replace('_\\r_si', '', $text);
+
 
             $text = str_replace($posthtml, $postlatex, $text);
 

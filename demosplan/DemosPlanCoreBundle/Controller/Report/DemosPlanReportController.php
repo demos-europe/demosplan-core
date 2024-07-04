@@ -13,11 +13,15 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Report;
 use Carbon\Carbon;
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Contracts\Services\ServiceImporterInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ExportReportService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportMessageConverter;
+use demosplan\DemosPlanCoreBundle\ValueObject\Statement\PdfFile;
 use Exception;
 use PhpOffice\PhpWord\Settings;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -25,6 +29,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Twig\Environment;
+use function Symfony\Component\String\u;
 
 /**
  * Seitenausgabe Protokolldaten.
@@ -70,34 +77,81 @@ class DemosPlanReportController extends BaseController
         NameGenerator $nameGenerator,
         PermissionsInterface $permissions,
         ProcedureHandler $procedureHandler,
-                              $procedureId
+        Environment $twig,
+        ServiceImporterInterface $serviceImporter,
+        ReportMessageConverter $messageConverter,
+        TranslatorInterface $translator,
+        $procedureId
     ): Response {
+
+        $procedure = $procedureHandler->getProcedure($procedureId);
         $slugify = new Slugify();
-        $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
+        $pdfName = $slugify->slugify($procedure->getName()).'.pdf';
 
-        $currentTime = Carbon::now();
-        $reportMeta = [
-            'name'       => $procedure->getName(),
-            'exportDate' => $currentTime->format('d.m.Y'),
-            'exportTime' => $currentTime->format('H:i'),
-        ];
+        $reportInfo = $reportService->getReportInfo($procedureId, $permissions);
 
-        Settings::setPdfRendererPath($parameterBag->get('pdf_renderer_path'));
-        Settings::setPdfRendererName($parameterBag->get('pdf_renderer_name'));
-
-        $response = new StreamedResponse(
-            static function () use ($procedureId, $reportMeta, $reportService, $permissions) {
-                $reportInfo = $reportService->getReportInfo($procedureId, $permissions);
-                $pdfReport = $reportService->generateProcedureReport($reportInfo, $reportMeta);
-                $pdfReport->save('php://output');
+        $reportMessages = [];
+        foreach ($reportInfo as $reportCategory) {
+            $reportHeader = $reportCategory['headerMessage'] ?? $reportCategory['titleMessage'];
+            $reportCategoryTitle = $reportCategory['titleMessage'];
+            $reportMessages[$reportCategoryTitle] = [$reportHeader => []];
+            /** @var ReportEntry $reportEntry */
+            foreach ($reportCategory['reportEntries'] as $reportEntry) {
+                $reportMessages[$reportCategoryTitle][$reportHeader][] = [
+                    'creationDate' => $reportEntry->getCreated()->format('d.m.Y H:i:s'),
+                    'userName' => u($reportEntry->getUserName()),
+                    'message' => $messageConverter->convertMessage($reportEntry),
+                ];
             }
+            if ([] === $reportMessages[$reportCategoryTitle][$reportHeader]) {
+                $reportMessages[$reportCategoryTitle][$reportHeader] = $translator->trans('text.protocol.no.entries');
+            }
+        }
+
+        $content = $twig->render('@DemosPlanCore/DemosPlanReport/list.procedure.report.tex.twig', [
+            'procedure'    => $procedure,
+            'templateVars' => $reportMessages,
+            'title'        => 'DPlan',
+        ]);
+        $response = $serviceImporter->exportPdfWithRabbitMQ(base64_encode($content), []);
+        $file = new PdfFile(
+            $pdfName,
+            base64_decode($response)
         );
 
-        $pdfName = $slugify->slugify($procedure->getName()).'.pdf';
+        $response = new Response($file->getContent(), 200);
         $response->headers->set('Pragma', 'public');
-        $response->headers->set('Content-Type', 'application/pdf; charset=utf-8');
+        $response->headers->set('Content-Type', 'application/pdf');
         $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename($pdfName));
 
         return $response;
+
+//        $slugify = new Slugify();
+//        $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
+//
+//        $currentTime = Carbon::now();
+//        $reportMeta = [
+//            'name'       => $procedure->getName(),
+//            'exportDate' => $currentTime->format('d.m.Y'),
+//            'exportTime' => $currentTime->format('H:i'),
+//        ];
+//
+//        Settings::setPdfRendererPath($parameterBag->get('pdf_renderer_path'));
+//        Settings::setPdfRendererName($parameterBag->get('pdf_renderer_name'));
+//
+//        $response = new StreamedResponse(
+//            static function () use ($procedureId, $reportMeta, $reportService, $permissions) {
+//                $reportInfo = $reportService->getReportInfo($procedureId, $permissions);
+//                $pdfReport = $reportService->generateProcedureReport($reportInfo, $reportMeta);
+//                $pdfReport->save('php://output');
+//            }
+//        );
+//
+//        $pdfName = $slugify->slugify($procedure->getName()).'.pdf';
+//        $response->headers->set('Pragma', 'public');
+//        $response->headers->set('Content-Type', 'application/pdf; charset=utf-8');
+//        $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename($pdfName));
+//
+//        return $response;
     }
 }
