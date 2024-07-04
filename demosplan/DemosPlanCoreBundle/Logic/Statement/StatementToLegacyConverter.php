@@ -138,9 +138,9 @@ class StatementToLegacyConverter extends CoreService
     }
 
     /**
-     * @param StatementAttribute[]|ArrayCollection $statementAttributes
+     * @param StatementAttribute[]|Collection $statementAttributes
      */
-    private function convertStatementAttributes(array $statementArray, array|ArrayCollection $statementAttributes): array
+    private function convertStatementAttributes(array $statementArray, array|Collection $statementAttributes): array
     {
         if ((is_countable($statementAttributes) ? count($statementAttributes) : 0) > 0) {
             $statementArray['statementAttributes'] = [];
