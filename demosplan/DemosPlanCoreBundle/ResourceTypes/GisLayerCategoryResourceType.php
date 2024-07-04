@@ -95,7 +95,11 @@ final class GisLayerCategoryResourceType extends DplanResourceType
             $this->createIdentifier()->readable()->sortable()->filterable(),
             $this->createAttribute($this->name)->readable(true)->sortable()->filterable(),
             $this->createAttribute($this->layerWithChildrenHidden)->readable(true)->sortable()->filterable(),
-            $this->createAttribute($this->treeOrder)->readable(true)->sortable()->filterable(),
+            $this->createAttribute($this->treeOrder)
+                ->updatable()
+                ->readable(true)
+                ->sortable()
+                ->filterable(),
             $this->createAttribute($this->isVisible)
                 ->readable(true)->sortable()->filterable()->aliasedPath($this->visible),
             $this->createAttribute($this->hasDefaultVisibility)
