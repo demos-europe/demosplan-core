@@ -38,21 +38,15 @@ class SegmentsExporter
     /**
      * @var array<string, mixed>
      */
-    protected $styles;
+    protected array $styles;
 
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
+    protected TranslatorInterface $translator;
 
-    /**
-     * @var Slugify
-     */
-    protected $slugify;
+    protected Slugify $slugify;
 
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
-        private readonly HTMLSanitizer $HTMLSanitizer,
+        private readonly HTMLSanitizer $htmlSanitizer,
         Slugify $slugify,
         TranslatorInterface $translator)
     {
@@ -119,7 +113,7 @@ class SegmentsExporter
                 $submitter->getStreetNameWithStreetNumber(),
                 $submitter->getPostalCodeWithCity(),
             ];
-            $values = array_filter($values, fn (?string $value): bool =>null !== $value);
+            $values = array_filter($values, static fn (?string $value): bool =>null !== $value);
             $values = implode(', ', $values);
             $values = trim($values);
             if ('' !== $values) {
@@ -293,6 +287,7 @@ class SegmentsExporter
 
     private function getHtmlValidText(string $text): string
     {
+        /** @var string $text $text */
         $text = str_replace('<br>', '<br/>', $text);
 
         // strip all a tags without href
@@ -300,7 +295,7 @@ class SegmentsExporter
         $text = preg_replace($pattern, '$3', $text);
 
         // avoid problems in phpword parser
-        return $this->HTMLSanitizer->purify($text);
+        return $this->htmlSanitizer->purify($text);
     }
 
     private function addSegmentCell(Row $row, string $text, CellExportStyle $cellExportStyle): void
