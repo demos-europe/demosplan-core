@@ -25,7 +25,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Exception;
 use ReflectionException;
