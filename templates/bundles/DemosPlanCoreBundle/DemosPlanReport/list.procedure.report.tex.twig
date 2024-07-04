@@ -10,7 +10,7 @@
     justification=raggedright, % Links ausrichten
     font=bf, % Fettgedruckter Text für die Caption
     }
-    \newcolumntype{L}[1]{>{\makecell[\raggedright\hyphenat\arraybackslash]}p{{ '{' }}#1}}
+    \newcolumntype{L}[1]{>{\RaggedRight\makecell[\hyphenat\arraybackslash]}p{{ '{' }}#1}}
     \begin{Huge}
     \section*{{ '{' }}{% if procedure.name is defined %}{{ procedure.name|latex|raw }}{% else %}
     {{ "Kein Verfahrensname"|latex|raw }}{% endif %}{{ ' - Protokoll'|latex|raw }}{{ '}' }}
@@ -35,7 +35,16 @@
             {% else %}
                 {{ '\\textbf{' }}{{ category|trans|latex|raw }}{{ '}\\\\' }}
                 {{ 'text.protocol.no.entries'|trans|latex|raw }}\\
+                \\
             {% endif %}
         {% endfor %}
     {% endfor %}
+    \vspace{0.5cm}
+    {{ '______________________________'|latex|raw }}\\
+    {{ 'city'|trans|latex|raw }}, {{ 'date'|trans|latex|raw }}\\
+    \\
+    {{ '______________________________'|latex|raw }}\\
+    {{ 'signature'|trans|latex|raw }}\\
+    \\
+    {{ 'exported.on'|trans({'%date%': exportedAt.exportDate, '%time%': exportedAt.exportTime})|latex|raw }}\\
 {% endblock %}

@@ -108,9 +108,16 @@ class DemosPlanReportController extends BaseController
             }
         }
 
+        $currentTime = Carbon::now();
+        $exportedAt = [
+            'exportDate' => $currentTime->format('d.m.Y'),
+            'exportTime' => $currentTime->format('H:i'),
+        ];
+
         $content = $twig->render('@DemosPlanCore/DemosPlanReport/list.procedure.report.tex.twig', [
             'procedure'    => $procedure,
             'templateVars' => $reportMessages,
+            'exportedAt'   => $exportedAt,
             'title'        => 'DPlan',
         ]);
         $response = $serviceImporter->exportPdfWithRabbitMQ(base64_encode($content), []);
