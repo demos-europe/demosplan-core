@@ -92,7 +92,7 @@ const LayersStore = {
      * @param element|Object {'id': elementId, 'categoryId': parentId, 'relationshipType': categories|gisLayers }
      */
     removeElement (state, element) {
-      const included = state.apiData.included
+      const included = [...state.apiData.data, ...state.apiData.included]
       let relationships
       let indexRelationships = []
 
@@ -127,7 +127,6 @@ const LayersStore = {
      */
     setChildrenFromCategory (state, data) {
       let category = {}
-      console.log('setChildrenFromCategory:data', data)
 
       if (data.categoryId === null) {
         data.categoryId = state.apiData.data[0].id
@@ -235,7 +234,7 @@ const LayersStore = {
           const rootCategory = data.data.find(item => item.attributes.isRootCategory)
           const nonRootCategories = data.data.filter(item => item.attributes.isRootCategory === false)
           const sortedData = [rootCategory, ...nonRootCategories]
-          data.data = sortedData
+          data.data = sortedData // place root category on the first position
 
           commit('updateApiData', data)
           commit('saveOriginalState', data)
@@ -281,35 +280,30 @@ const LayersStore = {
     save ({ state, commit, dispatch }, resource) {
       let payload
 
-      if (resource.type === 'GisLayer')
-      payload = {
-        data: {
-          id: resource.id,
-          type: resource.type,
-          attributes: {
-            mapOrder: resource.attributes.mapOrder,
-            treeOrder: resource.attributes.treeOrder,
-            isMinimap: resource.attributes.isMinimap,
-            hasDefaultVisibility: resource.attributes.hasDefaultVisibility
-          },
+      if (resource.type === 'GisLayer') {
+        payload = {
+          data: {
+            id: resource.id,
+            type: resource.type,
+            attributes: {
+              mapOrder: resource.attributes.mapOrder,
+              treeOrder: resource.attributes.treeOrder,
+              isMinimap: resource.attributes.isMinimap,
+              hasDefaultVisibility: resource.attributes.hasDefaultVisibility,
+              visibilityGroupId: resource.attributes.visibilityGroupId
+            },
+          }
         }
-      }
+        }
 
       if (resource.type === 'GisLayerCategory') {
         payload = {
           data: {
             id: resource.id,
             type: resource.type,
-            attributes: resource.attributes
-          }
-        }
-      }
-
-      if (resource.attributes.isRootCategory) {
-        payload = {
-          data: {
-            id: resource.id,
-            type: resource.type,
+            attributes: {
+              treeOrder: resource.attributes.treeOrder,
+            },
             relationships: {
               categories: {
                 data: resource.relationships.categories.data
@@ -321,8 +315,6 @@ const LayersStore = {
           }
         }
       }
-
-      console.log('save', resource)
 
       return dpApi.patch(Routing.generate('api_resource_update', {
         resourceType: resource.type,
@@ -344,10 +336,9 @@ const LayersStore = {
     },
 
     saveAll ({ state, dispatch }) {
-      console.log('SaveAll', state.apiData.included)
-      dispatch('save', state.apiData.data[0])
+      const categoriesAndLayers = [...state.apiData.data, ...state.apiData.included]
 
-      state.apiData.included.forEach(el => {
+      categoriesAndLayers.forEach(el => {
         dispatch('save', el)
       })
     },
@@ -384,7 +375,7 @@ const LayersStore = {
      */
     element: state => element => {
       if (typeof state.apiData.included === 'undefined') return {}
-      console.log('element' , element)
+      //console.log('element' , element)
       if (element.type === 'ContextualHelp') {
         const helpText = state.apiData.included.filter(current => current.attributes.key === ('gislayer.' + element.id))
         if (helpText.length <= 0) {
@@ -451,11 +442,12 @@ const LayersStore = {
       //  When called without categoryId, set it to the id of the root category
       if (categoryId === null) {
         categoryId = state.apiData.data[0].id
+        console.log('categoryId:', categoryId)
       }
 
       //  Filter api response by layer type + categories
       const categoriesAndLayers = [...state.apiData.included, ...state.apiData.data]
-      console.log('categoriesAndLayers', categoriesAndLayers)
+     // console.log('categoriesAndLayers', categoriesAndLayers)
       const elementList = categoriesAndLayers.filter(current => {
         //  Only GisLayer has an attributes.layerType so this one will be false for categories + contextual help
         const putLayerInList = (type === current.attributes.layerType)
@@ -468,6 +460,8 @@ const LayersStore = {
          *  while the parent category of layers is called `categoryId`
          */
         const parentId = (current.type === 'GisLayerCategory') ? 'parentId' : 'categoryId'
+
+        console.log('current.attributes[parentId]: ', current.attributes[parentId])
 
         return current.attributes[parentId] === categoryId && (putCategoriesInList || putLayerInList)
       })
@@ -484,12 +478,6 @@ const LayersStore = {
         return state.apiData.data.id
       }
       return ''
- /*     const rootEl = state.apiData.data.find(el => el.attributes.isRootCategory)
-      if (rootEl) {
-        return rootEl.id
-      }
-      console.log('rootEl: ', rootEl)
-      return ''*/
     },
 
     /**
