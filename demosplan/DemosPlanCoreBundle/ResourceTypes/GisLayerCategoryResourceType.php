@@ -109,6 +109,7 @@ final class GisLayerCategoryResourceType extends DplanResourceType
                 ->readable(true)->sortable()->filterable()->aliasedPath($this->parent->id),
 
             $this->createAttribute($this->isRootCategory)
+                ->filterable()
                 ->readable(true, function (GisLayerCategory $gisLayerCategory): bool {
                     return in_array($gisLayerCategory->getName(), ['root', 'rootGisLayer'], true);
                 }),
