@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\DemosPipes\Configuration\Permissions\Features;
+use DemosEurope\DemosplanAddon\DemosPipes\Entity\PdfImport\AnnotatedStatementPdfPage;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
@@ -21,6 +23,7 @@ use EDT\PathBuilding\End;
  * @template-extends DplanResourceType<GisLayerCategory>
  *
  * @property-read End $name
+ * @property-read End $isRootCategory
  * @property-read End $layerWithChildrenHidden
  * @property-read End $treeOrder
  * @property-read End $isVisible @deprecated use {@link GisLayerCategoryResourceType::$visible} instead
@@ -106,6 +109,11 @@ final class GisLayerCategoryResourceType extends DplanResourceType
                 ->readable(true)->sortable()->filterable()->aliasedPath($this->visible),
             $this->createAttribute($this->parentId)
                 ->readable(true)->sortable()->filterable()->aliasedPath($this->parent->id),
+
+            $this->createAttribute($this->isRootCategory)
+                ->readable(true, function (GisLayerCategory $gisLayerCategory): bool {
+                    return in_array($gisLayerCategory->getName(), ['root', 'rootGisLayer'], true);
+                }),
 
             /*
              * Keep these as a default include because these relationships are recursive and currently not easily
