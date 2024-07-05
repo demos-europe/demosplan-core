@@ -1,7 +1,14 @@
 {% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
 
 {% block component_part %}
-    {% set allTags = templateVars.availableTopics|default([])|map(el => { id: el.id, title: el.title, tags: el.tags|map(tag => { id: tag.id, name: tag.title }) }) %}
+    {% set allTags = templateVars.availableTopics|default([])|map(el => {
+        id: el.id,
+        title: el.title,
+        tags: el.tags|map(tag => {
+            id: tag.id,
+            title: tag.title
+        })
+    }) %}
     {% set submitTypesOptions = [] %}
     {% for key, translated in getFormOption('statement_submit_types.values', true)|filter(key => key != 'system') %}
         {% set submitTypesOptions = submitTypesOptions|merge([{ label: translated, value: key }]) %}
@@ -16,7 +23,7 @@
     </p>
 
     <dp-convert-annotated-pdf
-        :csrf-token="{{ csrf_token('csrf')|json_encode }}"
+        csrf-token="{{ csrf_token('csrf') }}"
         current-procedure-phase="{{ templateVars.currentProcedurePhase|default('analysis') }}"
         document-id="{{ templateVars.documentId }}"
         :init-submitter="{{ templateVars.submitter|default({}) }}"
