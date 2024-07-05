@@ -143,7 +143,7 @@ class LatexExtension extends ExtensionBase
                 return '';
             }
 
-            if (str_contains($text, "matisch am 29.11.2021")) {
+            if (str_contains($text, 'matisch am 29.11.2021')) {
                 $a = str_contains($text, "\xC2\xA0");
                 $b = str_contains($text, "\xA0");
                 $c = str_contains($text, "\xE2\x80\xAF");
@@ -151,9 +151,9 @@ class LatexExtension extends ExtensionBase
             }
             $text = str_replace(
                 [
-                  "\xA0", // &nbsp;
-                  "\xC2\xA0", // utf8 &nbsp;
-                  "\xE2\x80\xAF", // utf8 narrow non breaking space
+                    "\xA0", // &nbsp;
+                    "\xC2\xA0", // utf8 &nbsp;
+                    "\xE2\x80\xAF", // utf8 narrow non breaking space
                 ],
                 ' ',
                 $text
@@ -269,7 +269,6 @@ class LatexExtension extends ExtensionBase
 
             // Eliminate all occurences of carriage returns
             $text = preg_replace('_\\r_si', '', $text);
-
 
             $text = str_replace($posthtml, $postlatex, $text);
 
@@ -550,7 +549,7 @@ class LatexExtension extends ExtensionBase
             foreach ($imageMatches[1] as $matchKey => $match) {
                 $parts = explode('\&', $match);
                 // if contains / explode
-                if(str_contains($parts[0], '/')) {
+                if (str_contains($parts[0], '/')) {
                     $parts = explode('/', $parts[0]);
                     $fileHash = $parts[1];
                 } else {

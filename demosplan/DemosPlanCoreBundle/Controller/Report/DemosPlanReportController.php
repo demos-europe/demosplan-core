@@ -31,6 +31,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
+
 use function Symfony\Component\String\u;
 
 /**
@@ -83,7 +84,6 @@ class DemosPlanReportController extends BaseController
         TranslatorInterface $translator,
         $procedureId
     ): Response {
-
         $procedure = $procedureHandler->getProcedure($procedureId);
         $slugify = new Slugify();
         $pdfName = $slugify->slugify($procedure->getName()).'.pdf';
@@ -99,8 +99,8 @@ class DemosPlanReportController extends BaseController
             foreach ($reportCategory['reportEntries'] as $reportEntry) {
                 $reportMessages[$reportCategoryTitle][$reportHeader][] = [
                     'creationDate' => $reportEntry->getCreated()->format('d.m.Y H:i:s'),
-                    'userName' => u($reportEntry->getUserName()),
-                    'message' => $messageConverter->convertMessage($reportEntry),
+                    'userName'     => u($reportEntry->getUserName()),
+                    'message'      => $messageConverter->convertMessage($reportEntry),
                 ];
             }
             if ([] === $reportMessages[$reportCategoryTitle][$reportHeader]) {
@@ -133,32 +133,32 @@ class DemosPlanReportController extends BaseController
 
         return $response;
 
-//        $slugify = new Slugify();
-//        $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
-//
-//        $currentTime = Carbon::now();
-//        $reportMeta = [
-//            'name'       => $procedure->getName(),
-//            'exportDate' => $currentTime->format('d.m.Y'),
-//            'exportTime' => $currentTime->format('H:i'),
-//        ];
-//
-//        Settings::setPdfRendererPath($parameterBag->get('pdf_renderer_path'));
-//        Settings::setPdfRendererName($parameterBag->get('pdf_renderer_name'));
-//
-//        $response = new StreamedResponse(
-//            static function () use ($procedureId, $reportMeta, $reportService, $permissions) {
-//                $reportInfo = $reportService->getReportInfo($procedureId, $permissions);
-//                $pdfReport = $reportService->generateProcedureReport($reportInfo, $reportMeta);
-//                $pdfReport->save('php://output');
-//            }
-//        );
-//
-//        $pdfName = $slugify->slugify($procedure->getName()).'.pdf';
-//        $response->headers->set('Pragma', 'public');
-//        $response->headers->set('Content-Type', 'application/pdf; charset=utf-8');
-//        $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename($pdfName));
-//
-//        return $response;
+        //        $slugify = new Slugify();
+        //        $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
+        //
+        //        $currentTime = Carbon::now();
+        //        $reportMeta = [
+        //            'name'       => $procedure->getName(),
+        //            'exportDate' => $currentTime->format('d.m.Y'),
+        //            'exportTime' => $currentTime->format('H:i'),
+        //        ];
+        //
+        //        Settings::setPdfRendererPath($parameterBag->get('pdf_renderer_path'));
+        //        Settings::setPdfRendererName($parameterBag->get('pdf_renderer_name'));
+        //
+        //        $response = new StreamedResponse(
+        //            static function () use ($procedureId, $reportMeta, $reportService, $permissions) {
+        //                $reportInfo = $reportService->getReportInfo($procedureId, $permissions);
+        //                $pdfReport = $reportService->generateProcedureReport($reportInfo, $reportMeta);
+        //                $pdfReport->save('php://output');
+        //            }
+        //        );
+        //
+        //        $pdfName = $slugify->slugify($procedure->getName()).'.pdf';
+        //        $response->headers->set('Pragma', 'public');
+        //        $response->headers->set('Content-Type', 'application/pdf; charset=utf-8');
+        //        $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename($pdfName));
+        //
+        //        return $response;
     }
 }
