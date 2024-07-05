@@ -282,7 +282,7 @@
               multiple
               :options="tags"
               track-by="id"
-              @input="sortSelected('tags')">
+              @input="sortSelected('tags', 'title')">
               <template v-slot:option="{ props }">
                 <span v-if="props.option.$isLabel">
                   {{ props.option.$groupLabel }}
@@ -602,8 +602,8 @@ export default {
       })
     },
 
-    sortSelected (property) {
-      this.values[property].sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0))
+    sortSelected (property, sortBy = 'name') {
+      this.values[property].sort((a, b) => (a[sortBy] > b[sortBy]) ? 1 : ((b[sortBy] > a[sortBy]) ? -1 : 0))
     },
 
     submit () {
