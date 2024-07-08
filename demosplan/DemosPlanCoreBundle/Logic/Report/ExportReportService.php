@@ -67,7 +67,6 @@ class ExportReportService extends CoreService
     /**
      * Generates the report with the received info in pdf format.
      *
-     *
      * @return WriterInterface
      *
      * @throws Exception

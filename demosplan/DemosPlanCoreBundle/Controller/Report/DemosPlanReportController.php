@@ -13,22 +13,18 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Report;
 use Carbon\Carbon;
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Contracts\Services\ServiceImporterInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
-use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ExportReportService;
-use Exception;
-use DemosEurope\DemosplanAddon\Contracts\Services\ServiceImporterInterface;
-use demosplan\DemosPlanCoreBundle\Logic\Report\ReportMessageConverter;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\PdfFile;
-use Symfony\Contracts\Translation\TranslatorInterface;
+use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Twig\Environment;
-use function Symfony\Component\String\u;
 
 /**
  * Seitenausgabe Protokolldaten.
