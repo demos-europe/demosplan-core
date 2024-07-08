@@ -7892,20 +7892,21 @@
         },
         {
             "name": "nelmio/security-bundle",
-            "version": "v3.3.0",
+            "version": "v3.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nelmio/NelmioSecurityBundle.git",
-                "reference": "6a6c75ef6342385ef732f0b5afa705660177250f"
+                "reference": "de34d69ddc2227a4d5928030d2439106faf7a427"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nelmio/NelmioSecurityBundle/zipball/6a6c75ef6342385ef732f0b5afa705660177250f",
-                "reference": "6a6c75ef6342385ef732f0b5afa705660177250f",
+                "url": "https://api.github.com/repos/nelmio/NelmioSecurityBundle/zipball/de34d69ddc2227a4d5928030d2439106faf7a427",
+                "reference": "de34d69ddc2227a4d5928030d2439106faf7a427",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.4 || ^8.0",
+                "symfony/deprecation-contracts": "^2.5 || ^3",
                 "symfony/framework-bundle": "^5.4 || ^6.3 || ^7.0",
                 "symfony/http-kernel": "^5.4 || ^6.3 || ^7.0",
                 "symfony/security-core": "^5.4 || ^6.3 || ^7.0",
@@ -7959,9 +7960,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nelmio/NelmioSecurityBundle/issues",
-                "source": "https://github.com/nelmio/NelmioSecurityBundle/tree/v3.3.0"
+                "source": "https://github.com/nelmio/NelmioSecurityBundle/tree/v3.4.0"
             },
-            "time": "2024-04-10T08:11:27+00:00"
+            "time": "2024-07-05T07:26:02+00:00"
         },
         {
             "name": "nesbot/carbon",
