@@ -39,7 +39,7 @@ All rights reserved
       </li>
     </ul>
     <h3
-      v-if="hasPermission()('feature_customer_support_technical_read')">
+      v-if="hasPermission('feature_customer_support_technical_read')">
       {{ Translator.trans('support.technical') }}
     </h3>
     <div class="lg:w-8/12"
