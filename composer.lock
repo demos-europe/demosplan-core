@@ -12090,16 +12090,16 @@
         },
         {
             "name": "symfony/console",
-            "version": "v5.4.40",
+            "version": "v5.4.41",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "aa73115c0c24220b523625bfcfa655d7d73662dd"
+                "reference": "6473d441a913cb997123b59ff2dbe3d1cf9e11ba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/aa73115c0c24220b523625bfcfa655d7d73662dd",
-                "reference": "aa73115c0c24220b523625bfcfa655d7d73662dd",
+                "url": "https://api.github.com/repos/symfony/console/zipball/6473d441a913cb997123b59ff2dbe3d1cf9e11ba",
+                "reference": "6473d441a913cb997123b59ff2dbe3d1cf9e11ba",
                 "shasum": ""
             },
             "require": {
@@ -12169,7 +12169,7 @@
                 "terminal"
             ],
             "support": {
-                "source": "https://github.com/symfony/console/tree/v5.4.40"
+                "source": "https://github.com/symfony/console/tree/v5.4.41"
             },
             "funding": [
                 {
@@ -12185,7 +12185,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-05-31T14:33:22+00:00"
+            "time": "2024-06-28T07:48:55+00:00"
         },
         {
             "name": "symfony/css-selector",
@@ -13268,16 +13268,16 @@
         },
         {
             "name": "symfony/framework-bundle",
-            "version": "v5.4.40",
+            "version": "v5.4.41",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/framework-bundle.git",
-                "reference": "603090d8327e279bd233d5ce42a1ed89bc91612f"
+                "reference": "18b84194424511fe541fc7962553ae423e4553c7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/framework-bundle/zipball/603090d8327e279bd233d5ce42a1ed89bc91612f",
-                "reference": "603090d8327e279bd233d5ce42a1ed89bc91612f",
+                "url": "https://api.github.com/repos/symfony/framework-bundle/zipball/18b84194424511fe541fc7962553ae423e4553c7",
+                "reference": "18b84194424511fe541fc7962553ae423e4553c7",
                 "shasum": ""
             },
             "require": {
@@ -13398,7 +13398,7 @@
             "description": "Provides a tight integration between Symfony components and the Symfony full-stack framework",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/framework-bundle/tree/v5.4.40"
+                "source": "https://github.com/symfony/framework-bundle/tree/v5.4.41"
             },
             "funding": [
                 {
@@ -13414,7 +13414,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-05-31T14:33:22+00:00"
+            "time": "2024-06-14T09:52:52+00:00"
         },
         {
             "name": "symfony/http-client",
@@ -20747,23 +20747,23 @@
         },
         {
             "name": "psalm/plugin-symfony",
-            "version": "v5.2.2",
+            "version": "v5.2.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/psalm/psalm-plugin-symfony.git",
-                "reference": "58e109257764e8e7eab10a43a4212bbd70435f67"
+                "reference": "fb801a9b3d12ace9fb619febfaa3ae0bc1dbb196"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/psalm/psalm-plugin-symfony/zipball/58e109257764e8e7eab10a43a4212bbd70435f67",
-                "reference": "58e109257764e8e7eab10a43a4212bbd70435f67",
+                "url": "https://api.github.com/repos/psalm/psalm-plugin-symfony/zipball/fb801a9b3d12ace9fb619febfaa3ae0bc1dbb196",
+                "reference": "fb801a9b3d12ace9fb619febfaa3ae0bc1dbb196",
                 "shasum": ""
             },
             "require": {
                 "ext-simplexml": "*",
                 "php": "^8.1",
                 "symfony/framework-bundle": "^5.0 || ^6.0 || ^7.0",
-                "vimeo/psalm": "^5.24"
+                "vimeo/psalm": "^5.16"
             },
             "require-dev": {
                 "doctrine/annotations": "^1.8|^2",
@@ -20806,9 +20806,9 @@
             "description": "Psalm Plugin for Symfony",
             "support": {
                 "issues": "https://github.com/psalm/psalm-plugin-symfony/issues",
-                "source": "https://github.com/psalm/psalm-plugin-symfony/tree/v5.2.2"
+                "source": "https://github.com/psalm/psalm-plugin-symfony/tree/v5.2.5"
             },
-            "time": "2024-06-06T15:34:33+00:00"
+            "time": "2024-07-03T11:57:02+00:00"
         },
         {
             "name": "react/cache",
