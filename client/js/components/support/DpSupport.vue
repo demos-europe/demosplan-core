@@ -82,9 +82,6 @@ export default {
   },
 
   methods: {
-    hasPermission() {
-      return hasPermission
-    },
     ...mapActions('customerContact', {
       fetchContacts: 'list'
     }),
