@@ -15,7 +15,7 @@ All rights reserved
     <p class="u-mt-0_75">
       {{ Translator.trans('support.introduction') }}
     </p>
-    <p v-if="hasPermission()('feature_customer_support_technical_read')">
+    <p v-if="hasPermission('feature_customer_support_technical_read')">
       {{ Translator.trans('support.contact.advice') }}
     </p>
     <h3
