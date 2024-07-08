@@ -52,15 +52,16 @@ class SegmentsByStatementsExporter extends SegmentsExporter
 
     public function getSynopseFileName(Procedure $procedure, string $suffix, string $templateName = ''): string
     {
-        if('' !== $templateName) {
+        if ('' !== $templateName) {
             // Replace placeholders with actual values from the $procedure object
             $fileName = str_replace(
-                array('{ID}', '{NAME}', '{EINGANSNR}'),
-                array($procedure->getId(), $procedure->getName(),$procedure->getExternId()),
+                ['{ID}', '{NAME}', '{EINGANSNR}'],
+                [$procedure->getId(), $procedure->getName(), $procedure->getExternId()],
                 $templateName);
 
             return $fileName;
         }
+
         return 'Synopse-'.$this->slugify->slugify($procedure->getName()).'.'.$suffix;
     }
 
