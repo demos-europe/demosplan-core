@@ -101,12 +101,18 @@
       </div>
       <div v-else>
         <dp-editor
+          :basic-auth="dplan.settings.basicAuth"
           class="u-mb-0_5"
           editor-id="recommendationText"
+          :routes="{
+            getFileByHash: (hash) => Routing.generate('core_file_procedure', { procedureId: procedureId, hash: hash})
+          }"
           :toolbar-items="{
             fullscreenButton: false,
+            imageButton: true,
             linkButton: true
           }"
+          :tus-endpoint="dplan.paths.tusEndpoint"
           :value="segment.attributes.recommendation"
           @input="value => updateSegment('recommendation', value)">
           <template v-slot:modal="modalProps">
