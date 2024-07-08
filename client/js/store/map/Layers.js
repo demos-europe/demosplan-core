@@ -224,7 +224,8 @@ const LayersStore = {
             'layers',
             'layerType',
             'visibilityGroupId', // die layers können verknupft werden
-            'isMinimap' //
+            'isMinimap',
+            'categoryId'//
           ].join()
         },
         filter: {
@@ -442,25 +443,30 @@ const LayersStore = {
       if (categoryId === null) {
         categoryId = state.apiData.data[0].id
       }
+      console.log('type: ', type)
+      console.log('state.apiData.included: ', state.apiData.included)
 
       //  Filter api response by layer type + categories
       const elementList = state.apiData.included.filter(current => {
         //  Only GisLayer has an attributes.layerType so this one will be false for categories + contextual help
         const putLayerInList = (type === current.attributes.layerType)
+        console.log(current, current)
+        console.log('putLayerInList:', putLayerInList)
 
         //  Check if categories should be included and this one is a category
         const putCategoriesInList = (withCategories === true) ? (current.type === 'GisLayerCategory') : false
+        console.log('putCategoriesInList:', putCategoriesInList)
 
         /*
          *  For categories, their parent category is determined by the field `parentId`
          *  while the parent category of layers is called `categoryId`
          */
         const parentId = (current.type === 'GisLayerCategory') ? 'parentId' : 'categoryId'
-
+        console.log('parentId:', parentId)
         return current.attributes[parentId] === categoryId && (putCategoriesInList || putLayerInList)
       })
 
-      console.log('elementList: ', elementList)
+      console.log('elementList:' , elementList)
 
       //  Sort elements by treeOrder before returning the list
       return elementList.sort((a, b) => (a.attributes.treeOrder).toString().padEnd(21, '0') - (b.attributes.treeOrder).toString().padEnd(21, '0'))

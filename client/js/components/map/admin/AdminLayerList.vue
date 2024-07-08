@@ -417,6 +417,12 @@ export default {
           window.location.href = Routing.generate('DemosPlan_element_administration', { procedure: this.procedureId })
         }
       })
+        .then(() => {
+          dplan.notify.confirm(Translator.trans('confirm.saved'))
+        })
+        .catch(() => {
+          dplan.notify.error(Translator.trans('error.changes.not.saved'))
+        })
     },
 
     setActiveTab (sortOrder) {
