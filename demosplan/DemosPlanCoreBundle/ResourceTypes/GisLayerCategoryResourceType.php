@@ -112,7 +112,6 @@ final class GisLayerCategoryResourceType extends DplanResourceType
             $this->createAttribute($this->parentId)
                 ->readable(true)->sortable()->filterable()->aliasedPath($this->parent->id),
 
-
             /*
              * Keep these as a default include because these relationships are recursive and currently not easily
              * manageable in the FE with the actual - correct - available includes syntax.
