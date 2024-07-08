@@ -1118,6 +1118,13 @@ feature_map_attribution:
     expose: true
     loginRequired: true
     parent: area_admin_map
+feature_map_baselayer:
+    description: |-
+        Enables the usage of custom baselayers (next to the overlays) in the map
+    label: 'Allow configuring baselayers'
+    expose: true
+    loginRequired: true
+    parent: area_admin_map
 feature_map_category:
     expose: true
     label: 'Kategorien in Kartenlayer'
@@ -1173,6 +1180,13 @@ feature_map_new_statement:
     label: 'Planzeichnung Neue Stellungnahme'
     loginRequired: false
     parent: area_map_participation_area
+feature_map_print_layer:
+    description: |-
+        Allow configuring (in the map admin area) if a layer is displayed in the map screenshot (in the exports)
+    label: 'Toggle layer visibility in exports'
+    expose: true
+    loginRequired: true
+    parent: area_admin_map
 feature_map_search_location:
     expose: true
     label: 'Darf ein User nach ORT/PLZ suchen können?'
