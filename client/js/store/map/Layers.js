@@ -92,7 +92,7 @@ const LayersStore = {
      * @param element|Object {'id': elementId, 'categoryId': parentId, 'relationshipType': categories|gisLayers }
      */
     removeElement (state, element) {
-      const included = [...state.apiData.data, ...state.apiData.included]
+      const included = state.apiData.included
       let relationships
       let indexRelationships = []
 
@@ -212,8 +212,7 @@ const LayersStore = {
             'treeOrder', //
             'isVisible',
             'hasDefaultVisibility', //
-            'parentId',
-            'isRootCategory'
+            'parentId'
           ].join(),
           GisLayer: [
             'name',
@@ -227,15 +226,18 @@ const LayersStore = {
             'visibilityGroupId', // die layers können verknupft werden
             'isMinimap' //
           ].join()
+        },
+        filter: {
+          name: {
+            condition: {
+              path: 'parentId',
+              operator: 'IS NULL',
+            }
+          }
         }
       }))
         .then(checkResponse)
         .then(data => {
-          const rootCategory = data.data.find(item => item.attributes.isRootCategory)
-          const nonRootCategories = data.data.filter(item => item.attributes.isRootCategory === false)
-          const sortedData = [rootCategory, ...nonRootCategories]
-          data.data = sortedData // place root category on the first position
-
           commit('updateApiData', data)
           commit('saveOriginalState', data)
           commit('setVisibilityGroups')
@@ -336,9 +338,9 @@ const LayersStore = {
     },
 
     saveAll ({ state, dispatch }) {
-      const categoriesAndLayers = [...state.apiData.data, ...state.apiData.included]
+      dispatch('save', state.apiData.data[0])
 
-      categoriesAndLayers.forEach(el => {
+      state.apiData.included.forEach(el => {
         dispatch('save', el)
       })
     },
@@ -375,7 +377,6 @@ const LayersStore = {
      */
     element: state => element => {
       if (typeof state.apiData.included === 'undefined') return {}
-      //console.log('element' , element)
       if (element.type === 'ContextualHelp') {
         const helpText = state.apiData.included.filter(current => current.attributes.key === ('gislayer.' + element.id))
         if (helpText.length <= 0) {
@@ -384,8 +385,7 @@ const LayersStore = {
           return helpText[0]
         }
       }
-      const categoriesAndLayers = [...state.apiData.data, ...state.apiData.included]
-      return categoriesAndLayers.filter(current => {
+      return state.apiData.included.filter(current => {
         return current.id === element.id && current.type === element.type
       })[0]
     },
@@ -438,17 +438,13 @@ const LayersStore = {
         return []
       }
 
-      console.log('categoryId, type, withCategories:', categoryId, type, withCategories)
       //  When called without categoryId, set it to the id of the root category
       if (categoryId === null) {
         categoryId = state.apiData.data[0].id
-        console.log('categoryId:', categoryId)
       }
 
       //  Filter api response by layer type + categories
-      const categoriesAndLayers = [...state.apiData.included, ...state.apiData.data]
-     // console.log('categoriesAndLayers', categoriesAndLayers)
-      const elementList = categoriesAndLayers.filter(current => {
+      const elementList = state.apiData.included.filter(current => {
         //  Only GisLayer has an attributes.layerType so this one will be false for categories + contextual help
         const putLayerInList = (type === current.attributes.layerType)
 
@@ -460,8 +456,6 @@ const LayersStore = {
          *  while the parent category of layers is called `categoryId`
          */
         const parentId = (current.type === 'GisLayerCategory') ? 'parentId' : 'categoryId'
-
-        console.log('current.attributes[parentId]: ', current.attributes[parentId])
 
         return current.attributes[parentId] === categoryId && (putCategoriesInList || putLayerInList)
       })
@@ -475,7 +469,7 @@ const LayersStore = {
     //  @TODO check how response looks when no layers or categories exist in a procedure!
     rootId: state => {
       if (hasOwnProp(state.apiData, 'data')) {
-        return state.apiData.data.id
+        return state.apiData.data[0].id
       }
       return ''
     },
