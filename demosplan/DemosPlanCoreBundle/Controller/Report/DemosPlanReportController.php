@@ -15,16 +15,20 @@ use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ExportReportService;
 use Exception;
-use PhpOffice\PhpWord\Settings;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\Services\ServiceImporterInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportMessageConverter;
+use demosplan\DemosPlanCoreBundle\ValueObject\Statement\PdfFile;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use Twig\Environment;
+use function Symfony\Component\String\u;
 
 /**
  * Seitenausgabe Protokolldaten.
@@ -66,36 +70,42 @@ class DemosPlanReportController extends BaseController
     #[Route(name: 'dplan_export_report', path: '/report/export/{procedureId}', methods: ['GET'], options: ['expose' => true])]
     public function exportProcedureReportAction(
         ExportReportService $reportService,
-        ParameterBagInterface $parameterBag,
         NameGenerator $nameGenerator,
         PermissionsInterface $permissions,
         ProcedureHandler $procedureHandler,
-                              $procedureId
+        Environment $twig,
+        ServiceImporterInterface $serviceImporter,
+        $procedureId
     ): Response {
+        $procedure = $procedureHandler->getProcedure($procedureId);
         $slugify = new Slugify();
-        $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
+        $pdfName = $slugify->slugify($procedure->getName()).'.pdf';
+
+        $reportInfo = $reportService->getReportInfo($procedureId, $permissions);
+
+        $reportMessages = $reportService->generateProcedureReport($reportInfo);
 
         $currentTime = Carbon::now();
-        $reportMeta = [
-            'name'       => $procedure->getName(),
+        $exportedAt = [
             'exportDate' => $currentTime->format('d.m.Y'),
             'exportTime' => $currentTime->format('H:i'),
         ];
 
-        Settings::setPdfRendererPath($parameterBag->get('pdf_renderer_path'));
-        Settings::setPdfRendererName($parameterBag->get('pdf_renderer_name'));
-
-        $response = new StreamedResponse(
-            static function () use ($procedureId, $reportMeta, $reportService, $permissions) {
-                $reportInfo = $reportService->getReportInfo($procedureId, $permissions);
-                $pdfReport = $reportService->generateProcedureReport($reportInfo, $reportMeta);
-                $pdfReport->save('php://output');
-            }
+        $content = $twig->render('@DemosPlanCore/DemosPlanReport/list.procedure.report.tex.twig', [
+            'procedure'    => $procedure,
+            'templateVars' => $reportMessages,
+            'exportedAt'   => $exportedAt,
+            'title'        => 'DPlan',
+        ]);
+        $response = $serviceImporter->exportPdfWithRabbitMQ(base64_encode($content), []);
+        $file = new PdfFile(
+            $pdfName,
+            base64_decode($response)
         );
 
-        $pdfName = $slugify->slugify($procedure->getName()).'.pdf';
+        $response = new Response($file->getContent(), 200);
         $response->headers->set('Pragma', 'public');
-        $response->headers->set('Content-Type', 'application/pdf; charset=utf-8');
+        $response->headers->set('Content-Type', 'application/pdf');
         $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename($pdfName));
 
         return $response;

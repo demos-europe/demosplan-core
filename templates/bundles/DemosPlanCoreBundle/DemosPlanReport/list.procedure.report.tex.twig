@@ -1,0 +1,55 @@
+{% set scope = 'external' %}
+{% set count = templateVars|length %}
+{% extends '@DemosPlanCore/DemosPlanCore/pdfexport.tex.twig' %}
+{% block demosplanbundlecontent %}
+    % Überschrift
+    % Anpassen der Caption-Einstellungen
+    \captionsetup[table]{
+    labelformat=empty, % Entfernt "Table 1:"
+    singlelinecheck=false, % Ermöglicht linksbündige Ausrichtung
+    justification=raggedright, % Links ausrichten
+    font=bf, % Fettgedruckter Text für die Caption
+    }
+    \newcolumntype{L}[1]{>{\RaggedRight\makecell[\hyphenat\arraybackslash]}p{{ '{' }}#1}}
+    \begin{Huge}
+    \section*{{ '{' }}{% if procedure.name is defined %}{{ procedure.name|latex|raw }}{% else %}
+    {{ "Kein Verfahrensname"|latex|raw }}{% endif %}{{ ' - Protokoll'|latex|raw }}{{ '}' }}
+    \end{Huge}
+    {% for category, reportsTitle in templateVars %}
+        {% for title, reports in reportsTitle %}
+            {% if reports is iterable  %}
+                \begin{longtable}{|L{4cm}|L{10cm}|L{3cm}|}
+                \caption{{ '{' }}{{ category|trans|latex|raw }}{{ '}' }}
+                \hline
+                Datum & {{ title|trans|latex|raw }} & Nutzer*in \\
+                \endfirsthead
+                Datum & {{ title|trans|latex|raw }} & Nutzer*in \\
+                \endhead
+                \hline
+                {% for report in reports %}
+                    {{ report.creationDate }} & {{ report.message|trans|latex|raw }} & {{ report.userName }} \\
+                    \hline
+                {% endfor %}
+                \end{longtable}
+                \\
+            {% else %}
+                {{ '\\textbf{' }}{{ category|trans|latex|raw }}{{ '}\\\\' }}
+                {{ 'text.protocol.no.entries'|trans|latex|raw }}\\
+                \\
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+    \vspace{2cm}
+    \makeatletter % Nötig bei Verwendung von Dimens
+    \ifdim\dimexpr \pagegoal-\pagetotal\relax < 5cm
+    \newpage\vspace*{2cm} % Seitenumbruch und 2cm Abstand
+    \fi
+    \makeatother
+    {{ '______________________________'|latex|raw }}\\
+    {{ 'city'|trans|latex|raw }}, {{ 'date'|trans|latex|raw }}\\
+    \\
+    {{ '______________________________'|latex|raw }}\\
+    {{ 'signature'|trans|latex|raw }}\\
+    \\
+    {{ 'exported.on'|trans({'%date%': exportedAt.exportDate, '%time%': exportedAt.exportTime})|latex|raw }}\\
+{% endblock %}
