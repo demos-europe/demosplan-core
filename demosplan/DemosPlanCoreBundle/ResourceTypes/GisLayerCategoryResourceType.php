@@ -104,14 +104,14 @@ final class GisLayerCategoryResourceType extends DplanResourceType
             $this->createAttribute($this->isVisible)
                 ->readable(true)->sortable()->filterable()->aliasedPath($this->visible),
             $this->createAttribute($this->hasDefaultVisibility)
-                ->readable(true)->sortable()->filterable()->aliasedPath($this->visible),
+                ->updatable()
+                ->readable(true)
+                ->sortable()
+                ->filterable()
+                ->aliasedPath($this->visible),
             $this->createAttribute($this->parentId)
                 ->readable(true)->sortable()->filterable()->aliasedPath($this->parent->id),
 
-            $this->createAttribute($this->isRootCategory)
-                ->readable(true, function (GisLayerCategory $gisLayerCategory): bool {
-                    return in_array($gisLayerCategory->getName(), ['root', 'rootGisLayer'], true);
-                }),
 
             /*
              * Keep these as a default include because these relationships are recursive and currently not easily
