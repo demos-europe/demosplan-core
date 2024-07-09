@@ -75,11 +75,7 @@ class SegmentsExportController extends BaseController
             }
         );
 
-        $filename = $slugify->slugify($procedure->getName())
-            .'-'
-            .$statement->getExternId().'.docx';
-
-        $this->setResponseHeaders($response, $filename);
+        $this->setResponseHeaders($response, $exporter->getFileName($statement, 'docx', $fileNameTemplate));
 
         return $response;
     }

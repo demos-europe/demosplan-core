@@ -55,6 +55,22 @@ class SegmentsExporter
         $this->slugify = $slugify;
     }
 
+    public function getFileName(Statement $statement, string $suffix, string $templateName = ''): string
+    {
+        if('' !== $templateName) {
+            // Replace placeholders with actual values from the $statement object
+            $fileName = str_replace(
+                array('{ID}', '{NAME}', '{EINGANSNR}'),
+                array($statement->getExternId(), $statement->getAuthorName(), $statement->getInternId(),),
+                $templateName);
+
+            return $fileName. '.' . $suffix;
+        }
+
+        return $this->slugify->slugify($statement->getAuthorName()).'-' .$statement->getExternId().'.docx';
+
+    }
+
     /**
      * @throws Exception
      */
