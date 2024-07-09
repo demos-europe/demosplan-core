@@ -65,6 +65,7 @@ class SegmentsExportController extends BaseController
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
         $tableHeaders = $this->requestStack->getCurrentRequest()->query->get('tableHeaders', []);
+        $templateName = $this->requestStack->getCurrentRequest()->query->get('templateName', '');
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         $statement = $statementHandler->getStatementWithCertainty($statementId);
         $response = new StreamedResponse(
@@ -73,6 +74,8 @@ class SegmentsExportController extends BaseController
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
         );
+
+        $this->setResponseHeaders($response, $exporter->getSynopseFileName($procedure, 'docx', $templateName));
 
         $filename = $slugify->slugify($procedure->getName())
             .'-'
@@ -103,7 +106,7 @@ class SegmentsExportController extends BaseController
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
         $tableHeaders = $this->requestStack->getCurrentRequest()->query->get('tableHeaders', []);
-        $templateName = $this->requestStack->getCurrentRequest()->query->get('templateName', '');
+
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
@@ -117,7 +120,7 @@ class SegmentsExportController extends BaseController
             }
         );
 
-        $this->setResponseHeaders($response, $exporter->getSynopseFileName($procedure, 'docx', $templateName));
+        $this->setResponseHeaders($response, $exporter->getSynopseFileName($procedure, 'docx'));
 
         return $response;
     }
@@ -192,6 +195,7 @@ class SegmentsExportController extends BaseController
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
         $tableHeaders = $this->requestStack->getCurrentRequest()->query->get('tableHeaders', []);
+        $fileNameTemplate = $this->requestStack->getCurrentRequest()->query->get('fileNameTemplate', '');
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         // This method applies mostly the same restrictions as the generic API access to retrieve statements.
         // It validates filter and search parameters and limits the returned statement entities to those
