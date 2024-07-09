@@ -13,13 +13,19 @@ declare(strict_types=1);
 namespace Tests\Core\Statement\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadStatementData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
 use Tests\Base\FunctionalTestCase;
+use Zenstruck\Foundry\Persistence\Proxy;
+
 
 class SegmentsByStatementsExporterTest extends FunctionalTestCase
 {
+    private null|Procedure|Proxy $testProcedure;
+
     /**
      * @var SegmentsByStatementsExporter
      */
@@ -29,6 +35,7 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
     {
         parent::setUp();
         $this->sut = $this->getContainer()->get(SegmentsByStatementsExporter::class);
+        $this->testProcedure = ProcedureFactory::createOne();
     }
 
     public function testMapStatementsToPathInZipWithTrueDuplicate(): void
@@ -37,6 +44,15 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
 
         $statement = $this->getStatementReference(LoadStatementData::TEST_STATEMENT);
         $this->sut->mapStatementsToPathInZip([$statement, $statement]);
+    }
+
+    public function testGetSynopseFileName(): void
+    {
+        $templateName = '{ID}-{NAME}-{EINGANSNR}';
+        $fileName = $this->sut->getSynopseFileName($this->testProcedure->_real(), 'docx', $templateName);
+
+        self::assertSame($this->testProcedure->getId() . '-' . $this->testProcedure->getName() . '-' . $this->testProcedure->getExternId(), $fileName);
+
     }
 
     public function testMapStatementsToPathInZipWithSuperficialDuplicate(): void
