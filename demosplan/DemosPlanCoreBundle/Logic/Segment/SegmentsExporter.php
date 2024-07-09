@@ -251,9 +251,9 @@ class SegmentsExporter
                 $width *= $factor;
             }
             $imageStyle = [
-                'width' => $width, // Breite in Pixel
+                'width'  => $width, // Breite in Pixel
                 'height' => $height, // Höhe in Pixel
-                'align' => Jc::START, // Zentrierung
+                'align'  => Jc::START, // Zentrierung
             ];
 
             $section->addImage($imagePath, $imageStyle);

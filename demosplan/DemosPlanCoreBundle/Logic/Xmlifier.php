@@ -21,6 +21,7 @@ final class Xmlifier
      */
     private array $images = [];
     private int $imageCounter = 1;
+
     public function __construct(private readonly FileService $fileService)
     {
     }
@@ -42,9 +43,9 @@ final class Xmlifier
         $srcParts = explode('/', $src);
         $hash = $srcParts[array_key_last($srcParts)];
 
-        $imageReference = $statementExternId . '_Darstellung_Erw_' . $this->imageCounter;
+        $imageReference = $statementExternId.'_Darstellung_Erw_'.$this->imageCounter;
         $this->images[$imageReference] = $this->getAbsoluteImagePath($hash);
-        $this->imageCounter++;
+        ++$this->imageCounter;
 
         return $imageReference;
     }
