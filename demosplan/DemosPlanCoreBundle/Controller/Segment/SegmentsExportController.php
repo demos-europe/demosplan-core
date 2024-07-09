@@ -65,7 +65,7 @@ class SegmentsExportController extends BaseController
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
         $tableHeaders = $this->requestStack->getCurrentRequest()->query->get('tableHeaders', []);
-        $templateName = $this->requestStack->getCurrentRequest()->query->get('templateName', '');
+        $fileNameTemplate = $this->requestStack->getCurrentRequest()->query->get('fileNameTemplate', '');
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         $statement = $statementHandler->getStatementWithCertainty($statementId);
         $response = new StreamedResponse(
@@ -74,8 +74,6 @@ class SegmentsExportController extends BaseController
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
         );
-
-        $this->setResponseHeaders($response, $exporter->getSynopseFileName($procedure, 'docx', $templateName));
 
         $filename = $slugify->slugify($procedure->getName())
             .'-'
