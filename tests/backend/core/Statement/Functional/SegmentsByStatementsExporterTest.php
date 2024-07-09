@@ -21,10 +21,9 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
 use Tests\Base\FunctionalTestCase;
 use Zenstruck\Foundry\Persistence\Proxy;
 
-
 class SegmentsByStatementsExporterTest extends FunctionalTestCase
 {
-    private null|Procedure|Proxy $testProcedure;
+    private Procedure|Proxy|null $testProcedure;
 
     /**
      * @var SegmentsByStatementsExporter
@@ -51,8 +50,7 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         $templateName = '{ID}-{NAME}-{EINGANSNR}';
         $fileName = $this->sut->getSynopseFileName($this->testProcedure->_real(), 'docx', $templateName);
 
-        self::assertSame($this->testProcedure->getId() . '-' . $this->testProcedure->getName() . '-' . $this->testProcedure->getExternId(), $fileName);
-
+        self::assertSame($this->testProcedure->getId().'-'.$this->testProcedure->getName().'-'.$this->testProcedure->getExternId(), $fileName);
     }
 
     public function testMapStatementsToPathInZipWithSuperficialDuplicate(): void
