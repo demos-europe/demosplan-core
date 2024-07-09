@@ -87,7 +87,6 @@ class SegmentsExporter
         }
 
         return $authorSourceName;
-
     }
 
     private function getInternalId(Statement $statement): string
@@ -96,6 +95,7 @@ class SegmentsExporter
         if (null === $internId || '' === trim($internId)) {
             return $this->translator->trans('statement.intern_id.unknown');
         }
+
         return $internId;
     }
 
@@ -105,10 +105,9 @@ class SegmentsExporter
         if (null === $externId || '' === trim($externId)) {
             return $this->translator->trans('statement.extern_id.unknown');
         }
+
         return $externId;
     }
-
-
 
     /**
      * @throws Exception
