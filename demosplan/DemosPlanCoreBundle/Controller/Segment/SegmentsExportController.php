@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 
-use Cocur\Slugify\Slugify;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
