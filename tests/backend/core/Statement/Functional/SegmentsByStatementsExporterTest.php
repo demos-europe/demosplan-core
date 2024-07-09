@@ -49,9 +49,13 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
     public function testGetSynopseFileName(): void
     {
         $templateName = '{ID}-{NAME}-{EINGANSNR}';
-        $fileName = $this->sut->getSynopseFileName($this->testProcedure->_real(), 'docx', $templateName);
+        $suffix = 'docx';
+        $fileName = $this->sut->getSynopseFileName($this->testProcedure->_real(), $suffix, $templateName);
+        self::assertSame($this->testProcedure->getId() . '-' . $this->testProcedure->getName() . '-' . $this->testProcedure->getExternId() . '.' . $suffix, $fileName);
 
-        self::assertSame($this->testProcedure->getId() . '-' . $this->testProcedure->getName() . '-' . $this->testProcedure->getExternId(), $fileName);
+        $templateName = 'My Template';
+        $fileName = $this->sut->getSynopseFileName($this->testProcedure->_real(), $suffix, $templateName);
+        self::assertSame('My Template' . '.' . $suffix, $fileName);
 
     }
 

@@ -59,7 +59,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
                 [$procedure->getId(), $procedure->getName(), $procedure->getExternId()],
                 $templateName);
 
-            return $fileName;
+            return $fileName . '.' . $suffix;
         }
 
         return 'Synopse-'.$this->slugify->slugify($procedure->getName()).'.'.$suffix;
