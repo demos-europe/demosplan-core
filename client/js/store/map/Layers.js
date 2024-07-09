@@ -136,7 +136,7 @@ const LayersStore = {
       }
 
       if (category.type === 'GisLayerCategory') {
-        // Create new child-elements-arrays (ralationships) for the parent of the given List
+        // Create new child-elements-arrays (relationships) for the parent of the given List
         const categories = []
         const layers = []
 
@@ -224,8 +224,17 @@ const LayersStore = {
             'layers',
             'layerType',
             'visibilityGroupId',
-            'isMinimap'
+            'isMinimap',
+            'categoryId'
           ].join()
+        },
+        filter: {
+          name: {
+            condition: {
+              path: 'parentId',
+              operator: 'IS NULL',
+            }
+          }
         }
       }))
         .then(checkResponse)
@@ -238,7 +247,7 @@ const LayersStore = {
     },
 
     /**
-     * Get layer legends. Legends needs to be fetched for each single gislayer layer
+     * Get layer legends. Legends needs to be fetched for each single gisLayer layer
      * as some map services are not able to group legends
      * @param commit
      * @param getters
@@ -271,21 +280,51 @@ const LayersStore = {
       }
     },
 
-    save ({ state, commit, dispatch }) {
+    saveAll ({ state, dispatch }) {
+      /* Save the root category along with its relationships */
+      dispatch('save', state.apiData.data[0])
 
-      console.log('save')
-      const resource = state.apiData.data[0]
+      /* Save each GIS layer and GIS layer category separately */
+       state.apiData.included.forEach(el => {
+        dispatch('save', el)
+      })
+    },
 
-      const payload = {
-        data: {
-          id: resource.id,
-          type: resource.type,
-          relationships: {
-            categories: {
-              data: resource.relationships.categories.data
+    save ({ state, commit, dispatch }, resource) {
+      let payload
+
+      if (resource.type === 'GisLayer') {
+        payload = {
+          data: {
+            id: resource.id,
+            type: resource.type,
+            attributes: {
+              hasDefaultVisibility: resource.attributes.hasDefaultVisibility,
+              isMinimap: resource.attributes.isMinimap,
+              mapOrder: resource.attributes.mapOrder,
+              treeOrder: resource.attributes.treeOrder,
+              visibilityGroupId: resource.attributes.visibilityGroupId
             },
-            gisLayers: {
-              data: resource.relationships.gisLayers.data
+          }
+        }
+      }
+
+      if (resource.type === 'GisLayerCategory') {
+        payload = {
+          data: {
+            id: resource.id,
+            type: resource.type,
+            attributes: {
+              treeOrder: resource.attributes.treeOrder,
+              hasDefaultVisibility: resource.attributes.hasDefaultVisibility,
+            },
+            relationships: {
+              categories: {
+                data: resource.relationships.categories.data
+              },
+              gisLayers: {
+                data: resource.relationships.gisLayers.data
+              }
             }
           }
         }
@@ -331,11 +370,11 @@ const LayersStore = {
 
   getters: {
     /**
-     * Get complete object for striped opbject containing element-Id and Type
-     * (both have to match the coresponding included-array)
+     * Get complete object for striped object containing element-Id and Type
+     * (both have to match the corresponding included-array)
      *
      * @param element|Object ( {id, type} )
-     * @returns Object|element(gislayers or GisLayerCategory)
+     * @returns Object|element(gisLayers or GisLayerCategory)
      */
     element: state => element => {
       if (typeof state.apiData.included === 'undefined') return {}
@@ -355,7 +394,7 @@ const LayersStore = {
     /**
      * Get List of all gisLayers
      *
-     * @returns Array|element(gislayers or GisLayerCategory)
+     * @returns Array|element(gisLayers or GisLayerCategory)
      */
     gisLayerList: state => type => {
       if (typeof state.apiData.included === 'undefined') return []
@@ -368,7 +407,7 @@ const LayersStore = {
     /**
      * Get List of all gisLayers
      *
-     * @returns Array|element(gislayers or GisLayerCategory)
+     * @returns Array|element(gisLayers or GisLayerCategory)
      */
     elementsListByAttribute: state => attribute => {
       if (typeof state.apiData.included === 'undefined') return []
@@ -402,7 +441,7 @@ const LayersStore = {
 
       //  When called without categoryId, set it to the id of the root category
       if (categoryId === null) {
-        categoryId = state.apiData.data.id
+        categoryId = state.apiData.data[0].id
       }
 
       //  Filter api response by layer type + categories
@@ -429,7 +468,7 @@ const LayersStore = {
     //  @TODO check how response looks when no layers or categories exist in a procedure!
     rootId: state => {
       if (hasOwnProp(state.apiData, 'data')) {
-        return state.apiData.data.id
+        return state.apiData.data[0].id
       }
       return ''
     },

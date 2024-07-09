@@ -411,11 +411,17 @@ export default {
   methods: {
     saveOrder (redirect) {
       this.isEditable = false
-      this.save().then(() => {
+      this.saveAll().then(() => {
         this.isEditable = true
         if (redirect === true) {
           window.location.href = Routing.generate('DemosPlan_element_administration', { procedure: this.procedureId })
         }
+      })
+      .then(() => {
+        dplan.notify.confirm(Translator.trans('confirm.saved'))
+      })
+      .catch(() => {
+        dplan.notify.error(Translator.trans('error.changes.not.saved'))
       })
     },
 
@@ -424,7 +430,7 @@ export default {
       lscache.set('layerOrderTab', sortOrder, 300)
     },
 
-    ...mapActions('Layers', ['save', 'get']),
+    ...mapActions('Layers', ['saveAll', 'get']),
     ...mapMutations('Layers', ['setChildrenFromCategory', 'resetOrder', 'setDraggableOptions', 'setDraggableOptionsForCategorysWithHiddenLayers', 'setDraggableOptionsForBaseLayer', 'setMinimapBaseLayer'])
   },
 
