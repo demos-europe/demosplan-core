@@ -57,18 +57,17 @@ class SegmentsExporter
 
     public function getFileName(Statement $statement, string $suffix, string $templateName = ''): string
     {
-        if('' !== $templateName) {
+        if ('' !== $templateName) {
             // Replace placeholders with actual values from the $statement object
             $fileName = str_replace(
-                array('{ID}', '{NAME}', '{EINGANSNR}'),
-                array($statement->getExternId(), $statement->getAuthorName(), $statement->getInternId(),),
+                ['{ID}', '{NAME}', '{EINGANSNR}'],
+                [$statement->getExternId(), $statement->getAuthorName(), $statement->getInternId()],
                 $templateName);
 
-            return $fileName. '.' . $suffix;
+            return $fileName.'.'.$suffix;
         }
 
-        return $this->slugify->slugify($statement->getAuthorName()).'-' .$statement->getExternId().'.docx';
-
+        return $this->slugify->slugify($statement->getAuthorName()).'-'.$statement->getExternId().'.docx';
     }
 
     /**
