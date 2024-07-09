@@ -134,7 +134,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     /**
      * Initialisiere die Permissions.
      */
-    public function initPermissions(UserInterface $user, array $context = null): PermissionsInterface
+    public function initPermissions(UserInterface $user, ?array $context = null): PermissionsInterface
     {
         $this->user = $user;
 
@@ -316,10 +316,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
                 // kann empfehlungen abgeben aber nicht die Bearbeitung abschliessen
                 'field_statement_recommendation',
-            ]);
-
-            $this->disablePermissions([
-                'field_procedure_adjustments_planning_agency',  // Planungsbüro einem Verfahren zuordnen
             ]);
         }
 
@@ -884,7 +880,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     /**
      * Setzt das initiale Set von kontxtbezogenen Menue-Highlights.
      */
-    protected function initMenuhightlighting(array $context = null): void
+    protected function initMenuhightlighting(?array $context = null): void
     {
         if (null !== $context) {
             foreach ($context as $permission) {
