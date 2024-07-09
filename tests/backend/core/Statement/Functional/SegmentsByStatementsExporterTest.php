@@ -22,17 +22,16 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
 use Tests\Base\FunctionalTestCase;
 use Zenstruck\Foundry\Persistence\Proxy;
 
-
 class SegmentsByStatementsExporterTest extends FunctionalTestCase
 {
-    private null|Procedure|Proxy $testProcedure;
+    private Procedure|Proxy|null $testProcedure;
 
     /**
      * @var SegmentsByStatementsExporter
      */
     protected $sut;
 
-    private null|Slugify|Proxy $slugify;
+    private Slugify|Proxy|null $slugify;
 
     protected function setUp(): void
     {
@@ -55,16 +54,15 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         $templateName = '{ID}-{NAME}-{EINGANSNR}';
         $suffix = 'docx';
         $fileName = $this->sut->getSynopseFileName($this->testProcedure->_real(), $suffix, $templateName);
-        self::assertSame($this->testProcedure->getId() . '-' . $this->testProcedure->getName() . '-' . $this->testProcedure->getExternId() . '.' . $suffix, $fileName);
+        self::assertSame($this->testProcedure->getId().'-'.$this->testProcedure->getName().'-'.$this->testProcedure->getExternId().'.'.$suffix, $fileName);
 
         $templateName = 'My Template';
         $fileName = $this->sut->getSynopseFileName($this->testProcedure->_real(), $suffix, $templateName);
-        self::assertSame('My Template' . '.' . $suffix, $fileName);
+        self::assertSame('My Template.'.$suffix, $fileName);
 
         $templateName = '';
         $fileName = $this->sut->getSynopseFileName($this->testProcedure->_real(), $suffix, $templateName);
-        self::assertSame('Synopse-' . $this->slugify->slugify($this->testProcedure->getName()) . '.' . $suffix, $fileName);
-
+        self::assertSame('Synopse-'.$this->slugify->slugify($this->testProcedure->getName()).'.'.$suffix, $fileName);
     }
 
     public function testMapStatementsToPathInZipWithSuperficialDuplicate(): void
