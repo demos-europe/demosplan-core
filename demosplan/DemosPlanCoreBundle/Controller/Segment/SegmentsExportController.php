@@ -106,7 +106,6 @@ class SegmentsExportController extends BaseController
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
         $tableHeaders = $this->requestStack->getCurrentRequest()->query->get('tableHeaders', []);
-
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
