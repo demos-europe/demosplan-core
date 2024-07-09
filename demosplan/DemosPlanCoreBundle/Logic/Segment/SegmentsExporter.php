@@ -67,7 +67,7 @@ class SegmentsExporter
             return $fileName.'.'.$suffix;
         }
 
-        return $this->slugify->slugify($statement->getAuthorName()).'-'.$statement->getExternId().'.docx';
+        return $this->slugify->slugify($statement->getAuthorName()).'-'.$statement->getExternId().'.'.$suffix;
     }
 
     /**
