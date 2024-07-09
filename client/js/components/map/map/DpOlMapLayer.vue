@@ -37,6 +37,12 @@ export default {
       default: 'baselayer_global'
     },
 
+    opacity: {
+      required: false,
+      type: Number,
+      default: 100
+    },
+
     order: {
       required: false,
       type: Number,
@@ -154,11 +160,12 @@ const createSourceTileWMS = (url, layers, projection, attributions, map) => {
  * @return {object} ol/layer/Tile instance
  * @see https://openlayers.org/en/latest/apidoc/module-ol_layer_Tile-TileLayer.html
  */
-const createTileLayer = (title, name, source) => {
+const createTileLayer = (title, name, source, opacity) => {
   return new TileLayer({
     title: title,
     name: name,
     preload: 10,
+    opacity: opacity / 100,
     type: 'base',
     visible: true,
     source: source
