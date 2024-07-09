@@ -305,7 +305,6 @@ export default {
         return this.elementListForLayerSidebar(null, 'overlay', true)
       },
       set (value) {
-        console.log('set treeList', value)
         this.setChildrenFromCategory({
           categoryId: null,
           data: value,
@@ -325,7 +324,6 @@ export default {
         return this.gisLayerList('overlay')
       },
       set (value) {
-        console.log('set mapList', value)
         this.setChildrenFromCategory({
           categoryId: null,
           data: value,
