@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 use Cocur\Slugify\Slugify;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -57,11 +58,15 @@ class SegmentsExporter
 
     public function getFileName(Statement $statement, string $suffix, string $templateName = ''): string
     {
+        $externalId = $this->getExternalId($statement);
+        $authorSourceName = $this->getAuthorName($statement);
+        $internId = $this->getInternalId($statement);
+
         if ('' !== $templateName) {
             // Replace placeholders with actual values from the $statement object
             $fileName = str_replace(
                 ['{ID}', '{NAME}', '{EINGANSNR}'],
-                [$statement->getExternId(), $statement->getAuthorName(), $statement->getInternId()],
+                [$externalId, $authorSourceName, $internId],
                 $templateName);
 
             return $fileName.'.'.$suffix;
@@ -69,6 +74,41 @@ class SegmentsExporter
 
         return $this->slugify->slugify($statement->getAuthorName()).'-'.$statement->getExternId().'.'.$suffix;
     }
+
+    private function getAuthorName(Statement $statement): string
+    {
+        $orgaName = $statement->getMeta()->getOrgaName();
+        $authorSourceName = $orgaName;
+        if (UserInterface::ANONYMOUS_USER_NAME === $orgaName) {
+            $authorSourceName = $statement->getUserName();
+        }
+        if (null === $authorSourceName || '' === trim($authorSourceName)) {
+            $authorSourceName = $this->translator->trans('statement.name_source.unknown');
+        }
+
+        return $authorSourceName;
+
+    }
+
+    private function getInternalId(Statement $statement): string
+    {
+        $internId = $statement->getInternId();
+        if (null === $internId || '' === trim($internId)) {
+            return $this->translator->trans('statement.intern_id.unknown');
+        }
+        return $internId;
+    }
+
+    private function getExternalId(Statement $statement): string
+    {
+        $externId = $statement->getExternId();
+        if (null === $externId || '' === trim($externId)) {
+            return $this->translator->trans('statement.extern_id.unknown');
+        }
+        return $externId;
+    }
+
+
 
     /**
      * @throws Exception
