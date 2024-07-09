@@ -16,39 +16,37 @@ use Exception;
 
 final class Xmlifier
 {
+    /**
+     * @var array<string, string>
+     */
+    private array $images = [];
+    private int $imageCounter = 1;
     public function __construct(private readonly FileService $fileService)
     {
     }
 
-    public function xmlify(string $html5, bool $removeWidthAttribute = false): string
+    public function xmlify(string $html5, string $statementExternId): string
     {
         $xml = str_replace('<br>', '<br/>', $html5);
 
         return preg_replace_callback(
             '/<img(.*?)(src="(.*?)")(.*?)\/?>/i',
-            fn (array $matches) => $this->processImageTag($matches, $removeWidthAttribute),
+            fn (array $matches) => $this->processImageTag($matches, $statementExternId),
             $xml
         );
     }
 
-    private function processImageTag(array $matches, bool $removeWidthAttribute): string
+    private function processImageTag(array $matches, string $statementExternId): string
     {
         $src = $matches[3];
         $srcParts = explode('/', $src);
         $hash = $srcParts[array_key_last($srcParts)];
-        $absolutePath = $this->getAbsoluteImagePath($hash);
-        $src = 'src="'.$absolutePath.'"';
 
-        if ($removeWidthAttribute) {
-            $matches[4] = $this->removeWidthAttribute($matches[4]);
-        }
+        $imageReference = $statementExternId . '_Darstellung_Erw_' . $this->imageCounter;
+        $this->images[$imageReference] = $this->getAbsoluteImagePath($hash);
+        $this->imageCounter++;
 
-        return '<img'.$matches[1].$src.$matches[4].'/><br/>';
-    }
-
-    private function removeWidthAttribute(string $src): string
-    {
-        return preg_replace('/\s*width="[^"]*"/i', '', $src);
+        return $imageReference;
     }
 
     private function getAbsoluteImagePath(string $hash): string
@@ -59,5 +57,16 @@ final class Xmlifier
             // The src attribute probably didn't contain a hash --> assume it is a valid path instead.
             return trim($hash);
         }
+    }
+
+    public function getImages(): array
+    {
+        return $this->images;
+    }
+
+    public function resetImages(): void
+    {
+        $this->images = [];
+        $this->imageCounter = 1;
     }
 }

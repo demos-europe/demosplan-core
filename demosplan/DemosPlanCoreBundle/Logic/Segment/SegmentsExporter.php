@@ -36,6 +36,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SegmentsExporter
 {
+    private const STANDARD_DPI = 72;
+    private const MAX_WIDTH_INCH = 10.69;
+    private const MAX_HEIGHT_INCH = 5.42;
     /**
      * @var array<string, mixed>
      */
@@ -216,8 +219,48 @@ class SegmentsExporter
         uasort($sortedSegments, static fn (Segment $segmentA, Segment $segmentB) => $segmentA->getOrderInProcedure() - $segmentB->getOrderInProcedure());
 
         foreach ($sortedSegments as $segment) {
-            $this->addSegmentTableBody($table, $segment);
+            $this->addSegmentTableBody($table, $segment, $statement->getExternId());
         }
+        $this->addImages($section);
+    }
+
+    private function addImages(Section $section): void
+    {
+        // Add images after alle segments of one statement.
+        $images = $this->xmlifier->getImages();
+
+        foreach ($images as $imageReference => $imagePath) {
+            $section->addPageBreak();
+            $section->addText($imageReference);
+
+            // Get witdh and height of image
+            [$width, $height] = getimagesize($imagePath);
+
+            $maxWidth = self::MAX_WIDTH_INCH * self::STANDARD_DPI;
+            $maxHeight = self::MAX_HEIGHT_INCH * self::STANDARD_DPI;
+            if ($width > $maxWidth) {
+                // calc factor to scale image to $maxWidth width
+                $factor = $maxWidth / $width;
+                $width = $maxWidth;
+                $height *= $factor;
+            }
+            if ($height > $maxHeight) {
+                // calc factor to scale image to $maxHeight height
+                $factor = $maxHeight / $height;
+                $height = $maxHeight;
+                $width *= $factor;
+            }
+            $imageStyle = [
+                'width' => $width, // Breite in Pixel
+                'height' => $height, // Höhe in Pixel
+                'align' => Jc::START, // Zentrierung
+            ];
+
+            $section->addImage($imagePath, $imageStyle);
+        }
+
+        // remove already printed images
+        $this->xmlifier->resetImages();
     }
 
     private function addSegmentsTableHeader(Section $section, array $tableHeaders): Table
@@ -258,7 +301,7 @@ class SegmentsExporter
         return $table;
     }
 
-    private function addSegmentTableBody(Table $table, Segment $segment): void
+    private function addSegmentTableBody(Table $table, Segment $segment, string $statementExternId): void
     {
         $textRow = $table->addRow();
         $this->addSegmentHtmlCell(
@@ -271,9 +314,11 @@ class SegmentsExporter
             $segment->getText(),
             $this->styles['segmentsTableBodyCell']
         );
+        // Replace image tags in segment recommendation text with a reference to the image (without link)
+        $recommendationText = $this->xmlifier->xmlify($segment->getRecommendation(), $statementExternId);
         $this->addSegmentHtmlCell(
             $textRow,
-            $segment->getRecommendation(),
+            $recommendationText,
             $this->styles['segmentsTableBodyCell']
         );
     }
@@ -295,7 +340,6 @@ class SegmentsExporter
         // strip all a tags without href
         $pattern = '/<a\s+(?!.*?\bhref\s*=\s*([\'"])\S*\1)(.*?)>(.*?)<\/a>/i';
         $text = preg_replace($pattern, '$3', $text);
-        $text = $this->xmlifier->xmlify($text, true);
 
         // avoid problems in phpword parser
         return $this->htmlSanitizer->purify($text);
