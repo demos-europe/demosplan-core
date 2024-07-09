@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
+use demosplan\DemosPlanCoreBundle\Logic\Xmlifier;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use demosplan\DemosPlanCoreBundle\ValueObject\CellExportStyle;
 use demosplan\DemosPlanCoreBundle\ValueObject\ExportOrgaInfoHeader;
@@ -48,8 +49,9 @@ class SegmentsExporter
         private readonly CurrentUserInterface $currentUser,
         private readonly HTMLSanitizer $htmlSanitizer,
         Slugify $slugify,
-        TranslatorInterface $translator)
-    {
+        TranslatorInterface $translator,
+        private readonly Xmlifier $xmlifier
+    ) {
         $this->translator = $translator;
         $this->initializeStyles();
         $this->slugify = $slugify;
@@ -293,6 +295,7 @@ class SegmentsExporter
         // strip all a tags without href
         $pattern = '/<a\s+(?!.*?\bhref\s*=\s*([\'"])\S*\1)(.*?)>(.*?)<\/a>/i';
         $text = preg_replace($pattern, '$3', $text);
+        $text = $this->xmlifier->xmlify($text, true);
 
         // avoid problems in phpword parser
         return $this->htmlSanitizer->purify($text);
