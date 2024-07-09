@@ -58,7 +58,6 @@ class SegmentsExportController extends BaseController
     )]
     public function exportAction(
         SegmentsExporter $exporter,
-        Slugify $slugify,
         StatementHandler $statementHandler,
         string $procedureId,
         string $statementId
