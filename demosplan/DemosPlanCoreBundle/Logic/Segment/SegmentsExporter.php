@@ -69,7 +69,7 @@ class SegmentsExporter
                 [$externalId, $authorSourceName, $internId],
                 $templateName);
 
-            return $fileName.'.'.$suffix;
+            return $this->slugify->slugify($fileName).'.'.$suffix;
         }
 
         return $this->slugify->slugify($statement->getAuthorName()).'-'.$statement->getExternId().'.'.$suffix;
