@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Statement\Functional;
 
+use Cocur\Slugify\Slugify;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadStatementData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -31,10 +32,13 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
      */
     protected $sut;
 
+    private null|Slugify|Proxy $slugify;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->sut = $this->getContainer()->get(SegmentsByStatementsExporter::class);
+        $this->slugify = $this->getContainer()->get(Slugify::class);
         $this->testProcedure = ProcedureFactory::createOne();
     }
 
@@ -56,6 +60,10 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         $templateName = 'My Template';
         $fileName = $this->sut->getSynopseFileName($this->testProcedure->_real(), $suffix, $templateName);
         self::assertSame('My Template' . '.' . $suffix, $fileName);
+
+        $templateName = '';
+        $fileName = $this->sut->getSynopseFileName($this->testProcedure->_real(), $suffix, $templateName);
+        self::assertSame('Synopse-' . $this->slugify->slugify($this->testProcedure->getName()) . '.' . $suffix, $fileName);
 
     }
 
