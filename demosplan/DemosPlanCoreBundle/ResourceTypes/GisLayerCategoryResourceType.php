@@ -125,21 +125,11 @@ final class GisLayerCategoryResourceType extends DplanResourceType
              * manageable in the FE with the actual - correct - available includes syntax.
              */
             $this->createToManyRelationship($this->categories)
-                ->updatable([], [], static function (GisLayerCategory $category, array $newCategories): array {
-                    $category->setChildren($newCategories);
-
-                    return [];
-                })
                 ->readable(true, null, true)
                 ->sortable()
                 ->filterable()
                 ->aliasedPath($this->children),
             $this->createToManyRelationship($this->gisLayers)
-                ->updatable([], [], static function (GisLayerCategory $category, array $newGisLayers): array {
-                    $category->setGisLayers($newGisLayers);
-
-                    return [];
-                })
                 ->readable(true, null, true)
                 ->sortable()
                 ->filterable(),
