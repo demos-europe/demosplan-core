@@ -23,8 +23,7 @@ class ProcedureStatisticsService
         private readonly SegmentRepository $segmentRepository,
         private readonly StatementRepository $statementRepository,
         private readonly EntityManagerInterface $entityManager
-    )
-    {
+    ) {
     }
 
     public function getSegmentedStatementsDistribution(string $procedureId): PercentageDistribution
