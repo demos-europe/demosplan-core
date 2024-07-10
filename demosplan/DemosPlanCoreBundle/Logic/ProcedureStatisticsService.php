@@ -14,28 +14,33 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\PercentageDistribution;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ProcedureStatisticsService
 {
-    public function __construct(private readonly SegmentRepository $segmentRepository, private readonly StatementRepository $statementRepository)
+    public function __construct(
+        private readonly SegmentRepository $segmentRepository,
+        private readonly StatementRepository $statementRepository,
+        private readonly EntityManagerInterface $entityManager
+    )
     {
     }
 
     public function getSegmentedStatementsDistribution(string $procedureId): PercentageDistribution
     {
         $statementsWithSegments = $this->getSegmentStatistic(
-            'statementsWithSegments',
+            'newStatements',
             $procedureId
         );
 
         $statementsWithoutSegments = $this->getSegmentStatistic(
-            'statementsWithoutSegments',
+            'editableSegments',
             $procedureId
         );
 
         $statementsWithSegmentsAndRecommendations = $this->getSegmentStatistic(
-            'statementsWithSegmentsAndRecommendations',
+            'finishedSegments',
             $procedureId
         );
 
@@ -56,9 +61,9 @@ class ProcedureStatisticsService
             ->setAllowedValues(
                 'statistic',
                 [
-                    'statementsWithSegments',
-                    'statementsWithoutSegments',
-                    'statementsWithSegmentsAndRecommendations',
+                    'newStatements',
+                    'editableSegments',
+                    'finishedSegments',
                 ]
             )->resolve(['statistic' => $statistic])['statistic'];
 
@@ -77,27 +82,29 @@ class ProcedureStatisticsService
             ->andWhere('s NOT INSTANCE OF '.Segment::class)
             ->setParameter('procedureId', $procedureId);
 
-        if ('statementsWithSegments' === $statistic) {
+        if ('newStatements' === $statistic) {
             $query->andWhere(
                 $qb->expr()
                     ->in('s.id', $segmentQuery->getDQL())
             );
         }
 
-        if ('statementsWithoutSegments' === $statistic) {
+        if ('editableSegments' === $statistic) {
             $query->andWhere(
                 $qb->expr()
-                    ->notIn('s.id', $segmentQuery->getDQL())
+                    ->notIn('s.id', $segmentQuery
+                        ->andWhere('place.solved = 0')
+                        ->getDQL())
             );
         }
 
-        if ('statementsWithSegmentsAndRecommendations' === $statistic) {
+        if ('finishedSegments' === $statistic) {
             $query->andWhere(
                 $qb->expr()
                     ->in(
                         's.id',
                         $segmentQuery
-                            ->andWhere("seg.recommendation != ''")
+                            ->andWhere('place.solved = 1')
                             ->getDQL()
                     )
             );

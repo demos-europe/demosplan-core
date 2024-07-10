@@ -30,6 +30,7 @@ use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
  * @property-read End                   $name
  * @property-read End                   $description
  * @property-read End                   $sortIndex
+ * @property-read End                   $solved
  * @property-read ProcedureResourceType $procedure
  */
 final class PlaceResourceType extends DplanResourceType
