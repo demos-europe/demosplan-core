@@ -251,14 +251,16 @@ class SegmentsExporter
                 $width *= $factor;
             }
             $imageStyle = [
-                'width'  => $width, // Breite in Pixel
-                'height' => $height, // Höhe in Pixel
-                'align'  => Jc::START, // Zentrierung
+                'width'  => $width,
+                'height' => $height,
+                'align'  => Jc::START,
             ];
 
             $section->addImage($imagePath, $imageStyle);
+            $section->addBookmark($imageReference);
         }
 
+        $section->addPageBreak();
         // remove already printed images
         $this->xmlifier->resetImages();
     }
