@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
+use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
@@ -130,7 +131,10 @@ final class GisLayerCategoryResourceType extends DplanResourceType
                 ->filterable()
                 ->aliasedPath($this->children),
             $this->createToManyRelationship($this->gisLayers)
-                ->updatable()
+                ->updatable([], [], static function (GisLayerCategory $category, array $newGisLayers): array {
+                    $category->setGisLayers($newGisLayers);
+                    return [];
+                })
                 ->readable(true, null, true)
                 ->sortable()
                 ->filterable(),
