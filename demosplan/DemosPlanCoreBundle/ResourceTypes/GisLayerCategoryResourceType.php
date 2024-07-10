@@ -14,9 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
-use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use Doctrine\Common\Collections\ArrayCollection;
 use EDT\PathBuilding\End;
 
 /**
@@ -118,7 +116,6 @@ final class GisLayerCategoryResourceType extends DplanResourceType
             $this->createToOneRelationship($this->parent)
                 ->updatable()
                 ->readable(true)->sortable()->filterable(),
-
 
             /*
              * Keep these as a default include because these relationships are recursive and currently not easily
