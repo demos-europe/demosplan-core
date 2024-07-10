@@ -14,7 +14,11 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
+use demosplan\DemosPlanCoreBundle\Entity\User\Department;
+use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use Doctrine\Common\Collections\ArrayCollection;
 use EDT\PathBuilding\End;
 
 /**
@@ -117,7 +121,10 @@ final class GisLayerCategoryResourceType extends DplanResourceType
              * manageable in the FE with the actual - correct - available includes syntax.
              */
             $this->createToManyRelationship($this->categories)
-                ->updatable()
+                ->updatable([], [], static function (GisLayerCategory $category, array $newCategories): array {
+                    $category->setChildren($newCategories);
+                    return [];
+                })
                 ->readable(true, null, true)
                 ->sortable()
                 ->filterable()
