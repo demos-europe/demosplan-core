@@ -64,6 +64,7 @@ class ProcedureStatisticsService
 
         $segmentQuery = $this->segmentRepository->createQueryBuilder('seg')
             ->select('IDENTITY(seg.parentStatementOfSegment)')
+            ->join('seg.place', 'place')
             ->where('seg.procedure = :procedureId')
             ->andWhere('seg.parentStatementOfSegment = s.id')
             ->setParameter('procedureId', $procedureId);
