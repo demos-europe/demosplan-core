@@ -42,8 +42,6 @@ class Place extends CoreEntity implements SortableInterface, PlaceInterface
     #[Assert\Length(min: 0, max: 255, normalizer: 'trim')]
     private $description = '';
     /**
-     * @var bool
-     *
      * @ORM\Column(name="solved", type="boolean", nullable=false, options={"default":false})
      */
     private bool $solved = false;

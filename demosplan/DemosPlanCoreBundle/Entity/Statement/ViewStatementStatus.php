@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\ViewStatementStatusInterface;
@@ -10,6 +18,7 @@ class ViewStatementStatus extends CoreEntity implements ViewStatementStatusInter
 {
     /**
      * @ORM\Id()
+     *
      * @ORM\Column(type="string", length=255)
      */
     private string $statement;
