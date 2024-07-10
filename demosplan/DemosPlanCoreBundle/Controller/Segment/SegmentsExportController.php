@@ -73,7 +73,7 @@ class SegmentsExportController extends BaseController
             }
         );
 
-        $this->setResponseHeaders($response, $exporter->getFileName($statement, 'docx', $fileNameTemplate));
+        $this->setResponseHeaders($response, $exporter->getFileName($statement, $fileNameTemplate.'.docx'));
 
         return $response;
     }
@@ -198,7 +198,8 @@ class SegmentsExportController extends BaseController
         );
         /** @var Statement[] $statements */
         $statements = array_values($statementResult->getList());
-        $statements = $exporter->mapStatementsToPathInZip($statements);
+
+        $statements = $exporter->mapStatementsToPathInZip($statements, $fileNameTemplate);
 
         return $zipExportService->buildZipStreamResponse(
             $exporter->getSynopseFileName($procedure, 'zip'),

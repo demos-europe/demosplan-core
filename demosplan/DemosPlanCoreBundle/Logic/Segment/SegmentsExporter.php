@@ -56,7 +56,7 @@ class SegmentsExporter
         $this->slugify = $slugify;
     }
 
-    public function getFileName(Statement $statement, string $suffix, string $templateName = ''): string
+    public function getFileName(Statement $statement, string $templateName = ''): string
     {
         $externalId = $this->getExternalId($statement);
         $authorSourceName = $this->getAuthorName($statement);
@@ -69,10 +69,10 @@ class SegmentsExporter
                 [$externalId, $authorSourceName, $internId],
                 $templateName);
 
-            return $this->slugify->slugify($fileName).'.'.$suffix;
+            return $this->slugify->slugify($fileName);
         }
 
-        return $this->slugify->slugify($statement->getAuthorName()).'-'.$statement->getExternId().'.'.$suffix;
+        return $this->slugify->slugify($statement->getAuthorName()).'-'.$statement->getExternId();
     }
 
     private function getAuthorName(Statement $statement): string

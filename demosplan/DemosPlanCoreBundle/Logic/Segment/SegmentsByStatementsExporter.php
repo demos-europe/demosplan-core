@@ -161,19 +161,19 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      *
      * @return array<string, Statement>
      */
-    public function mapStatementsToPathInZip(array $statements): array
+    public function mapStatementsToPathInZip(array $statements, string $fileNameTemplate = ''): array
     {
         $pathedStatements = [];
         $previousKeysOfReaddedDuplicates = [];
         foreach ($statements as $statement) {
-            $pathInZip = $this->getPathInZip($statement, false);
+            $pathInZip = $this->getPathInZip($statement, false, $fileNameTemplate);
             // in case of a duplicate, add the database ID to the name
             if (array_key_exists($pathInZip, $pathedStatements)) {
                 $duplicate = $pathedStatements[$pathInZip];
                 $previousKeysOfReaddedDuplicates[$pathInZip] = $pathInZip;
-                $duplicateExtendedPathInZip = $this->getPathInZip($duplicate, true);
+                $duplicateExtendedPathInZip = $this->getPathInZip($duplicate, true, $fileNameTemplate);
                 $pathedStatements[$duplicateExtendedPathInZip] = $duplicate;
-                $pathInZip = $this->getPathInZip($statement, true);
+                $pathInZip = $this->getPathInZip($statement, true, $fileNameTemplate);
             }
 
             if (array_key_exists($pathInZip, $pathedStatements)) {
@@ -205,32 +205,18 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      * the case that the extern ID is an empty string and the database ID is included in
      * the result.
      */
-    private function getPathInZip(Statement $statement, bool $withDbId): string
+    private function getPathInZip(Statement $statement, bool $withDbId, string $fileNameTemplate = ''): string
     {
         // prepare needed variables
         $dbId = $statement->getId();
-        $externId = $statement->getExternId();
 
-        $orgaName = $statement->getMeta()->getOrgaName();
-        $authorSourceName = $orgaName;
-        if (UserInterface::ANONYMOUS_USER_NAME === $orgaName) {
-            $authorSourceName = $statement->getUserName();
-        }
-        if (null === $authorSourceName || '' === trim($authorSourceName)) {
-            $authorSourceName = $this->translator->trans('statement.name_source.unknown');
-        }
+        $fileName = $this->getFileName($statement, $fileNameTemplate);
 
-        // determine and return the file name
-
-        if ('' === trim($externId)) {
-            return $withDbId
-                ? "$authorSourceName [$dbId].docx"
-                : "$authorSourceName.docx";
-        }
 
         return $withDbId
-            ? "$authorSourceName ($externId) [$dbId].docx"
-            : "$authorSourceName ($externId).docx";
+            ? "$fileName-$dbId.docx"
+            : "$fileName.docx";
+
     }
 
     /**
