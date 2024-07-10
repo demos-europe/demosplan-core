@@ -88,14 +88,23 @@
       </button>
     </div>
     <div class="segment-list-col--l overflow-word-break">
+      <dp-modal
+        ref="imgModal"
+        content-classes="w-fit">
+        <img
+          :alt="this.clickedImg.alt"
+          :src="this.clickedImg.src">
+      </dp-modal>
       <div
         v-if="isAssignedToMe === false"
+        ref="recommendationContainer"
         :class="{ 'color--grey': visibleRecommendation === '' }"
         :title="visibleRecommendation ? Translator.trans('explanation.segment.claim.to.edit.recommendation') : Translator.trans('explanation.segment.claim.to.add.recommendation')"
         v-cleanhtml="visibleRecommendation || Translator.trans('segment.recommendation.none')" />
       <div v-else-if="isAssignedToMe && isEditing === false">
         <div
           v-if="visibleRecommendation !== ''"
+          ref="recommendationContainer"
           v-cleanhtml="visibleRecommendation"
           class="u-mb-0_5" />
       </div>
@@ -430,6 +439,10 @@ export default {
       },
       allComponentsLoaded: false,
       asyncComponents: [],
+      clickedImg: {
+        alt: '',
+        src: ''
+      },
       showWorkflowActions: false,
       selectedAssignee: {},
       claimLoading: false,
@@ -617,6 +630,19 @@ export default {
       dplan.notify.notify('confirm', Translator.trans('recommendation.pasted'))
     },
 
+    addClickListenerToImages () {
+      const images = this.$refs.recommendationContainer.querySelectorAll('img')
+      images.forEach(img => {
+        img.addEventListener('click', this.imageClicked)
+      })
+    },
+
+    imageClicked (event) {
+      this.clickedImg.src = event.target.src
+      this.clickedImg.alt = event.target.alt
+      this.$refs.imgModal.toggle()
+    },
+
     openBoilerPlate () {
       if (hasPermission('area_admin_boilerplates')) {
         this.$refs.boilerPlateModal.toggleModal()
@@ -665,6 +691,7 @@ export default {
           this.setProperty({ prop: 'isLoading', val: false })
 
           this.toggleAssignableUsersSelect()
+          this.addClickListenerToImages()
         })
         .catch(() => {
           this.restoreComments(comments)
@@ -834,6 +861,19 @@ export default {
     updateSegment (key, val) {
       const updated = { ...this.segment, ...{ attributes: { ...this.segment.attributes, ...{ [key]: val } } } }
       this.setSegment({ ...updated, id: this.segment.id })
+    }
+  },
+
+  watch: {
+    isCollapsed: {
+      handler: function (newVal, oldVal) {
+        if (!newVal) {
+          this.$nextTick(() => {
+            this.addClickListenerToImages();
+          })
+        }
+      },
+      immediate: true // this ensures the handler is executed immediately after the component is created
     }
   },
 
