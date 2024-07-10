@@ -28,17 +28,23 @@
     <div v-if="isEditing">
       <dp-editor
         ref="editor"
+        v-model="fullText"
+        :basic-auth="dplan.settings.basicAuth"
         class="u-mb-0_5"
         :editor-id="editorId"
         :entity-id="entityId"
+        :routes="{
+            getFileByHash: (hash) => Routing.generate('core_file_procedure', { procedureId: procedureId, hash: hash})
+          }"
         :toolbar-items="{
+          imageButton: true,
           insertAndDelete: insertAndDelete,
           linkButton: linkButton,
           mark: mark,
           obscure: obscure,
           strikethrough: strikethrough
         }"
-        v-model="fullText">
+        :tus-endpoint="dplan.paths.tusEndpoint">
         <template v-slot:modal="modalProps">
           <dp-boiler-plate-modal
             v-if="boilerPlate"
