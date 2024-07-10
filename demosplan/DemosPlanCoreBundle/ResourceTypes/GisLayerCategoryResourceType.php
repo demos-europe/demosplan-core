@@ -29,6 +29,7 @@ use EDT\PathBuilding\End;
  * @property-read End $hasDefaultVisibility
  * @property-read End $parentId @deprecated use {@link GisLayerCategoryResourceType::$parent} instead
  * @property-read GisLayerCategoryResourceType $parent
+ * @property-read GisLayerCategoryResourceType $parentCategory
  * @property-read GisLayerCategoryResourceType $categories
  * @property-read GisLayerCategoryResourceType $children
  * @property-read GisLayerResourceType $gisLayers
@@ -113,9 +114,12 @@ final class GisLayerCategoryResourceType extends DplanResourceType
                 ->updatable()
                 ->readable(true)->sortable()->filterable()->aliasedPath($this->parent->id),
 
-            $this->createToOneRelationship($this->parent)
+            $this->createToOneRelationship($this->parentCategory)
                 ->updatable()
-                ->readable(true)->sortable()->filterable(),
+                ->readable(true)
+                ->sortable()
+                ->filterable()
+                ->aliasedPath($this->parent),
 
             /*
              * Keep these as a default include because these relationships are recursive and currently not easily
