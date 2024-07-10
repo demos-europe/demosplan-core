@@ -14,9 +14,7 @@ namespace Tests\Core\Statement\Functional;
 
 use Cocur\Slugify\Slugify;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadStatementData;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
