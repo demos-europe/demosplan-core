@@ -50,6 +50,7 @@ use EDT\PathBuilding\End;
  * @property-read End $url
  * @property-read End $treeOrder
  * @property-read End $categoryId
+ * @property-read GisLayerCategoryResourceType $category
  * @property-read End $canUserToggleVisibility
  * @property-read End $userToggleVisibility
  * @property-read End $visibilityGroupId
@@ -176,6 +177,9 @@ final class GisLayerResourceType extends DplanResourceType
                 ->readable(true, static fn (GisLayer $gisLayer): string => $gisLayer->getUrl()),
             $this->createAttribute($this->categoryId)
                 ->readable(true, static fn (GisLayer $gisLayer): string => $gisLayer->getCategoryId()),
+            $this->createToOneRelationship($this->category)
+                ->updatable()
+                ->readable(true)->sortable()->filterable(),
             $this->createAttribute($this->visibilityGroupId)
                 ->updatable()
                 ->readable(true, static fn (GisLayer $gisLayer): string => $gisLayer->getVisibilityGroupId() ?? ''),
