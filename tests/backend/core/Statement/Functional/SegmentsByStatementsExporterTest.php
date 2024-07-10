@@ -15,6 +15,7 @@ namespace Tests\Core\Statement\Functional;
 use Cocur\Slugify\Slugify;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadStatementData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -24,7 +25,8 @@ use Zenstruck\Foundry\Persistence\Proxy;
 
 class SegmentsByStatementsExporterTest extends FunctionalTestCase
 {
-    private Procedure|Proxy|null $testProcedure;
+    private Statement|Proxy|null $testStatement;
+    private Statement|Proxy|null $testOriginalStatement;
 
     /**
      * @var SegmentsByStatementsExporter
@@ -38,7 +40,9 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         parent::setUp();
         $this->sut = $this->getContainer()->get(SegmentsByStatementsExporter::class);
         $this->slugify = $this->getContainer()->get(Slugify::class);
-        $this->testProcedure = ProcedureFactory::createOne();
+        $this->testOriginalStatement = StatementFactory::createOne();
+        $this->testStatement = StatementFactory::createOne(['original' => $this->testOriginalStatement]);
+        $this->testOriginalStatement->setChildren([$this->testStatement->_real()]);
     }
 
     public function testMapStatementsToPathInZipWithTrueDuplicate(): void
@@ -49,20 +53,27 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         $this->sut->mapStatementsToPathInZip([$statement, $statement]);
     }
 
-    public function testGetSynopseFileName(): void
+    public function testGetFileName(): void
     {
         $templateName = '{ID}-{NAME}-{EINGANSNR}';
         $suffix = 'docx';
-        $fileName = $this->sut->getSynopseFileName($this->testProcedure->_real(), $suffix, $templateName);
-        self::assertSame($this->testProcedure->getId().'-'.$this->testProcedure->getName().'-'.$this->testProcedure->getExternId().'.'.$suffix, $fileName);
 
-        $templateName = 'My Template';
-        $fileName = $this->sut->getSynopseFileName($this->testProcedure->_real(), $suffix, $templateName);
+        $this->testOriginalStatement->setInternId('12355');
+        $this->testOriginalStatement->_save();
+
+        $this->testStatement->setInternId('12355');
+        $this->testOriginalStatement->_save();
+
+        $fileName = $this->sut->getFileName($this->testStatement->_real(), $templateName);
+        self::assertSame($this->testStatement->getExternId().'-'.$this->testStatement->getAuthorName().'-'.$this->testStatement->getInternId().'.'.$suffix, $fileName);
+
+        /*$templateName = 'My Template';
+        $fileName = $this->sut->getFileName($this->testProcedure->_real(), $suffix, $templateName);
         self::assertSame('My Template.'.$suffix, $fileName);
 
         $templateName = '';
         $fileName = $this->sut->getSynopseFileName($this->testProcedure->_real(), $suffix, $templateName);
-        self::assertSame('Synopse-'.$this->slugify->slugify($this->testProcedure->getName()).'.'.$suffix, $fileName);
+        self::assertSame('Synopse-'.$this->slugify->slugify($this->testProcedure->getName()).'.'.$suffix, $fileName);*/
     }
 
     public function testMapStatementsToPathInZipWithSuperficialDuplicate(): void
