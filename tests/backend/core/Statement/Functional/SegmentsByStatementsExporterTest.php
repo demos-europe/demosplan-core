@@ -50,7 +50,7 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
     public function testMapStatementsToPathInZipWithTrueDuplicate(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->sut->mapStatementsToPathInZip([ $this->testStatement->_real(),  $this->testStatement->_real()]);
+        $this->sut->mapStatementsToPathInZip([$this->testStatement->_real(),  $this->testStatement->_real()]);
     }
 
     public function testGetFileName(): void
