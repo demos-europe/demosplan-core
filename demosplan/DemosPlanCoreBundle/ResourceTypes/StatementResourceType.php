@@ -282,10 +282,8 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                     $segments = $statement->getSegmentsOfStatement();
                     foreach ($segments as $segment) {
                         if (!$segment->getPlace()->getSolved()) {
-
                             return 'in proccess';
                         } else {
-
                             return 'closed';
                         }
                     }
