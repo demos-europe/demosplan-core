@@ -691,7 +691,9 @@ export default {
           this.setProperty({ prop: 'isLoading', val: false })
 
           this.toggleAssignableUsersSelect()
-          this.addClickListenerToImages()
+          this.$nextTick(() => {
+            this.addClickListenerToImages()
+          })
         })
         .catch(() => {
           this.restoreComments(comments)
