@@ -88,14 +88,14 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         $statementA = $this->createMinimalTestStatement('a', 'a', 'a');
         $statementB = $this->createMinimalTestStatement('b', 'a', 'a');
 
-        $statements = $this->sut->mapStatementsToPathInZip([$statementA, $statementB]);
+        $statements = $this->sut->mapStatementsToPathInZip([$statementA->_real(), $statementB->_real()]);
 
-        $expectedAKey = 'id-unbekannt-statement-author-name-a-statement-intern-id-a-statement_id_a.docx';
+        $expectedAKey = 'statement-extern-id-a-statement-author-name-a-statement-intern-id-a.docx';
         self::assertArrayHasKey($expectedAKey, $statements);
-        self::assertSame($statementA, $statements[$expectedAKey]);
-        $expectedBKey = 'id-unbekannt-statement-author-name-a-statement-intern-id-a-statement_id_b.docx';
+        self::assertSame($statementA->_real(), $statements[$expectedAKey]);
+        $expectedBKey = 'statement-extern-id-b-statement-author-name-a-statement-intern-id-a.docx';
         self::assertArrayHasKey($expectedBKey, $statements);
-        self::assertSame($statementB, $statements[$expectedBKey]);
+        self::assertSame($statementB->_real(), $statements[$expectedBKey]);
     }
 
     public function testMapStatementsToPathInZipWithoutDuplicate(): void
@@ -105,7 +105,7 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         $statementA = $this->createMinimalTestStatement('a', 'a', 'a');
         $statementB = $this->createMinimalTestStatement('b', 'b', 'b');
 
-        $statements = $this->sut->mapStatementsToPathInZip([$statementA, $statementB]);
+        $statements = $this->sut->mapStatementsToPathInZip([$statementA->_real(), $statementB->_real()]);
 
         $expectedAKey = 'statement_submit_name_a (statement_intern_id_a).docx';
         self::assertArrayHasKey($expectedAKey, $statements);
@@ -115,13 +115,17 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         self::assertSame($statementB, $statements[$expectedBKey]);
     }
 
-    private function createMinimalTestStatement(string $idSuffix, string $internIdSuffix, string $submitterNameSuffix): Statement
+    private function createMinimalTestStatement(string $idSuffix, string $internIdSuffix, string $submitterNameSuffix): Proxy
     {
-        $statement = new Statement();
-        $statement->setId("statement_id_$idSuffix");
+        $statement = StatementFactory::createOne();
+        $statement->setExternId("statement_extern_id_$idSuffix");
+        $statement->_save();
         $statement->setInternId("statement_intern_id_$internIdSuffix");
+        $statement->_save();
         $statement->getMeta()->setOrgaName(UserInterface::ANONYMOUS_USER_NAME);
+        $statement->_save();
         $statement->getMeta()->setAuthorName("statement_author_name_$submitterNameSuffix");
+        $statement->_save();
 
         return $statement;
     }
