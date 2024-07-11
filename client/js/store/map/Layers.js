@@ -263,7 +263,7 @@ const LayersStore = {
         const layerParamSplit = layerParam.split(',').map(function (item) {
           return item.trim()
         })
-        // Add each layer layer to GetLegendGraphic request
+        // Add each layer to GetLegendGraphic request
         for (let j = 0; j < layerParamSplit.length; j++) {
           if (layer.attributes.isEnabled) {
             const legendUrl = legendUrlBase + 'Layer=' + layerParamSplit[j] + '&Request=GetLegendGraphic&Format=image/png&version=1.1.1'
@@ -281,11 +281,8 @@ const LayersStore = {
     },
 
     saveAll ({ state, dispatch }) {
-      /* Save the root category along with its relationships */
-      dispatch('save', state.apiData.data[0])
-
-      /* Save each GIS layer and GIS layer category separately */
-       state.apiData.included.forEach(el => {
+      /* save each GIS layer and GIS layer category with its relationships */
+      state.apiData.included.forEach(el => {
         dispatch('save', el)
       })
     },
@@ -305,6 +302,14 @@ const LayersStore = {
               treeOrder: resource.attributes.treeOrder,
               visibilityGroupId: resource.attributes.visibilityGroupId
             },
+            relationships: {
+              parentCategory: {
+                data: {
+                  id: resource.attributes.categoryId,
+                  type: 'GisLayerCategory'
+                }
+              }
+            }
           }
         }
       }
@@ -319,11 +324,11 @@ const LayersStore = {
               hasDefaultVisibility: resource.attributes.hasDefaultVisibility,
             },
             relationships: {
-              categories: {
-                data: resource.relationships.categories.data
-              },
-              gisLayers: {
-                data: resource.relationships.gisLayers.data
+              parentCategory: {
+                data: {
+                  id: resource.attributes.parentId,
+                  type: 'GisLayerCategory'
+                }
               }
             }
           }

@@ -32,7 +32,7 @@
         :title="Translator.trans('move')" />
     </div><!--
  --><div
-    class="inline-block"
+    class="inline-block layout--flush c-at-item__row"
     data-cy="mapLayerListItem">
     <div class="inline-block w-9/12">
       <!-- regular categories -->
