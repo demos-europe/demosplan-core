@@ -21,7 +21,6 @@ use EDT\PathBuilding\End;
  * @template-extends DplanResourceType<GisLayerCategory>
  *
  * @property-read End $name
- * @property-read End $isRootCategory
  * @property-read End $layerWithChildrenHidden
  * @property-read End $treeOrder
  * @property-read End $isVisible @deprecated use {@link GisLayerCategoryResourceType::$visible} instead
