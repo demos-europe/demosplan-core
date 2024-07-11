@@ -58,21 +58,21 @@ class SegmentsExporter
 
     public function getFileName(Statement $statement, string $templateName = ''): string
     {
+        $defaultTemplateName = '{ID}-{NAME}-{EINGANSNR}';
+        $templateName = $templateName ?: $defaultTemplateName;
+
         $externalId = $this->getExternalId($statement);
         $authorSourceName = $this->getAuthorName($statement);
         $internId = $this->getInternalId($statement);
 
-        if ('' !== $templateName) {
-            // Replace placeholders with actual values from the $statement object
-            $fileName = str_replace(
-                ['{ID}', '{NAME}', '{EINGANSNR}'],
-                [$externalId, $authorSourceName, $internId],
-                $templateName);
+        // Replace placeholders with actual values from the $statement object
+        $fileName = str_replace(
+            ['{ID}', '{NAME}', '{EINGANSNR}'],
+            [$externalId, $authorSourceName, $internId],
+            $templateName);
 
-            return $this->slugify->slugify($fileName);
-        }
+        return $this->slugify->slugify($fileName);
 
-        return $this->slugify->slugify($statement->getAuthorName()).'-'.$statement->getExternId();
     }
 
     private function getAuthorName(Statement $statement): string
