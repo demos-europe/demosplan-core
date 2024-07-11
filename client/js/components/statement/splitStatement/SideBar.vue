@@ -11,67 +11,74 @@
   <div
     ref="sideBar"
     class="side-bar">
-    <dp-label
-      :text="Translator.trans('tags')"
-      for="searchSelect"
-      class="u-mb-0" />
+
+    <section id="selectedTagsSection">
+      <dp-label
+        :text="Translator.trans('tags')"
+        for="searchSelect"
+        class="u-mb-0" />
+
+      <div
+        v-if="editingSegment && editingSegment.tags.length > 0"
+        class="u-mt-0_5 u-mb-0_5">
+        <div
+          v-for="(tag, idx) in editingSegment.tags"
+          :key="`tag_${idx}`"
+          class="tag inline-flex font-size-small u-mr-0_25 u-mb-0_25">
+          {{ tag.tagName }}
+          <button
+            type="button"
+            class="tag__remove btn--blank o-link--default u-ml-0_25"
+            @click="removeTag(tag.id)">
+            <dp-icon
+              icon="close"
+              size="small" />
+          </button>
+        </div>
+      </div>
+    </section>
 
     <div
-      v-if="editingSegment && editingSegment.tags.length > 0"
-      class="u-mt-0_5 u-mb-0_5">
+      class="flex flex-col"
+      ref="searchableTagsSection">
+      <div class="my-2">
+        <!-- search available tags -->
+        <search-select
+          v-if="showCreateForm === false"
+          @open-create-form="showCreateForm = true"
+          :selected="selectedTags"
+          :place-holder="Translator.trans('tag.search')"
+          :options="searchableTags" />
+
+        <!-- create tags + topics -->
+        <dp-create-tag
+          v-else
+          @close-create-form="showCreateForm = false" />
+      </div>
+
       <div
-        v-for="(tag, idx) in editingSegment.tags"
-        :key="`tag_${idx}`"
-        class="tag inline-flex font-size-small u-mr-0_25 u-mb-0_25">
-        {{ tag.tagName }}
-        <button
-          type="button"
-          class="tag__remove btn--blank o-link--default u-ml-0_25"
-          @click="removeTag(tag.id)">
-          <dp-icon
-            icon="close"
-            size="small" />
-        </button>
+        v-if="tagTopics.length"
+        class="overflow-y-scroll flex-1 u-mb-0_5 u-pr-0_25">
+        <!-- categorized tags -->
+        <tag-select
+          v-for="(topic, idx) in tagTopics"
+          class="u-mb-0_5"
+          :entity="topic"
+          :selected="selectedTags.filter(tag => (hasOwnProp(tag, 'relationships') && hasOwnProp(tag.relationships, 'topic')) ? tag.relationships.topic.data.id === topic.id : false)"
+          :key="`category_${idx}`" />
+        <!-- uncategorized tags -->
+        <tag-select
+          v-if="tags.length > 0"
+          class="u-mb-0_5"
+          :selected="selectedTags.filter(tag => (hasOwnProp(tag, 'relationships') || (hasOwnProp(tag, 'relationships') && hasOwnProp(tag.relationships, 'topic'))) === false)"
+          :entity="{ id: 'category.none', attributes: { title: Translator.trans('category.none') } }"
+          key="category_none" />
       </div>
     </div>
 
-    <div class="u-mb">
-      <!-- search available tags -->
-      <search-select
-        v-if="showCreateForm === false"
-        @open-create-form="showCreateForm = true"
-        :selected="selectedTags"
-        :place-holder="Translator.trans('tag.search')"
-        :options="searchableTags" />
-
-      <!-- create tags + topics -->
-      <dp-create-tag
-        v-else
-        @close-create-form="showCreateForm = false" />
-    </div>
-
-    <div
-      v-if="tagTopics.length"
-      class="overflow-y-scroll h-1/2 u-mb-0_5 u-pr-0_25">
-      <!-- categorized tags -->
-      <tag-select
-        v-for="(topic, idx) in tagTopics"
-        class="u-mb-0_5"
-        :entity="topic"
-        :selected="selectedTags.filter(tag => (hasOwnProp(tag, 'relationships') && hasOwnProp(tag.relationships, 'topic')) ? tag.relationships.topic.data.id === topic.id : false)"
-        :key="`category_${idx}`" />
-      <!-- uncategorized tags -->
-      <tag-select
-        v-if="tags.length > 0"
-        class="u-mb-0_5"
-        :selected="selectedTags.filter(tag => (hasOwnProp(tag, 'relationships') || (hasOwnProp(tag, 'relationships') && hasOwnProp(tag.relationships, 'topic'))) === false)"
-        :entity="{ id: 'category.none', attributes: { title: Translator.trans('category.none') } }"
-        key="category_none" />
-    </div>
-
-    <div>
+    <div id="placesAndAssigneeSection">
       <label
-        class="inline-block u-mb-0"
+        class="inline-block my-2"
         for="setPlace">
         {{ Translator.trans('workflow.place') }}
       </label>
@@ -212,6 +219,15 @@ export default {
     }
   },
 
+  watch: {
+    editingSegment () {
+       this.$nextTick(() => {
+        console.log('next')
+        this.getSearchableTagsSectionHeight()
+      })
+    }
+  },
+
   methods: {
     ...mapActions('SplitStatement', [
       'updateCurrentTags'
@@ -296,15 +312,42 @@ export default {
       const mainHeight = viewportHeight - headerHeight - footerHeight
       const sideBarHeight = mainHeight * 0.8 // 75% from the main height
 
-      return `${sideBarHeight}px`
+      return sideBarHeight
     },
 
     updateSidebarHeight () {
-      const height = this.getSideBarHeight()
+      const sideBarHeight = this.getSideBarHeight()
 
       if (this.$refs.sideBar) {
-        this.$refs.sideBar.style.height = height
+        this.$refs.sideBar.style.maxHeight = `${sideBarHeight}px`
       }
+      const sum = this.getSumOfSections() + this.$refs.searchableTagsSection.offsetHeight
+
+      if (sum > sideBarHeight) {
+        this.$refs.sideBar.style.height = `${sideBarHeight}px`
+      }
+      this.getSearchableTagsSectionHeight()
+    },
+
+    getSearchableTagsSectionHeight () {
+      const sum = this.getSumOfSections()
+
+      const height = this.$refs.sideBar.offsetHeight - sum
+
+      if (this.$refs.searchableTagsSection) {
+        this.$refs.searchableTagsSection.style.height = `${height}px`
+      }
+    },
+
+    getSumOfSections () {
+      const selectedTagsSection = document.getElementById('selectedTagsSection')
+      const placesAndAssigneeSection = document.getElementById('placesAndAssigneeSection')
+
+      const selectedTagsSectionHeight = selectedTagsSection.offsetHeight
+      const placesAndAssigneeSectionHeight = placesAndAssigneeSection.offsetHeight
+      const buttonsRowHeight = 80
+
+      return selectedTagsSectionHeight + placesAndAssigneeSectionHeight + buttonsRowHeight
     }
   },
 
