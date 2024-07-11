@@ -69,7 +69,6 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
 
         $fileName = $this->sut->getFileName($this->testStatement->_real(), $templateName);
         self::assertSame($expectedFileName, $fileName);
-
     }
 
     public function testMapStatementsToPathInZipWithSuperficialDuplicate(): void
