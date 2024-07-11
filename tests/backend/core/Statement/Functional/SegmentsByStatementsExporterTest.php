@@ -63,9 +63,17 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         $this->testStatement->setInternId('12345');
         $this->testOriginalStatement->_save();
 
-        $rawExpectedFileName = $this->testStatement->getExternId().'-'.$this->testStatement->getMeta()->getOrgaName().'-'.$this->testStatement->getInternId();
-        $this->verifyFileNameFromTemplate($rawExpectedFileName, '{ID}-{NAME}-{EINGANSNR}', $this->testStatement);
-        $this->verifyFileNameFromTemplate('My Custom Template', 'My Custom Template', $this->testStatement);
+        $testData = [
+            '{ID}-{NAME}-{EINGANSNR}' => $this->testStatement->getExternId().'-'.$this->testStatement->getMeta()->getOrgaName().'-'.$this->testStatement->getInternId(),
+            'My Custom Template' => 'My Custom Template',
+        ];
+
+        foreach ($testData as $templateName => $rawExpectedFileName) {
+            $this->verifyFileNameFromTemplate(
+                $rawExpectedFileName,
+                $templateName,
+                $this->testStatement);
+        }
     }
 
     public function verifyFileNameFromTemplate(string $rawExpectedFileName, string $templateName, Statement|Proxy|null $testStatement)
