@@ -8,7 +8,9 @@
 </license>
 
 <template>
-  <div class="side-bar">
+  <div
+    ref="sideBar"
+    class="side-bar">
     <dp-label
       :text="Translator.trans('tags')"
       for="searchSelect"
@@ -50,7 +52,7 @@
 
     <div
       v-if="tagTopics.length"
-      class="overflow-scroll-list u-mb-0_5 u-pr-0_25">
+      class="overflow-y-scroll h-1/2 u-mb-0_5 u-pr-0_25">
       <!-- categorized tags -->
       <tag-select
         v-for="(topic, idx) in tagTopics"
@@ -281,11 +283,39 @@ export default {
 
       this.setProperty({ prop: 'editingSegment', val: segment })
       this.locallyUpdateSegments([this.editingSegment])
+    },
+
+    getSideBarHeight () {
+      const header = document.getElementById('header')
+      const footer = document.getElementById('footer')
+
+      const viewportHeight = window.innerHeight
+      const headerHeight = header.offsetHeight
+      const footerHeight = footer.offsetHeight
+
+      const mainHeight = viewportHeight - headerHeight - footerHeight
+      const sideBarHeight = mainHeight * 0.8 // 75% from the main height
+
+      return `${sideBarHeight}px`
+    },
+
+    updateSidebarHeight () {
+      const height = this.getSideBarHeight()
+
+      if (this.$refs.sideBar) {
+        this.$refs.sideBar.style.height = height
+      }
     }
   },
 
   mounted () {
     this.setInitialValues()
+    this.updateSidebarHeight() // Set initial height
+    window.addEventListener('resize', this.updateSidebarHeight)
+  },
+
+  beforeDestroy () {
+    window.removeEventListener('resize', this.updateSidebarHeight)
   }
 }
 </script>
