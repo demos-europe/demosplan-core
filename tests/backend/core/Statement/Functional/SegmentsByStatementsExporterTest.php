@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace Tests\Core\Statement\Functional;
 
 use Cocur\Slugify\Slugify;
-use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadStatementData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementMetaFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -51,9 +50,7 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
     public function testMapStatementsToPathInZipWithTrueDuplicate(): void
     {
         $this->expectException(InvalidArgumentException::class);
-
-        $statement = $this->getStatementReference(LoadStatementData::TEST_STATEMENT);
-        $this->sut->mapStatementsToPathInZip([$statement, $statement]);
+        $this->sut->mapStatementsToPathInZip([ $this->testStatement->_real(),  $this->testStatement->_real()]);
     }
 
     public function testGetFileName(): void
