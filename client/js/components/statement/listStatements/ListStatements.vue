@@ -137,6 +137,11 @@
             </li>
           </ul>
         </template>
+        <template v-slot:status="{ status }">
+          <status-badge
+            class="mt-0.5"
+            :status="status" />
+        </template>
         <template v-slot:internId="{ internId }">
           <div class="o-hellip__wrapper">
             <div
@@ -300,6 +305,7 @@ import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import SearchModal from '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'
 import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
+import StatusBadge from '../../procedure/Shared/StatusBadge.vue'
 
 export default {
   name: 'ListStatements',
@@ -317,7 +323,8 @@ export default {
     DpStickyElement,
     SearchModal,
     StatementExportModal,
-    StatementMetaData
+    StatementMetaData,
+    StatusBadge
   },
 
   directives: {
@@ -365,6 +372,7 @@ export default {
       isFullscreen: false,
       headerFields: [
         { field: 'externId', label: Translator.trans('id') },
+        { field: 'status', label: Translator.trans('status') },
         { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'w-8' },
         { field: 'meta', label: Translator.trans('submitter.invitable_institution') },
         { field: 'text', label: Translator.trans('text') },
@@ -685,6 +693,7 @@ export default {
         'internId',
         'isCitizen',
         'memo',
+        'status',
         'submitDate',
         'submitName',
         'submitType',

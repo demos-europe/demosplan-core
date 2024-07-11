@@ -131,6 +131,11 @@
               </template>
             </v-popover>
           </template>
+          <template v-slot:statementStatus="rowData">
+            <status-badge
+              class="mt-0.5"
+              :status="statementsObject[rowData.relationships.parentStatement.data.id].attributes.status" />
+          </template>
           <template v-slot:internId="rowData">
             <div class="o-hellip__wrapper">
               <div
@@ -284,6 +289,7 @@ import fullscreenModeMixin from '@DpJs/components/shared/mixins/fullscreenModeMi
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
+import StatusBadge from '../Shared/StatusBadge.vue'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 
 export default {
@@ -302,6 +308,7 @@ export default {
     DpStickyElement,
     FilterFlyout,
     StatementMetaTooltip,
+    StatusBadge,
     VPopover
   },
 
@@ -352,6 +359,7 @@ export default {
       },
       headerFieldsAvailable: [
         { field: 'externId', label: Translator.trans('id') },
+        { field: 'statementStatus', label: Translator.trans('status') },
         { field: 'internId', label: Translator.trans('internId.shortened'), colWidth: '150px' },
         { field: 'submitter', label: Translator.trans('submitter') },
         { field: 'address', label: Translator.trans('address') },
@@ -519,6 +527,7 @@ export default {
             'initialOrganisationCity',
             'internId',
             'memo',
+            'status',
             'submitDate',
             'submitName',
             'submitType'
