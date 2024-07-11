@@ -72,7 +72,6 @@ class SegmentsExporter
             $templateName);
 
         return $this->slugify->slugify($fileName);
-
     }
 
     private function getAuthorName(Statement $statement): string
