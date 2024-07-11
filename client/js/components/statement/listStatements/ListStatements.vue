@@ -42,6 +42,7 @@
         :selected-items-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"
         @reset-selection="resetSelection">
         <dp-button
+          data-cy="statementsBulkShare"
           variant="outline"
           @click.prevent="handleBulkShare"
           :text="Translator.trans('procedure.share_statements.bulk.share')" />

@@ -68,7 +68,7 @@
               :class="fieldsFullWidth ? 'space-stack-s' : 'layout'">
               <dp-input
                 id="r_orga_name"
-                data-cy="simplifiedNewStatementForm:institution"
+                data-cy="submitterForm:orgaName"
                 v-model="values.submitter.orga"
                 :class="{ 'layout__item u-1-of-2': !fieldsFullWidth }"
                 :label="{
@@ -77,7 +77,7 @@
                 name="r_orga_name" /><!--
            --><dp-input
                 id="r_orga_department_name"
-                data-cy="simplifiedNewStatementForm:department"
+                data-cy="submitterForm:orgaDepartmentName"
                 v-model="values.submitter.department"
                 :class="{ 'layout__item u-1-of-2': !fieldsFullWidth }"
                 :label="{
@@ -91,7 +91,7 @@
               <div :class="{ 'layout__item u-1-of-2': !fieldsFullWidth }">
                 <dp-input
                   id="r_author_name"
-                  data-cy="simplifiedNewStatementForm:name"
+                  data-cy="submitterForm:authorName"
                   v-model="values.submitter.name"
                   :label="{
                     text: Translator.trans('name')
@@ -101,7 +101,7 @@
            --><div :class="{ 'layout__item u-1-of-2': !fieldsFullWidth }">
                 <dp-input
                   id="r_orga_email"
-                  data-cy="simplifiedNewStatementForm:email"
+                  data-cy="submitterForm:orgaEmail"
                   v-model="values.submitter.email"
                   :label="{
                     text: Translator.trans('email')
@@ -120,7 +120,7 @@
                 <div class="o-form__group">
                   <dp-input
                     id="r_orga_street"
-                    data-cy="simplifiedNewStatementForm:street"
+                    data-cy="submitterForm:orgaStreet"
                     v-model="values.submitter.street"
                     class="o-form__group-item"
                     :label="{
@@ -129,7 +129,7 @@
                     name="r_orga_street" />
                   <dp-input
                     id="r_houseNumber"
-                    data-cy="simplifiedNewStatementForm:streetNumberShort"
+                    data-cy="submitterForm:houseNumber"
                     v-model="values.submitter.housenumber"
                     class="o-form__group-item shrink"
                     :label="{
@@ -143,7 +143,7 @@
                 <div class="o-form__group">
                   <dp-input
                     id="r_orga_postalcode"
-                    data-cy="simplifiedNewStatementForm:postalCode"
+                    data-cy="submitterForm:orgaPostalcode"
                     v-model="values.submitter.plz"
                     class="o-form__group-item shrink"
                     :label="{
@@ -154,7 +154,7 @@
                     :size="5" />
                   <dp-input
                     id="r_orga_city"
-                    data-cy="simplifiedNewStatementForm:city"
+                    data-cy="submitterForm:orgaCity"
                     v-model="values.submitter.ort"
                     class="o-form__group-item"
                     name="r_orga_city"
@@ -167,7 +167,7 @@
               Note
            --><dp-text-area
                 v-if="hasPermission('field_statement_memo')"
-                data-cy="simplifiedNewStatementForm:memo"
+                data-cy="submitterForm:memo"
                 :class="{ 'layout__item u-1-of-2': !fieldsFullWidth }"
                 :grow-to-parent="!fieldsFullWidth"
                 id="r_memo"
@@ -201,7 +201,7 @@
               for="r_submitted_date" />
             <dp-datepicker
               class="o-form__control-wrapper"
-              data-cy="simplifiedNewStatementForm:statementDateSubmitted"
+              data-cy="submitterForm:submittedDate"
               name="r_submitted_date"
               value=""
               :calendars-before="2"
@@ -219,7 +219,7 @@
               for="r_authored_date" />
             <dp-datepicker
               class="o-form__control-wrapper"
-              data-cy="simplifiedNewStatementForm:statementDateAuthored"
+              data-cy="submitterForm:authoredDate"
               name="r_authored_date"
               value=""
               :calendars-before="2"
@@ -234,7 +234,7 @@
             :class="{ 'u-pr-0_5 u-1-of-2 inline-block': !fieldsFullWidth }">
             <dp-select
               id="r_submit_type"
-              data-cy="simplifiedNewStatementForm:submitType"
+              data-cy="submitterForm:submitType"
               :label="{
                 hint: Translator.trans('explanation.statement.submit.type'),
                 text: Translator.trans('submit.type')
@@ -249,7 +249,7 @@
             :class="{ 'u-pl-0_5 u-1-of-2 inline-block': !fieldsFullWidth }">
             <dp-input
               id="r_internId"
-              data-cy="simplifiedNewStatementForm:internId"
+              data-cy="submitterForm:internId"
               :data-dp-validate-error="Translator.trans('validation.error.internId')"
               :label="{
                 hint: Translator.trans('last.used') + ' ' + newestInternId,
@@ -282,7 +282,7 @@
               multiple
               :options="tags"
               track-by="id"
-              @input="sortSelected('tags')">
+              @input="sortSelected('tags', 'title')">
               <template v-slot:option="{ props }">
                 <span v-if="props.option.$isLabel">
                   {{ props.option.$groupLabel }}
@@ -602,8 +602,8 @@ export default {
       })
     },
 
-    sortSelected (property) {
-      this.values[property].sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0))
+    sortSelected (property, sortBy = 'name') {
+      this.values[property].sort((a, b) => (a[sortBy] > b[sortBy]) ? 1 : ((b[sortBy] > a[sortBy]) ? -1 : 0))
     },
 
     submit () {
