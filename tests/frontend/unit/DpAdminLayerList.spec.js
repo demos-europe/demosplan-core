@@ -35,7 +35,7 @@ describe('AdminLayerList', () => {
 
     store = new Vuex.Store({
       modules: {
-        layers: {
+        Layers: {
           namespaced: true,
           state: LayersStore.state,
           mutations,

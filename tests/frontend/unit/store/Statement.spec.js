@@ -37,10 +37,10 @@ describe('StatementStore', () => {
   })
 
   it('can add a statement', () => {
-    expect(Object.keys(StubStore.state.statement.statements)).toHaveLength(0)
+    expect(Object.keys(StubStore.state.Statement.statements)).toHaveLength(0)
 
     const statement = { id: '123-456-234' }
     StubStore.commit('Statement/addStatement', statement)
-    expect(Object.keys(StubStore.state.statement.statements)).toHaveLength(1)
+    expect(Object.keys(StubStore.state.Statement.statements)).toHaveLength(1)
   })
 })

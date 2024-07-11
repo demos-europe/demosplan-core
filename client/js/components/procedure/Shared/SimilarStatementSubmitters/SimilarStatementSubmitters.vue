@@ -93,7 +93,7 @@
               class="space-stack-s">
               <dp-input
                 id="statementSubmitterName"
-                data-cy="similarStatementSubmitters:name"
+                data-cy="voterUsername"
                 v-model="formFields.submitterName"
                 :label="{
                   text: Translator.trans('name')
@@ -101,7 +101,7 @@
                 required />
               <dp-input
                 id="statementSubmitterEmail"
-                data-cy="similarStatementSubmitters:email"
+                data-cy="voterEmail"
                 v-model="formFields.submitterEmailAddress"
                 :label="{
                   text: Translator.trans('email')
@@ -115,7 +115,7 @@
               <div class="o-form__group">
                 <dp-input
                   id="statementSubmitterAddress"
-                  data-cy="similarStatementSubmitters:street"
+                  data-cy="voterStreet"
                   v-model="formFields.submitterAddress"
                   class="o-form__group-item"
                   :label="{
@@ -123,7 +123,7 @@
                   }" />
                 <dp-input
                   id="statementSubmitterHouseNumber"
-                  data-cy="similarStatementSubmitters:streetNumberShort"
+                  data-cy="voterHousenumber"
                   v-model="formFields.submitterHouseNumber"
                   class="o-form__group-item shrink"
                   :label="{
@@ -135,7 +135,7 @@
               <div class="o-form__group">
                 <dp-input
                   id="statementSubmitterPostalCode"
-                  data-cy="similarStatementSubmitters:postalCode"
+                  data-cy="voterPostalCode"
                   v-model="formFields.submitterPostalCode"
                   class="o-form__group-item shrink"
                   :label="{
@@ -145,7 +145,7 @@
                   :size="5" />
                 <dp-input
                   id="statementSubmitterCity"
-                  data-cy="similarStatementSubmitters:city"
+                  data-cy="voterCity"
                   v-model="formFields.submitterCity"
                   class="o-form__group-item"
                   :label="{
