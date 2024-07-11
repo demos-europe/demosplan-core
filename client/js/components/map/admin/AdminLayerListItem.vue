@@ -630,7 +630,6 @@ export default {
         return this.elementListForLayerSidebar(this.element.id, 'overlay', true)
       },
       set (value) {
-        console.log('set AdminLayerListItem', value)
         this.setChildrenFromCategory({
           categoryId: this.element.id,
           data: value.newOrder,
