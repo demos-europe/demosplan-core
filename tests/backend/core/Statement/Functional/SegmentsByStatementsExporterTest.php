@@ -78,7 +78,7 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         }
     }
 
-    public function verifyFileNameFromTemplate(string $rawExpectedFileName, string $templateName, Statement|Proxy|null $testStatement)
+    public function verifyFileNameFromTemplate(string $rawExpectedFileName, string $templateName, Statement|Proxy|null $testStatement): void
     {
         $expectedFileName = $this->slugify->slugify($rawExpectedFileName);
         $fileName = $this->sut->getFileName($testStatement->_real(), $templateName);
