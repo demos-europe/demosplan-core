@@ -210,6 +210,7 @@ export default {
 
     showAutoSwitchToAnalysisHint () {
       const isInParticipation = this.phaseOptions.find(option => option.value === this.selectedPhase)?.permission === 'write'
+
       return hasPermission('feature_auto_switch_to_procedure_end_phase') && this.autoSwitchPhase && isInParticipation
     },
 
