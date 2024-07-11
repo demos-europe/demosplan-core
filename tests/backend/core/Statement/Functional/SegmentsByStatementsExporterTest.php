@@ -60,13 +60,19 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
     {
         $templateName = '{ID}-{NAME}-{EINGANSNR}';
 
-        $this->testOriginalStatement->setInternId('12355');
+        $this->testOriginalStatement->setInternId('12345');
         $this->testOriginalStatement->_save();
-        $this->testStatement->setInternId('12355');
+        $this->testStatement->setInternId('12345');
         $this->testOriginalStatement->_save();
 
         $expectedFileName = $this->slugify->slugify($this->testStatement->getExternId().'-'.$this->testStatement->getMeta()->getOrgaName().'-'.$this->testStatement->getInternId());
 
+        $fileName = $this->sut->getFileName($this->testStatement->_real(), $templateName);
+        self::assertSame($expectedFileName, $fileName);
+
+
+        $templateName = 'My Custom Template';
+        $expectedFileName = $this->slugify->slugify($templateName);
         $fileName = $this->sut->getFileName($this->testStatement->_real(), $templateName);
         self::assertSame($expectedFileName, $fileName);
 
