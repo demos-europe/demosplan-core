@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Tests\Core\Statement\Functional;
 
 use Cocur\Slugify\Slugify;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementMetaFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -89,10 +90,10 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
 
         $statements = $this->sut->mapStatementsToPathInZip([$statementA, $statementB]);
 
-        $expectedAKey = 'id-unbekannt-einreichende-person-unbekannt-statement-intern-id-a-statement_id_a.docx';
+        $expectedAKey = 'id-unbekannt-statement-author-name-a-statement-intern-id-a-statement_id_a.docx';
         self::assertArrayHasKey($expectedAKey, $statements);
         self::assertSame($statementA, $statements[$expectedAKey]);
-        $expectedBKey = 'id-unbekannt-einreichende-person-unbekannt-statement-intern-id-a-statement_id_b.docx';
+        $expectedBKey = 'id-unbekannt-statement-author-name-a-statement-intern-id-a-statement_id_b.docx';
         self::assertArrayHasKey($expectedBKey, $statements);
         self::assertSame($statementB, $statements[$expectedBKey]);
     }
@@ -119,7 +120,8 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         $statement = new Statement();
         $statement->setId("statement_id_$idSuffix");
         $statement->setInternId("statement_intern_id_$internIdSuffix");
-        $statement->getMeta()->setSubmitName("statement_submit_name_$submitterNameSuffix");
+        $statement->getMeta()->setOrgaName(UserInterface::ANONYMOUS_USER_NAME);
+        $statement->getMeta()->setAuthorName("statement_author_name_$submitterNameSuffix");
 
         return $statement;
     }
