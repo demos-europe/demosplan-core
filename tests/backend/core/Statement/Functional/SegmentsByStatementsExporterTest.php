@@ -100,22 +100,20 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
 
     public function testMapStatementsToPathInZipWithoutDuplicate(): void
     {
-        self::markSkippedForCIIntervention();
-
-        $statementA = $this->createMinimalTestStatement('a', 'a', 'a');
-        $statementB = $this->createMinimalTestStatement('b', 'b', 'b');
+        $statementA = $this->createMinimalTestStatement('xyz', 'xyz', 'xyz');
+        $statementB = $this->createMinimalTestStatement('xyz', 'xyz', 'xyz');
 
         $statements = $this->sut->mapStatementsToPathInZip([$statementA->_real(), $statementB->_real()]);
 
-        $expectedAKey = 'statement_submit_name_a (statement_intern_id_a).docx';
+        $expectedAKey = 'statement-extern-id-xyz-statement-author-name-xyz-statement-intern-id-xyz-'.$statementA->getId().'.docx';
         self::assertArrayHasKey($expectedAKey, $statements);
-        self::assertSame($statementA, $statements[$expectedAKey]);
-        $expectedBKey = 'statement_submit_name_b (statement_intern_id_b).docx';
+        self::assertSame($statementA->_real(), $statements[$expectedAKey]);
+        $expectedBKey = 'statement-extern-id-xyz-statement-author-name-xyz-statement-intern-id-xyz-'.$statementB->getId().'.docx';
         self::assertArrayHasKey($expectedBKey, $statements);
-        self::assertSame($statementB, $statements[$expectedBKey]);
+        self::assertSame($statementB->_real(), $statements[$expectedBKey]);
     }
 
-    private function createMinimalTestStatement(string $idSuffix, string $internIdSuffix, string $submitterNameSuffix): Proxy
+    private function createMinimalTestStatement(string $idSuffix, string $internIdSuffix, string $submitterNameSuffix):  Statement|Proxy
     {
         $statement = StatementFactory::createOne();
         $statement->setExternId("statement_extern_id_$idSuffix");
