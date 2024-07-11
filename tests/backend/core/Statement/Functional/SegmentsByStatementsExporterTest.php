@@ -26,7 +26,7 @@ use Zenstruck\Foundry\Persistence\Proxy;
 class SegmentsByStatementsExporterTest extends FunctionalTestCase
 {
     private Statement|Proxy|null $testStatement;
-    private Statement|Proxy|null $testOriginalStatement;
+
     private StatementMeta|Proxy|null $testStatementeMeta;
 
     /**
@@ -41,10 +41,8 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         parent::setUp();
         $this->sut = $this->getContainer()->get(SegmentsByStatementsExporter::class);
         $this->slugify = $this->getContainer()->get(Slugify::class);
-        $this->testOriginalStatement = StatementFactory::createOne();
-        $this->testStatement = StatementFactory::createOne(['original' => $this->testOriginalStatement]);
+        $this->testStatement = StatementFactory::createOne();
         $this->testStatementeMeta = StatementMetaFactory::createOne();
-        $this->testOriginalStatement->setChildren([$this->testStatement->_real()]);
         $this->testStatement->setMeta($this->testStatementeMeta->_real());
     }
 
@@ -56,10 +54,8 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
 
     public function testGetFileName(): void
     {
-        $this->testOriginalStatement->setInternId('12345');
-        $this->testOriginalStatement->_save();
         $this->testStatement->setInternId('12345');
-        $this->testOriginalStatement->_save();
+        $this->testStatement->_save();
 
         $testData = [
             '{ID}-{NAME}-{EINGANSNR}' => $this->testStatement->getExternId().'-'.$this->testStatement->getMeta()->getOrgaName().'-'.$this->testStatement->getInternId(),
