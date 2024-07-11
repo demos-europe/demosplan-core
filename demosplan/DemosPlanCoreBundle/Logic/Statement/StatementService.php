@@ -4571,16 +4571,6 @@ class StatementService extends CoreService implements StatementServiceInterface
         return ToBy::create($propertyName, $direction);
     }
 
-    public function updateStatementStatusView($statementId, $status)
-    {
-        $em = $this->getDoctrine()->getManager();
-        $connection = $em->getConnection();
-        $viewStatementStatus = $connection->prepare(
-            'UPDATE view_statement_status SET _st_status = :status WHERE _st_id = :statement;'
-        );
-        $viewStatementStatus->execute(['status'=> $status, 'statement' => $statementId]);
-    }
-
     private function addFilterToAggregationsWhenCausedResultIsEmpty(array $aggregations, array $userfilters): array
     {
         foreach ($userfilters as $label => $value) {

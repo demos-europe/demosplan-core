@@ -282,16 +282,15 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                     $segments = $statement->getSegmentsOfStatement();
                     foreach ($segments as $segment) {
                         if (!$segment->getPlace()->getSolved()) {
-                            // $this->statementService->updateStatementStatusView($statement->getId(), 'In Bearbeitung');
-                            return 'In Bearbeitung';
+
+                            return 'in proccess';
                         } else {
-                            // $this->statementService->updateStatementStatusView($statement->getId(), 'Abgeschlossen');
-                            return 'Abgeschlossen';
+
+                            return 'closed';
                         }
                     }
                 }
 
-                // $this->statementService->updateStatementStatusView($statement->getId(), 'Neu');
                 return 'Neu';
             });
         }

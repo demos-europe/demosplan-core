@@ -34,7 +34,7 @@ class ProcedureStatisticsService
         );
 
         $statementsWithoutSegments = $this->getSegmentStatistic(
-            'editableSegments',
+            'inProgressSegments',
             $procedureId
         );
 
@@ -61,7 +61,7 @@ class ProcedureStatisticsService
                 'statistic',
                 [
                     'newStatements',
-                    'editableSegments',
+                    'inProgressSegments',
                     'finishedSegments',
                 ]
             )->resolve(['statistic' => $statistic])['statistic'];
@@ -88,7 +88,7 @@ class ProcedureStatisticsService
             );
         }
 
-        if ('editableSegments' === $statistic) {
+        if ('inProgressSegments' === $statistic) {
             $query->andWhere(
                 $qb->expr()
                     ->notIn('s.id', $segmentQuery

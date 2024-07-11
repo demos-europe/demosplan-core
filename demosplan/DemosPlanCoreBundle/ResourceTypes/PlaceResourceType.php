@@ -94,6 +94,9 @@ final class PlaceResourceType extends DplanResourceType
         $configBuilder->description
             ->readable()
             ->updatable();
+        $configBuilder->solved
+            ->readable()
+            ->updatable();
         $configBuilder->sortIndex
             ->readable(true)
             ->filterable()
@@ -108,6 +111,7 @@ final class PlaceResourceType extends DplanResourceType
             $configBuilder->id->initializable(false, true);
             $configBuilder->name->updatable()->initializable(false, null, true);
             $configBuilder->description->updatable()->initializable(true);
+            $configBuilder->solved->updatable()->initializable(true);
         }
 
         $configBuilder->addConstructorBehavior(
