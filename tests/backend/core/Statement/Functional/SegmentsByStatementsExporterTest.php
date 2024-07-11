@@ -84,17 +84,15 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
 
     public function testMapStatementsToPathInZipWithSuperficialDuplicate(): void
     {
-        self::markSkippedForCIIntervention();
-
         $statementA = $this->createMinimalTestStatement('a', 'a', 'a');
         $statementB = $this->createMinimalTestStatement('b', 'a', 'a');
 
         $statements = $this->sut->mapStatementsToPathInZip([$statementA, $statementB]);
 
-        $expectedAKey = 'statement_submit_name_a (statement_intern_id_a-statement_id_a).docx';
+        $expectedAKey = 'id-unbekannt-einreichende-person-unbekannt-statement-intern-id-a-statement_id_a.docx';
         self::assertArrayHasKey($expectedAKey, $statements);
         self::assertSame($statementA, $statements[$expectedAKey]);
-        $expectedBKey = 'statement_submit_name_a (statement_intern_id_a-statement_id_b).docx';
+        $expectedBKey = 'id-unbekannt-einreichende-person-unbekannt-statement-intern-id-a-statement_id_b.docx';
         self::assertArrayHasKey($expectedBKey, $statements);
         self::assertSame($statementB, $statements[$expectedBKey]);
     }
