@@ -34,7 +34,9 @@
  --><div
     class="inline-block layout--flush c-at-item__row"
     data-cy="mapLayerListItem">
-    <div class="inline-block w-9/12">
+    <div
+      class="inline-block w-9/12"
+      :class="{ 'w-11/12': !hasPermission('feature_map_layer_visibility') }">
       <!-- regular categories -->
       <i
         v-if="layer.type === 'GisLayerCategory' && false === layer.attributes.layerWithChildrenHidden"
@@ -84,8 +86,7 @@
       </span>
     </div><!--
             Show this Stuff (Visibility-group / show initially on load) only for layer, not for Categories
- --><template
-      v-if="(layer.type === 'GisLayer') && hasPermission('feature_map_layer_visibility')"><!--
+ --><template v-if="(layer.type === 'GisLayer') && hasPermission('feature_map_layer_visibility')"><!--
     --><div class="inline-block w-1/12 text-right">
         <a
           v-if="('undefined' !== typeof activeLayer.id || '' !== hoverLayerId) && false === layer.attributes.isBaseLayer && (false === isChildOfCategoryThatAppearsAsLayer)"
