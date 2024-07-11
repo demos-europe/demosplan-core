@@ -29,8 +29,8 @@ use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
  *
  * @property-read End                   $name
  * @property-read End                   $description
- * @property-read End                   $sortIndex
  * @property-read End                   $solved
+ * @property-read End                   $sortIndex
  * @property-read ProcedureResourceType $procedure
  */
 final class PlaceResourceType extends DplanResourceType
@@ -110,6 +110,7 @@ final class PlaceResourceType extends DplanResourceType
         if ($this->currentUser->hasPermission('area_manage_segment_places')) {
             $configBuilder->id->initializable(false, true);
             $configBuilder->name->updatable()->initializable(false, null, true);
+            $configBuilder->solved->updatable()->initializable(true);
             $configBuilder->description->updatable()->initializable(true);
             $configBuilder->solved->updatable()->initializable(true);
         }
