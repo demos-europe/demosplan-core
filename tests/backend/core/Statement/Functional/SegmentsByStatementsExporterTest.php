@@ -113,7 +113,7 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         self::assertSame($statementB->_real(), $statements[$expectedBKey]);
     }
 
-    private function createMinimalTestStatement(string $idSuffix, string $internIdSuffix, string $submitterNameSuffix):  Statement|Proxy
+    private function createMinimalTestStatement(string $idSuffix, string $internIdSuffix, string $submitterNameSuffix): Statement|Proxy
     {
         $statement = StatementFactory::createOne();
         $statement->setExternId("statement_extern_id_$idSuffix");
