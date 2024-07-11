@@ -72,7 +72,6 @@ class SegmentsExportController extends BaseController
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
         );
-        $fileNameTemplate = '{ID}-{NAME}-{EINGANSNR}';
 
         $this->setResponseHeaders($response, $exporter->getFileName($statement, $fileNameTemplate));
 
@@ -199,7 +198,6 @@ class SegmentsExportController extends BaseController
         );
         /** @var Statement[] $statements */
         $statements = array_values($statementResult->getList());
-        $fileNameTemplate = '{ID}-{NAME}-{EINGANSNR}';
         $statements = $exporter->mapStatementsToPathInZip($statements, $fileNameTemplate);
 
         return $zipExportService->buildZipStreamResponse(
