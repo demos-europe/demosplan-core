@@ -37,7 +37,7 @@
       :max-extent="procedureMapSettings.attributes.defaultMapExtent"
       :procedure-id="procedureId"
       :procedure-coordinates="procedureMapSettings.attributes.coordinate"
-      :procedure-init-territory="procedureMapSettings.attributes.territory"
+      :procedure-init-territory="procedureMapSettings.attributes.territory.length > 0 ? procedureMapSettings.attributes.territory : {}"
       :scales="procedureMapSettings.attributes.availableScales"
       @field:update="setField" />
 
