@@ -86,13 +86,13 @@
         data-cy="department"
         :disabled="noOrgaSelected"
         :label="{
-          hint: localUser.relationships.orga.data.id ? '' : Translator.trans('organisation.select.first'),
+          hint: localUser.relationships.orga?.data?.id ? '' : Translator.trans('organisation.select.first'),
           text: Translator.trans('department')
         }"
         :options="departmentSelectOptions"
         required
-        :selected="localUser.relationships.department.data.id"
-        @change="changeUserDepartment" />
+        :selected="localUser.relationships.department.data?.id || ''"
+        @select="changeUserDepartment" />
     </div>
 
     <!-- Role -->
@@ -197,6 +197,7 @@ export default {
 
   data () {
     return {
+      allowedRolesForOrga: [],
       currentUserOrga: {
         id: '',
         name: '',
@@ -232,24 +233,6 @@ export default {
       initialOrgaSuggestions: 'getOrgaSuggestions'
     }),
 
-    /**
-     * - user is not set: all roles
-     * - user is set: roles for current organisation
-     */
-    allowedRolesForOrga () {
-      let allowedRoles
-
-      if (this.currentUserOrga.id === '') {
-        allowedRoles = this.rolesInRelationshipFormat
-      } else if (hasOwnProp(this.organisations[this.currentUserOrga.id].relationships, 'allowedRoles')) {
-        allowedRoles = Object.values(this.organisations[this.currentUserOrga.id].relationships.allowedRoles.list())
-      } else {
-        allowedRoles = this.getOrgaAllowedRoles(this.currentUserOrga.id)
-      }
-
-      return allowedRoles
-    },
-
     currentOrgaDepartments () {
       const departments = sortAlphabetically(Object.values(this.currentUserOrga.departments), 'name')
       const noDepartmentIdx = departments.findIndex(el => el.name === Translator.trans('department.none'))
@@ -267,7 +250,7 @@ export default {
     },
 
     isDepartmentSet () {
-      return this.localUser.relationships.department.data.id !== ''
+      return this.localUser.relationships.department.data?.id !== ''
     },
 
     isManagingSingleOrganisation () {
@@ -295,8 +278,7 @@ export default {
       this.emitUserUpdate('relationships.roles.data', role, 'roles', 'add')
     },
 
-    changeUserDepartment (e) {
-      const departmentId = e.target.value
+    changeUserDepartment (departmentId) {
       this.localUser.relationships.department.data = {
         id: departmentId,
         type: 'department'
@@ -323,7 +305,7 @@ export default {
      * Fetch organisation of user or, in DpCreateItem, of currently logged-in user
      */
     fetchCurrentOrganisation () {
-      const orgaId = this.user.relationships.orga && this.user.relationships.orga.data.id
+      const orgaId = this.user.relationships.orga?.data?.id
         ? this.user.relationships.orga.data.id
         : this.presetUserOrgaId
       if (orgaId !== '') {
@@ -345,12 +327,30 @@ export default {
       return dpApi.get(url, { include: ['allowedRoles', 'departments'].join() })
     },
 
+    /**
+     * - user is not set: all roles
+     * - user is set: roles for current organisation
+     */
+    getAllowedRolesForOrga () {
+      let allowedRoles
+
+      if (this.currentUserOrga.id === '') {
+        allowedRoles = this.rolesInRelationshipFormat
+      } else if (this.organisations[this.currentUserOrga.id].relationships?.allowedRoles?.data) {
+        allowedRoles = Object.values(this.organisations[this.currentUserOrga.id].relationships.allowedRoles.list())
+      } else {
+        allowedRoles = this.getOrgaAllowedRoles(this.currentUserOrga.id)
+      }
+
+      return allowedRoles
+    },
+
     getOrgaAllowedRoles (orgaId) {
       let allowedRoles = this.rolesInRelationshipFormat
 
       this.fetchOrgaById(orgaId).then((orga) => {
         this.setOrga(orga.data.data)
-        if (hasOwnProp(this.organisations[this.currentUserOrga.id].relationships, 'allowedRoles')) {
+        if (this.currentUserOrga.id && hasOwnProp(this.organisations[this.currentUserOrga.id].relationships, 'allowedRoles')) {
           allowedRoles = this.organisations[this.currentUserOrga.id].relationships.allowedRoles.list()
         }
       })
@@ -365,9 +365,13 @@ export default {
     handleUndefinedRelationships (types) {
       types.forEach(type => {
         if (typeof this.localUser.relationships[type] === 'undefined' || this.localUser.relationships[type] === null) {
-          this.localUser.relationships[type] = {
-            data: {
-              id: ''
+          if (type === 'roles') {
+            this.localUser.relationships[type] = {
+              data: []
+            }
+          } else {
+            this.localUser.relationships[type] = {
+              data: {}
             }
           }
         }
@@ -411,7 +415,7 @@ export default {
       this.localUser.relationships.department.data = { id: defaultDepartment.id, type: defaultDepartment.type }
     },
 
-    setInitialOrgaData () {
+    async setInitialOrgaData () {
       /*
        * Fetch organisation only
        * - in DpUserListItem (= isUserSet), not in DpCreateItem (= isUserSet === false)
@@ -425,6 +429,8 @@ export default {
             }
           })
       }
+
+      this.allowedRolesForOrga = await this.getAllowedRolesForOrga()
     },
 
     setOrganisationDepartments (departments) {
@@ -467,7 +473,7 @@ export default {
               ? payloadRel.allowedRoles.data.map(el => {
                 return {
                   ...el,
-                  type: 'role'
+                  type: 'Role'
                 }
               })
               : null
@@ -475,7 +481,7 @@ export default {
           currentSlug: {
             data: {
               id: payloadRel.currentSlug.data.id,
-              type: 'slug'
+              type: 'Slug'
             }
           },
           departments: {
@@ -483,7 +489,7 @@ export default {
               ? payloadRel.departments.data.map(el => {
                 return {
                   ...el,
-                  type: 'department'
+                  type: 'Department'
                 }
               })
               : null
@@ -497,7 +503,7 @@ export default {
 
   created () {
     this.localUser = JSON.parse(JSON.stringify(this.user))
-    this.handleUndefinedRelationships(['orga', 'department'])
+    this.handleUndefinedRelationships(['orga', 'department', 'roles'])
   },
 
   mounted () {
