@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement;
 
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
@@ -49,7 +57,6 @@ final class StatementFragmentFactory extends PersistentProxyObjectFactory
 {
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
-     *
      */
     public function __construct()
     {
@@ -62,18 +69,17 @@ final class StatementFragmentFactory extends PersistentProxyObjectFactory
 
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
-     *
      */
     protected function defaults(): array|callable
     {
         return [
-            'created' => self::faker()->dateTime(),
+            'created'   => self::faker()->dateTime(),
             'displayId' => self::faker()->randomNumber(),
-            'modified' => self::faker()->dateTime(),
+            'modified'  => self::faker()->dateTime(),
             'procedure' => ProcedureFactory::new(),
             'sortIndex' => self::faker()->randomNumber(),
             'statement' => StatementFactory::new(),
-            'text' => self::faker()->text(16777215),
+            'text'      => self::faker()->text(16777215),
         ];
     }
 
