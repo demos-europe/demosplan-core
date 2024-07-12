@@ -58,7 +58,7 @@ class SegmentsExporter
 
     public function getFileName(Statement $statement, string $templateName = ''): string
     {
-        $defaultTemplateName = '{ID}-{NAME}-{EINGANSNR}';
+        $defaultTemplateName = '{ID}-{NAME}-{EINGANGSNR}';
         $templateName = $templateName ?: $defaultTemplateName;
 
         $externalId = $this->getExternalId($statement);
@@ -67,7 +67,7 @@ class SegmentsExporter
 
         // Replace placeholders with actual values from the $statement object
         $fileName = str_replace(
-            ['{ID}', '{NAME}', '{EINGANSNR}'],
+            ['{ID}', '{NAME}', '{EINGANGSNR}'],
             [$externalId, $authorSourceName, $internId],
             $templateName);
 
