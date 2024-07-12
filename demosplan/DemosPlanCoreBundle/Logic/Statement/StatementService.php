@@ -14,6 +14,7 @@ use Carbon\Carbon;
 use Closure;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\StatementCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\StatementUpdatedEventInterface;
@@ -33,6 +34,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
@@ -114,6 +116,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementBulkEditV
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
 use demosplan\DemosPlanCoreBundle\ValueObject\MovedStatementData;
+use demosplan\DemosPlanCoreBundle\ValueObject\PercentageDistribution;
 use demosplan\DemosPlanCoreBundle\ValueObject\StatementMovement;
 use demosplan\DemosPlanCoreBundle\ValueObject\StatementMovementCollection;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
@@ -4569,6 +4572,51 @@ class StatementService extends CoreService implements StatementServiceInterface
         }
 
         return ToBy::create($propertyName, $direction);
+    }
+
+    public function computetStatementStatus($statement): string
+    {
+        /** @var Collection $segments */
+        $segments = $statement->getSegmentsOfStatement();
+        if (count($segments) === 0) {
+            return 'new';
+        }
+        $filterSegment = $segments->filter(static function ($segment) {
+            /**@var Segment $segment  */
+
+            return $segment->getPlace()->getSolved();
+        });
+        if (count($filterSegment) === count($segments)) {
+
+            return 'completed';
+        }
+
+        return 'processing';
+    }
+
+    public function getStatisticsOfProcedure(ProcedureInterface $procedure)
+    {
+        /** @var StatementInterface $statementsOfProcedure */
+        $statementsOfProcedure = $procedure->getStatements();
+        $statistics = [
+            'new' => 0,
+            'processing' => 0,
+            'completed' => 0
+        ];
+        foreach ($statementsOfProcedure as $statement) {
+            /**@var StatementInterface $statement */
+            if (!$statement->isOriginal()) {
+                $statistics[$this->computetStatementStatus($statement)]++;
+            }
+        }
+        return new PercentageDistribution(
+            $statistics['new'] + $statistics['processing'] + $statistics['completed'],
+            [
+                'unsegmented'             => $statistics['new'],
+                'segmented'               => $statistics['processing'],
+                'recommendationsFinished' => $statistics['completed'],
+            ]
+        );
     }
 
     private function addFilterToAggregationsWhenCausedResultIsEmpty(array $aggregations, array $userfilters): array
