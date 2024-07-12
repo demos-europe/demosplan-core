@@ -59,9 +59,9 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
 
         $testData = [
             '{ID}-{NAME}-{EINGANGSNR}' => $this->testStatement->getExternId().'-'.$this->testStatement->getMeta()->getOrgaName().'-'.$this->testStatement->getInternId(),
-            '{NAME}'                  => $this->testStatement->getMeta()->getOrgaName(),
-            'My Custom Template'      => 'My Custom Template',
-            ''                        => $this->testStatement->getExternId().'-'.$this->testStatement->getMeta()->getOrgaName().'-'.$this->testStatement->getInternId(),
+            '{NAME}'                   => $this->testStatement->getMeta()->getOrgaName(),
+            'My Custom Template'       => 'My Custom Template',
+            ''                         => $this->testStatement->getExternId().'-'.$this->testStatement->getMeta()->getOrgaName().'-'.$this->testStatement->getInternId(),
         ];
 
         foreach ($testData as $templateName => $rawExpectedFileName) {
