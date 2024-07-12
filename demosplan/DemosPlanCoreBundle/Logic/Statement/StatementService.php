@@ -4578,16 +4578,15 @@ class StatementService extends CoreService implements StatementServiceInterface
     {
         /** @var Collection $segments */
         $segments = $statement->getSegmentsOfStatement();
-        if (count($segments) === 0) {
+        if (0 === count($segments)) {
             return 'new';
         }
         $filterSegment = $segments->filter(static function ($segment) {
-            /**@var Segment $segment  */
+            /** @var Segment $segment */
 
             return $segment->getPlace()->getSolved();
         });
         if (count($filterSegment) === count($segments)) {
-
             return 'completed';
         }
 
@@ -4599,16 +4598,17 @@ class StatementService extends CoreService implements StatementServiceInterface
         /** @var StatementInterface $statementsOfProcedure */
         $statementsOfProcedure = $procedure->getStatements();
         $statistics = [
-            'new' => 0,
+            'new'        => 0,
             'processing' => 0,
-            'completed' => 0
+            'completed'  => 0,
         ];
         foreach ($statementsOfProcedure as $statement) {
-            /**@var StatementInterface $statement */
+            /** @var StatementInterface $statement */
             if (!$statement->isOriginal()) {
-                $statistics[$this->computetStatementStatus($statement)]++;
+                ++$statistics[$this->computetStatementStatus($statement)];
             }
         }
+
         return new PercentageDistribution(
             $statistics['new'] + $statistics['processing'] + $statistics['completed'],
             [

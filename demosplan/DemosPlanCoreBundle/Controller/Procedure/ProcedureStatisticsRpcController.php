@@ -37,7 +37,6 @@ class ProcedureStatisticsRpcController extends APIController
             $procedure = $procedureService->getProcedure($procedureId);
             $distribution = $statementService->getStatisticsOfProcedure($procedure);
 
-
             return $this->renderItem($distribution, PercentageDistributionTransformer::class);
         } catch (Exception $e) {
             $this->logger->warning('Could not retrieve procedure statistics.', [$e]);
