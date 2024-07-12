@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use demosplan\DemosPlanCoreBundle\Entity\File;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Repository\StatementAttachmentRepository;
@@ -65,25 +66,38 @@ class StatementAttachmentService extends CoreService
      *
      * @return Collection<int, StatementAttachment>
      */
-    public function copyAttachmentEntries(Collection $originalAttachments, Statement $targetStatement): Collection
-    {
+    public function copyAttachmentEntries(
+        Collection $originalAttachments,
+        Statement $targetStatement,
+        ?Procedure $targetProcedure = null
+    ): Collection {
         $copiedAttachments = new ArrayCollection();
         foreach ($originalAttachments as $originalAttachment) {
             $copiedAttachments->add($this->copyToStatement(
                 $originalAttachment,
-                $targetStatement
+                $targetStatement,
+                $targetProcedure
             ));
         }
 
         return $copiedAttachments;
     }
 
-    private function copyToStatement(StatementAttachment $attachment, Statement $statement): StatementAttachment
-    {
+    private function copyToStatement(
+        StatementAttachment $attachment,
+        Statement $statement,
+        ?Procedure $targetProcedure
+    ): StatementAttachment {
+        $type = $attachment->getType();
+        $file = $attachment->getFile();
+        if (null !== $targetProcedure) {
+            $file->setProcedure($targetProcedure);
+        }
+
         return $this->createAttachment(
             $statement,
-            $attachment->getFile(),
-            $attachment->getType()
+            $file,
+            $type
         );
     }
 
@@ -101,7 +115,6 @@ class StatementAttachmentService extends CoreService
     public function createAttachment(Statement $statement, File $file, string $type): StatementAttachment
     {
         $attachment = new StatementAttachment();
-        $file->setProcedure($statement->getProcedure());
         $attachment->setFile($file);
         $attachment->setType($type);
         $attachment->setStatement($statement);

@@ -1820,7 +1820,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         $newOriginalStatement->setSubmit($originalToCopy->getSubmitObject()->add(new DateInterval('PT1S')));
         $newStatementMeta = clone $originalToCopy->getMeta();
         $newOriginalStatement->setMeta($newStatementMeta);
-
+        $newOriginalStatement->setProcedure($targetProcedure);
         $newOriginalStatement->setChildren(null);
 
         /**
@@ -1869,7 +1869,6 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         }
 
         $newOriginalStatement->setExternId($newExternId);
-        $newOriginalStatement->setProcedure($targetProcedure);
 
         if ($originalToCopy->getProcedureId() !== $targetProcedure->getId()) {
             // remove all tags, because procedure specific -> impossible to keep:
@@ -2032,9 +2031,11 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             ->getStatementFileContainers($originalToCopy->getId());
 
         $fileStrings = [];
+        $copiedFileContainers = [];
         foreach ($fileContainers as $fileContainer) {
             $statementFileContainer = $this->copyFileContainer($fileContainer, $newOriginalStatement);
             $fileStrings[] = $statementFileContainer->getFileString();
+            $copiedFileContainers[] = $statementFileContainer;
         }
 
         $newOriginalStatement->setFiles($fileStrings);

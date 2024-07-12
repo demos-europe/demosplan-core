@@ -18,7 +18,6 @@ use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Doctrine\Generator\NCNameGenerator;
-use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
@@ -39,6 +38,7 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
+use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
 use Doctrine\ORM\EntityNotFoundException;
@@ -61,6 +61,7 @@ class StatementCopier extends CoreService
         private readonly CurrentUserInterface $currentUser,
         private readonly ElementsService $elementService,
         private readonly FileService $fileService,
+        private readonly FileContainerRepository $fileContainerRepository,
         IndexManager $elasticsearchIndexManager,
         private readonly MessageBagInterface $messageBag,
         private readonly PermissionsInterface $permissions,
@@ -223,7 +224,8 @@ class StatementCopier extends CoreService
         $originalAttachments = $sourceStatement->getAttachments();
         $copiedAttachments = $this->statementAttachmentService->copyAttachmentEntries(
             $originalAttachments,
-            $copiedStatement
+            $copiedStatement,
+            $targetProcedure
         );
         $copiedStatement->setAttachments($copiedAttachments);
 
