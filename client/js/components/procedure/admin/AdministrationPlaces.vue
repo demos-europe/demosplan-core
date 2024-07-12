@@ -240,8 +240,6 @@ export default {
         editingPlace.edit = false
       }
 
-      console.log(rowData, 'editPlace')
-
       // Save initial state of currently edited row
       this.initialRowData.name = rowData.name
       this.initialRowData.description = rowData.description
