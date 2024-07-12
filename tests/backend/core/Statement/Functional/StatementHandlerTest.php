@@ -2519,6 +2519,7 @@ class StatementHandlerTest extends FunctionalTestCase
     public function testFragmentStateSetVerified()
     {
         // prepare:
+        $this->enablePermissions(['feature_statements_fragment_edit', 'field_fragment_status']);
         /** @var StatementFragment $fragment */
         $fragment = $this->fixtures->getReference('testStatementFragmentAssignedToDepartment');
         static::assertEquals('fragment.status.assignedToFB', $fragment->getStatus());
