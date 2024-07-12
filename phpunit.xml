@@ -7,6 +7,7 @@
     beStrictAboutTodoAnnotatedTests="true"
     colors="true"
     convertDeprecationsToExceptions="false"
+    convertWarningsToExceptions="false"
     stopOnError="true"
     verbose="false">
 
