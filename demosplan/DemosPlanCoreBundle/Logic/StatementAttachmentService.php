@@ -101,6 +101,7 @@ class StatementAttachmentService extends CoreService
     public function createAttachment(Statement $statement, File $file, string $type): StatementAttachment
     {
         $attachment = new StatementAttachment();
+        $file->setProcedure($statement->getProcedure());
         $attachment->setFile($file);
         $attachment->setType($type);
         $attachment->setStatement($statement);
