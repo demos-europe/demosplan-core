@@ -39,9 +39,9 @@
 <script>
 
 export default {
-  name: 'DpFaqItem',
-  components: {
-  },
+  name: 'DpFaqCategoryItem',
+
+  components: {},
 
   props: {
     faqCategoryItem: {
