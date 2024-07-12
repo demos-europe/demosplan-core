@@ -38,6 +38,7 @@ use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
+use Illuminate\Support\Collection;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -45,7 +46,6 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Tests\Base\FunctionalTestCase;
 use Throwable;
-use Illuminate\Support\Collection;
 use Zenstruck\Foundry\Persistence\Proxy;
 
 class StatementHandlerTest extends FunctionalTestCase
