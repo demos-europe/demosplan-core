@@ -41,8 +41,6 @@
 export default {
   name: 'DpFaqCategoryItem',
 
-  components: {},
-
   props: {
     faqCategoryItem: {
       type: Object,
