@@ -91,7 +91,7 @@
         }"
         :options="departmentSelectOptions"
         required
-        :selected="localUser.relationships.department.data.id"
+        :selected="localUser.relationships.department.data?.id || ''"
         @select="changeUserDepartment" />
     </div>
 
@@ -241,7 +241,7 @@ export default {
 
       if (this.currentUserOrga.id === '') {
         allowedRoles = this.rolesInRelationshipFormat
-      } else if (hasOwnProp(this.organisations[this.currentUserOrga.id].relationships, 'allowedRoles')) {
+      } else if (this.organisations[this.currentUserOrga.id].relationships?.allowedRoles?.data) {
         allowedRoles = Object.values(this.organisations[this.currentUserOrga.id].relationships.allowedRoles.list())
       } else {
         allowedRoles = this.getOrgaAllowedRoles(this.currentUserOrga.id)
@@ -267,7 +267,7 @@ export default {
     },
 
     isDepartmentSet () {
-      return this.localUser.relationships.department.data.id !== ''
+      return this.localUser.relationships.department.data?.id !== ''
     },
 
     isManagingSingleOrganisation () {
