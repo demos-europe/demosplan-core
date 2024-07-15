@@ -39,6 +39,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class SegmentsExporter
 {
     private const STANDARD_DPI = 72;
+    private const STANDARD_PT_TEXT = 10;
     private const MAX_WIDTH_INCH = 10.69;
     private const MAX_HEIGHT_INCH = 5.42;
     /**
@@ -241,12 +242,12 @@ class SegmentsExporter
     {
         // Add images after all segments of one statement.
         $images = $this->imageLinkConverter->getImages();
-
+        $imageSpaceCurrentlyUsed = 0;
+        $section->addPageBreak();
         foreach ($images as $imageReference => $imagePath) {
             [$width, $height] = getimagesize($imagePath);
+            [$maxWidth, $maxHeight] = $this->getMaxWidthAndHeight();
 
-            $maxWidth = self::MAX_WIDTH_INCH * self::STANDARD_DPI;
-            $maxHeight = self::MAX_HEIGHT_INCH * self::STANDARD_DPI;
             if ($width > $maxWidth) {
                 $factor = $maxWidth / $width;
                 $width = $maxWidth;
@@ -257,12 +258,17 @@ class SegmentsExporter
                 $height = $maxHeight;
                 $width *= $factor;
             }
+            if ($height > $maxHeight - $imageSpaceCurrentlyUsed) {
+                $section->addPageBreak();
+            }
+            $imageSpaceCurrentlyUsed += $height + self::STANDARD_PT_TEXT * 2;
+
             $imageStyle = [
                 'width'  => $width,
                 'height' => $height,
                 'align'  => Jc::START,
             ];
-            $section->addPageBreak();
+
             $section->addText($imageReference);
             $section->addBookmark($imageReference);
             $section->addImage($imagePath, $imageStyle);
@@ -270,6 +276,14 @@ class SegmentsExporter
 
         // remove already printed images
         $this->imageLinkConverter->resetImages();
+    }
+
+    private function getMaxWidthAndHeight(): array
+    {
+        $maxWidth = self::MAX_WIDTH_INCH * self::STANDARD_DPI;
+        $maxHeight = self::MAX_HEIGHT_INCH * self::STANDARD_DPI - self::STANDARD_PT_TEXT;
+
+        return [$maxWidth, $maxHeight];
     }
 
     private function addSegmentsTableHeader(Section $section, array $tableHeaders): Table
