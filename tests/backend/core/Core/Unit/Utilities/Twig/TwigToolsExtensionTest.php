@@ -73,6 +73,7 @@ class TwigToolsExtensionTest extends FunctionalTestCase
             $this->fail($e->getMessage());
         }
     }
+
     public function testSaveDisplayOrder(): void
     {
         try {
