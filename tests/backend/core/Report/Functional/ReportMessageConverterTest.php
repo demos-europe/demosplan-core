@@ -22,7 +22,7 @@ class ReportMessageConverterTest extends FunctionalTestCase
     /** @var \Symfony\Component\Routing\Router */
     protected $router;
 
-    /** @var \demosplan\DemosPlanCoreBundle\Logic\Report\ReportMessageConverter */
+    /** @var ReportMessageConverter */
     protected $sut;
 
     protected function setUp(): void
@@ -64,9 +64,9 @@ class ReportMessageConverterTest extends FunctionalTestCase
         $reportEntry->setMessage('{"oldName":"Fortschreibung des Landesentwicklungsplans Schleswig-Holstein 2010","newName":"_Fortschreibung des Landesentwicklungsplans Schleswig-Holstein 2010","oldPublicName":"Fortschreibung des Landesentwicklungsplans Schleswig-Holstein 2010","newPublicName":"_Fortschreibung des Landesentwicklungsplans Schleswig-Holstein 2010"}');
         $message = $this->sut->convertMessage($reportEntry);
         self::assertEquals($this->translator->trans('text.protocol.procedure.name.changed', [
-                '%oldName%' => 'Fortschreibung des Landesentwicklungsplans Schleswig-Holstein 2010',
-                '%newName%' => '_Fortschreibung des Landesentwicklungsplans Schleswig-Holstein 2010',
-            ]).'<br />'.
+            '%oldName%' => 'Fortschreibung des Landesentwicklungsplans Schleswig-Holstein 2010',
+            '%newName%' => '_Fortschreibung des Landesentwicklungsplans Schleswig-Holstein 2010',
+        ]).'<br />'.
             $this->translator->trans('text.protocol.procedure.public.name.changed', [
                 '%oldName%' => 'Fortschreibung des Landesentwicklungsplans Schleswig-Holstein 2010',
                 '%newName%' => '_Fortschreibung des Landesentwicklungsplans Schleswig-Holstein 2010',

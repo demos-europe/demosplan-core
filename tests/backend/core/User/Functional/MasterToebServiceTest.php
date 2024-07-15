@@ -21,7 +21,7 @@ use Tests\Base\FunctionalTestCase;
 class MasterToebServiceTest extends FunctionalTestCase
 {
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\User\MasterToebService
+     * @var MasterToebService
      */
     protected $sut;
 

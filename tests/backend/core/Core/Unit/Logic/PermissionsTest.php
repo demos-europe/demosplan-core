@@ -3116,7 +3116,6 @@ class PermissionsTest extends FunctionalTestCase
         array $allowedPermissions,
         array $disallowedPermissions
     ): void {
-
         self::markTestSkipped('This test was skipped because of pre-existing errors. They are most likely easily fixable but prevent us from getting to a usable state of our CI.');
         // do debug a specific permission enable debugging and paste dataset name
         $debugPermission = false;

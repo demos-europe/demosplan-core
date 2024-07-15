@@ -33,8 +33,8 @@ class StatementDeleterTest extends FunctionalTestCase
     /** @var StatementDeleter */
     protected $sut;
 
-    protected StatementService|null $statementService;
-    protected StatementCopier|null $statementCopier;
+    protected ?StatementService $statementService;
+    protected ?StatementCopier $statementCopier;
 
     protected function setUp(): void
     {
