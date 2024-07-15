@@ -613,13 +613,13 @@
                     class="btn btn--primary"
                     @click.prevent="dpValidateAction('newStatementForm', submit)"
                     name="r_submit_button"
-                    data-cy="submitForm">
+                    data-cy="submitterForm:saveButton">
                     {{ 'save'|trans }}
                 </button>
 
                 <a
                   class="btn btn--secondary"
-                  data-cy="submitterForm::abort"
+                  data-cy="submitterForm:abortButton"
                   href='{{ abort_path }}'
                   id="cancelStellungnahme">
                     {{ "abort"|trans }}
