@@ -150,7 +150,7 @@ class DraftsInfoApiController extends APIController
             $segmentHandler->addSegments($segments);
 
             // request additional statement processing (asynchronous)
-            $eventDispatcher->dispatch(new AfterSegmentationEvent($statementHandler->getStatementWithCertainty($statementId)),AfterSegmentationEventInterface::class);
+            $eventDispatcher->dispatch(new AfterSegmentationEvent($statementHandler->getStatementWithCertainty($statementId)), AfterSegmentationEventInterface::class);
 
             $currentUser = $currentUserProvider->getUser();
 
