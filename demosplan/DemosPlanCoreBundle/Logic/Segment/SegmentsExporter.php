@@ -239,23 +239,20 @@ class SegmentsExporter
 
     private function addImages(Section $section): void
     {
-        // Add images after alle segments of one statement.
+        // Add images after all segments of one statement.
         $images = $this->imageLinkConverter->getImages();
 
         foreach ($images as $imageReference => $imagePath) {
-            // Get witdh and height of image
             [$width, $height] = getimagesize($imagePath);
 
             $maxWidth = self::MAX_WIDTH_INCH * self::STANDARD_DPI;
             $maxHeight = self::MAX_HEIGHT_INCH * self::STANDARD_DPI;
             if ($width > $maxWidth) {
-                // calc factor to scale image to $maxWidth width
                 $factor = $maxWidth / $width;
                 $width = $maxWidth;
                 $height *= $factor;
             }
             if ($height > $maxHeight) {
-                // calc factor to scale image to $maxHeight height
                 $factor = $maxHeight / $height;
                 $height = $maxHeight;
                 $width *= $factor;
