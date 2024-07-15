@@ -62,29 +62,29 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/eslint-parser@npm:^7.24.1":
-  version: 7.24.1
-  resolution: "@babel/eslint-parser@npm:7.24.1"
+"@babel/eslint-parser@npm:^7.24.7":
+  version: 7.24.7
+  resolution: "@babel/eslint-parser@npm:7.24.7"
   dependencies:
     "@nicolo-ribaudo/eslint-scope-5-internals": "npm:5.1.1-v1"
     eslint-visitor-keys: "npm:^2.1.0"
     semver: "npm:^6.3.1"
   peerDependencies:
     "@babel/core": ^7.11.0
-    eslint: ^7.5.0 || ^8.0.0
-  checksum: 10c0/76b066be5245fa24ea5726bea24ceca75811599dce43db5e120e91283f3a27be150a2b0559a8472bec2824f6abc66fb29e90b3f1889c596ec855a811fc83dc90
+    eslint: ^7.5.0 || ^8.0.0 || ^9.0.0
+  checksum: 10c0/5f001cd9876a578dd6960d836d17925c4a75c8723f2bcab622127dd653c8d5c3ec3f9bbbb87ce8920f062bb415c3883c4baf040bf7429344dd1e8b314a678b79
   languageName: node
   linkType: hard
 
-"@babel/eslint-plugin@npm:^7.23.5":
-  version: 7.23.5
-  resolution: "@babel/eslint-plugin@npm:7.23.5"
+"@babel/eslint-plugin@npm:^7.24.7":
+  version: 7.24.7
+  resolution: "@babel/eslint-plugin@npm:7.24.7"
   dependencies:
     eslint-rule-composer: "npm:^0.3.0"
   peerDependencies:
     "@babel/eslint-parser": ^7.11.0
-    eslint: ^7.5.0 || ^8.0.0
-  checksum: 10c0/adaf0975bab774c9a7ddd7aac6f2f7e4e0b087fea24759d8538ebe988b72eaca5928d9afc6b9c13927bf3e3c6ac66795d1060f6a8bfa9748de27f5d93d3fef64
+    eslint: ^7.5.0 || ^8.0.0 || ^9.0.0
+  checksum: 10c0/5b4bc7843a49c6dea4fc9ecd115ef4a7cc69059ab036db1e6afe992afa28241b65af7fc8d32c3c1bae3e95a5834e3900ce0f8cbf72234fb5a82a3eb436c00b4d
   languageName: node
   linkType: hard
 
@@ -12132,8 +12132,8 @@ __metadata:
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
     "@babel/core": "npm:^7.24.6"
-    "@babel/eslint-parser": "npm:^7.24.1"
-    "@babel/eslint-plugin": "npm:^7.23.5"
+    "@babel/eslint-parser": "npm:^7.24.7"
+    "@babel/eslint-plugin": "npm:^7.24.7"
     "@babel/plugin-proposal-object-rest-spread": "npm:^7.20.7"
     "@babel/plugin-syntax-dynamic-import": "npm:^7.8.3"
     "@babel/plugin-transform-modules-commonjs": "npm:^7.22.15"
@@ -14660,8 +14660,8 @@ __metadata:
   linkType: hard
 
 "ws@npm:^7.3.1, ws@npm:^7.4.6":
-  version: 7.5.9
-  resolution: "ws@npm:7.5.9"
+  version: 7.5.10
+  resolution: "ws@npm:7.5.10"
   peerDependencies:
     bufferutil: ^4.0.1
     utf-8-validate: ^5.0.2
@@ -14670,7 +14670,7 @@ __metadata:
       optional: true
     utf-8-validate:
       optional: true
-  checksum: 10c0/aec4ef4eb65821a7dde7b44790f8699cfafb7978c9b080f6d7a98a7f8fc0ce674c027073a78574c94786ba7112cc90fa2cc94fc224ceba4d4b1030cff9662494
+  checksum: 10c0/bd7d5f4aaf04fae7960c23dcb6c6375d525e00f795dd20b9385902bd008c40a94d3db3ce97d878acc7573df852056ca546328b27b39f47609f80fb22a0a9b61d
   languageName: node
   linkType: hard
 

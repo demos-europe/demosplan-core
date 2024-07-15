@@ -18,6 +18,7 @@
       v-if="!addNewPlace"
       class="text-right">
       <dp-button
+        data-cy="places:addPlace"
         @click="addNewPlace = true"
         :text="Translator.trans('places.addPlace')" />
     </div>
@@ -31,6 +32,7 @@
       <div class="border rounded space-stack-m space-inset-m">
         <dp-input
           id="newPlaceName"
+          data-cy="places:newPlaceName"
           v-model="newPlace.name"
           :label="{
             text: Translator.trans('name')
@@ -39,6 +41,7 @@
           required />
         <dp-input
           id="newPlaceDescription"
+          data-cy="places:newPlaceDescription"
           v-model="newPlace.description"
           :label="{
             text: Translator.trans('description')
@@ -60,6 +63,7 @@
     </div>
     <dp-data-table
       v-if="!isInitiallyLoading"
+      data-cy="placesTable"
       data-dp-validate="placesTable"
       has-flyout
       :header-fields="headerFields"
@@ -74,6 +78,7 @@
         <dp-input
           v-else
           id="editPlaceName"
+          data-cy="places:editPlaceName"
           maxlength="250"
           required
           v-model="newRowData.name" />
@@ -85,6 +90,7 @@
         <dp-input
           v-else
           id="editPlaceDescription"
+          data-cy="places:editPlaceDescription"
           maxlength="250"
           v-model="newRowData.description" />
       </template>
@@ -102,6 +108,7 @@
             v-if="!rowData.edit"
             :aria-label="Translator.trans('item.edit')"
             class="btn--blank o-link--default"
+            data-cy="places:editPlace"
             @click="editPlace(rowData)">
             <i
               class="fa fa-pencil"
@@ -111,6 +118,7 @@
             <button
               :aria-label="Translator.trans('save')"
               class="btn--blank o-link--default u-mr-0_25"
+              data-cy="places:saveEdit"
               @click="dpValidateAction('placesTable', () => updatePlace(rowData), false)">
               <dp-icon
                 icon="check"
@@ -118,6 +126,7 @@
             </button>
             <button
               class="btn--blank o-link--default"
+              data-cy="places:abortEdit"
               @click="abort(rowData)"
               :aria-label="Translator.trans('abort')">
               <dp-icon
