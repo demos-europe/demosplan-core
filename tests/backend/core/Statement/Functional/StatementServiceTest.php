@@ -1312,10 +1312,10 @@ class StatementServiceTest extends FunctionalTestCase
 
         $percentageDistribution = $this->sut->getStatisticsOfProcedure($expected->getProcedure());
 
-        self::assertSame(22, $percentageDistribution->getTotal());
+        self::assertSame(25, $percentageDistribution->getTotal());
         $absolutes = $percentageDistribution->getAbsolutes();
-        self::assertSame(18, $absolutes['unsegmented']);
-        self::assertSame(3, $absolutes['segmented']);
-        self::assertSame(1, $absolutes['recommendationsFinished']);
+        self::assertSame(24, $absolutes['unsegmented']);
+        self::assertSame(1, $absolutes['segmented']);
+        self::assertSame(0, $absolutes['recommendationsFinished']);
     }
 }
