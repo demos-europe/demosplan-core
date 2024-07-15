@@ -14,7 +14,20 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use Exception;
 
-final class Xmlifier
+/**
+ * Handles the conversion of image tags in HTML content to clickable links with references.
+ *
+ * This class `ImageLinkConverter` is designed to process HTML content, specifically focusing on converting `<img>` tags
+ * into clickable references. It manages a collection of image references, ensuring each image is uniquely identified
+ * and accessible. The conversion process involves parsing the HTML, identifying image tags, and replacing them with
+ * standardized clickable links that reference the images' absolute paths or identifiers.
+ *
+ * Usage involves creating an instance with a dependency on a `FileService` for resolving image paths, and then calling
+ * the `convert` method with HTML content and an external identifier to process the content.
+ *
+ * @package demosplan\DemosPlanCoreBundle\Logic
+ */
+final class ImageLinkConverter
 {
     /**
      * @var array<string, string>
@@ -26,7 +39,7 @@ final class Xmlifier
     {
     }
 
-    public function xmlify(string $html5, string $statementExternId): string
+    public function convert(string $html5, string $statementExternId): string
     {
         $xml = str_replace('<br>', '<br/>', $html5);
 

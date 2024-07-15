@@ -19,7 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
-use demosplan\DemosPlanCoreBundle\Logic\Xmlifier;
+use demosplan\DemosPlanCoreBundle\Logic\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use demosplan\DemosPlanCoreBundle\ValueObject\CellExportStyle;
 use demosplan\DemosPlanCoreBundle\ValueObject\ExportOrgaInfoHeader;
@@ -55,7 +55,7 @@ class SegmentsExporter
         private readonly HTMLSanitizer $htmlSanitizer,
         Slugify $slugify,
         TranslatorInterface $translator,
-        private readonly Xmlifier $xmlifier
+        private readonly ImageLinkConverter $imageLinkConverter
     ) {
         $this->translator = $translator;
         $this->initializeStyles();
@@ -240,7 +240,7 @@ class SegmentsExporter
     private function addImages(Section $section): void
     {
         // Add images after alle segments of one statement.
-        $images = $this->xmlifier->getImages();
+        $images = $this->imageLinkConverter->getImages();
 
         foreach ($images as $imageReference => $imagePath) {
             // Get witdh and height of image
@@ -272,7 +272,7 @@ class SegmentsExporter
         }
 
         // remove already printed images
-        $this->xmlifier->resetImages();
+        $this->imageLinkConverter->resetImages();
     }
 
     private function addSegmentsTableHeader(Section $section, array $tableHeaders): Table
@@ -326,8 +326,8 @@ class SegmentsExporter
             $segment->getText(),
             $this->styles['segmentsTableBodyCell']
         );
-        // Replace image tags in segment recommendation text with a reference to the image (without link)
-        $recommendationText = $this->xmlifier->xmlify($segment->getRecommendation(), $statementExternId);
+        // Replace image tags in segment recommendation text with a linked reference to the image.
+        $recommendationText = $this->imageLinkConverter->convert($segment->getRecommendation(), $statementExternId);
         $this->addSegmentHtmlCell(
             $textRow,
             $recommendationText,
