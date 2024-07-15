@@ -23,6 +23,8 @@ use demosplan\DemosPlanCoreBundle\Logic\Xmlifier;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use demosplan\DemosPlanCoreBundle\ValueObject\CellExportStyle;
 use demosplan\DemosPlanCoreBundle\ValueObject\ExportOrgaInfoHeader;
+use PhpOffice\PhpWord\Element\Footer;
+use PhpOffice\PhpWord\Element\Header;
 use PhpOffice\PhpWord\Element\Row;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
@@ -68,6 +70,7 @@ class SegmentsExporter
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $phpWord->addFontStyle('global', $this->styles['globalFont']);
         $section = $phpWord->addSection($this->styles['globalSection']);
+        $this->addHeader($section, $procedure, Footer::FIRST);
         $this->addHeader($section, $procedure);
         $this->addStatementInfo($section, $statement);
         $this->addSimilarStatementSubmitters($section, $statement);
@@ -92,14 +95,16 @@ class SegmentsExporter
         }
     }
 
-    protected function addHeader(Section $section, Procedure $procedure): void
+    protected function addHeader(Section $section, Procedure $procedure, ?string $headerType = null): void
     {
-        $header = $section->addHeader();
+        $header = null === $headerType ? $section->addHeader() : $section->addHeader($headerType);
         $header->addText(
             $procedure->getName(),
             $this->styles['documentTitleFont'],
             $this->styles['documentTitleParagraph']
         );
+
+        $this->addPreambleIfFirstHeader($header, $headerType);
 
         $currentDate = new DateTime();
         $header->addText(
@@ -107,6 +112,14 @@ class SegmentsExporter
             $this->styles['currentDateFont'],
             $this->styles['currentDateParagraph']
         );
+    }
+
+    private function addPreambleIfFirstHeader(Header $header, ?string $headerType): void
+    {
+        if ($headerType === Footer::FIRST) {
+            $preamble = $this->translator->trans('docx.export.preamble');
+            Html::addHtml($header, $this->getHtmlValidText($preamble), false, false);
+        }
     }
 
     private function getSimilarStatementSubmitters(Statement $statement): string
@@ -230,9 +243,6 @@ class SegmentsExporter
         $images = $this->xmlifier->getImages();
 
         foreach ($images as $imageReference => $imagePath) {
-            $section->addPageBreak();
-            $section->addText($imageReference);
-
             // Get witdh and height of image
             [$width, $height] = getimagesize($imagePath);
 
@@ -255,12 +265,12 @@ class SegmentsExporter
                 'height' => $height,
                 'align'  => Jc::START,
             ];
-
-            $section->addImage($imagePath, $imageStyle);
+            $section->addPageBreak();
+            $section->addText($imageReference);
             $section->addBookmark($imageReference);
+            $section->addImage($imagePath, $imageStyle);
         }
 
-        $section->addPageBreak();
         // remove already printed images
         $this->xmlifier->resetImages();
     }

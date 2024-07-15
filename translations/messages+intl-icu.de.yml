@@ -899,6 +899,18 @@ docx.export.anonymous: "Docx Exp. ohne Namen"
 docx.export.column.title: "Spaltennamen in DOCX-Exporten"
 docx.export.column.title.hint: "Um die Spaltennamen auf die Ursprungswerte zurückzusetzen, entfernen Sie die Einträge in den Textfeldern."
 docx.export.landscape: "Docx Exp. (Querformat)"
+docx.export.preamble: |
+    <p>Bitte beachten Sie, dass Darstellungen im Text referenziert und unter der jeweiligen Stellungnahme oder Einwendung angezeigt werden.</p>
+    <p>Die Verweise auf Darstellungen sind wie folgt strukturiert:</p>
+    <p>- In Erwiderungstexten:</p>
+    <p>    &lt;ID_der_Stellungnahme/Einwendung&gt;_Darstellung_Erw_&lt;laufende_Nummer&gt;</p>
+
+    <p>- In Stellungnahme-/Einwendungstexten:</p>
+    <p>    &lt;ID_der_Stellungnahme/Einwendung&gt;_Darstellung_Stell_&lt;laufende_Nummer&gt;</p>
+
+    <p>Beispiel:</p>
+    <p>- Für eine Abbildung in einem Erwiderungstext: M12_Darstellung_Erw_001</p>
+    <p>- Für eine Abbildung in einem Stellungnahmetext: M12_Darstellung_Stell_001</p>
 docx: "DOCX"
 done: "erledigt"
 done.capital: "Erledigt"

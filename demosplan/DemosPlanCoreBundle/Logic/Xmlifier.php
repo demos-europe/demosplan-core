@@ -43,7 +43,7 @@ final class Xmlifier
         $srcParts = explode('/', $src);
         $hash = $srcParts[array_key_last($srcParts)];
 
-        $imageReference = $statementExternId.'_Darstellung_Erw_'.$this->imageCounter;
+        $imageReference = sprintf('%s_Darstellung_Erw_%03d', $statementExternId, $this->imageCounter);
         $imageReferenceLink = '<a href="#'.$imageReference.'" style="color: blue; text-decoration: underline;">'
             .$imageReference.'</a>';
         $this->images[$imageReference] = $this->getAbsoluteImagePath($hash);
