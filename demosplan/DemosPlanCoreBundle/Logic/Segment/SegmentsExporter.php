@@ -116,7 +116,7 @@ class SegmentsExporter
 
     private function addPreambleIfFirstHeader(Header $header, ?string $headerType): void
     {
-        if ($headerType === Footer::FIRST) {
+        if (Footer::FIRST === $headerType) {
             $preamble = $this->translator->trans('docx.export.preamble');
             Html::addHtml($header, $this->getHtmlValidText($preamble), false, false);
         }
