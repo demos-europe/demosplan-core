@@ -1314,8 +1314,8 @@ class StatementServiceTest extends FunctionalTestCase
 
         self::assertSame(25, $percentageDistribution->getTotal());
         $absolutes = $percentageDistribution->getAbsolutes();
-        self::assertSame(24, $absolutes['unsegmented']);
-        self::assertSame(1, $absolutes['segmented']);
-        self::assertSame(0, $absolutes['recommendationsFinished']);
+        self::assertSame(24, $absolutes['statementNewCount']);
+        self::assertSame(1, $absolutes['statementProcessingCount']);
+        self::assertSame(0, $absolutes['statementCompletedCount']);
     }
 }
