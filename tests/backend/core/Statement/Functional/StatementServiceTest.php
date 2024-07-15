@@ -42,8 +42,8 @@ class StatementServiceTest extends FunctionalTestCase
     /** @var StatementService */
     protected $sut;
 
-    protected DraftStatement|null $testDraftStatement;
-    private StatementCopier|null $statementCopier;
+    protected ?DraftStatement $testDraftStatement;
+    private ?StatementCopier $statementCopier;
 
     /**
      * @var Session
