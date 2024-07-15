@@ -4588,7 +4588,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             return self::STATEMENT_STATUS_NEW;
         }
         $filterSegment = $segments->filter(static function ($segment) {
-            /** @var Segment $segment */
+            /* @var Segment $segment */
 
             return $segment->getPlace()->getSolved();
         });
@@ -4604,9 +4604,9 @@ class StatementService extends CoreService implements StatementServiceInterface
         /** @var StatementInterface $statementsOfProcedure */
         $statementsOfProcedure = $procedure->getStatements();
         $statistics = [
-            self::STATEMENT_STATUS_NEW        => 0,
+            self::STATEMENT_STATUS_NEW         => 0,
             self::STATEMENT_STATUS_PROCESSING  => 0,
-            self::STATEMENT_STATUS_COMPLETED  => 0,
+            self::STATEMENT_STATUS_COMPLETED   => 0,
         ];
         foreach ($statementsOfProcedure as $statement) {
             /** @var StatementInterface $statement */
