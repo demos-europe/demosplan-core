@@ -10,17 +10,15 @@
 <template>
   <div
     ref="sideBar"
-    class="side-bar">
+    class="side-bar flex flex-col">
 
-    <section id="selectedTagsSection">
+    <!-- Selected Tags Section -->
+    <div class="relative px-2 pt-2">
       <dp-label
         :text="Translator.trans('tags')"
         for="searchSelect"
         class="u-mb-0" />
-
-      <div
-        v-if="editingSegment && editingSegment.tags.length > 0"
-        class="u-mt-0_5 u-mb-0_5">
+      <div v-if="editingSegment && editingSegment.tags.length > 0">
         <div
           v-for="(tag, idx) in editingSegment.tags"
           :key="`tag_${idx}`"
@@ -36,86 +34,156 @@
           </button>
         </div>
       </div>
-    </section>
 
+      <!--   Floating Context Button -->
+      <button
+        v-show="showFloatingContextButton.tags"
+        id="floatingContextButton_tags"
+        aria-controls="tags"
+        :aria-expanded="isCollapsed.tags"
+        class="bg-white rounded shadow absolute z-[100] right-[-26px] bottom-[-38px] p-0.5"
+        data-cy=""
+        @click="toggleVisibility('tags')"
+        @mouseover="showFloatingContextButton.tags = true"
+        @mouseleave="showFloatingContextButton.tags = false">
+        <dp-icon
+          aria-hidden="true"
+          class="w-4 h-4 hover:bg-slate-200"
+          :icon="isCollapsed.tags ? 'chevron-up' : 'chevron-down'"
+          size="medium" />
+      </button>
+    </div>
+
+    <!-- Tags Section -->
     <div
-      class="flex flex-col"
-      ref="searchableTagsSection">
-      <div class="my-2">
-        <!-- search available tags -->
-        <search-select
-          v-if="showCreateForm === false"
-          @open-create-form="showCreateForm = true"
-          :selected="selectedTags"
-          :place-holder="Translator.trans('tag.search')"
-          :options="searchableTags" />
+      id="tags"
+      aria-labelledby="floatingContextButton_tags"
+      class="flex-1 flex overflow-y-hidden py-1 px-2"
+      @mouseover="showFloatingContextButton.tags = true"
+      @mouseleave="showFloatingContextButton.tags = false">
 
-        <!-- create tags + topics -->
-        <dp-create-tag
-          v-else
-          @close-create-form="showCreateForm = false" />
-      </div>
+      <button
+        v-if="!isCollapsed.tags"
+        @click="toggleVisibility('tags')"
+        class="relative btn--blank o-link--default text-left pt-1 pr-20">
+          Schlagworte auswählen
+      </button>
 
       <div
-        v-if="tagTopics.length"
-        class="overflow-y-scroll flex-1 u-mb-0_5 u-pr-0_25">
-        <!-- categorized tags -->
-        <tag-select
-          v-for="(topic, idx) in tagTopics"
-          class="u-mb-0_5"
-          :entity="topic"
-          :selected="selectedTags.filter(tag => (hasOwnProp(tag, 'relationships') && hasOwnProp(tag.relationships, 'topic')) ? tag.relationships.topic.data.id === topic.id : false)"
-          :key="`category_${idx}`" />
-        <!-- uncategorized tags -->
-        <tag-select
-          v-if="tags.length > 0"
-          class="u-mb-0_5"
-          :selected="selectedTags.filter(tag => (hasOwnProp(tag, 'relationships') || (hasOwnProp(tag, 'relationships') && hasOwnProp(tag.relationships, 'topic'))) === false)"
-          :entity="{ id: 'category.none', attributes: { title: Translator.trans('category.none') } }"
-          key="category_none" />
+        v-else
+        class="flex flex-col">
+        <div>
+          <!-- search available tags -->
+          <search-select
+            v-if="showCreateForm === false"
+            @open-create-form="showCreateForm = true"
+            :selected="selectedTags"
+            :place-holder="Translator.trans('tag.search')"
+            :options="searchableTags" />
+
+          <!-- create tags + topics -->
+          <dp-create-tag
+            v-else
+            @close-create-form="showCreateForm = false" />
+        </div>
+
+        <div
+          v-if="tagTopics.length"
+          class="flex-1 overflow-y-scroll my-2 pr-1">
+          <!-- categorized tags -->
+          <tag-select
+            v-for="(topic, idx) in tagTopics"
+            class="u-mb-0_5"
+            :entity="topic"
+            :selected="selectedTags.filter(tag => (hasOwnProp(tag, 'relationships') && hasOwnProp(tag.relationships, 'topic')) ? tag.relationships.topic.data.id === topic.id : false)"
+            :key="`category_${idx}`" />
+          <!-- uncategorized tags -->
+          <tag-select
+            v-if="tags.length > 0"
+            class="u-mb-0_5"
+            :selected="selectedTags.filter(tag => (hasOwnProp(tag, 'relationships') || (hasOwnProp(tag, 'relationships') && hasOwnProp(tag.relationships, 'topic'))) === false)"
+            :entity="{ id: 'category.none', attributes: { title: Translator.trans('category.none') } }"
+            key="category_none" />
+        </div>
       </div>
     </div>
 
-    <div id="placesAndAssigneeSection">
-      <label
-        class="inline-block my-2"
-        for="setPlace">
+    <!-- Places and Assignee Section -->
+    <div
+      id="placesAndAssignee"
+      aria-labelledby="floatingContextButton_placesAndAssignee"
+      class="relative py-1 px-2"
+      @mouseover="showFloatingContextButton.placesAndAssignee = true"
+      @mouseleave="showFloatingContextButton.placesAndAssignee = false">
+
+      <!--   Floating Context Button -->
+      <button
+        v-show="showFloatingContextButton.placesAndAssignee"
+        id="floatingContextButton_placesAndAssignee"
+        aria-controls="placesAndAssignee"
+        :aria-expanded="isCollapsed.placesAndAssignee"
+        class="bg-white rounded shadow absolute z-[100] right-[-26px] top-0 p-0.5"
+        data-cy=""
+        @click="toggleVisibility('placesAndAssignee')"
+        @mouseover="showFloatingContextButton.placesAndAssignee = true"
+        @mouseleave="showFloatingContextButton.placesAndAssignee = false">
+        <dp-icon
+          aria-hidden="true"
+          class="w-4 h-4 hover:bg-slate-200"
+          :icon="isCollapsed.placesAndAssignee ? 'chevron-up' : 'chevron-down'"
+          size="medium" />
+      </button>
+
+      <button
+        v-if="!isCollapsed.placesAndAssignee"
+        @click="toggleVisibility('placesAndAssignee')"
+        class="relative btn--blank o-link--default text-left w-full">
         {{ Translator.trans('workflow.place') }}
-      </label>
-      <dp-multiselect
-        id="setPlace"
-        v-model="selectedPlace"
-        label="name"
-        class="u-mb-0_5"
-        :allow-empty="false"
-        :options="availablePlaces"
-        :show-placeholder="false"
-        track-by="id">
-        <template v-slot:option="{ props }">
-          {{ props.option.name }}
-          <dp-contextual-help
-            v-if="props.option.description"
-            class="float-right"
-            :text="props.option.description" />
-        </template>
-      </dp-multiselect>
-      <label
-        class="inline-block u-mb-0"
-        for="assignUser">
-        {{ Translator.trans('assignee') }}
-      </label>
-      <dp-multiselect
-        id="assignUser"
-        v-model="selectedAssignee"
-        label="name"
-        class="u-mb-0_5"
-        :allow-empty="false"
-        :options="assignableUsers"
-        :show-placeholder="false"
-        track-by="id" />
+      </button>
+
+      <div v-else>
+        <label
+          class="inline-block m-0"
+          for="setPlace">
+          {{ Translator.trans('workflow.place') }}
+        </label>
+        <dp-multiselect
+          id="setPlace"
+          v-model="selectedPlace"
+          label="name"
+          class="u-mb-0_5"
+          :allow-empty="false"
+          :options="availablePlaces"
+          :show-placeholder="false"
+          track-by="id">
+          <template v-slot:option="{ props }">
+            {{ props.option.name }}
+            <dp-contextual-help
+              v-if="props.option.description"
+              class="float-right"
+              :text="props.option.description" />
+          </template>
+        </dp-multiselect>
+        <label
+          class="inline-block u-mb-0"
+          for="assignUser">
+          {{ Translator.trans('assignee') }}
+        </label>
+        <dp-multiselect
+          id="assignUser"
+          v-model="selectedAssignee"
+          label="name"
+          class="u-mb-0_5"
+          :allow-empty="false"
+          :options="assignableUsers"
+          :show-placeholder="false"
+          track-by="id" />
+      </div>
     </div>
 
     <dp-button-row
+      id="buttonRow"
+      class="p-2"
       secondary
       primary
       @primary-action="save"
@@ -147,9 +215,17 @@ export default {
 
   data () {
     return {
+      isCollapsed: {
+        tags: false,
+        placesAndAssignee: false
+      },
       selectedAssignee: null,
       selectedPlace: null,
-      showCreateForm: false
+      showCreateForm: false,
+      showFloatingContextButton: {
+        tags: false,
+        placesAndAssignee: false
+      }
     }
   },
 
@@ -219,15 +295,6 @@ export default {
     }
   },
 
-  watch: {
-    editingSegment () {
-       this.$nextTick(() => {
-        console.log('next')
-        this.getSearchableTagsSectionHeight()
-      })
-    }
-  },
-
   methods: {
     ...mapActions('SplitStatement', [
       'updateCurrentTags'
@@ -236,6 +303,10 @@ export default {
       'locallyUpdateSegments',
       'setProperty'
     ]),
+
+    toggleVisibility (key) {
+      this.isCollapsed[key] = !this.isCollapsed[key]
+    },
 
     getAssignableUserById (id) {
       return this.assignableUsers.find(user => user.id === id)
@@ -301,7 +372,7 @@ export default {
       this.locallyUpdateSegments([this.editingSegment])
     },
 
-    getSideBarHeight () {
+    getSideBarMaxHeight () {
       const header = document.getElementById('header')
       const footer = document.getElementById('footer')
 
@@ -310,66 +381,27 @@ export default {
       const footerHeight = footer.offsetHeight
 
       const mainHeight = viewportHeight - headerHeight - footerHeight
-      const sideBarHeight = mainHeight * 0.8 // 75% from the main height
 
-      return sideBarHeight
+      return mainHeight * 0.8 // 75% from the main height
     },
 
-    updateSidebarHeight () {
-      const sideBarHeight = this.getSideBarHeight()
+    updateSidebarMaxHeight () {
+      const sideBarMaxHeight = this.getSideBarMaxHeight()
 
       if (this.$refs.sideBar) {
-        this.$refs.sideBar.style.maxHeight = `${sideBarHeight}px`
+        this.$refs.sideBar.style.maxHeight = `${sideBarMaxHeight}px`
       }
-      const sum = this.getSumOfSections() + this.$refs.searchableTagsSection.offsetHeight
-
-      if (sum > sideBarHeight) {
-        this.$refs.sideBar.style.height = `${sideBarHeight}px`
-      }
-      this.getSearchableTagsSectionHeight()
-    },
-
-    getSearchableTagsSectionHeight () {
-      const sum = this.getSumOfSections()
-
-      const height = this.$refs.sideBar.offsetHeight - sum
-
-      if (this.$refs.searchableTagsSection) {
-        this.$refs.searchableTagsSection.style.height = `${height}px`
-      }
-    },
-
-    getSumOfSections () {
-      const selectedTagsSection = document.getElementById('selectedTagsSection')
-      const placesAndAssigneeSection = document.getElementById('placesAndAssigneeSection')
-
-      const selectedTagsSectionHeight = selectedTagsSection.offsetHeight
-      const placesAndAssigneeSectionHeight = placesAndAssigneeSection.offsetHeight
-      const buttonsRowHeight = 80
-
-      return selectedTagsSectionHeight + placesAndAssigneeSectionHeight + buttonsRowHeight
     }
   },
 
   mounted () {
     this.setInitialValues()
-    this.updateSidebarHeight() // Set initial height
-    window.addEventListener('resize', this.updateSidebarHeight)
+    this.updateSidebarMaxHeight() // Set initial height
+    window.addEventListener('resize', this.updateSidebarMaxHeight)
   },
 
   beforeDestroy () {
-    window.removeEventListener('resize', this.updateSidebarHeight)
+    window.removeEventListener('resize', this.updateSidebarMaxHeight)
   }
 }
 </script>
-
-<style scoped lang="scss">
-// TODO: This can be replaced with tailwindcss as soon as we found a solution to implement it in addons.
-.overflow-scroll-list {
-  overflow-y: auto;
-  max-height: 300px;
-  min-height: 100px;
-  display: flex;
-  flex-direction: column;
-}
-</style>
