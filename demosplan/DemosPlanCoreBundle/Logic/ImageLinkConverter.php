@@ -24,8 +24,6 @@ use Exception;
  *
  * Usage involves creating an instance with a dependency on a `FileService` for resolving image paths, and then calling
  * the `convert` method with HTML content and an external identifier to process the content.
- *
- * @package demosplan\DemosPlanCoreBundle\Logic
  */
 final class ImageLinkConverter
 {
