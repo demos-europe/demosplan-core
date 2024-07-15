@@ -1310,7 +1310,7 @@ class StatementServiceTest extends FunctionalTestCase
         $currentProcedureService = self::$container->get(CurrentProcedureService::class);
         $currentProcedureService->setProcedure($expected->getProcedure());
 
-        $percentageDistribution = $this->sut->StatisticsOfProcedure($expected->getProcedure());
+        $percentageDistribution = $this->sut->getStatisticsOfProcedure($expected->getProcedure());
 
         self::assertSame(22, $percentageDistribution->getTotal());
         $absolutes = $percentageDistribution->getAbsolutes();
