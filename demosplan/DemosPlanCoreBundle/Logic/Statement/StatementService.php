@@ -4618,9 +4618,9 @@ class StatementService extends CoreService implements StatementServiceInterface
         return new PercentageDistribution(
             $statistics['new'] + $statistics['processing'] + $statistics['completed'],
             [
-                'unsegmented'             => $statistics['new'],
-                'segmented'               => $statistics['processing'],
-                'recommendationsFinished' => $statistics['completed'],
+                'statementNewCount'         => $statistics['new'],
+                'statementProcessingCount'  => $statistics['processing'],
+                'statementCompletedCount'   => $statistics['completed'],
             ]
         );
     }

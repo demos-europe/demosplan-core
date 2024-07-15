@@ -18,9 +18,9 @@ export default class ProcedureCharts {
       StatusChart: initBarChart('#statusChart', '#statusChartLegend'),
       VoteChart: initBarChart('#voteChart', '#voteChartLegend'),
       MovedStatements: this.initSankeyDiagram('#movedStatements'),
-      NewStatementsDonut: initDonutChart('#statementsNew', '#statementsNewLegend'),
-      SegmentedStatementsDonut: initDonutChart('#statementsSegmented', '#statementsSegmentedLegend'),
-      RecommendationsFinishedStatementsDonut: initDonutChart('#statementsRecommendationsFinished', '#statementsRecommendationsFinishedLegend')
+      NewStatementsDonut: initDonutChart('#statementNewCount', '#statementNewCountLegend'),
+      SegmentedStatementsDonut: initDonutChart('#statementProcessingCount', '#statementProcessingCount'),
+      RecommendationsFinishedStatementsDonut: initDonutChart('#statementCompletedCount', '#statementCompletedCountLegend')
     }
   }
 
