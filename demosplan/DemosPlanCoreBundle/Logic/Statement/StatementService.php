@@ -170,6 +170,12 @@ class StatementService extends CoreService implements StatementServiceInterface
      */
     final public const FIELD_STATEMENT_PRIORITY = 'priority';
 
+    final public const STATEMENT_STATUS_NEW = 'new';
+
+    final public const STATEMENT_STATUS_PROCESSING = 'processing';
+
+    final public const STATEMENT_STATUS_COMPLETED = 'completed';
+
     /**
      * @var ProcedureService
      */
@@ -4574,12 +4580,12 @@ class StatementService extends CoreService implements StatementServiceInterface
         return ToBy::create($propertyName, $direction);
     }
 
-    public function computetStatementStatus($statement): string
+    public function getProcessintStatus($statement): string
     {
         /** @var Collection $segments */
         $segments = $statement->getSegmentsOfStatement();
         if (0 === count($segments)) {
-            return 'new';
+            return self::STATEMENT_STATUS_NEW;
         }
         $filterSegment = $segments->filter(static function ($segment) {
             /** @var Segment $segment */
@@ -4587,10 +4593,10 @@ class StatementService extends CoreService implements StatementServiceInterface
             return $segment->getPlace()->getSolved();
         });
         if (count($filterSegment) === count($segments)) {
-            return 'completed';
+            return self::STATEMENT_STATUS_COMPLETED;
         }
 
-        return 'processing';
+        return self::STATEMENT_STATUS_PROCESSING;
     }
 
     public function getStatisticsOfProcedure(ProcedureInterface $procedure)
@@ -4598,14 +4604,14 @@ class StatementService extends CoreService implements StatementServiceInterface
         /** @var StatementInterface $statementsOfProcedure */
         $statementsOfProcedure = $procedure->getStatements();
         $statistics = [
-            'new'        => 0,
-            'processing' => 0,
-            'completed'  => 0,
+            self::STATEMENT_STATUS_NEW        => 0,
+            self::STATEMENT_STATUS_PROCESSING  => 0,
+            self::STATEMENT_STATUS_COMPLETED  => 0,
         ];
         foreach ($statementsOfProcedure as $statement) {
             /** @var StatementInterface $statement */
             if (!$statement->isOriginal()) {
-                ++$statistics[$this->computetStatementStatus($statement)];
+                ++$statistics[$this->getProcessintStatus($statement)];
             }
         }
 
