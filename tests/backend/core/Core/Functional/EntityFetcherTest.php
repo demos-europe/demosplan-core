@@ -72,42 +72,66 @@ class EntityFetcherTest extends FunctionalTestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->initializeCoreComponents();
+        $this->setupTestEnvironment();
+    }
 
+    /**
+     * Initialize core components required for tests.
+     */
+    private function initializeCoreComponents(): void
+    {
         $this->sut = $this->getContainer()->get(EntityFetcher::class);
+        $this->procedureResourceType = $this->getContainer()->get(ProcedureResourceType::class);
+        $this->statementResourceType = $this->getContainer()->get(StatementResourceType::class);
+        $this->sortingParser = $this->getContainer()->get(JsonApiSortingParser::class);
+        $this->filterParser = $this->getContainer()->get(DrupalFilterParser::class);
+        $this->condition = $this->getContainer()->get(DqlConditionFactory::class)->true();
+    }
+
+    /**
+     * Setup the test environment, including entities and permissions.
+     */
+    private function setupTestEnvironment(): void
+    {
         $customerService = $this->getContainer()->get(CustomerService::class);
         $currentCustomer = $customerService->getCurrentCustomer();
         $orga = OrgaFactory::createOne();
         $this->testProcedure = ProcedureFactory::createOne(['orga' => $orga, 'customer' => $currentCustomer]);
         ProcedureSettingsFactory::createOne(['procedure' => $this->testProcedure]);
-
-        $this->populateProcedureWithStatements();
-
-        $testUser = $this->getUserReference('testUser');
-        $testUser->setOrga($orga->_real());
-
-        $this->procedureResourceType = $this->getContainer()->get(ProcedureResourceType::class);
-        $this->statementResourceType = $this->getContainer()->get(StatementResourceType::class);
-        /** @var CurrentProcedureService $currentProcedureService */
-        $currentProcedureService = $this->getContainer()->get(CurrentProcedureService::class);
-        $conditionFactory = $this->getContainer()->get(DqlConditionFactory::class);
-        $this->sortingParser = $this->getContainer()->get(JsonApiSortingParser::class);
-
-        $currentProcedureService->setProcedure($this->testProcedure->_real());
-        $this->procedureResourceType->setCurrentProcedureService($currentProcedureService);
-        $this->statementResourceType->setCurrentProcedureService($currentProcedureService);
-        $this->condition = $conditionFactory->true();
-
+        $this->setupProcedureWithStatements();
+        $this->setupTestUser($orga);
+        $this->setCurrentProcedureService();
         $this->loginTestUser();
         $this->enablePermissions([
             'feature_json_api_statement',
             'feature_json_api_procedure',
             'feature_json_api_original_statement',
         ]);
-
-        $this->filterParser = $this->getContainer()->get(DrupalFilterParser::class);
     }
 
-    private function populateProcedureWithStatements(): void
+    /**
+     * Setup test user with organization.
+     */
+    private function setupTestUser($orga): void
+    {
+        $testUser = $this->getUserReference('testUser');
+        $testUser->setOrga($orga->_real());
+    }
+
+    /**
+     * Set the current procedure service with the test procedure.
+     */
+    private function setCurrentProcedureService(): void
+    {
+        /** @var CurrentProcedureService $currentProcedureService */
+        $currentProcedureService = $this->getContainer()->get(CurrentProcedureService::class);
+        $currentProcedureService->setProcedure($this->testProcedure->_real());
+        $this->procedureResourceType->setCurrentProcedureService($currentProcedureService);
+        $this->statementResourceType->setCurrentProcedureService($currentProcedureService);
+    }
+
+    private function setupProcedureWithStatements(): void
     {
         // Create Multiple Statements with StatementMeta and associate them with the Procedure
         $submitNames = ['Charlie', 'Bravo', 'Delta', 'Alpha']; // Example submitNames for sorting
