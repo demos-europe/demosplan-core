@@ -1605,6 +1605,7 @@ export.type: "Art des Exports"
 export.verb: "Exportieren"
 export.xls: "XLS"
 export.xlsx: "XLSX"
+export.xlsx.hint: "Bei diesem Export werden keine Bilder exportiert."
 export.zip: "ZIP"
 exported.on: "Exportiert am {date} um {time} Uhr."
 
