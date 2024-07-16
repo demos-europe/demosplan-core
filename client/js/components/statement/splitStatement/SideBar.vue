@@ -22,7 +22,8 @@
         <div
           v-for="(tag, idx) in editingSegment.tags"
           :key="`tag_${idx}`"
-          class="tag inline-flex font-size-small u-mr-0_25 u-mb-0_25">
+          class="inline-flex font-size-small px-0.5 py-0.5 mb-1 tag"
+          :class="isTagAppliedToSegment(tag.id) ? 'bg-gray-500': 'bg-green-400'">
           {{ tag.tagName }}
           <button
             type="button"
@@ -41,7 +42,7 @@
         id="floatingContextButton_tags"
         aria-controls="tags"
         :aria-expanded="isCollapsed.tags"
-        class="bg-white rounded shadow absolute z-[100] right-[-26px] bottom-[-38px] p-0.5"
+        class="bg-white rounded shadow absolute z-[100] right-[-24px] bottom-[-36px] p-0.5"
         data-cy=""
         @click="toggleVisibility('tags')"
         @mouseover="showFloatingContextButton.tags = true"
@@ -65,7 +66,7 @@
       <button
         v-if="!isCollapsed.tags"
         @click="toggleVisibility('tags')"
-        class="relative btn--blank o-link--default text-left pt-1 pr-20">
+        class="relative btn--blank o-link--default font-semibold w-full text-left pr-2">
           Schlagworte auswählen
       </button>
 
@@ -122,7 +123,7 @@
         id="floatingContextButton_placesAndAssignee"
         aria-controls="placesAndAssignee"
         :aria-expanded="isCollapsed.placesAndAssignee"
-        class="bg-white rounded shadow absolute z-[100] right-[-26px] top-0 p-0.5"
+        class="bg-white rounded shadow absolute z-[100] right-[-24px] top-0 p-0.5"
         data-cy=""
         @click="toggleVisibility('placesAndAssignee')"
         @mouseover="showFloatingContextButton.placesAndAssignee = true"
@@ -137,7 +138,7 @@
       <button
         v-if="!isCollapsed.placesAndAssignee"
         @click="toggleVisibility('placesAndAssignee')"
-        class="relative btn--blank o-link--default text-left w-full">
+        class="relative btn--blank o-link--default font-semibold text-left w-full">
         {{ Translator.trans('workflow.place') }}
       </button>
 
@@ -184,8 +185,10 @@
     <dp-button-row
       id="buttonRow"
       class="p-2"
+      alignment="left"
       secondary
       primary
+      variant="outline"
       @primary-action="save"
       @secondary-action="$emit('abort')" />
   </div>
@@ -235,6 +238,7 @@ export default {
       availablePlaces: 'availablePlaces',
       availableTags: 'availableTags',
       editingSegment: 'editingSegment',
+      initialSegments: 'initialSegments',
       isBusy: 'isBusy',
       isOpen: 'editModeActive',
       procedureId: 'procedureId',
@@ -303,6 +307,16 @@ export default {
       'locallyUpdateSegments',
       'setProperty'
     ]),
+
+    isTagAppliedToSegment (tagId) {
+      if (this.initialSegments.length > 0) {
+        const segment = this.initialSegments.find(seg => seg.id === this.currentSegment.id)
+
+        if (segment) {
+          return segment.tags.some(tag => tag.id === tagId)
+        }
+      }
+    },
 
     toggleVisibility (key) {
       this.isCollapsed[key] = !this.isCollapsed[key]
