@@ -107,7 +107,7 @@ class EntityFetcherTest extends FunctionalTestCase
         $this->filterParser = $this->getContainer()->get(DrupalFilterParser::class);
     }
 
-    private function populateProcedureWithStatements():void
+    private function populateProcedureWithStatements(): void
     {
         // Create Multiple Statements with StatementMeta and associate them with the Procedure
         $submitNames = ['Charlie', 'Bravo', 'Delta', 'Alpha']; // Example submitNames for sorting
