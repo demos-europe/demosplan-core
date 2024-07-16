@@ -3642,6 +3642,7 @@ tags.noentries: "Für dieses Verfahren sind noch keine Schlagworte vorhanden. Um
 tags.none.yet: "Es sind noch keine Schlagworte vorhanden."
 tags.notassigned: "Es sind keine Schlagworte zugewiesen."
 tags.no.boilerplates: "Mit dem Schlagwort sind keine Textbausteine verknüpft."
+tags.select: "Schlagworte auswählen"
 target.procedure: "Zielverfahren"
 tasks.my: "Meine Aufgaben"
 tasks.view: "Aufgaben ansehen"

@@ -18,21 +18,32 @@
         :text="Translator.trans('tags')"
         for="searchSelect"
         class="u-mb-0" />
-      <div v-if="editingSegment && editingSegment.tags.length > 0">
+      <div
+        v-if="editingSegment && editingSegment.tags.length > 0"
+        class="flex flex-wrap gap-1 bg-white">
         <div
           v-for="(tag, idx) in editingSegment.tags"
           :key="`tag_${idx}`"
-          class="inline-flex font-size-small px-0.5 py-0.5 mb-1 tag"
-          :class="isTagAppliedToSegment(tag.id) ? 'bg-gray-500': 'bg-green-400'">
-          {{ tag.tagName }}
-          <button
-            type="button"
-            class="tag__remove btn--blank o-link--default u-ml-0_25"
-            @click="removeTag(tag.id)">
-            <dp-icon
-              icon="close"
-              size="small" />
-          </button>
+          :class="assignTagSizeClasses(tag,idx)">
+          <div
+            :class="[
+              'tag flex whitespace-nowrap overflow-hidden text-sm px-0.5 py-0.5',
+              isTagAppliedToSegment(tag.id) ? 'bg-gray-500': 'bg-green-400',
+              isLastTagWithEvenPosition(idx) ? 'w-fit' : ''
+            ]"
+          >
+          <span class="overflow-hidden text-ellipsis">
+            {{ tag.tagName }}
+          </span>
+            <button
+              type="button"
+              class="tag__remove btn--blank o-link--default ml-1"
+              @click="removeTag(tag.id)">
+              <dp-icon
+                icon="close"
+                size="small" />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -67,7 +78,7 @@
         v-if="!isCollapsed.tags"
         @click="toggleVisibility('tags')"
         class="relative btn--blank o-link--default font-semibold w-full text-left pr-2">
-          Schlagworte auswählen
+        {{ Translator.trans('tags.select') }}
       </button>
 
       <div
@@ -308,6 +319,39 @@ export default {
       'setProperty'
     ]),
 
+    assignTagSizeClasses (tag, idx) {
+      const classes = ['flex']
+
+      if (this.isTagNameLongerThanLimit(tag)) {
+        classes.push('w-[calc(50%-4px)]')
+
+        if (this.isLastTagWithEvenPosition(idx)) {
+          classes.push('flex-1')
+        }
+
+        const isNextTagShort = !this.isTagNameLongerThanLimit(this.editingSegment.tags[idx + 1])
+        if (isNextTagShort || this.isEven(idx + 1)) {
+          classes.push('flex-1')
+        }
+      }
+
+      return classes
+    },
+
+    isEven (number) {
+      return number % 2 === 0
+    },
+
+    isLastTagWithEvenPosition (idx) {
+      return idx === this.editingSegment.tags.length - 1 && this.isEven(idx)
+    },
+
+    isTagNameLongerThanLimit (tag) {
+      if (tag) {
+        return tag.tagName.length > 15
+      }
+    },
+
     isTagAppliedToSegment (tagId) {
       if (this.initialSegments.length > 0) {
         const segment = this.initialSegments.find(seg => seg.id === this.currentSegment.id)
@@ -396,10 +440,10 @@ export default {
 
       const mainHeight = viewportHeight - headerHeight - footerHeight
 
-      return mainHeight * 0.8 // 75% from the main height
+      return mainHeight * 0.8 // 80% from the main height
     },
 
-    updateSidebarMaxHeight () {
+    setSidebarMaxHeight () {
       const sideBarMaxHeight = this.getSideBarMaxHeight()
 
       if (this.$refs.sideBar) {
@@ -410,12 +454,12 @@ export default {
 
   mounted () {
     this.setInitialValues()
-    this.updateSidebarMaxHeight() // Set initial height
-    window.addEventListener('resize', this.updateSidebarMaxHeight)
+    this.setSidebarMaxHeight()
+    window.addEventListener('resize', this.setSidebarMaxHeight)
   },
 
   beforeDestroy () {
-    window.removeEventListener('resize', this.updateSidebarMaxHeight)
+    window.removeEventListener('resize', this.setSidebarMaxHeight)
   }
 }
 </script>
