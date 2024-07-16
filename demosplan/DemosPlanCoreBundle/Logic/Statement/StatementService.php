@@ -176,6 +176,12 @@ class StatementService extends CoreService implements StatementServiceInterface
 
     final public const STATEMENT_STATUS_COMPLETED = 'completed';
 
+    final public const STATEMENT_STATUS_NEW_COUNT = 'statementNewCount';
+
+    final public const STATEMENT_STATUS_PROCESSING_COUNT = 'statementProcessingCount';
+
+    final public const STATEMENT_STATUS_COMPLETED_COUNT = 'statementCompletedCount';
+
     /**
      * @var ProcedureService
      */
