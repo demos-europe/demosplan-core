@@ -157,8 +157,6 @@ class EntityFetcherTest extends FunctionalTestCase
 
     public function testListStatementsByOrganisationName(): void
     {
-        self::markSkippedForCIIntervention();
-
         $sortMethods = $this->sortingParser->createFromQueryParamValue('initialOrganisationName');
 
         $referenceStatements = $this->getStatementListSortedBySubmitName($this->testProcedure->getId(), 'initialOrganisationName');
