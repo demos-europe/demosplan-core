@@ -637,9 +637,9 @@ export default {
       })
     },
 
-    imageClicked (event) {
-      this.clickedImg.src = event.target.src
-      this.clickedImg.alt = event.target.alt
+    imageClicked ({ target }) {
+      this.clickedImg.src = target.src
+      this.clickedImg.alt = target.alt
       this.$refs.imgModal.toggle()
     },
 
