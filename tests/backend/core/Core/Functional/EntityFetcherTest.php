@@ -14,7 +14,6 @@ namespace Tests\Core\Core\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
@@ -74,7 +73,6 @@ class EntityFetcherTest extends FunctionalTestCase
         $this->sut = $this->getContainer()->get(EntityFetcher::class);
         $this->testProcedure = ProcedureFactory::createOne();
         $orga = OrgaFactory::createOne();
-        // $customer = CustomerFactory::createOne();
 
         $customerService = $this->getContainer()->get(CustomerService::class);
         $currentCustomer = $customerService->getCurrentCustomer();
@@ -86,7 +84,6 @@ class EntityFetcherTest extends FunctionalTestCase
 
         $testUser = $this->getUserReference('testUser');
         $testUser->setOrga($orga->_real());
-        $testUser->setCurrentCustomer($currentCustomer);
 
         $this->procedureResourceType = $this->getContainer()->get(ProcedureResourceType::class);
         $this->statementResourceType = $this->getContainer()->get(StatementResourceType::class);
@@ -97,7 +94,6 @@ class EntityFetcherTest extends FunctionalTestCase
 
         $currentProcedureService->setProcedure($this->testProcedure->_real());
         $this->procedureResourceType->setCurrentProcedureService($currentProcedureService);
-        $this->procedureResourceType->setCustomerService($customerService);
         $this->statementResourceType->setCurrentProcedureService($currentProcedureService);
         $this->condition = $conditionFactory->true();
 
