@@ -473,7 +473,7 @@ export default {
               ? payloadRel.allowedRoles.data.map(el => {
                 return {
                   ...el,
-                  type: 'Role'
+                  type: 'role'
                 }
               })
               : null
@@ -481,7 +481,7 @@ export default {
           currentSlug: {
             data: {
               id: payloadRel.currentSlug.data.id,
-              type: 'Slug'
+              type: 'slug'
             }
           },
           departments: {
@@ -489,7 +489,7 @@ export default {
               ? payloadRel.departments.data.map(el => {
                 return {
                   ...el,
-                  type: 'Department'
+                  type: 'department'
                 }
               })
               : null
