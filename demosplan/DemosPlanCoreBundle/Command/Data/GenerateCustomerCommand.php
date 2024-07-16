@@ -53,7 +53,7 @@ class GenerateCustomerCommand extends CoreCommand
         private readonly CustomerService $customerService,
         private readonly EntityManagerInterface $entityManager,
         ParameterBagInterface $parameterBag,
-        ?string $name = null
+        string $name = null
     ) {
         parent::__construct($parameterBag, $name);
         $this->helper = new QuestionHelper();
