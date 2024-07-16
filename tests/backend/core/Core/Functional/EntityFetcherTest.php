@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Tests\Core\Core\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
@@ -25,6 +26,7 @@ use EDT\JsonApi\RequestHandling\JsonApiSortingParser;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
 use EDT\Querying\Contracts\FunctionInterface;
 use Tests\Base\FunctionalTestCase;
+use Zenstruck\Foundry\Persistence\Proxy;
 
 class EntityFetcherTest extends FunctionalTestCase
 {
@@ -46,7 +48,7 @@ class EntityFetcherTest extends FunctionalTestCase
     /**
      * @var Procedure
      */
-    private $testProcedure;
+    private Procedure|Proxy|null $testProcedure;
 
     /**
      * @var JsonApiSortingParser
@@ -67,18 +69,19 @@ class EntityFetcherTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(EntityFetcher::class);
+        $this->sut = $this->getContainer()->get(EntityFetcher::class);
 
-        $this->testProcedure = $this->getProcedureReference('testProcedure');
+        $this->testProcedure = ProcedureFactory::createOne();
 
-        $this->procedureResourceType = self::$container->get(ProcedureResourceType::class);
-        $this->statementResourceType = self::$container->get(StatementResourceType::class);
+        $this->procedureResourceType = $this->getContainer()->get(ProcedureResourceType::class);
+        $this->statementResourceType = $this->getContainer()->get(StatementResourceType::class);
         /** @var CurrentProcedureService $currentProcedureService */
-        $currentProcedureService = self::$container->get(CurrentProcedureService::class);
-        $conditionFactory = self::$container->get(DqlConditionFactory::class);
-        $this->sortingParser = self::$container->get(JsonApiSortingParser::class);
+        $currentProcedureService =$this->getContainer()->get(CurrentProcedureService::class);
+        $conditionFactory = $this->getContainer()->get(DqlConditionFactory::class);
+        $this->sortingParser = $this->getContainer()->get(JsonApiSortingParser::class);
 
-        $currentProcedureService->setProcedure($this->testProcedure);
+        $currentProcedureService->setProcedure($this->testProcedure->_real());
+        $this->procedureResourceType->setCurrentProcedureService($currentProcedureService);
         $this->statementResourceType->setCurrentProcedureService($currentProcedureService);
         $this->condition = $conditionFactory->true();
 
@@ -89,17 +92,15 @@ class EntityFetcherTest extends FunctionalTestCase
             'feature_json_api_original_statement',
         ]);
 
-        $this->filterParser = self::$container->get(DrupalFilterParser::class);
+        $this->filterParser = $this->getContainer()->get(DrupalFilterParser::class);
     }
 
     public function testGetEntityByIdentifier(): void
     {
-        self::markSkippedForCIIntervention();
 
         $this->enablePermissions(['area_admin_procedures', 'area_search_submitter_in_procedures']);
-        $expected = $this->getProcedureReference(LoadProcedureData::TESTPROCEDURE);
-        $actual = $this->procedureResourceType->getEntity($expected->getId());
-        self::assertSame($expected, $actual);
+        $actual = $this->procedureResourceType->getEntity($this->testProcedure->getId());
+        self::assertSame($this->testProcedure->_real(), $actual);
     }
 
     public function testListStatementsBySubmitName(): void
