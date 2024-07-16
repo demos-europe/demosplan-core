@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\Core\Functional;
 
-use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
@@ -75,9 +74,9 @@ class EntityFetcherTest extends FunctionalTestCase
         $this->sut = $this->getContainer()->get(EntityFetcher::class);
         $this->testProcedure = ProcedureFactory::createOne();
         $orga = OrgaFactory::createOne();
-        //$customer = CustomerFactory::createOne();
+        // $customer = CustomerFactory::createOne();
 
-        $customerService =$this->getContainer()->get(CustomerService::class);
+        $customerService = $this->getContainer()->get(CustomerService::class);
         $currentCustomer = $customerService->getCurrentCustomer();
 
         $this->testProcedure->setDataInputOrganisations([$orga->_real()]);
@@ -94,11 +93,9 @@ class EntityFetcherTest extends FunctionalTestCase
         $this->procedureResourceType = $this->getContainer()->get(ProcedureResourceType::class);
         $this->statementResourceType = $this->getContainer()->get(StatementResourceType::class);
         /** @var CurrentProcedureService $currentProcedureService */
-        $currentProcedureService =$this->getContainer()->get(CurrentProcedureService::class);
+        $currentProcedureService = $this->getContainer()->get(CurrentProcedureService::class);
         $conditionFactory = $this->getContainer()->get(DqlConditionFactory::class);
         $this->sortingParser = $this->getContainer()->get(JsonApiSortingParser::class);
-
-
 
         $currentProcedureService->setProcedure($this->testProcedure->_real());
         $this->procedureResourceType->setCurrentProcedureService($currentProcedureService);
@@ -118,7 +115,6 @@ class EntityFetcherTest extends FunctionalTestCase
 
     public function testGetEntityByIdentifier(): void
     {
-
         $this->enablePermissions(['area_admin_procedures', 'area_search_submitter_in_procedures']);
         $actual = $this->procedureResourceType->getEntity($this->testProcedure->getId());
         self::assertSame($this->testProcedure->_real(), $actual);
