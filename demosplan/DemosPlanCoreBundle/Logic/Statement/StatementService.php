@@ -4580,7 +4580,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         return ToBy::create($propertyName, $direction);
     }
 
-    public function getProcessintStatus($statement): string
+    public function getProcessingStatus($statement): string
     {
         /** @var Collection $segments */
         $segments = $statement->getSegmentsOfStatement();
@@ -4611,16 +4611,16 @@ class StatementService extends CoreService implements StatementServiceInterface
         foreach ($statementsOfProcedure as $statement) {
             /** @var StatementInterface $statement */
             if (!$statement->isOriginal()) {
-                ++$statistics[$this->getProcessintStatus($statement)];
+                ++$statistics[$this->getProcessingStatus($statement)];
             }
         }
 
         return new PercentageDistribution(
             $statistics['new'] + $statistics['processing'] + $statistics['completed'],
             [
-                'statementNewCount'         => $statistics['new'],
-                'statementProcessingCount'  => $statistics['processing'],
-                'statementCompletedCount'   => $statistics['completed'],
+                'statementNewCount'         => $statistics[self::STATEMENT_STATUS_NEW],
+                'statementProcessingCount'  => $statistics[self::STATEMENT_STATUS_PROCESSING],
+                'statementCompletedCount'   => $statistics[self::STATEMENT_STATUS_COMPLETED],
             ]
         );
     }
