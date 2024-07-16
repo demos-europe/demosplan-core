@@ -278,19 +278,8 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                     return '' === $draftsListJson ? null : Json::decodeToArray($draftsListJson);
                 });
             $configBuilder->status->readable(true, function (Statement $statement) {
-                if ($statement->isAlreadySegmented()) {
-                    $segments = $statement->getSegmentsOfStatement();
-                    foreach ($segments as $segment) {
-                        if (!$segment->getPlace()->getSolved()) {
-                            return 'processing';
-                        } else {
-                            return 'completed';
-                        }
-                    }
-                }
-
-                return 'new';
-            });
+                return $this->statementService->getProcessingStatus($statement);
+            })->filterable();
         }
 
         if ($this->currentUser->hasPermission('feature_similar_statement_submitter')) {

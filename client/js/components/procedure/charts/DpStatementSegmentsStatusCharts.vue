@@ -14,15 +14,15 @@
       class="u-mt" />
     <div
       v-else
-      class="u-mt">
+      class="mt-2">
       <div
         v-if="statementsTotal > 0"
         class="layout--flush">
-        <p class="u-mb">
+        <p>
           {{ statementsTotal }} {{ Translator.trans('statements.total') }}
         </p>
         <div
-          class="layout__item text-center u-1-of-3 u-1-of-1-lap-down"
+          class="layout__item text-center u-1-of-3 u-1-of-1-lap-down mt-2"
           v-for="(element, idx) in procedureStatistics"
           :key="`statementCharts_${idx}`">
           <div
@@ -84,26 +84,26 @@ export default {
           this.procedureStatistics = [
             {
               label: Translator.trans('new'),
-              count: absolutes.unsegmented,
-              percentage: percentages.unsegmented,
-              id: 'statementsNew',
-              legendId: 'statementsNewLegend',
+              count: absolutes.statementNewCount,
+              percentage: percentages.statementNewCount,
+              id: 'statementNewCount',
+              legendId: 'statementNewCountLegend',
               color: 'c-chart__color-3-1'
             },
             {
-              label: Translator.trans('segmented'),
-              count: absolutes.segmented,
-              percentage: percentages.segmented,
-              id: 'statementsSegmented',
-              legendId: 'statementsSegmentedLegend',
+              label: Translator.trans('processing'),
+              count: absolutes.statementProcessingCount,
+              percentage: percentages.statementProcessingCount,
+              id: 'statementProcessingCount',
+              legendId: 'statementProcessingCountLegend',
               color: 'c-chart__color-3-2'
             },
             {
-              label: Translator.trans('replied.to'),
-              count: absolutes.recommendationsFinished,
-              percentage: percentages.recommendationsFinished,
-              id: 'statementsRecommendationsFinished',
-              legendId: 'statementsRecommendationsFinishedLegend',
+              label: Translator.trans('completed'),
+              count: absolutes.statementCompletedCount,
+              percentage: percentages.statementCompletedCount,
+              id: 'statementCompletedCount',
+              legendId: 'statementCompletedCountLegend',
               color: 'c-chart__color-3-3'
             }
           ]
