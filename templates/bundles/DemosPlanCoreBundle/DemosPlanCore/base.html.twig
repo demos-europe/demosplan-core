@@ -184,10 +184,8 @@
             {% endblock base_footer %}
 
             {# Generic notification component (for cases where notifications are not handled in other Vue components) #}
-            <notify-container :notifications="JSON.parse('{{ app.session.flashbag.all|json_encode|e('js') }}')"></notify-container>
-
-            {# Vue Modals port their contents here #}
-            <portal-target name="vueModals" multiple></portal-target>
+            <notify-container :notifications="JSON.parse('{{ app.session.flashbag.all|json_encode|e('js') }}')">
+            </notify-container>
 
         </div>{# end #app #}
 

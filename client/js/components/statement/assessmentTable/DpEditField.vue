@@ -141,6 +141,12 @@ export default {
     }
   },
 
+  emits: [
+    'reset',
+    'save',
+    'toggleEditing'
+  ],
+
   data () {
     return {
       //  Is the item currently in editing mode (vs. just displaying its contents)?

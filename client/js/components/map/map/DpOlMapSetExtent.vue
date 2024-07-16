@@ -39,6 +39,10 @@ export default {
     }
   },
 
+  emits: [
+    'extentSet'
+  ],
+
   computed: {
     map () {
       return this.olMapState.map

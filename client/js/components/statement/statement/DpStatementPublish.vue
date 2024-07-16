@@ -74,14 +74,16 @@
 </template>
 
 <script>
+import { defineAsyncComponent } from 'vue'
+
 export default {
   name: 'DpStatementPublish',
 
   components: {
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    }
+    })
   },
 
   props: {

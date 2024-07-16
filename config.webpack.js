@@ -89,7 +89,7 @@ const bundlesConfig = merge(baseConfig, {
       style: config.stylesEntryPoint,
       'style-public': config.publicStylesEntryPoint,
       'preflight': './client/css/preflight.css',
-      'demosplan-ui': './client/css/index.css',
+      'demosplan-ui': resolveDir('./client/css/tailwind.css'), // In the End we will get the styling from demosplan-ui
       ...bundleEntryPoints(config.clientBundleGlob)
     }
   },
@@ -105,7 +105,9 @@ const bundlesConfig = merge(baseConfig, {
   optimization: optimization(),
   plugins: [
     new DefinePlugin({
-      URL_PATH_PREFIX: JSON.stringify(config.urlPathPrefix) // Path prefix for dynamically generated urls
+      URL_PATH_PREFIX: JSON.stringify(config.urlPathPrefix), // Path prefix for dynamically generated urls
+      __VUE_OPTIONS_API__: true,
+      __VUE_PROD_DEVTOOLS__: false
     }),
     new WebpackManifestPlugin({
       fileName: '../../dplan.manifest.json'
@@ -119,7 +121,7 @@ const stylesConfig = merge(baseConfig, {
     return {
       style: config.stylesEntryPoint,
       'style-public': config.publicStylesEntryPoint,
-      'demosplan-ui': './client/css/index.css'
+      'demosplan-ui': './client/css/tailwind.css'
     }
   },
   output: {

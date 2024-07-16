@@ -9,7 +9,6 @@
 
 import { dpApi } from '@demos-europe/demosplan-ui'
 import normalize from 'json-api-normalizer'
-import { set } from 'vue'
 
 const fetchResourcesByProcedureId = (mutationName, url, includes = []) => ({ commit }, procedureId) => {
   return dpApi({
@@ -28,7 +27,7 @@ const getItemById = (key) => (state) => (id) => {
 }
 
 const setItem = (key) => (state, value) => {
-  set(state, key, value)
+  state[key] = value
 }
 
 export { normalize, fetchResourcesByProcedureId, getItemById, setItem }
