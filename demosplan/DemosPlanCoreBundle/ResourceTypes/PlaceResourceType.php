@@ -112,7 +112,6 @@ final class PlaceResourceType extends DplanResourceType
             $configBuilder->name->updatable()->initializable(false, null, true);
             $configBuilder->solved->updatable()->initializable(true);
             $configBuilder->description->updatable()->initializable(true);
-            $configBuilder->solved->updatable()->initializable(true);
         }
 
         $configBuilder->addConstructorBehavior(
