@@ -278,7 +278,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                     return '' === $draftsListJson ? null : Json::decodeToArray($draftsListJson);
                 });
             $configBuilder->status->readable(true, function (Statement $statement) {
-                $this->statementService->getProcessintStatus($statement);
+                return $this->statementService->getProcessintStatus($statement);
             })->filterable();
         }
 
