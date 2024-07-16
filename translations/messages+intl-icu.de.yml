@@ -903,10 +903,10 @@ docx.export.preamble: |
     <p>Bitte beachten Sie, dass Darstellungen im Text referenziert und unter der jeweiligen Stellungnahme oder Einwendung angezeigt werden.</p>
     <p>Die Verweise auf Darstellungen sind wie folgt strukturiert:</p>
     <p>- In Erwiderungstexten:</p>
-    <p>    &lt;ID_der_Stellungnahme/Einwendung&gt;_Darstellung_Erw_&lt;laufende_Nummer&gt;</p>
+    <p>    &lt;ID der Stellungnahme/Einwendung&gt;_Darstellung_Erw_&lt;laufende Nummer&gt;</p>
 
     <p>- In Stellungnahme-/Einwendungstexten:</p>
-    <p>    &lt;ID_der_Stellungnahme/Einwendung&gt;_Darstellung_Stell_&lt;laufende_Nummer&gt;</p>
+    <p>    &lt;ID der Stellungnahme/Einwendung&gt;_Darstellung_Stell_&lt;laufende Nummer&gt;</p>
 
     <p>Beispiel:</p>
     <p>- Für eine Abbildung in einem Erwiderungstext: M12_Darstellung_Erw_001</p>
@@ -1605,7 +1605,7 @@ export.type: "Art des Exports"
 export.verb: "Exportieren"
 export.xls: "XLS"
 export.xlsx: "XLSX"
-export.xlsx.hint: "Bei diesem Export werden keine Bilder exportiert."
+export.xlsx.hint: "Achtung: Darstellungen aus Stellungnahmen oder Erwiderungen, werden nicht im Excel-Export angezeigt."
 export.zip: "ZIP"
 exported.on: "Exportiert am {date} um {time} Uhr."
 
