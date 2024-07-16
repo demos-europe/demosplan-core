@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
@@ -68,18 +76,18 @@ final class StatementMetaFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'authorFeedback' => self::faker()->boolean(),
-            'authorName' => self::faker()->text(255),
-            'caseWorkerName' => self::faker()->text(255),
-            'houseNumber' => self::faker()->text(255),
-            'orgaCity' => self::faker()->text(255),
+            'authorFeedback'     => self::faker()->boolean(),
+            'authorName'         => self::faker()->text(255),
+            'caseWorkerName'     => self::faker()->text(255),
+            'houseNumber'        => self::faker()->text(255),
+            'orgaCity'           => self::faker()->text(255),
             'orgaDepartmentName' => self::faker()->text(255),
-            'orgaEmail' => self::faker()->text(255),
-            'orgaName' => self::faker()->text(255),
-            'orgaPostalCode' => self::faker()->text(255),
-            'orgaStreet' => self::faker()->text(255),
-            'statement' => StatementFactory::new(),
-            'submitName' => self::faker()->text(255),
+            'orgaEmail'          => self::faker()->text(255),
+            'orgaName'           => self::faker()->text(255),
+            'orgaPostalCode'     => self::faker()->text(255),
+            'orgaStreet'         => self::faker()->text(255),
+            'statement'          => StatementFactory::new(),
+            'submitName'         => self::faker()->text(255),
         ];
     }
 
