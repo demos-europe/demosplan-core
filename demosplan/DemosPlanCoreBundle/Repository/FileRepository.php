@@ -30,7 +30,7 @@ class FileRepository extends FluentRepository implements ArrayInterface, ObjectI
     /**
      * Hole Infos zum File.
      */
-    public function getFileInfo(string $hash, string $procedureId = null): ?File
+    public function getFileInfo(string $hash, ?string $procedureId = null): ?File
     {
         // Der übergebene Hash ist der Ident der Datenbank
         // Die Spalte Hash bezeichnet den Namen, unter dem die Datei auf dem
