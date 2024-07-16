@@ -14,15 +14,15 @@
       class="u-mt" />
     <div
       v-else
-      class="u-mt">
+      class="mt-2">
       <div
         v-if="statementsTotal > 0"
         class="layout--flush">
-        <p class="u-mb">
+        <p>
           {{ statementsTotal }} {{ Translator.trans('statements.total') }}
         </p>
         <div
-          class="layout__item text-center u-1-of-3 u-1-of-1-lap-down"
+          class="layout__item text-center u-1-of-3 u-1-of-1-lap-down mt-2"
           v-for="(element, idx) in procedureStatistics"
           :key="`statementCharts_${idx}`">
           <div
