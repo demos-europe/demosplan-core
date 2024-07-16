@@ -121,17 +121,12 @@ class EntityFetcherTest extends FunctionalTestCase
 
     public function testListStatementsBySubmitName(): void
     {
-        // Step 1: Create a Procedure
-
-        $originalStatement = StatementFactory::createOne();
-        // Step 2 & 3: Create Multiple Statements with StatementMeta and associate them with the Procedure
+        // Create Multiple Statements with StatementMeta and associate them with the Procedure
         $submitNames = ['Charlie', 'Bravo', 'Delta', 'Alpha']; // Example submitNames for sorting
         foreach ($submitNames as $submitName) {
             $originalStatement = StatementFactory::new()->create(['procedure' => $this->testProcedure]);
             $statement = StatementFactory::new()->create(['procedure' => $this->testProcedure, 'original' => $originalStatement]);
             StatementMetaFactory::new()->create(['submitName' => $submitName, 'statement' => $statement]);
-            //$statement->setMeta(StatementMetaFactory::new()->create(['submitName' => $submitName]));
-            $meta = $statement->getMeta();
         }
 
 
@@ -140,7 +135,7 @@ class EntityFetcherTest extends FunctionalTestCase
         $referenceStatements = $this->getStatementListSortedBySubmitName($this->testProcedure->getId(), 'submitName');
         $statements = $this->statementResourceType->getEntities([$this->condition], $sortMethods);
 
-        //static::assertSameSize($referenceStatements, $statements);
+        static::assertSameSize($referenceStatements, $statements);
         $count = 0;
         foreach ($referenceStatements as $referenceStatement) {
             static::assertSame($referenceStatement->getMeta()->getSubmitName(), $statements[$count]->getMeta()->getSubmitName());
