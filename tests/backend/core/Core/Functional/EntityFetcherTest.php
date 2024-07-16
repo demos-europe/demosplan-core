@@ -13,11 +13,14 @@ declare(strict_types=1);
 namespace Tests\Core\Core\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use Doctrine\ORM\Query\QueryException;
@@ -70,8 +73,23 @@ class EntityFetcherTest extends FunctionalTestCase
         parent::setUp();
 
         $this->sut = $this->getContainer()->get(EntityFetcher::class);
-
         $this->testProcedure = ProcedureFactory::createOne();
+        $orga = OrgaFactory::createOne();
+        //$customer = CustomerFactory::createOne();
+
+        $customerService =$this->getContainer()->get(CustomerService::class);
+        $currentCustomer = $customerService->getCurrentCustomer();
+
+        $this->testProcedure->setDataInputOrganisations([$orga->_real()]);
+        $this->testProcedure->_save();
+        $this->testProcedure->setOrga($orga->_real());
+        $this->testProcedure->_save();
+        $this->testProcedure->setCustomer($currentCustomer);
+        $this->testProcedure->_save();
+
+        $testUser = $this->getUserReference('testUser');
+        $testUser->setOrga($orga->_real());
+        $testUser->setCurrentCustomer($currentCustomer);
 
         $this->procedureResourceType = $this->getContainer()->get(ProcedureResourceType::class);
         $this->statementResourceType = $this->getContainer()->get(StatementResourceType::class);
@@ -80,8 +98,11 @@ class EntityFetcherTest extends FunctionalTestCase
         $conditionFactory = $this->getContainer()->get(DqlConditionFactory::class);
         $this->sortingParser = $this->getContainer()->get(JsonApiSortingParser::class);
 
+
+
         $currentProcedureService->setProcedure($this->testProcedure->_real());
         $this->procedureResourceType->setCurrentProcedureService($currentProcedureService);
+        $this->procedureResourceType->setCustomerService($customerService);
         $this->statementResourceType->setCurrentProcedureService($currentProcedureService);
         $this->condition = $conditionFactory->true();
 
