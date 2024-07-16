@@ -242,6 +242,9 @@ class SegmentsExporter
     {
         // Add images after all segments of one statement.
         $images = $this->imageLinkConverter->getImages();
+        if ([] === $images) {
+            return;
+        }
         $imageSpaceCurrentlyUsed = 0;
         $section->addPageBreak();
         foreach ($images as $imageReference => $imagePath) {
