@@ -130,17 +130,16 @@ class EntityFetcherTest extends FunctionalTestCase
             $originalStatement = StatementFactory::new()->create(['procedure' => $this->testProcedure]);
             $statement = StatementFactory::new()->create(['procedure' => $this->testProcedure, 'original' => $originalStatement]);
             StatementMetaFactory::new()->create(['submitName' => $submitName, 'statement' => $statement]);
-            //$statement->setMeta(StatementMetaFactory::new()->create(['submitName' => $submitName]));
+            // $statement->setMeta(StatementMetaFactory::new()->create(['submitName' => $submitName]));
             $meta = $statement->getMeta();
         }
-
 
         $sortMethods = $this->sortingParser->createFromQueryParamValue('submitName');
 
         $referenceStatements = $this->getStatementListSortedBySubmitName($this->testProcedure->getId(), 'submitName');
         $statements = $this->statementResourceType->getEntities([$this->condition], $sortMethods);
 
-        //static::assertSameSize($referenceStatements, $statements);
+        // static::assertSameSize($referenceStatements, $statements);
         $count = 0;
         foreach ($referenceStatements as $referenceStatement) {
             static::assertSame($referenceStatement->getMeta()->getSubmitName(), $statements[$count]->getMeta()->getSubmitName());
