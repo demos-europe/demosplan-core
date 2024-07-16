@@ -129,7 +129,6 @@ class EntityFetcherTest extends FunctionalTestCase
             StatementMetaFactory::new()->create(['submitName' => $submitName, 'statement' => $statement]);
         }
 
-
         $sortMethods = $this->sortingParser->createFromQueryParamValue('submitName');
 
         $referenceStatements = $this->getStatementListSortedBySubmitName($this->testProcedure->getId(), 'submitName');
