@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\Core\Functional;
 
-use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -76,7 +75,7 @@ class EntityFetcherTest extends FunctionalTestCase
         $this->procedureResourceType = $this->getContainer()->get(ProcedureResourceType::class);
         $this->statementResourceType = $this->getContainer()->get(StatementResourceType::class);
         /** @var CurrentProcedureService $currentProcedureService */
-        $currentProcedureService =$this->getContainer()->get(CurrentProcedureService::class);
+        $currentProcedureService = $this->getContainer()->get(CurrentProcedureService::class);
         $conditionFactory = $this->getContainer()->get(DqlConditionFactory::class);
         $this->sortingParser = $this->getContainer()->get(JsonApiSortingParser::class);
 
@@ -97,7 +96,6 @@ class EntityFetcherTest extends FunctionalTestCase
 
     public function testGetEntityByIdentifier(): void
     {
-
         $this->enablePermissions(['area_admin_procedures', 'area_search_submitter_in_procedures']);
         $actual = $this->procedureResourceType->getEntity($this->testProcedure->getId());
         self::assertSame($this->testProcedure->_real(), $actual);
