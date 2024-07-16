@@ -74,17 +74,10 @@ class EntityFetcherTest extends FunctionalTestCase
         parent::setUp();
 
         $this->sut = $this->getContainer()->get(EntityFetcher::class);
-        $this->testProcedure = ProcedureFactory::createOne();
-        $orga = OrgaFactory::createOne();
-
         $customerService = $this->getContainer()->get(CustomerService::class);
         $currentCustomer = $customerService->getCurrentCustomer();
-
-        $this->testProcedure->setOrga($orga->_real());
-        $this->testProcedure->_save();
-        $this->testProcedure->setCustomer($currentCustomer);
-        $this->testProcedure->_save();
-
+        $orga = OrgaFactory::createOne();
+        $this->testProcedure = ProcedureFactory::createOne(['orga' => $orga, 'customer' => $currentCustomer]);
         ProcedureSettingsFactory::createOne(['procedure' => $this->testProcedure]);
 
         $testUser = $this->getUserReference('testUser');
