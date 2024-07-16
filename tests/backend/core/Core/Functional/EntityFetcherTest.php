@@ -80,6 +80,8 @@ class EntityFetcherTest extends FunctionalTestCase
         $this->testProcedure = ProcedureFactory::createOne(['orga' => $orga, 'customer' => $currentCustomer]);
         ProcedureSettingsFactory::createOne(['procedure' => $this->testProcedure]);
 
+        $this->populateProcedureWithStatements();
+
         $testUser = $this->getUserReference('testUser');
         $testUser->setOrga($orga->_real());
 
@@ -105,6 +107,17 @@ class EntityFetcherTest extends FunctionalTestCase
         $this->filterParser = $this->getContainer()->get(DrupalFilterParser::class);
     }
 
+    private function populateProcedureWithStatements():void
+    {
+        // Create Multiple Statements with StatementMeta and associate them with the Procedure
+        $submitNames = ['Charlie', 'Bravo', 'Delta', 'Alpha']; // Example submitNames for sorting
+        foreach ($submitNames as $submitName) {
+            $originalStatement = StatementFactory::new()->create(['procedure' => $this->testProcedure]);
+            $statement = StatementFactory::new()->create(['procedure' => $this->testProcedure, 'original' => $originalStatement]);
+            StatementMetaFactory::new()->create(['submitName' => $submitName, 'statement' => $statement]);
+        }
+    }
+
     public function testGetEntityByIdentifier(): void
     {
         $this->enablePermissions(['area_admin_procedures', 'area_search_submitter_in_procedures']);
@@ -114,14 +127,6 @@ class EntityFetcherTest extends FunctionalTestCase
 
     public function testListStatementsBySubmitName(): void
     {
-        // Create Multiple Statements with StatementMeta and associate them with the Procedure
-        $submitNames = ['Charlie', 'Bravo', 'Delta', 'Alpha']; // Example submitNames for sorting
-        foreach ($submitNames as $submitName) {
-            $originalStatement = StatementFactory::new()->create(['procedure' => $this->testProcedure]);
-            $statement = StatementFactory::new()->create(['procedure' => $this->testProcedure, 'original' => $originalStatement]);
-            StatementMetaFactory::new()->create(['submitName' => $submitName, 'statement' => $statement]);
-        }
-
         $sortMethods = $this->sortingParser->createFromQueryParamValue('submitName');
 
         $referenceStatements = $this->getStatementListSortedBySubmitName($this->testProcedure->getId(), 'submitName');
@@ -137,13 +142,6 @@ class EntityFetcherTest extends FunctionalTestCase
 
     public function testListStatementsBySubmitDate(): void
     {
-        $submitNames = ['Charlie', 'Bravo', 'Delta', 'Alpha']; // Example submitNames for sorting
-        foreach ($submitNames as $submitName) {
-            $originalStatement = StatementFactory::new()->create(['procedure' => $this->testProcedure]);
-            $statement = StatementFactory::new()->create(['procedure' => $this->testProcedure, 'original' => $originalStatement]);
-            StatementMetaFactory::new()->create(['submitName' => $submitName, 'statement' => $statement]);
-        }
-
         $sortMethods = $this->sortingParser->createFromQueryParamValue('submitDate');
 
         $referenceStatements = $this->getStatementListSortedBySubmitName($this->testProcedure->getId(), 'submitDate');
