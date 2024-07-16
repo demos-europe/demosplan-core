@@ -4626,9 +4626,9 @@ class StatementService extends CoreService implements StatementServiceInterface
             $statistics[self::STATEMENT_STATUS_PROCESSING] +
             $statistics[self::STATEMENT_STATUS_COMPLETED],
             [
-                'statementNewCount'         => $statistics[self::STATEMENT_STATUS_NEW],
-                'statementProcessingCount'  => $statistics[self::STATEMENT_STATUS_PROCESSING],
-                'statementCompletedCount'   => $statistics[self::STATEMENT_STATUS_COMPLETED],
+                self::STATEMENT_STATUS_NEW_COUNT         => $statistics[self::STATEMENT_STATUS_NEW],
+                self::STATEMENT_STATUS_PROCESSING_COUNT  => $statistics[self::STATEMENT_STATUS_PROCESSING],
+                self::STATEMENT_STATUS_COMPLETED_COUNT   => $statistics[self::STATEMENT_STATUS_COMPLETED],
             ]
         );
     }
