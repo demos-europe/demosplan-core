@@ -79,8 +79,6 @@ class EntityFetcherTest extends FunctionalTestCase
         $customerService = $this->getContainer()->get(CustomerService::class);
         $currentCustomer = $customerService->getCurrentCustomer();
 
-        $this->testProcedure->setDataInputOrganisations([$orga->_real()]);
-        $this->testProcedure->_save();
         $this->testProcedure->setOrga($orga->_real());
         $this->testProcedure->_save();
         $this->testProcedure->setCustomer($currentCustomer);
