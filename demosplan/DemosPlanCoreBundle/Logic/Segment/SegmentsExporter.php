@@ -56,7 +56,7 @@ class SegmentsExporter
         private readonly HTMLSanitizer $htmlSanitizer,
         Slugify $slugify,
         TranslatorInterface $translator,
-        private readonly ImageLinkConverter $imageLinkConverter
+        protected readonly ImageLinkConverter $imageLinkConverter
     ) {
         $this->translator = $translator;
         $this->initializeStyles();
@@ -229,8 +229,7 @@ class SegmentsExporter
     private function addSegmentsTable(Section $section, Statement $statement, array $tableHeaders): void
     {
         $table = $this->addSegmentsTableHeader($section, $tableHeaders);
-        $sortedSegments = $statement->getSegmentsOfStatement()->toArray();
-        uasort($sortedSegments, static fn (Segment $segmentA, Segment $segmentB) => $segmentA->getOrderInProcedure() - $segmentB->getOrderInProcedure());
+        $sortedSegments = $this->sortSegmentsByOrderInProcedure($statement->getSegmentsOfStatement()->toArray());
 
         foreach ($sortedSegments as $segment) {
             $this->addSegmentTableBody($table, $segment, $statement->getExternId());
@@ -279,6 +278,18 @@ class SegmentsExporter
 
         // remove already printed images
         $this->imageLinkConverter->resetImages();
+    }
+
+    protected function sortSegmentsByOrderInProcedure(array $segments): array
+    {
+        uasort($segments, [$this, 'compareOrderInProcedure']);
+
+        return $segments;
+    }
+
+    private function compareOrderInProcedure(Segment $segmentA, Segment $segmentB): int
+    {
+        return $segmentA->getOrderInProcedure() - $segmentB->getOrderInProcedure();
     }
 
     private function getMaxWidthAndHeight(): array

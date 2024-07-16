@@ -37,26 +37,30 @@ final class ImageLinkConverter
     {
     }
 
-    public function convert(string $html5, string $statementExternId): string
+    public function convert(string $html5, string $statementExternId, bool $asLinkedReference = true): string
     {
         $xml = str_replace('<br>', '<br/>', $html5);
 
         return preg_replace_callback(
             '/<img(.*?)(src="(.*?)")(.*?)\/?>/i',
-            fn (array $matches) => $this->processImageTag($matches, $statementExternId),
+            fn (array $matches) => $this->processImageTag($matches, $statementExternId, $asLinkedReference),
             $xml
         );
     }
 
-    private function processImageTag(array $matches, string $statementExternId): string
+    private function processImageTag(array $matches, string $statementExternId, bool $asLinkedReference): string
     {
         $src = $matches[3];
         $srcParts = explode('/', $src);
         $hash = $srcParts[array_key_last($srcParts)];
 
         $imageReference = sprintf('%s_Darstellung_Erw_%03d', $statementExternId, $this->imageCounter);
-        $imageReferenceLink = '<a href="#'.$imageReference.'" style="color: blue; text-decoration: underline;">'
-            .$imageReference.'</a>';
+        $imageReferenceLink = $imageReference;
+        if ($asLinkedReference) {
+            $imageReferenceLink = '<a href="#'.$imageReference.'" style="color: blue; text-decoration: underline;">'
+                .$imageReference.'</a>';
+        }
+
         $this->images[$imageReference] = $this->getAbsoluteImagePath($hash);
         ++$this->imageCounter;
 
