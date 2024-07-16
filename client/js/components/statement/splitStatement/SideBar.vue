@@ -38,6 +38,7 @@
             <button
               type="button"
               class="tag__remove btn--blank o-link--default ml-1"
+              data-cy="sidebar:removeTag"
               @click="removeTag(tag.id)">
               <dp-icon
                 icon="close"
@@ -54,7 +55,7 @@
         aria-controls="tags"
         :aria-expanded="isCollapsed.tags"
         class="bg-white rounded shadow absolute right-[-24px] bottom-[-36px] p-0.5"
-        data-cy=""
+        data-cy="sidebar:floatingContextButton:tags"
         @click="toggleVisibility('tags')"
         @mouseover="showFloatingContextButton.tags = true"
         @mouseleave="showFloatingContextButton.tags = false">
@@ -76,6 +77,7 @@
 
       <button
         v-if="!isCollapsed.tags"
+        data-cy="sidebar:toggleVisibility:tags"
         @click="toggleVisibility('tags')"
         class="relative btn--blank o-link--default font-semibold w-full text-left pr-2">
         {{ Translator.trans('tags.select') }}
@@ -135,7 +137,7 @@
         aria-controls="placesAndAssignee"
         :aria-expanded="isCollapsed.placesAndAssignee"
         class="bg-white rounded shadow absolute right-[-24px] top-0 p-0.5"
-        data-cy=""
+        data-cy="sidebar:floatingContextButton:placesAndAssignee"
         @click="toggleVisibility('placesAndAssignee')"
         @mouseover="showFloatingContextButton.placesAndAssignee = true"
         @mouseleave="showFloatingContextButton.placesAndAssignee = false">
@@ -148,6 +150,7 @@
 
       <button
         v-if="!isCollapsed.placesAndAssignee"
+        data-cy="sidebar:toggleVisibility:placesAndAssignee"
         @click="toggleVisibility('placesAndAssignee')"
         class="relative btn--blank o-link--default font-semibold text-left w-full">
         {{ Translator.trans('workflow.place') }}
