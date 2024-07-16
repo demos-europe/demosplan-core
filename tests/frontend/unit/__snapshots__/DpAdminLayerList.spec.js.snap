@@ -1,62 +1,74 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`DpAdminLayerList should render a empty admin layer list 1`] = `
-"<div class=\\"relative\\">
-  <div class=\\"layout--flush u-mt\\">
-    <h3 class=\\"layout__item u-1-of-3\\">
-      map.overlays
-    </h3>
-    <div class=\\"layout__item u-2-of-3 text-right\\"><button class=\\"btn--blank o-link--default\\">
-        map.set.order.tree
-      </button> <button class=\\"btn--blank o-link--default u-ml\\">
-        map.set.order.map
-      </button></div>
-  </div>
-  <div class=\\"color--grey u-mb-0_25 u-mt-0_5 u-mr-0_5\\">
-    <div class=\\"c-at-item__row-icon layout__item u-pl-0\\"></div>
-    <div class=\\"layout--flush layout__item c-at-item__row u-pl-0_5\\">
-      <div class=\\"layout__item u-9-of-12\\">
-        description
-      </div>
-      <div class=\\"layout__item u-1-of-12 text-right\\"><i class=\\"fa fa-link u-mr-0_5 has-tooltip\\" data-original-title=\\"null\\"></i></div>
-      <div class=\\"layout__item u-1-of-12 text-right\\"><i class=\\"fa fa-eye u-mr-0_5 has-tooltip\\" data-original-title=\\"null\\"></i></div>
-      <div class=\\"layout__item u-1-of-12 text-right\\">
-        edit
-      </div>
+exports[`AdminLayerList should render a empty admin layer list 1`] = `
+"<fieldset id=\\"gisLayers\\">
+  <div class=\\"flex\\">
+    <legend class=\\"w-1/4\\">
+      gislayer
+    </legend>
+    <div class=\\"w-3/4 text-right\\">
+      <dp-split-button-stub><a data-cy=\\"createNewGisLayer\\" href=\\"DemosPlan_map_administration_gislayer_new\\" class=\\"btn btn--primary has-dropdown\\">
+          gislayer.create
+        </a></dp-split-button-stub>
     </div>
   </div>
-  <!---->
-  <dp-loading-stub class=\\"list__item u-pv-0_5 border--top\\"></dp-loading-stub>
-  <!---->
-  <h3 class=\\"u-mt\\">
-    map.bases
-  </h3>
-  <div class=\\"color--grey u-mb-0_25 u-mt-0_5 u-mr-0_5\\">
-    <div class=\\"c-at-item__row-icon layout__item u-pl-0\\"></div>
-    <div class=\\"layout--flush layout__item c-at-item__row\\">
-      <div class=\\"layout__item u-10-of-12 u-pl-0_5\\">
-        description
-      </div>
-      <div class=\\"layout__item u-1-of-12 text-right\\"><i class=\\"fa fa-eye u-mr-0_5 has-tooltip\\" data-original-title=\\"null\\"></i></div>
-      <div class=\\"layout__item u-1-of-12 text-right\\">
-        edit
+  <div class=\\"relative\\">
+    <div class=\\"u-mt flex\\">
+      <h3 class=\\"flex-1 w-1/3\\">
+        map.overlays
+      </h3>
+      <div class=\\"flex-1 w-2/3 text-right\\"><button class=\\"btn--blank o-link--default\\">
+          map.set.order.tree
+        </button> <button class=\\"btn--blank o-link--default u-ml\\">
+          map.set.order.map
+        </button></div>
+    </div>
+    <div class=\\"color--grey u-mb-0_25 u-mt-0_5 u-mr-0_5\\">
+      <div class=\\"c-at-item__row-icon u-pl-0\\"></div>
+      <div class=\\"flex u-pl-0_5\\">
+        <div class=\\"flex-1\\">
+          description
+        </div>
+        <div class=\\"w-1/12 text-right\\"><i class=\\"fa fa-link u-mr-0_5 has-tooltip\\" data-original-title=\\"null\\"></i></div>
+        <div class=\\"w-1/12 text-right\\"><i class=\\"fa fa-eye u-mr-0_5 has-tooltip\\" data-original-title=\\"null\\"></i></div>
+        <div class=\\"w-1/12 text-right\\">
+          edit
+        </div>
       </div>
     </div>
-  </div>
-  <!---->
-  <div class=\\"layout--flush u-mt u-mb\\">
-    <h3 class=\\"layout__item u-1-of-3\\">
-      map.base.minimap
+    <!---->
+    <dp-loading-stub class=\\"list__item u-pv-0_5 border--top\\"></dp-loading-stub>
+    <!---->
+    <h3 class=\\"u-mt\\">
+      map.bases
     </h3>
-    <div class=\\"layout__item u-2-of-3\\"><select class=\\"o-form__control-select\\">
-        <option value=\\"[object Object]\\">
-          selection.no
-        </option>
-      </select></div>
-    <p class=\\"font-size-small\\">
-      map.base.minimap.hint
-    </p>
+    <div class=\\"color--grey u-mb-0_25 u-mt-0_5 u-mr-0_5\\">
+      <div class=\\"c-at-item__row-icon u-pl-0\\"></div>
+      <div class=\\"flex c-at-item__row\\">
+        <div class=\\"flex-1 u-pl-0_5\\">
+          description
+        </div>
+        <div class=\\"w-1/12 text-right\\"><i class=\\"fa fa-eye u-mr-0_5 has-tooltip\\" data-original-title=\\"null\\"></i></div>
+        <div class=\\"w-1/12 text-right\\">
+          edit
+        </div>
+      </div>
+    </div>
+    <!---->
+    <div class=\\"flex u-mt u-mb\\">
+      <h3 class=\\"w-1/3\\">
+        map.base.minimap
+      </h3>
+      <div class=\\"w-2/3\\"><select data-cy=\\"adminLayerList:currentMinimapLayer\\" class=\\"o-form__control-select\\">
+          <option value=\\"[object Object]\\">
+            selection.no
+          </option>
+        </select></div>
+      <p class=\\"font-size-small\\">
+        map.base.minimap.hint
+      </p>
+    </div>
+    <!---->
   </div>
-  <!---->
-</div>"
+</fieldset>"
 `;

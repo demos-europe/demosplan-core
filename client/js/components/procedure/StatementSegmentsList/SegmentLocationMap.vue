@@ -16,6 +16,7 @@
     <div class="c-slidebar__content overflow-y-auto u-mr">
       <dp-ol-map
         ref="map"
+        :layers="mapData.layers"
         :procedure-id="procedureId"
         :map-options="{
           procedureMaxExtent: mapData.mapExtent ?? []
@@ -23,7 +24,7 @@
         :options="{
           autoSuggest: false,
           defaultAttribution: mapData.copyright,
-          initialExtent: mapData.boundingBox ?? [],
+          initialExtent: mapData.boundingBox ?? mapData.mapExtent ?? []
         }">
         <template v-if="hasPermission('feature_segment_polygon_set')">
           <dp-ol-map-draw-feature
@@ -165,24 +166,6 @@ export default {
       }
     },
 
-    features () {
-      /*
-       *  Transform the value that is saved as a string into valid GeoJSON
-       *  to be able to use it with a generic vector layer component
-       */
-      return {
-        boundingBox: this.mapData.boundingBox
-          ? {
-              type: 'Feature',
-              geometry: {
-                type: 'Polygon',
-                coordinates: fromExtent(JSON.parse(`[${this.mapData.boundingBox}]`)).getCoordinates()
-              }
-            }
-          : null
-      }
-    },
-
     lineData () {
       return {
         type: 'FeatureCollection',
@@ -221,7 +204,7 @@ export default {
           this.$nextTick(() => {
             this.setCenterAndExtent()
           })
-        } else if (this.mapData.boundingBox) {
+        } else if (this.mapData.boundingBox.length > 0) {
           this.$nextTick(() => {
             this.setInitExtent()
           })

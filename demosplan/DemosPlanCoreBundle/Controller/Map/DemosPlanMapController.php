@@ -94,7 +94,7 @@ class DemosPlanMapController extends BaseController
      *
      * @throws MessageBagException
      */
-    #[Route(name: 'DemosPlan_map_administration_gislayer_new', path: '/verfahren/{procedure}/verwalten/gislayer/neu')]
+    #[Route(name: 'DemosPlan_map_administration_gislayer_new', path: '/verfahren/{procedure}/verwalten/gislayer/neu', options: ['expose' => true])]
     public function mapAdminGislayerNewAction(
         Breadcrumb $breadcrumb,
         FileUploadService $fileUploadService,

@@ -38,21 +38,15 @@ class SegmentsExporter
     /**
      * @var array<string, mixed>
      */
-    protected $styles;
+    protected array $styles;
 
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
+    protected TranslatorInterface $translator;
 
-    /**
-     * @var Slugify
-     */
-    protected $slugify;
+    protected Slugify $slugify;
 
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
-        private readonly HTMLSanitizer $HTMLSanitizer,
+        private readonly HTMLSanitizer $htmlSanitizer,
         Slugify $slugify,
         TranslatorInterface $translator)
     {
@@ -64,7 +58,7 @@ class SegmentsExporter
     /**
      * @throws Exception
      */
-    public function export(Procedure $procedure, Statement $statement): WriterInterface
+    public function export(Procedure $procedure, Statement $statement, array $tableHeaders): WriterInterface
     {
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $phpWord->addFontStyle('global', $this->styles['globalFont']);
@@ -72,7 +66,7 @@ class SegmentsExporter
         $this->addHeader($section, $procedure);
         $this->addStatementInfo($section, $statement);
         $this->addSimilarStatementSubmitters($section, $statement);
-        $this->addSegments($section, $statement);
+        $this->addSegments($section, $statement, $tableHeaders);
         $this->addFooter($section, $statement);
 
         return IOFactory::createWriter($phpWord);
@@ -119,7 +113,7 @@ class SegmentsExporter
                 $submitter->getStreetNameWithStreetNumber(),
                 $submitter->getPostalCodeWithCity(),
             ];
-            $values = array_filter($values, fn (?string $value): bool =>null !== $value);
+            $values = array_filter($values, static fn (?string $value): bool =>null !== $value);
             $values = implode(', ', $values);
             $values = trim($values);
             if ('' !== $values) {
@@ -180,12 +174,12 @@ class SegmentsExporter
         $section->addTextBreak(2);
     }
 
-    protected function addSegments(Section $section, Statement $statement): void
+    protected function addSegments(Section $section, Statement $statement, array $tableHeaders): void
     {
         if ($statement->getSegmentsOfStatement()->isEmpty()) {
             $this->addNoSegmentsMessage($section);
         } else {
-            $this->addSegmentsTable($section, $statement);
+            $this->addSegmentsTable($section, $statement, $tableHeaders);
         }
     }
 
@@ -213,9 +207,9 @@ class SegmentsExporter
         $section->addText($noEntriesMessage, $this->styles['noInfoMessageFont']);
     }
 
-    private function addSegmentsTable(Section $section, Statement $statement): void
+    private function addSegmentsTable(Section $section, Statement $statement, array $tableHeaders): void
     {
-        $table = $this->addSegmentsTableHeader($section);
+        $table = $this->addSegmentsTableHeader($section, $tableHeaders);
         $sortedSegments = $statement->getSegmentsOfStatement()->toArray();
         uasort($sortedSegments, static fn (Segment $segmentA, Segment $segmentB) => $segmentA->getOrderInProcedure() - $segmentB->getOrderInProcedure());
 
@@ -224,7 +218,7 @@ class SegmentsExporter
         }
     }
 
-    private function addSegmentsTableHeader(Section $section): Table
+    private function addSegmentsTableHeader(Section $section, array $tableHeaders): Table
     {
         $table = $section->addTable($this->styles['segmentsTable']);
         $headerRow = $table->addRow(
@@ -233,17 +227,29 @@ class SegmentsExporter
         );
         $this->addSegmentCell(
             $headerRow,
-            $this->translator->trans('segments.export.segment.id'),
+            htmlspecialchars(
+                $tableHeaders['col1'] ?? $this->translator->trans('segments.export.segment.id'),
+                ENT_NOQUOTES,
+                'UTF-8'
+            ),
             $this->styles['segmentsTableHeaderCellID']
         );
         $this->addSegmentCell(
             $headerRow,
-            $this->translator->trans('segments.export.statement.label'),
+            htmlspecialchars(
+                $tableHeaders['col2'] ?? $this->translator->trans('segments.export.statement.label'),
+                ENT_NOQUOTES,
+                'UTF-8'
+            ),
             $this->styles['segmentsTableHeaderCell']
         );
         $this->addSegmentCell(
             $headerRow,
-            $this->translator->trans('segment.recommendation'),
+            htmlspecialchars(
+                $tableHeaders['col3'] ?? $this->translator->trans('segment.recommendation'),
+                ENT_NOQUOTES,
+                'UTF-8'
+            ),
             $this->styles['segmentsTableHeaderCell']
         );
 
@@ -281,6 +287,7 @@ class SegmentsExporter
 
     private function getHtmlValidText(string $text): string
     {
+        /** @var string $text $text */
         $text = str_replace('<br>', '<br/>', $text);
 
         // strip all a tags without href
@@ -288,7 +295,7 @@ class SegmentsExporter
         $text = preg_replace($pattern, '$3', $text);
 
         // avoid problems in phpword parser
-        return $this->HTMLSanitizer->purify($text);
+        return $this->htmlSanitizer->purify($text);
     }
 
     private function addSegmentCell(Row $row, string $text, CellExportStyle $cellExportStyle): void
