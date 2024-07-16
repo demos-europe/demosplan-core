@@ -56,7 +56,6 @@ final class StatementMetaFactory extends PersistentProxyObjectFactory
 {
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
-     *
      */
     public function __construct()
     {
@@ -69,7 +68,6 @@ final class StatementMetaFactory extends PersistentProxyObjectFactory
 
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
-     *
      */
     protected function defaults(): array|callable
     {
