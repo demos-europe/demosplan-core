@@ -137,7 +137,12 @@ class EntityFetcherTest extends FunctionalTestCase
 
     public function testListStatementsBySubmitDate(): void
     {
-        self::markSkippedForCIIntervention();
+        $submitNames = ['Charlie', 'Bravo', 'Delta', 'Alpha']; // Example submitNames for sorting
+        foreach ($submitNames as $submitName) {
+            $originalStatement = StatementFactory::new()->create(['procedure' => $this->testProcedure]);
+            $statement = StatementFactory::new()->create(['procedure' => $this->testProcedure, 'original' => $originalStatement]);
+            StatementMetaFactory::new()->create(['submitName' => $submitName, 'statement' => $statement]);
+        }
 
         $sortMethods = $this->sortingParser->createFromQueryParamValue('submitDate');
 
