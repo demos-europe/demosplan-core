@@ -50,7 +50,7 @@ class SegmentExporterFileNameGeneratorTest extends FunctionalTestCase
         $this->testStatement->_save();
 
         $testData = [
-            '{ID}-{NAME}-{EINGANGSNR}' => $this->testStatement->getExternId().'-'.$this->testStatement->getMeta()->getOrgaName().'-'.$this->testStatement->getInternId(),
+            SegmentExporterFileNameGenerator::DEFAULT_TEMPLATE_NAME => $this->testStatement->getExternId().'-'.$this->testStatement->getMeta()->getOrgaName().'-'.$this->testStatement->getInternId(),
             '{NAME}'                   => $this->testStatement->getMeta()->getOrgaName(),
             'My Custom Template'       => 'My Custom Template',
             ''                         => $this->testStatement->getExternId().'-'.$this->testStatement->getMeta()->getOrgaName().'-'.$this->testStatement->getInternId(),
