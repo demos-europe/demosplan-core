@@ -413,7 +413,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_user_add',
                     'feature_user_delete',
                     'feature_user_edit',
-                    'feature_user_edit',
                     'feature_user_get',
                     'feature_user_list',
                     'feature_xplan_defaultlayers',
@@ -778,7 +777,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_portal_user',
                     'area_preferences',
                     'feature_procedure_single_document_upload_zip',
-                    'feature_user_edit', // fixme: this permission was both here and in featuresDenied. Please check.
                     'feature_user_get',
                     'feature_user_list',
                     'field_statement_file',
@@ -856,6 +854,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_to_entire_document',
                     'feature_statements_vote_may_vote',
                     'feature_surveyvote_may_vote',
+                    'feature_user_edit',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
                     'field_statement_county',
@@ -867,7 +866,6 @@ class PermissionsTest extends FunctionalTestCase
                     'field_statement_user_position',
                     'field_statement_user_state',
                     'role_participant',
-                    //                    'feature_user_edit', //fixme: this permission was both here and in featuresAllowed. Please check.
                 ],
             ],
             'planning agency master user #2'    => [
@@ -2612,7 +2610,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_orga_get',
                     'feature_procedure_report_public_phase',
                     'feature_procedure_single_document_upload_zip',
-                    'feature_user_edit', // fixme: this permission was both here and in featuresDenied. Please check.
                     'feature_user_get',
                     'feature_user_list',
                     'field_statement_recommendation',
@@ -2674,11 +2671,11 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_to_entire_document',
                     'feature_statements_vote_may_vote',
                     'feature_surveyvote_may_vote',
+                    'feature_user_edit',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
                     'field_statement_submitter_email_address',
                     'role_participant',
-                    //                    'feature_user_edit', //fixme: this permission was both here and in featuresAllowed. Please check.
                 ],
             ],
             // ################### Moderator###################
