@@ -44,7 +44,8 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         private readonly EntityHelper $entityHelper,
         HTMLSanitizer $htmlSanitizer,
         Slugify $slugify,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        private readonly SegmentExporterFileNameGenerator $fileNameGenerator
     ) {
         parent::__construct($currentUser, $htmlSanitizer, $slugify, $translator);
     }
@@ -209,7 +210,8 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         // prepare needed variables
         $dbId = $statement->getId();
 
-        $fileName = $this->getFileName($statement, $fileNameTemplate);
+        //getFileName
+        $fileName = $this->fileNameGenerator->getFileName($statement, $fileNameTemplate);
 
         return $withDbId
             ? "$fileName-$dbId.docx"
