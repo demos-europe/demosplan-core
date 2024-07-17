@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
+use Cocur\Slugify\Slugify;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -41,13 +42,17 @@ class SegmentsExporter
 
     protected TranslatorInterface $translator;
 
+    protected Slugify $slugify;
+
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
         private readonly HTMLSanitizer $htmlSanitizer,
+        Slugify $slugify,
         TranslatorInterface $translator)
     {
         $this->translator = $translator;
         $this->initializeStyles();
+        $this->slugify = $slugify;
     }
 
     /**
