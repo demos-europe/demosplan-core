@@ -37,4 +37,8 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  */
 final class SegmentFactory extends StatementFactory
 {
+    public static function class(): string
+    {
+        return Segment::class;
+    }
 }
