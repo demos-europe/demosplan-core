@@ -230,9 +230,9 @@ class TagServiceTest extends FunctionalTestCase
     {
         $testTag1 = TagFactory::createOne();
         $testTopic1 = TagTopicFactory::createOne();
+        $this->sut->createTag($testTag1->getTitle(), $testTopic1->_real());
         $this->expectException(DuplicatedTagTitleException::class);
-        $this->sut->createTag($testTag1->getTitle(), $testTopic1->object());
-        $this->sut->createTag($testTag1->getTitle(), $testTopic1->object());
+        $this->sut->createTag($testTag1->getTitle(), $testTopic1->_real());
 
     }
 }
