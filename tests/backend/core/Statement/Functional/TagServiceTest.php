@@ -228,11 +228,11 @@ class TagServiceTest extends FunctionalTestCase
      */
     public function testCreateTagWithDuplicateTitle(): void
     {
-        self::markTestSkipped('This test was skipped because of pre-existing errors. They are most likely easily fixable but prevent us from getting to a usable state of our CI.');
-
         $testTag1 = TagFactory::createOne();
         $testTopic1 = TagTopicFactory::createOne();
         $this->expectException(DuplicatedTagTitleException::class);
         $this->sut->createTag($testTag1->getTitle(), $testTopic1->object());
+        $this->sut->createTag($testTag1->getTitle(), $testTopic1->object());
+
     }
 }
