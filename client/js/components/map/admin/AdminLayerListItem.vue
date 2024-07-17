@@ -36,8 +36,8 @@
     class="inline-block layout--flush c-at-item__row"
     data-cy="mapLayerListItem">
     <div
-      class="inline-block w-9/12"
-      :class="{ 'w-11/12': !hasPermission('feature_map_layer_visibility') }">
+      class="inline-block"
+      :class="hasPermission('feature_map_layer_visibility') ? 'w-9/12 ' : 'w-11/12'">
       <!-- regular categories -->
       <i
         v-if="layer.type === 'GisLayerCategory' && false === layer.attributes.layerWithChildrenHidden"
