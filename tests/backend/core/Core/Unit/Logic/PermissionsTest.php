@@ -3101,7 +3101,6 @@ class PermissionsTest extends FunctionalTestCase
         array $allowedPermissions,
         array $disallowedPermissions
     ): void {
-
         // do debug a specific permission enable debugging and paste dataset name
         $debugPermission = false;
         if ($debugPermission && 'guest #1' !== $this->dataName()) {
