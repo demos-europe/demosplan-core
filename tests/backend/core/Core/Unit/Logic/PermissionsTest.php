@@ -291,7 +291,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_preferences',
                     'feature_admin_export_procedure',
                     'feature_assessmenttable_export',
-                    'feature_assessmenttable_use_pager',
                     'feature_documents_category_use_file',
                     'feature_documents_category_use_paragraph',
                     'feature_json_api_get',
@@ -1230,7 +1229,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_demosplan',
                     'area_manage_orgadata',
                     'feature_admin_export_procedure',
-                    'feature_assessmenttable_use_pager',
                     'feature_procedure_single_document_upload_zip',
                 ],
                 'featuresDenied'                    => [
