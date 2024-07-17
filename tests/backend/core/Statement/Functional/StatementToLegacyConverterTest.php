@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Tests\Core\Statement\Functional;
 
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureSettingsFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementToLegacyConverter;
 use Tests\Base\FunctionalTestCase;
@@ -28,7 +30,11 @@ class StatementToLegacyConverterTest extends FunctionalTestCase
 
     public function testConvert(): void
     {
-        $statement = StatementFactory::createOne()->_real();
+        $procedure = ProcedureFactory::createOne();
+        $settings = ProcedureSettingsFactory::createOne(['procedure' => $procedure]);
+        $procedure->setSettings($settings->_real());
+        $procedure->_save();
+        $statement = StatementFactory::createOne(['procedure' => $procedure])->_real();
         $legacyStatement = $this->statementToLegacyConverter->convert($statement);
 
         static::assertIsArray($legacyStatement);
