@@ -36,6 +36,7 @@
     <dp-select
       v-model="serviceType"
       class="u-mb-0_5"
+      data-cy="layerSettings:serviceType"
       :label="{
         text: Translator.trans('type')
       }"
@@ -85,6 +86,7 @@
       id="r_tileMatrixSet"
       v-model="matrixSet"
       class="u-mb-0_5"
+      data-cy="layerSettings:matrixSet"
       :disabled="disabledMatrixSelect"
       :label="{
         text: Translator.trans('map.tilematrixset')

@@ -262,7 +262,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
                         $userOrga = $this->createOrgaMode2();
                     }
                     $userOrga = $this->orgaService->orgaAddUser($userOrga->getId(), $user);
-                    $this->logger->info('Added user to orga', ['user' => $user->getLogin(), 'orga' => $userOrga->getName()]);
+                    $this->logger->info('Added user to orga', ['user' => $user->getLogin(), 'orga' => $userOrga->getName(), 'oId' => $userOrga->getId()]);
                 }
                 // Auf Departement prüfen eventuell erstellen oder aktualisieren
                 if ($user->getDepartment() instanceof Department) {
@@ -312,7 +312,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
                         $user
                     );
                     $this->logger->info('Added user to department',
-                        ['user' => $user->getLogin(), 'department' => $userDepartment->getName()]);
+                        ['user' => $user->getLogin(), 'department' => $userDepartment->getName(), 'dId' => $userDepartment->getId()]);
                 }
 
                 $user->setIntranet(true);
@@ -390,7 +390,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
                             $userOrga = $this->createOrgaMode2(true);
                             $userOrga = $this->orgaService->orgaAddUser($userOrga->getId(), $publicAgencyUser);
                         }
-                        $this->logger->info('Added user to orga', ['user' => $publicAgencyUser->getLogin(), 'orga' => $userOrga->getName()]);
+                        $this->logger->info('Added user to orga', ['user' => $publicAgencyUser->getLogin(), 'orga' => $userOrga->getName(), 'oId' => $userOrga->getId()]);
 
                         // Department erstellen und Nutzer/Orga zuordnen.
                         $departmentName = $this->data['user']['DEPARTMENT'].' - '.$this->data['user']['SUBDEPARTMENT'].' - '.$this->data['user']['AUTHORITYSIGN'];
@@ -417,7 +417,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
                             $userOrga->addDepartment($userDepartment);
                         }
                         $this->logger->info('Added user to department',
-                            ['user' => $publicAgencyUser->getLogin(), 'department' => $userDepartment->getName()]);
+                            ['user' => $publicAgencyUser->getLogin(), 'department' => $userDepartment->getName(), 'dId' => $userDepartment->getId()]);
                     }
                     // Update user, exclude roles
                     $publicAgencyUser = $this->updateToebUserMode2($publicAgencyUser);

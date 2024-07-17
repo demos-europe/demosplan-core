@@ -12,7 +12,7 @@
  */
 const api1_0Routes = [
   {
-    module: 'orga',
+    module: 'Orga',
     action: 'update',
     url: '/1.0/organisation/{id}',
     parameters: [
@@ -20,12 +20,12 @@ const api1_0Routes = [
     ]
   },
   {
-    module: 'orga',
+    module: 'Orga',
     action: 'create',
     url: '/1.0/organisation/'
   },
   {
-    module: 'orga',
+    module: 'Orga',
     action: 'delete',
     url: '/1.0/organisation/{id}',
     parameters: [
@@ -47,20 +47,7 @@ const api1_0Routes = [
     ]
   },
   {
-    module: 'user',
-    action: 'list',
-    url: '/1.0/user/'
-  },
-  {
-    module: 'user',
-    action: 'get',
-    url: '/1.0/user/{userId}',
-    parameters: [
-      'userId'
-    ]
-  },
-  {
-    module: 'user',
+    module: 'User',
     action: 'update',
     url: '/1.0/user/{id}',
     parameters: [
@@ -68,31 +55,20 @@ const api1_0Routes = [
     ]
   },
   {
-    module: 'user',
+    module: 'User',
     action: 'create',
     url: '/1.0/user/'
   },
   {
-    module: 'user',
+    module: 'User',
     action: 'delete',
     url: '/1.0/user/{id}',
     parameters: [
       'id'
     ]
   },
-
   {
-    module: 'faqCategory',
-    action: 'list',
-    url: '/1.0/FaqCategory/'
-  },
-  {
-    module: 'faq',
-    action: 'list',
-    url: '/1.0/faq/'
-  },
-  {
-    module: 'faq',
+    module: 'Faq',
     action: 'delete',
     url: '/1.0/faq/{id}',
     parameters: [
@@ -100,12 +76,17 @@ const api1_0Routes = [
     ]
   },
   {
-    module: 'faq',
+    module: 'Faq',
     action: 'update',
     url: '/1.0/faq/{id}',
     parameters: [
       'id'
     ]
+  },
+  {
+    module: 'FaqCategory',
+    action: 'list',
+    url: '/1.0/FaqCategory/'
   }
 ]
 

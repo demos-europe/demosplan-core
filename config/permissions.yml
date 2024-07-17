@@ -78,6 +78,12 @@ area_admin_map:
     label: 'Verwalten Planzeichnung'
     loginRequired: true
     parent: area_admin
+area_admin_elements:
+    description: |-
+        Display the admin list of elements (documents) of the procedure
+    label: 'Dokumente des Verfahrens'
+    loginRequired: true
+    parent: area_admin
 area_admin_initial_map_view:
     description: |-
         Enable only menu item to show the initial map section in the procedure.
@@ -744,6 +750,12 @@ feature_customer_support_contact_administration:
     label: 'Enables the option to create/edit/delete supportContact entities.'
     expose: true
     loginRequired: true
+feature_customer_support_technical_read:
+    description: |-
+        Enables the technical support tab under /informationen
+    label: 'Enables the technical support tab under /informationen.'
+    expose: true
+    loginRequired: true
 feature_customer_login_support_contact_administration:
     description: |-
         Enables the option to create/edit/delete the customer supportLoginContact entity.
@@ -1112,6 +1124,13 @@ feature_map_attribution:
     expose: true
     loginRequired: true
     parent: area_admin_map
+feature_map_baselayer:
+    description: |-
+        Enables the usage of custom baselayers (next to the overlays) in the map
+    label: 'Allow configuring baselayers'
+    expose: true
+    loginRequired: true
+    parent: area_admin_map
 feature_map_category:
     expose: true
     label: 'Kategorien in Kartenlayer'
@@ -1126,6 +1145,13 @@ feature_map_feature_info:
     description: |-
         Restrict the access to edit the public map information url (in the admin area)
     label: 'Restrict the access to edit the public map information url (in the admin area)'
+    expose: true
+    loginRequired: true
+    parent: area_admin_map
+feature_map_layer_visibility:
+    description: |-
+        Manage visibility settings related to the map layer (in the admin area)
+    label: 'Manage visibility settings related to the map layer (in the admin area)'
     expose: true
     loginRequired: true
     parent: area_admin_map
@@ -1160,6 +1186,13 @@ feature_map_new_statement:
     label: 'Planzeichnung Neue Stellungnahme'
     loginRequired: false
     parent: area_map_participation_area
+feature_map_print_layer:
+    description: |-
+        Allow configuring (in the map admin area) if a layer is displayed in the map screenshot (in the exports)
+    label: 'Toggle layer visibility in exports'
+    expose: true
+    loginRequired: true
+    parent: area_admin_map
 feature_map_search_location:
     expose: true
     label: 'Darf ein User nach ORT/PLZ suchen können?'
