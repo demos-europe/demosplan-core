@@ -1829,6 +1829,7 @@ gislayer.xplan: "XPlan-Layer"
 gislayer: "Kartenebenen"
 gislayer.defined: 'Kartenebenen sind definiert'
 gislayer.define: 'Kartenebenen definieren'
+gislayer.visibilitygroup.toggle: 'Sichtbarkeit der Gruppe umschalten'
 globalnews.administrate: "Portal-Mitteilungen verwalten"
 globalnews: "Portal-Mitteilungen"
 goto.participation: "Zur Beteiligung: {procedure}"

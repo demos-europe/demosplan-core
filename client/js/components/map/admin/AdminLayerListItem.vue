@@ -29,7 +29,7 @@
     <div class="c-at-item__row-icon layout__item u-pl-0">
       <i
         class="fa fa-bars handle w-[20px] cursor-grab"
-        aria-label="Hamburger Symbol"
+        aria-hidden="true"
         :title="Translator.trans('move')" />
     </div><!--
  --><div
@@ -41,7 +41,7 @@
       <!-- regular categories -->
       <i
         v-if="layer.type === 'GisLayerCategory' && false === layer.attributes.layerWithChildrenHidden"
-        aria-label="Ordnersymbol"
+        aria-hidden="true"
         class="fa u-mr-0_125"
         @click="toggleChildren"
         :class="[childElements.length > 0 ? (showChildren ? 'fa-folder-open' : 'fa-folder') :'fa-folder-o']" />
@@ -97,7 +97,7 @@
           :title="hintTextForLockedLayer">
           <i
             :class="[iconClass,showGroupableIcon]"
-            aria-label="Gruppensymbol" />
+            :aria-label="Translator.trans('gislayer.visibilitygroup.toggle')" />
         </a>
       </div><!--
    --><div class="inline-block w-1/12 text-right">
@@ -133,7 +133,7 @@
         data-cy="editLink">
         <i
           class="fa fa-pencil u-mr-0_5"
-          aria-label="Bleistiftsymbol"
+          aria-hidden="true"
           :title="Translator.trans('edit')" /><span class="hide-visually">{{ Translator.trans('edit') }}</span>
       </a>
       <button
@@ -144,7 +144,7 @@
         v-if="childElements.length <= 0">
         <i
           class="fa fa-trash"
-          aria-label="Papierkorbsymbol" /><span class="hide-visually">{{ Translator.trans('delete') }}</span>
+          aria-hidden="true" /><span class="hide-visually">{{ Translator.trans('delete') }}</span>
         </button>
       </div>
     </div>
