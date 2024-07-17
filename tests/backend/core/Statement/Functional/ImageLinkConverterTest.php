@@ -1,10 +1,17 @@
 <?php
+
 /** @noinspection PhpUnitMissingTargetForTestInspection */
 declare(strict_types=1);
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace Tests\Core\Statement\Functional;
-
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -44,10 +51,10 @@ class ImageLinkConverterTest extends FunctionalTestCase
 
         $linkStyle = 'style="color: blue; text-decoration: underline;"';
         $linkStart = '<a href="#statement123_Darstellung_Erw_';
-        $linkEnd = '" ' . $linkStyle . '>';
+        $linkEnd = '" '.$linkStyle.'>';
         $linkClose = '</a>';
-        $expected = '<p>Some text ' . $linkStart . '001' . $linkEnd . 'statement123_Darstellung_Erw_001' . $linkClose .
-            ' more text ' . $linkStart . '002' . $linkEnd . 'statement123_Darstellung_Erw_002' . $linkClose . '</p>';
+        $expected = '<p>Some text '.$linkStart.'001'.$linkEnd.'statement123_Darstellung_Erw_001'.$linkClose.
+            ' more text '.$linkStart.'002'.$linkEnd.'statement123_Darstellung_Erw_002'.$linkClose.'</p>';
         $result = $this->sut->convert($html, $statementExternId);
 
         static::assertSame($expected, $result);
