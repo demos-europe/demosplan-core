@@ -54,12 +54,6 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  */
 final class StatementMetaFactory extends PersistentProxyObjectFactory
 {
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
-     */
-    public function __construct()
-    {
-    }
 
     public static function class(): string
     {
@@ -85,15 +79,5 @@ final class StatementMetaFactory extends PersistentProxyObjectFactory
             'statement'          => StatementFactory::new(),
             'submitName'         => self::faker()->text(255),
         ];
-    }
-
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
-     */
-    protected function initialize(): static
-    {
-        return $this
-            // ->afterInstantiate(function(StatementMeta $statementMeta): void {})
-        ;
     }
 }
