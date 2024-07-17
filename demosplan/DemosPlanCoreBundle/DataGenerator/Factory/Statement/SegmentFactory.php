@@ -12,12 +12,12 @@ namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
-use Zenstruck\Foundry\ModelFactory;
-use Zenstruck\Foundry\Proxy;
-use Zenstruck\Foundry\RepositoryProxy;
+use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\Persistence\Proxy;
+use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
 
 /**
- * @extends ModelFactory<Segment>
+ * @extends PersistentProxyObjectFactory<Segment>
  *
  * @method        Segment|Proxy                     create(array|callable $attributes = [])
  * @method static Segment|Proxy                     createOne(array $attributes = [])
@@ -27,7 +27,7 @@ use Zenstruck\Foundry\RepositoryProxy;
  * @method static Segment|Proxy                     last(string $sortedField = 'id')
  * @method static Segment|Proxy                     random(array $attributes = [])
  * @method static Segment|Proxy                     randomOrCreate(array $attributes = [])
- * @method static SegmentRepository|RepositoryProxy repository()
+ * @method static SegmentRepository|ProxyRepositoryDecorator repository()
  * @method static Segment[]|Proxy[]                 all()
  * @method static Segment[]|Proxy[]                 createMany(int $number, array|callable $attributes = [])
  * @method static Segment[]|Proxy[]                 createSequence(iterable|callable $sequence)
@@ -37,28 +37,4 @@ use Zenstruck\Foundry\RepositoryProxy;
  */
 final class SegmentFactory extends StatementFactory
 {
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    protected function getDefaults(): array
-    {
-        return parent::getDefaults();
-    }
-
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
-     */
-    protected function initialize(): self
-    {
-        return $this
-            // ->afterInstantiate(function(Segment $segment): void {})
-        ;
-    }
-
-    protected static function getClass(): string
-    {
-        return Segment::class;
-    }
 }

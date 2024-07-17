@@ -12,12 +12,12 @@ namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureSettingsRepository;
-use Zenstruck\Foundry\ModelFactory;
-use Zenstruck\Foundry\Proxy;
-use Zenstruck\Foundry\RepositoryProxy;
+use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\Persistence\Proxy;
+use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
 
 /**
- * @extends ModelFactory<ProcedureSettings>
+ * @extends PersistentProxyObjectFactory<ProcedureSettings>
  *
  * @method        ProcedureSettings|Proxy                     create(array|callable $attributes = [])
  * @method static ProcedureSettings|Proxy                     createOne(array $attributes = [])
@@ -27,7 +27,7 @@ use Zenstruck\Foundry\RepositoryProxy;
  * @method static ProcedureSettings|Proxy                     last(string $sortedField = 'id')
  * @method static ProcedureSettings|Proxy                     random(array $attributes = [])
  * @method static ProcedureSettings|Proxy                     randomOrCreate(array $attributes = [])
- * @method static ProcedureSettingsRepository|RepositoryProxy repository()
+ * @method static ProcedureSettingsRepository|ProxyRepositoryDecorator repository()
  * @method static ProcedureSettings[]|Proxy[]                 all()
  * @method static ProcedureSettings[]|Proxy[]                 createMany(int $number, array|callable $attributes = [])
  * @method static ProcedureSettings[]|Proxy[]                 createSequence(iterable|callable $sequence)
@@ -35,28 +35,24 @@ use Zenstruck\Foundry\RepositoryProxy;
  * @method static ProcedureSettings[]|Proxy[]                 randomRange(int $min, int $max, array $attributes = [])
  * @method static ProcedureSettings[]|Proxy[]                 randomSet(int $number, array $attributes = [])
  */
-final class ProcedureSettingsFactory extends ModelFactory
+final class ProcedureSettingsFactory extends PersistentProxyObjectFactory
 {
-    public function __construct()
+    public static function class(): string
     {
-        parent::__construct();
+        return ProcedureSettings::class;
     }
 
-    protected function getDefaults(): array
+    protected function defaults(): array|callable
     {
         return [
             'procedure' => ProcedureFactory::new(),
             'mapExtent' => self::faker()->randomFloat().','.self::faker()->randomFloat().','.self::faker()->randomFloat().','.self::faker()->randomFloat(),
+            'coordinate' => self::faker()->randomFloat().','.self::faker()->randomFloat(),
         ];
     }
 
-    protected function initialize(): self
+    public function withProcedure(ProcedureFactory $procedure): self
     {
-        return $this;
-    }
-
-    protected static function getClass(): string
-    {
-        return ProcedureSettings::class;
+        return $this->with(['procedure' => $procedure]);
     }
 }

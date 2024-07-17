@@ -15,12 +15,12 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\SurveyInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
-use Zenstruck\Foundry\ModelFactory;
-use Zenstruck\Foundry\Proxy;
-use Zenstruck\Foundry\RepositoryProxy;
+use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\Persistence\Proxy;
+use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
 
 /**
- * @extends ModelFactory<Statement>
+ * @extends PersistentProxyObjectFactory<Statement>
  *
  * @method        Statement|Proxy                     create(array|callable $attributes = [])
  * @method static Statement|Proxy                     createOne(array $attributes = [])
@@ -30,7 +30,7 @@ use Zenstruck\Foundry\RepositoryProxy;
  * @method static Statement|Proxy                     last(string $sortedField = 'id')
  * @method static Statement|Proxy                     random(array $attributes = [])
  * @method static Statement|Proxy                     randomOrCreate(array $attributes = [])
- * @method static StatementRepository|RepositoryProxy repository()
+ * @method static StatementRepository|ProxyRepositoryDecorator repository()
  * @method static Statement[]|Proxy[]                 all()
  * @method static Statement[]|Proxy[]                 createMany(int $number, array|callable $attributes = [])
  * @method static Statement[]|Proxy[]                 createSequence(iterable|callable $sequence)
@@ -38,14 +38,14 @@ use Zenstruck\Foundry\RepositoryProxy;
  * @method static Statement[]|Proxy[]                 randomRange(int $min, int $max, array $attributes = [])
  * @method static Statement[]|Proxy[]                 randomSet(int $number, array $attributes = [])
  */
-class StatementFactory extends ModelFactory
+class StatementFactory extends PersistentProxyObjectFactory
 {
-    public function __construct()
+    public static function class(): string
     {
-        parent::__construct();
+        return Statement::class;
     }
 
-    protected function getDefaults(): array
+    protected function defaults(): array|callable
     {
         return [
             'anonymous'           => false,
@@ -86,14 +86,8 @@ class StatementFactory extends ModelFactory
         ];
     }
 
-    protected function initialize(): self
+    public function withProcedure(ProcedureFactory $procedure): self
     {
-        return $this
-        ;
-    }
-
-    protected static function getClass(): string
-    {
-        return Statement::class;
+        return $this->with(['procedure' => $procedure]);
     }
 }
