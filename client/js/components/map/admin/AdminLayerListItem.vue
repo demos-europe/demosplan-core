@@ -116,9 +116,9 @@
         <input
           type="checkbox"
           data-cy="adminLayerListItem:toggleDefaultVisibility"
-          @change.prevent="toggleHasDefaultVisibility"
           :checked="hasDefaultVisibility"
-          :class="iconClass">
+          :class="iconClass"
+          @change.prevent="toggleHasDefaultVisibility">
       </div><!--
      -->
     </template><!--
