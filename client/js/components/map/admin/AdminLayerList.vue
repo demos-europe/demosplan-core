@@ -200,7 +200,7 @@
       </template>
       <div
         class="text-right u-mv space-inline-s"
-        v-if="false === isLoading">
+        v-if="!isLoading">
         <dp-button
           data-cy="adminLayerList:save"
           :busy="!isEditable"
