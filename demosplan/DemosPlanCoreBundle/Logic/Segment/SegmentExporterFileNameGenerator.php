@@ -27,7 +27,7 @@ class SegmentExporterFileNameGenerator
     public const PLACEHOLDER_NAME = '{NAME}';
     public const PLACEHOLDER_EINGANGSNR = '{EINGANGSNR}';
 
-    public const DEFAULT_TEMPLATE_NAME = self::PLACEHOLDER_ID . '-' . self::PLACEHOLDER_NAME . '-' . self::PLACEHOLDER_EINGANGSNR;
+    public const DEFAULT_TEMPLATE_NAME = self::PLACEHOLDER_ID.'-'.self::PLACEHOLDER_NAME.'-'.self::PLACEHOLDER_EINGANGSNR;
 
     public function __construct(
         Slugify $slugify,
