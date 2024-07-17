@@ -65,7 +65,6 @@
       </section>
 
         <dp-button-row
-          class="text-right"
           primary
           secondary
           :primary-text="Translator.trans('export.statements')"

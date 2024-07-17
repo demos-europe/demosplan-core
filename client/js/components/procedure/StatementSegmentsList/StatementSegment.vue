@@ -225,7 +225,7 @@
       </div>
       <dp-button-row
         v-if="isAssignedToMe && (isEditing || showWorkflowActions)"
-        align="left"
+        alignment="left"
         class="u-mt-0_75"
         primary
         secondary

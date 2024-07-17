@@ -56,7 +56,7 @@
       required />
 
     <dp-button-row
-      align="left"
+      alignment="left"
       primary
       secondary
       variant="outline"
