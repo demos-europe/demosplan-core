@@ -23,7 +23,11 @@ class SegmentExporterFileNameGenerator
 
     protected Slugify $slugify;
 
-    public const DEFAULT_TEMPLATE_NAME = '{ID}-{NAME}-{EINGANGSNR}';
+    public const PLACEHOLDER_ID = '{ID}';
+    public const PLACEHOLDER_NAME = '{NAME}';
+    public const PLACEHOLDER_EINGANGSNR = '{EINGANGSNR}';
+
+    public const DEFAULT_TEMPLATE_NAME = self::PLACEHOLDER_ID . '-' . self::PLACEHOLDER_NAME . '-' . self::PLACEHOLDER_EINGANGSNR;
 
     public function __construct(
         Slugify $slugify,
@@ -44,7 +48,7 @@ class SegmentExporterFileNameGenerator
 
         // Replace placeholders with actual values from the $statement object
         $fileName = str_replace(
-            ['{ID}', '{NAME}', '{EINGANGSNR}'],
+            [self::PLACEHOLDER_ID, self::PLACEHOLDER_NAME, self::PLACEHOLDER_EINGANGSNR],
             [$externalId, $authorSourceName, $internId],
             $templateName);
 
