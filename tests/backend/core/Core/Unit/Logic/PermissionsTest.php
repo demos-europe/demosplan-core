@@ -1078,7 +1078,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_demosplan',
                     'area_manage_orgadata',
                     'feature_admin_export_procedure',
-                    'feature_procedure_get_base_data',
                     'feature_procedure_single_document_upload_zip',
                 ],
                 'featuresDenied'                    => [
