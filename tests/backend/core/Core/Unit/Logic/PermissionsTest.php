@@ -770,6 +770,7 @@ class PermissionsTest extends FunctionalTestCase
                 'ownsProcedure'                     => true,
                 'isMember'                          => true,
                 'featuresAllowed'                   => [
+                    'area_admin',
                     'area_data_protection_text',
                     'area_demosplan',
                     'area_demosplan',
@@ -781,7 +782,6 @@ class PermissionsTest extends FunctionalTestCase
                     'field_statement_recommendation',
                 ],
                 'featuresDenied'                    => [
-                    'area_admin',
                     'area_admin_analysis',
                     'area_admin_faq',
                     'area_admin_procedures',
@@ -1871,6 +1871,7 @@ class PermissionsTest extends FunctionalTestCase
                 'ownsProcedure'                     => true,
                 'isMember'                          => true,
                 'featuresAllowed'                   => [
+                    'area_admin',
                     'area_data_protection_text',
                     'area_demosplan',
                     'area_demosplan',
@@ -1891,7 +1892,6 @@ class PermissionsTest extends FunctionalTestCase
                     'field_statement_recommendation',
                 ],
                 'featuresDenied'                    => [
-                    'area_admin',
                     'area_admin_dashboard',
                     'area_admin_faq',
                     'area_admin_statement_list',
@@ -2750,6 +2750,7 @@ class PermissionsTest extends FunctionalTestCase
                 'ownsProcedure'                     => true,
                 'isMember'                          => true,
                 'featuresAllowed'                   => [
+                    'area_admin',
                     'area_data_protection_text',
                     'area_demosplan',
                     'feature_procedure_single_document_upload_zip',
@@ -2758,7 +2759,6 @@ class PermissionsTest extends FunctionalTestCase
                     'field_statement_recommendation',
                 ],
                 'featuresDenied'                    => [
-                    'area_admin',
                     'area_admin_assessmenttable',
                     'area_admin_dashboard',
                     'area_admin_faq',
