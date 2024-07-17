@@ -418,8 +418,8 @@ export default {
       .then(() => {
         dplan.notify.confirm(Translator.trans('confirm.saved'))
       })
-      .catch(() => {
-        dplan.notify.error(Translator.trans('error.changes.not.saved'))
+      .catch(err => {
+        console.error(err)
       })
     },
 
