@@ -289,23 +289,34 @@ const LayersStore = {
 
     save ({ state, commit, dispatch }, resource) {
       let payload
+      const { attributes, id, type } = resource
+
+      const {
+        categoryId,
+        parentId,
+        hasDefaultVisibility,
+        isMinimap,
+        mapOrder,
+        treeOrder,
+        visibilityGroupId
+      } = attributes
 
       if (resource.type === 'GisLayer') {
         payload = {
           data: {
-            id: resource.id,
-            type: resource.type,
+            id,
+            type,
             attributes: {
-              hasDefaultVisibility: resource.attributes.hasDefaultVisibility,
-              isMinimap: resource.attributes.isMinimap,
-              mapOrder: resource.attributes.mapOrder,
-              treeOrder: resource.attributes.treeOrder,
-              visibilityGroupId: resource.attributes.visibilityGroupId
+              hasDefaultVisibility,
+              isMinimap,
+              mapOrder,
+              treeOrder,
+              visibilityGroupId
             },
             relationships: {
               parentCategory: {
                 data: {
-                  id: resource.attributes.categoryId,
+                  id: categoryId,
                   type: 'GisLayerCategory'
                 }
               }
@@ -317,16 +328,16 @@ const LayersStore = {
       if (resource.type === 'GisLayerCategory') {
         payload = {
           data: {
-            id: resource.id,
-            type: resource.type,
+            id,
+            type,
             attributes: {
-              treeOrder: resource.attributes.treeOrder,
-              hasDefaultVisibility: resource.attributes.hasDefaultVisibility,
+              treeOrder,
+              hasDefaultVisibility,
             },
             relationships: {
               parentCategory: {
                 data: {
-                  id: resource.attributes.parentId,
+                  id: parentId,
                   type: 'GisLayerCategory'
                 }
               }
