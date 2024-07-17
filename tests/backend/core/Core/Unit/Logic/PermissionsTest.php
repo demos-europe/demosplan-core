@@ -411,7 +411,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_switchorga',
                     'feature_toggle_public_participation_publication',
                     'feature_user_add',
-                    'feature_user_add',
                     'feature_user_delete',
                     'feature_user_edit',
                     'feature_user_edit',
@@ -779,7 +778,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_portal_user',
                     'area_preferences',
                     'feature_procedure_single_document_upload_zip',
-                    'feature_user_add', // fixme: this permission was both here and in featuresDenied. Please check.
                     'feature_user_delete',
                     'feature_user_edit', // fixme: this permission was both here and in featuresDenied. Please check.
                     'feature_user_get',
@@ -870,7 +868,6 @@ class PermissionsTest extends FunctionalTestCase
                     'field_statement_user_position',
                     'field_statement_user_state',
                     'role_participant',
-                    //                    'feature_user_add', //fixme: this permission was both here and in featuresAllowed. Please check.
                     //                    'feature_user_edit', //fixme: this permission was both here and in featuresAllowed. Please check.
                 ],
             ],
@@ -2616,7 +2613,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_orga_get',
                     'feature_procedure_report_public_phase',
                     'feature_procedure_single_document_upload_zip',
-                    'feature_user_add', // fixme: this permission was both here and in featuresDenied. Please check.
                     'feature_user_delete',
                     'feature_user_edit', // fixme: this permission was both here and in featuresDenied. Please check.
                     'feature_user_get',
@@ -2684,7 +2680,6 @@ class PermissionsTest extends FunctionalTestCase
                     'field_required_procedure_end_date',
                     'field_statement_submitter_email_address',
                     'role_participant',
-                    //                    'feature_user_add', //fixme: this permission was both here and in featuresAllowed. Please check.
                     //                    'feature_user_edit', //fixme: this permission was both here and in featuresAllowed. Please check.
                 ],
             ],
