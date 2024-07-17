@@ -41,7 +41,6 @@ class SegmentsExporter
 
     protected TranslatorInterface $translator;
 
-
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
         private readonly HTMLSanitizer $htmlSanitizer,
