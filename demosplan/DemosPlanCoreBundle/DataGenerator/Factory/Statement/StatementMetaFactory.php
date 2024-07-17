@@ -54,7 +54,6 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  */
 final class StatementMetaFactory extends PersistentProxyObjectFactory
 {
-
     public static function class(): string
     {
         return StatementMeta::class;
