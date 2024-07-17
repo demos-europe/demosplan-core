@@ -253,6 +253,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_orga_edit_all_fields',
                     'feature_procedure_report_public_phase',
                     'field_statement_recommendation',
+                    'feature_orga_edit',
                 ],
                 'featuresDenied'                    => [
                     'area_accessibility_explanation',
@@ -777,7 +778,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_mydata',
                     'area_portal_user',
                     'area_preferences',
-                    'feature_orga_edit',
                     'feature_procedure_single_document_upload_zip',
                     'feature_user_add', // fixme: this permission was both here and in featuresDenied. Please check.
                     'feature_user_delete',
