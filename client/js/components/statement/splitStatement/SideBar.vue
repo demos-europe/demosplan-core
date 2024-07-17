@@ -48,23 +48,15 @@
         </div>
       </div>
 
-      <!--   Floating Context Button -->
-      <button
-        v-show="showFloatingContextButton.tags"
+      <FloatingContextButton
         id="floatingContextButton_tags"
-        aria-controls="tags"
-        :aria-expanded="isCollapsed.tags"
-        class="bg-white rounded shadow absolute right-[-24px] bottom-[-36px] p-0.5"
-        data-cy="sidebar:floatingContextButton:tags"
-        @click="toggleVisibility('tags')"
-        @mouseover="showFloatingContextButton.tags = true"
-        @mouseleave="showFloatingContextButton.tags = false">
-        <dp-icon
-          aria-hidden="true"
-          class="w-4 h-4 hover:bg-slate-200"
-          :icon="isCollapsed.tags ? 'chevron-up' : 'chevron-down'"
-          size="medium" />
-      </button>
+        class="right-[-24px] bottom-[-36px]"
+        section="tags"
+        :is-visible="showFloatingContextButton.tags"
+        :is-content-collapsed="isCollapsed.tags"
+        @toggle-content-visibility="toggleVisibility"
+        @show="showFloatingContextButton.tags = true"
+        @hide="showFloatingContextButton.tags = false" />
     </div>
 
     <!-- Tags Section -->
@@ -130,23 +122,15 @@
       @mouseover="showFloatingContextButton.placesAndAssignee = true"
       @mouseleave="showFloatingContextButton.placesAndAssignee = false">
 
-      <!--   Floating Context Button -->
-      <button
-        v-show="showFloatingContextButton.placesAndAssignee"
+      <FloatingContextButton
         id="floatingContextButton_placesAndAssignee"
-        aria-controls="placesAndAssignee"
-        :aria-expanded="isCollapsed.placesAndAssignee"
-        class="bg-white rounded shadow absolute right-[-24px] top-0 p-0.5"
-        data-cy="sidebar:floatingContextButton:placesAndAssignee"
-        @click="toggleVisibility('placesAndAssignee')"
-        @mouseover="showFloatingContextButton.placesAndAssignee = true"
-        @mouseleave="showFloatingContextButton.placesAndAssignee = false">
-        <dp-icon
-          aria-hidden="true"
-          class="w-4 h-4 hover:bg-slate-200"
-          :icon="isCollapsed.placesAndAssignee ? 'chevron-up' : 'chevron-down'"
-          size="medium" />
-      </button>
+        class="right-[-24px] top-0"
+        section="placesAndAssignee"
+        :is-visible="showFloatingContextButton.placesAndAssignee"
+        :is-content-collapsed="isCollapsed.placesAndAssignee"
+        @toggle-content-visibility="toggleVisibility"
+        @show="showFloatingContextButton.placesAndAssignee = true"
+        @hide="showFloatingContextButton.placesAndAssignee = false" />
 
       <button
         v-if="!isCollapsed.placesAndAssignee"
@@ -212,6 +196,7 @@
 import { DpButtonRow, DpContextualHelp, DpIcon, DpLabel, DpMultiselect, DpSelect, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import DpCreateTag from './DpCreateTag'
+import FloatingContextButton from './FloatingContextButton.vue'
 import SearchSelect from './SearchSelect'
 import TagSelect from './TagSelect'
 
@@ -226,6 +211,7 @@ export default {
     DpLabel,
     DpMultiselect,
     DpSelect,
+    FloatingContextButton,
     SearchSelect,
     TagSelect
   },
@@ -365,8 +351,9 @@ export default {
       }
     },
 
-    toggleVisibility (key) {
-      this.isCollapsed[key] = !this.isCollapsed[key]
+    toggleVisibility (section) {
+      console.log('section', section)
+      this.isCollapsed[section] = !this.isCollapsed[section]
     },
 
     getAssignableUserById (id) {

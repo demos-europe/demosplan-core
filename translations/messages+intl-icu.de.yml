@@ -760,6 +760,7 @@ contact.visibleText: |
         other {Dieser Kontakt wird nicht sichtbar angezeigt.}
     }
 content: "Inhalt"
+content.show/hide: "Inhalt ein/ausblenden"
 contextual.help.edit: "Kontexthilfe bearbeiten"
 contextual.help.new: "Kontexthilfe neu anlegen"
 contextual.help.text: "Text der Kontexthilfe"
