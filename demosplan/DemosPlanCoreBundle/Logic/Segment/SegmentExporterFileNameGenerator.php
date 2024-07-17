@@ -17,8 +17,8 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class SegmentExporterFileNameGenerator {
-
+class SegmentExporterFileNameGenerator
+{
     protected TranslatorInterface $translator;
 
     protected Slugify $slugify;
@@ -30,8 +30,6 @@ class SegmentExporterFileNameGenerator {
         $this->translator = $translator;
         $this->slugify = $slugify;
     }
-
-
 
     public function getFileName(Statement $statement, string $templateName = ''): string
     {

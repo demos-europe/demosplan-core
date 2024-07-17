@@ -210,7 +210,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         // prepare needed variables
         $dbId = $statement->getId();
 
-        //getFileName
+        // getFileName
         $fileName = $this->fileNameGenerator->getFileName($statement, $fileNameTemplate);
 
         return $withDbId
