@@ -137,11 +137,11 @@
           :title="Translator.trans('edit')" /><span class="hide-visually">{{ Translator.trans('edit') }}</span>
       </a>
       <button
+        v-if="childElements.length <= 0"
         class="btn--blank o-link--default u-mr-0_5"
         data-cy="adminLayerListItem:deleteElement"
         :title="Translator.trans('delete')"
-        @click.prevent="deleteElement"
-        v-if="childElements.length <= 0">
+        @click.prevent="deleteElement">
         <i
           class="fa fa-trash"
           aria-hidden="true" /><span class="hide-visually">{{ Translator.trans('delete') }}</span>
