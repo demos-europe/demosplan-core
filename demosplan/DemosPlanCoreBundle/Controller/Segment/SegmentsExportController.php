@@ -73,7 +73,7 @@ class SegmentsExportController extends BaseController
             }
         );
 
-        $this->setResponseHeaders($response, $exporter->getFileName($statement, $fileNameTemplate));
+        $this->setResponseHeaders($response, $exporter->getFileName($statement, $fileNameTemplate).'.docx');
 
         return $response;
     }
