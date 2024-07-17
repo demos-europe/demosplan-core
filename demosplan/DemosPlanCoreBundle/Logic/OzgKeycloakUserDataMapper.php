@@ -392,6 +392,9 @@ class OzgKeycloakUserDataMapper
         // ['Fachplanung-Administration', 'Sachplanung-Fachbearbeitung', ''] counts as ['Fachplanung-Administration']
         if (array_key_exists($customer->getSubdomain(), $rolesOfCustomer)) {
             foreach ($rolesOfCustomer[$customer->getSubdomain()] as $roleName) {
+                if (null === $roleName || '' === $roleName) {
+                    continue;
+                }
                 $this->logger->info('Role found for subdomain '.$customer->getSubdomain().': '.$roleName);
                 if (array_key_exists($roleName, self::ROLETITLE_TO_ROLECODE)) {
                     $this->logger->info('Role recognized: '.$roleName);
