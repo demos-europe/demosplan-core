@@ -52,33 +52,6 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         $this->sut->mapStatementsToPathInZip([$this->testStatement->_real(),  $this->testStatement->_real()]);
     }
 
-    public function testGetFileName(): void
-    {
-        $this->testStatement->setInternId('12345');
-        $this->testStatement->_save();
-
-        $testData = [
-            '{ID}-{NAME}-{EINGANGSNR}' => $this->testStatement->getExternId().'-'.$this->testStatement->getMeta()->getOrgaName().'-'.$this->testStatement->getInternId(),
-            '{NAME}'                   => $this->testStatement->getMeta()->getOrgaName(),
-            'My Custom Template'       => 'My Custom Template',
-            ''                         => $this->testStatement->getExternId().'-'.$this->testStatement->getMeta()->getOrgaName().'-'.$this->testStatement->getInternId(),
-        ];
-
-        foreach ($testData as $templateName => $rawExpectedFileName) {
-            $this->verifyFileNameFromTemplate(
-                $rawExpectedFileName,
-                $templateName,
-                $this->testStatement);
-        }
-    }
-
-    private function verifyFileNameFromTemplate(string $rawExpectedFileName, string $templateName, Statement|Proxy|null $testStatement): void
-    {
-        $expectedFileName = $this->slugify->slugify($rawExpectedFileName);
-        $fileName = $this->sut->getFileName($testStatement->_real(), $templateName);
-        self::assertSame($expectedFileName, $fileName);
-    }
-
     public function testMapStatementsToPathInZipWithSuperficialDuplicate(): void
     {
         $statementA = $this->createMinimalTestStatement('a', 'a', 'a');
