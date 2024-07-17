@@ -22,21 +22,21 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
 /**
  * @extends PersistentProxyObjectFactory<Statement>
  *
- * @method        Statement|Proxy                     create(array|callable $attributes = [])
- * @method static Statement|Proxy                     createOne(array $attributes = [])
- * @method static Statement|Proxy                     find(object|array|mixed $criteria)
- * @method static Statement|Proxy                     findOrCreate(array $attributes)
- * @method static Statement|Proxy                     first(string $sortedField = 'id')
- * @method static Statement|Proxy                     last(string $sortedField = 'id')
- * @method static Statement|Proxy                     random(array $attributes = [])
- * @method static Statement|Proxy                     randomOrCreate(array $attributes = [])
+ * @method        Statement|Proxy                              create(array|callable $attributes = [])
+ * @method static Statement|Proxy                              createOne(array $attributes = [])
+ * @method static Statement|Proxy                              find(object|array|mixed $criteria)
+ * @method static Statement|Proxy                              findOrCreate(array $attributes)
+ * @method static Statement|Proxy                              first(string $sortedField = 'id')
+ * @method static Statement|Proxy                              last(string $sortedField = 'id')
+ * @method static Statement|Proxy                              random(array $attributes = [])
+ * @method static Statement|Proxy                              randomOrCreate(array $attributes = [])
  * @method static StatementRepository|ProxyRepositoryDecorator repository()
- * @method static Statement[]|Proxy[]                 all()
- * @method static Statement[]|Proxy[]                 createMany(int $number, array|callable $attributes = [])
- * @method static Statement[]|Proxy[]                 createSequence(iterable|callable $sequence)
- * @method static Statement[]|Proxy[]                 findBy(array $attributes)
- * @method static Statement[]|Proxy[]                 randomRange(int $min, int $max, array $attributes = [])
- * @method static Statement[]|Proxy[]                 randomSet(int $number, array $attributes = [])
+ * @method static Statement[]|Proxy[]                          all()
+ * @method static Statement[]|Proxy[]                          createMany(int $number, array|callable $attributes = [])
+ * @method static Statement[]|Proxy[]                          createSequence(iterable|callable $sequence)
+ * @method static Statement[]|Proxy[]                          findBy(array $attributes)
+ * @method static Statement[]|Proxy[]                          randomRange(int $min, int $max, array $attributes = [])
+ * @method static Statement[]|Proxy[]                          randomSet(int $number, array $attributes = [])
  */
 class StatementFactory extends PersistentProxyObjectFactory
 {
@@ -73,7 +73,7 @@ class StatementFactory extends PersistentProxyObjectFactory
             'reasonParagraph'     => self::faker()->text(65535),
             'recommendation'      => self::faker()->text(65535),
             'replied'             => false,
-//            'segmentationPiRetries' => self::faker()->numberBetween(1, 15),
+            //            'segmentationPiRetries' => self::faker()->numberBetween(1, 15),
             'send'               => self::faker()->dateTime(),
             'sentAssessment'     => false,
             'sentAssessmentDate' => self::faker()->dateTime(),
