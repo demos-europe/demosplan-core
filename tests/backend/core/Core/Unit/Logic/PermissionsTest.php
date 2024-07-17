@@ -287,7 +287,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_data_protection_text',
                     'area_demosplan',
                     'area_demosplan',
-                    'area_mydata_password',
                     'area_portal_user',
                     'area_preferences',
                     'feature_admin_export_procedure',
@@ -779,7 +778,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_demosplan',
                     'area_manage_users',
                     'area_mydata',
-                    'area_mydata_password',
                     'area_portal_user',
                     'area_preferences',
                     'feature_orga_edit',
@@ -1000,7 +998,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_demosplan',
                     'area_demosplan',
                     'area_manage_orgadata',
-                    'area_mydata_password',
                     'area_portal_user',
                     'area_preferences',
                     'feature_admin_export_procedure',
@@ -1376,7 +1373,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_demosplan',
                     'area_demosplan',
                     'area_mydata_organisation',
-                    'area_mydata_password',
                     'area_portal_user',
                     'area_preferences',
                     'feature_admin_export_procedure',
@@ -1672,7 +1668,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_data_protection_text',
                     'area_demosplan',
                     'area_demosplan',
-                    'area_mydata_password',
                     'area_portal_user',
                     'feature_admin_export_procedure',
                     'feature_map_use_drawing_tools',
@@ -1892,7 +1887,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_demosplan',
                     'area_demosplan',
                     'area_mydata_organisation',
-                    'area_mydata_password',
                     'area_portal_user',
                     'area_statements',
                     'area_statements_public',
@@ -2118,7 +2112,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_demosplan',
                     'area_demosplan',
                     'area_mydata',
-                    'area_mydata_password',
                     'area_portal_user',
                     'feature_map_use_location_relation',
                     'feature_procedure_single_document_upload_zip',
@@ -2302,7 +2295,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_data_protection_text',
                     'area_demosplan',
                     'area_demosplan',
-                    'area_mydata_password',
                     'area_portal_user',
                     'feature_admin_export_procedure',
                     'feature_draft_statement_citizen_immediate_submit',
@@ -2624,7 +2616,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_data_protection_text',
                     'area_demosplan',
                     'area_demosplan',
-                    'area_mydata_password',
                     'area_portal_user',
                     'feature_orga_get',
                     'feature_procedure_report_public_phase',
@@ -2714,7 +2705,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_data_protection_text',
                     'area_demosplan',
                     'area_demosplan',
-                    'area_mydata_password',
                     'area_portal_user',
                     'feature_forum_dev_release_edit',
                     'feature_forum_thread_edit',
@@ -3116,7 +3106,7 @@ class PermissionsTest extends FunctionalTestCase
         array $allowedPermissions,
         array $disallowedPermissions
     ): void {
-        self::markTestSkipped('This test was skipped because of pre-existing errors. They are most likely easily fixable but prevent us from getting to a usable state of our CI.');
+
         // do debug a specific permission enable debugging and paste dataset name
         $debugPermission = false;
         if ($debugPermission && 'guest #1' !== $this->dataName()) {
@@ -3483,7 +3473,6 @@ class PermissionsTest extends FunctionalTestCase
 
     protected function doTestSinglePermission(string $permission, bool $isAllowed, array $failureMetaData): void
     {
-        self::markTestSkipped('This test was skipped because of pre-existing errors. They are most likely easily fixable but prevent us from getting to a usable state of our CI.');
         $phases = implode(', ', $failureMetaData['procedurePhases']);
         if ('' !== $failureMetaData['procedurePublicParticipationPhase']) {
             $phases .= "(participation phase: {$failureMetaData['procedurePublicParticipationPhase']})";
