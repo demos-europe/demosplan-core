@@ -778,7 +778,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_portal_user',
                     'area_preferences',
                     'feature_procedure_single_document_upload_zip',
-                    'feature_user_delete',
                     'feature_user_edit', // fixme: this permission was both here and in featuresDenied. Please check.
                     'feature_user_get',
                     'feature_user_list',
@@ -2613,7 +2612,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_orga_get',
                     'feature_procedure_report_public_phase',
                     'feature_procedure_single_document_upload_zip',
-                    'feature_user_delete',
                     'feature_user_edit', // fixme: this permission was both here and in featuresDenied. Please check.
                     'feature_user_get',
                     'feature_user_list',
