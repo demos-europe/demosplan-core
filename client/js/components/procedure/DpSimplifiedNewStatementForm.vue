@@ -370,6 +370,7 @@
       <dp-button-row
         :busy="isSaving"
         class="u-mv"
+        data-cy="submitterForm"
         :href="Routing.generate('DemosPlan_procedure_dashboard', { procedure: procedureId })"
         primary
         secondary
