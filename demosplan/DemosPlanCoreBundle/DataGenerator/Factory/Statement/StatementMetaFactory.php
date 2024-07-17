@@ -79,4 +79,12 @@ final class StatementMetaFactory extends PersistentProxyObjectFactory
             'submitName'         => self::faker()->text(255),
         ];
     }
+
+    /**
+     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
+     */
+    protected function initialize(): static
+    {
+        return $this;
+    }
 }
