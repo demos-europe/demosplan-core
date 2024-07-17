@@ -23,6 +23,8 @@ class SegmentExporterFileNameGenerator
 
     protected Slugify $slugify;
 
+    public const DEFAULT_TEMPLATE_NAME = '{ID}-{NAME}-{EINGANGSNR}';
+
     public function __construct(
         Slugify $slugify,
         TranslatorInterface $translator)
@@ -33,7 +35,7 @@ class SegmentExporterFileNameGenerator
 
     public function getFileName(Statement $statement, string $templateName = ''): string
     {
-        $defaultTemplateName = '{ID}-{NAME}-{EINGANGSNR}';
+        $defaultTemplateName = self::DEFAULT_TEMPLATE_NAME;
         $templateName = $templateName ?: $defaultTemplateName;
 
         $externalId = $this->getExternalId($statement);
