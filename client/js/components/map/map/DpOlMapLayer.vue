@@ -106,6 +106,19 @@ export default {
         return
       }
 
+      const splittedUrl = this.url.split('?')
+      let url = splittedUrl[0]
+
+      if (splittedUrl[1]) {
+        // We have to ensure that the Service is not within the params,
+        // since the `createSourceTileWMS` function from OL already adds it
+        const params = splittedUrl[1].split('&').reduce((acc, curr) => {
+          return (!curr.toUpperCase().includes('SERVICE=')) ? acc + curr : acc
+        }, '?')
+
+        url += params
+      }
+
       this.source = createSourceTileWMS(this.url, this.layers, this.projection, this.defaultAttributions, this.map)
       const layer = createTileLayer(this.title, this.name, this.source, this.opacity)
 
