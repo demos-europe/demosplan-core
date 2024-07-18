@@ -27,6 +27,7 @@ export default {
             'url',
             'isEnabled',
             'mapOrder',
+            'opacity',
             'hasDefaultVisibility',
             'layers',
             'projectionValue'
