@@ -77,12 +77,12 @@
             v-model="fileName"
             :placeholder="Translator.trans('docx.export.file_name.placeholder')"
             type="text"/>
-          <small>
+          <div class="font-size-small mt-2">
             <span
-              class="font-semibold"
+              class="weight--bold"
               v-text="Translator.trans('docx.export.example_file_name')" />
             <span v-text="exampleFileName" />
-          </small>
+          </div>
         </template>
       </section>
 
