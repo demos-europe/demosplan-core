@@ -10,6 +10,7 @@
 <template>
   <div class="space-stack-s">
     <dp-inline-notification
+      data-cy="places:editInfo"
       dismissible
       :dismissible-key="helpTextDismissibleKey"
       :message="helpText"
