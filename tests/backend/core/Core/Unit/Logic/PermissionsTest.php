@@ -2167,7 +2167,7 @@ class PermissionsTest extends FunctionalTestCase
                 'ownsProcedure'                     => false,
                 'isMember'                          => false,
                 'featuresAllowed'                   => [
-                   'area_data_protection_text',
+                    'area_data_protection_text',
                     'area_demosplan',
                     'area_demosplan',
                     'feature_map_search_location',
