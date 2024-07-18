@@ -77,7 +77,12 @@
             v-model="fileName"
             :placeholder="Translator.trans('docx.export.file_name.placeholder')"
             type="text"/>
-          <small>Vorschau</small>
+          <small>
+            <span
+              class="font-semibold"
+              v-text="Translator.trans('docx.export.example_file_name')" />
+            <span v-text="exampleFileName" />
+          </small>
         </template>
       </section>
 
@@ -172,6 +177,29 @@ export default {
   computed: {
     exportModalTitle () {
       return this.isSingleStatementExport ? Translator.trans('statement.export.do') : Translator.trans('export.statements')
+    },
+
+    exampleFileName () {
+      let exampleFileName = 'm101-jacob-meier-e5089.docx'
+      const exampleId = 'm101'
+      const exampleName = 'jacob-meier'
+      const exampleInternId = 'e5089'
+
+      if (this.fileName) {
+        exampleFileName = this.fileName
+          .replace(/{ID}/g, exampleId)
+          .replace(/{NAME}/g, exampleName)
+          .replace(/{EINGANGSNR}/g, exampleInternId)
+          .replace(/[_\s]/g, '-')
+
+        // Add example unique id if no placeholder was found
+        if (exampleFileName === this.fileName) {
+          exampleFileName += '-837474df23'
+        }
+        exampleFileName += '.docx'
+      }
+
+      return exampleFileName
     }
   },
 
