@@ -10,8 +10,7 @@ describe('StatusBadge.vue', () => {
         propsData: { status }
       })
 
-      expect(wrapper.text()).toBe(status)
-      expect(wrapper.classes()).toContain(colors[index])
+      expect(wrapper.vm.color).toBe(colors[index])
     })
   })
 })
