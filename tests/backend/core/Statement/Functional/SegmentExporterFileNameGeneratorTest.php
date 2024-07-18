@@ -17,7 +17,7 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFacto
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementMetaFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentExporterFileNameGenerator;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\SegmentExporterFileNameGenerator;
 use Tests\Base\FunctionalTestCase;
 use Zenstruck\Foundry\Persistence\Proxy;
 
