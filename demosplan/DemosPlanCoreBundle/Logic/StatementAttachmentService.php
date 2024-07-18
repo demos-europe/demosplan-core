@@ -11,10 +11,10 @@
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use demosplan\DemosPlanCoreBundle\Entity\File;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Repository\StatementAttachmentRepository;
+use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\OptimisticLockException;
@@ -22,8 +22,10 @@ use Doctrine\ORM\ORMException;
 
 class StatementAttachmentService extends CoreService
 {
-    public function __construct(private readonly StatementAttachmentRepository $attachmentRepository)
-    {
+    public function __construct(
+        private readonly StatementAttachmentRepository $attachmentRepository,
+        private readonly StatementRepository $statementRepository
+    ) {
     }
 
     public function createOriginalAttachment(Statement $statement, File $file): StatementAttachment
@@ -69,14 +71,12 @@ class StatementAttachmentService extends CoreService
     public function copyAttachmentEntries(
         Collection $originalAttachments,
         Statement $targetStatement,
-        ?Procedure $targetProcedure = null
     ): Collection {
         $copiedAttachments = new ArrayCollection();
         foreach ($originalAttachments as $originalAttachment) {
             $copiedAttachments->add($this->copyToStatement(
                 $originalAttachment,
                 $targetStatement,
-                $targetProcedure
             ));
         }
 
@@ -86,19 +86,8 @@ class StatementAttachmentService extends CoreService
     private function copyToStatement(
         StatementAttachment $attachment,
         Statement $statement,
-        ?Procedure $targetProcedure
     ): StatementAttachment {
-        $type = $attachment->getType();
-        $file = $attachment->getFile();
-        if (null !== $targetProcedure) {
-            $file->setProcedure($targetProcedure);
-        }
-
-        return $this->createAttachment(
-            $statement,
-            $file,
-            $type
-        );
+        return $this->statementRepository->copyAttachment($statement, $attachment);
     }
 
     /**

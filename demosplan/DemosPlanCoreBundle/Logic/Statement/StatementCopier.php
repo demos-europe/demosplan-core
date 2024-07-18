@@ -224,8 +224,7 @@ class StatementCopier extends CoreService
         $originalAttachments = $sourceStatement->getAttachments();
         $copiedAttachments = $this->statementAttachmentService->copyAttachmentEntries(
             $originalAttachments,
-            $copiedStatement,
-            $targetProcedure
+            $copiedStatement
         );
         $copiedStatement->setAttachments($copiedAttachments);
 
