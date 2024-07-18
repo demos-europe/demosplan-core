@@ -19,7 +19,8 @@
 
     <dp-modal
       ref="exportModalInner"
-      content-classes="w-11/12 sm:w-10/12 md:w-8/12 lg:w-6/12 xl:w-5/12">
+      content-classes="w-11/12 sm:w-10/12 md:w-8/12 lg:w-6/12 xl:w-5/12 h-[500px]"
+      content-body-classes="flex flex-col h-[95%]">
       <h2 class="mb-5">
         {{ exportModalTitle }}
       </h2>
@@ -54,24 +55,40 @@
         <div class="grid grid-cols-5 gap-3 mt-1 mb-5">
           <dp-input
             v-for="(column, key) in docxColumns"
-            :key="key"
             :id="key"
-            type="text"
+            :key="key"
+            v-model="column.title"
             :data-cy="column.dataCy"
             :placeholder="Translator.trans(column.placeholder)"
-            :width="column.width"
-            v-model="column.title" />
+            type="text"
+            :width="column.width" />
         </div>
+        <template v-if="this.active === 'zip' || isSingleStatementExport">
+          <h3
+            id="docxFileName"
+            class="inline-block text-lg mr-1">
+            {{ Translator.trans('docx.export.file_name') }}
+          </h3>
+          <dp-contextual-help
+            aria-labelledby="docxFileName"
+            :text="Translator.trans('docx.export.file_name.hint')" />
+          <dp-input
+            id="fileName"
+            v-model="fileName"
+            :placeholder="Translator.trans('docx.export.file_name.placeholder')"
+            type="text"/>
+          <small>Vorschau</small>
+        </template>
       </section>
 
-        <dp-button-row
-          class="text-right"
-          primary
-          secondary
-          :primary-text="Translator.trans('export.statements')"
-          :secondary-text="Translator.trans('abort')"
-          @primary-action="handleExport"
-          @secondary-action="closeModal" />
+      <dp-button-row
+        class="text-right mt-auto"
+        primary
+        secondary
+        :primary-text="Translator.trans('export.statements')"
+        :secondary-text="Translator.trans('abort')"
+        @primary-action="handleExport"
+        @secondary-action="closeModal" />
     </dp-modal>
   </div>
 </template>
@@ -139,6 +156,7 @@ export default {
           dataCy: 'exportModal:export:xlsx'
         }
       },
+      fileName: '',
       singleStatementExportPath: 'dplan_segments_export' /** used in the statements detail page */
     }
   },
@@ -180,7 +198,8 @@ export default {
 
       this.$emit('export', {
         route: this.isSingleStatementExport ? this.singleStatementExportPath : this.exportTypes[this.active].exportPath,
-        docxHeaders: ['docx', 'zip'].includes(this.active) ? columnTitles : null
+        docxHeaders: ['docx', 'zip'].includes(this.active) ? columnTitles : null,
+        fileNameTemplate: this.fileName ?? null
       })
       this.closeModal()
     },
