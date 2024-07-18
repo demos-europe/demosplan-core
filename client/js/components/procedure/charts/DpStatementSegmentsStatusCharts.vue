@@ -88,7 +88,7 @@ export default {
               percentage: percentages.statementNewCount,
               id: 'statementNewCount',
               legendId: 'statementNewCountLegend',
-              color: 'c-chart__color-3-1'
+              color: 'text-status-progress-icon'
             },
             {
               label: Translator.trans('processing'),
@@ -96,7 +96,7 @@ export default {
               percentage: percentages.statementProcessingCount,
               id: 'statementProcessingCount',
               legendId: 'statementProcessingCountLegend',
-              color: 'c-chart__color-3-2'
+              color: 'text-status-changed-icon'
             },
             {
               label: Translator.trans('completed'),
@@ -104,7 +104,7 @@ export default {
               percentage: percentages.statementCompletedCount,
               id: 'statementCompletedCount',
               legendId: 'statementCompletedCountLegend',
-              color: 'c-chart__color-3-3'
+              color: 'text-status-complete-icon'
             }
           ]
           this.isLoading = false
