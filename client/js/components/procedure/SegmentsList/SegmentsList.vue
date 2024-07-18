@@ -101,6 +101,14 @@
 
     <template v-else>
       <template v-if="items.length > 0">
+        <dp-modal
+          ref="imgModal"
+          content-classes="w-fit"
+          data-cy="table:imgModal">
+          <img
+            :alt="this.clickedImg.alt"
+            :src="this.clickedImg.src">
+        </dp-modal>
         <dp-data-table
           ref="dataTable"
           class="overflow-x-auto pb-3"
@@ -271,6 +279,7 @@ import {
   DpFlyout,
   DpInlineNotification,
   DpLoading,
+  DpModal,
   DpPager,
   dpRpc,
   DpStickyElement,
@@ -299,6 +308,7 @@ export default {
     DpFlyout,
     DpInlineNotification,
     DpLoading,
+    DpModal,
     DpPager,
     DpStickyElement,
     FilterFlyout,
@@ -344,6 +354,10 @@ export default {
   data () {
     return {
       appliedFilterQuery: this.initialFilter,
+      clickedImg: {
+        alt: '',
+        src: ''
+      },
       currentQueryHash: '',
       currentSelection: ['text', 'tags'],
       defaultPagination: {
@@ -471,6 +485,15 @@ export default {
 
     ...mapMutations('SegmentFilter', ['updateFilterQuery']),
 
+    addClickListenerToImages () {
+      if (this.$refs.dataTable) {
+        const images = this.$refs.dataTable.$el.querySelectorAll('img');
+        images.forEach((img) => {
+          img.addEventListener('click', this.imageClicked);
+        })
+      }
+    },
+
     applyQuery (page) {
       lscache.remove(this.lsKey.allSegments)
       lscache.remove(this.lsKey.toggledSegments)
@@ -558,6 +581,9 @@ export default {
         })
         .finally(() => {
           this.isLoading = false
+          this.$nextTick(() => {
+            this.addClickListenerToImages()
+          })
         })
     },
 
@@ -604,6 +630,12 @@ export default {
       const page = Math.floor((this.pagination.perPage * (this.pagination.currentPage - 1) / newSize) + 1)
       this.pagination.perPage = newSize
       this.applyQuery(page)
+    },
+
+    imageClicked ({ target }) {
+      this.clickedImg.src = target.src
+      this.clickedImg.alt = target.alt
+      this.$refs.imgModal.toggle()
     },
 
     resetQuery () {
