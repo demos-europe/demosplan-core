@@ -27,6 +27,8 @@ use Exception;
  */
 final class ImageLinkConverter
 {
+    public const IMAGE_REFERENCE_RECOMMENDATION_SUFFIX = '_Darstellung_Erw_';
+    private const IMAGE_REFERENCE_RECOMMENDATION_FORMAT = '%s'.self::IMAGE_REFERENCE_RECOMMENDATION_SUFFIX.'%03d';
     /**
      * @var array<string, string>
      */
@@ -54,7 +56,8 @@ final class ImageLinkConverter
         $srcParts = explode('/', $src);
         $hash = $srcParts[array_key_last($srcParts)];
 
-        $imageReference = sprintf('%s_Darstellung_Erw_%03d', $statementExternId, $this->imageCounter);
+        $imageReference =
+            sprintf(self::IMAGE_REFERENCE_RECOMMENDATION_FORMAT, $statementExternId, $this->imageCounter);
         $imageReferenceLink = $imageReference;
         if ($asLinkedReference) {
             $imageReferenceLink = '<a href="#'.$imageReference.'" style="color: blue; text-decoration: underline;">'

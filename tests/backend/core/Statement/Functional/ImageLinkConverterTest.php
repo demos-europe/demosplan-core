@@ -25,12 +25,11 @@ class ImageLinkConverterTest extends FunctionalTestCase
      * @var ImageLinkConverter
      */
     protected $sut;
-    private ?FileService $fileService;
 
     protected function setUp(): void
     {
-        $this->fileService = $this->createMock(FileService::class);
-        $this->fileService->method('getFileInfo')->willReturnCallback(
+        $fileService = $this->createMock(FileService::class);
+        $fileService->method('getFileInfo')->willReturnCallback(
             fn ($hash) => new FileInfo(
                 $hash,
                 'filename.jpg',
@@ -41,7 +40,7 @@ class ImageLinkConverterTest extends FunctionalTestCase
                 $this->createMock(Procedure::class)
             )
         );
-        $this->sut = new ImageLinkConverter($this->fileService);
+        $this->sut = new ImageLinkConverter($fileService);
     }
 
     public function testConvertWithLinkedReference(): void
@@ -50,11 +49,13 @@ class ImageLinkConverterTest extends FunctionalTestCase
         $statementExternId = 'statement123';
 
         $linkStyle = 'style="color: blue; text-decoration: underline;"';
-        $linkStart = '<a href="#statement123_Darstellung_Erw_';
+        $linkStart = '<a href="#statement123'.ImageLinkConverter::IMAGE_REFERENCE_RECOMMENDATION_SUFFIX;
         $linkEnd = '" '.$linkStyle.'>';
         $linkClose = '</a>';
-        $expected = '<p>Some text '.$linkStart.'001'.$linkEnd.'statement123_Darstellung_Erw_001'.$linkClose.
-            ' more text '.$linkStart.'002'.$linkEnd.'statement123_Darstellung_Erw_002'.$linkClose.'</p>';
+        $expected = '<p>Some text '.$linkStart.'001'.$linkEnd.
+            'statement123'.ImageLinkConverter::IMAGE_REFERENCE_RECOMMENDATION_SUFFIX.'001'.$linkClose.
+            ' more text '.$linkStart.'002'.$linkEnd.
+            'statement123'.ImageLinkConverter::IMAGE_REFERENCE_RECOMMENDATION_SUFFIX.'002'.$linkClose.'</p>';
         $result = $this->sut->convert($html, $statementExternId);
 
         static::assertSame($expected, $result);
@@ -65,7 +66,8 @@ class ImageLinkConverterTest extends FunctionalTestCase
         $html = '<p>Some text <img src="path/to/image1.jpg" /> more text <img src="path/to/image2.jpg" /></p>';
         $statementExternId = 'statement123';
 
-        $expected = '<p>Some text statement123_Darstellung_Erw_001 more text statement123_Darstellung_Erw_002</p>';
+        $expected = '<p>Some text statement123'.ImageLinkConverter::IMAGE_REFERENCE_RECOMMENDATION_SUFFIX.'001'.
+            ' more text statement123'.ImageLinkConverter::IMAGE_REFERENCE_RECOMMENDATION_SUFFIX.'002</p>';
         $result = $this->sut->convert($html, $statementExternId, false);
 
         static::assertSame($expected, $result);
@@ -78,9 +80,11 @@ class ImageLinkConverterTest extends FunctionalTestCase
 
         $this->sut->convert($html, $statementExternId);
 
+        $keyImage1 = $statementExternId.ImageLinkConverter::IMAGE_REFERENCE_RECOMMENDATION_SUFFIX.'001';
+        $keyImage2 = $statementExternId.ImageLinkConverter::IMAGE_REFERENCE_RECOMMENDATION_SUFFIX.'002';
         $expectedImages = [
-            'statement123_Darstellung_Erw_001' => '/absolute/path/to/image1.jpg',
-            'statement123_Darstellung_Erw_002' => '/absolute/path/to/image2.jpg',
+            $keyImage1 => '/absolute/path/to/image1.jpg',
+            $keyImage2 => '/absolute/path/to/image2.jpg',
         ];
 
         static::assertSame($expectedImages, $this->sut->getImages());
