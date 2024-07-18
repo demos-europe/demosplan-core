@@ -2831,7 +2831,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statement_data_input_orga',
                     'feature_procedure_get_base_data',
                     'feature_procedure_single_document_upload_zip',
-                    //                  'feature_statement_data_input_orga', //fixme: permission is not set and it is unclear why this line is here - area_statement_data_input_orga instead is set - might be a mismatch
                 ],
                 'featuresDenied'                    => [
                     'area_admin',
@@ -2905,7 +2904,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_data_protection_text',
                     'area_demosplan',
                     'feature_procedure_single_document_upload_zip',
-                    //                  'feature_statement_data_input_orga', //fixme: permission is not set and it is unclear why this line is here - area_statement_data_input_orga instead is set - might be a mismatch
                 ],
                 'featuresDenied'                    => [
                     'area_admin',
