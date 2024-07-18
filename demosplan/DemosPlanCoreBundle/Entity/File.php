@@ -382,7 +382,7 @@ class File extends CoreEntity implements UuidEntityInterface, FileInterface
         return $this->procedure;
     }
 
-    public function setProcedure(?ProcedureInterface $procedure): void
+    public function setProcedure(ProcedureInterface $procedure): void
     {
         $this->procedure = $procedure;
     }
