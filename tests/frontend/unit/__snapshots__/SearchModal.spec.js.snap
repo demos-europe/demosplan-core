@@ -15,8 +15,8 @@ exports[`SearchModal renders the correct markup for activated field_statement_mu
         assessmenttable.searchfield.characters
       </p>
       <div class=\\"space-stack-s\\">
-        <dp-details-stub summary=\\"search.options\\"><span>search.options.description</span></dp-details-stub>
-        <dp-details-stub summary=\\"search.special.characters\\"><span>search.special.characters.description</span></dp-details-stub>
+        <dp-details-stub datacy=\\"element\\" summary=\\"search.options\\"><span>search.options.description</span></dp-details-stub>
+        <dp-details-stub datacy=\\"element\\" summary=\\"search.special.characters\\"><span>search.special.characters.description</span></dp-details-stub>
       </div>
       <h3 class=\\"u-mt-0_25\\">
         search.in
@@ -65,8 +65,8 @@ exports[`SearchModal renders the correct markup with deactivated feature_stateme
         assessmenttable.searchfield.characters
       </p>
       <div class=\\"space-stack-s\\">
-        <dp-details-stub summary=\\"search.options\\"><span>search.options.description</span></dp-details-stub>
-        <dp-details-stub summary=\\"search.special.characters\\"><span>search.special.characters.description</span></dp-details-stub>
+        <dp-details-stub datacy=\\"element\\" summary=\\"search.options\\"><span>search.options.description</span></dp-details-stub>
+        <dp-details-stub datacy=\\"element\\" summary=\\"search.special.characters\\"><span>search.special.characters.description</span></dp-details-stub>
       </div>
       <h3 class=\\"u-mt-0_25\\">
         search.in
