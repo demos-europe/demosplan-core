@@ -10,14 +10,15 @@
 <template>
   <div
     ref="sideBar"
+    :style="`max-height: calc(100vh - ${offset}px - 8px);`"
     class="side-bar flex flex-col">
 
     <!-- Selected Tags Section -->
-    <div class="relative px-2 pt-2">
+    <div class="relative px-2 py-2">
       <dp-label
         :text="Translator.trans('tags')"
         for="searchSelect"
-        class="u-mb-0" />
+        class="mb-1" />
       <div
         v-if="editingSegment && editingSegment.tags.length > 0"
         class="flex flex-wrap gap-1 bg-white">
@@ -31,6 +32,7 @@
               isTagAppliedToSegment(tag.id) ? 'bg-gray-500': 'bg-green-400',
               isLastTagWithEvenPosition(idx) ? 'w-fit' : ''
             ]"
+            v-tooltip="tag.tagName"
           >
           <span class="overflow-hidden text-ellipsis">
             {{ tag.tagName }}
@@ -49,8 +51,7 @@
       </div>
 
       <FloatingContextButton
-        id="floatingContextButton_tags"
-        class="right-[-24px] bottom-[-36px]"
+        class="right-[-24px] bottom-[-30px]"
         section="tags"
         :is-visible="showFloatingContextButton.tags"
         :is-content-collapsed="isCollapsed.tags"
@@ -61,9 +62,8 @@
 
     <!-- Tags Section -->
     <div
-      id="tags"
       aria-labelledby="floatingContextButton_tags"
-      class="flex-1 flex overflow-y-hidden py-1 px-2"
+      class="flex-1 flex overflow-y-hidden pl-2 pr-5 -mr-4"
       @mouseover="showFloatingContextButton.tags = true"
       @mouseleave="showFloatingContextButton.tags = false">
 
@@ -71,7 +71,7 @@
         v-if="!isCollapsed.tags"
         data-cy="sidebar:toggleVisibility:tags"
         @click="toggleVisibility('tags')"
-        class="relative btn--blank o-link--default font-semibold w-full text-left pr-2">
+        class="relative btn--blank o-link--default font-semibold w-full text-left pr-2 pt-0.5">
         {{ Translator.trans('tags.select') }}
       </button>
 
@@ -95,11 +95,11 @@
 
         <div
           v-if="tagTopics.length"
-          class="flex-1 overflow-y-scroll my-2 pr-1">
+          class="flex-1 overflow-y-scroll mt-2 pr-1">
           <!-- categorized tags -->
           <tag-select
             v-for="(topic, idx) in tagTopics"
-            class="u-mb-0_5"
+            :class="{'mb-1': idx < tagTopics.length + 1}"
             :entity="topic"
             :selected="selectedTags.filter(tag => (hasOwnProp(tag, 'relationships') && hasOwnProp(tag.relationships, 'topic')) ? tag.relationships.topic.data.id === topic.id : false)"
             :key="`category_${idx}`" />
@@ -116,15 +116,13 @@
 
     <!-- Places and Assignee Section -->
     <div
-      id="placesAndAssignee"
       aria-labelledby="floatingContextButton_placesAndAssignee"
-      class="relative py-1 px-2"
+      class="relative py-1 pl-2 pr-5 -mr-4"
       @mouseover="showFloatingContextButton.placesAndAssignee = true"
       @mouseleave="showFloatingContextButton.placesAndAssignee = false">
 
       <FloatingContextButton
-        id="floatingContextButton_placesAndAssignee"
-        class="right-[-24px] top-0"
+        class="right-0 top-0"
         section="placesAndAssignee"
         :is-visible="showFloatingContextButton.placesAndAssignee"
         :is-content-collapsed="isCollapsed.placesAndAssignee"
@@ -150,7 +148,7 @@
           id="setPlace"
           v-model="selectedPlace"
           label="name"
-          class="u-mb-0_5"
+          class="mb-1"
           :allow-empty="false"
           :options="availablePlaces"
           :show-placeholder="false"
@@ -164,7 +162,7 @@
           </template>
         </dp-multiselect>
         <label
-          class="inline-block u-mb-0"
+          class="inline-block mb-0"
           for="assignUser">
           {{ Translator.trans('assignee') }}
         </label>
@@ -172,7 +170,7 @@
           id="assignUser"
           v-model="selectedAssignee"
           label="name"
-          class="u-mb-0_5"
+          class="mb-1"
           :allow-empty="false"
           :options="assignableUsers"
           :show-placeholder="false"
@@ -181,7 +179,6 @@
     </div>
 
     <dp-button-row
-      id="buttonRow"
       class="p-2"
       alignment="left"
       secondary
@@ -193,7 +190,16 @@
 </template>
 
 <script>
-import { DpButtonRow, DpContextualHelp, DpIcon, DpLabel, DpMultiselect, DpSelect, hasOwnProp } from '@demos-europe/demosplan-ui'
+import {
+  DpButtonRow,
+  DpContextualHelp,
+  DpIcon,
+  DpLabel,
+  DpMultiselect,
+  DpSelect,
+  hasOwnProp,
+  Tooltip
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import DpCreateTag from './DpCreateTag'
 import FloatingContextButton from './FloatingContextButton.vue'
@@ -216,10 +222,21 @@ export default {
     TagSelect
   },
 
+  directives: {
+    tooltip: Tooltip
+  },
+
+  props: {
+    offset: {
+      type: Number,
+      required: true
+    }
+  },
+
   data () {
     return {
       isCollapsed: {
-        tags: false,
+        tags: true,
         placesAndAssignee: false
       },
       selectedAssignee: null,
@@ -337,7 +354,7 @@ export default {
 
     isTagNameLongerThanLimit (tag) {
       if (tag) {
-        return tag.tagName.length > 15
+        return tag.tagName.length > 14
       }
     },
 
@@ -418,38 +435,11 @@ export default {
 
       this.setProperty({ prop: 'editingSegment', val: segment })
       this.locallyUpdateSegments([this.editingSegment])
-    },
-
-    getSideBarMaxHeight () {
-      const header = document.getElementById('header')
-      const footer = document.getElementById('footer')
-
-      const viewportHeight = window.innerHeight
-      const headerHeight = header.offsetHeight
-      const footerHeight = footer.offsetHeight
-
-      const mainHeight = viewportHeight - headerHeight - footerHeight
-
-      return mainHeight * 0.8 // 80% from the main height
-    },
-
-    setSidebarMaxHeight () {
-      const sideBarMaxHeight = this.getSideBarMaxHeight()
-
-      if (this.$refs.sideBar) {
-        this.$refs.sideBar.style.maxHeight = `${sideBarMaxHeight}px`
-      }
     }
   },
 
   mounted () {
     this.setInitialValues()
-    this.setSidebarMaxHeight()
-    window.addEventListener('resize', this.setSidebarMaxHeight)
-  },
-
-  beforeDestroy () {
-    window.removeEventListener('resize', this.setSidebarMaxHeight)
   }
 }
 </script>

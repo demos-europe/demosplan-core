@@ -68,11 +68,6 @@
             color: $dp-color-white;
             border-radius: $inuit-base-spacing-unit--small;
 
-            &:hover {
-                background: $dp-color-neutral-light-3;
-                color: $dp-color-text-default;
-            }
-
             &__remove {
                 margin-top: 2px;
                 min-width: 16px;
