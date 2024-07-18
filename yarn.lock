@@ -6423,10 +6423,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dompurify@npm:^3.0.0, dompurify@npm:^3.1.4":
+"dompurify@npm:^3.0.0":
   version: 3.1.4
   resolution: "dompurify@npm:3.1.4"
   checksum: 10c0/1eb98cf563044933acb6ad171aed6eb5e5eb2fa6c7ad1006a71f713549ce41e68a7be033973cc67fe9473f87eda49e5ac046d4d704334578442a83ac6d327272
+  languageName: node
+  linkType: hard
+
+"dompurify@npm:^3.1.6":
+  version: 3.1.6
+  resolution: "dompurify@npm:3.1.6"
+  checksum: 10c0/3de1cca187c78d3d8cb4134fc2985b644d6a81f6b4e024c77cfb04c1c2f38544ccf7b0ea37a48ce22fcca64594170ed7c22252574c75b801c44345cdd7b06c64
   languageName: node
   linkType: hard
 
@@ -12547,7 +12554,7 @@ __metadata:
     d3-sankey-diagram: "npm:^0.7.3"
     dayjs: "npm:^1.11.11"
     deep-object-diff: "npm:^1.1.9"
-    dompurify: "npm:^3.1.4"
+    dompurify: "npm:^3.1.6"
     eslint: "npm:^8.57.0"
     eslint-config-standard: "npm:^17.1.0"
     eslint-friendly-formatter: "npm:^4.0.1"
