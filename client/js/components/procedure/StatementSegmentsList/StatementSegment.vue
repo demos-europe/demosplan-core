@@ -88,13 +88,9 @@
       </button>
     </div>
     <div class="segment-list-col--l overflow-word-break">
-      <dp-modal
-        ref="imgModal"
-        content-classes="w-fit">
-        <img
-          :alt="this.clickedImg.alt"
-          :src="this.clickedImg.src">
-      </dp-modal>
+      <image-modal
+        ref="imageModal"
+        data-cy="recommendation:imgModal"/>
       <div
         v-if="isAssignedToMe === false"
         ref="recommendationContainer"
@@ -361,6 +357,7 @@ import {
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
+import ImageModal from '@DpJs/components/shared/ImageModal'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 
 export default {
@@ -385,6 +382,7 @@ export default {
     },
     DpTab,
     DpTabs,
+    ImageModal,
     VPopover
   },
 
@@ -630,13 +628,6 @@ export default {
       dplan.notify.notify('confirm', Translator.trans('recommendation.pasted'))
     },
 
-    addClickListenerToImages () {
-      const images = this.$refs.recommendationContainer.querySelectorAll('img')
-      images.forEach(img => {
-        img.addEventListener('click', this.imageClicked)
-      })
-    },
-
     imageClicked ({ target }) {
       this.clickedImg.src = target.src
       this.clickedImg.alt = target.alt
@@ -692,7 +683,7 @@ export default {
 
           this.toggleAssignableUsersSelect()
           this.$nextTick(() => {
-            this.addClickListenerToImages()
+            this.$refs.imageModal.addClickListener(this.$refs.recommendationContainer.querySelectorAll('img'))
           })
         })
         .catch(() => {
@@ -871,7 +862,7 @@ export default {
       handler: function (newVal, oldVal) {
         if (!newVal) {
           this.$nextTick(() => {
-            this.addClickListenerToImages();
+            this.$refs.imageModal.addClickListener(this.$refs.recommendationContainer.querySelectorAll('img'))
           })
         }
       },
