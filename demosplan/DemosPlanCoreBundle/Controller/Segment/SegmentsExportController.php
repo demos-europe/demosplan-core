@@ -20,7 +20,7 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\SegmentExporterFileNameGenerator;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\FileNameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
@@ -59,7 +59,7 @@ class SegmentsExportController extends BaseController
     public function exportAction(
         SegmentsExporter $exporter,
         StatementHandler $statementHandler,
-        SegmentExporterFileNameGenerator $fileNameGenerator,
+        FileNameGenerator $fileNameGenerator,
         string $procedureId,
         string $statementId
     ): StreamedResponse {

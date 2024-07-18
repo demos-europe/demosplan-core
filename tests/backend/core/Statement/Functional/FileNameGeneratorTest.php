@@ -17,18 +17,18 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFacto
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementMetaFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\SegmentExporterFileNameGenerator;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\FileNameGenerator;
 use Tests\Base\FunctionalTestCase;
 use Zenstruck\Foundry\Persistence\Proxy;
 
-class SegmentExporterFileNameGeneratorTest extends FunctionalTestCase
+class FileNameGeneratorTest extends FunctionalTestCase
 {
     private Statement|Proxy|null $testStatement;
 
     private StatementMeta|Proxy|null $testStatementeMeta;
 
     /**
-     * @var SegmentExporterFileNameGenerator
+     * @var FileNameGenerator
      */
     protected $sut;
 
@@ -37,7 +37,7 @@ class SegmentExporterFileNameGeneratorTest extends FunctionalTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->sut = $this->getContainer()->get(SegmentExporterFileNameGenerator::class);
+        $this->sut = $this->getContainer()->get(FileNameGenerator::class);
         $this->slugify = $this->getContainer()->get(Slugify::class);
         $this->testStatement = StatementFactory::createOne();
         $this->testStatementeMeta = StatementMetaFactory::createOne();
@@ -50,10 +50,10 @@ class SegmentExporterFileNameGeneratorTest extends FunctionalTestCase
         $this->testStatement->_save();
 
         $testData = [
-            SegmentExporterFileNameGenerator::DEFAULT_TEMPLATE_NAME => $this->testStatement->getExternId().'-'.$this->testStatement->getMeta()->getOrgaName().'-'.$this->testStatement->getInternId(),
-            SegmentExporterFileNameGenerator::PLACEHOLDER_NAME      => $this->testStatement->getMeta()->getOrgaName(),
-            'My Custom Template'                                    => 'My Custom Template',
-            ''                                                      => $this->testStatement->getExternId().'-'.$this->testStatement->getMeta()->getOrgaName().'-'.$this->testStatement->getInternId(),
+            FileNameGenerator::DEFAULT_TEMPLATE_NAME => $this->testStatement->getExternId().'-'.$this->testStatement->getMeta()->getOrgaName().'-'.$this->testStatement->getInternId(),
+            FileNameGenerator::PLACEHOLDER_NAME      => $this->testStatement->getMeta()->getOrgaName(),
+            'My Custom Template'                     => 'My Custom Template',
+            ''                                       => $this->testStatement->getExternId().'-'.$this->testStatement->getMeta()->getOrgaName().'-'.$this->testStatement->getInternId(),
         ];
 
         foreach ($testData as $templateName => $rawExpectedFileName) {
