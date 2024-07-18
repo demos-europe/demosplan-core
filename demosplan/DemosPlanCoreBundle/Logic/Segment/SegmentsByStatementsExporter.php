@@ -23,10 +23,12 @@ use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
+use demosplan\DemosPlanCoreBundle\Logic\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use Doctrine\Common\Collections\ArrayCollection;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
+use PhpOffice\PhpWord\Element\Footer;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Exception\Exception;
 use PhpOffice\PhpWord\IOFactory;
@@ -43,11 +45,12 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         CurrentUserInterface $currentUser,
         private readonly EntityHelper $entityHelper,
         HTMLSanitizer $htmlSanitizer,
+        ImageLinkConverter $imageLinkConverter,
+        private readonly SegmentExporterFileNameGenerator $fileNameGenerator,
         Slugify $slugify,
-        TranslatorInterface $translator,
-        private readonly SegmentExporterFileNameGenerator $fileNameGenerator
+        TranslatorInterface $translator
     ) {
-        parent::__construct($currentUser, $htmlSanitizer, $slugify, $translator);
+        parent::__construct($currentUser, $htmlSanitizer, $imageLinkConverter, $slugify, $translator);
     }
 
     public function getSynopseFileName(Procedure $procedure, string $suffix): string
@@ -84,20 +87,62 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     {
         Settings::setOutputEscapingEnabled(true);
         $exportData = [];
+        $adjustedRecommendations = [];
         // unfortunately for xlsx export data needs to be an array
         foreach ($statements as $statement) {
             $segmentsOrStatements = collect([$statement]);
             if (!$statement->getSegmentsOfStatement()->isEmpty()) {
                 $segmentsOrStatements = $statement->getSegmentsOfStatement();
+                $adjustedRecommendations[] =
+                    $this->convertImagesToReferencesInRecommendations($segmentsOrStatements->toArray());
             }
             foreach ($segmentsOrStatements as $segmentOrStatement) {
                 $exportData[] = $this->convertIntoExportableArray($segmentOrStatement);
             }
         }
 
+        foreach ($adjustedRecommendations as $recommendation) {
+            $exportData = $this->updateRecommendationsWithTextReferences($exportData, $recommendation);
+        }
+
         $columnsDefinition = $this->assessmentTableXlsExporter->selectFormat('segments');
 
         return $this->assessmentTableXlsExporter->createExcel($exportData, $columnsDefinition);
+    }
+
+    private function convertImagesToReferencesInRecommendations(array $segments): array
+    {
+        $sortedSegments = $this->sortSegmentsByOrderInProcedure($segments);
+
+        $recommendationTexts = [];
+        /** @var Segment $segment */
+        foreach ($sortedSegments as $segment) {
+            $externId = $segment->getExternId();
+            $recommendationTexts[$externId] = $this->imageLinkConverter->convert(
+                $segment->getRecommendation(),
+                $externId,
+                false
+            );
+        }
+        $this->imageLinkConverter->resetImages();
+
+        return $recommendationTexts;
+    }
+
+    private function updateRecommendationsWithTextReferences(array $segmentsOrStatements, array $adjustedRecommendations): array
+    {
+        foreach ($segmentsOrStatements as $key => $segmentOrStatement) {
+            $isNotSegment = !array_key_exists('recommendation', $segmentOrStatement);
+            $externIdIsNotOfSegment = !array_key_exists($segmentOrStatement['externId'], $adjustedRecommendations);
+            if ($isNotSegment || $externIdIsNotOfSegment) {
+                continue;
+            }
+
+            $segmentOrStatement['recommendation'] = $adjustedRecommendations[$segmentOrStatement['externId']];
+            $segmentsOrStatements[$key] = $segmentOrStatement;
+        }
+
+        return $segmentsOrStatements;
     }
 
     /**
@@ -106,6 +151,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     private function exportEmptyStatements(PhpWord $phpWord, Procedure $procedure): WriterInterface
     {
         $section = $phpWord->addSection($this->styles['globalSection']);
+        $this->addHeader($section, $procedure, Footer::FIRST);
         $this->addHeader($section, $procedure);
 
         return $this->addNoStatementsMessage($phpWord, $section);
@@ -119,6 +165,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     private function exportStatements(PhpWord $phpWord, Procedure $procedure, array $statements, array $tableHeaders): WriterInterface
     {
         $section = $phpWord->addSection($this->styles['globalSection']);
+        $this->addHeader($section, $procedure, Footer::FIRST);
         $this->addHeader($section, $procedure);
 
         foreach ($statements as $index => $statement) {
@@ -133,6 +180,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     {
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $section = $phpWord->addSection($this->styles['globalSection']);
+        $this->addHeader($section, $procedure, Footer::FIRST);
         $this->addHeader($section, $procedure);
         $this->exportStatement($section, $statement, $tableHeaders);
 

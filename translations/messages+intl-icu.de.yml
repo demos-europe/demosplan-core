@@ -898,7 +898,18 @@ docx.export.anonymous.landscape: "Docx Exp. o.N. (Querformat)"
 docx.export.anonymous: "Docx Exp. ohne Namen"
 docx.export.column.title: "Spaltennamen in DOCX-Exporten"
 docx.export.column.title.hint: "Um die Spaltennamen auf die Ursprungswerte zurückzusetzen, entfernen Sie die Einträge in den Textfeldern."
+docx.export.example_file_name: "Vorschau mit Beispieldaten:"
+docx.export.file_name: "Dateinamen einzelner DOCX-Dateien"
+docx.export.file_name.hint: "Um den Dateinamen dynamisch zu erstellen, verwenden Sie folgende Platzhalter:<br>'{ID}' - die ID der Stellungnahme in EWM<br>'{NAME}' - der Name der einreichenden Person oder Organisation<br>'{EINGANGSNR}' - die vergebene Eingangsnummer<br>Wenn Sie weder '{ID}', '{NAME}' noch '{EINGANGSNR}' verwenden, wird dem Dateinamen eine einzigartige Nummer angehängt."
+docx.export.file_name.placeholder: "'{ID}'_'{NAME}'_'{EINGANGSNR}'"
 docx.export.landscape: "Docx Exp. (Querformat)"
+docx.export.preamble: |
+    <p>Bitte beachten Sie, dass Darstellungen im Text referenziert und unter der jeweiligen Stellungnahme oder Einwendung angezeigt werden.</p>
+    <p>Die Verweise auf Darstellungen sind wie folgt strukturiert:</p>
+    <p>    &lt;ID der Stellungnahme/Einwendung&gt;_Darstellung_Erw_&lt;laufende Nummer&gt;</p>
+
+    <p>Beispiel:</p>
+    <p>- Für eine Abbildung in einem Erwiderungstext: M12_Darstellung_Erw_001</p>
 docx: "DOCX"
 done: "erledigt"
 done.capital: "Erledigt"
@@ -1593,6 +1604,7 @@ export.type: "Art des Exports"
 export.verb: "Exportieren"
 export.xls: "XLS"
 export.xlsx: "XLSX"
+export.xlsx.hint: "Achtung: Darstellungen aus Stellungnahmen oder Erwiderungen, werden nicht im Excel-Export angezeigt."
 export.zip: "ZIP"
 exported.on: "Exportiert am {date} um {time} Uhr."
 

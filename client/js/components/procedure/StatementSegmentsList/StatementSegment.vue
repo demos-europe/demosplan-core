@@ -88,25 +88,36 @@
       </button>
     </div>
     <div class="segment-list-col--l overflow-word-break">
+      <image-modal
+        ref="imageModal"
+        data-cy="recommendation:imgModal"/>
       <div
         v-if="isAssignedToMe === false"
+        ref="recommendationContainer"
         :class="{ 'color--grey': visibleRecommendation === '' }"
         :title="visibleRecommendation ? Translator.trans('explanation.segment.claim.to.edit.recommendation') : Translator.trans('explanation.segment.claim.to.add.recommendation')"
         v-cleanhtml="visibleRecommendation || Translator.trans('segment.recommendation.none')" />
       <div v-else-if="isAssignedToMe && isEditing === false">
         <div
           v-if="visibleRecommendation !== ''"
+          ref="recommendationContainer"
           v-cleanhtml="visibleRecommendation"
           class="u-mb-0_5" />
       </div>
       <div v-else>
         <dp-editor
+          :basic-auth="dplan.settings.basicAuth"
           class="u-mb-0_5"
           editor-id="recommendationText"
+          :routes="{
+            getFileByHash: (hash) => Routing.generate('core_file_procedure', { procedureId: procedureId, hash: hash })
+          }"
           :toolbar-items="{
             fullscreenButton: false,
+            imageButton: true,
             linkButton: true
           }"
+          :tus-endpoint="dplan.paths.tusEndpoint"
           :value="segment.attributes.recommendation"
           @input="value => updateSegment('recommendation', value)">
           <template v-slot:modal="modalProps">
@@ -346,6 +357,7 @@ import {
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
+import ImageModal from '@DpJs/components/shared/ImageModal'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 
 export default {
@@ -370,6 +382,7 @@ export default {
     },
     DpTab,
     DpTabs,
+    ImageModal,
     VPopover
   },
 
@@ -659,6 +672,9 @@ export default {
           this.setProperty({ prop: 'isLoading', val: false })
 
           this.toggleAssignableUsersSelect()
+          this.$nextTick(() => {
+            this.$refs.imageModal.addClickListener(this.$refs.recommendationContainer.querySelectorAll('img'))
+          })
         })
         .catch(() => {
           this.restoreComments(comments)
@@ -828,6 +844,19 @@ export default {
     updateSegment (key, val) {
       const updated = { ...this.segment, ...{ attributes: { ...this.segment.attributes, ...{ [key]: val } } } }
       this.setSegment({ ...updated, id: this.segment.id })
+    }
+  },
+
+  watch: {
+    isCollapsed: {
+      handler: function (newVal, oldVal) {
+        if (!newVal) {
+          this.$nextTick(() => {
+            this.$refs.imageModal.addClickListener(this.$refs.recommendationContainer.querySelectorAll('img'))
+          })
+        }
+      },
+      immediate: true // this ensures the handler is executed immediately after the component is created
     }
   },
 

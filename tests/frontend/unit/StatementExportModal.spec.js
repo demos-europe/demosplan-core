@@ -53,9 +53,11 @@ describe('StatementExportModal', () => {
 
     exportTypes.map(async exportType => {
       await wrapper.setData({ active: exportType })
-      const inputs = wrapper.findAllComponents({ name: 'DpInput' })
 
-      expect(inputs.length).toBe(Object.keys(wrapper.vm.docxColumns).length)
+      Object.keys(wrapper.vm.docxColumns).forEach(key => {
+        const input = wrapper.find(`[datacy="exportModal:input:${key}"]`)
+        expect(input.exists()).toBe(true)
+      })
     })
   })
 
@@ -76,7 +78,8 @@ describe('StatementExportModal', () => {
         col1: sessionStorageValue,
         col2: null,
         col3: null
-      }
+      },
+      fileNameTemplate: null
     })
   })
 
@@ -96,7 +99,8 @@ describe('StatementExportModal', () => {
         col1: sessionStorageValue,
         col2: 'Test Column Title',
         col3: null
-      }
+      },
+      fileNameTemplate: null
     })
   })
 
@@ -107,7 +111,8 @@ describe('StatementExportModal', () => {
 
     expect(emitSpy).toHaveBeenCalledWith('export', {
       route: 'dplan_statement_xls_export',
-      docxHeaders: null
+      docxHeaders: null,
+      fileNameTemplate: null
     })
   })
 
