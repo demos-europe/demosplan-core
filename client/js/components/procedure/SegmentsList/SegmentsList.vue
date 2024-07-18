@@ -274,7 +274,6 @@ import {
   DpFlyout,
   DpInlineNotification,
   DpLoading,
-  DpModal,
   DpPager,
   dpRpc,
   DpStickyElement,
@@ -304,7 +303,6 @@ export default {
     DpFlyout,
     DpInlineNotification,
     DpLoading,
-    DpModal,
     DpPager,
     DpStickyElement,
     FilterFlyout,
@@ -351,10 +349,6 @@ export default {
   data () {
     return {
       appliedFilterQuery: this.initialFilter,
-      clickedImg: {
-        alt: '',
-        src: ''
-      },
       currentQueryHash: '',
       currentSelection: ['text', 'tags'],
       defaultPagination: {
@@ -618,12 +612,6 @@ export default {
       const page = Math.floor((this.pagination.perPage * (this.pagination.currentPage - 1) / newSize) + 1)
       this.pagination.perPage = newSize
       this.applyQuery(page)
-    },
-
-    imageClicked ({ target }) {
-      this.clickedImg.src = target.src
-      this.clickedImg.alt = target.alt
-      this.$refs.imgModal.toggle()
     },
 
     resetQuery () {

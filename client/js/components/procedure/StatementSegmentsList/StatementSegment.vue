@@ -437,10 +437,6 @@ export default {
       },
       allComponentsLoaded: false,
       asyncComponents: [],
-      clickedImg: {
-        alt: '',
-        src: ''
-      },
       showWorkflowActions: false,
       selectedAssignee: {},
       claimLoading: false,
@@ -626,12 +622,6 @@ export default {
     closeRecommendationModalAfterInsert () {
       this.toggleRecommendationModal()
       dplan.notify.notify('confirm', Translator.trans('recommendation.pasted'))
-    },
-
-    imageClicked ({ target }) {
-      this.clickedImg.src = target.src
-      this.clickedImg.alt = target.alt
-      this.$refs.imgModal.toggle()
     },
 
     openBoilerPlate () {
