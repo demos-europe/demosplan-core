@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div :class="{ 'top-0 left-0 flex flex-col w-full h-full fixed z-fixed bg-white': isFullscreen }">
+  <div :class="{ 'top-0 left-0 flex flex-col w-full h-full fixed z-fixed bg-surface': isFullscreen }">
     <dp-sticky-element
       border
       class="pt-2 pb-3"
@@ -65,10 +65,13 @@
           @size-change="handleSizeChange"
           :key="`pager1_${pagination.currentPage}_${pagination.count}`" />
         <div class="ml-auto flex items-center space-inline-xs">
-          <label class="u-mb-0">
+          <label
+            class="u-mb-0"
+            for="applySortSelection">
             {{ Translator.trans('sorting') }}
           </label>
           <dp-select
+            id="applySortSelection"
             :options="sortOptions"
             :selected="selectedSort"
             @select="applySort" />
