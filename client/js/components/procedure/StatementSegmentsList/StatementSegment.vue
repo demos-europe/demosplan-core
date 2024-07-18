@@ -114,7 +114,7 @@
           class="u-mb-0_5"
           editor-id="recommendationText"
           :routes="{
-            getFileByHash: (hash) => Routing.generate('core_file_procedure', { procedureId: procedureId, hash: hash})
+            getFileByHash: (hash) => Routing.generate('core_file_procedure', { procedureId: procedureId, hash: hash })
           }"
           :toolbar-items="{
             fullscreenButton: false,
