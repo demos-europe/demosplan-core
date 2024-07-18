@@ -63,11 +63,6 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         );
     }
 
-    public function getSynopseFileName(Procedure $procedure, string $suffix): string
-    {
-        return 'Synopse-'.$this->slugify->slugify($procedure->getName()).'.'.$suffix;
-    }
-
     /**
      * @throws Exception
      */
