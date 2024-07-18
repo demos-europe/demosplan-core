@@ -386,7 +386,7 @@ const LayersStore = {
 
   getters: {
     /**
-     * Get complete object for striped object containing element-Id and Type
+     * Get complete object for stripped object containing element-Id and Type
      * (both have to match the corresponding included-array)
      *
      * @param element|Object ( {id, type} )
