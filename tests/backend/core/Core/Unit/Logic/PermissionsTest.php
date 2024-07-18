@@ -2759,7 +2759,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_data_input_orga',
                     'feature_statement_meta_house_number_export',
                     'field_organisation_email_reviewer_admin',
-                     'feature_statement_bulk_edit',
+                    'feature_statement_bulk_edit',
                     'field_statement_recommendation',
                 ],
                 'featuresDenied'                    => [
