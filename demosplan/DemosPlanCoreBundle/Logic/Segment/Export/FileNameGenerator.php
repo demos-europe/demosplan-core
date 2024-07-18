@@ -16,6 +16,7 @@ use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FileNameGenerator
@@ -59,6 +60,76 @@ class FileNameGenerator
             $templateName);
 
         return $this->slugify->slugify($fileName);
+    }
+
+    /**
+     * Creates a file name from each given {@link Statement} to be used in the ZIP the
+     * {@link Statement} is exported in.
+     *
+     * Initially the file name is created from the
+     * submitters name and the extern ID of the statement. In case of one or multiple
+     * duplicate file names based on this information the database ID is used additionally
+     * for all conflicting {@link Statement}s. Non-conflicting {@link Statement}s will
+     * still only use the submitter name and intern ID.
+     *
+     * @param array<int, Statement> $statements
+     *
+     * @return array<string, Statement>
+     */
+    public function mapStatementsToPathInZip(array $statements, string $fileNameTemplate = ''): array
+    {
+        $pathedStatements = [];
+        $previousKeysOfReaddedDuplicates = [];
+        foreach ($statements as $statement) {
+            $pathInZip = $this->getPathInZip($statement, false, $fileNameTemplate);
+            // in case of a duplicate, add the database ID to the name
+            if (array_key_exists($pathInZip, $pathedStatements)) {
+                $duplicate = $pathedStatements[$pathInZip];
+                $previousKeysOfReaddedDuplicates[$pathInZip] = $pathInZip;
+                $duplicateExtendedPathInZip = $this->getPathInZip($duplicate, true, $fileNameTemplate);
+                $pathedStatements[$duplicateExtendedPathInZip] = $duplicate;
+                $pathInZip = $this->getPathInZip($statement, true, $fileNameTemplate);
+            }
+
+            if (array_key_exists($pathInZip, $pathedStatements)) {
+                throw new InvalidArgumentException('duplicated statement given');
+            }
+
+            $pathedStatements[$pathInZip] = $statement;
+        }
+
+        // Remove old keys of duplicates only after the previous loop has completed,
+        // as otherwise a third duplicate would be added to the result array without
+        // the extended path.
+        foreach ($previousKeysOfReaddedDuplicates as $key) {
+            unset($pathedStatements[$key]);
+        }
+
+        return $pathedStatements;
+    }
+
+    /**
+     * Creates a file name from the given {@link Statement}.
+     *
+     * The file name is created from the submitters name and the extern ID of the statement.
+     * If the trimmed extern ID is an empty string it will not be included in the result.
+     * Optionally the database ID of the statement can be included too to ensure uniqueness.
+     *
+     * While the extern ID is set in normal parenthesis (`(1234)`), the database ID is set
+     * in square brackets (`[abcd-ef12-…]`). This avoids confusion on the users part for
+     * the case that the extern ID is an empty string and the database ID is included in
+     * the result.
+     */
+    private function getPathInZip(Statement $statement, bool $withDbId, string $fileNameTemplate = ''): string
+    {
+        // prepare needed variables
+        $dbId = $statement->getId();
+
+        $fileName = $this->getFileName($statement, $fileNameTemplate);
+
+        return $withDbId
+            ? "$fileName-$dbId.docx"
+            : "$fileName.docx";
     }
 
     private function getAuthorName(Statement $statement): string

@@ -203,7 +203,7 @@ class SegmentsExportController extends BaseController
         );
         /** @var Statement[] $statements */
         $statements = array_values($statementResult->getList());
-        $statements = $exporter->mapStatementsToPathInZip($statements, $fileNameTemplate);
+        $statements = $fileNameGenerator->mapStatementsToPathInZip($statements, $fileNameTemplate);
 
         return $zipExportService->buildZipStreamResponse(
             $fileNameGenerator->getSynopseFileName($procedure, 'zip'),
