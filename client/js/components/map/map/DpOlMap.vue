@@ -107,6 +107,7 @@
           :key="layer.name"
           :attributions="layer.attribution || ''"
           :order="layer.mapOrder + 1"
+          :opacity="layer.opacity"
           :url="layer.url"
           :layers="layer.layers"
           :projection="layer.projectionValue" />

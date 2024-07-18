@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\AfterSegmentationEventInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
@@ -149,7 +150,7 @@ class DraftsInfoApiController extends APIController
             $segmentHandler->addSegments($segments);
 
             // request additional statement processing (asynchronous)
-            $eventDispatcher->dispatch(new AfterSegmentationEvent($statementHandler->getStatementWithCertainty($statementId)));
+            $eventDispatcher->dispatch(new AfterSegmentationEvent($statementHandler->getStatementWithCertainty($statementId)), AfterSegmentationEventInterface::class);
 
             $currentUser = $currentUserProvider->getUser();
 

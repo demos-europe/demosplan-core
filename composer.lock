@@ -666,16 +666,16 @@
         },
         {
             "name": "composer/ca-bundle",
-            "version": "1.5.0",
+            "version": "1.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/ca-bundle.git",
-                "reference": "0c5ccfcfea312b5c5a190a21ac5cef93f74baf99"
+                "reference": "063d9aa8696582f5a41dffbbaf3c81024f0a604a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/0c5ccfcfea312b5c5a190a21ac5cef93f74baf99",
-                "reference": "0c5ccfcfea312b5c5a190a21ac5cef93f74baf99",
+                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/063d9aa8696582f5a41dffbbaf3c81024f0a604a",
+                "reference": "063d9aa8696582f5a41dffbbaf3c81024f0a604a",
                 "shasum": ""
             },
             "require": {
@@ -685,7 +685,7 @@
             },
             "require-dev": {
                 "phpstan/phpstan": "^1.10",
-                "psr/log": "^1.0",
+                "psr/log": "^1.0 || ^2.0 || ^3.0",
                 "symfony/phpunit-bridge": "^4.2 || ^5",
                 "symfony/process": "^4.0 || ^5.0 || ^6.0 || ^7.0"
             },
@@ -722,7 +722,7 @@
             "support": {
                 "irc": "irc://irc.freenode.org/composer",
                 "issues": "https://github.com/composer/ca-bundle/issues",
-                "source": "https://github.com/composer/ca-bundle/tree/1.5.0"
+                "source": "https://github.com/composer/ca-bundle/tree/1.5.1"
             },
             "funding": [
                 {
@@ -738,7 +738,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-03-15T14:00:32+00:00"
+            "time": "2024-07-08T15:28:20+00:00"
         },
         {
             "name": "composer/class-map-generator",
@@ -4790,16 +4790,16 @@
         },
         {
             "name": "gedmo/doctrine-extensions",
-            "version": "v3.15.0",
+            "version": "v3.16.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine-extensions/DoctrineExtensions.git",
-                "reference": "2a89103f4984d8970f3855284c8c04e6e6a63c0f"
+                "reference": "e85560ed96f977b8c29428a99222cb2ef2f0e80d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine-extensions/DoctrineExtensions/zipball/2a89103f4984d8970f3855284c8c04e6e6a63c0f",
-                "reference": "2a89103f4984d8970f3855284c8c04e6e6a63c0f",
+                "url": "https://api.github.com/repos/doctrine-extensions/DoctrineExtensions/zipball/e85560ed96f977b8c29428a99222cb2ef2f0e80d",
+                "reference": "e85560ed96f977b8c29428a99222cb2ef2f0e80d",
                 "shasum": ""
             },
             "require": {
@@ -4818,7 +4818,7 @@
                 "doctrine/annotations": "<1.13 || >=3.0",
                 "doctrine/dbal": "<3.2 || >=4.0",
                 "doctrine/mongodb-odm": "<2.3 || >=3.0",
-                "doctrine/orm": "<2.14.0 || 2.16.0 || 2.16.1 || >=3.0"
+                "doctrine/orm": "<2.14.0 || 2.16.0 || 2.16.1 || >=4.0"
             },
             "require-dev": {
                 "doctrine/annotations": "^1.13 || ^2.0",
@@ -4826,16 +4826,18 @@
                 "doctrine/dbal": "^3.2",
                 "doctrine/doctrine-bundle": "^2.3",
                 "doctrine/mongodb-odm": "^2.3",
-                "doctrine/orm": "^2.14.0",
+                "doctrine/orm": "^2.14.0 || ^3.0",
                 "friendsofphp/php-cs-fixer": "^3.14.0",
                 "nesbot/carbon": "^2.71 || ^3.0",
-                "phpstan/phpstan": "^1.10.2",
-                "phpstan/phpstan-doctrine": "^1.0",
-                "phpstan/phpstan-phpunit": "^1.0",
+                "phpstan/phpstan": "^1.11",
+                "phpstan/phpstan-doctrine": "^1.4",
+                "phpstan/phpstan-phpunit": "^1.4",
                 "phpunit/phpunit": "^9.6",
-                "rector/rector": "^0.19",
+                "rector/rector": "^1.1",
                 "symfony/console": "^5.4 || ^6.0 || ^7.0",
+                "symfony/doctrine-bridge": "^5.4 || ^6.0 || ^7.0",
                 "symfony/phpunit-bridge": "^6.0 || ^7.0",
+                "symfony/uid": "^5.4 || ^6.0 || ^7.0",
                 "symfony/yaml": "^5.4 || ^6.0 || ^7.0"
             },
             "suggest": {
@@ -4845,7 +4847,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "3.13-dev"
+                    "dev-main": "3.x-dev"
                 }
             },
             "autoload": {
@@ -4893,7 +4895,7 @@
             "support": {
                 "email": "gediminas.morkevicius@gmail.com",
                 "issues": "https://github.com/doctrine-extensions/DoctrineExtensions/issues",
-                "source": "https://github.com/doctrine-extensions/DoctrineExtensions/tree/v3.15.0",
+                "source": "https://github.com/doctrine-extensions/DoctrineExtensions/tree/v3.16.1",
                 "wiki": "https://github.com/Atlantic18/DoctrineExtensions/tree/main/doc"
             },
             "funding": [
@@ -4914,7 +4916,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-02-12T15:17:22+00:00"
+            "time": "2024-06-25T16:22:14+00:00"
         },
         {
             "name": "geocoder-php/common-http",
@@ -6546,20 +6548,20 @@
         },
         {
             "name": "justinrainbow/json-schema",
-            "version": "v5.2.13",
+            "version": "5.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jsonrainbow/json-schema.git",
-                "reference": "fbbe7e5d79f618997bc3332a6f49246036c45793"
+                "reference": "feb2ca6dd1cebdaf1ed60a4c8de2e53ce11c4fd8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jsonrainbow/json-schema/zipball/fbbe7e5d79f618997bc3332a6f49246036c45793",
-                "reference": "fbbe7e5d79f618997bc3332a6f49246036c45793",
+                "url": "https://api.github.com/repos/jsonrainbow/json-schema/zipball/feb2ca6dd1cebdaf1ed60a4c8de2e53ce11c4fd8",
+                "reference": "feb2ca6dd1cebdaf1ed60a4c8de2e53ce11c4fd8",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.3"
+                "php": ">=7.1"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "~2.2.20||~2.15.1",
@@ -6570,11 +6572,6 @@
                 "bin/validate-json"
             ],
             "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "5.0.x-dev"
-                }
-            },
             "autoload": {
                 "psr-4": {
                     "JsonSchema\\": "src/JsonSchema/"
@@ -6610,9 +6607,9 @@
             ],
             "support": {
                 "issues": "https://github.com/jsonrainbow/json-schema/issues",
-                "source": "https://github.com/jsonrainbow/json-schema/tree/v5.2.13"
+                "source": "https://github.com/jsonrainbow/json-schema/tree/5.3.0"
             },
-            "time": "2023-09-26T02:20:38+00:00"
+            "time": "2024-07-06T21:00:26+00:00"
         },
         {
             "name": "knplabs/knp-menu",
@@ -11610,16 +11607,16 @@
         },
         {
             "name": "stof/doctrine-extensions-bundle",
-            "version": "v1.11.0",
+            "version": "v1.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stof/StofDoctrineExtensionsBundle.git",
-                "reference": "9f7023e4c8a1c00a5627d41c1027a3f89e477630"
+                "reference": "473ae65598fa4160654c350e139e20ee75d9a91a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stof/StofDoctrineExtensionsBundle/zipball/9f7023e4c8a1c00a5627d41c1027a3f89e477630",
-                "reference": "9f7023e4c8a1c00a5627d41c1027a3f89e477630",
+                "url": "https://api.github.com/repos/stof/StofDoctrineExtensionsBundle/zipball/473ae65598fa4160654c350e139e20ee75d9a91a",
+                "reference": "473ae65598fa4160654c350e139e20ee75d9a91a",
                 "shasum": ""
             },
             "require": {
@@ -11684,9 +11681,9 @@
             ],
             "support": {
                 "issues": "https://github.com/stof/StofDoctrineExtensionsBundle/issues",
-                "source": "https://github.com/stof/StofDoctrineExtensionsBundle/tree/v1.11.0"
+                "source": "https://github.com/stof/StofDoctrineExtensionsBundle/tree/v1.12.0"
             },
-            "time": "2024-02-13T14:43:20+00:00"
+            "time": "2024-06-10T12:27:27+00:00"
         },
         {
             "name": "symfony/asset",
@@ -18527,16 +18524,16 @@
         },
         {
             "name": "wsdltophp/packagegenerator",
-            "version": "4.1.12",
+            "version": "4.1.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/WsdlToPhp/PackageGenerator.git",
-                "reference": "92a85e262a7c51280e9352e0d2a0c48dc90625b9"
+                "reference": "fb5b00700be31694fb210b4b51fb9e9f9b7de137"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WsdlToPhp/PackageGenerator/zipball/92a85e262a7c51280e9352e0d2a0c48dc90625b9",
-                "reference": "92a85e262a7c51280e9352e0d2a0c48dc90625b9",
+                "url": "https://api.github.com/repos/WsdlToPhp/PackageGenerator/zipball/fb5b00700be31694fb210b4b51fb9e9f9b7de137",
+                "reference": "fb5b00700be31694fb210b4b51fb9e9f9b7de137",
                 "shasum": ""
             },
             "require": {
@@ -18678,9 +18675,9 @@
             "support": {
                 "email": "contact@wsdltophp.com",
                 "issues": "https://github.com/WsdlToPhp/PackageGenerator/issues",
-                "source": "https://github.com/WsdlToPhp/PackageGenerator/tree/4.1.12"
+                "source": "https://github.com/WsdlToPhp/PackageGenerator/tree/4.1.13"
             },
-            "time": "2024-04-13T04:35:21+00:00"
+            "time": "2024-06-21T04:10:25+00:00"
         },
         {
             "name": "wsdltophp/phpgenerator",
