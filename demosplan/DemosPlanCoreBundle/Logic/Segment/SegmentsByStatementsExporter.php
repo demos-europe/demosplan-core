@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\ImageLinkConverter;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -48,9 +49,17 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         ImageLinkConverter $imageLinkConverter,
         private readonly SegmentExporterFileNameGenerator $fileNameGenerator,
         Slugify $slugify,
+        StyleInitializer $styleInitializer,
         TranslatorInterface $translator
     ) {
-        parent::__construct($currentUser, $htmlSanitizer, $imageLinkConverter, $slugify, $translator);
+        parent::__construct(
+            $currentUser,
+            $htmlSanitizer,
+            $imageLinkConverter,
+            $slugify,
+            $styleInitializer,
+            $translator
+        );
     }
 
     public function getSynopseFileName(Procedure $procedure, string $suffix): string
