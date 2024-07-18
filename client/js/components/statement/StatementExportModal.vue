@@ -63,7 +63,7 @@
             type="text"
             :width="column.width" />
         </div>
-        <template v-if="this.active === 'zip'">
+        <template v-if="this.active === 'zip' || isSingleStatementExport">
           <h3
             id="docxFileName"
             class="inline-block text-lg mr-1">
@@ -74,7 +74,7 @@
             :text="Translator.trans('docx.export.file_name.hint')" />
           <dp-input
             id="fileName"
-            class=""
+            v-model="fileName"
             :placeholder="Translator.trans('docx.export.file_name.placeholder')"
             type="text"/>
           <small>Vorschau</small>
@@ -155,6 +155,7 @@ export default {
           dataCy: 'exportModal:export:xlsx'
         }
       },
+      fileName: '',
       singleStatementExportPath: 'dplan_segments_export' /** used in the statements detail page */
     }
   },
@@ -196,7 +197,8 @@ export default {
 
       this.$emit('export', {
         route: this.isSingleStatementExport ? this.singleStatementExportPath : this.exportTypes[this.active].exportPath,
-        docxHeaders: ['docx', 'zip'].includes(this.active) ? columnTitles : null
+        docxHeaders: ['docx', 'zip'].includes(this.active) ? columnTitles : null,
+        fileNameTemplate: this.fileName ?? null
       })
       this.closeModal()
     },
