@@ -250,6 +250,7 @@ class PermissionsTest extends FunctionalTestCase
                 'ownsProcedure'                     => true,
                 'isMember'                          => true,
                 'featuresAllowed'                   => [
+                    'area_preferences',
                     'feature_orga_edit_all_fields',
                     'feature_procedure_report_public_phase',
                     'field_statement_recommendation',
@@ -271,7 +272,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_show_free_disk_space',
                     'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
-                    // 'area_preferences', #fixme 10.12.2019
                 ],
             ],
             // ############### Fachplaner Admin ######################
@@ -2167,7 +2167,7 @@ class PermissionsTest extends FunctionalTestCase
                 'ownsProcedure'                     => false,
                 'isMember'                          => false,
                 'featuresAllowed'                   => [
-                    // 'area_data_protection_text', #fixme see @improve T15495
+                   'area_data_protection_text',
                     'area_demosplan',
                     'area_demosplan',
                     'feature_map_search_location',
