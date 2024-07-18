@@ -19,38 +19,13 @@
         :text="Translator.trans('tags')"
         for="searchSelect"
         class="mb-1" />
-      <div
-        v-if="editingSegment && editingSegment.tags.length > 0"
-        class="flex flex-wrap gap-1 bg-white">
-        <div
-          v-for="(tag, idx) in editingSegment.tags"
-          :key="`tag_${idx}`"
-          :class="assignTagSizeClasses(tag,idx)">
-          <div
-            :class="[
-              'tag flex whitespace-nowrap overflow-hidden text-sm px-0.5 py-0.5',
-              isTagAppliedToSegment(tag.id) ? 'bg-gray-500': 'bg-green-400',
-              isLastTagWithEvenPosition(idx) ? 'w-fit' : ''
-            ]"
-            v-tooltip="tag.tagName"
-          >
-          <span class="overflow-hidden text-ellipsis">
-            {{ tag.tagName }}
-          </span>
-            <button
-              type="button"
-              class="tag__remove btn--blank o-link--default ml-1"
-              data-cy="sidebar:removeTag"
-              @click="removeTag(tag.id)">
-              <dp-icon
-                icon="close"
-                size="small" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <FloatingContextButton
+      <assigned-tags
+        :available-tags="availableTags"
+        :current-segment="currentSegment"
+        :initial-segments="initialSegments"
+        :segment="this.editingSegment"
+        @remove="updateCurrentTags" />
+      <floating-context-button
         class="right-[-24px] bottom-[-30px]"
         section="tags"
         :is-visible="showFloatingContextButton.tags"
@@ -201,6 +176,7 @@ import {
   Tooltip
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
+import AssignedTags from './AssignedTags.vue'
 import DpCreateTag from './DpCreateTag'
 import FloatingContextButton from './FloatingContextButton.vue'
 import SearchSelect from './SearchSelect'
@@ -210,6 +186,7 @@ export default {
   name: 'SideBar',
 
   components: {
+    AssignedTags,
     DpButtonRow,
     DpCreateTag,
     DpContextualHelp,
@@ -325,49 +302,6 @@ export default {
       'setProperty'
     ]),
 
-    assignTagSizeClasses (tag, idx) {
-      const classes = ['flex']
-
-      if (this.isTagNameLongerThanLimit(tag)) {
-        classes.push('w-[calc(50%-4px)]')
-
-        if (this.isLastTagWithEvenPosition(idx)) {
-          classes.push('flex-1')
-        }
-
-        const isNextTagShort = !this.isTagNameLongerThanLimit(this.editingSegment.tags[idx + 1])
-        if (isNextTagShort || this.isEven(idx + 1)) {
-          classes.push('flex-1')
-        }
-      }
-
-      return classes
-    },
-
-    isEven (number) {
-      return number % 2 === 0
-    },
-
-    isLastTagWithEvenPosition (idx) {
-      return idx === this.editingSegment.tags.length - 1 && this.isEven(idx)
-    },
-
-    isTagNameLongerThanLimit (tag) {
-      if (tag) {
-        return tag.tagName.length > 14
-      }
-    },
-
-    isTagAppliedToSegment (tagId) {
-      if (this.initialSegments.length > 0) {
-        const segment = this.initialSegments.find(seg => seg.id === this.currentSegment.id)
-
-        if (segment) {
-          return segment.tags.some(tag => tag.id === tagId)
-        }
-      }
-    },
-
     toggleVisibility (section) {
       this.isCollapsed[section] = !this.isCollapsed[section]
     },
@@ -387,11 +321,6 @@ export default {
 
     hasOwnProp (obj, prop) {
       return hasOwnProp(obj, prop)
-    },
-
-    removeTag (id) {
-      const tagToBeDeleted = this.availableTags.find(tag => tag.id === id)
-      this.updateCurrentTags({ id: id, tagName: tagToBeDeleted.attributes.title })
     },
 
     reset () {
