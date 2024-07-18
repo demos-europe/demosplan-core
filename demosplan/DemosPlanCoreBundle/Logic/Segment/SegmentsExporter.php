@@ -54,9 +54,9 @@ class SegmentsExporter
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
         private readonly HTMLSanitizer $htmlSanitizer,
+        protected readonly ImageLinkConverter $imageLinkConverter,
         Slugify $slugify,
-        TranslatorInterface $translator,
-        protected readonly ImageLinkConverter $imageLinkConverter
+        TranslatorInterface $translator
     ) {
         $this->translator = $translator;
         $this->initializeStyles();

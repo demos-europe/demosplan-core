@@ -50,7 +50,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         Slugify $slugify,
         TranslatorInterface $translator
     ) {
-        parent::__construct($currentUser, $htmlSanitizer, $slugify, $translator, $imageLinkConverter);
+        parent::__construct($currentUser, $htmlSanitizer, $imageLinkConverter, $slugify, $translator);
     }
 
     public function getSynopseFileName(Procedure $procedure, string $suffix): string
