@@ -18,7 +18,7 @@
         <input
             name="orga_selected[]"
             class="u-ml-0_5"
-            :data-cy="`administrationMemberListEntry:checkbox:{{ loop.index }}`"
+            data-cy="selectItem"
             type="checkbox"
             value="{{ orga.ident|default("notspecified"|trans)}}"
             data-checkable-item>

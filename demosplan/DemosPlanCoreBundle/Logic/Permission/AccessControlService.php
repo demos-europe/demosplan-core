@@ -210,6 +210,11 @@ class AccessControlService extends CoreService
                 continue;
             }
 
+            // do not store permission for default citizen organisation
+            if ($orgaInCustomer->isDefaultCitizenOrganisation()) {
+                continue;
+            }
+
             $updatedOrga = $this->addPermissionBasedOnOrgaType($permissionToEnable, $role, $orgaInCustomer, $customer, $dryRun);
 
             if (null !== $updatedOrga) {

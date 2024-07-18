@@ -25,15 +25,12 @@
 </documentation>
 
 <template>
-  <fieldset
-    id="gisLayers">
+  <fieldset id="gisLayers">
     <div class="flex">
-      <div class="flex-1 w-1/4">
-        <legend>
-          {{ Translator.trans('gislayer') }}
-        </legend>
-      </div>
-      <div class="flex-1 w-3/4 text-right">
+      <legend class="w-1/4">
+        {{ Translator.trans('gislayer') }}
+      </legend>
+      <div class="w-3/4 text-right">
         <dp-split-button>
           <a
             :class="{'has-dropdown': hasPermission('feature_map_category')}"
@@ -57,7 +54,9 @@
       class="relative"
       :class="{'pointer-events-none': false === isEditable}">
       <div class="u-mt flex">
-        <h3 class="flex-1 w-1/3">
+        <h3
+          v-if="hasPermission('feature_map_baselayer')"
+          class="flex-1 w-1/3">
           {{ Translator.trans('map.overlays') }}
         </h3>
         <div
@@ -83,16 +82,20 @@
         <div class="c-at-item__row-icon u-pl-0">
           <!-- DragHandler -->
         </div>
-        <div class="c-at-item__row u-pl-0_5">
-          <div class="layout__item w-9/12">
+        <div class="flex u-pl-0_5">
+          <div class="flex-1">
             {{ Translator.trans('description') }}
           </div>
-          <div class="w-1/12 text-right">
+          <div
+            v-if="hasPermission('feature_map_layer_visibility')"
+            class="w-1/12 text-right">
               <i
                 class="fa fa-link u-mr-0_5"
                 v-tooltip="{ content: Translator.trans('explanation.gislayer.visibilitygroup'), classes: 'max-w-none' }" />
           </div>
-          <div class="w-1/12 text-right">
+          <div
+            v-if="hasPermission('feature_map_layer_visibility')"
+            class="w-1/12 text-right">
               <i
                 class="fa fa-eye u-mr-0_5"
                 v-tooltip="Translator.trans('explanation.gislayer.visibility')" />
@@ -130,89 +133,92 @@
         {{ Translator.trans('no.data') }}
       </div>
 
-      <h3 class="u-mt">
-        {{ Translator.trans('map.bases') }}
-      </h3>
-      <!-- List-Head -->
-      <div class="color--grey u-mb-0_25 u-mt-0_5 u-mr-0_5">
-        <div class="c-at-item__row-icon layout__item u-pl-0">
-          <!-- DragHandler -->
-        </div><!--
-     --><div class="layout--flush layout__item c-at-item__row">
-            <div class="layout__item w-10/12 u-pl-0_5">
-              {{ Translator.trans('description') }}
-            </div><!--
-         --><div class="layout__item w-1/12 text-right">
-            <i
-              class="fa fa-eye u-mr-0_5"
-              v-tooltip="Translator.trans('explanation.gislayer.visibility')" />
-            </div><!--
-         --><div class="layout__item w-1/12 text-right">
-                {{ Translator.trans('edit') }}
-            </div>
+      <template v-if="hasPermission('feature_map_baselayer')">
+        <h3 class="u-mt">
+          {{ Translator.trans('map.bases') }}
+        </h3>
+        <!-- List-Head -->
+        <div class="color--grey u-mb-0_25 u-mt-0_5 u-mr-0_5">
+          <div class="c-at-item__row-icon u-pl-0">
+            <!-- DragHandler -->
+          </div>
+          <div class="flex c-at-item__row">
+              <div class="flex-1 u-pl-0_5">
+                {{ Translator.trans('description') }}
+              </div>
+              <div
+                v-if="hasPermission('feature_map_layer_visibility')"
+                class="w-1/12 text-right">
+                <i
+                  class="fa fa-eye u-mr-0_5"
+                  v-tooltip="Translator.trans('explanation.gislayer.visibility')" />
+              </div>
+              <div class="w-1/12 text-right">
+                  {{ Translator.trans('edit') }}
+              </div>
+          </div>
         </div>
-      </div>
-      <dp-draggable
-        v-if="false === this.isLoading"
-        :opts="draggableOptionsForBaseLayer"
-        v-model="currentBaseList"
-        :class="{'color--grey': false === isEditable}">
-        <dp-admin-layer-list-item
-          v-for="(item, idx) in currentBaseList"
-          :key="item.id"
-          :element="item"
-          :sorting-type="currentTab"
-          :is-loading="(false === isEditable)"
-          layer-type="base"
-          data-cy="baseMapLayerListItem"
-          :index="idx" />
-      </dp-draggable>
-      <div class="layout--flush u-mt u-mb">
-        <h3 class="layout__item w-1/3">
-          {{ Translator.trans('map.base.minimap') }}
-        </h3><!--
-     --><div class="layout__item w-2/3">
-          <select
-            class="o-form__control-select"
-            data-cy="adminLayerList:currentMinimapLayer"
-            v-model="currentMinimapLayer">
-            <option :value="{id: '', attributes: { name: 'default' }}">
-              {{ Translator.trans('selection.no') }}
-            </option>
-            <option
-              v-for="item in mapBaseList"
-              :key="item.id"
-              :value="item">
-              {{ item.attributes.name }}
-            </option>
-          </select>
+        <dp-draggable
+          v-if="false === this.isLoading"
+          :opts="draggableOptionsForBaseLayer"
+          v-model="currentBaseList"
+          :class="{'color--grey': false === isEditable}">
+          <admin-layer-list-item
+            v-for="(item, idx) in currentBaseList"
+            :key="item.id"
+            :element="item"
+            :sorting-type="currentTab"
+            :is-loading="(false === isEditable)"
+            layer-type="base"
+            data-cy="baseMapLayerListItem"
+            :index="idx" />
+        </dp-draggable>
+        <div class="flex u-mt u-mb">
+          <h3 class="w-1/3">
+            {{ Translator.trans('map.base.minimap') }}
+          </h3>
+          <div class="w-2/3">
+            <select
+              class="o-form__control-select"
+              data-cy="adminLayerList:currentMinimapLayer"
+              v-model="currentMinimapLayer">
+              <option :value="{id: '', attributes: { name: 'default' }}">
+                {{ Translator.trans('selection.no') }}
+              </option>
+              <option
+                v-for="item in mapBaseList"
+                :key="item.id"
+                :value="item">
+                {{ item.attributes.name }}
+              </option>
+            </select>
+          </div>
+          <p class="font-size-small">
+            {{ Translator.trans('map.base.minimap.hint') }}
+          </p>
         </div>
-        <p class="font-size-small">
-          {{ Translator.trans('map.base.minimap.hint') }}
-        </p>
-      </div>
-
-      <div
-        class="text-right u-mv space-inline-s"
-        v-if="false === isLoading">
-        <dp-button
-          data-cy="adminLayerList:save"
-          :busy="!isEditable"
-          :text="Translator.trans('save')"
-          @click="saveOrder" />
-        <dp-button
-          data-cy="adminLayerList:saveAndReturn"
-          :busy="!isEditable"
-          :text="Translator.trans('save.and.return.to.list')"
-          @click="saveOrder(true)" />
-        <button
-          class="btn btn--secondary"
-          data-cy="adminLayerList:resetOrder"
-          type="reset"
-          @click.prevent="resetOrder">
-          {{ Translator.trans('reset.order') }}
-        </button>
-      </div>
+        <div
+          class="text-right u-mv space-inline-s"
+          v-if="false === isLoading">
+          <dp-button
+            data-cy="adminLayerList:save"
+            :busy="!isEditable"
+            :text="Translator.trans('save')"
+            @click="saveOrder" />
+          <dp-button
+            data-cy="adminLayerList:saveAndReturn"
+            :busy="!isEditable"
+            :text="Translator.trans('save.and.return.to.list')"
+            @click="saveOrder(true)" />
+          <button
+            class="btn btn--secondary"
+            data-cy="adminLayerList:resetOrder"
+            type="reset"
+            @click.prevent="resetOrder">
+            {{ Translator.trans('reset.order') }}
+          </button>
+        </div>
+      </template>
     </div>
   </fieldset>
 </template>

@@ -223,17 +223,37 @@ export default {
     }, 500),
 
     getItemsByPage (page) {
-      const search = {
-        value: this.searchValue
-      }
       this.isLoading = true
       page = page || this.currentPage
+      const userFilter = {
+        firstnameFilter: {
+          condition: {
+            path: 'firstname',
+            operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
+            value: this.searchValue,
+            memberOf: 'name'
+          }
+        },
+        lastnameFilter: {
+          condition: {
+            path: 'lastname',
+            operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
+            value: this.searchValue,
+            memberOf: 'name'
+          }
+        },
+        name: {
+          group: {
+            conjunction: 'OR'
+          }
+        }
+      }
 
       this.userList({
         page: {
           number: page ?? 1
         },
-        search: (this.searchValue !== '') ? search : {},
+        filter: userFilter,
         include: ['roles', 'orga', 'department', 'orga.allowedRoles'].join()
       })
         .then(() => {

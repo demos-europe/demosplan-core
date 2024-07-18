@@ -220,10 +220,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * Virtuelle Eigenschaft des UserName.
-     *
-     * @var string
      */
-    protected $uName;
+    protected ?string $uName = null;
 
     /**
      * @var Orga|null
@@ -1421,10 +1419,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * Returns the name of the author!
-     *
-     * @return string
      */
-    public function getUserName()
+    public function getUserName(): ?string
     {
         // hole dir den Nutzernamen so, wie er bei dem Statement gespeichert ist, nicht aus
         // dem Userobjekt

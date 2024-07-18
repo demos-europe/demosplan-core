@@ -18,13 +18,14 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
+use Doctrine\Common\Collections\ArrayCollection;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Exception\Exception;
@@ -41,11 +42,12 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         private readonly AssessmentTableXlsExporter $assessmentTableXlsExporter,
         CurrentUserInterface $currentUser,
         private readonly EntityHelper $entityHelper,
-        HTMLSanitizer $HTMLSanitizer,
+        HTMLSanitizer $htmlSanitizer,
         Slugify $slugify,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        private readonly SegmentExporterFileNameGenerator $fileNameGenerator
     ) {
-        parent::__construct($currentUser, $HTMLSanitizer, $slugify, $translator);
+        parent::__construct($currentUser, $htmlSanitizer, $slugify, $translator);
     }
 
     public function getSynopseFileName(Procedure $procedure, string $suffix): string
@@ -119,9 +121,9 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure);
 
-        for ($i = 0; $i < count($statements); ++$i) {
-            $this->exportStatement($section, $statements[$i], $tableHeaders);
-            $section = $this->getNewSectionIfNeeded($phpWord, $section, $i, $statements);
+        foreach ($statements as $index => $statement) {
+            $this->exportStatement($section, $statement, $tableHeaders);
+            $section = $this->getNewSectionIfNeeded($phpWord, $section, $index, $statements);
         }
 
         return IOFactory::createWriter($phpWord);
@@ -159,22 +161,22 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      *
      * @return array<string, Statement>
      */
-    public function mapStatementsToPathInZip(array $statements): array
+    public function mapStatementsToPathInZip(array $statements, string $fileNameTemplate = ''): array
     {
         $pathedStatements = [];
         $previousKeysOfReaddedDuplicates = [];
         foreach ($statements as $statement) {
-            $pathInZip = $this->getPathInZip($statement, false);
+            $pathInZip = $this->getPathInZip($statement, false, $fileNameTemplate);
             // in case of a duplicate, add the database ID to the name
-            if (\array_key_exists($pathInZip, $pathedStatements)) {
+            if (array_key_exists($pathInZip, $pathedStatements)) {
                 $duplicate = $pathedStatements[$pathInZip];
                 $previousKeysOfReaddedDuplicates[$pathInZip] = $pathInZip;
-                $duplicateExtendedPathInZip = $this->getPathInZip($duplicate, true);
+                $duplicateExtendedPathInZip = $this->getPathInZip($duplicate, true, $fileNameTemplate);
                 $pathedStatements[$duplicateExtendedPathInZip] = $duplicate;
-                $pathInZip = $this->getPathInZip($statement, true);
+                $pathInZip = $this->getPathInZip($statement, true, $fileNameTemplate);
             }
 
-            if (\array_key_exists($pathInZip, $pathedStatements)) {
+            if (array_key_exists($pathInZip, $pathedStatements)) {
                 throw new InvalidArgumentException('duplicated statement given');
             }
 
@@ -203,32 +205,16 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      * the case that the extern ID is an empty string and the database ID is included in
      * the result.
      */
-    private function getPathInZip(Statement $statement, bool $withDbId): string
+    private function getPathInZip(Statement $statement, bool $withDbId, string $fileNameTemplate = ''): string
     {
         // prepare needed variables
         $dbId = $statement->getId();
-        $externId = $statement->getExternId();
 
-        $orgaName = $statement->getMeta()->getOrgaName();
-        $authorSourceName = $orgaName;
-        if (User::ANONYMOUS_USER_NAME === $orgaName) {
-            $authorSourceName = $statement->getUserName();
-        }
-        if (null === $authorSourceName || '' === trim((string) $authorSourceName)) {
-            $authorSourceName = $this->translator->trans('statement.name_source.unknown');
-        }
-
-        // determine and return the file name
-
-        if ('' === trim((string) $externId)) {
-            return $withDbId
-                ? "$authorSourceName [$dbId].docx"
-                : "$authorSourceName.docx";
-        }
+        $fileName = $this->fileNameGenerator->getFileName($statement, $fileNameTemplate);
 
         return $withDbId
-            ? "$authorSourceName ($externId) [$dbId].docx"
-            : "$authorSourceName ($externId).docx";
+            ? "$fileName-$dbId.docx"
+            : "$fileName.docx";
     }
 
     /**
@@ -294,9 +280,13 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             $exportData['submitDateString'] = $segmentOrStatement->getParentStatementOfSegment()->getSubmitDateString();
         }
         $exportData['tagNames'] = $segmentOrStatement->getTagNames();
-        $exportData['tags'] = array_map($this->entityHelper->toArray(...), $exportData['tags']->toArray());
+        /** @var ArrayCollection $tagsCollection */
+        $tagsCollection = $exportData['tags'];
+        $exportData['tags'] = array_map($this->entityHelper->toArray(...), $tagsCollection->toArray());
         foreach ($exportData['tags'] as $key => $tag) {
-            $exportData['tags'][$key]['topicTitle'] = $tag['topic']->getTitle();
+            /** @var TagTopic $tagTopic */
+            $tagTopic = $tag['topic'];
+            $exportData['tags'][$key]['topicTitle'] = $tagTopic->getTitle();
         }
         $exportData['topicNames'] = $segmentOrStatement->getTopicNames();
         $exportData['isClusterStatement'] = $segmentOrStatement->isClusterStatement();
