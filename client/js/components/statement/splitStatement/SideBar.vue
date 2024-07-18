@@ -369,7 +369,6 @@ export default {
     },
 
     toggleVisibility (section) {
-      console.log('section', section)
       this.isCollapsed[section] = !this.isCollapsed[section]
     },
 
