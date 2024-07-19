@@ -430,7 +430,7 @@ export default {
     },
 
     exportRoute: function () {
-      return (exportRoute, docxHeaders) => {
+      return (exportRoute, docxHeaders, fileNameTemplate) => {
         const parameters = {
           filter: {
             procedureId: {
@@ -454,6 +454,10 @@ export default {
             col2: docxHeaders.col2,
             col3: docxHeaders.col3
           }
+        }
+
+        if (fileNameTemplate) {
+          parameters.fileNameTemplate = fileNameTemplate
         }
 
         return Routing.generate(exportRoute, parameters)
@@ -906,9 +910,9 @@ export default {
       }
     },
 
-    showHintAndDoExport ({ route, docxHeaders }) {
+    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate }) {
       if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
-        window.location.href = this.exportRoute(route, docxHeaders)
+        window.location.href = this.exportRoute(route, docxHeaders, fileNameTemplate)
       }
     },
 
