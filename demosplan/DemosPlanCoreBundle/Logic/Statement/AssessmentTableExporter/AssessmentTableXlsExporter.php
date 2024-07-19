@@ -479,6 +479,8 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
 
             if (in_array($attributeKey, ['text', 'recommendation'])) {
                 $formattedStatement[$attributeKey] = $htmlConverter->convert($formattedStatement[$attributeKey]);
+                $formattedStatement[$attributeKey] =
+                    str_replace('\_', '_', $formattedStatement[$attributeKey]);
             }
 
             if ('status' === $attributeKey) {

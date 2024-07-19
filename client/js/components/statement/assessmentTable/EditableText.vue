@@ -28,6 +28,7 @@
     <div v-if="isEditing">
       <dp-editor
         ref="editor"
+        v-model="fullText"
         class="u-mb-0_5"
         :editor-id="editorId"
         :entity-id="entityId"
@@ -37,8 +38,7 @@
           mark: mark,
           obscure: obscure,
           strikethrough: strikethrough
-        }"
-        v-model="fullText">
+        }">
         <template v-slot:modal="modalProps">
           <dp-boiler-plate-modal
             v-if="boilerPlate"

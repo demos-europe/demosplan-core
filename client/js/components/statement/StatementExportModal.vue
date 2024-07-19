@@ -35,6 +35,7 @@
             :key="key"
             :id="key"
             :label="{
+              hint: active === key ? exportType.hint : '',
               text: Translator.trans(exportType.label)
             }"
             :value="key"
@@ -147,16 +148,19 @@ export default {
       exportTypes: {
         docx: {
           label: 'export.docx',
+          hint: '',
           exportPath: 'dplan_statement_segments_export',
           dataCy: 'exportModal:export:docx'
         },
         zip: {
           label: 'export.zip',
+          hint: '',
           exportPath: 'dplan_statement_segments_export_packaged',
           dataCy: 'exportModal:export:zip'
         },
         xlsx: {
           label: 'export.xlsx',
+          hint: Translator.trans('export.xlsx.hint'),
           exportPath: 'dplan_statement_xls_export',
           dataCy: 'exportModal:export:xlsx'
         }
