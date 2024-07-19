@@ -59,7 +59,7 @@ class SegmentsByStatementsExporter
         return $this->exportStatements($phpWord, $procedure, $statements, $tableHeaders);
     }
 
-    public function exportStatement(Section $section, Statement $statement, array $tableHeaders): void
+    private function exportStatement(Section $section, Statement $statement, array $tableHeaders): void
     {
         $this->statementDetailsManager->addStatementInfo($section, $statement);
         $this->statementDetailsManager->addSimilarStatementSubmitters($section, $statement);

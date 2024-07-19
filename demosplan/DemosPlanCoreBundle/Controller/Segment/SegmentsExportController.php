@@ -71,7 +71,7 @@ class SegmentsExportController extends BaseController
         $statement = $statementHandler->getStatementWithCertainty($statementId);
         $response = new StreamedResponse(
             static function () use ($procedure, $statement, $exporter, $tableHeaders) {
-                $exportedDoc = $exporter->export($procedure, $statement, $tableHeaders);
+                $exportedDoc = $exporter->exportForOneStatement($procedure, $statement, $tableHeaders);
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
         );
@@ -95,7 +95,7 @@ class SegmentsExportController extends BaseController
     )]
     public function exportByStatementsFilterAction(
         FileNameGenerator $fileNameGenerator,
-        SegmentsByStatementsExporter $exporter,
+        SegmentsExporter $segmentsExporter,
         StatementResourceType $statementResourceType,
         JsonApiActionService $requestHandler,
         string $procedureId
@@ -109,8 +109,8 @@ class SegmentsExportController extends BaseController
         );
 
         $response = new StreamedResponse(
-            static function () use ($tableHeaders, $procedure, $statementEntities, $exporter) {
-                $exportedDoc = $exporter->exportAll($tableHeaders, $procedure, ...$statementEntities);
+            static function () use ($tableHeaders, $procedure, $statementEntities, $segmentsExporter) {
+                $exportedDoc = $segmentsExporter->exportForMultipleStatements($tableHeaders, $procedure, ...$statementEntities);
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
         );
@@ -214,7 +214,7 @@ class SegmentsExportController extends BaseController
                         Statement $statement,
                         string $filePathInZip
                     ) use ($segmentsExporter, $zipExportService, $zipStream, $procedure, $tableHeaders): void {
-                        $writer = $segmentsExporter->export($procedure, $statement, $tableHeaders);
+                        $writer = $segmentsExporter->exportForOneStatement($procedure, $statement, $tableHeaders);
                         $zipExportService->addWriterToZipStream(
                             $writer,
                             $filePathInZip,

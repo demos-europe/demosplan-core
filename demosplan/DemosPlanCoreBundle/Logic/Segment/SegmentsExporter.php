@@ -28,6 +28,7 @@ use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Exception\Exception;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
+use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -55,10 +56,37 @@ class SegmentsExporter
     /**
      * @throws Exception
      */
-    public function export(Procedure $procedure, Statement $statement, array $tableHeaders): WriterInterface
+    public function exportForOneStatement(Procedure $procedure, Statement $statement, array $tableHeaders): WriterInterface
     {
         $phpWord = $this->createPhpWord();
         $this->buildSection($phpWord, $procedure, $statement, $tableHeaders);
+
+        return IOFactory::createWriter($phpWord);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function exportForMultipleStatements(
+        array $tableHeaders,
+        Procedure $procedure,
+        Statement ...$statements
+    ): WriterInterface {
+        Settings::setOutputEscapingEnabled(true);
+        $phpWord = $this->createPhpWord();
+        $section = $this->createNewSection($phpWord);
+        $this->addSectionHeader($section, $procedure);
+
+        if (0 === count($statements)) {
+            $this->addNoStatementsMessage($section);
+            return IOFactory::createWriter($phpWord);
+        }
+
+        foreach ($statements as $index => $statement) {
+            $this->addMainContentToSection($section, $statement, $tableHeaders);
+            $this->addSectionFooter($section, $statement);
+            $section = $this->getNewSectionIfNeeded($phpWord, $section, $index, $statements);
+        }
 
         return IOFactory::createWriter($phpWord);
     }
@@ -99,6 +127,32 @@ class SegmentsExporter
         $this->statementDetailsManager->addStatementInfo($section, $statement);
         $this->statementDetailsManager->addSimilarStatementSubmitters($section, $statement);
         $this->addSegments($section, $statement, $tableHeaders);
+    }
+
+    private function addNoStatementsMessage(Section $section): void
+    {
+        $noEntriesMessage = $this->translator->trans('statements.filtered.none');
+        $section->addText($noEntriesMessage, $this->styles['noInfoMessageFont']);
+    }
+
+    /**
+     * @param array<int, Statement> $statements
+     */
+    private function getNewSectionIfNeeded(PhpWord $phpWord, Section $section, int $i, array $statements): Section
+    {
+        if ($this->isNotLastStatement($statements, $i)) {
+            $section = $phpWord->addSection($this->styles['globalSection']);
+        }
+
+        return $section;
+    }
+
+    /**
+     * @param array<int, Statement> $statements
+     */
+    private function isNotLastStatement(array $statements, int $i): bool
+    {
+        return $i !== count($statements) - 1;
     }
 
     private function addSectionFooter(Section $section, Statement $statement): void
