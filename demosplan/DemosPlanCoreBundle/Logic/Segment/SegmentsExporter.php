@@ -21,10 +21,10 @@ use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\HeaderFooterManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageManager;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StatementDetailsManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\ValueObject\CellExportStyle;
-use demosplan\DemosPlanCoreBundle\ValueObject\ExportOrgaInfoHeader;
 use PhpOffice\PhpWord\Element\Footer;
 use PhpOffice\PhpWord\Element\Row;
 use PhpOffice\PhpWord\Element\Section;
@@ -47,9 +47,10 @@ class SegmentsExporter
     protected TranslatorInterface $translator;
 
     protected Slugify $slugify;
+    protected StatementDetailsManager $statementInfoManager;
 
     public function __construct(
-        private readonly CurrentUserInterface $currentUser,
+        CurrentUserInterface $currentUser,
         private readonly HtmlHelper $htmlHelper,
         protected readonly ImageLinkConverter $imageLinkConverter,
         protected readonly ImageManager $imageManager,
@@ -61,6 +62,7 @@ class SegmentsExporter
         $this->styles = $styleInitializer->initialize();
         $this->slugify = $slugify;
         $this->headerFooterManager = new HeaderFooterManager($htmlHelper, $translator, $this->styles);
+        $this->statementInfoManager = new StatementDetailsManager($currentUser, $translator, $this->styles);
     }
 
     /**
@@ -81,89 +83,20 @@ class SegmentsExporter
         return IOFactory::createWriter($phpWord);
     }
 
+    /**
+     * @deprecated Use {@link StatementDetailsManager::addSimilarStatementSubmitters()} instead.
+     */
     protected function addSimilarStatementSubmitters(Section $section, Statement $statement): void
     {
-        $similarStatementSubmitters = $this->getSimilarStatementSubmitters($statement);
-        if ('' !== $similarStatementSubmitters) {
-            $similarStatementSubmittersText = $this->translator->trans('segments.export.statement.similar.submitters', ['similarSubmitters' => $similarStatementSubmitters]);
-            $section->addText(
-                $similarStatementSubmittersText,
-                $this->styles['globalFont'],
-                $this->styles['globalSection']
-            );
-
-            $section->addTextBreak(2);
-        }
+        $this->statementInfoManager->addSimilarStatementSubmitters($section, $statement);
     }
 
-    private function getSimilarStatementSubmitters(Statement $statement): string
-    {
-        $submitterStrings = [];
-        foreach ($statement->getSimilarStatementSubmitters() as $submitter) {
-            $values = [
-                $submitter->getEmailAddress(),
-                $submitter->getStreetNameWithStreetNumber(),
-                $submitter->getPostalCodeWithCity(),
-            ];
-            $values = array_filter($values, static fn (?string $value): bool =>null !== $value);
-            $values = implode(', ', $values);
-            $values = trim($values);
-            if ('' !== $values) {
-                $values = " ($values)";
-            }
-
-            $submitterStrings[] = "{$submitter->getFullName()}$values";
-        }
-
-        return implode(', ', $submitterStrings);
-    }
-
+    /**
+     * @deprecated Use {@link StatementDetailsManager::addStatementInfo()} instead.
+     */
     protected function addStatementInfo(Section $section, Statement $statement): void
     {
-        $table = $section->addTable($this->styles['statementInfoTable']);
-        $orgaInfoHeader = new ExportOrgaInfoHeader($statement, $this->currentUser, $this->translator);
-
-        if ('' !== $statement->getAuthoredDateString()) {
-            $authoredDateRow = $table->addRow();
-            $this->addSegmentCell($authoredDateRow, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
-            $this->addSegmentCell($authoredDateRow, '', $this->styles['statementInfoEmptyCell']);
-            $authoredAt = $this->translator->trans('statement.date.authored').': '.$statement->getAuthoredDateString();
-            $this->addSegmentCell($authoredDateRow, $authoredAt, $this->styles['statementInfoTextCell']);
-        }
-
-        if ('' !== $statement->getSubmitDateString()) {
-            $submitDateRow = $table->addRow();
-            $this->addSegmentCell($submitDateRow, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
-            $this->addSegmentCell($submitDateRow, '', $this->styles['statementInfoEmptyCell']);
-            $submittedAt = $this->translator->trans('statement.date.submitted').': '.$statement->getSubmitDateString();
-            $this->addSegmentCell($submitDateRow, $submittedAt, $this->styles['statementInfoTextCell']);
-        }
-
-        $textRow = $table->addRow();
-        $this->addSegmentCell($textRow, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
-        $this->addSegmentCell($textRow, '', $this->styles['statementInfoEmptyCell']);
-        $externIdText = $this->translator->trans('segments.export.statement.extern.id', ['externId' => $statement->getExternId()]);
-        $this->addSegmentCell($textRow, $externIdText, $this->styles['statementInfoTextCell']);
-
-        if (null !== $statement->getInternId() && '' !== $statement->getInternId()) {
-            $internIdRow = $table->addRow();
-            $this->addSegmentCell($internIdRow, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
-            $this->addSegmentCell($internIdRow, '', $this->styles['statementInfoEmptyCell']);
-            $internIdText = $this->translator->trans('segments.export.statement.intern.id', ['internId' => $statement->getInternId()]);
-            $this->addSegmentCell($internIdRow, $internIdText, $this->styles['statementInfoTextCell']);
-        }
-
-        // formation only
-        $row5 = $table->addRow();
-        $this->addSegmentCell($row5, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
-        $this->addSegmentCell($row5, '', $this->styles['statementInfoEmptyCell']);
-        $this->addSegmentCell($row5, '', $this->styles['statementInfoTextCell']);
-
-        $row6 = $table->addRow();
-        $this->addSegmentCell($row6, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
-        $this->addSegmentCell($row6, '', $this->styles['statementInfoEmptyCell']);
-
-        $section->addTextBreak(2);
+        $this->statementInfoManager->addStatementInfo($section, $statement);
     }
 
     protected function addSegments(Section $section, Statement $statement, array $tableHeaders): void
