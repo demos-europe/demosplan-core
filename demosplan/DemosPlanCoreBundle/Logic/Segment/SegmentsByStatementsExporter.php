@@ -59,16 +59,23 @@ class SegmentsByStatementsExporter
         return $this->exportStatements($phpWord, $procedure, $statements, $tableHeaders);
     }
 
-    /**
-     * @throws Exception
-     */
-    private function exportEmptyStatements(PhpWord $phpWord, Procedure $procedure): WriterInterface
+    public function exportStatementSegmentsInSeparateDocx(Statement $statement, Procedure $procedure, array $tableHeaders): PhpWord
     {
+        $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->headerFooterManager->addHeader($section, $procedure, Footer::FIRST);
         $this->headerFooterManager->addHeader($section, $procedure);
+        $this->exportStatement($section, $statement, $tableHeaders);
 
-        return $this->addNoStatementsMessage($phpWord, $section);
+        return $phpWord;
+    }
+
+    public function exportStatement(Section $section, Statement $statement, array $tableHeaders): void
+    {
+        $this->statementDetailsManager->addStatementInfo($section, $statement);
+        $this->statementDetailsManager->addSimilarStatementSubmitters($section, $statement);
+        $this->segmentsExporter->addSegments($section, $statement, $tableHeaders);
+        $this->headerFooterManager->addFooter($section, $statement);
     }
 
     /**
@@ -90,23 +97,16 @@ class SegmentsByStatementsExporter
         return IOFactory::createWriter($phpWord);
     }
 
-    public function exportStatementSegmentsInSeparateDocx(Statement $statement, Procedure $procedure, array $tableHeaders): PhpWord
+    /**
+     * @throws Exception
+     */
+    private function exportEmptyStatements(PhpWord $phpWord, Procedure $procedure): WriterInterface
     {
-        $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->headerFooterManager->addHeader($section, $procedure, Footer::FIRST);
         $this->headerFooterManager->addHeader($section, $procedure);
-        $this->exportStatement($section, $statement, $tableHeaders);
 
-        return $phpWord;
-    }
-
-    public function exportStatement(Section $section, Statement $statement, array $tableHeaders): void
-    {
-        $this->statementDetailsManager->addStatementInfo($section, $statement);
-        $this->statementDetailsManager->addSimilarStatementSubmitters($section, $statement);
-        $this->segmentsExporter->addSegments($section, $statement, $tableHeaders);
-        $this->headerFooterManager->addFooter($section, $statement);
+        return $this->addNoStatementsMessage($phpWord, $section);
     }
 
     /**
