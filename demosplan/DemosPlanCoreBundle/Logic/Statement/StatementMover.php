@@ -197,8 +197,6 @@ class StatementMover extends CoreService
                 $statementFileContainers = $this->fileContainerRepository->getStatementFileContainers($statementToMove->getId());
                 foreach ($statementFileContainers as $fileContainer) {
                     $file = $this->statementRepository->copyFile($fileContainer->getFile(), $statementToMove);
-                    //$file = $fileContainer->getFile();
-                    //$file->setProcedure($statementToMove->getProcedure());
                     $fileContainer->setFile($file);
                     $this->fileContainerRepository->updateObject($fileContainer);
                 }
