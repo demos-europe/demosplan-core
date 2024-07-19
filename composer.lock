@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "07871ce7fd51a1d013ba4b7778ed10d8",
+    "content-hash": "5d87cf0ab1caaafa83fdbc1fd9abd5d8",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -1369,16 +1369,16 @@
         },
         {
             "name": "demos-europe/demosplan-addon",
-            "version": "v0.37",
+            "version": "v0.38",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "95089912d520532f921f106072cfd8b0716fed32"
+                "reference": "af1767858f07c7d21479c383a013e781afe2e9bd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/95089912d520532f921f106072cfd8b0716fed32",
-                "reference": "95089912d520532f921f106072cfd8b0716fed32",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/af1767858f07c7d21479c383a013e781afe2e9bd",
+                "reference": "af1767858f07c7d21479c383a013e781afe2e9bd",
                 "shasum": ""
             },
             "require": {
@@ -1443,9 +1443,9 @@
             ],
             "description": "This is the base package for all demosplan addons",
             "support": {
-                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.37"
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.38"
             },
-            "time": "2024-07-02T11:00:59+00:00"
+            "time": "2024-07-18T13:45:02+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
@@ -5607,7 +5607,7 @@
         },
         {
             "name": "illuminate/collections",
-            "version": "v10.48.15",
+            "version": "v10.48.16",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/collections.git",
@@ -5662,7 +5662,7 @@
         },
         {
             "name": "illuminate/conditionable",
-            "version": "v10.48.15",
+            "version": "v10.48.16",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/conditionable.git",
@@ -5708,7 +5708,7 @@
         },
         {
             "name": "illuminate/contracts",
-            "version": "v10.48.15",
+            "version": "v10.48.16",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/contracts.git",
@@ -5756,7 +5756,7 @@
         },
         {
             "name": "illuminate/macroable",
-            "version": "v10.48.15",
+            "version": "v10.48.16",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/macroable.git",
@@ -12409,16 +12409,16 @@
         },
         {
             "name": "symfony/doctrine-bridge",
-            "version": "v5.4.40",
+            "version": "v5.4.41",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/doctrine-bridge.git",
-                "reference": "d8ab3a46043e2ef314a8b93250d26b07c55d9564"
+                "reference": "2c2f0c87a4f0603293da5edec261da331eb7a45c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/doctrine-bridge/zipball/d8ab3a46043e2ef314a8b93250d26b07c55d9564",
-                "reference": "d8ab3a46043e2ef314a8b93250d26b07c55d9564",
+                "url": "https://api.github.com/repos/symfony/doctrine-bridge/zipball/2c2f0c87a4f0603293da5edec261da331eb7a45c",
+                "reference": "2c2f0c87a4f0603293da5edec261da331eb7a45c",
                 "shasum": ""
             },
             "require": {
@@ -12505,7 +12505,7 @@
             "description": "Provides integration for Doctrine with various Symfony components",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/doctrine-bridge/tree/v5.4.40"
+                "source": "https://github.com/symfony/doctrine-bridge/tree/v5.4.41"
             },
             "funding": [
                 {
@@ -12521,7 +12521,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-05-31T14:33:22+00:00"
+            "time": "2024-06-28T08:53:38+00:00"
         },
         {
             "name": "symfony/dom-crawler",
