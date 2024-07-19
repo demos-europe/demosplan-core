@@ -25,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DocxExportResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
+use Exception;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Psr\Log\LoggerInterface;
 use Tests\Base\FunctionalTestCase;
@@ -66,7 +67,8 @@ class ExportServiceTest extends FunctionalTestCase
         self::assertSame('Institution-Liste', $phrase);
     }
 
-    public function testAddTitlePageToZip(){
+    public function testAddTitlePageToZip()
+    {
         $procedure = $this->getProcedureReference(LoadProcedureData::TESTPROCEDURE);
         $titleForPage = 'titlepage';
         $user = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
@@ -86,7 +88,8 @@ class ExportServiceTest extends FunctionalTestCase
         $this->assertSame($zip, $result);
     }
 
-    public function testAddNewsToZip() {
+    public function testAddNewsToZip()
+    {
         $procedure = $this->getProcedureReference(LoadProcedureData::TESTPROCEDURE);
         $procedureId = $procedure->getId();
         $procedureName = $procedure->getName();
@@ -139,7 +142,7 @@ class ExportServiceTest extends FunctionalTestCase
             'filters' => [],
             'request' => ['limit' => 1_000_000],
             'items'   => [],
-            'sort'    => ToBy::createArray('submitDate', 'desc')
+            'sort'    => ToBy::createArray('submitDate', 'desc'),
         ];
 
         $type = [
@@ -152,8 +155,8 @@ class ExportServiceTest extends FunctionalTestCase
         $writer = $this->createMock(WriterInterface::class);
         $exportResult = new DocxExportResult('test-filename.docx', $writer);
 
-        $writer->method('save')->with($this->callback(function($filepath) {
-            return strpos($filepath, 'tmp_export_orig_stn_') !== false;
+        $writer->method('save')->with($this->callback(function ($filepath) {
+            return false !== strpos($filepath, 'tmp_export_orig_stn_');
         }));
 
         $this->assessmentHandlerMock->method('exportDocx')
@@ -174,7 +177,7 @@ class ExportServiceTest extends FunctionalTestCase
         $exportType = 'statementsOnly';
         $zip = $this->createMock(ZipStream::class);
 
-        $this->assessmentHandlerMock->method('exportDocx')->will($this->throwException(new \Exception('Test Exception')));
+        $this->assessmentHandlerMock->method('exportDocx')->will($this->throwException(new Exception('Test Exception')));
 
         $resultZip = $this->sut->addAssessmentTableToZip($procedure->getId(), $procedure->getName(), $exportType, $zip);
 
@@ -189,8 +192,8 @@ class ExportServiceTest extends FunctionalTestCase
         $writer = $this->createMock(WriterInterface::class);
         $exportResult = new DocxExportResult('test-filename.docx', $writer);
 
-        $writer->method('save')->with($this->callback(function($filepath) {
-            return strpos($filepath, 'tmp_export_orig_stn_') !== false;
+        $writer->method('save')->with($this->callback(function ($filepath) {
+            return false !== strpos($filepath, 'tmp_export_orig_stn_');
         }));
         $outputResult = $this->createMock(StatementListHandlerResult::class);
 
@@ -236,8 +239,8 @@ class ExportServiceTest extends FunctionalTestCase
         $procedureAsArray = [
             'settings' => [
                 'planDrawPDF' => 'path/to/planDrawPDF',
-                'planPDF' => 'path/to/planPDF',
-            ]
+                'planPDF'     => 'path/to/planPDF',
+            ],
         ];
 
         $this->procedureOutputMock
@@ -264,5 +267,4 @@ class ExportServiceTest extends FunctionalTestCase
 
         $this->assertSame($zip, $result);
     }
-
 }
