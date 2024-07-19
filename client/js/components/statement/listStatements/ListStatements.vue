@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div :class="{ 'top-0 left-0 flex flex-col w-full h-full fixed z-fixed bg-white': isFullscreen }">
+  <div :class="{ 'top-0 left-0 flex flex-col w-full h-full fixed z-fixed bg-surface': isFullscreen }">
     <dp-sticky-element
       border
       class="pt-2 pb-3"
@@ -65,10 +65,13 @@
           @size-change="handleSizeChange"
           :key="`pager1_${pagination.currentPage}_${pagination.count}`" />
         <div class="ml-auto flex items-center space-inline-xs">
-          <label class="u-mb-0">
+          <label
+            class="u-mb-0"
+            for="applySortSelection">
             {{ Translator.trans('sorting') }}
           </label>
           <dp-select
+            id="applySortSelection"
             :options="sortOptions"
             :selected="selectedSort"
             @select="applySort" />
@@ -136,6 +139,11 @@
               {{ date(submitDate) }}
             </li>
           </ul>
+        </template>
+        <template v-slot:status="{ status }">
+          <status-badge
+            class="mt-0.5"
+            :status="status" />
         </template>
         <template v-slot:internId="{ internId }">
           <div class="o-hellip__wrapper">
@@ -300,6 +308,7 @@ import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import SearchModal from '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'
 import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
+import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge.vue'
 
 export default {
   name: 'ListStatements',
@@ -317,7 +326,8 @@ export default {
     DpStickyElement,
     SearchModal,
     StatementExportModal,
-    StatementMetaData
+    StatementMetaData,
+    StatusBadge
   },
 
   directives: {
@@ -365,6 +375,7 @@ export default {
       isFullscreen: false,
       headerFields: [
         { field: 'externId', label: Translator.trans('id') },
+        { field: 'status', label: Translator.trans('status') },
         { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'w-8' },
         { field: 'meta', label: Translator.trans('submitter.invitable_institution') },
         { field: 'text', label: Translator.trans('text') },
@@ -427,7 +438,7 @@ export default {
     },
 
     exportRoute: function () {
-      return (exportRoute, docxHeaders) => {
+      return (exportRoute, docxHeaders, fileNameTemplate) => {
         const parameters = {
           filter: {
             procedureId: {
@@ -451,6 +462,10 @@ export default {
             col2: docxHeaders.col2,
             col3: docxHeaders.col3
           }
+        }
+
+        if (fileNameTemplate) {
+          parameters.fileNameTemplate = fileNameTemplate
         }
 
         return Routing.generate(exportRoute, parameters)
@@ -685,6 +700,7 @@ export default {
         'internId',
         'isCitizen',
         'memo',
+        'status',
         'submitDate',
         'submitName',
         'submitType',
@@ -903,9 +919,9 @@ export default {
       }
     },
 
-    showHintAndDoExport ({ route, docxHeaders }) {
+    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate }) {
       if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
-        window.location.href = this.exportRoute(route, docxHeaders)
+        window.location.href = this.exportRoute(route, docxHeaders, fileNameTemplate)
       }
     },
 

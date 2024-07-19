@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -24,10 +23,12 @@ use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
+use demosplan\DemosPlanCoreBundle\Logic\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use Doctrine\Common\Collections\ArrayCollection;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
+use PhpOffice\PhpWord\Element\Footer;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Exception\Exception;
 use PhpOffice\PhpWord\IOFactory;
@@ -44,10 +45,12 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         CurrentUserInterface $currentUser,
         private readonly EntityHelper $entityHelper,
         HTMLSanitizer $htmlSanitizer,
+        ImageLinkConverter $imageLinkConverter,
+        private readonly SegmentExporterFileNameGenerator $fileNameGenerator,
         Slugify $slugify,
         TranslatorInterface $translator
     ) {
-        parent::__construct($currentUser, $htmlSanitizer, $slugify, $translator);
+        parent::__construct($currentUser, $htmlSanitizer, $imageLinkConverter, $slugify, $translator);
     }
 
     public function getSynopseFileName(Procedure $procedure, string $suffix): string
@@ -84,20 +87,62 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     {
         Settings::setOutputEscapingEnabled(true);
         $exportData = [];
+        $adjustedRecommendations = [];
         // unfortunately for xlsx export data needs to be an array
         foreach ($statements as $statement) {
             $segmentsOrStatements = collect([$statement]);
             if (!$statement->getSegmentsOfStatement()->isEmpty()) {
                 $segmentsOrStatements = $statement->getSegmentsOfStatement();
+                $adjustedRecommendations[] =
+                    $this->convertImagesToReferencesInRecommendations($segmentsOrStatements->toArray());
             }
             foreach ($segmentsOrStatements as $segmentOrStatement) {
                 $exportData[] = $this->convertIntoExportableArray($segmentOrStatement);
             }
         }
 
+        foreach ($adjustedRecommendations as $recommendation) {
+            $exportData = $this->updateRecommendationsWithTextReferences($exportData, $recommendation);
+        }
+
         $columnsDefinition = $this->assessmentTableXlsExporter->selectFormat('segments');
 
         return $this->assessmentTableXlsExporter->createExcel($exportData, $columnsDefinition);
+    }
+
+    private function convertImagesToReferencesInRecommendations(array $segments): array
+    {
+        $sortedSegments = $this->sortSegmentsByOrderInProcedure($segments);
+
+        $recommendationTexts = [];
+        /** @var Segment $segment */
+        foreach ($sortedSegments as $segment) {
+            $externId = $segment->getExternId();
+            $recommendationTexts[$externId] = $this->imageLinkConverter->convert(
+                $segment->getRecommendation(),
+                $externId,
+                false
+            );
+        }
+        $this->imageLinkConverter->resetImages();
+
+        return $recommendationTexts;
+    }
+
+    private function updateRecommendationsWithTextReferences(array $segmentsOrStatements, array $adjustedRecommendations): array
+    {
+        foreach ($segmentsOrStatements as $key => $segmentOrStatement) {
+            $isNotSegment = !array_key_exists('recommendation', $segmentOrStatement);
+            $externIdIsNotOfSegment = !array_key_exists($segmentOrStatement['externId'], $adjustedRecommendations);
+            if ($isNotSegment || $externIdIsNotOfSegment) {
+                continue;
+            }
+
+            $segmentOrStatement['recommendation'] = $adjustedRecommendations[$segmentOrStatement['externId']];
+            $segmentsOrStatements[$key] = $segmentOrStatement;
+        }
+
+        return $segmentsOrStatements;
     }
 
     /**
@@ -106,6 +151,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     private function exportEmptyStatements(PhpWord $phpWord, Procedure $procedure): WriterInterface
     {
         $section = $phpWord->addSection($this->styles['globalSection']);
+        $this->addHeader($section, $procedure, Footer::FIRST);
         $this->addHeader($section, $procedure);
 
         return $this->addNoStatementsMessage($phpWord, $section);
@@ -119,6 +165,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     private function exportStatements(PhpWord $phpWord, Procedure $procedure, array $statements, array $tableHeaders): WriterInterface
     {
         $section = $phpWord->addSection($this->styles['globalSection']);
+        $this->addHeader($section, $procedure, Footer::FIRST);
         $this->addHeader($section, $procedure);
 
         foreach ($statements as $index => $statement) {
@@ -133,6 +180,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     {
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $section = $phpWord->addSection($this->styles['globalSection']);
+        $this->addHeader($section, $procedure, Footer::FIRST);
         $this->addHeader($section, $procedure);
         $this->exportStatement($section, $statement, $tableHeaders);
 
@@ -161,19 +209,19 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      *
      * @return array<string, Statement>
      */
-    public function mapStatementsToPathInZip(array $statements): array
+    public function mapStatementsToPathInZip(array $statements, string $fileNameTemplate = ''): array
     {
         $pathedStatements = [];
         $previousKeysOfReaddedDuplicates = [];
         foreach ($statements as $statement) {
-            $pathInZip = $this->getPathInZip($statement, false);
+            $pathInZip = $this->getPathInZip($statement, false, $fileNameTemplate);
             // in case of a duplicate, add the database ID to the name
             if (array_key_exists($pathInZip, $pathedStatements)) {
                 $duplicate = $pathedStatements[$pathInZip];
                 $previousKeysOfReaddedDuplicates[$pathInZip] = $pathInZip;
-                $duplicateExtendedPathInZip = $this->getPathInZip($duplicate, true);
+                $duplicateExtendedPathInZip = $this->getPathInZip($duplicate, true, $fileNameTemplate);
                 $pathedStatements[$duplicateExtendedPathInZip] = $duplicate;
-                $pathInZip = $this->getPathInZip($statement, true);
+                $pathInZip = $this->getPathInZip($statement, true, $fileNameTemplate);
             }
 
             if (array_key_exists($pathInZip, $pathedStatements)) {
@@ -205,32 +253,16 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      * the case that the extern ID is an empty string and the database ID is included in
      * the result.
      */
-    private function getPathInZip(Statement $statement, bool $withDbId): string
+    private function getPathInZip(Statement $statement, bool $withDbId, string $fileNameTemplate = ''): string
     {
         // prepare needed variables
         $dbId = $statement->getId();
-        $externId = $statement->getExternId();
 
-        $orgaName = $statement->getMeta()->getOrgaName();
-        $authorSourceName = $orgaName;
-        if (UserInterface::ANONYMOUS_USER_NAME === $orgaName) {
-            $authorSourceName = $statement->getUserName();
-        }
-        if (null === $authorSourceName || '' === trim($authorSourceName)) {
-            $authorSourceName = $this->translator->trans('statement.name_source.unknown');
-        }
-
-        // determine and return the file name
-
-        if ('' === trim($externId)) {
-            return $withDbId
-                ? "$authorSourceName [$dbId].docx"
-                : "$authorSourceName.docx";
-        }
+        $fileName = $this->fileNameGenerator->getFileName($statement, $fileNameTemplate);
 
         return $withDbId
-            ? "$authorSourceName ($externId) [$dbId].docx"
-            : "$authorSourceName ($externId).docx";
+            ? "$fileName-$dbId.docx"
+            : "$fileName.docx";
     }
 
     /**

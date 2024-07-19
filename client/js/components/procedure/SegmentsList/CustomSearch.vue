@@ -13,6 +13,7 @@
       <dp-input
         has-icon
         :id="id"
+        data-cy="customSearch:currentSearchTerm"
         v-model="currentSearchTerm"
         @enter="$emit('search', currentSearchTerm)" />
       <dp-flyout
