@@ -49,6 +49,8 @@ class StatementDeleterTest extends FunctionalTestCase
 
     public function testEmtpyInternIdOfOriginalInCaseOfDeleteLastChild(): void
     {
+
+        self::markSkippedForCIElasticsearchUnavailable();
         $this->enablePermissions(['feature_auto_delete_original_statement']);
         /*$relatedOriginal = StatementFactory::new()->create(['internId' => '21']);
         $testStatement = StatementFactory::new()->create(['original' => $relatedOriginal]);
@@ -98,8 +100,6 @@ class StatementDeleterTest extends FunctionalTestCase
 
     public function testDeleteStatementButNotCopyOfStatement(): void
     {
-        self::markSkippedForCIElasticsearchUnavailable();
-
         $testStatement2 = $this->getStatementReference('testStatement2');
         $testStatementId = $testStatement2->getId();
 
