@@ -15,16 +15,13 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 use Cocur\Slugify\Slugify;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\HeaderFooterManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageManager;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\SegmentTableManager;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\PhpWordSectionBuilder;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StatementDetailsManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\SegmentSorter;
-use PhpOffice\PhpWord\Element\Footer;
-use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Exception\Exception;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
@@ -43,8 +40,8 @@ class SegmentsExporter
         protected readonly HeaderFooterManager $headerFooterManager,
         protected readonly ImageLinkConverter $imageLinkConverter,
         protected readonly ImageManager $imageManager,
+        private readonly PhpWordSectionBuilder $phpWordSectionBuilder,
         protected readonly SegmentSorter $segmentSorter,
-        private readonly SegmentTableManager $segmentTableManager,
         protected readonly Slugify $slugify,
         protected readonly StatementDetailsManager $statementDetailsManager,
         StyleInitializer $styleInitializer,
@@ -58,7 +55,7 @@ class SegmentsExporter
      */
     public function exportForOneStatement(Procedure $procedure, Statement $statement, array $tableHeaders): WriterInterface
     {
-        $phpWord = $this->createPhpWord();
+        $phpWord = $this->phpWordSectionBuilder->createPhpWord();
         $this->buildSection($phpWord, $procedure, $statement, $tableHeaders);
 
         return IOFactory::createWriter($phpWord);
@@ -73,19 +70,19 @@ class SegmentsExporter
         Statement ...$statements
     ): WriterInterface {
         Settings::setOutputEscapingEnabled(true);
-        $phpWord = $this->createPhpWord();
-        $section = $this->createNewSection($phpWord);
-        $this->addSectionHeader($section, $procedure);
+        $phpWord = $this->phpWordSectionBuilder->createPhpWord();
+        $section = $this->phpWordSectionBuilder->createNewSection($phpWord);
+        $this->phpWordSectionBuilder->addSectionHeader($section, $procedure);
 
         if (0 === count($statements)) {
-            $this->addNoStatementsMessage($section);
+            $this->phpWordSectionBuilder->addNoStatementsMessage($section);
             return IOFactory::createWriter($phpWord);
         }
 
         foreach ($statements as $index => $statement) {
-            $this->addMainContentToSection($section, $statement, $tableHeaders);
-            $this->addSectionFooter($section, $statement);
-            $section = $this->getNewSectionIfNeeded($phpWord, $section, $index, $statements);
+            $this->phpWordSectionBuilder->addMainContentToSection($section, $statement, $tableHeaders);
+            $this->phpWordSectionBuilder->addSectionFooter($section, $statement);
+            $section = $this->phpWordSectionBuilder->getNewSectionIfNeeded($phpWord, $section, $index, $statements);
         }
 
         return IOFactory::createWriter($phpWord);
@@ -97,81 +94,9 @@ class SegmentsExporter
         Statement $statement,
         array $tableHeaders
     ): void {
-        $section = $this->createNewSection($phpWord);
-        $this->addSectionHeader($section, $procedure);
-        $this->addMainContentToSection($section, $statement, $tableHeaders);
-        $this->addSectionFooter($section, $statement);
-    }
-
-    private function createPhpWord(): PhpWord
-    {
-        $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
-        $phpWord->addFontStyle('global', $this->styles['globalFont']);
-
-        return $phpWord;
-    }
-
-    private function createNewSection(PhpWord $phpWord): Section
-    {
-        return $phpWord->addSection($this->styles['globalSection']);
-    }
-
-    private function addSectionHeader(Section $section, Procedure $procedure): void
-    {
-        $this->headerFooterManager->addHeader($section, $procedure, Footer::FIRST);
-        $this->headerFooterManager->addHeader($section, $procedure);
-    }
-
-    private function addMainContentToSection(Section $section, Statement $statement, array $tableHeaders): void
-    {
-        $this->statementDetailsManager->addStatementInfo($section, $statement);
-        $this->statementDetailsManager->addSimilarStatementSubmitters($section, $statement);
-        $this->addSegments($section, $statement, $tableHeaders);
-    }
-
-    private function addNoStatementsMessage(Section $section): void
-    {
-        $noEntriesMessage = $this->translator->trans('statements.filtered.none');
-        $section->addText($noEntriesMessage, $this->styles['noInfoMessageFont']);
-    }
-
-    /**
-     * @param array<int, Statement> $statements
-     */
-    private function getNewSectionIfNeeded(PhpWord $phpWord, Section $section, int $i, array $statements): Section
-    {
-        if ($this->isNotLastStatement($statements, $i)) {
-            $section = $phpWord->addSection($this->styles['globalSection']);
-        }
-
-        return $section;
-    }
-
-    /**
-     * @param array<int, Statement> $statements
-     */
-    private function isNotLastStatement(array $statements, int $i): bool
-    {
-        return $i !== count($statements) - 1;
-    }
-
-    private function addSectionFooter(Section $section, Statement $statement): void
-    {
-        $this->headerFooterManager->addFooter($section, $statement);
-    }
-
-    private function addSegments(Section $section, Statement $statement, array $tableHeaders): void
-    {
-        if ($statement->getSegmentsOfStatement()->isEmpty()) {
-            $this->addNoSegmentsMessage($section);
-        } else {
-            $this->segmentTableManager->addSegmentsTable($section, $statement, $tableHeaders);
-        }
-    }
-
-    private function addNoSegmentsMessage(Section $section): void
-    {
-        $noEntriesMessage = $this->translator->trans('statement.has.no.segments');
-        $section->addText($noEntriesMessage, $this->styles['noInfoMessageFont']);
+        $section = $this->phpWordSectionBuilder->createNewSection($phpWord);
+        $this->phpWordSectionBuilder->addSectionHeader($section, $procedure);
+        $this->phpWordSectionBuilder->addMainContentToSection($section, $statement, $tableHeaders);
+        $this->phpWordSectionBuilder->addSectionFooter($section, $statement);
     }
 }
