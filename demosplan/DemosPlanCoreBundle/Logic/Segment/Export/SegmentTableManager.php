@@ -13,7 +13,9 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment\Export;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\SegmentSorter;
 use demosplan\DemosPlanCoreBundle\ValueObject\CellExportStyle;
 use PhpOffice\PhpWord\Element\Row;
 use PhpOffice\PhpWord\Element\Section;
@@ -24,12 +26,27 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class SegmentTableManager
 {
     public function __construct(
-        private readonly TranslatorInterface $translator,
-        private readonly ImageLinkConverter $imageLinkConverter,
         private readonly HtmlHelper $htmlHelper,
+        private readonly ImageLinkConverter $imageLinkConverter,
+        private readonly ImageManager $imageManager,
+        private readonly SegmentSorter $segmentSorter,
+        private readonly TranslatorInterface $translator,
         private readonly array $styles
-    ) {}
-    public function addSegmentsTableHeader(Section $section, array $tableHeaders): Table
+    ) {
+    }
+
+    public function addSegmentsTable(Section $section, Statement $statement, array $tableHeaders): void
+    {
+        $table = $this->addSegmentsTableHeader($section, $tableHeaders);
+        $sortedSegments = $this->segmentSorter->sortSegmentsByOrderInProcedure($statement->getSegmentsOfStatement()->toArray());
+
+        foreach ($sortedSegments as $segment) {
+            $this->addSegmentTableBody($table, $segment, $statement->getExternId());
+        }
+        $this->imageManager->addImages($section);
+    }
+
+    private function addSegmentsTableHeader(Section $section, array $tableHeaders): Table
     {
         $table = $section->addTable($this->styles['segmentsTable']);
         $headerRow = $table->addRow(
@@ -67,7 +84,7 @@ class SegmentTableManager
         return $table;
     }
 
-    public function addSegmentTableBody(Table $table, Segment $segment, string $statementExternId): void
+    private function addSegmentTableBody(Table $table, Segment $segment, string $statementExternId): void
     {
         $textRow = $table->addRow();
         $this->addSegmentHtmlCell(

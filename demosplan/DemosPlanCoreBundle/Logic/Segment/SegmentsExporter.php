@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\HeaderFooterManager;
@@ -47,7 +46,7 @@ class SegmentsExporter
 
     public function __construct(
         CurrentUserInterface $currentUser,
-        private readonly HtmlHelper $htmlHelper,
+        HtmlHelper $htmlHelper,
         protected readonly ImageLinkConverter $imageLinkConverter,
         protected readonly ImageManager $imageManager,
         protected readonly SegmentSorter $segmentSorter,
@@ -61,7 +60,14 @@ class SegmentsExporter
         $this->headerFooterManager = new HeaderFooterManager($htmlHelper, $translator, $this->styles);
         $this->statementInfoManager = new StatementDetailsManager($currentUser, $translator, $this->styles);
         $this->segmentTableManager =
-            new SegmentTableManager($translator, $this->imageLinkConverter, $this->htmlHelper, $this->styles);
+            new SegmentTableManager(
+                $htmlHelper,
+                $imageLinkConverter,
+                $imageManager,
+                $segmentSorter,
+                $translator,
+                $this->styles
+            );
     }
 
     /**
@@ -103,7 +109,7 @@ class SegmentsExporter
         if ($statement->getSegmentsOfStatement()->isEmpty()) {
             $this->addNoSegmentsMessage($section);
         } else {
-            $this->addSegmentsTable($section, $statement, $tableHeaders);
+            $this->segmentTableManager->addSegmentsTable($section, $statement, $tableHeaders);
         }
     }
 
@@ -111,16 +117,5 @@ class SegmentsExporter
     {
         $noEntriesMessage = $this->translator->trans('statement.has.no.segments');
         $section->addText($noEntriesMessage, $this->styles['noInfoMessageFont']);
-    }
-
-    private function addSegmentsTable(Section $section, Statement $statement, array $tableHeaders): void
-    {
-        $table = $this->segmentTableManager->addSegmentsTableHeader($section, $tableHeaders);
-        $sortedSegments = $this->segmentSorter->sortSegmentsByOrderInProcedure($statement->getSegmentsOfStatement()->toArray());
-
-        foreach ($sortedSegments as $segment) {
-            $this->segmentTableManager->addSegmentTableBody($table, $segment, $statement->getExternId());
-        }
-        $this->imageManager->addImages($section);
     }
 }
