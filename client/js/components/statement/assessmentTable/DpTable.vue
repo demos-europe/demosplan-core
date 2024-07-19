@@ -170,9 +170,10 @@
       <!-- Loop statements in default viewMode -->
       <template
         v-else
-        v-for="statement in statements">
+        v-for="(statement, key, index) in statements">
         <dp-assessment-table-card
           :csrf-token="csrfToken"
+          :data-cy="`statementCard:index:${index}`"
           :ref="'itemdisplay_' + statement.id"
           :key="`statement:${statement.id}`"
           class="o-list__item"
@@ -407,26 +408,26 @@ export default {
   },
 
   computed: {
-    ...mapState('assessmentTable', [
+    ...mapState('AssessmentTable', [
       'assessmentBase',
       'assessmentBaseLoaded',
       'currentTableView',
       'sort'
     ]),
 
-    ...mapGetters('assessmentTable', [
+    ...mapGetters('AssessmentTable', [
       'assignEntityModal',
       'consolidateModal',
       'copyStatementModal',
       'isLoading'
     ]),
 
-    ...mapState('statement', [
+    ...mapState('Statement', [
       'selectedElements',
       'pagination'
     ]),
 
-    ...mapGetters('statement', [
+    ...mapGetters('Statement', [
       'getSelectionStateById',
       'selectedElementsFromOtherPages',
       'selectedElementsLength',
@@ -434,7 +435,7 @@ export default {
       'statementsInOrder'
     ]),
 
-    ...mapGetters('fragment', [
+    ...mapGetters('Fragment', [
       'selectedFragments'
     ]),
 
@@ -473,36 +474,36 @@ export default {
   },
 
   methods: {
-    ...mapActions('assessmentTable', [
+    ...mapActions('AssessmentTable', [
       'applyBaseData'
     ]),
 
-    ...mapActions('statement', [
+    ...mapActions('Statement', [
       'addToSelectionAction',
       'getStatementAction',
       'removeFromSelectionAction',
       'updateStatementAction'
     ]),
 
-    ...mapActions('statement', {
+    ...mapActions('Statement', {
       resetStatementSelection: 'resetSelection',
       setProcedureIdForStatement: 'setProcedureIdAction',
       setSelectedStatements: 'setSelectedElementsAction'
     }),
 
-    ...mapActions('fragment', {
+    ...mapActions('Fragment', {
       resetFragmentSelection: 'resetSelection',
       setProcedureIdForFragment: 'setProcedureIdAction',
       setSelectedFragments: 'setSelectedFragmentsAction'
     }),
 
-    ...mapMutations('assessmentTable', [
+    ...mapMutations('AssessmentTable', [
       'setAssessmentBaseProperty',
       'setModalProperty',
       'setProperty'
     ]),
 
-    ...mapMutations('statement', [
+    ...mapMutations('Statement', [
       'updatePagination'
     ]),
 

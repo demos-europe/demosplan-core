@@ -199,7 +199,7 @@ export default {
 
   data () {
     return {
-      procedureId: this.$store.state.statement.procedureId
+      procedureId: this.$store.state.Statement.procedureId
     }
   },
 
@@ -210,7 +210,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('assessmentTable', [
+    ...mapMutations('AssessmentTable', [
       'setModalProperty'
     ]),
 

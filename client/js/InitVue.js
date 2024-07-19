@@ -9,6 +9,7 @@
 
 import {
   DpAccordion,
+  DpContextualHelp,
   DpFlyout,
   DpObscure,
   dpValidateMultiselectDirective,
@@ -64,6 +65,7 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
         ...components,
         BackToTopButton,
         DpAccordion,
+        DpContextualHelp,
         DpFlyout,
         HamburgerMenuButton,
         NotifyContainer,

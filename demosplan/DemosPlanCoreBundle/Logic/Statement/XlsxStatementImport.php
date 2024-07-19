@@ -53,8 +53,6 @@ class XlsxStatementImport
      * invalid cases and therefore allow to return collection of errors.
      * The generated Statements will only be persisted, if the document was processed without an error.
      *
-     * @param FileInfo $file Hands over basic information about the file
-     *
      * @throws RowAwareViolationsException
      * @throws ConnectionException
      * @throws \Doctrine\DBAL\Driver\Exception
@@ -98,7 +96,9 @@ class XlsxStatementImport
                 $this->createdStatements[] = $statementCreatedEvent->getStatement();
             }
         } catch (Exception $exception) {
-            $doctrineConnection->rollBack();
+            if ($doctrineConnection->isConnected() && $doctrineConnection->isTransactionActive()) {
+                $doctrineConnection->rollBack();
+            }
             throw $exception;
         }
         $doctrineConnection->commit();

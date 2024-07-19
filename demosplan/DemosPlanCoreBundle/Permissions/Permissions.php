@@ -26,6 +26,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
 use demosplan\DemosPlanCoreBundle\Exception\PermissionException;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
@@ -37,7 +38,6 @@ use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -123,7 +123,8 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         private readonly PermissionResolver $permissionResolver,
         ProcedureAccessEvaluator $procedureAccessEvaluator,
         private ProcedureRepository $procedureRepository,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
+        private readonly AccessControlService $accessControlPermission
     ) {
         $this->addonPermissionInitializers = $addonRegistry->getPermissionInitializers();
         $this->globalConfig = $globalConfig;
@@ -146,16 +147,29 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         // set Permissions which are dependent on role but independent of procedure
         $this->setGlobalPermissions();
 
+        // set Permissions which are store in DB
+        $this->loadDynamicPermissions();
+
         return $this;
+    }
+
+    public function loadDynamicPermissions(): void
+    {
+        // In this case, permission is not core permission, then check if permission is DB in table access_control_permissions
+
+        $permissions = $this->accessControlPermission->getPermissions($this->user->getOrga(), $this->user->getCurrentCustomer(), $this->user->getRoles());
+
+        if (!empty($permissions)) {
+            $this->enablePermissions($permissions);
+        }
     }
 
     /**
      * @deprecated see deprecation on property userInvitedInProcedure
      */
-    public function evaluateUserInvitedInProcedure(Procedure $procedure, Session $session): void
+    public function evaluateUserInvitedInProcedure(array $invitedProcedures): void
     {
-        $invitedProcedures = $session->get('invitedProcedures', []);
-        if (\in_array($procedure->getId(), $invitedProcedures, true)) {
+        if (\in_array($this->procedure?->getId(), $invitedProcedures, true)) {
             $this->userInvitedInProcedure = true;
         }
     }
@@ -173,16 +187,12 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             'area_main_file',
             'area_main_procedures',
             'area_mydata',
-            'area_mydata_password',
             'area_participants_internal',
             'area_portal_user',
             'feature_assessmenttable_export',
-            'feature_assessmenttable_single_statement_pdf',
-            'feature_assessmenttable_use_pager',
             'feature_data_protection_text_customized_view',
             'feature_documents_category_use_file',
             'feature_documents_category_use_paragraph',
-            'feature_email_invitable_institution_additional_invitation_text',
             'feature_imprint_text_customized_view',
             'feature_institution_participation',
             'feature_json_api_get',
@@ -192,7 +202,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             'feature_map_use_drawing_tools',
             'feature_map_use_location_relation',
             'feature_original_statements_export',
-            'feature_original_statements_use_pager',
             'feature_participation_area_procedure_detail_map_use_baselayerbox',
             'feature_procedure_filter_any',
             'feature_procedure_filter_external_orga_name',
@@ -261,7 +270,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             $this->enablePermissions([
                 'area_manage_departments',  // Abteilungen
                 'area_manage_orgadata',  // Daten der eignen Organisation verwalten
-                'area_manage_users',  // User verwalten
                 'area_mydata_organisation',  // Daten der Organisation
                 'area_organisations_view_of_customer',
                 'area_preferences',  // Einstellungen
@@ -269,14 +277,8 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'feature_json_api_delete',
                 'feature_json_api_list',
                 'feature_json_api_update',
-                'feature_orga_edit',
                 'feature_orga_edit_all_fields',
                 'feature_orga_get',
-                'feature_user_add',
-                'feature_user_delete',
-                'feature_user_edit',
-                'feature_user_get',
-                'feature_user_list',
                 'field_statement_recommendation',
             ]);
         }
@@ -295,7 +297,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_preferences',  // Einstellungen
                 'feature_admin_delete_procedure',  // Verfahren loeschen
                 'feature_admin_export_procedure',  // Verfahren exportieren
-                'feature_admin_new_procedure',  // Neues Verfahren anlegen
                 'feature_procedure_export_include_public_interest_bodies_member_list',
                 'feature_json_api_get', // allow get requests to generic api
             ]);
@@ -428,11 +429,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_statistics',  // Statistiken
                 'feature_orga_get',
                 'feature_procedure_report_public_phase',
-                'feature_user_add',
-                'feature_user_delete',
-                'feature_user_edit',
-                'feature_user_get',
-                'feature_user_list',
                 'field_data_protection_text_customized_edit_customer',
                 'field_imprint_text_customized_edit_customer',
                 'field_statement_recommendation',

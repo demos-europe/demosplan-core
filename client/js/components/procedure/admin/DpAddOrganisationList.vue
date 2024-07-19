@@ -14,14 +14,16 @@
     <dp-data-table-extended
       ref="dataTable"
       class="mt-2"
+      :default-sort-order="sortOrder"
       :header-fields="headerFields"
-      :table-items="rowItems"
+      :init-items-per-page="itemsPerPage"
       is-expandable
       is-selectable
       :items-per-page-options="itemsPerPageOptions"
-      :default-sort-order="sortOrder"
-      @items-selected="setSelectedItems"
-      :init-items-per-page="itemsPerPage">
+      lock-checkbox-by="hasNoEmail"
+      :table-items="rowItems"
+      :translations="{ lockedForSelection: Translator.trans('add_orga.email_hint') }"
+      @items-selected="setSelectedItems">
       <template v-slot:expandedContent="{ participationFeedbackEmailAddress, locationContacts, ccEmailAddresses, contactPerson }">
         <div class="lg:w-2/3 lg:flex pt-4">
           <dl class="pl-4 w-full">
@@ -34,9 +36,9 @@
               {{ locationContacts.street }}
             </dd>
             <dd
-              v-if="locationContacts.postalCode"
+              v-if="locationContacts.postalcode"
               class="ml-0">
-              {{ locationContacts.postalCode }}
+              {{ locationContacts.postalcode }}
             </dd>
             <dd
               v-if="locationContacts.city"
@@ -96,11 +98,11 @@
         </div>
       </template>
       <template v-slot:footer>
-        <div class="pt-2">
+        <div class="pt-2 flex">
           <div class="w-1/3 inline-block">
             <span
-              class="weight--bold line-height--1_6"
-              v-if="selectedItems.length">
+              v-if="selectedItems.length"
+              class="weight--bold line-height--1_6">
               {{ selectedItems.length }} {{ (selectedItems.length === 1 && Translator.trans('entry.selected')) || Translator.trans('entries.selected') }}
             </span>
           </div>
@@ -111,6 +113,7 @@
               @click="addPublicInterestBodies(selectedItems)" />
             <a
               :href="Routing.generate('DemosPlan_procedure_member_index', { procedure: procedureId })"
+              data-cy="organisationList:abortAndBack"
               class="btn btn--secondary">
               {{ Translator.trans('abort.and.back') }}
             </a>
@@ -166,11 +169,11 @@ export default {
   },
 
   computed: {
-    ...mapState('institutionLocationContact', {
+    ...mapState('InstitutionLocationContact', {
       institutionLocationContactItems: 'items'
     }),
 
-    ...mapState('invitableToeb', {
+    ...mapState('InvitableToeb', {
       invitableToebItems: 'items'
     }),
 
@@ -178,6 +181,7 @@ export default {
       return Object.values(this.invitableToebItems).reduce((acc, item) => {
         const locationContactId = item.relationships.locationContacts.data[0].id
         const locationContact = this.getLocationContactById(locationContactId)
+        const hasNoEmail = !item.attributes.participationFeedbackEmailAddress
 
         return [
           ...acc,
@@ -188,7 +192,8 @@ export default {
               locationContacts: {
                 id: locationContact.id,
                 ...locationContact.attributes
-              }
+              },
+              hasNoEmail
             }
           ]
         ]
@@ -197,7 +202,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('invitableToeb', {
+    ...mapActions('InvitableToeb', {
       getInstitutions: 'list'
     }),
 

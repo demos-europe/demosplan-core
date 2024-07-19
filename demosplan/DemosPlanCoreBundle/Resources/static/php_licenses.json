@@ -36,11 +36,6 @@
     },
     {
         "license": "MIT",
-        "package": "demos-europe/edt-extra",
-        "website": "https://github.com/demos-europe/edt-extra"
-    },
-    {
-        "license": "MIT",
         "package": "doctrine/annotations",
         "website": "https://github.com/doctrine/annotations"
     },
@@ -168,6 +163,11 @@
         "license": "MIT",
         "package": "hslavich/oneloginsaml-bundle",
         "website": "https://github.com/hslavich/OneloginSamlBundle"
+    },
+    {
+        "license": "MIT",
+        "package": "illuminate/collections",
+        "website": "https://github.com/illuminate/collections"
     },
     {
         "license": "MIT",
@@ -333,11 +333,6 @@
         "license": "MIT",
         "package": "rollerworks/password-strength-bundle",
         "website": "https://github.com/rollerworks/PasswordStrengthBundle"
-    },
-    {
-        "license": "MIT",
-        "package": "sensio/framework-extra-bundle",
-        "website": "https://github.com/sensiolabs/SensioFrameworkExtraBundle"
     },
     {
         "license": "MIT",
@@ -521,6 +516,11 @@
     },
     {
         "license": "MIT",
+        "package": "symfony/rate-limiter",
+        "website": "https://github.com/symfony/rate-limiter"
+    },
+    {
+        "license": "MIT",
         "package": "symfony/security-bundle",
         "website": "https://github.com/symfony/security-bundle"
     },
@@ -588,11 +588,6 @@
         "license": "MIT",
         "package": "symfony/yaml",
         "website": "https://github.com/symfony/yaml"
-    },
-    {
-        "license": "MIT",
-        "package": "tightenco/collect",
-        "website": "https://github.com/tighten/collect"
     },
     {
         "license": "MIT",

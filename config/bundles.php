@@ -37,7 +37,7 @@ return [
     Liip\TestFixturesBundle\LiipTestFixturesBundle::class => ['test' => true],
     Symfony\Bundle\WebProfilerBundle\WebProfilerBundle::class => ['test' => true, 'dev' => true],
     Symfony\Bundle\DebugBundle\DebugBundle::class => ['dev' => true],
-    Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle::class => ['all' => true],
+
     Bazinga\GeocoderBundle\BazingaGeocoderBundle::class => ['all' => true],
     Rollerworks\Bundle\PasswordStrengthBundle\RollerworksPasswordStrengthBundle::class => ['all' => true],
     EFrane\TusBundle\Bundle\TusBundle::class => ['all' => true],

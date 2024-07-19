@@ -125,8 +125,6 @@ class DevelopmentUserStoryVoteRepository extends FluentRepository implements Arr
      * Update Entity.
      *
      * @param string $entityId
-     *
-     * @return CoreEntity
      */
     public function update($entityId, array $data): never
     {

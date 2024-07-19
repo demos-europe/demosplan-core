@@ -11,6 +11,7 @@
 import {
   dpApi,
   DpButton,
+  DpContextualHelp,
   DpDateRangePicker,
   DpDatetimePicker,
   DpEditor,
@@ -31,6 +32,7 @@ export default {
     AddonWrapper,
     AutoSwitchProcedurePhaseForm: () => import(/* webpackChunkName: "auto-switch-procedure-phase-form" */ '@DpJs/components/procedure/basicSettings/AutoSwitchProcedurePhaseForm'),
     DpButton,
+    DpContextualHelp,
     DpDateRangePicker,
     DpDatetimePicker,
     DpEditor,
@@ -127,6 +129,8 @@ export default {
       selectedAgencies: this.initAgencies,
       selectedDataInputOrgas: this.initDataInputOrgas,
       selectedAuthUsers: this.initAuthUsers,
+      selectedInternalPhase: this.initProcedurePhaseInternal,
+      selectedPublicPhase: this.initProcedurePhasePublic,
       selectedProcedureCategories: this.initProcedureCategories,
       selectedSimilarRecommendationProcedures: this.initSimilarRecommendationProcedures,
       procedureDescription: this.procedureExternalDesc,
@@ -154,6 +158,14 @@ export default {
 
     selectAllAuthUsers () {
       this.selectedAuthUsers = this.authorizedUsersOptions
+    },
+
+    setSelectedInternalPhase (phase) {
+      this.selectedInternalPhase = phase
+    },
+
+    setSelectedPublicPhase (phase) {
+      this.selectedPublicPhase = phase
     },
 
     unselectAllAuthUsers () {
