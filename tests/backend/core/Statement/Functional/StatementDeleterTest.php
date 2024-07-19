@@ -49,19 +49,29 @@ class StatementDeleterTest extends FunctionalTestCase
 
     public function testEmtpyInternIdOfOriginalInCaseOfDeleteLastChild(): void
     {
-        self::markTestSkipped('This test was skipped because of pre-existing errors. They are most likely easily fixable but prevent us from getting to a usable state of our CI.');
-
         $this->enablePermissions(['feature_auto_delete_original_statement']);
+        /*$relatedOriginal = StatementFactory::new()->create(['internId' => '21']);
+        $testStatement = StatementFactory::new()->create(['original' => $relatedOriginal]);
+        $relatedOriginal->setChildren([$testStatement->_real()]);
+        $relatedOriginal->_save();
+        $testStatementId = $testStatement->getId();*/
 
-        $testStatement = $this->getStatementReference('testStatementWithInternID');
+
+        $testStatement = StatementFactory::new()->create();
+        $relatedOriginal = StatementFactory::new()->create(['internId' => '21']);
+        $relatedOriginal = $relatedOriginal->addChild($testStatement->_real());
+        //$relatedOriginal->_save();
+
+        $testStatement->setOriginal($relatedOriginal);
+        $testStatement->_save();
         $testStatementId = $testStatement->getId();
-        $relatedOriginal = $testStatement->getOriginal();
+
         static::assertInstanceOf(Statement::class, $relatedOriginal);
         static::assertNotNull($testStatement->getInternId());
         static::assertNotNull($relatedOriginal->getInternId());
-        static::assertCount(1, $testStatement->getOriginal()->getChildren());
+        static::assertCount(1, $relatedOriginal->getChildren());
 
-        $this->sut->deleteStatementObject($testStatement);
+        $this->sut->deleteStatementObject($testStatement->_real());
         static::assertNull($this->find(Statement::class, $testStatementId));
         static::assertNull($relatedOriginal->getInternId());
     }
