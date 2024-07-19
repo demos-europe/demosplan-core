@@ -1,9 +1,16 @@
 <?php
+
 declare(strict_types=1);
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment\Export;
-
 
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -17,18 +24,17 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class HeaderFooterManager
 {
-    private HtmlHelper $htmlHelper;
-    private TranslatorInterface $translator;
+    /**
+     * @var array<string, mixed>
+     */
     private array $styles;
 
     public function __construct(
-        HtmlHelper $htmlHelper,
-        TranslatorInterface $translator,
-        array $styles
+        private readonly HtmlHelper $htmlHelper,
+        private readonly TranslatorInterface $translator,
+        private readonly StyleInitializer $styleInitializer,
     ) {
-        $this->htmlHelper = $htmlHelper;
-        $this->translator = $translator;
-        $this->styles = $styles;
+        $this->styles = $this->styleInitializer->getStyles();
     }
 
     public function addHeader(Section $section, Procedure $procedure, ?string $headerType = null): void

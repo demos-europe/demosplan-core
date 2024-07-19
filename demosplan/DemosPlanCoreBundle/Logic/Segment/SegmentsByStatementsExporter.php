@@ -13,17 +13,18 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use Cocur\Slugify\Slugify;
-use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ExportDataArrayGenerator;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\HeaderFooterManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\RecommendationConverter;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\SegmentTableManager;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StatementDetailsManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\SegmentSorter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
@@ -41,24 +42,26 @@ class SegmentsByStatementsExporter extends SegmentsExporter
 {
     public function __construct(
         private readonly AssessmentTableXlsExporter $assessmentTableXlsExporter,
-        CurrentUserInterface $currentUser,
         private readonly ExportDataArrayGenerator $exportDataArrayGenerator,
-        HtmlHelper $htmlHelper,
+        HeaderFooterManager $headerFooterManager,
         ImageLinkConverter $imageLinkConverter,
         ImageManager $imageManager,
         private readonly RecommendationConverter $recommendationConverter,
         SegmentSorter $segmentSorter,
+        SegmentTableManager $segmentTableManager,
         Slugify $slugify,
+        StatementDetailsManager $statementDetailsManager,
         StyleInitializer $styleInitializer,
         TranslatorInterface $translator
     ) {
         parent::__construct(
-            $currentUser,
-            $htmlHelper,
+            $headerFooterManager,
             $imageLinkConverter,
             $imageManager,
             $segmentSorter,
+            $segmentTableManager,
             $slugify,
+            $statementDetailsManager,
             $styleInitializer,
             $translator
         );

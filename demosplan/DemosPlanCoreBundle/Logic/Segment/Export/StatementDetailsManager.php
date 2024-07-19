@@ -22,11 +22,16 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class StatementDetailsManager
 {
+    /**
+     * @var array<string, mixed>
+     */
+    private array $styles;
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
-        private readonly TranslatorInterface $translator,
-        private readonly array $styles
+        StyleInitializer $styleInitializer,
+        private readonly TranslatorInterface $translator
     ) {
+        $this->styles = $styleInitializer->getStyles();
     }
 
     public function addStatementInfo(Section $section, Statement $statement): void

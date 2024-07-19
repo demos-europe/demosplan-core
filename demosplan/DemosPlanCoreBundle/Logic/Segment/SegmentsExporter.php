@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use Cocur\Slugify\Slugify;
-use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
@@ -23,7 +22,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\SegmentTableManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StatementDetailsManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\SegmentSorter;
 use PhpOffice\PhpWord\Element\Footer;
 use PhpOffice\PhpWord\Element\Section;
@@ -38,36 +36,19 @@ class SegmentsExporter
      * @var array<string, mixed>
      */
     protected array $styles;
-    protected HeaderFooterManager $headerFooterManager;
-    protected TranslatorInterface $translator;
-    protected SegmentTableManager $segmentTableManager;
-    protected Slugify $slugify;
-    protected StatementDetailsManager $statementInfoManager;
 
     public function __construct(
-        CurrentUserInterface $currentUser,
-        HtmlHelper $htmlHelper,
+        protected readonly HeaderFooterManager $headerFooterManager,
         protected readonly ImageLinkConverter $imageLinkConverter,
         protected readonly ImageManager $imageManager,
         protected readonly SegmentSorter $segmentSorter,
-        Slugify $slugify,
+        private readonly SegmentTableManager $segmentTableManager,
+        protected readonly Slugify $slugify,
+        private readonly StatementDetailsManager $statementDetailsManager,
         StyleInitializer $styleInitializer,
-        TranslatorInterface $translator
+        protected readonly TranslatorInterface $translator
     ) {
-        $this->translator = $translator;
-        $this->styles = $styleInitializer->initialize();
-        $this->slugify = $slugify;
-        $this->headerFooterManager = new HeaderFooterManager($htmlHelper, $translator, $this->styles);
-        $this->statementInfoManager = new StatementDetailsManager($currentUser, $translator, $this->styles);
-        $this->segmentTableManager =
-            new SegmentTableManager(
-                $htmlHelper,
-                $imageLinkConverter,
-                $imageManager,
-                $segmentSorter,
-                $translator,
-                $this->styles
-            );
+        $this->styles = $styleInitializer->getStyles();
     }
 
     /**
@@ -93,7 +74,7 @@ class SegmentsExporter
      */
     protected function addSimilarStatementSubmitters(Section $section, Statement $statement): void
     {
-        $this->statementInfoManager->addSimilarStatementSubmitters($section, $statement);
+        $this->statementDetailsManager->addSimilarStatementSubmitters($section, $statement);
     }
 
     /**
@@ -101,7 +82,7 @@ class SegmentsExporter
      */
     protected function addStatementInfo(Section $section, Statement $statement): void
     {
-        $this->statementInfoManager->addStatementInfo($section, $statement);
+        $this->statementDetailsManager->addStatementInfo($section, $statement);
     }
 
     protected function addSegments(Section $section, Statement $statement, array $tableHeaders): void

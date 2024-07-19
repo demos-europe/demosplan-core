@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -7,8 +9,6 @@
  *
  * All rights reserved
  */
-
-declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment\Export;
 
@@ -25,14 +25,21 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SegmentTableManager
 {
+    /**
+     * @var array<string, mixed>
+     */
+    private array $styles;
+
     public function __construct(
         private readonly HtmlHelper $htmlHelper,
         private readonly ImageLinkConverter $imageLinkConverter,
         private readonly ImageManager $imageManager,
         private readonly SegmentSorter $segmentSorter,
+        StyleInitializer $styleInitializer,
         private readonly TranslatorInterface $translator,
-        private readonly array $styles
+
     ) {
+        $this->styles = $styleInitializer->getStyles();
     }
 
     public function addSegmentsTable(Section $section, Statement $statement, array $tableHeaders): void

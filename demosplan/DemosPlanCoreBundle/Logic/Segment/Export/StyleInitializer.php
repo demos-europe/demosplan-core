@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -23,16 +24,24 @@ class StyleInitializer
      */
     private array $styles;
 
-    /**
-     * @return array<string, mixed>
-     */
-    public function initialize(): array
+    public function __construct()
+    {
+        $this->initialize();
+    }
+
+    private function initialize(): void
     {
         $this->initializeGlobalStyles();
         $this->initializeHeaderStyles();
         $this->initializeSegmentStyles();
         $this->initializeFooterStyles();
+    }
 
+    /**
+     * @return array<string, mixed>
+     */
+    public function getStyles(): array
+    {
         return $this->styles;
     }
 
