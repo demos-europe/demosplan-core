@@ -28,7 +28,6 @@ use EDT\PathBuilding\End;
  * @property-read End $hasDefaultVisibility
  * @property-read End $parentId @deprecated use {@link GisLayerCategoryResourceType::$parent} instead
  * @property-read GisLayerCategoryResourceType $parent
- * @property-read GisLayerCategoryResourceType $parentCategory
  * @property-read GisLayerCategoryResourceType $categories
  * @property-read GisLayerCategoryResourceType $children
  * @property-read GisLayerResourceType $gisLayers
@@ -52,25 +51,10 @@ final class GisLayerCategoryResourceType extends DplanResourceType
 
     public function isGetAllowed(): bool
     {
-        return $this->hasManagementPermission();
+        return $this->currentUser->hasPermission('area_map_participation_area');
     }
 
     public function isListAllowed(): bool
-    {
-        return $this->hasManagementPermission();
-    }
-
-    public function isDeleteAllowed(): bool
-    {
-        return $this->hasManagementPermission();
-    }
-
-    public function isUpdateAllowed(): bool
-    {
-        return $this->hasManagementPermission();
-    }
-
-    protected function hasManagementPermission(): bool
     {
         return $this->currentUser->hasPermission('area_map_participation_area');
     }
@@ -96,43 +80,21 @@ final class GisLayerCategoryResourceType extends DplanResourceType
             $this->createIdentifier()->readable()->sortable()->filterable(),
             $this->createAttribute($this->name)->readable(true)->sortable()->filterable(),
             $this->createAttribute($this->layerWithChildrenHidden)->readable(true)->sortable()->filterable(),
-            $this->createAttribute($this->treeOrder)
-                ->updatable()
-                ->readable(true)
-                ->sortable()
-                ->filterable(),
+            $this->createAttribute($this->treeOrder)->readable(true)->sortable()->filterable(),
             $this->createAttribute($this->isVisible)
                 ->readable(true)->sortable()->filterable()->aliasedPath($this->visible),
             $this->createAttribute($this->hasDefaultVisibility)
-                ->updatable()
-                ->readable(true)
-                ->sortable()
-                ->filterable()
-                ->aliasedPath($this->visible),
+                ->readable(true)->sortable()->filterable()->aliasedPath($this->visible),
             $this->createAttribute($this->parentId)
-                ->updatable()
                 ->readable(true)->sortable()->filterable()->aliasedPath($this->parent->id),
-
-            $this->createToOneRelationship($this->parentCategory)
-                ->updatable()
-                ->readable(true)
-                ->sortable()
-                ->filterable()
-                ->aliasedPath($this->parent),
 
             /*
              * Keep these as a default include because these relationships are recursive and currently not easily
              * manageable in the FE with the actual - correct - available includes syntax.
              */
             $this->createToManyRelationship($this->categories)
-                ->readable(true, null, true)
-                ->sortable()
-                ->filterable()
-                ->aliasedPath($this->children),
-            $this->createToManyRelationship($this->gisLayers)
-                ->readable(true, null, true)
-                ->sortable()
-                ->filterable(),
+                ->readable(true, null, true)->sortable()->filterable()->aliasedPath($this->children),
+            $this->createToManyRelationship($this->gisLayers)->readable(true, null, true)->sortable()->filterable(),
         ];
     }
 }

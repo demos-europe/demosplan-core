@@ -76,6 +76,7 @@ class SegmentsExporter
 
         if (0 === count($statements)) {
             $this->phpWordSectionBuilder->addNoStatementsMessage($section);
+
             return IOFactory::createWriter($phpWord);
         }
 

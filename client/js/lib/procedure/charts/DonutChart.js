@@ -49,13 +49,12 @@ export default class DonutChart {
       .append('svg')
       .attr('width', width)
       .attr('height', height)
-      .attr('class', 'inline-block')
       .append('g')
       .attr('transform', 'translate(' + (width / 2) + ',' + (height / 2) + ')')
 
     const arc = d3.arc()
-      .innerRadius(radius - 19)
-      .outerRadius(radius - 1)
+      .innerRadius(radius - 12)
+      .outerRadius(radius)
 
     const pie = d3.pie()
       .value((d) => d.count)
@@ -78,8 +77,8 @@ export default class DonutChart {
       .attr('d', d3.arc()
         .endAngle(Math.PI * 2)
         .startAngle(percentage * Math.PI * 2)
-        .innerRadius(radius - 20)
-        .outerRadius(radius)
+        .innerRadius(radius - 13)
+        .outerRadius(radius + 1)
       )
       .attr('fill', '#ebe9e9')
 
@@ -100,8 +99,8 @@ export default class DonutChart {
       .attr('transform', (d, i) => {
         const height = legendRectSize + legendSpacing
         const offset = height * color.domain().length / 2
-        const horizontal = -2 * legendRectSize - 11
-        const vertical = i * height - offset + 2
+        const horizontal = -2 * legendRectSize - 13
+        const vertical = i * height - offset
         return 'translate(' + horizontal + ',' + vertical + ')'
       })
 
@@ -113,8 +112,7 @@ export default class DonutChart {
       })
       .attr('y', 15)
       .text(d => Math.round(d.percentage) + '%')
-      .attr('font-size', 18)
-      .attr('font-weight', 'bold')
+      .attr('font-size', d => d.percentage.toString().length < 3 ? 25 : 23)
       .attr('fill', '#4d4d4d')
   }
 }

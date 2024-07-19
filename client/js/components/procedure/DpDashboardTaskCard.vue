@@ -5,7 +5,7 @@
       <span v-cleanhtml="Translator.trans('segments.assigned.now', { count: assignedSegmentCount })" />
     </div>
     <div
-      class="text-right u-mt"
+      class="text--right u-mt"
       v-if="assignedSegmentCount !== 0">
       <dp-button
         :href="userFilteredSegmentUrl"

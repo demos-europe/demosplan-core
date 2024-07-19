@@ -89,7 +89,7 @@
           </div>
           <main
             ref="main"
-            class="container pt-2"
+            class="container u-pv"
             v-else-if="initialData">
             <segmentation-editor
               @prosemirror-initialized="runPostInitTasks"

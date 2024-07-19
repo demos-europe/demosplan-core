@@ -37,7 +37,6 @@ class SegmentTableManager
         private readonly SegmentSorter $segmentSorter,
         StyleInitializer $styleInitializer,
         private readonly TranslatorInterface $translator,
-
     ) {
         $this->styles = $styleInitializer->getStyles();
     }

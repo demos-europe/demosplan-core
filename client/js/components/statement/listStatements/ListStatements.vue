@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div :class="{ 'top-0 left-0 flex flex-col w-full h-full fixed z-fixed bg-surface': isFullscreen }">
+  <div :class="{ 'top-0 left-0 flex flex-col w-full h-full fixed z-fixed bg-white': isFullscreen }">
     <dp-sticky-element
       border
       class="pt-2 pb-3"
@@ -65,13 +65,10 @@
           @size-change="handleSizeChange"
           :key="`pager1_${pagination.currentPage}_${pagination.count}`" />
         <div class="ml-auto flex items-center space-inline-xs">
-          <label
-            class="u-mb-0"
-            for="applySortSelection">
+          <label class="u-mb-0">
             {{ Translator.trans('sorting') }}
           </label>
           <dp-select
-            id="applySortSelection"
             :options="sortOptions"
             :selected="selectedSort"
             @select="applySort" />
@@ -139,11 +136,6 @@
               {{ date(submitDate) }}
             </li>
           </ul>
-        </template>
-        <template v-slot:status="{ status }">
-          <status-badge
-            class="mt-0.5"
-            :status="status" />
         </template>
         <template v-slot:internId="{ internId }">
           <div class="o-hellip__wrapper">
@@ -308,7 +300,6 @@ import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import SearchModal from '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'
 import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
-import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge.vue'
 
 export default {
   name: 'ListStatements',
@@ -326,8 +317,7 @@ export default {
     DpStickyElement,
     SearchModal,
     StatementExportModal,
-    StatementMetaData,
-    StatusBadge
+    StatementMetaData
   },
 
   directives: {
@@ -375,7 +365,6 @@ export default {
       isFullscreen: false,
       headerFields: [
         { field: 'externId', label: Translator.trans('id') },
-        { field: 'status', label: Translator.trans('status') },
         { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'w-8' },
         { field: 'meta', label: Translator.trans('submitter.invitable_institution') },
         { field: 'text', label: Translator.trans('text') },
@@ -700,7 +689,6 @@ export default {
         'internId',
         'isCitizen',
         'memo',
-        'status',
         'submitDate',
         'submitName',
         'submitType',

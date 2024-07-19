@@ -53,7 +53,6 @@ use Webmozart\Assert\Assert;
  * @property-read End $paragraphParentId @deprecated Use {@link StatementResourceType::$paragraph} instead
  * @property-read End $paragraphTitle @deprecated Use {@link StatementResourceType::$paragraph} instead
  * @property-read End $segmentDraftList
- * @property-read End $status
  * @property-read SimilarStatementSubmitterResourceType $similarStatementSubmitters
  */
 final class StatementResourceType extends AbstractStatementResourceType implements ReadableEsResourceTypeInterface, StatementResourceTypeInterface
@@ -277,9 +276,6 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
                     return '' === $draftsListJson ? null : Json::decodeToArray($draftsListJson);
                 });
-            $configBuilder->status->readable(true, function (Statement $statement) {
-                return $this->statementService->getProcessingStatus($statement);
-            })->filterable();
         }
 
         if ($this->currentUser->hasPermission('feature_similar_statement_submitter')) {

@@ -431,7 +431,7 @@ class ProcedureServiceTest extends FunctionalTestCase
             $this->testProcedure->getId()
         );
 
-        static::assertObjectHasProperty('orgaId', $procedure);
+        static::assertObjectHasAttribute('orgaId', $procedure);
         static::assertIsString($procedure->getOrgaId());
         static::assertEquals($this->testProcedure->getOrgaId(), $procedure->getOrgaId());
         static::assertInstanceOf('\DateTime', $procedure->getClosedDate());
@@ -446,20 +446,20 @@ class ProcedureServiceTest extends FunctionalTestCase
 
         static::assertIsObject($procedure->getSettings());
         static::assertIsString($procedure->getSettings()->getId());
-        static::assertObjectHasProperty('planDrawPDF', $procedure->getSettings());
-        static::assertObjectHasProperty('planPara1PDF', $procedure->getSettings());
-        static::assertObjectHasProperty('planPara2PDF', $procedure->getSettings());
-        static::assertObjectHasProperty('planPDF', $procedure->getSettings());
+        static::assertObjectHasAttribute('planDrawPDF', $procedure->getSettings());
+        static::assertObjectHasAttribute('planPara1PDF', $procedure->getSettings());
+        static::assertObjectHasAttribute('planPara2PDF', $procedure->getSettings());
+        static::assertObjectHasAttribute('planPDF', $procedure->getSettings());
 
         static::assertIsIterable($procedure->getPlanningOffices());
         static::assertIsObject($procedure->getPlanningOffices()->first());
         $planningOffice = $procedure->getPlanningOffices()->first();
         static::assertInstanceOf(Orga::class, $planningOffice);
         static::assertIsString($planningOffice->getIdent());
-        static::assertObjectHasProperty('name', $planningOffice);
+        static::assertObjectHasAttribute('name', $planningOffice);
         static::assertIsString($planningOffice->getNameLegal());
 
-        static::assertObjectHasProperty('dataInputOrganisations', $procedure);
+        static::assertObjectHasAttribute('dataInputOrganisations', $procedure);
         $dataInputOrgas = $procedure->getDataInputOrganisations()->toArray();
         static::assertCount(1, $dataInputOrgas);
         static::assertEquals($this->fixtures->getReference('dataInputOrga')->getId(), $dataInputOrgas[0]->getId());

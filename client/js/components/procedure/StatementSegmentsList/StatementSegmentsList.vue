@@ -32,11 +32,8 @@
     <dp-sticky-element>
       <header class="border--bottom u-pv-0_5 flow-root">
         <div class="inline-flex space-inline-m">
-          <status-badge
-            class="mr-2"
-            :status="statement.attributes.status || 'new'" />
-          <h1 class="font-size-larger align-middle inline-block u-m-0">
-            #{{ statementExternId }}
+          <h1 :class="['font-size-larger align-middle inline-block u-m-0']">
+            {{ Translator.trans('statement') }} #{{ statementExternId }}
           </h1>
           <div
             v-if="hasPermission('feature_segment_recommendation_edit')"
@@ -181,7 +178,6 @@ import StatementMeta from './StatementMeta/StatementMeta'
 import StatementMetaAttachmentsLink from './StatementMeta/StatementMetaAttachmentsLink'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
 import StatementSegmentsEdit from './StatementSegmentsEdit'
-import StatusBadge from '../Shared/StatusBadge.vue'
 
 export default {
   name: 'StatementSegmentsList',
@@ -200,8 +196,7 @@ export default {
     StatementMeta,
     StatementMetaAttachmentsLink,
     StatementMetaTooltip,
-    StatementSegmentsEdit,
-    StatusBadge
+    StatementSegmentsEdit
   },
 
   provide () {
@@ -519,7 +514,6 @@ export default {
         'memo',
         'recommendation',
         'segmentDraftList',
-        'status',
         'submitDate',
         'submitName',
         'submitType',

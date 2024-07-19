@@ -26,6 +26,7 @@ class StatementDetailsManager
      * @var array<string, mixed>
      */
     private array $styles;
+
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
         StyleInitializer $styleInitializer,

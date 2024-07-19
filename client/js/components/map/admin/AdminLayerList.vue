@@ -197,28 +197,28 @@
             {{ Translator.trans('map.base.minimap.hint') }}
           </p>
         </div>
+        <div
+          class="text-right u-mv space-inline-s"
+          v-if="false === isLoading">
+          <dp-button
+            data-cy="adminLayerList:save"
+            :busy="!isEditable"
+            :text="Translator.trans('save')"
+            @click="saveOrder" />
+          <dp-button
+            data-cy="adminLayerList:saveAndReturn"
+            :busy="!isEditable"
+            :text="Translator.trans('save.and.return.to.list')"
+            @click="saveOrder(true)" />
+          <button
+            class="btn btn--secondary"
+            data-cy="adminLayerList:resetOrder"
+            type="reset"
+            @click.prevent="resetOrder">
+            {{ Translator.trans('reset.order') }}
+          </button>
+        </div>
       </template>
-      <div
-        class="text-right u-mv space-inline-s"
-        v-if="!isLoading">
-        <dp-button
-          data-cy="adminLayerList:save"
-          :busy="!isEditable"
-          :text="Translator.trans('save')"
-          @click="saveOrder" />
-        <dp-button
-          data-cy="adminLayerList:saveAndReturn"
-          :busy="!isEditable"
-          :text="Translator.trans('save.and.return.to.list')"
-          @click="saveOrder(true)" />
-        <button
-          class="btn btn--secondary"
-          data-cy="adminLayerList:resetOrder"
-          type="reset"
-          @click.prevent="resetOrder">
-          {{ Translator.trans('reset.order') }}
-        </button>
-      </div>
     </div>
   </fieldset>
 </template>
@@ -409,18 +409,11 @@ export default {
   methods: {
     saveOrder (redirect) {
       this.isEditable = false
-      this.saveAll().then(() => {
+      this.save().then(() => {
         this.isEditable = true
         if (redirect === true) {
           window.location.href = Routing.generate('DemosPlan_element_administration', { procedure: this.procedureId })
         }
-      })
-      .then(() => {
-        dplan.notify.confirm(Translator.trans('confirm.saved'))
-      })
-      .catch(err => {
-        dplan.notify.error(Translator.trans('error.changes.not.saved'))
-        console.error(err)
       })
     },
 
@@ -429,7 +422,7 @@ export default {
       lscache.set('layerOrderTab', sortOrder, 300)
     },
 
-    ...mapActions('Layers', ['saveAll', 'get']),
+    ...mapActions('Layers', ['save', 'get']),
     ...mapMutations('Layers', ['setChildrenFromCategory', 'resetOrder', 'setDraggableOptions', 'setDraggableOptionsForCategorysWithHiddenLayers', 'setDraggableOptionsForBaseLayer', 'setMinimapBaseLayer'])
   },
 
@@ -442,11 +435,7 @@ export default {
           scrollTo('#gislayers', { offset: -10 })
         }
       })
-    if (this.canHaveCategories) {
-      this.currentTab = lscache.get('layerOrderTab') || 'treeOrder'
-    } else {
-      this.currentTab = 'mapOrder'
-    }
+    this.currentTab = lscache.get('layerOrderTab') || 'treeOrder'
 
     const basicOptions = {
       animation: 150,

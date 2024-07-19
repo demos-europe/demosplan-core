@@ -26,14 +26,14 @@ class PhpWordSectionBuilder
      * @var array<string, mixed>
      */
     protected array $styles;
+
     public function __construct(
         private readonly HeaderFooterManager $headerFooterManager,
         private readonly SegmentTableManager $segmentTableManager,
         private readonly StatementDetailsManager $statementDetailsManager,
         StyleInitializer $styleInitializer,
         private readonly TranslatorInterface $translator
-    )
-    {
+    ) {
         $this->styles = $styleInitializer->getStyles();
     }
 

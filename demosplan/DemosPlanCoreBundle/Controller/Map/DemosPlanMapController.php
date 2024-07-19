@@ -258,7 +258,7 @@ class DemosPlanMapController extends BaseController
      * @throws MessageBagException
      * @throws Exception
      */
-    #[Route(name: 'DemosPlan_map_administration_gislayer_category_new', path: '/verfahren/{procedureId}/verwalten/gislayergroup/new-category', options: ['expose' => true])]
+    #[Route(name: 'DemosPlan_map_administration_gislayer_category_new', path: '/verfahren/{procedureId}/verwalten/gislayergroup/new-category')]
     public function mapAdminGislayerCategoryNewAction(MapHandler $mapHandler, Request $request, $procedureId)
     {
         $request = $request->request->all();

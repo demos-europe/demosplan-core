@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div :class="{ 'top-0 left-0 flex flex-col w-full h-full fixed z-fixed bg-surface': isFullscreen }">
+  <div :class="{ 'top-0 left-0 flex flex-col w-full h-full fixed z-fixed bg-white': isFullscreen }">
     <dp-sticky-element
       border
       class="pt-2 pb-3"
@@ -134,11 +134,6 @@
                   :places="places" />
               </template>
             </v-popover>
-          </template>
-          <template v-slot:statementStatus="rowData">
-            <status-badge
-              class="mt-0.5"
-              :status="statementsObject[rowData.relationships.parentStatement.data.id].attributes.status" />
           </template>
           <template v-slot:internId="rowData">
             <div class="o-hellip__wrapper">
@@ -294,7 +289,6 @@ import ImageModal from '@DpJs/components/shared/ImageModal'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
-import StatusBadge from '../Shared/StatusBadge.vue'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 
 export default {
@@ -314,7 +308,6 @@ export default {
     FilterFlyout,
     ImageModal,
     StatementMetaTooltip,
-    StatusBadge,
     VPopover
   },
 
@@ -365,7 +358,6 @@ export default {
       },
       headerFieldsAvailable: [
         { field: 'externId', label: Translator.trans('id') },
-        { field: 'statementStatus', label: Translator.trans('status') },
         { field: 'internId', label: Translator.trans('internId.shortened'), colWidth: '150px' },
         { field: 'submitter', label: Translator.trans('submitter') },
         { field: 'address', label: Translator.trans('address') },
@@ -533,7 +525,6 @@ export default {
             'initialOrganisationCity',
             'internId',
             'memo',
-            'status',
             'submitDate',
             'submitName',
             'submitType'

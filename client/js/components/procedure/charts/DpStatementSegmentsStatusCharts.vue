@@ -14,15 +14,15 @@
       class="u-mt" />
     <div
       v-else
-      class="mt-2">
+      class="u-mt">
       <div
         v-if="statementsTotal > 0"
         class="layout--flush">
-        <p>
+        <p class="u-mb">
           {{ statementsTotal }} {{ Translator.trans('statements.total') }}
         </p>
         <div
-          class="layout__item text-center u-1-of-3 u-1-of-1-lap-down mt-2"
+          class="layout__item text-center u-1-of-3 u-1-of-1-lap-down"
           v-for="(element, idx) in procedureStatistics"
           :key="`statementCharts_${idx}`">
           <div
@@ -84,27 +84,27 @@ export default {
           this.procedureStatistics = [
             {
               label: Translator.trans('new'),
-              count: absolutes.statementNewCount,
-              percentage: percentages.statementNewCount,
-              id: 'statementNewCount',
-              legendId: 'statementNewCountLegend',
-              color: 'text-status-progress-icon'
+              count: absolutes.unsegmented,
+              percentage: percentages.unsegmented,
+              id: 'statementsNew',
+              legendId: 'statementsNewLegend',
+              color: 'c-chart__color-3-1'
             },
             {
-              label: Translator.trans('processing'),
-              count: absolutes.statementProcessingCount,
-              percentage: percentages.statementProcessingCount,
-              id: 'statementProcessingCount',
-              legendId: 'statementProcessingCountLegend',
-              color: 'text-status-changed-icon'
+              label: Translator.trans('segmented'),
+              count: absolutes.segmented,
+              percentage: percentages.segmented,
+              id: 'statementsSegmented',
+              legendId: 'statementsSegmentedLegend',
+              color: 'c-chart__color-3-2'
             },
             {
-              label: Translator.trans('completed'),
-              count: absolutes.statementCompletedCount,
-              percentage: percentages.statementCompletedCount,
-              id: 'statementCompletedCount',
-              legendId: 'statementCompletedCountLegend',
-              color: 'text-status-complete-icon'
+              label: Translator.trans('replied.to'),
+              count: absolutes.recommendationsFinished,
+              percentage: percentages.recommendationsFinished,
+              id: 'statementsRecommendationsFinished',
+              legendId: 'statementsRecommendationsFinishedLegend',
+              color: 'c-chart__color-3-3'
             }
           ]
           this.isLoading = false

@@ -41,10 +41,6 @@ class Place extends CoreEntity implements SortableInterface, PlaceInterface
     #[Assert\NotNull]
     #[Assert\Length(min: 0, max: 255, normalizer: 'trim')]
     private $description = '';
-    /**
-     * @ORM\Column(name="solved", type="boolean", nullable=false, options={"default":false, "fixed":true})
-     */
-    private bool $solved = false;
 
     public function __construct(
         /**
@@ -124,18 +120,6 @@ class Place extends CoreEntity implements SortableInterface, PlaceInterface
     public function setDescription(string $description)
     {
         $this->description = $description;
-
-        return $this;
-    }
-
-    public function getSolved(): bool
-    {
-        return $this->solved;
-    }
-
-    public function setSolved(bool $solved): self
-    {
-        $this->solved = $solved;
 
         return $this;
     }

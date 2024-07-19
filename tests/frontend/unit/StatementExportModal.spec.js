@@ -86,6 +86,7 @@ describe('StatementExportModal', () => {
   it('emits export event with updated col2 title', () => {
     const spy = jest.spyOn(wrapper.vm, '$emit')
     wrapper.setData({
+      ...wrapper.vm.docxColumns,
       docxColumns: {
         col2: { title: 'Test Column Title' }
       }
