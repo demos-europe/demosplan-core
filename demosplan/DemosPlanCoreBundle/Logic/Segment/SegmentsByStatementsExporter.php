@@ -20,8 +20,10 @@ use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ExportDataArrayGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageLinkConverter;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\RecommendationConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
@@ -41,8 +43,9 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         private readonly AssessmentTableXlsExporter $assessmentTableXlsExporter,
         CurrentUserInterface $currentUser,
         private readonly ExportDataArrayGenerator $exportDataArrayGenerator,
-        HTMLSanitizer $htmlSanitizer,
+        HtmlHelper $htmlHelper,
         ImageLinkConverter $imageLinkConverter,
+        ImageManager $imageManager,
         private readonly RecommendationConverter $recommendationConverter,
         Slugify $slugify,
         StyleInitializer $styleInitializer,
@@ -50,8 +53,9 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     ) {
         parent::__construct(
             $currentUser,
-            $htmlSanitizer,
+            $htmlHelper,
             $imageLinkConverter,
+            $imageManager,
             $slugify,
             $styleInitializer,
             $translator

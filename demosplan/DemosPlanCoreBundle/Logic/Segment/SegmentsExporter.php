@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\HeaderFooterManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageLinkConverter;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\ValueObject\CellExportStyle;
@@ -31,16 +32,11 @@ use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\Exception\Exception;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\Shared\Html;
-use PhpOffice\PhpWord\SimpleType\Jc;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SegmentsExporter
 {
-    private const STANDARD_DPI = 72;
-    private const STANDARD_PT_TEXT = 10;
-    private const MAX_WIDTH_INCH = 10.69;
-    private const MAX_HEIGHT_INCH = 5.42;
     /**
      * @var array<string, mixed>
      */
@@ -56,6 +52,7 @@ class SegmentsExporter
         private readonly CurrentUserInterface $currentUser,
         private readonly HtmlHelper $htmlHelper,
         protected readonly ImageLinkConverter $imageLinkConverter,
+        protected readonly ImageManager $imageManager,
         Slugify $slugify,
         StyleInitializer $styleInitializer,
         TranslatorInterface $translator
@@ -192,50 +189,7 @@ class SegmentsExporter
         foreach ($sortedSegments as $segment) {
             $this->addSegmentTableBody($table, $segment, $statement->getExternId());
         }
-        $this->addImages($section);
-    }
-
-    private function addImages(Section $section): void
-    {
-        // Add images after all segments of one statement.
-        $images = $this->imageLinkConverter->getImages();
-        if ([] === $images) {
-            return;
-        }
-        $imageSpaceCurrentlyUsed = 0;
-        $section->addPageBreak();
-        foreach ($images as $imageReference => $imagePath) {
-            [$width, $height] = getimagesize($imagePath);
-            [$maxWidth, $maxHeight] = $this->getMaxWidthAndHeight();
-
-            if ($width > $maxWidth) {
-                $factor = $maxWidth / $width;
-                $width = $maxWidth;
-                $height *= $factor;
-            }
-            if ($height > $maxHeight) {
-                $factor = $maxHeight / $height;
-                $height = $maxHeight;
-                $width *= $factor;
-            }
-            if ($height > $maxHeight - $imageSpaceCurrentlyUsed) {
-                $section->addPageBreak();
-            }
-            $imageSpaceCurrentlyUsed += $height + self::STANDARD_PT_TEXT * 2;
-
-            $imageStyle = [
-                'width'  => $width,
-                'height' => $height,
-                'align'  => Jc::START,
-            ];
-
-            $section->addText($imageReference);
-            $section->addBookmark($imageReference);
-            $section->addImage($imagePath, $imageStyle);
-        }
-
-        // remove already printed images
-        $this->imageLinkConverter->resetImages();
+        $this->imageManager->addImages($section);
     }
 
     protected function sortSegmentsByOrderInProcedure(array $segments): array
@@ -248,14 +202,6 @@ class SegmentsExporter
     private function compareOrderInProcedure(Segment $segmentA, Segment $segmentB): int
     {
         return $segmentA->getOrderInProcedure() - $segmentB->getOrderInProcedure();
-    }
-
-    private function getMaxWidthAndHeight(): array
-    {
-        $maxWidth = self::MAX_WIDTH_INCH * self::STANDARD_DPI;
-        $maxHeight = self::MAX_HEIGHT_INCH * self::STANDARD_DPI - self::STANDARD_PT_TEXT;
-
-        return [$maxWidth, $maxHeight];
     }
 
     private function addSegmentsTableHeader(Section $section, array $tableHeaders): Table
