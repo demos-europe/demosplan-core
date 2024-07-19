@@ -44,7 +44,7 @@ class SegmentsExporter
         protected readonly SegmentSorter $segmentSorter,
         private readonly SegmentTableManager $segmentTableManager,
         protected readonly Slugify $slugify,
-        private readonly StatementDetailsManager $statementDetailsManager,
+        protected readonly StatementDetailsManager $statementDetailsManager,
         StyleInitializer $styleInitializer,
         protected readonly TranslatorInterface $translator
     ) {
@@ -61,28 +61,12 @@ class SegmentsExporter
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->headerFooterManager->addHeader($section, $procedure, Footer::FIRST);
         $this->headerFooterManager->addHeader($section, $procedure);
-        $this->addStatementInfo($section, $statement);
-        $this->addSimilarStatementSubmitters($section, $statement);
+        $this->statementDetailsManager->addStatementInfo($section, $statement);
+        $this->statementDetailsManager->addSimilarStatementSubmitters($section, $statement);
         $this->addSegments($section, $statement, $tableHeaders);
         $this->headerFooterManager->addFooter($section, $statement);
 
         return IOFactory::createWriter($phpWord);
-    }
-
-    /**
-     * @deprecated Use {@link StatementDetailsManager::addSimilarStatementSubmitters()} instead.
-     */
-    protected function addSimilarStatementSubmitters(Section $section, Statement $statement): void
-    {
-        $this->statementDetailsManager->addSimilarStatementSubmitters($section, $statement);
-    }
-
-    /**
-     * @deprecated Use {@link StatementDetailsManager::addStatementInfo()} instead.
-     */
-    protected function addStatementInfo(Section $section, Statement $statement): void
-    {
-        $this->statementDetailsManager->addStatementInfo($section, $statement);
     }
 
     protected function addSegments(Section $section, Statement $statement, array $tableHeaders): void
