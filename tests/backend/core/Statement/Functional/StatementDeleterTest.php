@@ -276,7 +276,6 @@ class StatementDeleterTest extends FunctionalTestCase
 
     public function testDeleteLockedStatement(): void
     {
-        self::markSkippedForCIElasticsearchUnavailable();
         $this->enablePermissions(['feature_statement_assignment']);
         $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
 
