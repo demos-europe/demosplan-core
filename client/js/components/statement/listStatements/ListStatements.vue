@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div :class="{ 'top-0 left-0 flex flex-col w-full h-full fixed z-fixed bg-white': isFullscreen }">
+  <div :class="{ 'top-0 left-0 flex flex-col w-full h-full fixed z-fixed bg-surface': isFullscreen }">
     <dp-sticky-element
       border
       class="pt-2 pb-3"
@@ -65,10 +65,13 @@
           @size-change="handleSizeChange"
           :key="`pager1_${pagination.currentPage}_${pagination.count}`" />
         <div class="ml-auto flex items-center space-inline-xs">
-          <label class="u-mb-0">
+          <label
+            class="u-mb-0"
+            for="applySortSelection">
             {{ Translator.trans('sorting') }}
           </label>
           <dp-select
+            id="applySortSelection"
             :options="sortOptions"
             :selected="selectedSort"
             @select="applySort" />
@@ -427,7 +430,7 @@ export default {
     },
 
     exportRoute: function () {
-      return (exportRoute, docxHeaders) => {
+      return (exportRoute, docxHeaders, fileNameTemplate) => {
         const parameters = {
           filter: {
             procedureId: {
@@ -451,6 +454,10 @@ export default {
             col2: docxHeaders.col2,
             col3: docxHeaders.col3
           }
+        }
+
+        if (fileNameTemplate) {
+          parameters.fileNameTemplate = fileNameTemplate
         }
 
         return Routing.generate(exportRoute, parameters)
@@ -903,9 +910,9 @@ export default {
       }
     },
 
-    showHintAndDoExport ({ route, docxHeaders }) {
+    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate }) {
       if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
-        window.location.href = this.exportRoute(route, docxHeaders)
+        window.location.href = this.exportRoute(route, docxHeaders, fileNameTemplate)
       }
     },
 
