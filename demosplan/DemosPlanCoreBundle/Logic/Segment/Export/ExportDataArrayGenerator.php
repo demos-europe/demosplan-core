@@ -26,29 +26,70 @@ class ExportDataArrayGenerator
     public function convertIntoExportableArray(StatementInterface $segmentOrStatement): array
     {
         $exportData = $this->entityHelper->toArray($segmentOrStatement);
-        $exportData['meta'] = $this->entityHelper->toArray($exportData['meta']);
+        $exportData = $this->extractMetaData($segmentOrStatement, $exportData);
         $exportData['submitDateString'] = $segmentOrStatement->getSubmitDateString();
         $exportData['countyNames'] = $segmentOrStatement->getCountyNames();
+
+        if ($segmentOrStatement instanceof Segment) {
+            // Some data is stored on parentStatement instead on Segment and have to get from there
+            $exportData = $this->extractParentStatementData($segmentOrStatement, $exportData);
+            // Segments using place instead of status
+            $exportData['status'] = $segmentOrStatement->getPlace()->getName();
+        }
+        $exportData = $this->extractTagsData($segmentOrStatement, $exportData);
+        $exportData['isClusterStatement'] = $segmentOrStatement->isClusterStatement();
+
+        return $exportData;
+    }
+
+    /**
+     * @return array<string, mixed>
+     *
+     * @throws ReflectionException
+     */
+    private function extractMetaData(StatementInterface $segmentOrStatement, array $exportData): array
+    {
+        $exportData['meta'] = $this->entityHelper->toArray($exportData['meta']);
         $exportData['meta']['authoredDate'] = $segmentOrStatement->getAuthoredDateString();
 
         // Some data is stored on parentStatement instead on Segment and have to get from there
         if ($segmentOrStatement instanceof Segment) {
-            $exportData['meta']['orgaCity'] = $segmentOrStatement->getParentStatementOfSegment()->getOrgaCity();
-            $exportData['meta']['orgaStreet'] = $segmentOrStatement->getParentStatementOfSegment()->getOrgaStreet();
-            $exportData['meta']['orgaPostalCode'] = $segmentOrStatement->getParentStatementOfSegment()->getOrgaPostalCode();
-            $exportData['meta']['orgaEmail'] = $segmentOrStatement->getParentStatementOfSegment()->getOrgaEmail();
-            $exportData['meta']['authorName'] = $segmentOrStatement->getParentStatementOfSegment()->getAuthorName();
-            $exportData['meta']['submitName'] = $segmentOrStatement->getParentStatementOfSegment()->getSubmitterName();
-            $exportData['meta']['houseNumber'] = $segmentOrStatement->getParentStatementOfSegment()->getMeta()->getHouseNumber();
-            $exportData['memo'] = $segmentOrStatement->getParentStatementOfSegment()->getMemo();
-            $exportData['internId'] = $segmentOrStatement->getParentStatementOfSegment()->getInternId();
-            $exportData['oName'] = $segmentOrStatement->getParentStatementOfSegment()->getOName();
-            $exportData['meta']['authoredDate'] = $segmentOrStatement->getParentStatementOfSegment()->getAuthoredDateString();
-            $exportData['dName'] = $segmentOrStatement->getParentStatementOfSegment()->getDName();
-            $exportData['status'] = $segmentOrStatement->getPlace()->getName(); // Segments using place instead of status
-            $exportData['fileNames'] = $segmentOrStatement->getParentStatementOfSegment()->getFileNames();
-            $exportData['submitDateString'] = $segmentOrStatement->getParentStatementOfSegment()->getSubmitDateString();
+            $parentStatement = $segmentOrStatement->getParentStatementOfSegment();
+            $exportData['meta']['orgaCity'] = $parentStatement->getOrgaCity();
+            $exportData['meta']['orgaStreet'] = $parentStatement->getOrgaStreet();
+            $exportData['meta']['orgaPostalCode'] = $parentStatement->getOrgaPostalCode();
+            $exportData['meta']['orgaEmail'] = $parentStatement->getOrgaEmail();
+            $exportData['meta']['authorName'] = $parentStatement->getAuthorName();
+            $exportData['meta']['submitName'] = $parentStatement->getSubmitterName();
+            $exportData['meta']['houseNumber'] = $parentStatement->getMeta()->getHouseNumber();
+            $exportData['meta']['authoredDate'] = $parentStatement->getAuthoredDateString();
         }
+
+        return $exportData;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function extractParentStatementData(Segment $segment, array $exportData): array
+    {
+        $parentStatement = $segment->getParentStatementOfSegment();
+
+        $exportData['memo'] = $parentStatement->getMemo();
+        $exportData['internId'] = $parentStatement->getInternId();
+        $exportData['oName'] = $parentStatement->getOName();
+        $exportData['dName'] = $parentStatement->getDName();
+        $exportData['fileNames'] = $parentStatement->getFileNames();
+        $exportData['submitDateString'] = $parentStatement->getSubmitDateString();
+
+        return $exportData;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function extractTagsData(StatementInterface $segmentOrStatement, array $exportData): array
+    {
         $exportData['tagNames'] = $segmentOrStatement->getTagNames();
         /** @var ArrayCollection $tagsCollection */
         $tagsCollection = $exportData['tags'];
@@ -59,7 +100,6 @@ class ExportDataArrayGenerator
             $exportData['tags'][$key]['topicTitle'] = $tagTopic->getTitle();
         }
         $exportData['topicNames'] = $segmentOrStatement->getTopicNames();
-        $exportData['isClusterStatement'] = $segmentOrStatement->isClusterStatement();
 
         return $exportData;
     }
