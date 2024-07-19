@@ -156,8 +156,6 @@ class StatementDeleterTest extends FunctionalTestCase
 
     public function testDeleteStatement(): void
     {
-        self::markSkippedForCIElasticsearchUnavailable();
-
         $testTag1 = $this->getTagReference('testFixtureTag_1');
         $testStatement2 = $this->getStatementReference('testStatement2');
         static::assertInstanceOf(StatementMeta::class, $testStatement2->getMeta());
