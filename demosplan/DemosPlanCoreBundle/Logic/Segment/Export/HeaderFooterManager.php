@@ -7,6 +7,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment\Export;
 
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use PhpOffice\PhpWord\Element\Footer;
 use PhpOffice\PhpWord\Element\Header;
@@ -49,6 +50,24 @@ class HeaderFooterManager
         );
     }
 
+    public function addFooter(Section $section, Statement $statement): void
+    {
+        $footer = $section->addFooter();
+        $table = $footer->addTable();
+        $row = $table->addRow();
+
+        $cell1 = $row->addCell($this->styles['footerCellWidth'], $this->styles['footerCell']);
+        $footerLeftString = $this->getFooterLeftString($statement);
+        $cell1->addText($footerLeftString, $this->styles['footerStatementInfoFont'], $this->styles['footerStatementInfoParagraph']);
+
+        $cell2 = $row->addCell($this->styles['footerCellWidth'], $this->styles['footerCell']);
+        $cell2->addPreserveText(
+            $this->translator->trans('segments.export.pagination'),
+            $this->styles['footerPaginationFont'],
+            $this->styles['footerPaginationParagraph']
+        );
+    }
+
     private function addPreambleIfFirstHeader(Header $header, ?string $headerType): void
     {
         if (Footer::FIRST === $headerType) {
@@ -68,5 +87,26 @@ class HeaderFooterManager
 
         // avoid problems in phpword parser
         return $this->htmlSanitizer->purify($text);
+    }
+
+    private function getFooterLeftString(Statement $statement): string
+    {
+        $info = [];
+        if ($this->validInfoString($statement->getUserName())) {
+            $info[] = $statement->getUserName();
+        }
+        if ($this->validInfoString($statement->getExternId())) {
+            $info[] = $statement->getExternId();
+        }
+        if ($this->validInfoString($statement->getInternId())) {
+            $info[] = $statement->getInternId();
+        }
+
+        return implode(', ', $info);
+    }
+
+    private function validInfoString(?string $text): bool
+    {
+        return null !== $text && '' !== trim($text);
     }
 }

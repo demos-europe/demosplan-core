@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use Cocur\Slugify\Slugify;
-use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
@@ -26,7 +25,6 @@ use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use demosplan\DemosPlanCoreBundle\ValueObject\CellExportStyle;
 use demosplan\DemosPlanCoreBundle\ValueObject\ExportOrgaInfoHeader;
 use PhpOffice\PhpWord\Element\Footer;
-use PhpOffice\PhpWord\Element\Header;
 use PhpOffice\PhpWord\Element\Row;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
@@ -65,7 +63,7 @@ class SegmentsExporter
         $this->translator = $translator;
         $this->styles = $styleInitializer->initialize();
         $this->slugify = $slugify;
-        $this->headerFooterManager = new HeaderFooterManager($translator, $this->styles);
+        $this->headerFooterManager = new HeaderFooterManager($htmlSanitizer, $translator, $this->styles);
     }
 
     /**
@@ -81,7 +79,7 @@ class SegmentsExporter
         $this->addStatementInfo($section, $statement);
         $this->addSimilarStatementSubmitters($section, $statement);
         $this->addSegments($section, $statement, $tableHeaders);
-        $this->addFooter($section, $statement);
+        $this->headerFooterManager->addFooter($section, $statement);
 
         return IOFactory::createWriter($phpWord);
     }
@@ -178,24 +176,6 @@ class SegmentsExporter
         } else {
             $this->addSegmentsTable($section, $statement, $tableHeaders);
         }
-    }
-
-    protected function addFooter(Section $section, Statement $statement): void
-    {
-        $footer = $section->addFooter();
-        $table = $footer->addTable();
-        $row = $table->addRow();
-
-        $cell1 = $row->addCell($this->styles['footerCellWidth'], $this->styles['footerCell']);
-        $footerLeftString = $this->getFooterLeftString($statement);
-        $cell1->addText($footerLeftString, $this->styles['footerStatementInfoFont'], $this->styles['footerStatementInfoParagraph']);
-
-        $cell2 = $row->addCell($this->styles['footerCellWidth'], $this->styles['footerCell']);
-        $cell2->addPreserveText(
-            $this->translator->trans('segments.export.pagination'),
-            $this->styles['footerPaginationFont'],
-            $this->styles['footerPaginationParagraph']
-        );
     }
 
     private function addNoSegmentsMessage(Section $section): void
@@ -367,26 +347,5 @@ class SegmentsExporter
             $cellExportStyle->getCellStyle()
         );
         $cell->addText($text, $cellExportStyle->getFontStyle(), $cellExportStyle->getParagraphStyle());
-    }
-
-    private function getFooterLeftString(Statement $statement): string
-    {
-        $info = [];
-        if ($this->validInfoString($statement->getUserName())) {
-            $info[] = $statement->getUserName();
-        }
-        if ($this->validInfoString($statement->getExternId())) {
-            $info[] = $statement->getExternId();
-        }
-        if ($this->validInfoString($statement->getInternId())) {
-            $info[] = $statement->getInternId();
-        }
-
-        return implode(', ', $info);
-    }
-
-    private function validInfoString(?string $text): bool
-    {
-        return null !== $text && '' !== trim($text);
     }
 }
