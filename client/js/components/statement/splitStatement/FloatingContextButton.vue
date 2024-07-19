@@ -10,7 +10,7 @@
     @mouseleave="hide">
     <dp-icon
       :aria-label="Translator.trans('content.show/hide')"
-      class="w-4 h-4 rounded-sm text-blue-700 hover:bg-gray-100"
+      class="w-4 h-4 rounded-sm text-interactive hover:text-interactive-hover active:text-interactive-active hover:bg-interactive-subtle-hover active:bg-interactive-subtle-active"
       :icon="isContentCollapsed ? 'chevron-up' : 'chevron-down'"
       size="medium" />
   </button>
