@@ -160,7 +160,7 @@ class SegmentsExporter
         $this->headerFooterManager->addFooter($section, $statement);
     }
 
-    public function addSegments(Section $section, Statement $statement, array $tableHeaders): void
+    private function addSegments(Section $section, Statement $statement, array $tableHeaders): void
     {
         if ($statement->getSegmentsOfStatement()->isEmpty()) {
             $this->addNoSegmentsMessage($section);
