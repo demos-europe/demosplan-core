@@ -69,7 +69,7 @@ class SegmentsExporter
         return IOFactory::createWriter($phpWord);
     }
 
-    protected function addSegments(Section $section, Statement $statement, array $tableHeaders): void
+    public function addSegments(Section $section, Statement $statement, array $tableHeaders): void
     {
         if ($statement->getSegmentsOfStatement()->isEmpty()) {
             $this->addNoSegmentsMessage($section);

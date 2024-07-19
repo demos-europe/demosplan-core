@@ -12,17 +12,13 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
-use Cocur\Slugify\Slugify;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ExportDataArrayGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\HeaderFooterManager;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageLinkConverter;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\RecommendationConverter;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\SegmentTableManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StatementDetailsManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\SegmentSorter;
@@ -38,33 +34,24 @@ use PhpOffice\PhpWord\Writer\WriterInterface;
 use ReflectionException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class SegmentsByStatementsExporter extends SegmentsExporter
+class SegmentsByStatementsExporter
 {
+    /**
+     * @var array<string, mixed>
+     */
+    protected array $styles;
     public function __construct(
         private readonly AssessmentTableXlsExporter $assessmentTableXlsExporter,
         private readonly ExportDataArrayGenerator $exportDataArrayGenerator,
-        HeaderFooterManager $headerFooterManager,
-        ImageLinkConverter $imageLinkConverter,
-        ImageManager $imageManager,
+        private readonly HeaderFooterManager $headerFooterManager,
         private readonly RecommendationConverter $recommendationConverter,
-        SegmentSorter $segmentSorter,
-        SegmentTableManager $segmentTableManager,
-        Slugify $slugify,
-        StatementDetailsManager $statementDetailsManager,
+        private readonly SegmentsExporter $segmentsExporter,
+        private readonly SegmentSorter $segmentSorter,
+        private readonly StatementDetailsManager $statementDetailsManager,
         StyleInitializer $styleInitializer,
-        TranslatorInterface $translator
+        private readonly TranslatorInterface $translator
     ) {
-        parent::__construct(
-            $headerFooterManager,
-            $imageLinkConverter,
-            $imageManager,
-            $segmentSorter,
-            $segmentTableManager,
-            $slugify,
-            $statementDetailsManager,
-            $styleInitializer,
-            $translator
-        );
+        $this->styles = $styleInitializer->getStyles();
     }
 
     /**
@@ -167,7 +154,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     {
         $this->statementDetailsManager->addStatementInfo($section, $statement);
         $this->statementDetailsManager->addSimilarStatementSubmitters($section, $statement);
-        $this->addSegments($section, $statement, $tableHeaders);
+        $this->segmentsExporter->addSegments($section, $statement, $tableHeaders);
         $this->headerFooterManager->addFooter($section, $statement);
     }
 
