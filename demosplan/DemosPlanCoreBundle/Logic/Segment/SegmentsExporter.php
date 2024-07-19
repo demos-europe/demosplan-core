@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\HeaderFooterManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageManager;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\SegmentTableManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StatementDetailsManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
@@ -41,11 +42,9 @@ class SegmentsExporter
      * @var array<string, mixed>
      */
     protected array $styles;
-
     protected HeaderFooterManager $headerFooterManager;
-
     protected TranslatorInterface $translator;
-
+    protected SegmentTableManager $segmentTableManager;
     protected Slugify $slugify;
     protected StatementDetailsManager $statementInfoManager;
 
@@ -63,6 +62,8 @@ class SegmentsExporter
         $this->slugify = $slugify;
         $this->headerFooterManager = new HeaderFooterManager($htmlHelper, $translator, $this->styles);
         $this->statementInfoManager = new StatementDetailsManager($currentUser, $translator, $this->styles);
+        $this->segmentTableManager =
+            new SegmentTableManager($translator, $this->imageLinkConverter, $this->htmlHelper, $this->styles);
     }
 
     /**
@@ -116,11 +117,11 @@ class SegmentsExporter
 
     private function addSegmentsTable(Section $section, Statement $statement, array $tableHeaders): void
     {
-        $table = $this->addSegmentsTableHeader($section, $tableHeaders);
+        $table = $this->segmentTableManager->addSegmentsTableHeader($section, $tableHeaders);
         $sortedSegments = $this->sortSegmentsByOrderInProcedure($statement->getSegmentsOfStatement()->toArray());
 
         foreach ($sortedSegments as $segment) {
-            $this->addSegmentTableBody($table, $segment, $statement->getExternId());
+            $this->segmentTableManager->addSegmentTableBody($table, $segment, $statement->getExternId());
         }
         $this->imageManager->addImages($section);
     }
@@ -135,83 +136,5 @@ class SegmentsExporter
     private function compareOrderInProcedure(Segment $segmentA, Segment $segmentB): int
     {
         return $segmentA->getOrderInProcedure() - $segmentB->getOrderInProcedure();
-    }
-
-    private function addSegmentsTableHeader(Section $section, array $tableHeaders): Table
-    {
-        $table = $section->addTable($this->styles['segmentsTable']);
-        $headerRow = $table->addRow(
-            $this->styles['segmentsTableHeaderRowHeight'],
-            $this->styles['segmentsTableHeaderRow']
-        );
-        $this->addSegmentCell(
-            $headerRow,
-            htmlspecialchars(
-                $tableHeaders['col1'] ?? $this->translator->trans('segments.export.segment.id'),
-                ENT_NOQUOTES,
-                'UTF-8'
-            ),
-            $this->styles['segmentsTableHeaderCellID']
-        );
-        $this->addSegmentCell(
-            $headerRow,
-            htmlspecialchars(
-                $tableHeaders['col2'] ?? $this->translator->trans('segments.export.statement.label'),
-                ENT_NOQUOTES,
-                'UTF-8'
-            ),
-            $this->styles['segmentsTableHeaderCell']
-        );
-        $this->addSegmentCell(
-            $headerRow,
-            htmlspecialchars(
-                $tableHeaders['col3'] ?? $this->translator->trans('segment.recommendation'),
-                ENT_NOQUOTES,
-                'UTF-8'
-            ),
-            $this->styles['segmentsTableHeaderCell']
-        );
-
-        return $table;
-    }
-
-    private function addSegmentTableBody(Table $table, Segment $segment, string $statementExternId): void
-    {
-        $textRow = $table->addRow();
-        $this->addSegmentHtmlCell(
-            $textRow,
-            $segment->getExternId(),
-            $this->styles['segmentsTableBodyCellID']
-        );
-        $this->addSegmentHtmlCell(
-            $textRow,
-            $segment->getText(),
-            $this->styles['segmentsTableBodyCell']
-        );
-        // Replace image tags in segment recommendation text with a linked reference to the image.
-        $recommendationText = $this->imageLinkConverter->convert($segment->getRecommendation(), $statementExternId);
-        $this->addSegmentHtmlCell(
-            $textRow,
-            $recommendationText,
-            $this->styles['segmentsTableBodyCell']
-        );
-    }
-
-    private function addSegmentHtmlCell(Row $row, string $text, CellExportStyle $cellExportStyle): void
-    {
-        $cell = $row->addCell(
-            $cellExportStyle->getWidth(),
-            $cellExportStyle->getCellStyle()
-        );
-        Html::addHtml($cell, $this->htmlHelper->getHtmlValidText($text), false, false);
-    }
-
-    private function addSegmentCell(Row $row, string $text, CellExportStyle $cellExportStyle): void
-    {
-        $cell = $row->addCell(
-            $cellExportStyle->getWidth(),
-            $cellExportStyle->getCellStyle()
-        );
-        $cell->addText($text, $cellExportStyle->getFontStyle(), $cellExportStyle->getParagraphStyle());
     }
 }
