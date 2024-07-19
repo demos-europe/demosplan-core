@@ -619,7 +619,7 @@ export default {
       this.currentAction = action || defaultAction
     },
 
-    showHintAndDoExport ({ route, docxHeaders }) {
+    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate }) {
       const parameters = {
         procedureId: this.procedureId,
         statementId: this.statementId
@@ -631,6 +631,10 @@ export default {
           col2: docxHeaders.col2,
           col3: docxHeaders.col3
         }
+      }
+
+      if (fileNameTemplate) {
+        parameters.fileNameTemplate = fileNameTemplate
       }
 
       if (window.dpconfirm(Translator.trans('export.statements.hint'))) {

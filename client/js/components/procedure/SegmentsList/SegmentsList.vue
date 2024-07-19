@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div :class="{ 'top-0 left-0 flex flex-col w-full h-full fixed z-fixed bg-white': isFullscreen }">
+  <div :class="{ 'top-0 left-0 flex flex-col w-full h-full fixed z-fixed bg-surface': isFullscreen }">
     <dp-sticky-element
       border
       class="pt-2 pb-3"
@@ -101,6 +101,9 @@
 
     <template v-else>
       <template v-if="items.length > 0">
+        <image-modal
+          ref="imageModal"
+          data-cy="segment:imgModal"/>
         <dp-data-table
           ref="dataTable"
           class="overflow-x-auto pb-3"
@@ -287,6 +290,7 @@ import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import CustomSearch from './CustomSearch'
 import FilterFlyout from './FilterFlyout'
 import fullscreenModeMixin from '@DpJs/components/shared/mixins/fullscreenModeMixin'
+import ImageModal from '@DpJs/components/shared/ImageModal'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
@@ -308,6 +312,7 @@ export default {
     DpPager,
     DpStickyElement,
     FilterFlyout,
+    ImageModal,
     StatementMetaTooltip,
     StatusBadge,
     VPopover
@@ -567,6 +572,9 @@ export default {
         })
         .finally(() => {
           this.isLoading = false
+          this.$nextTick(() => {
+            this.$refs.imageModal.addClickListener(this.$refs.dataTable.$el.querySelectorAll('img'))
+          })
         })
     },
 
