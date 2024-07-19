@@ -27,6 +27,7 @@ use PhpOffice\PhpWord\Element\Footer;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Exception\Exception;
 use PhpOffice\PhpWord\IOFactory;
+use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -56,17 +57,53 @@ class SegmentsExporter
      */
     public function export(Procedure $procedure, Statement $statement, array $tableHeaders): WriterInterface
     {
+        $phpWord = $this->createPhpWord();
+        $this->buildSection($phpWord, $procedure, $statement, $tableHeaders);
+
+        return IOFactory::createWriter($phpWord);
+    }
+
+    private function buildSection(
+        PhpWord $phpWord,
+        Procedure $procedure,
+        Statement $statement,
+        array $tableHeaders
+    ): void {
+        $section = $this->createNewSection($phpWord);
+        $this->addSectionHeader($section, $procedure);
+        $this->addMainContentToSection($section, $statement, $tableHeaders);
+        $this->addSectionFooter($section, $statement);
+    }
+
+    private function createPhpWord(): PhpWord
+    {
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $phpWord->addFontStyle('global', $this->styles['globalFont']);
-        $section = $phpWord->addSection($this->styles['globalSection']);
+
+        return $phpWord;
+    }
+
+    private function createNewSection(PhpWord $phpWord): Section
+    {
+        return $phpWord->addSection($this->styles['globalSection']);
+    }
+
+    private function addSectionHeader(Section $section, Procedure $procedure): void
+    {
         $this->headerFooterManager->addHeader($section, $procedure, Footer::FIRST);
         $this->headerFooterManager->addHeader($section, $procedure);
+    }
+
+    private function addMainContentToSection(Section $section, Statement $statement, array $tableHeaders): void
+    {
         $this->statementDetailsManager->addStatementInfo($section, $statement);
         $this->statementDetailsManager->addSimilarStatementSubmitters($section, $statement);
         $this->addSegments($section, $statement, $tableHeaders);
-        $this->headerFooterManager->addFooter($section, $statement);
+    }
 
-        return IOFactory::createWriter($phpWord);
+    private function addSectionFooter(Section $section, Statement $statement): void
+    {
+        $this->headerFooterManager->addFooter($section, $statement);
     }
 
     public function addSegments(Section $section, Statement $statement, array $tableHeaders): void
