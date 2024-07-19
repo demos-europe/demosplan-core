@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\FileNameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsExporter;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\XlsxSegmentsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
@@ -136,7 +137,7 @@ class SegmentsExportController extends BaseController
     public function exportByStatementsFilterXlsAction(
         FileNameGenerator $fileNameGenerator,
         JsonApiActionService $jsonApiActionService,
-        SegmentsByStatementsExporter $exporter,
+        XlsxSegmentsExporter $xlsxSegmentExporter,
         StatementResourceType $statementResourceType,
         string $procedureId
     ): StreamedResponse {
@@ -149,8 +150,8 @@ class SegmentsExportController extends BaseController
         );
 
         $response = new StreamedResponse(
-            static function () use ($statementEntities, $exporter) {
-                $exportedDoc = $exporter->exportAllXlsx(...$statementEntities);
+            static function () use ($statementEntities, $xlsxSegmentExporter) {
+                $exportedDoc = $xlsxSegmentExporter->exportAllXlsx(...$statementEntities);
                 $exportedDoc->save('php://output');
             }
         );

@@ -14,16 +14,10 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ExportDataArrayGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\HeaderFooterManager;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\RecommendationConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StatementDetailsManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\SegmentSorter;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
-use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use PhpOffice\PhpWord\Element\Footer;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Exception\Exception;
@@ -31,7 +25,6 @@ use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\Writer\WriterInterface;
-use ReflectionException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SegmentsByStatementsExporter
@@ -41,12 +34,8 @@ class SegmentsByStatementsExporter
      */
     protected array $styles;
     public function __construct(
-        private readonly AssessmentTableXlsExporter $assessmentTableXlsExporter,
-        private readonly ExportDataArrayGenerator $exportDataArrayGenerator,
         private readonly HeaderFooterManager $headerFooterManager,
-        private readonly RecommendationConverter $recommendationConverter,
         private readonly SegmentsExporter $segmentsExporter,
-        private readonly SegmentSorter $segmentSorter,
         private readonly StatementDetailsManager $statementDetailsManager,
         StyleInitializer $styleInitializer,
         private readonly TranslatorInterface $translator
@@ -68,44 +57,6 @@ class SegmentsByStatementsExporter
         }
 
         return $this->exportStatements($phpWord, $procedure, $statements, $tableHeaders);
-    }
-
-    /**
-     * Exports Segments or the Statement itself, in case of unsegmented Statement.
-     *
-     * @throws \PhpOffice\PhpSpreadsheet\Exception
-     * @throws \PhpOffice\PhpSpreadsheet\Reader\Exception
-     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
-     * @throws ReflectionException
-     * @throws HandlerException
-     */
-    public function exportAllXlsx(Statement ...$statements): IWriter
-    {
-        Settings::setOutputEscapingEnabled(true);
-        $exportData = [];
-        $adjustedRecommendations = [];
-        // unfortunately for xlsx export data needs to be an array
-        foreach ($statements as $statement) {
-            $segmentsOrStatements = collect([$statement]);
-            if (!$statement->getSegmentsOfStatement()->isEmpty()) {
-                $segmentsOrStatements = $statement->getSegmentsOfStatement();
-                $adjustedRecommendations[] = $this->recommendationConverter->convertImagesToReferencesInRecommendations(
-                    $this->segmentSorter->sortSegmentsByOrderInProcedure($segmentsOrStatements->toArray())
-                );
-            }
-            foreach ($segmentsOrStatements as $segmentOrStatement) {
-                $exportData[] = $this->exportDataArrayGenerator->convertIntoExportableArray($segmentOrStatement);
-            }
-        }
-
-        foreach ($adjustedRecommendations as $recommendation) {
-            $exportData =
-                $this->recommendationConverter->updateRecommendationsWithTextReferences($exportData, $recommendation);
-        }
-
-        $columnsDefinition = $this->assessmentTableXlsExporter->selectFormat('segments');
-
-        return $this->assessmentTableXlsExporter->createExcel($exportData, $columnsDefinition);
     }
 
     /**
