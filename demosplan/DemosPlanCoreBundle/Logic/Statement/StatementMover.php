@@ -56,7 +56,8 @@ class StatementMover extends CoreService
         private readonly EntityContentChangeService $entityContentChangeService,
         private readonly StatementReportEntryFactory $statementReportEntryFactory,
         private readonly ReportService $reportService,
-        private readonly StatementCopier $statementCopier
+        private readonly StatementCopier $statementCopier,
+        private readonly StatementRepository $statementRepository
     ) {
         $this->logger = $logger;
     }
@@ -195,8 +196,9 @@ class StatementMover extends CoreService
                 }
                 $statementFileContainers = $this->fileContainerRepository->getStatementFileContainers($statementToMove->getId());
                 foreach ($statementFileContainers as $fileContainer) {
-                    $file = $fileContainer->getFile();
-                    $file->setProcedure($statementToMove->getProcedure());
+                    $file = $this->statementRepository->copyFile($fileContainer->getFile(), $statementToMove);
+                    //$file = $fileContainer->getFile();
+                    //$file->setProcedure($statementToMove->getProcedure());
                     $fileContainer->setFile($file);
                     $this->fileContainerRepository->updateObject($fileContainer);
                 }
@@ -204,19 +206,7 @@ class StatementMover extends CoreService
                     $statementToMove,
                     true
                 );
-                // update $originalStatement to persist changes:
-                foreach ($copyOfOriginalStatementToMove->getAttachments() as $attachment) {
-                    $file = $attachment->getFile();
-                    $file->setProcedure($targetProcedure);
-                    $attachment->setFile($file);
-                }
-                $originalStatementFileContainers = $this->fileContainerRepository->getStatementFileContainers($copyOfOriginalStatementToMove->getId());
-                foreach ($originalStatementFileContainers as $originalFileContainer) {
-                    $file = $originalFileContainer->getFile();
-                    $file->setProcedure($statementToMove->getProcedure());
-                    $originalFileContainer->setFile($file);
-                    $this->fileContainerRepository->updateObject($originalFileContainer);
-                }
+
                 $updatedOriginalStatementToMove = $this->statementService->updateStatementFromObject(
                     $copyOfOriginalStatementToMove,
                     true,
