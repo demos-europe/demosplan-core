@@ -14,6 +14,7 @@ use Carbon\Carbon;
 use Closure;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\StatementCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\StatementUpdatedEventInterface;
@@ -33,6 +34,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
@@ -114,6 +116,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementBulkEditV
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
 use demosplan\DemosPlanCoreBundle\ValueObject\MovedStatementData;
+use demosplan\DemosPlanCoreBundle\ValueObject\PercentageDistribution;
 use demosplan\DemosPlanCoreBundle\ValueObject\StatementMovement;
 use demosplan\DemosPlanCoreBundle\ValueObject\StatementMovementCollection;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
@@ -166,6 +169,18 @@ class StatementService extends CoreService implements StatementServiceInterface
      * Name of the {@link Statement::$priority} field.
      */
     final public const FIELD_STATEMENT_PRIORITY = 'priority';
+
+    final public const STATEMENT_STATUS_NEW = 'new';
+
+    final public const STATEMENT_STATUS_PROCESSING = 'processing';
+
+    final public const STATEMENT_STATUS_COMPLETED = 'completed';
+
+    final public const STATEMENT_STATUS_NEW_COUNT = 'statementNewCount';
+
+    final public const STATEMENT_STATUS_PROCESSING_COUNT = 'statementProcessingCount';
+
+    final public const STATEMENT_STATUS_COMPLETED_COUNT = 'statementCompletedCount';
 
     /**
      * @var ProcedureService
@@ -4569,6 +4584,53 @@ class StatementService extends CoreService implements StatementServiceInterface
         }
 
         return ToBy::create($propertyName, $direction);
+    }
+
+    public function getProcessingStatus($statement): string
+    {
+        /** @var Collection $segments */
+        $segments = $statement->getSegmentsOfStatement();
+        if (0 === count($segments)) {
+            return self::STATEMENT_STATUS_NEW;
+        }
+        $filterSegment = $segments->filter(static function ($segment) {
+            /* @var Segment $segment */
+
+            return $segment->getPlace()->getSolved();
+        });
+        if (count($filterSegment) === count($segments)) {
+            return self::STATEMENT_STATUS_COMPLETED;
+        }
+
+        return self::STATEMENT_STATUS_PROCESSING;
+    }
+
+    public function getStatisticsOfProcedure(ProcedureInterface $procedure)
+    {
+        /** @var StatementInterface $statementsOfProcedure */
+        $statementsOfProcedure = $procedure->getStatements();
+        $statistics = [
+            self::STATEMENT_STATUS_NEW         => 0,
+            self::STATEMENT_STATUS_PROCESSING  => 0,
+            self::STATEMENT_STATUS_COMPLETED   => 0,
+        ];
+        foreach ($statementsOfProcedure as $statement) {
+            /** @var StatementInterface $statement */
+            if (!$statement->isOriginal()) {
+                ++$statistics[$this->getProcessingStatus($statement)];
+            }
+        }
+
+        return new PercentageDistribution(
+            $statistics[self::STATEMENT_STATUS_NEW] +
+            $statistics[self::STATEMENT_STATUS_PROCESSING] +
+            $statistics[self::STATEMENT_STATUS_COMPLETED],
+            [
+                self::STATEMENT_STATUS_NEW_COUNT         => $statistics[self::STATEMENT_STATUS_NEW],
+                self::STATEMENT_STATUS_PROCESSING_COUNT  => $statistics[self::STATEMENT_STATUS_PROCESSING],
+                self::STATEMENT_STATUS_COMPLETED_COUNT   => $statistics[self::STATEMENT_STATUS_COMPLETED],
+            ]
+        );
     }
 
     private function addFilterToAggregationsWhenCausedResultIsEmpty(array $aggregations, array $userfilters): array
