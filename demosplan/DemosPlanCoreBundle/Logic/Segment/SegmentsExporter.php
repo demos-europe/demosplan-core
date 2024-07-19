@@ -21,7 +21,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\HeaderFooterManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
-use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\ValueObject\CellExportStyle;
 use demosplan\DemosPlanCoreBundle\ValueObject\ExportOrgaInfoHeader;
 use PhpOffice\PhpWord\Element\Footer;
@@ -54,7 +54,7 @@ class SegmentsExporter
 
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
-        private readonly HTMLSanitizer $htmlSanitizer,
+        private readonly HtmlHelper $htmlHelper,
         protected readonly ImageLinkConverter $imageLinkConverter,
         Slugify $slugify,
         StyleInitializer $styleInitializer,
@@ -63,7 +63,7 @@ class SegmentsExporter
         $this->translator = $translator;
         $this->styles = $styleInitializer->initialize();
         $this->slugify = $slugify;
-        $this->headerFooterManager = new HeaderFooterManager($htmlSanitizer, $translator, $this->styles);
+        $this->headerFooterManager = new HeaderFooterManager($htmlHelper, $translator, $this->styles);
     }
 
     /**
@@ -324,20 +324,7 @@ class SegmentsExporter
             $cellExportStyle->getWidth(),
             $cellExportStyle->getCellStyle()
         );
-        Html::addHtml($cell, $this->getHtmlValidText($text), false, false);
-    }
-
-    private function getHtmlValidText(string $text): string
-    {
-        /** @var string $text $text */
-        $text = str_replace('<br>', '<br/>', $text);
-
-        // strip all a tags without href
-        $pattern = '/<a\s+(?!.*?\bhref\s*=\s*([\'"])\S*\1)(.*?)>(.*?)<\/a>/i';
-        $text = preg_replace($pattern, '$3', $text);
-
-        // avoid problems in phpword parser
-        return $this->htmlSanitizer->purify($text);
+        Html::addHtml($cell, $this->htmlHelper->getHtmlValidText($text), false, false);
     }
 
     private function addSegmentCell(Row $row, string $text, CellExportStyle $cellExportStyle): void

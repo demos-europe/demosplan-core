@@ -8,6 +8,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment\Export;
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use PhpOffice\PhpWord\Element\Footer;
 use PhpOffice\PhpWord\Element\Header;
@@ -17,16 +18,16 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class HeaderFooterManager
 {
-    private HTMLSanitizer $htmlSanitizer;
+    private HtmlHelper $htmlHelper;
     private TranslatorInterface $translator;
     private array $styles;
 
     public function __construct(
-        HTMLSanitizer $htmlSanitizer,
+        HtmlHelper $htmlHelper,
         TranslatorInterface $translator,
         array $styles
     ) {
-        $this->htmlSanitizer = $htmlSanitizer;
+        $this->htmlHelper = $htmlHelper;
         $this->translator = $translator;
         $this->styles = $styles;
     }
@@ -72,21 +73,8 @@ class HeaderFooterManager
     {
         if (Footer::FIRST === $headerType) {
             $preamble = $this->translator->trans('docx.export.preamble');
-            Html::addHtml($header, $this->getHtmlValidText($preamble), false, false);
+            Html::addHtml($header, $this->htmlHelper->getHtmlValidText($preamble), false, false);
         }
-    }
-
-    private function getHtmlValidText(string $text): string
-    {
-        /** @var string $text $text */
-        $text = str_replace('<br>', '<br/>', $text);
-
-        // strip all a tags without href
-        $pattern = '/<a\s+(?!.*?\bhref\s*=\s*([\'"])\S*\1)(.*?)>(.*?)<\/a>/i';
-        $text = preg_replace($pattern, '$3', $text);
-
-        // avoid problems in phpword parser
-        return $this->htmlSanitizer->purify($text);
     }
 
     private function getFooterLeftString(Statement $statement): string
