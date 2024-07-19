@@ -59,17 +59,6 @@ class SegmentsByStatementsExporter
         return $this->exportStatements($phpWord, $procedure, $statements, $tableHeaders);
     }
 
-    public function exportStatementSegmentsInSeparateDocx(Statement $statement, Procedure $procedure, array $tableHeaders): PhpWord
-    {
-        $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
-        $section = $phpWord->addSection($this->styles['globalSection']);
-        $this->headerFooterManager->addHeader($section, $procedure, Footer::FIRST);
-        $this->headerFooterManager->addHeader($section, $procedure);
-        $this->exportStatement($section, $statement, $tableHeaders);
-
-        return $phpWord;
-    }
-
     public function exportStatement(Section $section, Statement $statement, array $tableHeaders): void
     {
         $this->statementDetailsManager->addStatementInfo($section, $statement);

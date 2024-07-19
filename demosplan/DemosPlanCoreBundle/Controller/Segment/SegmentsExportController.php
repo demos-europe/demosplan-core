@@ -184,7 +184,7 @@ class SegmentsExportController extends BaseController
     )]
     public function exportPackagedStatementsAction(
         FileNameGenerator $fileNameGenerator,
-        SegmentsByStatementsExporter $exporter,
+        SegmentsExporter $segmentsExporter,
         StatementResourceType $statementResourceType,
         JsonApiActionService $requestHandler,
         ZipExportService $zipExportService,
@@ -208,14 +208,13 @@ class SegmentsExportController extends BaseController
 
         return $zipExportService->buildZipStreamResponse(
             $fileNameGenerator->getSynopseFileName($procedure, 'zip'),
-            static function (ZipStream $zipStream) use ($statements, $exporter, $zipExportService, $procedure, $tableHeaders): void {
+            static function (ZipStream $zipStream) use ($statements, $segmentsExporter, $zipExportService, $procedure, $tableHeaders): void {
                 array_map(
                     static function (
                         Statement $statement,
                         string $filePathInZip
-                    ) use ($exporter, $zipExportService, $zipStream, $procedure, $tableHeaders): void {
-                        $docx = $exporter->exportStatementSegmentsInSeparateDocx($statement, $procedure, $tableHeaders);
-                        $writer = IOFactory::createWriter($docx);
+                    ) use ($segmentsExporter, $zipExportService, $zipStream, $procedure, $tableHeaders): void {
+                        $writer = $segmentsExporter->export($procedure, $statement, $tableHeaders);
                         $zipExportService->addWriterToZipStream(
                             $writer,
                             $filePathInZip,
