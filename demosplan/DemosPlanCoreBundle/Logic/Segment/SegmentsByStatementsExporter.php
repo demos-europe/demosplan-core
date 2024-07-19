@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageLinkConverter;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\RecommendationConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
@@ -46,6 +47,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         private readonly EntityHelper $entityHelper,
         HTMLSanitizer $htmlSanitizer,
         ImageLinkConverter $imageLinkConverter,
+        private readonly RecommendationConverter $recommendationConverter,
         Slugify $slugify,
         StyleInitializer $styleInitializer,
         TranslatorInterface $translator
@@ -95,8 +97,9 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             $segmentsOrStatements = collect([$statement]);
             if (!$statement->getSegmentsOfStatement()->isEmpty()) {
                 $segmentsOrStatements = $statement->getSegmentsOfStatement();
-                $adjustedRecommendations[] =
-                    $this->convertImagesToReferencesInRecommendations($segmentsOrStatements->toArray());
+                $adjustedRecommendations[] = $this->recommendationConverter->convertImagesToReferencesInRecommendations(
+                    $this->sortSegmentsByOrderInProcedure($segmentsOrStatements->toArray())
+                );
             }
             foreach ($segmentsOrStatements as $segmentOrStatement) {
                 $exportData[] = $this->convertIntoExportableArray($segmentOrStatement);
@@ -104,47 +107,13 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         }
 
         foreach ($adjustedRecommendations as $recommendation) {
-            $exportData = $this->updateRecommendationsWithTextReferences($exportData, $recommendation);
+            $exportData =
+                $this->recommendationConverter->updateRecommendationsWithTextReferences($exportData, $recommendation);
         }
 
         $columnsDefinition = $this->assessmentTableXlsExporter->selectFormat('segments');
 
         return $this->assessmentTableXlsExporter->createExcel($exportData, $columnsDefinition);
-    }
-
-    private function convertImagesToReferencesInRecommendations(array $segments): array
-    {
-        $sortedSegments = $this->sortSegmentsByOrderInProcedure($segments);
-
-        $recommendationTexts = [];
-        /** @var Segment $segment */
-        foreach ($sortedSegments as $segment) {
-            $externId = $segment->getExternId();
-            $recommendationTexts[$externId] = $this->imageLinkConverter->convert(
-                $segment->getRecommendation(),
-                $externId,
-                false
-            );
-        }
-        $this->imageLinkConverter->resetImages();
-
-        return $recommendationTexts;
-    }
-
-    private function updateRecommendationsWithTextReferences(array $segmentsOrStatements, array $adjustedRecommendations): array
-    {
-        foreach ($segmentsOrStatements as $key => $segmentOrStatement) {
-            $isNotSegment = !array_key_exists('recommendation', $segmentOrStatement);
-            $externIdIsNotOfSegment = !array_key_exists($segmentOrStatement['externId'], $adjustedRecommendations);
-            if ($isNotSegment || $externIdIsNotOfSegment) {
-                continue;
-            }
-
-            $segmentOrStatement['recommendation'] = $adjustedRecommendations[$segmentOrStatement['externId']];
-            $segmentsOrStatements[$key] = $segmentOrStatement;
-        }
-
-        return $segmentsOrStatements;
     }
 
     /**
