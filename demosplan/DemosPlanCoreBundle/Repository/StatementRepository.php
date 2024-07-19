@@ -2058,7 +2058,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         return $statementFileContainer;
     }
 
-    private function copyFile(File $sourceFile, Statement $targetStatement): File
+    public function copyFile(File $sourceFile, Statement $targetStatement): File
     {
         $fileCopy = $this->getFileRepository()->copyFile($sourceFile);
         $fileCopy->setProcedure($targetStatement->getProcedure());
