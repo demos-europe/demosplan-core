@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\RecommendationConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\SegmentSorter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use PhpOffice\PhpWord\Element\Footer;
@@ -46,6 +47,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         ImageLinkConverter $imageLinkConverter,
         ImageManager $imageManager,
         private readonly RecommendationConverter $recommendationConverter,
+        SegmentSorter $segmentSorter,
         Slugify $slugify,
         StyleInitializer $styleInitializer,
         TranslatorInterface $translator
@@ -55,6 +57,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             $htmlHelper,
             $imageLinkConverter,
             $imageManager,
+            $segmentSorter,
             $slugify,
             $styleInitializer,
             $translator
@@ -97,7 +100,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             if (!$statement->getSegmentsOfStatement()->isEmpty()) {
                 $segmentsOrStatements = $statement->getSegmentsOfStatement();
                 $adjustedRecommendations[] = $this->recommendationConverter->convertImagesToReferencesInRecommendations(
-                    $this->sortSegmentsByOrderInProcedure($segmentsOrStatements->toArray())
+                    $this->segmentSorter->sortSegmentsByOrderInProcedure($segmentsOrStatements->toArray())
                 );
             }
             foreach ($segmentsOrStatements as $segmentOrStatement) {

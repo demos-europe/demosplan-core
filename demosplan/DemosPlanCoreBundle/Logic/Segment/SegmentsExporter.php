@@ -25,14 +25,11 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\SegmentTableManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StatementDetailsManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
-use demosplan\DemosPlanCoreBundle\ValueObject\CellExportStyle;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\SegmentSorter;
 use PhpOffice\PhpWord\Element\Footer;
-use PhpOffice\PhpWord\Element\Row;
 use PhpOffice\PhpWord\Element\Section;
-use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\Exception\Exception;
 use PhpOffice\PhpWord\IOFactory;
-use PhpOffice\PhpWord\Shared\Html;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -53,6 +50,7 @@ class SegmentsExporter
         private readonly HtmlHelper $htmlHelper,
         protected readonly ImageLinkConverter $imageLinkConverter,
         protected readonly ImageManager $imageManager,
+        protected readonly SegmentSorter $segmentSorter,
         Slugify $slugify,
         StyleInitializer $styleInitializer,
         TranslatorInterface $translator
@@ -118,23 +116,11 @@ class SegmentsExporter
     private function addSegmentsTable(Section $section, Statement $statement, array $tableHeaders): void
     {
         $table = $this->segmentTableManager->addSegmentsTableHeader($section, $tableHeaders);
-        $sortedSegments = $this->sortSegmentsByOrderInProcedure($statement->getSegmentsOfStatement()->toArray());
+        $sortedSegments = $this->segmentSorter->sortSegmentsByOrderInProcedure($statement->getSegmentsOfStatement()->toArray());
 
         foreach ($sortedSegments as $segment) {
             $this->segmentTableManager->addSegmentTableBody($table, $segment, $statement->getExternId());
         }
         $this->imageManager->addImages($section);
-    }
-
-    protected function sortSegmentsByOrderInProcedure(array $segments): array
-    {
-        uasort($segments, [$this, 'compareOrderInProcedure']);
-
-        return $segments;
-    }
-
-    private function compareOrderInProcedure(Segment $segmentA, Segment $segmentB): int
-    {
-        return $segmentA->getOrderInProcedure() - $segmentB->getOrderInProcedure();
     }
 }
