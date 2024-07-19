@@ -9,7 +9,7 @@
       <div
         :class="[
               'tag flex whitespace-nowrap overflow-hidden text-sm px-0.5 py-0.5',
-              isTagAppliedToSegment(tag.id) ? 'bg-gray-500': 'bg-green-400',
+              isTagAppliedToSegment(tag.id) ? 'bg-status-neutral': 'bg-status-complete',
               isLastTagWithEvenPosition(idx) ? 'w-fit' : ''
             ]"
         v-tooltip="tag.tagName"
