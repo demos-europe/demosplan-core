@@ -25,7 +25,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\RecommendationConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
-use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use PhpOffice\PhpWord\Element\Footer;
 use PhpOffice\PhpWord\Element\Section;
