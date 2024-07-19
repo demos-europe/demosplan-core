@@ -118,8 +118,8 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     private function exportEmptyStatements(PhpWord $phpWord, Procedure $procedure): WriterInterface
     {
         $section = $phpWord->addSection($this->styles['globalSection']);
-        $this->addHeader($section, $procedure, Footer::FIRST);
-        $this->addHeader($section, $procedure);
+        $this->headerFooterManager->addHeader($section, $procedure, Footer::FIRST);
+        $this->headerFooterManager->addHeader($section, $procedure);
 
         return $this->addNoStatementsMessage($phpWord, $section);
     }
@@ -132,8 +132,8 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     private function exportStatements(PhpWord $phpWord, Procedure $procedure, array $statements, array $tableHeaders): WriterInterface
     {
         $section = $phpWord->addSection($this->styles['globalSection']);
-        $this->addHeader($section, $procedure, Footer::FIRST);
-        $this->addHeader($section, $procedure);
+        $this->headerFooterManager->addHeader($section, $procedure, Footer::FIRST);
+        $this->headerFooterManager->addHeader($section, $procedure);
 
         foreach ($statements as $index => $statement) {
             $this->exportStatement($section, $statement, $tableHeaders);
@@ -147,8 +147,8 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     {
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $section = $phpWord->addSection($this->styles['globalSection']);
-        $this->addHeader($section, $procedure, Footer::FIRST);
-        $this->addHeader($section, $procedure);
+        $this->headerFooterManager->addHeader($section, $procedure, Footer::FIRST);
+        $this->headerFooterManager->addHeader($section, $procedure);
         $this->exportStatement($section, $statement, $tableHeaders);
 
         return $phpWord;

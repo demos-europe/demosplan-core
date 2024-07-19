@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\HeaderFooterManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
@@ -47,6 +48,8 @@ class SegmentsExporter
      */
     protected array $styles;
 
+    protected HeaderFooterManager $headerFooterManager;
+
     protected TranslatorInterface $translator;
 
     protected Slugify $slugify;
@@ -62,6 +65,7 @@ class SegmentsExporter
         $this->translator = $translator;
         $this->styles = $styleInitializer->initialize();
         $this->slugify = $slugify;
+        $this->headerFooterManager = new HeaderFooterManager($translator, $this->styles);
     }
 
     /**
@@ -72,8 +76,8 @@ class SegmentsExporter
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $phpWord->addFontStyle('global', $this->styles['globalFont']);
         $section = $phpWord->addSection($this->styles['globalSection']);
-        $this->addHeader($section, $procedure, Footer::FIRST);
-        $this->addHeader($section, $procedure);
+        $this->headerFooterManager->addHeader($section, $procedure, Footer::FIRST);
+        $this->headerFooterManager->addHeader($section, $procedure);
         $this->addStatementInfo($section, $statement);
         $this->addSimilarStatementSubmitters($section, $statement);
         $this->addSegments($section, $statement, $tableHeaders);
@@ -94,33 +98,6 @@ class SegmentsExporter
             );
 
             $section->addTextBreak(2);
-        }
-    }
-
-    protected function addHeader(Section $section, Procedure $procedure, ?string $headerType = null): void
-    {
-        $header = null === $headerType ? $section->addHeader() : $section->addHeader($headerType);
-        $header->addText(
-            $procedure->getName(),
-            $this->styles['documentTitleFont'],
-            $this->styles['documentTitleParagraph']
-        );
-
-        $this->addPreambleIfFirstHeader($header, $headerType);
-
-        $currentDate = new DateTime();
-        $header->addText(
-            $this->translator->trans('segments.export.statement.export.date', ['date' => $currentDate->format('d.m.Y')]),
-            $this->styles['currentDateFont'],
-            $this->styles['currentDateParagraph']
-        );
-    }
-
-    private function addPreambleIfFirstHeader(Header $header, ?string $headerType): void
-    {
-        if (Footer::FIRST === $headerType) {
-            $preamble = $this->translator->trans('docx.export.preamble');
-            Html::addHtml($header, $this->getHtmlValidText($preamble), false, false);
         }
     }
 
