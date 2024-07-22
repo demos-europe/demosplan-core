@@ -176,10 +176,10 @@ class StatementDeleterTest extends FunctionalTestCase
         $priorityArea = PriorityAreaFactory::createOne();
 
         $testStatement = StatementFactory::createOne([
-            'counties' => [$county],
+            'counties'       => [$county],
             'municipalities' => [$municipality],
-            'priorityAreas' => [$priorityArea],
-            'original' => $originalStatement]);
+            'priorityAreas'  => [$priorityArea],
+            'original'       => $originalStatement]);
 
         $statementAttribute = StatementAttributeFactory::createOne(['statement' => $testStatement]);
 
