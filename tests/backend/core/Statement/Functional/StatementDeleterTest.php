@@ -13,7 +13,11 @@ declare(strict_types=1);
 namespace Tests\Core\Statement\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\CountyFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\MunicipalityFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\PriorityAreaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementAttributeFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
@@ -166,9 +170,19 @@ class StatementDeleterTest extends FunctionalTestCase
     public function testDBSitedCasading(): void
     {
         // No cascading on sqlite
-        self::markSkippedForCIElasticsearchUnavailable();
+        $originalStatement = StatementFactory::createOne();
+        $county = CountyFactory::createOne();
+        $municipality = MunicipalityFactory::createOne();
+        $priorityArea = PriorityAreaFactory::createOne();
 
-        $testStatement = $this->getStatementReference('testStatement');
+        $testStatement = StatementFactory::createOne([
+            'counties' => [$county],
+            'municipalities' => [$municipality],
+            'priorityAreas' => [$priorityArea],
+            'original' => $originalStatement]);
+
+        $statementAttribute = StatementAttributeFactory::createOne(['statement' => $testStatement]);
+
         $countiesOfStatement = $testStatement->getCounties();
         $municipalitiesOfStatement = $testStatement->getMunicipalities();
         $priorityAreasOfStatement = $testStatement->getPriorityAreas();
@@ -188,7 +202,7 @@ class StatementDeleterTest extends FunctionalTestCase
         static::assertInstanceOf(StatementAttribute::class, $attributesOfStatement[0]);
 
         // delete Statement
-        $result = $this->sut->deleteStatementObject($testStatement);
+        $result = $this->sut->deleteStatementObject($testStatement->_real());
         static::assertTrue($result);
 
         // still the same of amount of counties/municipalities/priorityAreas in the DB
