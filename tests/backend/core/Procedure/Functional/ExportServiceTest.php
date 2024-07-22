@@ -25,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DocxExportResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
+use Exception;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Psr\Log\LoggerInterface;
 use Tests\Base\FunctionalTestCase;
@@ -60,18 +61,12 @@ class ExportServiceTest extends FunctionalTestCase
         $this->statementServiceMock = $this->createMock(StatementService::class);
     }
 
-    /**
-     * @return void
-     */
     public function testGetInstitutionListPhrase(): void
     {
         $phrase = $this->sut->getInstitutionListPhrase();
         self::assertSame('Institution-Liste', $phrase);
     }
 
-    /**
-     * @return void
-     */
     public function testAddTitlePageToZip(): void
     {
         $procedure = $this->getProcedureReference(LoadProcedureData::TESTPROCEDURE);
@@ -93,9 +88,6 @@ class ExportServiceTest extends FunctionalTestCase
         $this->assertSame($zip, $result);
     }
 
-    /**
-     * @return void
-     */
     public function testAddNewsToZip(): void
     {
         $procedure = $this->getProcedureReference(LoadProcedureData::TESTPROCEDURE);
@@ -137,9 +129,6 @@ class ExportServiceTest extends FunctionalTestCase
         $this->assertSame($zip, $result);
     }
 
-    /**
-     * @return void
-     */
     public function testAddAssessmentTableToZip(): void
     {
         $procedure = $this->getProcedureReference(LoadProcedureData::TESTPROCEDURE);
@@ -182,25 +171,19 @@ class ExportServiceTest extends FunctionalTestCase
         $this->assertSame($zip, $resultZip);
     }
 
-    /**
-     * @return void
-     */
     public function testAddAssessmentTableToZipException(): void
     {
         $procedure = $this->getProcedureReference(LoadProcedureData::TESTPROCEDURE);
         $exportType = 'statementsOnly';
         $zip = $this->createMock(ZipStream::class);
 
-        $this->assessmentHandlerMock->method('exportDocx')->will($this->throwException(new \Exception('Test Exception')));
+        $this->assessmentHandlerMock->method('exportDocx')->will($this->throwException(new Exception('Test Exception')));
 
         $resultZip = $this->sut->addAssessmentTableToZip($procedure->getId(), $procedure->getName(), $exportType, $zip);
 
         $this->assertSame($zip, $resultZip);
     }
 
-    /**
-     * @return void
-     */
     public function testAddAssessmentTableAnonymousToZipStatementsOnly(): void
     {
         $procedure = $this->getProcedureReference(LoadProcedureData::TESTPROCEDURE);
@@ -249,9 +232,6 @@ class ExportServiceTest extends FunctionalTestCase
         $this->assertSame($zip, $result);
     }
 
-    /**
-     * @return void
-     */
     public function testAddMapToZip(): void
     {
         $procedure = $this->getProcedureReference(LoadProcedureData::TESTPROCEDURE);
