@@ -276,9 +276,11 @@ class StatementDeleterTest extends FunctionalTestCase
 
     public function testDeleteUnLockedStatement(): void
     {
-        self::markSkippedForCIElasticsearchUnavailable();
+        $originalStatement = StatementFactory::createOne();
+        $testStatement = StatementFactory::createOne(['original' => $originalStatement]);
+
         $this->enablePermissions(['feature_statement_assignment']);
-        $statementId = $this->getStatementReference('testStatement1')->getId();
+        $statementId = $testStatement->getId();
         $statement = $this->statementService->getStatement($statementId);
         static::assertNull($statement->getAssignee());
 
