@@ -34,9 +34,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
+use Illuminate\Support\Collection;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Illuminate\Support\Collection;
 use UnexpectedValueException;
 
 class FaqHandler extends CoreHandler implements FaqHandlerInterface
@@ -181,7 +181,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
      * @throws CustomerNotFoundException
      * @throws MessageBagException
      */
-    public function addOrUpdateFaq($data, Faq $faq = null): ?Faq
+    public function addOrUpdateFaq($data, ?Faq $faq = null): ?Faq
     {
         // improve:
         // Sanitize and validate fields

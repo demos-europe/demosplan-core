@@ -38,9 +38,9 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\InvitationEmailResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use Illuminate\Support\Collection;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
-use Illuminate\Support\Collection;
 use Twig\Environment;
 
 use function array_key_exists;

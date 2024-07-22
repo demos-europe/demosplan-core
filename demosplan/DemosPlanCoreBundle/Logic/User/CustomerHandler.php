@@ -21,8 +21,8 @@ use demosplan\DemosPlanCoreBundle\ValueObject\User\CustomerResourceInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use function array_key_exists;
 
+use function array_key_exists;
 
 class CustomerHandler extends CoreHandler
 {

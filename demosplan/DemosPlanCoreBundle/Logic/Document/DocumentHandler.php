@@ -288,21 +288,21 @@ class DocumentHandler extends CoreHandler
 
             if ($fileInfo->isDir()) {
                 $result[] = [
-                  'isDir'   => true,
-                  'title'   => $fileInfo->getFilename(),
-                  'path'    => $fileInfo->getPathname(),
-                  'entries' => $this->elementImportDirToArray(
-                      $fileInfo->getPathname()
-                  ),
+                    'isDir'   => true,
+                    'title'   => $fileInfo->getFilename(),
+                    'path'    => $fileInfo->getPathname(),
+                    'entries' => $this->elementImportDirToArray(
+                        $fileInfo->getPathname()
+                    ),
                 ];
             } else {
                 // utf8_decode filename, weil Zip Umlaute kaputt macht
                 $filename = utf8_decode($fileInfo->getFilename());
 
                 $result[] = [
-                  'isDir'  => false,
-                  'title'  => $filename,
-                    'path' => $fileInfo->getPathname(),
+                    'isDir'  => false,
+                    'title'  => $filename,
+                    'path'   => $fileInfo->getPathname(),
                 ];
 
                 // Speichere die Anzahl der Dateien in die Session

@@ -444,7 +444,7 @@ class StatementFilterHandler extends CoreHandler
                 // FB or FPA
                 'hasPermission' => $this->permissions->hasPermissions(
                     [
-                    'area_admin_assessmenttable',
+                        'area_admin_assessmenttable',
                         'feature_documents_category_use_paragraph',
                     ]),
                 'type'          => 'statement',

@@ -105,6 +105,7 @@ use Doctrine\ORM\Query\QueryException;
 use Exception;
 use Goodby\CSV\Import\Standard\Interpreter;
 use Goodby\CSV\Import\Standard\Lexer;
+use Illuminate\Support\Collection;
 use ReflectionException;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\Validator\Constraints\Email;
@@ -114,7 +115,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
-use Illuminate\Support\Collection;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -3526,7 +3526,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      * @param bool $ignoreAssignmentOfStatement     - Determines if a assignment statement will be updated regardless
      * @param bool $ignoreAssignmentOfHeadStatement - Determines if a assignment headStatement will be updated regardless
      *
-     * @return statement|bool - false the given statementToAdd was not added to the given headStatement,
+     * @return Statement|bool - false the given statementToAdd was not added to the given headStatement,
      *                        otherwise the headStatement
      */
     public function addStatementToCluster(

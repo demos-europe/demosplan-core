@@ -133,8 +133,8 @@ class StatementAnonymizeHandler extends CoreHandler
     private function deleteHistory(array $actions, Statement $statement): void
     {
         if (array_key_exists(self::DELETE_STATEMENT_TEXT_HISTORY, $actions)
-            && true === $actions[self::DELETE_STATEMENT_TEXT_HISTORY] &&
-            $this->permissions->hasPermission('feature_statement_text_history_delete')
+            && true === $actions[self::DELETE_STATEMENT_TEXT_HISTORY]
+            && $this->permissions->hasPermission('feature_statement_text_history_delete')
         ) {
             $this->statementAnonymizeService->deleteHistoryOfTextsRecursively($statement, true);
         }
