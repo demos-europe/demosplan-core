@@ -17,7 +17,7 @@ use Tests\Base\FunctionalTestCase;
 
 class HtmlHelperTest extends FunctionalTestCase
 {
-    /** @var HtmlHelper $sut */
+    /** @var HtmlHelper */
     protected $sut;
 
     protected function setUp(): void

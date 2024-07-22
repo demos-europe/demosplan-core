@@ -19,7 +19,7 @@ use Tests\Base\FunctionalTestCase;
 
 class SegmentSorterTest extends FunctionalTestCase
 {
-    /** @var SegmentSorter $sut */
+    /** @var SegmentSorter */
     protected $sut;
 
     protected function setUp(): void
