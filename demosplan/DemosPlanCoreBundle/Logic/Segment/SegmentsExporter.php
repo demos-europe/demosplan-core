@@ -20,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\PhpWordSectionBuilder;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StatementDetailsManager;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\SegmentSorter;
 use PhpOffice\PhpWord\Exception\Exception;
 use PhpOffice\PhpWord\IOFactory;
@@ -31,11 +30,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SegmentsExporter
 {
-    /**
-     * @var array<string, mixed>
-     */
-    protected array $styles;
-
     public function __construct(
         protected readonly HeaderFooterManager $headerFooterManager,
         protected readonly ImageLinkConverter $imageLinkConverter,
@@ -44,10 +38,8 @@ class SegmentsExporter
         protected readonly SegmentSorter $segmentSorter,
         protected readonly Slugify $slugify,
         protected readonly StatementDetailsManager $statementDetailsManager,
-        StyleInitializer $styleInitializer,
         protected readonly TranslatorInterface $translator
     ) {
-        $this->styles = $styleInitializer->getStyles();
     }
 
     /**
