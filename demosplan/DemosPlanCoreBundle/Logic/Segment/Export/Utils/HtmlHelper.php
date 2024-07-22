@@ -26,8 +26,8 @@ class HtmlHelper
         $text = str_replace('<br>', '<br/>', $text);
 
         // strip all a tags without href
-        $pattern = '/<a\s+(?!.*?\bhref\s*=\s*([\'"])\S*\1)(.*?)>(.*?)<\/a>/i';
-        $text = preg_replace($pattern, '$3', $text);
+        $pattern = '/<a(?![^>]*\bhref=)([^>]*)>(.*?)<\/a>/i';
+        $text = preg_replace($pattern, '$2', $text);
 
         // avoid problems in phpword parser
         return $this->htmlSanitizer->purify($text);
