@@ -165,11 +165,21 @@ class StatementDeleterTest extends FunctionalTestCase
         );
     }
 
-    // test DB-sited onDelete:Cascade
-    // will only work if cascading in sqlite enabled
+    /**
+     * Tests the database-side cascading delete functionality.
+     *
+     * This test verifies that when a `Statement` object is deleted, related entities such as
+     * `StatementAttribute` are also deleted via database-side cascading, while other related entities
+     * like `County`, `Municipality`, and `PriorityArea` remain unaffected in the database.
+     *
+     * The test creates a `Statement` object linked with one each of `County`, `Municipality`,
+     * `PriorityArea`, and `StatementAttribute`. It then deletes the `Statement` object and checks:
+     * - The related `StatementAttribute` is also deleted (verifying cascading delete).
+     * - The counts of `County`, `Municipality`, and `PriorityArea` entities in the database remain unchanged,
+     *   indicating they are not deleted (verifying non-cascading behavior for these entities).
+     */
     public function testDBSitedCasading(): void
     {
-        // No cascading on sqlite
         $originalStatement = StatementFactory::createOne();
         $county = CountyFactory::createOne();
         $municipality = MunicipalityFactory::createOne();
