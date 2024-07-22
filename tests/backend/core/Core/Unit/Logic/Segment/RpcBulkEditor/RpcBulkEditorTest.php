@@ -12,6 +12,7 @@ namespace Tests\Core\Core\Unit\Logic\Segment\RpcBulkEditor;
 
 use DateTime;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadSegmentData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
@@ -140,12 +141,22 @@ class RpcBulkEditorTest extends RpcApiTest
 
     public function testUpdateRecommendation(): void
     {
-        self::markTestSkipped('This test was skipped because of pre-existing errors. They are most likely easily fixable but prevent us from getting to a usable state of our CI.');
         $this->sut = $this->getContainer()->get(SegmentBulkEditorService::class);
 
         $procedure = $this->getProcedureReference(\demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData::TESTPROCEDURE);
         $segment1 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_1);
+        $segment1->setRecommendation('Initial text 1');
+        $em = $this->getEntityManager();
+        $em->persist($segment1);
+        $em->flush();
+
         $segment2 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_2);
+        $segment2->setRecommendation('Initial text 2');
+        $em = $this->getEntityManager();
+        $em->persist($segment2);
+        $em->flush();
+        //$segment1 = SegmentFactory::createOne();
+        //$segment2 = SegmentFactory::createOne();
         $entityManager = $this->getContainer()->get(EntityManagerInterface::class);
         $entityType = $entityManager->getClassMetadata(Segment::class)->getName();
         $methodCallTime = new DateTime();
@@ -156,18 +167,27 @@ class RpcBulkEditorTest extends RpcApiTest
 
         $this->sut->updateRecommendations([$segment1, $segment2], $recommendationTextEdit, $procedure->getId(), $entityType, $methodCallTime);
 
-        static::assertEquals("'".$recommendationTextEdit->text."'", $segment1->getRecommendation());
-        static::assertEquals("'".$recommendationTextEdit->text."'", $segment2->getRecommendation());
+        static::assertEquals($recommendationTextEdit->text, $segment1->getRecommendation());
+        static::assertEquals($recommendationTextEdit->text, $segment2->getRecommendation());
     }
 
     public function testAttachUpdateRecommendation(): void
     {
-        self::markTestSkipped('This test was skipped because of pre-existing errors. They are most likely easily fixable but prevent us from getting to a usable state of our CI.');
         $this->sut = $this->getContainer()->get(SegmentBulkEditorService::class);
 
         $procedure = $this->getProcedureReference(\demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData::TESTPROCEDURE);
         $segment1 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_1);
+        $segment1->setRecommendation('Initial text 1');
+        $em = $this->getEntityManager();
+        $em->persist($segment1);
+        $em->flush();
+
         $segment2 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_2);
+        $segment2->setRecommendation('Initial text 2');
+        $em = $this->getEntityManager();
+        $em->persist($segment2);
+        $em->flush();
+
         $recommendationText1 = $segment1->getRecommendation();
         $recommendationText2 = $segment2->getRecommendation();
         $entityManager = $this->getContainer()->get(EntityManagerInterface::class);
@@ -180,7 +200,7 @@ class RpcBulkEditorTest extends RpcApiTest
 
         $this->sut->updateRecommendations([$segment1, $segment2], $recommendationTextEdit, $procedure->getId(), $entityType, $methodCallTime);
         $methodCallTime = new DateTime();
-        static::assertEquals($recommendationText1."'".$recommendationTextEdit->text."'", $segment1->getRecommendation());
-        static::assertEquals($recommendationText2."'".$recommendationTextEdit->text."'", $segment2->getRecommendation());
+        static::assertEquals($recommendationText1.$recommendationTextEdit->text, $segment1->getRecommendation());
+        static::assertEquals($recommendationText2.$recommendationTextEdit->text, $segment2->getRecommendation());
     }
 }
