@@ -16,6 +16,7 @@ import {
   DpAccordion,
   dpApi,
   DpButton,
+  DpContextualHelp,
   DpDatepicker,
   DpMultiselect,
   DpUploadFiles
@@ -34,6 +35,7 @@ export default {
     DetailViewFinalEmailBody,
     DpBoilerPlateModal,
     DpButton,
+    DpContextualHelp,
     DpDatepicker,
     DpMapModal,
     DpMultiselect,
@@ -139,11 +141,11 @@ export default {
   },
 
   computed: {
-    ...mapGetters('assessmentTable', ['counties', 'municipalities', 'priorityAreas', 'tags'])
+    ...mapGetters('AssessmentTable', ['counties', 'municipalities', 'priorityAreas', 'tag'])
   },
 
   methods: {
-    ...mapActions('assessmentTable', ['applyBaseData']),
+    ...mapActions('AssessmentTable', ['applyBaseData']),
 
     addTagBoilerplate (value) {
       if (hasPermission('area_admin_boilerplates')) {

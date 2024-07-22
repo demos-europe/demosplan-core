@@ -158,7 +158,7 @@ export default {
   },
 
   computed: {
-    ...mapState('institutionTag', {
+    ...mapState('InstitutionTag', {
       institutionTags: 'items'
     }),
 
@@ -175,7 +175,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('institutionTag', {
+    ...mapActions('InstitutionTag', {
       createInstitutionTag: 'create',
       deleteInstitutionTag: 'delete',
       listInstitutionTags: 'list',
@@ -183,7 +183,7 @@ export default {
       saveInstitutionTag: 'save'
     }),
 
-    ...mapMutations('institutionTag', {
+    ...mapMutations('InstitutionTag', {
       updateInstitutionTag: 'setItem'
     }),
 

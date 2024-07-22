@@ -14,6 +14,8 @@ use Carbon\Carbon;
 use Closure;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\StatementCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\StatementUpdatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
@@ -32,6 +34,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
@@ -82,6 +85,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Grouping\EntityGrouper;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGroup;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGrouper;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
+use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
@@ -112,6 +116,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementBulkEditV
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
 use demosplan\DemosPlanCoreBundle\ValueObject\MovedStatementData;
+use demosplan\DemosPlanCoreBundle\ValueObject\PercentageDistribution;
 use demosplan\DemosPlanCoreBundle\ValueObject\StatementMovement;
 use demosplan\DemosPlanCoreBundle\ValueObject\StatementMovementCollection;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
@@ -164,6 +169,18 @@ class StatementService extends CoreService implements StatementServiceInterface
      * Name of the {@link Statement::$priority} field.
      */
     final public const FIELD_STATEMENT_PRIORITY = 'priority';
+
+    final public const STATEMENT_STATUS_NEW = 'new';
+
+    final public const STATEMENT_STATUS_PROCESSING = 'processing';
+
+    final public const STATEMENT_STATUS_COMPLETED = 'completed';
+
+    final public const STATEMENT_STATUS_NEW_COUNT = 'statementNewCount';
+
+    final public const STATEMENT_STATUS_PROCESSING_COUNT = 'statementProcessingCount';
+
+    final public const STATEMENT_STATUS_COMPLETED_COUNT = 'statementCompletedCount';
 
     /**
      * @var ProcedureService
@@ -311,13 +328,13 @@ class StatementService extends CoreService implements StatementServiceInterface
         // Create and use versions of paragraph and SingleDocument
         if (\array_key_exists('paragraphId', $data) && 0 < \strlen((string) $data['paragraphId']) && '-' != $data['paragraphId']) {
             $data['paragraph'] = $this->paragraphService->createParagraphVersion(
-                $em->getReference(Paragraph::class, $data['paragraphId'])
+                $em->find(Paragraph::class, $data['paragraphId'])
             );
         }
 
         if (\array_key_exists('documentId', $data) && 0 < \strlen((string) $data['documentId'])) {
             $data['document'] = $this->singleDocumentService->createSingleDocumentVersion(
-                $em->getReference(SingleDocument::class, $data['documentId'])
+                $em->find(SingleDocument::class, $data['documentId'])
             );
         }
 
@@ -409,6 +426,17 @@ class StatementService extends CoreService implements StatementServiceInterface
         /** @var StatementCreatedEvent $statementCreatedEvent */
         $statementCreatedEvent = $this->eventDispatcher->dispatch(new ManualOriginalStatementCreatedEvent($statement));
 
+        if (null !== $statementCreatedEvent) {
+            $this->messageBag->addObject(LinkMessageSerializable::createLinkMessage(
+                'confirm',
+                'confirm.statement.new',
+                ['externId' => $statementCreatedEvent->getStatement()->getExternId()],
+                'dplan_procedure_statement_list',
+                ['procedureId' => $statementCreatedEvent->getStatement()->getProcedure()->getId()],
+                $statementCreatedEvent->getStatement()->getExternId()
+            ));
+        }
+
         // statement similarities are calculated?
         $statementSimilarities = $statementCreatedEvent->getStatementSimilarities();
         if (null !== $statementSimilarities) {
@@ -428,7 +456,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @param array<string,mixed> $data
      *
-     * @return statement|bool - Statement as array if successfully, otherwise false
+     * @return Statement|bool - Statement as array if successfully, otherwise false
      *
      * @deprecated use {@link StatementService::createOriginalStatement()} instead and handle exceptions properly
      */
@@ -908,7 +936,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     {
         return \collect($statements)
             ->flatMap(
-                fn (Statement $statement): \Tightenco\Collect\Support\Collection => $this->getStatementAndItsFragmentsInOneFlatList(
+                fn (Statement $statement): \Illuminate\Support\Collection => $this->getStatementAndItsFragmentsInOneFlatList(
                     $statement,
                     $entityClassesToInclude
                 )
@@ -1047,7 +1075,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         return $rParams;
     }
 
-    public function updateStatementFromObject($updatedStatement, $ignoreAssignment = false, $ignoreCluster = false, $ignoreOriginal = false)
+    public function updateStatementFromObject($updatedStatement, $ignoreAssignment = false, $ignoreCluster = false, $ignoreOriginal = false): StatementInterface|false|null
     {
         return $this->updateStatement($updatedStatement, $ignoreAssignment, $ignoreCluster, $ignoreOriginal);
     }
@@ -1261,7 +1289,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     /**
      * Determines if one of the fields which only can be modified on a manual statement, should be updated.
      *
-     * @param statement|array $statement        - Statement as array or object
+     * @param Statement|array $statement        - Statement as array or object
      * @param Statement       $currentStatement - current unmodified statement object, to compare with incoming update data
      *
      * @return bool - true if one of the 'critical' fields should be updated, otherwise false
@@ -1776,10 +1804,10 @@ class StatementService extends CoreService implements StatementServiceInterface
             $em = $this->getDoctrine()->getManager();
 
             $data = [
-                'statement' => $em->getReference(Statement::class, $statementId),
+                'statement' => $em->find(Statement::class, $statementId),
             ];
             if ($user instanceof User) {
-                $data['user'] = $em->getReference(User::class, $user->getId());
+                $data['user'] = $em->find(User::class, $user->getId());
             }
 
             return $this->statementRepository->addLike($data);
@@ -1968,7 +1996,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             && 0 < \strlen((string) $data['paragraphId'])
             && $data['paragraphId'] != $currentStatement->getParagraphId()) {
             $data['paragraph'] = $this->paragraphService->createParagraphVersion(
-                $em->getReference(Paragraph::class, $data['paragraphId'])
+                $em->find(Paragraph::class, $data['paragraphId'])
             );
         }
 
@@ -1981,7 +2009,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             && 0 < \strlen((string) $data['documentId'])
             && $data['documentId'] != $currentStatement->getDocumentId()) {
             $data['document'] = $this->singleDocumentService->createSingleDocumentVersion(
-                $em->getReference(SingleDocument::class, $data['documentId'])
+                $em->find(SingleDocument::class, $data['documentId'])
             );
         }
 
@@ -2562,7 +2590,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         $boolMustFilter = [
             $this->searchService->getElasticaTermsInstance('pId', [$procedureId]),
             $this->searchService->getElasticaTermsInstance('deleted', [false]),
-            ];
+        ];
 
         $boolMustNotFilter = [
             // exclude clustered Statements
@@ -3736,7 +3764,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @param array $statementIds
      */
-    public function getHeadStatementIdsOfStatements($statementIds): \Tightenco\Collect\Support\Collection
+    public function getHeadStatementIdsOfStatements($statementIds): \Illuminate\Support\Collection
     {
         $result = \collect([]);
         try {
@@ -4513,7 +4541,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     /**
      * @param array<int,class-string> $entityClassesToInclude
      */
-    private function getStatementAndItsFragmentsInOneFlatList(Statement $statement, array $entityClassesToInclude): \Tightenco\Collect\Support\Collection
+    private function getStatementAndItsFragmentsInOneFlatList(Statement $statement, array $entityClassesToInclude): \Illuminate\Support\Collection
     {
         $explodedStatement = \collect();
 
@@ -4556,6 +4584,53 @@ class StatementService extends CoreService implements StatementServiceInterface
         }
 
         return ToBy::create($propertyName, $direction);
+    }
+
+    public function getProcessingStatus($statement): string
+    {
+        /** @var Collection $segments */
+        $segments = $statement->getSegmentsOfStatement();
+        if (0 === count($segments)) {
+            return self::STATEMENT_STATUS_NEW;
+        }
+        $filterSegment = $segments->filter(static function ($segment) {
+            /* @var Segment $segment */
+
+            return $segment->getPlace()->getSolved();
+        });
+        if (count($filterSegment) === count($segments)) {
+            return self::STATEMENT_STATUS_COMPLETED;
+        }
+
+        return self::STATEMENT_STATUS_PROCESSING;
+    }
+
+    public function getStatisticsOfProcedure(ProcedureInterface $procedure)
+    {
+        /** @var StatementInterface $statementsOfProcedure */
+        $statementsOfProcedure = $procedure->getStatements();
+        $statistics = [
+            self::STATEMENT_STATUS_NEW         => 0,
+            self::STATEMENT_STATUS_PROCESSING  => 0,
+            self::STATEMENT_STATUS_COMPLETED   => 0,
+        ];
+        foreach ($statementsOfProcedure as $statement) {
+            /** @var StatementInterface $statement */
+            if (!$statement->isOriginal()) {
+                ++$statistics[$this->getProcessingStatus($statement)];
+            }
+        }
+
+        return new PercentageDistribution(
+            $statistics[self::STATEMENT_STATUS_NEW] +
+            $statistics[self::STATEMENT_STATUS_PROCESSING] +
+            $statistics[self::STATEMENT_STATUS_COMPLETED],
+            [
+                self::STATEMENT_STATUS_NEW_COUNT         => $statistics[self::STATEMENT_STATUS_NEW],
+                self::STATEMENT_STATUS_PROCESSING_COUNT  => $statistics[self::STATEMENT_STATUS_PROCESSING],
+                self::STATEMENT_STATUS_COMPLETED_COUNT   => $statistics[self::STATEMENT_STATUS_COMPLETED],
+            ]
+        );
     }
 
     private function addFilterToAggregationsWhenCausedResultIsEmpty(array $aggregations, array $userfilters): array

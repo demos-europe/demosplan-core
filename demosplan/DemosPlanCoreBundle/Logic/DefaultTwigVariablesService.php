@@ -27,7 +27,7 @@ use demosplan\DemosPlanCoreBundle\Services\OrgaLoader;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 use function str_replace;
 

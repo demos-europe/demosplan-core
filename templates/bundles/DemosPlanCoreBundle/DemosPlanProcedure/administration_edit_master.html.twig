@@ -74,7 +74,7 @@
                     </label>
                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                         helpText: 'text.procedure.edit.authorized.users'|trans,
-                        cssClasses:'o-tooltip--question-circle float-right u-mt-0_125'
+                        cssClasses:'float-right u-mt-0_125'
                     } %}
                     <dp-multiselect
                         v-model="selectedAuthUsers"
@@ -116,7 +116,7 @@
                 </label>
                 {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                     helpText: 'email.procedure.agency.help'|trans,
-                    cssClasses:'o-tooltip--question-circle float-right u-mt-0_125'
+                    cssClasses:'float-right u-mt-0_125'
                 } %}
 
                 {{ form_errors(form.agencyMainEmailAddress) }}
@@ -136,7 +136,7 @@
                 </label>
                 {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                     helpText: 'email.address.more.explanation.help'|trans,
-                    cssClasses:'o-tooltip--question-circle float-right u-mt-0_125'
+                    cssClasses:'float-right u-mt-0_125'
                 } %}
 
                 {% set emailAddresses = [] %}
@@ -158,7 +158,7 @@
                     </label>
                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                         helpText: 'text.procedure.edit.external.pictogram'|trans,
-                        cssClasses:'o-tooltip--question-circle float-right u-mt-0_125'
+                        cssClasses:'float-right u-mt-0_125'
                     } %}
                     {% if proceduresettings.settings.pictogram is defined and proceduresettings.settings.pictogram != "" %}
                         <br><br>
@@ -222,7 +222,7 @@
                 </div>
                 {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                     helpText: 'text.procedure.edit.additional.notifyCounty.hint'|trans,
-                    cssClasses:'o-tooltip--question-circle u-mt-0_125'
+                    cssClasses:'u-mt-0_125'
                 } %}
                 <div class="layout__item u-pl-0">
                     <input id="sendMailsToCounties" type="checkbox" name="r_sendMailsToCounties" {% if proceduresettings.settings.sendMailsToCounties|default == true %}checked{% endif %}>

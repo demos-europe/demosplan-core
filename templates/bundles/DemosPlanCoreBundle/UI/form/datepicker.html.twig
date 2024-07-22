@@ -9,6 +9,9 @@
     id="{{ id|default }}"
     name="{{ name|default }}"
     class="{{ class|default|prefixClass(omitPrefix) }}"
+    {% if dataCy is defined %}
+        data-cy="{{ dataCy }}"
+    {% endif %}
     {% if maxDate is defined %}
         max-date="{{ maxDate }}"
     {% endif %}

@@ -130,19 +130,19 @@ export default {
   },
 
   computed: {
-    ...mapGetters('assessmentTable', [
+    ...mapGetters('AssessmentTable', [
       'copyStatementModal'
     ]),
 
-    ...mapGetters('fragment', [
+    ...mapGetters('Fragment', [
       'fragmentsByStatement'
     ]),
 
-    ...mapState('assessmentTable', [
+    ...mapState('AssessmentTable', [
       'currentUserId'
     ]),
 
-    ...mapState('statement', [
+    ...mapState('Statement', [
       'statements'
     ]),
 
@@ -179,11 +179,11 @@ export default {
   },
 
   methods: {
-    ...mapActions('fragment', [
+    ...mapActions('Fragment', [
       'loadFragments'
     ]),
 
-    ...mapMutations('assessmentTable', [
+    ...mapMutations('AssessmentTable', [
       'setModalProperty'
     ]),
 
@@ -198,7 +198,7 @@ export default {
         return
       }
 
-      this.$store.dispatch('statement/copyStatementAction', {
+      this.$store.dispatch('Statement/copyStatementAction', {
         procedureId: this.selectedProcedureId,
         statementId: this.statementId
       })

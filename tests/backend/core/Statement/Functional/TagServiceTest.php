@@ -39,7 +39,7 @@ class TagServiceTest extends FunctionalTestCase
 
         $this->sut = $this->getContainer()->get(TagService::class);
 
-        $this->setElasticsearchIndexManager(self::$container->get('fos_elastica.index_manager'));
+        $this->setElasticsearchIndexManager($this->getContainer()->get('fos_elastica.index_manager'));
     }
 
     public function testCreateTag(): void
@@ -47,14 +47,14 @@ class TagServiceTest extends FunctionalTestCase
         $testTopic = TagTopicFactory::createOne();
         $title = 'ersterTag';
 
-        $tag = $this->sut->createTag($title, $testTopic->object());
+        $tag = $this->sut->createTag($title, $testTopic->_real());
 
         $result = $this->sut->getTag($tag->getId());
         static::assertNotNull($result);
         static::assertInstanceOf(Tag::class, $result);
 
         static::assertSame($title, $result->getTitle());
-        static::assertEquals($testTopic->object(), $result->getTopic());
+        static::assertEquals($testTopic->_real(), $result->getTopic());
         static::assertNotNull($result->getId());
     }
 
@@ -63,7 +63,7 @@ class TagServiceTest extends FunctionalTestCase
         $title = 'erstesTopic';
         $testProcedure = ProcedureFactory::createOne();
 
-        $topic = $this->sut->createTagTopic($title, $testProcedure->object());
+        $topic = $this->sut->createTagTopic($title, $testProcedure->_real());
 
         $result = $this->sut->getTopic($topic->getId());
 
@@ -74,13 +74,13 @@ class TagServiceTest extends FunctionalTestCase
         static::assertEmpty($result->getTags());
 
         $testTag = TagFactory::createOne();
-        $moved = $this->sut->moveTagToTopic($testTag->object(), $topic);
+        $moved = $this->sut->moveTagToTopic($testTag->_real(), $topic);
         static::assertTrue($moved);
 
         $result = $this->sut->getTopic($topic->getId());
 
         static::assertNotEmpty($result->getTags());
-        static::assertContains($testTag->object(), $result->getTags());
+        static::assertContains($testTag->_real(), $result->getTags());
     }
 
     public function testDuplicatedTopic(): void
@@ -88,8 +88,8 @@ class TagServiceTest extends FunctionalTestCase
         $this->expectException(DuplicatedTagTopicTitleException::class);
         $title = 'erstesTopic';
         $testProcedure = ProcedureFactory::createOne();
-        $this->sut->createTagTopic($title, $testProcedure->object());
-        $this->sut->createTagTopic($title, $testProcedure->object());
+        $this->sut->createTagTopic($title, $testProcedure->_real());
+        $this->sut->createTagTopic($title, $testProcedure->_real());
     }
 
     /**
@@ -99,8 +99,8 @@ class TagServiceTest extends FunctionalTestCase
     public function testMoveTagToTopic(): void
     {
         $testProcedure = ProcedureFactory::createOne();
-        $topic1 = $this->sut->createTagTopic('Topic1', $testProcedure->object());
-        $topic2 = $this->sut->createTagTopic('Topic2', $testProcedure->object());
+        $topic1 = $this->sut->createTagTopic('Topic1', $testProcedure->_real());
+        $topic2 = $this->sut->createTagTopic('Topic2', $testProcedure->_real());
         $tag1 = $this->sut->createTag('newTag1', $topic1);
         $tag2 = $this->sut->createTag('newTag2', $topic1);
 
@@ -152,8 +152,8 @@ class TagServiceTest extends FunctionalTestCase
     public function testAttachTagsAndTopic(): void
     {
         $testProcedure = ProcedureFactory::createOne();
-        $topic = $this->sut->createTagTopic('filledTopic', $testProcedure->object());
-        $initialTopic = $this->sut->createTagTopic('initialTopic', $testProcedure->object());
+        $topic = $this->sut->createTagTopic('filledTopic', $testProcedure->_real());
+        $initialTopic = $this->sut->createTagTopic('initialTopic', $testProcedure->_real());
         $tag2 = $this->sut->createTag('tagToFillInTopic2', $initialTopic);
         $tag3 = $this->sut->createTag('tagToFillInTopic3', $initialTopic);
         $tag4 = $this->sut->createTag('tagToFillInTopic4', $initialTopic);
@@ -198,13 +198,13 @@ class TagServiceTest extends FunctionalTestCase
         ]);
 
         $tagId1 = $tags[0]->getId();
-        static::assertContains($tags[0]->object(), $topic->getTags());
+        static::assertContains($tags[0]->_real(), $topic->getTags());
         $tagId2 = $tags[1]->getId();
-        static::assertContains($tags[1]->object(), $topic->getTags());
+        static::assertContains($tags[1]->_real(), $topic->getTags());
         $tagId3 = $tags[2]->getId();
-        static::assertContains($tags[2]->object(), $topic->getTags());
+        static::assertContains($tags[2]->_real(), $topic->getTags());
 
-        $this->sut->deleteTopic($topic->object());
+        $this->sut->deleteTopic($topic->_real());
         static::assertNull($this->sut->getTopic($topicId));
         static::assertNull($this->sut->getTag($tagId1));
         static::assertNull($this->sut->getTag($tagId2));
@@ -230,7 +230,8 @@ class TagServiceTest extends FunctionalTestCase
     {
         $testTag1 = TagFactory::createOne();
         $testTopic1 = TagTopicFactory::createOne();
+        $this->sut->createTag($testTag1->getTitle(), $testTopic1->_real());
         $this->expectException(DuplicatedTagTitleException::class);
-        $this->sut->createTag($testTag1->getTitle(), $testTopic1->object());
+        $this->sut->createTag($testTag1->getTitle(), $testTopic1->_real());
     }
 }
