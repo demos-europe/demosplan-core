@@ -241,6 +241,22 @@ export default {
       })
     },
 
+    /**
+     * Restore non-updatable comments from segments relationships after update request
+     */
+    restoreComments (comments) {
+      if (comments) {
+        const segmentWithComments = {
+          ...this.segment,
+          relationships: {
+            ...this.segment.relationships,
+            comments: comments
+          }
+        }
+        this.setItem({ ...segmentWithComments, id: this.segment.id })
+      }
+    },
+
     save () {
       this.setItem({
         ...this.segment,
@@ -249,13 +265,24 @@ export default {
           polygon: JSON.stringify(this.featuresObject)
         }
       })
+      const comments = { ...this.segment.relationships.comments } || null
+
+      /**
+       *  Comments need to be removed as updating them is technically not supported
+       *  After completing the request, they are added again to the store to be able to display them
+       */
+      if (this.segment.relationships.comments) {
+        delete this.segment.relationships.comments
+      }
 
       return this.saveSegmentAction(this.segmentId)
         .then(checkResponse)
         .then(() => {
+          this.restoreComments(comments)
           dplan.notify.confirm(Translator.trans('confirm.saved'))
         })
         .catch(() => {
+          this.restoreComments(comments)
           dplan.notify.error(Translator.trans('error.changes.not.saved'))
         })
     },
