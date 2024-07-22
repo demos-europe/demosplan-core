@@ -155,8 +155,8 @@ class RpcBulkEditorTest extends RpcApiTest
         $em = $this->getEntityManager();
         $em->persist($segment2);
         $em->flush();
-        //$segment1 = SegmentFactory::createOne();
-        //$segment2 = SegmentFactory::createOne();
+        // $segment1 = SegmentFactory::createOne();
+        // $segment2 = SegmentFactory::createOne();
         $entityManager = $this->getContainer()->get(EntityManagerInterface::class);
         $entityType = $entityManager->getClassMetadata(Segment::class)->getName();
         $methodCallTime = new DateTime();
