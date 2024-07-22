@@ -262,7 +262,7 @@ export default {
         })
         .catch(error => {
           console.log(error)
-          handleResponseMessages(error.response.data.meta)
+          handleResponseMessages(Translator.trans(error.response.data.meta))
         })
         .then(() => { this.loading = false })
     },

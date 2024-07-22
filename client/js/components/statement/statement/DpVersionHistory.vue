@@ -151,7 +151,7 @@ export default {
           this.times = response.included
           this.isLoading = false
         })
-        .catch(error => checkResponse(error.response))
+        .catch(error => checkResponse(Translator.trans(error.response)))
     },
 
     updateVersionHistory (entityId, entityType) {

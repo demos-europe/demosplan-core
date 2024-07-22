@@ -556,7 +556,7 @@ export default {
     renderMessagesFromStorage () {
       const messagesToRender = window.sessionStorage.getItem('messagesToRender')
       if (messagesToRender) {
-        handleResponseMessages(JSON.parse(messagesToRender))
+        handleResponseMessages(JSON.parse(Translator.trans(messagesToRender)))
         window.sessionStorage.removeItem('messagesToRender')
       }
     },

@@ -481,7 +481,7 @@ export default {
             location.reload()
           }
         })
-        .catch(e => handleResponseMessages(e.response.data.meta))
+        .catch(e => handleResponseMessages(Translator.trans(e.response.data.meta)))
     }
   },
 

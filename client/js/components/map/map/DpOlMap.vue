@@ -356,7 +356,7 @@ export default {
       })
         .then(checkResponse)
         .then(response => response.data.attributes)
-        .catch(error => checkResponse(error.response))
+        .catch(error => checkResponse(Translator.trans(error.response)))
     },
 
     panToCoordinate (coordinate) {

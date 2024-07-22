@@ -236,7 +236,7 @@ export default {
       })
         .then(response => checkResponse(response))
         .then(response => response)
-        .catch(error => checkResponse(error.response))
+        .catch(error => checkResponse(Translator.trans(error.response)))
     }
   }
 }
