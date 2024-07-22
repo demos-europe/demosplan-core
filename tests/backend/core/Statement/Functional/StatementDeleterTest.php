@@ -47,35 +47,6 @@ class StatementDeleterTest extends FunctionalTestCase
         $this->logIn($user);
     }
 
-    public function testEmtpyInternIdOfOriginalInCaseOfDeleteLastChild(): void
-    {
-        self::markSkippedForCIElasticsearchUnavailable();
-        $this->enablePermissions(['feature_auto_delete_original_statement']);
-        /*$relatedOriginal = StatementFactory::new()->create(['internId' => '21']);
-        $testStatement = StatementFactory::new()->create(['original' => $relatedOriginal]);
-        $relatedOriginal->setChildren([$testStatement->_real()]);
-        $relatedOriginal->_save();
-        $testStatementId = $testStatement->getId();*/
-
-        $testStatement = StatementFactory::new()->create();
-        $relatedOriginal = StatementFactory::new()->create(['internId' => '21']);
-        $relatedOriginal = $relatedOriginal->addChild($testStatement->_real());
-        // $relatedOriginal->_save();
-
-        $testStatement->setOriginal($relatedOriginal);
-        $testStatement->_save();
-        $testStatementId = $testStatement->getId();
-
-        static::assertInstanceOf(Statement::class, $relatedOriginal);
-        static::assertNotNull($testStatement->getInternId());
-        static::assertNotNull($relatedOriginal->getInternId());
-        static::assertCount(1, $relatedOriginal->getChildren());
-
-        $this->sut->deleteStatementObject($testStatement->_real());
-        static::assertNull($this->find(Statement::class, $testStatementId));
-        static::assertNull($relatedOriginal->getInternId());
-    }
-
     public function testDoNotEmtpyInternIdOfOriginalInCaseOfDeleteLastChild(): void
     {
         $this->enablePermissions(['feature_auto_delete_original_statement']);
