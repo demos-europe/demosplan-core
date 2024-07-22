@@ -40,7 +40,6 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  */
 final class PlaceFactory extends PersistentProxyObjectFactory
 {
-
     public static function class(): string
     {
         return Place::class;
@@ -50,9 +49,9 @@ final class PlaceFactory extends PersistentProxyObjectFactory
     {
         return [
             'description' => self::faker()->text(255),
-            'name' => self::faker()->text(255),
-            'procedure' => ProcedureFactory::new(),
-            'sortIndex' => self::faker()->randomNumber(),
+            'name'        => self::faker()->text(255),
+            'procedure'   => ProcedureFactory::new(),
+            'sortIndex'   => self::faker()->randomNumber(),
         ];
     }
 }

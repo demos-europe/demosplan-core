@@ -30,8 +30,9 @@ use Tests\Base\FunctionalTestCase;
 
 class ExportDataArrayGeneratorTest extends FunctionalTestCase
 {
-    /** @var ExportDataArrayGenerator $sut */
+    /** @var ExportDataArrayGenerator */
     protected $sut;
+
     protected function setUp(): void
     {
         parent::setUp();

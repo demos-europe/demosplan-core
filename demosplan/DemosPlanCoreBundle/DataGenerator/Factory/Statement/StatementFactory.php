@@ -73,7 +73,7 @@ class StatementFactory extends PersistentProxyObjectFactory
             'reasonParagraph'     => self::faker()->text(65535),
             'recommendation'      => self::faker()->text(65535),
             'replied'             => false,
-//            'segmentationPiRetries' => self::faker()->numberBetween(1, 15),
+            //            'segmentationPiRetries' => self::faker()->numberBetween(1, 15),
             'send'               => self::faker()->dateTime(),
             'sentAssessment'     => false,
             'sentAssessmentDate' => self::faker()->dateTime(),
