@@ -15,7 +15,6 @@ namespace Tests\Core\Procedure\Functional;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ExportService;
 use Tests\Base\FunctionalTestCase;
 
-
 class ExportServiceTest extends FunctionalTestCase
 {
     /**
