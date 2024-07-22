@@ -14,6 +14,7 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ManualStatementCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Handler\StatementHandlerInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
 use DemosEurope\DemosplanAddon\Utilities\Json;
@@ -76,7 +77,6 @@ use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
@@ -222,7 +222,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         private readonly GlobalConfigInterface $globalConfig,
         private readonly JsonApiActionService $jsonApiActionService,
         MailService $mailService,
-        MessageBag $messageBag,
+        MessageBagInterface $messageBag,
         MunicipalityService $municipalityService,
         private readonly OrgaService $orgaService,
         ParagraphService $paragraphService,

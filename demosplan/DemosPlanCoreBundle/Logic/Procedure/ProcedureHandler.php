@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
 use DemosEurope\DemosplanAddon\Contracts\Handler\ProcedureHandlerInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -27,7 +28,6 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\PublicAffairsAgentHandler;
@@ -88,7 +88,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         private readonly EntityManagerInterface $entityManager,
         Environment $twig,
         MailService $mailService,
-        MessageBag $messageBag,
+        MessageBagInterface $messageBag,
         private readonly OrgaService $orgaService,
         private readonly PermissionsInterface $permissions,
         private readonly PrepareReportFromProcedureService $prepareReportFromProcedureService,

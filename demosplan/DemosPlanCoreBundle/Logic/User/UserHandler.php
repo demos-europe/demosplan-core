@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\User;
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\UserHandlerInterface;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
@@ -50,7 +51,6 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
@@ -141,7 +141,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         private readonly GlobalConfigInterface $globalConfig,
         MailService $mailService,
         private readonly MasterToebService $masterToebService,
-        MessageBag $messageBag,
+        MessageBagInterface $messageBag,
         OrgaHandler $orgaHandler,
         OrgaService $orgaService,
         private readonly PasswordValidator $passwordValidator,

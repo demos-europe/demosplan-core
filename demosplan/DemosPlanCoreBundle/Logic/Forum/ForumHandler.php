@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Forum;
 
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
@@ -17,7 +18,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use Exception;
@@ -51,7 +51,7 @@ class ForumHandler extends CoreHandler
         private readonly FlashMessageHandler $flashMessageHandler,
         ForumService $forumService,
         MailService $mailService,
-        MessageBag $messageBag,
+        MessageBagInterface $messageBag,
         private readonly OrgaService $orgaService,
         private readonly TranslatorInterface $translator,
         UserService $userService

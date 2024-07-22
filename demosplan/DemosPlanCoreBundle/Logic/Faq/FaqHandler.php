@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Faq;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FaqCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FaqInterface;
 use DemosEurope\DemosplanAddon\Contracts\Handler\FaqHandlerInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Category;
 use demosplan\DemosPlanCoreBundle\Entity\Faq;
 use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
@@ -25,7 +26,6 @@ use demosplan\DemosPlanCoreBundle\Exception\FaqNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
@@ -47,7 +47,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
     protected $contentService;
 
     public function __construct(
-        MessageBag $messageBag,
+        MessageBagInterface $messageBag,
         private readonly TranslatorInterface $translator,
         private readonly EntityManagerInterface $entityManager,
         private readonly FaqResourceType $faqResourceType,
