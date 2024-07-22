@@ -35,7 +35,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserInterface;
 use Scheb\TwoFactorBundle\Model\Totp\TotpConfiguration;
 use Scheb\TwoFactorBundle\Model\Totp\TotpConfigurationInterface;
-use Scheb\TwoFactorBundle\Model\Totp\TwoFactorInterface;
+use Scheb\TwoFactorBundle\Model\Totp\TwoFactorInterface as TotpTwoFactorInterface;
+use Scheb\TwoFactorBundle\Model\Email\TwoFactorInterface as EmailTwoFactorInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use UnexpectedValueException;
 
@@ -52,7 +53,7 @@ use function in_array;
  *
  * @UserWithMatchingDepartmentInOrgaConstraint()
  */
-class User implements SamlUserInterface, AddonUserInterface, TwoFactorInterface
+class User implements SamlUserInterface, AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactorInterface
 {
     public const HEARING_AUTHORITY_ROLES = [RoleInterface::HEARING_AUTHORITY_ADMIN, RoleInterface::HEARING_AUTHORITY_WORKER];
     public const PLANNING_AGENCY_ROLES = [RoleInterface::PLANNING_AGENCY_ADMIN, RoleInterface::PLANNING_AGENCY_WORKER];
@@ -354,6 +355,30 @@ class User implements SamlUserInterface, AddonUserInterface, TwoFactorInterface
      *      options={"comment":"Determines if this user is identified by external provider", "default": false})
      */
     private $providedByIdentityProvider = false;
+
+    /**
+     * Value used for two factor authentication via totp
+     *
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private ?string $totpSecret;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=false, options={"default": false})
+     */
+    private bool $totpEnabled = false;
+
+    /**
+     * Value used for two factor authentication via email
+     *
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private ?string $authCode;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=false, options={"default": false})
+     */
+    private bool $authCodeEmailEnabled = false;
 
     public function __construct()
     {
@@ -1761,7 +1786,7 @@ class User implements SamlUserInterface, AddonUserInterface, TwoFactorInterface
 
     public function isTotpAuthenticationEnabled(): bool
     {
-        return true;
+        return $this->isTotpEnabled();
     }
 
     public function getTotpAuthenticationUsername(): string
@@ -1771,6 +1796,56 @@ class User implements SamlUserInterface, AddonUserInterface, TwoFactorInterface
 
     public function getTotpAuthenticationConfiguration(): ?TotpConfigurationInterface
     {
-        return new TotpConfiguration('ONSWG4TFOQ', TotpConfiguration::ALGORITHM_SHA1, 30, 6);
+        // period and digits are chosen to be compatible with Google Authenticator
+        return new TotpConfiguration($this->totpSecret, TotpConfiguration::ALGORITHM_SHA1, 30, 6);
+    }
+
+    public function getTotpSecret(): ?string
+    {
+        return $this->totpSecret;
+    }
+
+    public function setTotpSecret(?string $totpSecret): void
+    {
+        $this->totpSecret = $totpSecret;
+    }
+
+    public function isTotpEnabled(): bool
+    {
+        return $this->totpEnabled;
+    }
+
+    public function setTotpEnabled(bool $totpEnabled): void
+    {
+        $this->totpEnabled = $totpEnabled;
+    }
+
+    public function isEmailAuthEnabled(): bool
+    {
+        return $this->authCodeEmailEnabled;
+    }
+
+    public function setAuthCodeEmailEnabled(bool $authCodeEmailEnabled): void
+    {
+        $this->authCodeEmailEnabled = $authCodeEmailEnabled;
+    }
+
+    public function getEmailAuthRecipient(): string
+    {
+        return $this->getEmail();
+    }
+
+    public function getEmailAuthCode(): string
+    {
+        if (null === $this->authCode) {
+            throw new \LogicException('The email authentication code was not set');
+        }
+
+        return $this->authCode;
+    }
+
+    public function setEmailAuthCode(string $authCode): void
+    {
+        $this->authCode = $authCode;
     }
 }

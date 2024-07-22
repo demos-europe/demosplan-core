@@ -552,6 +552,9 @@ area_use_mastertoeblist:
     expose: true
     label: 'use Mastertöbliste'
     loginRequired: true
+feature_2fa:
+    label: 'Allow two-factor authentication'
+    loginRequired: true
 feature_admin_assessmenttable_export_docx:
     label: 'Abwägungstabelle in Docx-Format exportieren'
     loginRequired: true
