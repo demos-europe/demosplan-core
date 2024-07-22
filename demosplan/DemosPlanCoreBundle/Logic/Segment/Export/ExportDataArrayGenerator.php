@@ -57,6 +57,7 @@ class ExportDataArrayGenerator
     private function extractMetaData(StatementInterface $segmentOrStatement, array $exportData): array
     {
         $exportData['meta'] = $this->entityHelper->toArray($exportData['meta']);
+        $exportData['meta']['submitName'] = $segmentOrStatement->getSubmitterName();
         $exportData['meta']['authoredDate'] = $segmentOrStatement->getAuthoredDateString();
 
         // Some data is stored on parentStatement instead on Segment and have to get from there
