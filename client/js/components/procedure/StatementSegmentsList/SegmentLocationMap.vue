@@ -253,7 +253,7 @@ export default {
             comments: comments
           }
         }
-        this.setItem({ ...segmentWithComments, id: this.segment.id })
+        this.setItem({ ...segmentWithComments })
       }
     },
 
