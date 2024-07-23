@@ -35,10 +35,9 @@ class HtmlHelper
     }
 
     /**
-     * Extracts URLs of links with the class "darstellung" from a given HTML text.
+     * Extracts URLs from the given HTML text that are contained within <a> tags with the specified class.
      *
-     * @param string $htmlText The input HTML text.
-     * @return array<string> An array containing the extracted URLs.
+     * @return array<int, string> An array containing the extracted URLs.
      */
     public static function extractUrlsByClass(string $htmlText, string $class): array
     {
