@@ -655,7 +655,7 @@ export default {
     },
 
     save () {
-      const comments = { ...this.segment.relationships.comments } || null
+      const comments = this.segment.relationships.comments ? { ...this.segment.relationships.comments } : null
 
       this.updateRelationships()
       return this.saveSegmentAction(this.segment.id)

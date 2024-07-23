@@ -265,7 +265,7 @@ export default {
           polygon: JSON.stringify(this.featuresObject)
         }
       })
-      const comments = { ...this.segment.relationships.comments } || null
+      const comments = this.segment.relationships.comments ? { ...this.segment.relationships.comments } : null
 
       /**
        *  Comments need to be removed as updating them is technically not supported
