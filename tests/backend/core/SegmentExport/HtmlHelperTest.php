@@ -48,4 +48,30 @@ class HtmlHelperTest extends FunctionalTestCase
         static::assertSame($expectedWithoutATags, $resultB);
         static::assertSame($expectedOtherAttributesRemoved, $resultC);
     }
+
+    public function testExtractUrlsByClass(): void
+    {
+        // Test 1: <a> tag with class darstellung and href attribute
+        $htmlWithClass = '<a class="darstellung" href="https://www.example1.com">Example 1</a>';
+        $expectedUrlsWithClass = ['https://www.example1.com'];
+
+        // Test 2: <a> tag without class darstellung but with href attribute
+        $htmlWithoutClass = '<a href="https://www.example2.com">Example 2</a>';
+        $expectedUrlsWithoutClass = [];
+
+        // Test 3: Multiple <a> tags with and without class darstellung
+        $htmlMixed = '<a class="darstellung" href="https://www.example3.com">Example 3</a>' .
+            '<a class="other-class" href="https://www.example4.com">Example 4</a>' .
+            '<a class="darstellung" href="https://www.example5.com">Example 5</a>';
+        $expectedUrlsMixed = ['https://www.example3.com', 'https://www.example5.com'];
+
+        $class = HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL;
+        $resultA = HtmlHelper::extractUrlsByClass($htmlWithClass, $class);
+        $resultB = HtmlHelper::extractUrlsByClass($htmlWithoutClass, $class);
+        $resultC = HtmlHelper::extractUrlsByClass($htmlMixed, $class);
+
+        static::assertSame($expectedUrlsWithClass, $resultA);
+        static::assertSame($expectedUrlsWithoutClass, $resultB);
+        static::assertSame($expectedUrlsMixed, $resultC);
+    }
 }

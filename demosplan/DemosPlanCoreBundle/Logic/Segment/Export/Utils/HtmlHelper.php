@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 
 class HtmlHelper
 {
+    public const LINK_CLASS_FOR_DARSTELLUNG_STELL = 'darstellung';
     public function __construct(private readonly HTMLSanitizer $htmlSanitizer)
     {
     }
@@ -31,5 +32,28 @@ class HtmlHelper
 
         // avoid problems in phpword parser
         return $this->htmlSanitizer->purify($text);
+    }
+
+    /**
+     * Extracts URLs of links with the class "darstellung" from a given HTML text.
+     *
+     * @param string $htmlText The input HTML text.
+     * @return array<string> An array containing the extracted URLs.
+     */
+    public static function extractUrlsByClass(string $htmlText, string $class): array
+    {
+        $urls = [];
+
+        // The regex pattern to match <a> tags with class="darstellung" and extract their href attributes
+        // It looks for <a> tags with any attributes, but specifically captures a tag if it has the class 'darstellung'
+        // and then captures the value of the href attribute
+        $pattern = '/<a\b[^>]*class="[^"]*\b'.$class.'\b[^"]*"[^>]*href="([^"]*)"[^>]*>/i';
+
+        // Perform the regex match
+        if (preg_match_all($pattern, $htmlText, $matches)) {
+            $urls = $matches[1];  // Extract the URLs from the matches
+        }
+
+        return $urls;
     }
 }
