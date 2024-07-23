@@ -11,6 +11,7 @@
 namespace Tests\Core\Core\Unit\Logic\Segment\RpcBulkEditor;
 
 use DateTime;
+use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadSegmentData;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -33,7 +34,7 @@ class RpcBulkEditorTest extends RpcApiTest
     {
         parent::setUp();
         $this->sut = $this->getContainer()->get(SegmentBulkEditorService::class);
-        $this->procedure = $this->getProcedureReference(\demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData::TESTPROCEDURE);
+        $this->procedure = $this->getProcedureReference(LoadProcedureData::TESTPROCEDURE);
         $this->segment1 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_1);
         $this->segment2 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_2);
         $this->entityManager = $this->getContainer()->get(EntityManagerInterface::class);
