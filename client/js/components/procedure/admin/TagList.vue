@@ -39,7 +39,7 @@
           }" />
         <dp-button-row
           :busy="isLoading"
-          align="left"
+          alignment="left"
           primary
           secondary
           @primary-action="dpValidateAction('addNewTagForm', () => saveNewTag(newTag), false)"

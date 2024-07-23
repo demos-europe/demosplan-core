@@ -87,14 +87,13 @@
         </template>
       </section>
 
-      <dp-button-row
-        class="text-right mt-auto"
-        primary
-        secondary
-        :primary-text="Translator.trans('export.statements')"
-        :secondary-text="Translator.trans('abort')"
-        @primary-action="handleExport"
-        @secondary-action="closeModal" />
+        <dp-button-row
+          primary
+          secondary
+          :primary-text="Translator.trans('export.statements')"
+          :secondary-text="Translator.trans('abort')"
+          @primary-action="handleExport"
+          @secondary-action="closeModal" />
     </dp-modal>
   </div>
 </template>
