@@ -43,8 +43,8 @@ class HtmlHelper
     {
         $urls = [];
 
-        // The regex pattern to match <a> tags with class="darstellung" and extract their href attributes
-        // It looks for <a> tags with any attributes, but specifically captures a tag if it has the class 'darstellung'
+        // The regex pattern to match <a> tags with the specified class
+        // It looks for <a> tags with any attributes, but specifically captures a tag if it has the specified class
         // and then captures the value of the href attribute
         $pattern = '/<a\b[^>]*class="[^"]*\b'.$class.'\b[^"]*"[^>]*href="([^"]*)"[^>]*>/i';
 
