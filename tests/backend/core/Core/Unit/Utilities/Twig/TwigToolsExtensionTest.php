@@ -16,7 +16,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\FunctionalTestCase;
-use Twig\TwigFilter;
+use Twig\TwigFunction;
 
 /**
  * Teste TwigToolsExtension.
@@ -43,15 +43,10 @@ class TwigToolsExtensionTest extends FunctionalTestCase
 
     public function testGetFilters()
     {
-        self::markTestSkipped('This test was skipped because of pre-existing errors. They are most likely easily fixable but prevent us from getting to a usable state of our CI.');
-        try {
-            $result = $this->sut->getFunctions();
-            static::assertTrue(is_array($result) && isset($result[0]));
-            static::assertInstanceOf(TwigFilter::class, $result[0]);
-            static::assertSame('getFormOption', $result[0]->getName());
-        } catch (Exception $e) {
-            $this->fail(false);
-        }
+        $result = $this->sut->getFunctions();
+        static::assertTrue(is_array($result) && isset($result[0]));
+        static::assertInstanceOf(TwigFunction::class, $result[0]);
+        static::assertSame('getFormOption', $result[0]->getName());
     }
 
     public function testSaveLoginPath(): void
