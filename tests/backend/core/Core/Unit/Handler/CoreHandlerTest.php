@@ -25,7 +25,7 @@ use Tests\Base\UnitTestCase;
 class CoreHandlerTest extends UnitTestCase
 {
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\CoreHandler
+     * @var CoreHandler
      */
     protected $coreHandler;
 

@@ -11,8 +11,8 @@
 namespace Tests\Core\Core\Functional;
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
-use Tests\Base\FunctionalTestCase;
 use Illuminate\Support\Collection;
+use Tests\Base\FunctionalTestCase;
 
 /**
  * Teste MessageBag.
