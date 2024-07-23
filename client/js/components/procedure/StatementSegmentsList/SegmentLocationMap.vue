@@ -278,12 +278,13 @@ export default {
       return this.saveSegmentAction(this.segmentId)
         .then(checkResponse)
         .then(() => {
-          this.restoreComments(comments)
           dplan.notify.confirm(Translator.trans('confirm.saved'))
         })
         .catch(() => {
-          this.restoreComments(comments)
           dplan.notify.error(Translator.trans('error.changes.not.saved'))
+        })
+        .finally(() => {
+          this.restoreComments(comments)
         })
     },
 
