@@ -22,7 +22,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
-use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use demosplan\DemosPlanCoreBundle\ValueObject\CellExportStyle;
 use demosplan\DemosPlanCoreBundle\ValueObject\ExportOrgaInfoHeader;
 use PhpOffice\PhpWord\Element\Footer;
@@ -52,7 +51,6 @@ class SegmentsExporter
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
         private readonly HtmlHelper $htmlHelper,
-        private readonly HTMLSanitizer $htmlSanitizer,
         private readonly ImageManager $imageManager,
         protected readonly ImageLinkConverter $imageLinkConverter,
         Slugify $slugify,

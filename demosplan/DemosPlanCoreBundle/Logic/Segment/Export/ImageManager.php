@@ -36,8 +36,8 @@ class ImageManager
         }
         $imageSpaceCurrentlyUsed = 0;
         $section->addPageBreak();
-        foreach ($images as $imageReference => $imagePath) {
-            [$width, $height] = getimagesize($imagePath);
+        foreach ($images as $image) {
+            [$width, $height] = getimagesize($image->getImagePath());
             [$maxWidth, $maxHeight] = $this->getMaxWidthAndHeight();
 
             if ($width > $maxWidth) {
@@ -61,9 +61,9 @@ class ImageManager
                 'align'  => Jc::START,
             ];
 
-            $section->addText($imageReference);
-            $section->addBookmark($imageReference);
-            $section->addImage($imagePath, $imageStyle);
+            $section->addText($image->getImageReference());
+            $section->addBookmark($image->getImageReference());
+            $section->addImage($image->getImagePath(), $imageStyle);
         }
 
         // remove already printed images

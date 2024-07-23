@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ImageReference;
 use Exception;
 
 /**
@@ -30,7 +31,7 @@ final class ImageLinkConverter
     public const IMAGE_REFERENCE_RECOMMENDATION_SUFFIX = '_Darstellung_Erw_';
     private const IMAGE_REFERENCE_RECOMMENDATION_FORMAT = '%s'.self::IMAGE_REFERENCE_RECOMMENDATION_SUFFIX.'%03d';
     /**
-     * @var array<string, string>
+     * @var array<int, ImageReference>
      */
     private array $images = [];
     private int $imageCounter = 1;
@@ -64,7 +65,8 @@ final class ImageLinkConverter
                 .$imageReference.'</a>';
         }
 
-        $this->images[$imageReference] = $this->getAbsoluteImagePath($hash);
+        $image = new ImageReference($imageReference, $this->getAbsoluteImagePath($hash));
+        $this->images[] = $image;
         ++$this->imageCounter;
 
         return $imageReferenceLink;

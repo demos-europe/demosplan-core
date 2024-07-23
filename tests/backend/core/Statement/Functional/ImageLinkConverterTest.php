@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
+use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ImageReference;
 use Tests\Base\FunctionalTestCase;
 
 class ImageLinkConverterTest extends FunctionalTestCase
@@ -82,12 +83,18 @@ class ImageLinkConverterTest extends FunctionalTestCase
 
         $keyImage1 = $statementExternId.ImageLinkConverter::IMAGE_REFERENCE_RECOMMENDATION_SUFFIX.'001';
         $keyImage2 = $statementExternId.ImageLinkConverter::IMAGE_REFERENCE_RECOMMENDATION_SUFFIX.'002';
-        $expectedImages = [
-            $keyImage1 => '/absolute/path/to/image1.jpg',
-            $keyImage2 => '/absolute/path/to/image2.jpg',
-        ];
+        $expectedImage1 = new ImageReference($keyImage1, '/absolute/path/to/image1.jpg');
+        $expectedImage2 = new ImageReference($keyImage2, '/absolute/path/to/image2.jpg');
 
-        static::assertSame($expectedImages, $this->sut->getImages());
+        $result = $this->sut->getImages();
+
+        static::assertCount(2, $result);
+        static::assertInstanceOf(ImageReference::class, $result[0]);
+        static::assertInstanceOf(ImageReference::class, $result[1]);
+        static::assertSame($expectedImage1->getImageReference(), $result[0]->getImageReference());
+        static::assertSame($expectedImage1->getImagePath(), $result[0]->getImagePath());
+        static::assertSame($expectedImage2->getImageReference(), $result[1]->getImageReference());
+        static::assertSame($expectedImage2->getImagePath(), $result[1]->getImagePath());
     }
 
     public function testResetImages(): void
