@@ -12,6 +12,7 @@ namespace Tests\Core\Core\Unit\Logic\Segment\RpcBulkEditor;
 
 use DateTime;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadSegmentData;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
@@ -23,9 +24,9 @@ class RpcBulkEditorTest extends RpcApiTest
 {
     /** @var SegmentBulkEditorService */
     protected $sut;
-    private $procedure;
-    private $segment1;
-    private $segment2;
+    private  $procedure;
+    private  $segment1;
+    private  $segment2;
     private $entityManager;
     private $entityType;
 
@@ -66,12 +67,8 @@ class RpcBulkEditorTest extends RpcApiTest
 
     public function testUpdateSegmentsWithNullAssignee(): void
     {
-        $this->sut = $this->getContainer()->get(SegmentBulkEditorService::class);
-
         $user = $this->loginTestUser();
-        $segment1 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_1);
         $this->segment1->setAssignee($user);
-        $segment2 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_2);
         $this->segment2->setAssignee($user);
 
         static::assertEquals($user->getId(), $this->segment1->getAssignee()->getId());
@@ -85,7 +82,6 @@ class RpcBulkEditorTest extends RpcApiTest
 
     public function testDetectValidAssignee(): void
     {
-        $this->sut = $this->getContainer()->get(SegmentBulkEditorService::class);
         $user = $this->loginTestUser();
         $assignee = $this->sut->detectAssignee($user->getId());
         static::assertEquals($user->getId(), $assignee->getId());
@@ -93,7 +89,6 @@ class RpcBulkEditorTest extends RpcApiTest
 
     public function testDetectInvalidIdAssignee(): void
     {
-        $this->sut = $this->getContainer()->get(SegmentBulkEditorService::class);
         static::expectException(UserNotFoundException::class);
         $invalidAssigneeId = '123';
         $this->sut->detectAssignee($invalidAssigneeId);
@@ -101,19 +96,13 @@ class RpcBulkEditorTest extends RpcApiTest
 
     public function testDetectNullAssignee(): void
     {
-        $this->sut = $this->getContainer()->get(SegmentBulkEditorService::class);
         $assignee = $this->sut->detectAssignee(null);
         static::assertNull($assignee);
     }
 
     public function testGetValidSegments()
     {
-        $this->sut = $this->getContainer()->get(SegmentBulkEditorService::class);
-
-        $procedure = $this->getProcedureReference(\demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData::TESTPROCEDURE);
-        $segment1 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_1);
-        $segment2 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_2);
-        $segments = $this->sut->getValidSegments([$this->segment1->getId(),  $this->segment2->getId()], $procedure->getId());
+        $segments = $this->sut->getValidSegments([$this->segment1->getId(),  $this->segment2->getId()], $this->procedure->getId());
 
         static::assertContains($this->segment1, $segments);
         static::assertContains($this->segment2, $segments);
@@ -121,10 +110,6 @@ class RpcBulkEditorTest extends RpcApiTest
 
     public function testGetInvalidSegments()
     {
-        $this->sut = $this->getContainer()->get(SegmentBulkEditorService::class);
-
-        $segment1 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_1);
-        $segment2 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_2);
         $invalidProcedureId = '123';
         static::expectException(InvalidArgumentException::class);
         $segments = $this->sut->getValidSegments([$this->segment1->getId(), $this->segment2->getId()], $invalidProcedureId);
@@ -132,12 +117,9 @@ class RpcBulkEditorTest extends RpcApiTest
 
     public function testGetValidTags(): void
     {
-        $this->sut = $this->getContainer()->get(SegmentBulkEditorService::class);
-
-        $procedure = $this->getProcedureReference(\demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData::TESTPROCEDURE);
-        $tag1 = $procedure->getTags()->get(0);
-        $tag2 = $procedure->getTags()->get(1);
-        $tags = $this->sut->getValidTags([$tag1, $tag2], $procedure->getId());
+        $tag1 = $this->procedure->getTags()->get(0);
+        $tag2 = $this->procedure->getTags()->get(1);
+        $tags = $this->sut->getValidTags([$tag1, $tag2], $this->procedure->getId());
 
         static::assertContains($tag1, $tags);
         static::assertContains($tag2, $tags);
@@ -145,14 +127,11 @@ class RpcBulkEditorTest extends RpcApiTest
 
     public function testGetInvalidTags(): void
     {
-        $this->sut = $this->getContainer()->get(SegmentBulkEditorService::class);
-
         $testTag1 = $this->getTagReference('testFixtureTag_1');
         $testTag2 = $this->getTagReference('testFixtureTag_2');
-        $procedure = $this->getProcedureReference(\demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData::TESTPROCEDURE);
 
         static::expectException(InvalidArgumentException::class);
-        $tags = $this->sut->getValidTags([$testTag1, $testTag2], $procedure->getId());
+        $tags = $this->sut->getValidTags([$testTag1, $testTag2], $this->procedure->getId());
     }
 
     /**
