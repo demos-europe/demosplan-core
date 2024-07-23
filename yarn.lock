@@ -2282,9 +2282,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@demos-europe/demosplan-ui@npm:^0.3.18":
-  version: 0.3.18
-  resolution: "@demos-europe/demosplan-ui@npm:0.3.18"
+"@demos-europe/demosplan-ui@npm:^0.3.21":
+  version: 0.3.21
+  resolution: "@demos-europe/demosplan-ui@npm:0.3.21"
   dependencies:
     "@braintree/sanitize-url": "npm:^7.0.0"
     "@floating-ui/dom": "npm:^1.4.5"
@@ -2324,7 +2324,7 @@ __metadata:
     plyr: "npm:^3.7.2"
     qs: "npm:^6.11.0"
     tippy.js: "npm:^6.3.7"
-    uuid: "npm:^9.0.0"
+    uuid: "npm:^10.0.0"
     v-tooltip: "npm:2.1.3"
     vue-click-outside: "npm:^1.1.0"
     vue-multiselect: "npm:^2.1.6"
@@ -2359,7 +2359,7 @@ __metadata:
       optional: true
     prosemirror-view:
       optional: true
-  checksum: 10c0/55cbf26ac59cd33fb52ae81bd0ae3034647022e7616f71d766dbd76a2eed2867481fc79d7a4831553d44989facb5d6aae108b0a01e91da6ffc629ed5902b3546
+  checksum: 10c0/715003e5804e12542edcb55f7483e92eacb3971b0c2fbe50cb753b32f1a7d4bbb8b5aa17d9e56f180d00745fb81ea05916963f5b324186062eeda622abc135a5
   languageName: node
   linkType: hard
 
@@ -12511,7 +12511,7 @@ __metadata:
     "@babel/plugin-transform-runtime": "npm:^7.24.3"
     "@babel/preset-env": "npm:^7.24.8"
     "@babel/runtime": "npm:^7.24.8"
-    "@demos-europe/demosplan-ui": "npm:^0.3.18"
+    "@demos-europe/demosplan-ui": "npm:^0.3.21"
     "@demos-europe/dp-consent": "npm:^1.1.2"
     "@efrane/vuex-json-api": "github:eFrane/vuex-json-api#19c2354ad97c17bdda02358dc9ee4a2ffce181dd"
     "@fullhuman/postcss-purgecss": "npm:^6.0.0"
@@ -14343,6 +14343,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"uuid@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "uuid@npm:10.0.0"
+  bin:
+    uuid: dist/bin/uuid
+  checksum: 10c0/eab18c27fe4ab9fb9709a5d5f40119b45f2ec8314f8d4cf12ce27e4c6f4ffa4a6321dc7db6c515068fa373c075b49691ba969f0010bf37f44c37ca40cd6bf7fe
+  languageName: node
+  linkType: hard
+
 "uuid@npm:^8.3.2":
   version: 8.3.2
   resolution: "uuid@npm:8.3.2"
@@ -14352,7 +14361,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uuid@npm:^9.0.0, uuid@npm:^9.0.1":
+"uuid@npm:^9.0.1":
   version: 9.0.1
   resolution: "uuid@npm:9.0.1"
   bin:

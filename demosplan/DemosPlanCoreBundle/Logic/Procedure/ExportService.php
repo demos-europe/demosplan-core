@@ -220,7 +220,9 @@ class ExportService
                 $zip = $this->addTitlePageToZip($procedureId, $procedureName, $zip);
 
                 // Aktuelles
-                $zip = $this->addNewsToZip($procedureId, $procedureName, $zip);
+                if ($this->permissions->hasPermission('feature_procedure_export_include_current_news')) {
+                    $zip = $this->addNewsToZip($procedureId, $procedureName, $zip);
+                }
 
                 // Abwägungstabelle mit Namen
                 if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table')) {

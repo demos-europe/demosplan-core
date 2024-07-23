@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
@@ -41,8 +42,8 @@ class StatementServiceTest extends FunctionalTestCase
     /** @var StatementService */
     protected $sut;
 
-    protected DraftStatement|null $testDraftStatement;
-    private StatementCopier|null $statementCopier;
+    protected ?DraftStatement $testDraftStatement;
+    private ?StatementCopier $statementCopier;
 
     /**
      * @var Session
@@ -1289,5 +1290,32 @@ class StatementServiceTest extends FunctionalTestCase
         $procedure = $this->getProcedureReference(LoadProcedureData::TESTPROCEDURE);
         $result = $this->sut->getExternIdsInUse($procedure->getId());
         $this->assertCount(31, $result);
+    }
+
+    public function testGetStatisticsOfProcedure()
+    {
+        $user = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
+        $this->logIn($user);
+        $this->enablePermissions([
+            'feature_json_api_statement',
+            'feature_json_api_statement_segment',
+            // the following two should not be needed
+            // but are anyway for internal reasons currently
+            'feature_json_api_procedure',
+            'feature_json_api_original_statement',
+        ]);
+
+        $expected = $this->getStatementReference('testStatement');
+        /** @var CurrentProcedureService $currentProcedureService */
+        $currentProcedureService = self::$container->get(CurrentProcedureService::class);
+        $currentProcedureService->setProcedure($expected->getProcedure());
+
+        $percentageDistribution = $this->sut->getStatisticsOfProcedure($expected->getProcedure());
+
+        self::assertSame(25, $percentageDistribution->getTotal());
+        $absolutes = $percentageDistribution->getAbsolutes();
+        self::assertSame(24, $absolutes[StatementService::STATEMENT_STATUS_NEW_COUNT]);
+        self::assertSame(1, $absolutes[StatementService::STATEMENT_STATUS_PROCESSING_COUNT]);
+        self::assertSame(0, $absolutes[StatementService::STATEMENT_STATUS_COMPLETED_COUNT]);
     }
 }

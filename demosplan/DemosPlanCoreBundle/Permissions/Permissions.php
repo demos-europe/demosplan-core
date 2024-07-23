@@ -297,7 +297,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_preferences',  // Einstellungen
                 'feature_admin_delete_procedure',  // Verfahren loeschen
                 'feature_admin_export_procedure',  // Verfahren exportieren
-                'feature_procedure_export_include_public_interest_bodies_member_list',
                 'feature_json_api_get', // allow get requests to generic api
             ]);
         }
@@ -309,7 +308,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_mydata_organisation',  // Daten der Organisation
                 'area_preferences',  // Einstellungen
                 'feature_admin_export_procedure',  // Verfahren exportieren
-                'feature_procedure_export_include_public_interest_bodies_member_list',
 
                 // kann empfehlungen abgeben aber nicht die Bearbeitung abschliessen
                 'field_statement_recommendation',
@@ -341,7 +339,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_preferences',  // Einstellungen
                 'feature_admin_export_procedure',  // Verfahren exportieren
                 'feature_json_api_get', // allow get requests to generic api
-                'feature_procedure_export_include_public_interest_bodies_member_list',
             ]);
         }
 
