@@ -12,7 +12,6 @@ namespace Tests\Core\Core\Unit\Logic\Segment\RpcBulkEditor;
 
 use DateTime;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadSegmentData;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
@@ -157,7 +156,6 @@ class RpcBulkEditorTest extends RpcApiTest
         $tags = $this->sut->getValidTags([$testTag1, $testTag2], $procedure->getId());
     }
 
-
     /**
      * @dataProvider recommendationUpdateProvider
      */
@@ -165,7 +163,7 @@ class RpcBulkEditorTest extends RpcApiTest
     {
         $methodCallTime = new DateTime();
         $recommendationTextEdit = (object) [
-            'text' => 'My Text',
+            'text'   => 'My Text',
             'attach' => $attach,
         ];
 
@@ -179,7 +177,7 @@ class RpcBulkEditorTest extends RpcApiTest
     {
         return [
             'Without Attachment' => [false, 'My Text', 'My Text'],
-            'With Attachment' => [true, 'Initial text 1My Text', 'Initial text 2My Text'],
+            'With Attachment'    => [true, 'Initial text 1My Text', 'Initial text 2My Text'],
         ];
     }
 }
