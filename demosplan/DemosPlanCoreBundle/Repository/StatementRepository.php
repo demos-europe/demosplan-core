@@ -2031,11 +2031,9 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             ->getStatementFileContainers($originalToCopy->getId());
 
         $fileStrings = [];
-        $copiedFileContainers = [];
         foreach ($fileContainers as $fileContainer) {
             $statementFileContainer = $this->copyFileContainer($fileContainer, $newOriginalStatement);
             $fileStrings[] = $statementFileContainer->getFileString();
-            $copiedFileContainers[] = $statementFileContainer;
         }
 
         $newOriginalStatement->setFiles($fileStrings);
