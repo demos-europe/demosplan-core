@@ -30,6 +30,8 @@ class RpcBulkEditorTest extends RpcApiTest
     private $entityManager;
     private $entityType;
 
+    private $user;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -39,6 +41,7 @@ class RpcBulkEditorTest extends RpcApiTest
         $this->segment2 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_2);
         $this->entityManager = $this->getContainer()->get(EntityManagerInterface::class);
         $this->entityType = $this->entityManager->getClassMetadata(Segment::class)->getName();
+        $this->user = $this->loginTestUser();
         $this->prepareSegments();
     }
 
@@ -54,42 +57,39 @@ class RpcBulkEditorTest extends RpcApiTest
 
     public function testUpdateSegmentsWithNotNullAssignee(): void
     {
-        $user = $this->loginTestUser();
+        self::assertNull($this->segment1->getAssignee());
+        self::assertNull($this->segment2->getAssignee());
 
-        static::assertNull($this->segment1->getAssignee());
-        static::assertNull($this->segment2->getAssignee());
+        $this->sut->updateSegments([$this->segment1, $this->segment2], [], [], $this->user, null);
 
-        $this->sut->updateSegments([$this->segment1, $this->segment2], [], [], $user, null);
-
-        static::assertEquals($user->getId(), $this->segment1->getAssignee()->getId());
-        static::assertEquals($user->getId(), $this->segment2->getAssignee()->getId());
+        self::assertEquals($this->user->getId(), $this->segment1->getAssignee()->getId());
+        self::assertEquals($this->user->getId(), $this->segment2->getAssignee()->getId());
     }
 
     public function testUpdateSegmentsWithNullAssignee(): void
     {
-        $user = $this->loginTestUser();
-        $this->segment1->setAssignee($user);
-        $this->segment2->setAssignee($user);
+        $this->segment1->setAssignee($this->user);
+        $this->segment2->setAssignee($this->user);
 
-        static::assertEquals($user->getId(), $this->segment1->getAssignee()->getId());
-        static::assertEquals($user->getId(), $this->segment2->getAssignee()->getId());
+        self::assertEquals($this->user->getId(), $this->segment1->getAssignee()->getId());
+        self::assertEquals($this->user->getId(), $this->segment2->getAssignee()->getId());
 
         $this->sut->updateSegments([$this->segment1, $this->segment2], [], [], null, null);
 
-        static::assertNull($this->segment1->getAssignee());
-        static::assertNull($this->segment2->getAssignee());
+        self::assertNull($this->segment1->getAssignee());
+        self::assertNull($this->segment2->getAssignee());
     }
 
     public function testDetectValidAssignee(): void
     {
         $user = $this->loginTestUser();
         $assignee = $this->sut->detectAssignee($user->getId());
-        static::assertEquals($user->getId(), $assignee->getId());
+        self::assertEquals($user->getId(), $assignee->getId());
     }
 
     public function testDetectInvalidIdAssignee(): void
     {
-        static::expectException(UserNotFoundException::class);
+        self::expectException(UserNotFoundException::class);
         $invalidAssigneeId = '123';
         $this->sut->detectAssignee($invalidAssigneeId);
     }
@@ -97,21 +97,21 @@ class RpcBulkEditorTest extends RpcApiTest
     public function testDetectNullAssignee(): void
     {
         $assignee = $this->sut->detectAssignee(null);
-        static::assertNull($assignee);
+        self::assertNull($assignee);
     }
 
     public function testGetValidSegments()
     {
         $segments = $this->sut->getValidSegments([$this->segment1->getId(),  $this->segment2->getId()], $this->procedure->getId());
 
-        static::assertContains($this->segment1, $segments);
-        static::assertContains($this->segment2, $segments);
+        self::assertContains($this->segment1, $segments);
+        self::assertContains($this->segment2, $segments);
     }
 
     public function testGetInvalidSegments()
     {
         $invalidProcedureId = '123';
-        static::expectException(InvalidArgumentException::class);
+        self::expectException(InvalidArgumentException::class);
         $segments = $this->sut->getValidSegments([$this->segment1->getId(), $this->segment2->getId()], $invalidProcedureId);
     }
 
@@ -121,8 +121,8 @@ class RpcBulkEditorTest extends RpcApiTest
         $tag2 = $this->procedure->getTags()->get(1);
         $tags = $this->sut->getValidTags([$tag1, $tag2], $this->procedure->getId());
 
-        static::assertContains($tag1, $tags);
-        static::assertContains($tag2, $tags);
+        self::assertContains($tag1, $tags);
+        self::assertContains($tag2, $tags);
     }
 
     public function testGetInvalidTags(): void
@@ -130,7 +130,7 @@ class RpcBulkEditorTest extends RpcApiTest
         $testTag1 = $this->getTagReference('testFixtureTag_1');
         $testTag2 = $this->getTagReference('testFixtureTag_2');
 
-        static::expectException(InvalidArgumentException::class);
+        self::expectException(InvalidArgumentException::class);
         $tags = $this->sut->getValidTags([$testTag1, $testTag2], $this->procedure->getId());
     }
 
@@ -147,8 +147,8 @@ class RpcBulkEditorTest extends RpcApiTest
 
         $this->sut->updateRecommendations([$this->segment1, $this->segment2], $recommendationTextEdit, $this->procedure->getId(), $this->entityType, $methodCallTime);
 
-        static::assertSame($expectedResultSegment1, $this->segment1->getRecommendation(), 'Segment 1 recommendation did not update as expected');
-        static::assertSame($expectedResultSegment2, $this->segment2->getRecommendation(), 'Segment 2 recommendation did not update as expected');
+        self::assertSame($expectedResultSegment1, $this->segment1->getRecommendation(), 'Segment 1 recommendation did not update as expected');
+        self::assertSame($expectedResultSegment2, $this->segment2->getRecommendation(), 'Segment 2 recommendation did not update as expected');
     }
 
     public function recommendationUpdateProvider(): array
