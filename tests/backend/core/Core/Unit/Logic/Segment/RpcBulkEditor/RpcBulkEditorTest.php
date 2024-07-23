@@ -25,10 +25,32 @@ class RpcBulkEditorTest extends RpcApiTest
 {
     /** @var RpcSegmentsBulkEditor */
     protected $sut;
+    private $procedure;
+    private $segment1;
+    private $segment2;
+    private $entityManager;
+    private $entityType;
 
     protected function setUp(): void
     {
         parent::setUp();
+        $this->sut = $this->getContainer()->get(SegmentBulkEditorService::class);
+        $this->procedure = $this->getProcedureReference(\demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData::TESTPROCEDURE);
+        $this->segment1 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_1);
+        $this->segment2 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_2);
+        $this->entityManager = $this->getContainer()->get(EntityManagerInterface::class);
+        $this->entityType = $this->entityManager->getClassMetadata(Segment::class)->getName();
+        $this->prepareSegments();
+    }
+
+    private function prepareSegments(): void
+    {
+        $em = $this->getEntityManager();
+        $this->segment1->setRecommendation('Initial text 1');
+        $this->segment2->setRecommendation('Initial text 2');
+        $em->persist($this->segment1);
+        $em->persist($this->segment2);
+        $em->flush();
     }
 
     public function testUpdateSegmentsWithNotNullAssignee(): void
@@ -139,68 +161,29 @@ class RpcBulkEditorTest extends RpcApiTest
         $tags = $this->sut->getValidTags([$testTag1, $testTag2], $procedure->getId());
     }
 
-    public function testUpdateRecommendation(): void
+
+    /**
+     * @dataProvider recommendationUpdateProvider
+     */
+    public function testRecommendationUpdate($attach, $expectedResultSegment1, $expectedResultSegment2): void
     {
-        $this->sut = $this->getContainer()->get(SegmentBulkEditorService::class);
-
-        $procedure = $this->getProcedureReference(\demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData::TESTPROCEDURE);
-        $segment1 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_1);
-        $segment1->setRecommendation('Initial text 1');
-        $em = $this->getEntityManager();
-        $em->persist($segment1);
-        $em->flush();
-
-        $segment2 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_2);
-        $segment2->setRecommendation('Initial text 2');
-        $em = $this->getEntityManager();
-        $em->persist($segment2);
-        $em->flush();
-        // $segment1 = SegmentFactory::createOne();
-        // $segment2 = SegmentFactory::createOne();
-        $entityManager = $this->getContainer()->get(EntityManagerInterface::class);
-        $entityType = $entityManager->getClassMetadata(Segment::class)->getName();
         $methodCallTime = new DateTime();
         $recommendationTextEdit = (object) [
-            'text'   => 'My Text',
-            'attach' => false,
+            'text' => 'My Text',
+            'attach' => $attach,
         ];
 
-        $this->sut->updateRecommendations([$segment1, $segment2], $recommendationTextEdit, $procedure->getId(), $entityType, $methodCallTime);
+        $this->sut->updateRecommendations([$this->segment1, $this->segment2], $recommendationTextEdit, $this->procedure->getId(), $this->entityType, $methodCallTime);
 
-        static::assertEquals($recommendationTextEdit->text, $segment1->getRecommendation());
-        static::assertEquals($recommendationTextEdit->text, $segment2->getRecommendation());
+        static::assertSame($expectedResultSegment1, $this->segment1->getRecommendation(), 'Segment 1 recommendation did not update as expected');
+        static::assertSame($expectedResultSegment2, $this->segment2->getRecommendation(), 'Segment 2 recommendation did not update as expected');
     }
 
-    public function testAttachUpdateRecommendation(): void
+    public function recommendationUpdateProvider(): array
     {
-        $this->sut = $this->getContainer()->get(SegmentBulkEditorService::class);
-
-        $procedure = $this->getProcedureReference(\demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData::TESTPROCEDURE);
-        $segment1 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_1);
-        $segment1->setRecommendation('Initial text 1');
-        $em = $this->getEntityManager();
-        $em->persist($segment1);
-        $em->flush();
-
-        $segment2 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_2);
-        $segment2->setRecommendation('Initial text 2');
-        $em = $this->getEntityManager();
-        $em->persist($segment2);
-        $em->flush();
-
-        $recommendationText1 = $segment1->getRecommendation();
-        $recommendationText2 = $segment2->getRecommendation();
-        $entityManager = $this->getContainer()->get(EntityManagerInterface::class);
-        $entityType = $entityManager->getClassMetadata(Segment::class)->getName();
-        $methodCallTime = new DateTime();
-        $recommendationTextEdit = (object) [
-            'text'   => 'My Text',
-            'attach' => true,
+        return [
+            'Without Attachment' => [false, 'My Text', 'My Text'],
+            'With Attachment' => [true, 'Initial text 1My Text', 'Initial text 2My Text'],
         ];
-
-        $this->sut->updateRecommendations([$segment1, $segment2], $recommendationTextEdit, $procedure->getId(), $entityType, $methodCallTime);
-        $methodCallTime = new DateTime();
-        static::assertEquals($recommendationText1.$recommendationTextEdit->text, $segment1->getRecommendation());
-        static::assertEquals($recommendationText2.$recommendationTextEdit->text, $segment2->getRecommendation());
     }
 }
