@@ -12,7 +12,6 @@ namespace Tests\Core\Core\Unit\Logic\Segment\RpcBulkEditor;
 
 use DateTime;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadSegmentData;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
@@ -24,9 +23,9 @@ class RpcBulkEditorTest extends RpcApiTest
 {
     /** @var SegmentBulkEditorService */
     protected $sut;
-    private  $procedure;
-    private  $segment1;
-    private  $segment2;
+    private $procedure;
+    private $segment1;
+    private $segment2;
     private $entityManager;
     private $entityType;
 
