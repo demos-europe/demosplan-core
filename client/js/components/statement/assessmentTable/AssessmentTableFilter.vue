@@ -100,7 +100,7 @@
               <button
                 :disabled="selectedElementsLength > 0 || hasPermission('feature_statements_fragment_add') && Object.keys(selectedFragments).length > 0"
                 class="c-actionmenu__trigger"
-                data-cy="listStatements:export"
+                data-cy="exportModal:open"
                 aria-haspopup="true"
                 aria-expanded="false"
                 type="button">

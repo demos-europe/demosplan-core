@@ -368,7 +368,7 @@
           <button
             type="button"
             class="btn btn--primary submitBtn"
-            data-cy="exportModal:submit"
+            data-cy="statementExport:saveButton"
             @click.prevent="handleSubmit">
             {{ submitLabel }}
           </button>
