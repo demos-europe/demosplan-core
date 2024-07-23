@@ -138,7 +138,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
     /**
      * Add new ClusterStatement, what basically is a Statement with a cluster of Statements.
      *
-     * @return statement - headStatement of the created statement-cluster
+     * @return Statement - headStatement of the created statement-cluster
      *
      * @throws Exception
      */
@@ -479,7 +479,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
     /**
      * @return array<int, Statement|Segment>
      */
-    public function getEntities(array $conditions, array $sortMethods, int $offset = 0, int $limit = null): array
+    public function getEntities(array $conditions, array $sortMethods, int $offset = 0, ?int $limit = null): array
     {
         return parent::getEntities($conditions, $sortMethods, $offset, $limit);
     }
@@ -991,7 +991,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
      * StatementVotes, which are not contained in $votesToSet, will be deleted.
      * StatementVotes, which are contained in $votesToSet, will be created if not existing, or updated.
      *
-     * @param statement        $statement  - related Statement
+     * @param Statement        $statement  - related Statement
      * @param array|Collection $votesToSet - StatementVotes to set on the given Statement
      *
      * @return Collection<int, StatementVote>
@@ -1763,7 +1763,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
     public function copyOriginalStatement(
         Statement $originalToCopy,
         Procedure $targetProcedure,
-        GdprConsent $gdprConsentToSet = null,
+        ?GdprConsent $gdprConsentToSet = null,
         $internIdToSet = null
     ): Statement {
         if (!$originalToCopy->isOriginal()) {
@@ -1800,7 +1800,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         $newOriginalStatement->setSubmit($originalToCopy->getSubmitObject()->add(new DateInterval('PT1S')));
         $newStatementMeta = clone $originalToCopy->getMeta();
         $newOriginalStatement->setMeta($newStatementMeta);
-
+        $newOriginalStatement->setProcedure($targetProcedure);
         $newOriginalStatement->setChildren(null);
 
         /**
@@ -1849,7 +1849,6 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         }
 
         $newOriginalStatement->setExternId($newExternId);
-        $newOriginalStatement->setProcedure($targetProcedure);
 
         if ($originalToCopy->getProcedureId() !== $targetProcedure->getId()) {
             // remove all tags, because procedure specific -> impossible to keep:
@@ -2037,7 +2036,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         return $statementFileContainer;
     }
 
-    private function copyFile(File $sourceFile, Statement $targetStatement): File
+    public function copyFile(File $sourceFile, Statement $targetStatement): File
     {
         $fileCopy = $this->getFileRepository()->copyFile($sourceFile);
         $fileCopy->setProcedure($targetStatement->getProcedure());

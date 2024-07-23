@@ -66,7 +66,7 @@ class FileController extends BaseController
     {
         $fs = new Filesystem();
         // @improve T14122
-        $file = $fileService->getFileInfo($hash);
+        $file = $fileService->getFileInfo($hash, $procedureId);
 
         // ensure that procedure access check matches file procedure
         if (!$this->isValidProcedure($procedureId, $file, $strictCheck)) {
