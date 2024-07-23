@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageManager;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use demosplan\DemosPlanCoreBundle\ValueObject\CellExportStyle;
 use demosplan\DemosPlanCoreBundle\ValueObject\ExportOrgaInfoHeader;
@@ -50,6 +51,7 @@ class SegmentsExporter
 
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
+        private readonly HtmlHelper $htmlHelper,
         private readonly HTMLSanitizer $htmlSanitizer,
         private readonly ImageManager $imageManager,
         protected readonly ImageLinkConverter $imageLinkConverter,
@@ -117,7 +119,7 @@ class SegmentsExporter
     {
         if (Footer::FIRST === $headerType) {
             $preamble = $this->translator->trans('docx.export.preamble');
-            Html::addHtml($header, $this->getHtmlValidText($preamble), false, false);
+            Html::addHtml($header, $this->htmlHelper->getHtmlValidText($preamble), false, false);
         }
     }
 
@@ -313,20 +315,7 @@ class SegmentsExporter
             $cellExportStyle->getWidth(),
             $cellExportStyle->getCellStyle()
         );
-        Html::addHtml($cell, $this->getHtmlValidText($text), false, false);
-    }
-
-    private function getHtmlValidText(string $text): string
-    {
-        /** @var string $text $text */
-        $text = str_replace('<br>', '<br/>', $text);
-
-        // strip all a tags without href
-        $pattern = '/<a\s+(?!.*?\bhref\s*=\s*([\'"])\S*\1)(.*?)>(.*?)<\/a>/i';
-        $text = preg_replace($pattern, '$3', $text);
-
-        // avoid problems in phpword parser
-        return $this->htmlSanitizer->purify($text);
+        Html::addHtml($cell, $this->htmlHelper->getHtmlValidText($text), false, false);
     }
 
     private function addSegmentCell(Row $row, string $text, CellExportStyle $cellExportStyle): void
