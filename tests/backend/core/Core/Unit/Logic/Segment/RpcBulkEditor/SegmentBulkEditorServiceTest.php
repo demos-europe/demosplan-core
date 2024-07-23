@@ -20,7 +20,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentBulkEditorService;
 use Doctrine\ORM\EntityManagerInterface;
 use Tests\Base\RpcApiTest;
 
-class RpcBulkEditorTest extends RpcApiTest
+class SegmentBulkEditorServiceTest extends RpcApiTest
 {
     /** @var SegmentBulkEditorService */
     protected $sut;
