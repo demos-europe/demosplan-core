@@ -15,7 +15,6 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadSegmentData;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\RpcBulkEditor\RpcSegmentsBulkEditor;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentBulkEditorService;
 use Doctrine\ORM\EntityManagerInterface;
 use Tests\Base\RpcApiTest;
