@@ -23,7 +23,7 @@ use Tests\Base\RpcApiTest;
 
 class RpcBulkEditorTest extends RpcApiTest
 {
-    /** @var RpcSegmentsBulkEditor */
+    /** @var SegmentBulkEditorService */
     protected $sut;
     private $procedure;
     private $segment1;
@@ -55,19 +55,15 @@ class RpcBulkEditorTest extends RpcApiTest
 
     public function testUpdateSegmentsWithNotNullAssignee(): void
     {
-        $this->sut = $this->getContainer()->get(SegmentBulkEditorService::class);
-
-        $segment1 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_1);
-        $segment2 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_2);
         $user = $this->loginTestUser();
 
-        static::assertNull($segment1->getAssignee());
-        static::assertNull($segment2->getAssignee());
+        static::assertNull($this->segment1->getAssignee());
+        static::assertNull($this->segment2->getAssignee());
 
-        $this->sut->updateSegments([$segment1, $segment2], [], [], $user, null);
+        $this->sut->updateSegments([$this->segment1, $this->segment2], [], [], $user, null);
 
-        static::assertEquals($user->getId(), $segment1->getAssignee()->getId());
-        static::assertEquals($user->getId(), $segment2->getAssignee()->getId());
+        static::assertEquals($user->getId(), $this->segment1->getAssignee()->getId());
+        static::assertEquals($user->getId(), $this->segment2->getAssignee()->getId());
     }
 
     public function testUpdateSegmentsWithNullAssignee(): void
@@ -76,17 +72,17 @@ class RpcBulkEditorTest extends RpcApiTest
 
         $user = $this->loginTestUser();
         $segment1 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_1);
-        $segment1->setAssignee($user);
+        $this->segment1->setAssignee($user);
         $segment2 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_2);
-        $segment2->setAssignee($user);
+        $this->segment2->setAssignee($user);
 
-        static::assertEquals($user->getId(), $segment1->getAssignee()->getId());
-        static::assertEquals($user->getId(), $segment2->getAssignee()->getId());
+        static::assertEquals($user->getId(), $this->segment1->getAssignee()->getId());
+        static::assertEquals($user->getId(), $this->segment2->getAssignee()->getId());
 
-        $this->sut->updateSegments([$segment1, $segment2], [], [], null, null);
+        $this->sut->updateSegments([$this->segment1, $this->segment2], [], [], null, null);
 
-        static::assertNull($segment1->getAssignee());
-        static::assertNull($segment2->getAssignee());
+        static::assertNull($this->segment1->getAssignee());
+        static::assertNull($this->segment2->getAssignee());
     }
 
     public function testDetectValidAssignee(): void
@@ -119,10 +115,10 @@ class RpcBulkEditorTest extends RpcApiTest
         $procedure = $this->getProcedureReference(\demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData::TESTPROCEDURE);
         $segment1 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_1);
         $segment2 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_2);
-        $segments = $this->sut->getValidSegments([$segment1->getId(), $segment2->getId()], $procedure->getId());
+        $segments = $this->sut->getValidSegments([$this->segment1->getId(),  $this->segment2->getId()], $procedure->getId());
 
-        static::assertContains($segment1, $segments);
-        static::assertContains($segment2, $segments);
+        static::assertContains($this->segment1, $segments);
+        static::assertContains($this->segment2, $segments);
     }
 
     public function testGetInvalidSegments()
@@ -133,7 +129,7 @@ class RpcBulkEditorTest extends RpcApiTest
         $segment2 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_2);
         $invalidProcedureId = '123';
         static::expectException(InvalidArgumentException::class);
-        $segments = $this->sut->getValidSegments([$segment1->getId(), $segment2->getId()], $invalidProcedureId);
+        $segments = $this->sut->getValidSegments([$this->segment1->getId(), $this->segment2->getId()], $invalidProcedureId);
     }
 
     public function testGetValidTags(): void
