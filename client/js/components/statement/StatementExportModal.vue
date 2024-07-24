@@ -9,13 +9,11 @@
 
 <template>
   <div>
-    <button
-      type="button"
-      @click.prevent="openModal"
-      class="btn--blank o-link--default inline-block"
-      data-cy="exportModal:open">
-      {{ Translator.trans('export.verb') }}
-    </button>
+    <dp-button
+      data-cy="exportModal:open"
+      :text="Translator.trans('export.verb')"
+      variant="subtle"
+      @click.prevent="openModal" />
 
     <dp-modal
       ref="exportModalInner"
@@ -101,6 +99,7 @@
 
 <script>
 import {
+  DpButton,
   DpButtonRow,
   DpContextualHelp,
   DpInput,
@@ -113,6 +112,7 @@ export default {
   name: 'StatementExportModal',
 
   components: {
+    DpButton,
     DpButtonRow,
     DpContextualHelp,
     DpInput,
