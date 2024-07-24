@@ -228,8 +228,29 @@
               <div
                 v-for="prop in props"
                 v-tooltip="prop.description"
-                :key="prop.id"
-                v-text="prop.name" />
+                :key="prop.id">
+                {{ prop.name }}
+                <dp-icon
+                  v-if="prop.solved"
+                  class="float-right color--grey"
+                  icon="check"
+                  size="small"
+                  v-tooltip="Translator.trans('statement.solved.description')" />
+              </div>
+            </template>
+            <template v-slot:single="{ props }">
+              <div
+                v-for="prop in props"
+                v-tooltip="prop.description"
+                :key="prop.id">
+                {{ prop.name }}
+                <dp-icon
+                  v-if="prop.solved"
+                  class="float-right color--grey"
+                  icon="check"
+                  size="small"
+                  v-tooltip="Translator.trans('statement.solved.description')" />
+              </div>
             </template>
           </dp-multiselect>
         </div>
