@@ -67,21 +67,20 @@ class HtmlHelper
     }
 
     /**
-     * Updates the link text of all links with the specified class by appending a prefix, changing the href value,
-     * and adding a style attribute to the <a> tag.
+     * Updates the link text of all links with the specified class by appending a prefix, changing the href value based
+     * on the link text, changing the text color to blue and underlining the text.
      *
      * @param string $htmlText  the input HTML text
      * @param string $className the class name to look for
      * @param string $prefix    the prefix to add to the link texts
-     * @param string $href      the new href value to set
      *
      * @return string the updated HTML text
      */
-    public function updateLinkTextWithClass(string $htmlText, string $className, string $prefix, string $href): string
+    public function updateLinkTextWithClass(string $htmlText, string $className, string $prefix): string
     {
         $pattern = '/(<a\b[^>]*class="[^"]*\b'
             .preg_quote($className, '/').'\b[^"]*")[^>]*(href="[^"]*")[^>]*(>)(.*?)(<\/a>)/i';
-        $replacement = '$1 href="'.$href.'" style="color: blue; text-decoration: underline;"$3'.$prefix.'$4$5';
+        $replacement = '$1 href="#'.$prefix.'$4'.'" style="color: blue; text-decoration: underline;"$3'.$prefix.'$4$5';
 
         return preg_replace($pattern, $replacement, $htmlText);
     }
