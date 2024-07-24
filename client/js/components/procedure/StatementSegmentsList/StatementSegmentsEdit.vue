@@ -86,6 +86,7 @@
         v-else
         class="border space-inset-s">
         <dp-inline-notification
+          v-if="segmentDraftList"
           class="mt-1"
           :message="Translator.trans('warning.statement.in.segmentation.cannot.be.edited')"
           type="warning" />

@@ -572,9 +572,11 @@ export default {
         })
         .finally(() => {
           this.isLoading = false
-          this.$nextTick(() => {
-            this.$refs.imageModal.addClickListener(this.$refs.dataTable.$el.querySelectorAll('img'))
-          })
+          if (this.items.length > 0) {
+            this.$nextTick(() => {
+              this.$refs.imageModal.addClickListener(this.$refs.dataTable.$el.querySelectorAll('img'))
+            })
+          }
         })
     },
 
