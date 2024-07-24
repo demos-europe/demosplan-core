@@ -288,6 +288,8 @@ class SegmentsExporter
     private function addSegmentTableBody(Table $table, Segment $segment, string $statementExternId): void
     {
         $textRow = $table->addRow();
+        // Replace image tags in segment text and in segment recommendation text with text references.
+        $convertedSegment = $this->imageLinkConverter->convert($segment, $statementExternId);
         $this->addSegmentHtmlCell(
             $textRow,
             $segment->getExternId(),
@@ -295,14 +297,12 @@ class SegmentsExporter
         );
         $this->addSegmentHtmlCell(
             $textRow,
-            $segment->getText(),
+            $convertedSegment->getText(),
             $this->styles['segmentsTableBodyCell']
         );
-        // Replace image tags in segment recommendation text with a linked reference to the image.
-        $recommendationText = $this->imageLinkConverter->convert($segment->getRecommendation(), $statementExternId);
         $this->addSegmentHtmlCell(
             $textRow,
-            $recommendationText,
+            $convertedSegment->getRecommendationText(),
             $this->styles['segmentsTableBodyCell']
         );
     }

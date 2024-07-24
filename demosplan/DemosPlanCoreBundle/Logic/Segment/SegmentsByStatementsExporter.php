@@ -27,6 +27,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
+use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ConvertedSegment;
 use Doctrine\Common\Collections\ArrayCollection;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use PhpOffice\PhpWord\Element\Footer;
@@ -89,13 +90,13 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     {
         Settings::setOutputEscapingEnabled(true);
         $exportData = [];
-        $adjustedRecommendations = [];
+        $convertedSegments = [];
         // unfortunately for xlsx export data needs to be an array
         foreach ($statements as $statement) {
             $segmentsOrStatements = collect([$statement]);
             if (!$statement->getSegmentsOfStatement()->isEmpty()) {
                 $segmentsOrStatements = $statement->getSegmentsOfStatement();
-                $adjustedRecommendations[] =
+                $convertedSegments[] =
                     $this->convertImagesToReferencesInRecommendations($segmentsOrStatements->toArray());
             }
             foreach ($segmentsOrStatements as $segmentOrStatement) {
@@ -103,8 +104,8 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             }
         }
 
-        foreach ($adjustedRecommendations as $recommendation) {
-            $exportData = $this->updateRecommendationsWithTextReferences($exportData, $recommendation);
+        foreach ($convertedSegments as $convertedSegment) {
+            $exportData = $this->updateRecommendationsWithTextReferences($exportData, $convertedSegment);
         }
 
         $columnsDefinition = $this->assessmentTableXlsExporter->selectFormat('segments');
@@ -116,31 +117,38 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     {
         $sortedSegments = $this->sortSegmentsByOrderInProcedure($segments);
 
-        $recommendationTexts = [];
+        $convertedSegments = [];
         /** @var Segment $segment */
         foreach ($sortedSegments as $segment) {
             $externId = $segment->getExternId();
-            $recommendationTexts[$externId] = $this->imageLinkConverter->convert(
-                $segment->getRecommendation(),
-                $externId,
-                false
-            );
+            $convertedSegment = $this->imageLinkConverter->convert($segment, $externId, false);
+            $convertedSegments[$externId] = $convertedSegment;
         }
         $this->imageLinkConverter->resetImages();
 
-        return $recommendationTexts;
+        return $convertedSegments;
     }
 
-    private function updateRecommendationsWithTextReferences(array $segmentsOrStatements, array $adjustedRecommendations): array
-    {
+    /**
+     * @param array<string, mixed> $segmentsOrStatements
+     * @param array<string, ConvertedSegment> $convertedSegments
+     *
+     * @return array<string, mixed>
+     */
+    private function updateRecommendationsWithTextReferences(
+        array $segmentsOrStatements,
+        array $convertedSegments
+    ): array {
         foreach ($segmentsOrStatements as $key => $segmentOrStatement) {
             $isNotSegment = !array_key_exists('recommendation', $segmentOrStatement);
-            $externIdIsNotOfSegment = !array_key_exists($segmentOrStatement['externId'], $adjustedRecommendations);
+            $externIdIsNotOfSegment = !array_key_exists($segmentOrStatement['externId'], $convertedSegments);
             if ($isNotSegment || $externIdIsNotOfSegment) {
                 continue;
             }
 
-            $segmentOrStatement['recommendation'] = $adjustedRecommendations[$segmentOrStatement['externId']];
+            $segmentOrStatement['text'] = $convertedSegments[$segmentOrStatement['externId']]->getText();
+            $segmentOrStatement['recommendation'] =
+                $convertedSegments[$segmentOrStatement['externId']]->getRecommendationText();
             $segmentsOrStatements[$key] = $segmentOrStatement;
         }
 

@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment\Export;
 
 use demosplan\DemosPlanCoreBundle\Logic\ImageLinkConverter;
+use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ImageReference;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\SimpleType\Jc;
 
@@ -34,40 +35,53 @@ class ImageManager
         if ([] === $images) {
             return;
         }
-        $imageSpaceCurrentlyUsed = 0;
         $section->addPageBreak();
-        foreach ($images as $image) {
-            [$width, $height] = getimagesize($image->getImagePath());
-            [$maxWidth, $maxHeight] = $this->getMaxWidthAndHeight();
 
-            if ($width > $maxWidth) {
-                $factor = $maxWidth / $width;
-                $width = $maxWidth;
-                $height *= $factor;
+        foreach ($images as $imageReferencsArray) {
+            $imageSpaceCurrentlyUsed = 0;
+            foreach ($imageReferencsArray[ImageLinkConverter::IMAGES_KEY_SEGMENTS] as $imageReference) {
+                $imageSpaceCurrentlyUsed = $this->addImage($section, $imageReference, $imageSpaceCurrentlyUsed);
             }
-            if ($height > $maxHeight) {
-                $factor = $maxHeight / $height;
-                $height = $maxHeight;
-                $width *= $factor;
+            foreach ($imageReferencsArray[ImageLinkConverter::IMAGES_KEY_RECOMMENDATION] as $imageReference) {
+                $imageSpaceCurrentlyUsed = $this->addImage($section, $imageReference, $imageSpaceCurrentlyUsed);
             }
-            if ($height > $maxHeight - $imageSpaceCurrentlyUsed) {
-                $section->addPageBreak();
-            }
-            $imageSpaceCurrentlyUsed += $height + self::STANDARD_PT_TEXT * 2;
-
-            $imageStyle = [
-                'width'  => $width,
-                'height' => $height,
-                'align'  => Jc::START,
-            ];
-
-            $section->addText($image->getImageReference());
-            $section->addBookmark($image->getImageReference());
-            $section->addImage($image->getImagePath(), $imageStyle);
         }
 
         // remove already printed images
         $this->imageLinkConverter->resetImages();
+    }
+
+    private function addImage(Section $section, ImageReference $imageReference, float $imageSpaceCurrentlyUsed): float
+    {
+        [$width, $height] = getimagesize($imageReference->getImagePath());
+        [$maxWidth, $maxHeight] = $this->getMaxWidthAndHeight();
+
+        if ($width > $maxWidth) {
+            $factor = $maxWidth / $width;
+            $width = $maxWidth;
+            $height *= $factor;
+        }
+        if ($height > $maxHeight) {
+            $factor = $maxHeight / $height;
+            $height = $maxHeight;
+            $width *= $factor;
+        }
+        if ($height > $maxHeight - $imageSpaceCurrentlyUsed) {
+            $section->addPageBreak();
+        }
+        $imageSpaceCurrentlyUsed += $height + self::STANDARD_PT_TEXT * 2;
+
+        $imageStyle = [
+            'width'  => $width,
+            'height' => $height,
+            'align'  => Jc::START,
+        ];
+
+        $section->addText($imageReference->getImageReference());
+        $section->addBookmark($imageReference->getImageReference());
+        $section->addImage($imageReference->getImagePath(), $imageStyle);
+
+        return $imageSpaceCurrentlyUsed;
     }
 
     private function getMaxWidthAndHeight(): array
