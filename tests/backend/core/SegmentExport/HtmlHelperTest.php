@@ -56,7 +56,7 @@ class HtmlHelperTest extends FunctionalTestCase
         // Test 1: <a> tag with class darstellung and href attribute
         $htmlWithClass = '<a class="darstellung" href="https://www.example1.com">Example 1</a>';
         $expectedWithClass = [
-            new ImageReference($prefix.'Example 1', 'https://www.example1.com')
+            new ImageReference($prefix.'Example 1', 'https://www.example1.com'),
         ];
 
         // Test 2: <a> tag without class darstellung but with href attribute
