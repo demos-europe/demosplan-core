@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils;
 
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
+use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ImageReference;
 
 class HtmlHelper
 {
@@ -35,25 +36,32 @@ class HtmlHelper
     }
 
     /**
-     * Extracts URLs from the given HTML text that are contained within <a> tags with the specified class.
+     * Extracts URLs from the given HTML text that are contained within <a> tags with the specified class, and
+     * creates ImageReference objects from those URLs.
      *
-     * @return array<int, string> An array containing the extracted URLs.
+     * @param string $htmlText The input HTML text.
+     * @param string $class The class name to look for within the <a> tags.
+     * @return array<int, ImageReference> An array containing the extracted ImageReference objects.
      */
-    public function extractUrlsByClass(string $htmlText, string $class): array
+    public function extractImageDataByClass(string $htmlText, string $class): array
     {
-        $urls = [];
+        $imageReferences = [];
 
-        // The regex pattern to match <a> tags with the specified class
-        // It looks for <a> tags with any attributes, but specifically captures a tag if it has the specified class
-        // and then captures the value of the href attribute
-        $pattern = '/<a\b[^>]*class="[^"]*\b'.$class.'\b[^"]*"[^>]*href="([^"]*)"[^>]*>/i';
+        // The regex pattern to match <a> tags with the specified class and extract their href attributes and link text
+        $pattern =
+            '/<a\b[^>]*class="[^"]*\b'.preg_quote($class, '/').'\b[^"]*"[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/i';
 
         // Perform the regex match
         if (preg_match_all($pattern, $htmlText, $matches)) {
-            $urls = $matches[1];  // Extract the URLs from the matches
+            foreach ($matches[1] as $index => $url) {
+                $linkText = $matches[2][$index];
+                // Create an ImageReference object with linkText as imageReference and url as imagePath
+                $imageReference = new ImageReference($linkText, $url);
+                $imageReferences[] = $imageReference;
+            }
         }
 
-        return $urls;
+        return $imageReferences;
     }
 
     /**

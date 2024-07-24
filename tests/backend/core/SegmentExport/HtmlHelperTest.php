@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Tests\Core\SegmentExport;
 
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
+use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ImageReference;
 use Tests\Base\FunctionalTestCase;
 
 class HtmlHelperTest extends FunctionalTestCase
@@ -53,26 +54,43 @@ class HtmlHelperTest extends FunctionalTestCase
     {
         // Test 1: <a> tag with class darstellung and href attribute
         $htmlWithClass = '<a class="darstellung" href="https://www.example1.com">Example 1</a>';
-        $expectedUrlsWithClass = ['https://www.example1.com'];
+        $expectedWithClass = [new ImageReference('Example 1', 'https://www.example1.com')];
 
         // Test 2: <a> tag without class darstellung but with href attribute
         $htmlWithoutClass = '<a href="https://www.example2.com">Example 2</a>';
-        $expectedUrlsWithoutClass = [];
+        $expectedWithoutClass = [];
 
         // Test 3: Multiple <a> tags with and without class darstellung
         $htmlMixed = '<a class="darstellung" href="https://www.example3.com">Example 3</a>' .
             '<a class="other-class" href="https://www.example4.com">Example 4</a>' .
             '<a class="darstellung" href="https://www.example5.com">Example 5</a>';
-        $expectedUrlsMixed = ['https://www.example3.com', 'https://www.example5.com'];
+        $expectedMixed = [
+            new ImageReference('Example 3', 'https://www.example3.com'),
+            new ImageReference('Example 5', 'https://www.example5.com')
+        ];
 
         $class = HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL;
-        $resultA = $this->sut->extractUrlsByClass($htmlWithClass, $class);
-        $resultB = $this->sut->extractUrlsByClass($htmlWithoutClass, $class);
-        $resultC = $this->sut->extractUrlsByClass($htmlMixed, $class);
+        $resultA = $this->sut->extractImageDataByClass($htmlWithClass, $class);
+        $resultB = $this->sut->extractImageDataByClass($htmlWithoutClass, $class);
+        $resultC = $this->sut->extractImageDataByClass($htmlMixed, $class);
 
-        static::assertSame($expectedUrlsWithClass, $resultA);
-        static::assertSame($expectedUrlsWithoutClass, $resultB);
-        static::assertSame($expectedUrlsMixed, $resultC);
+        static::assertIsArray($resultA);
+        static::assertCount(1, $resultA);
+        static::assertInstanceOf(ImageReference::class, $resultA[0]);
+        static::assertSame($expectedWithClass[0]->getImageReference(), $resultA[0]->getImageReference());
+        static::assertSame($expectedWithClass[0]->getImagePath(), $resultA[0]->getImagePath());
+
+        static::assertIsArray($resultB);
+        static::assertCount(0, $resultB);
+
+        static::assertIsArray($resultC);
+        static::assertCount(2, $resultC);
+        static::assertInstanceOf(ImageReference::class, $resultC[0]);
+        static::assertInstanceOf(ImageReference::class, $resultC[1]);
+        static::assertSame($expectedMixed[0]->getImageReference(), $resultC[0]->getImageReference());
+        static::assertSame($expectedMixed[0]->getImagePath(), $resultC[0]->getImagePath());
+        static::assertSame($expectedMixed[1]->getImageReference(), $resultC[1]->getImageReference());
+        static::assertSame($expectedMixed[1]->getImagePath(), $resultC[1]->getImagePath());
     }
 
     public function testUpdateLinkTextWithClass(): void
