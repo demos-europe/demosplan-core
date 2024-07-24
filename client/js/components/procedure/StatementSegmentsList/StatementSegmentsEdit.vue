@@ -387,7 +387,7 @@ export default {
         fields: {
           Place: ['name', 'sortIndex'].join(),
           SegmentComment: ['creationDate', 'place', 'submitter', 'text'].join(),
-          StatementSegment: ['assignee', 'comments', 'externId', 'recommendation', 'text'].join(),
+          StatementSegment: ['assignee', 'comments', 'externId', 'recommendation', 'text', 'place'].join(),
           User: ['lastname', 'firstname', 'orga'].join(),
           Orga: ['name'].join()
         },
