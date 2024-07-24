@@ -74,4 +74,28 @@ class HtmlHelperTest extends FunctionalTestCase
         static::assertSame($expectedUrlsWithoutClass, $resultB);
         static::assertSame($expectedUrlsMixed, $resultC);
     }
+
+    public function testUpdateLinkTextWithClass(): void
+    {
+        // Test 1: <a> tag with class darstellung
+        $htmlWithClass = '<a class="darstellung" href="https://www.example1.com">Old Text</a>';
+        $expectedWithClass = '<a class="darstellung" href="https://www.example1.com">New_Old Text</a>';
+        // Test 2: <a> tag without class darstellung
+        $htmlWithoutClass = '<a href="https://www.example2.com">Old Text</a>';
+        $expectedWithoutClass = '<a href="https://www.example2.com">Old Text</a>';
+        // Test 3: Multiple <a> tags, some with class darstellung and some without
+        $htmlMixed = '<a class="darstellung" href="https://www.example3.com">Old Text 3</a>' .
+            '<a class="other-class" href="https://www.example4.com">Old Text 4</a>' .
+            '<a class="darstellung" href="https://www.example5.com">Old Text 5</a>';
+        $expectedMixed = '<a class="darstellung" href="https://www.example3.com">New_Old Text 3</a>' .
+            '<a class="other-class" href="https://www.example4.com">Old Text 4</a>' .
+            '<a class="darstellung" href="https://www.example5.com">New_Old Text 5</a>';
+        $prefix = 'New_';
+        $resultA = $this->sut->updateLinkTextWithClass($htmlWithClass, 'darstellung', $prefix);
+        $resultB = $this->sut->updateLinkTextWithClass($htmlWithoutClass, 'darstellung', $prefix);
+        $resultC = $this->sut->updateLinkTextWithClass($htmlMixed, 'darstellung', $prefix);
+        static::assertSame($expectedWithClass, $resultA);
+        static::assertSame($expectedWithoutClass, $resultB);
+        static::assertSame($expectedMixed, $resultC);
+    }
 }

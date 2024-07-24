@@ -55,4 +55,19 @@ class HtmlHelper
 
         return $urls;
     }
+
+    /**
+     * Updates the link text of all links with the specified class by appending a prefix.
+     *
+     * @param string $htmlText The input HTML text.
+     * @param string $className The class name to look for.
+     * @param string $prefix The prefix to add to the link texts.
+     * @return string The updated HTML text.
+     */
+    public function updateLinkTextWithClass(string $htmlText, string $className, string $prefix): string
+    {
+        $pattern = '/(<a\b[^>]*class="[^"]*\b'.preg_quote($className, '/').'\b[^"]*"[^>]*>)(.*?)(<\/a>)/i';
+        $replacement = '$1' . $prefix . '$2' . '$3';
+        return preg_replace($pattern, $replacement, $htmlText);
+    }
 }
