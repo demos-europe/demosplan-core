@@ -113,11 +113,23 @@ class HtmlHelperTest extends FunctionalTestCase
             .' style="color: blue; text-decoration: underline;">New_Old Text 5</a>';
         $prefix = 'New_';
         $href = 'https://www.test.com';
-        $resultA = $this->sut->updateLinkTextWithClass($htmlWithClass, 'darstellung', $prefix, $href);
-        $resultB = $this->sut->updateLinkTextWithClass($htmlWithoutClass, 'darstellung', $prefix, $href);
-        $resultC = $this->sut->updateLinkTextWithClass($htmlMixed, 'darstellung', $prefix, $href);
+        $class = HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL;
+        $resultA = $this->sut->updateLinkTextWithClass($htmlWithClass, $class, $prefix, $href);
+        $resultB = $this->sut->updateLinkTextWithClass($htmlWithoutClass, $class, $prefix, $href);
+        $resultC = $this->sut->updateLinkTextWithClass($htmlMixed, $class, $prefix, $href);
         static::assertSame($expectedWithClass, $resultA);
         static::assertSame($expectedWithoutClass, $resultB);
         static::assertSame($expectedMixed, $resultC);
+    }
+
+    public function testRemoveLinkTagsByClass(): void
+    {
+        $htmlMixed = '<a class="darstellung" href="https://www.example1.com">Old Text 1</a>'.
+            '<a class="other-class" href="https://www.example2.com">Old Text 2</a>'.
+            '<a class="darstellung" href="https://www.example3.com">Old Text 3</a>';
+        $expectedMixed = 'Old Text 1<a class="other-class" href="https://www.example2.com">Old Text 2</a>Old Text 3';
+        $class = HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL;
+        $result = $this->sut->removeLinkTagsByClass($htmlMixed, $class);
+        static::assertSame($expectedMixed, $result);
     }
 }
