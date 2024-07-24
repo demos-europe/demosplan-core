@@ -11,13 +11,13 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\DataProtectionOrganisation;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\ImprintOrganisation;
 use Exception;
@@ -25,7 +25,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class OrgaHandler extends CoreHandler
 {
-    public function __construct(private readonly OrgaService $orgaService, MessageBag $messageBag, private readonly TranslatorInterface $translator, private readonly CurrentUserInterface $currentUser)
+    public function __construct(private readonly OrgaService $orgaService, MessageBagInterface $messageBag, private readonly TranslatorInterface $translator, private readonly CurrentUserInterface $currentUser)
     {
         parent::__construct($messageBag);
     }
