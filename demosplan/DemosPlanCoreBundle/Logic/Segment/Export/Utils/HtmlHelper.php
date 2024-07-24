@@ -38,14 +38,12 @@ class HtmlHelper
 
     /**
      * Extracts URLs from the given HTML text that are contained within <a> tags with the specified class, and
-     * creates ImageReference objects from those URLs.
-     *
-     * @param string $htmlText the input HTML text
-     * @param string $class    the class name to look for within the <a> tags
+     * creates ImageReference objects from those URLs. The link text of the <a> tags is used as the image reference.
+     * The image reference is prefixed with the specified prefix.
      *
      * @return array<int, ImageReference> an array containing the extracted ImageReference objects
      */
-    public function extractImageDataByClass(string $htmlText, string $class): array
+    public function extractImageDataByClass(string $htmlText, string $class, string $prefix): array
     {
         $imageReferences = [];
 
@@ -58,7 +56,7 @@ class HtmlHelper
             foreach ($matches[1] as $index => $url) {
                 $linkText = $matches[2][$index];
                 // Create an ImageReference object with linkText as imageReference and url as imagePath
-                $imageReference = new ImageReference($linkText, $url);
+                $imageReference = new ImageReference($prefix.$linkText, $url);
                 $imageReferences[] = $imageReference;
             }
         }

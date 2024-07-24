@@ -52,9 +52,12 @@ class HtmlHelperTest extends FunctionalTestCase
 
     public function testExtractUrlsByClass(): void
     {
+        $prefix = 'New_';
         // Test 1: <a> tag with class darstellung and href attribute
         $htmlWithClass = '<a class="darstellung" href="https://www.example1.com">Example 1</a>';
-        $expectedWithClass = [new ImageReference('Example 1', 'https://www.example1.com')];
+        $expectedWithClass = [
+            new ImageReference($prefix.'Example 1', 'https://www.example1.com')
+        ];
 
         // Test 2: <a> tag without class darstellung but with href attribute
         $htmlWithoutClass = '<a href="https://www.example2.com">Example 2</a>';
@@ -65,14 +68,15 @@ class HtmlHelperTest extends FunctionalTestCase
             '<a class="other-class" href="https://www.example4.com">Example 4</a>'.
             '<a class="darstellung" href="https://www.example5.com">Example 5</a>';
         $expectedMixed = [
-            new ImageReference('Example 3', 'https://www.example3.com'),
-            new ImageReference('Example 5', 'https://www.example5.com'),
+            new ImageReference($prefix.'Example 3', 'https://www.example3.com'),
+            new ImageReference($prefix.'Example 5', 'https://www.example5.com'),
         ];
 
         $class = HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL;
-        $resultA = $this->sut->extractImageDataByClass($htmlWithClass, $class);
-        $resultB = $this->sut->extractImageDataByClass($htmlWithoutClass, $class);
-        $resultC = $this->sut->extractImageDataByClass($htmlMixed, $class);
+
+        $resultA = $this->sut->extractImageDataByClass($htmlWithClass, $class, $prefix);
+        $resultB = $this->sut->extractImageDataByClass($htmlWithoutClass, $class, $prefix);
+        $resultC = $this->sut->extractImageDataByClass($htmlMixed, $class, $prefix);
 
         static::assertIsArray($resultA);
         static::assertCount(1, $resultA);
@@ -81,7 +85,7 @@ class HtmlHelperTest extends FunctionalTestCase
         static::assertSame($expectedWithClass[0]->getImagePath(), $resultA[0]->getImagePath());
 
         static::assertIsArray($resultB);
-        static::assertCount(0, $resultB);
+        static::assertSame($expectedWithoutClass, $resultB);
 
         static::assertIsArray($resultC);
         static::assertCount(2, $resultC);
