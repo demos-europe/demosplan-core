@@ -11,6 +11,7 @@
 namespace Tests\Core\Core\Unit\Utilities\Twig;
 
 use demosplan\DemosPlanCoreBundle\Twig\Extension\TwigToolsExtension;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Yaml\Yaml;
@@ -19,7 +20,7 @@ use Tests\Base\FunctionalTestCase;
 use Twig\TwigFunction;
 
 /**
- * Teste TwigToolsExtension.
+ * Test TwigToolsExtension.
  *
  * @group UnitTest
  */
@@ -35,13 +36,13 @@ class TwigToolsExtensionTest extends FunctionalTestCase
         parent::setUp();
 
         $this->sut = new TwigToolsExtension(
-            self::$container,
-            self::$container->get(ParameterBagInterface::class),
-            self::$container->get(TranslatorInterface::class)
+            $this->getContainer(),
+            $this->getContainer()->get(ParameterBagInterface::class),
+            $this->getContainer()->get(TranslatorInterface::class)
         );
     }
 
-    public function testGetFilters()
+    public function testGetFilters(): void
     {
         $result = $this->sut->getFunctions();
         static::assertTrue(is_array($result) && isset($result[0]));
@@ -89,22 +90,18 @@ class TwigToolsExtensionTest extends FunctionalTestCase
         }
     }
 
-    public function testName()
+    public function testName(): void
     {
         $result = $this->sut->getName();
         static::assertEquals('twigTools_extension', $result);
     }
 
-    public function testGetFormOption()
+    public function testGetFormOption(): void
     {
-        self::markSkippedForCIIntervention();
-        // This test fails yet depending on which project config is used as form_options may be overridden
-
-        $yaml = Yaml::parseFile(__DIR__.'/../../../../config/form_options.yml');
-        $options = $yaml['parameters']['form_options'];
+        $parameterBag =  $this->getContainer()->get(ParameterBagInterface::class);
+        $options = $parameterBag->get('form_options');
 
         static::assertEquals($options, $this->sut->getFormOption(null, false, 'KEEP'));
-
         static::assertStringNotMatchesFormat('/.+\./', $this->sut->getFormOption('statement_submit_types.values', false)['email']);
         static::assertNull($this->sut->getFormOption('i.don.t.exist.nor.will.i.ever.because.i.am.the.weirdest'));
     }
