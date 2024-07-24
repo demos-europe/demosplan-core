@@ -270,7 +270,7 @@ export default {
 
     loadItems () {
       const arr = []
-      if (hasPermission('area_organisations')) {
+      if (hasPermission('feature_organisation_user_list')) {
         arr.push(this.organisationList({ include: ['departments', 'allowedRoles'].join() }))
       } else {
         arr.push(this.departmentList())
