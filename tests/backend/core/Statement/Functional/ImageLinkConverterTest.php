@@ -20,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
-use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ConvertedSegment;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ImageReference;
 use Tests\Base\FunctionalTestCase;
 
