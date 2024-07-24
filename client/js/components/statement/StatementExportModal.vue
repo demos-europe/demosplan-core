@@ -23,10 +23,10 @@
         {{ exportModalTitle }}
       </h2>
 
-      <section v-if="!isSingleStatementExport">
-        <h3 class="text-lg">
-          {{ Translator.trans('export.type') }}
-        </h3>
+      <fieldset v-if="!isSingleStatementExport">
+        <legend
+          class="o-form__label text-base"
+          v-text="Translator.trans('export.type')" />
         <div class="flex flex-row mb-5 mt-1 gap-3">
           <dp-radio
             v-for="(exportType, key) in exportTypes"
@@ -40,14 +40,13 @@
             :checked="active === key"
             @change="active = key" />
         </div>
-      </section>
+      </fieldset>
 
-      <section v-if="['docx', 'zip'].includes(this.active)">
-        <h3
+      <fieldset v-if="['docx', 'zip'].includes(this.active)">
+        <legend
           id="docxColumnTitles"
-          class="inline-block text-lg mr-1">
-          {{ Translator.trans('docx.export.column.title') }}
-        </h3>
+          class="o-form__label text-base float-left mr-1"
+          v-text="Translator.trans('docx.export.column.title')" />
         <dp-contextual-help
           aria-labelledby="docxColumnTitles"
           :text="Translator.trans('docx.export.column.title.hint')" />
@@ -62,18 +61,18 @@
             type="text"
             :width="column.width" />
         </div>
-        <template v-if="this.active === 'zip' || isSingleStatementExport">
-          <h3
+        <fieldset v-if="this.active === 'zip' || isSingleStatementExport">
+          <legend
             id="docxFileName"
-            class="inline-block text-lg mr-1">
-            {{ Translator.trans('docx.export.file_name') }}
-          </h3>
+            class="o-form__label text-base float-left mr-1"
+            v-text="Translator.trans('docx.export.file_name')" />
           <dp-contextual-help
             aria-labelledby="docxFileName"
             :text="Translator.trans('docx.export.file_name.hint')" />
           <dp-input
             id="fileName"
             v-model="fileName"
+            class="mt-1"
             :placeholder="Translator.trans('docx.export.file_name.placeholder')"
             type="text"/>
           <div class="font-size-small mt-2">
@@ -82,8 +81,8 @@
               v-text="Translator.trans('docx.export.example_file_name')" />
             <span v-text="exampleFileName" />
           </div>
-        </template>
-      </section>
+        </fieldset>
+      </fieldset>
 
       <dp-button-row
         class="text-right mt-auto"
