@@ -271,7 +271,7 @@ export default {
     },
 
     isManagingSingleOrganisation () {
-      return hasPermission('feature_organisation_user_list') === false && this.presetUserOrgaId
+      return !hasPermission('feature_organisation_user_list') && this.presetUserOrgaId
     },
 
     isUserSet () {
@@ -379,7 +379,7 @@ export default {
     },
 
     resetData () {
-      if (hasPermission('feature_organisation_user_list') === false) {
+      if (!hasPermission('feature_organisation_user_list')) {
         const plainUser = JSON.parse(JSON.stringify(this.user))
         delete plainUser.relationships
         plainUser.relationships = this.localUser.relationships
