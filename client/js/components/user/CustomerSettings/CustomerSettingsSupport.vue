@@ -30,7 +30,7 @@
             class="u-mb-0_75"
             data-cy="contactTitle"
             :pattern="titlesInUsePattern"
-            :data-dp-validate-error="customerContact.title === '' ? Translator.trans('error.name.required') : Translator.trans('error.name.unique')"
+            :data-dp-validate-error="Translator.trans(customerContact.title === '' ? 'error.name.required' : 'error.name.unique')"
             :label="{
               text: Translator.trans('contact.name')
             }"
