@@ -54,7 +54,7 @@ final class RoleResourceType extends DplanResourceType
 
     public function isListAllowed(): bool
     {
-        return $this->currentUser->hasPermission('feature_user_list');
+        return false;
     }
 
     protected function getAccessConditions(): array

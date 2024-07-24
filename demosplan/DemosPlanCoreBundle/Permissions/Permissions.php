@@ -279,6 +279,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'feature_json_api_update',
                 'feature_orga_edit_all_fields',
                 'feature_orga_get',
+                'feature_organisation_user_list',
                 'field_statement_recommendation',
             ]);
         }
@@ -406,6 +407,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_preferences',  // Einstellungen
                 'feature_orga_edit',
                 'feature_orga_edit_all_fields',
+                'feature_organisation_user_list',
                 'feature_procedure_report_public_phase',
                 'field_data_protection_text_customized_edit_customer',
                 'field_imprint_text_customized_edit_customer',
@@ -425,6 +427,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_preferences',  // Einstellungen
                 'area_statistics',  // Statistiken
                 'feature_orga_get',
+                'feature_organisation_user_list',
                 'feature_procedure_report_public_phase',
                 'field_data_protection_text_customized_edit_customer',
                 'field_imprint_text_customized_edit_customer',

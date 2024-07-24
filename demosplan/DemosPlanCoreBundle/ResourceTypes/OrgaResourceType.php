@@ -107,7 +107,8 @@ final class OrgaResourceType extends DplanResourceType
             'area_manage_orgas',
             'area_manage_orgas_all',
             'area_organisations',
-            'area_report_mastertoeblist'
+            'area_report_mastertoeblist',
+            'feature_organisation_user_list'
         );
 
         $mandatoryConditions = $this->getMandatoryConditions();
@@ -207,7 +208,7 @@ final class OrgaResourceType extends DplanResourceType
         }
 
         // OrgaStatusInCustomer @organisation-list filtering for orga
-        if ($this->currentUser->hasPermission('area_organisations')) {
+        if ($this->currentUser->hasAnyPermissions('area_organisations', 'feature_organisation_user_list')) {
             $statusInCustomers->sortable()->filterable()->readable();
         } else {
             $statusInCustomers->readable(false, $this->getRegistration(...));

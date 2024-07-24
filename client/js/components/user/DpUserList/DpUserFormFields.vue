@@ -54,7 +54,7 @@
         {{ Translator.trans('organisation') }}*
       </label>
       <dp-multiselect
-        v-if="hasPermission('area_organisations')"
+        v-if="hasPermission('feature_organisation_user_list')"
         :id="userId + ':organisationId'"
         ref="orgasDropdown"
         data-cy="organisation"
@@ -271,7 +271,7 @@ export default {
     },
 
     isManagingSingleOrganisation () {
-      return hasPermission('area_organisations') === false && this.presetUserOrgaId
+      return hasPermission('feature_organisation_user_list') === false && this.presetUserOrgaId
     },
 
     isUserSet () {
@@ -379,7 +379,7 @@ export default {
     },
 
     resetData () {
-      if (hasPermission('area_organisations') === false) {
+      if (hasPermission('feature_organisation_user_list') === false) {
         const plainUser = JSON.parse(JSON.stringify(this.user))
         delete plainUser.relationships
         plainUser.relationships = this.localUser.relationships

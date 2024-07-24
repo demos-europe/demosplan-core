@@ -255,6 +255,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_procedure_report_public_phase',
                     'field_statement_recommendation',
                     'feature_orga_edit',
+                    'feature_organisation_user_list',
                 ],
                 'featuresDenied'                    => [
                     'area_accessibility_explanation',
@@ -834,6 +835,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_orga_add',
                     'feature_orga_delete',
                     'feature_orga_registration',
+                    'feature_organisation_user_list',
                     'feature_plain_language',
                     'feature_procedure_all_orgas_invited',
                     'feature_procedure_export_include_public_interest_bodies_member_list',
@@ -2649,6 +2651,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_orga_edit',
                     'feature_orga_edit_all_fields',
                     'feature_orga_registration',
+                    'feature_organisation_user_list',
                     'feature_plain_language',
                     'feature_procedure_get_base_data',
                     'feature_procedure_legal_notice_read',
