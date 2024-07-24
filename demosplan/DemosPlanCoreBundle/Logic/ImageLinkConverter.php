@@ -77,15 +77,15 @@ final class ImageLinkConverter
     {
         $asLinkedReference
             ? $text = $this->htmlHelper->updateLinkTextWithClass(
-            $text,
-            HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL,
-            $prefix
-        )
+                $text,
+                HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL,
+                $prefix
+            )
             : $text = $this->htmlHelper->removeLinkTagsByClass(
-            $text,
-            HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL,
-            $prefix
-        );
+                $text,
+                HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL,
+                $prefix
+            );
 
         return $text;
     }
