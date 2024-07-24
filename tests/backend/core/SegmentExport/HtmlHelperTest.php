@@ -66,9 +66,9 @@ class HtmlHelperTest extends FunctionalTestCase
         $expectedUrlsMixed = ['https://www.example3.com', 'https://www.example5.com'];
 
         $class = HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL;
-        $resultA = HtmlHelper::extractUrlsByClass($htmlWithClass, $class);
-        $resultB = HtmlHelper::extractUrlsByClass($htmlWithoutClass, $class);
-        $resultC = HtmlHelper::extractUrlsByClass($htmlMixed, $class);
+        $resultA = $this->sut->extractUrlsByClass($htmlWithClass, $class);
+        $resultB = $this->sut->extractUrlsByClass($htmlWithoutClass, $class);
+        $resultC = $this->sut->extractUrlsByClass($htmlMixed, $class);
 
         static::assertSame($expectedUrlsWithClass, $resultA);
         static::assertSame($expectedUrlsWithoutClass, $resultB);

@@ -39,7 +39,7 @@ class HtmlHelper
      *
      * @return array<int, string> An array containing the extracted URLs.
      */
-    public static function extractUrlsByClass(string $htmlText, string $class): array
+    public function extractUrlsByClass(string $htmlText, string $class): array
     {
         $urls = [];
 
