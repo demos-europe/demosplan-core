@@ -80,7 +80,7 @@ class HtmlHelper
     {
         $pattern = '/(<a\b[^>]*class="[^"]*\b'
             .preg_quote($className, '/').'\b[^"]*")[^>]*(href="[^"]*")[^>]*(>)(.*?)(<\/a>)/i';
-        $replacement = '$1 href="#'.$prefix.'$4'.'" style="color: blue; text-decoration: underline;"$3'.$prefix.'$4$5';
+        $replacement = '$1 href="#'.$prefix.'$4" style="color: blue; text-decoration: underline;"$3'.$prefix.'$4$5';
 
         return preg_replace($pattern, $replacement, $htmlText);
     }
