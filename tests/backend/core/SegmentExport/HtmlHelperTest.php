@@ -124,12 +124,15 @@ class HtmlHelperTest extends FunctionalTestCase
 
     public function testRemoveLinkTagsByClass(): void
     {
+        $prefix = 'New_';
         $htmlMixed = '<a class="darstellung" href="https://www.example1.com">Old Text 1</a>'.
             '<a class="other-class" href="https://www.example2.com">Old Text 2</a>'.
             '<a class="darstellung" href="https://www.example3.com">Old Text 3</a>';
-        $expectedMixed = 'Old Text 1<a class="other-class" href="https://www.example2.com">Old Text 2</a>Old Text 3';
+        $expectedMixed = $prefix
+            .'Old Text 1<a class="other-class" href="https://www.example2.com">Old Text 2</a>'.$prefix.'Old Text 3';
         $class = HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL;
-        $result = $this->sut->removeLinkTagsByClass($htmlMixed, $class);
+
+        $result = $this->sut->removeLinkTagsByClass($htmlMixed, $class, $prefix);
         static::assertSame($expectedMixed, $result);
     }
 }

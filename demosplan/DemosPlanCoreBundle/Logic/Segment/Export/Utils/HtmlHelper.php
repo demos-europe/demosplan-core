@@ -81,13 +81,14 @@ class HtmlHelper
 
     /**
      * Removes all <a> tags with the specified class from the given HTML text.
+     * The inner text of the removed tags is replaced with the specified prefix.
      */
-    public function removeLinkTagsByClass(string $htmlText, string $className): string
+    public function removeLinkTagsByClass(string $htmlText, string $className, string $prefix): string
     {
         // Regex pattern to match <a> tags with the specified class and capture their inner text
         $pattern = '/<a\b[^>]*class="[^"]*\b'.preg_quote($className, '/').'\b[^"]*"[^>]*>(.*?)<\/a>/i';
         // Replacement string to keep only the inner text
-        $replacement = '$1';
+        $replacement = $prefix.'$1';
 
         return preg_replace($pattern, $replacement, $htmlText);
     }
