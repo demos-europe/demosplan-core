@@ -45,9 +45,9 @@ class TwigToolsExtensionTest extends FunctionalTestCase
     public function testGetFilters(): void
     {
         $result = $this->sut->getFunctions();
-        static::assertTrue(is_array($result) && isset($result[0]));
-        static::assertInstanceOf(TwigFunction::class, $result[0]);
-        static::assertSame('getFormOption', $result[0]->getName());
+        self::assertTrue(is_array($result) && isset($result[0]));
+        self::assertInstanceOf(TwigFunction::class, $result[0]);
+        self::assertSame('getFormOption', $result[0]->getName());
     }
 
     public function testSaveLoginPath(): void
@@ -56,15 +56,15 @@ class TwigToolsExtensionTest extends FunctionalTestCase
             $loginPath = 'testValue';
 
             $result = $this->sut->getLoginPath();
-            static::assertSame('', $result);
+            self::assertSame('', $result);
 
             $this->sut->setLoginPath($loginPath);
             $result = $this->sut->getLoginPath();
-            static::assertEquals($loginPath, $result);
+            self::assertEquals($loginPath, $result);
 
             $this->sut->setLoginPath($loginPath);
             $result = $this->sut->getLoginPath();
-            static::assertEquals($loginPath, $result);
+            self::assertEquals($loginPath, $result);
         } catch (Exception $e) {
             $this->fail($e->getMessage());
         }
@@ -76,15 +76,15 @@ class TwigToolsExtensionTest extends FunctionalTestCase
             $displayOrder = 2;
 
             $result = $this->sut->getDisplayOrder();
-            static::assertSame(0, $result);
+            self::assertSame(0, $result);
 
             $this->sut->setDisplayOrder($displayOrder);
             $result = $this->sut->getDisplayOrder();
-            static::assertEquals($displayOrder, $result);
+            self::assertEquals($displayOrder, $result);
 
             $this->sut->setDisplayOrder($displayOrder);
             $result = $this->sut->getDisplayOrder();
-            static::assertEquals($displayOrder, $result);
+            self::assertEquals($displayOrder, $result);
         } catch (Exception $e) {
             $this->fail($e->getMessage());
         }
@@ -93,7 +93,7 @@ class TwigToolsExtensionTest extends FunctionalTestCase
     public function testName(): void
     {
         $result = $this->sut->getName();
-        static::assertEquals('twigTools_extension', $result);
+        self::assertEquals('twigTools_extension', $result);
     }
 
     public function testGetFormOption(): void
@@ -101,8 +101,8 @@ class TwigToolsExtensionTest extends FunctionalTestCase
         $parameterBag =  $this->getContainer()->get(ParameterBagInterface::class);
         $options = $parameterBag->get('form_options');
 
-        static::assertEquals($options, $this->sut->getFormOption(null, false, 'KEEP'));
-        static::assertStringNotMatchesFormat('/.+\./', $this->sut->getFormOption('statement_submit_types.values', false)['email']);
-        static::assertNull($this->sut->getFormOption('i.don.t.exist.nor.will.i.ever.because.i.am.the.weirdest'));
+        self::assertEquals($options, $this->sut->getFormOption(null, false, 'KEEP'));
+        self::assertStringNotMatchesFormat('/.+\./', $this->sut->getFormOption('statement_submit_types.values', false)['email']);
+        self::assertNull($this->sut->getFormOption('i.don.t.exist.nor.will.i.ever.because.i.am.the.weirdest'));
     }
 }
