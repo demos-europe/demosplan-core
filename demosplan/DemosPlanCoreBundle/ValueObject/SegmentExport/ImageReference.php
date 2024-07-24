@@ -15,7 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 
 /**
- * Class ImageReference
+ * Class ImageReference.
  *
  * @method string getImagePath()
  * @method string getImageReference()

@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ImageReference;
 class HtmlHelper
 {
     public const LINK_CLASS_FOR_DARSTELLUNG_STELL = 'darstellung';
+
     public function __construct(private readonly HTMLSanitizer $htmlSanitizer)
     {
     }
@@ -39,9 +40,10 @@ class HtmlHelper
      * Extracts URLs from the given HTML text that are contained within <a> tags with the specified class, and
      * creates ImageReference objects from those URLs.
      *
-     * @param string $htmlText The input HTML text.
-     * @param string $class The class name to look for within the <a> tags.
-     * @return array<int, ImageReference> An array containing the extracted ImageReference objects.
+     * @param string $htmlText the input HTML text
+     * @param string $class    the class name to look for within the <a> tags
+     *
+     * @return array<int, ImageReference> an array containing the extracted ImageReference objects
      */
     public function extractImageDataByClass(string $htmlText, string $class): array
     {
@@ -67,15 +69,17 @@ class HtmlHelper
     /**
      * Updates the link text of all links with the specified class by appending a prefix.
      *
-     * @param string $htmlText The input HTML text.
-     * @param string $className The class name to look for.
-     * @param string $prefix The prefix to add to the link texts.
-     * @return string The updated HTML text.
+     * @param string $htmlText  the input HTML text
+     * @param string $className the class name to look for
+     * @param string $prefix    the prefix to add to the link texts
+     *
+     * @return string the updated HTML text
      */
     public function updateLinkTextWithClass(string $htmlText, string $className, string $prefix): string
     {
         $pattern = '/(<a\b[^>]*class="[^"]*\b'.preg_quote($className, '/').'\b[^"]*"[^>]*>)(.*?)(<\/a>)/i';
-        $replacement = '$1' . $prefix . '$2' . '$3';
+        $replacement = '$1'.$prefix.'$2$3';
+
         return preg_replace($pattern, $replacement, $htmlText);
     }
 }

@@ -67,7 +67,7 @@ final class ImageLinkConverter
 
         $this->images[] = [
             self::IMAGES_KEY_RECOMMENDATION => $this->currentImagesFromRecommendationText,
-            self::IMAGES_KEY_SEGMENTS => $imageReferencesFromSegmentText,
+            self::IMAGES_KEY_SEGMENTS       => $imageReferencesFromSegmentText,
         ];
 
         return new ConvertedSegment($xmlSegmentText, $xmlRecommendationText);

@@ -130,7 +130,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     }
 
     /**
-     * @param array<string, mixed> $segmentsOrStatements
+     * @param array<string, mixed>            $segmentsOrStatements
      * @param array<string, ConvertedSegment> $convertedSegments
      *
      * @return array<string, mixed>

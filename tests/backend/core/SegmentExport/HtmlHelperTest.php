@@ -61,12 +61,12 @@ class HtmlHelperTest extends FunctionalTestCase
         $expectedWithoutClass = [];
 
         // Test 3: Multiple <a> tags with and without class darstellung
-        $htmlMixed = '<a class="darstellung" href="https://www.example3.com">Example 3</a>' .
-            '<a class="other-class" href="https://www.example4.com">Example 4</a>' .
+        $htmlMixed = '<a class="darstellung" href="https://www.example3.com">Example 3</a>'.
+            '<a class="other-class" href="https://www.example4.com">Example 4</a>'.
             '<a class="darstellung" href="https://www.example5.com">Example 5</a>';
         $expectedMixed = [
             new ImageReference('Example 3', 'https://www.example3.com'),
-            new ImageReference('Example 5', 'https://www.example5.com')
+            new ImageReference('Example 5', 'https://www.example5.com'),
         ];
 
         $class = HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL;
@@ -102,11 +102,11 @@ class HtmlHelperTest extends FunctionalTestCase
         $htmlWithoutClass = '<a href="https://www.example2.com">Old Text</a>';
         $expectedWithoutClass = '<a href="https://www.example2.com">Old Text</a>';
         // Test 3: Multiple <a> tags, some with class darstellung and some without
-        $htmlMixed = '<a class="darstellung" href="https://www.example3.com">Old Text 3</a>' .
-            '<a class="other-class" href="https://www.example4.com">Old Text 4</a>' .
+        $htmlMixed = '<a class="darstellung" href="https://www.example3.com">Old Text 3</a>'.
+            '<a class="other-class" href="https://www.example4.com">Old Text 4</a>'.
             '<a class="darstellung" href="https://www.example5.com">Old Text 5</a>';
-        $expectedMixed = '<a class="darstellung" href="https://www.example3.com">New_Old Text 3</a>' .
-            '<a class="other-class" href="https://www.example4.com">Old Text 4</a>' .
+        $expectedMixed = '<a class="darstellung" href="https://www.example3.com">New_Old Text 3</a>'.
+            '<a class="other-class" href="https://www.example4.com">Old Text 4</a>'.
             '<a class="darstellung" href="https://www.example5.com">New_Old Text 5</a>';
         $prefix = 'New_';
         $resultA = $this->sut->updateLinkTextWithClass($htmlWithClass, 'darstellung', $prefix);
