@@ -17,7 +17,7 @@
       autocomplete="tel"
       class="u-mb-0_75"
       data-cy="phoneNumber"
-      :data-dp-validate-error="!contact.phoneNumber ? Translator.trans('error.phone.required') : Translator.trans('error.phone.pattern')"
+      :data-dp-validate-error="Translator.trans(!contact.phoneNumber ? 'error.phone.required' : 'error.phone.pattern')"
       :label="{
         text: Translator.trans('contact.phone_number')
       }"
