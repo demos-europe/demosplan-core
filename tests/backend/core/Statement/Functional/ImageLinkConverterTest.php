@@ -51,54 +51,67 @@ class ImageLinkConverterTest extends FunctionalTestCase
 
     public function testConvertWithLinkedReference(): void
     {
-        /** @var Segment $segment */
-        $segment = SegmentFactory::createOne()->_real();
-        $recommendation = '<p>Some text <img src="path/to/image1.jpg" /> more text <img src="path/to/image2.jpg" /></p>';
-        $segment->setRecommendation($recommendation);
+        $segment = $this->createTestSegment();
 
         $statementExternId = 'statement123';
         $linkStyle = 'style="color: blue; text-decoration: underline;"';
-        $linkStart = '<a href="#statement123'.ImageLinkConverter::IMAGE_REFERENCE_RECOMMENDATION_SUFFIX;
+        $linkStartRecommendation = '<a href="#'.$statementExternId.ImageLinkConverter::IMAGE_REFERENCE_RECOMMENDATION_SUFFIX;
+        $linkStartSegmentText = '<a class="darstellung" href="#'.$statementExternId.ImageLinkConverter::IMAGE_REFERENCE_SEGMENT_TEXT_SUFFIX;
         $linkEnd = '" '.$linkStyle.'>';
         $linkClose = '</a>';
-        $expected = '<p>Some text '.$linkStart.'001'.$linkEnd.
-            'statement123'.ImageLinkConverter::IMAGE_REFERENCE_RECOMMENDATION_SUFFIX.'001'.$linkClose.
-            ' more text '.$linkStart.'002'.$linkEnd.
-            'statement123'.ImageLinkConverter::IMAGE_REFERENCE_RECOMMENDATION_SUFFIX.'002'.$linkClose.'</p>';
+
+        $expectedSegmentText = '<p>Some text '.$linkStartSegmentText.'001'.$linkEnd.
+            $statementExternId.ImageLinkConverter::IMAGE_REFERENCE_SEGMENT_TEXT_SUFFIX.'001'.$linkClose.
+            ' more text <a href="path/to/image2.jpg">image2</a>'.
+            ' and '.$linkStartSegmentText.'002'.$linkEnd.
+            $statementExternId.ImageLinkConverter::IMAGE_REFERENCE_SEGMENT_TEXT_SUFFIX.'002'.$linkClose.'</p>';
+
+        $expectedRecommendation = '<p>Some text '.$linkStartRecommendation.'001'.$linkEnd.
+            $statementExternId.ImageLinkConverter::IMAGE_REFERENCE_RECOMMENDATION_SUFFIX.'001'.$linkClose.
+            ' more text '.$linkStartRecommendation.'002'.$linkEnd.
+            $statementExternId.ImageLinkConverter::IMAGE_REFERENCE_RECOMMENDATION_SUFFIX.'002'.$linkClose.'</p>';
+
         $result = $this->sut->convert($segment, $statementExternId);
 
-        static::assertSame($expected, $result->getRecommendationText());
+        static::assertSame($expectedSegmentText, $result->getText());
+        static::assertSame($expectedRecommendation, $result->getRecommendationText());
     }
 
     public function testConvertWithoutLinkedReference(): void
     {
-        /** @var Segment $segment */
-        $segment = SegmentFactory::createOne()->_real();
-        $recommendation = '<p>Some text <img src="path/to/image1.jpg" /> more text <img src="path/to/image2.jpg" /></p>';
-        $segment->setRecommendation($recommendation);
+        $segment = $this->createTestSegment();
 
         $statementExternId = 'statement123';
-        $expected = '<p>Some text '.$statementExternId.ImageLinkConverter::IMAGE_REFERENCE_RECOMMENDATION_SUFFIX.'001'.
-            ' more text statement123'.ImageLinkConverter::IMAGE_REFERENCE_RECOMMENDATION_SUFFIX.'002</p>';
+        $expectedSegmentText = '<p>Some text '.$statementExternId.ImageLinkConverter::IMAGE_REFERENCE_SEGMENT_TEXT_SUFFIX.'001'.
+            ' more text <a href="path/to/image2.jpg">image2</a> and '.
+            $statementExternId.ImageLinkConverter::IMAGE_REFERENCE_SEGMENT_TEXT_SUFFIX.'002</p>';
+        $expectedRecommendation = '<p>Some text '.$statementExternId.ImageLinkConverter::IMAGE_REFERENCE_RECOMMENDATION_SUFFIX.'001'.
+            ' more text '.$statementExternId.ImageLinkConverter::IMAGE_REFERENCE_RECOMMENDATION_SUFFIX.'002</p>';
         $result = $this->sut->convert($segment, $statementExternId, false);
 
-        static::assertSame($expected, $result->getRecommendationText());
+        static::assertSame($expectedSegmentText, $result->getText());
+        static::assertSame($expectedRecommendation, $result->getRecommendationText());
     }
 
     public function testGetImages(): void
     {
-        /** @var Segment $segment */
-        $segment = SegmentFactory::createOne()->_real();
-        $recommendation = '<p>Some text <img src="path/to/image1.jpg" /> more text <img src="path/to/image2.jpg" /></p>';
-        $segment->setRecommendation($recommendation);
+        $segment = $this->createTestSegment();
         $statementExternId = 'statement123';
 
         $this->sut->convert($segment, $statementExternId);
 
-        $keyImage1 = $statementExternId.ImageLinkConverter::IMAGE_REFERENCE_RECOMMENDATION_SUFFIX.'001';
-        $keyImage2 = $statementExternId.ImageLinkConverter::IMAGE_REFERENCE_RECOMMENDATION_SUFFIX.'002';
-        $expectedImage1 = new ImageReference($keyImage1, '/absolute/path/to/image1.jpg');
-        $expectedImage2 = new ImageReference($keyImage2, '/absolute/path/to/image2.jpg');
+        $keyImage1 = $statementExternId.ImageLinkConverter::IMAGE_REFERENCE_SEGMENT_TEXT_SUFFIX.'001';
+        $keyImage3 = $statementExternId.ImageLinkConverter::IMAGE_REFERENCE_SEGMENT_TEXT_SUFFIX.'002';
+        $keyImage4 = $statementExternId.ImageLinkConverter::IMAGE_REFERENCE_RECOMMENDATION_SUFFIX.'001';
+        $keyImage5 = $statementExternId.ImageLinkConverter::IMAGE_REFERENCE_RECOMMENDATION_SUFFIX.'002';
+        $imagePath1 = 'path/to/image1.jpg';
+        $imagePath3 = 'path/to/image3.jpg';
+        $imagePath4 = '/absolute/path/to/image4.jpg';
+        $imagePath5 = '/absolute/path/to/image5.jpg';
+        $expectedImage1 = new ImageReference($keyImage1, $imagePath1);
+        $expectedImage3 = new ImageReference($keyImage3, $imagePath3);
+        $expectedImage4 = new ImageReference($keyImage4, $imagePath4);
+        $expectedImage5 = new ImageReference($keyImage5, $imagePath5);
 
         $result = $this->sut->getImages();
 
@@ -111,35 +124,41 @@ class ImageLinkConverterTest extends FunctionalTestCase
             ImageReference::class,
             $result[0][ImageLinkConverter::IMAGES_KEY_RECOMMENDATION][1]
         );
-        static::assertSame(
-            $expectedImage1->getImageReference(),
-            $result[0][ImageLinkConverter::IMAGES_KEY_RECOMMENDATION][0]->getImageReference()
-        );
-        static::assertSame(
-            $expectedImage1->getImagePath(),
-            $result[0][ImageLinkConverter::IMAGES_KEY_RECOMMENDATION][0]->getImagePath()
-        );
-        static::assertSame(
-            $expectedImage2->getImageReference(),
-            $result[0][ImageLinkConverter::IMAGES_KEY_RECOMMENDATION][1]->getImageReference()
-        );
-        static::assertSame(
-            $expectedImage2->getImagePath(),
-            $result[0][ImageLinkConverter::IMAGES_KEY_RECOMMENDATION][1]->getImagePath()
-        );
+        [$result1, $result2] = $result[0][ImageLinkConverter::IMAGES_KEY_SEGMENTS];
+        [$result3, $result4] = $result[0][ImageLinkConverter::IMAGES_KEY_RECOMMENDATION];
+        static::assertSame($expectedImage1->getImageReference(), $result1->getImageReference());
+        static::assertSame($expectedImage1->getImagePath(), $result1->getImagePath());
+        static::assertSame($expectedImage3->getImageReference(), $result2->getImageReference());
+        static::assertSame($expectedImage3->getImagePath(), $result2->getImagePath());
+        static::assertSame($expectedImage4->getImageReference(), $result3->getImageReference());
+        static::assertSame($expectedImage4->getImagePath(), $result3->getImagePath());
+        static::assertSame($expectedImage5->getImageReference(), $result4->getImageReference());
+        static::assertSame($expectedImage5->getImagePath(), $result4->getImagePath());
     }
 
     public function testResetImages(): void
     {
-        /** @var Segment $segment */
-        $segment = SegmentFactory::createOne()->_real();
-        $recommendation = '<p>Some text <img src="path/to/image1.jpg" /></p>';
-        $segment->setRecommendation($recommendation);
+        $segment = $this->createTestSegment();
         $statementExternId = 'statement123';
 
         $this->sut->convert($segment, $statementExternId);
         $this->sut->resetImages();
 
         static::assertEmpty($this->sut->getImages());
+    }
+
+    private function createTestSegment(): Segment
+    {
+        /** @var Segment $segment */
+        $segment = SegmentFactory::createOne()->_real();
+        $link1 = '<a class="darstellung" href="path/to/image1.jpg">Darstellung_Stell_001</a>';
+        $link2 = '<a href="path/to/image2.jpg">image2</a>';
+        $link3 = '<a class="darstellung" href="path/to/image3.jpg">Darstellung_Stell_002</a>';
+        $text = '<p>Some text '.$link1.' more text '.$link2.' and '.$link3.'</p>';
+        $recommendation = '<p>Some text <img src="path/to/image4.jpg" /> more text <img src="path/to/image5.jpg" /></p>';
+        $segment->setRecommendation($recommendation);
+        $segment->setText($text);
+
+        return $segment;
     }
 }

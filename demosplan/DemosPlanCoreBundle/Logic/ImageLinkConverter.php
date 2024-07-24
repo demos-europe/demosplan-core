@@ -21,6 +21,7 @@ use Exception;
 final class ImageLinkConverter
 {
     public const IMAGE_REFERENCE_RECOMMENDATION_SUFFIX = '_Darstellung_Erw_';
+    public const IMAGE_REFERENCE_SEGMENT_TEXT_SUFFIX = '_Darstellung_Stell_';
     private const IMAGE_REFERENCE_RECOMMENDATION_FORMAT = '%s'.self::IMAGE_REFERENCE_RECOMMENDATION_SUFFIX.'%03d';
     public const IMAGES_KEY_RECOMMENDATION = 'recommendation';
     public const IMAGES_KEY_SEGMENTS = 'segments';
@@ -48,15 +49,14 @@ final class ImageLinkConverter
         $xmlSegmentText = str_replace('<br>', '<br/>', $segmentText);
         $xmlRecommendationText = str_replace('<br>', '<br/>', $recommendationText);
 
-        $xmlSegmentText = $this->htmlHelper->updateLinkTextWithClass(
-            $xmlSegmentText,
-            HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL,
-            $statementExternId.'_'
-        );
+        $prefix = $statementExternId.'_';
         $imageReferencesFromSegmentText = $this->htmlHelper->extractImageDataByClass(
             $xmlSegmentText,
-            HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL
+            HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL,
+            $prefix
         );
+
+        $xmlSegmentText = $this->updateSegmentText($asLinkedReference, $xmlSegmentText, $prefix);
 
         $this->resetCurrentImagesFromRecommendationText();
         $xmlRecommendationText = $this->replaceImagesWithTextReferences(
@@ -71,6 +71,23 @@ final class ImageLinkConverter
         ];
 
         return new ConvertedSegment($xmlSegmentText, $xmlRecommendationText);
+    }
+
+    private function updateSegmentText(bool $asLinkedReference, string $text, string $prefix): string
+    {
+        $asLinkedReference
+            ? $text = $this->htmlHelper->updateLinkTextWithClass(
+            $text,
+            HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL,
+            $prefix
+        )
+            : $text = $this->htmlHelper->removeLinkTagsByClass(
+            $text,
+            HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL,
+            $prefix
+        );
+
+        return $text;
     }
 
     private function replaceImagesWithTextReferences(string $html, string $statementExternId, bool $asLinkedReference): string
