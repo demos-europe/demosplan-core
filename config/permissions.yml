@@ -1341,7 +1341,7 @@ feature_organisation_set_showlist:
     loginRequired: true
     parent: [area_manage_orgas, area_manage_orgas_all]
 feature_organisation_user_list:
-    description: 'Show Organisations fields in use list'
+    description: 'allows to show Organisations list but does not allow access to the Organisation area in the menu'
     expose: true
     label: 'Allow User to see Organisations fields'
     loginRequired: true
