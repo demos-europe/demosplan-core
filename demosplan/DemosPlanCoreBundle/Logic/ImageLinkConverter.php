@@ -69,6 +69,11 @@ final class ImageLinkConverter
         return new ConvertedSegment($xmlSegmentText, $xmlRecommendationText);
     }
 
+    /**
+     * Extracts image references from the given XML segment text and converts them to ImageReference objects.
+     *
+     * @return array<int, ImageReference> an array containing the extracted ImageReference objects
+     */
     private function convertImageReferences(string $xmlSegmentText, string $prefix): array
     {
         $imageReferencesFromSegmentText = $this->htmlHelper->extractImageDataByClass(
