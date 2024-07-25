@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 
-use Cocur\Slugify\Slugify;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -21,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentExporterFileNameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
@@ -58,13 +58,14 @@ class SegmentsExportController extends BaseController
     )]
     public function exportAction(
         SegmentsExporter $exporter,
-        Slugify $slugify,
         StatementHandler $statementHandler,
+        SegmentExporterFileNameGenerator $fileNameGenerator,
         string $procedureId,
         string $statementId
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
         $tableHeaders = $this->requestStack->getCurrentRequest()->query->get('tableHeaders', []);
+        $fileNameTemplate = $this->requestStack->getCurrentRequest()->query->get('fileNameTemplate', '');
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         $statement = $statementHandler->getStatementWithCertainty($statementId);
         $response = new StreamedResponse(
@@ -74,11 +75,7 @@ class SegmentsExportController extends BaseController
             }
         );
 
-        $filename = $slugify->slugify($procedure->getName())
-            .'-'
-            .$statement->getExternId().'.docx';
-
-        $this->setResponseHeaders($response, $filename);
+        $this->setResponseHeaders($response, $fileNameGenerator->getFileName($statement, $fileNameTemplate).'.docx');
 
         return $response;
     }
@@ -191,6 +188,7 @@ class SegmentsExportController extends BaseController
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
         $tableHeaders = $this->requestStack->getCurrentRequest()->query->get('tableHeaders', []);
+        $fileNameTemplate = $this->requestStack->getCurrentRequest()->query->get('fileNameTemplate', '');
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         // This method applies mostly the same restrictions as the generic API access to retrieve statements.
         // It validates filter and search parameters and limits the returned statement entities to those
@@ -202,7 +200,7 @@ class SegmentsExportController extends BaseController
         );
         /** @var Statement[] $statements */
         $statements = array_values($statementResult->getList());
-        $statements = $exporter->mapStatementsToPathInZip($statements);
+        $statements = $exporter->mapStatementsToPathInZip($statements, $fileNameTemplate);
 
         return $zipExportService->buildZipStreamResponse(
             $exporter->getSynopseFileName($procedure, 'zip'),
