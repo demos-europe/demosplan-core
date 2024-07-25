@@ -884,7 +884,12 @@ export default {
   mounted () {
     this.fetchPlaces({
       fields: {
-        Place: ['name', 'sortIndex', 'description'].join()
+        Place: [
+          'description',
+          'name',
+          'solved',
+          'sortIndex'
+        ].join()
       },
       sort: 'sortIndex'
     })
