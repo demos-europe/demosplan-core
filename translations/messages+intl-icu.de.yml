@@ -3394,6 +3394,7 @@ statement.similarStatementSubmitters.hint: "Falls von weiteren Einreichenden inh
 statement.specification: "Angaben zur Stellungnahme"
 statement.split.complete: "Aufteilen abschließen"
 statement.split.complete.confirm: "Sind Sie sicher, dass Sie die Stellungnahme vollständig aufgeteilt haben? Sie können die gleiche Stellungnahme zu einem späteren Zeitpunkt nicht erneut bearbeiten."
+statement.status: "STN-Status"
 statement.submission.default: "Standard-Stellungnahmeprozess"
 statement.submission.shorthand: "Verkürzter Stellungnahmeprozess"
 statement.submission.type: "Stellungnahmeabgabeprozess"
