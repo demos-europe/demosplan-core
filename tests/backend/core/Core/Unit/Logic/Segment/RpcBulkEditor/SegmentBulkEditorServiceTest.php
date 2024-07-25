@@ -113,6 +113,8 @@ class SegmentBulkEditorServiceTest extends RpcApiTest
         $invalidProcedureId = '123';
         self::expectException(InvalidArgumentException::class);
         $segments = $this->sut->getValidSegments([$this->segment1->getId(), $this->segment2->getId()], $invalidProcedureId);
+        self::assertNotContains($this->segment1, $segments);
+        self::assertNotContains($this->segment2, $segments);
     }
 
     public function testGetValidTags(): void
@@ -132,6 +134,8 @@ class SegmentBulkEditorServiceTest extends RpcApiTest
 
         self::expectException(InvalidArgumentException::class);
         $tags = $this->sut->getValidTags([$testTag1, $testTag2], $this->procedure->getId());
+        self::assertNotContains($testTag1, $tags);
+        self::assertNotContains($testTag2, $tags);
     }
 
     /**
