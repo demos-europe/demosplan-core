@@ -109,7 +109,7 @@
         ref="rolesDropdown"
         class="u-mb-0_5 whitespace-normal"
         :custom-label="option =>`${ roles[option.id].attributes.name }`"
-        data-cy="role"
+        data-cy="roles"
         label="name"
         multiple
         :options="allowedRolesForOrga"
