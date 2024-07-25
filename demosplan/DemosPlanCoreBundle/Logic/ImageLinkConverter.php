@@ -50,11 +50,7 @@ final class ImageLinkConverter
         $xmlRecommendationText = str_replace('<br>', '<br/>', $recommendationText);
 
         $prefix = $statementExternId.'_';
-        $imageReferencesFromSegmentText = $this->htmlHelper->extractImageDataByClass(
-            $xmlSegmentText,
-            HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL,
-            $prefix
-        );
+        $imageReferencesFromSegmentText = $this->convertImageReferences($xmlSegmentText, $prefix);
 
         $xmlSegmentText = $this->updateSegmentText($asLinkedReference, $xmlSegmentText, $prefix);
 
@@ -71,6 +67,24 @@ final class ImageLinkConverter
         ];
 
         return new ConvertedSegment($xmlSegmentText, $xmlRecommendationText);
+    }
+
+    private function convertImageReferences(string $xmlSegmentText, string $prefix): array
+    {
+        $imageReferencesFromSegmentText = $this->htmlHelper->extractImageDataByClass(
+            $xmlSegmentText,
+            HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL,
+            $prefix
+        );
+
+        foreach ($imageReferencesFromSegmentText as $key => $imageReference) {
+            $imageReferencesFromSegmentText[$key] = new ImageReference(
+                $imageReference->getImageReference(),
+                $this->getAbsoluteImagePath($imageReference->getImagePath())
+            );
+        }
+
+        return $imageReferencesFromSegmentText;
     }
 
     private function updateSegmentText(bool $asLinkedReference, string $text, string $prefix): string
