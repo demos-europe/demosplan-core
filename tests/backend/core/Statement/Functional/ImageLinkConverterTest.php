@@ -105,8 +105,8 @@ class ImageLinkConverterTest extends FunctionalTestCase
         $keyImage3 = $statementExternId.ImageLinkConverter::IMAGE_REFERENCE_SEGMENT_TEXT_SUFFIX.'002';
         $keyImage4 = $statementExternId.ImageLinkConverter::IMAGE_REFERENCE_RECOMMENDATION_SUFFIX.'001';
         $keyImage5 = $statementExternId.ImageLinkConverter::IMAGE_REFERENCE_RECOMMENDATION_SUFFIX.'002';
-        $imagePath1 = '/absolute/path/to/image1.jpg';
-        $imagePath3 = '/absolute/path/to/image3.jpg';
+        $imagePath1 = 'path/to/image1.jpg';
+        $imagePath3 = 'path/to/image3.jpg';
         $imagePath4 = '/absolute/path/to/image4.jpg';
         $imagePath5 = '/absolute/path/to/image5.jpg';
         $expectedImage1 = new ImageReference($keyImage1, $imagePath1);
@@ -153,10 +153,10 @@ class ImageLinkConverterTest extends FunctionalTestCase
         /** @var Segment $segment */
         $segment = SegmentFactory::createOne()->_real();
         $link1 = '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.
-            '" href="image1.jpg">Darstellung_Stell_001</a>';
+            '" href="path/to/image1.jpg">Darstellung_Stell_001</a>';
         $link2 = '<a href="path/to/image2.jpg">image2</a>';
         $link3 = '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.
-            '" href="image3.jpg">Darstellung_Stell_002</a>';
+            '" href="path/to/image3.jpg">Darstellung_Stell_002</a>';
         $text = '<p>Some text '.$link1.' more text '.$link2.' and '.$link3.'</p>';
         $recommendation = '<p>Some text <img src="path/to/image4.jpg" /> more text <img src="path/to/image5.jpg" /></p>';
         $segment->setRecommendation($recommendation);
