@@ -340,7 +340,6 @@ export default {
            */
           const bounds = window.markersLayer.getBounds().pad(0.2)
           window.map.fitBounds(bounds)
-          console.log(window.map.getBounds())
 
           if (window.map.getZoom() > 16) {
             window.map.setZoom(12)
@@ -445,12 +444,8 @@ export default {
     },
 
     updateMapFeatures (mapVars) {
-      // {# Wenn keine Karte da ist, versuche auch nicht, Kartenaktionen durchzuführen #}
-
-      console.log('updateMapFeatures')
-
+      // If there is no map, don't try to interact with it
       if (typeof map === 'undefined') {
-        console.log('No map found')
         return
       }
 
