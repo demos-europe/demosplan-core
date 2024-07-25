@@ -331,10 +331,6 @@ export default {
     fitToBounds () {
       setTimeout(() => {
         if (window.markersLayer.getLayers().length > 0) {
-          /*
-           * {
-           * }
-           */
           const bounds = window.markersLayer.getBounds().pad(0.2)
           window.map.fitBounds(bounds)
 
