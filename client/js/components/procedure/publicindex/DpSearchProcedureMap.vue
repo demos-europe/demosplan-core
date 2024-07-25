@@ -328,6 +328,19 @@ export default {
   },
 
   methods: {
+    fitToBounds () {
+      setTimeout(() => {
+        if (window.markersLayer.getLayers().length > 0) {
+          const bounds = window.markersLayer.getBounds().pad(0.2)
+          window.map.fitBounds(bounds)
+
+          if (window.map.getZoom() > 16) {
+            window.map.setZoom(12)
+          }
+        }
+      }, 200)
+    },
+
     hasOwnProp (obj, prop) {
       return hasOwnProp(obj, prop)
     },
@@ -424,8 +437,7 @@ export default {
     },
 
     updateMapFeatures (mapVars) {
-      // {# Wenn keine Karte da ist, versuche auch nicht, Kartenaktionen durchzuführen #}
-
+      // If there is no map, don't try to interact with it
       if (typeof map === 'undefined') {
         return
       }
@@ -480,19 +492,7 @@ export default {
         window.markersLayer.addLayer(marker)
       }
 
-      if (window.markersLayer.getLayers().length > 0) {
-        /*
-         * {
-         *   # Here, the
-         *   fitBounds
-         *   #
-         * }
-         */
-        window.map.fitBounds(window.markersLayer.getBounds().pad(0.2))
-        if (window.map.getZoom() > 16) {
-          window.map.setZoom(12)
-        }
-      }
+      this.fitToBounds()
     },
 
     updateSuggestions ({ data }) {
