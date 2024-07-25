@@ -333,9 +333,6 @@ export default {
         if (window.markersLayer.getLayers().length > 0) {
           /*
            * {
-           *   # Here, the
-           *   fitBounds
-           *   #
            * }
            */
           const bounds = window.markersLayer.getBounds().pad(0.2)
