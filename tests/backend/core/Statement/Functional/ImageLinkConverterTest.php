@@ -56,7 +56,8 @@ class ImageLinkConverterTest extends FunctionalTestCase
         $statementExternId = 'statement123';
         $linkStyle = 'style="color: blue; text-decoration: underline;"';
         $linkStartRecommendation = '<a href="#'.$statementExternId.ImageLinkConverter::IMAGE_REFERENCE_RECOMMENDATION_SUFFIX;
-        $linkStartSegmentText = '<a class="darstellung" href="#'.$statementExternId.ImageLinkConverter::IMAGE_REFERENCE_SEGMENT_TEXT_SUFFIX;
+        $linkStartSegmentText = '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.
+            '" href="#'.$statementExternId.ImageLinkConverter::IMAGE_REFERENCE_SEGMENT_TEXT_SUFFIX;
         $linkEnd = '" '.$linkStyle.'>';
         $linkClose = '</a>';
 
@@ -151,9 +152,11 @@ class ImageLinkConverterTest extends FunctionalTestCase
     {
         /** @var Segment $segment */
         $segment = SegmentFactory::createOne()->_real();
-        $link1 = '<a class="darstellung" href="path/to/image1.jpg">Darstellung_Stell_001</a>';
+        $link1 = '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.
+            '" href="path/to/image1.jpg">Darstellung_Stell_001</a>';
         $link2 = '<a href="path/to/image2.jpg">image2</a>';
-        $link3 = '<a class="darstellung" href="path/to/image3.jpg">Darstellung_Stell_002</a>';
+        $link3 = '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.
+            '" href="path/to/image3.jpg">Darstellung_Stell_002</a>';
         $text = '<p>Some text '.$link1.' more text '.$link2.' and '.$link3.'</p>';
         $recommendation = '<p>Some text <img src="path/to/image4.jpg" /> more text <img src="path/to/image5.jpg" /></p>';
         $segment->setRecommendation($recommendation);

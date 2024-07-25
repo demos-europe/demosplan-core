@@ -54,7 +54,8 @@ class HtmlHelperTest extends FunctionalTestCase
     {
         $prefix = 'New_';
         // Test 1: <a> tag with class darstellung and href attribute
-        $htmlWithClass = '<a class="darstellung" href="https://www.example1.com">Example 1</a>';
+        $htmlWithClass = '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.
+            '" href="https://www.example1.com">Example 1</a>';
         $expectedWithClass = [
             new ImageReference($prefix.'Example 1', 'https://www.example1.com'),
         ];
@@ -64,9 +65,10 @@ class HtmlHelperTest extends FunctionalTestCase
         $expectedWithoutClass = [];
 
         // Test 3: Multiple <a> tags with and without class darstellung
-        $htmlMixed = '<a class="darstellung" href="https://www.example3.com">Example 3</a>'.
+        $htmlMixed = '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.
+            '" href="https://www.example3.com">Example 3</a>'.
             '<a class="other-class" href="https://www.example4.com">Example 4</a>'.
-            '<a class="darstellung" href="https://www.example5.com">Example 5</a>';
+            '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.'" href="https://www.example5.com">Example 5</a>';
         $expectedMixed = [
             new ImageReference($prefix.'Example 3', 'https://www.example3.com'),
             new ImageReference($prefix.'Example 5', 'https://www.example5.com'),
@@ -100,20 +102,23 @@ class HtmlHelperTest extends FunctionalTestCase
     public function testUpdateLinkTextWithClass(): void
     {
         // Test 1: <a> tag with class darstellung
-        $htmlWithClass = '<a class="darstellung" href="https://www.example1.com">Old Text</a>';
-        $expectedWithClass = '<a class="darstellung" href="#New_Old Text"'
+        $htmlWithClass = '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.
+            '" href="https://www.example1.com">Old Text</a>';
+        $expectedWithClass = '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.'" href="#New_Old Text"'
             .' style="color: blue; text-decoration: underline;">New_Old Text</a>';
         // Test 2: <a> tag without class darstellung
         $htmlWithoutClass = '<a href="https://www.example2.com">Old Text</a>';
         $expectedWithoutClass = '<a href="https://www.example2.com">Old Text</a>';
         // Test 3: Multiple <a> tags, some with class darstellung and some without
-        $htmlMixed = '<a class="darstellung" href="https://www.example3.com">Old Text 3</a>'.
+        $htmlMixed = '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.
+            '" href="https://www.example3.com">Old Text 3</a>'.
             '<a class="other-class" href="https://www.example4.com">Old Text 4</a>'.
-            '<a class="darstellung" href="https://www.example5.com">Old Text 5</a>';
-        $expectedMixed = '<a class="darstellung" href="#New_Old Text 3"'
+            '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.
+            '" href="https://www.example5.com">Old Text 5</a>';
+        $expectedMixed = '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.'" href="#New_Old Text 3"'
             .' style="color: blue; text-decoration: underline;">New_Old Text 3</a>'.
             '<a class="other-class" href="https://www.example4.com">Old Text 4</a>'.
-            '<a class="darstellung" href="#New_Old Text 5"'
+            '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.'" href="#New_Old Text 5"'
             .' style="color: blue; text-decoration: underline;">New_Old Text 5</a>';
         $prefix = 'New_';
         $href = 'https://www.test.com';
@@ -129,9 +134,11 @@ class HtmlHelperTest extends FunctionalTestCase
     public function testRemoveLinkTagsByClass(): void
     {
         $prefix = 'New_';
-        $htmlMixed = '<a class="darstellung" href="https://www.example1.com">Old Text 1</a>'.
+        $htmlMixed = '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.
+            '" href="https://www.example1.com">Old Text 1</a>'.
             '<a class="other-class" href="https://www.example2.com">Old Text 2</a>'.
-            '<a class="darstellung" href="https://www.example3.com">Old Text 3</a>';
+            '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.
+            '" href="https://www.example3.com">Old Text 3</a>';
         $expectedMixed = $prefix
             .'Old Text 1<a class="other-class" href="https://www.example2.com">Old Text 2</a>'.$prefix.'Old Text 3';
         $class = HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL;

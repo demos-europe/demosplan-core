@@ -17,7 +17,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ImageReference;
 
 class HtmlHelper
 {
-    public const LINK_CLASS_FOR_DARSTELLUNG_STELL = 'darstellung';
+    public const LINK_CLASS_FOR_DARSTELLUNG_STELL = 'pdf_importer_image';
 
     public function __construct(private readonly HTMLSanitizer $htmlSanitizer)
     {
