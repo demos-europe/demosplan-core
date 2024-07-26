@@ -75,7 +75,7 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
                 if (typeof response.data !== 'undefined' &&
                 typeof response.data.meta !== 'undefined' &&
                 typeof response.data.meta.messages !== 'undefined') {
-                  handleResponseMessages(Translator.trans(response.data.meta))
+                  handleResponseMessages(esponse.data.meta)
                 }
                 return Promise.resolve(response)
               }
@@ -87,7 +87,7 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
                 typeof response.data !== 'undefined' &&
                 typeof response.data.meta !== 'undefined' &&
                 typeof response.data.meta.messages !== 'undefined') {
-                  handleResponseMessages(Translator.trans(response.data.meta))
+                  handleResponseMessages(response.data.meta)
                 }
                 return Promise.reject(err)
               }
