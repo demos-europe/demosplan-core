@@ -22,9 +22,8 @@ class PlanningDocumentCategoryResourceTypeTest extends JsonApiTest
 {
     public function testListWithGuestWithoutProcedure(): void
     {
-        self::markTestSkipped('This test was skipped because of pre-existing errors. They are most likely easily fixable but prevent us from getting to a usable state of our CI.');
         $user = $this->getUserReference(LoadUserData::TEST_USER_GUEST);
-
+        $this->enablePermissions(['area_documents']);
         $this->executeListRequest(
             PlanningDocumentCategoryResourceType::getName(),
             $user,
