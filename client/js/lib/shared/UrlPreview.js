@@ -42,7 +42,7 @@ export default function UrlPreview () {
             shortUrlPreview.textContent = shortUrl + response.data.data.attributes.slugifiedValue
           }
         })
-        .catch(error => checkResponse(Translator.trans(error.response)))
+        .catch(error => checkResponse(error.response))
     })
   }
 }
