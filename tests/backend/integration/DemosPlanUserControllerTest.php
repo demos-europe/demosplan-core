@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace backend\integration;
 
 use Tests\Base\AbstractApiTest;
-use Tests\Base\HttpTestCase;
 
 class DemosPlanUserControllerTest extends AbstractApiTest
 {
