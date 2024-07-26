@@ -42,11 +42,10 @@ abstract class AbstractApiTest extends FunctionalTestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        $serverParameters = $this->getServerParameters();
-        // the createClient() method cannot be used when kernel is booted
         static::ensureKernelShutdown();
+        // the createClient() method cannot be used when kernel is booted
         $this->client = static::createClient();
+        $serverParameters = $this->getServerParameters();
         $this->client->setServerParameters($serverParameters);
 
         $this->router = $this->getContainer()->get(RouterInterface::class);
