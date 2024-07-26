@@ -458,7 +458,7 @@ export default {
         })
         .catch(e => {
           if (e.response && e.response.data && hasOwnProp(e.response.data, 'meta') && hasOwnProp(e.response.data.meta, 'messages')) {
-            handleResponseMessages(Translator.trans(e.response.data.meta))
+            handleResponseMessages(e.response.data.meta)
           }
           return e
         })

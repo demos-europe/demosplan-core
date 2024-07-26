@@ -75,7 +75,7 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
                 if (typeof response.data !== 'undefined' &&
                 typeof response.data.meta !== 'undefined' &&
                 typeof response.data.meta.messages !== 'undefined') {
-                  handleResponseMessages(esponse.data.meta)
+                  handleResponseMessages(response.data.meta)
                 }
                 return Promise.resolve(response)
               }
