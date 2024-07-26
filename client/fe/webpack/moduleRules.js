@@ -102,7 +102,7 @@ const moduleRules =
     {
       test: /\.css$/,
       use: [MiniCssExtractPlugin.loader],
-      exclude: resolveDir('client/css/tailwind.css') // Compiling and Purging happens in Tailwind config.
+      exclude: [ /client\/css\/(tailwind|preflight)\.css/ ] // Compiling and Purging happens in Tailwind config.
     },
     {
       test: /\.s?css$/,
@@ -131,10 +131,11 @@ const moduleRules =
               // Do not pass 3rd party css through postCss in dev mode to gain some speed
               const skipPostCss = /node_modules/.test(loaderContext.resourcePath) && config.isProduction === false
               // Do not purge styles that are already purged by tailwindcss postcss plugin
-              const tailwindProcessed = /client\/css\/index\.css/.test(loaderContext.resourcePath)
+              const tailwindProcessed = /client\/css\/(preflight|tailwind)\.css/.test(loaderContext.resourcePath)
+              const postCssPluginsApplied = tailwindProcessed ? postCssPluginsWithoutPurgeCss : postCssPlugins
 
               return {
-                plugins: skipPostCss ? [] : tailwindProcessed ? postCssPluginsWithoutPurgeCss : postCssPlugins
+                plugins: skipPostCss ? [] : postCssPluginsApplied
               }
             },
             sourceMap: false
