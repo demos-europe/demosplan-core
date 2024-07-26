@@ -10,9 +10,9 @@
 
 namespace Tests\Core\Core\Functional;
 
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
-use Tests\Base\FunctionalTestCase;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use Illuminate\Support\Collection;
+use Tests\Base\FunctionalTestCase;
 
 /**
  * Teste MessageBag.
@@ -22,14 +22,14 @@ use Illuminate\Support\Collection;
 class MessageBagTest extends FunctionalTestCase
 {
     /**
-     * @var MessageBag
+     * @var MessageBagInterface
      */
     protected $sut;
 
     public function setUp(): void
     {
         parent::setUp();
-        $this->sut = self::$container->get(MessageBag::class);
+        $this->sut = self::$container->get(MessageBagInterface::class);
     }
 
     public function testSetStringMessages()
