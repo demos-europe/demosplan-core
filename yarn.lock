@@ -2282,9 +2282,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@demos-europe/demosplan-ui@portal:/srv/www/local_modules/demosplan-ui::locator=root-workspace-0b6124%40workspace%3A.":
-  version: 0.0.0-use.local
-  resolution: "@demos-europe/demosplan-ui@portal:/srv/www/local_modules/demosplan-ui::locator=root-workspace-0b6124%40workspace%3A."
+"@demos-europe/demosplan-ui@npm:^0.3.23":
+  version: 0.3.23
+  resolution: "@demos-europe/demosplan-ui@npm:0.3.23"
   dependencies:
     "@braintree/sanitize-url": "npm:^7.0.0"
     "@floating-ui/dom": "npm:^1.4.5"
@@ -2359,8 +2359,9 @@ __metadata:
       optional: true
     prosemirror-view:
       optional: true
+  checksum: 10c0/d2cfff02589ecce271a023fb2e2a9de029569570729d1231568a8514dedc0696e65b0cb1ff1a80729390a976f546a123254f9dc357465cf9c667caa89d62683b
   languageName: node
-  linkType: soft
+  linkType: hard
 
 "@demos-europe/dp-consent@npm:^1.1.2":
   version: 1.1.2
