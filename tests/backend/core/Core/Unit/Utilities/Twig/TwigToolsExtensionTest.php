@@ -11,10 +11,8 @@
 namespace Tests\Core\Core\Unit\Utilities\Twig;
 
 use demosplan\DemosPlanCoreBundle\Twig\Extension\TwigToolsExtension;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\FunctionalTestCase;
 use Twig\TwigFunction;
@@ -98,7 +96,7 @@ class TwigToolsExtensionTest extends FunctionalTestCase
 
     public function testGetFormOption(): void
     {
-        $parameterBag =  $this->getContainer()->get(ParameterBagInterface::class);
+        $parameterBag = $this->getContainer()->get(ParameterBagInterface::class);
         $options = $parameterBag->get('form_options');
 
         self::assertEquals($options, $this->sut->getFormOption(null, false, 'KEEP'));
