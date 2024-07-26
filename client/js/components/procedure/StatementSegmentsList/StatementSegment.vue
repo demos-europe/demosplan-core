@@ -223,6 +223,7 @@
             class="u-1-of-1"
             label="name"
             :options="places"
+            :sub-slots="['option', 'singleLabel', 'tag']"
             track-by="id">
             <template v-slot:option="{ props }">
               <div
@@ -230,26 +231,26 @@
                 v-tooltip="prop.description"
                 :key="prop.id">
                 {{ prop.name }}
-                <dp-icon
+                <dp-contextual-help
                   v-if="prop.solved"
                   class="float-right color--grey"
                   icon="check"
                   size="small"
-                  v-tooltip="Translator.trans('statement.solved.description')" />
+                  :text="Translator.trans('statement.solved.description')" />
               </div>
             </template>
-            <template v-slot:single="{ props }">
+            <template v-slot:singleLabel="{ props }">
               <div
                 v-for="prop in props"
                 v-tooltip="prop.description"
                 :key="prop.id">
                 {{ prop.name }}
-                <dp-icon
+                <dp-contextual-help
                   v-if="prop.solved"
-                  class="float-right color--grey"
+                  class="float-right color--grey mt-0.5"
                   icon="check"
                   size="small"
-                  v-tooltip="Translator.trans('statement.solved.description')" />
+                  :text="Translator.trans('statement.solved.description')" />
               </div>
             </template>
           </dp-multiselect>
