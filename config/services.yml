@@ -1271,14 +1271,9 @@ services:
 
     EDT\Wrapping\Utilities\AttributeTypeResolverInterface: '@EDT\JsonApi\ApiDocumentation\AttributeTypeResolver'
 
-    EDT\JsonApi\ApiDocumentation\OpenAPISchemaGenerator:
-        arguments:
-            # FIXME: limit provided resource types to those that are exposed as primary
-            $primaryExposedResourceTypes: !tagged dplan.resourceType
-            $schemaStore: '@EDT\JsonApi\ApiDocumentation\SchemaStore'
-            $defaultPageSize: !php/const 'demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser::DEFAULT_PAGE_SIZE'
-
     EDT\JsonApi\ApiDocumentation\SchemaStore: ~
+
+    EDT\JsonApi\ApiDocumentation\TagStore: ~
 
     EDT\JsonApi\RequestHandling\JsonApiSortingParser:
         arguments:

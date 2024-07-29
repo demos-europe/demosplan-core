@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use cebe\openapi\exceptions\TypeErrorException;
 use cebe\openapi\spec\OpenApi;
 use cebe\openapi\Writer;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
@@ -19,9 +20,11 @@ use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\ApiDocumentation\JsApiResourceDefinitionBuilder;
+use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EDT\JsonApi\ApiDocumentation\OpenAPISchemaGenerator;
+use EDT\JsonApi\Manager;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
 use Symfony\Component\Console\Command\Command;
@@ -30,8 +33,10 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Yaml\Yaml;
 
+use Symfony\Contracts\Translation\TranslatorInterface;
 use function file_put_contents;
 use function str_replace;
 
@@ -51,9 +56,12 @@ class FrontendIntegratorCommand extends CoreCommand
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
         private readonly JsApiResourceDefinitionBuilder $resourceDefinitionBuilder,
-        private readonly OpenAPISchemaGenerator $apiDocumentationGenerator,
+        //private readonly OpenAPISchemaGenerator $apiDocumentationGenerator,
+        private readonly Manager $manager,
         ParameterBagInterface $parameterBag,
-        string $name = null
+        string $name = null,
+        private readonly RouterInterface $router,
+        private readonly TranslatorInterface $translator
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -130,6 +138,8 @@ class FrontendIntegratorCommand extends CoreCommand
      * should result in all (non-procedure) permission checks evaluating true.
      *
      * With this user, all possible ResourceTypes should be included in the spec build.
+     *
+     * @throws TypeErrorException
      */
     private function getOpenApiSpec(): OpenApi
     {
@@ -142,7 +152,18 @@ class FrontendIntegratorCommand extends CoreCommand
         $allPermissions = Yaml::parseFile(DemosPlanPath::getConfigPath(Permissions::PERMISSIONS_YML));
         $this->currentUser->getPermissions()->enablePermissions(array_keys($allPermissions));
 
-        $openApiSpec = $this->apiDocumentationGenerator->getOpenAPISpecification();
+        //$openApiSpec = $this->apiDocumentationGenerator->getOpenAPISpecification();
+
+        $schemaGenerator = $this->manager->createOpenApiDocumentBuilder();
+
+        $schemaGenerator->setGetActionConfig(
+            new \EDT\JsonApi\ApiDocumentation\GetActionConfig($this->router, $this->translator)
+        );
+        $schemaGenerator->setListActionConfig(
+            new \EDT\JsonApi\ApiDocumentation\ListActionConfig($this->router, $this->translator)
+        );
+
+        $openApiSpec = $schemaGenerator->buildDocument(new \EDT\JsonApi\ApiDocumentation\OpenApiWording($this->translator));
 
         // just to be safe, reset permissions after getting everything we want
         $this->currentUser->getPermissions()->initPermissions($user);
