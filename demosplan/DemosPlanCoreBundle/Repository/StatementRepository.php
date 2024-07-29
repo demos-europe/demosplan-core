@@ -479,7 +479,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
     /**
      * @return array<int, Statement|Segment>
      */
-    public function getEntities(array $conditions, array $sortMethods, int $offset = 0, ?int $limit = null): array
+    public function getEntities(array $conditions, array $sortMethods, int $offset = 0, int $limit = null): array
     {
         return parent::getEntities($conditions, $sortMethods, $offset, $limit);
     }
@@ -1763,7 +1763,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
     public function copyOriginalStatement(
         Statement $originalToCopy,
         Procedure $targetProcedure,
-        ?GdprConsent $gdprConsentToSet = null,
+        GdprConsent $gdprConsentToSet = null,
         $internIdToSet = null
     ): Statement {
         if (!$originalToCopy->isOriginal()) {
