@@ -32,8 +32,8 @@ class ImageManager
     {
         // Add images after all segments of one statement.
         $images = $this->imageLinkConverter->getImages();
-        $noImagesPresent = $images[ImageLinkConverter::IMAGES_KEY_RECOMMENDATION] === []
-            && $images[ImageLinkConverter::IMAGES_KEY_SEGMENTS] === [];
+        $noImagesPresent = [] === $images[ImageLinkConverter::IMAGES_KEY_RECOMMENDATION]
+            && [] === $images[ImageLinkConverter::IMAGES_KEY_SEGMENTS];
         if ([] === $images || $noImagesPresent) {
             return;
         }
