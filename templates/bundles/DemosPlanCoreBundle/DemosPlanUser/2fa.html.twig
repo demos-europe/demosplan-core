@@ -1,45 +1,84 @@
-{% extends "@DemosPlanCore/DemosPlanCore/emptybase.html.twig" %}
+{% extends "@DemosPlanCore/DemosPlanCore/base_oeb.html.twig" %}
 
 {% block component_part %}
 
-    {# Authentication errors #}
-    {% if authenticationError %}
-        <p>{{ authenticationError|trans(authenticationErrorData, 'SchebTwoFactorBundle') }}</p>
-    {% endif %}
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+        'content_heading': "2fa.email.subject"|trans({ projectName: ''}),
+    }%}
 
-    {# Let the user select the authentication method #}
-    <p>{{ "choose_provider"|trans({}, 'SchebTwoFactorBundle') }}:
-        {% for provider in availableTwoFactorProviders %}
-            <a href="{{ path("2fa_login", {"preferProvider": provider}) }}">{{ provider }}</a>
-        {% endfor %}
-    </p>
+        {% block content %}
+            <div class="w-8/12">
+                {# Authentication errors #}
+                {% if authenticationError %}
+                    <p class="flash flash-error">
+                        <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                        {{ authenticationError|trans(authenticationErrorData, 'SchebTwoFactorBundle') }}
+                    </p>
+                {% endif %}
 
-    {# Display current two-factor provider #}
-    <p class="label"><label for="_auth_code">{{ "auth_code"|trans({}, 'SchebTwoFactorBundle') }} {{ twoFactorProvider }}:</label></p>
+                {% set inputLabel = 'auth_code'|trans({}, 'SchebTwoFactorBundle') ~ ' ' ~ twoFactorProvider|trans %}
+                {% if twoFactorProvider == 'email' %}
+                    {% set inputLabel = inputLabel ~ ' (' ~ uiComponent('link', { text: 'Token anfordern', href: 'path/to/token/mail' }) ~ ')' %}
+                {% endif %}
 
-    <form class="form" action="{{ checkPathUrl ? checkPathUrl: path(checkPathRoute) }}" method="post">
-        <p class="widget">
-            <input
-                id="_auth_code"
-                type="text"
-                name="{{ authCodeParameterName }}"
-                autocomplete="one-time-code"
-                autofocus
-                inputmode="numeric"
-                pattern="[0-9]*"
-            />
-        </p>
+                <form
+                    action="{{ checkPathUrl ? checkPathUrl: path(checkPathRoute) }}"
+                    method="post">
+                    {{ uiComponent('form.element', {
+                        label: { text: inputLabel },
+                        control: {
+                            value: statement.element.title|default,
+                            autocomplete: 'one-time-code',
+                            autofocus: true,
+                            inputmode: 'numeric',
+                            pattern: '[0-9]*',
+                            name: authCodeParameterName
+                        },
+                        type: 'text',
+                        id: '_auth_code'
+                    }) }}
 
-        {% if displayTrustedOption %}
-            <p class="widget"><label for="_trusted"><input id="_trusted" type="checkbox" name="{{ trustedParameterName }}" /> {{ "trusted"|trans({}, 'SchebTwoFactorBundle') }}</label></p>
-        {% endif %}
-        {% if isCsrfProtectionEnabled %}
-            <input type="hidden" name="{{ csrfParameterName }}" value="{{ csrf_token(csrfTokenId) }}">
-        {% endif %}
-        <p class="submit"><input type="submit" value="{{ "login"|trans({}, 'SchebTwoFactorBundle') }}" /></p>
-    </form>
+                    {% if displayTrustedOption %}
+                        {{ uiComponent('form.element', {
+                            control: { name: '_trusted', value: 'on', checked: false },
+                            lable: { text: 'trusted'|trans({}, 'SchebTwoFactorBundle') },
+                            type: 'checkbox',
+                            id: '_trusted',
+                        })}}
+                    {% endif %}
 
-    {# The logout link gives the user a way out if they can't complete two-factor authentication #}
-    <p class="cancel"><a href="{{ logoutPath }}">{{ "cancel"|trans({}, 'SchebTwoFactorBundle') }}</a></p>
+                    <pre>
+                        Wenn es per E-Mail ist, fehlt noch ein Button/Link "E-Mail anfordern" oder so ähnlich
+                        Der Muss noch mit Logik gefüllt werden
 
+                    </pre>
+
+                    {% if isCsrfProtectionEnabled %}
+                        <input
+                            type="hidden"
+                            name="{{ csrfParameterName }}"
+                            value="{{ csrf_token(csrfTokenId) }}">
+                    {% endif %}
+
+                    <div class="mt-1">
+                        {{ uiComponent('button-row', {
+                            primary: uiComponent('button', { type: 'submit', text: 'login'|trans, attributes: ['data-cy=saveNews'] }),
+                            secondary: uiComponent('button', { color: 'secondary', href: logoutPath })
+                        }) }}
+                    </div>
+                </form>
+
+                {% if availableTwoFactorProviders|length > 1 %}
+                    <p class="mt-2">
+                        {{ "choose_provider"|trans({}, 'SchebTwoFactorBundle') }}:
+                        <a
+                            href="{{ path("2fa_login", { preferProvider: availableTwoFactorProviders[1] }) }}">
+                            {{ availableTwoFactorProviders[1]|trans }}
+                        </a>
+                    </p>
+                {% endif %}
+            </div>
+        {% endblock %}
+
+    {% endembed %}
 {% endblock %}

@@ -1,68 +1,75 @@
 {% if hasPermission('feature_2fa') %}
-    <h2>Zwei-Faktor-Authentifizierung</h2>
+    <h2 class="mt-6">Zwei-Faktor-Authentifizierung</h2>
 
-    <h3>Authentifizierung per App</h3>
-    {% if not user.totpSecret %}
-        <p>Um die Zwei-Faktor-Authentifizierung zu nutzen, müssen Sie diese zunächst aktivieren.</p>
-        <a class="dropdown-item" href="{{ path('DemosPlan_user_2fa_enable') }}">Zwei-Faktor-Authentifizierung per App aktivieren</a>
-    {% endif %}
-    {% if user.totpSecret and not user.totpEnabled %}
-        <p>Bitte scannen Sie den folgenden Code in einer entsprechenden App wie den Google Authenticator,
-            FreeOTP oder andere. Alternativ können Sie den unten stehenden sog. ToTP Code in einen Passwortmanager
-            wie KeepassXC eingeben, um die Einmalcodes generieren zu lassen.</p>
-        <img src="{{ path('DemosPlan_user_qr_code') }}" alt="2fa QR Code">
-        ToTP Code: <pre>{{ user.totpSecret }}</pre>
-        <p>Um die Zwei-Faktor-Authentifizierung zu aktivieren, geben Sie bitte einen aktuellen Code ein und speichern Sie das Formular</p>
-        {{ uiComponent('form.element', {
-            label: { text: '2fa.code'|trans },
-            control: { name: 'twoFactorCode' },
-            type: 'text',
-            id: 'twoFactorCode',
-            elementClass: 'u-mb-0_25',
-        }) }}
-    {% endif %}
-    {% if user.totpEnabled %}
-        <p>Die Zwei-Faktor-Authentifizierung ist <strong>aktiviert</strong>. Um sie zu deaktivieren, geben Sie bitte einen aktuellen Code ein und speichern Sie das Formular</p>
-        {{ uiComponent('form.element', {
-            label: { text: '2fa.code'|trans },
-            control: { name: 'disableTwoFactorCode' },
-            type: 'text',
-            id: 'disableTwoFactorCode',
-            elementClass: 'u-mb-0_25',
-            disabled: false
-        }) }}
-    {% endif %}
+    <div class="grid grid-cols-2 gap-4">
+        <div>
+            <h3>Authentifizierung per App</h3>
+            {% if not user.totpSecret %}
+                <p>Um die Zwei-Faktor-Authentifizierung zu nutzen, müssen Sie diese zunächst aktivieren.</p>
+                <a class="dropdown-item" href="{{ path('DemosPlan_user_2fa_enable') }}">Zwei-Faktor-Authentifizierung per App aktivieren</a>
+            {% elseif not user.totpEnabled %}
+                <p>Bitte scannen Sie den folgenden Code in einer entsprechenden App wie den Google Authenticator,
+                    FreeOTP oder andere. Alternativ können Sie den unten stehenden sog. ToTP Code in einen Passwortmanager
+                    wie KeepassXC eingeben, um die Einmalcodes generieren zu lassen.</p>
+                <img src="{{ path('DemosPlan_user_qr_code') }}" alt="2fa QR Code">
+                ToTP Code: <pre>{{ user.totpSecret }}</pre>
+                <p>Um die Zwei-Faktor-Authentifizierung zu aktivieren, geben Sie bitte einen aktuellen Code ein und speichern Sie das Formular</p>
+                {{ uiComponent('form.element', {
+                    label: { text: '2fa.code'|trans },
+                    control: { name: 'twoFactorCode' },
+                    type: 'text',
+                    id: 'twoFactorCode',
+                    elementClass: 'u-mb-0_25',
+                }) }}
+            {% endif %}
 
-    <h3>Authentifizierung per Email</h3>
-    {% if not user.emailAuthCode and not user.emailAuthEnabled %}
-        <p>Um die Zwei-Faktor-Authentifizierung per Email zu nutzen, müssen Sie diese zunächst aktivieren.</p>
-        <a class="dropdown-item" href="{{ path('DemosPlan_user_2fa_email_enable') }}">Zwei-Faktor-Authentifizierung per Email aktivieren</a>
-    {% endif %}
+            {% if user.totpEnabled %}
+                <p>Die Zwei-Faktor-Authentifizierung ist <strong>aktiviert</strong>. Um sie zu deaktivieren, geben Sie bitte einen aktuellen Code ein und speichern Sie das Formular</p>
+                {{ uiComponent('form.element', {
+                    label: { text: '2fa.code'|trans },
+                    control: { name: 'disableTwoFactorCode' },
+                    type: 'text',
+                    id: 'disableTwoFactorCode',
+                    elementClass: 'u-mb-0_25',
+                    disabled: false
+                }) }}
+            {% endif %}
+        </div>
+        <div>
+            <h3>Authentifizierung per Email</h3>
+            {% if not user.emailAuthCode and not user.emailAuthEnabled %}
+                <p>Um die Zwei-Faktor-Authentifizierung per Email zu nutzen, müssen Sie diese zunächst aktivieren.</p>
+                <a class="dropdown-item" href="{{ path('DemosPlan_user_2fa_email_enable') }}">Zwei-Faktor-Authentifizierung per Email aktivieren</a>
+            {% endif %}
 
-    {% if user.emailAuthCode and not user.emailAuthEnabled %}
-        <p>Um die Zwei-Faktor-Authentifizierung per Email zu aktivieren,
-            wurde Ihnen ein Code an Ihre Email-Adresse gesendet. Bitte prüfen Sie Ihr Postfach
-            und geben Sie diesen bitte ein und speichern Sie das Formular. Sollte der Token abgelaufen sein,
-            <a href="{{ path('DemosPlan_user_2fa_email_send') }}">lassen Sie sich den aktuellen Code erneut an Ihre Email-Adresse senden</a></p>
-        {{ uiComponent('form.element', {
-            label: { text: '2fa.code'|trans },
-            control: { name: 'twoFactorCodeEmail' },
-            type: 'text',
-            id: 'twoFactorCodeEmail',
-            elementClass: 'u-mb-0_25',
-            disabled: false
-        }) }}
-    {% endif %}
-    {% if user.emailAuthEnabled %}
-        <p>Die Zwei-Faktor-Authentifizierung per Email ist <strong>aktiviert</strong>. Um sie zu deaktivieren geben Sie bitte einen aktuellen Code ein und speichern Sie das Formular.
-            <a href="{{ path('DemosPlan_user_2fa_email_send') }}">Neuen Code an Ihre Email-Adresse senden</a> </p>
-        {{ uiComponent('form.element', {
-            label: { text: '2fa.code'|trans },
-            control: { name: 'disableTwoFactorCodeEmail' },
-            type: 'text',
-            id: 'disableTwoFactorCodeEmail',
-            elementClass: 'u-mb-0_25',
-            disabled: false
-        }) }}
-    {% endif %}
+            {% if user.emailAuthCode and not user.emailAuthEnabled %}
+                <p>Um die Zwei-Faktor-Authentifizierung per Email zu aktivieren,
+                    wurde Ihnen ein Code an Ihre Email-Adresse gesendet. Bitte prüfen Sie Ihr Postfach
+                    und geben Sie diesen bitte ein und speichern Sie das Formular. Sollte der Token abgelaufen sein,
+                    <a href="{{ path('DemosPlan_user_2fa_email_send') }}">lassen Sie sich den aktuellen Code erneut an Ihre Email-Adresse senden</a></p>
+                {{ uiComponent('form.element', {
+                    label: { text: '2fa.code'|trans },
+                    control: { name: 'twoFactorCodeEmail' },
+                    type: 'text',
+                    id: 'twoFactorCodeEmail',
+                    elementClass: 'u-mb-0_25',
+                    disabled: false
+                }) }}
+            {% endif %}
+            {% if user.emailAuthEnabled %}
+                <p>Die Zwei-Faktor-Authentifizierung per Email ist <strong>aktiviert</strong>. Um sie zu deaktivieren geben Sie bitte einen aktuellen Code ein und speichern Sie das Formular.
+                    <a href="{{ path('DemosPlan_user_2fa_email_send') }}">Neuen Code an Ihre Email-Adresse senden</a> </p>
+                {{ uiComponent('form.element', {
+                    label: { text: '2fa.code'|trans },
+                    control: { name: 'disableTwoFactorCodeEmail' },
+                    type: 'text',
+                    id: 'disableTwoFactorCodeEmail',
+                    elementClass: 'u-mb-0_25',
+                    disabled: false
+                }) }}
+            {% endif %}
+        </div>
+    </div>
+
+
 {% endif %}
