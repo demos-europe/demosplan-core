@@ -32,11 +32,11 @@ class ImageManager
     {
         // Add images after all segments of one statement.
         $images = $this->imageLinkConverter->getImages();
-        $noImagesPresent = [] === $images[ImageLinkConverter::IMAGES_KEY_RECOMMENDATION]
-            && [] === $images[ImageLinkConverter::IMAGES_KEY_SEGMENTS];
-        if ([] === $images || $noImagesPresent) {
+
+        if (!$this->imagesArePresent($images)) {
             return;
         }
+
         $section->addPageBreak();
 
         foreach ($images as $imageReferencsArray) {
@@ -51,6 +51,20 @@ class ImageManager
 
         // remove already printed images
         $this->imageLinkConverter->resetImages();
+    }
+
+    private function imagesArePresent(array $images): bool
+    {
+        $imagesArePresent = false;
+        foreach ($images as $imageReferencsArray) {
+            if ([] !== $imageReferencsArray[ImageLinkConverter::IMAGES_KEY_SEGMENTS]
+                || [] !== $imageReferencsArray[ImageLinkConverter::IMAGES_KEY_RECOMMENDATION]) {
+                $imagesArePresent = true;
+                break;
+            }
+        }
+
+        return $imagesArePresent;
     }
 
     private function addImage(Section $section, ImageReference $imageReference, float $imageSpaceCurrentlyUsed): float
