@@ -143,7 +143,7 @@ class DemosPlanOrganisationAPIController extends APIController
             $paginator->setMaxPerPage($pagination->getSize());
 
             $collection = new Collection($paginator, $orgaResourceType->getTransformer(), $orgaResourceType::getName());
-            $paginatorAdapter = $paginatorFactory->createPaginatorAdapter($paginator);
+            $paginatorAdapter = $paginatorFactory->createPaginatorAdapter($paginator, $request);
             $collection->setPaginator($paginatorAdapter);
 
             return $this->renderResource($collection);
