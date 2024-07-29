@@ -25,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Repository\NewsRepository;
 use Doctrine\Common\Collections\Criteria;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\Querying\Contracts\PathException;
 use Exception;
 use InvalidArgumentException;
 
@@ -51,13 +52,14 @@ class ProcedureNewsService extends CoreService implements ProcedureNewsServiceIn
      * Ruft alle News eines Verfahrens ab
      * Die News müssen freigeschaltet sein (enable = true).
      *
-     * @param string      $procedureId
-     * @param User|null   $user
+     * @param string $procedureId
+     * @param User|null $user
      * @param string|null $manualSortScope
-     * @param int|null    $limit
-     * @param array       $roles           Rollenbezeichnung
+     * @param int|null $limit
+     * @param array $roles Rollenbezeichnung
      *
      * @return array
+     * @throws PathException
      */
     public function getNewsList($procedureId, $user, $manualSortScope = null, $limit = null, $roles = [])
     {
@@ -69,7 +71,10 @@ class ProcedureNewsService extends CoreService implements ProcedureNewsServiceIn
 
         $roles = $this->determineRoles($roles, $user);
         if (isset($roles) && 0 < count($roles)) {
-            $conditions[] = $this->conditionFactory->propertyHasAnyOfValues($roles, ['roles', 'code']);
+            $conditions[] = [] === $roles
+                ? $this->conditionFactory->false()
+                : $this->conditionFactory->propertyHasAnyOfValues($roles, ['roles', 'code']);
+            //$conditions[] = $this->conditionFactory->propertyHasAnyOfValues($roles, ['roles', 'code']);
         }
 
         $sortMethod = $this->sortMethodFactory->propertyDescending(['createDate']);

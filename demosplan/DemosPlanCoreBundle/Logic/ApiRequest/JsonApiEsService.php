@@ -168,10 +168,13 @@ class JsonApiEsService implements JsonApiEsServiceInterface
 
         // prepare fetching real entities from Doctrine
         $esIds = array_column($esResultArrays, 'id');
-        $condition = $this->conditionFactory->propertyHasAnyOfValues(
+        $condition = [] === $esIds
+            ? $this->conditionFactory->false()
+            : $this->conditionFactory->propertyHasAnyOfValues($esIds, [$resourceType->id]);
+      /*  $condition = $this->conditionFactory->propertyHasAnyOfValues(
             $esIds,
             $resourceType->id
-        );
+        );*/
 
         $entities = [];
         if ($scoredSort) {

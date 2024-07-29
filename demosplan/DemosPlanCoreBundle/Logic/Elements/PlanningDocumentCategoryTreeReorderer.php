@@ -20,6 +20,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\Querying\Contracts\PathException;
 use InvalidArgumentException;
 
 class PlanningDocumentCategoryTreeReorderer
@@ -102,6 +103,7 @@ class PlanningDocumentCategoryTreeReorderer
      * they all need to be updated independent of their visibility.
      *
      * Target and (optionally) parent are fetched in the same request.
+     * @throws PathException
      */
     public function getReorderingData(
         string $idOfCategoryToMove,
@@ -119,10 +121,13 @@ class PlanningDocumentCategoryTreeReorderer
                 $procedureId,
                 $this->categoryResourceType->procedure->id
             ),
-            $this->conditionFactory->propertyHasAnyOfValues(
+            [] === $categoryToMoveAndNewParentIds
+                ? $this->conditionFactory->false()
+                : $this->conditionFactory->propertyHasAnyOfValues($categoryToMoveAndNewParentIds, [$this->categoryResourceType->id])
+            /*$this->conditionFactory->propertyHasAnyOfValues(
                 $categoryToMoveAndNewParentIds,
                 $this->categoryResourceType->id
-            ),
+            ),*/
         ], []);
 
         $categoryToMoveAndNewParent = array_column(

@@ -36,6 +36,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\PathException;
 use Elastica\Index;
 use Webmozart\Assert\Assert;
 
@@ -101,6 +102,8 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
      * {@link StatementAttachmentResourceType} to the {@link StatementResourceType}.
      *
      * @return list<ClauseFunctionInterface<bool>>
+     *
+     * @throws PathException
      */
     public function buildAccessConditions(StatementResourceType $pathStartResourceType, bool $allowOriginals = false): array
     {
@@ -127,10 +130,13 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $this->conditionFactory->propertyIsNull($pathStartResourceType->headStatement->id),
             // statement placeholders are not considered actual statement resources
             $this->conditionFactory->propertyIsNull($pathStartResourceType->movedStatement),
-            $this->conditionFactory->propertyHasAnyOfValues(
+            /*$this->conditionFactory->propertyHasAnyOfValues(
                 $allowedProcedureIds,
                 $pathStartResourceType->procedure->id
-            ),
+            ),*/
+            [] === $allowedProcedureIds
+                ? $this->conditionFactory->false()
+                : $this->conditionFactory->propertyHasAnyOfValues($allowedProcedureIds, [$pathStartResourceType->procedure->id])
         ];
         if (!$allowOriginals) {
             // Normally the path to the relationship would suffice for a NULL check, but the ES

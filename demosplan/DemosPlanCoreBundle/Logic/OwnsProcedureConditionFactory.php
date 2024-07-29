@@ -61,6 +61,7 @@ class OwnsProcedureConditionFactory
      * Will *not* check for the role of the user. Use {@link self::hasPlanningAgencyRole()} in conjunction with this method.
      *
      * @return FunctionInterface<bool>
+     * @throws PathException
      */
     public function isAuthorizedViaPlanningAgency(): FunctionInterface
     {
@@ -74,7 +75,10 @@ class OwnsProcedureConditionFactory
         $procedure = $this->userOrProcedure;
         $procedurePlanningOffices = $procedure->getPlanningOfficesIds();
 
-        return $this->conditionFactory->propertyHasAnyOfValues($procedurePlanningOffices, ['orga', 'id']);
+        //return $this->conditionFactory->propertyHasAnyOfValues($procedurePlanningOffices, ['orga', 'id']);
+        return [] === $procedurePlanningOffices
+            ? $this->conditionFactory->false()
+            : $this->conditionFactory->propertyHasAnyOfValues($procedurePlanningOffices, ['orga', 'id']);
     }
 
     /**
@@ -102,6 +106,7 @@ class OwnsProcedureConditionFactory
      * Returns a condition to match users having the roles in the given customer to theoretically own a procedure.
      *
      * @return list<FunctionInterface<bool>>
+     * @throws PathException
      */
     public function hasProcedureAccessingRole(Customer $customer): array
     {
@@ -124,7 +129,10 @@ class OwnsProcedureConditionFactory
         if (null !== $procedure->getOrgaId()) {
             $this->logger->debug('Permissions: Check whether orga owns procedure');
             $ownsOrgaRoleCondition = [
-                $this->conditionFactory->propertyHasAnyOfValues($relevantRoles, ['roleInCustomers', 'role', 'code']),
+                $conditions[] = [] === $relevantRoles
+                    ? $this->conditionFactory->false()
+                    : $this->conditionFactory->propertyHasAnyOfValues($relevantRoles, ['roleInCustomers', 'role', 'code']),
+                //$this->conditionFactory->propertyHasAnyOfValues($relevantRoles, ['roleInCustomers', 'role', 'code']),
                 $this->isUserInCustomer($customer),
             ];
         } else {
@@ -216,7 +224,11 @@ class OwnsProcedureConditionFactory
 
         $procedure = $this->userOrProcedure;
 
-        return $this->conditionFactory->propertyHasAnyOfValues($procedure->getAuthorizedUserIds(), ['id']);
+        $authorizedUserIds = $procedure->getAuthorizedUserIds();
+        //return $this->conditionFactory->propertyHasAnyOfValues($procedure->getAuthorizedUserIds(), ['id']);
+        return [] === $authorizedUserIds
+            ? $this->conditionFactory->false()
+            : $this->conditionFactory->propertyHasAnyOfValues($authorizedUserIds, ['id']);
     }
 
     /**

@@ -16,10 +16,12 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\VideoInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseVideoResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Entity\Video;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\VideoRepository;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\PathException;
 use EDT\Wrapping\CreationDataInterface;
 use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\Attribute\Factory\AttributeConstructorBehaviorFactory;
@@ -80,6 +82,9 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType
         ];
     }
 
+    /**
+     * @throws PathException
+     */
     protected function getProperties(): array|ResourceConfigBuilderInterface
     {
         // ensure update of title and description is only allowed
@@ -89,7 +94,10 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType
             ->map(fn (VideoInterface $video): ?string => $video->getId())
             ->filter(fn (?string $videoId): bool => null !== $videoId)
             ->getValues();
-        $customerCondition = $this->conditionFactory->propertyHasAnyOfValues($currentCustomerVideoIds, Paths::video()->id);
+        //$customerCondition = $this->conditionFactory->propertyHasAnyOfValues($currentCustomerVideoIds, Paths::video()->id);
+        $customerCondition = [] === $currentCustomerVideoIds
+            ? $this->conditionFactory->false()
+            : $this->conditionFactory->propertyHasAnyOfValues($currentCustomerVideoIds, [Paths::video()->id]);
 
         $configBuilder = $this->getConfig(BaseVideoResourceConfigBuilder::class);
 

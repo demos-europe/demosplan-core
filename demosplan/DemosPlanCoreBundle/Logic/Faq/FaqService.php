@@ -34,6 +34,7 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\Querying\Contracts\PathException;
 use Exception;
 use UnexpectedValueException;
 
@@ -125,6 +126,7 @@ class FaqService extends CoreService
      * takes the User-roles into account.
      *
      * @return array<int, FaqInterface>
+     * @throws PathException
      */
     public function getEnabledFaqList(FaqCategoryInterface $faqCategory, User $user): array
     {
@@ -141,7 +143,10 @@ class FaqService extends CoreService
         $conditions = [
             $this->conditionFactory->propertyHasValue(1, $pathStart->enabled),
             $this->conditionFactory->propertyHasValue($faqCategory->getId(), $categoryPath),
-            $this->conditionFactory->propertyHasAnyOfValues($roles, $pathStart->roles->code),
+            [] === $roles
+                ? $this->conditionFactory->false()
+                : $this->conditionFactory->propertyHasAnyOfValues($roles, [$pathStart->roles->code]),
+            //$this->conditionFactory->propertyHasAnyOfValues($roles, $pathStart->roles->code),
         ];
         $sortMethod = $this->sortMethodFactory->propertyAscending($pathStart->title);
 

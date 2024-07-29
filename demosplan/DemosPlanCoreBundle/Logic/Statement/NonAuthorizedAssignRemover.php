@@ -27,6 +27,7 @@ use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\Querying\Contracts\PathException;
 
 class NonAuthorizedAssignRemover
 {
@@ -115,15 +116,20 @@ class NonAuthorizedAssignRemover
      * used as assignee in the given procedure.
      *
      * @return array<int, Statement|Segment>
+     *
+     * @throws PathException
      */
     private function getClaimablesToUnassign(Procedure $procedure): array
     {
         return $this->statementRepository->getEntities([
             $this->conditionFactory->propertyIsNotNull(['assignee']),
-            $this->conditionFactory->propertyHasNotAnyOfValues(
+           /* $this->conditionFactory->propertyHasNotAnyOfValues(
                 $this->getAssignableUserIds($procedure),
                 ['assignee', 'id']
-            ),
+            ),*/
+            [] === $this->getAssignableUserIds($procedure)
+                ? $this->conditionFactory->false()
+                : $this->conditionFactory->propertyHasNotAnyOfValues($this->getAssignableUserIds($procedure), ['assignee']),
             $this->conditionFactory->propertyHasValue(
                 $procedure->getId(),
                 ['procedure', 'id']
