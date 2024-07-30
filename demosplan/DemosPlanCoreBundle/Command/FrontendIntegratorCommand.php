@@ -59,9 +59,9 @@ class FrontendIntegratorCommand extends CoreCommand
         //private readonly OpenAPISchemaGenerator $apiDocumentationGenerator,
         private readonly Manager $manager,
         ParameterBagInterface $parameterBag,
-        string $name = null,
         private readonly RouterInterface $router,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
     }
