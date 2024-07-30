@@ -223,13 +223,35 @@
             class="u-1-of-1"
             label="name"
             :options="places"
+            :sub-slots="['option', 'singleLabel', 'tag']"
             track-by="id">
             <template v-slot:option="{ props }">
               <div
                 v-for="prop in props"
                 v-tooltip="prop.description"
-                :key="prop.id"
-                v-text="prop.name" />
+                :key="prop.id">
+                {{ prop.name }}
+                <dp-contextual-help
+                  v-if="prop.solved"
+                  class="float-right color--grey"
+                  icon="check"
+                  size="small"
+                  :text="Translator.trans('statement.solved.description')" />
+              </div>
+            </template>
+            <template v-slot:singleLabel="{ props }">
+              <div
+                v-for="prop in props"
+                v-tooltip="prop.description"
+                :key="prop.id">
+                {{ prop.name }}
+                <dp-contextual-help
+                  v-if="prop.solved"
+                  class="float-right color--grey mt-0.5"
+                  icon="check"
+                  size="small"
+                  :text="Translator.trans('statement.solved.description')" />
+              </div>
             </template>
           </dp-multiselect>
         </div>
@@ -673,7 +695,9 @@ export default {
 
           this.toggleAssignableUsersSelect()
           this.$nextTick(() => {
-            this.$refs.imageModal.addClickListener(this.$refs.recommendationContainer.querySelectorAll('img'))
+            if (this.$refs.recommendationContainer) {
+              this.$refs.imageModal.addClickListener(this.$refs.recommendationContainer.querySelectorAll('img'))
+            }
           })
         })
         .catch(() => {
@@ -863,7 +887,12 @@ export default {
   mounted () {
     this.fetchPlaces({
       fields: {
-        Place: ['name', 'sortIndex', 'description'].join()
+        Place: [
+          'description',
+          'name',
+          'solved',
+          'sortIndex'
+        ].join()
       },
       sort: 'sortIndex'
     })
