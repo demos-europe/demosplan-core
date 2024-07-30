@@ -2282,9 +2282,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@demos-europe/demosplan-ui@npm:^0.3.24":
-  version: 0.3.24
-  resolution: "@demos-europe/demosplan-ui@npm:0.3.24"
+"@demos-europe/demosplan-ui@npm:^0.3.25":
+  version: 0.3.25
+  resolution: "@demos-europe/demosplan-ui@npm:0.3.25"
   dependencies:
     "@braintree/sanitize-url": "npm:^7.0.0"
     "@floating-ui/dom": "npm:^1.4.5"
@@ -2335,8 +2335,8 @@ __metadata:
   peerDependencies:
     prosemirror-history: ^1.3.0
     prosemirror-model: ^1.18.1
-    prosemirror-schema-basic: ^1.2.0
-    prosemirror-schema-list: ^1.2.2
+    prosemirror-schema-basic: ^1.2.3
+    prosemirror-schema-list: ^1.4.1
     prosemirror-state: ^1.4.1
     prosemirror-tables: ^1.3.0
     prosemirror-utils: ^1.2.0
@@ -2359,7 +2359,7 @@ __metadata:
       optional: true
     prosemirror-view:
       optional: true
-  checksum: 10c0/93f28e380ba1c995038858a965d104541396c2dc24de8d2a097b783b69399ac415a4fa7abd085cbe90c5c5d703082769534c598f2a448abcc90c19691e9d0947
+  checksum: 10c0/c719cabddcc1711e69e4cd6178620bd05e8c2f38b81b2f78a79114a0372a86bcb4eaa4ef80661d105341a74ed54e34aee8624183042edf6302724db582f6bb6c
   languageName: node
   linkType: hard
 
@@ -12511,7 +12511,7 @@ __metadata:
     "@babel/plugin-transform-runtime": "npm:^7.24.3"
     "@babel/preset-env": "npm:^7.24.8"
     "@babel/runtime": "npm:^7.24.8"
-    "@demos-europe/demosplan-ui": "npm:^0.3.24"
+    "@demos-europe/demosplan-ui": "npm:^0.3.25"
     "@demos-europe/dp-consent": "npm:^1.1.2"
     "@efrane/vuex-json-api": "github:eFrane/vuex-json-api#19c2354ad97c17bdda02358dc9ee4a2ffce181dd"
     "@fullhuman/postcss-purgecss": "npm:^6.0.0"
