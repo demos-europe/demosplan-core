@@ -494,7 +494,11 @@ export default {
       return dpApi.get(Routing.generate('api_resource_list', {
         resourceType: 'Place',
         fields: {
-          Place: ['name', 'description'].join()
+          Place: [
+            'name',
+            'description',
+            'solved'
+          ].join()
         },
         sort: 'sortIndex'
       })).then((response) => {
