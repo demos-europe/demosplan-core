@@ -673,7 +673,9 @@ export default {
 
           this.toggleAssignableUsersSelect()
           this.$nextTick(() => {
-            this.$refs.imageModal.addClickListener(this.$refs.recommendationContainer.querySelectorAll('img'))
+            if (this.$refs.recommendationContainer) {
+              this.$refs.imageModal.addClickListener(this.$refs.recommendationContainer.querySelectorAll('img'))
+            }
           })
         })
         .catch(() => {
