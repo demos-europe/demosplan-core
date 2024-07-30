@@ -1259,6 +1259,8 @@ services:
 
     EDT\Wrapping\Contracts\Types\TypeInterface: ~
 
+    EDT\JsonApi\Manager: ~
+
     EDT\DqlQuerying\ConditionFactories\DqlConditionFactory: ~
 
     EDT\DqlQuerying\PropertyAccessors\Iso8601PropertyAccessor:
@@ -1300,7 +1302,8 @@ services:
 
     EDT\Querying\ConditionParsers\Drupal\DrupalFilterValidator:
         arguments:
-            $drupalConditionFactory: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
+            #$drupalConditionFactory: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
+            $operatorConstraintProvider: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
 
     EDT\Querying\Utilities\ConditionEvaluator:
         arguments:
