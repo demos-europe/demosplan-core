@@ -58,12 +58,14 @@
       :text="Translator.trans('segment.edit')"
       @click="$emit('edit-segment', segment.id)" />
     <addon-wrapper
-      v-if="segment.status !== 'confirmed'"
-      class="inline-block mr-1"
+      :addon-props="{
+        class: 'mt-1',
+        segmentStatus: segment.status
+      }"
+      class="inline-block"
       hook-name="split.statement.buttons"
       @segment:confirm="$emit('segment:confirm', segment.id)" />
     <dp-button-icon
-      class="ml-1"
       icon="fa-trash"
       :text="Translator.trans('selection.tags.discard')"
       @click="$emit('delete-segment', segment.id)" />
