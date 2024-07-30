@@ -1,4 +1,4 @@
-{% extends "@DemosPlanCore/DemosPlanCore/base_oeb.html.twig" %}
+{% extends "@DemosPlanCore/DemosPlanCore/emptybase.html.twig" %}
 
 {% block component_part %}
 
@@ -7,15 +7,7 @@
     }%}
 
         {% block content %}
-            <div class="w-8/12">
-                {# Authentication errors #}
-                {% if authenticationError %}
-                    <p class="flash flash-error">
-                        <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-                        {{ authenticationError|trans(authenticationErrorData, 'SchebTwoFactorBundle') }}
-                    </p>
-                {% endif %}
-
+            <div class="w-8/12 mt-6">
                 {% set inputLabel = 'auth_code'|trans({}, 'SchebTwoFactorBundle') ~ ' ' ~ twoFactorProvider|trans %}
                 {% if twoFactorProvider == 'email' %}
                     {% set inputLabel = inputLabel ~ ' (' ~ uiComponent('link', { text: 'Token anfordern', href: 'path/to/token/mail' }) ~ ')' %}
@@ -47,11 +39,17 @@
                         })}}
                     {% endif %}
 
-                    <pre>
-                        Wenn es per E-Mail ist, fehlt noch ein Button/Link "E-Mail anfordern" oder so ähnlich
-                        Der Muss noch mit Logik gefüllt werden
+                    {# Authentication errors #}
+                    {% if authenticationError %}
+                        <p class="flash flash-error">
+                            <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                            {{ authenticationError|trans(authenticationErrorData, 'SchebTwoFactorBundle') }}
+                        </p>
+                    {% endif %}
 
-                    </pre>
+                    <p class="flash flash-warning">
+                        Wenn es per E-Mail ist, muss der Button/Link "Token anfordern" noch mit Logik gefüllt werden
+                    </p>
 
                     {% if isCsrfProtectionEnabled %}
                         <input
