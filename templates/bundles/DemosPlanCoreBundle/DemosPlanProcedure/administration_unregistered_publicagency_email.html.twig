@@ -73,7 +73,10 @@
                         label: { text: 'subject'|trans },
                         control: {
                             name: 'r_emailTitle',
-                            value: procedure.settings.emailTitle|default('participation.invitation'|trans ~': ' ~ templateVars.procedure.name|default)
+                            value: procedure.settings.emailTitle|default('participation.invitation'|trans ~': ' ~ templateVars.procedure.name|default),
+                            attributes: [
+                                'data-cy=administrationMemberEmail:emailTitle'
+                            ]
                         },
                         type: 'text',
                         required: true
@@ -100,6 +103,7 @@
                 <dp-editor
                     id="r_emailText"
                     ref="r_emailText"
+                    data-cy="administrationMemberEmail:emailText"
                     hidden-input="r_emailText"
                     required
                     :toolbar-items="{
@@ -113,6 +117,7 @@
 
             <a
                 class="btn btn--secondary text-left u-mt-0_5"
+                data-cy="administrationMemberEmail:back"
                 href="{{ path('DemosPlan_invite_unregistered_public_agency_list', {'procedureId': procedureId}) }}">
                 {{ "back"|trans }}
             </a>
@@ -120,6 +125,7 @@
             <div class="flow-root text-right inline float-right u-mt-0_5">
                 <button
                     class="btn btn--primary"
+                    data-cy="administrationMemberEmail:sendInvitationEmail"
                     type="submit"
                     name="sendEmail"
                     {% if selectedAddressBookEntries|length == 0 %}disabled{% endif %}>
