@@ -15,6 +15,7 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PreNewProcedureCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\ProcedureServiceStorageInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -32,7 +33,6 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ArrayHelper;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\LegacyFlashMessageCreator;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedureReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
@@ -95,7 +95,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         private readonly LoggerInterface $logger,
         private readonly LegacyFlashMessageCreator $legacyFlashMessageCreator,
         private readonly MasterTemplateService $masterTemplateService,
-        private readonly MessageBag $messageBag,
+        private readonly MessageBagInterface $messageBag,
         private readonly NotificationReceiverRepository $notificationReceiverRepository,
         private readonly OrgaService $orgaService,
         private readonly PermissionsInterface $permissions,
@@ -346,7 +346,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
 
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'phase_iteration');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'public_participation_phase_iteration');
-        $phaseIterationError = $this->validatePhaseIteration($procedure);
+        $phaseIterationError = $this->validatePhaseIterations($procedure);
         if (count($phaseIterationError) > 0) {
             $mandatoryErrors[] = $phaseIterationError;
         }
@@ -1079,24 +1079,30 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         return $token;
     }
 
-    /**
-     * @return array<non-empty-string, non-empty-string>
-     */
-    private function validatePhaseIteration(array $procedure): array
+    private function validatePhaseIterations(array $procedure): array
     {
-        $error = [];
-        $key = 'phase_iteration';
-        $isNumericAndPositive2 = isset($procedure[$key]) && is_numeric($procedure[$key]) && (int) $procedure[$key] > 0;
-        $publicKey = 'public_participation_phase_iteration';
-        $isNumericAndPositive1 = isset($procedure[$publicKey]) && is_numeric($procedure[$publicKey]) && (int) $procedure[$publicKey] > 0;
+        $phaseIteration = 'phase_iteration';
+        if (isset($procedure[$phaseIteration])) {
+            return $this->validatePhaseIterationValue($procedure[$phaseIteration]);
+        }
 
-        if (!$isNumericAndPositive1 || !$isNumericAndPositive2) {
-            $error = [
+        $publicPhaseIteration = 'public_participation_phase_iteration';
+        if (isset($procedure[$publicPhaseIteration])) {
+            return $this->validatePhaseIterationValue($procedure[$publicPhaseIteration]);
+        }
+
+        return [];
+    }
+
+    private function validatePhaseIterationValue($value): array
+    {
+        if (!is_numeric($value) || (int) $value < 1) {
+            return [
                 'type'    => 'error',
                 'message' => $this->translator->trans('error.phaseIteration.invalid'),
             ];
         }
 
-        return $error;
+        return [];
     }
 }

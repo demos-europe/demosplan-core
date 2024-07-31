@@ -102,6 +102,7 @@
                                             {% if element.file|getFile('mimeType') not in videoFormats %}
                                                 <a
                                                     class="{{ 'elements__button btn btn--secondary btn--outline u-1-of-1-lap-down float-right'|prefixClass }}"
+                                                    data-cy="publicElementsList:downloadFile"
                                                     target="_blank"
                                                     rel="noopener"
                                                     href="{{ path("core_file_procedure", { 'procedureId': procedure, 'hash': element.file|getFile('hash') }) }}"
@@ -175,6 +176,7 @@
                                         {% if not isVideo %}
                                             <a
                                                 class="{{ 'elements__button btn btn--secondary btn--outline u-1-of-1-lap-down'|prefixClass }}"
+                                                data-cy="publicElementsList:downloadDocument"
                                                 target="_blank"
                                                 rel="noopener"
                                                 href="{{ path("core_file_procedure", { 'procedureId': procedure, 'hash': document.document|getFile('hash') }) }}"

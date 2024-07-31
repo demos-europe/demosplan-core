@@ -64,7 +64,7 @@
                     value=""
                     data-cy="newDepartment">
 
-                <div class="text-right u-mt-0_5 u-mr-0_5 space-inline-s">
+                <div class="text-right u-mt-0_5 u-mr-0_5 u-pb-0_5 space-inline-s">
                     <input
                         class="btn btn--primary"
                         type="submit"
@@ -72,6 +72,7 @@
                         data-cy="saveNewDepartment">
                     <input
                         class="btn btn--secondary color--white"
+                        data-cy="listDepartments:abort"
                         type="reset"
                         @click="$refs['accordion-new-department'].toggle(false)"
                         value="{{ "abort"|trans }}">
@@ -123,7 +124,12 @@
                     </div><!--
               -->{% endif %}<!--
               --><div class="text-right layout__item {% if hasPermission('feature_department_delete') %}u-4-of-7 {% endif %}space-inline-s">
-                    <button type="submit" class="btn btn--primary mb-1.5" name="manageDepartments" value="saveAll">
+                    <button
+                        type="submit"
+                        class="btn btn--primary mb-1.5"
+                        data-cy="listDepartments:saveAllChanges"
+                        name="manageDepartments"
+                        value="saveAll">
                         {{ 'save.all.changes'|trans }}
                     </button><!--
 
@@ -141,7 +147,9 @@
                --></div>
             </div>
 
-            <ul class="o-list o-list--card">
+            <ul
+                class="o-list o-list--card"
+                data-cy="listDepartments:departmentListWrapper">
                 {% for department in templateVars.departmentList %}
                     <dp-table-card
                         data-cy="departmentList"
@@ -197,6 +205,7 @@
                                 </button>
                                 <input
                                     class="btn btn--secondary color--white"
+                                    data-cy="abortEditDepartment"
                                     type="reset"
                                     value="{{ "abort"|trans }}"
                                     @click="$refs['table-card-{{ department.ident }}'].toggle(false)">

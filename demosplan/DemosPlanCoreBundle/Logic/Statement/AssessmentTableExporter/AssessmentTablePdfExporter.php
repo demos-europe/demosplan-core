@@ -39,7 +39,7 @@ use ReflectionException;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 use Twig\Environment;
 
 class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
@@ -366,6 +366,8 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
      */
     protected function collectStatementsOrFragments($statements, $statementsOnly, $filterSetHash, string $procedureId, bool $original, $selectedFragmentIds = []): Collection
     {
+        $filterSetReferenceSorting = [];
+
         if (true !== $original) {
             $filterSetStatements = $this->statementHandler->getResultsByFilterSetHash(
                 $filterSetHash,

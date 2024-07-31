@@ -16,9 +16,15 @@
     <div class="c-slidebar__content overflow-y-auto u-mr">
       <dp-ol-map
         ref="map"
+        :layers="mapData.layers"
         :procedure-id="procedureId"
+        :map-options="{
+          procedureMaxExtent: mapData.mapExtent ?? []
+        }"
         :options="{
-          autoSuggest: false
+          autoSuggest: false,
+          defaultAttribution: mapData.copyright,
+          initialExtent: mapData.boundingBox ?? mapData.mapExtent ?? []
         }">
         <template v-if="hasPermission('feature_segment_polygon_set')">
           <dp-ol-map-draw-feature
@@ -103,6 +109,7 @@ import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature'
 import DpOlMapEditFeature from '@DpJs/components/map/map/DpOlMapEditFeature'
 import { extend } from 'ol/extent'
+import { fromExtent } from 'ol/geom/Polygon'
 
 export default {
   name: 'SegmentLocationMap',
@@ -111,10 +118,16 @@ export default {
     DpButtonRow,
     DpOlMap,
     DpOlMapDrawFeature,
-    DpOlMapEditFeature
+    DpOlMapEditFeature,
   },
 
   props: {
+    mapData: {
+      type: Object,
+      required: false,
+      default: () => ({})
+    },
+
     procedureId: {
       type: String,
       required: true
@@ -135,17 +148,16 @@ export default {
     return {
       currentPolygons: [],
       hasChanges: true,
-      initPolygons: [],
-      mapData: null
+      initPolygons: []
     }
   },
 
   computed: {
-    ...mapState('statementSegment', {
+    ...mapState('StatementSegment', {
       segments: 'items'
     }),
 
-    ...mapState('segmentSlidebar', ['slidebar']),
+    ...mapState('SegmentSlidebar', ['slidebar']),
 
     pointData () {
       return {
@@ -192,15 +204,19 @@ export default {
           this.$nextTick(() => {
             this.setCenterAndExtent()
           })
+        } else if (this.mapData.boundingBox.length > 0) {
+          this.$nextTick(() => {
+            this.setInitExtent()
+          })
         }
       }
     }
   },
 
   methods: {
-    ...mapMutations('statementSegment', ['setItem']),
+    ...mapMutations('StatementSegment', ['setItem']),
 
-    ...mapActions('statementSegment', {
+    ...mapActions('StatementSegment', {
       saveSegmentAction: 'save'
     }),
 
@@ -242,6 +258,13 @@ export default {
         .catch(() => {
           dplan.notify.error(Translator.trans('error.changes.not.saved'))
         })
+    },
+
+    setInitExtent () {
+      this.$refs.map.map.updateSize()
+      this.$nextTick(() => {
+        this.$refs.map.map.getView().fit(JSON.parse(`[${this.mapData.boundingBox}]`), { size: this.$refs.map.map.getSize() })
+      })
     },
 
     /*

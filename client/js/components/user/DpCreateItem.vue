@@ -24,6 +24,7 @@
     <div class="o-box--dark soft">
       <div
         class="px-3 py-3"
+        :data-cy="customComponent[entity].formName"
         :data-dp-validate="customComponent[entity].formName">
         <!-- Form fields   -->
         <component
@@ -178,7 +179,7 @@ export default {
     /**
      * Needed for entity === 'user'
      */
-    ...mapState('role', {
+    ...mapState('Role', {
       roles: 'items'
     }),
 
@@ -203,10 +204,10 @@ export default {
   },
 
   methods: {
-    ...mapActions('orga', {
+    ...mapActions('Orga', {
       createOrganisation: 'create'
     }),
-    ...mapActions('user', {
+    ...mapActions('User', {
       createUser: 'create'
     }),
 
