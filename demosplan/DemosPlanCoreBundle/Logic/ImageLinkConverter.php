@@ -56,6 +56,16 @@ final class ImageLinkConverter
             $prefix
         );
 
+        foreach ($imageReferencesFromSegmentText as $index => $imageReference) {
+            $hash = $imageReference->getFileHash();
+            $path = $this->getAbsoluteImagePath($hash);
+            $imageReferencesFromSegmentText[$index] = new ImageReference(
+                $imageReference->getImageReference(),
+                $path,
+                $hash
+            );
+        }
+
         $xmlSegmentText = $this->updateSegmentText($asLinkedReference, $xmlSegmentText, $prefix);
 
         $this->resetCurrentImagesFromRecommendationText();
