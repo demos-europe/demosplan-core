@@ -25,7 +25,7 @@ use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
 use Doctrine\Common\Collections\Collection;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\PathBuilding\End;
-use Tightenco\Collect\Support\Collection as TightencoCollection;
+use Illuminate\Support\Collection as IlluminateCollection;
 
 /**
  * @template-extends DplanResourceType<Orga>
@@ -181,7 +181,7 @@ final class OrgaResourceType extends DplanResourceType
             $this->createAttribute($this->types)->readable(true, fn (Orga $orga): array => $orga->getTypes($this->globalConfig->getSubdomain())),
             $this->createAttribute($this->registrationStatuses)->readable(true, $this->getRegistrationStatuses(...)),
             $this->createToOneRelationship($this->currentSlug)->readable(true, null, true),
-            $this->createToManyRelationship($this->departments)->readable(false, static fn (Orga $orga): TightencoCollection => $orga->getDepartments()),
+            $this->createToManyRelationship($this->departments)->readable(false, static fn (Orga $orga): IlluminateCollection => $orga->getDepartments()),
             $this->createAttribute($this->isPlanningOrganisation)->readable(true,
                 fn (Orga $orga): bool => $orga->hasType(OrgaType::MUNICIPALITY, $this->globalConfig->getSubdomain())
                     || $orga->hasType(OrgaType::PLANNING_AGENCY, $this->globalConfig->getSubdomain())

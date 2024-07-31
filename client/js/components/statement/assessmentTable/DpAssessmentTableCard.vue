@@ -531,7 +531,7 @@
               :editable="isClaimed"
               ref="tags"
               @field:update="updateStatement"
-              @field:save="data => saveStatement(data, 'relationship', 'tags')" />
+              @field:save="data => saveStatement(data, 'relationship', 'tag')" />
           </dp-item-row>
 
           <!-- Statement / Recommendation Text -->
@@ -807,8 +807,8 @@ export default {
   data () {
     return {
       // We have to use $store.state... notation because at that moment the maps for state/getters are not yet initialized
-      expanded: this.$store.state.assessmentTable.currentTableView === 'statement' || this.$store.state.assessmentTable.currentTableView === 'fragments',
-      tab: this.$store.state.assessmentTable.currentTableView === 'fragments' ? 'fragments' : 'statement',
+      expanded: this.$store.state.AssessmentTable.currentTableView === 'statement' || this.$store.state.AssessmentTable.currentTableView === 'fragments',
+      tab: this.$store.state.AssessmentTable.currentTableView === 'fragments' ? 'fragments' : 'statement',
       updatingClaimState: false,
       fragmentsLoading: false,
       placeholderStatementId: null
@@ -817,8 +817,8 @@ export default {
 
   computed: {
     // Get the Statement from the Store (if not Present there use initial data)
-    ...mapState('statement', { statement (state) { return state.statements[this.statementId] } }),
-    ...mapGetters('assessmentTable', [
+    ...mapState('Statement', { statement (state) { return state.statements[this.statementId] } }),
+    ...mapGetters('AssessmentTable', [
       'adviceValues',
       'assessmentBase',
       'assessmentBaseLoaded',
@@ -833,10 +833,10 @@ export default {
       'status',
       'tags'
     ]),
-    ...mapGetters('fragment', ['selectedFragments', 'fragmentsByStatement']),
-    ...mapState('statement', ['selectedElements', 'statements', 'isFiltered']),
+    ...mapGetters('Fragment', ['selectedFragments', 'fragmentsByStatement']),
+    ...mapState('Statement', ['selectedElements', 'statements', 'isFiltered']),
 
-    ...mapState('assessmentTable',
+    ...mapState('AssessmentTable',
       [
         'accessibleProcedureIds',
         'currentUserId',
@@ -933,26 +933,26 @@ export default {
   },
 
   methods: {
-    ...mapActions('fragment', [
+    ...mapActions('Fragment', [
       'removeFragmentFromSelectionAction',
       'loadFragments',
       'setSelectedFragmentsAction',
       'resetSelection'
     ]),
 
-    ...mapActions('statement', [
+    ...mapActions('Statement', [
       'updateStatementAction',
       'addToSelectionAction',
       'removeFromSelectionAction',
       'setAssigneeAction'
     ]),
 
-    ...mapMutations('assessmentTable', [
+    ...mapMutations('AssessmentTable', [
       'setModalProperty',
       'setProperty'
     ]),
 
-    ...mapMutations('statement', [
+    ...mapMutations('Statement', [
       'addStatement',
       'updateStatement',
       'replaceStatement'

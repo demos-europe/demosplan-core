@@ -214,18 +214,6 @@
               </div>
             </div>
           </template>
-          <template v-if="hasPermission('feature_manage_procedure_creation_permission')">
-            <dp-checkbox
-              id="procedureCreatePermission"
-              class="my-1.5"
-              data-cy="orgaFormField:procedureCreatePermission"
-              :label="{
-                text: Translator.trans('procedure.canCreate'),
-                bold: true
-              }"
-              v-model="localOrganisation.attributes.canCreateProcedures"
-              @change="emitOrganisationUpdate" />
-          </template>
         </template>
 
         <!-- Readonly: Currently assigned or requested permissions -->
@@ -309,6 +297,18 @@
             </div>
           </div>
         </template>
+
+        <dp-checkbox
+          v-if="hasPermission('feature_manage_procedure_creation_permission')"
+          :id="`${organisation.id}:procedureCreatePermission`"
+          class="mt-2"
+          data-cy="orgaFormField:procedureCreatePermission"
+          :label="{
+            text: Translator.trans('procedure.canCreate'),
+            bold: true
+          }"
+          v-model="localOrganisation.attributes.canCreateProcedures"
+          @change="emitOrganisationUpdate" />
       </div>
 
       <div
@@ -810,7 +810,7 @@ export default {
               data: [
                 {
                   id: '',
-                  type: 'customer'
+                  type: 'Customer'
                 }
               ]
             },
@@ -818,7 +818,7 @@ export default {
               data: [
                 {
                   id: '',
-                  type: 'department'
+                  type: 'Department'
                 }
               ]
             }

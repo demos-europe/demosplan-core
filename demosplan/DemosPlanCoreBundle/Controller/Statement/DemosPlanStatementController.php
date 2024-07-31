@@ -30,6 +30,7 @@ use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\CookieException;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\DraftStatementNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\DuplicateInternIdException;
 use demosplan\DemosPlanCoreBundle\Exception\GdprConsentRequiredException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
@@ -55,7 +56,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\GdprConsentRevokeTokenService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListHandlerResult;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
@@ -2506,6 +2506,12 @@ class DemosPlanStatementController extends BaseController
                     ]
                 );
             }
+            throw new DemosException(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS);
+        } catch (DuplicateInternIdException $e) {
+            $this->getMessageBag()->add(
+                'error',
+                'statements.import.error.document.duplicate.internid'
+            );
             throw new DemosException(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS);
         } catch (Exception $e) {
             $this->logger->error(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS, ['exception' => $e]);

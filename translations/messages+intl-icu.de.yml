@@ -760,6 +760,7 @@ contact.visibleText: |
         other {Dieser Kontakt wird nicht sichtbar angezeigt.}
     }
 content: "Inhalt"
+content.show/hide: "Inhalt ein/ausblenden"
 contextual.help.edit: "Kontexthilfe bearbeiten"
 contextual.help.new: "Kontexthilfe neu anlegen"
 contextual.help.text: "Text der Kontexthilfe"
@@ -896,7 +897,20 @@ documents.attach: "Dokumente anhängen"
 documents.saved: "Gespeicherte Dokumente"
 docx.export.anonymous.landscape: "Docx Exp. o.N. (Querformat)"
 docx.export.anonymous: "Docx Exp. ohne Namen"
+docx.export.column.title: "Spaltennamen in DOCX-Exporten"
+docx.export.column.title.hint: "Um die Spaltennamen auf die Ursprungswerte zurückzusetzen, entfernen Sie die Einträge in den Textfeldern."
+docx.export.example_file_name: "Vorschau mit Beispieldaten:"
+docx.export.file_name: "Dateinamen einzelner DOCX-Dateien"
+docx.export.file_name.hint: "Um den Dateinamen dynamisch zu erstellen, verwenden Sie folgende Platzhalter:<br>'{ID}' - die ID der Stellungnahme in EWM<br>'{NAME}' - der Name der einreichenden Person oder Organisation<br>'{EINGANGSNR}' - die vergebene Eingangsnummer<br>Wenn Sie weder '{ID}', '{NAME}' noch '{EINGANGSNR}' verwenden, wird dem Dateinamen eine einzigartige Nummer angehängt."
+docx.export.file_name.placeholder: "'{ID}'_'{NAME}'_'{EINGANGSNR}'"
 docx.export.landscape: "Docx Exp. (Querformat)"
+docx.export.preamble: |
+    <p>Bitte beachten Sie, dass Darstellungen im Text referenziert und unter der jeweiligen Stellungnahme oder Einwendung angezeigt werden.</p>
+    <p>Die Verweise auf Darstellungen sind wie folgt strukturiert:</p>
+    <p>    &lt;ID der Stellungnahme/Einwendung&gt;_Darstellung_Erw_&lt;laufende Nummer&gt;</p>
+
+    <p>Beispiel:</p>
+    <p>- Für eine Abbildung in einem Erwiderungstext: M12_Darstellung_Erw_001</p>
 docx: "DOCX"
 done: "erledigt"
 done.capital: "Erledigt"
@@ -1577,6 +1591,7 @@ export.portrait: "Hochformat"
 export.portrait.fragments: "Hochformat (mit Datensätzen)"
 export.potentialAreas: "Potenzialflächen"
 export.settings.hint: "Wählen Sie aus, welche Daten im Export der Stellungnahmen in der Abwägungstabelle enthalten sein sollen. Die Einstellungen betreffen nur den DOCX-Export \"Querformat\"."
+export.statements: "Stellungnahmen exportieren"
 export.statements.zip: "Stellungnahmen als einzelne DOCX-Dateien"
 export.statements.docx: "Stellungnahmen in einer DOCX-Datei"
 export.statements.hint: "Achtung: Falls weitere Einreichende zu einer Stellungnahme hinzugefügt wurden, werden diese auch im DOCX-Export aufgeführt."
@@ -1590,6 +1605,7 @@ export.type: "Art des Exports"
 export.verb: "Exportieren"
 export.xls: "XLS"
 export.xlsx: "XLSX"
+export.xlsx.hint: "Achtung: Darstellungen aus Stellungnahmen oder Erwiderungen, werden nicht im Excel-Export angezeigt."
 export.zip: "ZIP"
 exported.on: "Exportiert am {date} um {time} Uhr."
 
@@ -1826,6 +1842,7 @@ gislayer.xplan: "XPlan-Layer"
 gislayer: "Kartenebenen"
 gislayer.defined: 'Kartenebenen sind definiert'
 gislayer.define: 'Kartenebenen definieren'
+gislayer.visibilitygroup.toggle: 'Sichtbarkeit der Gruppe umschalten'
 globalnews.administrate: "Portal-Mitteilungen verwalten"
 globalnews: "Portal-Mitteilungen"
 goto.participation: "Zur Beteiligung: {procedure}"
@@ -2114,7 +2131,6 @@ map.scale: "Maßstab"
 map.scales: "Verfügbare Maßstäbe"
 map.set.order.tree: "Reihenfolge für die Navigation"
 map.set.order.map: "Reihenfolge für die Karte"
-map_settings.menu: "Karteneinstellungen"
 map.territory: "Geltungsbereich"
 map.territory.define: "Geltungsbereich zeichnen"
 map.territory.delete: "Geltungsbereich löschen"
@@ -2151,6 +2167,7 @@ maplayer.category.edit: "Kartenebenen-Kategorie bearbeiten"
 maplayer.hidden.child.of.category: "Kartenebene befindet sich in einem Ordner der als Layer angezeigt wird."
 maplayer.no.supported.matrix: "Für die ausgewählten Layer wird kein gemeinsames Matrix-Set unterstützt."
 maps: "Karten"
+maps.dashboard: "maps.dashboard"
 mapsection.define: "Kartenausschnitt definieren"
 mapsection: "Startkartenausschnitt / Kartenbegrenzung"
 maptools: "Kartenwerkzeuge"
@@ -2587,7 +2604,7 @@ procedure.by.phase.public: |
         =0 {Verfahren nach Phase (Öffentlichkeit)}
         other {# Verfahren nach Phase (Öffentlichkeit)}
     }
-procedure.canCreate: 'Darf Verfahren anlegen'
+procedure.canCreate: 'Kommune oder Planungsbüro darf Verfahren anlegen'
 procedure.create: "Neues Verfahren anlegen"
 procedure.created: "Verfahren angelegt"
 procedure.current: "Dieses Verfahren"
@@ -3339,6 +3356,7 @@ statement.participate.resume.hint: "Eine angefangene Stellungnahme können Sie h
 statement.participate.resume: "Reden Sie weiter..."
 statement.participate: "Reden Sie mit!"
 statement.participation.import: "Hier kann der Export aus den demos-Beteiligungslösungen in EWM importiert werden. Übernommen werden hierbei die Einreichendendaten, der Stellungnahmetext, die zugehörige ID und Eingangsnummer, Einreichungs-und Verfassungsdatum, sowie eine eventuell hinzugefügte Notiz und weitere Anhänge."
+statement.participation.import.hint: "Hinweis: Bei mehrfachem Import werden Stellungnahmen mit im System bereits existierenden IDs nicht erneut importiert."
 statement.possible: "Stellungnahme möglich"
 statement.priority.a: "A-Punkt"
 statement.priority.b: "B-Punkt"
@@ -3439,6 +3457,7 @@ statements.grouprelease: "Freigaben der Institution"
 statements.import: "Stellungnahmen importieren"
 statements.import.error.line.summary: "In Zeile {lineNr}:"
 statements.import.error.document.summary: "Im Dokument {doc} traten folgende Fehler auf:"
+"statements.import.error.document.duplicate.internid": "Import fehlgeschlagen: Die Eingangsnummer muss eindeutig sein. Bitte korrigieren Sie die Eingangsnummer und importieren Sie das Dokument erneut."
 statements.import.error.document.unexpected: "Im Dokument {doc} trat ein Fehler auf. Bitte überprüfen Sie die Daten auf Korrektheit."
 statements.import.error.property.constraint.violation: "Beim Import der Stellungnahme aus Zeile {lineNumber} der Excel Datei ist folgender Fehler aufgetreten: {message}."
 statements.import.hint: "Dateien, die gerade von anderen Nutzer*innen bearbeitet werden, sind unten nicht dargestellt."
@@ -3548,6 +3567,8 @@ submitter.name: "Name des/der Einreicher*in"
 submitter.name.gendered: "Name des/der Einreicher*in"
 submitter.type: "Art des/der Einreicher*in"
 statement.name_source.unknown: "Einreichende Person unbekannt"
+statement.extern_id.unknown: "ID unbekannt"
+statement.intern_id.unknown: "Eingangsnummer unbekannt"
 submitters: "Einreichende"
 summary: "Gliederung"
 summary.colon: "Gliederung:"
@@ -3637,6 +3658,7 @@ tags.noentries: "Für dieses Verfahren sind noch keine Schlagworte vorhanden. Um
 tags.none.yet: "Es sind noch keine Schlagworte vorhanden."
 tags.notassigned: "Es sind keine Schlagworte zugewiesen."
 tags.no.boilerplates: "Mit dem Schlagwort sind keine Textbausteine verknüpft."
+tags.select: "Schlagworte auswählen"
 target.procedure: "Zielverfahren"
 tasks.my: "Meine Aufgaben"
 tasks.view: "Aufgaben ansehen"
@@ -4056,6 +4078,7 @@ warning.user.pass.reset.throttle: "Es können keine weiteren Passwort zurückset
 warning.virus.found: "In der Datei {filename} wurde ein Virus gefunden."
 warning.gisLayerCategory.delete.because.of.children: "Die Kategorie {categoryName} konnte nicht gelöscht werden, weil sie noch Kategorien oder Kartenebenen enthält."
 warning.gisLayer.automatic.removed.from.group: "Die Kartenebene \"{gisLayerName}\" wurde aus der Sichtbarkeitsgruppe gelöst, weil es nicht erlaubt ist, die Kartenebene in der Beteiligungsebene auszublenden."
+website: "Webseite"
 welcome: "Herzlich Willkommen in der Bauleitplanung!"
 welcome.back.continue: "Willkommen zurück! Machen Sie dort weiter, wo Sie aufgehört haben."
 wizard.next: "Speichern und zum nächsten Schritt"

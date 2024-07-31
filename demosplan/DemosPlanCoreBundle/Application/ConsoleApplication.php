@@ -22,7 +22,6 @@ class ConsoleApplication extends Application
         parent::__construct($kernel);
 
         /* @var DemosPlanKernel $kernel */
-        // @phpstan-ignore-next-line
         $this->setName('demosplan.'.$kernel->getActiveProject().' on Symfony');
     }
 
@@ -54,7 +53,7 @@ class ConsoleApplication extends Application
     /**
      * @return DemosPlanKernel|KernelInterface
      */
-    public function getKernel()
+    public function getKernel(): KernelInterface
     {
         return parent::getKernel();
     }

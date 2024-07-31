@@ -371,7 +371,7 @@ class Department extends CoreEntity implements UuidEntityInterface, DepartmentIn
     /**
      * Returns all users of this department, which are not deleted === true.
      *
-     * @return \Tightenco\Collect\Support\Collection<int,User>
+     * @return \Illuminate\Support\Collection<int,User>
      */
     public function getUsers()
     {

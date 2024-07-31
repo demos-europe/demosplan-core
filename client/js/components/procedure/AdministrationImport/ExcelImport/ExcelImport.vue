@@ -12,10 +12,11 @@
     <div>
       <template v-if="availableEntities.length > 1">
         <dp-radio
-          v-for="entity in availableEntities"
+          v-for="(entity, index) in availableEntities"
           :key="`entity_type_${entity.key}`"
           :id="entity.key"
           :checked="entity.key === active"
+          :data-cy="`entity_type_${index}`"
           @change="active = entity.key"
           :label="{
             text: radioLabel(entity)
@@ -41,6 +42,7 @@
       <dp-upload-files
         allowed-file-types="xls"
         :basic-auth="dplan.settings.basicAuth"
+        data-cy="uploadExcelFile"
         :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
         :max-file-size="100 * 1024 * 1024/* 100 MiB */"
         needs-hidden-input
@@ -52,6 +54,7 @@
         <button
           :disabled="fileIds.length === 0"
           type="submit"
+          data-cy="statementImport"
           class="btn btn--primary">
           {{ Translator.trans('import.verb') }}
         </button>

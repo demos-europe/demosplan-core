@@ -10,9 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ParagraphHandler extends CoreHandler
@@ -20,7 +20,7 @@ class ParagraphHandler extends CoreHandler
     /** @var ParagraphService */
     protected $service;
 
-    public function __construct(ParagraphService $paragraphService, private readonly FlashMessageHandler $flashMessageHandler, MessageBag $messageBag, private readonly TranslatorInterface $translator)
+    public function __construct(ParagraphService $paragraphService, private readonly FlashMessageHandler $flashMessageHandler, MessageBagInterface $messageBag, private readonly TranslatorInterface $translator)
     {
         parent::__construct($messageBag);
         $this->service = $paragraphService;
@@ -200,10 +200,10 @@ class ParagraphHandler extends CoreHandler
             return $document;
         } elseif (isset($documentId)
             && (
-                $this->service->isDirectParentOf($parentParagraphId, $documentId) ||
-                (
-                    null === $parentParagraphId &&
-                    !$this->service->hasParent($document['ident'])
+                $this->service->isDirectParentOf($parentParagraphId, $documentId)
+                || (
+                    null === $parentParagraphId
+                    && !$this->service->hasParent($document['ident'])
                 )
             )
         ) {

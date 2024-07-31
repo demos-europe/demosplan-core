@@ -27,7 +27,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Tests\Base\FunctionalTestCase;
 use Tests\Core\Statement\Functional\Procedure;
 use Tests\Core\Statement\Functional\Statement;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 use function collect;
 
