@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportMessageConverter;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
@@ -82,11 +81,11 @@ class ReportEntryResourceType extends DplanResourceType
 
         return [
             $this->conditionFactory->propertyHasValue($procedure->getId(), $this->identifier),
-            //$this->conditionFactory->propertyHasAnyOfValues($this->getGroups(), $this->group),
+            // $this->conditionFactory->propertyHasAnyOfValues($this->getGroups(), $this->group),
             [] === $this->getGroups()
                 ? $this->conditionFactory->false()
                 : $this->conditionFactory->propertyHasAnyOfValues($this->getGroups(), [$this->group]),
-            //$this->conditionFactory->propertyHasAnyOfValues($this->getCategories(), $this->category),
+            // $this->conditionFactory->propertyHasAnyOfValues($this->getCategories(), $this->category),
             [] === $this->getCategories()
                 ? $this->conditionFactory->false()
                 : $this->conditionFactory->propertyHasAnyOfValues($this->getCategories(), [$this->category]),

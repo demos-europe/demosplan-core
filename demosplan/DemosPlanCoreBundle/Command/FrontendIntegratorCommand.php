@@ -20,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\ApiDocumentation\JsApiResourceDefinitionBuilder;
-use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EDT\JsonApi\ApiDocumentation\OpenAPISchemaGenerator;
@@ -35,8 +34,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Yaml\Yaml;
-
 use Symfony\Contracts\Translation\TranslatorInterface;
+
 use function file_put_contents;
 use function str_replace;
 
@@ -56,7 +55,7 @@ class FrontendIntegratorCommand extends CoreCommand
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
         private readonly JsApiResourceDefinitionBuilder $resourceDefinitionBuilder,
-        //private readonly OpenAPISchemaGenerator $apiDocumentationGenerator,
+        // private readonly OpenAPISchemaGenerator $apiDocumentationGenerator,
         private readonly Manager $manager,
         ParameterBagInterface $parameterBag,
         private readonly RouterInterface $router,
@@ -152,7 +151,7 @@ class FrontendIntegratorCommand extends CoreCommand
         $allPermissions = Yaml::parseFile(DemosPlanPath::getConfigPath(Permissions::PERMISSIONS_YML));
         $this->currentUser->getPermissions()->enablePermissions(array_keys($allPermissions));
 
-        //$openApiSpec = $this->apiDocumentationGenerator->getOpenAPISpecification();
+        // $openApiSpec = $this->apiDocumentationGenerator->getOpenAPISpecification();
 
         $schemaGenerator = $this->manager->createOpenApiDocumentBuilder();
 

@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Base;
 use cebe\openapi\exceptions\TypeErrorException;
 use cebe\openapi\Writer;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use EDT\JsonApi\ApiDocumentation\OpenAPISchemaGenerator;
 use EDT\JsonApi\Manager;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -49,7 +48,7 @@ class APIDocumentationController extends BaseController
             return $this->redirectToRoute('core_home');
         }
 
-        //$openApi = $apiDocumentationGenerator->getOpenAPISpecification();
+        // $openApi = $apiDocumentationGenerator->getOpenAPISpecification();
 
         $schemaGenerator = $manager->createOpenApiDocumentBuilder();
 

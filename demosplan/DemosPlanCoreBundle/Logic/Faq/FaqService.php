@@ -126,6 +126,7 @@ class FaqService extends CoreService
      * takes the User-roles into account.
      *
      * @return array<int, FaqInterface>
+     *
      * @throws PathException
      */
     public function getEnabledFaqList(FaqCategoryInterface $faqCategory, User $user): array
@@ -146,7 +147,7 @@ class FaqService extends CoreService
             [] === $roles
                 ? $this->conditionFactory->false()
                 : $this->conditionFactory->propertyHasAnyOfValues($roles, [$pathStart->roles->code]),
-            //$this->conditionFactory->propertyHasAnyOfValues($roles, $pathStart->roles->code),
+            // $this->conditionFactory->propertyHasAnyOfValues($roles, $pathStart->roles->code),
         ];
         $sortMethod = $this->sortMethodFactory->propertyAscending($pathStart->title);
 

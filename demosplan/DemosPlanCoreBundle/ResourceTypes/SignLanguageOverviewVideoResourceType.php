@@ -16,7 +16,6 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\VideoInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseVideoResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Entity\Video;
-use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\VideoRepository;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
