@@ -48,8 +48,8 @@ class HtmlHelper
         $imageReferences = [];
 
         // The regex pattern to match <a> tags with the specified class and extract their href attributes and link text
-        $pattern =
-            '/<a\b[^>]*class="[^"]*\b'.preg_quote($class, '/').'\b[^"]*"[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/i';
+        // irrespective of the order of class and href attributes
+        $pattern = '/<a\b(?=[^>]*\bclass="[^"]*\b'.preg_quote($class, '/').'\b[^"]*")(?=[^>]*\bhref="([^"]*)")[^>]*>(.*?)<\/a>/i';
 
         // Perform the regex match
         if (preg_match_all($pattern, $htmlText, $matches)) {
