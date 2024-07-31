@@ -876,7 +876,9 @@ export default {
       handler: function (newVal, oldVal) {
         if (!newVal) {
           this.$nextTick(() => {
-            this.$refs.imageModal.addClickListener(this.$refs.recommendationContainer.querySelectorAll('img'))
+            if (this.$refs.recommendationContainer) {
+              this.$refs.imageModal.addClickListener(this.$refs.recommendationContainer.querySelectorAll('img'))
+            }
           })
         }
       },
