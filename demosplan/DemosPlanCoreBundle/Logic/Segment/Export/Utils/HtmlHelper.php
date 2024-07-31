@@ -56,7 +56,9 @@ class HtmlHelper
             foreach ($matches[1] as $index => $url) {
                 $linkText = $matches[2][$index];
                 // Create an ImageReference object with linkText as imageReference and url as imagePath
-                $imageReference = new ImageReference($prefix.$linkText, $url);
+                $srcParts = explode('/', $url);
+                $hash = $srcParts[array_key_last($srcParts)];
+                $imageReference = new ImageReference($prefix.$linkText, $url, $hash);
                 $imageReferences[] = $imageReference;
             }
         }
