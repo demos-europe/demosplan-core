@@ -105,8 +105,8 @@ class ImageLinkConverterTest extends FunctionalTestCase
         $keyImage3 = $statementExternId.ImageLinkConverter::IMAGE_REFERENCE_SEGMENT_TEXT_SUFFIX.'002';
         $keyImage4 = $statementExternId.ImageLinkConverter::IMAGE_REFERENCE_RECOMMENDATION_SUFFIX.'001';
         $keyImage5 = $statementExternId.ImageLinkConverter::IMAGE_REFERENCE_RECOMMENDATION_SUFFIX.'002';
-        $imagePath1 = 'path/to/image1.jpg';
-        $imagePath3 = 'path/to/image3.jpg';
+        $imagePath1 = '/absolute/path/to/image1.jpg';
+        $imagePath3 = '/absolute/path/to/image3.jpg';
         $imagePath4 = '/absolute/path/to/image4.jpg';
         $imagePath5 = '/absolute/path/to/image5.jpg';
         $expectedImage1 = new ImageReference($keyImage1, $imagePath1);
