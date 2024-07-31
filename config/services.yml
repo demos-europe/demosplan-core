@@ -1302,8 +1302,7 @@ services:
 
     EDT\Querying\ConditionParsers\Drupal\DrupalFilterValidator:
         arguments:
-            #$drupalConditionFactory: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
-            $operatorConstraintProvider: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
+            $drupalConditionFactory: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
 
     EDT\Querying\Utilities\ConditionEvaluator:
         arguments:
