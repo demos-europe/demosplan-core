@@ -144,10 +144,11 @@
         :available-priority-areas="availablePriorityAreas"
         :current-user-id="currentUser.id"
         :editable="editable"
-        :statement-form-definitions="statementFormDefinitions"
+        :external-constant="externalConstant"
         :procedure="procedure"
         :procedure-statement-priority-area="procedureStatementPriorityArea"
         :statement="statement"
+        :statement-form-definitions="statementFormDefinitions"
         :submit-type-options="submitTypeOptions"
         @close="showInfobox = false"
         @save="(statement) => saveStatement(statement)"
@@ -252,6 +253,11 @@ export default {
 
     currentUser: {
       type: Object,
+      required: true
+    },
+
+    externalConstant: {
+      type: String,
       required: true
     },
 

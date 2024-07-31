@@ -37,7 +37,7 @@
           class="float-right mt-0.5"
           :text="submitterHelpText" />
         <dp-input
-          v-if="hasPermission('field_statement_meta_submit_name') && this.statementFormDefinitions.name.enabled"
+          v-if="hasPermission('field_statement_meta_submit_name') && statementFormDefinitions.name?.enabled"
           id="statementSubmitter"
           v-model="statementSubmitterValue"
           class="u-mb-0_5"
@@ -47,7 +47,7 @@
           }"
           @input="(val) => emitInput('statementSubmitterField', val)" />
         <dp-input
-          v-if="hasPermission('field_statement_meta_orga_department_name') && !this.localStatement.attributes.isSubmittedByCitizen"
+          v-if="hasPermission('field_statement_meta_orga_department_name') && !localStatement.attributes.isSubmittedByCitizen"
           id="statementDepartmentName"
           v-model="localStatement.attributes.initialOrganisationDepartmentName"
           class="u-mb-0_5"
@@ -86,7 +86,7 @@
           @input="(val) => emitInput('submitterEmailAddress', val)" />
         <!--  TO DO: add if not participationGuestOnly -->
         <dp-input
-          v-if="!this.localStatement.attributes.isSubmittedByCitizen"
+          v-if="!localStatement.attributes.isSubmittedByCitizen"
           id="statementOrgaName"
           v-model="localStatement.attributes.initialOrganisationName"
           class="u-mb-0_5"
@@ -267,7 +267,7 @@
 
     <!-- need to add statement.attributes.municipalities and availableMunicipalities in the BE (Array) -->
     <statement-meta-multiselect
-      v-if="hasPermission('field_statement_municipality') && formDefinitions.mapAndCountyReference.enabled"
+      v-if="hasPermission('field_statement_municipality') && formDefinitions.mapAndCountyReference?.enabled"
       :editable="editable"
       :label="Translator.trans('municipalities')"
       name="municipalities"
@@ -277,7 +277,7 @@
 
     <!-- need to add statement.attributes.priorityAreas and availablePriorityAreas in the BE (Array) -->
     <statement-meta-multiselect
-      v-if="procedureStatementPriorityArea && formDefinitions.mapAndCountyReference.enabled"
+      v-if="procedureStatementPriorityArea && formDefinitions.mapAndCountyReference?.enabled"
       :editable="editable"
       :label="Translator.trans('priorityAreas')"
       name="priorityAreas"
@@ -307,11 +307,96 @@
       :procedure-id="procedure.id"
       :similar-statement-submitters="similarStatementSubmitters"
       :statement-id="statement.id" />
+
+    <section class="mt-4">
+      <dp-accordion
+        v-if="hasPermission('field_send_final_email')"
+        class="mt-2"
+        :title="Translator.trans('statement.final.send')">
+        <p v-if="!localStatement.attributes.sendFinalMail">
+          {{ Translator.trans('explanation.no.statement.final.sent') }}
+        </p>
+        <p v-else-if="localStatement.attributes.publicStatement === externalConstant && !localStatement.attributes.authorFeedback">
+          {{ Translator.trans('explanation.no.statement.final.no.feedback.wanted') }}
+        </p>
+        <p v-else-if="localStatement.attributes.email2?.length === 0">
+          {{ Translator.trans('explanation.no.statement.final.no.email') }}
+        </p>
+        <template v-else>
+          <p v-if="localStatement.attributes.finalEmailOnlyToVoters">
+            {{ Translator.trans('explanation.statement.final.sent.only.voters') }}
+          </p>
+          <p>
+            {{ localStatement.attributes.sentAssessment
+              ? Translator.trans('confirm.statement.final.sent.date', { date: dplanDate(localStatement.attributes.sentAssessmentDate, 'd.m.Y | H:i') })
+              : Translator.trans('confirm.statement.final.not.sent') }}
+          </p>
+          <template v-if="hasPermission('field_organisation_email2_cc')">
+            <dp-input
+              id="email2"
+              class="u-mb-0_5"
+              disabled
+              :label="{
+                text: Translator.trans('email.recipient')
+              }"
+              :value="email2Value" />
+            <dp-input
+              v-if="localStatement.attributes.ccEmail2"
+              id="email2_cc"
+              class="u-mb-0_5"
+              disabled
+              :label="{
+                text: Translator.trans('recipients.additional')
+              }"
+              :value="localStatement.attributes.ccEmail2" />
+          </template>
+          <dp-input
+            id="sendEmailCC"
+            class="u-mb-0_5"
+            :label="{
+              text: Translator.trans('email.cc'),
+              hint: Translator.trans('explanation.email.cc')
+            }"
+            v-model="emailsCC"
+            :disabled="!editable" />
+          <dp-input
+            id="sendTitle"
+            class="u-mb-0_5"
+            :label="{
+              text: Translator.trans('subject'),
+            }"
+            :value="Translator.trans('statement.final.email.subject', { procedureName: procedure.name })"
+            :disabled="!editable" />
+
+          <detail-view-final-email-body
+            class="u-mb-0_5"
+            :init-text="finalMailDefaultText"
+            :procedure-id="procedure.id" />
+          <dp-upload-files
+            v-if="editable"
+            id="uploadEmailAttachments"
+            allowed-file-types="all"
+            :basic-auth="dplan.settings.basicAuth"
+            :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedure.id })"
+            :max-file-size="250 * 1024 * 1024 /* 250 MB */"
+            :max-number-of-files="20"
+            name="uploadEmailAttachments"
+            :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '250 MB' }) }"
+            :tus-endpoint="dplan.paths.tusEndpoint" />
+          <dp-button
+            class="u-mt-0_5"
+            :text="Translator.trans('send')"
+            @click="sendEmail()" />
+        </template>
+      </dp-accordion>
+    </section>
   </div>
 </template>
 
 <script>
 import {
+  DpAccordion,
+  DpButton,
   DpButtonRow,
   DpContextualHelp,
   DpDatepicker,
@@ -320,9 +405,11 @@ import {
   DpLabel,
   DpSelect,
   DpTextArea,
+  DpUploadFiles,
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import DetailViewFinalEmailBody from '@DpJs/components/statement/assessmentTable/DetailView/DetailViewFinalEmailBody'
 import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 import StatementMetaAttachments from './StatementMetaAttachments'
 import StatementMetaMultiselect from './StatementMetaMultiselect'
@@ -336,6 +423,9 @@ export default {
   name: 'StatementMeta',
 
   components: {
+    DetailViewFinalEmailBody,
+    DpAccordion,
+    DpButton,
     DpButtonRow,
     DpContextualHelp,
     DpDatepicker,
@@ -344,6 +434,7 @@ export default {
     DpLabel,
     DpSelect,
     DpTextArea,
+    DpUploadFiles,
     SimilarStatementSubmitters,
     StatementMetaAttachments,
     StatementMetaMultiselect
@@ -399,6 +490,11 @@ export default {
       default: false
     },
 
+    externalConstant: {
+      type: String,
+      required: true
+    },
+
     procedure: {
       type: Object,
       required: true
@@ -429,6 +525,7 @@ export default {
 
   data () {
     return {
+      email2Value: '',
       finalMailDefaultText: '',
       localStatement: null
     }
@@ -492,7 +589,7 @@ export default {
       let helpText = ''
 
       const isConsentRevoked = gdprConsent?.consentRevoked
-      const isAnonymized = hasPermission('area_statement_anonymize') && original.submitterAndAuthorMetaDataAnonymized
+      const isAnonymized = hasPermission('area_statement_anonymize') && original?.submitterAndAuthorMetaDataAnonymized
 
       if (isConsentRevoked) {
         helpText = Translator.trans('personal.data.usage.revoked')
@@ -547,7 +644,7 @@ export default {
       if (!date) {
         return ''
       }
-      return date.match(/[0-9]{2}.[0-9]{2}.[0-9]{4}/)
+      return date.match(/\d{2}.\d{2}.\d{4}/)
         ? date
         : convert(date)
     },
@@ -555,7 +652,7 @@ export default {
     isSubmitterAnonymous () {
       const { gdprConsent, original } = this.localStatement.attributes
 
-      return gdprConsent?.consentRevoked || original.submitterAndAuthorMetaDataAnonymized
+      return gdprConsent?.consentRevoked || original?.submitterAndAuthorMetaDataAnonymized
     },
 
     reset () {
@@ -570,6 +667,23 @@ export default {
       this.$emit('save', this.localStatement)
     },
 
+    sendEmail () {
+      const { isSubmittedByCitizen, votes } = this.localStatement.attributes
+      let sentTo = Translator.trans('check.mail.result.citizen')
+
+      if (!isSubmittedByCitizen) {
+        sentTo = Translator.trans('check.mail.result.citizenAndVoters')
+      }
+
+      if (isSubmittedByCitizen && hasPermission('feature_statements_vote') && votes.length > 0) {
+        sentTo = Translator.trans('check.mail.result.citizen')
+      }
+
+      if (dpconfirm(Translator.trans('check.mail.result', { sentTo: sentTo }))) {
+        // TO DO: send email
+      }
+    },
+
     setDate (val, field) {
       this.localStatement.attributes[field] = val
       this.emitInput(field, val)
@@ -581,12 +695,17 @@ export default {
       this.localStatement.attributes.submitDate = this.convertDate(this.localStatement.attributes.submitDate)
 
       this.finalMailDefaultText = Translator.trans('statement.send.final_mail.default', {
-        hasStatementText: this.localStatement.attributes.fullText.length < 2000 ? 0 : 1,
         orgaName: this.procedure.orgaName,
         procedureName: this.procedure.name,
-        statementText: this.localStatement.attributes.fullText,
+        statementText: this.localStatement.attributes.fullText.length < 2000
+          ? Translator.trans('statement.send.final_mail.your_statement') + this.localStatement.attributes.fullText
+          : '',
         statementRecommendation: this.localStatement.attributes.recommendation
       })
+
+      this.email2Value = this.localStatement.attributes.publicStatement === this.externalConstant
+        ? Translator.trans('explanation.statement.final.citizen.email.hidden')
+        : this.localStatement.attributes.email2
     },
 
     syncAuthorAndSubmitter () {
