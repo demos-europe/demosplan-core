@@ -62,11 +62,11 @@ class FileController extends BaseController
     /**
      * @throws Exception
      */
-    protected function prepareResponseWithHash(FileService $fileService, string $hash, bool $strictCheck = false, ?string $procedureId = null): Response
+    protected function prepareResponseWithHash(FileService $fileService, string $hash, bool $strictCheck = false, string $procedureId = null): Response
     {
         $fs = new Filesystem();
         // @improve T14122
-        $file = $fileService->getFileInfo($hash);
+        $file = $fileService->getFileInfo($hash, $procedureId);
 
         // ensure that procedure access check matches file procedure
         if (!$this->isValidProcedure($procedureId, $file, $strictCheck)) {
