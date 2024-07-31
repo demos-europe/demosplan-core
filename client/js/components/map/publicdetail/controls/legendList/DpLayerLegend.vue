@@ -98,7 +98,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('layers', {
+    ...mapGetters('Layers', {
       legends: 'elementListForLegendSidebar'
     }),
 

@@ -435,7 +435,7 @@ export default {
   },
 
   computed: {
-    ...mapState('statement', {
+    ...mapState('Statement', {
       storageStatement: 'items'
     }),
 
@@ -526,11 +526,11 @@ export default {
   },
 
   methods: {
-    ...mapActions('statement', {
+    ...mapActions('Statement', {
       restoreStatementAction: 'restoreFromInitial'
     }),
 
-    ...mapMutations('statement', {
+    ...mapMutations('Statement', {
       setStatement: 'setItem'
     }),
 

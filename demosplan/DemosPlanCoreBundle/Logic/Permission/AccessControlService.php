@@ -18,10 +18,11 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControl;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
+use demosplan\DemosPlanCoreBundle\Permissions\Permission;
 use demosplan\DemosPlanCoreBundle\Repository\AccessControlRepository;
-use Webmozart\Assert\Assert;
-use Webmozart\Assert\InvalidArgumentException;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 
 /**
  * This file is part of the package demosplan.
@@ -37,19 +38,32 @@ class AccessControlService extends CoreService
     public function __construct(
         private readonly AccessControlRepository $accessControlPermissionRepository,
         private readonly RoleHandler $roleHandler,
+        private readonly OrgaService $orgaService
     ) {
     }
 
-    public function createPermission(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, RoleInterface $role): AccessControl
+    public function createPermission(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, RoleInterface $role): ?AccessControl
     {
-        $permission = new AccessControl();
-        $permission->setPermissionName($permissionName);
-        $permission->setOrga($orga);
-        $permission->setCustomer($customer);
-        $permission->setRole($role);
-        $this->accessControlPermissionRepository->add($permission);
+        try {
+            $permission = new AccessControl();
+            $permission->setPermissionName($permissionName);
+            $permission->setOrga($orga);
+            $permission->setCustomer($customer);
+            $permission->setRole($role);
+            $this->accessControlPermissionRepository->add($permission);
 
-        return $permission;
+            return $permission;
+        } catch (UniqueConstraintViolationException $exception) {
+            $this->logger->warning('Unique constraint violation occurred while trying to create a permission.', [
+                'exception'      => $exception->getMessage(),
+                'permissionName' => $permissionName,
+                'orga'           => $orga->getId(),
+                'customer'       => $customer->getId(),
+                'role'           => $role->getId(),
+            ]);
+        }
+
+        return null;
     }
 
     public function getPermissions(?OrgaInterface $orga, ?CustomerInterface $customer, array $roles): array
@@ -61,7 +75,11 @@ class AccessControlService extends CoreService
         foreach ($roles as $roleName) {
             // Try to find an existing permission with the given parameters
 
-            $role = $this->getRoleByCode($roleName);
+            $role = $this->roleHandler->getRoleByCode($roleName);
+
+            if (null === $role) {
+                continue;
+            }
 
             $permissions = $this->getEnabledPermissionNames($role, $orga, $customer, null);
 
@@ -71,24 +89,6 @@ class AccessControlService extends CoreService
 
         // Return the permissions array
         return $enabledPermissions;
-    }
-
-    private function getRoleByCode(string $roleCode): RoleInterface
-    {
-        $roles = $this->roleHandler->getUserRolesByCodes([$roleCode]);
-
-        try {
-            Assert::count($roles, 1);
-        } catch (InvalidArgumentException $e) {
-            // Log the warning
-            $this->logger->warning('More than one role found for the given role name. Using the first one.', [
-                'roleName' => $roleCode,
-                'roles'    => $roles,
-            ]);
-        }
-
-        // Use the first role
-        return $roles[0];
     }
 
     private function getEnabledPermissionNames(?RoleInterface $role, ?OrgaInterface $orga, ?CustomerInterface $customer, ?string $permissionName): array
@@ -173,5 +173,102 @@ class AccessControlService extends CoreService
         }
 
         return !empty($permissions);
+    }
+
+    public function addPermissionToGivenRole(OrgaInterface $orga, CustomerInterface $customer, string $roleName): void
+    {
+        $role = $this->roleHandler->getRoleByCode($roleName);
+
+        if (null === $role) {
+            return;
+        }
+
+        $this->createPermission(self::CREATE_PROCEDURES_PERMISSION, $orga, $customer, $role);
+    }
+
+    public function removePermissionToGivenRole(OrgaInterface $orga, CustomerInterface $customer, string $roleName): void
+    {
+        $role = $this->roleHandler->getRoleByCode($roleName);
+
+        if (null === $role) {
+            return;
+        }
+
+        $this->removePermission(self::CREATE_PROCEDURES_PERMISSION, $orga, $customer, $role);
+    }
+
+    public function enablePermissionCustomerOrgaRole(string $permissionToEnable, CustomerInterface $customer, RoleInterface $role, bool $dryRun = false): array
+    {
+        // enable permission for all orga on the given customer and role
+
+        $orgasInCustomer = $this->orgaService->getOrgasInCustomer($customer);
+        $updatedOrgas = [];
+
+        foreach ($orgasInCustomer as $orgaInCustomer) {
+            // If permisison is already stored, skip it
+            if (true === $this->permissionExist($permissionToEnable, $orgaInCustomer, $customer, [$role->getCode()])) {
+                continue;
+            }
+
+            // do not store permission for default citizen organisation
+            if ($orgaInCustomer->isDefaultCitizenOrganisation()) {
+                continue;
+            }
+
+            $updatedOrga = $this->addPermissionBasedOnOrgaType($permissionToEnable, $role, $orgaInCustomer, $customer, $dryRun);
+
+            if (null !== $updatedOrga) {
+                $updatedOrgas[] = $updatedOrga;
+            }
+        }
+
+        return $updatedOrgas;
+    }
+
+    private function addPermissionBasedOnOrgaType(string $permissionToEnable, RoleInterface $role, OrgaInterface $orgaInCustomer, CustomerInterface $customer, bool $dryRun): ?OrgaInterface
+    {
+        $orgaTypesInCustomer = $orgaInCustomer->getTypes($customer->getSubdomain(), true);
+        foreach ($orgaTypesInCustomer as $orgaTypeInCustomer) {
+            // If permission is 'CREATE_PROCEDURES_PERMISSION' and orga type is 'PLANNING_AGENCY' and role is not 'PRIVATE_PLANNING_AGENCY', skip it
+            if (self::CREATE_PROCEDURES_PERMISSION === $permissionToEnable
+                && OrgaTypeInterface::PLANNING_AGENCY === $orgaTypeInCustomer
+                && RoleInterface::PRIVATE_PLANNING_AGENCY !== $role->getCode()) {
+                continue;
+            }
+
+            // Do not store permission if it is dryrun
+            if (false === $dryRun) {
+                $this->createPermission($permissionToEnable, $orgaInCustomer, $customer, $role);
+            }
+
+            // Return orga where permission was stored
+            return $orgaInCustomer;
+        }
+
+        // Return null if no orga is impacted
+        return null;
+    }
+
+    public function disablePermissionCustomerOrgaRole(string $permissionToEnable, CustomerInterface $customer, RoleInterface $role, bool $dryRun = false): array
+    {
+        $orgasInCustomer = $this->orgaService->getOrgasInCustomer($customer);
+        $updatedOrgas = [];
+
+        foreach ($orgasInCustomer as $orgaInCustomer) {
+            // If permisison is already stored, skip it
+            if (false === $this->permissionExist($permissionToEnable, $orgaInCustomer, $customer, [$role->getCode()])) {
+                continue;
+            }
+
+            // Do not remove permission if it is dryrun
+            if (false === $dryRun) {
+                $this->removePermission($permissionToEnable, $orgaInCustomer, $customer, $role);
+            }
+
+            // Save the impacted orga in the array
+            $updatedOrgas[] = $orgaInCustomer;
+        }
+
+        return $updatedOrgas;
     }
 }

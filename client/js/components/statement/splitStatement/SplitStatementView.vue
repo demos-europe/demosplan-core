@@ -89,7 +89,7 @@
           </div>
           <main
             ref="main"
-            class="container u-pv"
+            class="container pt-2"
             v-else-if="initialData">
             <segmentation-editor
               @prosemirror-initialized="runPostInitTasks"
@@ -285,7 +285,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('splitstatement', [
+    ...mapGetters('SplitStatement', [
       'currentlyHighlightedSegmentId',
       'editingSegment',
       'editingSegmentId',
@@ -343,14 +343,14 @@ export default {
   },
 
   methods: {
-    ...mapMutations('splitstatement', [
+    ...mapMutations('SplitStatement', [
       'locallyDeleteSegments',
       'locallyUpdateSegments',
       'resetSegments',
       'setProperty'
     ]),
 
-    ...mapActions('splitstatement', [
+    ...mapActions('SplitStatement', [
       'acceptSegmentProposal',
       'deleteSegmentAction',
       'setInitialData',

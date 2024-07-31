@@ -28,7 +28,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Tests\Base\UnitTestCase;
 use Zenstruck\Foundry\Proxy;
 
@@ -38,6 +37,7 @@ class AccessControlServiceTest extends UnitTestCase
      * @var AccessControlService|null
      */
     protected $sut;
+
     protected RoleHandler|Proxy|null $roleHandler;
 
     protected GlobalConfig|Proxy|null $globalConfig;
@@ -106,9 +106,9 @@ class AccessControlServiceTest extends UnitTestCase
     public function testDuplicatePermissionCreationThrowsException(): void
     {
         $permissionToCheck = 'my_permission';
-        $this->expectException(UniqueConstraintViolationException::class);
         $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
-        $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
+        $createdPermission = $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
+        $this->assertNull($createdPermission);
     }
 
     public function testGetPermissions(): void

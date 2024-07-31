@@ -144,20 +144,20 @@ export default {
   },
 
   computed: {
-    ...mapGetters('statement', [
+    ...mapGetters('Statement', [
       'selectedElementsLength',
       'selectedElements'
     ]),
 
-    ...mapGetters('fragment', [
+    ...mapGetters('Fragment', [
       'fragmentsByStatement'
     ]),
 
-    ...mapState('statement', [
+    ...mapState('Statement', [
       'statements'
     ]),
 
-    ...mapState('fragment', [
+    ...mapState('Fragment', [
       'fragments'
     ]),
 
@@ -201,16 +201,16 @@ export default {
   },
 
   methods: {
-    ...mapActions('fragment', [
+    ...mapActions('Fragment', [
       'loadFragments'
     ]),
 
-    ...mapMutations('statement', [
+    ...mapMutations('Statement', [
       'updateStatement',
       'resetSelection'
     ]),
 
-    ...mapMutations('assessmentTable', [
+    ...mapMutations('AssessmentTable', [
       'setModalProperty'
     ]),
 
@@ -249,7 +249,7 @@ export default {
           const orgaName = response.included.find(elem => elem.type === 'Claim').attributes.orgaName
 
           // Commit mutation for each element
-          response.data.relationships.statements.data.forEach(statement => this.$store.commit('statement/updateStatement', {
+          response.data.relationships.statements.data.forEach(statement => this.$store.commit('Statement/updateStatement', {
             id: statement.id,
             assignee: {
               id: assignee.id,

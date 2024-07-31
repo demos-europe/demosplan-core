@@ -160,7 +160,7 @@ export default {
   },
 
   computed: {
-    ...mapState('user', {
+    ...mapState('User', {
       items: 'items',
       currentPage: 'currentPage',
       totalPages: 'totalPages'
@@ -183,20 +183,20 @@ export default {
   },
 
   methods: {
-    ...mapActions('department', {
+    ...mapActions('Department', {
       departmentList: 'list'
     }),
     ...mapActions('UserFormFields', [
       'fetchOrgaSuggestions'
     ]),
-    ...mapActions('orga', {
+    ...mapActions('Orga', {
       organisationList: 'list',
       deleteOrganisation: 'delete'
     }),
-    ...mapActions('role', {
+    ...mapActions('Role', {
       roleList: 'list'
     }),
-    ...mapActions('user', {
+    ...mapActions('User', {
       userList: 'list',
       deleteUser: 'delete'
     }),
@@ -223,17 +223,37 @@ export default {
     }, 500),
 
     getItemsByPage (page) {
-      const search = {
-        value: this.searchValue
-      }
       this.isLoading = true
       page = page || this.currentPage
+      const userFilter = {
+        firstnameFilter: {
+          condition: {
+            path: 'firstname',
+            operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
+            value: this.searchValue,
+            memberOf: 'name'
+          }
+        },
+        lastnameFilter: {
+          condition: {
+            path: 'lastname',
+            operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
+            value: this.searchValue,
+            memberOf: 'name'
+          }
+        },
+        name: {
+          group: {
+            conjunction: 'OR'
+          }
+        }
+      }
 
       this.userList({
         page: {
-          number: page
+          number: page ?? 1
         },
-        search: (this.searchValue !== '') ? search : {},
+        filter: userFilter,
         include: ['roles', 'orga', 'department', 'orga.allowedRoles'].join()
       })
         .then(() => {
