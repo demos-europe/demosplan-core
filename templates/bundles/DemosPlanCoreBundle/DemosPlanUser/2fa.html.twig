@@ -10,7 +10,7 @@
             <div class="w-8/12 mt-6">
                 {% set inputLabel = 'auth_code'|trans({}, 'SchebTwoFactorBundle') ~ ' ' ~ twoFactorProvider|trans %}
                 {% if twoFactorProvider == 'email' %}
-                    {% set inputLabel = inputLabel ~ ' (' ~ uiComponent('link', { text: 'Token anfordern', href: 'path/to/token/mail' }) ~ ')' %}
+                    {% set inputLabel = inputLabel ~ '<p class="weight--normal">Sollten Sie nach kurzer Zeit keine Email bekommen haben, brechen Sie den Vorgang bitte ab und melden sich erneut an. Bei der Anmeldung wird automatisch eine Email an die im System hinterlegte Adresse verschickt.</p>' %}
                 {% endif %}
 
                 <form
@@ -46,10 +46,6 @@
                             {{ authenticationError|trans(authenticationErrorData, 'SchebTwoFactorBundle') }}
                         </p>
                     {% endif %}
-
-                    <p class="flash flash-warning">
-                        Wenn es per E-Mail ist, muss der Button/Link "Token anfordern" noch mit Logik gefüllt werden
-                    </p>
 
                     {% if isCsrfProtectionEnabled %}
                         <input
