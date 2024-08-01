@@ -1,7 +1,7 @@
 <template>
   <dp-button
     class="sticky z-above-zero"
-    :class="{ 'hide-visually': hide }"
+    :class="{ 'sr-only': hide }"
     hide-text
     icon="arrow-up"
     icon-size="large"
