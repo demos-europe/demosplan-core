@@ -481,6 +481,7 @@ services:
     # when $jwtRouter is injected via DI JwtRouter is used
     Symfony\Component\Routing\RouterInterface $jwtRouter: '@demosplan\DemosPlanCoreBundle\Logic\JwtRouter'
     Symfony\Component\Routing\RouterInterface: '@demosplan\DemosPlanCoreBundle\Logic\Router'
+    Symfony\Component\HttpFoundation\Request: ~
 
     demosplan\DemosPlanCoreBundle\Permissions\CachingYamlPermissionCollection:
         arguments:
