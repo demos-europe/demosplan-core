@@ -113,7 +113,7 @@ class HtmlHelperTest extends FunctionalTestCase
         $htmlMixed = '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.
             '" href="https://www.example3.com">Old Text 3</a>'.
             '<a class="other-class" href="https://www.example4.com">Old Text 4</a>'.
-            '<a  href="https://www.example5.com" style="color: blue; class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.
+            '<a  href="https://www.example5.com" style="color: blue;" class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.
             '">Old Text 5</a>';
         $expectedMixed = '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.'" href="#New_Old Text 3"'
             .' style="color: blue; text-decoration: underline;">New_Old Text 3</a>'.
