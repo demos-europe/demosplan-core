@@ -72,11 +72,18 @@ class HtmlHelper
      */
     public function updateLinkTextWithClass(string $htmlText, string $className, string $prefix): string
     {
-        $pattern = '/(<a\b[^>]*class="[^"]*\b'
-            .preg_quote($className, '/').'\b[^"]*")[^>]*(href="[^"]*")[^>]*(>)(.*?)(<\/a>)/i';
-        $replacement = '$1 href="#'.$prefix.'$4" style="color: blue; text-decoration: underline;"$3'.$prefix.'$4$5';
+        $pattern = '/<a\b(?=[^>]*\bclass="[^"]*\b'
+            .preg_quote($className, '/').'\b[^"]*")(?=[^>]*\bhref="([^"]*)")[^>]*>(.*?)<\/a>/i';
+        if (preg_match_all($pattern, $htmlText, $matches)) {
+            foreach ($matches[2] as $index => $linkText) {
+                $replacement = '<a class="'.$className
+                    .'" href="#'.$prefix.$linkText.'" style="color: blue; text-decoration: underline;">'
+                    .$prefix.$linkText.'</a>';
+                $htmlText = str_replace($matches[0][$index], $replacement, $htmlText);
+            }
+        }
 
-        return preg_replace($pattern, $replacement, $htmlText);
+        return $htmlText;
     }
 
     /**
