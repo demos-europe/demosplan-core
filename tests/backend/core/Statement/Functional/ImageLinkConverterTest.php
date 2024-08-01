@@ -15,7 +15,7 @@ namespace Tests\Core\Statement\Functional;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\ImageLinkConverter;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Tests\Base\FunctionalTestCase;
 

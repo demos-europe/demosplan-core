@@ -10,8 +10,9 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanCoreBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Segment\Export;
 
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use Exception;
 
 /**
