@@ -133,7 +133,8 @@
         "willdurand/js-translation-bundle": "~6.0",
         "wrep/daemonizable-command": "^3.0",
         "wsdltophp/packagegenerator": "^4.1",
-        "yectep/phpspreadsheet-bundle": "^1.0.0"
+        "yectep/phpspreadsheet-bundle": "^1.0.0",
+        "zenstruck/foundry": "^1.33"
     },
     "require-dev": {
         "escapestudios/symfony2-coding-standard": "^3.4",
@@ -157,8 +158,7 @@
         "symfony/web-profiler-bundle": "5.*.*",
         "timeweb/phpstan-enum": "^3.1",
         "vimeo/psalm": "^5",
-        "weirdan/doctrine-psalm-plugin": "^2",
-        "zenstruck/foundry": "^1.33"
+        "weirdan/doctrine-psalm-plugin": "^2"
     },
     "autoload": {
         "psr-4": {

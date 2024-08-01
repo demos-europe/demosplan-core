@@ -44,5 +44,5 @@ return [
     KnpU\OAuth2ClientBundle\KnpUOAuth2ClientBundle::class                              => ['all' => true],
     Enqueue\ElasticaBundle\EnqueueElasticaBundle::class                                => ['all' => true],
     DemosEurope\DemosplanAddon\DemosPlanAddonBundle::class                             => ['all' => true],
-    Zenstruck\Foundry\ZenstruckFoundryBundle::class                                    => ['dev' => true, 'test' => true],
+    Zenstruck\Foundry\ZenstruckFoundryBundle::class                                    => ['all' => true],
 ];
