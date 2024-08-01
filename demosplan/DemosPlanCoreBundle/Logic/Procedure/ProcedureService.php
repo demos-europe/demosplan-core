@@ -108,6 +108,7 @@ use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\SortMethodInterface;
 use Exception;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
+use Illuminate\Support\Collection;
 use ReflectionException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\FormInterface;
@@ -116,7 +117,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
-use Illuminate\Support\Collection;
 use TypeError;
 
 class ProcedureService extends CoreService implements ProcedureServiceInterface
@@ -2567,7 +2567,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         }
 
         if (isset($filters['municipalCode']) && \is_array($filters['municipalCode'])) {
-            //$conditions[] = $this->conditionFactory->propertyHasAnyOfValues($filters['municipalCode'], ['municipalCode']);
+            // $conditions[] = $this->conditionFactory->propertyHasAnyOfValues($filters['municipalCode'], ['municipalCode']);
             $conditions[] = [] === $filters['municipalCode']
                 ? $this->conditionFactory->false()
                 : $this->conditionFactory->propertyHasAnyOfValues($filters['municipalCode'], ['municipalCode']);
@@ -2620,11 +2620,11 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         if (isset($filters['excludeHiddenPhases'])) {
             // Include only procedures where at least one phase is not hidden
             $conditions[] = $this->conditionFactory->anyConditionApplies(
-                //$this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['phase', 'key']),
+                // $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['phase', 'key']),
                 [] === $hiddenPhases
                     ? $this->conditionFactory->false()
                     : $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['phase', 'key']),
-                //$this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['publicParticipationPhase', 'key']),
+                // $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['publicParticipationPhase', 'key']),
                 [] === $hiddenPhases
                     ? $this->conditionFactory->false()
                     : $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['publicParticipationPhase', 'key']),

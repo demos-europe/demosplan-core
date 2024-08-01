@@ -73,7 +73,7 @@ final class SimilarStatementSubmitterResourceType extends DplanResourceType
 
                     return [];
                 }),
-            //FIXME : have to check this change, there is no RequiredToOneRelationshipConstructorBehavior class that's why i used
+            // FIXME : have to check this change, there is no RequiredToOneRelationshipConstructorBehavior class that's why i used
             // the  ToOneRelationshipConstructorBehavior
             $this->createToOneRelationship($this->procedure)->addConstructorBehavior(ToOneRelationshipConstructorBehavior::createFactory(
                 null,

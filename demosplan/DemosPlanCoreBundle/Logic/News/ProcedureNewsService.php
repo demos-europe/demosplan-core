@@ -52,13 +52,14 @@ class ProcedureNewsService extends CoreService implements ProcedureNewsServiceIn
      * Ruft alle News eines Verfahrens ab
      * Die News müssen freigeschaltet sein (enable = true).
      *
-     * @param string $procedureId
-     * @param User|null $user
+     * @param string      $procedureId
+     * @param User|null   $user
      * @param string|null $manualSortScope
-     * @param int|null $limit
-     * @param array $roles Rollenbezeichnung
+     * @param int|null    $limit
+     * @param array       $roles           Rollenbezeichnung
      *
      * @return array
+     *
      * @throws PathException
      */
     public function getNewsList($procedureId, $user, $manualSortScope = null, $limit = null, $roles = [])
@@ -74,7 +75,7 @@ class ProcedureNewsService extends CoreService implements ProcedureNewsServiceIn
             $conditions[] = [] === $roles
                 ? $this->conditionFactory->false()
                 : $this->conditionFactory->propertyHasAnyOfValues($roles, ['roles', 'code']);
-            //$conditions[] = $this->conditionFactory->propertyHasAnyOfValues($roles, ['roles', 'code']);
+            // $conditions[] = $this->conditionFactory->propertyHasAnyOfValues($roles, ['roles', 'code']);
         }
 
         $sortMethod = $this->sortMethodFactory->propertyDescending(['createDate']);
@@ -167,6 +168,7 @@ class ProcedureNewsService extends CoreService implements ProcedureNewsServiceIn
     {
         try {
             $singleNews = $this->newsRepository->add($data);
+
             // convert to Legacy Array
             return $this->convertToLegacy($singleNews);
         } catch (Exception $e) {

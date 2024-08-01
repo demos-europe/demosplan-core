@@ -116,7 +116,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType
         $elementsToHide = $this->globalConfig->getAdminlistElementsHiddenByTitle();
 
         if ([] !== $elementsToHide) {
-            //$adminConditions[] = $this->conditionFactory->propertyHasNotAnyOfValues($elementsToHide, $this->title);
+            // $adminConditions[] = $this->conditionFactory->propertyHasNotAnyOfValues($elementsToHide, $this->title);
             $adminConditions[] = [] === $elementsToHide
                 ? $this->conditionFactory->false()
                 : $this->conditionFactory->propertyHasNotAnyOfValues($elementsToHide, $this->title);

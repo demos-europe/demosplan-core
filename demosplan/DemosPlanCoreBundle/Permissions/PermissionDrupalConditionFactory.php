@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
 use EDT\ConditionFactory\ConditionFactoryInterface;
-use EDT\ConditionFactory\PathsBasedConditionFactoryInterface;
 use EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory;
 use EDT\Querying\Contracts\PathsBasedInterface;
 

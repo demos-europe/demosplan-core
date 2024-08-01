@@ -103,6 +103,7 @@ class PlanningDocumentCategoryTreeReorderer
      * they all need to be updated independent of their visibility.
      *
      * Target and (optionally) parent are fetched in the same request.
+     *
      * @throws PathException
      */
     public function getReorderingData(
@@ -123,7 +124,7 @@ class PlanningDocumentCategoryTreeReorderer
             ),
             [] === $categoryToMoveAndNewParentIds
                 ? $this->conditionFactory->false()
-                : $this->conditionFactory->propertyHasAnyOfValues($categoryToMoveAndNewParentIds, [$this->categoryResourceType->id])
+                : $this->conditionFactory->propertyHasAnyOfValues($categoryToMoveAndNewParentIds, [$this->categoryResourceType->id]),
             /*$this->conditionFactory->propertyHasAnyOfValues(
                 $categoryToMoveAndNewParentIds,
                 $this->categoryResourceType->id
