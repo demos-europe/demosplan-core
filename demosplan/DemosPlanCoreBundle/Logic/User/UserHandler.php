@@ -685,6 +685,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         }
 
         $userObject = $userService->updateUser($userId, $data);
+
         return $this->userSecurityHandler->handleUserSecurityPropertiesUpdate($userObject, $data);
     }
 

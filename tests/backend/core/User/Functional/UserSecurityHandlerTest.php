@@ -19,7 +19,6 @@ use Tests\Base\FunctionalTestCase;
 
 class UserSecurityHandlerTest extends FunctionalTestCase
 {
-
     private $totpAuthenticator;
     private $messageBag;
     private $userService;

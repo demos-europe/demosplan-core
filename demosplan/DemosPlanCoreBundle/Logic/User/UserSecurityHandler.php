@@ -1,5 +1,14 @@
 <?php
+
 declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
@@ -19,8 +28,8 @@ class UserSecurityHandler
     public function handleUserSecurityPropertiesUpdate(UserInterface $user, array $updateUserData): UserInterface
     {
         $user = $this->handeTotp($updateUserData, $user);
-        return $this->handeEmailAuth($updateUserData, $user);
 
+        return $this->handeEmailAuth($updateUserData, $user);
     }
 
     private function handeTotp(array $updateUserData, UserInterface $user): UserInterface
@@ -29,8 +38,7 @@ class UserSecurityHandler
             if ($this->totpAuthenticator->checkCode($user, $updateUserData['twoFactorCode'])) {
                 $user->setTotpEnabled(true);
                 $this->userService->updateUserObject($user);
-            }
-            else {
+            } else {
                 $this->messageBag->add('error', 'error.2fa.code.invalid');
             }
         }
@@ -40,11 +48,11 @@ class UserSecurityHandler
                 $user->setTotpEnabled(false);
                 $user->setTotpSecret(null);
                 $this->userService->updateUserObject($user);
-            }
-            else {
+            } else {
                 $this->messageBag->add('error', 'error.2fa.code.invalid');
             }
         }
+
         return $user;
     }
 
@@ -54,8 +62,7 @@ class UserSecurityHandler
             if ($user->getEmailAuthCode() === $updateUserData['twoFactorCodeEmail']) {
                 $user->setAuthCodeEmailEnabled(true);
                 $this->userService->updateUserObject($user);
-            }
-            else {
+            } else {
                 $this->messageBag->add('error', 'error.2fa.code.invalid');
             }
         }
@@ -65,8 +72,7 @@ class UserSecurityHandler
                 $user->setAuthCodeEmailEnabled(false);
                 $user->setEmailAuthCode('');
                 $this->userService->updateUserObject($user);
-            }
-            else {
+            } else {
                 $this->messageBag->add('error', 'error.2fa.code.invalid');
             }
         }

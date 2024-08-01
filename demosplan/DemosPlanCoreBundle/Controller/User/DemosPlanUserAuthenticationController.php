@@ -18,7 +18,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
-use demosplan\DemosPlanCoreBundle\Logic\SessionHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHasher;
@@ -127,7 +126,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     }
 
     #[Route(path: '/authentication/2fa/qr-code', name: 'DemosPlan_user_qr_code')]
-    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions("feature_2fa")]
+    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions('feature_2fa')]
     public function displayGoogleAuthenticatorQrCode(BuilderInterface $builder, TotpAuthenticatorInterface $totpAuthenticator)
     {
         $qrCodeContent = $totpAuthenticator->getQRContent($this->getUser());
@@ -137,17 +136,17 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
             ->data($qrCodeContent)
             ->validateResult(true)
             ->build();
+
         return new QrCodeResponse($result);
     }
 
     #[Route(path: '/authentication/2fa/enable', name: 'DemosPlan_user_2fa_enable')]
-    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions("feature_2fa")]
+    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions('feature_2fa')]
     public function enable2fa(
         CurrentUserInterface $currentUser,
         EntityManagerInterface $entityManager,
         TotpAuthenticatorInterface $totpAuthenticator
-    ): RedirectResponse
-    {
+    ): RedirectResponse {
         $user = $currentUser->getUser();
         if (!$user->isTotpEnabled()) {
             $user->setTotpSecret($totpAuthenticator->generateSecret());
@@ -158,12 +157,11 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     }
 
     #[Route(path: '/authentication/2faemail/enable', name: 'DemosPlan_user_2fa_email_enable')]
-    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions("feature_2fa")]
+    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions('feature_2fa')]
     public function enable2faemail(
         CodeGeneratorInterface $codeGenerator,
         CurrentUserInterface $currentUser
-    ): RedirectResponse
-    {
+    ): RedirectResponse {
         $user = $currentUser->getUser();
         if (!$user->isEmailAuthEnabled()) {
             $codeGenerator->generateAndSend($user);
@@ -173,12 +171,11 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     }
 
     #[Route(path: '/authentication/2faemail/send', name: 'DemosPlan_user_2fa_email_send')]
-    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions("feature_2fa")]
+    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions('feature_2fa')]
     public function send2faemail(
         CodeGeneratorInterface $codeGenerator,
         CurrentUserInterface $currentUser
-    ): RedirectResponse
-    {
+    ): RedirectResponse {
         $codeGenerator->reSend($currentUser->getUser());
 
         return $this->redirectToRoute('DemosPlan_user_portal');
@@ -300,7 +297,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         $users = [];
         $currentCustomer = $customerService->getCurrentCustomer()->getSubdomain();
         $availableCustomers = $customerService->getReservedCustomerNamesAndSubdomains();
-        $customers = array_map(static fn(array $availableCustomer): string => $availableCustomer[1], $availableCustomers);
+        $customers = array_map(static fn (array $availableCustomer): string => $availableCustomer[1], $availableCustomers);
         $usersOsi = [];
         $customerKey = $customerService->getCurrentCustomer()->getSubdomain();
         $useIdp = false;
@@ -332,19 +329,19 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
 
         $useSaml = false;
         // this check needs to be reworked once we know better how to save saml parameters by customer
-        if ('' !== $parameterBag->get('saml_idp_entityid') &&
-            'bb' === $customerService->getCurrentCustomer()->getSubdomain()) {
+        if ('' !== $parameterBag->get('saml_idp_entityid')
+            && 'bb' === $customerService->getCurrentCustomer()->getSubdomain()) {
             $useSaml = true;
         }
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanUser/alternative_login.html.twig',
             [
-                'title'     => 'user.login',
-                'useSaml'   => $useSaml,
-                'customers' => $customers,
+                'title'           => 'user.login',
+                'useSaml'         => $useSaml,
+                'customers'       => $customers,
                 'currentCustomer' => $currentCustomer,
-                'loginList' => [
+                'loginList'       => [
                     'enabled'  => 0 < count($users) || 0 < count($usersOsi),
                     'useIdp'   => $useIdp,
                     'users'    => $users,

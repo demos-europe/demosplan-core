@@ -33,10 +33,11 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserInterface;
+use LogicException;
+use Scheb\TwoFactorBundle\Model\Email\TwoFactorInterface as EmailTwoFactorInterface;
 use Scheb\TwoFactorBundle\Model\Totp\TotpConfiguration;
 use Scheb\TwoFactorBundle\Model\Totp\TotpConfigurationInterface;
 use Scheb\TwoFactorBundle\Model\Totp\TwoFactorInterface as TotpTwoFactorInterface;
-use Scheb\TwoFactorBundle\Model\Email\TwoFactorInterface as EmailTwoFactorInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use UnexpectedValueException;
 
@@ -357,7 +358,7 @@ class User implements SamlUserInterface, AddonUserInterface, TotpTwoFactorInterf
     private $providedByIdentityProvider = false;
 
     /**
-     * Value used for two factor authentication via totp
+     * Value used for two factor authentication via totp.
      *
      * @ORM\Column(type="string", nullable=true)
      */
@@ -369,7 +370,7 @@ class User implements SamlUserInterface, AddonUserInterface, TotpTwoFactorInterf
     private bool $totpEnabled = false;
 
     /**
-     * Value used for two factor authentication via email
+     * Value used for two factor authentication via email.
      *
      * @ORM\Column(type="string", nullable=true)
      */
@@ -1838,7 +1839,7 @@ class User implements SamlUserInterface, AddonUserInterface, TotpTwoFactorInterf
     public function getEmailAuthCode(): string
     {
         if (null === $this->authCode) {
-            throw new \LogicException('The email authentication code was not set');
+            throw new LogicException('The email authentication code was not set');
         }
 
         return $this->authCode;
