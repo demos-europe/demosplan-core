@@ -22,10 +22,11 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceTyp
 use demosplan\DemosPlanCoreBundle\Repository\InstitutionTagRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\PathBuilding\End;
 use EDT\Wrapping\CreationDataInterface;
 use EDT\Wrapping\EntityDataInterface;
-use EDT\Wrapping\PropertyBehavior\Attribute\Factory\AttributeConstructorBehaviorFactory;
+use EDT\Wrapping\PropertyBehavior\Attribute\AttributeConstructorBehavior;
 use EDT\Wrapping\PropertyBehavior\FixedConstructorBehavior;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -70,7 +71,7 @@ class InstitutionTagResourceType extends DplanResourceType
         }
 
         if ($this->currentUser->hasPermission('feature_institution_tag_create')) {
-            $configBuilder->label->addConstructorBehavior(new AttributeConstructorBehaviorFactory(null, null));
+            $configBuilder->title->addConstructorBehavior(AttributeConstructorBehavior::createFactory(null, OptionalField::NO, null));
             $configBuilder->taggedInstitutions->initializable(true, function (InstitutionTag $tag, array $institutions): array {
                 $institutionsCollection = new ArrayCollection($institutions);
                 $tag->setTaggedInstitutions($institutionsCollection);

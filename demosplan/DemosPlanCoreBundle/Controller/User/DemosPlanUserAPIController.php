@@ -166,7 +166,7 @@ class DemosPlanUserAPIController extends APIController
                 25
             );
             $paginator->setCurrentPage($pagination->getNumber());
-            $paginatorAdapter = $paginatorFactory->createPaginatorAdapter($paginator);
+            $paginatorAdapter = $paginatorFactory->createPaginatorAdapter($paginator, $request);
 
             $transformer = $userType->getTransformer();
             $collection = new Collection($paginator, $transformer, 'User');

@@ -777,7 +777,10 @@ class ElementsService extends CoreService implements ElementsServiceInterface
         $condition = $this->conditionFactory
             ->allConditionsApply(
                 $this->conditionFactory->propertyHasValue($procedureId, $this->elementResourceType->procedure->id),
-                $this->conditionFactory->propertyHasAnyOfValues($elementIdsToSwitch, $this->elementResourceType->id),
+                [] === $elementIdsToSwitch
+                    ? $this->conditionFactory->false()
+                    : $this->conditionFactory->propertyHasAnyOfValues($elementIdsToSwitch, [$this->elementResourceType->id]),
+                // $this->conditionFactory->propertyHasAnyOfValues($elementIdsToSwitch, $this->elementResourceType->id),
                 $this->conditionFactory->propertyHasValue(!$designatedState, $this->elementResourceType->enabled),
             );
 
@@ -961,7 +964,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
         string $elementTitle,
         string $documentTitle,
         string $paragraphTitle
-    ): null|string|ConstraintViolationListInterface {
+    ): string|ConstraintViolationListInterface|null {
         if ('' !== $documentTitle) {
             $violations = $this->validator->validate($paragraphTitle, new Blank(
                 ['message' => 'statement.categoryType.already.defined.by.give.document']
@@ -998,7 +1001,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
      *                                                      System-category-title if appropriate one was found, otherwise null.
      */
     private function findSystemCategoryTypeTitleBasedOfTitle(string $title
-    ): null|string|ConstraintViolationListInterface {
+    ): string|ConstraintViolationListInterface|null {
         $violations = $this->validator->validate(
             $title,
             new NotBlank(['message' => 'element.title.not.blank'])

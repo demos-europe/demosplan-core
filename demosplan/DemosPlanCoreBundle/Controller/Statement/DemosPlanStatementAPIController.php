@@ -455,7 +455,7 @@ class DemosPlanStatementAPIController extends APIController
             }
 
             $collection = new Collection($paginator, $statementResourceType->getTransformer(), $statementResourceType::getName());
-            $paginatorAdapter = $paginatorFactory->createPaginatorAdapter($paginator);
+            $paginatorAdapter = $paginatorFactory->createPaginatorAdapter($paginator, $request);
             $collection->setPaginator($paginatorAdapter);
             $collection->setMeta($meta);
 

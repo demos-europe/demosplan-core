@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceTyp
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportMessageConverter;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\PathException;
 
 /**
  * @template-extends DplanResourceType<ReportEntry>
@@ -66,6 +67,9 @@ class ReportEntryResourceType extends DplanResourceType
         return $this->currentUser->hasPermission('area_admin_protocol');
     }
 
+    /**
+     * @throws PathException
+     */
     protected function getAccessConditions(): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
@@ -77,8 +81,14 @@ class ReportEntryResourceType extends DplanResourceType
 
         return [
             $this->conditionFactory->propertyHasValue($procedure->getId(), $this->identifier),
-            $this->conditionFactory->propertyHasAnyOfValues($this->getGroups(), $this->group),
-            $this->conditionFactory->propertyHasAnyOfValues($this->getCategories(), $this->category),
+            // $this->conditionFactory->propertyHasAnyOfValues($this->getGroups(), $this->group),
+            [] === $this->getGroups()
+                ? $this->conditionFactory->false()
+                : $this->conditionFactory->propertyHasAnyOfValues($this->getGroups(), [$this->group]),
+            // $this->conditionFactory->propertyHasAnyOfValues($this->getCategories(), $this->category),
+            [] === $this->getCategories()
+                ? $this->conditionFactory->false()
+                : $this->conditionFactory->propertyHasAnyOfValues($this->getCategories(), [$this->category]),
             $this->conditionFactory->propertyHasValue($customer->getId(), $this->customer->id),
         ];
     }
