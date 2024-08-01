@@ -17,7 +17,7 @@
 </documentation>
 <template>
   <div
-    class="o-sortablelist__item u-pv-0_5 u-pl-0_5 border--top flex"
+    class="o-sortablelist__item u-pv-0_5 u-pl-0_5 border--top"
     :class="{
       'is-active' : isActive,
       'cursor-pointer' : (false === layer.attributes.isBaseLayer && 'GisLayerCategory' !== layer.type && false === isChildOfCategoryThatAppearsAsLayer),
@@ -29,120 +29,122 @@
     <div class="c-at-item__row-icon layout__item u-pl-0">
       <i
         class="fa fa-bars handle w-[20px] cursor-grab"
+        aria-hidden="true"
         :title="Translator.trans('move')" />
-    </div>
+    </div><!--
+ --><div
+    class="inline-block layout--flush c-at-item__row"
+    data-cy="mapLayerListItem">
     <div
-      class="flex w-full"
-      data-cy="mapLayerListItem">
-      <div class="flex-1">
-        <!-- regular categories -->
-        <i
-          v-if="layer.type === 'GisLayerCategory' && false === layer.attributes.layerWithChildrenHidden"
-          aria-hidden="true"
-          class="fa u-mr-0_125"
-          @click="toggleChildren"
-          :class="[childElements.length > 0 ? (showChildren ? 'fa-folder-open' : 'fa-folder') :'fa-folder-o']" />
-        {{ layer.attributes.name }}
-        <span
-          class="font-size-smaller u-mr-0_5"
-          v-if="isChildOfCategoryThatAppearsAsLayer && 'mapOrder' === sortingType">
+      class="inline-block"
+      :class="hasPermission('feature_map_layer_visibility') ? 'w-9/12 ' : 'w-11/12'">
+      <!-- regular categories -->
+      <i
+        v-if="layer.type === 'GisLayerCategory' && false === layer.attributes.layerWithChildrenHidden"
+        aria-hidden="true"
+        class="fa u-mr-0_125"
+        @click="toggleChildren"
+        :class="[childElements.length > 0 ? (showChildren ? 'fa-folder-open' : 'fa-folder') :'fa-folder-o']" />
+      {{ layer.attributes.name }}
+      <span
+        class="font-size-smaller u-mr-0_5"
+        v-if="isChildOfCategoryThatAppearsAsLayer && 'mapOrder' === sortingType">
           <!-- children of categories that should appear as Layer
                     only in map-list (where no categories are shown)
                     -->
-          <br>{{ Translator.trans('maplayer.hidden.child.of.category') }}
-        </span>
-        <span
-          class="font-size-smaller u-mr-0_5"
-          v-if="layer.attributes.layerWithChildrenHidden">
+        <br>{{ Translator.trans('maplayer.hidden.child.of.category') }}
+      </span>
+      <span
+        class="font-size-smaller u-mr-0_5"
+        v-if="layer.attributes.layerWithChildrenHidden">
           <!-- categories that should appear as Layer -->
-          <br>{{ Translator.trans('maplayer.category.with.hidden.children') }}
-        </span>
-        <span
-          class="font-size-smaller u-mr-0_5"
-          v-if="layer.attributes.description">
-          <br>{{ layer.attributes.description }}
-        </span>
-        <span
-          class="font-size-smaller u-mr-0_5"
-          v-if="layer.attributes.isBplan">
-          <br>{{ Translator.trans('explanation.gislayer.useas.bplan') }}
-        </span>
-        <span
-          class="font-size-smaller u-mr-0_5"
-          v-if="layer.attributes.isScope">
-          <br>{{ Translator.trans('explanation.gislayer.useas.scope') }}
-        </span>
-        <span
-          class="font-size-smaller"
-          v-if="false === layer.attributes.isEnabled">
-          <br>{{ Translator.trans('explanation.gislayer.useas.invisible') }}
-        </span>
-        <span
-          class="font-size-smaller"
-          v-if="layer.attributes.isPrint">
-          <br>{{ Translator.trans('explanation.gislayer.useas.print') }}
-        </span>
-      </div>
-      <!--
-        Show this Stuff (Visibility-group / show initially on load) only for layer, not for Categories
-      -->
-      <template v-if="(layer.type === 'GisLayer') && hasPermission('feature_map_layer_visibility')">
-        <div class="w-1/12 text-right">
-          <a
-            v-if="('undefined' !== typeof activeLayer.id || '' !== hoverLayerId) && false === layer.attributes.isBaseLayer && (false === isChildOfCategoryThatAppearsAsLayer)"
-            @click.stop.prevent="toggleVisibilityGroup"
-            @mouseover="setIconHoverState"
-            @mouseout="unsetIconHoverState"
-            :title="hintTextForLockedLayer">
-            <i :class="[iconClass,showGroupableIcon]" />
-          </a>
-        </div>
-        <div class="w-1/12 text-right">
-          <input
-            type="checkbox"
-            data-cy="adminLayerListItem:toggleDefaultVisibility"
-            :disabled="'' !== layer.attributes.visibilityGroupId || (true === isChildOfCategoryThatAppearsAsLayer)"
-            @change.prevent="toggleHasDefaultVisibility"
-            :checked="hasDefaultVisibility"
-            :class="iconClass">
-        </div>
-      </template>
-      <!--
-        Show this Stuff for 'special category that looks like an Layer and hides all his children'
-      -->
-      <div
-        v-if="(layer.type === 'GisLayerCategory' && layer.attributes.layerWithChildrenHidden)"
-        class="w-2/12 text-right">
+        <br>{{ Translator.trans('maplayer.category.with.hidden.children') }}
+      </span>
+      <span
+        class="font-size-smaller u-mr-0_5"
+        v-if="layer.attributes.description">
+        <br>{{ layer.attributes.description }}
+      </span>
+      <span
+        class="font-size-smaller u-mr-0_5"
+        v-if="layer.attributes.isBplan">
+        <br>{{ Translator.trans('explanation.gislayer.useas.bplan') }}
+      </span>
+      <span
+        class="font-size-smaller u-mr-0_5"
+        v-if="layer.attributes.isScope">
+        <br>{{ Translator.trans('explanation.gislayer.useas.scope') }}
+      </span>
+      <span
+        class="font-size-smaller"
+        v-if="false === layer.attributes.isEnabled">
+        <br>{{ Translator.trans('explanation.gislayer.useas.invisible') }}
+      </span>
+      <span
+        class="font-size-smaller"
+        v-if="layer.attributes.isPrint">
+        <br>{{ Translator.trans('explanation.gislayer.useas.print') }}
+      </span>
+    </div><!--
+            Show this Stuff (Visibility-group / show initially on load) only for layer, not for Categories
+ --><template v-if="(layer.type === 'GisLayer') && hasPermission('feature_map_layer_visibility')"><!--
+    --><div class="inline-block w-1/12 text-right">
+        <a
+          v-if="('undefined' !== typeof activeLayer.id || '' !== hoverLayerId) && false === layer.attributes.isBaseLayer && (false === isChildOfCategoryThatAppearsAsLayer)"
+          @click.stop.prevent="toggleVisibilityGroup"
+          @mouseover="setIconHoverState"
+          @mouseout="unsetIconHoverState"
+          :title="hintTextForLockedLayer">
+          <i
+            :class="[iconClass,showGroupableIcon]"
+            :aria-label="Translator.trans('gislayer.visibilitygroup.toggle')" />
+        </a>
+      </div><!--
+   --><div class="inline-block w-1/12 text-right">
         <input
           type="checkbox"
           data-cy="adminLayerListItem:toggleDefaultVisibility"
+          :disabled="'' !== layer.attributes.visibilityGroupId || (true === isChildOfCategoryThatAppearsAsLayer)"
           @change.prevent="toggleHasDefaultVisibility"
           :checked="hasDefaultVisibility"
           :class="iconClass">
-      </div>
-      <div
-        v-if="(layer.type !== 'GisLayer' && (false === layer.attributes.layerWithChildrenHidden))"
-        class="w-2/12 text-right">
-        <!-- spacer for groups -->
-      </div>
-      <div class="w-1/12 text-right">
-        <a
-          :href="editLink"
-          data-cy="editLink">
-          <i
-            class="fa fa-pencil u-mr-0_5"
-            aria-hidden="true"
-            :title="Translator.trans('edit')" /><span class="hide-visually">{{ Translator.trans('edit') }}</span>
-        </a>
-        <button
-          class="btn--blank o-link--default u-mr-0_5"
-          data-cy="adminLayerListItem:deleteElement"
-          :title="Translator.trans('delete')"
-          @click.prevent="deleteElement"
-          v-if="childElements.length <= 0">
-          <i
-            class="fa fa-trash"
-            aria-hidden="true" /><span class="hide-visually">{{ Translator.trans('delete') }}</span>
+      </div><!--
+  --></template><!--
+          Show this Stuff for 'special category that looks like an Layer and hides all his children'
+ --><template v-if="(layer.type === 'GisLayerCategory' && layer.attributes.layerWithChildrenHidden)"><!--
+   --><div class="inline-block w-2/12 text-right">
+        <input
+          type="checkbox"
+          data-cy="adminLayerListItem:toggleDefaultVisibility"
+          :checked="hasDefaultVisibility"
+          :class="iconClass"
+          @change.prevent="toggleHasDefaultVisibility">
+      </div><!--
+     -->
+    </template><!--
+  --><div
+      v-if="(layer.type !== 'GisLayer' && (false === layer.attributes.layerWithChildrenHidden))"
+      class="inline-block w-2/12 text-right">
+      <!-- spacer for groups -->
+    </div><!--
+  --><div class="inline-block w-1/12 text-right">
+      <a
+        :href="editLink"
+        data-cy="editLink">
+        <i
+          class="fa fa-pencil u-mr-0_5"
+          aria-hidden="true"
+          :title="Translator.trans('edit')" /><span class="sr-only">{{ Translator.trans('edit') }}</span>
+      </a>
+      <button
+        v-if="childElements.length <= 0"
+        class="btn--blank o-link--default u-mr-0_5"
+        data-cy="adminLayerListItem:deleteElement"
+        :title="Translator.trans('delete')"
+        @click.prevent="deleteElement">
+        <i
+          class="fa fa-trash"
+          aria-hidden="true" /><span class="sr-only">{{ Translator.trans('delete') }}</span>
         </button>
       </div>
     </div>
@@ -757,11 +759,12 @@ export default {
      * Set active state when clicking on an overlay
      */
     setActiveState () {
-      if (this.layer.type !== 'GisLayer' ||
+      if (!hasPermission('feature_map_category') ||
+          this.layer.type !== 'GisLayer' ||
           this.layer.attributes.isBaseLayer ||
           this.isLoading ||
           this.isChildOfCategoryThatAppearsAsLayer) {
-        return false
+        return
       }
       if (this.preventActiveFromToggeling === false) {
         if (this.isActive) {

@@ -54,7 +54,7 @@
         {{ Translator.trans('organisation') }}*
       </label>
       <dp-multiselect
-        v-if="hasPermission('area_organisations')"
+        v-if="hasPermission('feature_organisation_user_list')"
         :id="userId + ':organisationId'"
         ref="orgasDropdown"
         data-cy="organisation"
@@ -91,7 +91,7 @@
         }"
         :options="departmentSelectOptions"
         required
-        :selected="localUser.relationships.department.data.id"
+        :selected="localUser.relationships.department.data?.id || ''"
         @select="changeUserDepartment" />
     </div>
 
@@ -109,7 +109,7 @@
         ref="rolesDropdown"
         class="u-mb-0_5 whitespace-normal"
         :custom-label="option =>`${ roles[option.id].attributes.name }`"
-        data-cy="role"
+        data-cy="roles"
         label="name"
         multiple
         :options="allowedRolesForOrga"
@@ -241,7 +241,7 @@ export default {
 
       if (this.currentUserOrga.id === '') {
         allowedRoles = this.rolesInRelationshipFormat
-      } else if (hasOwnProp(this.organisations[this.currentUserOrga.id].relationships, 'allowedRoles')) {
+      } else if (this.organisations[this.currentUserOrga.id].relationships?.allowedRoles?.data) {
         allowedRoles = Object.values(this.organisations[this.currentUserOrga.id].relationships.allowedRoles.list())
       } else {
         allowedRoles = this.getOrgaAllowedRoles(this.currentUserOrga.id)
@@ -267,11 +267,11 @@ export default {
     },
 
     isDepartmentSet () {
-      return this.localUser.relationships.department.data.id !== ''
+      return this.localUser.relationships.department.data?.id !== ''
     },
 
     isManagingSingleOrganisation () {
-      return hasPermission('area_organisations') === false && this.presetUserOrgaId
+      return !hasPermission('feature_organisation_user_list') && this.presetUserOrgaId
     },
 
     isUserSet () {
@@ -379,7 +379,7 @@ export default {
     },
 
     resetData () {
-      if (hasPermission('area_organisations') === false) {
+      if (!hasPermission('feature_organisation_user_list')) {
         const plainUser = JSON.parse(JSON.stringify(this.user))
         delete plainUser.relationships
         plainUser.relationships = this.localUser.relationships

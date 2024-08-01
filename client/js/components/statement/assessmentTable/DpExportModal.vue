@@ -47,7 +47,7 @@
               v-if="options.pdf.anonymize || options.pdf.obscure"
               class="u-mb-0_5 u-pb-0_5">
               <legend
-                class="hide-visually"
+                class="sr-only"
                 v-text="Translator.trans('export.type')" />
               <label
                 for="pdfAnonymous"
@@ -68,7 +68,7 @@
               v-if="options.pdf.templates"
               class="u-mb-0_5 u-pb-0_5">
               <legend
-                class="hide-visually"
+                class="sr-only"
                 v-text="Translator.trans('export.format')" />
               <label
                 v-for="(templateInfo, identifier) in pdfTemplateOptions"
@@ -95,7 +95,7 @@
               v-if="options.pdf.exportTypes && exportChoice.pdf.template == 'condensed' && view == 'assessment_table'"
               class="u-mb-0_5 u-pb-0_5">
               <legend
-                class="hide-visually"
+                class="sr-only"
                 v-text="Translator.trans('export.data')" />
               <label
                 for="pdfExportTypeStatementsOnly"
@@ -147,7 +147,7 @@
               v-if="options.docx.anonymize || options.docx.obscure"
               class="u-mb-0_5 u-pb-0_5">
               <legend
-                class="hide-visually"
+                class="sr-only"
                 v-text="Translator.trans('export.type')" />
               <label
                 for="docxAnonymous"
@@ -167,7 +167,7 @@
               v-if="options.docx.templates"
               class="u-mb-0_5 u-pb-0_5">
               <legend
-                class="hide-visually"
+                class="sr-only"
                 v-text="Translator.trans('export.format')" />
               <label
                 v-for="(templateInfo, identifier) in docxTemplateOptions"
@@ -194,7 +194,7 @@
               v-if="options.docx.exportTypes && exportChoice.docx.template === 'condensed' && view === 'assessment_table'"
               class="u-mb-0_5 u-pb-0_5">
               <legend
-                class="hide-visually"
+                class="sr-only"
                 v-text="Translator.trans('export.data')" />
               <label
                 for="docxExportTypeStatementsOnly"
@@ -226,7 +226,7 @@
               v-if="options.docx.exportTypes && exportChoice.docx.template === 'condensed' && view === 'assessment_table'"
               class="u-mb-0_5 u-pb-0_5">
               <legend
-                class="hide-visually"
+                class="sr-only"
                 v-text="Translator.trans('export.structure')" />
               <label
                 for="docxSortTypeDefault"
@@ -277,7 +277,7 @@
               v-if="options.xlsx.anonymize || options.xlsx.obscure"
               class="u-mb-0_5 u-pb-0_5">
               <legend
-                class="hide-visually"
+                class="sr-only"
                 v-text="Translator.trans('export.type')" />
               <label
                 for="xlsxAnonymous"
@@ -297,7 +297,7 @@
               v-if="options.xlsx.exportTypes"
               class="u-mb-0_5 u-pb-0_5">
               <legend
-                class="hide-visually"
+                class="sr-only"
                 v-text="Translator.trans('export.data')" />
               <label
                 for="xlsxExportTypeTopicsAndTags"
@@ -368,7 +368,7 @@
           <button
             type="button"
             class="btn btn--primary submitBtn"
-            data-cy="exportModal:submit"
+            data-cy="statementExport:saveButton"
             @click.prevent="handleSubmit">
             {{ submitLabel }}
           </button>

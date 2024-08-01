@@ -51,7 +51,6 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
@@ -63,6 +62,7 @@ use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
+use Illuminate\Support\Collection;
 use LogicException;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -75,7 +75,6 @@ use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Illuminate\Support\Collection;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -361,7 +360,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
     /**
      * @throws Exception
      */
-    protected function validateUserData(array $data, string $userId = null): array
+    protected function validateUserData(array $data, ?string $userId = null): array
     {
         $mandatoryErrors = [];
         $new = null === $userId;
@@ -372,11 +371,11 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                 || (array_key_exists('lastname', $data) && '' === trim((string) $data['lastname']))
             ) {
                 $mandatoryErrors[] = [
-                'type'    => 'error',
-                'message' => $this->flashMessageHandler->createFlashMessage(
-                    'mandatoryError', ['fieldLabel' => $this->translator->trans('name.last')]
-                ),
-            ];
+                    'type'    => 'error',
+                    'message' => $this->flashMessageHandler->createFlashMessage(
+                        'mandatoryError', ['fieldLabel' => $this->translator->trans('name.last')]
+                    ),
+                ];
             }
         }
         if (!array_key_exists('organisationId', $data) || '' === trim((string) $data['organisationId'])) {
@@ -522,7 +521,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                     'userName' => $user->getFullname(),
                     'token'    => $hash,
                     'uId'      => $user->getId(),
-                    ],
+                ],
                     'projectName' => $this->demosplanConfig->getProjectName(),
                 ]
             );
@@ -846,7 +845,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
      *
      * @param string $userId indicates the user whose data will be wiped
      *
-     * @return user|bool - The wiped User if all operations are successful, otherwise false
+     * @return User|bool - The wiped User if all operations are successful, otherwise false
      */
     public function wipeUserData($userId)
     {
@@ -1755,7 +1754,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
      *
      * @param string $organisationId Indicates the organisation whose data will be wiped
      *
-     * @return orga|array The wiped organisation if all operations are successful, otherwise errors
+     * @return Orga|array The wiped organisation if all operations are successful, otherwise errors
      *
      * @throws MessageBagException
      */

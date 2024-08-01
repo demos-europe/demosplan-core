@@ -209,7 +209,9 @@ export default {
     },
 
     showAutoSwitchToAnalysisHint () {
-      return hasPermission('feature_auto_switch_to_procedure_end_phase') && this.autoSwitchPhase && ['participation', 'earlyparticipation', 'anotherparticipation'].includes(this.selectedPhase)
+      const isInParticipation = this.phaseOptions.find(option => option.value === this.selectedPhase)?.permission === 'write'
+
+      return hasPermission('feature_auto_switch_to_procedure_end_phase') && this.autoSwitchPhase && isInParticipation
     },
 
     startDateId () {

@@ -23,10 +23,14 @@ use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
+use demosplan\DemosPlanCoreBundle\Logic\ImageLinkConverter;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageManager;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
-use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
+use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ConvertedSegment;
 use Doctrine\Common\Collections\ArrayCollection;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
+use PhpOffice\PhpWord\Element\Footer;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Exception\Exception;
 use PhpOffice\PhpWord\IOFactory;
@@ -42,12 +46,14 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         private readonly AssessmentTableXlsExporter $assessmentTableXlsExporter,
         CurrentUserInterface $currentUser,
         private readonly EntityHelper $entityHelper,
-        HTMLSanitizer $htmlSanitizer,
+        HtmlHelper $htmlHelper,
+        ImageManager $imageManager,
+        ImageLinkConverter $imageLinkConverter,
+        private readonly SegmentExporterFileNameGenerator $fileNameGenerator,
         Slugify $slugify,
-        TranslatorInterface $translator,
-        private readonly SegmentExporterFileNameGenerator $fileNameGenerator
+        TranslatorInterface $translator
     ) {
-        parent::__construct($currentUser, $htmlSanitizer, $slugify, $translator);
+        parent::__construct($currentUser, $htmlHelper, $imageManager, $imageLinkConverter, $slugify, $translator);
     }
 
     public function getSynopseFileName(Procedure $procedure, string $suffix): string
@@ -84,20 +90,69 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     {
         Settings::setOutputEscapingEnabled(true);
         $exportData = [];
+        $convertedSegments = [];
         // unfortunately for xlsx export data needs to be an array
         foreach ($statements as $statement) {
             $segmentsOrStatements = collect([$statement]);
             if (!$statement->getSegmentsOfStatement()->isEmpty()) {
                 $segmentsOrStatements = $statement->getSegmentsOfStatement();
+                $convertedSegments[] =
+                    $this->convertImagesToReferencesInRecommendations($segmentsOrStatements->toArray());
             }
             foreach ($segmentsOrStatements as $segmentOrStatement) {
                 $exportData[] = $this->convertIntoExportableArray($segmentOrStatement);
             }
         }
 
+        foreach ($convertedSegments as $convertedSegment) {
+            $exportData = $this->updateRecommendationsWithTextReferences($exportData, $convertedSegment);
+        }
+
         $columnsDefinition = $this->assessmentTableXlsExporter->selectFormat('segments');
 
         return $this->assessmentTableXlsExporter->createExcel($exportData, $columnsDefinition);
+    }
+
+    private function convertImagesToReferencesInRecommendations(array $segments): array
+    {
+        $sortedSegments = $this->sortSegmentsByOrderInProcedure($segments);
+
+        $convertedSegments = [];
+        /** @var Segment $segment */
+        foreach ($sortedSegments as $segment) {
+            $externId = $segment->getExternId();
+            $convertedSegment = $this->imageLinkConverter->convert($segment, $externId, false);
+            $convertedSegments[$externId] = $convertedSegment;
+        }
+        $this->imageLinkConverter->resetImages();
+
+        return $convertedSegments;
+    }
+
+    /**
+     * @param array<string, mixed>            $segmentsOrStatements
+     * @param array<string, ConvertedSegment> $convertedSegments
+     *
+     * @return array<string, mixed>
+     */
+    private function updateRecommendationsWithTextReferences(
+        array $segmentsOrStatements,
+        array $convertedSegments
+    ): array {
+        foreach ($segmentsOrStatements as $key => $segmentOrStatement) {
+            $isNotSegment = !array_key_exists('recommendation', $segmentOrStatement);
+            $externIdIsNotOfSegment = !array_key_exists($segmentOrStatement['externId'], $convertedSegments);
+            if ($isNotSegment || $externIdIsNotOfSegment) {
+                continue;
+            }
+
+            $segmentOrStatement['text'] = $convertedSegments[$segmentOrStatement['externId']]->getText();
+            $segmentOrStatement['recommendation'] =
+                $convertedSegments[$segmentOrStatement['externId']]->getRecommendationText();
+            $segmentsOrStatements[$key] = $segmentOrStatement;
+        }
+
+        return $segmentsOrStatements;
     }
 
     /**
@@ -106,6 +161,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     private function exportEmptyStatements(PhpWord $phpWord, Procedure $procedure): WriterInterface
     {
         $section = $phpWord->addSection($this->styles['globalSection']);
+        $this->addHeader($section, $procedure, Footer::FIRST);
         $this->addHeader($section, $procedure);
 
         return $this->addNoStatementsMessage($phpWord, $section);
@@ -119,6 +175,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     private function exportStatements(PhpWord $phpWord, Procedure $procedure, array $statements, array $tableHeaders): WriterInterface
     {
         $section = $phpWord->addSection($this->styles['globalSection']);
+        $this->addHeader($section, $procedure, Footer::FIRST);
         $this->addHeader($section, $procedure);
 
         foreach ($statements as $index => $statement) {
@@ -133,6 +190,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     {
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $section = $phpWord->addSection($this->styles['globalSection']);
+        $this->addHeader($section, $procedure, Footer::FIRST);
         $this->addHeader($section, $procedure);
         $this->exportStatement($section, $statement, $tableHeaders);
 
