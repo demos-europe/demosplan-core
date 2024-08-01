@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3099b520842ee83bff22503c0b1c0c01",
+    "content-hash": "47fc0b535be608d5c58476fb9c0094e5",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
