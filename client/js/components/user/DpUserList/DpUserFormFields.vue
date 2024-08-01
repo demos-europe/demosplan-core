@@ -54,7 +54,7 @@
         {{ Translator.trans('organisation') }}*
       </label>
       <dp-multiselect
-        v-if="hasPermission('area_organisations')"
+        v-if="hasPermission('feature_organisation_user_list')"
         :id="userId + ':organisationId'"
         ref="orgasDropdown"
         data-cy="organisation"
@@ -107,7 +107,7 @@
       <dp-multiselect
         :id="userId + ':userRoles'"
         ref="rolesDropdown"
-        class="u-mb-0_5"
+        class="u-mb-0_5 whitespace-normal"
         :custom-label="option =>`${ roles[option.id].attributes.name }`"
         data-cy="role"
         label="name"
@@ -208,23 +208,23 @@ export default {
   },
 
   computed: {
-    ...mapGetters('role', {
+    ...mapGetters('Role', {
       rolesInRelationshipFormat: 'itemsInRelationshipFormat'
     }),
 
-    ...mapGetters('orga', {
+    ...mapGetters('Orga', {
       orgasInRelationshipFormat: 'itemsInRelationshipFormat'
     }),
 
-    ...mapState('orga', {
+    ...mapState('Orga', {
       organisations: 'items'
     }),
 
-    ...mapState('department', {
+    ...mapState('Department', {
       departments: 'items'
     }),
 
-    ...mapState('role', {
+    ...mapState('Role', {
       roles: 'items'
     }),
 
@@ -271,7 +271,7 @@ export default {
     },
 
     isManagingSingleOrganisation () {
-      return hasPermission('area_organisations') === false && this.presetUserOrgaId
+      return !hasPermission('feature_organisation_user_list') && this.presetUserOrgaId
     },
 
     isUserSet () {
@@ -284,11 +284,11 @@ export default {
   },
 
   methods: {
-    ...mapActions('orga', {
+    ...mapActions('Orga', {
       organisationList: 'list'
     }),
 
-    ...mapMutations('orga', ['setItem']),
+    ...mapMutations('Orga', ['setItem']),
 
     addRole (role) {
       this.localUser.relationships.roles.data.push(role)
@@ -298,7 +298,7 @@ export default {
     changeUserDepartment (departmentId) {
       this.localUser.relationships.department.data = {
         id: departmentId,
-        type: 'department'
+        type: 'Department'
       }
 
       this.$emit('user-update', this.localUser)
@@ -349,7 +349,7 @@ export default {
 
       this.fetchOrgaById(orgaId).then((orga) => {
         this.setOrga(orga.data.data)
-        if (hasOwnProp(this.organisations[this.currentUserOrga.id].relationships, 'allowedRoles')) {
+        if (this.currentUserOrga.id && hasOwnProp(this.organisations[this.currentUserOrga.id].relationships, 'allowedRoles')) {
           allowedRoles = this.organisations[this.currentUserOrga.id].relationships.allowedRoles.list()
         }
       })
@@ -379,7 +379,7 @@ export default {
     },
 
     resetData () {
-      if (hasPermission('area_organisations') === false) {
+      if (!hasPermission('feature_organisation_user_list')) {
         const plainUser = JSON.parse(JSON.stringify(this.user))
         delete plainUser.relationships
         plainUser.relationships = this.localUser.relationships
@@ -466,7 +466,7 @@ export default {
               ? payloadRel.allowedRoles.data.map(el => {
                 return {
                   ...el,
-                  type: 'role'
+                  type: 'Role'
                 }
               })
               : null
@@ -474,7 +474,7 @@ export default {
           currentSlug: {
             data: {
               id: payloadRel.currentSlug.data.id,
-              type: 'slug'
+              type: 'Slug'
             }
           },
           departments: {
@@ -482,7 +482,7 @@ export default {
               ? payloadRel.departments.data.map(el => {
                 return {
                   ...el,
-                  type: 'department'
+                  type: 'Department'
                 }
               })
               : null

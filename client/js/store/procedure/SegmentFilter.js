@@ -11,7 +11,9 @@ import { del, set } from 'vue'
 
 const SegmentFilterStore = {
   namespaced: true,
-  name: 'segmentfilter',
+
+  name: 'SegmentFilter',
+
   state: {
     filterQuery: {}
   },

@@ -31,7 +31,7 @@
               data-cy="username"
               :label="{
                 bold: false,
-                text: Translator.trans('username')+ '/' + Translator.trans('email.address'),
+                text: Translator.trans('email.address'),
               }"
               name="r_useremail"
               :prevent-default-on-enter="false"

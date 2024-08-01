@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DumpGraphContaine
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DumpYmlContainerPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\MenusLoaderPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\OptionsLoaderPass;
+use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\RepositoryLoaderPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\RpcMethodSolverPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\ServiceTagAutoconfigurator;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
@@ -282,6 +283,7 @@ class DemosPlanKernel extends Kernel
         $container->addCompilerPass(new DeploymentStrategyLoaderPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
         $container->addCompilerPass(new RpcMethodSolverPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
         $container->addCompilerPass(new MenusLoaderPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new RepositoryLoaderPass());
         $container->addCompilerPass(new OptionsLoaderPass(), PassConfig::TYPE_AFTER_REMOVING, 0);
         $container->addCompilerPass(new AddonResolveTargetEntity(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
         if ('test' !== $this->getEnvironment()) {

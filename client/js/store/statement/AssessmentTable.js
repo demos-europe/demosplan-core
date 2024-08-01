@@ -12,7 +12,8 @@ import { set } from 'vue'
 
 const AssessmentTable = {
   namespaced: true,
-  name: 'assessmentTable',
+
+  name: 'AssessmentTable',
 
   state: {
     accessibleProcedureIds: [],

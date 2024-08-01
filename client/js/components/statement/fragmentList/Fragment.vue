@@ -634,7 +634,7 @@ export default {
       return files
     },
 
-    ...mapGetters('fragment', ['fragmentById'])
+    ...mapGetters('Fragment', ['fragmentById'])
   },
 
   methods: {
@@ -676,8 +676,8 @@ export default {
       this.tab = tab
     },
 
-    ...mapActions('fragment', ['setAssigneeAction']),
-    ...mapMutations('fragment', ['updateFragment', 'deleteFragment'])
+    ...mapActions('Fragment', ['setAssigneeAction']),
+    ...mapMutations('Fragment', ['updateFragment', 'deleteFragment'])
   },
 
   mounted () {

@@ -10,12 +10,14 @@
 <template>
   <div>
     <dl class="description-list u-mb-0_5">
-      <dt class="weight--bold">
-        {{ Translator.trans('username') }}
-      </dt>
-      <dd class="u-mb color--grey">
-        {{ userData.userName }}
-      </dd>
+      <template v-if="!hasIdentityProvider">
+        <dt class="weight--bold">
+          {{ Translator.trans('username') }}
+        </dt>
+        <dd class="u-mb color--grey">
+          {{ userData.userName }}
+        </dd>
+      </template>
 
       <template v-if="hasPermission('area_mydata_organisation')">
         <dt class="weight--bold">
@@ -44,12 +46,15 @@
       <dd class="u-mb color--grey">
         {{ userData.firstName }}
       </dd>
-      <dt class="weight--bold">
-        {{ Translator.trans('email') }}
-      </dt>
-      <dd class="u-mb color--grey">
-        {{ userData.email }}
-      </dd>
+
+      <template v-if="!hasIdentityProvider">
+        <dt class="weight--bold">
+          {{ Translator.trans('email') }}
+        </dt>
+        <dd class="u-mb color--grey">
+          {{ userData.email }}
+        </dd>
+      </template>
     </dl>
 
     <input
@@ -110,6 +115,16 @@ export default {
   },
 
   props: {
+  /**
+   * If the User logs in through a service provider (via Keycloak), the username becomes cryptic and can be confusing.
+   * Therefor we want to hide it from the user.
+   */
+    hasIdentityProvider: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
     isDailyDigestEnabled: {
       type: Boolean,
       default: true

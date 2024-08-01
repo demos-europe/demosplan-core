@@ -16,6 +16,7 @@
     <div class="c-slidebar__content overflow-y-auto u-mr">
       <dp-ol-map
         ref="map"
+        :layers="mapData.layers"
         :procedure-id="procedureId"
         :map-options="{
           procedureMaxExtent: mapData.mapExtent ?? []
@@ -23,7 +24,7 @@
         :options="{
           autoSuggest: false,
           defaultAttribution: mapData.copyright,
-          initialExtent: mapData.boundingBox ?? [],
+          initialExtent: mapData.boundingBox ?? mapData.mapExtent ?? []
         }">
         <template v-if="hasPermission('feature_segment_polygon_set')">
           <dp-ol-map-draw-feature
@@ -152,34 +153,16 @@ export default {
   },
 
   computed: {
-    ...mapState('statementSegment', {
+    ...mapState('StatementSegment', {
       segments: 'items'
     }),
 
-    ...mapState('segmentSlidebar', ['slidebar']),
+    ...mapState('SegmentSlidebar', ['slidebar']),
 
     pointData () {
       return {
         type: 'FeatureCollection',
         features: this.initPolygons.filter(f => f.geometry.type === 'Point') || []
-      }
-    },
-
-    features () {
-      /*
-       *  Transform the value that is saved as a string into valid GeoJSON
-       *  to be able to use it with a generic vector layer component
-       */
-      return {
-        boundingBox: this.mapData.boundingBox
-          ? {
-              type: 'Feature',
-              geometry: {
-                type: 'Polygon',
-                coordinates: fromExtent(JSON.parse(`[${this.mapData.boundingBox}]`)).getCoordinates()
-              }
-            }
-          : null
       }
     },
 
@@ -221,7 +204,7 @@ export default {
           this.$nextTick(() => {
             this.setCenterAndExtent()
           })
-        } else if (this.mapData.boundingBox) {
+        } else if (this.mapData.boundingBox.length > 0) {
           this.$nextTick(() => {
             this.setInitExtent()
           })
@@ -231,9 +214,9 @@ export default {
   },
 
   methods: {
-    ...mapMutations('statementSegment', ['setItem']),
+    ...mapMutations('StatementSegment', ['setItem']),
 
-    ...mapActions('statementSegment', {
+    ...mapActions('StatementSegment', {
       saveSegmentAction: 'save'
     }),
 
@@ -258,6 +241,22 @@ export default {
       })
     },
 
+    /**
+     * Restore non-updatable comments from segments relationships after update request
+     */
+    restoreComments (comments) {
+      if (comments) {
+        const segmentWithComments = {
+          ...this.segment,
+          relationships: {
+            ...this.segment.relationships,
+            comments: comments
+          }
+        }
+        this.setItem({ ...segmentWithComments })
+      }
+    },
+
     save () {
       this.setItem({
         ...this.segment,
@@ -266,6 +265,15 @@ export default {
           polygon: JSON.stringify(this.featuresObject)
         }
       })
+      const comments = this.segment.relationships.comments ? { ...this.segment.relationships.comments } : null
+
+      /**
+       *  Comments need to be removed as updating them is technically not supported
+       *  After completing the request, they are added again to the store to be able to display them
+       */
+      if (this.segment.relationships.comments) {
+        delete this.segment.relationships.comments
+      }
 
       return this.saveSegmentAction(this.segmentId)
         .then(checkResponse)
@@ -274,6 +282,9 @@ export default {
         })
         .catch(() => {
           dplan.notify.error(Translator.trans('error.changes.not.saved'))
+        })
+        .finally(() => {
+          this.restoreComments(comments)
         })
     },
 
