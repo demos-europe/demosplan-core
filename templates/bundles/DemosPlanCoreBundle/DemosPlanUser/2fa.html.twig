@@ -10,7 +10,7 @@
             <div class="w-8/12 mt-6">
                 {% set inputLabel = 'auth_code'|trans({}, 'SchebTwoFactorBundle') ~ ' ' ~ twoFactorProvider|trans %}
                 {% if twoFactorProvider == 'email' %}
-                    {% set inputLabel = inputLabel ~ '<p class="weight--normal">Sollten Sie nach kurzer Zeit keine Email bekommen haben, brechen Sie den Vorgang bitte ab und melden sich erneut an. Bei der Anmeldung wird automatisch eine Email an die im System hinterlegte Adresse verschickt.</p>' %}
+                    {% set inputLabel = inputLabel ~ '2fa.email.login.explanation'|trans %}
                 {% endif %}
 
                 <form

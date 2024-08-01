@@ -1,7 +1,21 @@
 # Use `sed 's/:.*//' messages.de.yml | sort | uniq -cd` to list all duplicated keys in this file with the number of occurrences of each one
 # you can also use `php app/console lint:yaml $filename` for a general yaml check
+2fa: "Zwei-Faktor-Authentifizierung"
+2fa.email: "Authentifizierung per Email"
+2fa.email.activate: 'Um die Zwei-Faktor-Authentifizierung per Email zu aktivieren, wurde Ihnen ein Code an Ihre Email-Adresse gesendet. Bitte prüfen Sie Ihr Postfach und geben Sie diesen bitte ein und speichern Sie das Formular. Sollte der Token abgelaufen sein, <a href="{link}">lassen Sie sich den aktuellen Code erneut an Ihre Email-Adresse senden</a>'
+2fa.email.activated: 'Die Zwei-Faktor-Authentifizierung per Email ist <strong>aktiviert</strong>. Um sie zu deaktivieren geben Sie bitte einen aktuellen Code ein und speichern Sie das Formular. <a href="{link}">Neuen Code an Ihre Email-Adresse senden</a>'
+2fa.email.enable.explanation: 'Um die Zwei-Faktor-Authentifizierung per Email zu nutzen, müssen Sie diese zunächst aktivieren.'
+2fa.email.enable: 'Zwei-Faktor-Authentifizierung per Email aktivieren'
+2fa.totp.code: "TOTP Code"
+2fa.totp.code.qr: "TOTP QR Code"
+2fa.totp.activate.explanation: "Bitte scannen Sie den folgenden Code in einer entsprechenden App wie den Google Authenticator, FreeOTP oder anderen. Alternativ können Sie den unten stehenden sog. TOTP Code in einen Passwortmanager wie KeepassXC eingeben, um die Einmalcodes generieren zu lassen."
+2fa.totp.activate: "Um die Zwei-Faktor-Authentifizierung zu aktivieren, geben Sie bitte einen aktuellen Code ein und speichern Sie das Formular"
+2fa.totp.activated: "Die Zwei-Faktor-Authentifizierung ist <strong>aktiviert</strong>. Um sie zu deaktivieren, geben Sie bitte einen aktuellen Code ein und speichern Sie das Formular"
+2fa.totp.enable.explanation: "Um die Zwei-Faktor-Authentifizierung zu nutzen, müssen Sie diese zunächst aktivieren."
+2fa.totp.enable: "Zwei-Faktor-Authentifizierung per App aktivieren"
 2fa.code: "Zwei-Faktor-Authentifizierungscode"
 2fa.email.subject: 'Zwei-Faktor-Authentifizierung für Ihr {projectName} Konto'
+2fa.email.login.explanation: '<p class="weight--normal">Sollten Sie nach kurzer Zeit keine Email bekommen haben, brechen Sie den Vorgang bitte ab und melden sich erneut an. Bei der Anmeldung wird automatisch eine Email an die im System hinterlegte Adresse verschickt.</p>'
 abort: "Abbrechen"
 abort.and.back: "Abbrechen und zurück"
 about.introduction: >-
