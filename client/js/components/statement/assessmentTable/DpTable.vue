@@ -139,7 +139,7 @@
         v-for="element in selectedElements"
         :key="`selectedElement:${element.id}`">
         <input
-          class="hide-visually"
+          class="sr-only"
           name="item_check[]"
           type="checkbox"
           :id="element.id + ':item_check[]'"
@@ -153,7 +153,7 @@
         v-for="element in selectedFragments"
         :key="`selectedFragment:${element.id}`">
         <input
-          class="hide-visually"
+          class="sr-only"
           name="item_check[]"
           type="checkbox"
           :key="`selectedFragmentInput:${element.id}`"

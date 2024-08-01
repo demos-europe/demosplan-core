@@ -89,7 +89,7 @@ class DemosPlanOrganisationAPIController extends APIController
     /**
      * List organizations, depending on permissions.
      *
-     * @DplanPermissions("area_organisations")
+     * @DplanPermissions("feature_organisation_user_list")
      *
      * @return APIResponse
      */
