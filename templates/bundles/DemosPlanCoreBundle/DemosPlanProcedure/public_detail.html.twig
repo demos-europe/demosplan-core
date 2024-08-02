@@ -123,19 +123,22 @@
                             </h3>
 
                                 {% if ownsProcedure(proceduresettings) %}
-                                    {# Display procedure phase of institutions to enable planner user to quickly check correct settings #}
+                                    {# Display procedure phase of institutions and citizens to enable planner user to quickly check correct settings #}
                                     {{ getProcedurePhase(proceduresettings, 'internal') }}
                                     {{- contextualHelp('help.public.detail.phase.'~ getProcedurePhaseKey(proceduresettings, 'internal'), ['o-tooltip--question-circle'|prefixClass, 'c-infolist__help u-ml-0_25'|prefixClass]) -}}
                                     {{ '\n'|nl2br }}
+                                    {{ getProcedurePhase(proceduresettings, 'public') }}
+                                    {{- contextualHelp('help.public.detail.phase.'~ getProcedurePhaseKey(proceduresettings, 'public'), ['c-infolist__help u-ml-0_25'|prefixClass]) -}}
+                                {% else %}
+                                    {# Display procedure phase and help depending on role #}
+                                    {{ getProcedurePhase(proceduresettings) }}
+                                    {{- contextualHelp('help.public.detail.phase.'~ getProcedurePhaseKey(proceduresettings), ['c-infolist__help u-ml-0_25'|prefixClass]) -}}
                                 {% endif %}
 
                                 {# Display a "legal notice" for institutions #}
                                 {% if hasPermission('feature_procedure_legal_notice_read') and proceduresettings.settings.legalNotice|default != '' %}
                                     ({{ proceduresettings.settings.legalNotice }})
                                 {% endif %}
-                                {# Display public procedure phase without login or logged as citizen  #}
-                                {{ getProcedurePhase(proceduresettings, 'public') }}
-                                {{- contextualHelp('help.public.detail.phase.'~ getProcedurePhaseKey(proceduresettings, 'public'), ['o-tooltip--question-circle'|prefixClass, 'c-infolist__help u-ml-0_25'|prefixClass]) -}}
                         </div><!--
                     {% endif %}
 

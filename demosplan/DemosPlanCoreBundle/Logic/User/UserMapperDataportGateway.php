@@ -739,12 +739,12 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
     {
         $userUpdated = false;
         if ($user->getOrga() instanceof Orga) {
-            $this->logger->info('Remove User '.$user->getLogin().' from Orga '.$user->getOrgaName());
+            $this->logger->info('Remove User '.$user->getLogin().' from Orga '.$user->getOrgaName(), ['oId' => $user->getOrganisationId()]);
             $user->getOrga()->removeUser($user);
             $userUpdated = true;
         }
         if ($user->getDepartment() instanceof Department) {
-            $this->logger->info('Remove User '.$user->getLogin().' from Department '.$user->getDepartment()->getName());
+            $this->logger->info('Remove User '.$user->getLogin().' from Department '.$user->getDepartment()->getName(), ['dId' => $user->getDepartmentId()]);
             $user->getDepartment()->removeUser($user);
             $userUpdated = true;
         }
