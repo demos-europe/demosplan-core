@@ -14,12 +14,12 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\SlugFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
-use Zenstruck\Foundry\ModelFactory;
-use Zenstruck\Foundry\Proxy;
+use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\Persistence\Proxy;
 use Zenstruck\Foundry\RepositoryProxy;
 
 /**
- * @extends ModelFactory<Procedure>
+ * @extends PersistentProxyObjectFactory<Procedure>
  *
  * @method        Procedure|Proxy                     create(array|callable $attributes = [])
  * @method static Procedure|Proxy                     createOne(array $attributes = [])
@@ -37,16 +37,16 @@ use Zenstruck\Foundry\RepositoryProxy;
  * @method static Procedure[]|Proxy[]                 randomRange(int $min, int $max, array $attributes = [])
  * @method static Procedure[]|Proxy[]                 randomSet(int $number, array $attributes = [])
  */
-class ProcedureFactory extends ModelFactory
+class ProcedureFactory extends PersistentProxyObjectFactory
 {
     public function __construct(private readonly GlobalConfigInterface $globalConfig)
     {
         parent::__construct();
     }
 
-    protected function getDefaults(): array
+    protected function defaults(): array
     {
-        $slug = SlugFactory::createOne()->object();
+        $slug = SlugFactory::createOne();
 
         return [
             'ars'                                   => self::faker()->text(12),
@@ -84,14 +84,14 @@ class ProcedureFactory extends ModelFactory
         return $this;
     }
 
-    protected static function getClass(): string
+    public static function class(): string
     {
         return Procedure::class;
     }
 
     public function inHiddenPhase(): self
     {
-        return $this->addState([
+        return $this->with([
             'phase'                    => $this->globalConfig->getInternalPhaseKeys('hidden')[0],
             'publicParticipationPhase' => $this->globalConfig->getExternalPhaseKeys('hidden')[0],
             ]);
@@ -99,7 +99,7 @@ class ProcedureFactory extends ModelFactory
 
     public function inReadingPhase(): self
     {
-        return $this->addState([
+        return $this->with([
             'phase'                    => $this->globalConfig->getInternalPhaseKeys('read')[0],
             'publicParticipationPhase' => $this->globalConfig->getExternalPhaseKeys('read')[0],
         ]);
@@ -107,11 +107,11 @@ class ProcedureFactory extends ModelFactory
 
     public function asDeleted(): self
     {
-        return $this->addState(['deleted' => true]);
+        return $this->with(['deleted' => true]);
     }
 
     public function withoutPublicParticipation(): self
     {
-        return $this->addState(['publicParticipation' => false]);
+        return $this->with(['publicParticipation' => false]);
     }
 }
