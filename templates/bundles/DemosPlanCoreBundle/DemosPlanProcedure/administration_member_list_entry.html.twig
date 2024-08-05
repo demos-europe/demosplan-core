@@ -11,9 +11,17 @@
 {# Needed for colspan in collapsible <tr> bwlow #}
 {% set colspan = 5 %}
 
-<tr class="border--top o-sortablelist__item">
+<tr
+    class="border--top o-sortablelist__item"
+    :data-cy="`administrationMemberListEntry:row:{{ loop.index }}`">
     <td class="u-pr-0_25">
-        <input name="orga_selected[]" class="u-ml-0_5" type="checkbox" value="{{ orga.ident|default("notspecified"|trans)}}" data-checkable-item>
+        <input
+            name="orga_selected[]"
+            class="u-ml-0_5"
+            data-cy="selectItem"
+            type="checkbox"
+            value="{{ orga.ident|default("notspecified"|trans)}}"
+            data-checkable-item>
     </td>
     <td class="u-pt-0_5 u-pb-0_5 u-pl-0_25" title="{{ 'invitable_institution'|trans }}">
         {{ orga.nameLegal|default("notspecified"|trans) }}
@@ -72,6 +80,7 @@
         <button
             type="button"
             class="o-toggle__trigger js__toggleAnything"
+            :data-cy="`administrationMemberListEntry:toggleRow:{{ loop.index }}`"
             name="toggleRow:{{ orga.ident|default }}"
             aria-label="{{ 'aria.toggle'|trans }}"
             data-toggle="#{{ orga.ident }}">

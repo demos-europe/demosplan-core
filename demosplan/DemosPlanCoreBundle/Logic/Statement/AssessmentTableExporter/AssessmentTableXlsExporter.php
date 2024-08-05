@@ -439,7 +439,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
                 }
 
                 $formattedStatement[$attributeKey] =
-                    $this->editorService->handleObscureTags($formattedStatement[$attributeKey], $anonymous);
+                    $this->editorService->handleObscureTags((string) $formattedStatement[$attributeKey], $anonymous);
             }
 
             if (!$pushed) {
@@ -479,6 +479,8 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
 
             if (in_array($attributeKey, ['text', 'recommendation'])) {
                 $formattedStatement[$attributeKey] = $htmlConverter->convert($formattedStatement[$attributeKey]);
+                $formattedStatement[$attributeKey] =
+                    str_replace('\_', '_', $formattedStatement[$attributeKey]);
             }
 
             if ('status' === $attributeKey) {

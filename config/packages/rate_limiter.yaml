@@ -1,0 +1,17 @@
+framework:
+    rate_limiter:
+        # limit anonymous submit of statement
+        anonymous_statement:
+            policy: 'token_bucket'
+            limit: 4
+            rate: { interval: '15 minutes', amount: 1 }
+        # limit registration requests
+        user_register:
+            policy: 'token_bucket'
+            limit: 2
+            rate: { interval: '60 minutes', amount: 1 }
+        # limit password reset requests
+        user_password_reset:
+            policy: 'token_bucket'
+            limit: 5
+            rate: { interval: '15 minutes', amount: 2 }

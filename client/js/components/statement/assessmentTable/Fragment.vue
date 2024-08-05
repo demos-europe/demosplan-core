@@ -40,7 +40,10 @@ useful info about the component:
           v-model="fragmentSelected"
           :disabled="Object.keys(selectedElements).length > 0"
           :title="Object.keys(selectedElements).length > 0 ? Translator.trans('unselect.entity.first', {entity: Translator.trans('fragment')}) : false">
-        <v-popover class="inline-block u-ml-0_125 weight--bold">
+        <v-popover
+          class="inline-block u-ml-0_125 weight--bold"
+          placement="top"
+          trigger="hover focus">
           {{ fragment.displayId }}
           <template v-slot:popover>
             <div>
@@ -447,8 +450,8 @@ export default {
   },
 
   computed: {
-    ...mapState('assessmentTable', ['statementFormDefinitions']),
-    ...mapState('fragment', ['sideBarInitialized']),
+    ...mapState('AssessmentTable', ['statementFormDefinitions']),
+    ...mapState('Fragment', ['sideBarInitialized']),
 
     fragmentCreatedDate () {
       return formatDate(this.fragment.created)
@@ -597,12 +600,12 @@ export default {
         'tags'
       ]
     ),
-    ...mapGetters('fragment', ['fragmentById', 'selectedFragments']),
-    ...mapGetters('statement', ['selectedElements'])
+    ...mapGetters('Fragment', ['fragmentById', 'selectedFragments']),
+    ...mapGetters('Statement', ['selectedElements'])
   },
 
   methods: {
-    ...mapActions('fragment', ['updateFragmentAction', 'addFragmentToSelectionAction', 'deleteFragmentAction', 'removeFragmentFromSelectionAction', 'setAssigneeAction']),
+    ...mapActions('Fragment', ['updateFragmentAction', 'addFragmentToSelectionAction', 'deleteFragmentAction', 'removeFragmentFromSelectionAction', 'setAssigneeAction']),
 
     deleteFragment (fragmentId) {
       if (dpconfirm(Translator.trans('check.fragment.delete'))) {

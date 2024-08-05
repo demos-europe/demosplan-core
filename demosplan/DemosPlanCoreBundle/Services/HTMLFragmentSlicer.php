@@ -18,7 +18,7 @@ use DOMNode;
 use DOMText;
 use Masterminds\HTML5;
 use RuntimeException;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 class HTMLFragmentSlicer
 {

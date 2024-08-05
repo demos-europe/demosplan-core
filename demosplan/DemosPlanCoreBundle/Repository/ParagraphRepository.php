@@ -479,8 +479,6 @@ class ParagraphRepository extends FluentRepository implements ArrayInterface, Ob
 
     /**
      * @param Paragraph $entity
-     *
-     * @return bool
      */
     public function deleteObject($entity): never
     {

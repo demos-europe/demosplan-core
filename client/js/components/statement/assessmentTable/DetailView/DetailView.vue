@@ -16,6 +16,7 @@ import {
   DpAccordion,
   dpApi,
   DpButton,
+  DpContextualHelp,
   DpDatepicker,
   DpMultiselect,
   DpUploadFiles
@@ -34,6 +35,7 @@ export default {
     DetailViewFinalEmailBody,
     DpBoilerPlateModal,
     DpButton,
+    DpContextualHelp,
     DpDatepicker,
     DpMapModal,
     DpMultiselect,
@@ -139,16 +141,16 @@ export default {
   },
 
   computed: {
-    ...mapGetters('assessmentTable', ['counties', 'municipalities', 'priorityAreas', 'tags'])
+    ...mapGetters('AssessmentTable', ['counties', 'municipalities', 'priorityAreas', 'tag'])
   },
 
   methods: {
-    ...mapActions('assessmentTable', ['applyBaseData']),
+    ...mapActions('AssessmentTable', ['applyBaseData']),
 
     addTagBoilerplate (value) {
       if (hasPermission('area_admin_boilerplates')) {
-        const tagGetPath = Routing.generate('dm_plan_assessment_get_boilerplates_ajax', { tag: value.id, procedure: this.procedureId })
-        dpApi.get(tagGetPath).then(response => {
+        const url = Routing.generate('dm_plan_assessment_get_boilerplates_ajax', { tag: value.id, procedure: this.procedureId })
+        dpApi.get(url).then(response => {
           if (response.status === 200 && response.data.body !== '') {
             this.currentRecommendation = this.currentRecommendation + '<p>' + response.data.body + '</p>'
           }

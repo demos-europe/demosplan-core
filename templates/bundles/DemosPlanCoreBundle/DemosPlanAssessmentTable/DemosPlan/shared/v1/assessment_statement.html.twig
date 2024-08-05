@@ -189,7 +189,7 @@
                                                         title="{{ file|getFile('name') }}"
                                                         target="_blank"
                                                         rel="noopener"
-                                                        href="{{ path("core_file", { 'hash': file|getFile('hash') }) }}">
+                                                        href="{{ path("core_file_procedure", { 'hash': file|getFile('hash'), 'procedureId': statement.procedure.id }) }}">
                                                         <i class="fa fa-file-o" aria-hidden="true"></i> {{ file|getFile('name') }}
                                                     </a>
                                                     {% set fileContainer = templateVars['fileHashToFileContainerMapping'][file|getFile('hash')]|default(false) %}
@@ -225,7 +225,8 @@
                                     name: 'r_memo',
                                     value: statement.memo|default,
                                     id: 'r_memo',
-                                    disabled: readonly
+                                    disabled: readonly,
+                                    attributes: ['data-cy=statementDetail:memo']
                                 }) }}
                             </div>
                         </dp-accordion>
@@ -254,6 +255,7 @@
                                 value="{{ 'save.and.return.to.list'|trans }}">
                             <a
                                 class="btn btn--secondary u-pr-0_5-desk-down u-pl-0_5-desk-down"
+                                data-cy="abort"
                                 href="{{ path('dplan_assessmenttable_view_table', {'procedureId': procedure, 'filterHash': assessmentFilterHash, '_fragment': "itemdisplay_" ~ statement.ident }) }}"
                                 role="button">
                                 {{ 'abort'|trans }}

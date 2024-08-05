@@ -31,7 +31,7 @@
         :class="{'u-mr': days.length === 0}"
         style="height: 88vh;">
         <table class="u-mb">
-          <tr class="hide-visually">
+          <tr class="sr-only">
             <th>
               {{ Translator.trans('history') }}
             </th>
@@ -141,7 +141,7 @@ export default {
 
       this.entityId = id
       return dpApi({
-        method: 'get',
+        method: 'GET',
         url: Routing.generate(route, params)
       })
         .then(response => checkResponse(response))

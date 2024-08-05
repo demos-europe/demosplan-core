@@ -44,43 +44,64 @@ export default () => {
     }
   })
 
+  const elementsHiddenForBaseMap = [
+    {
+      node: document.querySelector('input[name="r_user_toggle_visibility"]'),
+      defaultValue: true
+    },
+    {
+      node: document.querySelector('input[name="r_opacity"]'),
+      defaultValue: '100'
+    }
+  ]
+
   // Check if base layer and disable user toggling on load
-  if (document.querySelector('input[name="r_type"][value="base"]').checked) {
-    const checkbox = document.querySelector('input[name="r_user_toggle_visibility"]')
-    checkbox.checked = true
-    checkbox.setAttribute('disabled', true)
-    // Create hidden input with all necessary attributes
-    document.getElementById('form').appendChild(createHidden())
+  if (document.querySelector('input[name="r_type"][value="base"]')?.checked) {
+    elementsHiddenForBaseMap.forEach((element) => {
+      disableNode(element.node, element.defaultValue)
+    })
   }
 
   // Add event listener to handle checkbox change
   Array.from(document.querySelectorAll('input[name="r_type"]')).forEach(el => el.addEventListener('change', handleUserToggle))
 
-  function handleUserToggle (e) {
-    const radioVal = e.target.value
-    const checkbox = document.querySelector('input[name="r_user_toggle_visibility"]')
-    if (radioVal === 'base') {
-      checkbox.checked = true
-      checkbox.setAttribute('disabled', true)
-      document.getElementById('form').appendChild(createHidden())
+  function createHiddenNode (node) {
+    const hiddenElement = node.cloneNode()
+    hiddenElement.setAttribute('hidden', true)
+    hiddenElement.setAttribute('id', `hidden_${node.getAttribute('id')}`)
+
+    return hiddenElement
+  }
+
+  function disableNode (node, defaultValue) {
+    if (node.type === 'checkbox') {
+      node.checked = defaultValue
     } else {
-      checkbox.removeAttribute('disabled')
-      const hidden = document.getElementById('hiddenUserToggle')
-      if (hidden) {
-        document.getElementById('form').removeChild(hidden)
-      }
+      node.value = defaultValue
+    }
+    document.getElementById('form').appendChild(createHiddenNode(node))
+    node.setAttribute('disabled', 'true')
+  }
+
+  function enableNode (node) {
+    node.removeAttribute('disabled')
+    const hidden = document.getElementById(`hidden_${node.getAttribute('id')}`)
+    if (hidden) {
+      document.getElementById('form').removeChild(hidden)
     }
   }
 
-  function createHidden () {
-    const hiddenCheckbox = document.createElement('input')
-    hiddenCheckbox.setAttribute('type', 'checkbox')
-    hiddenCheckbox.setAttribute('hidden', true)
-    hiddenCheckbox.checked = true
-    hiddenCheckbox.setAttribute('value', 1)
-    hiddenCheckbox.setAttribute('name', 'r_user_toggle_visibility')
-    hiddenCheckbox.setAttribute('id', 'hiddenUserToggle')
-    return hiddenCheckbox
+  function handleUserToggle (e) {
+    const radioVal = e.target.value
+    if (radioVal === 'base') {
+      elementsHiddenForBaseMap.forEach((element) => {
+        disableNode(element.node, element.defaultValue)
+      })
+    } else {
+      elementsHiddenForBaseMap.forEach((element) => {
+        enableNode(element.node)
+      })
+    }
   }
 
   // Xplan default layer checkbox handling

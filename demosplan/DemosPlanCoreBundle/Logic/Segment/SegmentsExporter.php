@@ -19,8 +19,13 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
+use demosplan\DemosPlanCoreBundle\Logic\ImageLinkConverter;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageManager;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\ValueObject\CellExportStyle;
 use demosplan\DemosPlanCoreBundle\ValueObject\ExportOrgaInfoHeader;
+use PhpOffice\PhpWord\Element\Footer;
+use PhpOffice\PhpWord\Element\Header;
 use PhpOffice\PhpWord\Element\Row;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
@@ -37,23 +42,20 @@ class SegmentsExporter
     /**
      * @var array<string, mixed>
      */
-    protected $styles;
+    protected array $styles;
 
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
+    protected TranslatorInterface $translator;
 
-    /**
-     * @var Slugify
-     */
-    protected $slugify;
+    protected Slugify $slugify;
 
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
+        private readonly HtmlHelper $htmlHelper,
+        private readonly ImageManager $imageManager,
+        protected readonly ImageLinkConverter $imageLinkConverter,
         Slugify $slugify,
-        TranslatorInterface $translator)
-    {
+        TranslatorInterface $translator
+    ) {
         $this->translator = $translator;
         $this->initializeStyles();
         $this->slugify = $slugify;
@@ -62,40 +64,46 @@ class SegmentsExporter
     /**
      * @throws Exception
      */
-    public function export(Procedure $procedure, Statement $statement): WriterInterface
+    public function export(Procedure $procedure, Statement $statement, array $tableHeaders): WriterInterface
     {
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $phpWord->addFontStyle('global', $this->styles['globalFont']);
         $section = $phpWord->addSection($this->styles['globalSection']);
+        $this->addHeader($section, $procedure, Footer::FIRST);
         $this->addHeader($section, $procedure);
         $this->addStatementInfo($section, $statement);
         $this->addSimilarStatementSubmitters($section, $statement);
-        $this->addSegments($section, $statement);
+        $this->addSegments($section, $statement, $tableHeaders);
         $this->addFooter($section, $statement);
 
         return IOFactory::createWriter($phpWord);
     }
 
-    public function addSimilarStatementSubmitters(Section $section, Statement $statement): void
+    protected function addSimilarStatementSubmitters(Section $section, Statement $statement): void
     {
-        $similarStatementSubmittersText = $this->translator->trans('segments.export.statement.similar.submitters', ['similarSubmitters' => $this->getSimilarStatementSubmitters($statement)]);
-        $section->addText(
-            $similarStatementSubmittersText,
-            $this->styles['globalFont'],
-            $this->styles['globalSection']
-        );
+        $similarStatementSubmitters = $this->getSimilarStatementSubmitters($statement);
+        if ('' !== $similarStatementSubmitters) {
+            $similarStatementSubmittersText = $this->translator->trans('segments.export.statement.similar.submitters', ['similarSubmitters' => $similarStatementSubmitters]);
+            $section->addText(
+                $similarStatementSubmittersText,
+                $this->styles['globalFont'],
+                $this->styles['globalSection']
+            );
 
-        $section->addTextBreak(2);
+            $section->addTextBreak(2);
+        }
     }
 
-    protected function addHeader(Section $section, Procedure $procedure): void
+    protected function addHeader(Section $section, Procedure $procedure, ?string $headerType = null): void
     {
-        $header = $section->addHeader();
+        $header = null === $headerType ? $section->addHeader() : $section->addHeader($headerType);
         $header->addText(
             $procedure->getName(),
             $this->styles['documentTitleFont'],
             $this->styles['documentTitleParagraph']
         );
+
+        $this->addPreambleIfFirstHeader($header, $headerType);
 
         $currentDate = new DateTime();
         $header->addText(
@@ -105,7 +113,15 @@ class SegmentsExporter
         );
     }
 
-    public function getSimilarStatementSubmitters(Statement $statement): string
+    private function addPreambleIfFirstHeader(Header $header, ?string $headerType): void
+    {
+        if (Footer::FIRST === $headerType) {
+            $preamble = $this->translator->trans('docx.export.preamble');
+            Html::addHtml($header, $this->htmlHelper->getHtmlValidText($preamble), false, false);
+        }
+    }
+
+    private function getSimilarStatementSubmitters(Statement $statement): string
     {
         $submitterStrings = [];
         foreach ($statement->getSimilarStatementSubmitters() as $submitter) {
@@ -114,7 +130,7 @@ class SegmentsExporter
                 $submitter->getStreetNameWithStreetNumber(),
                 $submitter->getPostalCodeWithCity(),
             ];
-            $values = array_filter($values, fn (?string $value): bool =>null !== $value);
+            $values = array_filter($values, static fn (?string $value): bool =>null !== $value);
             $values = implode(', ', $values);
             $values = trim($values);
             if ('' !== $values) {
@@ -175,12 +191,12 @@ class SegmentsExporter
         $section->addTextBreak(2);
     }
 
-    protected function addSegments(Section $section, Statement $statement): void
+    protected function addSegments(Section $section, Statement $statement, array $tableHeaders): void
     {
         if ($statement->getSegmentsOfStatement()->isEmpty()) {
             $this->addNoSegmentsMessage($section);
         } else {
-            $this->addSegmentsTable($section, $statement);
+            $this->addSegmentsTable($section, $statement, $tableHeaders);
         }
     }
 
@@ -208,18 +224,30 @@ class SegmentsExporter
         $section->addText($noEntriesMessage, $this->styles['noInfoMessageFont']);
     }
 
-    private function addSegmentsTable(Section $section, Statement $statement): void
+    private function addSegmentsTable(Section $section, Statement $statement, array $tableHeaders): void
     {
-        $table = $this->addSegmentsTableHeader($section);
-        $sortedSegments = $statement->getSegmentsOfStatement()->toArray();
-        uasort($sortedSegments, static fn (Segment $segmentA, Segment $segmentB) => $segmentA->getOrderInProcedure() - $segmentB->getOrderInProcedure());
+        $table = $this->addSegmentsTableHeader($section, $tableHeaders);
+        $sortedSegments = $this->sortSegmentsByOrderInProcedure($statement->getSegmentsOfStatement()->toArray());
 
         foreach ($sortedSegments as $segment) {
-            $this->addSegmentTableBody($table, $segment);
+            $this->addSegmentTableBody($table, $segment, $statement->getExternId());
         }
+        $this->imageManager->addImages($section);
     }
 
-    private function addSegmentsTableHeader(Section $section): Table
+    protected function sortSegmentsByOrderInProcedure(array $segments): array
+    {
+        uasort($segments, [$this, 'compareOrderInProcedure']);
+
+        return $segments;
+    }
+
+    private function compareOrderInProcedure(Segment $segmentA, Segment $segmentB): int
+    {
+        return $segmentA->getOrderInProcedure() - $segmentB->getOrderInProcedure();
+    }
+
+    private function addSegmentsTableHeader(Section $section, array $tableHeaders): Table
     {
         $table = $section->addTable($this->styles['segmentsTable']);
         $headerRow = $table->addRow(
@@ -228,26 +256,40 @@ class SegmentsExporter
         );
         $this->addSegmentCell(
             $headerRow,
-            $this->translator->trans('segments.export.segment.id'),
+            htmlspecialchars(
+                $tableHeaders['col1'] ?? $this->translator->trans('segments.export.segment.id'),
+                ENT_NOQUOTES,
+                'UTF-8'
+            ),
             $this->styles['segmentsTableHeaderCellID']
         );
         $this->addSegmentCell(
             $headerRow,
-            $this->translator->trans('segments.export.statement.label'),
+            htmlspecialchars(
+                $tableHeaders['col2'] ?? $this->translator->trans('segments.export.statement.label'),
+                ENT_NOQUOTES,
+                'UTF-8'
+            ),
             $this->styles['segmentsTableHeaderCell']
         );
         $this->addSegmentCell(
             $headerRow,
-            $this->translator->trans('segment.recommendation'),
+            htmlspecialchars(
+                $tableHeaders['col3'] ?? $this->translator->trans('segment.recommendation'),
+                ENT_NOQUOTES,
+                'UTF-8'
+            ),
             $this->styles['segmentsTableHeaderCell']
         );
 
         return $table;
     }
 
-    private function addSegmentTableBody(Table $table, Segment $segment): void
+    private function addSegmentTableBody(Table $table, Segment $segment, string $statementExternId): void
     {
         $textRow = $table->addRow();
+        // Replace image tags in segment text and in segment recommendation text with text references.
+        $convertedSegment = $this->imageLinkConverter->convert($segment, $statementExternId);
         $this->addSegmentHtmlCell(
             $textRow,
             $segment->getExternId(),
@@ -255,12 +297,12 @@ class SegmentsExporter
         );
         $this->addSegmentHtmlCell(
             $textRow,
-            $segment->getText(),
+            $convertedSegment->getText(),
             $this->styles['segmentsTableBodyCell']
         );
         $this->addSegmentHtmlCell(
             $textRow,
-            $segment->getRecommendation(),
+            $convertedSegment->getRecommendationText(),
             $this->styles['segmentsTableBodyCell']
         );
     }
@@ -271,12 +313,7 @@ class SegmentsExporter
             $cellExportStyle->getWidth(),
             $cellExportStyle->getCellStyle()
         );
-        Html::addHtml($cell, $this->getHtmlValidText($text), false, false);
-    }
-
-    private function getHtmlValidText(string $text): string
-    {
-        return str_replace('<br>', '<br/>', $text);
+        Html::addHtml($cell, $this->htmlHelper->getHtmlValidText($text), false, false);
     }
 
     private function addSegmentCell(Row $row, string $text, CellExportStyle $cellExportStyle): void

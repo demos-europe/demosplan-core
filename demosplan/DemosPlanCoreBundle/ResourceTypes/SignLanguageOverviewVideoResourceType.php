@@ -18,6 +18,7 @@ use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseVideoResourceConfigBuil
 use demosplan\DemosPlanCoreBundle\Entity\Video;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\VideoRepository;
+use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 use EDT\Wrapping\CreationDataInterface;
 use EDT\Wrapping\EntityDataInterface;
@@ -79,7 +80,7 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType
         ];
     }
 
-    protected function getProperties(): array
+    protected function getProperties(): array|ResourceConfigBuilderInterface
     {
         // ensure update of title and description is only allowed
         // if the video has one of the following IDs

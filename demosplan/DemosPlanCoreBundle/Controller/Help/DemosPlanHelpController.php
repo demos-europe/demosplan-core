@@ -40,7 +40,8 @@ class DemosPlanHelpController extends BaseController
     ): Response {
         $templateVars = [];
         $requestPost = $request->request->all();
-        if (array_key_exists('delete', $requestPost)) {
+
+        if ($request->isMethod('POST') && array_key_exists('delete', $requestPost)) {
             if (empty($request->get('r_delete'))) {
                 $this->getMessageBag()->add('error', 'warning.select.entries');
             } else {
@@ -51,6 +52,9 @@ class DemosPlanHelpController extends BaseController
                     ['count' => $amount]
                 );
             }
+
+            // Redirect to the same route after form processing
+            return $this->redirectToRoute('dplan_contextual_help_list');
         }
 
         $templateVars['contextualHelpList'] = $helpHandler->getHelpNonGisLayer();

@@ -1,6 +1,7 @@
 <template>
   <dp-accordion
     ref="accordion"
+    data-cy="toggleForm:toggle"
     :title="title">
     <!-- this is where the form fields go -->
     <slot />

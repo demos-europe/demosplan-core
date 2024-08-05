@@ -23,7 +23,7 @@ const setWarningForUnsetBounds = () => {
   // Fill error-data for initialExtend into hidden fields
   document.querySelector('input[name="r_mapExtent"]').setAttribute('value', '')
   statusBox.innerText = Translator.trans('map.import.bounds.warning')
-  statusBox.classList.remove('hide-visually')
+  statusBox.classList.remove('sr-only')
   statusBox.classList.remove('flash-confirm')
   statusBox.classList.add('flash-warning')
   // Enable save-button
@@ -36,7 +36,7 @@ const setConfirmForBounds = function (data) {
   // Fill data for initialExtend into hidden fields
   document.querySelector('input[name="r_mapExtent"]').setAttribute('value', data.procedure.bounds)
   statusBox.innerText = Translator.trans('map.import.bounds.success')
-  statusBox.classList.remove('hide-visually')
+  statusBox.classList.remove('sr-only')
   statusBox.classList.remove('flash-warning')
   statusBox.classList.add('flash-confirm')
   // Enable save-button
@@ -45,9 +45,7 @@ const setConfirmForBounds = function (data) {
 
 function getXplanboxBounds (procedureName) {
   return dpApi({
-    method: 'get',
-    data: '',
-    responseType: 'json',
+    method: 'GET',
     url: Routing.generate('DemosPlan_xplanbox_get_bounds', { procedureName: procedureName })
   })
     .then(data => {
@@ -82,14 +80,12 @@ export default function CreateProcedure () {
     const selectedOption = plisSelect[value.currentTarget.selectedIndex]
     document.querySelector('input[name="r_name"]').setAttribute('value', selectedOption.text)
     // Hide status-box
-    statusBox.classList.add('hide-visually')
+    statusBox.classList.add('sr-only')
     // Ask BE about the selection - but only if selectedOption is not empty
     if (selectedOption.value !== '') {
       dpApi({
-        method: 'get',
-        data: '',
-        responseType: 'json',
-        url: Routing.generate('DemosPlan_plis_get_procedure', { uuid: selectedOption.value })
+        url: Routing.generate('DemosPlan_plis_get_procedure', { uuid: selectedOption.value }),
+        method: 'GET'
       })
         .then(data => {
           const dataResponse = JSON.parse(data.data)

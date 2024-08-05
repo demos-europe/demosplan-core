@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Handler\ParagraphHandlerInterface;
@@ -21,6 +22,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ParagraphHandler extends CoreHandler implements ParagraphHandlerInterface
 {
+    /** @var ParagraphService */
+    protected $service;
     public function __construct(
         protected readonly ParagraphService $paragraphService,
         protected readonly ParagraphRepository $paragraphRepository,

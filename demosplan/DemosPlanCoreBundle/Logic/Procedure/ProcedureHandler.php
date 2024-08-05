@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
 use DemosEurope\DemosplanAddon\Contracts\Handler\ProcedureHandlerInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -27,7 +28,6 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\PublicAffairsAgentHandler;
@@ -38,9 +38,9 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\InvitationEmailResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use Illuminate\Support\Collection;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
-use Tightenco\Collect\Support\Collection;
 use Twig\Environment;
 
 use function array_key_exists;
@@ -88,7 +88,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         private readonly EntityManagerInterface $entityManager,
         Environment $twig,
         MailService $mailService,
-        MessageBag $messageBag,
+        MessageBagInterface $messageBag,
         private readonly OrgaService $orgaService,
         private readonly PermissionsInterface $permissions,
         private readonly PrepareReportFromProcedureService $prepareReportFromProcedureService,
@@ -861,7 +861,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
 
         // internal:
         $internalWritePhaseKeys = $this->getDemosplanConfig()->getInternalPhaseKeys('write');
-        $endedInternalProcedures = $this->procedureService->getProceduresWithEndedParticipation($internalWritePhaseKeys, true, true);
+        $endedInternalProcedures = $this->procedureService->getProceduresWithEndedParticipation($internalWritePhaseKeys);
 
         $internalPhaseKey = 'evaluating';
         $internalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityInternal($internalPhaseKey);
@@ -871,21 +871,22 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
             $internalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityInternal($internalPhaseKey);
         }
 
+        /** @var Procedure $endedInternalProcedure */
         foreach ($endedInternalProcedures as $endedInternalProcedure) {
-            if (null !== $endedInternalProcedure['endDate']
-                && !$endedInternalProcedure['master'] && !$endedInternalProcedure['deleted']) {
-                $endedInternalProcedure['phase'] = $internalPhaseKey;
-                $endedInternalProcedure['phaseName'] = $internalPhaseName;
-                $endedInternalProcedure['customer'] = $endedInternalProcedure['customer']['id'];
+            if (null !== $endedInternalProcedure->getEndDate()
+                && !$endedInternalProcedure->getMaster() && !$endedInternalProcedure->isDeleted()) {
+                $endedInternalProcedure->setPhaseKey($internalPhaseKey);
+                $endedInternalProcedure->setPhaseName($internalPhaseName);
+                $endedInternalProcedure->setCustomer($endedInternalProcedure->getCustomer());
 
-                $updatedProcedure = $this->procedureService->updateProcedure($endedInternalProcedure);
+                $updatedProcedure = $this->procedureService->updateProcedureObject($endedInternalProcedure);
                 $changedInternalProcedures->push($updatedProcedure);
             }
         }
 
         // external:
         $externalWritePhaseKeys = $this->getDemosplanConfig()->getExternalPhaseKeys('write');
-        $endedExternalProcedures = $this->procedureService->getProceduresWithEndedParticipation($externalWritePhaseKeys, false, true);
+        $endedExternalProcedures = $this->procedureService->getProceduresWithEndedParticipation($externalWritePhaseKeys, false);
 
         $externalPhaseKey = 'evaluating';
         $externalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityExternal($externalPhaseKey);
@@ -895,14 +896,15 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
             $externalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityExternal($externalPhaseKey);
         }
 
+        /** @var Procedure $endedExternalProcedure */
         foreach ($endedExternalProcedures as $endedExternalProcedure) {
-            if (null !== $endedExternalProcedure['publicParticipationEndDate']
-                && !$endedExternalProcedure['master'] && !$endedExternalProcedure['deleted']) {
-                $endedExternalProcedure['publicParticipationPhase'] = $externalPhaseKey;
-                $endedExternalProcedure['publicParticipationPhaseName'] = $externalPhaseName;
-                $endedExternalProcedure['customer'] = $endedExternalProcedure['customer']['id'];
+            if (null !== $endedExternalProcedure->getPublicParticipationEndDate()
+                && !$endedExternalProcedure->getMaster() && !$endedExternalProcedure->isDeleted()) {
+                $endedExternalProcedure->setPublicParticipationPhase($externalPhaseKey);
+                $endedExternalProcedure->setPublicParticipationPhaseName($externalPhaseName);
+                $endedExternalProcedure->setCustomer($endedExternalProcedure->getCustomer());
 
-                $updatedProcedure = $this->procedureService->updateProcedure($endedExternalProcedure);
+                $updatedProcedure = $this->procedureService->updateProcedureObject($endedExternalProcedure);
                 $changedExternalProcedures->push($updatedProcedure);
             }
         }
@@ -911,7 +913,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         $this->getLogger()->info('Switched phases to evaluation of '.$changedInternalProcedures->count().' internal/toeb procedures.');
         $this->getLogger()->info('Switched phases to evaluation of '.$changedExternalProcedures->count().' external/public procedures.');
 
-        return $changedExternalProcedures->merge($changedInternalProcedures);
+        return $changedExternalProcedures->merge($changedInternalProcedures)->unique();
     }
 
     /**

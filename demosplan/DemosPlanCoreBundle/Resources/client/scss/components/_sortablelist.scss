@@ -14,6 +14,7 @@
 
     // Element attached to the mouse while dragging
     &__ghost {
+        display: block !important;
         height: $inuit-base-spacing-unit * 2;
         margin: 0;
         overflow: hidden;

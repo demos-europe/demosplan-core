@@ -102,10 +102,9 @@
           aria-hidden="true" />
         {{ Translator.trans('export') }}
       </a>
-      <i
-        class="fa fa-question-circle inline-block align-top u-ml-0_25 u-mt-0_125"
-        :aria-label="Translator.trans('contextual.help')"
-        v-tooltip="Translator.trans('consultation.export.bulk.letter.explanation')" />
+      <dp-contextual-help
+        class="inline-block u-ml-0_25 u-mt-0_125"
+        :text="Translator.trans('consultation.export.bulk.letter.explanation')" />
     </div>
 
     <dp-data-table-extended
@@ -293,6 +292,7 @@ import {
   dpApi,
   DpButton,
   DpButtonRow,
+  DpContextualHelp,
   DpDataTableExtended,
   DpInput,
   dpRpc,
@@ -307,6 +307,7 @@ export default {
     DpAccordion,
     DpButton,
     DpButtonRow,
+    DpContextualHelp,
     DpDataTableExtended,
     DpInput,
     DpTextArea
@@ -442,7 +443,7 @@ export default {
           ].join()
         }
       }
-      return dpApi.get(url, params, { serialize: true })
+      return dpApi.get(url, params)
         .then(response => {
           this.consultationTokens = [...response.data.data].map(token => {
             if (token.relationships && token.relationships.statement) {

@@ -18,7 +18,8 @@
       <customer-settings-section
         v-if="hasPermission('feature_platform_logo_edit') || hasPermission('feature_customer_branding_edit')"
         is-open
-        :title="Translator.trans('customer.branding.label')">
+        :title="Translator.trans('customer.branding.label')"
+        data-cy="customerSettings:customerBrandingLabel">
         <customer-settings-branding
           :branding="branding"
           :branding-id="customerBrandingId"
@@ -29,7 +30,8 @@
       <customer-settings-section
         v-if="hasPermission('feature_platform_public_index_map_settings')"
         is-open
-        :title="Translator.trans('map.mainpage.settings')">
+        :title="Translator.trans('map.mainpage.settings')"
+        data-cy="customerSettings:mapMainPageSettings">
         <customer-settings-map
           :current-customer-id="currentCustomerId"
           :init-layer="initLayer"
@@ -41,12 +43,14 @@
       <!-- Imprint -->
       <customer-settings-section
         v-if="hasPermission('feature_imprint_text_customized_view')"
-        :title="Translator.trans('imprint')">
+        :title="Translator.trans('imprint')"
+        data-cy="customerSettings:imprint">
         <dp-label
           for="r_imprint"
           :text="Translator.trans('customer.imprint.explanation', { url: imprintUrl })" />
         <dp-editor
           id="r_imprint"
+          data-cy="customerSettings:imprintTextEditor"
           v-model="customer.imprint"
           hidden-input="r_imprint"
           :toolbar-items="{
@@ -56,6 +60,7 @@
           }" />
         <dp-button-row
           class="u-mt"
+          data-cy="customerSettings:imprintTextEditor"
           primary
           secondary
           :busy="isBusy"
@@ -67,12 +72,14 @@
       <!-- Data Protection -->
       <customer-settings-section
         v-if="hasPermission('feature_data_protection_text_customized_view')"
-        :title="Translator.trans('data.protection.notes')">
+        :title="Translator.trans('data.protection.notes')"
+        data-cy="customerSettings:dataProtectionNotes">
         <dp-label
           for="r_dataProtection"
           :text="Translator.trans('customer.data.protection.explanation')" />
         <dp-editor
           id="r_dataProtection"
+          data-cy="customerSettings:dataProtection"
           v-model="customer.dataProtection"
           hidden-input="r_dataProtection"
           :toolbar-items="{
@@ -82,6 +89,7 @@
           }" />
         <dp-button-row
           class="u-mt"
+          data-cy="customerSettings:dataProtectionNotes"
           primary
           secondary
           :busy="isBusy"
@@ -158,11 +166,12 @@
             linkButton: true,
             headings: [2, 3, 4]
           }" />
-          <h3
-            class="u-mt"
-            v-text="Translator.trans('video')" />
+        <h3
+          class="u-mt"
+          v-text="Translator.trans('video')" />
         <customer-settings-sign-language-video
           v-if="!isLoadingSignLanguageOverviewVideo"
+          :current-customer-id="this.currentCustomerId"
           :sign-language-overview-video="signLanguageOverviewVideo"
           :sign-language-overview-description="customer.signLanguageOverviewDescription"
           @created="fetchCustomerData"
@@ -336,16 +345,16 @@ export default {
         mimetype: '',
         title: ''
       },
-      isBusy:false
+      isBusy: false
     }
   },
 
   computed: {
-    ...mapState('branding', {
+    ...mapState('Branding', {
       brandingList: 'items'
     }),
 
-    ...mapState('customer', {
+    ...mapState('Customer', {
       customerList: 'items'
     }),
 
@@ -360,21 +369,21 @@ export default {
   },
 
   methods: {
-    ...mapActions('branding', {
+    ...mapActions('Branding', {
       fetchBranding: 'list',
       saveBranding: 'save'
     }),
 
-    ...mapActions('customer', {
+    ...mapActions('Customer', {
       fetchCustomer: 'list',
       saveCustomer: 'save'
     }),
 
-    ...mapMutations('branding', {
+    ...mapMutations('Branding', {
       updateBranding: 'setItem'
     }),
 
-    ...mapMutations('customer', {
+    ...mapMutations('Customer', {
       updateCustomer: 'setItem'
     }),
 
@@ -389,7 +398,7 @@ export default {
       this.isLoadingSignLanguageOverviewVideo = true
       const payload = this.getRequestPayload()
 
-      this.fetchCustomer(payload, { serialize: true })
+      this.fetchCustomer(payload)
         .then(res => {
           // Update fields
           const response = res.data
@@ -400,8 +409,7 @@ export default {
 
           this.customer = {
             ...this.customer,
-            imprint: currentData.imprint ?? '',
-            dataProtection: currentData.dataProtection ?? ''
+            ...currentData
           }
           this.branding.logoHash = fileHash
         })
@@ -467,7 +475,7 @@ export default {
 
       if (hasPermission('feature_customer_support_contact_administration')) {
         this.requestIncludes.push('customerContacts')
-        this.addAttributesToField('CustomerSettingsSupport', ['title', 'text', 'phoneNumber', 'eMailAddress', 'visible'])
+        this.addAttributesToField('CustomerLoginSupportContact', ['title', 'text', 'phoneNumber', 'eMailAddress', 'visible'])
         this.addAttributesToField('Customer', ['customerContacts'])
       }
 
@@ -496,12 +504,12 @@ export default {
       }
     },
 
-    resetProperty(property) {
+    resetProperty (property) {
       const currentCustomer = this.customerList[this.currentCustomerId]
       this.customer[property] = currentCustomer.attributes[property]
     },
 
-    saveSettings(property) {
+    saveSettings (property) {
       this.isBusy = true
       const payload = {
         id: this.currentCustomerId,

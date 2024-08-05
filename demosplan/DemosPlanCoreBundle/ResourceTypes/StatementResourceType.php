@@ -32,6 +32,7 @@ use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigB
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryStatement;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
+use Doctrine\Common\Collections\ArrayCollection;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
@@ -52,6 +53,7 @@ use Webmozart\Assert\Assert;
  * @property-read End $paragraphParentId @deprecated Use {@link StatementResourceType::$paragraph} instead
  * @property-read End $paragraphTitle @deprecated Use {@link StatementResourceType::$paragraph} instead
  * @property-read End $segmentDraftList
+ * @property-read End $status
  * @property-read SimilarStatementSubmitterResourceType $similarStatementSubmitters
  */
 final class StatementResourceType extends AbstractStatementResourceType implements ReadableEsResourceTypeInterface, StatementResourceTypeInterface
@@ -275,6 +277,9 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
                     return '' === $draftsListJson ? null : Json::decodeToArray($draftsListJson);
                 });
+            $configBuilder->status->readable(true, function (Statement $statement) {
+                return $this->statementService->getProcessingStatus($statement);
+            })->filterable();
         }
 
         if ($this->currentUser->hasPermission('feature_similar_statement_submitter')) {
@@ -374,7 +379,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         // always updatable if access to type and instances was granted
         $configBuilder->assignee
             ->setRelationshipType($this->resourceTypeStore->getClaimResourceType())
-            ->updatable([$simpleStatementCondition, $manualStatementCondition]);
+            ->updatable([$simpleStatementCondition]);
 
         if ($this->currentUser->hasPermission('field_statement_memo')) {
             $configBuilder->memo->updatable([$simpleStatementCondition]);
@@ -404,7 +409,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 [$simpleStatementCondition],
                 [],
                 static function (Statement $statement, array $newValue): array {
-                    $statement->setSimilarStatementSubmitters($newValue);
+                    $statement->setSimilarStatementSubmitters(new ArrayCollection($newValue));
 
                     return [];
                 }

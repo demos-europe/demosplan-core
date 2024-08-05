@@ -31,7 +31,7 @@ use ReflectionException;
 use SimpleXMLElement;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 abstract class UserMapperDataportGateway implements UserMapperInterface
 {

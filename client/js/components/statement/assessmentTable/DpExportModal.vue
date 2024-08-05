@@ -27,6 +27,7 @@
             class="tab u-1-of-6"
             :class="activeTab(key)"
             @click="switchTab(key)"
+            :data-cy="`exportModal:${option.tabLabel}`"
             type="button"
             role="tab"
             v-for="(option, key) in tabsOptions"
@@ -46,7 +47,7 @@
               v-if="options.pdf.anonymize || options.pdf.obscure"
               class="u-mb-0_5 u-pb-0_5">
               <legend
-                class="hide-visually"
+                class="sr-only"
                 v-text="Translator.trans('export.type')" />
               <label
                 for="pdfAnonymous"
@@ -55,6 +56,7 @@
                   type="checkbox"
                   name="pdfAnonymous"
                   id="pdfAnonymous"
+                  data-cy="exportModal:pdfAnonymous"
                   value="anonymous"
                   v-model="exportChoice.pdf.anonymous">
                 {{ Translator.trans('export.anonymous') }}
@@ -66,7 +68,7 @@
               v-if="options.pdf.templates"
               class="u-mb-0_5 u-pb-0_5">
               <legend
-                class="hide-visually"
+                class="sr-only"
                 v-text="Translator.trans('export.format')" />
               <label
                 v-for="(templateInfo, identifier) in pdfTemplateOptions"
@@ -77,6 +79,7 @@
                   type="radio"
                   :id="'pdfTemplate_'+identifier"
                   name="pdfTemplate"
+                  :data-cy="`exportModal:pdfTemplate_${identifier}`"
                   v-model="exportChoice.pdf.template"
                   :value="identifier">
                 {{ Translator.trans(templateInfo.name) }}
@@ -92,7 +95,7 @@
               v-if="options.pdf.exportTypes && exportChoice.pdf.template == 'condensed' && view == 'assessment_table'"
               class="u-mb-0_5 u-pb-0_5">
               <legend
-                class="hide-visually"
+                class="sr-only"
                 v-text="Translator.trans('export.data')" />
               <label
                 for="pdfExportTypeStatementsOnly"
@@ -144,7 +147,7 @@
               v-if="options.docx.anonymize || options.docx.obscure"
               class="u-mb-0_5 u-pb-0_5">
               <legend
-                class="hide-visually"
+                class="sr-only"
                 v-text="Translator.trans('export.type')" />
               <label
                 for="docxAnonymous"
@@ -152,6 +155,7 @@
                 <input
                   type="checkbox"
                   id="docxAnonymous"
+                  data-cy="exportModal:docxAnonymous"
                   value="anonymous"
                   v-model="exportChoice.docx.anonymous">
                 {{ Translator.trans('export.anonymous') }}
@@ -163,7 +167,7 @@
               v-if="options.docx.templates"
               class="u-mb-0_5 u-pb-0_5">
               <legend
-                class="hide-visually"
+                class="sr-only"
                 v-text="Translator.trans('export.format')" />
               <label
                 v-for="(templateInfo, identifier) in docxTemplateOptions"
@@ -173,6 +177,7 @@
                 <input
                   type="radio"
                   :id="'docxTemplate_'+identifier"
+                  :data-cy="`exportModal:docxTemplate_${identifier}`"
                   name="docxTemplate"
                   v-model="exportChoice.docx.template"
                   :value="identifier">
@@ -189,7 +194,7 @@
               v-if="options.docx.exportTypes && exportChoice.docx.template === 'condensed' && view === 'assessment_table'"
               class="u-mb-0_5 u-pb-0_5">
               <legend
-                class="hide-visually"
+                class="sr-only"
                 v-text="Translator.trans('export.data')" />
               <label
                 for="docxExportTypeStatementsOnly"
@@ -221,7 +226,7 @@
               v-if="options.docx.exportTypes && exportChoice.docx.template === 'condensed' && view === 'assessment_table'"
               class="u-mb-0_5 u-pb-0_5">
               <legend
-                class="hide-visually"
+                class="sr-only"
                 v-text="Translator.trans('export.structure')" />
               <label
                 for="docxSortTypeDefault"
@@ -272,7 +277,7 @@
               v-if="options.xlsx.anonymize || options.xlsx.obscure"
               class="u-mb-0_5 u-pb-0_5">
               <legend
-                class="hide-visually"
+                class="sr-only"
                 v-text="Translator.trans('export.type')" />
               <label
                 for="xlsxAnonymous"
@@ -292,7 +297,7 @@
               v-if="options.xlsx.exportTypes"
               class="u-mb-0_5 u-pb-0_5">
               <legend
-                class="hide-visually"
+                class="sr-only"
                 v-text="Translator.trans('export.data')" />
               <label
                 for="xlsxExportTypeTopicsAndTags"
@@ -301,6 +306,7 @@
                   type="radio"
                   name="xlsxExportType"
                   id="xlsxExportTypeTopicsAndTags"
+                  data-cy="exportModal:xlsxExportTypeTopicsAndTags"
                   value="topicsAndTags"
                   v-model="exportChoice.xlsx.exportType">
                 {{ Translator.trans('export.topicsAndTags') }}
@@ -316,6 +322,7 @@
                   type="radio"
                   name="xlsxExportType"
                   id="xlsxExportTypePotentialAreas"
+                  data-cy="exportModal:xlsxExportTypePotentialAreas"
                   value="potentialAreas"
                   v-model="exportChoice.xlsx.exportType">
                 {{ Translator.trans('export.potentialAreas') }}
@@ -331,6 +338,7 @@
                   type="radio"
                   name="xlsxExportType"
                   id="xlsxExportTypeStatement"
+                  data-cy="exportModal:xlsxExportTypeStatement"
                   value="statements"
                   v-model="exportChoice.xlsx.exportType">
                 {{ Translator.trans('statements') }}
@@ -360,6 +368,7 @@
           <button
             type="button"
             class="btn btn--primary submitBtn"
+            data-cy="statementExport:saveButton"
             @click.prevent="handleSubmit">
             {{ submitLabel }}
           </button>

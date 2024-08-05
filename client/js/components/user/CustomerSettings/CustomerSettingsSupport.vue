@@ -7,9 +7,9 @@
       @reset="resetForm"
       @saveEntry="id => dpValidateAction('contactData', () => createOrUpdateContact(id), false)">
       <template v-slot:list="contact">
-        <h3 v-text="contact.attributes.title" />
-        <p v-text="contact.attributes.phoneNumber" />
-        <p v-text="contact.attributes.eMailAddress" />
+        <h3 class="break-words" v-text="contact.attributes.title" />
+        <p class="break-words" v-text="contact.attributes.phoneNumber" />
+        <p class="break-words" v-text="contact.attributes.eMailAddress" />
         <template v-html="contact.attributes.text" />
         <dp-badge
           class="color--white rounded-full whitespace--nowrap bg-color--grey u-mt-0_125"
@@ -123,7 +123,7 @@ export default {
   },
 
   computed: {
-    ...mapState('customerContact', {
+    ...mapState('CustomerContact', {
       contacts: 'items'
     }),
 
@@ -137,14 +137,14 @@ export default {
   },
 
   methods: {
-    ...mapActions('customerContact', {
+    ...mapActions('CustomerContact', {
       createContact: 'create',
       fetchContacts: 'list',
       deleteContact: 'delete',
       saveContact: 'save'
     }),
 
-    ...mapMutations('customerContact', {
+    ...mapMutations('CustomerContact', {
       updateContact: 'setItem'
     }),
 

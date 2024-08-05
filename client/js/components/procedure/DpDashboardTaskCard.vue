@@ -5,7 +5,7 @@
       <span v-cleanhtml="Translator.trans('segments.assigned.now', { count: assignedSegmentCount })" />
     </div>
     <div
-      class="text--right u-mt"
+      class="text-right u-mt"
       v-if="assignedSegmentCount !== 0">
       <dp-button
         :href="userFilteredSegmentUrl"
@@ -72,7 +72,7 @@ export default {
 
     // Get count of segments assigned to the current user
     const segmentUrl = Routing.generate('api_resource_list', { resourceType: 'StatementSegment' })
-    dpApi.get(segmentUrl, { filter: filterQuery }, { serialize: true }).then(response => {
+    dpApi.get(segmentUrl, { filter: filterQuery }).then(response => {
       this.assignedSegmentCount = response.data.data.length
     })
 
