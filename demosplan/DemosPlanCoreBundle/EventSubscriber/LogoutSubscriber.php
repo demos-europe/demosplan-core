@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Cookie\PreviousRouteCookie;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -66,12 +67,11 @@ class LogoutSubscriber implements EventSubscriberInterface
                 $currentCustomer = $this->customerService->getCurrentCustomer();
                 $logoutRoute = str_replace(
                     'post_logout_redirect_uri=https://',
-                    'post_logout_redirect_uri=https://'. $currentCustomer->getSubdomain() . '.',
+                    'post_logout_redirect_uri=https://'.$currentCustomer->getSubdomain().'.',
                     $logoutRoute
                 );
                 $this->logger->info('Redirecting to Keycloak for logout adjusted', [$logoutRoute]);
-
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->logger->error('Could not get current customer', [$e->getMessage()]);
             }
             $response = $this->redirect($logoutRoute);
