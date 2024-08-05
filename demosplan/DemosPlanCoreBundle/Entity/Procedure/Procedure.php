@@ -1328,7 +1328,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function getCoordinate()
     {
-        return $this->settings->getCoordinate();
+        return $this->getSettings()->getCoordinate();
     }
 
     /**
@@ -1350,11 +1350,11 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         $planningArea = 'all';
 
         // return default Value instead of empty String
-        if ('' === $this->settings->getPlanningArea()) {
+        if ('' === $this->getSettings()->getPlanningArea()) {
             return $planningArea;
         }
 
-        return $this->settings->getPlanningArea();
+        return $this->getSettings()->getPlanningArea();
     }
 
     /**
@@ -1637,7 +1637,10 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     public function getSettings(): ProcedureSettings
     {
-        return $this->settings;
+        // during Entity creation via Foundry the settings are not set immediately
+        // but are set later on. Elasticsearch automatically indexes the new entity
+        // and complains about nulled settings. Therefore we need to check if the settings are set
+        return $this->settings ?? new ProcedureSettings();
     }
 
     public function setSettings(ProcedureSettingsInterface $settings): void
@@ -1741,7 +1744,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     public function getPictogram(): ?string
     {
-        return $this->settings->getPictogram();
+        return $this->getSettings()->getPictogram();
     }
 
     /**

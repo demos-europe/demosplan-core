@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureSettingsFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
@@ -85,13 +86,20 @@ class GenerateTestInstanceCommand extends CoreCommand
             $customer->_real(),
             $fpa
         );
-        $procedure = ProcedureFactory::createOne([
-            'orga' => $orga,
-            'customer' => $customer,
-        ]);
-        $procedure->setAuthorizedUsers(collect($users)->map(fn($user) => $user->_real())->toArray());
+        // number of procedures to create
+        $numProcedures = 10;
+        for ($i = 0; $i < $numProcedures; $i++) {
+            $procedure = ProcedureFactory::createOne([
+                'orga' => $orga,
+                'orgaName' => $orga->getName(),
+                'customer' => $customer->_real(),
+            ]);
+            $procedure->setAuthorizedUsers(collect($users)->map(fn($user) => $user->_real())->toArray());
 
-        $procedure->_save();
+            $procedure->_save();
+            ProcedureSettingsFactory::createOne(['procedure' => $procedure]);
+        }
+
 
         try {
 
