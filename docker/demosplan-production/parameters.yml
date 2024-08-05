@@ -1,0 +1,41 @@
+# Please note that you need to use environment variables as used in bash ($ENV_VAR)
+# and not as used in Symfony (%ENV_VAR%) because the are substituted on container startup
+parameters:
+    avscan_enable: false
+    database_driver:   "pdo_mysql"
+    database_name:     "$DATABASE_NAME"
+    database_host:     "$DATABASE_HOST"
+    database_user:     "$DATABASE_USER"
+    database_password: $DATABASE_PASS
+    demosplan_user_authenticator_service:
+        - 'demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OzgKeycloakAuthenticator'
+    demosplan_user_authenticator_service_entry_point: 'demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OzgKeycloakAuthenticator'
+    docx_importer_route: $DOCX_IMPORTER_URL
+    elasticsearch_urls:
+        -   url: $ELASTICSEARCH_SCHEMA://$ELASTICSEARCH_USERNAME:$ELASTICSEARCH_PASSWORD@$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT
+    elasticsearch_number_of_replicas: $ELASTICSEARCH_NUMBER_OF_REPLICAS
+    elasticsearch_number_of_shards: $ELASTICSEARCH_NUMBER_OF_SHARDS
+    email_is_live_system: true
+    email_subject_prefix: "$EMAIL_SUBJECT_PREFIX"
+    email_system: "$EMAIL_SYSTEM"
+    external_links:
+        DiPlan Portal: $EXTERNAL_LINK_DIPLAN_PORTAL
+        DiPlanCockpit: $EXTERNAL_LINK_DIPLAN_COCKPIT
+    fileservice_filepath: "/opt/uploads"
+    gateway_url: '/connect/keycloak_ozg'
+    htaccess_user: $HTACCESS_USER
+    htaccess_pass: $HTACCESS_PASS
+    mailer_dsn: $MAILER_DSN
+    maintenance_key: $MAINTENANCE_KEY
+    subdomain: "$CUSTOMER_DEFAULT"
+    subdomains_allowed: ['hh','sh','mv','ni','be','by','demo']
+    tex2pdf_url: $TEX2PDF_URL
+    oauth_keycloak_client_id: $OAUTH_KEYCLOAK_CLIENT_ID
+    oauth_keycloak_client_secret: $OAUTH_KEYCLOAK_CLIENT_SECRET
+    oauth_keycloak_auth_server_url: $OAUTH_KEYCLOAK_AUTH_SERVER_URL
+    oauth_keycloak_realm: $OAUTH_KEYCLOAK_REALM
+    oauth_keycloak_logout_route: $OAUTH_KEYCLOAK_LOGOUT_ROUTE
+    project_prefix: $PROJECT_PREFIX
+    # amqp://user:pass@host:5672/%2f
+    rabbitmq_dsn: $RABBITMQ_DSN
+    xbeteiligung_api_token: $XBETEILIGUNG_API_TOKEN
