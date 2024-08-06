@@ -39,7 +39,7 @@ COPY package.json yarn.lock ./
 RUN yarn install --ignore-scripts --frozen-lockfile && rm -rf /srv/www/.cache
 
 USER root
-COPY --chown=www-data:www-data --chmod=755 . /srv/www
+COPY . /srv/www
 
 USER www-data
 RUN DEVELOPMENT_CONTAINER=1 ./fe build $PROJECT_NAME && rm -rf /srv/www/node_modules && rm -rf /srv/www/.cache
@@ -73,4 +73,4 @@ COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 
 WORKDIR /srv/www
 # only webfolder with frontcontroller and static files is needed for nginx
-COPY --from=fpm --chown=nginx:nginx /srv/www/projects/$PROJECT_NAME/web /srv/www/projects/$PROJECT_NAME/web
+COPY --from=fpm /srv/www/projects/$PROJECT_NAME/web /srv/www/projects/$PROJECT_NAME/web
