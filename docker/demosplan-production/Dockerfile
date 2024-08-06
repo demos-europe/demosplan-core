@@ -25,8 +25,6 @@ WORKDIR /srv/www
 RUN mkdir -p /opt/uploads && mkdir /opt/config && mkdir /srv/www/vendor &&  \
     chown -R www-data:www-data /opt/uploads && chown -R www-data:www-data /opt/config && chown -R www-data:www-data /srv/www
 
-COPY parameters.yml /opt/config/parameters.yml
-
 RUN mkdir -p /srv/www/projects/$PROJECT_NAME/app/config && \
 # asset build only needs the parameters.yml without content
     echo "parameters:" > /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml
@@ -38,7 +36,7 @@ RUN --mount=type=cache,target=/var/composer composer install -o --prefer-dist --
 #RUN composer install --prefer-dist --no-dev --no-autoloader --no-scripts --no-progress;
 
 COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile && rm -rf /srv/www/.cache
+RUN yarn install --ignore-scripts --frozen-lockfile && rm -rf /srv/www/.cache
 
 USER root
 COPY --chown=www-data:www-data --chmod=755 . /srv/www
@@ -48,6 +46,8 @@ RUN DEVELOPMENT_CONTAINER=1 ./fe build $PROJECT_NAME && rm -rf /srv/www/node_mod
 #RUN ./fe build --prod $PROJECT_NAME
 
 USER root
+COPY projects/$PROJECT_NAME/app/config/parameters_docker.yml /opt/config/parameters.yml
+
 RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     ln -s /opt/config/parameters.yml /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     mkdir -p "/srv/www/projects/$PROJECT_NAME/web/uploads/files" && \
