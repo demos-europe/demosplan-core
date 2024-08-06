@@ -71,7 +71,7 @@ class InstitutionTagResourceType extends DplanResourceType
         }
 
         if ($this->currentUser->hasPermission('feature_institution_tag_create')) {
-            $configBuilder->title->addConstructorBehavior(AttributeConstructorBehavior::createFactory(null, OptionalField::NO, null));
+            $configBuilder->label->addConstructorBehavior(AttributeConstructorBehavior::createFactory(null, OptionalField::NO, null));
             $configBuilder->taggedInstitutions->initializable(true, function (InstitutionTag $tag, array $institutions): array {
                 $institutionsCollection = new ArrayCollection($institutions);
                 $tag->setTaggedInstitutions($institutionsCollection);

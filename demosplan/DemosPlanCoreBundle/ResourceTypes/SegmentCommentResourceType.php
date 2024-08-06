@@ -93,12 +93,12 @@ final class SegmentCommentResourceType extends DplanResourceType
                 Paths::user()->id
             );
             $configBuilder->submitter->addConstructorBehavior(ToOneRelationshipConstructorBehavior::createFactory(null, [$currentUserCondition], null, OptionalField::NO));
-            $configBuilder->submitter->addConstructorBehavior(ToOneRelationshipConstructorBehavior::createFactory(null, [], null, OptionalField::NO));
+            $configBuilder->place->addConstructorBehavior(ToOneRelationshipConstructorBehavior::createFactory(null, [], null, OptionalField::NO));
             $configBuilder->segment
                 ->setRelationshipType($this->resourceTypeStore->getStatementSegmentResourceType())
                 ->$configBuilder->submitter->addConstructorBehavior(ToOneRelationshipConstructorBehavior::createFactory(null, [], null, OptionalField::NO));
 
-            $configBuilder->submitter->addConstructorBehavior(AttributeConstructorBehavior::createFactory(null, OptionalField::NO, null));
+            $configBuilder->text->addConstructorBehavior(AttributeConstructorBehavior::createFactory(null, OptionalField::NO, null));
 
             $configBuilder->addPostConstructorBehavior(new FixedSetBehavior(function (SegmentComment $segmentComment, EntityDataInterface $entityData): array {
                 $segment = $segmentComment->getSegment();
