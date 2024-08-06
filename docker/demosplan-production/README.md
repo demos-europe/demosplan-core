@@ -15,9 +15,3 @@ You can build the container with the following command from one folder above thi
 ```bash
 ./build.sh demosplan-production <container-registry> <container-tag> projectName
 ```
-
-Example for diplanbau:
-
-```bash
-./build.sh demosplan-production harbor.develop.diplanung.de/diplan-develop/diplan-beteiligung/bau 2023.20.0 diplanbau
-```
