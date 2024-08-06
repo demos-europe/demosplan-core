@@ -40,7 +40,7 @@ cp -r $folder/.dockerignore $context
 DOCKER_BUILDKIT=1 docker build --build-arg PROJECT_NAME=$projectname -t $imagename:$version -f $folder/Dockerfile --target fpm $context
 DOCKER_BUILDKIT=1 docker build --build-arg PROJECT_NAME=$projectname -t $imagename/nginx:$version -f $folder/Dockerfile --target nginx $context
 
-#rm -rf $context
+rm -rf $context
 
 if [[ $5 == "push" ]]
 then
