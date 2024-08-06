@@ -25,6 +25,7 @@ parameters:
     gateway_url: '/connect/keycloak_ozg'
     htaccess_user: $HTACCESS_USER
     htaccess_pass: $HTACCESS_PASS
+    logging_strategy: $LOGGING_STRATEGY
     mailer_dsn: $MAILER_DSN
     maintenance_key: $MAINTENANCE_KEY
     subdomain: "$CUSTOMER_DEFAULT"
