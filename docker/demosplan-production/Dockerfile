@@ -41,6 +41,10 @@ RUN yarn install --ignore-scripts --frozen-lockfile && rm -rf /srv/www/.cache
 USER root
 COPY . /srv/www
 
+# set permissions needed during build
+RUN mkdir -p /srv/www/projects/$PROJECT_NAME/web/{js,fonts,images,video} && \
+    chown -R www-data /srv/www/projects/$PROJECT_NAME/web
+
 USER www-data
 RUN DEVELOPMENT_CONTAINER=1 ./fe build $PROJECT_NAME && rm -rf /srv/www/node_modules && rm -rf /srv/www/.cache
 #RUN ./fe build --prod $PROJECT_NAME
@@ -50,10 +54,11 @@ COPY projects/$PROJECT_NAME/app/config/parameters_docker.yml /opt/config/paramet
 
 RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     ln -s /opt/config/parameters.yml /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
-    mkdir -p "/srv/www/projects/$PROJECT_NAME/web/uploads/files" && \
-    chmod -R 775 "/srv/www/projects/$PROJECT_NAME/web/uploads" && \
+    mkdir -p /srv/www/projects/$PROJECT_NAME/web/uploads/files && \
+    chmod -R 775 /srv/www/projects/$PROJECT_NAME/web/uploads && \
     mkdir -p /opt/uploads && \
     chown -R www-data /opt/uploads && \
+    chown -R root /srv/www/projects/$PROJECT_NAME/web && \
     ## set facls for /tmp (trick the system) still needed?
     setfacl -dRm u:www-data:rwx /tmp
 
