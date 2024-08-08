@@ -1,0 +1,69 @@
+{% if hasPermission('feature_2fa') %}
+    <h2 class="mt-6">{{ '2fa'|trans }}</h2>
+
+    <div class="grid grid-cols-2 gap-4">
+        <div>
+            <h3>{{ 'totp'|trans }}</h3>
+            {% if not user.totpSecret %}
+                <p>{{ '2fa.totp.enable.explanation'|trans }}</p>
+                <a class="dropdown-item" href="{{ path('DemosPlan_user_2fa_enable') }}">{{ '2fa.totp.enable'|trans }}</a>
+            {% elseif not user.totpEnabled %}
+                <p>{{ '2fa.totp.activate.explanation'|trans }}</p>
+                <img src="{{ path('DemosPlan_user_qr_code') }}" alt="{{ '2fa.totp.code.qr'|trans }}">
+                {{ '2fa.totp.code'|trans }}: <pre>{{ user.totpSecret }}</pre>
+                <p>{{ '2fa.totp.activate'|trans }}</p>
+                {{ uiComponent('form.element', {
+                    label: { text: '2fa.code'|trans },
+                    control: { name: 'twoFactorCode' },
+                    type: 'text',
+                    id: 'twoFactorCode',
+                    elementClass: 'u-mb-0_25',
+                }) }}
+            {% endif %}
+
+            {% if user.totpEnabled %}
+                <p>{{ '2fa.totp.activated'|trans|wysiwyg }}</p>
+                {{ uiComponent('form.element', {
+                    label: { text: '2fa.code'|trans },
+                    control: { name: 'disableTwoFactorCode' },
+                    type: 'text',
+                    id: 'disableTwoFactorCode',
+                    elementClass: 'u-mb-0_25',
+                    disabled: false
+                }) }}
+            {% endif %}
+        </div>
+        <div>
+            <h3>{{ '2fa.email'|trans }}</h3>
+            {% if not user.emailAuthCode and not user.emailAuthEnabled %}
+                <p>{{ '2fa.email.enable.explanation'|trans }}</p>
+                <a class="dropdown-item" href="{{ path('DemosPlan_user_2fa_email_enable') }}">{{ '2fa.email.enable'|trans }}</a>
+            {% endif %}
+
+            {% if user.emailAuthCode and not user.emailAuthEnabled %}
+                <p>{{ '2fa.email.activate'|trans({'link': path('DemosPlan_user_2fa_email_send') })|wysiwyg }}</p>
+                {{ uiComponent('form.element', {
+                    label: { text: '2fa.code'|trans },
+                    control: { name: 'twoFactorCodeEmail' },
+                    type: 'text',
+                    id: 'twoFactorCodeEmail',
+                    elementClass: 'u-mb-0_25',
+                    disabled: false
+                }) }}
+            {% endif %}
+            {% if user.emailAuthEnabled %}
+                <p>{{ '2fa.email.activated'|trans({'link': path('DemosPlan_user_2fa_email_send') })|wysiwyg }}</p>
+                {{ uiComponent('form.element', {
+                    label: { text: '2fa.code'|trans },
+                    control: { name: 'disableTwoFactorCodeEmail' },
+                    type: 'text',
+                    id: 'disableTwoFactorCodeEmail',
+                    elementClass: 'u-mb-0_25',
+                    disabled: false
+                }) }}
+            {% endif %}
+        </div>
+    </div>
+
+
+{% endif %}
