@@ -13,7 +13,7 @@
       <dp-version-history
         v-show="slidebar.showTab === 'history'"
         class="u-pr"
-        :procedure-id="procedureId" />
+        :procedure-id="procedure.id" />
       <segment-comments-list
         v-if="hasPermission('feature_segment_comment_list_on_segment')"
         v-show="slidebar.showTab === 'comments'"
@@ -24,7 +24,7 @@
         v-show="slidebar.showTab === 'map'"
         ref="locationMap"
         :map-data="procedureMapSettings"
-        :procedure-id="procedureId"
+        :procedure-id="procedure.id"
         :segment-id="slidebar.segmentId"
         :statement-id="statementId" />
     </dp-slidebar>
@@ -94,7 +94,7 @@
                     v-if="originalAttachment.hash"
                     class="block whitespace-normal u-mr-0_75"
                     :attachment="originalAttachment"
-                    :procedure-id="procedureId" />
+                    :procedure-id="procedure.id" />
                   <span
                     v-if="additionalAttachments.length > 0"
                     class="block weight--bold">{{ Translator.trans('more.attachments') }}</span>
@@ -103,7 +103,7 @@
                     class="block whitespace-normal u-mr-0_75"
                     :attachment="attachment"
                     :key="attachment.hash"
-                    :procedure-id="procedureId" />
+                    :procedure-id="procedure.id" />
                 </div>
               </template>
             </dp-flyout>
@@ -137,8 +137,16 @@
       <statement-meta
         v-if="showInfobox && statement"
         :attachments="filteredAttachments"
+        :available-counties="availableCounties"
+        :available-internal-phases="availableExternalPhases"
+        :available-external-phases="availableInternalPhases"
+        :available-municipalities="availableMunicipalities"
+        :available-priority-areas="availablePriorityAreas"
         :current-user-id="currentUser.id"
         :editable="editable"
+        :statement-form-definitions="statementFormDefinitions"
+        :procedure="procedure"
+        :procedure-statement-priority-area="procedureStatementPriorityArea"
         :statement="statement"
         :submit-type-options="submitTypeOptions"
         @close="showInfobox = false"
@@ -147,7 +155,7 @@
       <segments-recommendations
         v-if="currentAction === 'addRecommendation' && hasPermission('feature_segment_recommendation_edit')"
         :current-user="currentUser"
-        :procedure-id="procedureId"
+        :procedure-id="procedure.id"
         :statement-id="statementId" />
       <statement-segments-edit
         v-else-if="currentAction === 'editText'"
@@ -206,12 +214,42 @@ export default {
 
   provide () {
     return {
-      procedureId: this.procedureId,
+      procedureId: this.procedure.id,
       recommendationProcedureIds: this.recommendationProcedureIds
     }
   },
 
   props: {
+    availableCounties: { // TODO: has to be adjusted in the BE
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
+    availableExternalPhases: { // TODO: has to be adjusted in the BE
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
+    availableInternalPhases: { // TODO: has to be adjusted in the BE
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
+    availableMunicipalities: { // TODO: has to be adjusted in the BE
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
+    availablePriorityAreas: { // TODO: has to be adjusted in the BE
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
     currentUser: {
       type: Object,
       required: true
@@ -227,9 +265,26 @@ export default {
       default: false
     },
 
-    procedureId: {
-      type: String,
-      required: true
+    procedure: {
+      type: Object,
+      required: true,
+      validator: (p) => {
+        let valid = true
+
+        Object.keys(p).forEach(key => {
+          if (!['id', 'name', 'orgaName'].includes(key)) {
+            valid = false
+          }
+        })
+
+        return valid
+      }
+    },
+
+    procedureStatementPriorityArea: {
+      type: Boolean,
+      required: false,
+      default: false
     },
 
     recommendationProcedureIds: {
@@ -246,6 +301,11 @@ export default {
     statementExternId: {
       type: String,
       required: true
+    },
+
+    statementFormDefinitions: {
+      required: true,
+      type: Object
     },
 
     submitTypeOptions: {
@@ -367,7 +427,7 @@ export default {
         orgaName: ''
       }
     },
-
+    // TO DO: add check for original statement
     editable () {
       return this.isCurrentUserAssigned && !this.statement.attributes.synchronized
     },
@@ -505,6 +565,7 @@ export default {
         'similarStatementSubmitters',
         'authoredDate',
         'authorName',
+        'counties',
         'files',
         'fullText',
         'isSubmittedByCitizen',
@@ -517,6 +578,10 @@ export default {
         'internId',
         'isManual',
         'memo',
+        'municipalities',
+        'priorityAreas',
+        'phase',
+        'publicParticipationPhase', // TODO: has to be adjusted in the BE
         'recommendation',
         'segmentDraftList',
         'status',
@@ -544,7 +609,10 @@ export default {
           'similarStatementSubmitters'
         ].join(),
         fields: {
-          Statement: statementFields.join(),
+          File: [
+            'hash',
+            'filename'
+          ].join(),
           SimilarStatementSubmitter: [
             'city',
             'emailAddress',
@@ -553,13 +621,10 @@ export default {
             'streetName',
             'streetNumber'
           ].join(),
+          Statement: statementFields.join(),
           StatementAttachment: [
             'file',
             'attachmentType'
-          ].join(),
-          File: [
-            'hash',
-            'filename'
           ].join()
         }
       })
@@ -611,7 +676,7 @@ export default {
       const queryParams = new URLSearchParams(window.location.search)
       let action = queryParams.get('action')
 
-      if (action && action.includes('?')) {
+      if (action?.includes('?')) {
         action = action.split('?')[0]
       }
 
@@ -621,7 +686,7 @@ export default {
 
     showHintAndDoExport ({ route, docxHeaders, fileNameTemplate }) {
       const parameters = {
-        procedureId: this.procedureId,
+        procedureId: this.procedure.id,
         statementId: this.statementId
       }
 
@@ -728,7 +793,7 @@ export default {
         Orga: 'name'
       }
     })
-    this.setContent({ prop: 'commentsList', val: { ...this.commentsList, procedureId: this.procedureId, statementId: this.statementId } })
+    this.setContent({ prop: 'commentsList', val: { ...this.commentsList, procedureId: this.procedure.id, statementId: this.statementId } })
     this.fetchProcedureMapSettings(this.procedureId)
       .then(response => {
         this.procedureMapSettings = { ...this.procedureMapSettings, ...response.attributes }

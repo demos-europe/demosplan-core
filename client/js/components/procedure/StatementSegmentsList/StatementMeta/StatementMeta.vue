@@ -19,54 +19,88 @@
     </div>
 
     <div
-      class="u-mt-0_5"
+      class="u-mt-0_5 flex gap-2"
       data-dp-validate="statementMetaData">
-      <div class="inline-block u-1-of-2 align-top">
+      <div class="inline-block w-1/2 align-top">
+        <!--  TO DO: add if not participationGuestOnly  -->
         <dp-input
-          id="statementSubmitter"
-          v-model="localStatement.attributes.authorName"
+          v-if="hasPermission('field_statement_meta_orga_name')"
+          id="submitterRole"
           class="u-mb-0_5"
-          :disabled="statement.isManual ? false : !editable"
+          disabled
+          :label="{
+            text: Translator.trans('submitted.author'),
+          }"
+          :value="submitterRole" />
+        <dp-contextual-help
+          v-if="isSubmitterAnonymous()"
+          class="float-right mt-0.5"
+          :text="submitterHelpText" />
+        <dp-input
+          v-if="hasPermission('field_statement_meta_submit_name') && this.statementFormDefinitions.name.enabled"
+          id="statementSubmitter"
+          v-model="statementSubmitterValue"
+          class="u-mb-0_5"
+          :disabled="!isStatementManual || !editable || isSubmitterAnonymous()"
           :label="{
             text: Translator.trans('submitter')
           }"
-          @input="(val) => emitInput('authorName', val)" />
+          @input="(val) => emitInput('statementSubmitterField', val)" />
         <dp-input
+          v-if="hasPermission('field_statement_meta_orga_department_name') && !this.localStatement.attributes.isSubmittedByCitizen"
+          id="statementDepartmentName"
+          v-model="localStatement.attributes.initialOrganisationDepartmentName"
+          class="u-mb-0_5"
+          :disabled="isStatementManual ? false : !editable"
+          :label="{
+            text: Translator.trans('department')
+          }"
+          @input="(val) => emitInput('initialOrganisationDepartmentName', val)" />
+        <dp-input
+          v-if="localStatement.attributes.represents"
+          id="statementRepresentation"
+          disabled
+          :label="{
+            text: Translator.trans('statement.representation.assessment')
+          }"
+          :value="localStatement.attributes.represents" />
+        <dp-input
+          v-if="localStatement.attributes.represents"
+          id="representationCheck"
+          v-model="localStatement.attributes.representationChecked"
+          :disabled="isStatementManual ? false : !editable"
+          :label="{
+            text: Translator.trans('statement.representation.checked')
+          }"
+          type="checkbox" />
+        <dp-input
+          v-if="hasPermission('field_statement_submitter_email_address') || isStatementManual"
           id="statementEmailAddress"
           v-model="localStatement.attributes.submitterEmailAddress"
           class="u-mb-0_5"
-          :disabled="statement.isManual ? false : !editable"
+          :disabled="isStatementManual ? false : !editable"
           :label="{
             text: Translator.trans('email')
           }"
           type="email"
           @input="(val) => emitInput('submitterEmailAddress', val)" />
+        <!--  TO DO: add if not participationGuestOnly -->
         <dp-input
           v-if="!this.localStatement.attributes.isSubmittedByCitizen"
           id="statementOrgaName"
           v-model="localStatement.attributes.initialOrganisationName"
           class="u-mb-0_5"
-          :disabled="statement.isManual ? false : !editable"
+          :disabled="isStatementManual ? false : !editable"
           :label="{
             text: Translator.trans('organisation')
           }"
           @input="(val) => emitInput('initialOrganisationName', val)" />
-        <dp-input
-          v-if="!this.localStatement.attributes.isSubmittedByCitizen"
-          id="statementDepartmentName"
-          v-model="localStatement.attributes.initialOrganisationDepartmentName"
-          class="u-mb-0_5"
-          :disabled="statement.isManual ? false : !editable"
-          :label="{
-            text: Translator.trans('department')
-          }"
-          @input="(val) => emitInput('initialOrganisationDepartmentName', val)" />
         <div class="o-form__group u-mb-0_5">
           <dp-input
             id="statementStreet"
             v-model="localStatement.attributes.initialOrganisationStreet"
             class="o-form__group-item"
-            :disabled="statement.isManual ? false : !editable"
+            :disabled="isStatementManual ? false : !editable"
             :label="{
               text: Translator.trans('street')
             }"
@@ -75,7 +109,7 @@
             id="statementHouseNumber"
             v-model="localStatement.attributes.initialOrganisationHouseNumber"
             class="o-form__group-item shrink"
-            :disabled="statement.isManual ? false : !editable"
+            :disabled="isStatementManual ? false : !editable"
             :label="{
               text: Translator.trans('street.number.short')
             }"
@@ -87,7 +121,7 @@
             id="statementPostalCode"
             v-model="localStatement.attributes.initialOrganisationPostalCode"
             class="o-form__group-item shrink"
-            :disabled="statement.isManual ? false : !editable"
+            :disabled="isStatementManual ? false : !editable"
             :label="{
               text: Translator.trans('postalcode')
             }"
@@ -98,15 +132,14 @@
             id="statementCity"
             v-model="localStatement.attributes.initialOrganisationCity"
             class="o-form__group-item"
-            :disabled="statement.isManual ? false : !editable"
+            :disabled="isStatementManual ? false : !editable"
             :label="{
               text: Translator.trans('city')
             }"
             @input="(val) => emitInput('initialOrganisationCity', val)" />
         </div>
-      </div><!--
-
-   --><div class="inline-block u-1-of-2 u-pl">
+      </div>
+      <div class="inline-block w-1/2">
         <dp-input
           id="statementInternId"
           v-model="localStatement.attributes.internId"
@@ -120,7 +153,7 @@
         <div class="o-form__group u-mb-0_5">
           <!-- authoredDate: if manual statement -->
           <dp-input
-            v-if="statement.isManual ? true : !editable"
+            v-if="isStatementManual ? true : !editable"
             id="statementAuthoredDate"
             class="o-form__group-item"
             :disabled="true"
@@ -147,7 +180,7 @@
 
           <!-- submitDate: if manual statement -->
           <dp-input
-            v-if="statement.isManual ? true : !editable"
+            v-if="isStatementManual ? true : !editable"
             id="statementSubmitDate"
             class="o-form__group-item"
             :disabled="true"
@@ -185,6 +218,32 @@
           :options="submitTypeOptions"
           @select="(val) => emitInput('submitType', val)" />
 
+        <template v-if="hasPermission('field_statement_phase')">
+          <dp-select
+            v-if="hasPermission('field_show_internal_procedure_phases_in_dropdown') && !localStatement.attributes.isSubmittedByCitizen"
+            id="statementProcedureInternalPhase"
+            v-model="localStatement.attributes.phase"
+            class="mb-3"
+            :disabled="!editable || !isStatementManual"
+            :label="{
+              text: Translator.trans('procedure.public.phase')
+            }"
+            :options="availableInternalPhases"
+            @select="(val) => emitInput('phase', val)" />
+
+          <dp-select
+            v-else
+            id="statementProcedureExternalPhase"
+            v-model="localStatement.attributes.publicParticipationPhase"
+            class="mb-3"
+            :disabled="!editable || !isStatementManual"
+            :label="{
+              text: Translator.trans('procedure.public.phase')
+            }"
+            :options="availableExternalPhases"
+            @select="(val) => emitInput('publicParticipationPhase', val)" />
+        </template>
+
         <dp-text-area
           v-if="hasPermission('field_statement_memo')"
           :disabled="!editable"
@@ -194,28 +253,58 @@
           reduced-height
           v-model="localStatement.attributes.memo" />
       </div>
-
-      <dp-button-row
-        v-if="editable"
-        class="u-mt-0_5"
-        primary
-        secondary
-        :secondary-text="Translator.trans('discard.changes')"
-        @primary-action="dpValidateAction('statementMetaData', save, false)"
-        @secondary-action="reset" />
     </div>
 
-    <statement-meta-attachments
+    <!-- need to add statement.attributes.counties and availableCounties in the BE (Array) -->
+    <statement-meta-multiselect
+      v-if="hasPermission('field_statement_county')"
       :editable="editable"
+      :label="Translator.trans('counties')"
+      name="counties"
+      :options="availableCounties"
+      :value="localStatement.attributes.counties"
+      @change="updateLocalStatementProperties" />
+
+    <!-- need to add statement.attributes.municipalities and availableMunicipalities in the BE (Array) -->
+    <statement-meta-multiselect
+      v-if="hasPermission('field_statement_municipality') && formDefinitions.mapAndCountyReference.enabled"
+      :editable="editable"
+      :label="Translator.trans('municipalities')"
+      name="municipalities"
+      :options="availableMunicipalities"
+      :value="localStatement.attributes.municipalities"
+      @change="updateLocalStatementProperties" />
+
+    <!-- need to add statement.attributes.priorityAreas and availablePriorityAreas in the BE (Array) -->
+    <statement-meta-multiselect
+      v-if="procedureStatementPriorityArea && formDefinitions.mapAndCountyReference.enabled"
+      :editable="editable"
+      :label="Translator.trans('priorityAreas')"
+      name="priorityAreas"
+      :options="availablePriorityAreas"
+      :value="localStatement.attributes.priorityAreas"
+      @change="updateLocalStatementProperties" />
+
+    <dp-button-row
+      v-if="editable"
+      class="u-mt-0_5 w-full"
+      primary
+      secondary
+      :secondary-text="Translator.trans('discard.changes')"
+      @primary-action="dpValidateAction('statementMetaData', save, false)"
+      @secondary-action="reset" />
+
+    <statement-meta-attachments
       :attachments="attachments"
       class="u-pt-0_5 border--bottom u-pb-0_5"
-      :procedure-id="procedureId"
+      :editable="editable"
+      :procedure-id="procedure.id"
       :statement-id="statement.id"
       @change="(value) => emitInput('attachments', value)" />
 
     <similar-statement-submitters
-      :procedure-id="procedureId"
       :editable="editable"
+      :procedure-id="procedure.id"
       :similar-statement-submitters="similarStatementSubmitters"
       :statement-id="statement.id" />
   </div>
@@ -224,6 +313,7 @@
 <script>
 import {
   DpButtonRow,
+  DpContextualHelp,
   DpDatepicker,
   DpIcon,
   DpInput,
@@ -235,6 +325,7 @@ import {
 import { mapActions, mapMutations, mapState } from 'vuex'
 import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 import StatementMetaAttachments from './StatementMetaAttachments'
+import StatementMetaMultiselect from './StatementMetaMultiselect'
 
 const convert = (dateString) => {
   const date = dateString.split('T')[0].split('-')
@@ -244,10 +335,9 @@ const convert = (dateString) => {
 export default {
   name: 'StatementMeta',
 
-  inject: ['procedureId'],
-
   components: {
     DpButtonRow,
+    DpContextualHelp,
     DpDatepicker,
     DpIcon,
     DpInput,
@@ -255,7 +345,8 @@ export default {
     DpSelect,
     DpTextArea,
     SimilarStatementSubmitters,
-    StatementMetaAttachments
+    StatementMetaAttachments,
+    StatementMetaMultiselect
   },
 
   mixins: [dpValidateMixin],
@@ -264,6 +355,36 @@ export default {
     attachments: {
       type: Object,
       required: true
+    },
+
+    availableCounties: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
+    availableExternalPhases: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
+    availableInternalPhases: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
+    availableMunicipalities: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
+    availablePriorityAreas: {
+      type: Array,
+      required: false,
+      default: () => []
     },
 
     currentUserId: {
@@ -278,9 +399,25 @@ export default {
       default: false
     },
 
+    procedure: {
+      type: Object,
+      required: true
+    },
+
+    procedureStatementPriorityArea: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
     statement: {
       type: Object,
       required: true
+    },
+
+    statementFormDefinitions: {
+      required: true,
+      type: Object
     },
 
     submitTypeOptions: {
@@ -292,6 +429,7 @@ export default {
 
   data () {
     return {
+      finalMailDefaultText: '',
       localStatement: null
     }
   },
@@ -318,11 +456,64 @@ export default {
       return false
     },
 
+    isStatementManual () {
+      return this.statement.attributes.isManual
+    },
+
     similarStatementSubmitters () {
       if (typeof this.statement.hasRelationship === 'function' && this.statement.hasRelationship('similarStatementSubmitters')) {
         return Object.values(this.statement.relationships.similarStatementSubmitters.list())
       }
       return null
+    },
+
+    statementSubmitterField () {
+      const attr = this.localStatement.attributes
+      let submitterField = 'authorName'
+      // If submitter is an orga and name has a value
+      if (attr.submitName && !attr.isSubmittedByCitizen) {
+        submitterField = 'submitName'
+      }
+
+      return submitterField
+    },
+
+    statementSubmitterValue: {
+      get () {
+        return this.isSubmitterAnonymous() ? Translator.trans('anonymized') : this.localStatement.attributes[this.statementSubmitterField]
+      },
+      set (value) {
+        this.localStatement.attributes[this.statementSubmitterField] = value
+      }
+    },
+
+    submitterHelpText () {
+      const { gdprConsent, original } = this.localStatement.attributes
+      let helpText = ''
+
+      const isConsentRevoked = gdprConsent?.consentRevoked
+      const isAnonymized = hasPermission('area_statement_anonymize') && original.submitterAndAuthorMetaDataAnonymized
+
+      if (isConsentRevoked) {
+        helpText = Translator.trans('personal.data.usage.revoked')
+
+        if (isAnonymized) {
+          helpText = helpText + `<br><br>${Translator.trans('statement.anonymized.submitter.data')}`
+        }
+      }
+
+      if (!isConsentRevoked && isAnonymized) {
+        helpText = Translator.trans('statement.anonymized.submitter.data')
+      }
+
+      return helpText
+    },
+
+    submitterRole () {
+      const isSubmittedByCitizen = this.localStatement.attributes.isSubmittedByCitizen &&
+        this.localStatement.attributes.submitterRole !== 'publicagency'
+
+      return isSubmittedByCitizen ? Translator.trans('role.citizen') : Translator.trans('institution')
     },
 
     submitType () {
@@ -361,6 +552,12 @@ export default {
         : convert(date)
     },
 
+    isSubmitterAnonymous () {
+      const { gdprConsent, original } = this.localStatement.attributes
+
+      return gdprConsent?.consentRevoked || original.submitterAndAuthorMetaDataAnonymized
+    },
+
     reset () {
       this.setInitValues()
     },
@@ -382,10 +579,23 @@ export default {
       this.localStatement = JSON.parse(JSON.stringify(this.statement))
       this.localStatement.attributes.authoredDate = this.convertDate(this.localStatement.attributes.authoredDate)
       this.localStatement.attributes.submitDate = this.convertDate(this.localStatement.attributes.submitDate)
+
+      this.finalMailDefaultText = Translator.trans('statement.send.final_mail.default', {
+        hasStatementText: this.localStatement.attributes.fullText.length < 2000 ? 0 : 1,
+        orgaName: this.procedure.orgaName,
+        procedureName: this.procedure.name,
+        statementText: this.localStatement.attributes.fullText,
+        statementRecommendation: this.localStatement.attributes.recommendation
+      })
     },
 
     syncAuthorAndSubmitter () {
       this.localStatement.attributes.submitName = this.localStatement.attributes.authorName
+    },
+
+    updateLocalStatementProperties (value, field) {
+      this.localStatement.attributes[field] = value
+      this.localStatement.attributes[field].sort((a, b) => a.name.localeCompare(b.name))
     }
   },
 

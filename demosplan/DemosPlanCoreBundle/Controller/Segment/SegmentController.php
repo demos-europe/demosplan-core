@@ -94,7 +94,11 @@ class SegmentController extends BaseController
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanProcedure/administration_statement_segments_list.html.twig',
             [
-                'procedure'                  => $procedureId,
+                'procedure'                  => [
+                    'id'       => $procedureId,
+                    'name'     => $procedure->getName(),
+                    'orgaName' => $procedure->getOrgaName(),
+                ],
                 'recommendationProcedureIds' => $recommendationProcedureIds,
                 'statementId'                => $statementId,
                 'statementExternId'          => $statement->getExternId(),
