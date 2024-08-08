@@ -833,6 +833,8 @@ data.autocompleted.recheck: "Die Daten wurden automatisch hinzugefügt. Bitte pr
 data.input.orga: "Datenerfassende Organisation"
 data.protection.notes: "Hinweise zum Datenschutz"
 data.protection.organisations: "Hinweise zum Datenschutz der Verfahrensträger"
+data_protection.duties: "Pflichten nach DSGVO/Aufgabenverteilung"
+data_protection.procedure: "IT-Verfahren BOP"
 date.created.noun: "Erstellungsdatum"
 date.created: "erstellt am"
 date.printed: "ausgedruckt am"
