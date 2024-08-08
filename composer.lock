@@ -18206,16 +18206,16 @@
         },
         {
             "name": "willdurand/js-translation-bundle",
-            "version": "6.0.0",
+            "version": "6.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/willdurand/BazingaJsTranslationBundle.git",
-                "reference": "11e717d9baf2ecb34b355986a2225d70c015d7fc"
+                "reference": "f6af94fe2100076d087334d7412a77b758c88eec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/willdurand/BazingaJsTranslationBundle/zipball/11e717d9baf2ecb34b355986a2225d70c015d7fc",
-                "reference": "11e717d9baf2ecb34b355986a2225d70c015d7fc",
+                "url": "https://api.github.com/repos/willdurand/BazingaJsTranslationBundle/zipball/f6af94fe2100076d087334d7412a77b758c88eec",
+                "reference": "f6af94fe2100076d087334d7412a77b758c88eec",
                 "shasum": ""
             },
             "require": {
@@ -18267,9 +18267,9 @@
             ],
             "support": {
                 "issues": "https://github.com/willdurand/BazingaJsTranslationBundle/issues",
-                "source": "https://github.com/willdurand/BazingaJsTranslationBundle/tree/6.0.0"
+                "source": "https://github.com/willdurand/BazingaJsTranslationBundle/tree/6.1.0"
             },
-            "time": "2023-12-18T18:25:51+00:00"
+            "time": "2024-08-02T14:30:21+00:00"
         },
         {
             "name": "willdurand/jsonp-callback-validator",
