@@ -226,28 +226,31 @@ export default {
       this.isLoading = true
       page = page || this.currentPage
       const userFilter = {
-        firstnameFilter: {
-          condition: {
-            path: 'firstname',
-            operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
-            value: this.searchValue,
-            memberOf: 'name'
-          }
-        },
-        lastnameFilter: {
-          condition: {
-            path: 'lastname',
-            operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
-            value: this.searchValue,
-            memberOf: 'name'
-          }
-        },
         name: {
           group: {
             conjunction: 'OR'
           }
         }
       }
+
+      this.searchValue.split(' ').filter(Boolean).forEach((value, index) => {
+        userFilter[`firstnameFilter${index}`] = {
+          condition: {
+            path: 'firstname',
+            operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
+            value: value,
+            memberOf: 'name'
+          }
+        }
+        userFilter[`lastnameFilter${index}`] = {
+          condition: {
+            path: 'lastname',
+            operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
+            value: value,
+            memberOf: 'name'
+          }
+        }
+      })
 
       this.userList({
         page: {
@@ -267,7 +270,7 @@ export default {
 
     loadItems () {
       const arr = []
-      if (hasPermission('area_organisations')) {
+      if (hasPermission('feature_organisation_user_list')) {
         arr.push(this.organisationList({ include: ['departments', 'allowedRoles'].join() }))
       } else {
         arr.push(this.departmentList())

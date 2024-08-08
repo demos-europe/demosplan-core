@@ -86,6 +86,7 @@
         v-else
         class="border space-inset-s">
         <dp-inline-notification
+          v-if="segmentDraftList"
           class="mt-1"
           :message="Translator.trans('warning.statement.in.segmentation.cannot.be.edited')"
           type="warning" />
@@ -386,7 +387,7 @@ export default {
         fields: {
           Place: ['name', 'sortIndex'].join(),
           SegmentComment: ['creationDate', 'place', 'submitter', 'text'].join(),
-          StatementSegment: ['assignee', 'comments', 'externId', 'recommendation', 'text'].join(),
+          StatementSegment: ['assignee', 'comments', 'externId', 'recommendation', 'text', 'place'].join(),
           User: ['lastname', 'firstname', 'orga'].join(),
           Orga: ['name'].join()
         },
