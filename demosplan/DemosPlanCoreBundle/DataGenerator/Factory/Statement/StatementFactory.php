@@ -15,37 +15,37 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\SurveyInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
-use Zenstruck\Foundry\ModelFactory;
-use Zenstruck\Foundry\Proxy;
-use Zenstruck\Foundry\RepositoryProxy;
+use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\Persistence\Proxy;
+use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
 
 /**
- * @extends ModelFactory<Statement>
+ * @extends PersistentProxyObjectFactory<Statement>
  *
- * @method        Statement|Proxy                     create(array|callable $attributes = [])
- * @method static Statement|Proxy                     createOne(array $attributes = [])
- * @method static Statement|Proxy                     find(object|array|mixed $criteria)
- * @method static Statement|Proxy                     findOrCreate(array $attributes)
- * @method static Statement|Proxy                     first(string $sortedField = 'id')
- * @method static Statement|Proxy                     last(string $sortedField = 'id')
- * @method static Statement|Proxy                     random(array $attributes = [])
- * @method static Statement|Proxy                     randomOrCreate(array $attributes = [])
- * @method static StatementRepository|RepositoryProxy repository()
- * @method static Statement[]|Proxy[]                 all()
- * @method static Statement[]|Proxy[]                 createMany(int $number, array|callable $attributes = [])
- * @method static Statement[]|Proxy[]                 createSequence(iterable|callable $sequence)
- * @method static Statement[]|Proxy[]                 findBy(array $attributes)
- * @method static Statement[]|Proxy[]                 randomRange(int $min, int $max, array $attributes = [])
- * @method static Statement[]|Proxy[]                 randomSet(int $number, array $attributes = [])
+ * @method        Statement|Proxy                              create(array|callable $attributes = [])
+ * @method static Statement|Proxy                              createOne(array $attributes = [])
+ * @method static Statement|Proxy                              find(object|array|mixed $criteria)
+ * @method static Statement|Proxy                              findOrCreate(array $attributes)
+ * @method static Statement|Proxy                              first(string $sortedField = 'id')
+ * @method static Statement|Proxy                              last(string $sortedField = 'id')
+ * @method static Statement|Proxy                              random(array $attributes = [])
+ * @method static Statement|Proxy                              randomOrCreate(array $attributes = [])
+ * @method static StatementRepository|ProxyRepositoryDecorator repository()
+ * @method static Statement[]|Proxy[]                          all()
+ * @method static Statement[]|Proxy[]                          createMany(int $number, array|callable $attributes = [])
+ * @method static Statement[]|Proxy[]                          createSequence(iterable|callable $sequence)
+ * @method static Statement[]|Proxy[]                          findBy(array $attributes)
+ * @method static Statement[]|Proxy[]                          randomRange(int $min, int $max, array $attributes = [])
+ * @method static Statement[]|Proxy[]                          randomSet(int $number, array $attributes = [])
  */
-class StatementFactory extends ModelFactory
+class StatementFactory extends PersistentProxyObjectFactory
 {
-    public function __construct()
+    public static function class(): string
     {
-        parent::__construct();
+        return Statement::class;
     }
 
-    protected function getDefaults(): array
+    protected function defaults(): array|callable
     {
         return [
             'anonymous'           => false,
@@ -73,7 +73,7 @@ class StatementFactory extends ModelFactory
             'reasonParagraph'     => self::faker()->text(65535),
             'recommendation'      => self::faker()->text(65535),
             'replied'             => false,
-//            'segmentationPiRetries' => self::faker()->numberBetween(1, 15),
+            //            'segmentationPiRetries' => self::faker()->numberBetween(1, 15),
             'send'               => self::faker()->dateTime(),
             'sentAssessment'     => false,
             'sentAssessmentDate' => self::faker()->dateTime(),
@@ -86,14 +86,8 @@ class StatementFactory extends ModelFactory
         ];
     }
 
-    protected function initialize(): self
+    public function withProcedure(ProcedureFactory $procedure): self
     {
-        return $this
-        ;
-    }
-
-    protected static function getClass(): string
-    {
-        return Statement::class;
+        return $this->with(['procedure' => $procedure]);
     }
 }
