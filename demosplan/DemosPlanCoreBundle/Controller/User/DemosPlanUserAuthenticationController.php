@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\SessionHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHasher;
@@ -63,10 +64,14 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
 
     public function __construct(
         UserHandler $userHandler,
-        UserService $userService
+        UserService $userService,
+        CurrentUserService $currentUser,
+        ParameterBagInterface $parameterBag
     ) {
         $this->userHandler = $userHandler;
         $this->userService = $userService;
+
+        parent::__construct($currentUser, $parameterBag);
     }
 
     /**
@@ -151,6 +156,27 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         return $this->redirectToRoute('core_home_loggedin');
     }
 
+    private function checkUserOrga(array $user)
+    {
+        /** @var User $user */
+        $user = $user[0];
+        $orga = $user->getOrga();
+        $UserCustomer = $user->getCurrentCustomer();
+        $x = [];
+        foreach ($orga->getStatusInCustomers() as $statusInCustomer)
+        {
+            if ($statusInCustomer->getCustomer() === $UserCustomer)
+            {
+                $status = $statusInCustomer->getStatus();
+
+            }
+        }
+
+        $result = $status === 'accepted' ? true : false;
+
+       // return $orgaStatus === 'accepted' ? true : false;
+    }
+
     /**
      *  @DplanPermissions({"area_demosplan","feature_password_recovery"})
      *
@@ -166,9 +192,11 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         if ($requestPost->has('email')) {
             $email = $requestPost->get('email');
             if (is_string($email)) {
+                $emailUser = $this->userService->getUserByFields(['email' => $email]);
+                $registeredOrga = $this->checkUserOrga($emailUser);
                 // avoid brute force attacks
                 $limiter = $userRegisterLimiter->create($request->getClientIp());
-                if (false === $limiter->consume()->isAccepted()) {
+                if (false === $limiter->consume()->isAccepted() ) {
                     $this->messageBag->add('warning', 'warning.user.pass.reset.throttle');
 
                     return $this->redirectToRoute('core_home');
