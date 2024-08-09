@@ -58,7 +58,6 @@ class AddonUninstallCommand extends CoreCommand
             'Name of the addon to uninstall. May be omitted to receive a list of installed addons.',
         );
         $this->addOption('all', 'a', InputOption::VALUE_NONE, 'Uninstall all Addons');
-
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -224,7 +223,7 @@ class AddonUninstallCommand extends CoreCommand
         /** @var DemosPlanKernel $kernel */
         $activeProject = $kernel->getActiveProject();
         // do not warm up cache to avoid errors as the addon is still referenced in the container
-        $cacheClearCommand = ["bin/{$activeProject}", "cache:clear", "-e", $environment, "--no-warmup"];
+        $cacheClearCommand = ["bin/{$activeProject}", 'cache:clear', '-e', $environment, '--no-warmup'];
 
         $batchReturn = Batch::create($this->getApplication(), $output)
             ->addShell($cacheClearCommand)
