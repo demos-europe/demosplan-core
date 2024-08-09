@@ -2025,17 +2025,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@efrane/vuex-json-api@github:eFrane/vuex-json-api#19c2354ad97c17bdda02358dc9ee4a2ffce181dd":
+"@efrane/vuex-json-api@github:eFrane/vuex-json-api#4b16e60c2d4992f46cebf7818b482891dbb37876":
   version: 0.1.0
-  resolution: "@efrane/vuex-json-api@https://github.com/eFrane/vuex-json-api.git#commit=19c2354ad97c17bdda02358dc9ee4a2ffce181dd"
+  resolution: "@efrane/vuex-json-api@https://github.com/eFrane/vuex-json-api.git#commit=4b16e60c2d4992f46cebf7818b482891dbb37876"
   dependencies:
     deep-object-diff: "npm:^1.1.9"
     json-api-normalizer: "npm:^1.0"
-    qs: "npm:~6.10.3"
+    qs: "npm:~6.12.3"
   peerDependencies:
     "@vue/compat": 3.2.0
     vuex: ^4.0.2
-  checksum: 10c0/65259b7ca0625de98b7929f6caff25dcbc3eeb623d1145278010ee9f73af9b50404c04567c5c3f02ab2fb11687fd0e78e6803277a5d64ad873e82fe1d18966ff
+  checksum: 10c0/9254f4a5ab8cc1cd8c9177ca65cac4360fd93f39739de909f0f41bbfa5a9c3b153eefeae96d73e37db9e180a800a79788551320951d4bf219d778d36948acd2b
   languageName: node
   linkType: hard
 
@@ -11313,21 +11313,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"qs@npm:^6.11.0, qs@npm:^6.12.1":
+"qs@npm:^6.11.0, qs@npm:^6.12.1, qs@npm:~6.12.3":
   version: 6.12.3
   resolution: "qs@npm:6.12.3"
   dependencies:
     side-channel: "npm:^1.0.6"
   checksum: 10c0/243ddcc8f49dab78fc51041f7f64c500b47c671c45a101a8aca565d8537cb562921da7ef1a831b4a7051596ec88bb35a0d5e25a240025e8b32c6bfb69f00bf2f
-  languageName: node
-  linkType: hard
-
-"qs@npm:~6.10.3":
-  version: 6.10.4
-  resolution: "qs@npm:6.10.4"
-  dependencies:
-    side-channel: "npm:^1.0.4"
-  checksum: 10c0/7a8c9d77968aeccb769aedd7e047c0e0109dad0cfa57cab1ad906f4069fd58f361b80abd2de5854ba9a09b4c5d06d6a2c82108766f1f1527572fe6130deaa471
   languageName: node
   linkType: hard
 
@@ -11707,7 +11698,7 @@ __metadata:
     "@babel/runtime": "npm:^7.24.8"
     "@demos-europe/demosplan-ui": "npm:0.3.27"
     "@demos-europe/dp-consent": "npm:^1.1.2"
-    "@efrane/vuex-json-api": "github:eFrane/vuex-json-api#19c2354ad97c17bdda02358dc9ee4a2ffce181dd"
+    "@efrane/vuex-json-api": "github:eFrane/vuex-json-api#4b16e60c2d4992f46cebf7818b482891dbb37876"
     "@fullhuman/postcss-purgecss": "npm:^6.0.0"
     "@masterportal/masterportalapi": "npm:2.22.0"
     "@sentry/browser": "npm:^8.18.0"
