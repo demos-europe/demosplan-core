@@ -35,6 +35,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
 
 class AddonUninstallCommand extends CoreCommand
 {
@@ -77,7 +79,7 @@ class AddonUninstallCommand extends CoreCommand
             foreach ($addonsInfos as $addonInfo) {
                 $this->uninstallAddon($addonInfo, $output);
             }
-            $this->clearCache($output);
+            $this->clearCacheFolder($output);
             $output->success('All addons successfully uninstalled.');
 
             return self::SUCCESS;
@@ -234,5 +236,26 @@ class AddonUninstallCommand extends CoreCommand
         }
 
         $output->info('Cache successfully cleared.');
+    }
+
+    private function clearCacheFolder(SymfonyStyle $output): void
+    {
+        $kernel = $this->getApplication()->getKernel();
+        $environment = $kernel->getEnvironment();
+        /** @var DemosPlanKernel $kernel */
+        $activeProject = $kernel->getActiveProject();
+        $folderPath = '/tmp/dplan/'.$activeProject.'/cache/dev/*';
+        $command = 'rm -rf '.escapeshellarg($folderPath);
+
+        // Execute the command with automatic "yes" response
+        $process = new Process(['bash', '-c', "echo y | $command"]);
+        $output->info('Clearing cache by removing all files in the folder...');
+        $process->run();
+        // Check if the process was successful
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        $output->info('Cache folder successfully cleared.');
     }
 }
