@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
@@ -162,19 +163,32 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         $user = $user[0];
         $orga = $user->getOrga();
         $UserCustomer = $user->getCurrentCustomer();
+
         $x = [];
+        $allRejected = false;
         foreach ($orga->getStatusInCustomers() as $statusInCustomer)
         {
             if ($statusInCustomer->getCustomer() === $UserCustomer)
             {
                 $status = $statusInCustomer->getStatus();
+                $allRejected = $allRejected || $status !== 'rejected';
+                if ($statusInCustomer->getOrgaType() !== OrgaTypeInterface::DEFAULT)
+                {
+                    if ($status !=='accepted')
+                    {
+                        $x[]= OrgaTypeInterface::ORGATYPE_ROLE[$statusInCustomer->getOrgaType()->getName()];
+                    }
+
+                    if (in_array($user->getRoles(), $x))
+                    {
+
+                    }
+                }
 
             }
         }
 
-        $result = $status === 'accepted' ? true : false;
-
-       // return $orgaStatus === 'accepted' ? true : false;
+        return $status === 'accepted' ? true : false;
     }
 
     /**
