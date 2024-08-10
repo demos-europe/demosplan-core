@@ -1,4 +1,13 @@
-FROM demosplan-base AS fpm
+FROM debian:testing-20240722-slim AS fpmbase
+
+RUN apt update -y && apt --no-install-recommends install acl bind9-host composer curl gettext-base npm php8.2 php8.2-apcu php8.2-bcmath php8.2-bz2 php8.2-cli php8.2-common php8.2-curl php8.2-gd php8.2-intl php8.2-mbstring php8.2-mysqli php8.2-soap php8.2-sqlite3 php8.2-xml php8.2-zip unzip vim-tiny -y \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* && \
+    apt-get autoremove -y && \
+    apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN npm i --ignore-scripts -g yarn && rm -rf /root/.npm
 
 ARG PROJECT_NAME
 # ENV vars needs to be set to build the assets
@@ -6,13 +15,6 @@ ENV PROJECT_PREFIX=$PROJECT_NAME \
     EXTERNAL_LINK_DIPLAN_COCKPIT=http://temporary.de \
     EXTERNAL_LINK_DIPLAN_PORTAL=http://temporary.de
 
-# install default-mysql-client to be able to dump database
-RUN apt update -y && apt --no-install-recommends install default-mysql-client php8.2-fpm -y \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* && \
-    apt-get autoremove -y && \
-    apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
 COPY zzz-dplan.ini /etc/php/8.2/fpm/conf.d/zzz-dplan.ini
 COPY php-fpm_www.conf /etc/php/8.2/fpm/pool.d/zzz-www.conf
 
@@ -69,14 +71,45 @@ RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     ln -s /opt/config/parameters.yml /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     mkdir -p /srv/www/projects/$PROJECT_NAME/web/uploads/files && \
     chmod -R 775 /srv/www/projects/$PROJECT_NAME/web/uploads && \
-    mkdir -p /opt/uploads && \
     chown -R root:root /srv/www/projects/$PROJECT_NAME/web && \
     chown -R www-data /opt/uploads && \
     chown -R www-data /srv/www/projects/$PROJECT_NAME/web/uploads && \
     ## set facls for /tmp (trick the system) still needed?
     setfacl -dRm u:www-data:rwx /tmp
 
+FROM debian:testing-20240722-slim AS fpm
+
+RUN apt update -y && apt --no-install-recommends install default-mysql-client php8.2-fpm  acl bind9-host curl gettext-base php8.2 php8.2-apcu php8.2-bcmath php8.2-bz2 php8.2-cli php8.2-common php8.2-curl php8.2-gd php8.2-intl php8.2-mbstring php8.2-mysqli php8.2-soap php8.2-sqlite3 php8.2-xml php8.2-zip unzip vim-tiny -y \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* && \
+    apt-get autoremove -y && \
+    apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+
+ARG PROJECT_NAME
+
+# ENV vars needs to be set to build the assets
+ENV PROJECT_PREFIX=$PROJECT_NAME \
+    EXTERNAL_LINK_DIPLAN_COCKPIT=http://temporary.de \
+    EXTERNAL_LINK_DIPLAN_PORTAL=http://temporary.de
+
+COPY zzz-dplan-cli.ini /etc/php/8.2/cli/conf.d/zzz-dplan-cli.ini
+COPY zzz-dplan.ini /etc/php/8.2/fpm/conf.d/zzz-dplan.ini
+COPY php-fpm_www.conf /etc/php/8.2/fpm/pool.d/zzz-www.conf
+
+
+RUN mkdir -p /opt/uploads && mkdir /opt/config &&  \
+    chown -R www-data:www-data /opt/uploads && chown -R www-data:www-data /opt/config
+
+COPY --from=fpmbase /srv/www /srv/www
+COPY --from=fpmbase /opt/config/parameters.yml /opt/config/parameters.yml
+COPY --from=fpmbase --chown=www-data /opt/uploads /opt/uploads
+COPY --from=fpmbase --chown=www-data /srv/www/projects/$PROJECT_NAME/web/uploads /srv/www/projects/$PROJECT_NAME/web/uploads
+
 RUN touch /var/log/php8.2-fpm.log && chown www-data:www-data /var/log/php8.2-fpm.log
+
+WORKDIR /srv/www
 
 EXPOSE 9000
 # run as rootless container
