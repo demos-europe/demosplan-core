@@ -42,8 +42,15 @@ USER root
 COPY . /srv/www
 
 # set permissions needed during build
-RUN mkdir -p /srv/www/projects/$PROJECT_NAME/web/{js,fonts,images,video} && \
-    chown -R www-data /srv/www/projects/$PROJECT_NAME/web
+RUN mkdir -p /srv/www/projects/$PROJECT_NAME/web/js && \
+    mkdir -p /srv/www/projects/$PROJECT_NAME/web/fonts && \
+    mkdir -p /srv/www/projects/$PROJECT_NAME/web/images && \
+    mkdir -p /srv/www/projects/$PROJECT_NAME/web/video && \
+    mkdir -p /srv/www/projects/$PROJECT_NAME/app/cache && \
+    mkdir -p /srv/www/projects/$PROJECT_NAME/app/logs && \
+    chown -R www-data /srv/www/projects/$PROJECT_NAME/web && \
+    chown -R www-data /srv/www/projects/$PROJECT_NAME/app/cache && \
+    chown -R www-data /srv/www/projects/$PROJECT_NAME/app/logs
 
 USER www-data
 RUN DEVELOPMENT_CONTAINER=1 ./fe build $PROJECT_NAME && rm -rf /srv/www/node_modules && rm -rf /srv/www/.cache
@@ -57,8 +64,9 @@ RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     mkdir -p /srv/www/projects/$PROJECT_NAME/web/uploads/files && \
     chmod -R 775 /srv/www/projects/$PROJECT_NAME/web/uploads && \
     mkdir -p /opt/uploads && \
+    chown -R root:root /srv/www/projects/$PROJECT_NAME/web && \
     chown -R www-data /opt/uploads && \
-    chown -R root /srv/www/projects/$PROJECT_NAME/web && \
+    chown -R www-data /srv/www/projects/$PROJECT_NAME/web/uploads && \
     ## set facls for /tmp (trick the system) still needed?
     setfacl -dRm u:www-data:rwx /tmp
 
