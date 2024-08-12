@@ -134,7 +134,7 @@
         <i
           class="fa fa-pencil u-mr-0_5"
           aria-hidden="true"
-          :title="Translator.trans('edit')" /><span class="hide-visually">{{ Translator.trans('edit') }}</span>
+          :title="Translator.trans('edit')" /><span class="sr-only">{{ Translator.trans('edit') }}</span>
       </a>
       <button
         v-if="childElements.length <= 0"
@@ -144,7 +144,7 @@
         @click.prevent="deleteElement">
         <i
           class="fa fa-trash"
-          aria-hidden="true" /><span class="hide-visually">{{ Translator.trans('delete') }}</span>
+          aria-hidden="true" /><span class="sr-only">{{ Translator.trans('delete') }}</span>
         </button>
       </div>
     </div>

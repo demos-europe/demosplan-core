@@ -13,7 +13,11 @@ declare(strict_types=1);
 namespace Tests\Core\Statement\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\CountyFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\MunicipalityFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\PriorityAreaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementAttributeFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
@@ -47,25 +51,6 @@ class StatementDeleterTest extends FunctionalTestCase
         $this->logIn($user);
     }
 
-    public function testEmtpyInternIdOfOriginalInCaseOfDeleteLastChild(): void
-    {
-        self::markTestSkipped('This test was skipped because of pre-existing errors. They are most likely easily fixable but prevent us from getting to a usable state of our CI.');
-
-        $this->enablePermissions(['feature_auto_delete_original_statement']);
-
-        $testStatement = $this->getStatementReference('testStatementWithInternID');
-        $testStatementId = $testStatement->getId();
-        $relatedOriginal = $testStatement->getOriginal();
-        static::assertInstanceOf(Statement::class, $relatedOriginal);
-        static::assertNotNull($testStatement->getInternId());
-        static::assertNotNull($relatedOriginal->getInternId());
-        static::assertCount(1, $testStatement->getOriginal()->getChildren());
-
-        $this->sut->deleteStatementObject($testStatement);
-        static::assertNull($this->find(Statement::class, $testStatementId));
-        static::assertNull($relatedOriginal->getInternId());
-    }
-
     public function testDoNotEmtpyInternIdOfOriginalInCaseOfDeleteLastChild(): void
     {
         $this->enablePermissions(['feature_auto_delete_original_statement']);
@@ -88,8 +73,6 @@ class StatementDeleterTest extends FunctionalTestCase
 
     public function testDeleteStatementButNotCopyOfStatement(): void
     {
-        self::markSkippedForCIElasticsearchUnavailable();
-
         $testStatement2 = $this->getStatementReference('testStatement2');
         $testStatementId = $testStatement2->getId();
 
@@ -146,8 +129,6 @@ class StatementDeleterTest extends FunctionalTestCase
 
     public function testDeleteStatement(): void
     {
-        self::markSkippedForCIElasticsearchUnavailable();
-
         $testTag1 = $this->getTagReference('testFixtureTag_1');
         $testStatement2 = $this->getStatementReference('testStatement2');
         static::assertInstanceOf(StatementMeta::class, $testStatement2->getMeta());
@@ -184,14 +165,34 @@ class StatementDeleterTest extends FunctionalTestCase
         );
     }
 
-    // test DB-sited onDelete:Cascade
-    // will only work if cascading in sqlite enabled
+    /**
+     * Tests the database-side cascading delete functionality.
+     *
+     * This test verifies that when a `Statement` object is deleted, related entities such as
+     * `StatementAttribute` are also deleted via database-side cascading, while other related entities
+     * like `County`, `Municipality`, and `PriorityArea` remain unaffected in the database.
+     *
+     * The test creates a `Statement` object linked with one each of `County`, `Municipality`,
+     * `PriorityArea`, and `StatementAttribute`. It then deletes the `Statement` object and checks:
+     * - The related `StatementAttribute` is also deleted (verifying cascading delete).
+     * - The counts of `County`, `Municipality`, and `PriorityArea` entities in the database remain unchanged,
+     *   indicating they are not deleted (verifying non-cascading behavior for these entities).
+     */
     public function testDBSitedCasading(): void
     {
-        // No cascading on sqlite
-        self::markSkippedForCIElasticsearchUnavailable();
+        $originalStatement = StatementFactory::createOne();
+        $county = CountyFactory::createOne();
+        $municipality = MunicipalityFactory::createOne();
+        $priorityArea = PriorityAreaFactory::createOne();
 
-        $testStatement = $this->getStatementReference('testStatement');
+        $testStatement = StatementFactory::createOne([
+            'counties'       => [$county],
+            'municipalities' => [$municipality],
+            'priorityAreas'  => [$priorityArea],
+            'original'       => $originalStatement]);
+
+        $statementAttribute = StatementAttributeFactory::createOne(['statement' => $testStatement]);
+
         $countiesOfStatement = $testStatement->getCounties();
         $municipalitiesOfStatement = $testStatement->getMunicipalities();
         $priorityAreasOfStatement = $testStatement->getPriorityAreas();
@@ -211,7 +212,7 @@ class StatementDeleterTest extends FunctionalTestCase
         static::assertInstanceOf(StatementAttribute::class, $attributesOfStatement[0]);
 
         // delete Statement
-        $result = $this->sut->deleteStatementObject($testStatement);
+        $result = $this->sut->deleteStatementObject($testStatement->_real());
         static::assertTrue($result);
 
         // still the same of amount of counties/municipalities/priorityAreas in the DB
@@ -241,8 +242,6 @@ class StatementDeleterTest extends FunctionalTestCase
      */
     public function testDeleteAssignedStatement(): void
     {
-        self::markSkippedForCIElasticsearchUnavailable();
-
         $this->enablePermissions(['feature_statement_assignment']);
         $currentUser = $this->loginTestUser();
 
@@ -270,7 +269,6 @@ class StatementDeleterTest extends FunctionalTestCase
 
     public function testDeleteLockedStatement(): void
     {
-        self::markSkippedForCIElasticsearchUnavailable();
         $this->enablePermissions(['feature_statement_assignment']);
         $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
 
@@ -288,9 +286,11 @@ class StatementDeleterTest extends FunctionalTestCase
 
     public function testDeleteUnLockedStatement(): void
     {
-        self::markSkippedForCIElasticsearchUnavailable();
+        $originalStatement = StatementFactory::createOne();
+        $testStatement = StatementFactory::createOne(['original' => $originalStatement]);
+
         $this->enablePermissions(['feature_statement_assignment']);
-        $statementId = $this->getStatementReference('testStatement1')->getId();
+        $statementId = $testStatement->getId();
         $statement = $this->statementService->getStatement($statementId);
         static::assertNull($statement->getAssignee());
 

@@ -59,12 +59,13 @@
       @click="$emit('edit-segment', segment.id)" />
     <addon-wrapper
       :addon-props="{
+        class: 'mt-1',
         segmentStatus: segment.status
       }"
+      class="inline-block"
       hook-name="split.statement.buttons"
       @segment:confirm="$emit('segment:confirm', segment.id)" />
     <dp-button-icon
-      class="u-ml-0_25"
       icon="fa-trash"
       :text="Translator.trans('selection.tags.discard')"
       @click="$emit('delete-segment', segment.id)" />

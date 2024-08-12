@@ -38,6 +38,7 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
+use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
 use Doctrine\ORM\EntityNotFoundException;
@@ -60,6 +61,7 @@ class StatementCopier extends CoreService
         private readonly CurrentUserInterface $currentUser,
         private readonly ElementsService $elementService,
         private readonly FileService $fileService,
+        private readonly FileContainerRepository $fileContainerRepository,
         IndexManager $elasticsearchIndexManager,
         private readonly MessageBagInterface $messageBag,
         private readonly PermissionsInterface $permissions,

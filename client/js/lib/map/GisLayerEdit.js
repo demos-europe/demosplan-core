@@ -56,7 +56,7 @@ export default () => {
   ]
 
   // Check if base layer and disable user toggling on load
-  if (document.querySelector('input[name="r_type"][value="base"]').checked) {
+  if (document.querySelector('input[name="r_type"][value="base"]')?.checked) {
     elementsHiddenForBaseMap.forEach((element) => {
       disableNode(element.node, element.defaultValue)
     })
