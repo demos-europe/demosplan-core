@@ -241,7 +241,6 @@ class AddonUninstallCommand extends CoreCommand
     private function clearCacheFolder(SymfonyStyle $output): void
     {
         $kernel = $this->getApplication()->getKernel();
-        $environment = $kernel->getEnvironment();
         /** @var DemosPlanKernel $kernel */
         $activeProject = $kernel->getActiveProject();
         $folderPath = '/tmp/dplan/'.$activeProject.'/cache/dev/*';
