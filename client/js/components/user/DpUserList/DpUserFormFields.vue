@@ -197,6 +197,7 @@ export default {
 
   data () {
     return {
+      allowedRolesForOrga: [],
       currentUserOrga: {
         id: '',
         name: '',
@@ -231,24 +232,6 @@ export default {
     ...mapGetters('UserFormFields', {
       initialOrgaSuggestions: 'getOrgaSuggestions'
     }),
-
-    /**
-     * - user is not set: all roles
-     * - user is set: roles for current organisation
-     */
-    allowedRolesForOrga () {
-      let allowedRoles
-
-      if (this.currentUserOrga.id === '') {
-        allowedRoles = this.rolesInRelationshipFormat
-      } else if (this.organisations[this.currentUserOrga.id].relationships?.allowedRoles?.data) {
-        allowedRoles = Object.values(this.organisations[this.currentUserOrga.id].relationships.allowedRoles.list())
-      } else {
-        allowedRoles = this.getOrgaAllowedRoles(this.currentUserOrga.id)
-      }
-
-      return allowedRoles
-    },
 
     currentOrgaDepartments () {
       const departments = sortAlphabetically(Object.values(this.currentUserOrga.departments), 'name')
@@ -344,6 +327,24 @@ export default {
       return dpApi.get(url, { include: ['allowedRoles', 'departments'].join() })
     },
 
+    /**
+     * - user is not set: all roles
+     * - user is set: roles for current organisation
+     */
+    getAllowedRolesForOrga () {
+      let allowedRoles
+
+      if (this.currentUserOrga.id === '') {
+        allowedRoles = this.rolesInRelationshipFormat
+      } else if (this.organisations[this.currentUserOrga.id].relationships?.allowedRoles?.data) {
+        allowedRoles = Object.values(this.organisations[this.currentUserOrga.id].relationships.allowedRoles.list())
+      } else {
+        allowedRoles = this.getOrgaAllowedRoles(this.currentUserOrga.id)
+      }
+
+      return allowedRoles
+    },
+
     getOrgaAllowedRoles (orgaId) {
       let allowedRoles = this.rolesInRelationshipFormat
 
@@ -364,9 +365,13 @@ export default {
     handleUndefinedRelationships (types) {
       types.forEach(type => {
         if (typeof this.localUser.relationships[type] === 'undefined' || this.localUser.relationships[type] === null) {
-          this.localUser.relationships[type] = {
-            data: {
-              id: ''
+          if (type === 'roles') {
+            this.localUser.relationships[type] = {
+              data: []
+            }
+          } else {
+            this.localUser.relationships[type] = {
+              data: {}
             }
           }
         }
@@ -410,7 +415,7 @@ export default {
       this.localUser.relationships.department.data = { id: defaultDepartment.id, type: defaultDepartment.type }
     },
 
-    setInitialOrgaData () {
+    async setInitialOrgaData () {
       /*
        * Fetch organisation only
        * - in DpUserListItem (= isUserSet), not in DpCreateItem (= isUserSet === false)
@@ -424,6 +429,8 @@ export default {
             }
           })
       }
+
+      this.allowedRolesForOrga = await this.getAllowedRolesForOrga()
     },
 
     setOrganisationDepartments (departments) {
@@ -496,7 +503,7 @@ export default {
 
   created () {
     this.localUser = JSON.parse(JSON.stringify(this.user))
-    this.handleUndefinedRelationships(['orga', 'department'])
+    this.handleUndefinedRelationships(['orga', 'department', 'roles'])
   },
 
   mounted () {

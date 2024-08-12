@@ -1713,7 +1713,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             return false;
         }
 
-        return $this->statementCopier->copyStatementObjectWithinProcedure($statementObject, $createReport);
+        return $this->statementCopier->copyStatementObjectWithinProcedureWithRelatedFiles($statementObject, $createReport);
     }
 
     /**
