@@ -193,7 +193,7 @@ class DemosPlanAssessmentController extends BaseController
                     $statementHandler->addStatementToCluster($headStatement, $newStatement->getChildren()[0], true, true);
                 }
                 $filterSet = $assessmentHandler->handleFilterHash($request, $procedureId);
-                $routeName = $currentUser->getUser()->hasRole(Role::PROCEDURE_DATA_INPUT) ?
+                $routeName = $isDataInput ?
                     'DemosPlan_statement_orga_list' : 'dplan_assessmenttable_view_table';
                 $routeParameters = 'DemosPlan_statement_orga_list' === $routeName ?
                     [

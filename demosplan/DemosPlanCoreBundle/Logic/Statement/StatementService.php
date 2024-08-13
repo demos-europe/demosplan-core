@@ -427,14 +427,16 @@ class StatementService extends CoreService implements StatementServiceInterface
         $statementCreatedEvent = $this->eventDispatcher->dispatch(new ManualOriginalStatementCreatedEvent($statement));
 
         if (null !== $statementCreatedEvent) {
-            $this->messageBag->addObject(LinkMessageSerializable::createLinkMessage(
-                'confirm',
-                'confirm.statement.new',
-                ['externId' => $statementCreatedEvent->getStatement()->getExternId()],
-                'dplan_procedure_statement_list',
-                ['procedureId' => $statementCreatedEvent->getStatement()->getProcedure()->getId()],
-                $statementCreatedEvent->getStatement()->getExternId()
-            ));
+            if ($this->permissions->hasPermission('area_admin_statement_list')) {
+                $this->messageBag->addObject(LinkMessageSerializable::createLinkMessage(
+                    'confirm',
+                    'confirm.statement.new',
+                    ['externId' => $statementCreatedEvent->getStatement()->getExternId()],
+                    'dplan_procedure_statement_list',
+                    ['procedureId' => $statementCreatedEvent->getStatement()->getProcedure()->getId()],
+                    $statementCreatedEvent->getStatement()->getExternId()
+                ));
+            }
         }
 
         // statement similarities are calculated?

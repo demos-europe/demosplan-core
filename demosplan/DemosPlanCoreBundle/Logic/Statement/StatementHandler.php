@@ -2888,52 +2888,10 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 }
 
                 /** @var ManualStatementCreatedEvent $assessableStatementEvent */
-                $assessableStatementEvent = $this->eventDispatcher->dispatch(
+                $this->eventDispatcher->dispatch(
                     new ManualStatementCreatedEvent($assessableStatement),
                     ManualStatementCreatedEventInterface::class
                 );
-                $assessableStatement = $assessableStatementEvent->getStatement();
-
-                $routeName = 'dm_plan_assessment_single_view';
-                $routeParameters = ['procedureId' => $newOriginalStatement->getProcedureId(), 'statement' => $assessableStatement->getId()];
-
-                if ('' != ($originalStatement['headStatementId'] ?? '')) {
-                    $routeName = 'DemosPlan_cluster_single_statement_view';
-                    $routeParameters = ['procedure' => $newOriginalStatement->getProcedureId(), 'statementId' => $assessableStatement->getId()];
-                }
-
-                if ($isDataInput) {
-                    $routeName = 'DemosPlan_statement_single_view';
-                    $routeParameters = ['procedureId' => $newOriginalStatement->getProcedureId(), 'statementId' => $newOriginalStatement->getId()];
-                }
-
-                if ($this->permissions->hasPermission('feature_segments_of_statement_list')) {
-                    $routeName = 'dplan_statement_segments_list';
-                    $routeParameters = ['procedureId' => $newOriginalStatement->getProcedureId(), 'statementId' => $assessableStatement->getId(), 'action' => 'editText'];
-                }
-
-                // check for permission to avoid link to an unreachable area
-                if ($this->permissions->hasPermission('area_admin_assessmenttable')
-                    || $this->permissions->hasPermission('feature_segments_of_statement_list')
-                    || $this->permissions->hasPermission('feature_statement_data_input_orga')) {
-                    // success messages with link to created statement
-                    $this->getMessageBag()->addObject(LinkMessageSerializable::createLinkMessage(
-                        'confirm',
-                        'confirm.statement.new',
-                        ['externId' => $assessableStatement->getExternId()],
-                        $routeName,
-                        $routeParameters,
-                        $assessableStatement->getExternId())
-                    );
-                } else {
-                    $this->messageBag->add(
-                        'confirm',
-                        'confirm.statement.new',
-                        ['externId' => $assessableStatement->getExternId()]
-                    );
-                }
-            } else {
-                $this->getMessageBag()->add('error', 'error.save');
             }
         } catch (Exception $e) {
             $this->getMessageBag()->add('error', 'error.save');
