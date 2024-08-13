@@ -192,28 +192,7 @@ class DemosPlanAssessmentController extends BaseController
                 if (null !== $headStatement) {
                     $statementHandler->addStatementToCluster($headStatement, $newStatement->getChildren()[0], true, true);
                 }
-                $filterSet = $assessmentHandler->handleFilterHash($request, $procedureId);
-                $routeName = $isDataInput ?
-                    'DemosPlan_statement_orga_list' : 'dplan_assessmenttable_view_table';
-                $routeParameters = 'DemosPlan_statement_orga_list' === $routeName ?
-                    [
-                        'procedureId' => $procedureId,
-                    ] :
-                    [
-                        'procedureId' => $procedureId,
-                        'filterHash'  => $filterSet->getHash(),
-                        '_fragment'   => $request->query->get('fragment', ''),
-                    ];
                 if ($newStatement instanceof Statement) {
-                    $this->getMessageBag()->addObject(LinkMessageSerializable::createLinkMessage(
-                        'confirm',
-                        'confirm.statement.new',
-                        ['externId' => $newStatement->getExternId()],
-                        $routeName,
-                        $routeParameters,
-                        $newStatement->getExternId()
-                    ));
-
                     return $this->redirectToRoute(
                         'DemosPlan_statement_new_submitted',
                         ['procedureId' => $procedureId]
