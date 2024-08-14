@@ -173,7 +173,26 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
 
                     return $this->redirectToRoute('core_home');
                 }
-                $this->userHandler->recoverPasswordHandler($email);
+
+                $user = $this->userService->getUserByFields(['email' => $email]);
+
+                if (count($user) === 0) {
+                    $this->logger->error(
+                        "Couldn't find distinct user with given Email address for recover",
+                        ['email' => $email, 'found' => count($user)]
+                    );
+                    $this->messageBag->add("warning", "Ihre Email oder Passwort ist inkorrekt");
+
+                    return $this->redirectToRoute('core_home');
+                }
+
+                if (reset($user) instanceof User && reset($user)->getPassword() === null) {
+                    $this->messageBag->add('warning', 'error.user.registration.password');
+
+                    return $this->redirectToRoute('core_home');
+                }
+
+                $this->userHandler->recoverPasswordHandler(reset($user));
             }
         }
 
