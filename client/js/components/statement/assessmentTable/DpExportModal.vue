@@ -59,8 +59,7 @@
                 }"
                 name="pdfAnonymous"
                 value="anonymous"
-                v-model="exportChoice.pdf.anonymous"
-                />
+                v-model="exportChoice.pdf.anonymous" />
             </fieldset>
 
             <fieldset
@@ -82,7 +81,7 @@
                 name="pdfTemplate"
                 :value="identifier"
                 :checked="exportChoice.pdf.template === identifier"
-                @change="exportChoice.pdf.template = identifier"/>
+                @change="exportChoice.pdf.template = identifier" />
             </fieldset>
 
             <fieldset
@@ -100,8 +99,7 @@
                 name="pdfExportType"
                 value="statementsOnly"
                 :checked="exportChoice.pdf.exportType === 'statementsOnly'"
-                @change="exportChoice.pdf.exportType = 'statementsOnly'"
-              />
+                @change="exportChoice.pdf.exportType = 'statementsOnly'" />
               <DpRadio
                 id="pdfExportTypeStatementsAndFragments"
                 :label="{
@@ -112,8 +110,7 @@
                 name="pdfExportType"
                 value="statementsAndFragments"
                 :checked="exportChoice.pdf.exportType === 'statementsAndFragments'"
-                @change="exportChoice.pdf.exportType = 'statementsAndFragments'"
-              />
+                @change="exportChoice.pdf.exportType = 'statementsAndFragments'" />
             </fieldset>
 
             <p
@@ -199,8 +196,7 @@
                 }"
                 value="statementsAndFragments"
                 :checked="exportChoice.docx.exportType === 'statementsAndFragments'"
-                @change="() => handleDocxExportTypeChange('statementsAndFragments')"
-              />
+                @change="() => handleDocxExportTypeChange('statementsAndFragments')" />
             </fieldset>
 
             <!--choose sorting type-->
