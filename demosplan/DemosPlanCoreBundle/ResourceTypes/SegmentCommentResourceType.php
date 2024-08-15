@@ -96,7 +96,7 @@ final class SegmentCommentResourceType extends DplanResourceType
             $configBuilder->place->addConstructorBehavior(ToOneRelationshipConstructorBehavior::createFactory(null, [], null, OptionalField::NO));
             $configBuilder->segment
                 ->setRelationshipType($this->resourceTypeStore->getStatementSegmentResourceType())
-                ->$configBuilder->submitter->addConstructorBehavior(ToOneRelationshipConstructorBehavior::createFactory(null, [], null, OptionalField::NO));
+                ->addConstructorBehavior(ToOneRelationshipConstructorBehavior::createFactory(null, [], null, OptionalField::NO));
 
             $configBuilder->text->addConstructorBehavior(AttributeConstructorBehavior::createFactory(null, OptionalField::NO, null));
 
