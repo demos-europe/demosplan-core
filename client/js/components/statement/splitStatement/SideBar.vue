@@ -52,7 +52,7 @@
 
       <div
         v-else
-        class="flex flex-col w-12">
+        class="flex flex-col w-full">
         <div>
           <!-- search available tags -->
           <search-select
