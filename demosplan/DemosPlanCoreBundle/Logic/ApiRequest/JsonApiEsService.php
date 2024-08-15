@@ -170,7 +170,7 @@ class JsonApiEsService implements JsonApiEsServiceInterface
         $esIds = array_column($esResultArrays, 'id');
         $condition = [] === $esIds
             ? $this->conditionFactory->false()
-            : $this->conditionFactory->propertyHasAnyOfValues($esIds, [$resourceType->id]);
+            : $this->conditionFactory->propertyHasAnyOfValues($esIds, $resourceType->id);
         /*  $condition = $this->conditionFactory->propertyHasAnyOfValues(
               $esIds,
               $resourceType->id

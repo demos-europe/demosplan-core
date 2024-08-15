@@ -84,11 +84,11 @@ class ReportEntryResourceType extends DplanResourceType
             // $this->conditionFactory->propertyHasAnyOfValues($this->getGroups(), $this->group),
             [] === $this->getGroups()
                 ? $this->conditionFactory->false()
-                : $this->conditionFactory->propertyHasAnyOfValues($this->getGroups(), [$this->group]),
+                : $this->conditionFactory->propertyHasAnyOfValues($this->getGroups(), $this->group),
             // $this->conditionFactory->propertyHasAnyOfValues($this->getCategories(), $this->category),
             [] === $this->getCategories()
                 ? $this->conditionFactory->false()
-                : $this->conditionFactory->propertyHasAnyOfValues($this->getCategories(), [$this->category]),
+                : $this->conditionFactory->propertyHasAnyOfValues($this->getCategories(), $this->category),
             $this->conditionFactory->propertyHasValue($customer->getId(), $this->customer->id),
         ];
     }

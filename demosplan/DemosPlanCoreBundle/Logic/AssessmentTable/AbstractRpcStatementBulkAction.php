@@ -168,7 +168,7 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
     {
         $idCondition = [] === $statementIds
             ? $this->conditionFactory->false()
-            : $this->conditionFactory->propertyHasAnyOfValues($statementIds, [$this->statementResourceType->id]);
+            : $this->conditionFactory->propertyHasAnyOfValues($statementIds, $this->statementResourceType->id);
         /*$idCondition = $this->conditionFactory->propertyHasAnyOfValues(
             $statementIds,
             $this->statementResourceType->id

@@ -72,7 +72,7 @@ final class RoleResourceType extends DplanResourceType
 
         return [[] === $projectRoleCodes
             ? $this->conditionFactory->false()
-            : $this->conditionFactory->propertyHasAnyOfValues($projectRoleCodes, [$this->code])];
+            : $this->conditionFactory->propertyHasAnyOfValues($projectRoleCodes, $this->code)];
     }
 
     protected function getProperties(): array

@@ -136,7 +136,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             ),*/
             [] === $allowedProcedureIds
                 ? $this->conditionFactory->false()
-                : $this->conditionFactory->propertyHasAnyOfValues($allowedProcedureIds, [$pathStartResourceType->procedure->id]),
+                : $this->conditionFactory->propertyHasAnyOfValues($allowedProcedureIds, $pathStartResourceType->procedure->id),
         ];
         if (!$allowOriginals) {
             // Normally the path to the relationship would suffice for a NULL check, but the ES

@@ -70,7 +70,7 @@ final class AssignableUserResourceType extends DplanResourceType
             // return [$this->conditionFactory->propertyHasAnyOfValues($authorizedUserIds, $this->id)];
             return [] === $authorizedUserIds
                 ? [$this->conditionFactory->false()]
-                : [$this->conditionFactory->propertyHasAnyOfValues($authorizedUserIds, [$this->id])];
+                : [$this->conditionFactory->propertyHasAnyOfValues($authorizedUserIds, $this->id)];
         }
 
         return [$this->conditionFactory->false()];

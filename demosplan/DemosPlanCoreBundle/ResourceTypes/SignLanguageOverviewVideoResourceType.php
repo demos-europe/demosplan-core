@@ -96,7 +96,7 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType
             ->getValues();
         $customerCondition = [] === $currentCustomerVideoIds
             ? $this->conditionFactory->false()
-            : $this->conditionFactory->propertyHasAnyOfValues($currentCustomerVideoIds, [Paths::video()->id]);
+            : $this->conditionFactory->propertyHasAnyOfValues($currentCustomerVideoIds, Paths::video()->id);
 
         $configBuilder = $this->getConfig(BaseVideoResourceConfigBuilder::class);
 

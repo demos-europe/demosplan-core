@@ -779,7 +779,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
                 $this->conditionFactory->propertyHasValue($procedureId, $this->elementResourceType->procedure->id),
                 [] === $elementIdsToSwitch
                     ? $this->conditionFactory->false()
-                    : $this->conditionFactory->propertyHasAnyOfValues($elementIdsToSwitch, [$this->elementResourceType->id]),
+                    : $this->conditionFactory->propertyHasAnyOfValues($elementIdsToSwitch, $this->elementResourceType->id),
                 // $this->conditionFactory->propertyHasAnyOfValues($elementIdsToSwitch, $this->elementResourceType->id),
                 $this->conditionFactory->propertyHasValue(!$designatedState, $this->elementResourceType->enabled),
             );
