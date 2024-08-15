@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
@@ -23,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableExporterStrategy;
+use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\ExportParameters;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Exception;
 use Psr\Log\InvalidArgumentException;
@@ -75,7 +77,7 @@ class DemosPlanAssessmentExportController extends BaseController
         }
         $exportParameters = $this->getExportParameters($request, $procedureId, $original);
         try {
-            $file = $assessmentExporter->export($exportFormat, $exportParameters);
+            $file = $assessmentExporter->export($exportFormat, $exportParameters->toArray());
 
             $response = $responseGenerator($exportFormat, $file);
         } catch (AssessmentTableZipExportException $e) {
@@ -93,65 +95,43 @@ class DemosPlanAssessmentExportController extends BaseController
 
     /**
      * @throws InvalidPostParameterTypeException
+     * @throws JsonException
      */
-    private function getExportParameters(Request $request, string $procedureId, bool $original): array
+    private function getExportParameters(Request $request, string $procedureId, bool $original): ExportParameters
     {
-        $parameters = $this->assessmentHandler->getFormValues($request->request->all());
-        $parameters['request']['limit'] = 1_000_000;
-        $parameters['searchFields'] = explode(',', (string) $request->request->get('searchFields'));
-        $parameters['exportFormat'] = $request->request->get('r_export_format');
-        $parameters['procedureId'] = $procedureId;
-        $parameters['original'] = $original;
+        $exportParameters = new ExportParameters();
+        $exportParameters->setFormValues($this->assessmentHandler->getFormValues($request->request->all()));
+        $exportParameters->setRequestLimit(1_000_000);
+        $exportParameters->setSearchFields(
+            explode(',', (string) $request->request->get('searchFields'))
+        );
+        $exportParameters->setExportFormat($request->request->get('r_export_format'));
+        $exportParameters->setProcedureId($procedureId);
+        $exportParameters->setIsOriginalStatementExport($original);
         $exportChoice = Json::decodeToArray($request->request->get('r_export_choice'));
-        $parameters['anonymous'] = array_key_exists('anonymous', $exportChoice)
-            ? $exportChoice['anonymous']
-            : true;
-        $parameters['exportType'] = array_key_exists('exportType', $exportChoice)
-            ? $exportChoice['exportType']
-            : 'statementsOnly';
-        $parameters['template'] = array_key_exists('template', $exportChoice)
-            ? $exportChoice['template']
-            : 'portrait';
-        $parameters['sortType'] = array_key_exists('sortType', $exportChoice)
-            ? $exportChoice['sortType']
-            : AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT;
+        if (array_key_exists('anonymous', $exportChoice)) {
+            $exportParameters->setAnonymous($exportChoice['anonymous']);
+        }
+        if (array_key_exists('exportType', $exportChoice)) {
+            $exportParameters->setExportType($exportChoice['exportType']);
+        }
+        if (array_key_exists('template', $exportChoice)) {
+            $exportParameters->setTemplate($exportChoice['template']);
+        }
+        if (array_key_exists('sortType', $exportChoice)) {
+            $exportParameters->setSortType($exportChoice['sortType']);
+        }
         try {
-            $parameters['viewMode'] = $this->getStringParameter($request, 'r_view_mode');
+            $viewMode = $this->getStringParameter($request, 'r_view_mode');
         } catch (MissingPostParameterException) {
-            $parameters['viewMode'] = AssessmentTableViewMode::DEFAULT_VIEW;
+            $viewMode = AssessmentTableViewMode::DEFAULT_VIEW;
         }
-        if (AssessmentTableViewMode::ELEMENTS_VIEW === $parameters['viewMode']) {
-            $parameters['sort'] = ToBy::createArray('elementsView', 'desc');
-        }
-
-        $this->validateParameters($parameters, $procedureId);
-
-        return $parameters;
-    }
-
-    /**
-     * @throws InvalidArgumentException
-     */
-    private function validateParameters(array $parameters, string $procedureId): void
-    {
-        $error = false;
-        $expectedParameters = [
-            'procedureId', 'anonymous', 'exportType', 'template', 'original', 'viewMode',
-        ];
-        foreach ($expectedParameters as $expectedParameter) {
-            if (!isset($parameters[$expectedParameter])) {
-                $this->logger->error("Missing parameter $expectedParameter");
-            }
+        if (AssessmentTableViewMode::ELEMENTS_VIEW === $viewMode) {
+            $exportParameters->setSort(ToBy::createArray('elementsView', 'desc'));
         }
 
-        if ($parameters['procedureId'] !== $procedureId) {
-            $msg = 'Received id #'.$parameters['procedureId'];
-            $msg .= ' does not match current Procedure Id #'.$procedureId;
-            $this->logger->error($msg);
-        }
+        $exportParameters->setViewMode($viewMode);
 
-        if ($error) {
-            throw new InvalidArgumentException('Internal error');
-        }
+        return $exportParameters->lock();
     }
 }
