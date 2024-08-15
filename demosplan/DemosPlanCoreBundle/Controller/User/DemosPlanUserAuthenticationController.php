@@ -180,7 +180,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
                         "Couldn't find distinct user with given Email address for recover",
                         ['email' => $email, 'found' => count($user)]
                     );
-                    $this->messageBag->add("warning", "error.user.login");
+                    $this->messageBag->add('warning', 'error.user.login');
 
                     return $this->redirectToRoute('core_home');
                 }
