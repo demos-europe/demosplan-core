@@ -48,14 +48,14 @@ class ExportParameters extends ValueObject
     protected int $requestLimit;
     protected array $searchFields;
     protected string $exportFormat;
-    protected ?string $procedureId;
+    protected ?string $procedureId = null;
     protected bool $isOriginalStatementExport;
     protected bool $anonymous = true;
     protected string $exportType = 'statementsOnly';
     protected string $template = 'portrait';
     protected string $sortType = AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT;
     protected string $viewMode;
-    protected ?array $sort;
+    protected ?array $sort = null;
 
     public function toArray(): array
     {
