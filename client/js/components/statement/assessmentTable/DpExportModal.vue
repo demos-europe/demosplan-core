@@ -69,14 +69,15 @@
                 class="sr-only"
                 v-text="Translator.trans('export.format')" />
               <dp-radio
-                v-for="(templateInfo, identifier) in pdfTemplateOptions"
+                v-for="(identifier, index) in Object.keys(pdfTemplateOptions)"
                 :key="identifier"
+                :class="{ 'mb-1': index !== Object.keys(pdfTemplateOptions).length - 1 }"
                 :id="`pdfTemplate_${identifier}`"
                 :data-cy="`exportModal:pdfTemplate_${identifier}`"
                 :label="{
                   bold: true,
-                  hint: templateInfo.explanation ?? '',
-                  text: Translator.trans(templateInfo.name)
+                  hint: pdfTemplateOptions[identifier].explanation ?? '',
+                  text: Translator.trans(pdfTemplateOptions[identifier].name)
                 }"
                 name="pdfTemplate"
                 :value="identifier"
@@ -91,6 +92,7 @@
                 class="sr-only"
                 v-text="Translator.trans('export.data')" />
               <dp-radio
+                class="mb-1"
                 id="pdfExportTypeStatementsOnly"
                 :label="{
                   bold: true,
@@ -157,14 +159,15 @@
                 class="sr-only"
                 v-text="Translator.trans('export.format')" />
               <dp-radio
-                v-for="(templateInfo, identifier) in docxTemplateOptions"
+                v-for="(identifier, index) in Object.keys(docxTemplateOptions)"
                 :key="identifier"
+                :class="{ 'mb-1': index !== Object.keys(docxTemplateOptions).length - 1 }"
                 :id="`docxTemplate_${identifier}`"
                 :data-cy="`exportModal:docxTemplate_${identifier}`"
                 :label="{
                   bold: true,
-                  hint: templateInfo.explanation ? Translator.trans(templateInfo.explanation) : '',
-                  text: Translator.trans(templateInfo.name)
+                  hint: docxTemplateOptions[identifier].explanation ? Translator.trans(docxTemplateOptions[identifier].explanation) : '',
+                  text: Translator.trans(docxTemplateOptions[identifier].name)
                 }"
                 name="docxTemplate"
                 :value="identifier"
@@ -179,6 +182,7 @@
                 class="sr-only"
                 v-text="Translator.trans('export.data')" />
               <dp-radio
+                class="mb-1"
                 id="docxExportTypeStatementsOnly"
                 :label="{
                   bold: true,
@@ -207,6 +211,7 @@
                 class="sr-only"
                 v-text="Translator.trans('export.structure')" />
               <dp-radio
+                class="mb-1"
                 id="docxSortTypeDefault"
                 :label="{
                   bold: true,
@@ -270,6 +275,7 @@
                 class="sr-only"
                 v-text="Translator.trans('export.data')" />
               <dp-radio
+                class="mb-1"
                 data-cy="exportModal:xlsxExportTypeTopicsAndTags"
                 id="xlsxExportTypeTopicsAndTags"
                 :label="{
@@ -282,6 +288,7 @@
                 :checked="exportChoice.xlsx.exportType === 'topicsAndTags'"
                 @change="exportChoice.xlsx.exportType = 'topicsAndTags'" />
               <dp-radio
+                :class="{'mb-1': hasPermission('feature_admin_assessmenttable_export_statement_generic_xlsx')}"
                 data-cy="exportModal:xlsxExportTypePotentialAreas"
                 id="xlsxExportTypePotentialAreas"
                 :label="{
