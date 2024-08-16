@@ -70,7 +70,7 @@
 
         <div
           v-if="tagTopics.length"
-          :class="['flex-1', 'mt-2', 'pr-1', { 'overflow-y-scroll': tagTopics.length > 8 }]">
+          :class="['flex-1', 'mt-2', 'pr-1', { 'overflow-y-scroll': tagTopics.length > 6 }]">
           <!-- categorized tags -->
           <tag-select
             v-for="(topic, idx) in tagTopics"
