@@ -188,8 +188,9 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             $templateVars['table'] = $changedOutputResult;
             // T14612 filter house numbers depending of permission
             if (!$this->permissions->hasPermission('feature_statement_meta_house_number_export')) {
-                foreach ($templateVars['table']['entries']['statements'] as $singleStatementData) {
+                foreach ($templateVars['table']['entries']['statements'] as $key => $singleStatementData) {
                     $singleStatementData['meta']['houseNumber'] = '';
+                    $templateVars['table']['entries']['statements'][$key] = $singleStatementData;
                 }
             }// TODO: See whether we need this:
             //        // explicitly set procedure array, as it could not be fetched from session e.g. in export
