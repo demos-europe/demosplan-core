@@ -9,7 +9,8 @@
       v-if="assignedSegmentCount !== 0">
       <dp-button
         :href="userFilteredSegmentUrl"
-        :text="Translator.trans('tasks.view')" />
+        :text="Translator.trans('tasks.view')"
+        data-cy="dashboardTaskCard:tasksView" />
     </div>
   </dp-card>
 </template>

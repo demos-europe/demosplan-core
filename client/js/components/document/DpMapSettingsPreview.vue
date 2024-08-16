@@ -65,14 +65,14 @@
  --><div class="layout__item u-1-of-2">
       <ul>
         <li
-          v-for="link in permittedLinks"
+          v-for="(link, index) in permittedLinks"
           class="layout__item"
           :key="link.tooltipContent">
           <a
             v-tooltip="Translator.trans(link.tooltipContent)"
             class="o-link"
             :class="{'color-status-complete-text': link.done()}"
-            :data-cy="Translator.trans(link.label)"
+            :data-cy="`gisLayerLink:${index}`"
             :href="href(link)">
             <i
               aria-hidden="true"
