@@ -35,6 +35,7 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\IdCollection;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Exception;
+use Illuminate\Support\Collection;
 use LogicException;
 use Psr\Log\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
@@ -42,7 +43,6 @@ use ReflectionException;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Illuminate\Support\Collection;
 use Twig\Environment;
 
 class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
@@ -499,6 +499,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
         if ($this->isHorizontalNotSplitView($template, $templateName, $original)) {
             $listLineWidth = ListLineWidth::HORIZONTAL_NOT_SPLIT_VIEW->value;
         }
+
         return $listLineWidth;
     }
 
@@ -560,8 +561,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
         array $fragmentIds,
         bool $anonymous,
         ?Procedure $procedure
-    ): array
-    {
+    ): array {
         if (null === $procedure) {
             throw ProcedureNotFoundException::createFromId($procedureId);
         }

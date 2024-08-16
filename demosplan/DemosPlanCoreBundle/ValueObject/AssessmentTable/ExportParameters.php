@@ -16,30 +16,30 @@ use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOu
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 
 /**
- * @method array getFormValues()
- * @method        setFormValues(array $formValues)
- * @method int getRequestLimit()
- * @method        setRequestLimit(int $requestLimit)
- * @method array getSearchFields()
- * @method        setSearchFields(array $searchFields)
- * @method string getExportFormat()
- * @method        setExportFormat(null|string $exportFormat)
- * @method null|string getProcedureId()
- * @method        setProcedureId(string $procedureId)
- * @method bool getIsOriginalStatementExport()
- * @method        setIsOriginalStatementExport(bool $isOriginalStatementExport)
- * @method bool getAnonymous()
- * @method        setAnonymous(bool $anonymous)
- * @method string getExportType()
- * @method        setExportType(string $exportType)
- * @method string getTemplate()
- * @method        setTemplate(string $template)
- * @method string getSortType()
- * @method        setSortType(string $sortType)
- * @method string getViewMode()
- * @method        setViewMode(string $viewMode)
- * @method null|array getSort()
- * @method        setSort(array $sort)
+ * @method array       getFormValues()
+ * @method             setFormValues(array $formValues)
+ * @method int         getRequestLimit()
+ * @method             setRequestLimit(int $requestLimit)
+ * @method array       getSearchFields()
+ * @method             setSearchFields(array $searchFields)
+ * @method string      getExportFormat()
+ * @method             setExportFormat(string|null $exportFormat)
+ * @method string|null getProcedureId()
+ * @method             setProcedureId(string $procedureId)
+ * @method bool        getIsOriginalStatementExport()
+ * @method             setIsOriginalStatementExport(bool $isOriginalStatementExport)
+ * @method bool        getAnonymous()
+ * @method             setAnonymous(bool $anonymous)
+ * @method string      getExportType()
+ * @method             setExportType(string $exportType)
+ * @method string      getTemplate()
+ * @method             setTemplate(string $template)
+ * @method string      getSortType()
+ * @method             setSortType(string $sortType)
+ * @method string      getViewMode()
+ * @method             setViewMode(string $viewMode)
+ * @method array|null  getSort()
+ * @method             setSort(array $sort)
  */
 class ExportParameters extends ValueObject
 {
@@ -72,6 +72,7 @@ class ExportParameters extends ValueObject
         if (null !== $this->sort) {
             $parameters['sort'] = $this->sort;
         }
+
         return $parameters;
     }
 }
