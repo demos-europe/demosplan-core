@@ -204,31 +204,13 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
                     'anonymous'    => $anonymous,
                 ]
             );
-
-            $procedureName = $this
-                ->assessmentTableOutput
-                ->selectProcedureName(
-                    $procedure,
-                    $this->currentUser->getUser()->isPublicUser()
-                );
+            $isPublicUser = $this->currentUser->getUser()->isPublicUser();
+            $procedureName = $this->assessmentTableOutput->selectProcedureName($procedure, $isPublicUser);
             $pictures = $this->collectPictures(
                 $changedOutputResult['entries'],
                 $procedureId
             ); // Schicke das Tex-Dokument zum PDF-Consumer und bekomme das pdf
-            $response = $this->serviceImport->exportPdfWithRabbitMQ(
-                base64_encode($content),
-                $pictures
-            );
-            $pdf['content'] = base64_decode($response);
-            if ('' === $pdf['content']) {
-                $this->logger->error('Exporting the assessment table as pdf failed.');
-                throw new RuntimeException('No content for PDF');
-            }
-            $pdf['name'] = $filenamePrefix.'_'.$procedureName.'.pdf';
-            $this->logger->debug(
-                'Got Response: '.DemosPlanTools::varExport($pdf['content'], true)
-            );
-            $pdf['filename'] = $this->translator->trans('export').'.pdf';
+            $pdf = $this->createPdf($content, $pictures, $filenamePrefix, $procedureName);
         } catch (Exception $e) {
             throw new DemosException('warning.export.pdf.failed', $e->getMessage());
         }
@@ -655,5 +637,28 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
         $idCollection->setFragmentIds($fragmentIds);
 
         return $idCollection->lock();
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function createPdf(string $content, array $pictures, string $filenamePrefix, string $procedureName): array
+    {
+        $response = $this->serviceImport->exportPdfWithRabbitMQ(
+            base64_encode($content),
+            $pictures
+        );
+        $pdf['content'] = base64_decode($response);
+        if ('' === $pdf['content']) {
+            $this->logger->error('Exporting the assessment table as pdf failed.');
+            throw new RuntimeException('No content for PDF');
+        }
+        $pdf['name'] = $filenamePrefix.'_'.$procedureName.'.pdf';
+        $this->logger->debug(
+            'Got Response: '.DemosPlanTools::varExport($pdf['content'], true)
+        );
+        $pdf['filename'] = $this->translator->trans('export').'.pdf';
+
+        return $pdf;
     }
 }
