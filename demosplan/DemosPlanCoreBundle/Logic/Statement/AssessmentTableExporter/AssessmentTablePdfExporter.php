@@ -178,15 +178,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
                     $singleStatementData['meta']['houseNumber'] = '';
                     $templateVars['table']['entries']['statements'][$key] = $singleStatementData;
                 }
-            }// TODO: See whether we need this:
-            //        // explicitly set procedure array, as it could not be fetched from session e.g. in export
-            //        // if not set, passing only $procedureId is of no harm
-            //        $procedure = $procedureId;
-            //        try {
-            //            $procedure = $this->getProcedureHandler()->getProcedure($procedureId);
-            //        } catch (Exception $e) {
-            //            // :-(
-            //        }
+            }
 
             // Abwägungstabelle:
             // * Kompakte Ansicht Stellungnahmen: DemosPlanAssessmentTableBundle:DemosPlan:export_condensed.tex.twig
