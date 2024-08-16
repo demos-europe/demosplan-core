@@ -606,45 +606,45 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
         }
         if ($procedure->getMaster()) {
             return [];
-        } else {
-            $filterHash = $this->session->get(
-                'hashList'
-            )[$procedureId]['assessment']['hash'];
-
-            $items = $this->collectStatementsOrFragments(
-                $statements,
-                'statementsAndFragments' !== $exportType,
-                $filterHash,
-                $procedureId,
-                $original,
-                $fragmentIds
-            );
-
-            $items = $items->map(
-                function ($item, $key) use ($anonymous) {
-                    $formattedDate = $this->formatDate($item);
-                    if (false !== $formattedDate) {
-                        $item['authoredDateDisplay'] = $formattedDate;
-                    }
-
-                    if (isset($item['cluster']) && is_array($item['cluster'])
-                        && 0 < count($item['cluster'])) {
-                        if (false === $anonymous) {
-                            $departments = $this
-                                ->assessmentTableOutput
-                                ->collectClusterOrgaOutputForExport($item);
-                            $item['clusteredInstitutions'] = $departments;
-                        }
-                        $item['metaDataOfClusteredStatements'] = $this
-                            ->assessmentTableOutput
-                            ->collectClusteredStatementMetaDataForExport($item);
-                    }
-
-                    return $item;
-                }
-            );
-
-            return $items->toArray();
         }
+
+        $filterHash = $this->session->get(
+            'hashList'
+        )[$procedureId]['assessment']['hash'];
+
+        $items = $this->collectStatementsOrFragments(
+            $statements,
+            'statementsAndFragments' !== $exportType,
+            $filterHash,
+            $procedureId,
+            $original,
+            $fragmentIds
+        );
+
+        $items = $items->map(
+            function ($item) use ($anonymous) {
+                $formattedDate = $this->formatDate($item);
+                if (false !== $formattedDate) {
+                    $item['authoredDateDisplay'] = $formattedDate;
+                }
+
+                if (isset($item['cluster']) && is_array($item['cluster'])
+                    && 0 < count($item['cluster'])) {
+                    if (false === $anonymous) {
+                        $departments = $this
+                            ->assessmentTableOutput
+                            ->collectClusterOrgaOutputForExport($item);
+                        $item['clusteredInstitutions'] = $departments;
+                    }
+                    $item['metaDataOfClusteredStatements'] = $this
+                        ->assessmentTableOutput
+                        ->collectClusteredStatementMetaDataForExport($item);
+                }
+
+                return $item;
+            }
+        );
+
+        return $items->toArray();
     }
 }
