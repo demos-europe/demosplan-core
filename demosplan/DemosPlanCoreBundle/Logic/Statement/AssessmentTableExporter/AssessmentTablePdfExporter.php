@@ -292,6 +292,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
                     'pdfLandscape' => 'landscape' === $template || 'landscapeWithFrags' === $template,
                     'viewMode'     => AssessmentTableViewMode::DEFAULT_VIEW,
                     'anonymous'    => $anonymous,
+                    'newPagePerStn' => $parameters['newPagePerStn'],
                 ]
             );
 
