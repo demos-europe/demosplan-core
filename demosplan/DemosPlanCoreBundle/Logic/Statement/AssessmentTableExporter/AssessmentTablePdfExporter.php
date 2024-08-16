@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Exception\AsynchronousStateException;
@@ -170,50 +171,15 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             );
 
             if ('condensed' === $template) {
-                if (null === $procedure) {
-                    throw ProcedureNotFoundException::createFromId($procedureId);
-                }
-                if ($procedure->getMaster()) {
-                    $statements = [];
-                } else {
-                    $filterHash = $this->session->get(
-                        'hashList'
-                    )[$procedureId]['assessment']['hash'];
-
-                    $items = $this->collectStatementsOrFragments(
-                        $statements,
-                        'statementsAndFragments' !== $exportType,
-                        $filterHash,
-                        $procedureId,
-                        $original,
-                        $fragmentIds
-                    );
-
-                    $items = $items->map(
-                        function ($item, $key) use ($anonymous) {
-                            $formattedDate = $this->formatDate($item);
-                            if (false !== $formattedDate) {
-                                $item['authoredDateDisplay'] = $formattedDate;
-                            }
-
-                            if (isset($item['cluster']) && is_array($item['cluster'])
-                                && 0 < count($item['cluster'])) {
-                                if (false === $anonymous) {
-                                    $departments = $this
-                                        ->assessmentTableOutput
-                                        ->collectClusterOrgaOutputForExport($item);
-                                    $item['clusteredInstitutions'] = $departments;
-                                }
-                                $item['metaDataOfClusteredStatements'] = $this
-                                    ->assessmentTableOutput
-                                    ->collectClusteredStatementMetaDataForExport($item);
-                            }
-
-                            return $item;
-                        }
-                    );
-                    $statements = $items->toArray();
-                }
+                $statements = $this->prepareStatementsForCondensedTemplate(
+                    $statements,
+                    $exportType,
+                    $procedureId,
+                    $original,
+                    $fragmentIds,
+                    $anonymous,
+                    $procedure
+                );
             }
             $statements = $this->createExternIds($statements);
             $changedOutputResult['entries']['statements'] = $statements;
@@ -617,5 +583,68 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
         }
 
         return $statements;
+    }
+
+    /**
+     * @throws AsynchronousStateException
+     * @throws ReflectionException
+     * @throws ErroneousDoctrineResult
+     * @throws ProcedureNotFoundException
+     */
+    private function prepareStatementsForCondensedTemplate(
+        array $statements,
+        string $exportType,
+        string $procedureId,
+        bool $original,
+        array $fragmentIds,
+        bool $anonymous,
+        ?Procedure $procedure
+    ): array
+    {
+        if (null === $procedure) {
+            throw ProcedureNotFoundException::createFromId($procedureId);
+        }
+        if ($procedure->getMaster()) {
+            return [];
+        } else {
+            $filterHash = $this->session->get(
+                'hashList'
+            )[$procedureId]['assessment']['hash'];
+
+            $items = $this->collectStatementsOrFragments(
+                $statements,
+                'statementsAndFragments' !== $exportType,
+                $filterHash,
+                $procedureId,
+                $original,
+                $fragmentIds
+            );
+
+            $items = $items->map(
+                function ($item, $key) use ($anonymous) {
+                    $formattedDate = $this->formatDate($item);
+                    if (false !== $formattedDate) {
+                        $item['authoredDateDisplay'] = $formattedDate;
+                    }
+
+                    if (isset($item['cluster']) && is_array($item['cluster'])
+                        && 0 < count($item['cluster'])) {
+                        if (false === $anonymous) {
+                            $departments = $this
+                                ->assessmentTableOutput
+                                ->collectClusterOrgaOutputForExport($item);
+                            $item['clusteredInstitutions'] = $departments;
+                        }
+                        $item['metaDataOfClusteredStatements'] = $this
+                            ->assessmentTableOutput
+                            ->collectClusteredStatementMetaDataForExport($item);
+                    }
+
+                    return $item;
+                }
+            );
+
+            return $items->toArray();
+        }
     }
 }
