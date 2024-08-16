@@ -38,7 +38,7 @@
     <!-- Tags Section -->
     <div
       aria-labelledby="floatingContextButton_tags"
-      class="flex-1 flex overflow-y-hidden pl-2 pr-5 -mr-4"
+      :class="['flex-1', 'flex', 'pl-2', 'pr-5', '-mr-4', { 'overflow-y-hidden': availableTags.length && tagTopics.length > 8 }]"
       @mouseover="showFloatingContextButton.tags = true"
       @mouseleave="showFloatingContextButton.tags = false">
 
@@ -52,7 +52,7 @@
 
       <div
         v-else
-        class="flex flex-col">
+        class="flex flex-col w-full">
         <div>
           <!-- search available tags -->
           <search-select
@@ -70,7 +70,7 @@
 
         <div
           v-if="tagTopics.length"
-          class="flex-1 overflow-y-scroll mt-2 pr-1">
+          :class="['flex-1', 'mt-2', 'pr-1', { 'overflow-y-scroll': tagTopics.length > 8 }]">
           <!-- categorized tags -->
           <tag-select
             v-for="(topic, idx) in tagTopics"
