@@ -582,20 +582,29 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             // vertical format (portrait) view not split - Text only
             $listLineWidth = 17;
         }
-        if (('landscape' === $template && 'export' === $templateName)
-            || ('condensed' === $template && 'export_condensed' === $templateName && !$original)
-            || ('condensed' === $template && 'export_condensed_anonymous' === $templateName && !$original)
-            || ('landscape' === $template && 'export_anonymous' === $templateName && !$original)
-            || ('landscapeWithFrags' === $template && 'export_fragments_anonymous' === $templateName && !$original)
-        ) {
+        if ($this->isHorizontalSplitView($template, $templateName, $original)) {
             // horizontal format (landscape) split view - Text | Response
             $listLineWidth = 12;
         }
-        if (('landscape' === $template && 'export_original' === $templateName)
-            || ('condensed' === $template && 'export_condensed' === $templateName && $original)) {
+        if ($this->isHorizontalNotSplitView($template, $templateName, $original)) {
             // horizontal format (landscape) view not split - Text only
             $listLineWidth = 24;
         }
         return $listLineWidth;
+    }
+
+    private function isHorizontalSplitView(string $template, string $templateName, bool $original): bool
+    {
+        return ('landscape' === $template && 'export' === $templateName)
+            || ('condensed' === $template && 'export_condensed' === $templateName && !$original)
+            || ('condensed' === $template && 'export_condensed_anonymous' === $templateName && !$original)
+            || ('landscape' === $template && 'export_anonymous' === $templateName && !$original)
+            || ('landscapeWithFrags' === $template && 'export_fragments_anonymous' === $templateName && !$original);
+    }
+
+    private function isHorizontalNotSplitView(string $template, string $templateName, bool $original): bool
+    {
+        return ('landscape' === $template && 'export_original' === $templateName)
+            || ('condensed' === $template && 'export_condensed' === $templateName && $original);
     }
 }
