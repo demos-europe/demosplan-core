@@ -90,7 +90,7 @@
               <legend
                 class="sr-only"
                 v-text="Translator.trans('export.data')" />
-              <DpRadio
+              <dp-radio
                 id="pdfExportTypeStatementsOnly"
                 :label="{
                   bold: true,
@@ -100,7 +100,7 @@
                 value="statementsOnly"
                 :checked="exportChoice.pdf.exportType === 'statementsOnly'"
                 @change="exportChoice.pdf.exportType = 'statementsOnly'" />
-              <DpRadio
+              <dp-radio
                 id="pdfExportTypeStatementsAndFragments"
                 :label="{
                   bold: true,
