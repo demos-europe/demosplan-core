@@ -1591,6 +1591,7 @@ export.filenames.statement.list_final_group.suffix: "_Stellungnahme_Endfassungen
 export.format: "Exportformat"
 export.landscape: "Querformat"
 export.landscape.fragments: "Querformat (mit Datensätzen)"
+export.newPagePerStatement: "Seitenumbruch nach jeder Stellungnahme einfügen"
 export.pdf.anonymous: "PDF (anonymisiert)"
 export.pdf: "PDF"
 export.portrait: "Hochformat"

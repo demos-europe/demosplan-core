@@ -63,6 +63,25 @@
             </fieldset>
 
             <fieldset
+              v-if="options.pdf.newPagePerStn && view === 'original_statements'"
+              class="u-mb-0_5 u-pb-0_5">
+<!--              <legend-->
+<!--                class="sr-only"-->
+<!--                v-text="" />-->
+              <dp-checkbox
+                data-cy="exportModal:newPagePerStn"
+                id="pdfNewPagePerStn"
+                :label="{
+                  bold: true,
+                  text: Translator.trans('export.newPagePerStatement')
+                }"
+                name="newPagePerStn"
+                value="newPagePerStn"
+                v-model="exportChoice.pdf.newPagePerStn"
+              />
+            </fieldset>
+
+            <fieldset
               v-if="options.pdf.templates"
               class="u-mb-0_5 u-pb-0_5">
               <legend
