@@ -32,6 +32,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\L
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\IdCollection;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Exception;
 use LogicException;
@@ -130,27 +131,12 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
                 $parameters['items'] = [$parameters['statementId']];
             }
 
-            $fragmentIds = [];
-            if (array_key_exists('items', $parameters) && 0 < (is_countable($parameters['items']) ? count($parameters['items']) : 0)) {
-                $idArrays = [];
-                foreach ($parameters['items'] as $statementOrFragmentId) {
-                    $idArray = $this->assessmentHandler
-                        ->getStatementIdFromStatementIdOrStatementFragmentId(
-                            $statementOrFragmentId
-                        );
-                    $idArrays[] = $idArray['statementId'];
-                    if (null !== $idArray['fragmentId']) {
-                        $fragmentIds[] = $idArray['fragmentId'];
-                    }
-                    unset($idArray);
-                }
-                $parameters['filters']['id'] = $idArrays;
-            }// get actual data for selected items
-            // (at this point, only the id's are available)
-            // Only the ids of statements are considered. To get around this issue, the ids were transformed to statement
-            // ids in the lines above. Hence, now there are only ids of statements left.
-            // However, to be able to export only selected fragments, the fragment ids are stored seperately and filtered
-            // out later along the way.
+            $idCollection = $this->extractStatementAndFragmentIds($parameters);
+            $fragmentIds = $idCollection->getFragmentIds();
+            if (null !== $idCollection->getStatementIds()) {
+                $parameters['filters']['id'] = $idCollection->getStatementIds();
+            }
+
             $parameters['filters']['original'] = 'IS NOT NULL';
             if ($original) {
                 $parameters['filters']['original'] = 'IS NULL';
@@ -647,5 +633,35 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
         );
 
         return $items->toArray();
+    }
+
+    /**
+     * Extracts statement and fragment IDs from the provided parameters.
+     *
+     * This function processes a provided array of items to extract only the IDs of statements. To ensure that only
+     * statement IDs are considered, any identifiers are transformed into statement IDs. Additionally, fragment IDs are
+     * stored separately to allow for further filtering and potential export of selected fragments.
+     */
+    private function extractStatementAndFragmentIds(array $parameters): IdCollection
+    {
+        $idCollection = new IdCollection();
+        $fragmentIds = [];
+        if (array_key_exists('items', $parameters) && 0 < (is_countable($parameters['items']) ? count($parameters['items']) : 0)) {
+            $idArrays = [];
+            foreach ($parameters['items'] as $statementOrFragmentId) {
+                $idArray = $this->assessmentHandler
+                    ->getStatementIdFromStatementIdOrStatementFragmentId(
+                        $statementOrFragmentId
+                    );
+                $idArrays[] = $idArray['statementId'];
+                if (null !== $idArray['fragmentId']) {
+                    $fragmentIds[] = $idArray['fragmentId'];
+                }
+            }
+            $idCollection->setStatementIds($idArrays);
+        }
+        $idCollection->setFragmentIds($fragmentIds);
+
+        return $idCollection->lock();
     }
 }
