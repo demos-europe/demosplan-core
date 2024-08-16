@@ -132,18 +132,19 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
 
             $fragmentIds = [];
             if (array_key_exists('items', $parameters) && 0 < (is_countable($parameters['items']) ? count($parameters['items']) : 0)) {
-                $parameters['filters']['id'] = [];
+                $idArrays = [];
                 foreach ($parameters['items'] as $statementOrFragmentId) {
                     $idArray = $this->assessmentHandler
                         ->getStatementIdFromStatementIdOrStatementFragmentId(
                             $statementOrFragmentId
                         );
-                    $parameters['filters']['id'][] = $idArray['statementId'];
+                    $idArrays[] = $idArray['statementId'];
                     if (null !== $idArray['fragmentId']) {
                         $fragmentIds[] = $idArray['fragmentId'];
                     }
                     unset($idArray);
                 }
+                $parameters['filters']['id'] = $idArrays;
             }// get actual data for selected items
             // (at this point, only the id's are available)
             // Only the ids of statements are considered. To get around this issue, the ids were transformed to statement
@@ -186,7 +187,6 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             $changedOutputResult['entries']['total'] = $outputResult->getTotal();
 
             $templateVars['table'] = $changedOutputResult;
-            // T14612 filter house numbers depending of permission
             if (!$this->permissions->hasPermission('feature_statement_meta_house_number_export')) {
                 foreach ($templateVars['table']['entries']['statements'] as $key => $singleStatementData) {
                     $singleStatementData['meta']['houseNumber'] = '';
