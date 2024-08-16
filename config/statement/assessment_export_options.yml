@@ -63,7 +63,6 @@ original_statements:
     obscure: false
     anonymize: false
     anonymous: false
-    newPagePerStn: false
     templates:
       condensed:
         name: export.compact
