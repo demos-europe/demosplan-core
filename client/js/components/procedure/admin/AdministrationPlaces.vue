@@ -56,7 +56,7 @@
           }" />
         <dp-button-row
           :busy="isLoading"
-          data-cy="addNewPlaceForm"
+          data-cy="addNewPlace"
           primary
           secondary
           @primary-action="dpValidateAction('addNewPlaceForm', () => saveNewPlace(newPlace), false)"
