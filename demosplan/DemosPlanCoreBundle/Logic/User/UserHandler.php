@@ -359,7 +359,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
     /**
      * @throws Exception
      */
-    protected function validateUserData(array $data, string $userId = null): array
+    protected function validateUserData(array $data, ?string $userId = null): array
     {
         $mandatoryErrors = [];
         $new = null === $userId;
@@ -370,11 +370,11 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                 || (array_key_exists('lastname', $data) && '' === trim((string) $data['lastname']))
             ) {
                 $mandatoryErrors[] = [
-                'type'    => 'error',
-                'message' => $this->flashMessageHandler->createFlashMessage(
-                    'mandatoryError', ['fieldLabel' => $this->translator->trans('name.last')]
-                ),
-            ];
+                    'type'    => 'error',
+                    'message' => $this->flashMessageHandler->createFlashMessage(
+                        'mandatoryError', ['fieldLabel' => $this->translator->trans('name.last')]
+                    ),
+                ];
             }
         }
         if (!array_key_exists('organisationId', $data) || '' === trim((string) $data['organisationId'])) {
@@ -488,6 +488,11 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         return $user;
     }
 
+    /**
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
+     */
     public function inviteUser(User $user, string $type = 'new'): User
     {
         $vars = [];
@@ -520,7 +525,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                     'userName' => $user->getFullname(),
                     'token'    => $hash,
                     'uId'      => $user->getId(),
-                    ],
+                ],
                     'projectName' => $this->demosplanConfig->getProjectName(),
                 ]
             );
@@ -843,7 +848,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
      *
      * @param string $userId indicates the user whose data will be wiped
      *
-     * @return user|bool - The wiped User if all operations are successful, otherwise false
+     * @return User|bool - The wiped User if all operations are successful, otherwise false
      */
     public function wipeUserData($userId)
     {
@@ -1645,8 +1650,9 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         }
     }
 
-    public function recoverPasswordHandler(string $email): bool
+    public function recoverPasswordHandler(User $user): bool
     {
+        $email = $user->getEmail();
         try {
             $email = trim($email);
 
@@ -1661,20 +1667,9 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                 return false;
             }
 
-            // Check if user exist with given email
-            $user = $this->userService->getUserByFields(['email' => $email]);
-            if (1 === count($user) && $user[0] instanceof User) {
-                $result = $this->inviteUser($user[0], 'recover');
-                if ($result instanceof User) {
-                    return true;
-                }
-            }
+            $this->inviteUser($user, 'recover');
 
-            $this->logger->error("Couldn't find distinct user with given Email address for recover",
-                ['email' => $email, 'found' => count($user)]
-            );
-
-            return false;
+            return true;
         } catch (Exception) {
             $this->logger->error('User password could not be changed!');
 
@@ -1752,7 +1747,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
      *
      * @param string $organisationId Indicates the organisation whose data will be wiped
      *
-     * @return orga|array The wiped organisation if all operations are successful, otherwise errors
+     * @return Orga|array The wiped organisation if all operations are successful, otherwise errors
      *
      * @throws MessageBagException
      */
