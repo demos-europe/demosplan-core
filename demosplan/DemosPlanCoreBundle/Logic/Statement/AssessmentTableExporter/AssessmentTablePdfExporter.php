@@ -162,27 +162,13 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             // add attachments to Elasticsearch statement arrays
             $statements = $this->statementHandler->addSourceStatementAttachments($statements);
 
-            // here, handling view_mode could be implemented in the future.
-            // We can ignore this at them moment, because view_mode permission is currently just enabled in bobhh
-            // and they currently have no condensed exports
-            if ('condensed' === $template && 'statementsOnly' !== $exportType) {
-                $institutionStatements = collect($statements)
-                    ->filter(static fn (array $statement): bool => 'internal' === $statement['publicStatement'] && !$statement['isClusterStatement'])->values();
+            $statements = $this->filterStatementsForCondensedExport($statements, $template, $exportType);
 
-                $clusterStatements = collect($statements)
-                    ->filter(static fn (array $statement): bool => $statement['isClusterStatement'])->values();
-
-                $publicStatements = collect($statements)
-                    ->filter(static fn (array $statement): bool => 'external' === $statement['publicStatement'] && !$statement['isClusterStatement'])->values();
-
-                $statements = $institutionStatements->merge($clusterStatements)
-                    ->merge($publicStatements)
-                    ->toArray();
-            }
             $statements = array_map(
                 $this->assessmentTableOutput->replacePhase(...),
                 $statements
             );
+
             if ('condensed' === $template) {
                 if (null === $procedure) {
                     throw ProcedureNotFoundException::createFromId($procedureId);
@@ -602,5 +588,34 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
     {
         return ('landscape' === $template && 'export_original' === $templateName)
             || ('condensed' === $template && 'export_condensed' === $templateName && $original);
+    }
+
+    /**
+     *  Note: Handling of `view_mode` could be implemented in the future.
+     *   Currently, this can be ignored because the `view_mode` permission is only enabled in a specific project.
+     *   And this project currently has no condensed exports.
+     *
+     *  Edit: It exists no `view_mode` permission. Instead, it exists 'feature_export_docx_elements_view_mode_only'
+     *   (only enaled in the specifc project) and 'feature_assessmenttable_structural_view_mode'
+     *   (commented out only in the specific project).
+     */
+    private function filterStatementsForCondensedExport(array $statements, string $template, string $exportType): array
+    {
+        if ('condensed' === $template && 'statementsOnly' !== $exportType) {
+            $institutionStatements = collect($statements)
+                ->filter(static fn (array $statement): bool => 'internal' === $statement['publicStatement'] && !$statement['isClusterStatement'])->values();
+
+            $clusterStatements = collect($statements)
+                ->filter(static fn (array $statement): bool => $statement['isClusterStatement'])->values();
+
+            $publicStatements = collect($statements)
+                ->filter(static fn (array $statement): bool => 'external' === $statement['publicStatement'] && !$statement['isClusterStatement'])->values();
+
+            return $institutionStatements->merge($clusterStatements)
+                ->merge($publicStatements)
+                ->toArray();
+        }
+
+        return $statements;
     }
 }
