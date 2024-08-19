@@ -74,7 +74,7 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
     public function __invoke(array $parameters): array
     {
         $xlsExporter = $this->xlsExporter;
-        $xlsxArray = $this->$xlsExporter($parameters);
+        $xlsxArray = $xlsExporter($parameters);
 
         try {
             $statementAttachments = $this->getAttachmentsOfStatements($xlsxArray['statementIds']);
