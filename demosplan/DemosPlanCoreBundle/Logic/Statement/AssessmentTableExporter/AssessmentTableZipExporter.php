@@ -73,8 +73,7 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
      */
     public function __invoke(array $parameters): array
     {
-        $xlsExporter = $this->xlsExporter;
-        $xlsxArray = $xlsExporter($parameters);
+        $xlsxArray = $this->xlsExporter->__invoke($parameters);
 
         try {
             $statementAttachments = $this->getAttachmentsOfStatements($xlsxArray['statementIds']);
@@ -126,8 +125,7 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
                 // if not present yet, invoke the pdfCreator and create an original-stn-pdf to use instead
                 $parameters['statementId'] =
                     $this->statementService->getStatement($statementId)?->getOriginal()->getId();
-                $pdfExporter = $this->pdfExporter;
-                $files[$index]['originalAttachment'] = $pdfExporter(
+                $files[$index]['originalAttachment'] = $this->pdfExporter->__invoke(
                     $parameters
                 );
                 $files[$index]['originalAttachment']['fileHash'] = $this->fileService->createHash();
