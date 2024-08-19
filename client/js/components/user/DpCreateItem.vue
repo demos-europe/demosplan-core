@@ -36,6 +36,7 @@
         <!-- Save/Abort buttons   -->
         <dp-button-row
           class="mt-6"
+          data-cy="createItem"
           :form-name="customComponent[entity].formName"
           primary
           secondary

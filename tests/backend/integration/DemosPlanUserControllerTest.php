@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace backend\integration;
 
-use Tests\Base\HttpTestCase;
+use Tests\Base\AbstractApiTest;
 
-class DemosPlanUserControllerTest extends HttpTestCase
+class DemosPlanUserControllerTest extends AbstractApiTest
 {
     public function testUserRegister(): void
     {
@@ -24,5 +24,10 @@ class DemosPlanUserControllerTest extends HttpTestCase
         // Validate a successful response and some content
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h1', 'registrieren', $this->client->getResponse()->getContent());
+    }
+
+    protected function getServerParameters(): array
+    {
+        return [];
     }
 }
