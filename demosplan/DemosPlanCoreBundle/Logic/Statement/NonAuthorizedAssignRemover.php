@@ -129,7 +129,7 @@ class NonAuthorizedAssignRemover
             ),*/
             [] === $this->getAssignableUserIds($procedure)
                 ? $this->conditionFactory->false()
-                : $this->conditionFactory->propertyHasNotAnyOfValues($this->getAssignableUserIds($procedure), ['assignee','id']),
+                : $this->conditionFactory->propertyHasNotAnyOfValues($this->getAssignableUserIds($procedure), ['assignee', 'id']),
             $this->conditionFactory->propertyHasValue(
                 $procedure->getId(),
                 ['procedure', 'id']
