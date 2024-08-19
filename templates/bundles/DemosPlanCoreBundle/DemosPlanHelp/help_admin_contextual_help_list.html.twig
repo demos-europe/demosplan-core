@@ -81,7 +81,7 @@
                             <td>
                                 <a
                                     href="{{ path('dplan_contextual_help_edit',{'contextualHelpId': contextualHelp.ident|default()}) }}"
-                                    data-cy="contextualHelpItem">
+                                    :data-cy="`contextualHelpItem:{{ loop.index }}`">
                                     {{  contextualHelp.key|default }}
                                 </a>
                             </td>
