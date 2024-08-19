@@ -780,10 +780,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
                 return $permissionset;
             }
-
-            if ($subArray['key'] !== $phase && 'evaluating' === $phase) {
-                return self::PROCEDURE_PERMISSIONSET_READ;
-            }
         }
 
         $this->logger->debug('Permissionset: '.self::PROCEDURE_PERMISSIONSET_HIDDEN);
