@@ -315,10 +315,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 // kann empfehlungen abgeben aber nicht die Bearbeitung abschliessen
                 'field_statement_recommendation',
             ]);
-
-            $this->disablePermissions([
-                'field_procedure_adjustments_planning_agency',  // Planungsbüro einem Verfahren zuordnen
-            ]);
         }
 
         if ($this->user->hasRole(Role::PLANNING_SUPPORTING_DEPARTMENT)) {         // Fachplaner-Fachbehörde GLAUTH Kommune

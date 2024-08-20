@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
@@ -19,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Exception\VirusFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
@@ -57,7 +57,7 @@ class DocumentHandler extends CoreHandler
         private readonly ElementHandler $elementHandler,
         ElementsService $elementsService,
         private readonly FileService $fileService,
-        MessageBag $messageBag,
+        MessageBagInterface $messageBag,
         private readonly ParagraphService $paragraphService,
         private readonly ProcedureService $procedureService,
         SingleDocumentHandler $singleDocumentHandler,
@@ -288,21 +288,21 @@ class DocumentHandler extends CoreHandler
 
             if ($fileInfo->isDir()) {
                 $result[] = [
-                  'isDir'   => true,
-                  'title'   => $fileInfo->getFilename(),
-                  'path'    => $fileInfo->getPathname(),
-                  'entries' => $this->elementImportDirToArray(
-                      $fileInfo->getPathname()
-                  ),
+                    'isDir'   => true,
+                    'title'   => $fileInfo->getFilename(),
+                    'path'    => $fileInfo->getPathname(),
+                    'entries' => $this->elementImportDirToArray(
+                        $fileInfo->getPathname()
+                    ),
                 ];
             } else {
                 // utf8_decode filename, weil Zip Umlaute kaputt macht
                 $filename = utf8_decode($fileInfo->getFilename());
 
                 $result[] = [
-                  'isDir'  => false,
-                  'title'  => $filename,
-                    'path' => $fileInfo->getPathname(),
+                    'isDir'  => false,
+                    'title'  => $filename,
+                    'path'   => $fileInfo->getPathname(),
                 ];
 
                 // Speichere die Anzahl der Dateien in die Session

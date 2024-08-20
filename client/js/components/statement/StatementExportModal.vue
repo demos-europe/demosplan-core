@@ -32,6 +32,7 @@
             v-for="(exportType, key) in exportTypes"
             :key="key"
             :id="key"
+            :data-cy="`exportType:${key}`"
             :label="{
               hint: active === key ? exportType.hint : '',
               text: Translator.trans(exportType.label)
@@ -86,6 +87,7 @@
 
       <dp-button-row
         class="text-right mt-auto"
+        data-cy="statementExport"
         primary
         secondary
         :primary-text="Translator.trans('export.statements')"

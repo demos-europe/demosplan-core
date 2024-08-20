@@ -24,6 +24,7 @@
     <div class="o-box--dark soft">
       <div
         class="px-3 py-3"
+        :data-cy="customComponent[entity].formName"
         :data-dp-validate="customComponent[entity].formName">
         <!-- Form fields   -->
         <component
@@ -35,6 +36,7 @@
         <!-- Save/Abort buttons   -->
         <dp-button-row
           class="mt-6"
+          data-cy="createItem"
           :form-name="customComponent[entity].formName"
           primary
           secondary

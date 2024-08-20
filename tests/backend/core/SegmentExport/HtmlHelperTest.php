@@ -54,8 +54,8 @@ class HtmlHelperTest extends FunctionalTestCase
     {
         $prefix = 'New_';
         // Test 1: <a> tag with class darstellung and href attribute
-        $htmlWithClass = '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.
-            '" href="https://www.example1.com">Example 1</a>';
+        $htmlWithClass = '<a href="https://www.example1.com" class="'.
+            HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.'">Example 1</a>';
         $expectedWithClass = [
             new ImageReference($prefix.'Example 1', 'https://www.example1.com'),
         ];
@@ -102,8 +102,8 @@ class HtmlHelperTest extends FunctionalTestCase
     public function testUpdateLinkTextWithClass(): void
     {
         // Test 1: <a> tag with class darstellung
-        $htmlWithClass = '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.
-            '" href="https://www.example1.com">Old Text</a>';
+        $htmlWithClass = '<a href="https://www.example1.com" class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.
+            '">Old Text</a>';
         $expectedWithClass = '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.'" href="#New_Old Text"'
             .' style="color: blue; text-decoration: underline;">New_Old Text</a>';
         // Test 2: <a> tag without class darstellung
@@ -113,19 +113,18 @@ class HtmlHelperTest extends FunctionalTestCase
         $htmlMixed = '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.
             '" href="https://www.example3.com">Old Text 3</a>'.
             '<a class="other-class" href="https://www.example4.com">Old Text 4</a>'.
-            '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.
-            '" href="https://www.example5.com">Old Text 5</a>';
+            '<a  href="https://www.example5.com" style="color: blue;" class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.
+            '">Old Text 5</a>';
         $expectedMixed = '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.'" href="#New_Old Text 3"'
             .' style="color: blue; text-decoration: underline;">New_Old Text 3</a>'.
             '<a class="other-class" href="https://www.example4.com">Old Text 4</a>'.
             '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.'" href="#New_Old Text 5"'
             .' style="color: blue; text-decoration: underline;">New_Old Text 5</a>';
         $prefix = 'New_';
-        $href = 'https://www.test.com';
         $class = HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL;
-        $resultA = $this->sut->updateLinkTextWithClass($htmlWithClass, $class, $prefix, $href);
-        $resultB = $this->sut->updateLinkTextWithClass($htmlWithoutClass, $class, $prefix, $href);
-        $resultC = $this->sut->updateLinkTextWithClass($htmlMixed, $class, $prefix, $href);
+        $resultA = $this->sut->updateLinkTextWithClass($htmlWithClass, $class, $prefix);
+        $resultB = $this->sut->updateLinkTextWithClass($htmlWithoutClass, $class, $prefix);
+        $resultC = $this->sut->updateLinkTextWithClass($htmlMixed, $class, $prefix);
         static::assertSame($expectedWithClass, $resultA);
         static::assertSame($expectedWithoutClass, $resultB);
         static::assertSame($expectedMixed, $resultC);
@@ -134,8 +133,8 @@ class HtmlHelperTest extends FunctionalTestCase
     public function testRemoveLinkTagsByClass(): void
     {
         $prefix = 'New_';
-        $htmlMixed = '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.
-            '" href="https://www.example1.com">Old Text 1</a>'.
+        $htmlMixed = '<a href="https://www.example1.com" class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.
+            '">Old Text 1</a>'.
             '<a class="other-class" href="https://www.example2.com">Old Text 2</a>'.
             '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.
             '" href="https://www.example3.com">Old Text 3</a>';

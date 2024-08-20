@@ -89,7 +89,7 @@
                                                 target="_blank"
                                                 rel="noopener"
                                                 href="{{ path("core_file_procedure", { 'procedureId': procedure, 'hash': element.file|getFile('hash') }) }}">
-                                                <span class="{{ 'hide-visually'|prefixClass }}">{{ 'download'|trans }}</span>
+                                                <span class="{{ 'sr-only'|prefixClass }}">{{ 'download'|trans }}</span>
                                                 <i class="{{ 'fa fa-file-o u-mr-0_125'|prefixClass }}" aria-hidden="true"></i>
                                                 {{ element.title }}
                                                 {% if (element.file|getFile('size', 'MB')|length > 0) %}
@@ -141,7 +141,7 @@
                                                     target="_blank"
                                                     rel="noopener"
                                                     href="{{ path("core_file_procedure", { 'procedureId': procedure, 'hash': document.document|getFile('hash') }) }}">
-                                                    <span class="{{ 'hide-visually'|prefixClass }}">{{ 'download'|trans }}</span>
+                                                    <span class="{{ 'sr-only'|prefixClass }}">{{ 'download'|trans }}</span>
                                                     <i class="{{ 'fa fa-file-o u-mr-0_125'|prefixClass }}" aria-hidden="true"></i>
                                                     {{ document.title }}
                                                     {% if document.document|getFile('size')|length > 0 %}

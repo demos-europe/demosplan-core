@@ -426,7 +426,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         /** @var StatementCreatedEvent $statementCreatedEvent */
         $statementCreatedEvent = $this->eventDispatcher->dispatch(new ManualOriginalStatementCreatedEvent($statement));
 
-        if (null !== $statementCreatedEvent) {
+        if ($this->permissions->hasPermission('area_admin_statement_list')) {
             $this->messageBag->addObject(LinkMessageSerializable::createLinkMessage(
                 'confirm',
                 'confirm.statement.new',
@@ -1714,7 +1714,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             return false;
         }
 
-        return $this->statementCopier->copyStatementObjectWithinProcedure($statementObject, $createReport);
+        return $this->statementCopier->copyStatementObjectWithinProcedureWithRelatedFiles($statementObject, $createReport);
     }
 
     /**

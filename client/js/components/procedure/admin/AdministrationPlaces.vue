@@ -56,6 +56,7 @@
           }" />
         <dp-button-row
           :busy="isLoading"
+          data-cy="addNewPlace"
           primary
           secondary
           @primary-action="dpValidateAction('addNewPlaceForm', () => saveNewPlace(newPlace), false)"
@@ -72,6 +73,12 @@
       :items="places"
       @changed-order="changeManualsort"
       track-by="id">
+      <template v-slot:header-solved="headerData">
+        {{ headerData.label }}
+        <dp-contextual-help
+          class="float-right u-mt-0_125"
+          :text="Translator.trans('statement.solved.hint')" />
+      </template>
       <template v-slot:name="rowData">
         <div
           v-if="!rowData.edit"
@@ -96,7 +103,6 @@
           v-model="newRowData.description" />
       </template>
       <template v-slot:solved="rowData">
-
         <dp-checkbox
           :disabled="!rowData.edit"
           id="editPlaceSolved"
@@ -148,6 +154,7 @@ import {
   DpButton,
   DpButtonRow,
   DpCheckbox,
+  DpContextualHelp,
   DpDataTable,
   DpIcon,
   DpInlineNotification,
@@ -164,6 +171,7 @@ export default {
     DpButton,
     DpButtonRow,
     DpCheckbox,
+    DpContextualHelp,
     DpDataTable,
     DpIcon,
     DpInlineNotification,
@@ -200,9 +208,9 @@ export default {
   data () {
     return {
       headerFields: [
-        { field: 'name', label: Translator.trans('name'), colClass: 'u-5-of-12' },
+        { field: 'name', label: Translator.trans('name'), colClass: 'u-4-of-12' },
         { field: 'description', label: Translator.trans('description'), colClass: 'u-5-of-12' },
-        { field: 'solved', label: Translator.trans('completed'), colClass: 'u-1-of-12' }
+        { field: 'solved', label: Translator.trans('completed'), colClass: 'u-2-of-12' }
       ],
       initialRowData: {},
       isInitiallyLoading: false,

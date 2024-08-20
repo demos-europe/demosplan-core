@@ -48,15 +48,17 @@ class HtmlHelper
         $imageReferences = [];
 
         // The regex pattern to match <a> tags with the specified class and extract their href attributes and link text
-        $pattern =
-            '/<a\b[^>]*class="[^"]*\b'.preg_quote($class, '/').'\b[^"]*"[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/i';
+        // irrespective of the order of class and href attributes
+        $pattern = '/<a\b(?=[^>]*\bclass="[^"]*\b'.preg_quote($class, '/').'\b[^"]*")(?=[^>]*\bhref="([^"]*)")[^>]*>(.*?)<\/a>/i';
 
         // Perform the regex match
         if (preg_match_all($pattern, $htmlText, $matches)) {
             foreach ($matches[1] as $index => $url) {
                 $linkText = $matches[2][$index];
                 // Create an ImageReference object with linkText as imageReference and url as imagePath
-                $imageReference = new ImageReference($prefix.$linkText, $url);
+                $srcParts = explode('/', $url);
+                $hash = $srcParts[array_key_last($srcParts)];
+                $imageReference = new ImageReference($prefix.$linkText, $url, $hash);
                 $imageReferences[] = $imageReference;
             }
         }
@@ -70,11 +72,18 @@ class HtmlHelper
      */
     public function updateLinkTextWithClass(string $htmlText, string $className, string $prefix): string
     {
-        $pattern = '/(<a\b[^>]*class="[^"]*\b'
-            .preg_quote($className, '/').'\b[^"]*")[^>]*(href="[^"]*")[^>]*(>)(.*?)(<\/a>)/i';
-        $replacement = '$1 href="#'.$prefix.'$4" style="color: blue; text-decoration: underline;"$3'.$prefix.'$4$5';
+        $pattern = '/<a\b(?=[^>]*\bclass="[^"]*\b'
+            .preg_quote($className, '/').'\b[^"]*")(?=[^>]*\bhref="([^"]*)")[^>]*>(.*?)<\/a>/i';
+        if (preg_match_all($pattern, $htmlText, $matches)) {
+            foreach ($matches[2] as $index => $linkText) {
+                $replacement = '<a class="'.$className
+                    .'" href="#'.$prefix.$linkText.'" style="color: blue; text-decoration: underline;">'
+                    .$prefix.$linkText.'</a>';
+                $htmlText = str_replace($matches[0][$index], $replacement, $htmlText);
+            }
+        }
 
-        return preg_replace($pattern, $replacement, $htmlText);
+        return $htmlText;
     }
 
     /**
