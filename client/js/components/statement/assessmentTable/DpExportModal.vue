@@ -69,16 +69,15 @@
 <!--                class="sr-only"-->
 <!--                v-text="" />-->
               <dp-checkbox
-                data-cy="exportModal:newPagePerStn"
                 id="pdfNewPagePerStn"
+                v-model="exportChoice.pdf.newPagePerStn"
+                data-cy="exportModal:newPagePerStn"
                 :label="{
                   bold: true,
                   text: Translator.trans('export.newPagePerStatement')
                 }"
                 name="newPagePerStn"
-                value="newPagePerStn"
-                v-model="exportChoice.pdf.newPagePerStn"
-              />
+                value="newPagePerStn" />
             </fieldset>
 
             <fieldset
