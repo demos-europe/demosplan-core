@@ -155,6 +155,24 @@
                 opacity: 1;
             }
         }
+
+        ul, ol {
+            padding-left: 1rem;
+        }
+
+        ul {
+            list-style: disc;
+        }
+
+        ol {
+            list-style: decimal;
+        }
+
+        li > p,
+        li > ol,
+        li > ul {
+            margin: 0;
+        }
     }
 }
 
