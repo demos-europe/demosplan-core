@@ -41,6 +41,69 @@ use Traversable;
 
 class ElasticsearchResultCreator extends CoreService
 {
+    // Values that are === NULL instead of "" (empty string) if they are missing
+    private const NULL_VALUES = [
+        'oName.raw', 'priorityAreaKeys', 'countyNames',
+        'municipalityNames', 'topicNames', 'tagNames',
+        'elementId', 'paragraphParentId', 'voteStk', 'votePla',
+        'assignee.id', 'fragments.vote', 'fragments.voteAdvice',
+        'fragments.lastClaimedUserId', 'fragments.element', 'fragments.paragraph',
+        'fragments.countyNames', 'fragments.municipalityNames',
+        'documentParentId', 'fragments_documentParentId', 'fragments.priorityAreaKeys',
+    ];
+    private const RAW_FIELDS = [
+        'dName',
+        'uName',
+        'documentTitle',
+        'paragraphTitle',
+        'topicNames',
+        'meta.submitName',
+        'meta.caseWorkerName',
+        'name',
+        'countyNames',
+        'municipalityNames',
+        'tagNames',
+    ];
+    private const AVAILABLE_SEARCH_FIELDS = [
+        'text'                    => 'text.text',
+        'oName'                   => 'oName^0.2',
+        'dName'                   => 'dName^0.2',
+        'uName'                   => 'uName^0.2',
+        'elementTitle'            => 'elementTitle.text',
+        'documentTitle'           => 'documentTitle.text',
+        'paragraphTitle'          => 'paragraphTitle.text',
+        'recommendation'          => 'recommendation.text',
+        'municipalityNames'       => 'municipalityNames',
+        'internId'                => 'internId',
+        'externId'                => 'externId',
+        'priorityAreaKeys'        => 'priorityAreaKeys',
+        'countyNames'             => 'countyNames.raw',
+        'tagNames'                => 'tagNames.text',
+        'topicNames'              => 'topicNames.text',
+        'meta_submitLastName'     => 'meta.submitLastName^0.2',
+        'meta_caseWorkerLastName' => 'meta.caseWorkerLastName^0.2',
+        'cluster_externId'        => 'cluster.externId',
+        'clusterName'             => 'name.text',
+        'cluster_uName'           => 'cluster.uName^0.1',
+        'fragments.documentTitle.text',
+        'fragments.paragraphTitle.text',
+        'votes.firstName'         => 'votes.firstName',
+        'votes.lastName'          => 'votes.lastName',
+        'votes.name'              => 'votes.name',
+        'filename'                => 'files',
+        // after refactoring in T20362:
+        'authorName'              => 'uName^0.2',
+        'consideration'           => 'recommendation.text',
+        'department'              => 'dName^0.2',
+        'orgaCity'                => 'meta.orgaCity',
+        'organisationName'        => 'oName^0.2',
+        'orgaPostalCode'          => 'meta.orgaPostalCode',
+        'planDocument'            => ['documentTitle.text', 'elementTitle.text', 'paragraphTitle.text'],
+        'statementId'             => 'externId',
+        'statementText'           => 'text.text',
+        'topics'                  => 'topicNames.text',
+    ];
+
     public function __construct(
         private readonly StatementService $statementService,
         private readonly StatementFragmentService $statementFragmentService,
@@ -54,7 +117,6 @@ class ElasticsearchResultCreator extends CoreService
         private readonly DepartmentRepository $departmentRepository
     ) {
     }
-
     /**
      * Gets Aggegations from Elasticsearch to use as facetted filters.
      *
@@ -85,8 +147,11 @@ class ElasticsearchResultCreator extends CoreService
     ): ElasticsearchResult {
         $elasticsearchResultStatement = new ElasticsearchResult();
         try {
-            $boolQuery = new BoolQuery();
-            $searchQuery = $this->getSearchQuery($procedureId, $search, $searchFields, $aggregationsMinDocumentCount);
+            $searchQuery = $this->getSearchQuery(
+                $search,
+                $searchFields,
+                $aggregationsMinDocumentCount
+            );
             [$boolMustFilter, $boolMustNotFilter] = $this->getBasicFilters($procedureId, $userFilters);
             $userFilters = $this->getRenamedUserFilters($userFilters);
             $fragmentFilters = $this->getFragmentFilters($userFilters);
@@ -95,9 +160,19 @@ class ElasticsearchResultCreator extends CoreService
 
             if ((null !== $search && '' !== $search) || 0 < count($userFragmentFilters)) {
                 $userFragmentFilters['procedureId'] = $procedureId;
-                $fragmentEsResult = $this->statementFragmentService->getElasticsearchStatementFragmentResult($userFragmentFilters, $search, null, 10000, 1, $searchFields, $addAllAggregations);
+                $fragmentEsResult = $this->statementFragmentService->getElasticsearchStatementFragmentResult(
+                    $userFragmentFilters,
+                    $search,
+                    null,
+                    10000,
+                    1,
+                    $searchFields,
+                    $addAllAggregations
+                );
                 $statementMustIds = [];
-                if (0 < (is_countable($fragmentEsResult->getHits()['hits']) ? count($fragmentEsResult->getHits()['hits']) : 0)) {
+                $filterStatementsById = is_countable($fragmentEsResult->getHits()['hits'])
+                    && 0 < count($fragmentEsResult->getHits()['hits']);
+                if ($filterStatementsById) {
                     // use should filter as other filters may be applied as well
                     foreach ($fragmentEsResult->getHits()['hits'] as $fragmentHit) {
                         $statementMustIds[] = $fragmentHit['_source']['statementId'];
@@ -130,29 +205,6 @@ class ElasticsearchResultCreator extends CoreService
                 }
             }
 
-            // Values that are === NULL instead of "" (empty string) if they are missing
-            $nullValues = ['oName.raw', 'priorityAreaKeys', 'countyNames',
-                'municipalityNames', 'topicNames', 'tagNames',
-                'elementId', 'paragraphParentId', 'voteStk', 'votePla',
-                'assignee.id', 'fragments.vote', 'fragments.voteAdvice',
-                'fragments.lastClaimedUserId', 'fragments.element', 'fragments.paragraph',
-                'fragments.countyNames', 'fragments.municipalityNames',
-                'documentParentId', 'fragments_documentParentId', 'fragments.priorityAreaKeys',
-            ];
-            $rawFields = [
-                'dName',
-                'uName',
-                'documentTitle',
-                'paragraphTitle',
-                'topicNames',
-                'meta.submitName',
-                'meta.caseWorkerName',
-                'name',
-                'countyNames',
-                'municipalityNames',
-                'tagNames',
-            ];
-
             foreach ($userFilters as $filterName => $filterValues) {
                 if (\in_array($filterName, $fragmentFilters)) {
                     continue;
@@ -167,12 +219,15 @@ class ElasticsearchResultCreator extends CoreService
                     $shouldFilter = [];
                     $shouldNotFilter = [];
                     foreach ($filterValues as $filterValue) {
-                        if ($filterValue === $this->elasticSearchService::KEINE_ZUORDNUNG || null === $filterValue || (\in_array($filterName, $nullValues) && '' === $filterValue)) {
+                        if ($filterValue === $this->elasticSearchService::KEINE_ZUORDNUNG
+                            || null === $filterValue
+                            || (\in_array($filterName, self::NULL_VALUES) && '' === $filterValue)
+                        ) {
                             $shouldNotFilter[] = $this->elasticSearchService->getElasticaExistsInstance(
                                 $filterName
                             );
                         } else {
-                            $filterName = $this->isRawFilteredTerm($filterName, $rawFields) ? $filterName.'.raw' : $filterName;
+                            $filterName = $this->isRawFilteredTerm($filterName) ? $filterName.'.raw' : $filterName;
                             $value = $filterValue === $this->elasticSearchService::EMPTY_FIELD ? '' : $filterValue;
                             $shouldFilter[] = $this->elasticSearchService->getElasticaTermsInstance(
                                 $filterName,
@@ -200,12 +255,12 @@ class ElasticsearchResultCreator extends CoreService
                         $boolMustFilter,
                         $boolMustNotFilter,
                         null,
-                        $rawFields,
+                        self::RAW_FIELDS,
                         $addAllAggregations
                     );
                 }
             }
-
+            $boolQuery = new BoolQuery();
             if (0 < (is_countable($boolMustFilter) ? count($boolMustFilter) : 0)) {
                 array_map($boolQuery->addMust(...), $boolMustFilter);
             }
@@ -240,12 +295,24 @@ class ElasticsearchResultCreator extends CoreService
             }
             // Institution/Name - institution - oName.raw
             if ($addAllAggregations || \array_key_exists('institution', $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation($query, 'oName.raw', null, null, 'oName.raw');
+                $query = $this->elasticSearchService->addEsAggregation(
+                    $query,
+                    'oName.raw',
+                    null,
+                    null,
+                    'oName.raw'
+                );
                 $query = $this->elasticSearchService->addEsMissingAggregation($query, 'oName.raw');
             }
             // Abteilung - department - dName.raw
             if ($addAllAggregations || \array_key_exists('department', $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation($query, 'dName.raw', null, null, 'dName.raw');
+                $query = $this->elasticSearchService->addEsAggregation(
+                    $query,
+                    'dName.raw',
+                    null,
+                    null,
+                    'dName.raw'
+                );
                 $query = $this->elasticSearchService->addEsMissingAggregation($query, 'dName.raw');
             }
             // Verfahrensschritt - phase - phase
@@ -289,31 +356,69 @@ class ElasticsearchResultCreator extends CoreService
             /***************************************** STELLUNGNAHME ************************************************/
             // Sachbearbeiter - assignee_id - assignee.id
             if ($addAllAggregations || \array_key_exists('assignee_id', $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation($query, 'assignee.id', null, null, 'assignee_id');
+                $query = $this->elasticSearchService->addEsAggregation(
+                    $query,
+                    'assignee.id',
+                    null,
+                    null,
+                    'assignee_id'
+                );
                 $query = $this->elasticSearchService->addEsMissingAggregation($query, 'assignee.id');
             }
             // Bearbeitungsstatus - status - status
-            if ($addAllAggregations || \array_key_exists(StatementService::AGGREGATION_STATEMENT_STATUS, $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation($query, StatementService::FIELD_STATEMENT_STATUS, null, null, StatementService::AGGREGATION_STATEMENT_STATUS);
+            if ($addAllAggregations
+                || \array_key_exists(StatementService::AGGREGATION_STATEMENT_STATUS, $userFilters)
+            ) {
+                $query = $this->elasticSearchService->addEsAggregation(
+                    $query,
+                    StatementService::FIELD_STATEMENT_STATUS,
+                    null,
+                    null,
+                    StatementService::AGGREGATION_STATEMENT_STATUS
+                );
             }
             // Votum - votePla - votePla
             if ($addAllAggregations || \array_key_exists('votePla', $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation($query, 'votePla', null, null, 'votePla'); // vote
+                $query = $this->elasticSearchService->addEsAggregation(
+                    $query,
+                    'votePla',
+                    null,
+                    null,
+                    'votePla'
+                ); // vote
                 $query = $this->elasticSearchService->addEsMissingAggregation($query, 'votePla');
             }
             // Kreis - countyNames - countyNames.raw
             if ($addAllAggregations || \array_key_exists('countyNames', $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation($query, 'countyNames.raw', null, null, 'countyNames');
+                $query = $this->elasticSearchService->addEsAggregation(
+                    $query,
+                    'countyNames.raw',
+                    null,
+                    null,
+                    'countyNames'
+                );
                 $query = $this->elasticSearchService->addEsMissingAggregation($query, 'countyNames.raw');
             }
             // Gemeinde - municipalityNames - municipalityNames.raw
             if ($addAllAggregations || \array_key_exists('municipalityNames', $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation($query, 'municipalityNames.raw', null, null, 'municipalityNames');
+                $query = $this->elasticSearchService->addEsAggregation(
+                    $query,
+                    'municipalityNames.raw',
+                    null,
+                    null,
+                    'municipalityNames'
+                );
                 $query = $this->elasticSearchService->addEsMissingAggregation($query, 'municipalityNames.raw');
             }
             // Schlagwort - tagNames - tagNames.raw
             if ($addAllAggregations || \array_key_exists('tagNames', $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation($query, 'tagNames.raw', null, null, 'tagNames');
+                $query = $this->elasticSearchService->addEsAggregation(
+                    $query,
+                    'tagNames.raw',
+                    null,
+                    null,
+                    'tagNames'
+                );
                 $query = $this->elasticSearchService->addEsMissingAggregation($query, 'tagNames.raw');
             }
             // Potenzialflächen - priorityAreaKeys - priorityAreaKeys
@@ -323,7 +428,13 @@ class ElasticsearchResultCreator extends CoreService
             }
             // Dokument - planningDocument - elementId
             if ($addAllAggregations || \array_key_exists('elementId', $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation($query, 'elementId', '_term', 'asc', 'elementId');
+                $query = $this->elasticSearchService->addEsAggregation(
+                    $query,
+                    'elementId',
+                    '_term',
+                    'asc',
+                    'elementId'
+                );
                 $query = $this->elasticSearchService->addEsMissingAggregation($query, 'elementId');
             }
             // Kapitel - reasonParagraph - paragraphParentId
@@ -338,7 +449,13 @@ class ElasticsearchResultCreator extends CoreService
             }
             // Thema - topicNames - topicNames.raw
             if ($addAllAggregations || \array_key_exists('topicNames', $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation($query, 'topicNames.raw', null, null, 'topicNames');
+                $query = $this->elasticSearchService->addEsAggregation(
+                    $query,
+                    'topicNames.raw',
+                    null,
+                    null,
+                    'topicNames'
+                );
                 $query = $this->elasticSearchService->addEsMissingAggregation($query, 'topicNames.raw');
             }
             // ID - externId - externId
@@ -354,12 +471,26 @@ class ElasticsearchResultCreator extends CoreService
                 $query = $this->elasticSearchService->addEsAggregation($query, 'type');
             }
             // Priorität - priority - priority
-            if ($addAllAggregations || \array_key_exists(StatementService::AGGREGATION_STATEMENT_PRIORITY, $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation($query, StatementService::FIELD_STATEMENT_PRIORITY, null, null, StatementService::AGGREGATION_STATEMENT_PRIORITY);
+            if ($addAllAggregations
+                || \array_key_exists(StatementService::AGGREGATION_STATEMENT_PRIORITY, $userFilters)
+            ) {
+                $query = $this->elasticSearchService->addEsAggregation(
+                    $query,
+                    StatementService::FIELD_STATEMENT_PRIORITY,
+                    null,
+                    null,
+                    StatementService::AGGREGATION_STATEMENT_PRIORITY
+                );
             }
             // Empfehlung - voteStk - voteStk
             if ($addAllAggregations || \array_key_exists('voteStk', $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation($query, 'voteStk', null, null, 'voteStk'); // advice for vote
+                $query = $this->elasticSearchService->addEsAggregation(
+                    $query,
+                    'voteStk',
+                    null,
+                    null,
+                    'voteStk'
+                ); // advice for vote
                 $query = $this->elasticSearchService->addEsMissingAggregation($query, 'voteStk');
             }
 
@@ -367,61 +498,148 @@ class ElasticsearchResultCreator extends CoreService
 
             // Sachbearbeiter - fragments_lastClaimed_id - fragments.lastClaimedUserId
             if ($addAllAggregations || \array_key_exists('fragments_lastClaimed_id', $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation($query, 'fragments.lastClaimedUserId', null, null, 'fragments_lastClaimed_id');
-                $query = $this->elasticSearchService->addEsFragmentsMissingAggregation('fragments.lastClaimedUserId', $query);
+                $query = $this->elasticSearchService->addEsAggregation(
+                    $query,
+                    'fragments.lastClaimedUserId',
+                    null,
+                    null,
+                    'fragments_lastClaimed_id'
+                );
+                $query = $this->elasticSearchService->addEsFragmentsMissingAggregation(
+                    'fragments.lastClaimedUserId',
+                    $query
+                );
             }
             // Bearbeitungsstatus - fragments_status - fragments.status
             if ($addAllAggregations || \array_key_exists('fragments_status', $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation($query, 'fragments.status', null, null, 'fragments_status');
+                $query = $this->elasticSearchService->addEsAggregation(
+                    $query,
+                    'fragments.status',
+                    null,
+                    null,
+                    'fragments_status'
+                );
             }
             // Votum - fragments_vote - fragments.vote
             if ($addAllAggregations || \array_key_exists('fragments_vote', $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation($query, 'fragments.vote', null, null, 'fragments_vote');
+                $query = $this->elasticSearchService->addEsAggregation(
+                    $query,
+                    'fragments.vote',
+                    null,
+                    null,
+                    'fragments_vote'
+                );
                 $query = $this->elasticSearchService->addEsFragmentsMissingAggregation('fragments.vote', $query);
             }
             // Kreis - fragments_countyNames - fragments.countyNames
             if ($addAllAggregations || \array_key_exists('fragments_countyNames', $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation($query, 'fragments.countyNames.raw', null, null, 'fragments_countyNames');
-                $query = $this->elasticSearchService->addEsFragmentsMissingAggregation('fragments.countyNames.raw', $query);
+                $query = $this->elasticSearchService->addEsAggregation(
+                    $query,
+                    'fragments.countyNames.raw',
+                    null,
+                    null,
+                    'fragments_countyNames'
+                );
+                $query = $this->elasticSearchService->addEsFragmentsMissingAggregation(
+                    'fragments.countyNames.raw',
+                    $query
+                );
             }
             // Gemeinde - fragments_municipalityNames - fragments.municipalityNames
             if ($addAllAggregations || \array_key_exists('fragments_municipalityNames', $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation($query, 'fragments.municipalityNames.raw', null, null, 'fragments_municipalityNames');
-                $query = $this->elasticSearchService->addEsFragmentsMissingAggregation('fragments.municipalityNames.raw', $query);
+                $query = $this->elasticSearchService->addEsAggregation(
+                    $query,
+                    'fragments.municipalityNames.raw',
+                    null,
+                    null,
+                    'fragments_municipalityNames'
+                );
+                $query = $this->elasticSearchService->addEsFragmentsMissingAggregation(
+                    'fragments.municipalityNames.raw',
+                    $query
+                );
             }
             // Schlagwort - fragments_tagNames - fragments.tags.name
             if ($addAllAggregations || \array_key_exists('fragments.tagNames', $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation($query, 'fragments.tags.name.raw', null, null, 'fragments_tagNames');
+                $query = $this->elasticSearchService->addEsAggregation(
+                    $query,
+                    'fragments.tags.name.raw',
+                    null,
+                    null,
+                    'fragments_tagNames'
+                );
             }
             // Potenzialflächen - fragments.priorityAreaKeys - fragments.priorityAreaKeys
             if ($addAllAggregations || \array_key_exists('fragments.priorityAreaKeys', $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation($query, 'fragments.priorityAreaKeys', null, null, 'fragments.priorityAreaKeys');
+                $query = $this->elasticSearchService->addEsAggregation(
+                    $query,
+                    'fragments.priorityAreaKeys',
+                    null,
+                    null,
+                    'fragments.priorityAreaKeys'
+                );
             }
             // Dokument - fragments_element - fragments.elementId
             if ($addAllAggregations || \array_key_exists('fragments_element', $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation($query, 'fragments.elementId', null, null, 'fragments_element');
+                $query = $this->elasticSearchService->addEsAggregation(
+                    $query,
+                    'fragments.elementId',
+                    null,
+                    null,
+                    'fragments_element'
+                );
             }
             // Kapitel - fragments_paragraphParentId - fragments.paragraphParentId
             if ($addAllAggregations || \array_key_exists('fragments_paragraphParentId', $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation($query, 'fragments.paragraphParentId', null, null, 'fragments_paragraphParentId');
-                $query = $this->elasticSearchService->addEsFragmentsMissingAggregation('fragments.paragraphParentId', $query);
+                $query = $this->elasticSearchService->addEsAggregation(
+                    $query,
+                    'fragments.paragraphParentId',
+                    null,
+                    null,
+                    'fragments_paragraphParentId'
+                );
+                $query = $this->elasticSearchService->addEsFragmentsMissingAggregation(
+                    'fragments.paragraphParentId',
+                    $query
+                );
             }
             // Datei - fragments_documentParentId - fragments.documentParentId
             if ($addAllAggregations || \array_key_exists('fragments_documentParentId', $userFilters)) {
-                $query = $this->elasticSearchService->addEsFragmentsMissingAggregation('fragments.documentParentId', $query);
-                $query = $this->elasticSearchService->addEsAggregation($query, 'fragments.documentParentId', null, null, 'fragments.documentParentId');
+                $query = $this->elasticSearchService->addEsFragmentsMissingAggregation(
+                    'fragments.documentParentId',
+                    $query
+                );
+                $query = $this->elasticSearchService->addEsAggregation(
+                    $query,
+                    'fragments.documentParentId',
+                    null,
+                    null,
+                    'fragments.documentParentId'
+                );
             }
             // Fachbehörde - fragments_reviewerName - fragments.departmentId
             if ($addAllAggregations || \array_key_exists('fragments_reviewerName', $userFilters)) {
-                $query = $this->elasticSearchService->addEsFragmentsMissingAggregation('fragments.departmentId', $query);
-                $query = $this->elasticSearchService->addEsAggregation($query, 'fragments.departmentId', null, null, 'fragments.departmentId');
+                $query = $this->elasticSearchService->addEsFragmentsMissingAggregation(
+                    'fragments.departmentId',
+                    $query
+                );
+                $query = $this->elasticSearchService->addEsAggregation(
+                    $query,
+                    'fragments.departmentId',
+                    null,
+                    null,
+                    'fragments.departmentId'
+                );
             }
 
             // Sorting
             $esSort = $this->mapSorting($sort, $search);
             $query->addSort($esSort);
 
-            $this->logger->debug('Elasticsearch StatementList Query: '.DemosPlanTools::varExport($query->getQuery(), true));
+            $this->logger->debug(
+                'Elasticsearch StatementList Query: '.
+                DemosPlanTools::varExport($query->getQuery(), true)
+            );
 
             $search = $this->statementService->getEsStatementType();
             // Don't let yourself be fooled, this basically does the search request, don't
@@ -458,13 +676,17 @@ class ElasticsearchResultCreator extends CoreService
             $esResultAggregations = $resultSet->getAggregations();
             $totalHits = $result['hits']['total'];
             if (is_array($totalHits) && array_key_exists('value', $totalHits) && 0 === $totalHits['value']) {
-                $esResultAggregations = $this->addFilterToAggregationsWhenCausedResultIsEmpty($esResultAggregations, $userFilters);
+                $esResultAggregations = $this->addFilterToAggregationsWhenCausedResultIsEmpty(
+                    $esResultAggregations,
+                    $userFilters
+                );
             }
 
             $processedAggregation = [];
             $elementsAdminList = $this->elementsService->getElementsAdminList($procedureId);
-            $elementMap = \collect($elementsAdminList)
-                ->mapWithKeys(static fn (Elements $element): array => [$element->getId() => $element->getTitle()])->all();
+            $elementMap = \collect($elementsAdminList)->mapWithKeys(
+                static fn (Elements $element): array => [$element->getId() => $element->getTitle()]
+            )->all();
 
             /********************************** QUERY AGGREGATIONS (INI) *********************************************/
 
@@ -472,26 +694,56 @@ class ElasticsearchResultCreator extends CoreService
 
             foreach ($customAggregations as $customAggregation) {
                 $name = $customAggregation->getName();
-                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray($name, $name, $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(
+                    $name,
+                    $name,
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
 
             /****************************************** EINREICHUNG **************************************************/
             // Öffentlichkeit/Institution - publicStatement - publicStatement
             if ($addAllAggregations || \array_key_exists('publicStatement', $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray('publicStatement', 'publicStatement', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(
+                    'publicStatement',
+                    'publicStatement',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
             // Institution/Name - institution - oName.raw
             if ($addAllAggregations || \array_key_exists('institution', $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addMissingAggregationResultToArray('oName.raw', 'institution', $esResultAggregations, $processedAggregation);
-                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray('oName.raw', 'institution', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addMissingAggregationResultToArray(
+                    'oName.raw',
+                    'institution',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
+                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(
+                    'oName.raw',
+                    'institution',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
             // Abteilung - department - dName.raw
             if ($addAllAggregations || \array_key_exists('department', $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray('dName.raw', 'department', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(
+                    'dName.raw',
+                    'department',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
             // Verfahrensschritt - phase - phase
             if ($addAllAggregations || \array_key_exists('phase', $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray('phase', 'phase', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(
+                    'phase',
+                    'phase',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
             // Verschobene Stellungnahmen in dieses Verfahren - movedFromProcedureId - movedFromProcedureId
             if ($addAllAggregations || \array_key_exists('movedFromProcedureId', $userFilters)) {
@@ -546,7 +798,12 @@ class ElasticsearchResultCreator extends CoreService
 
             // Sachbearbeiter - assignee_id
             if ($addAllAggregations || \array_key_exists('assignee_id', $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addMissingAggregationResultToArray('assignee.id', 'assignee_id', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addMissingAggregationResultToArray(
+                    'assignee.id',
+                    'assignee_id',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
             if (isset($esResultAggregations['assignee_id'])) {
                 foreach ($esResultAggregations['assignee_id']['buckets'] as $agg) {
@@ -562,12 +819,24 @@ class ElasticsearchResultCreator extends CoreService
                 }
             }
             // Bearbeitungsstatus - status
-            if ($addAllAggregations || \array_key_exists(StatementService::AGGREGATION_STATEMENT_STATUS, $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(StatementService::AGGREGATION_STATEMENT_STATUS, StatementService::AGGREGATION_STATEMENT_STATUS, $esResultAggregations, $processedAggregation);
+            if ($addAllAggregations
+                || \array_key_exists(StatementService::AGGREGATION_STATEMENT_STATUS, $userFilters)
+            ) {
+                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(
+                    StatementService::AGGREGATION_STATEMENT_STATUS,
+                    StatementService::AGGREGATION_STATEMENT_STATUS,
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
             // Votum - votePla
             if ($addAllAggregations || \array_key_exists('votePla', $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addMissingAggregationResultToArray('votePla', 'votePla', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addMissingAggregationResultToArray(
+                    'votePla',
+                    'votePla',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
             if (isset($esResultAggregations['votePla'])) {
                 foreach ($esResultAggregations['votePla']['buckets'] as $agg) {
@@ -580,37 +849,104 @@ class ElasticsearchResultCreator extends CoreService
             }
             // Kreis - countyNames
             if ($addAllAggregations || \array_key_exists('countyNames', $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addMissingAggregationResultToArray('countyNames.raw', 'countyNames', $esResultAggregations, $processedAggregation);
-                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray('countyNames', 'countyNames', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addMissingAggregationResultToArray(
+                    'countyNames.raw',
+                    'countyNames',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
+                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(
+                    'countyNames',
+                    'countyNames',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
             // Gemeinde - municipalityNames
             if ($addAllAggregations || \array_key_exists('municipalityNames', $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addMissingAggregationResultToArray('municipalityNames.raw', 'municipalityNames', $esResultAggregations, $processedAggregation);
-                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray('municipalityNames', 'municipalityNames', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addMissingAggregationResultToArray(
+                    'municipalityNames.raw',
+                    'municipalityNames',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
+                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(
+                    'municipalityNames',
+                    'municipalityNames',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
             // Schlagwort - tagNames - tagNams.raw
             if ($addAllAggregations || \array_key_exists('tagNames', $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addMissingAggregationResultToArray('tagNames.raw', 'tagNames', $esResultAggregations, $processedAggregation);
-                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray('tagNames', 'tagNames', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addMissingAggregationResultToArray(
+                    'tagNames.raw',
+                    'tagNames',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
+                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(
+                    'tagNames',
+                    'tagNames',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
             // Potenzialflächen - priorityAreaKeys
             if ($addAllAggregations || \array_key_exists('priorityAreaKeys', $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addMissingAggregationResultToArray('priorityAreaKeys', 'priorityAreaKeys', $esResultAggregations, $processedAggregation);
-                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray('priorityAreaKeys', 'priorityAreaKeys', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addMissingAggregationResultToArray(
+                    'priorityAreaKeys',
+                    'priorityAreaKeys',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
+                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(
+                    'priorityAreaKeys',
+                    'priorityAreaKeys',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
             // Dokument - planningDocument - elementId
             if ($addAllAggregations || \array_key_exists('elementId', $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray('elementId', 'planningDocument', $esResultAggregations, $processedAggregation, $elementMap);
-                $processedAggregation = $this->elasticSearchService->addMissingAggregationResultToArray('elementId', 'planningDocument', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(
+                    'elementId',
+                    'planningDocument',
+                    $esResultAggregations,
+                    $processedAggregation,
+                    $elementMap
+                );
+                $processedAggregation = $this->elasticSearchService->addMissingAggregationResultToArray(
+                    'elementId',
+                    'planningDocument',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
             // Kapitel - reasonParagraph - paragraphParentId
             if ($addAllAggregations || \array_key_exists('reasonParagraph', $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addMissingAggregationResultToArray('paragraphParentId', 'reasonParagraph', $esResultAggregations, $processedAggregation);
-                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray('paragraphParentId', 'reasonParagraph', $esResultAggregations, $processedAggregation, $this->getParagraphMap($esResultAggregations['paragraphParentId']['buckets']));
+                $processedAggregation = $this->elasticSearchService->addMissingAggregationResultToArray(
+                    'paragraphParentId',
+                    'reasonParagraph',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
+                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(
+                    'paragraphParentId',
+                    'reasonParagraph',
+                    $esResultAggregations,
+                    $processedAggregation,
+                    $this->getParagraphMap($esResultAggregations['paragraphParentId']['buckets'])
+                );
             }
             // Datei - documentParentId
             if ($addAllAggregations || \array_key_exists('documentParentId', $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addMissingAggregationResultToArray('documentParentId', 'documentParentId', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addMissingAggregationResultToArray(
+                    'documentParentId',
+                    'documentParentId',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
             if (isset($esResultAggregations['documentParentId'])) {
                 foreach ($esResultAggregations['documentParentId']['buckets'] as $agg) {
@@ -625,16 +961,36 @@ class ElasticsearchResultCreator extends CoreService
             }
             // Thema - topicNames - topicNames.raw
             if ($addAllAggregations || \array_key_exists('topicNames', $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addMissingAggregationResultToArray('topicNames.raw', 'topicNames', $esResultAggregations, $processedAggregation);
-                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray('topicNames', 'topicNames', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addMissingAggregationResultToArray(
+                    'topicNames.raw',
+                    'topicNames',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
+                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(
+                    'topicNames',
+                    'topicNames',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
             // ID - externId - externId
             if ($addAllAggregations || \array_key_exists('externId', $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray('externId', 'externId', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(
+                    'externId',
+                    'externId',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
             // Gruppenname - name - name.raw
             if ($addAllAggregations || \array_key_exists('name', $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray('name.raw', 'name', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(
+                    'name.raw',
+                    'name',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
             // Art der Stellungnahme - type
             if (isset($esResultAggregations['type'])) {
@@ -647,12 +1003,24 @@ class ElasticsearchResultCreator extends CoreService
                 }
             }
             // Priorität - priority
-            if ($addAllAggregations || \array_key_exists(StatementService::AGGREGATION_STATEMENT_PRIORITY, $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(StatementService::AGGREGATION_STATEMENT_PRIORITY, StatementService::AGGREGATION_STATEMENT_PRIORITY, $esResultAggregations, $processedAggregation);
+            if ($addAllAggregations
+                || \array_key_exists(StatementService::AGGREGATION_STATEMENT_PRIORITY, $userFilters)
+            ) {
+                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(
+                    StatementService::AGGREGATION_STATEMENT_PRIORITY,
+                    StatementService::AGGREGATION_STATEMENT_PRIORITY,
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
             // Empfehlung - voteStk
             if ($addAllAggregations || \array_key_exists('voteStk', $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addMissingAggregationResultToArray('voteStk', 'voteStk', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addMissingAggregationResultToArray(
+                    'voteStk',
+                    'voteStk',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
             if (isset($esResultAggregations['voteStk'])) {
                 foreach ($esResultAggregations['voteStk']['buckets'] as $agg) {
@@ -665,16 +1033,36 @@ class ElasticsearchResultCreator extends CoreService
             }
             // project specifics
             if ($addAllAggregations || \array_key_exists('meta.userState', $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray('meta.userState', 'userState', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(
+                    'meta.userState',
+                    'userState',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
             if ($addAllAggregations || \array_key_exists('meta.userGroup', $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray('meta.userGroup', 'userGroup', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(
+                    'meta.userGroup',
+                    'userGroup',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
             if ($addAllAggregations || \array_key_exists('meta.userOrganisation', $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray('meta.userOrganisation', 'userOrganisation', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(
+                    'meta.userOrganisation',
+                    'userOrganisation',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
             if ($addAllAggregations || \array_key_exists('meta.userPosition', $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray('meta.userPosition', 'userPosition', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(
+                    'meta.userPosition',
+                    'userPosition',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
 
             /*************************************** DATENSATZ / FRAGMENTS *******************************************/
@@ -683,98 +1071,199 @@ class ElasticsearchResultCreator extends CoreService
 
             // Sachbearbeiter - fragments_lastClaimed_id - fragments.lastClaimedUserId
             if ($addAllAggregations || \array_key_exists('fragments_lastClaimed_id', $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addFragmentsMissingAggregationResultToArray('fragments.lastClaimedUserId', 'fragments_lastClaimed_id', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addFragmentsMissingAggregationResultToArray(
+                    'fragments.lastClaimedUserId',
+                    'fragments_lastClaimed_id',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
             $fragmentAggregations = $fragmentEsResult->getAggregations();
             if (isset($fragmentAggregations['lastClaimed_id'])) {
-                $processedAggregation['fragments_lastClaimed_id'] = \array_merge($processedAggregation['fragments_lastClaimed_id'],
+                $processedAggregation['fragments_lastClaimed_id'] = \array_merge(
+                    $processedAggregation['fragments_lastClaimed_id'],
                     $this->elasticSearchService->generateFilterArrayFromUserAssignEsBucket(
                         $fragmentAggregations['lastClaimed_id'],
                         'value',
                         'value',
                         'count'
-                    ));
+                    )
+                );
             } elseif (isset($esResultAggregations['fragments_lastClaimed_id'])) {
-                $processedAggregation['fragments_lastClaimed_id'] = \array_merge($processedAggregation['fragments_lastClaimed_id'],
+                $processedAggregation['fragments_lastClaimed_id'] = \array_merge(
+                    $processedAggregation['fragments_lastClaimed_id'],
                     $this->elasticSearchService->generateFilterArrayFromUserAssignEsBucket(
                         $esResultAggregations['fragments_lastClaimed_id']['buckets']
-                    ));
+                    )
+                );
             }
             // Bearbeitungsstatus - fragments_status - fragments.status
             if (isset($fragmentAggregations['status'])) {
-                $processedAggregation = $this->elasticSearchService->addFragmentEsResultToArray('fragments_status', 'fragments_status', $fragmentAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addFragmentEsResultToArray(
+                    'fragments_status',
+                    'fragments_status',
+                    $fragmentAggregations,
+                    $processedAggregation
+                );
             } elseif (isset($esResultAggregations['fragments_status'])) {
-                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray('fragments_status', 'fragments_status', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(
+                    'fragments_status',
+                    'fragments_status',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
             // Votum - fragments_vote - fragments.vote
             if (isset($fragmentAggregations['vote'])) {
-                $processedAggregation = $this->elasticSearchService->addFragmentEsResultToArray('vote', 'fragments_vote', $fragmentAggregations, $processedAggregation, $this->statementFragmentService->getVoteLabelMap());
+                $processedAggregation = $this->elasticSearchService->addFragmentEsResultToArray(
+                    'vote',
+                    'fragments_vote',
+                    $fragmentAggregations,
+                    $processedAggregation,
+                    $this->statementFragmentService->getVoteLabelMap()
+                );
             } elseif (isset($esResultAggregations['fragments_vote'])) {
-                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray('fragments_vote', 'fragments_vote', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(
+                    'fragments_vote',
+                    'fragments_vote',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
             // Kreis - fragments_countyNames - fragments.countyNames
             if ($addAllAggregations || \array_key_exists('fragments_countyNames', $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addFragmentsMissingAggregationResultToArray('fragments.countyNames', 'fragments_countyNames', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addFragmentsMissingAggregationResultToArray(
+                    'fragments.countyNames',
+                    'fragments_countyNames',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
             if (isset($fragmentAggregations['countyNames'])) {
-                $processedAggregation['fragments_countyNames'] = \array_merge($processedAggregation['fragments_countyNames'],
+                $processedAggregation['fragments_countyNames'] = \array_merge(
+                    $processedAggregation['fragments_countyNames'],
                     $this->elasticSearchService->generateFilterArrayFromUserAssignEsBucket(
                         $fragmentAggregations['countyNames'],
                         'value',
                         'value',
                         'count'
-                    ));
+                    )
+                );
             } elseif (isset($esResultAggregations['fragments_countyNames'])) {
-                $processedAggregation['fragments_countyNames'] = \array_merge(\array_key_exists('fragments_countyNames', $processedAggregation) ? $processedAggregation['fragments_countyNames'] : [],
+                $processedAggregation['fragments_countyNames'] = \array_merge(
+                    \array_key_exists(
+                        'fragments_countyNames',
+                        $processedAggregation
+                    ) ? $processedAggregation['fragments_countyNames'] : [],
                     $this->elasticSearchService->generateFilterArrayFromUserAssignEsBucket(
                         $esResultAggregations['fragments_countyNames']['buckets']
-                    ));
+                    )
+                );
             }
             // Gemeinde - fragments_municipalityNames - fragments.municipalityNames
             if ($addAllAggregations || \array_key_exists('fragments_municipalityNames', $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addFragmentsMissingAggregationResultToArray('fragments.municipalityNames', 'fragments_municipalityNames', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addFragmentsMissingAggregationResultToArray(
+                    'fragments.municipalityNames',
+                    'fragments_municipalityNames',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
             if (isset($fragmentAggregations['municipalityNames'])) {
-                $processedAggregation['fragments_municipalityNames'] = \array_merge($processedAggregation['fragments_municipalityNames'],
+                $processedAggregation['fragments_municipalityNames'] = \array_merge(
+                    $processedAggregation['fragments_municipalityNames'],
                     $this->elasticSearchService->generateFilterArrayFromUserAssignEsBucket(
                         $fragmentAggregations['municipalityNames'],
                         'value',
                         'value',
                         'count'
-                    ));
+                    )
+                );
             } elseif (isset($esResultAggregations['fragments_municipalityNames'])) {
-                $processedAggregation['fragments_municipalityNames'] = \array_merge(\array_key_exists('fragments_municipalityNames', $processedAggregation) ? $processedAggregation['fragments_municipalityNames'] : [],
+                $processedAggregation['fragments_municipalityNames'] = \array_merge(
+                    \array_key_exists(
+                        'fragments_municipalityNames',
+                        $processedAggregation
+                    ) ? $processedAggregation['fragments_municipalityNames'] : [],
                     $this->elasticSearchService->generateFilterArrayFromUserAssignEsBucket(
                         $esResultAggregations['fragments_municipalityNames']['buckets']
-                    ));
+                    )
+                );
             }
             // Schlagwort - fragments_tagNames - fragments.tags.name
             if (isset($fragmentAggregations['tagNames'])) {
-                $processedAggregation = $this->elasticSearchService->addFragmentEsResultToArray('tagNames', 'fragments_tagNames', $fragmentAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addFragmentEsResultToArray(
+                    'tagNames',
+                    'fragments_tagNames',
+                    $fragmentAggregations,
+                    $processedAggregation
+                );
             }
             // Potenzialflächen - fragments.priorityAreaKeys - fragments.priorityAreaKeys
             if ($addAllAggregations || \array_key_exists('fragments.priorityAreaKeys', $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addFragmentsMissingAggregationResultToArray('fragments.priorityAreaKeys', 'fragments.priorityAreaKeys', $esResultAggregations, $processedAggregation);
-                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray('fragments.priorityAreaKeys', 'fragments.priorityAreaKeys', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addFragmentsMissingAggregationResultToArray(
+                    'fragments.priorityAreaKeys',
+                    'fragments.priorityAreaKeys',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
+                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(
+                    'fragments.priorityAreaKeys',
+                    'fragments.priorityAreaKeys',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
             // Dokument - fragments_element - fragments.elementId
             if ($addAllAggregations || \array_key_exists('fragments_element', $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addFragmentsMissingAggregationResultToArray('fragments.elementId', 'fragments_element', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addFragmentsMissingAggregationResultToArray(
+                    'fragments.elementId',
+                    'fragments_element',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
             if (isset($esResultAggregations['fragments_element'])) {
-                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray('fragments_element', 'fragments_element', $esResultAggregations, $processedAggregation, $elementMap);
+                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(
+                    'fragments_element',
+                    'fragments_element',
+                    $esResultAggregations,
+                    $processedAggregation,
+                    $elementMap
+                );
             }
             // Kapitel - fragments_paragraphParentId - fragments.paragraphParentId
             if ($addAllAggregations || \array_key_exists('fragments_paragraphParentId', $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addFragmentsMissingAggregationResultToArray('fragments.paragraphParentId', 'fragments_paragraphParentId', $esResultAggregations, $processedAggregation);
-                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray('fragments_paragraphParentId', 'fragments_paragraphParentId', $esResultAggregations, $processedAggregation, $this->getParagraphMap($esResultAggregations['fragments_paragraphParentId']['buckets']));
+                $processedAggregation = $this->elasticSearchService->addFragmentsMissingAggregationResultToArray(
+                    'fragments.paragraphParentId',
+                    'fragments_paragraphParentId',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
+                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(
+                    'fragments_paragraphParentId',
+                    'fragments_paragraphParentId',
+                    $esResultAggregations,
+                    $processedAggregation,
+                    $this->getParagraphMap($esResultAggregations['fragments_paragraphParentId']['buckets'])
+                );
             }
             if (isset($fragmentAggregations['paragraphParentId'])) {
-                $processedAggregation = $this->elasticSearchService->addFragmentEsResultToArray('fragments_paragraphParentId', 'fragments_paragraphParentId', $fragmentAggregations, $processedAggregation, $this->getParagraphMap(
-                    $fragmentAggregations['fragments_paragraphParentId'], 'value'));
+                $processedAggregation = $this->elasticSearchService->addFragmentEsResultToArray(
+                    'fragments_paragraphParentId',
+                    'fragments_paragraphParentId',
+                    $fragmentAggregations,
+                    $processedAggregation,
+                    $this->getParagraphMap($fragmentAggregations['fragments_paragraphParentId'], 'value')
+                );
             }
             if ($addAllAggregations || \array_key_exists('fragments_documentParentId', $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addFragmentsMissingAggregationResultToArray('fragments.documentParentId', 'fragments_documentParentId', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addFragmentsMissingAggregationResultToArray(
+                    'fragments.documentParentId',
+                    'fragments_documentParentId',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
             // Datei - fragments_documentParentId - fragments.documentParentId
             if (isset($esResultAggregations['fragments.documentParentId'])) {
@@ -790,19 +1279,26 @@ class ElasticsearchResultCreator extends CoreService
             }
             // Fachbehörde - fragments_reviewerName - fragments.departmentId
             if (isset($fragmentAggregations['departmentId'])) {
-                $processedAggregation = $this->elasticSearchService->addFragmentsMissingAggregationResultToArray('fragments.departmentId', 'fragments_reviewerName', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->elasticSearchService->addFragmentsMissingAggregationResultToArray(
+                    'fragments.departmentId',
+                    'fragments_reviewerName',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
             $useEsResult2 = isset($fragmentAggregations['departmentId']);
             $useAggregationResult2 = isset($esResultAggregations['fragments_reviewerName']);
             if (true === $useEsResult2 || true === $useAggregationResult2) {
                 $countKey2 = true === $useEsResult2 ? 'count' : 'doc_count';
                 $valueKey2 = true === $useEsResult2 ? 'value' : 'key';
-                $listToUse2 = true === $useEsResult2 ? $fragmentAggregations['departmentId'] : $esResultAggregations['fragments_reviewerName']['buckets'];
+                $listToUse2 = true === $useEsResult2 ?
+                    $fragmentAggregations['departmentId'] : $esResultAggregations['fragments_reviewerName']['buckets'];
                 if ($useEsResult2) {
                     foreach ($listToUse2 as $agg) {
                         $department = $this->departmentRepository->get($agg[$valueKey2]);
                         if (null !== $department) {
-                            $processedAggregation['fragments_reviewerName'][] = $this->buildReviewerAggregationArray($department, $agg, $countKey2, $valueKey2);
+                            $processedAggregation['fragments_reviewerName'][] =
+                                $this->buildReviewerAggregationArray($department, $agg, $countKey2, $valueKey2);
                         } else {
                             $this->logger->warning('$department is null for id `'.$agg[$valueKey2].'`');
                         }
@@ -834,19 +1330,13 @@ class ElasticsearchResultCreator extends CoreService
      *
      * @param string $search
      *
-     * @return array|AbstractQuery|null
      */
-    private function getSearchQuery(string $procedureId, $search, array $searchFields, int $aggregationsMinDocumentCount)
+    private function getSearchQuery($search, array $searchFields, int $aggregationsMinDocumentCount): array|AbstractQuery|null
     {
         $searchQuery = null;
 
         // store variable in class property to avoid passing it into methods
         $this->elasticSearchService->setAggregationsMinDocumentCount($aggregationsMinDocumentCount);
-
-        // List may only be generated if procedure is set
-        if (null === $procedureId) {
-            return [];
-        }
 
         // GET QUERY (INI)
         // userFilters may come in in strange formats
@@ -854,57 +1344,16 @@ class ElasticsearchResultCreator extends CoreService
             $searchFields = [];
         }
         $this->profilerStart('ES');
-
         //
         // if a Searchterm is set use it
         if (\is_string($search) && 0 < \strlen($search)) {
-            $availableSearchfields = [
-                'text'                    => 'text.text',
-                'oName'                   => 'oName^0.2',
-                'dName'                   => 'dName^0.2',
-                'uName'                   => 'uName^0.2',
-                'elementTitle'            => 'elementTitle.text',
-                'documentTitle'           => 'documentTitle.text',
-                'paragraphTitle'          => 'paragraphTitle.text',
-                'recommendation'          => 'recommendation.text',
-                'municipalityNames'       => 'municipalityNames',
-                'internId'                => 'internId',
-                'externId'                => 'externId',
-                'priorityAreaKeys'        => 'priorityAreaKeys',
-                'countyNames'             => 'countyNames.raw',
-                'tagNames'                => 'tagNames.text',
-                'topicNames'              => 'topicNames.text',
-                'meta_submitLastName'     => 'meta.submitLastName^0.2',
-                'meta_caseWorkerLastName' => 'meta.caseWorkerLastName^0.2',
-                'cluster_externId'        => 'cluster.externId',
-                'clusterName'             => 'name.text',
-                'cluster_uName'           => 'cluster.uName^0.1',
-                'fragments.documentTitle.text',
-                'fragments.paragraphTitle.text',
-                'votes.firstName'         => 'votes.firstName',
-                'votes.lastName'          => 'votes.lastName',
-                'votes.name'              => 'votes.name',
-                'filename'                => 'files',
-                // after refactoring in T20362:
-                'authorName'              => 'uName^0.2',
-                'consideration'           => 'recommendation.text',
-                'department'              => 'dName^0.2',
-                'orgaCity'                => 'meta.orgaCity',
-                'organisationName'        => 'oName^0.2',
-                'orgaPostalCode'          => 'meta.orgaPostalCode',
-                'planDocument'            => ['documentTitle.text', 'elementTitle.text', 'paragraphTitle.text'],
-                'statementId'             => 'externId',
-                'statementText'           => 'text.text',
-                'topics'                  => 'topicNames.text',
-            ];
-
             $usedSearchfields = [];
             if ([] === $searchFields) {
-                $usedSearchfields = \array_values($availableSearchfields);
+                $usedSearchfields = \array_values(self::AVAILABLE_SEARCH_FIELDS);
             } else {
                 foreach ($searchFields as $field) {
-                    if (\array_key_exists($field, $availableSearchfields)) {
-                        $usedSearchfields[] = $availableSearchfields[$field];
+                    if (\array_key_exists($field, self::AVAILABLE_SEARCH_FIELDS)) {
+                        $usedSearchfields[] = self::AVAILABLE_SEARCH_FIELDS[$field];
                     }
                 }
             }
@@ -1046,11 +1495,10 @@ class ElasticsearchResultCreator extends CoreService
      * suffixed with ".raw" in order to function correctly.
      *
      * @param string $key
-     * @param array  $rawFields
      */
-    private function isRawFilteredTerm($key, $rawFields): bool
+    private function isRawFilteredTerm($key): bool
     {
-        return \in_array($key, $rawFields, true);
+        return \in_array($key, self::RAW_FIELDS, true);
     }
 
     /**
@@ -1069,7 +1517,11 @@ class ElasticsearchResultCreator extends CoreService
             return ['_score' => 'desc'];
         }
 
-        $sortObject = $this->statementService->addMissingSortKeys($sort, 'submitDate', 'asc');
+        $sortObject = $this->statementService->addMissingSortKeys(
+            $sort,
+            'submitDate',
+            'asc'
+        );
         $sortProperty = $sortObject->getPropertyName();
         $sortDirection = $sortObject->getDirection();
 
