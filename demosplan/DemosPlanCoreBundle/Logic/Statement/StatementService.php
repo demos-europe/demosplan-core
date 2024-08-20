@@ -44,7 +44,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVersionField;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
-use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -90,7 +89,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticSearchResultCreator;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticsearchResultCreator;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository;
@@ -114,7 +113,6 @@ use demosplan\DemosPlanCoreBundle\Utilities\Pagination\DemosPlanArrayAdapter;
 use demosplan\DemosPlanCoreBundle\Validator\StatementValidator;
 use demosplan\DemosPlanCoreBundle\ValueObject\APIPagination;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementBulkEditVO;
-use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
 use demosplan\DemosPlanCoreBundle\ValueObject\MovedStatementData;
 use demosplan\DemosPlanCoreBundle\ValueObject\PercentageDistribution;
@@ -133,21 +131,17 @@ use Doctrine\ORM\ORMException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use Elastica\Aggregation\GlobalAggregation;
-use Elastica\Exception\ClientException;
 use Elastica\Index;
 use Elastica\Query;
-use Elastica\Query\AbstractQuery;
 use Elastica\Query\BoolQuery;
 use Exception;
 use Pagerfanta\Elastica\ElasticaAdapter;
-use Pagerfanta\Exception\NotValidCurrentPageException;
 use ReflectionException;
 use RuntimeException;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Traversable;
 use UnexpectedValueException;
 
 use function array_map;
@@ -249,7 +243,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         private readonly DateHelper $dateHelper,
         private readonly DepartmentRepository $departmentRepository,
         private readonly DqlConditionFactory $conditionFactory,
-        private readonly ElasticSearchResultCreator $elasticSearchResultCreator,
+        private readonly ElasticsearchResultCreator $elasticsearchResultCreator,
         private readonly EditorService $editorService,
         private readonly ElasticSearchService $searchService,
         ElementsService $serviceElements,
@@ -292,8 +286,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         private readonly TranslatorInterface $translator,
         private readonly UserRepository $userRepository,
         UserService $userService,
-        private readonly StatementDeleter $statementDeleter,
-        private readonly ElasticSearchResultCreator $elasticsearchResultCreator
+        private readonly StatementDeleter $statementDeleter
     ) {
         $this->assignService = $assignService;
         $this->entityContentChangeService = $entityContentChangeService;
