@@ -58,7 +58,6 @@
                   text: Translator.trans('export.anonymous')
                 }"
                 name="pdfAnonymous"
-                value="anonymous"
                 v-model="exportChoice.pdf.anonymous" />
             </fieldset>
 
@@ -76,8 +75,7 @@
                   bold: true,
                   text: Translator.trans('export.newPagePerStatement')
                 }"
-                name="newPagePerStn"
-                value="newPagePerStn" />
+                name="newPagePerStn" />
             </fieldset>
 
             <fieldset
@@ -166,7 +164,6 @@
                   hint: Translator.trans('explanation.export.anonymous'),
                   text: Translator.trans('export.anonymous')
                 }"
-                value="anonymous"
                 v-model="exportChoice.docx.anonymous" />
             </fieldset>
 
@@ -283,7 +280,6 @@
                   hint: Translator.trans('explanation.export.anonymous'),
                   text: Translator.trans('export.anonymous')
                 }"
-                value="anonymous"
                 v-model="exportChoice.xlsx.anonymous" />
             </fieldset>
             <fieldset
