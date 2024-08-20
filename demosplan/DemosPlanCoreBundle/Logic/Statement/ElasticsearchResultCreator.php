@@ -117,6 +117,7 @@ class ElasticsearchResultCreator extends CoreService
         private readonly DepartmentRepository $departmentRepository
     ) {
     }
+
     /**
      * Gets Aggegations from Elasticsearch to use as facetted filters.
      *
@@ -1329,7 +1330,6 @@ class ElasticsearchResultCreator extends CoreService
      * Returns the query based on search field.
      *
      * @param string $search
-     *
      */
     private function getSearchQuery($search, array $searchFields, int $aggregationsMinDocumentCount): array|AbstractQuery|null
     {
