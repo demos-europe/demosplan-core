@@ -155,6 +155,7 @@
 
     <dp-button-row
       class="p-2"
+      data-cy="assignedTags"
       alignment="left"
       secondary
       primary
