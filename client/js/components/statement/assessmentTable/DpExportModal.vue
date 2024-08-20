@@ -418,18 +418,21 @@ export default {
   },
 
   data () {
+    // Set default values for exportChoice
     const options = this.options
     const data = {}
-    let o
-    let opt
-    let k
+    let optGroupKey // 'docx', 'pdf', etc.
+    let optGroup // all the options defined for an optGroupKey
+    let optKey // key of a single option, e.g. 'exportType', 'sortType'
 
-    for (o in options) {
-      opt = options[o]
-      data[o] = {}
-      if (!opt) continue
-      for (k in opt._defaults) {
-        data[o][k] = opt._defaults[k]
+    for (optGroupKey in options) {
+      optGroup = options[optGroupKey]
+      data[optGroupKey] = {}
+
+      if (!optGroup) continue
+
+      for (optKey in optGroup._defaults) {
+        data[optGroupKey][optKey] = optGroup._defaults[optKey]
       }
     }
 
