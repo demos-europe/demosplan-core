@@ -52,8 +52,7 @@ class ElasticsearchResultCreator extends CoreService
         private readonly ParagraphService $paragraphService,
         private readonly SingleDocumentRepository $singleDocumentRepository,
         private readonly DepartmentRepository $departmentRepository
-    )
-    {
+    ) {
     }
 
     /**
