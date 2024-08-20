@@ -1069,7 +1069,7 @@ class ElasticsearchResultCreator extends CoreService
             return ['_score' => 'desc'];
         }
 
-        $sortObject = $this->addMissingSortKeys($sort, 'submitDate', 'asc');
+        $sortObject = $this->statementService->addMissingSortKeys($sort, 'submitDate', 'asc');
         $sortProperty = $sortObject->getPropertyName();
         $sortDirection = $sortObject->getDirection();
 
@@ -1077,8 +1077,8 @@ class ElasticsearchResultCreator extends CoreService
         if ('submitDate' === $sortProperty) {
             $esSort = ['submit' => $sortDirection];
         }
-        if (self::FIELD_STATEMENT_PRIORITY === $sortProperty) {
-            $esSort = [self::FIELD_STATEMENT_PRIORITY => $sortDirection];
+        if (StatementService::FIELD_STATEMENT_PRIORITY === $sortProperty) {
+            $esSort = [StatementService::FIELD_STATEMENT_PRIORITY => $sortDirection];
         }
         if ('forPoliticians' === $sortProperty) {
             $esSort = [
