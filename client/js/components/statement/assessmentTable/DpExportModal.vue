@@ -65,9 +65,9 @@
             <fieldset
               v-if="options.pdf.newPagePerStn && view === 'original_statements'"
               class="u-mb-0_5 u-pb-0_5">
-<!--              <legend-->
-<!--                class="sr-only"-->
-<!--                v-text="" />-->
+              <legend
+                class="sr-only"
+                v-text="Translator.trans('export.pageLayout')" />
               <dp-checkbox
                 id="pdfNewPagePerStn"
                 v-model="exportChoice.pdf.newPagePerStn"
