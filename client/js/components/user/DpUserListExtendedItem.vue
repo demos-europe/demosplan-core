@@ -236,7 +236,7 @@ export default {
 
     getDepartmentName () {
       const department = this.allDepartments.find(el => el.id === this.user?.relationships?.department.data?.id)
-      return department.attributes?.name
+      return department?.attributes?.name ?? ''
     },
 
     getOrgaName () {

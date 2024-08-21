@@ -134,9 +134,6 @@ export default {
   },
 
   methods: {
-    ...mapActions('Department', {
-      departmentList: 'list'
-    }),
     ...mapActions('Role', {
       roleList: 'list'
     }),
@@ -176,10 +173,9 @@ export default {
     fetchOrganisations () {
       const url = Routing.generate('api_resource_list', { resourceType: 'Orga' })
       return dpApi.get(url, {
-        include: ['departments', 'orga', 'masterToeb'].join(),
+        include: ['departments', 'masterToeb'].join(),
         fields: {
-          Orga: ['departments', 'masterToeb', 'name'].join(),
-          MasterToeb: ['id'].join()
+          Orga: ['departments', 'masterToeb', 'name'].join()
         }
       })
         .then((response) => {
@@ -206,7 +202,7 @@ export default {
      * Fetch users and their relationships
      */
     fetchResources () {
-      const reqs = [this.departmentList(), this.fetchOrganisations(), this.fetchDepartments(), this.roleList()]
+      const reqs = [this.fetchDepartments(), this.fetchOrganisations(), this.roleList()]
       Promise.all(reqs)
         .then(() => {
           this.getUsersByPage()
@@ -252,7 +248,7 @@ export default {
 
       this.userList({
         page: {
-          number: page
+          number: page ?? 1
         },
         filter: (this.filterValue !== '') ? filter : {},
         include: ['roles', 'orga', 'department'].join()
