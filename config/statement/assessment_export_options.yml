@@ -51,7 +51,7 @@ defaults:
     tabLabel: export.xlsx
     buttonLabel: export.xlsx
     buttonLabelSingle: export.trigger.xlsx
-  zip:
+  zipXls:
     _defaults:
       anonymous: false
       exportType: 'statementsWithAttachments'
@@ -72,7 +72,7 @@ original_statements:
       portrait:
         name: export.portrait
   xlsx: false
-  zip:  false
+  zipXls:  false
 assessment_table:
 fragment_list:
   xlsx: false
