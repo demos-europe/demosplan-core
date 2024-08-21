@@ -160,18 +160,6 @@
 
         //  fieldsets
         &__step {
-            ul, ol {
-                padding-left: 1rem;
-            }
-
-            ul {
-                list-style: disc;
-            }
-
-            ol {
-                list-style: decimal;
-            }
-
             &:focus {
                 outline: none;
             }
@@ -180,6 +168,8 @@
                 padding: 0 !important;
                 padding-bottom: 12px !important;
             }
+
+            @include list-styles;
         }
     }
 }

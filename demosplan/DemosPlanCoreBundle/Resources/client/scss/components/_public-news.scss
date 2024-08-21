@@ -7,19 +7,9 @@
 //  All rights reserved
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-.c-support {
-    &__wrapper {
-        padding: 30px;
+.c-public-news {
+    background-color: $dp-color-white;
+    margin-bottom: $inuit-base-spacing-unit;
 
-        background-color: $dp-color-white;
-
-        & > h2 {
-            margin: 0 0 20px 0;
-
-            color: $dp-color-black;
-            font-weight: $base-font-weight;
-        }
-
-        @include list-styles;
-    }
+    @include list-styles;
 }
