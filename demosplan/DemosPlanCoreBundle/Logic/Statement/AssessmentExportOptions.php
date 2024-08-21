@@ -59,8 +59,7 @@ class AssessmentExportOptions implements JsonSerializable
         'docx',
         'pdf',
         'xlsx',
-        'zipXls',
-        'zipPdf'
+        'zip'
     ];
 
     /**

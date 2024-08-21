@@ -37,7 +37,7 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
         'An error occurred during the getting of Statement Attachments for Zip export. Zip export was canceled.';
     private const SHEET_MISSING_IN_XLSX_LOG = 'No worksheet in xlsx for zip export!';
     private const SHEET_MISSING_COLUMN_LOG = 'No column for references to attachment in worksheet for zip export!';
-    private array $supportedTypes = ['zipXls', 'zipPdf'];
+    private array $supportedTypes = ['zip'];
 
     public function __construct(
         AssessmentHandler $assessmentHandler,
