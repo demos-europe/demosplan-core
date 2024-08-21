@@ -60,6 +60,8 @@ defaults:
 original_statements:
   docx:  false
   pdf:
+    _defaults:
+        newPagePerStn: false
     obscure: false
     anonymize: false
     anonymous: false
