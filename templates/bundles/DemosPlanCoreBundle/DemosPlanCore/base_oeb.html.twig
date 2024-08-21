@@ -28,7 +28,7 @@
 
         {# Styles. Leave in header until critical css is in place. #}
         {% block stylesheets %}
-            {{ webpackBundles(['demosplan-ui.css', 'style-public.css']) }}
+            {{ webpackBundles(['preflight.css', 'style-public.css', 'demosplan-ui.css']) }}
         {% endblock stylesheets %}
 
         {% block component_header %}
@@ -47,7 +47,7 @@
             {% block a11y_jump_navigation %}
                 {# @improve T17928 investigate focus vs. visibility #}
                 <nav class="{{ 'c-jumpnav'|prefixClass }}" aria-labelledby="jumpToLabel" tabindex="-1" role="navigation">
-                    <span class="{{ 'hide-visually'|prefixClass }}" id="jumpToLabel" aria-hidden="true">{{ "jumpTo"|trans }}</span>
+                    <span class="{{ 'sr-only'|prefixClass }}" id="jumpToLabel" aria-hidden="true">{{ "jumpTo"|trans }}</span>
                     <ul class="{{ 'u-m-0 u-p-0'|prefixClass }}">
                         <li>
                             <a href="#jumpNavigation">{{ 'jumpTo.mainNavigation'|trans }}</a>

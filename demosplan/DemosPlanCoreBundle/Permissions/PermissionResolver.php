@@ -138,6 +138,7 @@ class PermissionResolver implements PermissionFilterValidatorInterface
         ?Customer $customer
     ): bool {
         $processedFilterList = $this->replaceParameterConditions($filterList, $user, $procedure, $customer);
+        $processedFilterList = $this->filterParser->validateFilter($processedFilterList);
         $conditions = $this->filterParser->parseFilter($processedFilterList);
 
         // If there is no target (e.g. no procedure because the request has no procedure context)
@@ -197,10 +198,10 @@ class PermissionResolver implements PermissionFilterValidatorInterface
         foreach ($filterList as $filterName => $conditionWrapper) {
             if (array_key_exists(self::PARAMETER_CONDITION, $conditionWrapper)) {
                 $filterList[$filterName] = match ($conditionWrapper[self::PARAMETER_CONDITION][self::PARAMETER]) {
-                    ResolvablePermission::CURRENT_CUSTOMER_ID => $this->adjustCondition($conditionWrapper, $customer),
+                    ResolvablePermission::CURRENT_CUSTOMER_ID  => $this->adjustCondition($conditionWrapper, $customer),
                     ResolvablePermission::CURRENT_PROCEDURE_ID => $this->adjustCondition($conditionWrapper, $procedure),
-                    ResolvablePermission::CURRENT_USER_ID => $this->adjustCondition($conditionWrapper, $user),
-                    default => throw new InvalidArgumentException('Invalid value for parameter usage.'),
+                    ResolvablePermission::CURRENT_USER_ID      => $this->adjustCondition($conditionWrapper, $user),
+                    default                                    => throw new InvalidArgumentException('Invalid value for parameter usage.'),
                 };
             }
         }

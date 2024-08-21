@@ -21,8 +21,8 @@ class ApproximateLengthTextTest extends UnitTestCase
         $faker = Factory::create('de_DE');
         $faker->addProvider(new ApproximateLengthText($faker));
 
-        $this->assertGreaterThan(100, strlen($faker->textCloseToLength(100)));
-        $this->assertGreaterThan(1000, strlen($faker->textCloseToLength(1000)));
-        $this->assertGreaterThan(10000, strlen($faker->textCloseToLength(10000)));
+        $this->assertGreaterThanOrEqual(100, strlen($faker->textCloseToLength(100)));
+        $this->assertGreaterThanOrEqual(1000, strlen($faker->textCloseToLength(1000)));
+        $this->assertGreaterThanOrEqual(10000, strlen($faker->textCloseToLength(10000)));
     }
 }

@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Faq;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FaqCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FaqInterface;
 use DemosEurope\DemosplanAddon\Contracts\Handler\FaqHandlerInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Category;
 use demosplan\DemosPlanCoreBundle\Entity\Faq;
 use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
@@ -25,7 +26,6 @@ use demosplan\DemosPlanCoreBundle\Exception\FaqNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
@@ -34,9 +34,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
+use Illuminate\Support\Collection;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Tightenco\Collect\Support\Collection;
 use UnexpectedValueException;
 
 class FaqHandler extends CoreHandler implements FaqHandlerInterface
@@ -47,7 +47,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
     protected $contentService;
 
     public function __construct(
-        MessageBag $messageBag,
+        MessageBagInterface $messageBag,
         private readonly TranslatorInterface $translator,
         private readonly EntityManagerInterface $entityManager,
         private readonly FaqResourceType $faqResourceType,
@@ -181,7 +181,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
      * @throws CustomerNotFoundException
      * @throws MessageBagException
      */
-    public function addOrUpdateFaq($data, Faq $faq = null): ?Faq
+    public function addOrUpdateFaq($data, ?Faq $faq = null): ?Faq
     {
         // improve:
         // Sanitize and validate fields

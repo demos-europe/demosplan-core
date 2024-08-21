@@ -8,7 +8,9 @@
  */
 const SegmentFilterStore = {
   namespaced: true,
-  name: 'segmentfilter',
+
+  name: 'SegmentFilter',
+
   state: {
     filterQuery: {}
   },

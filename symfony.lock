@@ -327,9 +327,6 @@
     "hslavich/oneloginsaml-bundle": {
         "version": "v1.6.4"
     },
-    "http-interop/http-factory-guzzle": {
-        "version": "1.2.0"
-    },
     "intervention/image": {
         "version": "2.6.1"
     },
@@ -520,9 +517,6 @@
             "demosplan/Consumer/.gitignore"
         ]
     },
-    "php-http/client-common": {
-        "version": "2.4.0"
-    },
     "php-http/discovery": {
         "version": "1.14.0"
     },
@@ -531,9 +525,6 @@
     },
     "php-http/message": {
         "version": "1.11.2"
-    },
-    "php-http/message-factory": {
-        "version": "v1.0.2"
     },
     "php-http/promise": {
         "version": "1.1.0"
@@ -720,21 +711,6 @@
     "seld/phar-utils": {
         "version": "1.1.1"
     },
-    "sensio/framework-extra-bundle": {
-        "version": "5.2",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "5.2",
-            "ref": "fb7e19da7f013d0d422fa9bce16f5c510e27609b"
-        },
-        "files": [
-            "demosplan/DemosPlanCoreBundle/Resources/config/packages/sensio_framework_extra.yaml"
-        ]
-    },
-    "sentry/sdk": {
-        "version": "3.1.0"
-    },
     "sentry/sentry": {
         "version": "3.3.2"
     },
@@ -900,6 +876,18 @@
     },
     "symfony/intl": {
         "version": "v5.3.4"
+    },
+    "symfony/lock": {
+        "version": "5.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "5.2",
+            "ref": "8e937ff2b4735d110af1770f242c1107fdab4c8e"
+        },
+        "files": [
+            "config/packages/lock.yaml"
+        ]
     },
     "symfony/mailer": {
         "version": "5.4",
@@ -1136,9 +1124,6 @@
     "theseer/tokenizer": {
         "version": "1.2.1"
     },
-    "tightenco/collect": {
-        "version": "v8.34.0"
-    },
     "twig/twig": {
         "version": "v2.14.6"
     },
@@ -1150,9 +1135,6 @@
     },
     "webmozart/assert": {
         "version": "1.9.1"
-    },
-    "webmozart/path-util": {
-        "version": "2.3.0"
     },
     "weirdan/doctrine-psalm-plugin": {
         "version": "0.11.3"

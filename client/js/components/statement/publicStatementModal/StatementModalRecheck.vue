@@ -13,7 +13,7 @@
     id="check"
     tabindex="-1">
     <legend
-      class="hide-visually"
+      class="sr-only"
       v-text="Translator.trans('statement.recheck')" />
     <p :class="prefixClass('c-statement__formhint flash-warning')">
       <i
@@ -46,6 +46,7 @@
         v-cleanhtml="Translator.trans('explanation.statement.dont.publish')" />
       <button
         type="button"
+        data-cy="statementModalRecheck:statementDetailFormPersonalPublish"
         @click="$emit('edit-input', 'r_makePublic')"
         :class="prefixClass('o-link--default btn-icns u-ml float-right')"
         :title="Translator.trans('statement.form.input.change')"
@@ -64,6 +65,7 @@
           {{ Translator.trans('statement.detail.form.personal.post_publicly') }}
           <button
             type="button"
+            data-cy="statementModalRecheck:useNameText"
             :class="prefixClass('o-link--default btn-icns u-ml float-right')"
             @click="$emit('edit-input', 'r_useName_1')"
             :title="Translator.trans('statement.form.input.change')"
@@ -142,6 +144,7 @@
       {{ Translator.trans('statement.detail.form.personal.post_anonymously') }}
       <button
         type="button"
+        data-cy="statementModalRecheck:useNameText"
         :class="prefixClass('o-link--default btn-icns u-ml float-right')"
         @click="$emit('edit-input', 'r_useName_0')"
         :title="Translator.trans('statement.form.input.change')"
@@ -192,6 +195,7 @@
       </span>
       <button
         type="button"
+        data-cy="statementModalRecheck:getFeedbackText"
         :class="prefixClass('o-link--default btn-icns u-ml float-right')"
         @click="$emit('edit-input', 'r_getFeedback')"
         :title="Translator.trans('statement.form.input.change')"
@@ -207,6 +211,7 @@
         <em>{{ Translator.trans('statement.my') }}: </em>
         <button
           type="button"
+          data-cy="statementModalRecheck:statementAlter"
           :class="prefixClass('o-link--default btn-icns float-right')"
           @click="$emit('edit-input', 'r_text')"
           :title="Translator.trans('statement.alter')"

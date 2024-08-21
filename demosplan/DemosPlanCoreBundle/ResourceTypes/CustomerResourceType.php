@@ -83,6 +83,7 @@ final class CustomerResourceType extends DplanResourceType
             'feature_data_protection_text_customized_view',
             'feature_customer_terms_of_use_edit',
             'feature_customer_xplanning_edit',
+            'feature_organisation_user_list',
             'field_customer_accessibility_explanation_edit',
             'field_sign_language_overview_video_edit',
             'field_simple_language_overview_description_edit',
@@ -111,7 +112,8 @@ final class CustomerResourceType extends DplanResourceType
             'area_manage_orgas',
             'area_manage_orgas_all',
             'area_organisations',
-            'area_report_mastertoeblist'
+            'area_report_mastertoeblist',
+            'feature_organisation_user_list',
         );
     }
 
@@ -131,7 +133,8 @@ final class CustomerResourceType extends DplanResourceType
             'area_manage_orgas',
             'area_manage_orgas_all',
             'area_organisations',
-            'area_report_mastertoeblist'
+            'area_report_mastertoeblist',
+            'feature_organisation_user_list',
         )) {
             $configBuilder->id->filterable()->sortable();
             $configBuilder->name->readable(true)->filterable()->sortable();

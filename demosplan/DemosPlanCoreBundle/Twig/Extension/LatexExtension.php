@@ -57,6 +57,8 @@ class LatexExtension extends ExtensionBase
         '</ol>'                                => '\end{enumerate}',
         '<li>'                                 => '\item ',
         '</li>'                                => '',
+        '<dp-obscure>'                         => '\censor{',
+        '</dp-obscure>'                        => '}',
         '´'                                    => '\textquoteright ',
         '`'                                    => '\textquoteleft ',
         '&'                                    => '\&',
@@ -197,7 +199,7 @@ class LatexExtension extends ExtensionBase
             // Alle anderen Tags beseitigen
             $text = strip_tags(
                 $text,
-                '<p><table><tr><td><tcs2><tcs><tcs3><tcs4><tcs5><tcs6><th><br><ol><strike><u><s><del><i><ol><ul><li><b><strong><em><span><ins><mark>'
+                '<p><table><tr><td><tcs2><tcs><tcs3><tcs4><tcs5><tcs6><th><br><ol><strike><u><s><del><i><ol><ul><li><b><strong><em><span><ins><mark><dp-obscure>'
             );
 
             // remove <ins> title attribute
@@ -454,7 +456,7 @@ class LatexExtension extends ExtensionBase
             // build placeholderstring
             $currentImageTex = 'IMAGEPLACEHOLDER-';
 
-            preg_match('|src=[\\\'"](\/app_dev\.php)?\/file\/([\w-]*)[\\\'"]|', (string) $imageMatch, $src);
+            preg_match('|src=[\\\'"](\/app_dev\.php)?\/file\/([\w-]*[\/\w-]*)[\\\'"]|', (string) $imageMatch, $src);
             $currentImageTex .= $src[2] ?? '';
 
             // only add width and height if both are provided
@@ -530,7 +532,13 @@ class LatexExtension extends ExtensionBase
             // Wenn du ein oder mehrere Bilder gefunden hast gehe sie durch
             foreach ($imageMatches[1] as $matchKey => $match) {
                 $parts = explode('\&', $match);
-                $fileHash = $parts[0];
+                // if contains / explode
+                if(str_contains($parts[0], '/')) {
+                    $parts = explode('/', $parts[0]);
+                    $fileHash = $parts[1];
+                } else {
+                    $fileHash = $parts[0];
+                }
                 // Bestimme die Größe des Bildes
                 if (isset($parts[1]) && isset($parts[2])) {
                     $widthParts = explode('=', $parts[1]);
@@ -553,11 +561,11 @@ class LatexExtension extends ExtensionBase
 \\
 ';
                 // Ersetze die \ durch \\ im Regex
-                $pregReplacePatternFileinfo = '/'.str_replace(
+                $pregReplacePatternFileinfo = '|'.str_replace(
                     '\\',
                     '\\\\',
                     $imageMatches[0][$matchKey]
-                ).'IMAGEPLACEHOLDEREND/';
+                ).'IMAGEPLACEHOLDEREND|';
                 // Füge das Latexmarkup ein
                 $text = preg_replace(
                     $pregReplacePatternFileinfo,

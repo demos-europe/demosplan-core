@@ -76,13 +76,9 @@
                 class="weight--bold"
                 :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}">
                 {{ Translator.trans('element.selected') }}
-                <i
-                  :aria-label="Translator.trans('contextual.help')"
-                  v-tooltip="{
-                    content: Translator.trans('annotator.modify.explanation'),
-                    classes: 'z-ultimate'
-                  }"
-                  class="fa fa-question-circle float-right u-mt-0_125" />
+                <dp-contextual-help
+                  class="float-right u-mt-0_12"
+                  :text="Translator.trans('annotator.modify.explanation')" />
               </p>
               <div>
                 <button
@@ -120,12 +116,12 @@
               <div>
                 <dp-button
                   :busy="isSaving"
-                  class="width-250 u-mb-0_25"
+                  class="w-11 u-mb-0_25"
                   :disabled="documentLengthTotal === 0"
                   :text="buttonText"
                   @click="save" />
                 <dp-button
-                  class="width-250"
+                  class="w-11"
                   color="secondary"
                   :href="Routing.generate('DemosPlan_procedure_dashboard', { procedure: procedureId })"
                   :text="Translator.trans('abort')" />
@@ -147,7 +143,7 @@
 import { Circle as CircleStyle, Fill, Stroke, Style, Text } from 'ol/style'
 import { containsExtent, getCenter } from 'ol/extent'
 import { defaults as defaultInteractions, Draw, Modify, Select, Snap } from 'ol/interaction'
-import { dpApi, DpButton, DpLoading, DpStickyElement, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpContextualHelp, DpLoading, DpStickyElement, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { createBox } from 'ol/interaction/Draw'
 import DpLabelModal from './DpLabelModal'
 import DpSendBeacon from './DpSendBeacon'
@@ -166,6 +162,7 @@ export default {
   name: 'DpImageAnnotator',
 
   components: {
+    DpContextualHelp,
     DpButton,
     DpLabelModal,
     DpLoading,
@@ -789,6 +786,50 @@ export default {
 
   mounted () {
     this.getInitialData()
+
+    /*
+     * Display a warning for firefox if "privacy.resistFingerprinting" is enabled,
+     * because openLayers' getFeaturesAtPixel() will not behave correctly then.
+     */
+    useResistFingerprintingDuckTest((isEnabled) => {
+      if (isEnabled) {
+        dplan.notify.notify('error', Translator.trans('warning.resistFingerPrinting'))
+      }
+    })
   }
+}
+
+const useResistFingerprintingDuckTest = (callback) => {
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')
+
+  // Draw something on the canvas
+  ctx.fillStyle = 'rgb(0,0,0)'
+  ctx.fillRect(0, 0, 10, 10)
+
+  // Convert canvas to data URL
+  const dataUrl = canvas.toDataURL()
+
+  // Check if the produced data URL corresponds to the expected black square
+  const image = new Image()
+
+  image.onload = function () {
+    // Draw the image onto a new canvas to read the pixel values
+    const testCanvas = document.createElement('canvas')
+    const testCtx = testCanvas.getContext('2d')
+    testCanvas.width = image.width
+    testCanvas.height = image.height
+    testCtx.drawImage(image, 0, 0)
+
+    // Check the first pixel
+    const pixelData = testCtx.getImageData(0, 0, 1, 1).data
+
+    // If the pixel is black, we assume that resistFingerprinting is disabled
+    const resistFingerprintingEnabled = !(pixelData[0] === 0 && pixelData[1] === 0 && pixelData[2] === 0)
+
+    callback(resistFingerprintingEnabled)
+  }
+
+  image.src = dataUrl
 }
 </script>

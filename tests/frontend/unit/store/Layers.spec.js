@@ -42,22 +42,22 @@ describe('Layer-Store', () => {
 describe('Layers', () => {
   beforeEach(() => {
     StubStore = new Vuex.Store({})
-    StubStore.registerModule('layers', Layers)
+    StubStore.registerModule('Layers', Layers)
   })
 
   it('can store data', () => {
-    expect(StubStore.state.layers.apiData).toEqual({})
-    StubStore.commit('layers/updateApiData', apiData)
-    expect(typeof StubStore.state.layers.apiData.data).toBe('object')
+    expect(StubStore.state.Layers.apiData).toEqual({})
+    StubStore.commit('Layers/updateApiData', apiData)
+    expect(typeof StubStore.state.Layers.apiData.data).toBe('object')
   })
 
   it('can store the original data to restore the loaded state which is a real clone of the data which gets manipulated', () => {
-    StubStore.commit('layers/updateApiData', apiData)
-    StubStore.commit('layers/saveOriginalState', JSON.parse(JSON.stringify(apiData)))
-    expect(StubStore.state.layers.apiData).toEqual(StubStore.state.layers.originalApiData)
+    StubStore.commit('Layers/updateApiData', apiData)
+    StubStore.commit('Layers/saveOriginalState', JSON.parse(JSON.stringify(apiData)))
+    expect(StubStore.state.Layers.apiData).toEqual(StubStore.state.Layers.originalApiData)
 
-    StubStore.state.layers.apiData.data.id = 'xxx-xxx-xxx'
-    StubStore.state.layers.apiData.included.splice(0, 1)
-    expect(StubStore.state.layers.apiData).not.toEqual(StubStore.state.layers.originalApiData)
+    StubStore.state.Layers.apiData.data.id = 'xxx-xxx-xxx'
+    StubStore.state.Layers.apiData.included.splice(0, 1)
+    expect(StubStore.state.Layers.apiData).not.toEqual(StubStore.state.Layers.originalApiData)
   })
 })

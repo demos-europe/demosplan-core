@@ -10,19 +10,19 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureProposal;
 use demosplan\DemosPlanCoreBundle\Logic\ArrayHelper;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Services\ApiResourceService;
 use demosplan\DemosPlanCoreBundle\Transformers\Map\MapOptionsTransformer;
 use Exception;
 
 class ProcedureProposalHandler extends CoreHandler
 {
-    public function __construct(private readonly ArrayHelper $arrayHelper, MessageBag $messageBag, private readonly ProcedureProposalService $procedureProposalService, private readonly ApiResourceService $resourceService, private readonly MapService $mapService)
+    public function __construct(private readonly ArrayHelper $arrayHelper, MessageBagInterface $messageBag, private readonly ProcedureProposalService $procedureProposalService, private readonly ApiResourceService $resourceService, private readonly MapService $mapService)
     {
         parent::__construct($messageBag);
     }

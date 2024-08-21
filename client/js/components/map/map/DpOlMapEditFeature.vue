@@ -78,7 +78,7 @@
         })
       }"
       class="btn--blank u-ml-0_5 weight--bold"
-      :class="{ 'o-link--default': (false === disabled), 'color--grey-light cursor-default': disabled }">
+      :class="disabled ? 'color--grey-light cursor-default' : 'o-link--default'">
       <slot name="removeButtonDesc">
         {{ Translator.trans('map.territory.tools.removeSelected') }}
       </slot>
@@ -173,28 +173,9 @@ export default {
         return
       }
 
-      if (((this.currentlyActive === false && name === this.name) || (this.defaultControl && name === ''))) {
-        this.selectInteraction.getFeatures().on('add', event => {
-          const id = 'selected' + uuid()
-          if (this.selectedFeatureId.indexOf(id) === -1) {
-            this.selectedFeatureId.push(id)
-            if (hasOwnProp(event, 'element')) {
-              event.element.set('id', id)
-              this.disabled = false
-            }
-          }
-        })
-
-        this.selectInteraction.getFeatures().on('remove', event => {
-          if (hasOwnProp(event, 'element')) {
-            event.element.get('id')
-            const elIdx = this.selectedFeatureId.indexOf(event.element.get('id'))
-            this.selectedFeatureId.splice(elIdx, 1)
-            if (this.selectedFeatureId.length <= 0) {
-              this.disabled = true
-            }
-          }
-        })
+      if ((!this.currentlyActive && name === this.name) || (this.defaultControl && name === '')) {
+        this.selectInteraction.getFeatures().on('add', this.addInteraction)
+        this.selectInteraction.getFeatures().on('remove', this.removeInteraction)
 
         this.map.addInteraction(this.selectInteraction)
         this.map.addInteraction(this.modifyInteraction)
@@ -206,6 +187,33 @@ export default {
       }
     },
 
+    addInteraction (event) {
+      const id = 'selected' + uuid()
+
+      if (this.selectedFeatureId.indexOf(id) === -1) {
+        this.selectedFeatureId.push(id)
+        if (hasOwnProp(event, 'element')) {
+          event.element.set('id', id)
+          this.disabled = false
+        }
+      }
+    },
+
+    clearAll () {
+      if (!confirm(Translator.trans('map.territory.removeAll.confirmation'))) {
+        return
+      }
+
+      this.map.getLayers().forEach(layer => {
+        if (layer instanceof VectorLayer && this.targets.includes(layer.get('name'))) {
+          this.selectInteraction.getFeatures().clear()
+          layer.getSource().clear()
+        }
+      })
+
+      this.resetSelection()
+    },
+
     /**
      * Get the z-index of a DOM element.
      * @param element
@@ -213,6 +221,7 @@ export default {
      */
     getZIndex (element) {
       const z = window.getComputedStyle(element).getPropertyValue('z-index')
+
       if (isNaN(z)) {
         return (element.nodeName === 'HTML') ? 1 : this.getZIndex(element.parentNode)
       }
@@ -247,19 +256,15 @@ export default {
       }
     },
 
-    clearAll () {
-      if (!confirm(Translator.trans('map.territory.removeAll.confirmation'))) {
-        return
-      }
-
-      this.map.getLayers().forEach(layer => {
-        if (layer instanceof VectorLayer && this.targets.includes(layer.get('name'))) {
-          this.selectInteraction.getFeatures().clear()
-          layer.getSource().clear()
+    removeInteraction (event) {
+      if (hasOwnProp(event, 'element')) {
+        event.element.get('id')
+        const elIdx = this.selectedFeatureId.indexOf(event.element.get('id'))
+        this.selectedFeatureId.splice(elIdx, 1)
+        if (this.selectedFeatureId.length <= 0) {
+          this.disabled = true
         }
-      })
-
-      this.resetSelection()
+      }
     },
 
     resetSelection () {

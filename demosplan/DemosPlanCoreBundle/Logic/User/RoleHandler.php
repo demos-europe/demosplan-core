@@ -10,14 +10,16 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
+use Webmozart\Assert\Assert;
 
 class RoleHandler extends CoreHandler
 {
-    public function __construct(private readonly RoleService $roleService, MessageBag $messageBag)
+    public function __construct(private readonly RoleService $roleService, MessageBagInterface $messageBag)
     {
         parent::__construct($messageBag);
     }
@@ -70,5 +72,27 @@ class RoleHandler extends CoreHandler
     public function getUserRolesByGroupCodes(array $codes): array
     {
         return $this->roleService->getUserRolesByGroupCodes($codes);
+    }
+
+    public function getRoleByCode(string $roleCode): ?RoleInterface
+    {
+        $roles = $this->getUserRolesByCodes([$roleCode]);
+
+        if (empty($roles)) {
+            return null;
+        }
+
+        try {
+            Assert::count($roles, 1);
+        } catch (\Webmozart\Assert\InvalidArgumentException $e) {
+            // Log the warning
+            $this->logger->warning('More than one role found for the given role name. Using the first one.', [
+                'roleName' => $roleCode,
+                'roles'    => $roles,
+            ]);
+        }
+
+        // Use the first role
+        return $roles[0];
     }
 }

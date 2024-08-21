@@ -115,10 +115,10 @@ export default {
   },
 
   computed: {
-    ...mapState('role', {
+    ...mapState('Role', {
       roles: 'items'
     }),
-    ...mapState('user', {
+    ...mapState('User', {
       users: 'items',
       currentPage: 'currentPage',
       totalPages: 'totalPages'
@@ -135,13 +135,13 @@ export default {
   },
 
   methods: {
-    ...mapActions('department', {
+    ...mapActions('Department', {
       departmentList: 'list'
     }),
-    ...mapActions('role', {
+    ...mapActions('Role', {
       roleList: 'list'
     }),
-    ...mapActions('user', {
+    ...mapActions('User', {
       userList: 'list',
       deleteUser: 'delete'
     }),

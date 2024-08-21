@@ -133,11 +133,11 @@ export default {
   },
 
   computed: {
-    ...mapState('orga', {
+    ...mapState('Orga', {
       organisations: 'items'
     }),
 
-    ...mapState('orga/pending', {
+    ...mapState('Orga/Pending', {
       pendingOrganisations: 'items'
     }),
 
@@ -146,7 +146,7 @@ export default {
     },
 
     initialOrganisation () {
-      return (this.moduleName === '') ? this.$store.state.orga.initial[this.organisation.id] : this.$store.state.orga[this.moduleName].initial[this.organisation.id]
+      return (this.moduleName === '') ? this.$store.state.Orga.initial[this.organisation.id] : this.$store.state.Orga[this.moduleName].initial[this.organisation.id]
     },
 
     /**
@@ -171,7 +171,7 @@ export default {
     },
 
     restoreOrganisation (payload) {
-      return this.$store.dispatch(`orga${this.moduleSubstring}/restoreFromInitial`, payload)
+      return this.$store.dispatch(`Orga${this.moduleSubstring}/restoreFromInitial`, payload)
     },
 
     save () {
@@ -203,7 +203,7 @@ export default {
     },
 
     saveOrganisationAction (payload) {
-      this.$store.dispatch(`orga${this.moduleSubstring}/save`, payload)
+      this.$store.dispatch(`Orga${this.moduleSubstring}/save`, payload)
         .then(() => {
           /*
            * Reload organisations and pending organisations in case an organisation has to be moved to the other list, i.e.
@@ -220,7 +220,7 @@ export default {
     },
 
     setItem (payload) {
-      this.$store.commit(`orga${this.moduleSubstring}/setItem`, payload)
+      this.$store.commit(`Orga${this.moduleSubstring}/setItem`, payload)
     },
 
     toggleItem (open) {

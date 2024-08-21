@@ -78,7 +78,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('procedure', {
+    ...mapActions('Procedure', {
       getProcedures: 'get'
     })
   },

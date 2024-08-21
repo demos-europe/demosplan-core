@@ -13,7 +13,8 @@
     class="u-mv-0_25"
     v-scroller>
     <ul
-      class="u-m-0 u-pb-0_25">
+      class="u-m-0 u-pb-0_25"
+      data-cy="procedureList">
       <dp-list-item
         v-for="procedure in procedures"
         :key="procedure.id"
@@ -43,7 +44,7 @@ export default {
 
   computed: {
     procedures () {
-      return this.$store.state.procedure.procedures
+      return this.$store.state.Procedure.procedures
     }
   }
 }

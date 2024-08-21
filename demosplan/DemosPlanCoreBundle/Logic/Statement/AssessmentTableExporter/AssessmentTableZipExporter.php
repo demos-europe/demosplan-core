@@ -13,28 +13,22 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttachmentInterface;
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Exception\AssessmentTableZipExportException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
-use demosplan\DemosPlanCoreBundle\Logic\EditorService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\FormOptionsResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
-use demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
-use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use Exception;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Twig\Environment;
 
-class AssessmentTableZipExporter extends AssessmentTableXlsExporter
+class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
 {
     private const ATTACHMENTS_NOT_ADDABLE = 'error.statements.zip.export.attachments.not.addable';
     private const SHEET_MISSING_IN_XLSX = 'error.statements.zip.export.incomplete.xlsx';
@@ -43,41 +37,35 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
         'An error occurred during the getting of Statement Attachments for Zip export. Zip export was canceled.';
     private const SHEET_MISSING_IN_XLSX_LOG = 'No worksheet in xlsx for zip export!';
     private const SHEET_MISSING_COLUMN_LOG = 'No column for references to attachment in worksheet for zip export!';
-    protected array $supportedTypes = ['zip'];
+    private array $supportedTypes = ['zip'];
 
     public function __construct(
         AssessmentHandler $assessmentHandler,
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
         CurrentProcedureService $currentProcedureService,
-        EditorService $editorService,
-        Environment $twig,
-        FormOptionsResolver $formOptionsResolver,
         LoggerInterface $logger,
-        PermissionsInterface $permissions,
         RequestStack $requestStack,
-        ServiceImporter $serviceImport,
-        SimpleSpreadsheetService $simpleSpreadsheetService,
         StatementHandler $statementHandler,
         TranslatorInterface $translator,
         private readonly AssessmentTablePdfExporter $pdfExporter,
+        private readonly AssessmentTableXlsExporter $xlsExporter,
         private readonly StatementService $statementService,
         private readonly FileService $fileService
     ) {
         parent::__construct(
-            $assessmentHandler,
             $assessmentTableServiceOutput,
             $currentProcedureService,
-            $editorService,
-            $twig,
-            $formOptionsResolver,
+            $assessmentHandler,
+            $translator,
             $logger,
-            $permissions,
             $requestStack,
-            $serviceImport,
-            $simpleSpreadsheetService,
-            $statementHandler,
-            $translator
+            $statementHandler
         );
+    }
+
+    public function supports(string $format): bool
+    {
+        return in_array($format, $this->supportedTypes, true);
     }
 
     /**
@@ -85,12 +73,12 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
      */
     public function __invoke(array $parameters): array
     {
-        $xlsxArray = parent::__invoke($parameters);
+        $xlsxArray = $this->xlsExporter->__invoke($parameters);
 
         try {
             $statementAttachments = $this->getAttachmentsOfStatements($xlsxArray['statementIds']);
-        } catch (Exception) {
-            $this->logger->error(self::ATTACHMENTS_NOT_ADDABLE_LOG);
+        } catch (Exception $e) {
+            $this->logger->error(self::ATTACHMENTS_NOT_ADDABLE_LOG, [$e]);
             throw new AssessmentTableZipExportException('error', self::ATTACHMENTS_NOT_ADDABLE);
         }
 
@@ -137,8 +125,7 @@ class AssessmentTableZipExporter extends AssessmentTableXlsExporter
                 // if not present yet, invoke the pdfCreator and create an original-stn-pdf to use instead
                 $parameters['statementId'] =
                     $this->statementService->getStatement($statementId)?->getOriginal()->getId();
-                $pdfExporter = $this->pdfExporter;
-                $files[$index]['originalAttachment'] = $pdfExporter(
+                $files[$index]['originalAttachment'] = $this->pdfExporter->__invoke(
                     $parameters
                 );
                 $files[$index]['originalAttachment']['fileHash'] = $this->fileService->createHash();

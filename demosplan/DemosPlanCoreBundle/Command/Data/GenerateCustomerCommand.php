@@ -12,9 +12,16 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
+use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
+use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\EntryAlreadyExistsException;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use InvalidArgumentException;
@@ -53,7 +60,9 @@ class GenerateCustomerCommand extends CoreCommand
         private readonly CustomerService $customerService,
         private readonly EntityManagerInterface $entityManager,
         ParameterBagInterface $parameterBag,
-        string $name = null
+        private readonly RoleRepository $roleRepository,
+        private readonly UserService $userService,
+        ?string $name = null
     ) {
         parent::__construct($parameterBag, $name);
         $this->helper = new QuestionHelper();
@@ -96,7 +105,8 @@ class GenerateCustomerCommand extends CoreCommand
 
         try {
             // create customer
-            $this->customerService->createCustomer($name, $subdomain);
+            $customer = $this->customerService->createCustomer($name, $subdomain);
+            $this->registerDefaultUsers($customer);
             $this->entityManager->flush();
 
             $output->writeln(
@@ -156,5 +166,25 @@ class GenerateCustomerCommand extends CoreCommand
         }
 
         return $subdomain;
+    }
+
+    private function registerDefaultUsers(Customer $customer): void
+    {
+        // register AiApiUser and AnonymousUser
+        $this->registerUser($customer, AiApiUser::AI_API_USER_LOGIN, RoleInterface::API_AI_COMMUNICATOR);
+        $this->registerUser($customer, UserInterface::ANONYMOUS_USER_LOGIN, RoleInterface::CITIZEN);
+    }
+
+    private function registerUser(Customer $customer, string $login, string $roleString): void
+    {
+        $user = $this->userService->findDistinctUserByEmailOrLogin($login);
+        if ($user instanceof User) {
+            // add user to customer
+            $user->setDplanroles(
+                $this->roleRepository->getUserRolesByCodes([$roleString]),
+                $customer
+            );
+            $this->userService->updateUserObject($user);
+        }
     }
 }

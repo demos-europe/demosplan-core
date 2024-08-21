@@ -12,9 +12,10 @@
     :class="prefixClass('c-map__group')"
     v-if="layers.length"
     v-show="unfolded">
-    <template v-for="layer in attributedLayers">
+    <template v-for="(layer, idx) in attributedLayers">
       <dp-public-layer-list-layer
         v-if="layer.type === 'GisLayer' && (layerType === 'overlay' || showBaseLayers)"
+        :data-cy="`publicLayerListLayer:${layerType}:${idx}`"
         :key="layer.id"
         :layer="layer"
         :layer-type="layerType"
@@ -104,8 +105,8 @@ export default {
       return this.layers.length > 0 && this.isMapLoaded
     },
 
-    ...mapState('layers', ['isMapLoaded']),
-    ...mapGetters('layers', ['element'])
+    ...mapState('Layers', ['isMapLoaded']),
+    ...mapGetters('Layers', ['element'])
   },
 
   watch: {

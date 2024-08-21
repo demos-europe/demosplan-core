@@ -122,10 +122,10 @@
     </div>
 
     {# error / loading feedback #}
-    <p class="{{ 'flash flash-error u-mb-0 hide-visually'|prefixClass }}" aria-hidden="true" data-statement-submit-feedback="error">
+    <p class="{{ 'flash flash-error u-mb-0 sr-only'|prefixClass }}" aria-hidden="true" data-statement-submit-feedback="error">
         {{ "error.statement.not.saved"|trans }}
     </p>
-    <p class="{{ 'u-mt-0_5 u-mb-0 hide-visually'|prefixClass }}" data-statement-submit-feedback="loading" aria-label="{{ 'loading.data'|trans }}">
+    <p class="{{ 'u-mt-0_5 u-mb-0 sr-only'|prefixClass }}" data-statement-submit-feedback="loading" aria-label="{{ 'loading.data'|trans }}">
         <img src="{{ asset('img/ajax-loader.gif') }}" alt="">
     </p>
 
