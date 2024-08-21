@@ -141,7 +141,18 @@ export default {
     return {
       selectInteraction: new Select({
         hitTolerance: 10,
-        wrapX: false
+        wrapX: false,
+        filter: (_feat, layer) => {
+          if (layer) {
+            const id = layer.get('id')
+
+            if (id === 'layer:mapSettingsPreviewMapExtent' || id === 'layer:mapSettingsPreviewInitExtent') {
+              return false
+            }
+          }
+
+          return true
+        }
       }),
       modifyInteraction: null,
       currentlyActive: this.initActive,
@@ -209,6 +220,7 @@ export default {
      */
     getZIndex (element) {
       const z = window.getComputedStyle(element).getPropertyValue('z-index')
+
       if (isNaN(z)) {
         return (element.nodeName === 'HTML') ? 1 : this.getZIndex(element.parentNode)
       }
