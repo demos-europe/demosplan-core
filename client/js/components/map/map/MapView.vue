@@ -258,7 +258,8 @@ export default {
 
     updateCoordinates (data) {
       const features = JSON.parse(data).features
-      if (JSON.parse(data).features.length > 0) {
+
+      if (features.length > 0) {
         this.coordinate = features[0].geometry.coordinates
         this.emitFieldUpdate({ field: 'coordinate', data: this.coordinate })
       }

@@ -58,8 +58,24 @@
                   text: Translator.trans('export.anonymous')
                 }"
                 name="pdfAnonymous"
-                value="anonymous"
                 v-model="exportChoice.pdf.anonymous" />
+            </fieldset>
+
+            <fieldset
+              v-if="options.pdf.newPagePerStn && view === 'original_statements'"
+              class="u-mb-0_5 u-pb-0_5">
+              <legend
+                class="sr-only"
+                v-text="Translator.trans('export.pageLayout')" />
+              <dp-checkbox
+                id="pdfNewPagePerStn"
+                v-model="exportChoice.pdf.newPagePerStn"
+                data-cy="exportModal:newPagePerStn"
+                :label="{
+                  bold: true,
+                  text: Translator.trans('export.newPagePerStatement')
+                }"
+                name="newPagePerStn" />
             </fieldset>
 
             <fieldset
@@ -148,7 +164,6 @@
                   hint: Translator.trans('explanation.export.anonymous'),
                   text: Translator.trans('export.anonymous')
                 }"
-                value="anonymous"
                 v-model="exportChoice.docx.anonymous" />
             </fieldset>
 
@@ -265,7 +280,6 @@
                   hint: Translator.trans('explanation.export.anonymous'),
                   text: Translator.trans('export.anonymous')
                 }"
-                value="anonymous"
                 v-model="exportChoice.xlsx.anonymous" />
             </fieldset>
             <fieldset
@@ -404,18 +418,21 @@ export default {
   },
 
   data () {
+    // Set default values for exportChoice
     const options = this.options
     const data = {}
-    let o
-    let opt
-    let k
+    let optGroupKey // 'docx', 'pdf', etc.
+    let optGroup // all the options defined for an optGroupKey
+    let optKey // key of a single option, e.g. 'exportType', 'sortType'
 
-    for (o in options) {
-      opt = options[o]
-      data[o] = {}
-      if (!opt) continue
-      for (k in opt._defaults) {
-        data[o][k] = opt._defaults[k]
+    for (optGroupKey in options) {
+      optGroup = options[optGroupKey]
+      data[optGroupKey] = {}
+
+      if (!optGroup) continue
+
+      for (optKey in optGroup._defaults) {
+        data[optGroupKey][optKey] = optGroup._defaults[optKey]
       }
     }
 
