@@ -709,7 +709,7 @@ export default {
       const mapLegends = $(this.prefixClass('.js__mapLayerLegends'))
 
       //  Initially hide all legends
-      mapLegends.find('[data-layername]').addClass(this.prefixClass('hide-visually'))
+      mapLegends.find('[data-layername]').addClass(this.prefixClass('sr-only'))
 
       //  Loop layers
       this.map.getLayers().forEach((layer, idx, a) => {
@@ -725,7 +725,7 @@ export default {
 
             //  Show appropriate legend if layer is visible
             if (sublayer.getVisible()) {
-              mapLegends.find('[data-layername="' + sublayer.get('title') + '"]').removeClass(this.prefixClass('hide-visually'))
+              mapLegends.find('[data-layername="' + sublayer.get('title') + '"]').removeClass(this.prefixClass('sr-only'))
             }
           })
         }

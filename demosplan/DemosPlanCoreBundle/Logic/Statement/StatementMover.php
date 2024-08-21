@@ -28,6 +28,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
+use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Exception;
@@ -45,6 +46,7 @@ class StatementMover extends CoreService
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly ElementsService $elementsService,
+        private readonly FileContainerRepository $fileContainerRepository,
         private readonly PermissionsInterface $permissions,
         private readonly MessageBagInterface $messageBag,
         private readonly StatementService $statementService,
@@ -54,7 +56,8 @@ class StatementMover extends CoreService
         private readonly EntityContentChangeService $entityContentChangeService,
         private readonly StatementReportEntryFactory $statementReportEntryFactory,
         private readonly ReportService $reportService,
-        private readonly StatementCopier $statementCopier
+        private readonly StatementCopier $statementCopier,
+        private readonly StatementRepository $statementRepository
     ) {
         $this->logger = $logger;
     }
@@ -186,11 +189,22 @@ class StatementMover extends CoreService
             $lockedByAssignment = $this->statementService->isStatementObjectLockedByAssignment($statementToMove);
             if (!$lockedByAssignment) {
                 $statementToMove->setAssignee(null);
+                foreach ($statementToMove->getAttachments() as $attachment) {
+                    $file = $attachment->getFile();
+                    $file->setProcedure($targetProcedure);
+                    $attachment->setFile($file);
+                }
+                $statementFileContainers = $this->fileContainerRepository->getStatementFileContainers($statementToMove->getId());
+                foreach ($statementFileContainers as $fileContainer) {
+                    $file = $this->statementRepository->copyFile($fileContainer->getFile(), $statementToMove);
+                    $fileContainer->setFile($file);
+                    $this->fileContainerRepository->updateObject($fileContainer);
+                }
                 $updatedStatementToMove = $this->statementService->updateStatementFromObject(
                     $statementToMove,
                     true
                 );
-                // update $originalStatement to persist changes:
+
                 $updatedOriginalStatementToMove = $this->statementService->updateStatementFromObject(
                     $copyOfOriginalStatementToMove,
                     true,

@@ -22,7 +22,7 @@
         class="u-pb-0 u-mt"
         id="consolidationMethod">
         <legend
-          class="hide-visually"
+          class="sr-only"
           v-text="Translator.trans('action.choose')" />
         <input
           type="radio"

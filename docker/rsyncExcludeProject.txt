@@ -1,0 +1,11 @@
+app_dev.php
+app/cache
+app/console
+app/logs
+web/apc.php
+web/css
+web/fonts
+web/img
+web/js
+web/video
+parameters.yml

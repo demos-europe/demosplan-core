@@ -38,6 +38,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\Statement\AdditionalStatementDataEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
+use demosplan\DemosPlanCoreBundle\Exception\DuplicateInternIdException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementAlreadyConnectedToGdprConsentRevokeTokenException;
@@ -47,6 +48,7 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
@@ -60,10 +62,10 @@ use EDT\Querying\FluentQueries\FluentQuery;
 use EDT\Querying\Pagination\PagePagination;
 use EDT\Querying\Utilities\Reindexer;
 use Exception;
+use Illuminate\Support\Collection;
 use Pagerfanta\Pagerfanta;
 use ReflectionException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Illuminate\Support\Collection;
 
 use function array_combine;
 
@@ -190,6 +192,11 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             $manager->flush();
 
             return $statement;
+        } catch (UniqueConstraintViolationException $e) {
+            if (str_contains($e->getMessage(), 'internId_procedure')) {
+                throw DuplicateInternIdException::create('Eingangsnummer', $statement->getProcedureId());
+            }
+            throw $e;
         } catch (Exception $e) {
             $this->getLogger()->warning('Add StatementObject failed Message: ', [$e]);
             throw $e;
@@ -1820,7 +1827,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         $newOriginalStatement->setSubmit($originalToCopy->getSubmitObject()->add(new DateInterval('PT1S')));
         $newStatementMeta = clone $originalToCopy->getMeta();
         $newOriginalStatement->setMeta($newStatementMeta);
-
+        $newOriginalStatement->setProcedure($targetProcedure);
         $newOriginalStatement->setChildren(null);
 
         /**
@@ -1869,7 +1876,6 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         }
 
         $newOriginalStatement->setExternId($newExternId);
-        $newOriginalStatement->setProcedure($targetProcedure);
 
         if ($originalToCopy->getProcedureId() !== $targetProcedure->getId()) {
             // remove all tags, because procedure specific -> impossible to keep:
@@ -2057,7 +2063,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         return $statementFileContainer;
     }
 
-    private function copyFile(File $sourceFile, Statement $targetStatement): File
+    public function copyFile(File $sourceFile, Statement $targetStatement): File
     {
         $fileCopy = $this->getFileRepository()->copyFile($sourceFile);
         $fileCopy->setProcedure($targetStatement->getProcedure());

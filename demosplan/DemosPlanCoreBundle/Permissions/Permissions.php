@@ -279,6 +279,9 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'feature_json_api_update',
                 'feature_orga_edit_all_fields',
                 'feature_orga_get',
+                // In contrast to the permission "area_organisations", the permission "feature_organisation_user_list"
+                // allows the display of the organisation list, but does not grant access to the "Organisation" item in the menu
+                'feature_organisation_user_list',
                 'field_statement_recommendation',
             ]);
         }
@@ -297,7 +300,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_preferences',  // Einstellungen
                 'feature_admin_delete_procedure',  // Verfahren loeschen
                 'feature_admin_export_procedure',  // Verfahren exportieren
-                'feature_procedure_export_include_public_interest_bodies_member_list',
                 'feature_json_api_get', // allow get requests to generic api
             ]);
         }
@@ -309,14 +311,9 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_mydata_organisation',  // Daten der Organisation
                 'area_preferences',  // Einstellungen
                 'feature_admin_export_procedure',  // Verfahren exportieren
-                'feature_procedure_export_include_public_interest_bodies_member_list',
 
                 // kann empfehlungen abgeben aber nicht die Bearbeitung abschliessen
                 'field_statement_recommendation',
-            ]);
-
-            $this->disablePermissions([
-                'field_procedure_adjustments_planning_agency',  // Planungsbüro einem Verfahren zuordnen
             ]);
         }
 
@@ -341,7 +338,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_preferences',  // Einstellungen
                 'feature_admin_export_procedure',  // Verfahren exportieren
                 'feature_json_api_get', // allow get requests to generic api
-                'feature_procedure_export_include_public_interest_bodies_member_list',
             ]);
         }
 
@@ -409,6 +405,9 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_preferences',  // Einstellungen
                 'feature_orga_edit',
                 'feature_orga_edit_all_fields',
+                // In contrast to the permission "area_organisations", the permission "feature_organisation_user_list"
+                // allows the display of the organisation list, but does not grant access to the "Organisation" item in the menu
+                'feature_organisation_user_list',
                 'feature_procedure_report_public_phase',
                 'field_data_protection_text_customized_edit_customer',
                 'field_imprint_text_customized_edit_customer',
@@ -428,6 +427,9 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_preferences',  // Einstellungen
                 'area_statistics',  // Statistiken
                 'feature_orga_get',
+                // In contrast to the permission "area_organisations", the permission "feature_organisation_user_list"
+                // allows the display of the organisation list, but does not grant access to the "Organisation" item in the menu
+                'feature_organisation_user_list',
                 'feature_procedure_report_public_phase',
                 'field_data_protection_text_customized_edit_customer',
                 'field_imprint_text_customized_edit_customer',

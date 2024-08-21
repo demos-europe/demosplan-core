@@ -14,7 +14,7 @@
       v-if="hasActiveFilters || searchTerm !== ''"
       class="u-mt-0_5 u-pb-0 border--bottom">
       <legend
-        class="hide-visually"
+        class="sr-only"
         v-text="Translator.trans('filter.searchterm.active')" />
 
       <div
@@ -99,7 +99,7 @@
               <button
                 :disabled="selectedElementsLength > 0 || hasPermission('feature_statements_fragment_add') && Object.keys(selectedFragments).length > 0"
                 class="c-actionmenu__trigger"
-                data-cy="assessmentTableFilter:export"
+                data-cy="exportModal:open"
                 aria-haspopup="true"
                 aria-expanded="false"
                 type="button">

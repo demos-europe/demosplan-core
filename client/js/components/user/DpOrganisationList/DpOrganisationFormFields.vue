@@ -814,7 +814,7 @@ export default {
               data: [
                 {
                   id: '',
-                  type: 'customer'
+                  type: 'Customer'
                 }
               ]
             },
@@ -822,7 +822,7 @@ export default {
               data: [
                 {
                   id: '',
-                  type: 'department'
+                  type: 'Department'
                 }
               ]
             }

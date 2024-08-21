@@ -83,7 +83,9 @@
           </a>
         </li>
       </ul>
-      <div class="layout__item u-mb-0_25 u-mt-0_25">
+      <div
+        v-if="hasPermission('feature_map_planstate')"
+        class="layout__item u-mb-0_25 u-mt-0_25">
         <label
           class="inline-block u-1-of-3 u-mb-0"
           for="planstatus">{{ Translator.trans('planstatus') }}

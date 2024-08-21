@@ -32,6 +32,7 @@ use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Exception;
+use Illuminate\Support\Collection;
 use LogicException;
 use Psr\Log\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
@@ -39,7 +40,6 @@ use ReflectionException;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Illuminate\Support\Collection;
 use Twig\Environment;
 
 class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
@@ -285,13 +285,14 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             $content = $this->twig->render(
                 $fullTemplateName,
                 [
-                    'templateVars' => $templateVars,
-                    'isOriginal'   => $original,
-                    'title'        => $title,
-                    'procedure'    => $procedure,
-                    'pdfLandscape' => 'landscape' === $template || 'landscapeWithFrags' === $template,
-                    'viewMode'     => AssessmentTableViewMode::DEFAULT_VIEW,
-                    'anonymous'    => $anonymous,
+                    'templateVars'  => $templateVars,
+                    'isOriginal'    => $original,
+                    'title'         => $title,
+                    'procedure'     => $procedure,
+                    'pdfLandscape'  => 'landscape' === $template || 'landscapeWithFrags' === $template,
+                    'viewMode'      => AssessmentTableViewMode::DEFAULT_VIEW,
+                    'anonymous'     => $anonymous,
+                    'newPagePerStn' => $parameters['newPagePerStn'],
                 ]
             );
 

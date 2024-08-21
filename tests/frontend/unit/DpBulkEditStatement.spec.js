@@ -18,7 +18,7 @@ describe('DpBulkEditStatement', () => {
   beforeEach(() => {
     store = new Vuex.Store({
       modules: {
-        statement: StatementStore
+        Statement: StatementStore
       }
     })
 
