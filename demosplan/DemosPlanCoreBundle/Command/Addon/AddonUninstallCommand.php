@@ -35,6 +35,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
@@ -42,13 +43,16 @@ class AddonUninstallCommand extends CoreCommand
 {
     protected static $defaultName = 'dplan:addon:uninstall';
     protected static $defaultDescription = 'Uninstall installed addons';
+    private readonly string $env;
 
     public function __construct(
+        KernelInterface $kernel,
         private readonly AddonRegistry $registry,
         private readonly Registrator $registrator,
         ParameterBagInterface $parameterBag,
         ?string $name = null
     ) {
+        $this->env = $kernel->getEnvironment();
         parent::__construct($parameterBag, $name);
     }
 
@@ -79,7 +83,9 @@ class AddonUninstallCommand extends CoreCommand
             foreach ($addonsInfos as $addonInfo) {
                 $this->uninstallAddon($addonInfo, $output);
             }
-            $this->clearCacheFolder($output);
+            if (DemosPlanKernel::ENVIRONMENT_DEV === $this->env) {
+                $this->clearCacheFolder($output);
+            }
             $output->success('All addons successfully uninstalled.');
 
             return self::SUCCESS;
@@ -108,37 +114,14 @@ class AddonUninstallCommand extends CoreCommand
 
         $addonInfo = $addonsInfos[$name];
 
-        try {
-            // remove entry in addons.yml
-            $this->removeEntryInAddonsDefinition($addonInfo, $output);
-            // remove files at install_path
-            $this->deleteDirectory($addonInfo, $output);
-            // run composer remove <name>
-            $this->removeComposerPackage($addonInfo, $output);
-            // clear cache
-            $this->clearCache($output);
-        } catch (IOExceptionInterface $e) {
-            $output->error('An error occurred while deleting the directory at '.
-                $e->getPath().': '.$e->getMessage().'.');
-
-            return self::FAILURE;
-        } catch (JsonException $e) {
-            $output->error('An error occurred while loading the package definition: '.
-                $e->getMessage().'.');
-
-            return self::FAILURE;
-        } catch (Exception $e) {
-            $output->error($e->getMessage());
-
-            return self::FAILURE;
-        }
+        $this->uninstallAddon($addonInfo, $output);
 
         $output->success("Addon {$name} successfully uninstalled");
 
         return self::SUCCESS;
     }
 
-    private function uninstallAddon(AddonInfo $addonInfo, SymfonyStyle $output): void
+    private function uninstallAddon(AddonInfo $addonInfo, SymfonyStyle $output)
     {
         $output->info("Uninstalling addon {$addonInfo->getName()}...");
 
@@ -152,10 +135,17 @@ class AddonUninstallCommand extends CoreCommand
             // clear cache
             $this->clearCache($output);
         } catch (IOExceptionInterface $e) {
-            $output->error('An error occurred while deleting the directory at '.
-            $e->getPath().': '.$e->getMessage().'.');
+            $output->error('An error occurred while deleting the directory at '.$e->getPath().': '.$e->getMessage().'.');
+
+            return self::FAILURE;
+        } catch (JsonException $e) {
+            $output->error('An error occurred while loading the package definition: '.$e->getMessage().'.');
+
+            return self::FAILURE;
         } catch (Exception $e) {
             $output->error($e->getMessage());
+
+            return self::FAILURE;
         }
     }
 
