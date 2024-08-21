@@ -73,6 +73,24 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
      */
     public function __invoke(array $parameters): array
     {
+        if (!array_key_exists('exportType', $parameters)) {
+            $this->logger->error('Export type not set in parameters for zip export.');
+            throw new AssessmentTableZipExportException('error', 'Export type not set in parameters for zip export.');
+        }
+
+        $exportType = $parameters['exportType'];
+        if ('statementsWithAttachments' === $exportType) {
+            return $this->exportStatementsAsZipWithAttachments($parameters);
+        }
+        if ('originalStatements' === $exportType) {
+            return $this->exportOriginalStatementsAsPdfsInZip($parameters);
+        }
+
+        throw new AssessmentTableZipExportException('error', 'Export type not set in parameters for zip export.');
+    }
+
+    private function exportStatementsAsZipWithAttachments(array $parameters): array
+    {
         $xlsxArray = $this->xlsExporter->__invoke($parameters);
 
         try {
@@ -91,6 +109,11 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
             'xlsx'        => $xlsxArray,
             'attachments' => $statementAttachments,
         ];
+    }
+
+    private function exportOriginalStatementsAsPdfsInZip(array $parameters): array
+    {
+        throw new AssessmentTableZipExportException('error', 'Zip export for originalStatements not implemented yet.');
     }
 
     /**
