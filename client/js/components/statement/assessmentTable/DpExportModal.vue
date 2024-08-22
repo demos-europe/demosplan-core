@@ -349,7 +349,7 @@
             :class="activeTab('zip')"
             role="tabpanel">
             <p
-              class="lbl__hint mb-3"
+              class="lbl__hint ml-2 mb-3"
               v-text="explanationZip" />
             <fieldset
               v-if="options.zip.templates"
