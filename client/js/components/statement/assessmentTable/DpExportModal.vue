@@ -470,7 +470,7 @@ export default {
   computed: {
     explanationZip () {
       if (this.options.zip.exportType === 'originalStatements') {
-        return Translator.trans('explanation.export.original_statements.zip')
+        return Translator.trans('explanation.export.original_statements.zip', { hasSelectedElements: this.hasSelectedElements })
       }
 
       return Translator.trans('explanation.export.statements.zip', { hasSelectedElements: this.hasSelectedElements })

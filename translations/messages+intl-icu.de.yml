@@ -1397,7 +1397,11 @@ explanation.export.disabled.viewMode: "Die Exporte mit Datensätzen sind in der 
 explanation.export.docx: "Es werden die Daten entsprechend der Auswahl in den Grundeinstellungen exportiert. Bei diesem Export werden ausschließlich Stellungnahmen exportiert."
 explanation.export.potentialAreas: "Es werden die Begründungen zu den Stellungnahmen mit Potenzialflächen exportiert."
 explanation.export.projectlogin: "Bitte melden Sie sich bei {projectName} an, um das Archiv herunterzuladen."
-explanation.export.original_statements.zip: "Exportiert alle Originalstellungnahmen als ZIP-Archiv."
+explanation.export.original_statements.zip: |
+    { hasSelectedElements, select,
+        true { Exportiert ausgewählte Originalstellungnahmen als ZIP-Archiv. }
+        other { Exportiert alle Originalstellungnahmen als ZIP-Archiv. }
+    }
 explanation.export.statements: |
     {hasSelectedElements, select,
         true {Exportiert ausgewählte Stellungnahmen mit allen Daten als XLSX.}
