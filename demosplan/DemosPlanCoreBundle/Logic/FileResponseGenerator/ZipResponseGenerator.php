@@ -88,11 +88,27 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
 
     private function fillZipWithData(ZipStream $zipStream, array $file): void
     {
-        $this->addXlsFileToZip($zipStream, $file);
-        $this->addAttachmentsToZip($zipStream, $file);
+        $exportType = $file['exportType'];
+        if ('statementsWithAttachments' === $exportType) {
+            $this->addXlsFileToZip($zipStream, $file);
+            $this->addAttachmentsToZip($zipStream, $file);
+        }
+        if ('originalStatements' === $exportType) {
+            $this->addOriginalStatementPdfsTopZip($zipStream, $file);
+        }
         $this->addCountedErrorMessages();
         if (0 < count($this->errorMessages)) {
             $this->addErrorTextFile($zipStream);
+        }
+    }
+
+    private function addOriginalStatementPdfsTopZip(ZipStream $zipStream, array $file): void
+    {
+        foreach ($file['originalStatementsAsPdfs'] as $pdf) {
+            $zipStream->addFile(
+                $file['zipFileName'].'/'.$pdf['filename'],
+                $pdf['content']
+            );
         }
     }
 
