@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Exception\AssessmentTableZipExportException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTablePdfExporter;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
@@ -53,9 +52,7 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
         NameGenerator $nameGenerator,
         private readonly ZipExportService $zipExportService,
         private readonly LoggerInterface $logger,
-        private readonly TranslatorInterface $translator,
-        private readonly AssessmentTablePdfExporter $assessmentTablePdfExporter,
-        private readonly CurrentProcedureService $currentProcedureService
+        private readonly TranslatorInterface $translator
     ) {
         parent::__construct($nameGenerator);
         $this->supportedTypes = $supportedTypes;
