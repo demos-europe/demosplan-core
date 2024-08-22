@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -17,13 +19,14 @@ use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Exception\AssessmentTableZipExportException;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidPostParameterTypeException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingPostParameterException;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableExporterStrategy;
-use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\ExportParameters;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
@@ -75,7 +78,7 @@ class DemosPlanAssessmentExportController extends BaseController
         }
         $exportParameters = $this->getExportParameters($request, $procedureId, $original);
         try {
-            $file = $assessmentExporter->export($exportFormat, $exportParameters->toArray());
+            $file = $assessmentExporter->export($exportFormat, $exportParameters);
 
             $response = $responseGenerator($exportFormat, $file);
         } catch (AssessmentTableZipExportException $e) {
@@ -95,41 +98,64 @@ class DemosPlanAssessmentExportController extends BaseController
      * @throws InvalidPostParameterTypeException
      * @throws JsonException
      */
-    private function getExportParameters(Request $request, string $procedureId, bool $original): ExportParameters
+    private function getExportParameters(Request $request, string $procedureId, bool $original): array
     {
-        $exportParameters = new ExportParameters();
-        $exportParameters->setFormValues($this->assessmentHandler->getFormValues($request->request->all()));
-        $exportParameters->setRequestLimit(1_000_000);
-        $exportParameters->setSearchFields(
-            explode(',', (string) $request->request->get('searchFields'))
-        );
-        $exportParameters->setExportFormat($request->request->get('r_export_format'));
-        $exportParameters->setProcedureId($procedureId);
-        $exportParameters->setIsOriginalStatementExport($original);
+        $parameters = $this->assessmentHandler->getFormValues($request->request->all());
+        $parameters['request']['limit'] = 1_000_000;
+        $parameters['searchFields'] = explode(',', (string) $request->request->get('searchFields'));
+        $parameters['exportFormat'] = $request->request->get('r_export_format');
+        $parameters['procedureId'] = $procedureId;
+        $parameters['original'] = $original;
         $exportChoice = Json::decodeToArray($request->request->get('r_export_choice'));
-        if (array_key_exists('anonymous', $exportChoice)) {
-            $exportParameters->setAnonymous($exportChoice['anonymous']);
-        }
-        if (array_key_exists('exportType', $exportChoice)) {
-            $exportParameters->setExportType($exportChoice['exportType']);
-        }
-        if (array_key_exists('template', $exportChoice)) {
-            $exportParameters->setTemplate($exportChoice['template']);
-        }
-        if (array_key_exists('sortType', $exportChoice)) {
-            $exportParameters->setSortType($exportChoice['sortType']);
-        }
+        $parameters['anonymous'] = array_key_exists('anonymous', $exportChoice)
+            ? $exportChoice['anonymous']
+            : true;
+        $parameters['exportType'] = array_key_exists('exportType', $exportChoice)
+            ? $exportChoice['exportType']
+            : 'statementsOnly';
+        $parameters['template'] = array_key_exists('template', $exportChoice)
+            ? $exportChoice['template']
+            : 'portrait';
+        $parameters['sortType'] = array_key_exists('sortType', $exportChoice)
+            ? $exportChoice['sortType']
+            : AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT;
         try {
-            $viewMode = $this->getStringParameter($request, 'r_view_mode');
+            $parameters['viewMode'] = $this->getStringParameter($request, 'r_view_mode');
         } catch (MissingPostParameterException) {
-            $viewMode = AssessmentTableViewMode::DEFAULT_VIEW;
+            $parameters['viewMode'] = AssessmentTableViewMode::DEFAULT_VIEW;
         }
-        if (AssessmentTableViewMode::ELEMENTS_VIEW === $viewMode) {
-            $exportParameters->setSort(ToBy::createArray('elementsView', 'desc'));
+        if (AssessmentTableViewMode::ELEMENTS_VIEW === $parameters['viewMode']) {
+            $parameters['sort'] = ToBy::createArray('elementsView', 'desc');
         }
 
-        $exportParameters->setViewMode($viewMode);
+        $this->validateParameters($parameters, $procedureId);
 
-        return $exportParameters->lock();
+        return $parameters;
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    private function validateParameters(array $parameters, string $procedureId): void
+    {
+        $error = false;
+        $expectedParameters = [
+            'procedureId', 'anonymous', 'exportType', 'template', 'original', 'viewMode',
+        ];
+        foreach ($expectedParameters as $expectedParameter) {
+            if (!isset($parameters[$expectedParameter])) {
+                $this->logger->error("Missing parameter $expectedParameter");
+            }
+        }
+
+        if ($parameters['procedureId'] !== $procedureId) {
+            $msg = 'Received id #'.$parameters['procedureId'];
+            $msg .= ' does not match current Procedure Id #'.$procedureId;
+            $this->logger->error($msg);
+        }
+
+        if ($error) {
+            throw new InvalidArgumentException('Internal error');
+        }
     }
 }
