@@ -40,6 +40,7 @@ class AddonUninstallCommand extends CoreCommand
 {
     protected static $defaultName = 'dplan:addon:uninstall';
     protected static $defaultDescription = 'Uninstall installed addons';
+
     public function __construct(
         private readonly AddonRegistry $registry,
         private readonly Registrator $registrator,
@@ -128,9 +129,6 @@ class AddonUninstallCommand extends CoreCommand
             $this->deleteDirectory($addonInfo, $output);
             // run composer remove <name>
             $this->removeComposerPackage($addonInfo, $output);
-
-
-
         } catch (IOExceptionInterface $e) {
             $output->error('An error occurred while deleting the directory at '.$e->getPath().': '.$e->getMessage().'.');
 
