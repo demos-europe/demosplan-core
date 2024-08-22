@@ -88,6 +88,16 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
 
     private function fillZipWithData(ZipStream $zipStream, array $file): void
     {
+        $this->addXlsFileToZip($zipStream, $file);
+        $this->addAttachmentsToZip($zipStream, $file);
+        $this->addCountedErrorMessages();
+        if (0 < count($this->errorMessages)) {
+            $this->addErrorTextFile($zipStream);
+        }
+    }
+
+    private function addXlsFileToZip(ZipStream $zipStream, array $file): void
+    {
         $temporaryFullFilePath = DemosPlanPath::getTemporaryPath($file['xlsx']['filename']);
         /** @var IWriter $writer */
         $writer = $file['xlsx']['writer'];
@@ -103,7 +113,10 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
         } catch (WriterException|Exception $e) {
             $this->handleError($e, self::UNKOWN_ERROR, self::XLSX_GENERIC);
         }
+    }
 
+    private function addAttachmentsToZip(ZipStream $zipStream, array $file): void
+    {
         foreach ($file['attachments'] as $attachmentsArray) {
             try {
                 foreach ($attachmentsArray['attachments'] as $attachment) {
@@ -145,10 +158,6 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
                 $this->handleError($e, self::UNKOWN_ERROR);
                 ++$this->errorCount['attachmentUnkownErrorCount'];
             }
-        }
-        $this->addCountedErrorMessages();
-        if (0 < count($this->errorMessages)) {
-            $this->addErrorTextFile($zipStream);
         }
     }
 
