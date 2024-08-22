@@ -103,6 +103,7 @@
             <button
               v-if="false === isPlanStatusEditing"
               class="btn--blank o-link--default"
+              data-cy="planStatusEditing"
               :title="Translator.trans('edit')"
               type="button"
               @click="setEditingStatus('isPlanStatusEditing', true)">
@@ -152,6 +153,7 @@
             <button
               v-if="false === isMapStatusEditing"
               class="btn--blank o-link--default"
+              data-cy="mapStatusEditing"
               :title="Translator.trans('edit')"
               type="button"
               @click="setEditingStatus('isMapStatusEditing', true)">
@@ -162,6 +164,7 @@
             <button
               v-if="isMapStatusEditing"
               class="btn--blank o-link--default"
+              data-cy="mapStatusEditingSave"
               :title="Translator.trans('save')"
               type="button"
               @click="updateIsMapEnabled">
@@ -172,6 +175,7 @@
             <button
               v-if="isMapStatusEditing"
               class="btn--blank o-link--default"
+              data-cy="mapStatusEditingReset"
               :title="Translator.trans('reset')"
               type="button"
               @click="reset('isMapEnabled', 'isMapStatusEditing')">
