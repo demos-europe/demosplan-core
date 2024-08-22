@@ -195,13 +195,14 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             $content = $this->twig->render(
                 $fullTemplateName,
                 [
-                    'templateVars' => $templateVars,
-                    'isOriginal'   => $original,
-                    'title'        => $title,
-                    'procedure'    => $procedure,
-                    'pdfLandscape' => 'landscape' === $template || 'landscapeWithFrags' === $template,
-                    'viewMode'     => AssessmentTableViewMode::DEFAULT_VIEW,
-                    'anonymous'    => $anonymous,
+                    'templateVars'  => $templateVars,
+                    'isOriginal'    => $original,
+                    'title'         => $title,
+                    'procedure'     => $procedure,
+                    'pdfLandscape'  => 'landscape' === $template || 'landscapeWithFrags' === $template,
+                    'viewMode'      => AssessmentTableViewMode::DEFAULT_VIEW,
+                    'anonymous'     => $anonymous,
+                    'newPagePerStn' => $parameters['newPagePerStn'],
                 ]
             );
             $isPublicUser = $this->currentUser->getUser()->isPublicUser();
