@@ -35,24 +35,17 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\HttpKernel\KernelInterface;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
 
 class AddonUninstallCommand extends CoreCommand
 {
     protected static $defaultName = 'dplan:addon:uninstall';
     protected static $defaultDescription = 'Uninstall installed addons';
-    private readonly string $env;
-
     public function __construct(
-        KernelInterface $kernel,
         private readonly AddonRegistry $registry,
         private readonly Registrator $registrator,
         ParameterBagInterface $parameterBag,
         ?string $name = null
     ) {
-        $this->env = $kernel->getEnvironment();
         parent::__construct($parameterBag, $name);
     }
 
@@ -83,9 +76,9 @@ class AddonUninstallCommand extends CoreCommand
             foreach ($addonsInfos as $addonInfo) {
                 $this->uninstallAddon($addonInfo, $output);
             }
-            if (DemosPlanKernel::ENVIRONMENT_DEV === $this->env) {
-                $this->clearCacheFolder($output);
-            }
+
+            // clear cache
+            $this->clearCache($output);
             $output->success('All addons successfully uninstalled.');
 
             return self::SUCCESS;
@@ -116,6 +109,9 @@ class AddonUninstallCommand extends CoreCommand
 
         $this->uninstallAddon($addonInfo, $output);
 
+        // clear cache
+        $this->clearCache($output);
+
         $output->success("Addon {$name} successfully uninstalled");
 
         return self::SUCCESS;
@@ -132,8 +128,9 @@ class AddonUninstallCommand extends CoreCommand
             $this->deleteDirectory($addonInfo, $output);
             // run composer remove <name>
             $this->removeComposerPackage($addonInfo, $output);
-            // clear cache
-            $this->clearCache($output);
+
+
+
         } catch (IOExceptionInterface $e) {
             $output->error('An error occurred while deleting the directory at '.$e->getPath().': '.$e->getMessage().'.');
 
@@ -215,7 +212,7 @@ class AddonUninstallCommand extends CoreCommand
         /** @var DemosPlanKernel $kernel */
         $activeProject = $kernel->getActiveProject();
         // do not warm up cache to avoid errors as the addon is still referenced in the container
-        $cacheClearCommand = ["bin/{$activeProject}", 'cache:clear', '-e', $environment, '--no-warmup'];
+        $cacheClearCommand = ["bin/{$activeProject}", 'cache:clear', '-e', $environment, '--no-warmup', " && dp d:deploy {$activeProject} -ssync"];
 
         $batchReturn = Batch::create($this->getApplication(), $output)
             ->addShell($cacheClearCommand)
@@ -226,25 +223,5 @@ class AddonUninstallCommand extends CoreCommand
         }
 
         $output->info('Cache successfully cleared.');
-    }
-
-    private function clearCacheFolder(SymfonyStyle $output): void
-    {
-        $kernel = $this->getApplication()->getKernel();
-        /** @var DemosPlanKernel $kernel */
-        $activeProject = $kernel->getActiveProject();
-        $folderPath = '/tmp/dplan/'.$activeProject.'/cache/dev/*';
-        $command = 'rm -rf '.escapeshellarg($folderPath);
-
-        // Execute the command with automatic "yes" response
-        $process = new Process(['bash', '-c', "echo y | $command"]);
-        $output->info('Clearing cache by removing all files in the folder...');
-        $process->run();
-        // Check if the process was successful
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
-
-        $output->info('Cache folder successfully cleared.');
     }
 }
