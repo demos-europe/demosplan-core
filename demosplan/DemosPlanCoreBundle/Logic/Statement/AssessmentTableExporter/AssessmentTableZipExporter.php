@@ -109,7 +109,7 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
             'zipFileName' => $this->translator->trans('evaluation.assessment.table.export'),
             'xlsx'        => $xlsxArray,
             'attachments' => $statementAttachments,
-            'exportType' => $exportType
+            'exportType'  => $exportType,
         ];
     }
 
@@ -119,7 +119,7 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
     private function exportOriginalStatementsAsPdfsInZip(array $parameters, string $exportType): array
     {
         // wenn items leer ist dann outputresult
-        if ($parameters['items'] === []) {
+        if ([] === $parameters['items']) {
             $outputResult = $this->assessmentHandler->prepareOutputResult(
                 $parameters['procedureId'],
                 $parameters['original'],
@@ -133,13 +133,12 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
             $parameters['items'] = $statementIds;
         }
 
-
         $this->pdfExporter->buildIndividualPdfsForOriginalStatements($parameters);
 
         return [
-            'zipFileName' => $this->translator->trans('evaluation.assessment.table.export'),
+            'zipFileName'              => $this->translator->trans('evaluation.assessment.table.export'),
             'originalStatementsAsPdfs' => [],
-            'exportType' => $exportType
+            'exportType'               => $exportType,
         ];
     }
 
