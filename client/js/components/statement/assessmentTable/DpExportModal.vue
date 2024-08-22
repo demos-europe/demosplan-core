@@ -86,9 +86,10 @@
                 v-text="Translator.trans('export.format')" />
               <dp-radio
                 v-for="(identifier, index) in Object.keys(pdfTemplateOptions)"
-                :key="identifier"
-                :class="{ 'mb-1': index !== Object.keys(pdfTemplateOptions).length - 1 }"
                 :id="`pdfTemplate_${identifier}`"
+                :key="identifier"
+                :checked="exportChoice.pdf.template === identifier"
+                :class="{ 'mb-1': index !== Object.keys(pdfTemplateOptions).length - 1 }"
                 :data-cy="`exportModal:pdfTemplate_${identifier}`"
                 :label="{
                   bold: true,
@@ -97,7 +98,6 @@
                 }"
                 name="pdfTemplate"
                 :value="identifier"
-                :checked="exportChoice.pdf.template === identifier"
                 @change="exportChoice.pdf.template = identifier" />
             </fieldset>
 
@@ -110,6 +110,7 @@
               <dp-radio
                 class="mb-1"
                 id="pdfExportTypeStatementsOnly"
+                data-cy="exportModal:pdfExportTypeStatementsOnly"
                 :label="{
                   bold: true,
                   text: Translator.trans('statements')
@@ -120,6 +121,7 @@
                 @change="exportChoice.pdf.exportType = 'statementsOnly'" />
               <dp-radio
                 id="pdfExportTypeStatementsAndFragments"
+                data-cy="exportModal:pdfExportTypeStatementsAndFragments"
                 :label="{
                   bold: true,
                   hint: Translator.trans('explanation.export.statementsAndFragments'),
@@ -199,6 +201,7 @@
               <dp-radio
                 class="mb-1"
                 id="docxExportTypeStatementsOnly"
+                data-cy="exportModal:docxExportTypeStatementsOnly"
                 :label="{
                   bold: true,
                   text: Translator.trans('statements')
@@ -209,6 +212,7 @@
                 />
               <dp-radio
                 id="docxExportTypeStatementsAndFragments"
+                data-cy="exportModal:docxExportTypeStatementsAndFragments"
                 :label="{
                   bold: true,
                   text: Translator.trans('fragments')
@@ -228,6 +232,7 @@
               <dp-radio
                 class="mb-1"
                 id="docxSortTypeDefault"
+                data-cy="exportModal:docxSortTypeDefault"
                 :label="{
                   bold: true,
                   hint: exportChoice.docx.exportType === 'statementsAndFragments' ? Translator.trans('explanation.export.statementsAndFragments') : '',
@@ -238,6 +243,7 @@
                @change="exportChoice.docx.sortType = 'default'" />
               <dp-radio
                 id="docxSortTypeByParagraph"
+                data-cy="exportModal:docxSortTypeByParagraph"
                 :label="{
                   bold: true,
                   text: Translator.trans('groupedBy.elements')
@@ -275,6 +281,7 @@
                 v-text="Translator.trans('export.type')" />
               <dp-checkbox
                 id="xlsxAnonymous"
+                data-cy="exportModal:xlsxAnonymous"
                 :label="{
                   bold: true,
                   hint: Translator.trans('explanation.export.anonymous'),
@@ -341,13 +348,36 @@
             class="tab-content"
             :class="activeTab('zip')"
             role="tabpanel">
-            <p class="lbl__hint u-ml-0_75 u-mb-0">
-              {{ Translator.trans('explanation.export.statements.zip', { hasSelectedElements: hasSelectedElements }) }}
-            </p>
+            <p
+              class="lbl__hint ml-2 mb-3"
+              v-text="explanationZip" />
+            <fieldset
+              v-if="options.zip.templates"
+              class="u-mb-0_5 u-pb-0_5">
+              <legend
+                class="sr-only"
+                v-text="Translator.trans('export.format')" />
+              <dp-radio
+                v-for="(identifier, index) in Object.keys(zipTemplateOptions)"
+                :id="`zipTemplate_${identifier}`"
+                :key="identifier"
+                :checked="exportChoice.zip.template === identifier"
+                :class="{ 'mb-1': index !== Object.keys(zipTemplateOptions).length - 1 }"
+                :data-cy="`exportModal:zipTemplate_${identifier}`"
+                :label="{
+                  bold: true,
+                  hint: zipTemplateOptions[identifier].explanation ?? '',
+                  text: Translator.trans(zipTemplateOptions[identifier].name)
+                }"
+                name="zipTemplate"
+                :value="identifier"
+                @change="exportChoice.zip.template = identifier" />
+            </fieldset>
           </div>
 
           <dp-button
             class="submitBtn"
+            data-cy="exportModal:submit"
             :text="submitLabel"
             @click.prevent="handleSubmit" />
         </div>
@@ -446,6 +476,14 @@ export default {
   },
 
   computed: {
+    explanationZip () {
+      if (this.options.zip.exportType === 'originalStatements') {
+        return Translator.trans('explanation.export.original_statements.zip', { hasSelectedElements: this.hasSelectedElements })
+      }
+
+      return Translator.trans('explanation.export.statements.zip', { hasSelectedElements: this.hasSelectedElements })
+    },
+
     //  Get first tab to activate
     defaultTab () {
       for (const key in this.options) {
@@ -484,10 +522,7 @@ export default {
     },
 
     pdfTemplateOptions () {
-      const optionsPdfFilter = Object.entries(this.options.pdf.templates).filter(([key, value]) => {
-        return value ? this.hasVisibleTemplate({ [key]: value }) : false
-      })
-      return Object.fromEntries(optionsPdfFilter)
+      return this.getTemplateOptions(this.options.pdf)
     },
 
     //  Return export route for current view
@@ -529,12 +564,24 @@ export default {
           obj[key] = this.options[key]
           return obj
         }, {})
-    }
+    },
+
+    zipTemplateOptions () {
+      return this.getTemplateOptions(this.options.zip)
+    },
   },
 
   methods: {
     activeTab (tab) {
       return tab === this.currentTab ? 'active' : false
+    },
+
+    getTemplateOptions (options) {
+      const visibleOptions = Object.entries(options.templates).filter(([key, value]) => {
+        return value ? this.hasVisibleTemplate({ [key]: value }) : false
+      })
+
+      return Object.fromEntries(visibleOptions)
     },
 
     handleDocxExportTypeChange (value) {

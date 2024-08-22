@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Exception\AssessmentTableZipExportException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTablePdfExporter;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
@@ -53,9 +52,7 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
         NameGenerator $nameGenerator,
         private readonly ZipExportService $zipExportService,
         private readonly LoggerInterface $logger,
-        private readonly TranslatorInterface $translator,
-        private readonly AssessmentTablePdfExporter $assessmentTablePdfExporter,
-        private readonly CurrentProcedureService $currentProcedureService
+        private readonly TranslatorInterface $translator
     ) {
         parent::__construct($nameGenerator);
         $this->supportedTypes = $supportedTypes;
@@ -91,6 +88,33 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
 
     private function fillZipWithData(ZipStream $zipStream, array $file): void
     {
+        $exportType = $file['exportType'];
+        if ('statementsWithAttachments' === $exportType) {
+            $this->addXlsFileToZip($zipStream, $file);
+            $this->addAttachmentsToZip($zipStream, $file);
+        }
+        if ('originalStatements' === $exportType) {
+            $this->addOriginalStatementPdfsTopZip($zipStream, $file);
+        }
+        $this->addCountedErrorMessages();
+        if (0 < count($this->errorMessages)) {
+            $this->addErrorTextFile($zipStream);
+        }
+    }
+
+    private function addOriginalStatementPdfsTopZip(ZipStream $zipStream, array $file): void
+    {
+        foreach ($file['originalStatementsAsPdfs'] as $pdf) {
+            $pdf['name'] = str_replace('Originalstellungnahmen', 'Originalstellungnahme', $pdf['name']);
+            $zipStream->addFile(
+                $file['zipFileName'].'/'.$pdf['externId'].$pdf['name'],
+                $pdf['content']
+            );
+        }
+    }
+
+    private function addXlsFileToZip(ZipStream $zipStream, array $file): void
+    {
         $temporaryFullFilePath = DemosPlanPath::getTemporaryPath($file['xlsx']['filename']);
         /** @var IWriter $writer */
         $writer = $file['xlsx']['writer'];
@@ -106,7 +130,10 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
         } catch (WriterException|Exception $e) {
             $this->handleError($e, self::UNKOWN_ERROR, self::XLSX_GENERIC);
         }
+    }
 
+    private function addAttachmentsToZip(ZipStream $zipStream, array $file): void
+    {
         foreach ($file['attachments'] as $attachmentsArray) {
             try {
                 foreach ($attachmentsArray['attachments'] as $attachment) {
@@ -149,10 +176,6 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
                 ++$this->errorCount['attachmentUnkownErrorCount'];
             }
         }
-        $this->addCountedErrorMessages();
-        if (0 < count($this->errorMessages)) {
-            $this->addErrorTextFile($zipStream);
-        }
     }
 
     private function addErrorTextFile(ZipStream $zipStream): void
@@ -194,17 +217,36 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
     {
         $logSuffix = ', in zip response generation.';
         $prefix = 'Array key expected: ';
+        Assert::keyExists($file, 'exportType', $prefix.'exportType'.$logSuffix);
+        Assert::string($file['exportType'], 'String expected under the key exportType'.$logSuffix);
+        $isOriginalStatementsExport = 'originalStatements' === $file['exportType'];
+        $isStatementsWithAttachmentsExport = 'statementsWithAttachments' === $file['exportType'];
+        Assert::true(
+            $isOriginalStatementsExport || $isStatementsWithAttachmentsExport,
+            'The exportType must be either originalStatements or statementsWithAttachments'.$logSuffix
+        );
         Assert::keyExists($file, 'zipFileName', $prefix.'zipFileName'.$logSuffix);
-        Assert::keyExists($file, 'xlsx', $prefix.'xlsx'.$logSuffix);
-        Assert::isArray($file['xlsx'], 'Array expected under the key xlsx'.$logSuffix);
-        Assert::keyExists($file['xlsx'], 'filename', $prefix.'filename'.$logSuffix);
-        Assert::keyExists($file['xlsx'], 'writer', $prefix.'writer'.$logSuffix);
-        Assert::keyExists($file['xlsx'], 'statementIds', $prefix.'statementIds'.$logSuffix);
-        Assert::keyExists($file, 'attachments', $prefix.'attachments'.$logSuffix);
-        Assert::isArray($file['attachments']);
-        foreach ($file['attachments'] as $attachment) {
-            Assert::keyExists($attachment, 'attachments');
-            Assert::keyExists($attachment, 'originalAttachment');
+        if ($isOriginalStatementsExport) {
+            Assert::keyExists(
+                $file, 'originalStatementsAsPdfs', $prefix.'originalStatementsAsPdfs'.$logSuffix
+            );
+            Assert::isArray(
+                $file['originalStatementsAsPdfs'],
+                'Array expected under the key originalStatementsAsPdfs'.$logSuffix
+            );
+        }
+        if ($isStatementsWithAttachmentsExport) {
+            Assert::keyExists($file, 'xlsx', $prefix.'xlsx'.$logSuffix);
+            Assert::isArray($file['xlsx'], 'Array expected under the key xlsx'.$logSuffix);
+            Assert::keyExists($file['xlsx'], 'filename', $prefix.'filename'.$logSuffix);
+            Assert::keyExists($file['xlsx'], 'writer', $prefix.'writer'.$logSuffix);
+            Assert::keyExists($file['xlsx'], 'statementIds', $prefix.'statementIds'.$logSuffix);
+            Assert::keyExists($file, 'attachments', $prefix.'attachments'.$logSuffix);
+            Assert::isArray($file['attachments']);
+            foreach ($file['attachments'] as $attachment) {
+                Assert::keyExists($attachment, 'attachments');
+                Assert::keyExists($attachment, 'originalAttachment');
+            }
         }
     }
 }
