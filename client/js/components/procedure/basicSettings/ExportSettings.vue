@@ -15,6 +15,7 @@
     <dp-checkbox
       id="check_all"
       v-model="allChecked"
+      :disabled="allChecked === true"
       data-cy="exportSettings:allChecked"
       class="u-mb"
       :label="{
@@ -95,7 +96,8 @@ export default {
           initVal: this.initialSettings.idExportable,
           enabled: true,
           hasPermission: hasPermission('field_statement_extern_id'),
-          group: 'metaData'
+          group: 'metaData',
+          disabled: false
         },
         {
           id: 'r_export_settings[r_submitted_date]',
@@ -104,7 +106,8 @@ export default {
           initVal: this.initialSettings.creationDateExportable,
           enabled: true,
           hasPermission: true,
-          group: 'metaData'
+          group: 'metaData',
+          disabled: false
         },
         {
           id: 'r_export_settings[r_procedure_name]',
@@ -113,7 +116,8 @@ export default {
           initVal: this.initialSettings.procedureNameExportable,
           enabled: true,
           hasPermission: hasPermission('field_procedure_name'),
-          group: 'metaData'
+          group: 'metaData',
+          disabled: false
         },
         {
           id: 'r_export_settings[r_phase]',
@@ -122,7 +126,8 @@ export default {
           initVal: this.initialSettings.procedurePhaseExportable,
           enabled: true,
           hasPermission: hasPermission('field_statement_phase'),
-          group: 'metaData'
+          group: 'metaData',
+          disabled: false
         },
         // Currently not implemented in BE, therefore disabled
         {
@@ -240,7 +245,9 @@ export default {
           initVal: this.initialSettings.emailExportable,
           enabled: this.fieldDefinitions.emailAddress.enabled || this.fieldDefinitions.phoneOrEmail.enabled,
           hasPermission: hasPermission('field_statement_submitter_email_address'),
-          group: 'submitterData'
+          group: 'submitterData',
+          disabled: false
+
         },
         {
           id: 'r_export_settings[r_phone]',
@@ -364,9 +371,9 @@ export default {
       this.setAllChecked()
     },
 
-    toggleAll (val) {
+    toggleAll () {
       this.availableFields.forEach(field => {
-        this.$set(this.checkedFields, field.id, val)
+        this.$set(this.checkedFields, field.id, true)
       })
     },
 
