@@ -202,7 +202,7 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
         Assert::keyExists($file, 'zipFileName', $prefix.'zipFileName'.$logSuffix);
         if ($isOriginalStatementsExport) {
             Assert::keyExists(
-                $file,'originalStatementsAsPdfs', $prefix.'originalStatementsAsPdfs'.$logSuffix
+                $file, 'originalStatementsAsPdfs', $prefix.'originalStatementsAsPdfs'.$logSuffix
             );
             Assert::isArray(
                 $file['originalStatementsAsPdfs'],
