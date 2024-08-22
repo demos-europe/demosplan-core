@@ -110,6 +110,7 @@
               <dp-radio
                 class="mb-1"
                 id="pdfExportTypeStatementsOnly"
+                data-cy="exportModal:pdfExportTypeStatementsOnly"
                 :label="{
                   bold: true,
                   text: Translator.trans('statements')
@@ -120,6 +121,7 @@
                 @change="exportChoice.pdf.exportType = 'statementsOnly'" />
               <dp-radio
                 id="pdfExportTypeStatementsAndFragments"
+                data-cy="exportModal:pdfExportTypeStatementsAndFragments"
                 :label="{
                   bold: true,
                   hint: Translator.trans('explanation.export.statementsAndFragments'),
@@ -199,6 +201,7 @@
               <dp-radio
                 class="mb-1"
                 id="docxExportTypeStatementsOnly"
+                data-cy="exportModal:docxExportTypeStatementsOnly"
                 :label="{
                   bold: true,
                   text: Translator.trans('statements')
@@ -209,6 +212,7 @@
                 />
               <dp-radio
                 id="docxExportTypeStatementsAndFragments"
+                data-cy="exportModal:docxExportTypeStatementsAndFragments"
                 :label="{
                   bold: true,
                   text: Translator.trans('fragments')
@@ -228,6 +232,7 @@
               <dp-radio
                 class="mb-1"
                 id="docxSortTypeDefault"
+                data-cy="exportModal:docxSortTypeDefault"
                 :label="{
                   bold: true,
                   hint: exportChoice.docx.exportType === 'statementsAndFragments' ? Translator.trans('explanation.export.statementsAndFragments') : '',
@@ -238,6 +243,7 @@
                @change="exportChoice.docx.sortType = 'default'" />
               <dp-radio
                 id="docxSortTypeByParagraph"
+                data-cy="exportModal:docxSortTypeByParagraph"
                 :label="{
                   bold: true,
                   text: Translator.trans('groupedBy.elements')
@@ -275,6 +281,7 @@
                 v-text="Translator.trans('export.type')" />
               <dp-checkbox
                 id="xlsxAnonymous"
+                data-cy="exportModal:xlsxAnonymous"
                 :label="{
                   bold: true,
                   hint: Translator.trans('explanation.export.anonymous'),
@@ -370,6 +377,7 @@
 
           <dp-button
             class="submitBtn"
+            data-cy="exportModal:submit"
             :text="submitLabel"
             @click.prevent="handleSubmit" />
         </div>
