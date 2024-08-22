@@ -11,22 +11,22 @@
   <portal to="vueModals">
     <dp-modal
       ref="exportModal"
-      content-classes="u-1-of-2"
-      content-body-classes="u-m-0 u-p-0">
+      content-classes="w-1/2"
+      content-body-classes="m-0 p-0">
       <!-- no modal header -->
 
       <!-- modal content -->
       <div
-        class="c-tabs__modal u-ph-0 u-pb-0 u-mv-0 h-auto"
+        class="c-tabs__modal px-0 pb-0 my-0 h-auto"
         :style="{ minHeight: minHeight + 'px' }"
         ref="exportModalContent">
         <div
-          class="tab-header u-mt-0_75 u-mh-0_75"
+          class="tab-header mt-3 mx-3"
           role="tablist">
           <button
             v-for="(option, key) in tabsOptions"
             :key="key"
-            class="tab u-1-of-6"
+            class="tab w-1/6"
             :class="activeTab(key)"
             @click="switchTab(key)"
             :data-cy="`exportModal:${option.tabLabel}`"
@@ -36,7 +36,7 @@
           </button>
         </div>
 
-        <div class="tab-context u-p-0_75">
+        <div class="tab-context p-3">
           <!-- PDF -->
           <div
             v-if="options.pdf"
@@ -45,7 +45,7 @@
             role="tabpanel">
             <fieldset
               v-if="options.pdf.anonymize || options.pdf.obscure"
-              class="u-mb-0_5 u-pb-0_5">
+              class="mb-2 pb-2">
               <legend
                 class="sr-only"
                 v-text="Translator.trans('export.type')" />
@@ -63,7 +63,7 @@
 
             <fieldset
               v-if="options.pdf.newPagePerStn && view === 'original_statements'"
-              class="u-mb-0_5 u-pb-0_5">
+              class="mb-2 pb-2">
               <legend
                 class="sr-only"
                 v-text="Translator.trans('export.pageLayout')" />
@@ -80,7 +80,7 @@
 
             <fieldset
               v-if="options.pdf.templates"
-              class="u-mb-0_5 u-pb-0_5">
+              class="mb-2 pb-2">
               <legend
                 class="sr-only"
                 v-text="Translator.trans('export.format')" />
@@ -103,7 +103,7 @@
 
             <fieldset
               v-if="options.pdf.exportTypes && exportChoice.pdf.template == 'condensed' && view == 'assessment_table'"
-              class="u-mb-0_5 u-pb-0_5">
+              class="mb-2 pb-2">
               <legend
                 class="sr-only"
                 v-text="Translator.trans('export.data')" />
@@ -135,13 +135,13 @@
 
             <p
               v-if="!options.pdf.anonymize && !options.pdf.obscure && !options.pdf.exportTypes && !options.pdf.templates"
-              class="u-ml-0_5 u-mt-2">
+              class="ml-2 mt-6">
               {{ Translator.trans('explanation.export.anonymous') }}
             </p>
 
             <div
               v-if="!isDefaultViewMode"
-              class="flash flash-info u-mb-0">
+              class="flash flash-info mb-0">
               {{ Translator.trans('explanation.export.disabled.viewMode') }}
             </div>
           </div>
@@ -154,7 +154,7 @@
             role="tabpanel">
             <fieldset
               v-if="options.docx.anonymize || options.docx.obscure"
-              class="u-mb-0_5 u-pb-0_5">
+              class="mb-2 pb-2">
               <legend
                 class="sr-only"
                 v-text="Translator.trans('export.type')" />
@@ -171,7 +171,7 @@
 
             <fieldset
               v-if="options.docx.templates"
-              class="u-mb-0_5 u-pb-0_5">
+              class="mb-2 pb-2">
               <legend
                 class="sr-only"
                 v-text="Translator.trans('export.format')" />
@@ -194,7 +194,7 @@
 
             <fieldset
               v-if="options.docx.exportTypes && exportChoice.docx.template === 'condensed' && view === 'assessment_table'"
-              class="u-mb-0_5 u-pb-0_5">
+              class="mb-2 pb-2">
               <legend
                 class="sr-only"
                 v-text="Translator.trans('export.data')" />
@@ -225,7 +225,7 @@
             <!--choose sorting type-->
             <fieldset
               v-if="options.docx.exportTypes && exportChoice.docx.template === 'condensed' && view === 'assessment_table'"
-              class="u-mb-0_5 u-pb-0_5">
+              class="mb-2 pb-2">
               <legend
                 class="sr-only"
                 v-text="Translator.trans('export.structure')" />
@@ -255,14 +255,14 @@
             <!--end of sorting type-->
 
             <p
-              class="u-ml-0_5 u-mt-2"
+              class="ml-2 mt-2"
               v-if="!options.docx.anonymize && !options.docx.obscure && !options.docx.exportTypes && !options.docx.templates">
               {{ Translator.trans('explanation.export.anonymous') }}
             </p>
 
             <div
               v-if="!isDefaultViewMode"
-              class="flash flash-info u-mb-0">
+              class="flash flash-info mb-0">
               {{ Translator.trans('explanation.export.disabled.viewMode') }}
             </div>
           </div>
@@ -275,7 +275,7 @@
             role="tabpanel">
             <fieldset
               v-if="options.xlsx.anonymize || options.xlsx.obscure"
-              class="u-mb-0_5 u-pb-0_5">
+              class="mb-2 pb-2">
               <legend
                 class="sr-only"
                 v-text="Translator.trans('export.type')" />
@@ -291,7 +291,7 @@
             </fieldset>
             <fieldset
               v-if="options.xlsx.exportTypes"
-              class="u-mb-0_5 u-pb-0_5">
+              class="mb-2 pb-2">
               <legend
                 class="sr-only"
                 v-text="Translator.trans('export.data')" />
@@ -336,7 +336,7 @@
                 @change="exportChoice.xlsx.exportType = 'statements'" />
             </fieldset>
             <p
-              class="u-ml-0_5 u-mt-2"
+              class="ml-2 mt-6"
               v-if="!options.xlsx.anonymize && !options.xlsx.obscure && !options.xlsx.exportTypes && !options.xlsx.templates">
               {{ Translator.trans('explanation.export.anonymous') }}
             </p>
@@ -349,11 +349,11 @@
             :class="activeTab('zip')"
             role="tabpanel">
             <p
-              class="lbl__hint mb-3"
+              class="lbl__hint ml-2 mb-3"
               v-text="explanationZip" />
             <fieldset
               v-if="options.zip.templates"
-              class="u-mb-0_5 u-pb-0_5">
+              class="mb-2 pb-2">
               <legend
                 class="sr-only"
                 v-text="Translator.trans('export.format')" />
