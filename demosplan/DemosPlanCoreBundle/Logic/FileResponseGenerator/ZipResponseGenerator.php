@@ -191,17 +191,36 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
     {
         $logSuffix = ', in zip response generation.';
         $prefix = 'Array key expected: ';
+        Assert::keyExists($file, 'exportType', $prefix.'exportType'.$logSuffix);
+        Assert::string($file['exportType'], 'String expected under the key exportType'.$logSuffix);
+        $isOriginalStatementsExport = 'originalStatements' === $file['exportType'];
+        $isStatementsWithAttachmentsExport = 'statementsWithAttachments' === $file['exportType'];
+        Assert::true(
+            $isOriginalStatementsExport || $isStatementsWithAttachmentsExport,
+            'The exportType must be either originalStatements or statementsWithAttachments'.$logSuffix
+        );
         Assert::keyExists($file, 'zipFileName', $prefix.'zipFileName'.$logSuffix);
-        Assert::keyExists($file, 'xlsx', $prefix.'xlsx'.$logSuffix);
-        Assert::isArray($file['xlsx'], 'Array expected under the key xlsx'.$logSuffix);
-        Assert::keyExists($file['xlsx'], 'filename', $prefix.'filename'.$logSuffix);
-        Assert::keyExists($file['xlsx'], 'writer', $prefix.'writer'.$logSuffix);
-        Assert::keyExists($file['xlsx'], 'statementIds', $prefix.'statementIds'.$logSuffix);
-        Assert::keyExists($file, 'attachments', $prefix.'attachments'.$logSuffix);
-        Assert::isArray($file['attachments']);
-        foreach ($file['attachments'] as $attachment) {
-            Assert::keyExists($attachment, 'attachments');
-            Assert::keyExists($attachment, 'originalAttachment');
+        if ($isOriginalStatementsExport) {
+            Assert::keyExists(
+                $file,'originalStatementsAsPdfs', $prefix.'originalStatementsAsPdfs'.$logSuffix
+            );
+            Assert::isArray(
+                $file['originalStatementsAsPdfs'],
+                'Array expected under the key originalStatementsAsPdfs'.$logSuffix
+            );
+        }
+        if ($isStatementsWithAttachmentsExport) {
+            Assert::keyExists($file, 'xlsx', $prefix.'xlsx'.$logSuffix);
+            Assert::isArray($file['xlsx'], 'Array expected under the key xlsx'.$logSuffix);
+            Assert::keyExists($file['xlsx'], 'filename', $prefix.'filename'.$logSuffix);
+            Assert::keyExists($file['xlsx'], 'writer', $prefix.'writer'.$logSuffix);
+            Assert::keyExists($file['xlsx'], 'statementIds', $prefix.'statementIds'.$logSuffix);
+            Assert::keyExists($file, 'attachments', $prefix.'attachments'.$logSuffix);
+            Assert::isArray($file['attachments']);
+            foreach ($file['attachments'] as $attachment) {
+                Assert::keyExists($attachment, 'attachments');
+                Assert::keyExists($attachment, 'originalAttachment');
+            }
         }
     }
 }
