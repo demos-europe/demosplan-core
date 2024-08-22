@@ -307,11 +307,6 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
         return $pdf;
     }
 
-    public function buildIndividualPdfsForOriginalStatements(array $parameters): array
-    {
-        throw new RuntimeException('Not implemented yet');
-    }
-
     public function supports(string $format): bool
     {
         return in_array($format, $this->supportedTypes, true);
