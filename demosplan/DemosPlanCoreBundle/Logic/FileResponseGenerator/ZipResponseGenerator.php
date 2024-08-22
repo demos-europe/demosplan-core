@@ -105,8 +105,9 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
     private function addOriginalStatementPdfsTopZip(ZipStream $zipStream, array $file): void
     {
         foreach ($file['originalStatementsAsPdfs'] as $pdf) {
+            $pdf['name'] = str_replace('Originalstellungnahmen', 'Originalstellungnahme', $pdf['name']);
             $zipStream->addFile(
-                $file['zipFileName'].'/'.$pdf['filename'],
+                $file['zipFileName'].'/'.$pdf['externId'].$pdf['name'],
                 $pdf['content']
             );
         }

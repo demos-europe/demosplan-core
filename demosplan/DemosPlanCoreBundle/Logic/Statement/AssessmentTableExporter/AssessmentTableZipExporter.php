@@ -138,6 +138,7 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
             $parameters['items'] = $statementId;
             $parameters['statementId'] = $statementId;
             $pdf = $this->pdfExporter->__invoke($parameters);
+            $pdf['externId'] = $this->statementService->getStatement($statementId)?->getExternId();
             $pdfs[] = $pdf;
         }
 
