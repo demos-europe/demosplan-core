@@ -577,11 +577,11 @@ export default {
     },
 
     getTemplateOptions (options) {
-      const optionsPdfFilter = Object.entries(options.templates).filter(([key, value]) => {
+      const visibleOptions = Object.entries(options.templates).filter(([key, value]) => {
         return value ? this.hasVisibleTemplate({ [key]: value }) : false
       })
 
-      return Object.fromEntries(optionsPdfFilter)
+      return Object.fromEntries(visibleOptions)
     },
 
     handleDocxExportTypeChange (value) {
