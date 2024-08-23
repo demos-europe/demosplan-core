@@ -106,6 +106,9 @@ class DemosPlanAssessmentExportController extends BaseController
         $parameters['anonymous'] = array_key_exists('anonymous', $exportChoice)
             ? $exportChoice['anonymous']
             : true;
+        $parameters['newPagePerStn'] = array_key_exists('newPagePerStn', $exportChoice)
+            ? $exportChoice['newPagePerStn']
+            : false;
         $parameters['exportType'] = array_key_exists('exportType', $exportChoice)
             ? $exportChoice['exportType']
             : 'statementsOnly';
