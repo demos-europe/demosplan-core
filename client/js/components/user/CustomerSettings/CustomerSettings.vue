@@ -129,7 +129,8 @@
       <!-- Xplanning -->
       <customer-settings-section
         v-if="hasPermission('feature_customer_xplanning_edit')"
-        :title="Translator.trans('xplanning.notes')">
+        :title="Translator.trans('xplanning.notes')"
+        data-cy="customerSettings:xplanning">
         <dp-label
           for="r_xplanning"
           :text="Translator.trans('customer.xplanning.explanation')" />
@@ -144,6 +145,7 @@
           }" />
         <dp-button-row
           class="u-mt"
+          data-cy="customerSettings:xplanning"
           primary
           secondary
           :busy="isBusy"
@@ -155,7 +157,8 @@
       <!-- Sign language video page -->
       <customer-settings-section
         v-if="hasPermission('field_sign_language_overview_video_edit')"
-        :title="Translator.trans('signLanguage.explanation')">
+        :title="Translator.trans('signLanguage.explanation')"
+        data-cy="customerSettings:overviewVideo">
         <p v-text="Translator.trans('customer.signLanguage.explanation.hint')" />
         <dp-label
           :text="Translator.trans('customer.signLanguage.explanation.label')"
@@ -184,7 +187,8 @@
       <!-- Accessibility explanation -->
       <customer-settings-section
         v-if="hasPermission('field_customer_accessibility_explanation_edit')"
-        :title="Translator.trans('accessibility.explanation')">
+        :title="Translator.trans('accessibility.explanation')"
+        data-cy="customerSettings:customerAccessibilityExplanation">
         <dp-label
           for="r_accessibilityExplanation"
           :text="Translator.trans('customer.accessibility.explanation.label')" />
@@ -209,7 +213,8 @@
 
       <customer-settings-section
         v-if="hasPermission('field_simple_language_overview_description_edit')"
-        :title="Translator.trans('language.simple')">
+        :title="Translator.trans('language.simple')"
+        data-cy="customerSettings:overviewDescription">
         <dp-label
           for="r_simpleLanguage"
           :text="Translator.trans('customer.simpleLanguage.label')" />
@@ -240,13 +245,15 @@
 
       <customer-settings-section
         v-if="hasPermission('feature_customer_support_contact_administration')"
-        :title="Translator.trans('support')">
+        :title="Translator.trans('support')"
+        data-cy="customerSettings:supportContactAdministration">
         <customer-settings-support />
       </customer-settings-section>
 
       <customer-settings-section
         v-if="hasPermission('feature_customer_login_support_contact_administration')"
-        :title="Translator.trans('support.login')">
+        :title="Translator.trans('support.login')"
+        data-cy="customerSettings:supportLogin">
         <customer-settings-login-support />
       </customer-settings-section>
     </template>
