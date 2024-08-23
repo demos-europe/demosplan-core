@@ -48,8 +48,8 @@ class DemosPlanReportAPIController extends APIController
     public function listProcedureReportsAction(
         JsonApiPaginationParser $paginationParser,
         PaginatorFactory $paginatorFactory,
-        $group = null,
         Request $request,
+        $group = null
     ): APIResponse {
         $resourceTypeName = match ($group) {
             'general'             => GeneralReportEntryResourceType::getName(),
