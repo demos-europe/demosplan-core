@@ -101,7 +101,8 @@
       <!-- Terms of use -->
       <customer-settings-section
         v-if="hasPermission('feature_customer_terms_of_use_edit')"
-        :title="Translator.trans('terms.of.use.notes')">
+        :title="Translator.trans('terms.of.use.notes')"
+        data-cy="customerSettings:termsOfUse">
         <dp-label
           for="r_termsOfUse"
           :text="Translator.trans('customer.terms.of.use.explanation')" />
@@ -116,6 +117,7 @@
           }" />
         <dp-button-row
           class="u-mt"
+          data-cy="customerSettings:termsOfUse"
           primary
           secondary
           :busy="isBusy"
