@@ -187,8 +187,8 @@
       <!-- Accessibility explanation -->
       <customer-settings-section
         v-if="hasPermission('field_customer_accessibility_explanation_edit')"
-        :title="Translator.trans('accessibility.explanation')"
-        data-cy="customerSettings:customerAccessibilityExplanation">
+        data-cy="customerSettings:customerAccessibilityExplanation"
+        :title="Translator.trans('accessibility.explanation')">
         <dp-label
           for="r_accessibilityExplanation"
           :text="Translator.trans('customer.accessibility.explanation.label')" />
@@ -213,8 +213,8 @@
 
       <customer-settings-section
         v-if="hasPermission('field_simple_language_overview_description_edit')"
-        :title="Translator.trans('language.simple')"
-        data-cy="customerSettings:overviewDescription">
+        data-cy="customerSettings:overviewDescription"
+        :title="Translator.trans('language.simple')">
         <dp-label
           for="r_simpleLanguage"
           :text="Translator.trans('customer.simpleLanguage.label')" />
@@ -245,15 +245,15 @@
 
       <customer-settings-section
         v-if="hasPermission('feature_customer_support_contact_administration')"
-        :title="Translator.trans('support')"
-        data-cy="customerSettings:supportContactAdministration">
+        data-cy="customerSettings:supportContactAdministration"
+        :title="Translator.trans('support')">
         <customer-settings-support />
       </customer-settings-section>
 
       <customer-settings-section
         v-if="hasPermission('feature_customer_login_support_contact_administration')"
-        :title="Translator.trans('support.login')"
-        data-cy="customerSettings:supportLogin">
+        data-cy="customerSettings:supportLogin"
+        :title="Translator.trans('support.login')">
         <customer-settings-login-support />
       </customer-settings-section>
     </template>
