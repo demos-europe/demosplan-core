@@ -23,10 +23,12 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTablePdfExporter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableZipExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
+use Exception;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -48,14 +50,10 @@ class StatementExportTest extends FunctionalTestCase
     {
         parent::setUp();
         $assessmentHandler = $this->getContainer()->get(AssessmentHandler::class);
+        /** @var AssessmentTableServiceOutput $assessmentTableServiceOutput */
         $assessmentTableServiceOutput = $this->getContainer()->get(AssessmentTableServiceOutput::class);
-        $editorService = $this->getContainer()->get(EditorService::class);
-        $environment = $this->getContainer()->get(Environment::class);
-        $formOptionsResolver = $this->getContainer()->get(FormOptionsResolver::class);
+        /** @var LoggerInterface $loggerInterface */
         $loggerInterface = $this->getContainer()->get(LoggerInterface::class);
-        $permissionsInterface = $this->getContainer()->get(PermissionsInterface::class);
-        $serviceImporter = $this->getContainer()->get(ServiceImporter::class);
-        $simpleSpreadsheetService = $this->getContainer()->get(SimpleSpreadsheetService::class);
         $statementHandler = $this->getContainer()->get(StatementHandler::class);
         $translatorInterface = $this->getContainer()->get(TranslatorInterface::class);
         $statementService = $this->getContainer()->get(StatementService::class);
@@ -75,12 +73,19 @@ class StatementExportTest extends FunctionalTestCase
         $this->getEntityManager()->flush();
         $currentProcedureService = $this->createMock(CurrentProcedureService::class);
         $currentProcedureService->method('getProcedure')->willReturn($this->statement->getProcedure());
-        $this->sut = new AssessmentTableZipExporter(
+        $twig = $this->getContainer()->get(Environment::class);
+        $editorService = $this->getContainer()->get(EditorService::class);
+        /** @var FormOptionsResolver $formOptionsResolver */
+        $formOptionsResolver = $this->getContainer()->get(FormOptionsResolver::class);
+        $permissionsInterface = $this->getContainer()->get(PermissionsInterface::class);
+        $serviceImporter = $this->getContainer()->get(ServiceImporter::class);
+        $simpleSpreadsheetService = $this->getContainer()->get(SimpleSpreadsheetService::class);
+        $assessmentTableXlsExporter = new AssessmentTableXlsExporter(
             $assessmentHandler,
             $assessmentTableServiceOutput,
-            $currentProcedureService,
+            $this->getContainer()->get(CurrentProcedureService::class),
             $editorService,
-            $environment,
+            $twig,
             $formOptionsResolver,
             $loggerInterface,
             $permissionsInterface,
@@ -88,14 +93,27 @@ class StatementExportTest extends FunctionalTestCase
             $serviceImporter,
             $simpleSpreadsheetService,
             $statementHandler,
+            $translatorInterface
+        );
+        $this->sut = new AssessmentTableZipExporter(
+            $assessmentHandler,
+            $assessmentTableServiceOutput,
+            $currentProcedureService,
+            $loggerInterface,
+            $requestStack,
+            $statementHandler,
             $translatorInterface,
             $assessmentTablePdfExporter,
+            $assessmentTableXlsExporter,
             $statementService,
             $fileService
         );
     }
 
-    public function testInvokeAssessmentTableZipExporter()
+    /**
+     * @throws Exception
+     */
+    public function testInvokeAssessmentTableZipExporter(): void
     {
         $this->loginTestUser();
         $parameters = [

@@ -196,23 +196,6 @@ export default {
     }
   },
 
-  watch: {
-    segmentId (newVal) {
-      if (newVal) {
-        this.setInitDrawings()
-        if (this.featuresObject.features.length > 0) {
-          this.$nextTick(() => {
-            this.setCenterAndExtent()
-          })
-        } else if (this.mapData.boundingBox.length > 0) {
-          this.$nextTick(() => {
-            this.setInitExtent()
-          })
-        }
-      }
-    }
-  },
-
   methods: {
     ...mapMutations('StatementSegment', ['setItem']),
 
@@ -230,11 +213,21 @@ export default {
       this.$root.$emit('hide-slidebar')
     },
 
+    initMap () {
+      this.setInitDrawings()
+      if (this.featuresObject.features.length > 0) {
+        this.$nextTick(() => {
+          this.setCenterAndExtent()
+        })
+      } else if (this.mapData.boundingBox.length > 0) {
+        this.$nextTick(() => {
+          this.setInitExtent()
+        })
+      }
+    },
+
     resetCurrentMap () {
       this.clearTools()
-      if (this.slidebar.isOpen) {
-        this.setInitDrawings()
-      }
 
       this.$nextTick(() => {
         this.$refs.map.updateMapInstance()
@@ -319,12 +312,26 @@ export default {
 
       this.initPolygons = JSON.parse(this.segments[this.segmentId].attributes.polygon || '{ "features": [] }').features
       this.currentPolygons = JSON.parse(JSON.stringify(this.initPolygons))
+
+      this.$nextTick(() => {
+        this.$refs.drawPolygon.init()
+        this.$refs.drawPoint.init()
+        this.$refs.drawLine.init()
+      })
     },
 
     updateDrawings (type, data) {
       this.currentPolygons = this.currentPolygons.filter(f => f.geometry.type !== type)
       this.currentPolygons = [...this.currentPolygons, ...JSON.parse(data).features]
     }
+  },
+
+  mounted() {
+    this.$root.$on('segmentMap:show', () => {
+      this.$nextTick(() => {
+        this.initMap()
+      })
+    })
   }
 }
 </script>
