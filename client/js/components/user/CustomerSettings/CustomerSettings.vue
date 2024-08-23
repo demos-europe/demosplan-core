@@ -17,9 +17,9 @@
       <!-- Logo and Color Variables -->
       <customer-settings-section
         v-if="hasPermission('feature_platform_logo_edit') || hasPermission('feature_customer_branding_edit')"
+        data-cy="customerSettings:customerBrandingLabel"
         is-open
-        :title="Translator.trans('customer.branding.label')"
-        data-cy="customerSettings:customerBrandingLabel">
+        :title="Translator.trans('customer.branding.label')">
         <customer-settings-branding
           :branding="branding"
           :branding-id="customerBrandingId"
@@ -29,9 +29,9 @@
       <!-- Map -->
       <customer-settings-section
         v-if="hasPermission('feature_platform_public_index_map_settings')"
+        data-cy="customerSettings:mapMainPageSettings"
         is-open
-        :title="Translator.trans('map.mainpage.settings')"
-        data-cy="customerSettings:mapMainPageSettings">
+        :title="Translator.trans('map.mainpage.settings')">
         <customer-settings-map
           :current-customer-id="currentCustomerId"
           :init-layer="initLayer"
@@ -43,8 +43,8 @@
       <!-- Imprint -->
       <customer-settings-section
         v-if="hasPermission('feature_imprint_text_customized_view')"
-        :title="Translator.trans('imprint')"
-        data-cy="customerSettings:imprint">
+        data-cy="customerSettings:imprint"
+        :title="Translator.trans('imprint')">
         <dp-label
           for="r_imprint"
           :text="Translator.trans('customer.imprint.explanation', { url: imprintUrl })" />
@@ -72,8 +72,8 @@
       <!-- Data Protection -->
       <customer-settings-section
         v-if="hasPermission('feature_data_protection_text_customized_view')"
-        :title="Translator.trans('data.protection.notes')"
-        data-cy="customerSettings:dataProtectionNotes">
+        data-cy="customerSettings:dataProtectionNotes"
+        :title="Translator.trans('data.protection.notes')">
         <dp-label
           for="r_dataProtection"
           :text="Translator.trans('customer.data.protection.explanation')" />
@@ -101,8 +101,8 @@
       <!-- Terms of use -->
       <customer-settings-section
         v-if="hasPermission('feature_customer_terms_of_use_edit')"
-        :title="Translator.trans('terms.of.use.notes')"
-        data-cy="customerSettings:termsOfUse">
+        data-cy="customerSettings:termsOfUse"
+        :title="Translator.trans('terms.of.use.notes')">
         <dp-label
           for="r_termsOfUse"
           :text="Translator.trans('customer.terms.of.use.explanation')" />
@@ -129,8 +129,8 @@
       <!-- Xplanning -->
       <customer-settings-section
         v-if="hasPermission('feature_customer_xplanning_edit')"
-        :title="Translator.trans('xplanning.notes')"
-        data-cy="customerSettings:xplanning">
+        data-cy="customerSettings:xplanning"
+        :title="Translator.trans('xplanning.notes')">
         <dp-label
           for="r_xplanning"
           :text="Translator.trans('customer.xplanning.explanation')" />
@@ -157,8 +157,8 @@
       <!-- Sign language video page -->
       <customer-settings-section
         v-if="hasPermission('field_sign_language_overview_video_edit')"
-        :title="Translator.trans('signLanguage.explanation')"
-        data-cy="customerSettings:overviewVideo">
+        data-cy="customerSettings:overviewVideo"
+        :title="Translator.trans('signLanguage.explanation')">
         <p v-text="Translator.trans('customer.signLanguage.explanation.hint')" />
         <dp-label
           :text="Translator.trans('customer.signLanguage.explanation.label')"
