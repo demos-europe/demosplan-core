@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttachmentInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Exception\AssessmentTableZipExportException;
+use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
@@ -73,6 +74,24 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
      */
     public function __invoke(array $parameters): array
     {
+        if (!array_key_exists('exportType', $parameters)) {
+            $this->logger->error('Export type not set in parameters for zip export.');
+            throw new AssessmentTableZipExportException('error', 'Export type not set in parameters for zip export.');
+        }
+
+        $exportType = $parameters['exportType'];
+        if ('statementsWithAttachments' === $exportType) {
+            return $this->exportStatementsAsZipWithAttachments($parameters, $exportType);
+        }
+        if ('originalStatements' === $exportType) {
+            return $this->exportOriginalStatementsAsPdfsInZip($parameters, $exportType);
+        }
+
+        throw new AssessmentTableZipExportException('error', 'Export type not set in parameters for zip export.');
+    }
+
+    private function exportStatementsAsZipWithAttachments(array $parameters, string $exportType): array
+    {
         $xlsxArray = $this->xlsExporter->__invoke($parameters);
 
         try {
@@ -90,6 +109,43 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
             'zipFileName' => $this->translator->trans('evaluation.assessment.table.export'),
             'xlsx'        => $xlsxArray,
             'attachments' => $statementAttachments,
+            'exportType'  => $exportType,
+        ];
+    }
+
+    /**
+     * @throws MessageBagException
+     * @throws Exception
+     */
+    private function exportOriginalStatementsAsPdfsInZip(array $parameters, string $exportType): array
+    {
+        if ([] === $parameters['items']) {
+            $outputResult = $this->assessmentHandler->prepareOutputResult(
+                $parameters['procedureId'],
+                $parameters['original'],
+                $parameters
+            );
+            $statementIds = [];
+            foreach ($outputResult->getStatements() as $statement) {
+                $statementIds[] = $statement['id'];
+            }
+            $parameters['items'] = $statementIds;
+        }
+
+        $pdfs = [];
+        $statementIds = $parameters['items'];
+        foreach ($statementIds as $statementId) {
+            $parameters['items'] = $statementId;
+            $parameters['statementId'] = $statementId;
+            $pdf = $this->pdfExporter->__invoke($parameters);
+            $pdf['externId'] = $this->statementService->getStatement($statementId)?->getExternId();
+            $pdfs[] = $pdf;
+        }
+
+        return [
+            'zipFileName'              => $this->translator->trans('evaluation.assessment.table.export'),
+            'originalStatementsAsPdfs' => $pdfs,
+            'exportType'               => $exportType,
         ];
     }
 
