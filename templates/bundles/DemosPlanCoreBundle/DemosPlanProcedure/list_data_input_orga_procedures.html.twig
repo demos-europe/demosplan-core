@@ -24,7 +24,7 @@
                     <td class="weight--bold">
                         <a
                             href="{{ path('DemosPlan_statement_orga_list', {'procedureId': procedure.id}) }}"
-                            :data-cy="`statementOrgaList:{{ loop.index }}`">
+                            data-cy="statementOrgaList:{{ loop.index }}">
                             {{ procedure.name|default }}
                         </a>
                     </td>
