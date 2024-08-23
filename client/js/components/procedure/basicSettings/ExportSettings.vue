@@ -12,6 +12,10 @@
     <p class="u-mb">
       {{ Translator.trans('export.settings.hint') }}
     </p>
+    <dp-inline-notification
+      v-if="singleCheckedFieldId"
+      :message="Translator.trans('info.export.settings')"
+      type="info" />
     <dp-checkbox
       id="check_all"
       v-model="allChecked"
@@ -62,14 +66,15 @@
 </template>
 
 <script>
-import { DpCheckbox, DpCheckboxGroup } from '@demos-europe/demosplan-ui'
+import { DpCheckbox, DpCheckboxGroup, DpInlineNotification } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'ExportSettings',
 
   components: {
     DpCheckbox,
-    DpCheckboxGroup
+    DpCheckboxGroup,
+    DpInlineNotification
   },
 
   props: {
@@ -317,6 +322,7 @@ export default {
           group: 'submitterData'
         }
       ],
+      singleCheckedFieldId: '',
     }
   },
 
@@ -365,22 +371,26 @@ export default {
     },
 
     getSingleCheckedField () {
-      const fields = Object.entries(this.checkedFields).filter(([, value]) => value === true)
+      const checkedFieldEntries = Object.entries(this.checkedFields).filter(([, value]) => value)
 
-      return fields.length === 1 ? fields[0][0] : ''
+      if (checkedFieldEntries.length === 1) {
+        this.singleCheckedFieldId = checkedFieldEntries[0][0]
+      } else {
+        this.singleCheckedFieldId = ''
+      }
     },
 
     handlePreventDefaultForSingleField () {
-      const singleCheckedFieldId = this.getSingleCheckedField()
+      this.getSingleCheckedField()
 
       if (this.activePreventDefaultCheckboxId) {
         this.removePreventDefault(this.activePreventDefaultCheckboxId)
         this.activePreventDefaultCheckboxId = ''
       }
 
-      if (singleCheckedFieldId) {
-        this.addPreventDefault(singleCheckedFieldId)
-        this.activePreventDefaultCheckboxId = singleCheckedFieldId
+      if (this.singleCheckedFieldId) {
+        this.addPreventDefault(this.singleCheckedFieldId)
+        this.activePreventDefaultCheckboxId = this.singleCheckedFieldId
       }
     },
 
@@ -404,6 +414,7 @@ export default {
       this.availableFields.forEach(field => {
         this.$set(this.checkedFields, field.id, true)
       })
+      this.handlePreventDefaultForSingleField()
     },
 
     updateCheckedFields (checkedFields) {

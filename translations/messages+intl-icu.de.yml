@@ -1909,6 +1909,7 @@ info.annotatedstatementpdf.created.multiple: |
         =1 { Ein Dokument wurde erfolgreich angelegt.}
         other { # Dokumente wurden erfolgreich angelegt.}
     }
+info.export.settings: "Mindestens ein Feld muss ausgewählt werden."
 info.statement.counties.added: "Der Stellungnahme {externalStatementId} wurden folgende Kreise zugeordnet: {names}."
 info.statement.county.added: "Der Stellungnahme {externalStatementId} wurde der Kreis {name} zugeordnet."
 info.statement.municipalities.added: "Der Stellungnahme {externalStatementId} wurden folgende Gemeinden zugeordnet: {names}."
