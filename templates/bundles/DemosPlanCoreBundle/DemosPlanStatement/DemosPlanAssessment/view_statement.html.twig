@@ -464,6 +464,7 @@
                                     {% if hasPermission('feature_read_source_statement_via_api') %}
                                         <a
                                             class="o-hellip--nowrap u-mb-0_25 inline"
+                                            data-cy="originalPDFLink"
                                             title="{{ source_stn.file.name|default('original.pdf'|trans) }}"
                                             target="_blank"
                                             rel="noopener noreferrer"
