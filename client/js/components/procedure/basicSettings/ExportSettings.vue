@@ -86,6 +86,7 @@ export default {
 
   data () {
     return {
+      activePreventDefaultCheckboxId: '',
       allChecked: false,
       checkedFields: {},
       configurableFields: [
@@ -96,8 +97,7 @@ export default {
           initVal: this.initialSettings.idExportable,
           enabled: true,
           hasPermission: hasPermission('field_statement_extern_id'),
-          group: 'metaData',
-          disabled: false
+          group: 'metaData'
         },
         {
           id: 'r_export_settings[r_submitted_date]',
@@ -106,8 +106,7 @@ export default {
           initVal: this.initialSettings.creationDateExportable,
           enabled: true,
           hasPermission: true,
-          group: 'metaData',
-          disabled: false
+          group: 'metaData'
         },
         {
           id: 'r_export_settings[r_procedure_name]',
@@ -116,8 +115,7 @@ export default {
           initVal: this.initialSettings.procedureNameExportable,
           enabled: true,
           hasPermission: hasPermission('field_procedure_name'),
-          group: 'metaData',
-          disabled: false
+          group: 'metaData'
         },
         {
           id: 'r_export_settings[r_phase]',
@@ -126,8 +124,7 @@ export default {
           initVal: this.initialSettings.procedurePhaseExportable,
           enabled: true,
           hasPermission: hasPermission('field_statement_phase'),
-          group: 'metaData',
-          disabled: false
+          group: 'metaData'
         },
         // Currently not implemented in BE, therefore disabled
         {
@@ -245,9 +242,7 @@ export default {
           initVal: this.initialSettings.emailExportable,
           enabled: this.fieldDefinitions.emailAddress.enabled || this.fieldDefinitions.phoneOrEmail.enabled,
           hasPermission: hasPermission('field_statement_submitter_email_address'),
-          group: 'submitterData',
-          disabled: false
-
+          group: 'submitterData'
         },
         {
           id: 'r_export_settings[r_phone]',
@@ -321,7 +316,7 @@ export default {
           hasPermission: hasPermission('field_statement_user_position'),
           group: 'submitterData'
         }
-      ]
+      ],
     }
   },
 
@@ -348,6 +343,11 @@ export default {
   },
 
   methods: {
+    addPreventDefault (id) {
+      const checkbox = document.getElementById(id)
+      checkbox.addEventListener('click', this.preventCheck)
+    },
+
     getSelectedOptions (options) {
       const entries = {}
       options.forEach(option => {
@@ -362,6 +362,35 @@ export default {
 
     setAllChecked () {
       this.allChecked = typeof Object.values(this.checkedFields).find(val => val === false) === 'undefined'
+    },
+
+    getSingleCheckedField () {
+      const fields = Object.entries(this.checkedFields).filter(([, value]) => value === true)
+
+      return fields.length === 1 ? fields[0][0] : ''
+    },
+
+    handlePreventDefaultForSingleField () {
+      const singleCheckedFieldId = this.getSingleCheckedField()
+
+      if (this.activePreventDefaultCheckboxId) {
+        this.removePreventDefault(this.activePreventDefaultCheckboxId)
+        this.activePreventDefaultCheckboxId = ''
+      }
+
+      if (singleCheckedFieldId) {
+        this.addPreventDefault(singleCheckedFieldId)
+        this.activePreventDefaultCheckboxId = singleCheckedFieldId
+      }
+    },
+
+    preventCheck (e) {
+      e.preventDefault()
+    },
+
+    removePreventDefault (id) {
+      const checkbox = document.getElementById(id)
+      checkbox.removeEventListener('click', this.preventCheck)
     },
 
     setCheckedFields () {
@@ -381,12 +410,14 @@ export default {
       Object.keys(checkedFields).forEach(id => {
         this.$set(this.checkedFields, id, checkedFields[id])
       })
+      this.handlePreventDefaultForSingleField()
       this.setAllChecked()
     }
   },
 
   mounted () {
     this.setCheckedFields()
+    this.handlePreventDefaultForSingleField()
   }
 }
 </script>
