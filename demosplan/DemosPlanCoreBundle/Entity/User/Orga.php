@@ -191,7 +191,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     /**
      * @var Collection<int, AddressInterface>
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Address")
+     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Address", cascade={"persist"})
      *
      * @ORM\JoinTable(
      *     name="_orga_addresses_doctrine",
