@@ -1,7 +1,7 @@
 {#  map toolbar #}
 {% set mapAndCountyGroupEnabled = templateVars.statementFieldDefinitions|filter(el => el.name == 'mapAndCountyReference')[0].enabled == true|default(true) %}
 {% set isLocationEnabled = mapAndCountyGroupEnabled or procedureStatementPriorityArea %}
-<div class="{{ 'c-map__toolbar u-pr-0_5-lap-up u-mb-0_5-palm'|prefixClass }}">
+<div class="{{ 'c-map__toolbar u-mb-0_5-palm'|prefixClass }}">
 
     {% if hasPermission('feature_new_statement') %}
 

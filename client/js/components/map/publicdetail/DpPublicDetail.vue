@@ -81,6 +81,14 @@ export default {
     }
   },
 
+  watch: {
+    activeActionBoxTab () {
+      this.$nextTick(() => {
+        this.setStatementToolsMaxHeight()
+      })
+    }
+  },
+
   methods: {
     ...mapMutations('PublicStatement', ['initialiseStore', 'update', 'updateHighlighted', 'updateStatement']),
 
@@ -134,6 +142,23 @@ export default {
       return isInDom && isDisplayed
     },
 
+    setStatementToolsMaxHeight () {
+      const actionBox = document.querySelector('.c-actionbox')
+      const statementTools = document.querySelector('.c-map__group')
+      const statementToolsBottom = document.querySelector('.c-map__group--bottom')
+      let maxHeight = 531 // $map-height variable in the _map.scss
+
+      if (actionBox && statementToolsBottom) {
+        maxHeight -= actionBox.clientHeight
+
+        if (statementTools) {
+          maxHeight -= statementTools.clientHeight + 12 // 12 is the padding
+        }
+
+        statementToolsBottom.style.maxHeight = `${maxHeight}px`
+      }
+    },
+
     toggleStatementModal (updateStatementPayload) {
       this.$refs.statementModal.toggleModal(true, updateStatementPayload)
     },
@@ -164,6 +189,10 @@ export default {
     if (['#procedureDetailsMap', '#procedureDetailsDocumentlist', '#procedureDetailsStatementsPublic', '#procedureDetailsSurvey'].includes(currentHash)) {
       this.toggleTabs(currentHash)
     }
+  },
+
+  updated() {
+    this.setStatementToolsMaxHeight()
   }
 }
 </script>

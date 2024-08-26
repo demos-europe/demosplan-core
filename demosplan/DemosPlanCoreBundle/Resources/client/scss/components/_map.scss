@@ -141,6 +141,12 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
         //  left sidebar with map tools
         &__toolbar {
+           padding-right: 16px;
+
+           overflow-x: hidden;
+           overflow-y: scroll;
+           scrollbar-width: none;
+
             @extend %map-width-toolbar;
 
             @include media-query('lap-up') {
@@ -183,7 +189,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
             margin: 0;
 
             @include media-query('lap-up') {
-                margin: 0 $inuit-base-spacing-unit--small 0 0;
+                margin: 0 16px 0 0;
             }
 
             .js & {
@@ -198,10 +204,6 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
             //  extra positioning to attach layer box to the bottom of toolbar
             &--bottom {
-
-                overflow-x: hidden;
-                overflow-y: auto;
-
                 @include media-query('lap-up') {
                     bottom: 0;
                     left: 0;
@@ -240,6 +242,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
             height: 40px;
             margin-bottom: -20px;
             padding-left: 14px;
+            padding-right: 26px;
             width: 30px;
 
             transform: translateX(14px);
