@@ -17,6 +17,7 @@ class Version20240826125829 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
+        $this->abortIfNotMysql();
         $this->addSql('ALTER TABLE _orga_addresses_doctrine DROP FOREIGN KEY FK_9DE5B2B386245470');
         $this->addSql('ALTER TABLE _orga_addresses_doctrine DROP FOREIGN KEY FK_9DE5B2B366FB2343');
         $this->addSql('ALTER TABLE _orga_addresses_doctrine ADD CONSTRAINT FK_9DE5B2B386245470 FOREIGN KEY (_o_id) REFERENCES _orga (_o_id) ON DELETE CASCADE');
@@ -25,6 +26,7 @@ class Version20240826125829 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
+        $this->abortIfNotMysql();
         $this->addSql('ALTER TABLE _orga_addresses_doctrine DROP FOREIGN KEY FK_9DE5B2B386245470');
         $this->addSql('ALTER TABLE _orga_addresses_doctrine DROP FOREIGN KEY FK_9DE5B2B366FB2343');
         $this->addSql('ALTER TABLE _orga_addresses_doctrine ADD CONSTRAINT FK_9DE5B2B386245470 FOREIGN KEY (_o_id) REFERENCES _orga (_o_id)');
