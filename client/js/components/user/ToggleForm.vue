@@ -10,6 +10,7 @@
       <dp-button-row
         primary
         secondary
+        data-cy="toggleForm"
         @primary-action="dpValidateAction(formId, save, false)"
         @secondary-action="abort" />
     </slot>

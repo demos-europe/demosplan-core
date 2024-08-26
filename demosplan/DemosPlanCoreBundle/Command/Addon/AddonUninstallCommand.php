@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\Addon;
 
+use Composer\Console\Input\InputOption;
 use Composer\Package\Loader\ArrayLoader;
 use Composer\Package\PackageInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
@@ -56,15 +57,30 @@ class AddonUninstallCommand extends CoreCommand
             InputArgument::OPTIONAL,
             'Name of the addon to uninstall. May be omitted to receive a list of installed addons.',
         );
+        $this->addOption('all', 'a', InputOption::VALUE_NONE, 'Uninstall all Addons');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $output = new SymfonyStyle($input, $output);
         $addonsInfos = $this->registry->getAddonInfos();
+        $all = $input->getOption('all');
 
         if (empty($addonsInfos)) {
             $output->info('No addons installed, nothing to uninstall');
+
+            return self::SUCCESS;
+        }
+
+        // Handle the --all option
+        if ($all) {
+            foreach ($addonsInfos as $addonInfo) {
+                $this->uninstallAddon($addonInfo, $output);
+            }
+
+            // clear cache
+            $this->clearCache($output);
+            $output->success('All addons successfully uninstalled.');
 
             return self::SUCCESS;
         }
@@ -92,6 +108,20 @@ class AddonUninstallCommand extends CoreCommand
 
         $addonInfo = $addonsInfos[$name];
 
+        $this->uninstallAddon($addonInfo, $output);
+
+        // clear cache
+        $this->clearCache($output);
+
+        $output->success("Addon {$name} successfully uninstalled");
+
+        return self::SUCCESS;
+    }
+
+    private function uninstallAddon(AddonInfo $addonInfo, SymfonyStyle $output)
+    {
+        $output->info("Uninstalling addon {$addonInfo->getName()}...");
+
         try {
             // remove entry in addons.yml
             $this->removeEntryInAddonsDefinition($addonInfo, $output);
@@ -100,13 +130,11 @@ class AddonUninstallCommand extends CoreCommand
             // run composer remove <name>
             $this->removeComposerPackage($addonInfo, $output);
         } catch (IOExceptionInterface $e) {
-            $output->error('An error occurred while deleting the directory at '.
-                $e->getPath().': '.$e->getMessage().'.');
+            $output->error('An error occurred while deleting the directory at '.$e->getPath().': '.$e->getMessage().'.');
 
             return self::FAILURE;
         } catch (JsonException $e) {
-            $output->error('An error occurred while loading the package definition: '.
-                $e->getMessage().'.');
+            $output->error('An error occurred while loading the package definition: '.$e->getMessage().'.');
 
             return self::FAILURE;
         } catch (Exception $e) {
@@ -114,10 +142,6 @@ class AddonUninstallCommand extends CoreCommand
 
             return self::FAILURE;
         }
-
-        $output->success("Addon {$name} successfully uninstalled");
-
-        return self::SUCCESS;
     }
 
     /**
@@ -168,20 +192,34 @@ class AddonUninstallCommand extends CoreCommand
 
     private function removeComposerPackage(AddonInfo $addonInfo, SymfonyStyle $output): void
     {
-        $kernel = $this->getApplication()->getKernel();
-        $environment = $kernel->getEnvironment();
-        /** @var DemosPlanKernel $kernel */
-        $activeProject = $kernel->getActiveProject();
         $batchReturn = Batch::create($this->getApplication(), $output)
             ->addShell(['composer', 'remove', $addonInfo->getName(), '--working-dir=addons'])
             ->addShell(['composer', 'bin', 'addons', 'update', '-a', '-o', '--prefer-lowest'])
-            // do not warm up cache to avoid errors as the addon is still referenced in the container
-            ->addShell(["bin/{$activeProject}", 'cache:clear', '-e', $environment, '--no-warmup'])
             ->run();
 
         if (0 !== $batchReturn) {
             throw new RuntimeException('Composer remove failed');
         }
         $output->info('composer package removed successfully.');
+    }
+
+    private function clearCache(SymfonyStyle $output): void
+    {
+        $kernel = $this->getApplication()->getKernel();
+        $environment = $kernel->getEnvironment();
+        /** @var DemosPlanKernel $kernel */
+        $activeProject = $kernel->getActiveProject();
+        // do not warm up cache to avoid errors as the addon is still referenced in the container
+        $cacheClearCommand = ["bin/{$activeProject}", 'cache:clear', '-e', $environment, '--no-warmup', " && dp d:deploy {$activeProject} -ssync"];
+
+        $batchReturn = Batch::create($this->getApplication(), $output)
+            ->addShell($cacheClearCommand)
+            ->run();
+
+        if (0 !== $batchReturn) {
+            throw new RuntimeException('Cache clear failed');
+        }
+
+        $output->info('Cache successfully cleared.');
     }
 }

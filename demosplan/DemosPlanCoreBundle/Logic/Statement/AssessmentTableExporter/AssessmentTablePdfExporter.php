@@ -27,6 +27,7 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ListLineWidth;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
@@ -259,28 +260,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             // * Hochformat: DemosPlanAssessmentTableBundle:DemosPlan:export_original.tex.twig
             $fullTemplateName = '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/'.$templateName.'.tex.twig';
 
-            // the line width of lists inside the generated pdf differs in following circumstances:
-            // vertical format (portrait) split view - Text | Response
-            $listLineWidth = 7;
-            if ('portrait' === $template && 'export_original' === $templateName) {
-                // vertical format (portrait) view not split - Text only
-                $listLineWidth = 17;
-            }
-            if (('landscape' === $template && 'export' === $templateName)
-                || ('condensed' === $template && 'export_condensed' === $templateName && !$original)
-                || ('condensed' === $template && 'export_condensed_anonymous' === $templateName && !$original)
-                || ('landscape' === $template && 'export_anonymous' === $templateName && !$original)
-                || ('landscapeWithFrags' === $template && 'export_fragments_anonymous' === $templateName && !$original)
-            ) {
-                // horizontal format (landscape) split view - Text | Response
-                $listLineWidth = 12;
-            }
-            if (('landscape' === $template && 'export_original' === $templateName)
-                || ('condensed' === $template && 'export_condensed' === $templateName && $original)) {
-                // horizontal format (landscape) view not split - Text only
-                $listLineWidth = 24;
-            }
-            $templateVars['listwidth'] = $listLineWidth;
+            $templateVars['listwidth'] = $this->determineListLineWidth($template, $templateName, $original);
 
             $content = $this->twig->render(
                 $fullTemplateName,
@@ -599,5 +579,36 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
         $item['elementTitle'] = $tmpElementTitle;
 
         return $item;
+    }
+
+    private function determineListLineWidth(string $template, string $templateName, bool $original): int
+    {
+        $listLineWidth = ListLineWidth::VERTICAL_SPLIT_VIEW->value;
+        if ('portrait' === $template && 'export_original' === $templateName) {
+            $listLineWidth = ListLineWidth::VERTICAL_NOT_SPLIT_VIEW->value;
+        }
+        if ($this->isHorizontalSplitView($template, $templateName, $original)) {
+            $listLineWidth = ListLineWidth::HORIZONTAL_SPLIT_VIEW->value;
+        }
+        if ($this->isHorizontalNotSplitView($template, $templateName, $original)) {
+            $listLineWidth = ListLineWidth::HORIZONTAL_NOT_SPLIT_VIEW->value;
+        }
+
+        return $listLineWidth;
+    }
+
+    private function isHorizontalSplitView(string $template, string $templateName, bool $original): bool
+    {
+        return ('landscape' === $template && 'export' === $templateName)
+            || ('condensed' === $template && 'export_condensed' === $templateName && !$original)
+            || ('condensed' === $template && 'export_condensed_anonymous' === $templateName && !$original)
+            || ('landscape' === $template && 'export_anonymous' === $templateName && !$original)
+            || ('landscapeWithFrags' === $template && 'export_fragments_anonymous' === $templateName && !$original);
+    }
+
+    private function isHorizontalNotSplitView(string $template, string $templateName, bool $original): bool
+    {
+        return ('landscape' === $template && 'export_original' === $templateName)
+            || ('condensed' === $template && 'export_condensed' === $templateName && $original);
     }
 }
