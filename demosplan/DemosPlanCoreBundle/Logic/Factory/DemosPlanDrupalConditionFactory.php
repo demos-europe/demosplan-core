@@ -20,6 +20,7 @@ use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template TCondition of PathsBasedInterface
+ *
  * @template-implements DrupalConditionFactoryInterface<TCondition>
  *
  * @phpstan-import-type DrupalValue from DrupalConditionFactoryInterface
