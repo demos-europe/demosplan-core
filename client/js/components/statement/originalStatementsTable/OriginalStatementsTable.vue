@@ -65,6 +65,7 @@
 
     <dp-export-modal
       v-if="hasPermission('feature_assessmenttable_export')"
+      :has-selected-elements="Object.keys(selectedElements).length > 0"
       :procedure-id="procedureId"
       :options="exportOptions"
       view="original_statements" />
