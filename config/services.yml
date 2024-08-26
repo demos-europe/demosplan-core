@@ -665,6 +665,9 @@ services:
 
     demosplan\DemosPlanCoreBundle\Tools\DocxImporterInterface: '@demosplan\DemosPlanCoreBundle\Tools\DocxImporterRabbitmq'
 
+    demosplan\DemosPlanCoreBundle\Logic\Factory\DemosPlanDrupalConditionFactory:
+        arguments:
+            $conditionFactory: '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
 
     demosplan\DemosPlanCoreBundle\Tools\ServiceImporter:
         arguments:
@@ -1292,11 +1295,7 @@ services:
 
     EDT\Querying\ConditionParsers\Drupal\DrupalConditionParser:
         arguments:
-            $drupalConditionFactory: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
-
-    EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory:
-        arguments:
-            $conditionFactory: '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
+            $drupalConditionFactory: '@demosplan\DemosPlanCoreBundle\Logic\Factory\DemosPlanDrupalConditionFactory'
 
     EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser:
         public: true
@@ -1307,7 +1306,7 @@ services:
 
     EDT\Querying\ConditionParsers\Drupal\DrupalFilterValidator:
         arguments:
-            $drupalConditionFactory: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
+            $drupalConditionFactory: '@demosplan\DemosPlanCoreBundle\Logic\Factory\DemosPlanDrupalConditionFactory'
 
     EDT\Querying\Utilities\ConditionEvaluator:
         arguments:
