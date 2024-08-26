@@ -45,7 +45,7 @@
             role="tabpanel">
             <fieldset
               v-if="options.pdf.anonymize || options.pdf.obscure"
-              class="mb-2 pb-2">
+              class="u-mb-0_5 pb-2">
               <legend
                 class="sr-only"
                 v-text="Translator.trans('export.type')" />
@@ -63,7 +63,7 @@
 
             <fieldset
               v-if="options.pdf.newPagePerStn && view === 'original_statements'"
-              class="mb-2 pb-2">
+              class="u-mb-0_5 pb-2">
               <legend
                 class="sr-only"
                 v-text="Translator.trans('export.pageLayout')" />
@@ -80,7 +80,7 @@
 
             <fieldset
               v-if="options.pdf.templates"
-              class="mb-2 pb-2">
+              class="u-mb-0_5 pb-2">
               <legend
                 class="sr-only"
                 v-text="Translator.trans('export.format')" />
@@ -103,7 +103,7 @@
 
             <fieldset
               v-if="options.pdf.exportTypes && exportChoice.pdf.template == 'condensed' && view == 'assessment_table'"
-              class="mb-2 pb-2">
+              class="u-mb-0_5 pb-2">
               <legend
                 class="sr-only"
                 v-text="Translator.trans('export.data')" />
@@ -154,7 +154,7 @@
             role="tabpanel">
             <fieldset
               v-if="options.docx.anonymize || options.docx.obscure"
-              class="mb-2 pb-2">
+              class="u-mb-0_5 pb-2">
               <legend
                 class="sr-only"
                 v-text="Translator.trans('export.type')" />
@@ -171,7 +171,7 @@
 
             <fieldset
               v-if="options.docx.templates"
-              class="mb-2 pb-2">
+              class="u-mb-0_5 pb-2">
               <legend
                 class="sr-only"
                 v-text="Translator.trans('export.format')" />
@@ -194,7 +194,7 @@
 
             <fieldset
               v-if="options.docx.exportTypes && exportChoice.docx.template === 'condensed' && view === 'assessment_table'"
-              class="mb-2 pb-2">
+              class="u-mb-0_5 pb-2">
               <legend
                 class="sr-only"
                 v-text="Translator.trans('export.data')" />
@@ -225,7 +225,7 @@
             <!--choose sorting type-->
             <fieldset
               v-if="options.docx.exportTypes && exportChoice.docx.template === 'condensed' && view === 'assessment_table'"
-              class="mb-2 pb-2">
+              class="u-mb-0_5 pb-2">
               <legend
                 class="sr-only"
                 v-text="Translator.trans('export.structure')" />
@@ -275,7 +275,7 @@
             role="tabpanel">
             <fieldset
               v-if="options.xlsx.anonymize || options.xlsx.obscure"
-              class="mb-2 pb-2">
+              class="u-mb-0_5 pb-2">
               <legend
                 class="sr-only"
                 v-text="Translator.trans('export.type')" />
@@ -291,7 +291,7 @@
             </fieldset>
             <fieldset
               v-if="options.xlsx.exportTypes"
-              class="mb-2 pb-2">
+              class="u-mb-0_5 pb-2">
               <legend
                 class="sr-only"
                 v-text="Translator.trans('export.data')" />
@@ -353,7 +353,7 @@
               v-text="explanationZip" />
             <fieldset
               v-if="options.zip.templates"
-              class="mb-2 pb-2">
+              class="u-mb-0_5 pb-2">
               <legend
                 class="sr-only"
                 v-text="Translator.trans('export.format')" />
