@@ -17,7 +17,7 @@
         {% endblock aside %}
 
         {% block content %}
-            <div class="u-3-of-4-desk-up">
+            <div class="u-3-of-4-desk-up c-styled-html">
                 <p><strong>{{ news.description|wysiwyg }}</strong></p>
                 <p>{{ news.text|wysiwyg }}</p>
                 {% if news.pdf is defined and news.pdf != '' %}

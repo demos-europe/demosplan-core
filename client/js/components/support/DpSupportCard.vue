@@ -8,7 +8,7 @@ All rights reserved
 </license>
 
 <template>
-  <section class="c-support__wrapper">
+  <section class="c-support__wrapper c-styled-html">
     <h4
       v-if="title"
       class="u-mb-0_75 font-semibold font-size-large break-words"
