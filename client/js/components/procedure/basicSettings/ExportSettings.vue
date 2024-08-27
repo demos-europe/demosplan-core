@@ -14,8 +14,8 @@
     </p>
     <dp-inline-notification
       v-if="singleCheckedFieldId"
-      :message="Translator.trans('info.export.settings')"
-      type="info" />
+      :message="Translator.trans('field.selectionRequired')"
+      type="warning" />
     <dp-checkbox
       id="check_all"
       v-model="allChecked"
