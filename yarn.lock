@@ -2058,7 +2058,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@efrane/vuex-json-api@github:eFrane/vuex-json-api#main":
+"@efrane/vuex-json-api@github:eFrane/vuex-json-api#4b16e60c2d4992f46cebf7818b482891dbb37876":
   version: 0.1.0
   resolution: "@efrane/vuex-json-api@https://github.com/eFrane/vuex-json-api.git#commit=4b16e60c2d4992f46cebf7818b482891dbb37876"
   dependencies:
@@ -9767,7 +9767,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"olcs@npm:^2.14.0":
+"olcs@npm:2.14.0, olcs@npm:^2.14.0":
   version: 2.14.0
   resolution: "olcs@npm:2.14.0"
   peerDependencies:
@@ -11740,7 +11740,7 @@ __metadata:
     "@babel/runtime": "npm:^7.24.8"
     "@demos-europe/demosplan-ui": "npm:0.3.28"
     "@demos-europe/dp-consent": "npm:^1.3"
-    "@efrane/vuex-json-api": "github:eFrane/vuex-json-api#main"
+    "@efrane/vuex-json-api": "github:eFrane/vuex-json-api#4b16e60c2d4992f46cebf7818b482891dbb37876"
     "@fullhuman/postcss-purgecss": "npm:^6.0.0"
     "@masterportal/masterportalapi": "npm:2.22.0"
     "@sentry/browser": "npm:^8.18.0"
@@ -11807,6 +11807,7 @@ __metadata:
     mini-css-extract-plugin: "npm:^2.9.0"
     node-notifier: "npm:^10.0.1"
     ol: "npm:~7.5.1"
+    olcs: "npm:2.14.0"
     plyr: "npm:^3.7.8"
     portal-vue: "npm:^2.1.7"
     postcss: "npm:^8.4.32"
