@@ -78,7 +78,7 @@
                         </li>
                     </ul>
 
-                    <div class="{{ 'c-actionbox__panelwrapper u-pb-0 u-mb-0_5'|prefixClass }}">
+                    <div class="{{ 'c-actionbox__panelwrapper u-pb-0'|prefixClass }}">
                         <div v-show="activeActionBoxTab === 'talk'" id="statementAction" class="{{ 'c-actionbox__panel'|prefixClass }}"
                              :class="activeActionBoxTab === 'talk' ? prefixClass('is-visible-actionbox') : ''"
                              data-statement-state-started>
@@ -299,7 +299,7 @@
 
                 {# Display getFeatureInfo Tool only if set #}
                 {% if procedureSettings.featureInfoUrl|default|raw|length > 1 %}
-                    <li>
+                    <li class="mt-2">
                         <button
                             type="button"
                             id="criteriaButton"
@@ -318,7 +318,7 @@
 
                 {# Drawing of procedure #}
                 {% if hasPermission('feature_map_use_plan_draw_pdf') and procedureSettings.planDrawPDF|default != '' %}
-                    <li>
+                    <li class="mt-2">
                         <a
                             class="{{ 'c-map__tool o-link--default'|prefixClass }}"
                             target="_blank"

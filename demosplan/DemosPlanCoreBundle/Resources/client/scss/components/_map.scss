@@ -192,10 +192,6 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
             margin: 0;
 
-            @include media-query('lap-up') {
-                margin: 0;
-            }
-
             .js & {
                 &--toggleable {
                     display: none;
