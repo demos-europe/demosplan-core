@@ -17,7 +17,7 @@
         hideMetaMenu: true
     } %}
 
-    <div class="layout--flush bg-color--white o-page__padded u-mb c-styled-html">
+    <div class="layout--flush bg-color--white o-page__padded u-mb">
 
         <aside class="layout__item width-map-toolbar u-p-0_5 show-lap-up-ib">
 
@@ -34,7 +34,7 @@
 
             <p class="weight--bold">{{ news.description|wysiwyg('img') }}</p>
 
-            <p>{{ news.text|wysiwyg('img') }}</p>
+            <div class="c-styled-html">{{ news.text|wysiwyg('img') }}</div>
 
             {% if news.pdf is defined and news.pdf != '' %}
                 <p>
