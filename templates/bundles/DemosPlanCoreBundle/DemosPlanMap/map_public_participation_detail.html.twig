@@ -1,7 +1,7 @@
 {#  map toolbar #}
 {% set mapAndCountyGroupEnabled = templateVars.statementFieldDefinitions|filter(el => el.name == 'mapAndCountyReference')[0].enabled == true|default(true) %}
 {% set isLocationEnabled = mapAndCountyGroupEnabled or procedureStatementPriorityArea %}
-<div class="{{ 'c-map__toolbar u-mb-0_5-palm'|prefixClass }}">
+<div class="{{ 'c-map__toolbar flex flex-col u-mb-0_5-palm'|prefixClass }}">
 
     {% if hasPermission('feature_new_statement') %}
 
@@ -333,12 +333,12 @@
         </ul>
         {# / Statement tools #}
 
-        <div class="{{ 'layer-controls'|prefixClass }}">
+        <div class="{{ 'layer-controls flex-grow'|prefixClass }}">
 
             {# Unfold handle #}
             <dp-unfold-toolbar-control drag-target=".{{ 'c-map__toolbar'|prefixClass}}"></dp-unfold-toolbar-control>
 
-            <div class="{{ 'c-map__group--bottom bg-color--white'|prefixClass }}">
+            <div class="{{ 'c-map__group bg-color--white'|prefixClass }}">
 
                 {# Layers #}
                 <dp-public-layer-list-wrapper :layer-groups-alternate-visibility="Boolean({{ procedureSettings.layerGroupsAlternateVisibility }})"></dp-public-layer-list-wrapper>
