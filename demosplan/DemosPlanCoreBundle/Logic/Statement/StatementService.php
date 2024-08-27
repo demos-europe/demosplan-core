@@ -43,8 +43,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVersionField;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
-use demosplan\DemosPlanCoreBundle\Entity\User\Department;
-use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualOriginalStatementCreatedEvent;
