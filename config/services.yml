@@ -1292,13 +1292,13 @@ services:
 
     EDT\JsonApi\Validation\FieldsValidator: ~
 
-    EDT\Querying\ConditionParsers\Drupal\DrupalConditionParser:
-        arguments:
-            $drupalConditionFactory: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
-
-    EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory:
+    demosplan\DemosPlanCoreBundle\Logic\Factory\DemosPlanDrupalConditionFactory:
         arguments:
             $conditionFactory: '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
+
+    EDT\Querying\ConditionParsers\Drupal\DrupalConditionParser:
+        arguments:
+            $drupalConditionFactory: '@demosplan\DemosPlanCoreBundle\Logic\Factory\DemosPlanDrupalConditionFactory'
 
     EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser:
         public: true
@@ -1309,7 +1309,7 @@ services:
 
     EDT\Querying\ConditionParsers\Drupal\DrupalFilterValidator:
         arguments:
-            $drupalConditionFactory: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
+            $drupalConditionFactory: '@demosplan\DemosPlanCoreBundle\Logic\Factory\DemosPlanDrupalConditionFactory'
 
     EDT\Querying\Utilities\ConditionEvaluator:
         arguments:
