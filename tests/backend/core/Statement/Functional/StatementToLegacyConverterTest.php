@@ -12,11 +12,11 @@ declare(strict_types=1);
 
 namespace Tests\Core\Statement\Functional;
 
-use Doctrine\Common\Collections\Collection;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureSettingsFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementToLegacyConverter;
+use Doctrine\Common\Collections\Collection;
 use Tests\Base\FunctionalTestCase;
 
 class StatementToLegacyConverterTest extends FunctionalTestCase
