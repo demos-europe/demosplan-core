@@ -123,7 +123,7 @@ EOT
                 // load composer dependencies
                 ->addShell($composerCmd, $rootPath)
                 // load yarn dependencies
-                ->addShell(['yarn', 'install', '--frozen-lockfile'], $rootPath)
+                ->addShell(['yarn', 'install'], $rootPath)
                 ->run();
         }
 
