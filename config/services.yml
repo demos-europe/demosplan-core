@@ -1353,7 +1353,9 @@ services:
     EDT\DqlQuerying\ClassGeneration\TypeHolderGenerator: ~
 
     EDT\JsonApi\Requests\GetRequest: ~
-    EDT\JsonApi\Requests\CreationRequest: ~
+    EDT\JsonApi\Requests\CreationRequest:
+        arguments:
+            $maxBodyNestingDepth: 100
     EDT\JsonApi\Requests\UpdateRequest:
         arguments:
             $maxBodyNestingDepth: 100
