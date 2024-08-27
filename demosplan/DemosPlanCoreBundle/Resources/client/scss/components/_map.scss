@@ -141,15 +141,21 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
         //  left sidebar with map tools
         &__toolbar {
-           overflow-x: hidden;
-           overflow-y: scroll;
-           scrollbar-width: none;
+            &--container {
+                display: flex;
+                flex-direction: column;
+
+                @include media-query('lap-up') {
+                    overflow-y: auto;
+                    height: $map-height;
+                    padding-right: 6px;
+                }
+            }
 
             @extend %map-width-toolbar;
 
             @include media-query('lap-up') {
                 float: left;
-                padding-right: 16px;
                 height: $map-height;
             }
 
@@ -240,7 +246,6 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
             height: 40px;
             margin-bottom: -20px;
             padding-left: 14px;
-            padding-right: 26px;
             width: 30px;
 
             transform: translateX(14px);
