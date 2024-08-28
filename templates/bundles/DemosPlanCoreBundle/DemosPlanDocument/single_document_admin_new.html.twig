@@ -49,7 +49,7 @@
                         }"
                         name="r_statement_enabled"
                         data-cy="enableFileToStatement"
-                        value="1">
+                        :value="true">
                     </dp-radio>
                     <dp-radio
                         id="statement_enabled_false"
@@ -60,7 +60,7 @@
                         }"
                         name="r_statement_enabled"
                         data-cy="disableFileToStatement"
-                        value="0">
+                        :value="false">
                     </dp-radio>
                 </fieldset>
             {% else %}
