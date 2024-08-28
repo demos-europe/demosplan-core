@@ -20,7 +20,7 @@
     class="o-sortablelist__item u-pv-0_5 u-pl-0_5 border--top"
     :class="{
       'is-active' : isActive,
-      'cursor-pointer' : (false === layer.attributes.isBaseLayer && 'GisLayerCategory' !== layer.type && false === isChildOfCategoryThatAppearsAsLayer),
+      'cursor-pointer' : (false === layer.attributes.layerType === 'base' && 'GisLayerCategory' !== layer.type && false === isChildOfCategoryThatAppearsAsLayer),
     }"
     @click="setActiveState"
     @mouseover="mouseOverElement"
@@ -761,7 +761,7 @@ export default {
     setActiveState () {
       if (!hasPermission('feature_map_category') ||
           this.layer.type !== 'GisLayer' ||
-          this.layer.attributes.isBaseLayer ||
+          this.layer.attributes.layerType === 'base' ||
           this.isLoading ||
           this.isChildOfCategoryThatAppearsAsLayer) {
         return

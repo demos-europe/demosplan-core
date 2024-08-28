@@ -581,7 +581,7 @@ export default {
         isEnabled: layer.attributes.isEnabled,
         treeOrder: layer.attributes.treeOrder,
         mapOrder: layer.attributes.mapOrder,
-        isBaseLayer: layer.attributes.isBaseLayer,
+        layerType: layer.attributes.layerType === 'base',
         projection: layer.attributes.projectionLabel
       })
     },
@@ -1154,15 +1154,15 @@ export default {
               layerName: printLayerName,
               layerTitle: printLayer.getProperties().title,
               layerMapOrder: printLayer.getProperties().mapOrder,
-              isBaseLayer: printLayer.getProperties().isBaseLayer,
+              layerType: printLayer.getProperties().layerType,
               layerProjection: layerProjection,
               tiles: tilesInfo
             })
           })
 
           featureMeta.printLayers.sort((layerA, layerB) => {
-            if (layerA.isBaseLayer !== layerB.isBaseLayer) {
-              return layerA.isBaseLayer ? -1 : 1
+            if (layerA.layerType !== layerB.layerType) {
+              return layerA.layerType === 'base' ? -1 : 1
             } else {
               return layerA.layerMapOrder > layerB.layerMapOrder ? -1 : 1
             }
@@ -2020,15 +2020,17 @@ export default {
           const layers = baseLayerGroup.getLayers().getArray()
           const len = layers.length
           //  Hide all baselayers except those which have to be shown additionally
-          for (let i = 0; i < len; i++) {
-            if (layers[i].get('doNotToggleLayer') !== true) {
-              layers[i].setVisible(false)
-            }
-          }
+          // for (let i = 0; i < len; i++) {
+          //   if (layers[i].get('doNotToggleLayer') !== true) {
+          //     layers[i].setVisible(newState)
+          //   }
+          // }
           if (layer) {
             this.setLayerSource(layer)
-            layer.setVisible(true)
+            layer.setVisible(newState)
           }
+
+          console.log('layer state', layer.getVisible(), layer.getProperties())
         }
       } else {
         const stateSetter = (typeof newState !== 'undefined') ? newState : (layer.getVisible() === false)
@@ -2066,40 +2068,41 @@ export default {
       if (hasPermission('feature_map_layer_legend_file')) {
         this.displayLegends(true)
       }
+    })
 
-      this.$root.$on('layer:toggle', ({ id, exclusively, isVisible }) => {
-        /*
-         * If no specific layer is set for the overviewMap, the overviewMapTileLayers
-         * are synced with their counterparts in the big map.
-         */
-        if (this.overviewMapLayer === false || this.overviewMapLayer.length > 1) {
-          const layer = this.overviewMapTileLayers.find(layer => id === layer.get('name'))
-          // Only toggle baselayer
-          if (typeof layer !== 'undefined') {
-            this.setLayerSource(layer)
-            layer.setVisible(isVisible)
-          }
+    this.$root.$on('layer:toggle', ({ id, exclusively, isVisible }) => {
+      /*
+       * If no specific layer is set for the overviewMap, the overviewMapTileLayers
+       * are synced with their counterparts in the big map.
+       */
+      if (this.overviewMapLayer === false || this.overviewMapLayer.length > 1) {
+        const layer = this.overviewMapTileLayers.find(layer => id === layer.get('name'))
+        // Only toggle baselayer
+        if (typeof layer !== 'undefined') {
+          this.setLayerSource(layer)
+          layer.setVisible(isVisible)
         }
+      }
 
-        this.toggleLayer(id, exclusively, isVisible)
-      })
+      console.log('on layer toggle', id, exclusively, isVisible)
+      this.toggleLayer(id, exclusively, isVisible)
+    })
 
-      this.$root.$on('layer-opacity:change', ({ id, opacity }) => {
-        this.findLayerById(id).setOpacity(opacity)
-      })
+    this.$root.$on('layer-opacity:change', ({ id, opacity }) => {
+      this.findLayerById(id).setOpacity(opacity)
+    })
 
-      this.$root.$on('layer-opacity:changed', ({ id, opacity }) => {
-        this.saveOpacitiesToSessionStorage(id, opacity)
-      })
-      this.$root.$on('toolbar:drag', () => this.resizeOnDrag())
-      this.$root.$on('layer:toggleVisibiltyGroup', ({ layerId, isVisible, visibilityGroupId }) => {
-        if (hasOwnProp(this.bPlan, 'id') && layerId !== this.bPlan.id && hasOwnProp(this.bPlan, 'attributes') && this.bPlan.attributes.visibilityGroupId === visibilityGroupId) {
-          this.toggleCustomLayerButton({ element: document.getElementById('bplanSwitcher'), layerName: this.bPlan.id, visible: isVisible })
-        }
-        if (hasOwnProp(this.scope, 'id') && layerId !== this.scope.id && hasOwnProp(this.scope, 'attributes') && this.scope.attributes.visibilityGroupId === visibilityGroupId) {
-          this.toggleCustomLayerButton({ element: document.getElementById('territorySwitcher'), layerName: this.scope.id, visible: isVisible })
-        }
-      })
+    this.$root.$on('layer-opacity:changed', ({ id, opacity }) => {
+      this.saveOpacitiesToSessionStorage(id, opacity)
+    })
+    this.$root.$on('toolbar:drag', () => this.resizeOnDrag())
+    this.$root.$on('layer:toggleVisibiltyGroup', ({ layerId, isVisible, visibilityGroupId }) => {
+      if (hasOwnProp(this.bPlan, 'id') && layerId !== this.bPlan.id && hasOwnProp(this.bPlan, 'attributes') && this.bPlan.attributes.visibilityGroupId === visibilityGroupId) {
+        this.toggleCustomLayerButton({ element: document.getElementById('bplanSwitcher'), layerName: this.bPlan.id, visible: isVisible })
+      }
+      if (hasOwnProp(this.scope, 'id') && layerId !== this.scope.id && hasOwnProp(this.scope, 'attributes') && this.scope.attributes.visibilityGroupId === visibilityGroupId) {
+        this.toggleCustomLayerButton({ element: document.getElementById('territorySwitcher'), layerName: this.scope.id, visible: isVisible })
+      }
     })
   }
 }
