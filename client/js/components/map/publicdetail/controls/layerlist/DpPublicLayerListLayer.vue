@@ -13,7 +13,7 @@
     :title="layerTitle"
     :class="[(isVisible && layer.attributes.canUserToggleVisibility) ? prefixClass('is-active') : '', prefixClass('c-map__group-item c-map__layer')]"
     @click="toggleFromSelf(false)"
-    v-if="layer.attributes.isEnabled && false === layer.attributes.isScope && false === layer.attributes.isBplan">
+    v-if="layer.attributes.isEnabled && !layer.attributes.isScope && !layer.attributes.isBplan">
     <span
       :class="prefixClass('c-map__group-item-controls')"
       @mouseover="toggleOpacityControl(true)"
