@@ -141,13 +141,6 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
         //  left sidebar with map tools
         &__toolbar {
-            &--container {
-                @include media-query('lap-up') {
-                    overflow-y: auto;
-                    height: $map-height;
-                    padding-right: 6px;
-                }
-            }
 
             @extend %map-width-toolbar;
 
@@ -167,6 +160,14 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
                 > ul.c-map__group {
                     display: none;
                 }
+            }
+        }
+
+        &__toolbar-content {
+            @include media-query('lap-up') {
+                overflow-y: auto;
+                height: $map-height;
+                padding-right: 6px;
             }
         }
 
