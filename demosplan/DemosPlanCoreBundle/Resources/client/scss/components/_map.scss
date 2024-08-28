@@ -142,9 +142,6 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
         //  left sidebar with map tools
         &__toolbar {
             &--container {
-                display: flex;
-                flex-direction: column;
-
                 @include media-query('lap-up') {
                     overflow-y: auto;
                     height: $map-height;
