@@ -529,8 +529,8 @@ export default {
     },
 
     tagsAsString () {
-      if (this.segment.hasRelationship('tag')) {
-        return Object.values(this.segment.rel('tag')).map(el => el.attributes.title).join(', ')
+      if (this.segment.hasRelationship('tags')) {
+        return Object.values(this.segment.rel('tags')).map(el => el.attributes.title).join(', ')
       }
 
       return '-'
