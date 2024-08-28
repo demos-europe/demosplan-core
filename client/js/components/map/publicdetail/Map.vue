@@ -2019,18 +2019,10 @@ export default {
         if (baseLayerGroup) {
           const layers = baseLayerGroup.getLayers().getArray()
           const len = layers.length
-          //  Hide all baselayers except those which have to be shown additionally
-          // for (let i = 0; i < len; i++) {
-          //   if (layers[i].get('doNotToggleLayer') !== true) {
-          //     layers[i].setVisible(newState)
-          //   }
-          // }
           if (layer) {
             this.setLayerSource(layer)
             layer.setVisible(newState)
           }
-
-          console.log('layer state', layer.getVisible(), layer.getProperties())
         }
       } else {
         const stateSetter = (typeof newState !== 'undefined') ? newState : (layer.getVisible() === false)
@@ -2084,7 +2076,6 @@ export default {
         }
       }
 
-      console.log('on layer toggle', id, exclusively, isVisible)
       this.toggleLayer(id, exclusively, isVisible)
     })
 
