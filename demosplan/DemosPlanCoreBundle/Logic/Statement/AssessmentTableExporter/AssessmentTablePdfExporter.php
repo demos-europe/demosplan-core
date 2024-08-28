@@ -190,6 +190,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             // * Querformat: DemosPlanAssessmentTableBundle:DemosPlan:export_original.tex.twig
             // * Hochformat: DemosPlanAssessmentTableBundle:DemosPlan:export_original.tex.twig
             $fullTemplateName = '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/'.$templateName.'.tex.twig';
+
             $templateVars['listwidth'] = $this->determineListLineWidth($template, $templateName, $original);
 
             $content = $this->twig->render(
@@ -202,7 +203,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
                     'pdfLandscape'  => 'landscape' === $template || 'landscapeWithFrags' === $template,
                     'viewMode'      => AssessmentTableViewMode::DEFAULT_VIEW,
                     'anonymous'     => $anonymous,
-                    'newPagePerStn' => $parameters['newPagePerStn'],
+                    'newPagePerStn' => array_key_exists('newPagePerStn', $parameters) ? $parameters['newPagePerStn'] : false,
                 ]
             );
             $isPublicUser = $this->currentUser->getUser()->isPublicUser();
