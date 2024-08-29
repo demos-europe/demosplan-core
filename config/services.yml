@@ -1355,10 +1355,10 @@ services:
     EDT\JsonApi\Requests\GetRequest: ~
     EDT\JsonApi\Requests\CreationRequest:
         arguments:
-            $maxBodyNestingDepth: 100
+            $maxBodyNestingDepth: 512
     EDT\JsonApi\Requests\UpdateRequest:
         arguments:
-            $maxBodyNestingDepth: 100
+            $maxBodyNestingDepth: 512
     EDT\JsonApi\Requests\DeletionRequest: ~
     EDT\JsonApi\Validation\SortValidator: ~
 
