@@ -13107,16 +13107,16 @@
         },
         {
             "name": "symfony/flex",
-            "version": "v2.4.5",
+            "version": "v2.4.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/flex.git",
-                "reference": "b0a405f40614c9f584b489d54f91091817b0e26e"
+                "reference": "4dc11919791f81d087a12db2ab4c7e044431ef6b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/flex/zipball/b0a405f40614c9f584b489d54f91091817b0e26e",
-                "reference": "b0a405f40614c9f584b489d54f91091817b0e26e",
+                "url": "https://api.github.com/repos/symfony/flex/zipball/4dc11919791f81d087a12db2ab4c7e044431ef6b",
+                "reference": "4dc11919791f81d087a12db2ab4c7e044431ef6b",
                 "shasum": ""
             },
             "require": {
@@ -13152,7 +13152,7 @@
             "description": "Composer plugin for Symfony",
             "support": {
                 "issues": "https://github.com/symfony/flex/issues",
-                "source": "https://github.com/symfony/flex/tree/v2.4.5"
+                "source": "https://github.com/symfony/flex/tree/v2.4.6"
             },
             "funding": [
                 {
@@ -13168,7 +13168,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-03-02T08:16:47+00:00"
+            "time": "2024-04-27T10:22:22+00:00"
         },
         {
             "name": "symfony/form",
@@ -18206,16 +18206,16 @@
         },
         {
             "name": "willdurand/js-translation-bundle",
-            "version": "6.0.0",
+            "version": "6.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/willdurand/BazingaJsTranslationBundle.git",
-                "reference": "11e717d9baf2ecb34b355986a2225d70c015d7fc"
+                "reference": "f6af94fe2100076d087334d7412a77b758c88eec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/willdurand/BazingaJsTranslationBundle/zipball/11e717d9baf2ecb34b355986a2225d70c015d7fc",
-                "reference": "11e717d9baf2ecb34b355986a2225d70c015d7fc",
+                "url": "https://api.github.com/repos/willdurand/BazingaJsTranslationBundle/zipball/f6af94fe2100076d087334d7412a77b758c88eec",
+                "reference": "f6af94fe2100076d087334d7412a77b758c88eec",
                 "shasum": ""
             },
             "require": {
@@ -18267,9 +18267,9 @@
             ],
             "support": {
                 "issues": "https://github.com/willdurand/BazingaJsTranslationBundle/issues",
-                "source": "https://github.com/willdurand/BazingaJsTranslationBundle/tree/6.0.0"
+                "source": "https://github.com/willdurand/BazingaJsTranslationBundle/tree/6.1.0"
             },
-            "time": "2023-12-18T18:25:51+00:00"
+            "time": "2024-08-02T14:30:21+00:00"
         },
         {
             "name": "willdurand/jsonp-callback-validator",

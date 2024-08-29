@@ -19,7 +19,7 @@
         {% block content %}
             <div class="u-3-of-4-desk-up">
                 <p><strong>{{ news.description|wysiwyg }}</strong></p>
-                <p>{{ news.text|wysiwyg }}</p>
+                <div class="c-styled-html">{{ news.text|wysiwyg }}</div>
                 {% if news.pdf is defined and news.pdf != '' %}
                     <p>
                         <a
