@@ -374,10 +374,8 @@ describe('ExportModal', () => {
       expect(checkboxStub.exists()).toBe(false)
     })
 
+    // fails because 'feature_admin_assessmenttable_export_statement_generic_xlsx' permission is always evaluated as true
     it.skip('displays two radio buttons for selecting the data to be exported if xlsx.exportTypes is true', () => {
-      global.features = {
-        feature_admin_assessmenttable_export_statement_generic_xlsx: false
-      }
       const radioButtonStubs = wrapper.findAll('[datacy^="exportModal:xlsxExportType"]')
 
       expect(radioButtonStubs.length).toBe(2)
