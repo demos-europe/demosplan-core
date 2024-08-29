@@ -25,7 +25,7 @@
           role="tablist">
           <button
             v-for="(option, key) in tabsOptions"
-            :key="key"
+            :key="`${option.tabLabel}:${key}`"
             class="tab w-1/6"
             :class="activeTab(key)"
             :data-cy="`exportModal:${option.tabLabel}`"
@@ -40,6 +40,7 @@
           <!-- PDF -->
           <div
             v-if="options.pdf"
+            id="pdf"
             class="tab-content"
             :class="activeTab('pdf')"
             role="tabpanel">
@@ -93,7 +94,7 @@
                 :data-cy="`exportModal:pdfTemplate_${identifier}`"
                 :label="{
                   bold: true,
-                  hint: pdfTemplateOptions[identifier].explanation ?? '',
+                  hint: pdfTemplateOptions[identifier].explanation || '',
                   text: Translator.trans(pdfTemplateOptions[identifier].name)
                 }"
                 name="pdfTemplate"
@@ -149,6 +150,7 @@
           <!-- Docx -->
           <div
             v-if="options.docx"
+            id="docx"
             class="tab-content"
             :class="activeTab('docx')"
             role="tabpanel">
@@ -255,8 +257,8 @@
             <!--end of sorting type-->
 
             <p
-              class="ml-2 mt-2"
               v-if="!options.docx.anonymize && !options.docx.obscure && !options.docx.exportTypes && !options.docx.templates">
+              class="ml-2 mt-2"
               {{ Translator.trans('explanation.export.anonymous') }}
             </p>
 
@@ -270,6 +272,7 @@
           <!-- Excel -->
           <div
             v-if="options.xlsx"
+            id="xlsx"
             class="tab-content"
             :class="activeTab('xlsx')"
             role="tabpanel">
@@ -289,6 +292,7 @@
                   text: Translator.trans('export.anonymous')
                 }" />
             </fieldset>
+
             <fieldset
               v-if="options.xlsx.exportTypes"
               class="u-mb-0_5 pb-2">
@@ -345,6 +349,7 @@
           <!-- Zip -->
           <div
             v-if="options.zip"
+            id="zip"
             class="tab-content"
             :class="activeTab('zip')"
             role="tabpanel">
@@ -366,7 +371,7 @@
                 :data-cy="`exportModal:zipTemplate_${identifier}`"
                 :label="{
                   bold: true,
-                  hint: zipTemplateOptions[identifier].explanation ?? '',
+                  hint: zipTemplateOptions[identifier].explanation || '',
                   text: Translator.trans(zipTemplateOptions[identifier].name)
                 }"
                 name="zipTemplate"
@@ -396,7 +401,7 @@ import {
 } from '@demos-europe/demosplan-ui'
 
 export default {
-  name: 'DpExportModal',
+  name: 'ExportModal',
 
   components: {
     DpButton,
@@ -438,7 +443,7 @@ export default {
     /*
      *  With special viewModes (showing statements ordered by elements/tag reference, see T8624 + T8715)
      *  there is no proper way to show fragments in the exports (will be fixed one time).
-     *  Therefore, the option to export with fragments are simply disabled as a workaround.
+     *  Therefore, the option to export with fragments is simply disabled as a workaround.
      */
     viewMode: {
       required: false,
