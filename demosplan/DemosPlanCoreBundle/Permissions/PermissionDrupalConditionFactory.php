@@ -12,7 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
-use EDT\ConditionFactory\ConditionFactoryInterface;
+
+use EDT\ConditionFactory\PathsBasedConditionFactoryInterface;
 use EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory;
 use EDT\Querying\Contracts\PathsBasedInterface;
 
@@ -28,7 +29,7 @@ class PermissionDrupalConditionFactory extends PredefinedDrupalConditionFactory
 
     final public const NOT_SIZE = 'NOT SIZE';
 
-    public function __construct(ConditionFactoryInterface $conditionFactory)
+    public function __construct(PathsBasedConditionFactoryInterface $conditionFactory)
     {
         parent::__construct($conditionFactory);
     }
