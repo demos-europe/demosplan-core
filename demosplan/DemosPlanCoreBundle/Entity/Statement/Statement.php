@@ -700,6 +700,12 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementLike", mappedBy="statement")
      */
     protected $likes;
+    /**
+     * @var StatementPart[]
+     *
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementPart", mappedBy="statement")
+     */
+    protected $parts;
 
     /**
      * @var Collection
@@ -1039,6 +1045,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         $this->version = new ArrayCollection();
         $this->votes = new ArrayCollection();
         $this->likes = new ArrayCollection();
+        $this->parts = new ArrayCollection();
         $this->statementAttributes = new ArrayCollection();
         $this->tags = new ArrayCollection();
         $this->counties = new ArrayCollection();
