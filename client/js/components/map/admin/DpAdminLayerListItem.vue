@@ -275,9 +275,11 @@ export default {
   },
 
   computed: {
-    ...mapGetters('layers', [
-      'directChildren'
-    ]),
+    ...mapGetters('layers', {
+      directChildren: 'directChildren',
+      getElement: 'element',
+      elementsByAttribute: 'elementsListByAttribute'
+    }),
 
     ...mapState('layers', [
       'draggableOptions',
@@ -290,13 +292,15 @@ export default {
 
     parentCategory () {
       // Get parentLayer and check if it hides its children
-      const parentLayer = this.$store.getters['layers/element']({
+      const parentLayer = this.getElement({
         id: this.layer.attributes.categoryId,
         type: 'GisLayerCategory'
       })
+
       if (typeof parentLayer !== 'undefined') {
         return parentLayer
       }
+
       return {}
     },
 
@@ -312,7 +316,7 @@ export default {
     },
 
     layer () {
-      return this.$store.getters['layers/element']({ id: this.element.id, type: this.element.type })
+      return this.getElement({ id: this.element.id, type: this.element.type })
     },
 
     hasDefaultVisibility () {
@@ -492,7 +496,7 @@ export default {
      * returns Object|active Layer
      */
     activeLayer () {
-      return this.$store.getters['layers/element']({
+      return this.getElement({
         id: this.$store.state.layers.activeLayerId,
         type: 'GisLayer'
       }) || { attributes: {} }
@@ -707,12 +711,13 @@ export default {
     ]),
 
     ...mapMutations('layers', [
+      'set',
       'setAttributeForLayer',
       'setChildrenFromCategory'
     ]),
 
     // Add index property to item, so it can be accessed in the store
-    addIndex() {
+    addIndex () {
       this.setAttributeForLayer({
         id: this.element.id,
         attribute: 'index',
@@ -737,7 +742,7 @@ export default {
         orderType: 'treeOrder',
         relationshipType,
         sourceParentId,
-        targetParentId,
+        targetParentId
       })
     },
 
@@ -823,6 +828,7 @@ export default {
      * Set active state when clicking on an overlay
      */
     setActiveState () {
+      console.log('setActiveState')
       if (this.layer.type !== 'GisLayer' ||
           this.layer.attributes.isBaseLayer ||
           this.isLoading ||
@@ -831,9 +837,11 @@ export default {
       }
       if (this.preventActiveFromToggeling === false) {
         if (this.isActive) {
-          this.$store.commit('layers/setActiveLayerId', '')
+          // this.$store.commit('layers/setActiveLayerId', '')
+          this.set({ key: 'ativeLayerId', value: '' })
         } else {
-          this.$store.commit('layers/setActiveLayerId', this.layer.id)
+          // this.$store.commit('layers/setActiveLayerId', this.layer.id)
+          this.set({ key: 'ativeLayerId', value: this.layer.id })
         }
       } else {
         this.preventActiveFromToggeling = false
@@ -855,11 +863,13 @@ export default {
       if (this.isLoading || this.layer.attributes.layerType !== 'overlay') {
         return false
       }
-      this.$store.commit('layers/setHoverLayerId', this.layer.id)
+      this.set({ key: 'hoverLayerId', value: this.layer.id })
+      // this.$store.commit('layers/setHoverLayerId', this.layer.id)
     },
 
     mouseOutElement () {
-      this.$store.commit('layers/setHoverLayerId', '')
+      this.set({ key: 'hoverLayerId', value: ''})
+      // this.$store.commit('layers/setHoverLayerId', '')
     },
 
     /**
@@ -870,14 +880,16 @@ export default {
         return false
       }
       if (this.layer.attributes.layerType === 'overlay' && typeof this.activeLayer.id !== 'undefined') {
-        this.$store.commit('layers/setHoverLayerIconIsHovered', true)
+        // this.$store.commit('layers/setHoverLayerIconIsHovered', true)
+        this.set({ key: 'hoverLayerIconIsHovered', value: true })
       } else {
         this.unsetIconHoverState()
       }
     },
 
     unsetIconHoverState () {
-      this.$store.commit('layers/setHoverLayerIconIsHovered', false)
+      this.set({ key: 'hoverLayerIconIsHovered', value: false })
+      // this.$store.commit('layers/setHoverLayerIconIsHovered', false)
     },
 
     /**
@@ -945,6 +957,7 @@ export default {
           type: 'visibilityGroupId',
           value: newVisibilityGroupId
         })
+
         if (relatedLayers.length <= 2) {
           for (let i = 0; i < relatedLayers.length; i++) {
             this.setAttributeForLayer({

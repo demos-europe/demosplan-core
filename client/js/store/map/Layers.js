@@ -10,34 +10,58 @@
 import {
   checkResponse,
   dpApi,
-  hasOwnProp,
-  hasPermission
+  hasOwnProp
 } from '@demos-europe/demosplan-ui'
 
 /**
  * Sorts flat list by the given attribute
  * @param {array} list
  * @param {string} attr 'mapOrder' | 'treeOrder'
- * @param {Object} apiData
- * @return {*}
+ *
+ * @return {array} list
  */
-const sortListByAttr = (list, attr, apiData) => {
+const sortListByAttr = (list, attr) => {
   return list.sort((a, b) => {
-      const formattedOrderA = a.attributes[attr]
-        .toString()
-        .padEnd(21, '0')
+    const formattedOrderA = a.attributes[attr]
+      .toString()
+      .padEnd(21, '0')
 
-      const formattedOrderB = b.attributes[attr]
-        .toString()
-        .padEnd(21, '0')
+    const formattedOrderB = b.attributes[attr]
+      .toString()
+      .padEnd(21, '0')
 
-      return formattedOrderA - formattedOrderB
-    })
+    return formattedOrderA - formattedOrderB
+  })
+}
+
+const getDirectChildren = (elements, el, listType = 'treeOrder', layerType = 'overlay') => {
+  let children = el.relationships?.gisLayers?.data
+    .map(el => elements[el.id])
+    .filter(layer => layer.attributes.layerType === layerType)
+
+  if (layerType === 'overlay') {
+    children = [
+      ...children,
+      ...el.relationships?.categories?.data
+        .map(el => elements[el.id]) ?? []
+    ]
+  }
+
+  return sortListByAttr(children, listType)
+}
+
+const getFlatChildren = (state, layerType, orderType) => {
+  if (typeof state.apiData.included === 'undefined') return []
+
+  const layer = state.apiData.included
+    .filter(el => el.type === 'GisLayer' && el.attributes.layerType === layerType)
+
+  return sortListByAttr(layer, orderType)
 }
 
 const LayersStore = {
-
   namespaced: true,
+
   name: 'layers',
 
   state: {
@@ -87,7 +111,7 @@ const LayersStore = {
      */
     addToCategoryRelationships (state, { newIndex, orderType, relationshipType, targetParentId }) {
       // add item to relationships
-      const targetParent = state.apiData.included.find(el => el.id === targetParentId)
+      const targetParent = state.list[targetParentId]
       targetParent.relationships[relationshipType].data.push({ id: state.removedItem.id, type: state.removedItem.type })
 
       // update index attribute of all children of the targetParent
@@ -223,16 +247,16 @@ const LayersStore = {
       state.activeLayerId = data
     },
 
+    set (state, { key, value }) {
+      console.log('set', key, value)
+      state[key] = value
+    },
+
     setApiData (state, data) {
       state.apiData = data
-    },
-
-    setDraggableOptions (state, data) {
-      state.draggableOptions = data
-    },
-
-    setDraggableOptionsForBaseLayer (state, data) {
-      state.draggableOptionsForBaseLayer = data
+      data.included.forEach(el => {
+        state.list[el.id] = el
+      })
     },
 
     setHoverLayerIconIsHovered (state, data) {
@@ -257,7 +281,7 @@ const LayersStore = {
      * @param {Number} parentOrder
      */
     updateOrderAttribute (state, { id, layerType, orderType, parentId, parentOrder }) {
-      const completeItem = state.apiData.included.find(el => el.id === id)
+      const completeItem = state.list[id]
       const isChildOfGivenCategory = completeItem.attributes.categoryId === parentId || completeItem.attributes.parentId === parentId
       const isCategory = completeItem.type === 'GisLayerCategory'
       const isLayerOfGivenType = completeItem.type === 'GisLayer' && completeItem.attributes.layerType === layerType
@@ -597,7 +621,27 @@ const LayersStore = {
           include: [
             'categories',
             'gisLayers'
-          ].join()
+          ].join() // ,
+          // A fields: {
+          //   GisLayer: [
+          //     'orderType',
+          //     'treeOrder',
+          //     'mapOrder',
+          //     'isBPlan',
+          //     'isEnabled',
+          //     'isVisible',
+          //     'hasDefaultVisibility',
+          //     'index',
+          //     'name',
+          //     'visibilityGroupId'
+          //   ],
+          //   GisLayerCategory: [
+          //     'orderType',
+          //     'treeOrder',
+          //     'mapOrder',
+          //     'index',
+          //   ]
+          // }
         }),
         responseType: 'json'
       })
@@ -775,21 +819,21 @@ const LayersStore = {
       }
 
       // update treeOrder/mapOrder attribute for each child of the category
-      parents.forEach(parent => {
-        let parentId = parent === 'sourceParent' ? sourceParentId : targetParentId
-        let parentOrder = state.apiData.included.find(el => el.id === parentId)?.attributes[orderType]
-        let parentCategory = state.apiData.included.find(el => el.id === parentId)
+      parents.forEach(p => {
+        let parentId = p === 'sourceParent' ? sourceParentId : targetParentId
+        let parent = state.list[parentId]
+        let parentOrder = parent?.attributes[orderType]
         const parentIsRoot = !parentId
 
         if (parentIsRoot) {
           parentId = state.apiData.data.id
           parentOrder = 1
-          parentCategory = state.apiData.data
+          parent = state.apiData.data
         }
 
-        let children = [
-          ...parentCategory.relationships.categories.data,
-          ...parentCategory.relationships.gisLayers.data
+        const children = [
+          ...parent.relationships.categories.data,
+          ...parent.relationships.gisLayers.data
         ]
 
         children.forEach(child => {
@@ -910,18 +954,13 @@ const LayersStore = {
      * @return {function(*, *): *}
      */
     directChildren: state => (parentId, orderType) => {
-      let children = state.apiData.included.filter(current => {
-        const parentKey = (current.type === 'GisLayerCategory') ? 'parentId' : 'categoryId'
-        const isChild = current.attributes[parentKey] === parentId
+      const parent = parentId
+        ? state.apiData.included.filter(el => el.id === parentId)[0]
+        : state.apiData.data // Root
 
-        return isChild
-      })
-
-      if (children.length > 0) {
-        children = sortListByAttr(children, orderType, state.apiData)
-      }
-
-      return children
+      let children = [...parent.relationships?.categories?.data ?? [], ...parent.relationships?.gisLayers?.data ?? []]
+      children = children.map(child => state.apiData.included.filter(el => el.id === child.id)[0])
+      return sortListByAttr(children, orderType, state.apiData) || []
     },
 
     /**
@@ -1075,7 +1114,7 @@ const LayersStore = {
     /**
      * LocationPoint
      *
-     * @param data|Object {'elementId', 'attribute'}
+     * @param data|Object {'id', 'attribute'}
      * @returns mixed | depending on the attribute
      */
     attributeForElement: state => data => {
@@ -1094,6 +1133,48 @@ const LayersStore = {
       } else {
         return { id: '', attributes: { name: 'default' } }
       }
+    },
+
+    /**
+     * Get a list of all base layers in treeOrder sorted
+     *
+     * @param state
+     * @returns {Array|*[]}
+     */
+    treeBaseList: state => {
+      return getFlatChildren(state, 'base', 'treeOrder')
+    },
+
+    /**
+     * Get a list of the root level overlay layers and categories in treeOrder sorted
+     *
+     * @param state
+     * @returns {Array|*[]}
+     */
+    treeList: state => {
+      if (typeof state.apiData.included === 'undefined') return []
+
+      return getDirectChildren(state.list, state.apiData.data, 'treeOrder', 'overlay')
+    },
+
+    /**
+     * Get a list of all base layers in mapOrder sorted
+     *
+     * @param state
+     * @returns {Array|*[]}
+     */
+    mapBaseList: state => {
+      return getFlatChildren(state, 'base', 'mapOrder')
+    },
+
+    /**
+     * Get a list of all overlay layers in mapOrder sorted
+     *
+     * @param state
+     * @returns {Array|*[]}
+     */
+    mapList: state => {
+      return getFlatChildren(state, 'overlay', 'mapOrder')
     }
   }
 }
