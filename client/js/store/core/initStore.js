@@ -38,7 +38,7 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
   Vue.use(Vuex)
 
   const staticModules = { notify, ...storeModules }
-  const VuexApiRoutes = api1_0Routes.concat(generateApi2_0Routes(apiStoreModules))
+  const VuexApiRoutes = [...generateApi2_0Routes(apiStoreModules), ...api1_0Routes]
   // This should probably be replaced with an adapter to our existing routes
   const router = new StaticRouter(VuexApiRoutes)
 

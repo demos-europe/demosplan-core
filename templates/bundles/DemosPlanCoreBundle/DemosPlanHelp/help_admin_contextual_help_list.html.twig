@@ -48,7 +48,7 @@
                                 data-cy="selectAll"
                                 aria-label="{{ "markall"|trans }}"
                                 data-form-actions-check-all>
-                            <span class="hide-visually">
+                            <span class="sr-only">
                                 {{ "markall"|trans }}
                             </span>
                         </label>
@@ -81,7 +81,7 @@
                             <td>
                                 <a
                                     href="{{ path('dplan_contextual_help_edit',{'contextualHelpId': contextualHelp.ident|default()}) }}"
-                                    data-cy="contextualHelpItem">
+                                    data-cy="contextualHelpItem:{{ loop.index }}">
                                     {{  contextualHelp.key|default }}
                                 </a>
                             </td>
