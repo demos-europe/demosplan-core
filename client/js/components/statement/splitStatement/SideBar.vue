@@ -70,7 +70,8 @@
 
         <div
           v-if="tagTopics.length"
-          :class="['flex-1', 'mt-2', 'pr-1', { 'overflow-y-scroll': tagTopics.length > 8 }]">
+          :class="['flex-1', 'mt-2', 'pr-1', { 'overflow-y-scroll': tagTopics.length > 8 }]"
+          data-cy="tagTopicsContainer">
           <!-- categorized tags -->
           <tag-select
             v-for="(topic, idx) in tagTopics"
@@ -124,6 +125,7 @@
           v-model="selectedPlace"
           label="name"
           class="mb-1"
+          data-cy="selectedPlace"
           :allow-empty="false"
           :options="availablePlaces"
           :show-placeholder="false"
@@ -146,6 +148,7 @@
           v-model="selectedAssignee"
           label="name"
           class="mb-1"
+          data-cy="selectedAssignee"
           :allow-empty="false"
           :options="assignableUsers"
           :show-placeholder="false"
