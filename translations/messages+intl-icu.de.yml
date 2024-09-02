@@ -1399,8 +1399,8 @@ explanation.export.potentialAreas: "Es werden die Begründungen zu den Stellungn
 explanation.export.projectlogin: "Bitte melden Sie sich bei {projectName} an, um das Archiv herunterzuladen."
 explanation.export.original_statements.zip: |
     { hasSelectedElements, select,
-        true { Exportiert ausgewählte Originalstellungnahmen als ZIP-Archiv. }
-        other { Exportiert alle Originalstellungnahmen als ZIP-Archiv. }
+        true { Exportiert ausgewählte Originalstellungnahmen als einzelne PDF-Dateien in einem ZIP-Archiv. }
+        other { Exportiert alle Originalstellungnahmen als einzelne PDF-Dateien in einem ZIP-Archiv. }
     }
 explanation.export.statements: |
     {hasSelectedElements, select,
