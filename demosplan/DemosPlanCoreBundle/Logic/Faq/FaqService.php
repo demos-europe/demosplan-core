@@ -47,7 +47,7 @@ class FaqService extends CoreService
         private readonly FaqRepository $faqRepository,
         private readonly ManualListSorter $manualListSorter,
         private readonly PlatformFaqRepository $platformFaqRepository,
-        private readonly SortMethodFactory $sortMethodFactory
+        private readonly SortMethodFactory $sortMethodFactory,
     ) {
     }
 

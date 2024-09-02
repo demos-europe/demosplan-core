@@ -41,7 +41,7 @@ use Geocoder\Assert;
 final class SegmentCommentResourceType extends DplanResourceType
 {
     public function __construct(
-        protected readonly SegmentCommentRepository $segmentCommentRepository
+        protected readonly SegmentCommentRepository $segmentCommentRepository,
     ) {
     }
 

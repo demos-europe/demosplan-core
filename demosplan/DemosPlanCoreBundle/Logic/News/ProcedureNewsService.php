@@ -43,7 +43,7 @@ class ProcedureNewsService extends CoreService implements ProcedureNewsServiceIn
         FileService $fileService,
         private readonly ManualListSorter $manualListSorter,
         private readonly NewsRepository $newsRepository,
-        private readonly SortMethodFactory $sortMethodFactory
+        private readonly SortMethodFactory $sortMethodFactory,
     ) {
         $this->fileService = $fileService;
     }

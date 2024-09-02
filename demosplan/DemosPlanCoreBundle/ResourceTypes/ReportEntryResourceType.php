@@ -47,7 +47,7 @@ class ReportEntryResourceType extends DplanResourceType
 
     public function __construct(
         protected readonly UserHandler $userHandler,
-        ReportMessageConverter $messageConverter
+        ReportMessageConverter $messageConverter,
     ) {
         $this->messageConverter = $messageConverter;
     }

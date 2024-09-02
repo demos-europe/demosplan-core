@@ -101,7 +101,7 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
         StatementService $statementService,
         StatementCopier $statementCopier,
         private readonly TransactionService $transactionService,
-        protected readonly StatementDeleter $statementDeleter
+        protected readonly StatementDeleter $statementDeleter,
     ) {
         $this->assessmentTableServiceOutput = $assessmentTableServiceOutput;
         $this->conditionFactory = $conditionFactory;

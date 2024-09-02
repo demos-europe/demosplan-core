@@ -40,7 +40,7 @@ use Webmozart\Assert\Assert;
 final class SimilarStatementSubmitterResourceType extends DplanResourceType
 {
     public function __construct(
-        private readonly ProcedureRepository $procedureRepository
+        private readonly ProcedureRepository $procedureRepository,
     ) {
     }
 

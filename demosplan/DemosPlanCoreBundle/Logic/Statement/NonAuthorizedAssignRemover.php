@@ -44,7 +44,7 @@ class NonAuthorizedAssignRemover
         private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
         private readonly ProcedureService $procedureService,
         private readonly StatementRepository $statementRepository,
-        private readonly UserRepository $userRepository
+        private readonly UserRepository $userRepository,
     ) {
         $this->entityManager = $registry->getManager();
     }

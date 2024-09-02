@@ -40,7 +40,7 @@ use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\ToOneRelationshipConstructo
 class SignLanguageOverviewVideoResourceType extends DplanResourceType
 {
     public function __construct(
-        protected readonly VideoRepository $videoRepository
+        protected readonly VideoRepository $videoRepository,
     ) {
     }
 
