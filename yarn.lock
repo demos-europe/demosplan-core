@@ -9767,7 +9767,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"olcs@npm:^2.14.0":
+"olcs@npm:2.14.0, olcs@npm:^2.14.0":
   version: 2.14.0
   resolution: "olcs@npm:2.14.0"
   peerDependencies:
@@ -11807,6 +11807,7 @@ __metadata:
     mini-css-extract-plugin: "npm:^2.9.0"
     node-notifier: "npm:^10.0.1"
     ol: "npm:~7.5.1"
+    olcs: "npm:2.14.0"
     plyr: "npm:^3.7.8"
     portal-vue: "npm:^2.1.7"
     postcss: "npm:^8.4.32"
