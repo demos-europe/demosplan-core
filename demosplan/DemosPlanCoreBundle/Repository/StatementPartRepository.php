@@ -18,12 +18,14 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\Querying\Utilities\Reindexer;
 
 class StatementPartRepository extends FluentRepository
 {
     public function __construct(
         DqlConditionFactory $conditionFactory,
         ManagerRegistry $registry,
+        Reindexer $reindexer,
         private readonly StatementService $statementService,
         SortMethodFactory $sortMethodFactory,
         string $entityClass
@@ -31,6 +33,7 @@ class StatementPartRepository extends FluentRepository
         parent::__construct(
             $conditionFactory,
             $registry,
+            $reindexer,
             $sortMethodFactory,
             $entityClass
         );

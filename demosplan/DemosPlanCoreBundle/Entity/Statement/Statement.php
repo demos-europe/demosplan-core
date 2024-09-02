@@ -4175,4 +4175,11 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
         return $this;
     }
+
+    public function getParts(): ArrayCollection|array
+    {
+        return $this->parts;
+    }
+
+
 }

@@ -33,37 +33,29 @@ class StatementPartsUpdater
 // XPath to find dplan-segment elements
         $xpath = new DOMXPath($dom);
         // get segment by given segmentId
-        $segments = $xpath->query('//dplan-segment[data-segment-id]');
+        $segments = $xpath->query('//dplan-segment[@data-segment-id="ccd162af-fc9d-48f6-b739-76eca54a3156"]');
 
-        $statementParts = [];
+        if ($segments->length > 0) {
+            $segment = $segments->item(0);
 
-        foreach ($segments as $segment) {
-            $segmentId = $segment->getAttribute('data-segment-id');
+            // Update the data-tags attribute
+            $newTags = '[{"tag": "updated", "id": "new-tag-id", "topic": {"name": "New Topic", "id": "new-topic-id"}}]';
+            $segment->setAttribute('data-tags', $newTags);
 
-            // fill statement metadata to StatementPart
-            $part = new StatementPart();
-            $part->setId($segmentId)
-                #->setParagraph($statement->getParagraph())
-                #->setDocument($statement->getDocument())
-                #->setElement($statement->getElement())
-                #->setAssignee($statement->getAssignee())
-                ->setStatement($statement)
-                ->setExternId($statement->getExternId())
-                ->setText(trim($segment->nodeValue).'goness');
-
-
-            $traw = $segment->getAttribute('data-tags');
-            try {
-                $tags = Json::decodeToMatchingType(
-                    $traw
-                );
-            } catch (JsonException $e) {
-                $a = true;
+            // Update the inner HTML
+            $newContent = '<p><b>updated</b> content</p>';
+            $fragment = $dom->createDocumentFragment();
+            $fragment->appendXML($newContent);
+            while ($segment->hasChildNodes()) {
+                $segment->removeChild($segment->firstChild);
             }
+            $segment->appendChild($fragment);
 
-            $statementParts[] = $part;
-
-
+            // Save the updated XML
+            $saveXML = html_entity_decode($dom->saveXML());
+            $statement->setMemo($saveXML);
+        } else {
+            echo "Segment with the specified ID not found.";
         }
 
         return $this->statementService->updateStatementObject($statement);
