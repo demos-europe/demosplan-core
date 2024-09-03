@@ -1,369 +1,371 @@
 {#  map toolbar #}
 {% set mapAndCountyGroupEnabled = templateVars.statementFieldDefinitions|filter(el => el.name == 'mapAndCountyReference')[0].enabled == true|default(true) %}
 {% set isLocationEnabled = mapAndCountyGroupEnabled or procedureStatementPriorityArea %}
-<div class="{{ 'c-map__toolbar u-pr-0_5-lap-up u-mb-0_5-palm'|prefixClass }}">
+<div class="{{ 'c-map__toolbar'|prefixClass }}">
+    <div class="{{ 'c-map__toolbar-content u-mb-0_5-palm'|prefixClass }}">
 
-    {% if hasPermission('feature_new_statement') %}
+        {% if hasPermission('feature_new_statement') %}
 
-        {% block actionbox %}
-            <div class="{{ 'c-actionbox'|prefixClass }} {% if procedureStatementPriorityArea %}{{ 'c-actionbox--rounding'|prefixClass }}{% endif %}">
+            {% block actionbox %}
+                <div class="{{ 'c-actionbox'|prefixClass }} {% if procedureStatementPriorityArea %}{{ 'c-actionbox--rounding'|prefixClass }}{% endif %}">
 
-                <ul class="{{ 'layout--flush u-mb-0'|prefixClass }}">
-    {#                <li#}
-    {#                    class="{{ 'layout__item is-visible-actionbox-toggle js__toggleAnything'|prefixClass }} {{ procedureStatementPriorityArea ? 'u-1-of-3'|prefixClass : 'u-1-of-2'|prefixClass }}"#}
-    {#                    data-toggle="#statementAction"#}
-    {#                    data-toggle-container="{{ '.c-actionbox'|prefixClass }}"#}
-    {#                    data-toggle-property="{{ '.is-visible-actionbox'|prefixClass }}"#}
-    {#                    data-toggle-exclusive#}
-    {#                    data-statement-state-started>#}
-    {#                    <a class="{{ 'c-actionbox__toggle'|prefixClass }}" href="#statementAction" aria-label="{{ 'statement.new'|trans }}">#}
-    {#                        <i :class="activeStatement ? prefixClass('fa fa-commenting') : prefixClass('fa fa-comment')" aria-hidden="true"></i>#}
-    {#                    </a>#}
-    {#                </li><!--#}
-                    <li
-                        v-show="{{ isLocationEnabled }}"
-                        class="{{ 'layout__item'|prefixClass }} {{ procedureStatementPriorityArea ? 'u-1-of-3'|prefixClass : 'u-1-of-2'|prefixClass }}"
-                        :class="activeActionBoxTab === 'talk' ? prefixClass('is-visible-actionbox-toggle') : ''"
-                        @click.prevent="update({ key: 'activeActionBoxTab', val: 'talk' })">
-                        <a
-                            class="{{ 'c-actionbox__toggle'|prefixClass }}"
-                            data-cy="mapPublicParticipationDetail:statementAction"
-                            href="#statementAction"
-                            aria-label="{{ 'statement.new'|trans }}">
-                            <i :class="activeStatement ? prefixClass('fa fa-commenting') : prefixClass('fa fa-comment')" aria-hidden="true"></i>
-                        </a>
-                    </li><!--
+                    <ul class="{{ 'layout--flush u-mb-0'|prefixClass }}">
+        {#                <li#}
+        {#                    class="{{ 'layout__item is-visible-actionbox-toggle js__toggleAnything'|prefixClass }} {{ procedureStatementPriorityArea ? 'u-1-of-3'|prefixClass : 'u-1-of-2'|prefixClass }}"#}
+        {#                    data-toggle="#statementAction"#}
+        {#                    data-toggle-container="{{ '.c-actionbox'|prefixClass }}"#}
+        {#                    data-toggle-property="{{ '.is-visible-actionbox'|prefixClass }}"#}
+        {#                    data-toggle-exclusive#}
+        {#                    data-statement-state-started>#}
+        {#                    <a class="{{ 'c-actionbox__toggle'|prefixClass }}" href="#statementAction" aria-label="{{ 'statement.new'|trans }}">#}
+        {#                        <i :class="activeStatement ? prefixClass('fa fa-commenting') : prefixClass('fa fa-comment')" aria-hidden="true"></i>#}
+        {#                    </a>#}
+        {#                </li><!--#}
+                        <li
+                            v-show="{{ isLocationEnabled }}"
+                            class="{{ 'layout__item'|prefixClass }} {{ procedureStatementPriorityArea ? 'u-1-of-3'|prefixClass : 'u-1-of-2'|prefixClass }}"
+                            :class="activeActionBoxTab === 'talk' ? prefixClass('is-visible-actionbox-toggle') : ''"
+                            @click.prevent="update({ key: 'activeActionBoxTab', val: 'talk' })">
+                            <a
+                                class="{{ 'c-actionbox__toggle'|prefixClass }}"
+                                data-cy="mapPublicParticipationDetail:statementAction"
+                                href="#statementAction"
+                                aria-label="{{ 'statement.new'|trans }}">
+                                <i :class="activeStatement ? prefixClass('fa fa-commenting') : prefixClass('fa fa-comment')" aria-hidden="true"></i>
+                            </a>
+                        </li><!--
 
-                    {# display priority area selection tool tab, if enabled #}
-                    {% if procedureStatementPriorityArea %}
-    {#             --><li#}
-    {#                    class="{{ 'layout__item u-1-of-3 js__toggleAnything'|prefixClass }}"#}
-    {#                    data-toggle="#queryArea"#}
-    {#                    data-toggle-container="{{ '.c-actionbox'|prefixClass }}"#}
-    {#                    data-toggle-property="{{ '.is-visible-actionbox'|prefixClass }}"#}
-    {#                    data-toggle-exclusive>#}
-                 --><li
-                        class="{{ 'layout__item u-1-of-3'|prefixClass }}"
-    {#                    data-toggle="#queryArea"#}
-                        :class="activeActionBoxTab === 'priorityArea' ? prefixClass('is-visible-actionbox-toggle') : ''"
-                        @click.prevent="update({ key: 'activeActionBoxTab', val: 'priorityArea' })">
-                        <a
-                            class="{{ 'c-actionbox__toggle'|prefixClass }}"
-                            data-cy="mapPublicParticipationDetail:queryAreaButton"
-                            href="#queryAreaButton"
-                            aria-label="{{ 'statement.map.choose_priority_area'|trans}}">
-                            <i class="{{ 'fa fa-flag-o'|prefixClass }}" aria-hidden="true"></i></a>
-                    </li><!--
-                    {% endif %}
-
-    {#             --><li#}
-    {#                    class="{{ 'layout__item js__toggleAnything'|prefixClass }} {{ procedureStatementPriorityArea ? 'u-1-of-3'|prefixClass : 'u-1-of-2'|prefixClass }}"#}
-    {#                    data-toggle="#{{ hasPermission( 'feature_map_use_drawing_tools' ) ? 'drawTools' : 'markLocation' }}"#}
-    {#                    data-toggle-container="{{ '.c-actionbox'|prefixClass }}"#}
-    {#                    data-toggle-property="{{ '.is-visible-actionbox'|prefixClass }}"#}
-    {#                    data-toggle-exclusive>#}
-                 --><li
-                        v-show="{{ mapAndCountyGroupEnabled }}"
-                        class="{{ 'layout__item'|prefixClass }} {{ procedureStatementPriorityArea ? 'u-1-of-3'|prefixClass : 'u-1-of-2'|prefixClass }}"
-                        :class="activeActionBoxTab === 'draw' ? prefixClass('is-visible-actionbox-toggle') : ''"
-                        @click.prevent="update({ key: 'activeActionBoxTab', val: 'draw' })">
-                        <a
-                            class="{{ 'c-actionbox__toggle'|prefixClass }}"
-                            data-cy="mapPublicParticipationDetail:markLocationButton"
-                            href="#markLocationButton"
-                            aria-label="{{ "statement.map.draw_to_map"|trans }}" aria-describedby="statementMapDrawHint">
-                            <i class="{{ 'fa fa-map-marker'|prefixClass }}" aria-hidden="true"></i>
-                        </a>
-                    </li>
-                </ul>
-
-                <div class="{{ 'c-actionbox__panelwrapper u-pb-0 u-mb-0_5'|prefixClass }}">
-                    <div v-show="activeActionBoxTab === 'talk'" id="statementAction" class="{{ 'c-actionbox__panel'|prefixClass }}"
-                         :class="activeActionBoxTab === 'talk' ? prefixClass('is-visible-actionbox') : ''"
-                         data-statement-state-started>
-
-                        <a
-                            href="#publicStatementForm"
-                            id="statementModalButton"
-                            @click.stop.prevent="toggleStatementModal({})"
-                            class="{{ 'c-actionbox__title c-actionbox__title--button u-mb-0_5 is-active'|prefixClass }}"
-                            data-cy="publicStatementButton"
-                            aria-controls="statementModal"
-                            aria-describedby="statementActionDescriptionMap"
-                            role="button"
-                        >
-                            <template v-if="activeStatement">
-                                {{ 'statement.participate.resume'|trans }}
-                            </template>
-                            <template v-else>
-                                {{ 'statement.participate'|trans }}
-                            </template>
-                        </a>
-                        <p v-if="activeStatement === false" class="{{ 'c-actionbox__hint'|prefixClass }}">{{ 'statement.participate.hint'|trans|wysiwyg }}</p>
-                        <p class="{{ 'c-actionbox__hint'|prefixClass }}">{{ 'statement.participate.resume.hint'|trans }}</p>
-                    </div>
-
-                    {# display priority area selection tool, if enabled #}
-                    {% if procedureStatementPriorityArea %}
-
-                    <div
-                        v-show="activeActionBoxTab === 'priorityArea'"
-                        class="{{ 'c-actionbox__panel'|prefixClass }}"
-                        :class="{ 'is-visible-actionbox': activeActionBoxTab === 'priorityArea' }">
-
-                        <button
-                            type="button"
-                            class="{{ 'c-actionbox__title c-actionbox__title--button o-spinner is-active u-mb-0_5 js__statementForm'|prefixClass }}"
-                            data-statement-action="activateQueryAreaButton"
-                            id="queryAreaButton">
-                            {{  "statement.map.choose_priority_area"|trans }}
-                        </button>
-
-                        <p class="{{ 'c-actionbox__hint u-mr-palm'|prefixClass }}">{{ "statement.map.choose_priority_area_hint"|trans }}</p>
-
-                    </div>
-
-                    {% endif %}
-
-                    {# display drawing tools, if user can draw... #}
-                    {% if hasPermission( 'feature_map_use_drawing_tools' ) %}
-
-                    <div
-                        v-show="activeActionBoxTab === 'draw'"
-                        class="{{ 'c-actionbox__panel'|prefixClass }}"
-                        :class="activeActionBoxTab === 'draw' ? prefixClass('is-visible-actionbox') : ''">
-
-                        <div class="{{ 'show-lap-up'|prefixClass }}">
-
-                            <h2 class="{{ 'c-actionbox__title'|prefixClass }}">{{ "statement.map.draw"|trans }}</h2>
-
-                            <p class="{{ 'c-actionbox__hint'|prefixClass }}" id="statementMapDrawHint">{{ "statement.map.draw_hint"|trans }}</p>
-
-                            <div class="{{ 'layout--flush c-actionbox__tools u-mt-0_25'|prefixClass }}">
-                                <button
-                                    type="button"
-                                    class="{{ 'c-actionbox__tool btn--blank js__mapcontrol'|prefixClass }}"
-                                    data-cy="mapPublicParticipationDetail:drawMarkPlace"
-                                    id="markLocationButton"
-                                    aria-label="{{ "statement.map.draw.mark_place"|trans }}"
-                                    title="{{ "statement.map.draw.mark_place"|trans }}">
-                                    <i class="{{ 'fa fa-lg fa-map-marker'|prefixClass }}" aria-hidden="true"></i>
-                                </button><!--
-                             --><button
-                                    type="button"
-                                    id="drawPointButton"
-                                    class="{{ 'c-actionbox__tool btn--blank js__mapcontrol'|prefixClass }}"
-                                    data-cy="mapPublicParticipationDetail:drawMarkPoint"
-                                    aria-label="{{ "statement.map.draw.mark_point"|trans }}"
-                                    title="{{ "statement.map.draw.mark_point"|trans }}">
-                                    <i class="{{ 'fa fa-lg fa-pencil'|prefixClass }}" aria-hidden="true"></i>
-                                </button><!--
-                             --><button
-                                    type="button"
-                                    id="drawLineButton"
-                                    class="{{ 'c-actionbox__tool btn--blank js__mapcontrol'|prefixClass }}"
-                                    data-cy="mapPublicParticipationDetail:drawMarkLine"
-                                    aria-label="{{ "statement.map.draw.mark_line"|trans }}"
-                                    title="{{ "statement.map.draw.mark_line"|trans }}">
-                                    <i class="{{ 'fa fa-lg fa-minus'|prefixClass }}" aria-hidden="true"></i>
-                                </button><!--
-                             --><button
-                                    type="button"
-                                    id="drawPolygonButton"
-                                    class="{{ 'c-actionbox__tool btn--blank js__mapcontrol'|prefixClass }}"
-                                    data-cy="mapPublicParticipationDetail:drawMarkPolygon"
-                                    aria-label="{{ "statement.map.draw.mark_polygon"|trans }}"
-                                    title="{{ "statement.map.draw.mark_polygon"|trans }}">
-                                    <i class="{{ 'fa fa-lg fa-pencil-square-o'|prefixClass }}" aria-hidden="true"></i>
-                                </button><!--
-                             --><button
-                                    type="button"
-                                    id="clearDrawingButton"
-                                    class="{{ 'c-actionbox__tool btn--blank c-actionbox__tool--dimmed js__mapcontrol'|prefixClass }}"
-                                    data-cy="mapPublicParticipationDetail:drawDropAll"
-                                    aria-label="{{ "statement.map.draw.drop_all"|trans }}"
-                                    title="{{ "statement.map.draw.drop_all"|trans }}">
-                                    <i class="{{ 'fa fa-lg fa-eraser'|prefixClass }}" aria-hidden="true"></i>
-                                </button>
-                            </div>
-
-                            <button
-                                type="button"
-                                class="{{ 'c-actionbox__title--button u-mt-0_5 hidden'|prefixClass }}"
-                                id="saveStatementButton"
-                                title="{{ "statement.map.draw.no_drawing_warning"|trans }}">
-                                {{ "statement.map.draw_to_map"|trans }}
-                            </button>
-
-                        </div>
-
-                        {# show simple ui for mobile #}
-                        <div class="{{ 'hide-lap-up'|prefixClass }}">
-
-                            <button
-                                type="button"
-                                data-maptools-id="markLocationButtonResponsive"
-                                class="{{ 'c-actionbox__title c-actionbox__title--button is-active'|prefixClass }}">
-                                {{ "statement.map.draw.mark_place"|trans }}
-                            </button>
-
-                            <p class="{{ 'c-actionbox__hint u-mr-palm'|prefixClass }}">Aktivieren Sie diese Funktion und klicken Sie an einen beliebigen Punkt in der Karte, um den Ort zu Ihrer Stellungnahme zu speichern.</p>
-
-                        </div>
-
-                    </div>
-
-                    {% else %}
-
-                    <div
-                        v-show="activeActionBoxTab === 'draw'"
-                        class="{{ 'c-actionbox__panel'|prefixClass }}"
-                         :class="activeActionBoxTab === 'draw' ? prefixClass('is-visible-actionbox') : ''">
-
-                        {% if hasPermission('feature_map_use_location_relation') %}
-                            <button
-                                type="button"
-                                id="markLocationButton"
-                                class="{{ 'c-actionbox__title c-actionbox__title--button o-spinner u-mb-0_5 is-active'|prefixClass }}">
-                                {{ "statement.map.draw.mark_place"|trans }}
-                            </button>
-
-                            <p class="{{ 'c-actionbox__hint u-mb-0-palm u-mr-palm'|prefixClass }}">
-                                {{ "statement.map.draw.point_hint"|trans }}
-                            </p>
+                        {# display priority area selection tool tab, if enabled #}
+                        {% if procedureStatementPriorityArea %}
+        {#             --><li#}
+        {#                    class="{{ 'layout__item u-1-of-3 js__toggleAnything'|prefixClass }}"#}
+        {#                    data-toggle="#queryArea"#}
+        {#                    data-toggle-container="{{ '.c-actionbox'|prefixClass }}"#}
+        {#                    data-toggle-property="{{ '.is-visible-actionbox'|prefixClass }}"#}
+        {#                    data-toggle-exclusive>#}
+                     --><li
+                            class="{{ 'layout__item u-1-of-3'|prefixClass }}"
+        {#                    data-toggle="#queryArea"#}
+                            :class="activeActionBoxTab === 'priorityArea' ? prefixClass('is-visible-actionbox-toggle') : ''"
+                            @click.prevent="update({ key: 'activeActionBoxTab', val: 'priorityArea' })">
+                            <a
+                                class="{{ 'c-actionbox__toggle'|prefixClass }}"
+                                data-cy="mapPublicParticipationDetail:queryAreaButton"
+                                href="#queryAreaButton"
+                                aria-label="{{ 'statement.map.choose_priority_area'|trans}}">
+                                <i class="{{ 'fa fa-flag-o'|prefixClass }}" aria-hidden="true"></i></a>
+                        </li><!--
                         {% endif %}
 
-                        {% block login_link %}
-                            <p class="{{ 'c-actionbox__hint show-lap-up'|prefixClass }}">
-                                {{ 'statement.map.require_login'|trans({
-                                    class: 'c-actionbox__link'|prefixClass,
-                                    href: path(projectType == 'gateway' ? 'DemosPlan_misccontent_static_how_to_login' : 'DemosPlan_user_login_alternative')
-                                })|wysiwyg }}
-                            </p>
-                        {% endblock login_link %}
+        {#             --><li#}
+        {#                    class="{{ 'layout__item js__toggleAnything'|prefixClass }} {{ procedureStatementPriorityArea ? 'u-1-of-3'|prefixClass : 'u-1-of-2'|prefixClass }}"#}
+        {#                    data-toggle="#{{ hasPermission( 'feature_map_use_drawing_tools' ) ? 'drawTools' : 'markLocation' }}"#}
+        {#                    data-toggle-container="{{ '.c-actionbox'|prefixClass }}"#}
+        {#                    data-toggle-property="{{ '.is-visible-actionbox'|prefixClass }}"#}
+        {#                    data-toggle-exclusive>#}
+                     --><li
+                            v-show="{{ mapAndCountyGroupEnabled }}"
+                            class="{{ 'layout__item'|prefixClass }} {{ procedureStatementPriorityArea ? 'u-1-of-3'|prefixClass : 'u-1-of-2'|prefixClass }}"
+                            :class="activeActionBoxTab === 'draw' ? prefixClass('is-visible-actionbox-toggle') : ''"
+                            @click.prevent="update({ key: 'activeActionBoxTab', val: 'draw' })">
+                            <a
+                                class="{{ 'c-actionbox__toggle'|prefixClass }}"
+                                data-cy="mapPublicParticipationDetail:markLocationButton"
+                                href="#markLocationButton"
+                                aria-label="{{ "statement.map.draw_to_map"|trans }}" aria-describedby="statementMapDrawHint">
+                                <i class="{{ 'fa fa-map-marker'|prefixClass }}" aria-hidden="true"></i>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="{{ 'c-actionbox__panelwrapper u-pb-0'|prefixClass }}">
+                        <div v-show="activeActionBoxTab === 'talk'" id="statementAction" class="{{ 'c-actionbox__panel'|prefixClass }}"
+                             :class="activeActionBoxTab === 'talk' ? prefixClass('is-visible-actionbox') : ''"
+                             data-statement-state-started>
+
+                            <a
+                                href="#publicStatementForm"
+                                id="statementModalButton"
+                                @click.stop.prevent="toggleStatementModal({})"
+                                class="{{ 'c-actionbox__title c-actionbox__title--button u-mb-0_5 is-active'|prefixClass }}"
+                                data-cy="publicStatementButton"
+                                aria-controls="statementModal"
+                                aria-describedby="statementActionDescriptionMap"
+                                role="button"
+                            >
+                                <template v-if="activeStatement">
+                                    {{ 'statement.participate.resume'|trans }}
+                                </template>
+                                <template v-else>
+                                    {{ 'statement.participate'|trans }}
+                                </template>
+                            </a>
+                            <p v-if="activeStatement === false" class="{{ 'c-actionbox__hint'|prefixClass }}">{{ 'statement.participate.hint'|trans|wysiwyg }}</p>
+                            <p class="{{ 'c-actionbox__hint'|prefixClass }}">{{ 'statement.participate.resume.hint'|trans }}</p>
+                        </div>
+
+                        {# display priority area selection tool, if enabled #}
+                        {% if procedureStatementPriorityArea %}
+
+                        <div
+                            v-show="activeActionBoxTab === 'priorityArea'"
+                            class="{{ 'c-actionbox__panel'|prefixClass }}"
+                            :class="{ 'is-visible-actionbox': activeActionBoxTab === 'priorityArea' }">
+
+                            <button
+                                type="button"
+                                class="{{ 'c-actionbox__title c-actionbox__title--button o-spinner is-active u-mb-0_5 js__statementForm'|prefixClass }}"
+                                data-statement-action="activateQueryAreaButton"
+                                id="queryAreaButton">
+                                {{  "statement.map.choose_priority_area"|trans }}
+                            </button>
+
+                            <p class="{{ 'c-actionbox__hint u-mr-palm'|prefixClass }}">{{ "statement.map.choose_priority_area_hint"|trans }}</p>
+
+                        </div>
+
+                        {% endif %}
+
+                        {# display drawing tools, if user can draw... #}
+                        {% if hasPermission( 'feature_map_use_drawing_tools' ) %}
+
+                        <div
+                            v-show="activeActionBoxTab === 'draw'"
+                            class="{{ 'c-actionbox__panel'|prefixClass }}"
+                            :class="activeActionBoxTab === 'draw' ? prefixClass('is-visible-actionbox') : ''">
+
+                            <div class="{{ 'show-lap-up'|prefixClass }}">
+
+                                <h2 class="{{ 'c-actionbox__title'|prefixClass }}">{{ "statement.map.draw"|trans }}</h2>
+
+                                <p class="{{ 'c-actionbox__hint'|prefixClass }}" id="statementMapDrawHint">{{ "statement.map.draw_hint"|trans }}</p>
+
+                                <div class="{{ 'layout--flush c-actionbox__tools u-mt-0_25'|prefixClass }}">
+                                    <button
+                                        type="button"
+                                        class="{{ 'c-actionbox__tool btn--blank js__mapcontrol'|prefixClass }}"
+                                        data-cy="mapPublicParticipationDetail:drawMarkPlace"
+                                        id="markLocationButton"
+                                        aria-label="{{ "statement.map.draw.mark_place"|trans }}"
+                                        title="{{ "statement.map.draw.mark_place"|trans }}">
+                                        <i class="{{ 'fa fa-lg fa-map-marker'|prefixClass }}" aria-hidden="true"></i>
+                                    </button><!--
+                                 --><button
+                                        type="button"
+                                        id="drawPointButton"
+                                        class="{{ 'c-actionbox__tool btn--blank js__mapcontrol'|prefixClass }}"
+                                        data-cy="mapPublicParticipationDetail:drawMarkPoint"
+                                        aria-label="{{ "statement.map.draw.mark_point"|trans }}"
+                                        title="{{ "statement.map.draw.mark_point"|trans }}">
+                                        <i class="{{ 'fa fa-lg fa-pencil'|prefixClass }}" aria-hidden="true"></i>
+                                    </button><!--
+                                 --><button
+                                        type="button"
+                                        id="drawLineButton"
+                                        class="{{ 'c-actionbox__tool btn--blank js__mapcontrol'|prefixClass }}"
+                                        data-cy="mapPublicParticipationDetail:drawMarkLine"
+                                        aria-label="{{ "statement.map.draw.mark_line"|trans }}"
+                                        title="{{ "statement.map.draw.mark_line"|trans }}">
+                                        <i class="{{ 'fa fa-lg fa-minus'|prefixClass }}" aria-hidden="true"></i>
+                                    </button><!--
+                                 --><button
+                                        type="button"
+                                        id="drawPolygonButton"
+                                        class="{{ 'c-actionbox__tool btn--blank js__mapcontrol'|prefixClass }}"
+                                        data-cy="mapPublicParticipationDetail:drawMarkPolygon"
+                                        aria-label="{{ "statement.map.draw.mark_polygon"|trans }}"
+                                        title="{{ "statement.map.draw.mark_polygon"|trans }}">
+                                        <i class="{{ 'fa fa-lg fa-pencil-square-o'|prefixClass }}" aria-hidden="true"></i>
+                                    </button><!--
+                                 --><button
+                                        type="button"
+                                        id="clearDrawingButton"
+                                        class="{{ 'c-actionbox__tool btn--blank c-actionbox__tool--dimmed js__mapcontrol'|prefixClass }}"
+                                        data-cy="mapPublicParticipationDetail:drawDropAll"
+                                        aria-label="{{ "statement.map.draw.drop_all"|trans }}"
+                                        title="{{ "statement.map.draw.drop_all"|trans }}">
+                                        <i class="{{ 'fa fa-lg fa-eraser'|prefixClass }}" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    class="{{ 'c-actionbox__title--button u-mt-0_5 hidden'|prefixClass }}"
+                                    id="saveStatementButton"
+                                    title="{{ "statement.map.draw.no_drawing_warning"|trans }}">
+                                    {{ "statement.map.draw_to_map"|trans }}
+                                </button>
+
+                            </div>
+
+                            {# show simple ui for mobile #}
+                            <div class="{{ 'hide-lap-up'|prefixClass }}">
+
+                                <button
+                                    type="button"
+                                    data-maptools-id="markLocationButtonResponsive"
+                                    class="{{ 'c-actionbox__title c-actionbox__title--button is-active'|prefixClass }}">
+                                    {{ "statement.map.draw.mark_place"|trans }}
+                                </button>
+
+                                <p class="{{ 'c-actionbox__hint u-mr-palm'|prefixClass }}">Aktivieren Sie diese Funktion und klicken Sie an einen beliebigen Punkt in der Karte, um den Ort zu Ihrer Stellungnahme zu speichern.</p>
+
+                            </div>
+
+                        </div>
+
+                        {% else %}
+
+                        <div
+                            v-show="activeActionBoxTab === 'draw'"
+                            class="{{ 'c-actionbox__panel'|prefixClass }}"
+                             :class="activeActionBoxTab === 'draw' ? prefixClass('is-visible-actionbox') : ''">
+
+                            {% if hasPermission('feature_map_use_location_relation') %}
+                                <button
+                                    type="button"
+                                    id="markLocationButton"
+                                    class="{{ 'c-actionbox__title c-actionbox__title--button o-spinner u-mb-0_5 is-active'|prefixClass }}">
+                                    {{ "statement.map.draw.mark_place"|trans }}
+                                </button>
+
+                                <p class="{{ 'c-actionbox__hint u-mb-0-palm u-mr-palm'|prefixClass }}">
+                                    {{ "statement.map.draw.point_hint"|trans }}
+                                </p>
+                            {% endif %}
+
+                            {% block login_link %}
+                                <p class="{{ 'c-actionbox__hint show-lap-up'|prefixClass }}">
+                                    {{ 'statement.map.require_login'|trans({
+                                        class: 'c-actionbox__link'|prefixClass,
+                                        href: path(projectType == 'gateway' ? 'DemosPlan_misccontent_static_how_to_login' : 'DemosPlan_user_login_alternative')
+                                    })|wysiwyg }}
+                                </p>
+                            {% endblock login_link %}
+                        </div>
+
+                        {% endif %}
+
                     </div>
 
-                    {% endif %}
+                </div>
+            {% endblock actionbox %}
+        {% else %}
+
+            {% include '@DemosPlanCore/DemosPlanDocument/includes/actionbox.html.twig' with {
+                css_classes: ' u-mb'|prefixClass,
+                hide_buttons: true,
+                context: 'map'
+            } %}
+
+        {% endif %}
+
+        {# Are there any global layer pdfs defined (feature_map_use_plan_pdf)? #}
+        {% set display_legend_box = procedureSettings.planPDF|default|length > 0 %}
+        {% set planPdf = { pdf: procedureSettings.planPDF|default, hash: '', mimeType: '', size: '' } %}
+        {% if procedureSettings.planPDF|default|length > 0 %}
+            {% set planPdf = { pdf: procedureSettings.planPDF, hash: procedureSettings.planPDF|getFile('hash'), mimeType: procedureSettings.planPDF|getFile('mimeType'), size: procedureSettings.planPDF|getFile('size','MB') } %}
+        {% endif %}
+
+        {# Check whether there are layers with attached legend pdf files (feature_map_layer_legend_file) #}
+        {% set all_layers = templateVars.baselayers.gislayerlist|default([])|merge(templateVars.overlays.gislayerlist|default([])) %}
+        {% set filtered_legends = all_layers|filter(layer => '//' in layer.url and (layer.legend|default|getFile('size')|length > 0 or layer.legend|default|getFile('mimeType')|length > 0)) %}
+        {% set layers_with_legend_files = [] %}
+        {% for layer in filtered_legends %}
+            {% if layer.defaultVisibility == true %}
+                {# Transform object to be consumable by vue component #}
+                {% set layers_with_legend_files = layers_with_legend_files|merge([{
+                    name: layer.name,
+                    legend: {
+                        hash: layer.legend|getFile('hash'),
+                        mimeType: layer.legend|getFile('mimeType'),
+                        fileSize: layer.legend|getFile('size')
+                    }
+                }]) %}
+            {%  endif %}
+        {% endfor %}
+        {% if false == display_legend_box %}
+            {% set display_legend_box = layers_with_legend_files|length > 0 %}
+        {% endif %}
+
+        {# When fetching legends dynamically via getLegendGraphic, we need to display the box anyhow, as we cannot know, whether we have legends or not #}
+        {% if false == display_legend_box %}
+            {% set display_legend_box = hasPermission('feature_participation_area_procedure_detail_map_use_get_legend_graphic') %}
+        {% endif %}
+
+        {# Statement tools #}
+        {%  block toolbar %}
+            <ul class="{{ 'c-map__group'|prefixClass }} {% if procedureStatementPriorityArea %}{{ 'c-map__group--rounding'|prefixClass }}{% endif %}">
+
+                {# Display getFeatureInfo Tool only if set #}
+                {% if procedureSettings.featureInfoUrl|default|raw|length > 1 %}
+                    <li class="mt-2">
+                        <button
+                            type="button"
+                            id="criteriaButton"
+                            class="{{ 'c-map__tool-simple btn--blank o-link--default font-size-medium'|prefixClass }}"
+                            aria-label="{{ 'map.getfeatureinfo.label'|trans }} {{ "map.getfeatureinfo.description"|trans }}">
+                            <i class="{{ 'fa fa-lg fa-lightbulb-o u-mr-0_5'|prefixClass }}" aria-hidden="true"></i>
+                            {{ 'map.getfeatureinfo.label'|trans }}
+                        </button>
+                        {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
+                            cssClasses: 'float-right u-mt-0_25',
+                            helpText: "map.getfeatureinfo.description"|trans,
+                            omitCssPrefix: false
+                        } %}
+                    </li>
+                {% endif %}
+
+                {# Drawing of procedure #}
+                {% if hasPermission('feature_map_use_plan_draw_pdf') and procedureSettings.planDrawPDF|default != '' %}
+                    <li class="mt-2">
+                        <a
+                            class="{{ 'c-map__tool o-link--default'|prefixClass }}"
+                            target="_blank"
+                            rel="noopener"
+                            href="{{ path('core_file_procedure', { 'hash': procedureSettings.planDrawPDF|getFile('hash'), 'procedureId': procedure|default() }) }}"
+                            title="{{ 'drawing.download'|trans }} ({{ procedureSettings.planDrawPDF|getFile('mimeType') }} {{ procedureSettings.planDrawPDF|getFile('size','MB') }})">
+                            <i class="{{ 'fa fa-download'|prefixClass }}" aria-hidden="true"></i>
+                            {{ "drawing.download"|trans }}
+                        </a>
+                    </li>
+                {% endif %}
+
+            </ul>
+            {# / Statement tools #}
+
+            <div class="{{ 'layer-controls'|prefixClass }}">
+
+                {# Unfold handle #}
+                <dp-unfold-toolbar-control drag-target=".{{ 'c-map__toolbar'|prefixClass}}"></dp-unfold-toolbar-control>
+
+                <div class="{{ 'c-map__group bg-color--white'|prefixClass }}">
+
+                    {# Layers #}
+                    <dp-public-layer-list-wrapper :layer-groups-alternate-visibility="Boolean({{ procedureSettings.layerGroupsAlternateVisibility }})"></dp-public-layer-list-wrapper>
+
+                    {# Legends #}
+                    <dp-layer-legend
+                        v-show="Boolean({{ display_legend_box }})"
+                        :layers-with-legend-files="JSON.parse('{{ layers_with_legend_files|json_encode|e('js', 'utf-8') }}')"
+                        :plan-pdf="JSON.parse('{{ planPdf|json_encode|e('js', 'utf-8') }}')"
+                        procedure-id="{{ procedure|default('') }}">
+                    </dp-layer-legend>
+
+                    {# Zoom to extend, measure length + area #}
+                    <dp-map-tools></dp-map-tools>
+
+                    {# Add custom layer on the fly #}
+                    <dp-custom-layer
+                        :init-available-projections="JSON.parse('{{ templateVars.availableProjections|json_encode|e('js', 'utf-8') }}')">
+                    </dp-custom-layer>
 
                 </div>
-
             </div>
-        {% endblock actionbox %}
-    {% else %}
 
-        {% include '@DemosPlanCore/DemosPlanDocument/includes/actionbox.html.twig' with {
-            css_classes: ' u-mb'|prefixClass,
-            hide_buttons: true,
-            context: 'map'
-        } %}
+        {% endblock toolbar %}
 
-    {% endif %}
-
-    {# Are there any global layer pdfs defined (feature_map_use_plan_pdf)? #}
-    {% set display_legend_box = procedureSettings.planPDF|default|length > 0 %}
-    {% set planPdf = { pdf: procedureSettings.planPDF|default, hash: '', mimeType: '', size: '' } %}
-    {% if procedureSettings.planPDF|default|length > 0 %}
-        {% set planPdf = { pdf: procedureSettings.planPDF, hash: procedureSettings.planPDF|getFile('hash'), mimeType: procedureSettings.planPDF|getFile('mimeType'), size: procedureSettings.planPDF|getFile('size','MB') } %}
-    {% endif %}
-
-    {# Check whether there are layers with attached legend pdf files (feature_map_layer_legend_file) #}
-    {% set all_layers = templateVars.baselayers.gislayerlist|default([])|merge(templateVars.overlays.gislayerlist|default([])) %}
-    {% set filtered_legends = all_layers|filter(layer => '//' in layer.url and (layer.legend|default|getFile('size')|length > 0 or layer.legend|default|getFile('mimeType')|length > 0)) %}
-    {% set layers_with_legend_files = [] %}
-    {% for layer in filtered_legends %}
-        {% if layer.defaultVisibility == true %}
-            {# Transform object to be consumable by vue component #}
-            {% set layers_with_legend_files = layers_with_legend_files|merge([{
-                name: layer.name,
-                legend: {
-                    hash: layer.legend|getFile('hash'),
-                    mimeType: layer.legend|getFile('mimeType'),
-                    fileSize: layer.legend|getFile('size')
-                }
-            }]) %}
-        {%  endif %}
-    {% endfor %}
-    {% if false == display_legend_box %}
-        {% set display_legend_box = layers_with_legend_files|length > 0 %}
-    {% endif %}
-
-    {# When fetching legends dynamically via getLegendGraphic, we need to display the box anyhow, as we cannot know, whether we have legends or not #}
-    {% if false == display_legend_box %}
-        {% set display_legend_box = hasPermission('feature_participation_area_procedure_detail_map_use_get_legend_graphic') %}
-    {% endif %}
-
-    {# Statement tools #}
-    {%  block toolbar %}
-        <ul class="{{ 'c-map__group'|prefixClass }} {% if procedureStatementPriorityArea %}{{ 'c-map__group--rounding'|prefixClass }}{% endif %}">
-
-            {# Display getFeatureInfo Tool only if set #}
-            {% if procedureSettings.featureInfoUrl|default|raw|length > 1 %}
-                <li>
-                    <button
-                        type="button"
-                        id="criteriaButton"
-                        class="{{ 'c-map__tool-simple btn--blank o-link--default font-size-medium'|prefixClass }}"
-                        aria-label="{{ 'map.getfeatureinfo.label'|trans }} {{ "map.getfeatureinfo.description"|trans }}">
-                        <i class="{{ 'fa fa-lg fa-lightbulb-o u-mr-0_5'|prefixClass }}" aria-hidden="true"></i>
-                        {{ 'map.getfeatureinfo.label'|trans }}
-                    </button>
-                    {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                        cssClasses: 'float-right u-mt-0_25',
-                        helpText: "map.getfeatureinfo.description"|trans,
-                        omitCssPrefix: false
-                    } %}
-                </li>
-            {% endif %}
-
-            {# Drawing of procedure #}
-            {% if hasPermission('feature_map_use_plan_draw_pdf') and procedureSettings.planDrawPDF|default != '' %}
-                <li>
-                    <a
-                        class="{{ 'c-map__tool o-link--default'|prefixClass }}"
-                        target="_blank"
-                        rel="noopener"
-                        href="{{ path('core_file_procedure', { 'hash': procedureSettings.planDrawPDF|getFile('hash'), 'procedureId': procedure|default() }) }}"
-                        title="{{ 'drawing.download'|trans }} ({{ procedureSettings.planDrawPDF|getFile('mimeType') }} {{ procedureSettings.planDrawPDF|getFile('size','MB') }})">
-                        <i class="{{ 'fa fa-download'|prefixClass }}" aria-hidden="true"></i>
-                        {{ "drawing.download"|trans }}
-                    </a>
-                </li>
-            {% endif %}
-
-        </ul>
-        {# / Statement tools #}
-
-        <div class="{{ 'layer-controls'|prefixClass }}">
-
-            {# Unfold handle #}
-            <dp-unfold-toolbar-control drag-target=".{{ 'c-map__toolbar'|prefixClass}}"></dp-unfold-toolbar-control>
-
-            <div class="{{ 'c-map__group--bottom bg-color--white'|prefixClass }}">
-
-                {# Layers #}
-                <dp-public-layer-list-wrapper :layer-groups-alternate-visibility="Boolean({{ procedureSettings.layerGroupsAlternateVisibility }})"></dp-public-layer-list-wrapper>
-
-                {# Legends #}
-                <dp-layer-legend
-                    v-show="Boolean({{ display_legend_box }})"
-                    :layers-with-legend-files="JSON.parse('{{ layers_with_legend_files|json_encode|e('js', 'utf-8') }}')"
-                    :plan-pdf="JSON.parse('{{ planPdf|json_encode|e('js', 'utf-8') }}')"
-                    procedure-id="{{ procedure|default('') }}">
-                </dp-layer-legend>
-
-                {# Zoom to extend, measure length + area #}
-                <dp-map-tools></dp-map-tools>
-
-                {# Add custom layer on the fly #}
-                <dp-custom-layer
-                    :init-available-projections="JSON.parse('{{ templateVars.availableProjections|json_encode|e('js', 'utf-8') }}')">
-                </dp-custom-layer>
-
-            </div>
-        </div>
-
-    {% endblock toolbar %}
-
+    </div>
 </div>
 {% set draftStatement = templateVars.draftStatement|default('') %}
 

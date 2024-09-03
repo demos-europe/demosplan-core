@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
+use Psr\Log\LoggerInterface;
 use Stringable;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
@@ -18,8 +19,10 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
 {
     private readonly string $keycloakGroupRoleString;
 
-    public function __construct(ParameterBagInterface $parameterBag)
-    {
+    public function __construct(
+        private readonly LoggerInterface $logger,
+        ParameterBagInterface $parameterBag
+    ) {
         $this->keycloakGroupRoleString = $parameterBag->get('keycloak_group_role_string');
     }
 
@@ -59,9 +62,14 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
     private function mapCustomerRoles(array $groups): void
     {
         foreach ($groups as $group) {
+            $this->logger->info('Parse group: '.$group);
             $subGroups = explode('/', $group);
             if (str_contains($subGroups[1], $this->keycloakGroupRoleString)) {
                 $subdomain = strtolower(explode('-', $subGroups[2])[0]);
+                if (!array_key_exists(3, $subGroups)) {
+                    $this->logger->error('Group does not contain role', ['group' => $group, 'subgroups' => $subGroups]);
+                    continue;
+                }
                 $this->customerRoleRelations[$subdomain][] = $subGroups[3];
             }
         }

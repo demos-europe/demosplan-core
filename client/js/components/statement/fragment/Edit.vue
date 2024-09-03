@@ -28,7 +28,7 @@
     <!-- consideration advice, vote advice -->
     <fieldset class="layout__item u-1-of-2 u-pl-0">
       <legend
-        class="hide-visually"
+        class="sr-only"
         v-text="Translator.trans('fragment.voteAdvice')" />
       <template v-if="hasPermission('feature_statements_fragment_consideration_advice')">
         <label
@@ -83,7 +83,7 @@
     Complete reviewing fragment, assign back to planner
  --><fieldset class="layout__item u-1-of-2">
       <legend
-        class="hide-visually"
+        class="sr-only"
         v-text="Translator.trans('fragment.update.complete.button')" />
       <div
         v-if="hasPermission('feature_statements_fragment_update_complete')"
