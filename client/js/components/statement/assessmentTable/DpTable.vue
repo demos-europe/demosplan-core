@@ -73,7 +73,7 @@
       :key="`pager1_${pagination.current_page}_${pagination.count}`" />
 
     <!-- Export modal -->
-    <dp-export-modal
+    <export-modal
       v-if="hasPermission('feature_assessmenttable_export')"
       ref="exportModal"
       :current-table-sort="sort.value || ''"
@@ -241,7 +241,7 @@ import AssessmentTableFilter from '@DpJs/components/statement/assessmentTable/As
 import changeUrlforPager from './utils/changeUrlforPager'
 import { defineAsyncComponent } from 'vue'
 import DpAssessmentTableCard from '@DpJs/components/statement/assessmentTable/DpAssessmentTableCard'
-import DpExportModal from '@DpJs/components/statement/assessmentTable/DpExportModal'
+import ExportModal from '@DpJs/components/statement/assessmentTable/ExportModal'
 import { scrollTo } from 'vue-scrollto'
 
 /*
@@ -258,7 +258,7 @@ export default {
     AssignEntityModal: defineAsyncComponent(() => import(/* webpackChunkName: "assign-entity-modal" */ '@DpJs/components/statement/assessmentTable/AssignEntityModal')),
     ConsolidateModal: defineAsyncComponent(() => import(/* webpackChunkName: "consolidate-modal" */ '@DpJs/components/statement/assessmentTable/ConsolidateModal')),
     CopyStatementModal: defineAsyncComponent(() => import(/* webpackChunkName: "copy-statement-modal" */ '@DpJs/components/statement/assessmentTable/CopyStatementModal')),
-    DpExportModal,
+    ExportModal,
     DpLoading,
     DpMapModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-map-modal" */ '@DpJs/components/statement/assessmentTable/DpMapModal')),
     DpMoveStatementModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-move-statement-modal" */ '@DpJs/components/statement/assessmentTable/DpMoveStatementModal')),
