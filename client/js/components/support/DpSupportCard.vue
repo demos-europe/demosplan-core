@@ -32,7 +32,9 @@ All rights reserved
         <h4
           class="u-mt-0_75 font-semibold break-words"
           v-text="reachability.service" />
-        <p v-cleanhtml="reachability.officeHours" />
+        <div
+          class="c-styled-html"
+          v-cleanhtml="reachability.officeHours" />
         <span
           class="color--grey-light font-size-smaller break-words"
           v-text="reachability.exception" />
@@ -40,7 +42,7 @@ All rights reserved
       <div
         v-else
         v-cleanhtml="reachability.officeHours"
-        class="u-mt-0_75 lg:mt-2 break-words" />
+        class="u-mt-0_75 lg:mt-2 break-words c-styled-html" />
     </template>
   </section>
 </template>

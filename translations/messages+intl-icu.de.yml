@@ -1337,6 +1337,7 @@ error.update: "Fehler beim Speichern der Änderung"
 error.update.department: "Leider ist beim Aktualisieren der Abteilung ein Fehler aufgetreten."
 error.user.department_not_found: "Die ausgewählte Abteilung wurde nicht gefunden."
 error.user.invalidkey: "Der Bestätigungsschlüssel ist ungültig."
+error.user.login: "Ihre Email oder Passwort ist inkorrekt."
 error.user.login.exists: "Der gewählte Nutzendenname existiert bereits."
 warning.user.emailaddress.in_use: "Die gewählte E-Mail-Adresse „{emailAddress}“ wird bereits verwendet, geben Sie bitte eine andere E-Mail-Adresse ein oder melden Sie sich an."
 error.user.organisation_not_found: "Die ausgewählte Organisation wurde nicht gefunden."
@@ -1397,6 +1398,11 @@ explanation.export.disabled.viewMode: "Die Exporte mit Datensätzen sind in der 
 explanation.export.docx: "Es werden die Daten entsprechend der Auswahl in den Grundeinstellungen exportiert. Bei diesem Export werden ausschließlich Stellungnahmen exportiert."
 explanation.export.potentialAreas: "Es werden die Begründungen zu den Stellungnahmen mit Potenzialflächen exportiert."
 explanation.export.projectlogin: "Bitte melden Sie sich bei {projectName} an, um das Archiv herunterzuladen."
+explanation.export.original_statements.zip: |
+    { hasSelectedElements, select,
+        true { Exportiert ausgewählte Originalstellungnahmen als einzelne PDF-Dateien in einem ZIP-Archiv. }
+        other { Exportiert alle Originalstellungnahmen als einzelne PDF-Dateien in einem ZIP-Archiv. }
+    }
 explanation.export.statements: |
     {hasSelectedElements, select,
         true {Exportiert ausgewählte Stellungnahmen mit allen Daten als XLSX.}
@@ -1629,6 +1635,7 @@ feedbackto: "Rückmeldung an"
 field: "Feld"
 field.empty: "Feld leeren"
 field.required: "Pflichtfeld"
+field.selectionRequired: "Mindestens ein Feld muss ausgewählt werden."
 fields: "Felder"
 file: "Datei"
 file.add: "Datei hinzufügen"

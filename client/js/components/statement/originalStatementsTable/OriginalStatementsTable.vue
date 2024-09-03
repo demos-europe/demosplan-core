@@ -63,8 +63,9 @@
       @size-change="handleSizeChange"
       :key="`pager1_${pagination.current_page}_${pagination.count}`" />
 
-    <dp-export-modal
+    <export-modal
       v-if="hasPermission('feature_assessmenttable_export')"
+      :has-selected-elements="Object.keys(selectedElements).length > 0"
       :procedure-id="procedureId"
       :options="exportOptions"
       view="original_statements" />
@@ -143,7 +144,7 @@ import { DpLoading, DpPager } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import changeUrlforPager from '../assessmentTable/utils/changeUrlforPager'
 import { defineAsyncComponent } from 'vue'
-import DpExportModal from '@DpJs/components/statement/assessmentTable/DpExportModal'
+import ExportModal from '@DpJs/components/statement/assessmentTable/ExportModal'
 import OriginalStatementsTableItem from './OriginalStatementsTableItem'
 
 export default {
@@ -151,7 +152,7 @@ export default {
 
   components: {
     DpLoading,
-    DpExportModal,
+    ExportModal,
     DpInlineNotification: defineAsyncComponent(async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
       return DpInlineNotification
