@@ -27,10 +27,13 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ListLineWidth;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Exception;
+use Illuminate\Support\Collection;
 use LogicException;
 use Psr\Log\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
@@ -38,7 +41,6 @@ use ReflectionException;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Tightenco\Collect\Support\Collection;
 use Twig\Environment;
 
 class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
@@ -66,7 +68,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
         ServiceImporter $serviceImport,
         StatementHandler $statementHandler,
         TranslatorInterface $translator
-        ) {
+    ) {
         parent::__construct(
             $assessmentTableServiceOutput,
             $currentProcedureService,
@@ -113,7 +115,20 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             if (!array_key_exists('filters', $parameters) || !is_array($parameters['filters'])) {
                 $parameters['filters'] = [];
             }
-            $parameters = $this->addStatementsFromCurrentQueryHashToFilter($parameters, $procedureId, $original);
+            if (!array_key_exists('statementId', $parameters)) {
+                $parameters = $this->addStatementsFromCurrentQueryHashToFilter($parameters, $procedureId, $original);
+            } else {
+                /*
+                 * in case the key 'statementId' was set by the invoking
+                 * { @link AssessmentTableZipExporter::getAttachmentsOfStatements }
+                 * do not try to obtain the ids from session
+                 */
+                if (!array_key_exists('sort', $parameters)) {
+                    $parameters['sort'] = ToBy::createArray('submitDate', 'desc');
+                }
+                $parameters['items'] = [$parameters['statementId']];
+            }
+
             $fragmentIds = [];
             if (array_key_exists('items', $parameters) && 0 < (is_countable($parameters['items']) ? count($parameters['items']) : 0)) {
                 $parameters['filters']['id'] = [];
@@ -244,18 +259,23 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             // * Querformat: DemosPlanAssessmentTableBundle:DemosPlan:export_original.tex.twig
             // * Hochformat: DemosPlanAssessmentTableBundle:DemosPlan:export_original.tex.twig
             $fullTemplateName = '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/'.$templateName.'.tex.twig';
+
+            $templateVars['listwidth'] = $this->determineListLineWidth($template, $templateName, $original);
+
             $content = $this->twig->render(
                 $fullTemplateName,
                 [
-                    'templateVars' => $templateVars,
-                    'isOriginal'   => $original,
-                    'title'        => $title,
-                    'procedure'    => $procedure,
-                    'pdfLandscape' => 'landscape' === $template || 'landscapeWithFrags' === $template,
-                    'viewMode'     => AssessmentTableViewMode::DEFAULT_VIEW,
-                    'anonymous'    => $anonymous,
+                    'templateVars'  => $templateVars,
+                    'isOriginal'    => $original,
+                    'title'         => $title,
+                    'procedure'     => $procedure,
+                    'pdfLandscape'  => 'landscape' === $template || 'landscapeWithFrags' === $template,
+                    'viewMode'      => AssessmentTableViewMode::DEFAULT_VIEW,
+                    'anonymous'     => $anonymous,
+                    'newPagePerStn' => array_key_exists('newPagePerStn', $parameters) ? $parameters['newPagePerStn'] : false,
                 ]
             );
+
             $procedureName = $this
                 ->assessmentTableOutput
                 ->selectProcedureName(
@@ -327,6 +347,8 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
      */
     protected function collectStatementsOrFragments($statements, $statementsOnly, $filterSetHash, string $procedureId, bool $original, $selectedFragmentIds = []): Collection
     {
+        $filterSetReferenceSorting = [];
+
         if (true !== $original) {
             $filterSetStatements = $this->statementHandler->getResultsByFilterSetHash(
                 $filterSetHash,
@@ -552,5 +574,36 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
         $item['elementTitle'] = $tmpElementTitle;
 
         return $item;
+    }
+
+    private function determineListLineWidth(string $template, string $templateName, bool $original): int
+    {
+        $listLineWidth = ListLineWidth::VERTICAL_SPLIT_VIEW->value;
+        if ('portrait' === $template && 'export_original' === $templateName) {
+            $listLineWidth = ListLineWidth::VERTICAL_NOT_SPLIT_VIEW->value;
+        }
+        if ($this->isHorizontalSplitView($template, $templateName, $original)) {
+            $listLineWidth = ListLineWidth::HORIZONTAL_SPLIT_VIEW->value;
+        }
+        if ($this->isHorizontalNotSplitView($template, $templateName, $original)) {
+            $listLineWidth = ListLineWidth::HORIZONTAL_NOT_SPLIT_VIEW->value;
+        }
+
+        return $listLineWidth;
+    }
+
+    private function isHorizontalSplitView(string $template, string $templateName, bool $original): bool
+    {
+        return ('landscape' === $template && 'export' === $templateName)
+            || ('condensed' === $template && 'export_condensed' === $templateName && !$original)
+            || ('condensed' === $template && 'export_condensed_anonymous' === $templateName && !$original)
+            || ('landscape' === $template && 'export_anonymous' === $templateName && !$original)
+            || ('landscapeWithFrags' === $template && 'export_fragments_anonymous' === $templateName && !$original);
+    }
+
+    private function isHorizontalNotSplitView(string $template, string $templateName, bool $original): bool
+    {
+        return ('landscape' === $template && 'export_original' === $templateName)
+            || ('condensed' === $template && 'export_condensed' === $templateName && $original);
     }
 }

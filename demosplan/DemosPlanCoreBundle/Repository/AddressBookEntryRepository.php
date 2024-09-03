@@ -20,6 +20,9 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
 
+/**
+ * @template-extends CoreRepository<AddressBookEntry>
+ */
 class AddressBookEntryRepository extends CoreRepository implements ObjectInterface
 {
     /**
@@ -58,8 +61,6 @@ class AddressBookEntryRepository extends CoreRepository implements ObjectInterfa
      *
      * @param CoreEntity $entity
      *
-     * @return CoreEntity
-     *
      * @throws Exception
      */
     public function updateObject($entity): never
@@ -91,7 +92,7 @@ class AddressBookEntryRepository extends CoreRepository implements ObjectInterfa
      *
      * @param AddressBookEntry $toDelete
      *
-     *@throws EntityNotFoundException
+     * @throws EntityNotFoundException
      */
     public function deleteObject($toDelete): bool
     {

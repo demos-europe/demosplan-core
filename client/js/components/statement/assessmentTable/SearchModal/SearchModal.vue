@@ -27,7 +27,7 @@
         data-cy="searchAssessmentWordField"
         :placeholder="placeholder"
         v-model="searchString"
-        width="width-350"
+        width="w-12"
         :aria-label="Translator.trans('search.assessment.table')"
         @enter="submit" />
     </label>
@@ -55,6 +55,7 @@
           <dp-input
             id="searchterm2"
             name="search_word"
+            data-cy="searchModal:searchAssessmentTableAdvanced"
             :placeholder="Translator.trans('searchterm')"
             v-model="searchString"
             :aria-label="Translator.trans('search.assessment.table')"
@@ -81,10 +82,11 @@
           {{ Translator.trans('search.in') }}
         </h3>
 
-        <div class="max-height-300 width-100p align-top overflow-auto u-mb">
+        <div class="max-h-12 w-full align-top overflow-auto u-mb">
           <div class="layout--flush">
             <dp-checkbox
               v-for="checkbox in filterCheckBoxesItems"
+              :data-cy="`searchModal:${checkbox.id}`"
               :id="checkbox.id"
               :key="'checkbox_' + checkbox.id"
               v-model="checkbox.checked"
@@ -183,12 +185,14 @@
           <button
             class="btn btn--primary u-mr"
             type="button"
+            data-cy="searchModal:submitSearchAdvanced"
             @click="submit">
             {{ Translator.trans('apply') }}
           </button><!--
 
        --><button
             class="btn btn--secondary"
+            data-cy="searchModal:resetSearchAdvanced"
             @click.prevent="reset">
             {{ Translator.trans('reset') }}
           </button>
@@ -310,7 +314,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('filter', ['setCurrentSearch']),
+    ...mapMutations('Filter', ['setCurrentSearch']),
 
     toggleModal () {
       this.$refs.searchModal.toggle()

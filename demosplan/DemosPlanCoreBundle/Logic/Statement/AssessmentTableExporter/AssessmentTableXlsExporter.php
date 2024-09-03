@@ -41,8 +41,8 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     protected $serviceImport;
     /** @var SimpleSpreadsheetService */
     protected $simpleSpreadsheetService;
-    /** @var array */
-    private $supportedTypes = ['xls', 'xlsx'];
+
+    protected array $supportedTypes = ['xls', 'xlsx'];
 
     public function __construct(
         AssessmentHandler $assessmentHandler,
@@ -93,6 +93,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         );
 
         $statements = $outputResult->getStatements();
+        $statementIds = array_column($statements, 'id');
         $columnsDefinition = $this->selectFormat($parameters['exportType']);
 
         try {
@@ -107,7 +108,8 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
                 $this->translator->trans('considerationtable').'-%s.xlsx',
                 Carbon::now()->format('d-m-Y-H:i')
             ),
-            'writer'   => $objWriter,
+            'writer'       => $objWriter,
+            'statementIds' => $statementIds,
         ];
     }
 
@@ -185,15 +187,14 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
      */
     public function selectFormat(string $formatIdentifier): array
     {
-        $columnsDefinition = match ($formatIdentifier) {
-            'topicsAndTags'  => $this->createColumnsDefinitionForTopicsAndTags(),
-            'potentialAreas' => $this->createColumnsDefinitionForPotentialAreas(),
-            'statements'     => $this->createColumnsDefinitionForStatementsOrSegments(true),
-            'segments'       => $this->createColumnsDefinitionForStatementsOrSegments(false),
-            default          => $this->createColumnsDefinitionDefault(),
+        return match ($formatIdentifier) {
+            'topicsAndTags'             => $this->createColumnsDefinitionForTopicsAndTags(),
+            'potentialAreas'            => $this->createColumnsDefinitionForPotentialAreas(),
+            'statementsWithAttachments' => $this->createColumnsDefinitionForStatementAttachments(), // WithAttachments
+            'statements'                => $this->createColumnsDefinitionForStatementsOrSegments(true),
+            'segments'                  => $this->createColumnsDefinitionForStatementsOrSegments(false),
+            default                     => $this->createColumnsDefinitionDefault(),
         };
-
-        return $columnsDefinition;
     }
 
     /**
@@ -332,6 +333,21 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     }
 
     /**
+     * Creates an array with column definitions for statements
+     * and adds a column for attachments.
+     */
+    protected function createColumnsDefinitionForStatementAttachments(): array
+    {
+        $columnsDefinition = $this->createColumnsDefinitionForStatementsOrSegments(true);
+        $columnsDefinition[] =
+            $this->createColumnDefinition('statementAttachments', 'statement.attachments.reference');
+        $columnsDefinition[] =
+            $this->createColumnDefinition('statementOriginalAttachment', 'statement.original.attachment.reference');
+
+        return $columnsDefinition;
+    }
+
+    /**
      * Creates a definition for a column.
      */
     protected function createColumnDefinition(string $key, string $title, int $width = 20): array
@@ -423,7 +439,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
                 }
 
                 $formattedStatement[$attributeKey] =
-                    $this->editorService->handleObscureTags($formattedStatement[$attributeKey], $anonymous);
+                    $this->editorService->handleObscureTags((string) $formattedStatement[$attributeKey], $anonymous);
             }
 
             if (!$pushed) {
@@ -449,7 +465,8 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
                     $formattedStatement[$attributeKey] = $statementArray[$explodedParts[0]][$explodedParts[1]];
                     break;
                 case 3:
-                    $formattedStatement[$attributeKey] = $statementArray[$explodedParts[0]][$explodedParts[1]][$explodedParts[2]];
+                    $formattedStatement[$attributeKey] =
+                        $statementArray[$explodedParts[0]][$explodedParts[1]][$explodedParts[2]];
                     break;
                 default:
                     break;
@@ -462,6 +479,8 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
 
             if (in_array($attributeKey, ['text', 'recommendation'])) {
                 $formattedStatement[$attributeKey] = $htmlConverter->convert($formattedStatement[$attributeKey]);
+                $formattedStatement[$attributeKey] =
+                    str_replace('\_', '_', $formattedStatement[$attributeKey]);
             }
 
             if ('status' === $attributeKey) {

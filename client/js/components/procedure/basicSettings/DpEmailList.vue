@@ -11,6 +11,7 @@
   <div>
     <dp-editable-list
       :entries="emails"
+      :data-cy="dataCy !== '' ? `${dataCy}:emailList` : `emailList`"
       @reset="resetForm"
       @saveEntry="handleSubmit(itemIndex !== null ? itemIndex : 'new')"
       :translation-keys="translationKeys"
@@ -21,14 +22,14 @@
             type="email"
             :value="entry.mail"
             :name="formFieldName"
-            class="hide-visually">
+            class="sr-only">
         </span>
       </template>
 
       <template v-slot:form>
         <dp-input
           id="emailAddress"
-          data-cy="emailAddressList"
+          :data-cy="dataCy !== '' ? `${dataCy}:emailAddressInput` : `emailAddressInput`"
           :placeholder="Translator.trans('email.address')"
           type="email"
           v-model="formFields.mail"
@@ -55,6 +56,12 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+
+    dataCy: {
+      type: String,
+      required: false,
+      default: ''
     },
 
     initEmails: {

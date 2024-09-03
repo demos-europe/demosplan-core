@@ -56,6 +56,7 @@
         action="{{ path('DemosPlan_invite_unregistered_public_agency_email', {'procedureId': procedureId}) }}"
         method="post"
         data-dp-validate="inviteUnregisteredInstitution">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         <fieldset>
 
@@ -72,7 +73,10 @@
                         label: { text: 'subject'|trans },
                         control: {
                             name: 'r_emailTitle',
-                            value: procedure.settings.emailTitle|default('participation.invitation'|trans ~': ' ~ templateVars.procedure.name|default)
+                            value: procedure.settings.emailTitle|default('participation.invitation'|trans ~': ' ~ templateVars.procedure.name|default),
+                            attributes: [
+                                'data-cy=administrationMemberEmail:emailTitle'
+                            ]
                         },
                         type: 'text',
                         required: true
@@ -93,11 +97,13 @@
             <div class="{{ 'u-mb-0_75'|prefixClass }}">
                 <dp-label
                     for="r_emailText"
-                    text="{{ 'email.body'|trans }}">
+                    text="{{ 'email.body'|trans }}"
+                    tooltip="{{ 'explanation.unregistered.publicagency.email'|trans }}">
                 </dp-label>
                 <dp-editor
                     id="r_emailText"
                     ref="r_emailText"
+                    data-cy="administrationMemberEmail:emailText"
                     hidden-input="r_emailText"
                     required
                     :toolbar-items="{
@@ -105,28 +111,13 @@
                         linkButton: true
                     }"
                     value="{{ templateVars.emailText|default }}">
-                    <template v-slot:modal="modalProps">
-                        <dp-boiler-plate-modal
-                            ref="boilerPlateModal"
-                            boiler-plate-type="email"
-                            procedure-id="{{ procedureId }}"
-                            @insert="text => modalProps.handleInsertText(text)">
-                        </dp-boiler-plate-modal>
-                    </template>
-                    <template v-slot:button>
-                        <button
-                            class="{{ 'menubar__button'|prefixClass }}"
-                            type="button"
-                            v-tooltip="'{{ 'boilerplate.insert'|trans }}'"
-                            @click.stop="$refs.boilerPlateModal.toggleModal()">
-                            <i class="{{ 'fa fa-puzzle-piece'|prefixClass }}"></i>
-                        </button>
-                    </template>
+                    {% include '@DemosPlanCore/DemosPlanProcedure/includes/email_editor_boilerplate_modal.html.twig' %}
                 </dp-editor>
             </div>
 
             <a
                 class="btn btn--secondary text-left u-mt-0_5"
+                data-cy="administrationMemberEmail:back"
                 href="{{ path('DemosPlan_invite_unregistered_public_agency_list', {'procedureId': procedureId}) }}">
                 {{ "back"|trans }}
             </a>
@@ -134,6 +125,7 @@
             <div class="flow-root text-right inline float-right u-mt-0_5">
                 <button
                     class="btn btn--primary"
+                    data-cy="administrationMemberEmail:sendInvitationEmail"
                     type="submit"
                     name="sendEmail"
                     {% if selectedAddressBookEntries|length == 0 %}disabled{% endif %}>

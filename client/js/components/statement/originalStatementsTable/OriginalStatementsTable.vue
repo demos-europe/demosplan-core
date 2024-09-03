@@ -45,6 +45,10 @@
       type="hidden"
       name="r_limit"
       :value="pageSize">
+    <input
+      name="_token"
+      type="hidden"
+      :value="csrfToken">
 
     <dp-pager
       v-if="pagination.hasOwnProperty('current_page')"
@@ -59,8 +63,9 @@
       @size-change="handleSizeChange"
       :key="`pager1_${pagination.current_page}_${pagination.count}`" />
 
-    <dp-export-modal
+    <export-modal
       v-if="hasPermission('feature_assessmenttable_export')"
+      :has-selected-elements="Object.keys(selectedElements).length > 0"
       :procedure-id="procedureId"
       :options="exportOptions"
       view="original_statements" />
@@ -83,12 +88,12 @@
       v-else-if="Object.keys(statements).length"
       class="c-at-orig">
       <colgroup>
-        <col class="width-10p">
-        <col class="width-10p text-left">
+        <col class="w-[10%]">
+        <col class="w-[10%] text-left">
         <col
           span="3"
-          class="width-25p">
-        <col class="width-5p">
+          class="w-1/4">
+        <col class="w-[5%]">
       </colgroup>
       <thead class="c-at-orig__header">
         <tr>
@@ -138,7 +143,7 @@
 import { DpLoading, DpPager } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import changeUrlforPager from '../assessmentTable/utils/changeUrlforPager'
-import DpExportModal from '@DpJs/components/statement/assessmentTable/DpExportModal'
+import ExportModal from '@DpJs/components/statement/assessmentTable/ExportModal'
 import OriginalStatementsTableItem from './OriginalStatementsTableItem'
 
 export default {
@@ -146,7 +151,7 @@ export default {
 
   components: {
     DpLoading,
-    DpExportModal,
+    ExportModal,
     DpInlineNotification: async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
       return DpInlineNotification
@@ -157,6 +162,11 @@ export default {
   },
 
   props: {
+    csrfToken: {
+      type: String,
+      required: true
+    },
+
     exportOptions: {
       type: Object,
       required: false,
@@ -197,13 +207,13 @@ export default {
   },
 
   computed: {
-    ...mapState('statement', [
+    ...mapState('Statement', [
       'statements',
       'selectedElements',
       'pagination'
     ]),
 
-    ...mapGetters('statement', [
+    ...mapGetters('Statement', [
       'getSelectionStateById'
     ]),
 
@@ -213,11 +223,11 @@ export default {
   },
 
   methods: {
-    ...mapActions('assessmentTable', [
+    ...mapActions('AssessmentTable', [
       'applyBaseData'
     ]),
 
-    ...mapActions('statement', [
+    ...mapActions('Statement', [
       'addToSelectionAction',
       'getStatementAction',
       'removeFromSelectionAction',
@@ -225,12 +235,12 @@ export default {
       'setSelectionAction'
     ]),
 
-    ...mapMutations('statement', [
+    ...mapMutations('Statement', [
       'updatePagination',
       'updatePersistStatementSelection'
     ]),
 
-    ...mapMutations('assessmentTable', [
+    ...mapMutations('AssessmentTable', [
       'setProperty'
     ]),
 

@@ -29,7 +29,7 @@
           :label="Translator.trans('assign.for.editing')"
         >
           <dp-multiselect
-            class="width-300"
+            class="w-12"
             id="assignSegment"
             :disabled="!hasSegments"
             :options="assignableUsers"
@@ -44,7 +44,7 @@
           id="selectAssignPlaceAction"
           :label="Translator.trans('segments.bulk.edit.place.add')">
           <dp-multiselect
-            class="width-300"
+            class="w-12"
             id="assignPlace"
             :disabled="!hasPlaces"
             :options="places"
@@ -124,6 +124,7 @@
             }">
             <template v-slot:modal="modalProps">
               <dp-boiler-plate-modal
+                v-if="hasPermission('area_admin_boilerplates')"
                 ref="boilerPlateModal"
                 boiler-plate-type="consideration"
                 editor-id="recommendationText"
@@ -132,6 +133,7 @@
             </template>
             <template v-slot:button>
               <button
+                v-if="hasPermission('area_admin_boilerplates')"
                 :class="prefixClass('menubar__button')"
                 :disabled="!hasSegments"
                 type="button"
@@ -343,11 +345,11 @@ export default {
   },
 
   computed: {
-    ...mapState('tag', {
+    ...mapState('Tag', {
       tagsItems: 'items'
     }),
 
-    ...mapState('tagTopic', {
+    ...mapState('TagTopic', {
       tagTopicsItems: 'items'
     }),
 
@@ -453,10 +455,10 @@ export default {
   },
 
   methods: {
-    ...mapActions('tag', {
+    ...mapActions('Tag', {
       listTags: 'list'
     }),
-    ...mapActions('tagTopic', {
+    ...mapActions('TagTopic', {
       listTagTopics: 'list'
     }),
 
@@ -518,7 +520,15 @@ export default {
               id: assignableUser.id
             }
           })
+
+          // Add option to set unassigned to segments
+          this.assignableUsers.push({
+            name: Translator.trans('not.assigned'),
+            id: null
+          });
+
         })
+
     },
 
     fetchPlaces () {
@@ -544,7 +554,9 @@ export default {
     },
 
     openBoilerPlate () {
-      this.$refs.boilerPlateModal.toggleModal()
+      if (hasPermission('area_admin_boilerplates')) {
+        this.$refs.boilerPlateModal.toggleModal()
+      }
     },
 
     /**

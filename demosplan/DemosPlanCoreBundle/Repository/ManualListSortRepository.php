@@ -18,7 +18,10 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Exception;
 
-class ManualListSortRepository extends FluentRepository implements ImmutableArrayInterface
+/**
+ * @template-extends CoreRepository<ManualListSort>
+ */
+class ManualListSortRepository extends CoreRepository implements ImmutableArrayInterface
 {
     /**
      * Get Entity by Context.
@@ -151,9 +154,6 @@ class ManualListSortRepository extends FluentRepository implements ImmutableArra
         }
     }
 
-    /**
-     * @return CoreEntity|void
-     */
     public function add(array $data): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');

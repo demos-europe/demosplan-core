@@ -10,11 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 
+/**
+ * @template-extends FluentRepository<StatementFormDefinition>
+ */
 class StatementFormDefinitionRepository extends FluentRepository implements ObjectInterface
 {
     /**
@@ -61,7 +65,7 @@ class StatementFormDefinitionRepository extends FluentRepository implements Obje
     public function updateObject($statementFormDefinition): StatementFormDefinition
     {
         $this->getEntityManager()->persist($statementFormDefinition);
-        $this->getEntityManager()->flush($statementFormDefinition);
+        $this->getEntityManager()->flush();
 
         return $statementFormDefinition;
     }

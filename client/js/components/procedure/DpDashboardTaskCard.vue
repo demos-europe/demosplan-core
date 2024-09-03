@@ -5,11 +5,12 @@
       <span v-cleanhtml="Translator.trans('segments.assigned.now', { count: assignedSegmentCount })" />
     </div>
     <div
-      class="text--right u-mt"
+      class="text-right u-mt"
       v-if="assignedSegmentCount !== 0">
       <dp-button
+        data-cy="dashboardTaskCard:tasksView"
         :href="userFilteredSegmentUrl"
-        :text="Translator.trans('tasks.view')" />
+        :text="Translator.trans('tasks.view')"/>
     </div>
   </dp-card>
 </template>
@@ -72,7 +73,7 @@ export default {
 
     // Get count of segments assigned to the current user
     const segmentUrl = Routing.generate('api_resource_list', { resourceType: 'StatementSegment' })
-    dpApi.get(segmentUrl, { filter: filterQuery }, { serialize: true }).then(response => {
+    dpApi.get(segmentUrl, { filter: filterQuery }).then(response => {
       this.assignedSegmentCount = response.data.data.length
     })
 
@@ -85,7 +86,7 @@ export default {
      */
     dpApi.get(Routing.generate('dplan_segments_list', { procedureId: this.procedureId }))
       .then(response => {
-        const redirectUrl = response.request.responseURL
+        const redirectUrl = response.url
         const splitUrl = redirectUrl.split('/')
         const queryHash = splitUrl[splitUrl.length - 1]
         const filterData = {

@@ -163,7 +163,7 @@ class EntityContentChangeService extends CoreService
     /**
      * @param CoreEntity[]|Collection $coreEntities
      */
-    protected function mapToIds($coreEntities): \Tightenco\Collect\Support\Collection
+    protected function mapToIds($coreEntities): \Illuminate\Support\Collection
     {
         return collect($coreEntities)->map(fn (CoreEntity $item) => $item->getId());
     }
@@ -171,7 +171,7 @@ class EntityContentChangeService extends CoreService
     /**
      * @param CoreEntity[]|Collection $coreEntities
      */
-    protected function mapToContentChangeIdentifiers($coreEntities): \Tightenco\Collect\Support\Collection
+    protected function mapToContentChangeIdentifiers($coreEntities): \Illuminate\Support\Collection
     {
         return collect($coreEntities)->map(fn (CoreEntity $item) => $item->getEntityContentChangeIdentifier())->sort();
     }
@@ -898,8 +898,8 @@ class EntityContentChangeService extends CoreService
     {
         $flags = $user->getFlags();
 
-        return !(isset($flags[UserFlagKey::ASSIGNED_TASK_NOTIFICATION])
-            && (0 === $flags[UserFlagKey::ASSIGNED_TASK_NOTIFICATION] || false === $flags[UserFlagKey::ASSIGNED_TASK_NOTIFICATION]));
+        return !(isset($flags[UserFlagKey::ASSIGNED_TASK_NOTIFICATION->value])
+            && (0 === $flags[UserFlagKey::ASSIGNED_TASK_NOTIFICATION->value] || false === $flags[UserFlagKey::ASSIGNED_TASK_NOTIFICATION->value]));
     }
 
     private function sendUserAssignedTasksNotificationMail(array $mailData, User $user, int $mailCounter): int

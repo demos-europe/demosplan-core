@@ -27,7 +27,7 @@ use demosplan\DemosPlanCoreBundle\Services\OrgaLoader;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 use function str_replace;
 
@@ -86,9 +86,7 @@ class DefaultTwigVariablesService
                         return false;
                     }
                 )->flatMap(
-                    static function (ResolvablePermission $permission) {
-                        return [$permission->getName() => true];
-                    }
+                    static fn (ResolvablePermission $permission) => [$permission->getName() => true]
                 ));
         }
 

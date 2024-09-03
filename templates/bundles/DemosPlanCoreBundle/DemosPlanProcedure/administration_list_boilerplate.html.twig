@@ -12,6 +12,7 @@
         method="post"
         action="{{ path('DemosPlan_procedure_boilerplate_list', {'procedure': procedure}) }}">
         <input type="hidden" name="manualsort" value="">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         {# mark all #}
         <label class="u-mb-0 u-mh-0_75 inline-block">
@@ -55,11 +56,11 @@
 
         <table class="c-table o-toggle o-toggle--not-animated u-mb u-mt-0_5">
             <colgroup>
-                <col class="width-5p">
-                <col class="width-40p">
-                <col class="width-40p">
-                <col class="width-10p">
-                <col class="width-5p">
+                <col class="w-[5%]">
+                <col class="w-2/5">
+                <col class="w-2/5">
+                <col class="w-[10%]">
+                <col class="w-[5%]">
             </colgroup>
 
             <thead>
@@ -164,7 +165,7 @@
                             </i>
                         {% endif %}
                         <label
-                            class="lbl--text inline-block u-mb-0 o-hellip max-width-90p align-middle"
+                            class="lbl--text inline-block u-mb-0 o-hellip max-w-[90%] align-middle"
                             for="boilerplateGroupSelectAll:{{ boilerplateGroup.id|default }}">
                             {{ boilerplateGroup.title }}
                         </label>

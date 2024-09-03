@@ -52,20 +52,10 @@ final class MasterToebResourceType extends DplanResourceType
         return [];
     }
 
-    public function isReferencable(): bool
-    {
-        return true;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
-    }
-
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->filterable()->sortable()->readable(true)
+            $this->createIdentifier()->filterable()->sortable()->readable()
                 ->aliasedPath($this->ident),
         ];
     }

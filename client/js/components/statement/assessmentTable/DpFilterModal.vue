@@ -57,6 +57,7 @@
             v-if="userFilterSetSaveEnabled">
             <dp-multiselect
               id="userFilterSets"
+              data-cy="userFilterSets"
               v-model="selectedUserFilterSet"
               :custom-label="nameFromAttributes"
               :options="userFilterSets"
@@ -81,6 +82,7 @@
               <button
                 type="button"
                 class="btn btn--primary"
+                data-cy="loadUserFilterSet"
                 @click.prevent="loadUserFilterSet">
                 {{ Translator.trans('filter.saveFilterSet.load') }}
               </button>
@@ -156,6 +158,7 @@
             <button
               type="button"
               class="btn btn--secondary"
+              data-cy="filterReset"
               @click="reset"
               v-text="Translator.trans('filter.reset')" />
           </div>
@@ -268,13 +271,13 @@ export default {
   },
 
   computed: {
-    ...mapState('filter', {
+    ...mapState('Filter', {
       filterGroups: 'filterGroups',
       filterList: 'filterList',
       filterOptionsSelected: 'selectedOptions'
     }),
 
-    ...mapGetters('filter', {
+    ...mapGetters('Filter', {
       filterByType: 'filterByType',
       getFilterHash: 'userFilterSetFilterHash',
       userFilterSets: 'userFilterSets',
@@ -344,7 +347,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('filter', [
+    ...mapActions('Filter', [
       'getFilterListAction',
       'getFilterOptionsAction',
       'getUserFilterSetsAction',
@@ -352,11 +355,11 @@ export default {
       'updateBaseState'
     ]),
 
-    ...mapMutations('assessmentTable', [
+    ...mapMutations('AssessmentTable', [
       'setProperty'
     ]),
 
-    ...mapMutations('filter', [
+    ...mapMutations('Filter', [
       'loadAppliedFilterOptions',
       'loadSelectedFilterOptions',
       'resetSelectedOptions'

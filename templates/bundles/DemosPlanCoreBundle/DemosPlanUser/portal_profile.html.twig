@@ -1,5 +1,5 @@
 <form class="" method="post" action="{{ path('DemosPlan_user_edit') }}">
-
+    {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
     {# Gib einen Hinweis aus, wenn eine ungünstige Rollenkombination vorhanden ist. #}
     {% if templateVars.multiroleFP is defined %}
@@ -139,10 +139,12 @@ Therefor we want to hide it from the User #}
         </div>
     {% endif %}
 
-    <div class="{{ 'text-right space-inline-s'|prefixClass }}">
-        <input class="{{ 'btn btn--primary'|prefixClass }}" type="submit" value="{{ "save"|trans }}">
-        <input class="{{ 'btn btn--secondary'|prefixClass }}" type="reset" value="{{ "abort"|trans }}">
-    </div>
+    {% if hasPermission('feature_profile_editable') %}
+        <div class="{{ 'text-right space-inline-s'|prefixClass }}">
+            <input class="{{ 'btn btn--primary'|prefixClass }}" type="submit" value="{{ "save"|trans }}">
+            <input class="{{ 'btn btn--secondary'|prefixClass }}" type="reset" value="{{ "abort"|trans }}">
+        </div>
+    {% endif %}
 
 
 </form>

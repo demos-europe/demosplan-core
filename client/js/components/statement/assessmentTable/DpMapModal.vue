@@ -23,7 +23,7 @@
           :options="{
             autoSuggest: false,
             scaleSelect: false,
-            procedureExtent: false,
+            procedureExtent: true
           }">
           <template>
             <dp-ol-map-layer-vector

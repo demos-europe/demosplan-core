@@ -78,7 +78,7 @@ class ExportService
     protected $procedureOutput;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\News\ServiceOutput NewsOutput
+     * @var NewsOutput NewsOutput
      */
     protected $newsOutput;
 
@@ -220,7 +220,9 @@ class ExportService
                 $zip = $this->addTitlePageToZip($procedureId, $procedureName, $zip);
 
                 // Aktuelles
-                $zip = $this->addNewsToZip($procedureId, $procedureName, $zip);
+                if ($this->permissions->hasPermission('feature_procedure_export_include_current_news')) {
+                    $zip = $this->addNewsToZip($procedureId, $procedureName, $zip);
+                }
 
                 // Abwägungstabelle mit Namen
                 if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table')) {
@@ -484,8 +486,11 @@ class ExportService
         return $zip;
     }
 
-    public function addAssessmentTableOriginalToZip(string $procedureId, string $procedureName, ZipStream $zip): ZipStream
-    {
+    public function addAssessmentTableOriginalToZip(
+        string $procedureId,
+        string $procedureName,
+        ZipStream $zip
+    ): ZipStream {
         $rParams = [
             'filters' => ['original' => 'IS NULL'],
             'request' => ['limit' => 1_000_000],
@@ -806,9 +811,23 @@ class ExportService
         string $fileNamePrefix,
         Collection $attachments
     ): void {
-        collect($attachments)->filter(static fn (StatementAttachment $attachment): bool => StatementAttachment::SOURCE_STATEMENT === $attachment->getType())->map(fn (StatementAttachment $attachment): FileInfo => $this->fileService->getFileInfo($attachment->getFile()->getId()))->each(function (FileInfo $fileInfo) use ($fileFolderPath, $zip, $fileNamePrefix): void {
-            $this->zipExportService->addFileToZip($fileFolderPath, $fileInfo, $zip, $fileNamePrefix);
-        });
+        collect($attachments)
+            ->filter(
+                static fn (StatementAttachment $attachment): bool => StatementAttachment::SOURCE_STATEMENT === $attachment->getType()
+            )->map(
+                fn (StatementAttachment $attachment): FileInfo => $this->fileService->getFileInfo(
+                    $attachment->getFile()->getId()
+                )
+            )->each(
+                function (FileInfo $fileInfo) use ($fileFolderPath, $zip, $fileNamePrefix): void {
+                    $this->zipExportService->addFileToZip(
+                        $fileFolderPath,
+                        $fileInfo,
+                        $zip,
+                        $fileNamePrefix
+                    );
+                }
+            );
     }
 
     private function addDocxToZip(DocxExportResult $exportResult, ZipStream $zip, string $filename): void

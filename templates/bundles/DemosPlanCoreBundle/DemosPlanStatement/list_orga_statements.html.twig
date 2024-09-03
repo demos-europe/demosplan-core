@@ -35,7 +35,7 @@
         <table class="c-table">
             <colgroup>
                 <col>
-                <col class="width-20p">
+                <col class="w-1/5">
             </colgroup>
             <thead>
             <tr>
@@ -54,7 +54,7 @@
                         <td>
                             <a
                                 href="{{ path('DemosPlan_statement_single_view',{ 'procedureId': templateVars.procedureId|default, 'statementId': statement.id|default}) }}"
-                                data-cy="orgaStatementList">
+                                data-cy="orgaStatementList:{{ loop.index }}">
                                 {{ statement.externId }}
                             </a>
                         </td>

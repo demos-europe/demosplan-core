@@ -13,7 +13,7 @@ namespace Tests\Core\Core\Unit\Utilities\Twig;
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\DateExtension;
 use Tests\Base\UnitTestCase;
-use Twig_SimpleFilter;
+use Twig\TwigFilter;
 
 /**
  * Teste DateExtension
@@ -39,7 +39,7 @@ class DateExtensionTest extends UnitTestCase
     {
         $result = $this->twigExtension->getFilters();
         static::assertTrue(is_array($result) && isset($result[0]));
-        static::assertTrue($result[0] instanceof Twig_SimpleFilter);
+        static::assertTrue($result[0] instanceof TwigFilter);
         static::assertTrue('dplanDate' === $result[0]->getName());
     }
 

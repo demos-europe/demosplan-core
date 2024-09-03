@@ -5,7 +5,7 @@
 
 <table>
     <thead>
-        <tr class="hide-visually">
+        <tr class="sr-only">
             <th scope="col">{{ 'added.removed'|trans }}</th>
             <th scope="col">{{ 'changes'|trans }}</th>
         </tr>
@@ -17,7 +17,7 @@
                 {% if ('del' is same as(diff.tag)) %}
                     {% for line in diff.old.lines %}
                         <tr>
-                            <td class="width-20">-</td>
+                            <td class="w-3">-</td>
                             <td class="{{ deleted_light }}">
                                 <div class="u-mb-0_5">
                                     {{ line|wysiwyg(
@@ -30,7 +30,7 @@
                 {% elseif ('ins' is same as(diff.tag)) %}
                     {% for line in diff.new.lines %}
                         <tr>
-                            <td class="width-20">+</td>
+                            <td class="w-3">+</td>
                             <td class="{{ inserted_light }}">
                                 <div class="u-mb-0_5">
                                     {{ line|wysiwyg(
@@ -43,7 +43,7 @@
                 {% elseif ('rep' is same as(diff.tag)) %}
                     {% for line in diff.old.lines %}
                         <tr>
-                            <td class="width-20">-</td>
+                            <td class="w-3">-</td>
                             <td class="{{ deleted_light }}">
                                 <div class="u-mb-0_5">
                                     {{ line|wysiwyg(
@@ -55,7 +55,7 @@
                     {% endfor %}
                     {% for line in diff.new.lines %}
                         <tr>
-                            <td class="width-20">+</td>
+                            <td class="w-3">+</td>
                             <td class="{{ inserted_light }}">
                                 <div class="u-mb-0_5">
                                     {{ line|wysiwyg(

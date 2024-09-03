@@ -12,86 +12,49 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use DemosEurope\DemosplanAddon\Contracts\Events\AfterResourceCreationEventInterface;
-use DemosEurope\DemosplanAddon\Contracts\Events\AfterResourceUpdateEventInterface;
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableDqlResourceTypeInterface;
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
-use DemosEurope\DemosplanAddon\Logic\ResourceChange;
-use DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface;
-use demosplan\DemosPlanCoreBundle\Event\AfterResourceCreationEvent;
-use demosplan\DemosPlanCoreBundle\Event\AfterResourceDeletionEvent;
-use demosplan\DemosPlanCoreBundle\Event\AfterResourceUpdateEvent;
-use demosplan\DemosPlanCoreBundle\Event\BeforeResourceCreationEvent;
-use demosplan\DemosPlanCoreBundle\Event\BeforeResourceDeletionEvent;
-use demosplan\DemosPlanCoreBundle\Event\BeforeResourceUpdateEvent;
-use demosplan\DemosPlanCoreBundle\Event\BeforeResourceUpdateFlushEvent;
+use DemosEurope\DemosplanAddon\Contracts\ApiRequest\ApiListResultInterface;
+use DemosEurope\DemosplanAddon\Contracts\ApiRequest\JsonApiEsServiceInterface;
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
-use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
-use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Exception\PersistResourceException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\SearchParams;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use demosplan\DemosPlanCoreBundle\ValueObject\ApiListResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\APIPagination;
-use Doctrine\DBAL\ConnectionException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query\QueryException;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
-use EDT\JsonApi\RequestHandling\AbstractApiService;
-use EDT\JsonApi\RequestHandling\ApiListResultInterface;
-use EDT\JsonApi\RequestHandling\FilterParserInterface;
 use EDT\JsonApi\RequestHandling\JsonApiSortingParser;
-use EDT\JsonApi\RequestHandling\PaginatorFactory;
-use EDT\JsonApi\RequestHandling\PropertyValuesGenerator;
 use EDT\JsonApi\RequestHandling\UrlParameter;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
+use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
 use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Utilities\Iterables;
-use EDT\Wrapping\Contracts\TypeRetrievalAccessException;
-use EDT\Wrapping\Contracts\Types\TransferableTypeInterface;
-use Exception;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @template-extends AbstractApiService<ClauseFunctionInterface<bool>>
- */
-class JsonApiActionService extends AbstractApiService
+class JsonApiActionService
 {
     /**
      * @var EventDispatcherInterface
      */
     protected $eventDispatcher;
 
+    /**
+     * @param DrupalFilterParser<ClauseFunctionInterface<bool>> $filterParser
+     * @param JsonApiSortingParser<OrderBySortMethodInterface>  $sortingParser
+     */
     public function __construct(
-        FilterParserInterface $filterParser,
         TraceableEventDispatcher $eventDispatcher,
         private readonly JsonApiEsService $jsonApiEsService,
         private readonly JsonApiPaginationParser $paginationParser,
-        JsonApiSortingParser $sortingParser,
-        PaginatorFactory $paginatorFactory,
-        private readonly PermissionEvaluatorInterface $permissionEvaluator,
-        PrefilledResourceTypeProvider $typeProvider,
-        PropertyValuesGenerator $propertyValuesGenerator,
-        private readonly ResourcePersister $resourcePersister,
-        private readonly ResourceTypeService $resourceTypeService,
-        private readonly TransactionService $transactionService
+        private readonly DrupalFilterParser $filterParser,
+        private readonly JsonApiSortingParser $sortingParser
     ) {
-        parent::__construct(
-            $filterParser,
-            $sortingParser,
-            $paginatorFactory,
-            $propertyValuesGenerator,
-            $typeProvider
-        );
         $this->eventDispatcher = $eventDispatcher;
     }
 
@@ -103,17 +66,18 @@ class JsonApiActionService extends AbstractApiService
      * @throws UserNotFoundException
      */
     public function listObjects(
-        TransferableTypeInterface $type,
+        JsonApiResourceTypeInterface $type,
         array $conditions,
         array $sortMethods = [],
-        APIPagination $pagination = null
-    ): ApiListResult {
+        ?APIPagination $pagination = null
+    ): ApiListResultInterface {
         if (null === $pagination) {
-            $filteredEntities = $type->listEntities($conditions, $sortMethods);
+            $filteredEntities = $type->getEntities($conditions, $sortMethods);
 
             return new ApiListResult($filteredEntities, [], null);
         }
 
+        /** @var DemosPlanPaginator $paginator */
         $paginator = $type->getEntityPaginator($pagination, $conditions, $sortMethods);
 
         $entities = $paginator->getCurrentPageResults();
@@ -133,76 +97,12 @@ class JsonApiActionService extends AbstractApiService
         array $sortMethods = [],
         array $filterAsArray = [],
         bool $requireEntities = true,
-        APIPagination $pagination = null
+        ?APIPagination $pagination = null
     ): ApiListResult {
         // we do not need to apply any sorting here, because it needs to be applied later
         $entityIdentifiers = $type->listEntityIdentifiers($conditions, []);
 
         return $this->jsonApiEsService->getEsFilteredObjects($type, $entityIdentifiers, $searchParams, $filterAsArray, $requireEntities, $sortMethods, $pagination);
-    }
-
-    protected function getObject(ResourceTypeInterface $type, string $id): object
-    {
-        return $type->getEntityAsReadTarget($id);
-    }
-
-    protected function updateObject(ResourceTypeInterface $resourceType, string $resourceId, array $properties): ?object
-    {
-        if (!$resourceType instanceof UpdatableDqlResourceTypeInterface) {
-            throw new TypeRetrievalAccessException("Resource type is not updatable: {$resourceType::getName()}");
-        }
-
-        $entity = $resourceType->getEntityByTypeIdentifier($resourceId);
-
-        $preEvent = new BeforeResourceUpdateEvent($entity, $resourceType, $properties);
-        $this->eventDispatcher->dispatch($preEvent);
-
-        $resourceChange = $this->resourcePersister->updateBackingObjectWithEntity($resourceType, $entity, $properties);
-
-        $beforeResourceUpdateFlushEvent = new BeforeResourceUpdateFlushEvent($resourceChange);
-        $this->eventDispatcher->dispatch($beforeResourceUpdateFlushEvent);
-
-        $object = $this->persistResourceChange($resourceChange);
-
-        $postEvent = new AfterResourceUpdateEvent($resourceChange);
-        $this->eventDispatcher->dispatch($postEvent, AfterResourceUpdateEventInterface::class);
-
-        return $object;
-    }
-
-    public function createObject(ResourceTypeInterface $resourceType, array $properties): ?object
-    {
-        if (!$resourceType instanceof CreatableDqlResourceTypeInterface) {
-            throw new TypeRetrievalAccessException("Resource type is not creatable: {$resourceType::getName()}");
-        }
-
-        if (!$resourceType->isCreatable()) {
-            throw new BadRequestException("User is not allowed to create {$resourceType::getName()} resources.");
-        }
-
-        $initializableProperties = $resourceType->getInitializableProperties();
-        $this->resourceTypeService->checkWriteAccess($resourceType, $properties, $initializableProperties);
-        $requiredProperties = array_flip($resourceType->getPropertiesRequiredForCreation());
-        $this->resourceTypeService->checkRequiredProperties($resourceType, $properties, $requiredProperties);
-
-        $beforeCreationEvent = new BeforeResourceCreationEvent($resourceType, $properties);
-        $this->eventDispatcher->dispatch($beforeCreationEvent);
-
-        $resourceChange = $resourceType->createObject($properties);
-        // Currently we always create the ID in the backend, hence we must always return the object
-        // to the FE by invoking the following method.
-        $resourceChange->setUnrequestedChangesToTargetResource();
-        try {
-            $object = $this->persistResourceChange($resourceChange);
-        } catch (Exception $e) {
-            $resourceType->addCreationErrorMessage($properties);
-            throw new PersistResourceException($e->getMessage(), 0, $e);
-        }
-
-        $afterCreationEvent = new AfterResourceCreationEvent($resourceChange);
-        $this->eventDispatcher->dispatch($afterCreationEvent, AfterResourceCreationEventInterface::class);
-
-        return $object;
     }
 
     /**
@@ -225,7 +125,7 @@ class JsonApiActionService extends AbstractApiService
         array $sortMethods,
         ParameterBag $query
     ): ApiListResultInterface {
-        $searchParams = SearchParams::createOptional($query->get('search', []));
+        $searchParams = SearchParams::createOptional($query->get(JsonApiEsServiceInterface::SEARCH, []));
         $pagination = $this->getPagination($query);
 
         if (null === $searchParams) {
@@ -253,68 +153,29 @@ class JsonApiActionService extends AbstractApiService
         );
     }
 
-    /**
-     * Persist the entities in the given object in the database.
-     *
-     * @return object|null The original target of the update or creation request. null if the target
-     *                     object was persisted exactly as originally requested (i.e. no side effects done).
-     *
-     * @throws ORMException
-     * @throws OptimisticLockException
-     * @throws ConnectionException
-     */
-    public function persistResourceChange(ResourceChange $resourceChange): ?object
+    protected function getFilters(ParameterBag $query): array
     {
-        $this->transactionService->persistResourceChange($resourceChange);
-
-        return $resourceChange->getUnrequestedChangesToTargetResource()
-            ? $resourceChange->getTargetResource()
-            : null;
-    }
-
-    protected function deleteObject(ResourceTypeInterface $resourceType, string $resourceId): void
-    {
-        if (!$resourceType instanceof DeletableDqlResourceTypeInterface) {
-            throw new TypeRetrievalAccessException("Resource type is not deletable: {$resourceType::getName()}");
+        if (!$query->has(UrlParameter::FILTER)) {
+            return [];
         }
 
-        $this->assertDeletionPermissions($resourceType, $resourceId);
-        $entity = $resourceType->getEntityByTypeIdentifier($resourceId);
+        $filterParam = $query->get(UrlParameter::FILTER);
+        $filterParam = $this->filterParser->validateFilter($filterParam);
+        $conditions = $this->filterParser->parseFilter($filterParam);
+        $query->remove(UrlParameter::FILTER);
 
-        $beforeDeletionEvent = new BeforeResourceDeletionEvent($entity, $resourceType);
-        $this->eventDispatcher->dispatch($beforeDeletionEvent);
-
-        $resourceChange = $resourceType->delete($entity);
-        $this->persistResourceChange($resourceChange);
-
-        $afterDeletionEvent = new AfterResourceDeletionEvent($resourceType);
-        $this->eventDispatcher->dispatch($afterDeletionEvent);
+        return $conditions;
     }
 
     /**
-     * Assert that all permissions that are required to delete this resource are enabled.
-     *
-     * @param DeletableDqlResourceTypeInterface<object> $resourceType
-     * @param non-empty-string                          $resourceId
+     * @return list<OrderBySortMethodInterface>
      */
-    private function assertDeletionPermissions(DeletableDqlResourceTypeInterface $resourceType, string $resourceId): void
+    protected function getSorting(ParameterBag $query): array
     {
-        array_map(
-            function (string $permission) use ($resourceType, $resourceId): void {
-                try {
-                    $this->permissionEvaluator->requirePermission($permission);
-                } catch (AccessDeniedException $exception) {
-                    $message = "Can't delete resource with ID `$resourceId`. Deletion of `{$resourceType::getName()}` resources is not allowed, permission missing: $permission";
-                    throw new BadRequestException($message, 0, $exception);
-                }
-            },
-            $resourceType->getRequiredDeletionPermissions()
-        );
-    }
+        $sort = $query->get(UrlParameter::SORT);
+        $query->remove(UrlParameter::SORT);
 
-    protected function normalizeTypeName(string $typeName): string
-    {
-        return $typeName;
+        return $this->sortingParser->createFromQueryParamValue($sort);
     }
 
     protected function getPagination(ParameterBag $query): ?APIPagination

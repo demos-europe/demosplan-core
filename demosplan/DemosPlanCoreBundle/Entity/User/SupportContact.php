@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\SupportContactInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\SupportContactConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
@@ -26,7 +27,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\SupportContactRepository")
  */
 #[SupportContactConstraint]
-class SupportContact extends CoreEntity implements UuidEntityInterface
+class SupportContact extends CoreEntity implements UuidEntityInterface, SupportContactInterface
 {
     use TimestampableEntity;
 
@@ -38,9 +39,9 @@ class SupportContact extends CoreEntity implements UuidEntityInterface
      * authentication failure - or it can be of type customer to be shown under /informationen - or even without any
      * customer relation as type platform as a general support contact visible throughout all customers.
      */
-    public const SUPPORT_CONTACT_TYPE_DEFAULT = 'customer';
-    public const SUPPORT_CONTACT_TYPE_CUSTOMER_LOGIN = 'customerLogin';
-    public const SUPPORT_CONTACT_TYPE_PLATFORM = 'platform';
+    final public const SUPPORT_CONTACT_TYPE_DEFAULT = 'customer';
+    final public const SUPPORT_CONTACT_TYPE_CUSTOMER_LOGIN = 'customerLogin';
+    final public const SUPPORT_CONTACT_TYPE_PLATFORM = 'platform';
 
     /**
      * @ORM\Column(name="id", type="string", length=36, options={"fixed":true})
@@ -51,69 +52,48 @@ class SupportContact extends CoreEntity implements UuidEntityInterface
      *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
-    private ?string $id;
-
-    /**
-     * @ORM\Column(name="title", type="string", length=255, nullable=true)
-     */
-    #[Assert\NotBlank(allowNull: true)]
-    private ?string $title;
-
-    /**
-     * @ORM\Column(name="phone_number", type="string", length=255, nullable=true)
-     */
-    #[Assert\NotBlank(allowNull: true)]
-    private ?string $phoneNumber;
-
-    /**
-     * @ORM\Column(type="string", length=255, name="email_address", nullable=true)
-     */
-    #[Assert\Email(mode: 'strict')]
-    private ?string $eMailAddress;
-
-    /**
-     * @ORM\Column(name="text", type="text", nullable=true)
-     */
-    private ?string $text;
-
-    /**
-     * @ORM\Column(name="visible", type="boolean", options={"default":false})
-     */
-    private bool $visible = false;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer", inversedBy="contacts")
-     *
-     * @ORM\JoinColumn(name="customer", referencedColumnName="_c_id", nullable=true)
-     */
-    private ?Customer $customer;
-
-    /**
-     * @ORM\Column(name="type", type="string", length=255, nullable=false, options={"default":"customer"})
-     */
-    #[Assert\Choice(choices: [
-        SupportContact::SUPPORT_CONTACT_TYPE_DEFAULT,
-        SupportContact::SUPPORT_CONTACT_TYPE_CUSTOMER_LOGIN,
-        SupportContact::SUPPORT_CONTACT_TYPE_PLATFORM,
-    ], message: 'invalid support type')]
-    private readonly string $supportType;
+    private ?string $id = null;
 
     public function __construct(
-        string $supportType,
-        ?string $title,
-        ?string $phoneNumber,
-        ?string $emailAddress,
-        ?string $text,
-        ?Customer $customer,
-        bool $visible = false
+        /**
+         * @ORM\Column(name="type", type="string", length=255, nullable=false, options={"default":"customer"})
+         */
+        #[Assert\Choice(choices: [
+            SupportContact::SUPPORT_CONTACT_TYPE_DEFAULT,
+            SupportContact::SUPPORT_CONTACT_TYPE_CUSTOMER_LOGIN,
+            SupportContact::SUPPORT_CONTACT_TYPE_PLATFORM,
+        ], message: 'invalid support type')]
+        private readonly string $supportType,
+        /**
+         * @ORM\Column(name="title", type="string", length=255, nullable=true)
+         */
+        #[Assert\NotBlank(allowNull: true)]
+        private ?string $title,
+        /**
+         * @ORM\Column(name="phone_number", type="string", length=255, nullable=true)
+         */
+        #[Assert\NotBlank(allowNull: true)]
+        private ?string $phoneNumber,
+        /**
+         * @ORM\Column(type="string", length=255, name="email_address", nullable=true)
+         */
+        #[Assert\Email(mode: 'strict')]
+        private ?string $eMailAddress,
+        /**
+         * @ORM\Column(name="text", type="text", nullable=true)
+         */
+        private ?string $text,
+        /**
+         * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer", inversedBy="contacts")
+         *
+         * @ORM\JoinColumn(name="customer", referencedColumnName="_c_id", nullable=true)
+         */
+        private ?Customer $customer,
+        /**
+         * @ORM\Column(name="visible", type="boolean", options={"default":false})
+         */
+        private bool $visible = false
     ) {
-        $this->supportType = $supportType;
-        $this->title = $title;
-        $this->phoneNumber = $phoneNumber;
-        $this->eMailAddress = $emailAddress;
-        $this->text = $text;
-        $this->customer = $customer;
-        $this->visible = $visible;
     }
 
     public function getId(): ?string

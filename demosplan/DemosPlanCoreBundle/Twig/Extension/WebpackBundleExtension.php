@@ -11,12 +11,13 @@
 namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use GuzzleHttp\Exception\InvalidArgumentException;
 use RuntimeException;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 use Twig\TwigFunction;
 
 class WebpackBundleExtension extends ExtensionBase
@@ -43,6 +44,8 @@ class WebpackBundleExtension extends ExtensionBase
     /**
      * The webpack manifest.
      *
+     * This is the combination of `dplan.manifest.json` and `styles.manifest.json`.
+     *
      * @var array
      */
     protected $dplanManifest = [];
@@ -56,11 +59,24 @@ class WebpackBundleExtension extends ExtensionBase
 
     /**
      * Initially load manifests.
+     *
+     * @throws JsonException
      */
-    private function loadManifests()
+    private function loadManifests(): void
     {
-        $this->loadManifest('dplan');
-        $this->loadManifest('legacy');
+        $dplanManifest = $this->loadManifest('dplan');
+        $stylesManifest = $this->loadManifest('styles');
+
+        // Atm the styles manifest contains several js entries which would replace
+        // the $dplanManifest equivalents which leads to resolve errors in the frontend.
+        $cssIdentifier = '.css';
+        $trimmedStylesManifest = array_filter($stylesManifest, function ($key, $value) use ($cssIdentifier) {
+            return str_contains($key, $cssIdentifier) && str_contains($value, $cssIdentifier);
+        }, ARRAY_FILTER_USE_BOTH);
+
+        $this->dplanManifest = array_merge($dplanManifest, $trimmedStylesManifest);
+
+        $this->legacyManifest = $this->loadManifest('legacy');
     }
 
     private function areManifestsLoaded(): bool
@@ -99,7 +115,7 @@ class WebpackBundleExtension extends ExtensionBase
         $this->loadManifestsIfRequired();
 
         return collect($bundles)->map(
-            fn($bundleName) => $this->webpackBundle($bundleName, $legacy)
+            fn ($bundleName) => $this->webpackBundle($bundleName, $legacy)
         )
             ->implode("\n");
     }
@@ -176,7 +192,12 @@ class WebpackBundleExtension extends ExtensionBase
         return sprintf($tagTemplate, $this->formatBundlePath($bundleSrc), $dataBundle);
     }
 
-    protected function loadManifest(string $manifest): void
+    /**
+     * @return array<string,string> A webpack manifest
+     *
+     * @throws JsonException
+     */
+    protected function loadManifest(string $manifest): array
     {
         $manifestFile = DemosPlanPath::getProjectPath("web/{$manifest}.manifest.json");
 
@@ -201,10 +222,7 @@ ERR);
             }
         }
 
-        $manifestVar = "{$manifest}Manifest";
-        if (property_exists($this, $manifestVar)) {
-            $this->$manifestVar = $manifestArray;
-        }
+        return $manifestArray;
     }
 
     protected function getBundleAndRelatedChunkSplits(string $bundleName, string $manifest): Collection
@@ -212,10 +230,10 @@ ERR);
         return collect($this->$manifest)
             ->keys()
             ->filter(
-                static fn($possibleBundleName) => str_contains((string) $possibleBundleName, $bundleName)
+                static fn ($possibleBundleName) => str_contains((string) $possibleBundleName, $bundleName)
             )
             ->map(
-                fn($relatedBundleName) => $this->{$manifest}[$relatedBundleName]
+                fn ($relatedBundleName) => $this->{$manifest}[$relatedBundleName]
             );
     }
 

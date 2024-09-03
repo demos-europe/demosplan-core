@@ -28,6 +28,7 @@
     <div v-if="isEditing">
       <dp-editor
         ref="editor"
+        v-model="fullText"
         class="u-mb-0_5"
         :editor-id="editorId"
         :entity-id="entityId"
@@ -37,8 +38,7 @@
           mark: mark,
           obscure: obscure,
           strikethrough: strikethrough
-        }"
-        v-model="fullText">
+        }">
         <template v-slot:modal="modalProps">
           <dp-boiler-plate-modal
             v-if="boilerPlate"
@@ -255,7 +255,9 @@ export default {
 
   methods: {
     openBoilerPlate () {
-      this.$refs.boilerPlateModal.toggleModal()
+      if (hasPermission('area_admin_boilerplates')) {
+        this.$refs.boilerPlateModal.toggleModal()
+      }
     },
 
     reset () {
@@ -330,7 +332,9 @@ export default {
        *
        */
       dpApi.get(
-        Routing.generate(this.fullTextFetchRoute, { statementId: this.entityId }), params
+        Routing.generate(this.fullTextFetchRoute, { statementId: this.entityId }),
+        params,
+        { serialize: true }
       ).then(response => {
         this.fullTextLoaded = true
 

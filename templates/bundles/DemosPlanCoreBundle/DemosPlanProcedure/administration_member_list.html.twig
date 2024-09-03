@@ -17,6 +17,7 @@
         name="procedureForm"
         action="{{ path('DemosPlan_procedure_member_index',{'procedure': procedure}) }}"
         method="post">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         {% if templateVars.orgas is defined and templateVars.orgas|length > 0 %}
         <div class="flow-root">
@@ -70,7 +71,7 @@
             <a
                 class="btn btn--primary float-right"
                 href="{{ addMemberPath }}"
-                data-cy="addMemberPath">
+                data-cy="addPublicAgency">
                   {{ "invitable_institution.add"|trans }}
             </a>
         </div>
@@ -78,16 +79,16 @@
         <table class="u-mb u-mt-0_5 o-toggle o-toggle--not-animated border--top">
             <colgroup>
                 <col>
-                <col class="width-75p">
+                <col class="w-3/4">
                 {% if hasPermission('field_organisation_paper_copy_spec')%}
                     <col>
                 {% endif %}
                 {% if hasPermission('field_organisation_paper_copy')%}
-                    <col class="width-10p">
+                    <col class="w-[10%]">
                 {% endif %}
                 <col>
-                <col class="width-15p">
-                <col class="width-5p">
+                <col class="w-[15%]">
+                <col class="w-[5%]">
             </colgroup>
             <thead class="color--grey u-mt-0_5 u-mr-0_5">
                 <tr class="align-bottom">
@@ -111,10 +112,9 @@
                     </th>
                     <th class="u-pt-0_5 u-pl-0_5 u-pb-0_25 text-right">
                         {{ 'invitation'|trans }}
-                        <dp-tooltip-icon
-                            icon="fa-question-circle"
-                            text="{{ 'invitable_institutions.invitation.explanation'|trans }}"
-                        ></dp-tooltip-icon>
+                        <dp-contextual-help
+                            text="{{ 'invitable_institutions.invitation.explanation'|trans }}">
+                        </dp-contextual-help>
                     </th>
                 </tr>
             </thead>
@@ -138,7 +138,7 @@
             <a
                 class="btn btn--primary u-mb float-right"
                 href="{{ addMemberPath }}"
-                data-cy="addMemberPath">
+                data-cy="addPublicAgency">
                 {{ "invitable_institution.add"|trans }}
             </a>
         {% endif %}

@@ -12,18 +12,22 @@
                 {% set subscriptions = templateVars.subscriptions.result %}
             {% endif %}
 
-            <list-subscriptions :subscriptions="JSON.parse('{{ subscriptions|default([])|map(el => {
-                id: el.ident|default,
-                postalcode: el.postcode|default,
-                city: el.city|default,
-                radius: el.distance|default,
-                created: el.createdDate|default
-            })|json_encode|e('js', 'utf-8') }}')">
+            <list-subscriptions
+                :csrf-token="{{ csrf_token('csrf')|json_encode }}"
+                :subscriptions="JSON.parse('{{ subscriptions|default([])|map(el => {
+                    id: el.ident|default,
+                    postalcode: el.postcode|default,
+                    city: el.city|default,
+                    radius: el.distance|default,
+                    created: el.createdDate|default
+                })|json_encode|e('js', 'utf-8') }}')">
                 <form
                     class="u-nojs-show--block"
                     id="subscriptionForm"
                     action="{{ path('DemosPlan_procedure_list_subscriptions') }}"
                     method="post">
+                    {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
                     <h2 class="font-size-large u-mt-0_5">
                       {{ 'notification.create'|trans }}
                     </h2>
@@ -88,7 +92,7 @@
 
                         <table class="c-table">
                             <colgroup>
-                                <col class="width-40">
+                                <col class="w-6">
                                 <col>
                                 <col>
                                 <col>
@@ -98,7 +102,7 @@
                             <thead>
                                 <tr>
                                     <th>
-                                        <span class="hide-visually">
+                                        <span class="sr-only">
                                             {{ 'entries.checked'|trans }}
                                         </span>
                                     </th>

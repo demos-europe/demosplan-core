@@ -33,17 +33,17 @@ describe('Notify', () => {
 describe('Notify', () => {
   beforeEach(() => {
     StubStore = new Vuex.Store({})
-    StubStore.registerModule('notify', Notify)
+    StubStore.registerModule('Notify', Notify)
   })
 
   it('can add a message', () => {
-    expect(StubStore.state.notify.messages).toHaveLength(0)
-    StubStore.commit('notify/add', { text: 'Message Text' })
-    expect(StubStore.state.notify.messages).toHaveLength(1)
+    expect(StubStore.state.Notify.messages).toHaveLength(0)
+    StubStore.commit('Notify/add', { text: 'Message Text' })
+    expect(StubStore.state.Notify.messages).toHaveLength(1)
   })
 
   it('can remove a message', () => {
-    StubStore.commit('notify/remove', { uid: 1 })
-    expect(StubStore.state.notify.messages).toHaveLength(0)
+    StubStore.commit('Notify/remove', { uid: 1 })
+    expect(StubStore.state.Notify.messages).toHaveLength(0)
   })
 })

@@ -13,13 +13,12 @@ namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Exception;
-
-use function preg_quote;
-use function preg_replace;
-
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Twig\TwigFilter;
+
+use function preg_quote;
+use function preg_replace;
 
 /**
  * Wysiwyg-Editor.
@@ -31,100 +30,56 @@ class LatexExtension extends ExtensionBase
      */
     protected $fileService;
 
-    final public const HTMLTOREPLACE = [
-        '\\',
-        '{',
-        '}',
-        '[',
-        ']',
-        '<u>',
-        '<del>',
-        '<i>',
-        '<em>',
-        '<strong>',
-        '<b>',
-        '<ins>',
-        '</u>',
-        '</del>',
-        '</i>',
-        '</em>',
-        '</strong>',
-        '</b>',
-        '<ul>',
-        '</ul>',
-        '<ol>',
-        '</ol>',
-        '<li>',
-        '</li>',
-        '´',
-        '`',
-        '&',
-        '$',
-        '<span>',
-        '</span>',
-        "' ",
-        "'",
-        '&#039; ',
-        '&#039;',
-        '§',
-        '" ',
-        '"',
-        '#',
-        '_',
-        '€',
-        '%',
-        '^',
-        '█',
-        '­',
-        '</ins>',
-    ];
-
-    final public const REPLACEBYLATEX = [
-        '\textbackslash~',
-        '\{',
-        '\}',
-        '\lbrack~',
-        '\rbrack~',
-        '\uline{',
-        '\sout{',
-        '{\itshape ',
-        '{\itshape ',
-        '{\bfseries ',
-        '{\bfseries ',
-        '',
-        '}',
-        '}',
-        '}',
-        '}',
-        '}',
-        '}',
-        '\begin{itemize}[leftmargin=0.5cm,rightmargin=\dimexpr\linewidth-7cm-\leftmargin\relax]',
-        '\end{itemize}',
-        '\begin{enumerate}[leftmargin=0.5cm,rightmargin=\dimexpr\linewidth-7cm-\leftmargin\relax]',
-        '\end{enumerate}',
-        '\item ',
-        '',
-        '\textquoteright ',
-        '\textquoteleft ',
-        '\&',
-        '\$',
-        '',
-        '',
-        '\textquoteright~',
-        '\textquoteright ',
-        '\textquoteright~',
-        '\textquoteright ',
-        '\S~',
-        '\dq~',
-        '\dq ',
-        '\#',
-        '\_',
-        '\texteuro~',
-        '\%',
-        '\textasciicircum~',
-        '\ding{122}',
-        '\-',
-        '',
+    final public const HTML_TO_LATEX = [
+        '\\'                                   => '\textbackslash~',
+        '{'                                    => '\{',
+        '}'                                    => '\}',
+        '['                                    => '\lbrack~',
+        ']'                                    => '\rbrack~',
+        '<u>'                                  => '\uline{',
+        '</u>'                                 => '}',
+        '<del>'                                => '\sout{',
+        '</del>'                               => '}',
+        '<s>'                                  => '\sout{',
+        '</s>'                                 => '}',
+        '<mark title="markierter Text">'       => '\colorbox{yellow}{',
+        '</mark>'                              => '}',
+        '<i>'                                  => '{\itshape ',
+        '</i>'                                 => '}',
+        '<em>'                                 => '{\itshape ',
+        '</em>'                                => '}',
+        '<strong>'                             => '{\bfseries ',
+        '</strong>'                            => '}',
+        '<b>'                                  => '{\bfseries ',
+        '</b>'                                 => '}',
+        '<ins>'                                => '',
+        '</ul>'                                => '\end{itemize}',
+        '</ol>'                                => '\end{enumerate}',
+        '<li>'                                 => '\item ',
+        '</li>'                                => '',
+        '<dp-obscure>'                         => '\censor{',
+        '</dp-obscure>'                        => '}',
+        '´'                                    => '\textquoteright ',
+        '`'                                    => '\textquoteleft ',
+        '&'                                    => '\&',
+        '$'                                    => '\$',
+        '<span>'                               => '',
+        '</span>'                              => '',
+        "' "                                   => '\textquoteright~',
+        "'"                                    => '\textquoteright ',
+        '&#039; '                              => '\textquoteright~',
+        '&#039;'                               => '\textquoteright ',
+        '§'                                    => '\S~',
+        '" '                                   => '\dq~',
+        '"'                                    => '\dq ',
+        '#'                                    => '\#',
+        '_'                                    => '\_',
+        '€'                                    => '\texteuro~',
+        '%'                                    => '\%',
+        '^'                                    => '\textasciicircum~',
+        '█'                                    => '\ding{122}',
+        '­'                                    => '\-',
+        '</ins>'                               => '',
     ];
 
     public function __construct(ContainerInterface $container, FileService $serviceFile, private readonly LoggerInterface $logger)
@@ -141,7 +96,14 @@ class LatexExtension extends ExtensionBase
     public function getFilters(): array
     {
         return [
-            new TwigFilter('latex', $this->latexFilter(...)),
+            new TwigFilter(
+                'latex', function (
+                    $string,
+                    $listwidth = 7
+                ) {
+                    return $this->latexFilter($string, $listwidth);
+                }
+            ),
             new TwigFilter('nl2texnl', $this->latexNewlineFilter(...)),
             new TwigFilter('latexPrepareImage', $this->prepareImage(...)),
             new TwigFilter('htmlPrepareImage', $this->prepareHtmlImage(...)),
@@ -167,7 +129,7 @@ class LatexExtension extends ExtensionBase
      *
      * @throws Exception
      */
-    public function latexFilter($text)
+    public function latexFilter($text, int $listwidth = 7)
     {
         try {
             // return numeric values without conversion
@@ -237,7 +199,7 @@ class LatexExtension extends ExtensionBase
             // Alle anderen Tags beseitigen
             $text = strip_tags(
                 $text,
-                '<p><table><tr><td><tcs2><tcs><tcs3><tcs4><tcs5><tcs6><th><br><ol><strike><u><del><i><ol><ul><li><b><strong><em><span><ins>'
+                '<p><table><tr><td><tcs2><tcs><tcs3><tcs4><tcs5><tcs6><th><br><ol><strike><u><s><del><i><ol><ul><li><b><strong><em><span><ins><mark><dp-obscure>'
             );
 
             // remove <ins> title attribute
@@ -253,10 +215,15 @@ class LatexExtension extends ExtensionBase
             $text = str_replace("\r", '', $text);
 
             // Latex-Umbau
-            $text = str_replace(self::HTMLTOREPLACE, self::REPLACEBYLATEX, $text);
+            $text = str_replace(array_keys(self::HTML_TO_LATEX), self::HTML_TO_LATEX, $text);
             if (false !== stripos($text, '<table')) {
                 $text = $this->processTable($text);
             }
+            $htmlToLatexList = [
+                '<ul>'      => sprintf('\begin{itemize}[leftmargin=0.5cm,rightmargin=\dimexpr\linewidth-%scm-\leftmargin\relax]', $listwidth),
+                '<ol>'      => sprintf('\begin{enumerate}[leftmargin=0.5cm,rightmargin=\dimexpr\linewidth-%scm-\leftmargin\relax]', $listwidth),
+            ];
+            $text = str_replace(array_keys($htmlToLatexList), $htmlToLatexList, $text);
 
             // Replace found URLs with latex-style URLs
             $hitcount = 0;
@@ -309,8 +276,6 @@ class LatexExtension extends ExtensionBase
      * Process Table.
      *
      * @param string $text
-     *
-     * @return mixed
      */
     public function processTable($text)
     {
@@ -491,7 +456,7 @@ class LatexExtension extends ExtensionBase
             // build placeholderstring
             $currentImageTex = 'IMAGEPLACEHOLDER-';
 
-            preg_match('|src=[\\\'"](\/app_dev\.php)?\/file\/([\w-]*)[\\\'"]|', (string) $imageMatch, $src);
+            preg_match('|src=[\\\'"](\/app_dev\.php)?\/file\/([\w-]*[\/\w-]*)[\\\'"]|', (string) $imageMatch, $src);
             $currentImageTex .= $src[2] ?? '';
 
             // only add width and height if both are provided
@@ -567,7 +532,13 @@ class LatexExtension extends ExtensionBase
             // Wenn du ein oder mehrere Bilder gefunden hast gehe sie durch
             foreach ($imageMatches[1] as $matchKey => $match) {
                 $parts = explode('\&', $match);
-                $fileHash = $parts[0];
+                // if contains / explode
+                if(str_contains($parts[0], '/')) {
+                    $parts = explode('/', $parts[0]);
+                    $fileHash = $parts[1];
+                } else {
+                    $fileHash = $parts[0];
+                }
                 // Bestimme die Größe des Bildes
                 if (isset($parts[1]) && isset($parts[2])) {
                     $widthParts = explode('=', $parts[1]);
@@ -590,11 +561,11 @@ class LatexExtension extends ExtensionBase
 \\
 ';
                 // Ersetze die \ durch \\ im Regex
-                $pregReplacePatternFileinfo = '/'.str_replace(
+                $pregReplacePatternFileinfo = '|'.str_replace(
                     '\\',
                     '\\\\',
                     $imageMatches[0][$matchKey]
-                ).'IMAGEPLACEHOLDEREND/';
+                ).'IMAGEPLACEHOLDEREND|';
                 // Füge das Latexmarkup ein
                 $text = preg_replace(
                     $pregReplacePatternFileinfo,

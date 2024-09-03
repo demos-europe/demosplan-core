@@ -9,6 +9,7 @@
 
 import {
   DpAccordion,
+  DpContextualHelp,
   DpFlyout,
   DpObscure,
   dpValidateMultiselectDirective,
@@ -29,6 +30,7 @@ import loadSentry from './loadSentry'
 import NotificationStoreAdapter from '@DpJs/store/core/NotificationStoreAdapter'
 import NotifyContainer from '@DpJs/components/shared/NotifyContainer'
 import PortalVue from 'portal-vue'
+import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 import Vue from 'vue'
 import Vuex from 'vuex'
 
@@ -63,9 +65,11 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
         ...components,
         BackToTopButton,
         DpAccordion,
+        DpContextualHelp,
         DpFlyout,
         HamburgerMenuButton,
-        NotifyContainer
+        NotifyContainer,
+        RegisterFlyout
       },
       store: store,
       mounted () {

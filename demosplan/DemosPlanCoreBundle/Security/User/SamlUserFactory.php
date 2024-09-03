@@ -43,7 +43,7 @@ class SamlUserFactory implements SamlUserFactoryInterface
         if ($username instanceof SamlTokenInterface) {
             trigger_deprecation('hslavich/oneloginsaml-bundle', '2.1', 'Usage of %s is deprecated.', SamlTokenInterface::class);
 
-            [$username, $attributes] = [$username->getUsername(), $username->getAttributes()];
+            [$username, $attributes] = [$username->getUserIdentifier(), $username->getAttributes()];
         }
 
         // At this state the login attempt may be from different Identity Providers (IdP).
@@ -109,7 +109,8 @@ class SamlUserFactory implements SamlUserFactoryInterface
 
         $orga = $orgas[0] ?? null;
         if (!$orga instanceof Orga) {
-            throw new InvalidArgumentException('Could not find valid orga in SAML request', [$orgas]);
+            $this->logger->error('Could not find valid orga in Keycloak request', [$orgas]);
+            throw new InvalidArgumentException('Could not find valid orga in SAML request');
         }
 
         $orga = $this->updateOrgaWithKnownValues($orga, $attributes);
@@ -117,7 +118,7 @@ class SamlUserFactory implements SamlUserFactoryInterface
         $users = $orga->getUsers();
 
         // return the orga default user
-        $user = $users->filter(fn(User $user) => User::DEFAULT_ORGA_USER_NAME === $user->getLastname());
+        $user = $users->filter(fn (User $user) => User::DEFAULT_ORGA_USER_NAME === $user->getLastname());
 
         if (1 === $user->count()) {
             return $user->first();

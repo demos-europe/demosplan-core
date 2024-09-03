@@ -49,6 +49,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
@@ -105,8 +106,8 @@ class DemosPlanUserController extends BaseController
             }
         }
         // Kommune oder Planungsbüro
-        if (in_array(OrgaType::MUNICIPALITY, $orga->getTypes($subdomain), true) ||
-            in_array(OrgaType::PLANNING_AGENCY, $orga->getTypes($subdomain), true)) {
+        if (in_array(OrgaType::MUNICIPALITY, $orga->getTypes($subdomain), true)
+            || in_array(OrgaType::PLANNING_AGENCY, $orga->getTypes($subdomain), true)) {
             $this->getLogger()->info('Welcomepage is ', ['types' => $orga->getTypes($subdomain)]);
         }
 
@@ -207,16 +208,16 @@ class DemosPlanUserController extends BaseController
 
             // Update User
             $data = [
-                'email'                        => $user->getEmail(), // Pflichtfeld beim Update
-                'firstname'                    => $user->getFirstname(), // Pflichtfeld beim Update
-                'lastname'                     => $user->getLastname(), // Pflichtfeld beim Update
-                UserFlagKey::IS_NEW_USER       => false,
-                UserFlagKey::PROFILE_COMPLETED => true,
-                UserFlagKey::ACCESS_CONFIRMED  => true,
+                'email'                               => $user->getEmail(), // Pflichtfeld beim Update
+                'firstname'                           => $user->getFirstname(), // Pflichtfeld beim Update
+                'lastname'                            => $user->getLastname(), // Pflichtfeld beim Update
+                UserFlagKey::IS_NEW_USER->value       => false,
+                UserFlagKey::PROFILE_COMPLETED->value => true,
+                UserFlagKey::ACCESS_CONFIRMED->value  => true,
             ];
 
             if ($requestPost->has('newsletter')) {
-                $data[UserFlagKey::SUBSCRIBED_TO_NEWSLETTER] = 'on';
+                $data[UserFlagKey::SUBSCRIBED_TO_NEWSLETTER->value] = 'on';
             }
 
             $user = $userHandler->updateUser($user->getId(), $data);
@@ -348,13 +349,17 @@ class DemosPlanUserController extends BaseController
 
         // get User settings
         $templateVars['emailNotificationReleasedStatement'] = false;
+        // by default coordinator gets mails, if not explicitly denied
+        if ($user->hasRole(Role::PUBLIC_AGENCY_COORDINATION)) {
+            $templateVars['emailNotificationReleasedStatement'] = true;
+        }
 
         $settings = $contentService->getSettings(
             'emailNotificationReleasedStatement',
             SettingsFilter::whereUser($user)->lock(),
             false
         );
-        // by default coordinator gets mails, if not explicitly denied
+
         if (is_array($settings) && 1 === count($settings)) {
             $templateVars['emailNotificationReleasedStatement'] = $settings[0]->getContentBool();
         }
@@ -408,6 +413,7 @@ class DemosPlanUserController extends BaseController
     public function registerCitizenAction(
         CsrfTokenManagerInterface $csrfTokenManager,
         EventDispatcherPostInterface $eventDispatcherPost,
+        RateLimiterFactory $userRegisterLimiter,
         Request $request,
         TranslatorInterface $translator,
         UserHandler $userHandler
@@ -423,6 +429,14 @@ class DemosPlanUserController extends BaseController
                 $this->getMessageBag()->add('error', 'user.registration.fail');
 
                 return $this->redirectToRoute('DemosPlan_citizen_register');
+            }
+
+            // avoid brute force attacks
+            $limiter = $userRegisterLimiter->create($request->getClientIp());
+            if (false === $limiter->consume()->isAccepted()) {
+                $this->messageBag->add('warning', 'warning.user.register.throttle');
+
+                return $this->redirectToRoute('core_home');
             }
 
             $submittedToken = $request->request->get('_csrf_token');

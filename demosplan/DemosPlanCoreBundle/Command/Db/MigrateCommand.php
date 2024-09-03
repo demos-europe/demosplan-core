@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\Db;
 
+use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
@@ -52,6 +53,8 @@ class MigrateCommand extends CoreCommand
         $commands = [
             "dplan:migrations:cache --env={$env}",
             "doctrine:migrations:sync-metadata-storage {$db} --env={$env}",
+            // delete migration named "on" that was created by initial database creation
+            "doctrine:migrations:version on --delete {$db} --env={$env} ",
         ];
 
         $migrationsConfigurationPath = DemosPlanPath::getProjectPath('app/config/project_migrations.yml');
@@ -66,9 +69,11 @@ class MigrateCommand extends CoreCommand
 
         \collect($commands)->map(
             function (string $commandString) {
+                /** @var DemosPlanKernel $kernel */
+                $kernel = $this->getApplication()->getKernel();
                 $command = collect(sprintf(
                     'bin/%s',
-                    $this->getApplication()->getKernel()->getActiveProject(),
+                    $kernel->getActiveProject(),
                 ));
 
                 return $command

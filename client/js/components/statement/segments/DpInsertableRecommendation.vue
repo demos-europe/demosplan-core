@@ -12,7 +12,7 @@ All rights reserved
     <div class="flex flex-nowrap">
       <button
         :aria-label="Translator.trans('segment.recommendation.paste')"
-        v-tooltip="{ boundariesElement: body, content: Translator.trans('segment.recommendation.paste'), classes: 'u-z-super' }"
+        v-tooltip="{ boundariesElement: body, content: Translator.trans('segment.recommendation.paste'), classes: 'z-ultimate' }"
         class="btn--blank color--grey"
         @click="$emit('insert-recommendation')">
         <i
@@ -22,7 +22,7 @@ All rights reserved
     </div>
     <div
       v-if="fromOtherProcedure"
-      class="min-width-m">
+      class="min-w-4">
       <i
         v-tooltip="{
           boundariesElement: body,
@@ -36,7 +36,7 @@ All rights reserved
       v-if="isContentRec"
       class="flex flex-nowrap">
       <dp-badge
-        class="color--white border-radius-extra-large whitespace--nowrap bg-color--grey u-mt-0_125"
+        class="color--white rounded-full whitespace--nowrap bg-color--grey u-mt-0_125"
         size="smaller"
         :text="Translator.trans('segment.oracle.score', { score: recommendationScore })" />
     </div>
@@ -60,7 +60,7 @@ All rights reserved
 </template>
 
 <script>
-import { DpBadge, CleanHtml, Tooltip } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpBadge, Tooltip } from '@demos-europe/demosplan-ui'
 
 // This number is used to shorten long texts.
 const SHORT_TEXT_CHAR_LENGTH = 300
@@ -163,4 +163,3 @@ export default {
   }
 }
 </script>
-

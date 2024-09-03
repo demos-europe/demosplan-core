@@ -54,6 +54,11 @@ interface StatementSpreadsheetImporterInterface
     public function getGeneratedStatements(): array;
 
     /**
+     * @return array<non-empty-string, int<0, max>>
+     */
+    public function getSkippedStatements(): array;
+
+    /**
      * @return list<array{id: int, currentWorksheet: string, lineNumber: int, message: string}>
      */
     public function getErrorsAsArray(): array;

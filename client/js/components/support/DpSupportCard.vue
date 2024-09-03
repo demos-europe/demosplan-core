@@ -11,11 +11,11 @@ All rights reserved
   <section class="c-support__wrapper">
     <h4
       v-if="title"
-      class="u-mb-0_75 font-semibold font-size-large"
+      class="u-mb-0_75 font-semibold font-size-large break-words"
       v-text="title" />
     <a
       v-if="phoneNumber"
-      class="u-mt-0_25 inline-block font-semibold font-size-large color--black"
+      class="u-mt-0_25 inline-block font-semibold font-size-large color--black break-words"
       :href="`tel:${phoneNumber}`">
       <dp-icon
         class="inline-block"
@@ -23,22 +23,27 @@ All rights reserved
       {{ phoneNumber }}
     </a>
     <p
+      class="break-words"
       v-if="email"
       v-text="email" />
-    <div
-      v-if="reachability.service">
-      <h4
-        class="u-mt-0_75 font-semibold"
-        v-text="reachability.service" />
-      <p v-cleanhtml="reachability.officeHours" />
-      <span
-        class="color--grey-light font-size-smaller"
-        v-text="reachability.exception" />
-    </div>
-    <div
-      v-else
-      v-cleanhtml="reachability.officeHours"
-      class="u-mt-0_75 lg:mt-2" />
+    <template v-if="reachability.officeHours">
+      <div
+        v-if="reachability.service">
+        <h4
+          class="u-mt-0_75 font-semibold break-words"
+          v-text="reachability.service" />
+        <div
+          class="c-styled-html"
+          v-cleanhtml="reachability.officeHours" />
+        <span
+          class="color--grey-light font-size-smaller break-words"
+          v-text="reachability.exception" />
+      </div>
+      <div
+        v-else
+        v-cleanhtml="reachability.officeHours"
+        class="u-mt-0_75 lg:mt-2 break-words c-styled-html" />
+    </template>
   </section>
 </template>
 <script>

@@ -27,20 +27,23 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use Doctrine\ORM\NoResultException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\Querying\Utilities\Reindexer;
 use Exception;
+use Illuminate\Support\Collection;
 use LogicException;
 use RuntimeException;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\Cache\CacheInterface;
-use Tightenco\Collect\Support\Collection;
 
-class UserRepository extends FluentRepository implements ArrayInterface, ObjectInterface, PasswordUpgraderInterface
+/**
+ * @template-extends CoreRepository<User>
+ */
+class UserRepository extends CoreRepository implements ArrayInterface, ObjectInterface, PasswordUpgraderInterface
 {
     /**
      * Number of seconds to cache the login list in dev mode.
@@ -52,9 +55,10 @@ class UserRepository extends FluentRepository implements ArrayInterface, ObjectI
         DqlConditionFactory $dqlConditionFactory,
         ManagerRegistry $registry,
         SortMethodFactory $sortMethodFactory,
+        Reindexer $reindexer,
         string $entityClass
     ) {
-        parent::__construct($dqlConditionFactory, $registry, $sortMethodFactory, $entityClass);
+        parent::__construct($dqlConditionFactory, $registry, $reindexer, $sortMethodFactory, $entityClass);
     }
 
     /**
@@ -304,23 +308,23 @@ class UserRepository extends FluentRepository implements ArrayInterface, ObjectI
 
     protected function generateObjectValuesForUserFlagFields(User $user, array $data)
     {
-        $userFlagFields = collect(UserFlagKey::values());
+        $userFlagFields = collect(UserFlagKey::cases());
 
         $userFlagFields->each(
             static function (UserFlagKey $userFlagKey) use ($user, $data) {
-                if (array_key_exists($userFlagKey->getValue(), $data)) {
-                    $fieldSetterMethod = sprintf('set%s', ucfirst($userFlagKey->getValue()));
+                if (array_key_exists($userFlagKey->value, $data)) {
+                    $fieldSetterMethod = sprintf('set%s', ucfirst($userFlagKey->value));
 
                     // todo: change this field name so that we can use setEntityFlagField...
-                    if (UserFlagKey::ACCESS_CONFIRMED === $userFlagKey->getValue()) {
+                    if (UserFlagKey::ACCESS_CONFIRMED->value === $userFlagKey->value) {
                         $fieldSetterMethod = 'setAccessConfirmed';
                     }
 
                     if (!method_exists($user, $fieldSetterMethod)) {
-                        throw new LogicException("Cannot set field value on unknown field {$userFlagKey->getValue()}");
+                        throw new LogicException("Cannot set field value on unknown field {$userFlagKey->value}");
                     }
 
-                    $user->$fieldSetterMethod((int) $data[$userFlagKey->getValue()]);
+                    $user->$fieldSetterMethod((int) $data[$userFlagKey->value]);
                 }
             }
         );
@@ -421,8 +425,6 @@ class UserRepository extends FluentRepository implements ArrayInterface, ObjectI
      *
      * **User deletion is not yet supported**, instead use `UserRepository::wipe()`
      * to clear personally identifiable information from users.
-     *
-     * @return bool
      */
     public function delete($userId): never
     {
@@ -436,8 +438,6 @@ class UserRepository extends FluentRepository implements ArrayInterface, ObjectI
      * to clear personally identifiable information from users.
      *
      * @param CoreEntity $entity
-     *
-     * @return bool
      */
     public function deleteObject($entity): never
     {
@@ -461,7 +461,7 @@ class UserRepository extends FluentRepository implements ArrayInterface, ObjectI
             /** @var User $user */
             $user = $this->find($userId);
 
-//          wipeData:
+            //          wipeData:
             $user->setGender(null);
             $user->setTitle(null);
             $user->setFirstname(null);
@@ -534,7 +534,7 @@ class UserRepository extends FluentRepository implements ArrayInterface, ObjectI
     /**
      * @param User $user
      */
-    public function upgradePassword(UserInterface $user, string $newHashedPassword): void
+    public function upgradePassword(UserInterface|PasswordAuthenticatedUserInterface $user, string $newHashedPassword): void
     {
         // set the new encoded password on the User object
         $user->setPassword($newHashedPassword);

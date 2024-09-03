@@ -15,6 +15,7 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PreNewProcedureCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\ProcedureServiceStorageInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -32,7 +33,6 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ArrayHelper;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\LegacyFlashMessageCreator;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedureReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
@@ -95,7 +95,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         private readonly LoggerInterface $logger,
         private readonly LegacyFlashMessageCreator $legacyFlashMessageCreator,
         private readonly MasterTemplateService $masterTemplateService,
-        private readonly MessageBag $messageBag,
+        private readonly MessageBagInterface $messageBag,
         private readonly NotificationReceiverRepository $notificationReceiverRepository,
         private readonly OrgaService $orgaService,
         private readonly PermissionsInterface $permissions,
@@ -156,8 +156,8 @@ class ServiceStorage implements ProcedureServiceStorageInterface
 
         // check for mandatory fields which should be programmatically added
         $mandatoryFields = ['orgaId', 'orgaName', 'r_copymaster'];
-        if (array_key_exists('r_copymaster', $data) &&
-            $this->masterTemplateService->getMasterTemplateId() !== $data['r_copymaster']) {
+        if (array_key_exists('r_copymaster', $data)
+            && $this->masterTemplateService->getMasterTemplateId() !== $data['r_copymaster']) {
             // r_procedure_type is only required if an actual procedure is created,
             // procedure blueprints do not need a procedure type.
             if (!array_key_exists('r_master', $data) || 'true' !== $data['r_master']) {
@@ -194,16 +194,6 @@ class ServiceStorage implements ProcedureServiceStorageInterface
                     ]
                 ),
             ];
-        }
-
-        // check if an MMPB is already existing for customer in case of customer is set
-        if (array_key_exists('customer', $data)
-            && $data['customer'] instanceof Customer
-            && $this->procedureService->isCustomerMasterBlueprintExisting($data['customer']->getId())
-        ) {
-            $this->messageBag->add(
-                'warning', 'customer.master.blueprint.already.exists',
-                ['customerName' => $data['customer']->getName()]);
         }
 
         if (array_key_exists('r_name', $data)) {
@@ -354,25 +344,38 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             }
         }
 
+        $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'phase_iteration');
+        $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'public_participation_phase_iteration');
+        $phaseIterationError = $this->validatePhaseIterations($procedure);
+        if (count($phaseIterationError) > 0) {
+            $mandatoryErrors[] = $phaseIterationError;
+        }
+
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'ident');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'name');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'shortUrl');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'oldSlug');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'desc');
 
-        // T15644: in case of deselected customer master blue print, the key 'r_customerMasterBlueprint' will be missing:
+        $currentCustomer = $this->customerService->getCurrentCustomer();
+        $isMasterTemplate = $this->masterTemplateService->getMasterTemplate()->getId() === $currentProcedure->getId();
+        // do not set a customer for the masterTemplate
         $procedure['customer'] = null;
-        if (array_key_exists('r_customerMasterBlueprint', $data)) { // soll current customer gesetzt werden?
-            $currentCustomer = $this->customerService->getCurrentCustomer();
-            if ($currentCustomer->getId() !== $currentProcedure->getCustomerId()// ist cc noch nicht gesetzt?
-                && $this->procedureService->isCustomerMasterBlueprintExisting($currentCustomer->getId())) {
-                $this->messageBag->add(
-                    'warning',
-                    'customer.master.blueprint.already.exists',
-                    ['customerName' => $currentCustomer->getName()]
-                );
+        if (!$isMasterTemplate) {
+            $procedure['customer'] = $currentCustomer;
+            if (array_key_exists('r_customerMasterBlueprint', $data)) {
+                $currentCustomer->setDefaultProcedureBlueprint($currentProcedure);
+                $this->customerService->updateCustomer($currentCustomer);
             } else {
-                $procedure['customer'] = $currentCustomer;
+                // T15644 & T34551 if the key 'r_customerMasterBlueprint' is not set within the $data array,
+                // - the assumption is that the procedure shall not be the default-customer-blueprint
+                // if the procedure is currently the default-customer-blueprint uncheck it as requested
+                if ($isBlueprint) {
+                    if ($currentProcedure === $currentCustomer->getDefaultProcedureBlueprint()) {
+                        $currentCustomer->setDefaultProcedureBlueprint(null);
+                        $this->customerService->updateCustomer($currentCustomer);
+                    }
+                }
             }
         }
 
@@ -441,8 +444,8 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'locationPostCode');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'publicParticipationContact');
 
-        if ($this->permissions->hasPermission('feature_procedure_categories_edit') &&
-            array_key_exists('r_procedure_categories', $data)) {
+        if ($this->permissions->hasPermission('feature_procedure_categories_edit')
+            && array_key_exists('r_procedure_categories', $data)) {
             // if empty string, reset categories
             if ('' === $data['r_procedure_categories']) {
                 $data['r_procedure_categories'] = [];
@@ -1074,5 +1077,32 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         }
 
         return $token;
+    }
+
+    private function validatePhaseIterations(array $procedure): array
+    {
+        $phaseIteration = 'phase_iteration';
+        if (isset($procedure[$phaseIteration])) {
+            return $this->validatePhaseIterationValue($procedure[$phaseIteration]);
+        }
+
+        $publicPhaseIteration = 'public_participation_phase_iteration';
+        if (isset($procedure[$publicPhaseIteration])) {
+            return $this->validatePhaseIterationValue($procedure[$publicPhaseIteration]);
+        }
+
+        return [];
+    }
+
+    private function validatePhaseIterationValue($value): array
+    {
+        if (!is_numeric($value) || (int) $value < 1) {
+            return [
+                'type'    => 'error',
+                'message' => $this->translator->trans('error.phaseIteration.invalid'),
+            ];
+        }
+
+        return [];
     }
 }

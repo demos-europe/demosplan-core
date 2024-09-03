@@ -39,7 +39,6 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Statement\ValuedLabel;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Exception;
 use PhpOffice\PhpWord\Element\AbstractContainer;
-use PhpOffice\PhpWord\Element\Cell;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\PhpWord;
@@ -52,7 +51,7 @@ use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 use Twig\Environment;
 
 use function collect;
@@ -223,11 +222,11 @@ class AssessmentTableServiceOutput
             $addAllAggregations
         );
 
-        $statements = array_map($this->replacePhase(...), $serviceResult->getResult());
+        $statements = array_map($this->replaceDataOfEsStatementFields(...), $serviceResult->getResult());
 
         $filterStatementFragments = false;
-        if (!(1 === count($rParams['filters']) && isset($rParams['filters']['original'])) ||
-            null !== $rParams['search']) {
+        if (!(1 === count($rParams['filters']) && isset($rParams['filters']['original']))
+            || null !== $rParams['search']) {
             $filterStatementFragments = true;
         }
 
@@ -374,7 +373,7 @@ class AssessmentTableServiceOutput
             } else {
                 $section->addText($this->translator->trans('statement'), $boldFontSetting, ['align' => Jc::CENTER]);
                 $section->addTextBreak();
-                $this->addHtml($section, $presentableOriginalStatement->getStatementText(), []);
+                $this->docxExporter->addHtml($section, $presentableOriginalStatement->getStatementText(), []);
 
                 if ($this->permissions->hasPermission('feature_statement_gdpr_consent')) {
                     if ($presentableOriginalStatement->getGdprConsentRevoked()) {
@@ -505,6 +504,11 @@ class AssessmentTableServiceOutput
         return false;
     }
 
+    public function replaceDataOfEsStatementFields(array $statement): array
+    {
+        return $this->replaceAuthoredDateOfStatementMeta($this->replacePhase($statement));
+    }
+
     /**
      * Ersetze die Phase, in der die SN eingegangen ist.
      *
@@ -513,6 +517,33 @@ class AssessmentTableServiceOutput
     public function replacePhase(array $statement): array
     {
         $statement['phase'] = $this->statementService->getInternalOrExternalPhaseName($statement);
+
+        return $statement;
+    }
+
+    /**
+     * Returns a formatted date. Uses the 'authoredDate' entry in the array if existent or the 'submitDateString'.
+     */
+    public function replaceAuthoredDateOfStatementMeta(array $statement): array
+    {
+        $statement['meta']['authoredDate'] = '';
+        if (isset($statement['submitDateString'])) {
+            $this->logger->debug('Use submitDate: '.$statement['submitDateString']);
+
+            $statement['meta']['authoredDate'] = $statement['submitDateString'];
+        }
+        if (isset($statement['meta']['authoredDate'])
+            && 100000 < $statement['meta']['authoredDate']
+            && 3 < strlen((string) $statement['meta']['authoredDate'])
+        ) {
+            // authored-dates apparently arrive in iso-format
+            $date = $statement['meta']['authoredDate'];
+            $date = is_string($date) ? strtotime($date) : $date;
+            $this->logger->debug('Found valid authoredDate: '.$date);
+            $this->logger->debug('authoredDate (formatted): '.date('d.m.Y', $date));
+
+            $statement['meta']['authoredDate'] = date('d.m.Y', $date);
+        }
 
         return $statement;
     }
@@ -707,39 +738,13 @@ class AssessmentTableServiceOutput
 
             // resize Image
             if (0 != $factor) {
-                $width = $width / $factor;
-                $height = $height / $factor;
+                $width /= $factor;
+                $height /= $factor;
             }
             $this->logger->info('Docx Image resize to width: '.$width.' and height: '.$height);
         }
 
         return '<img height="'.$height.'" width="'.$width.'" src="'.$imageFile.'"/>';
-    }
-
-    /**
-     * @param Cell    $cell
-     * @param string  $text
-     * @param array[] $styles
-     *
-     * @return string
-     */
-    protected function addHtml($cell, $text, $styles)
-    {
-        if ('' === $text) {
-            return '';
-        }
-        try {
-            // phpword breaks when self closing tags are not closed
-            // as only br as "void-elememt" is allowed use specific regex
-            $text = preg_replace('/<(\s)*br(\s)*>/i', '<br/>', $text);
-            Html::addHtml($cell, $text, false);
-        } catch (Exception $e) {
-            $this->logger->warning('Could not parse HTML in Export', [$e, $text, $e->getTraceAsString()]);
-            // fallback: print with html tags
-            $cell->addText($text, $styles['textStyleStatementDetails'], $styles['textStyleStatementDetailsParagraphStyles']);
-        }
-
-        return '';
     }
 
     /**

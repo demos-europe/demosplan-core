@@ -37,6 +37,7 @@
 
     <div class="{{ 'o-page__padded--spaced u-pv'|prefixClass }}">
         <form class="{{ 'layout flow-root'|prefixClass }}" name="sortform" action="{{ path('DemosPlan_statement_list_draft',{'procedure':procedure}) }}" method="post">
+            {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
             {#  filter fieldsets  #}
             {%  include '@DemosPlanCore/DemosPlanStatement/includes/form_filter.html.twig'
@@ -54,6 +55,7 @@
             method="post"
             data-dp-validate="draftForm"
             novalidate>
+            {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
             <fieldset class="{{ 'u-ml u-pb-0_5 flow-root'|prefixClass }}">
 

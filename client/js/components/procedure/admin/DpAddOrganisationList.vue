@@ -10,37 +10,114 @@
 <template>
   <div
     ref="contentArea"
-    class="u-mt-0_5">
+    class="mt-2">
     <dp-data-table-extended
       ref="dataTable"
-      class="u-mt-0_5"
+      class="mt-2"
+      :default-sort-order="sortOrder"
       :header-fields="headerFields"
-      :table-items="rowItems"
+      :init-items-per-page="itemsPerPage"
+      is-expandable
       is-selectable
       :items-per-page-options="itemsPerPageOptions"
-      :default-sort-order="sortOrder"
-      @items-selected="setSelectedItems"
-      :init-items-per-page="itemsPerPage">
+      lock-checkbox-by="hasNoEmail"
+      :table-items="rowItems"
+      :translations="{ lockedForSelection: Translator.trans('add_orga.email_hint') }"
+      @items-selected="setSelectedItems">
+      <template v-slot:expandedContent="{ participationFeedbackEmailAddress, locationContacts, ccEmailAddresses, contactPerson }">
+        <div class="lg:w-2/3 lg:flex pt-4">
+          <dl class="pl-4 w-full">
+            <dt class="color--grey">
+              {{ Translator.trans('address') }}
+            </dt>
+            <dd
+              v-if="locationContacts.street"
+              class="ml-0">
+              {{ locationContacts.street }}
+            </dd>
+            <dd
+              v-if="locationContacts.postalcode"
+              class="ml-0">
+              {{ locationContacts.postalcode }}
+            </dd>
+            <dd
+              v-if="locationContacts.city"
+              class="ml-0">
+              {{ locationContacts.city }}
+            </dd>
+            <dd
+              v-if="!locationContacts.street && !locationContacts.city && !locationContacts.postalCode"
+              class="ml-0">
+              {{ Translator.trans('notspecified') }}
+            </dd>
+          </dl>
+          <dl class="pl-4 w-full">
+            <dt class="color--grey">
+              {{ Translator.trans('phone') }}
+            </dt>
+            <dd
+              v-if="locationContacts.hasOwnProperty('phone') && locationContacts.phone"
+              class="ml-0">
+              {{ locationContacts.phone }}
+            </dd>
+            <dd
+              v-else
+              class="ml-0">
+              {{ Translator.trans('notspecified') }}
+            </dd>
+            <dt class="color--grey mt-2">
+              {{ Translator.trans('email.participation') }}
+            </dt>
+            <dd
+              v-if="participationFeedbackEmailAddress"
+              class="ml-0">
+              {{ participationFeedbackEmailAddress }}
+            </dd>
+            <dd
+              v-else
+              class="ml-0">
+              {{ Translator.trans('no.participation.email') }}
+            </dd>
+            <template v-if="ccEmailAddresses">
+              <dt class="color--grey mt-2">
+                {{ Translator.trans('email.cc.participation') }}:
+              </dt>
+              <dd class="ml-0">
+                {{ ccEmailAddresses }}
+              </dd>
+            </template>
+            <template v-if="contactPerson">
+              <dt class="color--grey mt-2">
+                {{ Translator.trans('contact.person') }}:
+              </dt>
+              <dd class="ml-0">
+                {{ contactPerson }}
+              </dd>
+            </template>
+          </dl>
+        </div>
+      </template>
       <template v-slot:footer>
-        <div class="u-pt-0_5">
-          <div class="u-1-of-3 inline-block">
+        <div class="pt-2 flex">
+          <div class="w-1/3 inline-block">
             <span
-              class="weight--bold line-height--1_6"
-              v-if="selectedItems.length">
+              v-if="selectedItems.length"
+              class="weight--bold line-height--1_6">
               {{ selectedItems.length }} {{ (selectedItems.length === 1 && Translator.trans('entry.selected')) || Translator.trans('entries.selected') }}
             </span>
-          </div><!--
-       --><div class="u-2-of-3 text-right inline-block space-inline-s">
+          </div>
+          <div class="w-2/3 text-right inline-block space-x-2">
             <dp-button
               data-cy="addPublicAgency"
               :text="Translator.trans('invitable_institution.add')"
               @click="addPublicInterestBodies(selectedItems)" />
             <a
               :href="Routing.generate('DemosPlan_procedure_member_index', { procedure: procedureId })"
+              data-cy="organisationList:abortAndBack"
               class="btn btn--secondary">
               {{ Translator.trans('abort.and.back') }}
             </a>
-        </div>
+          </div>
         </div>
       </template>
     </dp-data-table-extended>
@@ -70,32 +147,53 @@ export default {
       required: false,
       default: () => [
         { field: 'legalName', label: Translator.trans('invitable_institution') },
-        { field: 'competenceDescription', label: Translator.trans('competence.explanation') }
+        hasPermission('field_organisation_competence') ? { field: 'competenceDescription', label: Translator.trans('competence.explanation') } : {}
       ]
     }
   },
 
   data () {
     return {
+      invitableToebFields: [
+        'legalName',
+        'participationFeedbackEmailAddress',
+        'locationContacts'
+      ],
       isLoading: true,
       itemsPerPageOptions: [10, 50, 100, 200],
       itemsPerPage: 50,
+      locationContactFields: ['street', 'postalcode', 'city'],
       sortOrder: { key: 'legalName', direction: 1 },
       selectedItems: []
     }
   },
 
   computed: {
-    ...mapState('invitableToeb', ['items']),
+    ...mapState('InstitutionLocationContact', {
+      institutionLocationContactItems: 'items'
+    }),
+
+    ...mapState('InvitableToeb', {
+      invitableToebItems: 'items'
+    }),
 
     rowItems () {
-      return Object.values(this.items).reduce((acc, item) => {
+      return Object.values(this.invitableToebItems).reduce((acc, item) => {
+        const locationContactId = item.relationships.locationContacts.data[0].id
+        const locationContact = this.getLocationContactById(locationContactId)
+        const hasNoEmail = !item.attributes.participationFeedbackEmailAddress
+
         return [
           ...acc,
           ...[
             {
               id: item.id,
-              ...item.attributes
+              ...item.attributes,
+              locationContacts: {
+                id: locationContact.id,
+                ...locationContact.attributes
+              },
+              hasNoEmail
             }
           ]
         ]
@@ -104,13 +202,9 @@ export default {
   },
 
   methods: {
-    ...mapActions('invitableToeb', {
+    ...mapActions('InvitableToeb', {
       getInstitutions: 'list'
     }),
-
-    setSelectedItems (selectedItems) {
-      this.selectedItems = selectedItems
-    },
 
     addPublicInterestBodies (publicAgenciesIds) {
       if (publicAgenciesIds.length === 0) {
@@ -133,7 +227,7 @@ export default {
       })
         // Refetch invitable institutions list to ensure that invited institutions are not displayed anymore
         .then(() => {
-          this.getInstitutions({ procedureId: this.procedureId })
+          this.getInstitutionsWithContacts()
             .then(() => {
               dplan.notify.notify('confirm', Translator.trans('confirm.invitable_institutions.added'))
               this.$refs.dataTable.updateFields()
@@ -147,11 +241,48 @@ export default {
         .catch(() => {
           dplan.notify.error(Translator.trans('warning.invitable_institution.not.added'))
         })
+    },
+
+    getInstitutionsWithContacts () {
+      const permissionChecksToeb = [
+        { permission: 'field_organisation_email2_cc', value: 'ccEmailAddresses' },
+        { permission: 'field_organisation_contact_person', value: 'contactPerson' },
+        { permission: 'field_organisation_competence', value: 'competenceDescription' }
+      ]
+
+      const permissionChecksContact = [
+        { permission: 'field_organisation_phone', value: 'phone' }
+      ]
+
+      return this.getInstitutions({
+        include: ['locationContacts'].join(),
+        fields: {
+          InvitableToeb: this.invitableToebFields.concat(this.returnPermissionChecksValuesArray(permissionChecksToeb)).join(),
+          InstitutionLocationContact: this.locationContactFields.concat(this.returnPermissionChecksValuesArray(permissionChecksContact)).join()
+        }
+      })
+    },
+
+    getLocationContactById (id) {
+      return this.institutionLocationContactItems[id]
+    },
+
+    returnPermissionChecksValuesArray (permissionChecks) {
+      return permissionChecks.reduce((acc, check) => {
+        if (hasPermission(check.permission)) {
+          acc.push(check.value)
+        }
+        return acc
+      }, [])
+    },
+
+    setSelectedItems (selectedItems) {
+      this.selectedItems = selectedItems
     }
   },
 
   mounted () {
-    this.getInstitutions({ procedureId: this.procedureId })
+    this.getInstitutionsWithContacts()
       .then(() => { this.isLoading = false })
   }
 }

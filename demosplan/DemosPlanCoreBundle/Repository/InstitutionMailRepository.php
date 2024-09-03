@@ -18,14 +18,15 @@ use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ImmutableArrayInterface;
 use Exception;
 
+/**
+ * @template-extends CoreRepository<InstitutionMail>
+ */
 class InstitutionMailRepository extends CoreRepository implements ImmutableArrayInterface
 {
     /**
      * Get Entity by Id.
      *
      * @param string $entityId
-     *
-     * @return CoreEntity
      */
     public function get($entityId): never
     {

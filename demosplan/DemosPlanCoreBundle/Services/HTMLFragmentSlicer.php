@@ -18,7 +18,7 @@ use DOMNode;
 use DOMText;
 use Masterminds\HTML5;
 use RuntimeException;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 class HTMLFragmentSlicer
 {
@@ -153,7 +153,7 @@ class HTMLFragmentSlicer
 
             $this->remainingList
                 ->filter(
-                    fn($nodeCheck) => is_a($nodeCheck, DOMNode::class)
+                    fn ($nodeCheck) => is_a($nodeCheck, DOMNode::class)
                 )
                 ->each(
                     function (DOMNode $node) use ($parser) {
@@ -172,7 +172,7 @@ class HTMLFragmentSlicer
                         }
                     }
                 );
-        } catch (RuntimeException $e) {
+        } catch (RuntimeException) {
             // TODO: create proper exception?
             // TODO: Log failure with reasonable context (original fragment?) to debug
 

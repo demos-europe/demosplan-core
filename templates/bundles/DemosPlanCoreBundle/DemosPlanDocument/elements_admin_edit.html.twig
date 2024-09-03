@@ -84,6 +84,7 @@
                 <input name="r_action" type="hidden" value="elementedit">
                 <input type="hidden" name="r_ident" value="{{ element.ident|default() }}">
                 <input type="hidden" name="r_parent" value="{{ templateVars.parent|default('') }}">
+                {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
                 <label
                     class="o-form__label"
@@ -97,7 +98,7 @@
                 </label>
                 <input
                     {% if not hasPermission('feature_admin_element_edit') %} disabled {% endif %}
-                    class="o-form__control-input width-100p u-mb-0_75"
+                    class="o-form__control-input w-full u-mb-0_75"
                     id="r_title"
                     type="text"
                     value="{{ element.title|default() }}"
@@ -119,7 +120,7 @@
                         {{ 'plandocuments.category.type.set'|trans }}*
                     </label>
                     <select
-                         class="o-form__control-select width-100p u-mb-0_75"
+                         class="o-form__control-select w-full u-mb-0_75"
                          id="r_category"
                          name="r_category"
                          data-cy="selectCategoryType">
@@ -290,7 +291,7 @@
                 {% if deleteEnable and element is not empty %}
                     {# delete category #}
                     <form
-                        class="bg-color-light border-radius-medium space-inset-m u-mt-2"
+                        class="bg-color-light rounded-md space-inset-m u-mt-2"
                         name="xsubmititem"
                         enctype="multipart/form-data"
                         method="post"
@@ -299,6 +300,7 @@
                         <input name="r_action" type="hidden" value="elementedit">
                         <input type="hidden" name="r_ident" value="{{ element.ident|default() }}">
                         <input type="hidden" name="r_parent" value="{{ templateVars.parent|default('') }}">
+                        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
                         <fieldset class="u-pb-0">
                             <legend>{{ "category.delete"|trans }}</legend>

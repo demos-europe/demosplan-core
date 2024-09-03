@@ -38,6 +38,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\Statement\AdditionalStatementDataEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
+use demosplan\DemosPlanCoreBundle\Exception\DuplicateInternIdException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementAlreadyConnectedToGdprConsentRevokeTokenException;
@@ -45,9 +46,9 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\FluentStatementQuery;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
@@ -59,24 +60,29 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\FluentQueries\FluentQuery;
 use EDT\Querying\Pagination\PagePagination;
+use EDT\Querying\Utilities\Reindexer;
 use Exception;
+use Illuminate\Support\Collection;
 use Pagerfanta\Pagerfanta;
 use ReflectionException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Tightenco\Collect\Support\Collection;
 
 use function array_combine;
 
-class StatementRepository extends FluentRepository implements ArrayInterface, ObjectInterface
+/**
+ * @template-extends CoreRepository<Statement>
+ */
+class StatementRepository extends CoreRepository implements ArrayInterface, ObjectInterface
 {
     public function __construct(
         DqlConditionFactory $dqlConditionFactory,
+        Reindexer $reindexer,
         private readonly EventDispatcherInterface $eventDispatcher,
         ManagerRegistry $registry,
         SortMethodFactory $sortMethodFactory,
         string $entityClass
     ) {
-        parent::__construct($dqlConditionFactory, $registry, $sortMethodFactory, $entityClass);
+        parent::__construct($dqlConditionFactory, $registry, $reindexer, $sortMethodFactory, $entityClass);
     }
 
     /**
@@ -134,7 +140,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
     /**
      * Add new ClusterStatement, what basically is a Statement with a cluster of Statements.
      *
-     * @return statement - headStatement of the created statement-cluster
+     * @return Statement - headStatement of the created statement-cluster
      *
      * @throws Exception
      */
@@ -186,6 +192,11 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             $manager->flush();
 
             return $statement;
+        } catch (UniqueConstraintViolationException $e) {
+            if (str_contains($e->getMessage(), 'internId_procedure')) {
+                throw DuplicateInternIdException::create('Eingangsnummer', $statement->getProcedureId());
+            }
+            throw $e;
         } catch (Exception $e) {
             $this->getLogger()->warning('Add StatementObject failed Message: ', [$e]);
             throw $e;
@@ -475,15 +486,15 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
     /**
      * @return array<int, Statement|Segment>
      */
-    public function getEntities(array $conditions, array $sortMethods, int $offset = 0, int $limit = null): array
+    public function getEntities(array $conditions, array $sortMethods, int $offset = 0, ?int $limit = null): array
     {
         return parent::getEntities($conditions, $sortMethods, $offset, $limit);
     }
 
     /**
-     * @return DemosPlanPaginator&Pagerfanta<Statement|Segment>
+     * @return Pagerfanta<Statement|Segment>
      */
-    public function getEntitiesForPage(array $conditions, array $sortMethods, PagePagination $pagination): DemosPlanPaginator
+    public function getEntitiesForPage(array $conditions, array $sortMethods, PagePagination $pagination): Pagerfanta
     {
         return parent::getEntitiesForPage($conditions, $sortMethods, $pagination);
     }
@@ -505,6 +516,26 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         $externIds = array_column($query->getScalarResult(), 'externId');
 
         return array_combine($externIds, $externIds);
+    }
+
+    /**
+     * @param non-empty-string $procedureId
+     *
+     * @return array<non-empty-string, non-empty-string>
+     */
+    public function getInternIdsInUse(string $procedureId): array
+    {
+        $query = $this->getEntityManager()
+            ->createQueryBuilder()
+            ->select('statement.internId')
+            ->from(Statement::class, 'statement')
+            ->where('statement.procedure = :procedureId')
+            ->andWhere('statement.internId IS NOT NULL')
+            ->setParameter('procedureId', $procedureId)
+            ->getQuery();
+        $internIds = array_column($query->getScalarResult(), 'internId');
+
+        return array_combine($internIds, $internIds);
     }
 
     /**
@@ -987,7 +1018,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
      * StatementVotes, which are not contained in $votesToSet, will be deleted.
      * StatementVotes, which are contained in $votesToSet, will be created if not existing, or updated.
      *
-     * @param statement        $statement  - related Statement
+     * @param Statement        $statement  - related Statement
      * @param array|Collection $votesToSet - StatementVotes to set on the given Statement
      *
      * @return Collection<int, StatementVote>
@@ -1759,7 +1790,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
     public function copyOriginalStatement(
         Statement $originalToCopy,
         Procedure $targetProcedure,
-        GdprConsent $gdprConsentToSet = null,
+        ?GdprConsent $gdprConsentToSet = null,
         $internIdToSet = null
     ): Statement {
         if (!$originalToCopy->isOriginal()) {
@@ -1796,7 +1827,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         $newOriginalStatement->setSubmit($originalToCopy->getSubmitObject()->add(new DateInterval('PT1S')));
         $newStatementMeta = clone $originalToCopy->getMeta();
         $newOriginalStatement->setMeta($newStatementMeta);
-
+        $newOriginalStatement->setProcedure($targetProcedure);
         $newOriginalStatement->setChildren(null);
 
         /**
@@ -1845,7 +1876,6 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         }
 
         $newOriginalStatement->setExternId($newExternId);
-        $newOriginalStatement->setProcedure($targetProcedure);
 
         if ($originalToCopy->getProcedureId() !== $targetProcedure->getId()) {
             // remove all tags, because procedure specific -> impossible to keep:
@@ -2033,7 +2063,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         return $statementFileContainer;
     }
 
-    private function copyFile(File $sourceFile, Statement $targetStatement): File
+    public function copyFile(File $sourceFile, Statement $targetStatement): File
     {
         $fileCopy = $this->getFileRepository()->copyFile($sourceFile);
         $fileCopy->setProcedure($targetStatement->getProcedure());

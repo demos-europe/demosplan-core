@@ -22,7 +22,7 @@
       <dp-loading
         v-if="isLoading"
         overlay />
-      <div class="border border-radius-small space-stack-m space-inset-m">
+      <div class="border rounded space-stack-m space-inset-m">
         <div class="relative u-pb-0_5 font-size-large">
           {{ Translator.trans('tag.new') }}
           <button
@@ -158,7 +158,7 @@ export default {
   },
 
   computed: {
-    ...mapState('institutionTag', {
+    ...mapState('InstitutionTag', {
       institutionTags: 'items'
     }),
 
@@ -175,7 +175,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('institutionTag', {
+    ...mapActions('InstitutionTag', {
       createInstitutionTag: 'create',
       deleteInstitutionTag: 'delete',
       listInstitutionTags: 'list',
@@ -183,7 +183,7 @@ export default {
       saveInstitutionTag: 'save'
     }),
 
-    ...mapMutations('institutionTag', {
+    ...mapMutations('InstitutionTag', {
       updateInstitutionTag: 'setItem'
     }),
 

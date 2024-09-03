@@ -10,6 +10,8 @@
         {% block content %}
 
             <form name="newRelease" action="{{ path('DemosPlan_forum_development_release_new') }}" method="post" enctype="multipart/form-data">
+                {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
                 <label>
                     {{ "title"|trans }}*
                     <input class="layout__item" name="r_title" type="text" value="{{templateVars.request.r_title|default() }}">

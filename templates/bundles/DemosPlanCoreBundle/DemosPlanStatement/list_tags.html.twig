@@ -11,6 +11,7 @@
         action="{{ path("DemosPlan_statement_administration_tags_edit", {'procedure':templateVars.procedure}) }}"
         method="post"
         name="tag_edit">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         {# global actions #}
         <div class="u-mb-0_5 u-nojs-hide--block">
@@ -42,10 +43,10 @@
 
             {# the second column adapts to available width while the other cols have a fixed width #}
             <colgroup>
-                <col class="width-40">
+                <col class="w-6">
                 <col class="">
-                <col class="width-120">
-                <col class="width-120">
+                <col class="w-9">
+                <col class="w-9">
             </colgroup>
 
             <thead>
@@ -76,13 +77,13 @@
                         <table class="c-table u-mb-0">
 
                             <colgroup>
-                                <col class="width-40">
+                                <col class="w-6">
                                 <col class="">
-                                <col class="width-120">
-                                <col class="width-120">
+                                <col class="w-9">
+                                <col class="w-9">
                             </colgroup>
 
-                            <tr class="hide-visually">
+                            <tr class="sr-only">
                                 <th>{{ "choose"|trans }}</th>
                                 <th>{{ "topic"|trans }}</th>
                                 <th></th>
@@ -97,7 +98,11 @@
                                     <input type="hidden" name="{{ topic.id }}:r_itemtype" value="topic">
 
                                     <label class="u-m-0">
-                                        <input type="checkbox" name="{{ topic.id }}:r_selected" data-checkable-item>
+                                        <input
+                                            type="checkbox"
+                                            name="{{ topic.id }}:r_selected"
+                                            data-cy="listTags:selectTopic"
+                                            data-checkable-item>
                                     </label>
                                 </td>
 
@@ -181,6 +186,7 @@
                                         class="btn--blank o-link--default align-top"
                                         name="r_deletetopic"
                                         value="{{ topic.id }}"
+                                        data-cy="listTags:deleteTopic"
                                         data-form-actions-confirm="{{ "check.topic.delete.tags" | trans({ topic: topic.title }) }}"
                                         data-form-actions-confirm-simple
                                         title="{{ "topic.delete" |trans }}">
@@ -199,7 +205,11 @@
                                 <input type="hidden" name="{{ tag.id }}:r_itemtype" value="tag">
                                 <td class="u-ph-0 {{ loop.last ? 'u-pt-0_25 u-pb-0_5' : 'u-pv-0_25' }} text-center">
                                     <label class="u-m-0">
-                                        <input type="checkbox" name="{{ tag.id }}:r_selected" data-checkable-item>
+                                        <input
+                                            type="checkbox"
+                                            name="{{ tag.id }}:r_selected"
+                                            data-cy="listTags:selectTag"
+                                            data-checkable-item>
                                     </label>
                                 </td>
 
@@ -257,11 +267,11 @@
 
                                 <td class="u-ph-0 {{ loop.last ? 'u-pt-0_25 u-pb-0_5' : 'u-pv-0_25' }} text-center">
                                     {% if tag.boilerplate %}
-                                        <dp-tooltip-icon
+                                        <dp-contextual-help
                                             class="color--grey"
-                                            icon="fa-file"
+                                            icon="file"
                                             text="{{ tag.boilerplate.text }}"
-                                        ></dp-tooltip-icon>
+                                        ></dp-contextual-help>
                                     {% endif %}
                                 </td>
 
@@ -302,7 +312,7 @@
 
                             </tr>
                             {% else %}
-                                <tr>
+                                <tr data-cy="listTags:emptyTag">
                                     <td></td>
                                     <td colspan="3" class="u-ph-0 u-pl-0_5 u-pv-0_25 text-left">
                                         {{ "topic.noentries" |trans }}
@@ -310,6 +320,7 @@
                                         <a
                                             href="#"
                                             class="o-toggle__trigger u-mr-0_5 js__toggleAnything"
+                                            data-cy="listTags:insertFirstTag"
                                             data-toggle-container="form"
                                             data-toggle="#insert-{{ topic.id }}"
                                             data-toggle-prevent-default>
@@ -353,7 +364,7 @@
                 </label><!--
              --><div class="layout__item u-1-of-3">
                     <button
-                        class="btn btn--primary u-mt width-100p"
+                        class="btn btn--primary u-mt w-full"
                         id="createNewTopic"
                         name="r_create"
                         data-cy="addNewTopic">
@@ -363,11 +374,10 @@
             </div>
 
             {# import #}
-            <dp-tooltip-icon
+            <dp-contextual-help
                 class="float-right"
-                icon="fa-question-circle"
                 text="{{ "tags.import.help"|trans }}"
-            ></dp-tooltip-icon>
+            ></dp-contextual-help>
 
             <div class="u-mb">
                 {{  fileupload(
@@ -381,7 +391,10 @@
                 }}
             </div>
 
-            <button name="r_import" class="btn btn--primary float-right u-mb-2">
+            <button
+                data-cy="listTags:tagsImport"
+                name="r_import"
+                class="btn btn--primary float-right u-mb-2">
                 {{ "tags.import" |trans }}
             </button>
 

@@ -5,6 +5,7 @@
 	<form name="xsubmititem" enctype="multipart/form-data" method="post" action="{{ path('DemosPlan_plandocument_administration_' ~ category ~ '_new',{'procedure':procedure, 'elementId':elementId}) }}" data-dp-validate>
         <input name="r_action" type="hidden" value="documentnew">
         <input name="r_elementId" type="hidden" value="{{ elementId|default() }}">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
 		<label>
             {{ "status"|trans }}*
@@ -63,10 +64,9 @@
             :basic-auth="dplan.settings.basicAuth"
             class="u-mb"
             hidden-input="r_text"
-            procedure-id="{{ procedure }}"
             :required="true"
             :routes="{
-               getFileByHash: (hash, procedure) => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedure })
+               getFileByHash: (hash) => Routing.generate('core_file_procedure', { hash: hash, procedureId: '{{ procedure }}' }),
             }"
             :toolbar-items="{
                 imageButton: true,

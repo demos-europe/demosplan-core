@@ -12,44 +12,44 @@
     <div :class="prefixClass('c-proceduresearch__search-wrapper layout__item flex')">
       <dp-autocomplete
         v-if="dplan.settings.useOpenGeoDb"
-        data-cy="procedureSearch"
-        name="search"
         id="procedure_search"
-        :class="prefixClass('c-proceduresearch__search-field')"
         ref="autocomplete"
         v-model="currentAutocompleteSearch"
+        :class="prefixClass('c-proceduresearch__search-field')"
+        data-cy="searchProcedureMapForm:procedureSearch"
+        height="34px"
+        label="value"
+        name="search"
+        :options="autocompleteOptions"
+        :placeholder="Translator.trans('procedure.public.search.placeholder')"
         :route-generator="(searchString) => {
           return Routing.generate('DemosPlan_procedure_public_suggest_procedure_location_json', {
             maxResults: 12,
             query: searchString
           })
         }"
-        :height="'34px'"
-        :options="autocompleteOptions"
-        :placeholder="Translator.trans('procedure.public.search.placeholder')"
         @search-changed="updateSuggestions"
-        @selected="search => setValueAndSubmitForm({ target: { value: search.value } }, 'search')"
         @searched="search => setValueAndSubmitForm({ target: { value: search } }, 'search')"
-        label="value" />
+        @selected="search => setValueAndSubmitForm({ target: { value: search.value } }, 'search')" />
 
       <template v-else>
-        <label
-          for="procedure_search_simple"
-          class="hide-visually"
-          v-html="Translator.trans('procedure.public.search.placeholder')" />
         <dp-input
-          :class="prefixClass('c-proceduresearch__search-field')"
           id="procedure_search_simple"
+          v-model="currentAutocompleteSearch"
+          :class="prefixClass('c-proceduresearch__search-field')"
+          :label="{
+            hide: true,
+            text: Translator.trans('procedure.public.search.placeholder')
+          }"
           name="search"
-          width="auto"
-          @enter="form.search = currentAutocompleteSearch; submitForm();"
           :placeholder="Translator.trans('procedure.public.search.placeholder')"
-          v-model="currentAutocompleteSearch" />
+          width="auto"
+          @enter="form.search = currentAutocompleteSearch; submitForm();" />
       </template>
 
       <button
         type="button"
-        data-cy="procedureSearchSubmit"
+        data-cy="searchProcedureMapForm:procedureSearchSubmit"
         :class="prefixClass('c-proceduresearch__search-btn btn btn--primary weight--bold')"
         @click.prevent="form.search = currentAutocompleteSearch; submitForm();">
         {{ Translator.trans('searching') }}
@@ -59,6 +59,7 @@
     <div :class="prefixClass('layout__item u-mb-0_75')">
       <button
         type="reset"
+        data-cy="searchProcedureMapForm:resetToDefault"
         :disabled="form.search === '' && isDefaultFilter"
         :class="prefixClass('c-proceduresearch__reset-btn')"
         @click.prevent="resetAndSubmit">
@@ -90,6 +91,7 @@
      --><div :class="prefixClass('layout__item u-1-of-1 u-mb')">
           <select
             id="sort"
+            data-cy="searchProcedureMapForm:sort"
             name="sort"
             :class="prefixClass('o-form__control-select')"
             @change="setValueAndSubmitForm($event, 'sort')"
@@ -150,12 +152,10 @@
           :for="filter.name"
           :class="prefixClass('c-proceduresearch__filter-label layout__item u-mb-0_25 u-1-of-1')">
           {{ filter.title }}
-          <i
+          <dp-contextual-help
             v-if="filter.contextHelp !== ''"
-            tabindex="0"
-            class="fa fa-question-circle u-ml-0_25"
-            :aria-label="Translator.trans('contextual.help')"
-            v-tooltip="{ content: filter.contextHelp }" />
+            class="u-ml-0_25"
+            :text="filter.contextHelp" />
         </label><!--
      --><div
           :key="'select_' + filter.name"
@@ -164,6 +164,7 @@
             :ref="'filter_' + idx"
             :id="filter.name"
             :name="filter.name"
+            :data-cy="'searchProcedureMapForm:' + filter.name"
             :class="prefixClass('o-form__control-select')"
             @change="setValueAndSubmitForm($event, filter.name)">
             <option value="">
@@ -194,6 +195,7 @@
         <h2
           v-if="isSearch"
           id="searchResultHeading"
+          aria-live="polite"
           role="status"
           :class="prefixClass('layout__item font-size-h2 u-pr u-mb c-proceduresearch__result')">
           Die Suche nach <span :class="prefixClass('c-proceduresearch__term weight--bold')">{{ currentSearch }}</span> hatte {{ resultCount }} Ergebnis
@@ -221,15 +223,23 @@
   </div>
 </template>
 <script>
-import { dpApi, DpAutocomplete, DpInput, DpLoading, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import {
+  DpAutocomplete,
+  DpContextualHelp,
+  DpInput,
+  DpLoading,
+  hasOwnProp,
+  makeFormPost,
+  prefixClassMixin
+} from '@demos-europe/demosplan-ui'
 import proj4 from 'proj4'
-import qs from 'qs'
 
 export default {
   name: 'DpSearchProcedureMap',
 
   components: {
     DpAutocomplete,
+    DpContextualHelp,
     DpInput,
     DpLoading
   },
@@ -307,7 +317,6 @@ export default {
         }, {})
       },
       autocompleteOptions: [],
-      qs: qs,
       displayArsFilterHeader: this.initDisplayArsFilterHeader,
       showFilter: true
     }
@@ -417,19 +426,15 @@ export default {
     },
 
     submitForm () {
-      return dpApi({
-        method: 'post',
-        url: Routing.generate('DemosPlan_procedure_public_list_json'),
-        data: qs.stringify(this.form),
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-      }).then(({ data }) => {
-        if (data.code === 100 && data.success === true) {
-          // The response contains an html snippet to be directly rendered inside the procedure list container (legacy)
-          document.querySelector('[data-procedurelist-content]').innerHTML = data.responseHtml
-          this.resultCount = data.procedureCount > 0 ? Translator.trans('following') : Translator.trans('none.neutral')
+      return makeFormPost(this.form, Routing.generate('DemosPlan_procedure_public_list_json')).then(({ data }) => {
+        const parsedData = JSON.parse(data)
+        if (parsedData.code === 100 && parsedData.success === true) {
+          // The response contains a html snippet to be directly rendered inside the procedure list container
+          document.querySelector('[data-procedurelist-content]').innerHTML = parsedData.responseHtml
+          this.resultCount = parsedData.procedureCount > 0 ? Translator.trans('following') : Translator.trans('none.neutral')
           this.currentSearch = this.form.search === '' ? Translator.trans('entries.all.dative') : this.form.search
           if (hasPermission('feature_public_index_map')) {
-            this.updateMapFeatures(data.mapVars)
+            this.updateMapFeatures(parsedData.mapVars)
           }
         }
         this.isLoading = false

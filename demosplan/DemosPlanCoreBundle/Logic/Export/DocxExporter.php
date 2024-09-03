@@ -51,7 +51,7 @@ use ReflectionException;
 use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 use Twig\Environment;
 
 class DocxExporter
@@ -478,7 +478,7 @@ class DocxExporter
     /**
      * @param array<int,array<string,mixed>> $statements
      *
-     * @return array<
+     * @return array<int, string>
      */
     protected function getSelectedFragmentIdsOfStatements(array $statements): array
     {
@@ -928,30 +928,37 @@ class DocxExporter
     }
 
     /**
+     * Used for non original statement and more?!
+     * For OriginalStatements AssessmentTableServiceOutput::addHtml is used.
+     *
      * @param Cell    $cell
      * @param string  $text
      * @param array[] $styles
      *
      * @return string
      */
-    protected function addHtml($cell, $text, $styles)
+    public function addHtml($cell, $text, $styles)
     {
         if ('' === $text) {
             return '';
         }
         try {
-            $text = $this->replaceTags($text);
+            $text = self::replaceTags($text);
             Html::addHtml($cell, $text, false);
         } catch (Exception $e) {
             $this->getLogger()->warning('Could not parse HTML in Export', [$e, $text, $e->getTraceAsString()]);
             // fallback: print with html tags
-            $cell->addText($text, $styles['textStyleStatementDetails'], $styles['textStyleStatementDetailsParagraphStyles']);
+            $cell->addText(
+                $text,
+                $styles['textStyleStatementDetails'],
+                $styles['textStyleStatementDetailsParagraphStyles']
+            );
         }
 
         return '';
     }
 
-    private function replaceTags(string $text): string
+    private static function replaceTags(string $text): string
     {
         $replacements = [
             // phpword breaks when self closing tags are not closed
@@ -1642,7 +1649,6 @@ class DocxExporter
     }
 
     /**
-     * @param array $procedure
      * @param array $rowStyleLocation
      * @param array $cellRowContinue
      * @param Table $assessmentTable
@@ -1759,7 +1765,7 @@ class DocxExporter
      * @param array             $fStyle
      * @param array             $pStyle
      *
-     * @return Closure
+     * @return callable(string, string, string=): void
      */
     protected function containerAddTextFunctionConstructor($cell, $fStyle, $pStyle): callable
     {
@@ -1783,8 +1789,6 @@ class DocxExporter
     }
 
     /**
-     * @param StatementEntityGroup<Statement> $groupStructure
-     *
      * @throws Exception
      */
     protected function renderStatementsInGroup(
@@ -1966,8 +1970,6 @@ class DocxExporter
      * If it becomes more common accross projects it can be renamed to distinguish it from other
      * exports doing similar but nonetheless different things. Ideally the method name
      * would reflect what it does instead for whom.
-     *
-     * @param StatementEntityGroup<Statement> $groupStructure
      *
      * @throws \PhpOffice\PhpWord\Exception\Exception
      * @throws Exception

@@ -21,8 +21,8 @@ use Symfony\Component\Yaml\Yaml;
 
 final class Registrator
 {
-    public const ADDON_DIRECTORY = '/addons/';
-    public const ADDON_CACHE_DIRECTORY = '/addons/cache/';
+    public const ADDON_DIRECTORY = 'addons/';
+    public const ADDON_CACHE_DIRECTORY = 'addons/cache/';
 
     private const ADDON_YAML_INLINE_DEPTH = 100;
 
@@ -104,6 +104,7 @@ final class Registrator
             'installed_at' => Carbon::now()->toIso8601String(),
             // use relative path to be compatible with different environments
             'install_path' => 'addons/vendor/'.$addonName,
+            'version'      => $addonComposerDefinition->getPrettyVersion(),
             'manifest'     => $this->loadManifest($addonName),
         ];
     }

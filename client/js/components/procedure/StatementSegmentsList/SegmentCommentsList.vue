@@ -20,7 +20,7 @@
       <div>
         <dp-button
           v-if="segment"
-          class="width-100p u-mt u-mb"
+          class="w-full u-mt u-mb"
           data-cy="addCommentToSegment"
           @click="toggleForm"
           :text="Translator.trans('comment.add.to_segment', { segmentExternId: segment.attributes.externId })"
@@ -81,15 +81,15 @@ export default {
   },
 
   computed: {
-    ...mapState('segmentSlidebar', [
+    ...mapState('SegmentSlidebar', [
       'isLoading'
     ]),
 
-    ...mapState('statementSegment', {
+    ...mapState('StatementSegment', {
       segments: 'items'
     }),
 
-    ...mapGetters('segmentSlidebar', [
+    ...mapGetters('SegmentSlidebar', [
       'commentsList',
       'procedureId',
       'showForm',
@@ -118,15 +118,15 @@ export default {
   },
 
   methods: {
-    ...mapActions('statementSegment', {
+    ...mapActions('StatementSegment', {
       listSegments: 'list'
     }),
 
-    ...mapActions('segmentComment', {
+    ...mapActions('SegmentComment', {
       listComments: 'list'
     }),
 
-    ...mapMutations('segmentSlidebar', [
+    ...mapMutations('SegmentSlidebar', [
       'setContent'
     ]),
 

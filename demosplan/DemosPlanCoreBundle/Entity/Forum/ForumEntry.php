@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Forum;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ForumEntryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -22,7 +23,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ForumEntryRepository")
  */
-class ForumEntry extends CoreEntity implements UuidEntityInterface
+class ForumEntry extends CoreEntity implements UuidEntityInterface, ForumEntryInterface
 {
     /**
      * @var string|null
@@ -142,25 +143,16 @@ class ForumEntry extends CoreEntity implements UuidEntityInterface
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
     public function getFiles()
     {
         return $this->files;
     }
 
-    /**
-     * @param mixed $files
-     */
     public function setFiles($files)
     {
         $this->files = $files;
     }
 
-    /**
-     * @return mixed
-     */
     public function getThreadClosed()
     {
         if (is_null($this->threadClosed)) {
@@ -175,25 +167,16 @@ class ForumEntry extends CoreEntity implements UuidEntityInterface
         return $this->getThreadClosed();
     }
 
-    /**
-     * @param mixed $threadClosed
-     */
     public function setThreadClosed($threadClosed)
     {
         $this->threadClosed = $threadClosed;
     }
 
-    /**
-     * @return mixed
-     */
     public function getUserStory()
     {
         return $this->userStory;
     }
 
-    /**
-     * @param mixed $userStory
-     */
     public function setUserStory($userStory)
     {
         $this->userStory = $userStory;

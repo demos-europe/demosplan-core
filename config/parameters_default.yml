@@ -148,6 +148,12 @@ parameters:
     piwik_site_id: "1"
     matomo_token: ""
 
+    # GitHub token may be used to download addons directly from github
+    github_token: '%env(GITHUB_TOKEN)%'
+    # addon repository is used to install addons. A token needs to be acquired
+    addon_repository_token: '%env(ADDON_REPOSITORY_TOKEN)%'
+    addon_repository_url: 'https://addons.demos-plan.de'
+
     # MySQL Default Settings
     database_driver: "pdo_mysql"
     database_host: "localhost"
@@ -158,6 +164,9 @@ parameters:
 
     # route to tex2pdf service without trailing slash
     tex2pdf_url: ""
+
+    # virus scan service url without trailing slash
+    avscan_url: ""
 
     #RabbitMQ setting like amqp://:@localhost:5672/%2f
     rabbitmq_dsn: "%env(string:RABBITMQ_DSN)%"
@@ -199,20 +208,8 @@ parameters:
     cache_doctrine: "filesystem"
 
     # Logging
-    # #refactor: Loglevels could be squeezed to symfony_loglevel only
-    symfony_loglevel: "INFO"
-    frontend_loglevel: "INFO"
-    mailservice_loglevel: "INFO"
-    importer_loglevel: "INFO"
-    gatewayservice_loglevel: "INFO"
+    symfony_loglevel: "info"
     demosplan_main_logfile: "dplan.log"
-    demosplan_frontend_logfile: "frontend.log"
-    demosplan_call_logfile: "servicecall.log"
-    demosplan_request_logfile: "request.log"
-    demosplan_mail_logfile: "mail.log"
-    demosplan_ids_logfile: "ids.log"
-    lgv_local_debug: "INFO"
-    lgv_logfile: "lgv.log"
 
     # Keep update logs instead of overwriting them
     keep_update_logfiles: false
@@ -486,6 +483,7 @@ parameters:
     file.formats.doc: [doc, docx]
     file.formats.pdf: [pdf]
     file.formats.xls: [xls, xlsx]
+    file.formats.zip: [zip]
 
     # JSON Web Tokens configuration
     jwt_passphrase: "%env(JWT_SECRET_KEY)%"

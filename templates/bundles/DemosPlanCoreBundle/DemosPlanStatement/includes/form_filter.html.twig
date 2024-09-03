@@ -84,7 +84,7 @@
 
             {# sort entries #}
          --><fieldset class="{{ 'layout__item space-stack-s u-pb-0-lap-down u-1-of-2-lap u-1-of-3-desk-up'|prefixClass }}">
-                <legend class="hide-visually">
+                <legend class="sr-only">
                     {{ 'sortation'|trans }}
                 </legend>
 
@@ -93,7 +93,7 @@
                     {% set sortOptions = [
                         { label: 'date.created', value: 'createdDate' },
                         { label: 'date.submitted', value: 'submittedDate', show: show_filter_sort_option_submitted is defined },
-                        { label: 'paragraph', value: 'paragraph' },
+                        { label: 'paragraph', value: 'paragraph' , show: hasPermission('feature_documents_category_use_paragraph')},
                         { label: 'document', value: 'document' },
                         { label: 'department', value: 'department', show: show_filter_sort_option_department is defined }
                     ] %}

@@ -40,17 +40,17 @@ updates:
         versions:
           - ">= 5"
     groups:
-        babel:
-            patterns:
-                - "@babel/*"
-            # @babel-plugin-* and @babel/eslint have different update cycles and with that
-            # different a versioning. therefore we can't group them with the other babel packages
-            ingnore-patterns:
-                - "@babel/plugin-*"
-                - "@babel/eslint-*"
-        sentry:
-            pattern:
-                - "@sentry*"
+      babel:
+        patterns:
+          - "@babel/*"
+        # @babel-plugin-* and @babel/eslint have different update cycles and with that
+        # different a versioning. therefore we can't group them with the other babel packages
+        exclude-patterns:
+          - "@babel/plugin-*"
+          - "@babel/eslint-*"
+      sentry:
+        patterns:
+          - "@sentry/*"
     labels:
       - dependencies:yarn
 
@@ -73,7 +73,23 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: friendsofsymfony/jsrouting-bundle
         update-types: [ "version-update:semver-major" ]
-
+    groups:
+      symfony:
+        patterns:
+          - "symfony/*"
+        exclude-patterns:
+          - "symfony/cache-contracts"
+          - "symfony/deprecation-contracts"
+          - "symfony/event-dispatcher-contracts"
+          - "symfony/flex"
+          - "symfony/http-client-contracts"
+          - "symfony/maker-bundle"
+          - "symfony/monolog-bundle"
+          - "symfony/phpunit-bridge"
+          - "symfony/polyfill*"
+          - "symfony/psr-http-message-bridge"
+          - "symfony/service-contracts"
+          - "symfony/translation-contracts"
   # Maintain dependencies for GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"

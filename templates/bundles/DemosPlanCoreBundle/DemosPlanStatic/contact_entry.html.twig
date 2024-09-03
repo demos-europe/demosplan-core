@@ -27,6 +27,8 @@
 
     <form action="{{ path('DemosPlan_misccontent_static_contact') }}" method="post" data-dp-validate>
         <input name="action" type="hidden" value="contact">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
         <fieldset>
             <legend>
                 {{ "request"|trans }}
@@ -64,7 +66,7 @@
             <label>
                 {{ "email.body"|trans }}*
                 {# Bei textareas muss der Inhalt ohne Leerzeichen zwischen den Tags stehen, sonst werden die Leerzeichen ausgegeben und multiplizieren sich im Frontend. #}
-                <textarea class="{{ 'height-130'|prefixClass }}" name="r_message" required></textarea>
+                <textarea class="{{ 'h-9'|prefixClass }}" name="r_message" required></textarea>
             </label>
         </fieldset>
         <fieldset>

@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
-use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
@@ -19,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\CouldNotDeleteAddressesOfDepartmentException;
@@ -28,7 +28,6 @@ use demosplan\DemosPlanCoreBundle\Exception\CouldNotWipeDepartmentException;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicateGwIdException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\NullPointerException;
 use demosplan\DemosPlanCoreBundle\Exception\UserAlreadyExistsException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
@@ -45,7 +44,6 @@ use demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRoleInCustomerRepository;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\TestUserValueObject;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\CustomerResourceInterface;
@@ -56,19 +54,18 @@ use Doctrine\ORM\ORMException;
 use DOMDocument;
 use Exception;
 use LSS\XML2Array;
-use ReflectionException;
+use Pagerfanta\Pagerfanta;
 use RuntimeException;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Tightenco\Collect\Support\Collection as IlluminateCollection;
+use Illuminate\Support\Collection as IlluminateCollection;
+
 use function array_key_exists;
 
 class UserService extends CoreService implements UserServiceInterface
 {
-    private const HEX_CHARS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
-
     /**
      * The hash function that is being used to generate password hashes.
      */
@@ -217,20 +214,6 @@ class UserService extends CoreService implements UserServiceInterface
         return null;
     }
 
-    /**
-     * In order to enable login via login OR email, we need to be sure the found user is the right one.
-     * In the database model the field email of a user is not unique!
-     * Solution is first look for user with incoming string as login.
-     * If no one was found, looking for user with incoming string as email.
-     * In case of more than one user was found, login will fail.
-     *
-     * @param string $loginOrEmail - The incoming email address or login, which we need to find a distinct user
-     *
-     * @return User|false - User in case of a distinct user entry was found, otherwise false
-     *
-     * @throws ReflectionException
-     * @throws MessageBagException
-     */
     public function findDistinctUserByEmailOrLogin($loginOrEmail)
     {
         $user = $this->userRepository->findOneBy(['login' => $loginOrEmail, 'deleted' => false]);
@@ -291,36 +274,36 @@ class UserService extends CoreService implements UserServiceInterface
     public function addUser($data): User
     {
         try {
-            if (!array_key_exists(UserFlagKey::IS_NEW_USER, $data)) {
-                $data[UserFlagKey::IS_NEW_USER] = true;
+            if (!array_key_exists(UserFlagKey::IS_NEW_USER->value, $data)) {
+                $data[UserFlagKey::IS_NEW_USER->value] = true;
             }
 
-            if (!array_key_exists(UserFlagKey::PROFILE_COMPLETED, $data)) {
-                $data[UserFlagKey::PROFILE_COMPLETED] = false;
+            if (!array_key_exists(UserFlagKey::PROFILE_COMPLETED->value, $data)) {
+                $data[UserFlagKey::PROFILE_COMPLETED->value] = false;
             }
 
-            if (!array_key_exists(UserFlagKey::ACCESS_CONFIRMED, $data)) {
-                $data[UserFlagKey::ACCESS_CONFIRMED] = false;
+            if (!array_key_exists(UserFlagKey::ACCESS_CONFIRMED->value, $data)) {
+                $data[UserFlagKey::ACCESS_CONFIRMED->value] = false;
             }
 
-            if (!array_key_exists(UserFlagKey::INVITED, $data)) {
-                $data[UserFlagKey::INVITED] = false;
+            if (!array_key_exists(UserFlagKey::INVITED->value, $data)) {
+                $data[UserFlagKey::INVITED->value] = false;
             }
 
-            if (!array_key_exists(UserFlagKey::NO_USER_TRACKING, $data)) {
-                $data[UserFlagKey::NO_USER_TRACKING] = false;
+            if (!array_key_exists(UserFlagKey::NO_USER_TRACKING->value, $data)) {
+                $data[UserFlagKey::NO_USER_TRACKING->value] = false;
             }
 
-            if (!array_key_exists(UserFlagKey::SUBSCRIBED_TO_NEWSLETTER, $data)) {
-                $data[UserFlagKey::SUBSCRIBED_TO_NEWSLETTER] = false;
+            if (!array_key_exists(UserFlagKey::SUBSCRIBED_TO_NEWSLETTER->value, $data)) {
+                $data[UserFlagKey::SUBSCRIBED_TO_NEWSLETTER->value] = false;
             }
 
-            if (!array_key_exists(UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED, $data)) {
-                $data[UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED] = true;
+            if (!array_key_exists(UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED->value, $data)) {
+                $data[UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED->value] = true;
             }
 
-            if (!array_key_exists(UserFlagKey::WANTS_FORUM_NOTIFICATIONS, $data)) {
-                $data[UserFlagKey::WANTS_FORUM_NOTIFICATIONS] = false;
+            if (!array_key_exists(UserFlagKey::WANTS_FORUM_NOTIFICATIONS->value, $data)) {
+                $data[UserFlagKey::WANTS_FORUM_NOTIFICATIONS->value] = false;
             }
 
             $data['customer'] = $this->customerService->getCurrentCustomer();
@@ -566,6 +549,8 @@ class UserService extends CoreService implements UserServiceInterface
             try {
                 $data['name'] = $orga->getName();
                 $this->orgaService->addReport($orga->getId(), $data, $showListBefore);
+            } catch (ViolationsException $e) {
+                $this->logger->warning('Add Report in updateOrga() failed due to Violation: ', [$e, $e->getViolationsAsStrings()]);
             } catch (Exception $e) {
                 $this->logger->warning('Add Report in updateOrga() failed Message: ', [$e]);
             }
@@ -635,8 +620,6 @@ class UserService extends CoreService implements UserServiceInterface
     }
 
     /**
-     * @return mixed
-     *
      * @throws ORMException
      * @throws OptimisticLockException
      */
@@ -693,9 +676,9 @@ class UserService extends CoreService implements UserServiceInterface
     public function getSortedLegacyDepartmentsWithoutDefaultDepartment(Orga $orga): array
     {
         $sortedDepartments = $this->sortByName($orga->getDepartments());
-        $filteredDepartments = array_filter($sortedDepartments, fn(Department $department): bool => $this->isNotDefaultDepartment($department));
+        $filteredDepartments = array_filter($sortedDepartments, fn (Department $department): bool => $this->isNotDefaultDepartment($department));
 
-        return array_map(fn($object): ?array => $this->entityHelper->toArray($object), $filteredDepartments);
+        return array_map(fn ($object): ?array => $this->entityHelper->toArray($object), $filteredDepartments);
     }
 
     /**
@@ -923,7 +906,7 @@ class UserService extends CoreService implements UserServiceInterface
             'lastname'     => '',
             'email'        => $userLogin,
             'login'        => $userLogin,
-            'password'     => $this->generateRandomString(128, self::HEX_CHARS),
+            'password'     => $this->generateNewRandomPassword(),
             'customer'     => $customer,
             'roles'        => [Role::CUSTOMER_MASTER_USER],
         ]);
@@ -935,7 +918,7 @@ class UserService extends CoreService implements UserServiceInterface
     protected function getRoleNames(User $user): array
     {
         $userRoles = $user->getDplanroles();
-        $userRoleNames = $userRoles->map(static fn(Role $role): string => $role->getName())->toArray();
+        $userRoleNames = $userRoles->map(static fn (Role $role): string => $role->getName())->toArray();
 
         // sort the roles to generate the same array key for the same roles
         $userRoleNames = array_unique($userRoleNames);
@@ -972,11 +955,11 @@ class UserService extends CoreService implements UserServiceInterface
 
             // display only users of current Customer
             if ($customer instanceof Customer) {
-                $users = collect($users)->filter(static fn(User $user) => null !== $user->getOrga() && $user->getOrga()->getCustomers()->contains($customer))->all();
+                $users = collect($users)->filter(static fn (User $user) => null !== $user->getOrga() && $user->getOrga()->getCustomers()->contains($customer))->all();
             }
 
             // never show internal Citizen user
-            return collect($users)->filter(static fn(User $user) => User::ANONYMOUS_USER_ID !== $user->getId())->all();
+            return collect($users)->filter(static fn (User $user) => User::ANONYMOUS_USER_ID !== $user->getId())->all();
         } catch (Exception $e) {
             $this->logger->error('Fehler bei der Abfrage der Userlist: ', [$e]);
 
@@ -1056,11 +1039,9 @@ class UserService extends CoreService implements UserServiceInterface
     /**
      * Liste der InvitableInstitutionsichtbarkeitenänderungen anfordern.
      *
-     * @return DemosPlanPaginator
-     *
      * @throws Exception
      */
-    public function getInvitableInstitutionShowlistChanges()
+    public function getInvitableInstitutionShowlistChanges(): Pagerfanta
     {
         try {
             return $this->reportService->getInvitableInstitutionShowlistChanges();
@@ -1163,7 +1144,7 @@ class UserService extends CoreService implements UserServiceInterface
      *
      * @param string $userId - Indicates the user whose draftStatements will be deleted
      *
-     * @return bool|User - The wiped User if all operations are successful, otherwise false
+     * @return bool `true` if all operations are successful, otherwise `false`
      */
     public function deleteDraftStatementsOfUser($userId): bool
     {
@@ -1420,7 +1401,7 @@ class UserService extends CoreService implements UserServiceInterface
     {
         return collect($statementsOrFragments)
             ->transform(
-                static fn($fragmentOrStatement) => [
+                static fn ($fragmentOrStatement) => [
                     'id'         => $fragmentOrStatement['id'],
                     'assigneeId' => $fragmentOrStatement['assignee']['uId'] ?? null,
                 ]
@@ -1459,7 +1440,7 @@ class UserService extends CoreService implements UserServiceInterface
     {
         $unsortedDepartments = $departments->getIterator();
         $unsortedDepartments->uasort(
-            static fn(Department $department1, Department $department2) => strcmp((string) $department1->getName(), (string) $department2->getName())
+            static fn (Department $department1, Department $department2) => strcmp((string) $department1->getName(), (string) $department2->getName())
         );
 
         return iterator_to_array($unsortedDepartments);
@@ -1478,7 +1459,7 @@ class UserService extends CoreService implements UserServiceInterface
             ->map(
                 static function (User $user) {
                     $roles = collect($user->getDplanroles())->map(
-                        static fn(Role $role) => $role->getName()
+                        static fn (Role $role) => $role->getName()
                     )->implode(', ');
 
                     $testUser = new TestUserValueObject();
@@ -1520,7 +1501,7 @@ class UserService extends CoreService implements UserServiceInterface
                     $userAttributes = $userArray['USERDATA']['HHGW']['@attributes'];
                     $roleString = 'Bürger';
                     if (array_key_exists('ROLES', $userArray['USERDATA'])) {
-                        $roleString = collect($userArray['USERDATA']['ROLES'])->transform(static fn($roleArray) => $roleArray['@attributes']['ROLENAME'] ?? $roleArray['ROLENAME'] ?? 'Default')
+                        $roleString = collect($userArray['USERDATA']['ROLES'])->transform(static fn ($roleArray) => $roleArray['@attributes']['ROLENAME'] ?? $roleArray['ROLENAME'] ?? 'Default')
                         ->implode(', ');
                     }
                     $testUser = new TestUserValueObject();
@@ -1549,29 +1530,6 @@ class UserService extends CoreService implements UserServiceInterface
     protected function isNotDefaultDepartment(Department $department): bool
     {
         return 'Keine Abteilung' !== $department->getName();
-    }
-
-    /**
-     * Generates a cryptographically random string.
-     *
-     * The implementation is probably slower and more greedy for randomness than necessary, but as
-     * it is intended for the creation of customers on container-build it is seldom used and
-     * performance is not a concern.
-     *
-     * @param list<string> $allowedCharacters
-     *
-     * @throws Exception
-     */
-    private function generateRandomString(int $length, array $allowedCharacters): string
-    {
-        $allowedCharactersCount = count($allowedCharacters);
-        $string = '';
-        for ($i = 0; $i < $length; ++$i) {
-            $position = random_int(1, $allowedCharactersCount);
-            $string .= $allowedCharacters[$position - 1];
-        }
-
-        return $string;
     }
 
     /**

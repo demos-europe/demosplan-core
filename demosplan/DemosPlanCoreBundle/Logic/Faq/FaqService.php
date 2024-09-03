@@ -12,12 +12,13 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Faq;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\FaqCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FaqInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Faq;
 use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
 use demosplan\DemosPlanCoreBundle\Entity\PlatformFaq;
 use demosplan\DemosPlanCoreBundle\Entity\PlatformFaqCategory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
-use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
@@ -127,20 +128,22 @@ class FaqService extends CoreService
      */
     public function getEnabledFaqList(FaqCategoryInterface $faqCategory, User $user): array
     {
-        $roles = $user->isPublicUser() ? [Role::GUEST] : $user->getRoles();
-        $categoryName = 'faqCategory';
+        $roles = $user->isPublicUser() ? [RoleInterface::GUEST] : $user->getRoles();
+        $pathStart = Paths::faq();
+        $categoryPath = Paths::faq()->faqCategory->id;
         $repository = $this->faqRepository;
 
         if ($faqCategory instanceof PlatformFaqCategory) {
-            $categoryName = 'platformFaqCategory';
+            $pathStart = Paths::platformFaq();
+            $categoryPath = Paths::platformFaq()->platformFaqCategory->id;
             $repository = $this->platformFaqRepository;
         }
         $conditions = [
-            $this->conditionFactory->propertyHasValue(1, ['enabled']),
-            $this->conditionFactory->propertyHasValue($faqCategory, [$categoryName]),
-            $this->conditionFactory->propertyHasAnyOfValues($roles, ['roles', 'code']),
+            $this->conditionFactory->propertyHasValue(1, $pathStart->enabled),
+            $this->conditionFactory->propertyHasValue($faqCategory->getId(), $categoryPath),
+            $this->conditionFactory->propertyHasAnyOfValues($roles, $pathStart->roles->code),
         ];
-        $sortMethod = $this->sortMethodFactory->propertyAscending(['title']);
+        $sortMethod = $this->sortMethodFactory->propertyAscending($pathStart->title);
 
         return $repository->getEntities($conditions, [$sortMethod]);
     }
@@ -152,18 +155,20 @@ class FaqService extends CoreService
      */
     public function getAllEnabledFaqForCategoryRegardlessOfUserRoles(FaqCategoryInterface $faqCategory): array
     {
-        $categoryName = 'faqCategory';
+        $pathStart = Paths::faq();
+        $categoryPath = Paths::faq()->faqCategory->id;
         $repository = $this->faqRepository;
 
         if ($faqCategory instanceof PlatformFaqCategory) {
-            $categoryName = 'platformFaqCategory';
+            $pathStart = Paths::platformFaq();
+            $categoryPath = Paths::platformFaq()->platformFaqCategory->id;
             $repository = $this->platformFaqRepository;
         }
         $conditions = [
-            $this->conditionFactory->propertyHasValue(1, ['enabled']),
-            $this->conditionFactory->propertyHasValue($faqCategory, [$categoryName]),
+            $this->conditionFactory->propertyHasValue(1, $pathStart->enabled),
+            $this->conditionFactory->propertyHasValue($faqCategory->getId(), $categoryPath),
         ];
-        $sortMethod = $this->sortMethodFactory->propertyAscending(['title']);
+        $sortMethod = $this->sortMethodFactory->propertyAscending($pathStart->title);
 
         return $repository->getEntities($conditions, [$sortMethod]);
     }

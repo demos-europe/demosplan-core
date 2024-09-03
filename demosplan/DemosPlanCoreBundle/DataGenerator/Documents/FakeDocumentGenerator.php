@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Documents;
 
-use demosplan\DemosPlanCoreBundle\DataGenerator\DataGeneratorInterface;
+use demosplan\DemosPlanCoreBundle\DataGenerator\CustomFactory\DataGeneratorInterface;
 
 abstract class FakeDocumentGenerator implements DataGeneratorInterface
 {

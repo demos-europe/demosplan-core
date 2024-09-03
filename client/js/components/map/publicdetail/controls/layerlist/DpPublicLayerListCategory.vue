@@ -19,7 +19,7 @@
       ]">
       <span :class="prefixClass('c-map__group-item-controls')">
         <button
-          :class="prefixClass('btn--blank btn--focus width-16 text-left')"
+          :class="prefixClass('btn--blank btn--focus w-3 text-left')"
           :aria-label="group.attributes.name + ' ' + (isVisible ? Translator.trans('maplayer.category.hide') : Translator.trans('maplayer.category.show'))"
           @click="toggleFromSelf">
           <i
@@ -28,7 +28,7 @@
         </button>
         <button
           v-if="false === appearsAsLayer"
-          :class="prefixClass('btn--blank btn--focus width-16 text-left')"
+          :class="prefixClass('btn--blank btn--focus w-3 text-left')"
           :aria-label="group.attributes.name + ' ' + (unfolded ? Translator.trans('maplayer.category.close') : Translator.trans('maplayer.category.open'))"
           @click="fold">
           <i
@@ -42,34 +42,27 @@
         :class="prefixClass('c-map__group-item-name o-hellip--nowrap')">
         {{ group.attributes.name }}
       </span>
-      <i
-        :class="prefixClass('fa fa-question-circle c-map__layerhelp')"
-        :aria-label="Translator.trans('contextual.help')"
+      <dp-contextual-help
         v-if="'' !== contextualHelp"
-        v-tooltip="{
-          content: contextualHelp,
-          classes: prefixClass('width-350'),
-          boundariesElement: 'body',
-          container: '#procedureDetailsMap'
-        }"
-        @mouseover.self="tooltipExpanded = true"
-        @mouseleave.self="tooltipExpanded = false" />
+        class="c-map__layerhelp"
+        :text="contextualHelp" />
     </div>
     <dp-public-layer-list
       :layer-groups-alternate-visibility="layerGroupsAlternateVisibility"
       :layers="layers"
       :unfolded="unfolded"
-      :class="[appearsAsLayer ? prefixClass('hide-visually') : prefixClass('c-map__group-item-child u-mr-0')]" />
+      :class="[appearsAsLayer ? prefixClass('sr-only') : prefixClass('c-map__group-item-child u-mr-0')]" />
   </li>
 </template>
 
 <script>
-import { hasOwnProp, prefixClass } from '@demos-europe/demosplan-ui'
+import { DpContextualHelp, hasOwnProp, prefixClass } from '@demos-europe/demosplan-ui'
 import DpPublicLayerList from './DpPublicLayerList'
 import { mapGetters } from 'vuex'
 
 export default {
   name: 'DpPublicLayerListCategory',
+  components: { DpContextualHelp },
 
   props: {
     group: {
@@ -117,7 +110,7 @@ export default {
       return this.elementListForLayerSidebar(this.group.id, this.layerType, true)
     },
 
-    ...mapGetters('layers', ['rootId', 'element', 'elementListForLayerSidebar'])
+    ...mapGetters('Layers', ['rootId', 'element', 'elementListForLayerSidebar'])
   },
 
   methods: {

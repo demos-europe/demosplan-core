@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Event;
 class CheckFileIsUsedEvent extends DPlanEvent
 {
     /**
-     * @param bool
+     * @var bool
      */
     private $isUsed = false;
 

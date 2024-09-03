@@ -40,7 +40,6 @@ use demosplan\DemosPlanCoreBundle\Constraint\FormDefinitionConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\MatchingSubmitTypesConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\OriginalReferenceConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\PrePersistUniqueInternIdConstraint;
-use demosplan\DemosPlanCoreBundle\Constraint\SegmentDraftJsonConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\SimilarStatementSubmittersSameProcedureConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -96,8 +95,6 @@ use UnexpectedValueException;
  */
 class Statement extends CoreEntity implements UuidEntityInterface, StatementInterface
 {
-    final public const DRAFT_JSON_VALIDATION_GROUP = 'draftJsonValidationGroup';
-
     /**
      * @var string|null
      *                  Generates a UUID in code that confirms to https://www.w3.org/TR/1999/REC-xml-names-19990114/#NT-NCName
@@ -223,10 +220,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * Virtuelle Eigenschaft des UserName.
-     *
-     * @var string
      */
-    protected $uName;
+    protected ?string $uName = null;
 
     /**
      * @var Orga|null
@@ -772,7 +767,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * Votum der Statskanzlei.
-     * Kind of vote advice.
+     * Concrete vote of this statement.
      *
      * @var string
      *
@@ -781,8 +776,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     protected $voteStk;
 
     /**
-     * Votum des Planungsbüros
-     * Concrete vote of this statement.
+     * Votum (Empfehlung) des Planungsbüros
+     * Kind of vote advice.
      *
      * @var string
      *
@@ -816,7 +811,12 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * @ORM\Column(name="_st_submit_type", type="string", nullable=false)
      */
     #[Assert\NotBlank(groups: [Statement::IMPORT_VALIDATION], message: 'statement.import.invalidSubmitTypeBlank')]
-    protected $submitType = 'system';
+    #[Assert\Choice(
+        choices: StatementInterface::SUBMIT_TYPES,
+        message: 'statement.invalid.submit.type',
+        groups: ['Default', StatementInterface::IMPORT_VALIDATION]
+    )]
+    protected $submitType = StatementInterface::SUBMIT_TYPE_SYSTEM;
 
     /**
      * This field is transformed during elasticsearch populate
@@ -946,7 +946,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * @ORM\Column(name="drafts_info_json", type="string", length=15000000, nullable=true)
      */
-    #[SegmentDraftJsonConstraint(groups: [self::DRAFT_JSON_VALIDATION_GROUP])]
     protected $draftsListJson;
 
     /**
@@ -1172,7 +1171,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     }
 
     /**
-     * @return Statement
+     * @return Statement|null
      */
     public function getOriginal()
     {
@@ -1335,11 +1334,20 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         return $this->externId;
     }
 
-    public function getInternId(): ?string
+    /**
+     * The usual statement pair (original + non original), makes it tricky to ensure
+     * a unique internId per procedure, because these pair is a kind of a copy.
+     * To ensure the interId is actually unique per procedure, the internId will only be stored
+     * at the original statement.
+     * To reduce the mental load, on getting the internId of a statement, the internId of the related
+     * original statement wil be returned by default.
+     * But in some (technically) cases it can be necessary to get the internId of the current statement,
+     * instead of its parent. This can be done by setting the $gettingFromOriginal to false.
+     */
+    public function getInternId(bool $gettingFromOriginal = true): ?string
     {
-        $original = $this->getOriginal();
-        if (null !== $original) {
-            return $original->getInternId();
+        if ($gettingFromOriginal && null !== $this->getOriginal()) {
+            return $this->getOriginal()->getInternId();
         }
 
         return $this->internId;
@@ -1411,10 +1419,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * Returns the name of the author!
-     *
-     * @return string
      */
-    public function getUserName()
+    public function getUserName(): ?string
     {
         // hole dir den Nutzernamen so, wie er bei dem Statement gespeichert ist, nicht aus
         // dem Userobjekt
@@ -2573,8 +2579,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     {
         if (null === $this->paragraphParentId && $this->paragraph instanceof ParagraphVersion) {
             $parentId = null;
-            if ($this->paragraph->getParagraph() instanceof Paragraph) {
-                $parentId = $this->paragraph->getParagraph()->getId();
+            $parentParagraph = $this->paragraph->getParagraph();
+            if ($parentParagraph instanceof Paragraph) {
+                $parentId = $parentParagraph->getId();
             }
             $this->paragraphParentId = $parentId;
         }
@@ -3389,7 +3396,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     }
 
     /**
-     * @return user|null
+     * @return User|null
      *
      * @throws Exception
      */

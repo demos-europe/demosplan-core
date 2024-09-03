@@ -62,7 +62,7 @@
             ref="newAssignee"
             v-model="options.newAssignee.value"
             :allow-empty="false"
-            class="u-mb width-450"
+            class="u-mb w-13"
             :custom-label="option => `${option.name} ${option.id === currentUserId ? '(Sie)' : ''}`"
             :options="users"
             track-by="id"
@@ -97,6 +97,7 @@
             @input="updateRecommendationText">
             <template v-slot:modal="modalProps">
               <dp-boiler-plate-modal
+                v-if="hasPermission('area_admin_boilerplates')"
                 ref="boilerPlateModal"
                 boiler-plate-type="consideration"
                 :procedure-id="procedureId"
@@ -289,8 +290,8 @@ export default {
   },
 
   computed: {
-    ...mapState('statement', ['selectedElements']),
-    ...mapGetters('statement', ['selectedElementsLength']),
+    ...mapState('Statement', ['selectedElements']),
+    ...mapGetters('Statement', ['selectedElementsLength']),
 
     // Array with keys (names) of all checked options
     checkedOptions () {
@@ -330,10 +331,10 @@ export default {
   },
 
   methods: {
-    ...mapActions('statement', {
+    ...mapActions('Statement', {
       resetSelectionAction: 'resetSelection'
     }),
-    ...mapActions('statement', ['setSelectedElementsAction', 'setProcedureIdAction']),
+    ...mapActions('Statement', ['setSelectedElementsAction', 'setProcedureIdAction']),
 
     handleReturn () {
       this.resetSelectionAction()
@@ -343,7 +344,9 @@ export default {
     },
 
     openBoilerPlate () {
-      this.$refs.boilerPlateModal.toggleModal()
+      if (hasPermission('area_admin_boilerplates')) {
+        this.$refs.boilerPlateModal.toggleModal()
+      }
     },
 
     redirectToAssessmentTable () {
@@ -365,7 +368,7 @@ export default {
         url: Routing.generate('dplan_assessment_table_assessment_table_statement_bulk_edit_api_action', {
           procedureId: this.procedureId
         }),
-        data: JSON.stringify(payload)
+        data: payload
       })
         .then(checkResponse)
         .then(() => {

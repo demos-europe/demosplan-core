@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\MailTemplateInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -17,7 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Entity
  */
-class MailTemplate implements IntegerIdEntityInterface
+class MailTemplate implements IntegerIdEntityInterface, MailTemplateInterface
 {
     /**
      * @var int|null

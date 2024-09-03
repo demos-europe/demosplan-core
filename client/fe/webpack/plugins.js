@@ -9,7 +9,6 @@
 
 const ESLintWebpackPlugin = require('eslint-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const VueLoader = require('vue-loader')
 const webpack = require('webpack') // Is webpack is webpack
@@ -22,7 +21,6 @@ const webpackDevOnlyPlugins = []
 const webpackProdOnlyPlugins = []
 
 const webpackDefaultPlugins = [
-  new CleanWebpackPlugin(),
   new ESLintWebpackPlugin({
     baseConfig: require('../../../eslintrc'),
     cache: true,
@@ -33,17 +31,11 @@ const webpackDefaultPlugins = [
     quiet: true,
     useEslintrc: false
   }),
-  // Globale projectvariable für JS
+  // Global project variable consumed by application code
   new webpack.DefinePlugin({
     PROJECT: JSON.stringify(config.project)
   }),
-  /*
-   * New AssetsPlugin({
-   *   prettyPrint: true,
-   *   entrypoints: true
-   * }),
-   * regarding the weird path declaration: we're at webpack.output.path here
-   */
+  // Regarding the weird path declaration: we're at webpack.output.path here
   new MiniCssExtractPlugin({
     filename: '../../css/style.[contenthash:6].css',
     chunkFilename: '../../css/[id].css',
@@ -63,6 +55,10 @@ const webpackDefaultPlugins = [
       {
         from: resolveDir('demosplan/DemosPlanCoreBundle/Resources/public/fonts'),
         to: `${config.projectRoot}/web/fonts`
+      },
+      {
+        from: resolveDir('demosplan/DemosPlanCoreBundle/Resources/public/files'),
+        to: `${config.projectRoot}/web/files`
       },
       // Project specific videos, images, fonts and pdfs, may not exist
       {
