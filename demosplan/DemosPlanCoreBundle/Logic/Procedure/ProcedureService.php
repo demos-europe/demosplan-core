@@ -108,6 +108,7 @@ use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\SortMethodInterface;
 use Exception;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
+use Illuminate\Support\Collection;
 use ReflectionException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\FormInterface;
@@ -116,7 +117,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
-use Illuminate\Support\Collection;
 use TypeError;
 
 class ProcedureService extends CoreService implements ProcedureServiceInterface
@@ -1554,6 +1554,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 // 'b3014eb3-59ea-49a1-b415-6958d505a715' is the id of consideration _predefined_texts_category
                 $data['categories'] = ['b3014eb3-59ea-49a1-b415-6958d505a715'];
             }
+
             return $this->boilerplateRepository->add($data);
         } catch (Exception) {
             $this->logger->warning('Post boilerplate failed');
