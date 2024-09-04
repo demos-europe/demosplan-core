@@ -1549,12 +1549,13 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         try {
             $data['procedure'] = $this->getProcedure($procedureId);
 
+            $addToCategories = [];
             if ($this->currentUser->hasPermission('feature_enable_default_consideration_BoilerplateCategory')) {
                 // add consideration as BoilerplateCategory by default
-                // 'b3014eb3-59ea-49a1-b415-6958d505a715' is the id of consideration _predefined_texts_category
-                $data['categories'] = ['b3014eb3-59ea-49a1-b415-6958d505a715'];
+                $addToCategories[] = 'consideration';
             }
-            return $this->boilerplateRepository->add($data);
+
+            return $this->boilerplateRepository->add($data, $addToCategories);
         } catch (Exception) {
             $this->logger->warning('Post boilerplate failed');
         }
