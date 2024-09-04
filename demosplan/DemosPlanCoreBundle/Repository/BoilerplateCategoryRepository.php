@@ -87,7 +87,6 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
 
     /**
      * Fetch all info about certain boilerplateCategory by title and procedure.
-     *
      */
     public function getByTitle(
         string $boilerplateCategoryTitle,
@@ -125,7 +124,7 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
      * @param array $data         - holds the content of the boilerplate, which is about to post
      * @param bool  $returnEntity
      *
-     * @return boilerplateCategory|bool - true if the object could be mapped to the DB, otherwise false
+     * @return BoilerplateCategory|bool - true if the object could be mapped to the DB, otherwise false
      *
      * @throws Exception
      */

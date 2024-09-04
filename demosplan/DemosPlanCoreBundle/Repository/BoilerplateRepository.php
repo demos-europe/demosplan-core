@@ -181,7 +181,7 @@ class BoilerplateRepository extends FluentRepository implements ArrayInterface, 
      * Add an entry to the DB if the related procedure are exsisting
      * and the given array has the keys 'title' and 'text'.
      *
-     * @param array $data - holds the content of the boilerplate, which is about to post
+     * @param array              $data       - holds the content of the boilerplate, which is about to post
      * @param array<int, string> $categories - holds a list of BoilerplateCategory titles
      *
      * @return Boilerplate
@@ -218,7 +218,7 @@ class BoilerplateRepository extends FluentRepository implements ArrayInterface, 
 
     /**
      * fetches the boilerplateCategories for a specific procedure by given titles
-     * or otherwise creates new boilerplateCategory(ies) for that procedure with the given title(s)
+     * or otherwise creates new boilerplateCategory(ies) for that procedure with the given title(s).
      *
      * @param array<int, string> $categories - holds a list of BoilerplateCategory titles
      *
