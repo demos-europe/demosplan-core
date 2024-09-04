@@ -72,7 +72,7 @@ class AddonInstallFromZipCommand extends CoreCommand
         private readonly HttpClientInterface $httpClient,
         private readonly Registrator $installer,
         ParameterBagInterface $parameterBag,
-        ?string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -471,7 +471,7 @@ class AddonInstallFromZipCommand extends CoreCommand
             // which makes it harder to recognize the installed addon version
             $zipResponse = $this->httpClient->request('GET', $zipUrl, $ghOptions);
             if (404 === $zipResponse->getStatusCode()) {
-                throw new RuntimeException('Could not access repository '. $zipUrl);
+                throw new RuntimeException('Could not access repository '.$zipUrl);
             }
 
             $zipContent = $zipResponse->getContent(false);
@@ -572,7 +572,6 @@ class AddonInstallFromZipCommand extends CoreCommand
     private function getRepo(array $ghOptions, InputInterface $input, SymfonyStyle $output): string
     {
         if ($this->name) {
-
             return $this->name;
         }
 
@@ -582,17 +581,14 @@ class AddonInstallFromZipCommand extends CoreCommand
             $ghReposUrl
         );
         $availableAddons = collect($availableRepositories)->filter(
-            function ($repo)
-            {
+            function ($repo) {
                 return str_contains($repo['name'], 'demosplan-addon-');
             }
         )
-            ->map(function ($repo)
-            {
+            ->map(function ($repo) {
                 return $repo['name'];
             })
-            ->sortBy(function ($repo)
-            {
+            ->sortBy(function ($repo) {
                 return $repo;
             })
             ->values()
@@ -603,14 +599,16 @@ class AddonInstallFromZipCommand extends CoreCommand
         );
         /** @var QuestionHelper $questionHelper */
         $questionHelper = $this->getHelper('question');
+
         return $questionHelper->ask($input, $output, $question);
     }
 
     private function getTag(string $ghUrl, array $ghOptions, InputInterface $input, SymfonyStyle $output): mixed
     {
-        if($this->tag) {
+        if ($this->tag) {
             return $this->tag;
         }
+
         return $this->getGithubItem($ghUrl, $ghOptions, $input, $output);
     }
 }

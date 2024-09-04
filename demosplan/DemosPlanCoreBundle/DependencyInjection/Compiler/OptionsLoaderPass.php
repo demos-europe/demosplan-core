@@ -27,7 +27,7 @@ class OptionsLoaderPass implements CompilerPassInterface
     final public const OVERRIDABLE_CONFIGS = [
         'form_options.yml'      => FormOptionsTreeBuilder::class,
         'procedurephases.yml'   => ProcedurePhasesTreeBuilder::class,
-        'addons.yml'   => AddonTreeBuilder::class,
+        'addons.yml'            => AddonTreeBuilder::class,
     ];
 
     public function process(ContainerBuilder $container): void

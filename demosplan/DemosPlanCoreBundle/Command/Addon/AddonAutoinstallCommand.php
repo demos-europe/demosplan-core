@@ -22,7 +22,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
-
 class AddonAutoinstallCommand extends CoreCommand
 {
     protected static $defaultName = 'dplan:addon:autoinstall';
@@ -34,7 +33,7 @@ class AddonAutoinstallCommand extends CoreCommand
         private readonly AddonRegistry $registry,
         private readonly CacheClearCommand $cacheClearCommand,
         ParameterBagInterface $parameterBag,
-        string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -54,7 +53,7 @@ class AddonAutoinstallCommand extends CoreCommand
         // remove already installed addons with the correct versions from the list
         foreach ($addons as $key => $addonConfig) {
             $name = $addonConfig['name'];
-            $repo = 'demos-europe/' . $name;
+            $repo = 'demos-europe/'.$name;
             if (array_key_exists($repo, $enabledAddons)) {
                 if ($addonConfig['version'] === $enabledAddons[$repo]->getVersion()) {
                     $output->note("Addon {$name} is already installed in Version {$addonConfig['version']}");
@@ -68,7 +67,7 @@ class AddonAutoinstallCommand extends CoreCommand
             }
         }
 
-        //uninstall addons that are enabled but not in the config
+        // uninstall addons that are enabled but not in the config
         $this->uninstallUnneededAddons($enabledAddons, $output);
 
         // iterate over addons and install them if they are not already installed
@@ -79,7 +78,6 @@ class AddonAutoinstallCommand extends CoreCommand
         }
 
         return Command::SUCCESS;
-
     }
 
     private function runCommand(Command $command, array $arguments, SymfonyStyle $output): int
@@ -99,8 +97,8 @@ class AddonAutoinstallCommand extends CoreCommand
                 $this->runCommand($this->cacheClearCommand, ['--force' => true], $output);
 
                 $arguments = [
-                    '--name' => $name,
-                    '--tag' => $addonConfig['version'],
+                    '--name'   => $name,
+                    '--tag'    => $addonConfig['version'],
                     '--github' => true,
                 ];
                 $this->runCommand($this->addonInstallCommand, $arguments, $output);
@@ -127,5 +125,4 @@ class AddonAutoinstallCommand extends CoreCommand
         ];
         $this->runCommand($this->addonUninstallCommand, $arguments, $output);
     }
-
 }

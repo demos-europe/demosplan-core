@@ -123,7 +123,7 @@ class CacheClearCommand extends CoreCommand
     private function forceClear(SymfonyStyle $output)
     {
         $output->warning('Removing cache directory directly as a fallback');
-        $fs = new FileSystem();
+        $fs = new Filesystem();
         $fs->remove($this->getApplication()->getKernel()->getCacheDir());
     }
 }
