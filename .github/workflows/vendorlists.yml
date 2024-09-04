@@ -53,7 +53,7 @@ jobs:
         run: |
           DEVELOPMENT_CONTAINER=1 bin/console dplan:vendorlist:update
 
-      - uses: peter-evans/create-pull-request@v5
+      - uses: peter-evans/create-pull-request@v7
         with:
             base: main
             title: "chore: Update vendor lists"
