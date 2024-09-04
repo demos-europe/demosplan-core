@@ -43,7 +43,6 @@ use const FILTER_VALIDATE_BOOLEAN;
 class GlobalConfig implements GlobalConfigInterface
 {
     private const PHASE_TRANSLATION_KEY_FIELD = 'translationKey';
-    private const DI_PLAN_COCKPIT_URL_KEY = 'DiPlanCockpit';
     private const CUSTOMER_PLACEHOLFER = '{customer}';
 
     /**
@@ -820,10 +819,14 @@ class GlobalConfig implements GlobalConfigInterface
         $this->advancedSupport = $parameterBag->get('advanced_support');
 
         $externalLinks = $parameterBag->get('external_links');
-        if (is_array($externalLinks) && array_key_exists(self::DI_PLAN_COCKPIT_URL_KEY, $externalLinks)) {
-            $externalLinks[self::DI_PLAN_COCKPIT_URL_KEY] = $this->addCustomerToDiPlanCockpitUrl(
-                $externalLinks[self::DI_PLAN_COCKPIT_URL_KEY]
-            );
+        if (is_array($externalLinks)) {
+
+            foreach ($externalLinks as &$externalLinkUrl) {
+                $externalLinkUrl = $this->addCustomerToUrl(
+                    $externalLinkUrl
+                );
+            }
+            unset($externalLinkUrl); // Break the reference with the last element
         }
         $this->externalLinks = $this->getValidatedExternalLinks($externalLinks);
     }
@@ -1786,7 +1789,7 @@ class GlobalConfig implements GlobalConfigInterface
         return $externalLinks;
     }
 
-    private function addCustomerToDiPlanCockpitUrl(string $url): string
+    private function addCustomerToUrl(string $url): string
     {
         return str_replace(self::CUSTOMER_PLACEHOLFER, $this->subdomain, $url);
     }
