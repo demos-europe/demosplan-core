@@ -108,6 +108,7 @@ use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\SortMethodInterface;
 use Exception;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
+use Illuminate\Support\Collection;
 use ReflectionException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\FormInterface;
@@ -116,7 +117,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
-use Illuminate\Support\Collection;
 use TypeError;
 
 class ProcedureService extends CoreService implements ProcedureServiceInterface
