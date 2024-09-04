@@ -820,7 +820,6 @@ class GlobalConfig implements GlobalConfigInterface
 
         $externalLinks = $parameterBag->get('external_links');
         if (is_array($externalLinks)) {
-
             foreach ($externalLinks as &$externalLinkUrl) {
                 $externalLinkUrl = $this->addCustomerToUrl(
                     $externalLinkUrl
