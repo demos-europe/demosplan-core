@@ -7897,16 +7897,16 @@
         },
         {
             "name": "nelmio/security-bundle",
-            "version": "v3.4.0",
+            "version": "v3.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nelmio/NelmioSecurityBundle.git",
-                "reference": "de34d69ddc2227a4d5928030d2439106faf7a427"
+                "reference": "00d275a38ec99230df60160cb62d88fabf8f088e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nelmio/NelmioSecurityBundle/zipball/de34d69ddc2227a4d5928030d2439106faf7a427",
-                "reference": "de34d69ddc2227a4d5928030d2439106faf7a427",
+                "url": "https://api.github.com/repos/nelmio/NelmioSecurityBundle/zipball/00d275a38ec99230df60160cb62d88fabf8f088e",
+                "reference": "00d275a38ec99230df60160cb62d88fabf8f088e",
                 "shasum": ""
             },
             "require": {
@@ -7965,9 +7965,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nelmio/NelmioSecurityBundle/issues",
-                "source": "https://github.com/nelmio/NelmioSecurityBundle/tree/v3.4.0"
+                "source": "https://github.com/nelmio/NelmioSecurityBundle/tree/v3.4.1"
             },
-            "time": "2024-07-05T07:26:02+00:00"
+            "time": "2024-09-03T15:05:21+00:00"
         },
         {
             "name": "nesbot/carbon",
