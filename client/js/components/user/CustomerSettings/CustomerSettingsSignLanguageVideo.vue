@@ -37,6 +37,7 @@
       <dp-input
         id="videoTitle"
         v-model="video.title"
+        data-cy="uploadedVideoTitle"
         data-dp-validate-if="input[name='uploadedFiles[videoSrc]']!=='', #videoDescription!==''"
         :label="{
           text: Translator.trans('title')
@@ -55,6 +56,7 @@
         needs-hidden-input
         required
         data-dp-validate-if="#videoTitle!=='', #videoDescription!==''"
+        data-cy="uploadVideo"
         :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '400MB' }) }"
         :tus-endpoint="dplan.paths.tusEndpoint"
         @file-remove="unsetVideoSrcId"
@@ -71,6 +73,7 @@
 
       <dp-button-row
         class="u-mt"
+        data-cy="customerSettings:video"
         primary
         secondary
         :busy="isBusy"
