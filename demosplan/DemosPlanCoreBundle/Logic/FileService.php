@@ -33,6 +33,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Faker\Provider\Uuid;
+use League\Flysystem\FilesystemOperator;
 use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Filesystem;
@@ -71,6 +72,7 @@ class FileService extends CoreService implements FileServiceInterface
         private readonly FileContainerRepository $fileContainerRepository,
         private readonly FileInUseChecker $fileInUseChecker,
         private readonly FileRepository $fileRepository,
+        private readonly FilesystemOperator $defaultStorage,
         private readonly GlobalConfigInterface $globalConfig,
         private readonly MessageBagInterface $messageBag,
         private readonly RequestStack $requestStack,
@@ -730,6 +732,13 @@ class FileService extends CoreService implements FileServiceInterface
         $hash = $existingHash ?? $this->createHash();
 
         // Move the file to the directory where files are stored
+        $stream = fopen($file->getPathname(), 'rb');
+        $this->defaultStorage->writeStream($path, $stream);
+
+        if (is_resource($stream)) {
+            fclose($stream);
+        }
+
         $file->move($path, $hash);
 
         return $hash;
