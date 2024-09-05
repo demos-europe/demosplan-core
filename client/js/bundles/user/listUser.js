@@ -29,7 +29,7 @@ const apiStores = [
   'Department',
   'Orga',
   'Role',
-  'User'
+  'AdministratableUser'
 ]
 
 initialize(components, stores, apiStores)

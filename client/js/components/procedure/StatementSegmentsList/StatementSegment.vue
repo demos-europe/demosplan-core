@@ -88,25 +88,36 @@
       </button>
     </div>
     <div class="segment-list-col--l overflow-word-break">
+      <image-modal
+        ref="imageModal"
+        data-cy="recommendation:imgModal"/>
       <div
         v-if="isAssignedToMe === false"
+        ref="recommendationContainer"
         :class="{ 'color--grey': visibleRecommendation === '' }"
         :title="visibleRecommendation ? Translator.trans('explanation.segment.claim.to.edit.recommendation') : Translator.trans('explanation.segment.claim.to.add.recommendation')"
         v-cleanhtml="visibleRecommendation || Translator.trans('segment.recommendation.none')" />
       <div v-else-if="isAssignedToMe && isEditing === false">
         <div
           v-if="visibleRecommendation !== ''"
+          ref="recommendationContainer"
           v-cleanhtml="visibleRecommendation"
           class="u-mb-0_5" />
       </div>
       <div v-else>
         <dp-editor
+          :basic-auth="dplan.settings.basicAuth"
           class="u-mb-0_5"
           editor-id="recommendationText"
+          :routes="{
+            getFileByHash: (hash) => Routing.generate('core_file_procedure', { procedureId: procedureId, hash: hash })
+          }"
           :toolbar-items="{
             fullscreenButton: false,
+            imageButton: true,
             linkButton: true
           }"
+          :tus-endpoint="dplan.paths.tusEndpoint"
           :value="segment.attributes.recommendation"
           @input="value => updateSegment('recommendation', value)">
           <template v-slot:modal="modalProps">
@@ -212,13 +223,35 @@
             class="u-1-of-1"
             label="name"
             :options="places"
+            :sub-slots="['option', 'singleLabel', 'tag']"
             track-by="id">
             <template v-slot:option="{ props }">
               <div
                 v-for="prop in props"
                 v-tooltip="prop.description"
-                :key="prop.id"
-                v-text="prop.name" />
+                :key="prop.id">
+                {{ prop.name }}
+                <dp-contextual-help
+                  v-if="prop.solved"
+                  class="float-right color--grey"
+                  icon="check"
+                  size="small"
+                  :text="Translator.trans('statement.solved.description')" />
+              </div>
+            </template>
+            <template v-slot:singleLabel="{ props }">
+              <div
+                v-for="prop in props"
+                v-tooltip="prop.description"
+                :key="prop.id">
+                {{ prop.name }}
+                <dp-contextual-help
+                  v-if="prop.solved"
+                  class="float-right color--grey mt-0.5"
+                  icon="check"
+                  size="small"
+                  :text="Translator.trans('statement.solved.description')" />
+              </div>
             </template>
           </dp-multiselect>
         </div>
@@ -346,6 +379,7 @@ import {
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
+import ImageModal from '@DpJs/components/shared/ImageModal'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 
 export default {
@@ -370,6 +404,7 @@ export default {
     },
     DpTab,
     DpTabs,
+    ImageModal,
     VPopover
   },
 
@@ -494,8 +529,8 @@ export default {
     },
 
     tagsAsString () {
-      if (this.segment.hasRelationship('tag')) {
-        return Object.values(this.segment.rel('tag')).map(el => el.attributes.title).join(', ')
+      if (this.segment.hasRelationship('tags')) {
+        return Object.values(this.segment.rel('tags')).map(el => el.attributes.title).join(', ')
       }
 
       return '-'
@@ -642,7 +677,7 @@ export default {
     },
 
     save () {
-      const comments = { ...this.segment.relationships.comments } || null
+      const comments = this.segment.relationships.comments ? { ...this.segment.relationships.comments } : null
 
       this.updateRelationships()
       return this.saveSegmentAction(this.segment.id)
@@ -659,6 +694,11 @@ export default {
           this.setProperty({ prop: 'isLoading', val: false })
 
           this.toggleAssignableUsersSelect()
+          this.$nextTick(() => {
+            if (this.$refs.recommendationContainer) {
+              this.$refs.imageModal.addClickListener(this.$refs.recommendationContainer.querySelectorAll('img'))
+            }
+          })
         })
         .catch(() => {
           this.restoreComments(comments)
@@ -700,6 +740,7 @@ export default {
       this.$parent.$parent.resetSlidebar()
       this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'map' } })
       this.$root.$emit('show-slidebar')
+      this.$root.$emit('segmentMap:show')
     },
 
     showSegmentVersionHistory () {
@@ -831,10 +872,30 @@ export default {
     }
   },
 
+  watch: {
+    isCollapsed: {
+      handler: function (newVal, oldVal) {
+        if (!newVal) {
+          this.$nextTick(() => {
+            if (this.$refs.recommendationContainer) {
+              this.$refs.imageModal.addClickListener(this.$refs.recommendationContainer.querySelectorAll('img'))
+            }
+          })
+        }
+      },
+      immediate: true // this ensures the handler is executed immediately after the component is created
+    }
+  },
+
   mounted () {
     this.fetchPlaces({
       fields: {
-        Place: ['name', 'sortIndex', 'description'].join()
+        Place: [
+          'description',
+          'name',
+          'solved',
+          'sortIndex'
+        ].join()
       },
       sort: 'sortIndex'
     })

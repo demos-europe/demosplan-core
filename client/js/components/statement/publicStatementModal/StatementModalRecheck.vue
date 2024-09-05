@@ -13,7 +13,7 @@
     id="check"
     tabindex="-1">
     <legend
-      class="hide-visually"
+      class="sr-only"
       v-text="Translator.trans('statement.recheck')" />
     <p :class="prefixClass('c-statement__formhint flash-warning')">
       <i
@@ -223,7 +223,7 @@
       </span>
 
       <div
-        :class="prefixClass('sm:h-9 overflow-auto')"
+        :class="prefixClass('sm:h-9 overflow-auto c-styled-html')"
         v-cleanhtml="statement.r_text" />
     </div>
   </fieldset>

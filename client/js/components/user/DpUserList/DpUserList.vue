@@ -223,17 +223,40 @@ export default {
     }, 500),
 
     getItemsByPage (page) {
-      const search = {
-        value: this.searchValue
-      }
       this.isLoading = true
       page = page || this.currentPage
+      const userFilter = {
+        name: {
+          group: {
+            conjunction: 'OR'
+          }
+        }
+      }
+
+      this.searchValue.split(' ').filter(Boolean).forEach((value, index) => {
+        userFilter[`firstnameFilter${index}`] = {
+          condition: {
+            path: 'firstname',
+            operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
+            value: value,
+            memberOf: 'name'
+          }
+        }
+        userFilter[`lastnameFilter${index}`] = {
+          condition: {
+            path: 'lastname',
+            operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
+            value: value,
+            memberOf: 'name'
+          }
+        }
+      })
 
       this.userList({
         page: {
           number: page ?? 1
         },
-        search: (this.searchValue !== '') ? search : {},
+        filter: userFilter,
         include: ['roles', 'orga', 'department', 'orga.allowedRoles'].join()
       })
         .then(() => {
@@ -247,7 +270,7 @@ export default {
 
     loadItems () {
       const arr = []
-      if (hasPermission('area_organisations')) {
+      if (hasPermission('feature_organisation_user_list')) {
         arr.push(this.organisationList({ include: ['departments', 'allowedRoles'].join() }))
       } else {
         arr.push(this.departmentList())

@@ -37,7 +37,7 @@
       :max-extent="procedureMapSettings.attributes.defaultMapExtent"
       :procedure-id="procedureId"
       :procedure-coordinates="procedureMapSettings.attributes.coordinate"
-      :procedure-init-territory="procedureMapSettings.attributes.territory"
+      :procedure-init-territory="Array.isArray(procedureMapSettings.attributes.territory) ? {} : procedureMapSettings.attributes.territory"
       :scales="procedureMapSettings.attributes.availableScales"
       @field:update="setField" />
 
@@ -138,12 +138,6 @@ export default {
     procedureId: {
       type: String,
       required: true
-    }
-  },
-
-  provide () {
-    return {
-      olMapState: this.olMapState
     }
   },
 

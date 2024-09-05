@@ -23,7 +23,7 @@ class PlanningDocumentCategoryResourceTypeTest extends JsonApiTest
     public function testListWithGuestWithoutProcedure(): void
     {
         $user = $this->getUserReference(LoadUserData::TEST_USER_GUEST);
-
+        $this->enablePermissions(['area_documents']);
         $this->executeListRequest(
             PlanningDocumentCategoryResourceType::getName(),
             $user,
@@ -37,7 +37,7 @@ class PlanningDocumentCategoryResourceTypeTest extends JsonApiTest
     {
         $user = $this->getUserReference(LoadUserData::TEST_USER_GUEST);
         $procedure = $this->getProcedureReference(LoadProcedureData::TESTPROCEDURE_IN_PUBLIC_PARTICIPATION_PHASE);
-
+        $this->enablePermissions(['area_documents']);
         $this->executeListRequest(
             PlanningDocumentCategoryResourceType::getName(),
             $user,
@@ -51,7 +51,7 @@ class PlanningDocumentCategoryResourceTypeTest extends JsonApiTest
     {
         $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
         $procedure = $this->getProcedureReference(LoadProcedureData::TESTPROCEDURE);
-
+        $this->enablePermissions(['area_documents']);
         $responseBody = $this->executeListRequest(
             PlanningDocumentCategoryResourceType::getName(),
             $user,
@@ -65,7 +65,7 @@ class PlanningDocumentCategoryResourceTypeTest extends JsonApiTest
     {
         $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
         $procedure = $this->getProcedureReference(LoadProcedureData::TESTPROCEDURE);
-
+        $this->enablePermissions(['area_documents']);
         $responseBody = $this->executeListRequest(
             PlanningDocumentCategoryResourceType::getName(),
             $user,

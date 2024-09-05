@@ -166,24 +166,6 @@ export default {
       }
     },
 
-    features () {
-      /*
-       *  Transform the value that is saved as a string into valid GeoJSON
-       *  to be able to use it with a generic vector layer component
-       */
-      return {
-        boundingBox: this.mapData.boundingBox
-          ? {
-              type: 'Feature',
-              geometry: {
-                type: 'Polygon',
-                coordinates: fromExtent(JSON.parse(`[${this.mapData.boundingBox}]`)).getCoordinates()
-              }
-            }
-          : null
-      }
-    },
-
     lineData () {
       return {
         type: 'FeatureCollection',
@@ -214,23 +196,6 @@ export default {
     }
   },
 
-  watch: {
-    segmentId (newVal) {
-      if (newVal) {
-        this.setInitDrawings()
-        if (this.featuresObject.features.length > 0) {
-          this.$nextTick(() => {
-            this.setCenterAndExtent()
-          })
-        } else if (this.mapData.boundingBox) {
-          this.$nextTick(() => {
-            this.setInitExtent()
-          })
-        }
-      }
-    }
-  },
-
   methods: {
     ...mapMutations('StatementSegment', ['setItem']),
 
@@ -248,15 +213,41 @@ export default {
       this.$root.$emit('hide-slidebar')
     },
 
+    initMap () {
+      this.setInitDrawings()
+      if (this.featuresObject.features.length > 0) {
+        this.$nextTick(() => {
+          this.setCenterAndExtent()
+        })
+      } else if (this.mapData.boundingBox.length > 0) {
+        this.$nextTick(() => {
+          this.setInitExtent()
+        })
+      }
+    },
+
     resetCurrentMap () {
       this.clearTools()
-      if (this.slidebar.isOpen) {
-        this.setInitDrawings()
-      }
 
       this.$nextTick(() => {
         this.$refs.map.updateMapInstance()
       })
+    },
+
+    /**
+     * Restore non-updatable comments from segments relationships after update request
+     */
+    restoreComments (comments) {
+      if (comments) {
+        const segmentWithComments = {
+          ...this.segment,
+          relationships: {
+            ...this.segment.relationships,
+            comments: comments
+          }
+        }
+        this.setItem({ ...segmentWithComments })
+      }
     },
 
     save () {
@@ -267,6 +258,15 @@ export default {
           polygon: JSON.stringify(this.featuresObject)
         }
       })
+      const comments = this.segment.relationships.comments ? { ...this.segment.relationships.comments } : null
+
+      /**
+       *  Comments need to be removed as updating them is technically not supported
+       *  After completing the request, they are added again to the store to be able to display them
+       */
+      if (this.segment.relationships.comments) {
+        delete this.segment.relationships.comments
+      }
 
       return this.saveSegmentAction(this.segmentId)
         .then(checkResponse)
@@ -275,6 +275,9 @@ export default {
         })
         .catch(() => {
           dplan.notify.error(Translator.trans('error.changes.not.saved'))
+        })
+        .finally(() => {
+          this.restoreComments(comments)
         })
     },
 
@@ -309,12 +312,26 @@ export default {
 
       this.initPolygons = JSON.parse(this.segments[this.segmentId].attributes.polygon || '{ "features": [] }').features
       this.currentPolygons = JSON.parse(JSON.stringify(this.initPolygons))
+
+      this.$nextTick(() => {
+        this.$refs.drawPolygon.init()
+        this.$refs.drawPoint.init()
+        this.$refs.drawLine.init()
+      })
     },
 
     updateDrawings (type, data) {
       this.currentPolygons = this.currentPolygons.filter(f => f.geometry.type !== type)
       this.currentPolygons = [...this.currentPolygons, ...JSON.parse(data).features]
     }
+  },
+
+  mounted() {
+    this.$root.$on('segmentMap:show', () => {
+      this.$nextTick(() => {
+        this.initMap()
+      })
+    })
   }
 }
 </script>
