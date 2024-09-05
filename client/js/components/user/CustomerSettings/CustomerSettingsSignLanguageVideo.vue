@@ -64,6 +64,7 @@
 
       <dp-text-area
         id="videoDescription"
+        data-cy="customerSettings:videoDescription"
         :label="Translator.trans('video.description')"
         name="videoDescription"
         required
