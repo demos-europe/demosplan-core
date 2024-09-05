@@ -152,7 +152,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         private readonly UserHasher $userHasher,
         private readonly UserSecurityHandler $userSecurityHandler,
         UserService $userService,
-        ValidatorInterface $validator
+        ValidatorInterface $validator,
     ) {
         parent::__construct($messageBag);
         $this->customerService = $customerService;
@@ -2017,7 +2017,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         string $orgaTypeName,
         string $activationStatus,
         array $customersPendingActivation,
-        ?Customer $currentCustomer
+        ?Customer $currentCustomer,
     ): array {
         $customers = $orga->getCustomersByActivationStatus($orgaTypeName, $activationStatus);
 

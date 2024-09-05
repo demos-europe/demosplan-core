@@ -67,7 +67,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
 
     public function __construct(
         UserHandler $userHandler,
-        UserService $userService
+        UserService $userService,
     ) {
         $this->userHandler = $userHandler;
         $this->userService = $userService;
@@ -145,7 +145,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     public function enable2fa(
         CurrentUserInterface $currentUser,
         EntityManagerInterface $entityManager,
-        TotpAuthenticatorInterface $totpAuthenticator
+        TotpAuthenticatorInterface $totpAuthenticator,
     ): RedirectResponse {
         $user = $currentUser->getUser();
         if (!$user->isTotpEnabled()) {
@@ -160,7 +160,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions('feature_2fa')]
     public function enable2faemail(
         CodeGeneratorInterface $codeGenerator,
-        CurrentUserInterface $currentUser
+        CurrentUserInterface $currentUser,
     ): RedirectResponse {
         $user = $currentUser->getUser();
         if (!$user->isEmailAuthEnabled()) {
@@ -174,7 +174,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions('feature_2fa')]
     public function send2faemail(
         CodeGeneratorInterface $codeGenerator,
-        CurrentUserInterface $currentUser
+        CurrentUserInterface $currentUser,
     ): RedirectResponse {
         $codeGenerator->reSend($currentUser->getUser());
 
@@ -302,7 +302,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         CurrentUserInterface $currentUser,
         CustomerService $customerService,
         ParameterBagInterface $parameterBag,
-        Request $request
+        Request $request,
     ) {
         if (!($currentUser->getUser() instanceof AnonymousUser)) {
             return $this->redirectToRoute('core_home_loggedin');
@@ -444,7 +444,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         UserHasher $userHasher,
         UserService $userService,
         string $token,
-        string $uId
+        string $uId,
     ) {
         try {
             $newPassword = $request->request->get('password');

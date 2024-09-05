@@ -21,7 +21,7 @@ class UserSecurityHandler
     public function __construct(
         private readonly TotpAuthenticator $totpAuthenticator,
         private readonly MessageBagInterface $messageBag,
-        private readonly UserService $userService
+        private readonly UserService $userService,
     ) {
     }
 
