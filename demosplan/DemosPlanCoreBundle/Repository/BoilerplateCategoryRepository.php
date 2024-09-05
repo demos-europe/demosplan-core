@@ -45,7 +45,7 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
         $procedureId,
         $includeNewsCategory = true,
         $includeEmailCategory = true,
-        $includeConsiderationCategory = true
+        $includeConsiderationCategory = true,
     ): array {
         // short + performant way in case of all types are included:
         if ($includeNewsCategory && $includeEmailCategory && $includeConsiderationCategory) {
@@ -90,7 +90,7 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
      */
     public function getByTitle(
         string $boilerplateCategoryTitle,
-        ProcedureInterface $procedure
+        ProcedureInterface $procedure,
     ): ?BoilerplateCategoryInterface {
         return $this->findOneBy(['title' => $boilerplateCategoryTitle, 'procedure' => $procedure]);
     }
