@@ -37,7 +37,7 @@
       <dp-input
         id="videoTitle"
         v-model="video.title"
-        data-cy="uploadedVideoTitle"
+        data-cy="customerSettings:videoTitle"
         data-dp-validate-if="input[name='uploadedFiles[videoSrc]']!=='', #videoDescription!==''"
         :label="{
           text: Translator.trans('title')
