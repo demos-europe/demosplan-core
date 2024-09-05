@@ -14,10 +14,12 @@
 
         <form class="{{ 'u-mt'|prefixClass }}" action="{{ path('DemosPlan_orga_edit_save', {'orgaId': organisation.ident|default}) }}" data-orga-id="{{ organisation.ident|default }}" method="post" data-dp-validate="orgadata">
             <input
+                data-cy="editOrga:organisationIdent"
                 type="hidden"
                 name="organisation_ident"
                 value="{% if organisation is defined %}{{ organisation.ident|default }}{% endif %}">
             <input
+                data-cy="editOrga:addressIdent"
                 type="hidden"
                 name="address_ident"
                 value="{% if organisation is defined %}{{ organisation.address_ident|default }}{% endif %}">

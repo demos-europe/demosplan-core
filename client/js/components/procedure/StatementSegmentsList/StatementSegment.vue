@@ -529,8 +529,8 @@ export default {
     },
 
     tagsAsString () {
-      if (this.segment.hasRelationship('tag')) {
-        return Object.values(this.segment.rel('tag')).map(el => el.attributes.title).join(', ')
+      if (this.segment.hasRelationship('tags')) {
+        return Object.values(this.segment.rel('tags')).map(el => el.attributes.title).join(', ')
       }
 
       return '-'
@@ -740,6 +740,7 @@ export default {
       this.$parent.$parent.resetSlidebar()
       this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'map' } })
       this.$root.$emit('show-slidebar')
+      this.$root.$emit('segmentMap:show')
     },
 
     showSegmentVersionHistory () {

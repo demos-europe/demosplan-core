@@ -489,6 +489,11 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         return $user;
     }
 
+    /**
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
+     */
     public function inviteUser(User $user, string $type = 'new'): User
     {
         $vars = [];
@@ -1648,8 +1653,9 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         }
     }
 
-    public function recoverPasswordHandler(string $email): bool
+    public function recoverPasswordHandler(User $user): bool
     {
+        $email = $user->getEmail();
         try {
             $email = trim($email);
 
@@ -1664,20 +1670,9 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                 return false;
             }
 
-            // Check if user exist with given email
-            $user = $this->userService->getUserByFields(['email' => $email]);
-            if (1 === count($user) && $user[0] instanceof User) {
-                $result = $this->inviteUser($user[0], 'recover');
-                if ($result instanceof User) {
-                    return true;
-                }
-            }
+            $this->inviteUser($user, 'recover');
 
-            $this->logger->error("Couldn't find distinct user with given Email address for recover",
-                ['email' => $email, 'found' => count($user)]
-            );
-
-            return false;
+            return true;
         } catch (Exception) {
             $this->logger->error('User password could not be changed!');
 
