@@ -62,7 +62,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
 
     public function __construct(
         UserHandler $userHandler,
-        UserService $userService
+        UserService $userService,
     ) {
         $this->userHandler = $userHandler;
         $this->userService = $userService;
@@ -241,7 +241,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         CurrentUserInterface $currentUser,
         CustomerService $customerService,
         ParameterBagInterface $parameterBag,
-        Request $request
+        Request $request,
     ) {
         if (!($currentUser->getUser() instanceof AnonymousUser)) {
             return $this->redirectToRoute('core_home_loggedin');
@@ -296,7 +296,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
             '@DemosPlanCore/DemosPlanUser/alternative_login.html.twig',
             [
                 'title'           => 'user.login',
-                'useIdp'   => $useIdp,
+                'useIdp'          => $useIdp,
                 'customers'       => $customers,
                 'currentCustomer' => $currentCustomer,
                 'loginList'       => [
@@ -383,7 +383,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         UserHasher $userHasher,
         UserService $userService,
         string $token,
-        string $uId
+        string $uId,
     ) {
         try {
             $newPassword = $request->request->get('password');
