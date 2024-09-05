@@ -98,6 +98,7 @@ final class UserResourceType extends DplanResourceType implements UserResourceTy
                     [RoleInterface::API_AI_COMMUNICATOR, RoleInterface::CITIZEN],
                     $this->roleInCustomers->role->code
                 ),
+                $this->conditionFactory->propertyHasValue(false, $this->deleted),
             ];
         }
         $currentProcedure = $this->currentProcedureService->getProcedure();
