@@ -414,7 +414,6 @@ class FileService extends CoreService implements FileServiceInterface
             $dplanFile->setSize($symfonyFile->getSize());
 
             // save file into files path
-            $path = $this->getFilesPath().'/'.$path;
             $this->getLogger()->info('Try to move file', ['from' => $symfonyFile->getRealPath(), 'to' => $path]);
             $hash = $this->moveFile($symfonyFile, $path, $dplanFile->getHash());
             $this->getLogger()->info('File moved', ['hash' => $hash]);
@@ -733,7 +732,7 @@ class FileService extends CoreService implements FileServiceInterface
 
         // Move the file to the directory where files are stored
         $stream = fopen($file->getPathname(), 'rb');
-        $this->defaultStorage->writeStream($path, $stream);
+        $this->defaultStorage->writeStream(sprintf("%s/%s", $path, $hash), $stream);
 
         if (is_resource($stream)) {
             fclose($stream);
