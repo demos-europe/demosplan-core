@@ -739,8 +739,6 @@ class FileService extends CoreService implements FileServiceInterface
             fclose($stream);
         }
 
-        $file->move($path, $hash);
-
         return $hash;
     }
 
