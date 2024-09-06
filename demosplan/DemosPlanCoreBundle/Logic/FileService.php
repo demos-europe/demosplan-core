@@ -86,17 +86,14 @@ class FileService extends CoreService implements FileServiceInterface
     /**
      * Get file.
      *
-     * @param string $hash
-     *
-     * @return File|null
      */
-    public function get($hash)
+    public function get(string $hash): ?File
     {
         /*
          * @var File|null
          */
         return $this->fileRepository
-            ->getFileInfo($hash);
+            ->getFile($hash);
     }
 
     /**
@@ -121,7 +118,7 @@ class FileService extends CoreService implements FileServiceInterface
             $this->setFileString($file->getFileString());
 
             return new FileInfo(
-                $file->getIdent(),
+                $file->getId(),
                 $file->getFilename(),
                 $file->getSize(),
                 $file->getMimetype(),
@@ -337,6 +334,9 @@ class FileService extends CoreService implements FileServiceInterface
     }
 
     /**
+     * Saves a temporary local file to the storage and returns the corresponding File entity.
+     * File needs to be accessible for the file system of the current process.
+     * No s3 or other remote storage is used.
      * @throws VirusFoundException|Throwable
      */
     public function saveTemporaryLocalFile(
@@ -362,9 +362,15 @@ class FileService extends CoreService implements FileServiceInterface
             // Procedure does not exist
         }
 
-        $this->saveFile($dplanFile, $symfonyFile, self::VIRUSCHECK_NONE !== $virencheck);
+        [$path, $hash] = $this->storeFile($symfonyFile, self::VIRUSCHECK_NONE !== $virencheck, $dplanFile);
+        $newEntity = $this->saveFileEntity($dplanFile, $hash, $path, $symfonyFile->getSize());
 
-        return $dplanFile;
+        // delete temporary file. May be done with Symfony Filesystem component as file needs to exist locally
+        $fs = new Filesystem();
+        $fs->remove($filePath);
+
+        return $newEntity;
+
     }
 
     /**
@@ -386,47 +392,30 @@ class FileService extends CoreService implements FileServiceInterface
             $dplanFile->setProcedure($this->currentProcedureService->getProcedure());
         }
 
-        $this->saveFile($dplanFile, $symfonyFile, self::VIRUSCHECK_NONE !== $virencheck);
+        [$path, $hash] = $this->storeFile($symfonyFile, self::VIRUSCHECK_NONE !== $virencheck, $dplanFile);
 
-        return $dplanFile;
+        return $this->saveFileEntity($dplanFile, $hash, $path, $symfonyFile->getSize());
     }
 
     /**
      * @throws Throwable|TimeoutException
      */
-    protected function saveFile(
-        File $dplanFile,
-        \Symfony\Component\HttpFoundation\File\File $symfonyFile,
-        bool $viruscheck = true
-    ): void {
+    protected function saveFileEntity(
+        File $fileEntity,
+        string $hash,
+        string $path,
+        string $size,
+    ): File {
         try {
-            // Check Mimetype
-            $this->checkMimeTypeAllowed($symfonyFile->getMimeType(), $symfonyFile->getPathname());
-            // Save file
-            // Sort into subfolders to avoid too many files in one folder
-            $path = date('Y').'/'.date('m');
-
-            if ($viruscheck && $this->globalConfig->isAvscanEnabled()) {
-                $this->virusCheck($symfonyFile);
-            }
-
             // $symfonyFile needs to be used before it is moved
-            $dplanFile->setSize($symfonyFile->getSize());
-
-            // save file into files path
-            $this->getLogger()->info('Try to move file', ['from' => $symfonyFile->getRealPath(), 'to' => $path]);
-            $hash = $this->moveFile($symfonyFile, $path, $dplanFile->getHash());
-            $this->getLogger()->info('File moved', ['hash' => $hash]);
+            $fileEntity->setSize($size);
 
             // reset hash even when it existed before as moveFile() always returns current hash
-            $dplanFile->setHash($hash);
-            $dplanFile->setPath($path);
+            $fileEntity->setHash($hash);
+            $fileEntity->setPath($path);
 
             // Create DatabaseEntry
-            $this->addFile($dplanFile);
-
-            // Set String to be used in other Entities
-            $this->setFileString($dplanFile->getFileString());
+            return $this->addFile($fileEntity);
         } catch (Throwable $e) {
             $this->logger->warning('File could not be saved', [$e, $e->getMessage()]);
             // versuche ggf die angelegte Datei zu löschen
@@ -445,12 +434,14 @@ class FileService extends CoreService implements FileServiceInterface
      *
      * @throws Exception
      */
-    public function addFile(File $file): void
+    public function addFile(File $file): File
     {
         $this->fileRepository->addObject($file);
 
         // Set String to be used in other Entities
         $this->setFileString($file->getFileString());
+
+        return $file;
     }
 
     /**
@@ -625,28 +616,30 @@ class FileService extends CoreService implements FileServiceInterface
             return null;
         }
 
-        // create a new temporary file that will be stored correctly by saveTemporaryFile()
+        // create a new temporary file that will be stored correctly by saveTemporaryLocalFile()
         $newHash = $this->createHash();
-        $newPath = $fileToCopy->getPath().'/'.$newHash;
+        $newFilename = $fileToCopy->getPath().'/'.$newHash;
 
-        $fs = new DemosFilesystem();
-        $fs->copy($fileToCopy->getFilePathWithHash(), $newPath);
+        $this->defaultStorage->copy($fileToCopy->getFilePathWithHash(), $newFilename);
 
-        $procedureId = null;
         // when specific target procedureId is given this shall win
+        if ($fileToCopy->getProcedure() instanceof Procedure) {
+            $procedure = $fileToCopy->getProcedure();
+        }
         if (null !== $targetProcedureId) {
-            $procedureId = $targetProcedureId;
-        } elseif ($fileToCopy->getProcedure() instanceof Procedure) {
-            $procedureId = $fileToCopy->getProcedure()->getId();
+            $procedure = $this->entityManager->getReference(Procedure::class, $targetProcedureId);
         }
 
-        return $this->saveTemporaryFile(
-            $newPath,
-            $fileToCopy->getFilename(),
-            null,
-            $procedureId,
-            self::VIRUSCHECK_NONE
-        );
+        $dplanFile = new File();
+        $dplanFile->setMimetype($fileToCopy->getMimetype());
+        $dplanFile->setFilename($fileToCopy->getFilename());
+        $dplanFile->setAuthor($fileToCopy->getAuthor());
+        if($procedure instanceof Procedure) {
+            $dplanFile->setProcedure($procedure);
+        }
+
+        return $this->saveFileEntity($dplanFile, $hash, $fileToCopy->getPath(), $fileToCopy->getSize());
+
     }
 
     /**
@@ -1083,4 +1076,26 @@ class FileService extends CoreService implements FileServiceInterface
 
         return str_ireplace(' ', '_', $filename);
     }
+
+    private function storeFile(\Symfony\Component\HttpFoundation\File\File $symfonyFile, bool $viruscheck, File $fileEntity): array
+    {
+    // Check Mimetype
+    $this->checkMimeTypeAllowed($symfonyFile->getMimeType(), $symfonyFile->getPathname());
+    // Save file
+    // Sort into subfolders to avoid too many files in one folder
+    $path = date('Y') . '/' . date('m');
+
+    if ($viruscheck && $this->globalConfig->isAvscanEnabled()) {
+        $this->virusCheck($symfonyFile);
+    }
+
+    // save file into files path
+    $this->getLogger()->info(
+        'Try to move file',
+        ['from' => $symfonyFile->getRealPath(), 'to' => $path]
+    );
+    $hash = $this->moveFile($symfonyFile, $path, $fileEntity->getHash());
+    $this->getLogger()->info('File moved', ['hash' => $hash]);
+    return [$path, $hash];
+}
 }

@@ -88,10 +88,6 @@ class FileServiceTest extends FunctionalTestCase
         static::assertEquals('text/plain', $fileInfo->getContentType());
         static::assertEquals($fileSize, $fileInfo->getFileSize());
 
-        // Test File exists
-        $filePath = realpath($fileInfo->getAbsolutePath());
-        static::assertFileExists($filePath);
-
         // Test original temporary file has moved
         static::assertFileDoesNotExist($cacheDir.'/test.txt');
 
@@ -166,13 +162,10 @@ class FileServiceTest extends FunctionalTestCase
         static::assertIsString($fileIdent);
 
         // Test DB-Entry
-        $fileInfo = $this->sut->getFileInfo($fileIdent);
-        static::assertEquals($originalFilename, $fileInfo->getFileName());
-        static::assertEquals('text/plain', $fileInfo->getContentType());
-
-        // Test File exists
-        $filePath = realpath($fileInfo->getAbsolutePath());
-        static::assertFileExists($filePath);
+        $file = $this->sut->get($fileIdent);
+        static::assertEquals($originalFilename, $file->getFileName());
+        static::assertEquals('text/plain', $file->getMimetype());
+        static::assertEquals($author, $file->getAuthor());
 
         // Test original temporary file has moved
         static::assertFileDoesNotExist($cacheDir.'/test.txt');
@@ -181,7 +174,7 @@ class FileServiceTest extends FunctionalTestCase
         $fileString = $this->sut->getFileString();
         static::assertEquals($originalFilename.':'.$fileIdent.':'.$fileSize.':'.$mimeType, $fileString);
 
-        static::assertEquals($procedure, $fileInfo->getProcedure());
+        static::assertEquals($procedure, $file->getProcedure());
     }
 
     public function testSaveFileFromUploadedFileWithUserId()
@@ -459,20 +452,20 @@ class FileServiceTest extends FunctionalTestCase
         $id = $this->sut->saveTemporaryLocalFile($cacheDir.'/test.txt', 'Testfilename')->getId();
         $testFile = $this->sut->get($id);
 
-        $copiedFileIdent = $this->sut->copy($fileIdent)->getId();
+        $copiedFileId = $this->sut->copy($id)->getId();
 
-        $copiedFileInfo = $this->sut->getFileInfo($copiedFileIdent);
+        $copiedFile = $this->sut->get($copiedFileId);
         // Test File exists
-        $copiedFilePath = realpath($copiedFileInfo->getAbsolutePath());
-        static::assertFileExists($copiedFilePath);
+        static::assertInstanceOf(File::class, $copiedFile);
 
         // Test original file has not been removed
-        static::assertFileExists($fileInfo->getAbsolutePath());
+        $originalTestFile = $this->sut->get($id);
+        static::assertInstanceOf(File::class, $originalTestFile);
 
-        static::assertNotEquals($fileIdent, $copiedFileIdent);
-        static::assertFileEquals(
-            $fileInfo->getAbsolutePath(),
-            $copiedFileInfo->getAbsolutePath()
+        static::assertNotEquals($id, $copiedFileId);
+        static::assertEquals(
+            $this->sut->getContent($testFile),
+            $this->sut->getContent($copiedFile)
         );
     }
 
@@ -486,18 +479,12 @@ class FileServiceTest extends FunctionalTestCase
 
         $copiedFileIdent = $this->sut->copyByFileString($this->sut->getFileString())->getId();
 
-        $copiedFileInfo = $this->sut->getFileInfo($copiedFileIdent);
-        // Test File exists
-        $copiedFilePath = realpath($copiedFileInfo->getAbsolutePath());
-        static::assertFileExists($copiedFilePath);
-
-        // Test original file has not been removed
-        static::assertFileExists($fileInfo->getAbsolutePath());
+        $copiedFile = $this->sut->get($copiedFileIdent);
 
         static::assertNotEquals($fileIdent, $copiedFileIdent);
-        static::assertFileEquals(
-            $fileInfo->getAbsolutePath(),
-            $copiedFileInfo->getAbsolutePath()
+        static::assertEquals(
+            $this->sut->getContent($testFile),
+            $this->sut->getContent($copiedFile)
         );
     }
 }
