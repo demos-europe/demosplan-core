@@ -56,7 +56,7 @@
         needs-hidden-input
         required
         data-dp-validate-if="#videoTitle!=='', #videoDescription!==''"
-        data-cy="uploadVideo"
+        data-cy="customerSettings:videoUpload"
         :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '400MB' }) }"
         :tus-endpoint="dplan.paths.tusEndpoint"
         @file-remove="unsetVideoSrcId"
