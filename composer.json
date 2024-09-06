@@ -68,6 +68,7 @@
         "knpuniversity/oauth2-client-bundle": "^2.10",
         "league/flysystem-aws-s3-v3": "^3.28",
         "league/flysystem-bundle": "^3.3",
+        "league/flysystem-memory": "^3.28",
         "league/fractal": "^0.20",
         "league/html-to-markdown": "^5.0",
         "lexik/jwt-authentication-bundle": "^2.8",
