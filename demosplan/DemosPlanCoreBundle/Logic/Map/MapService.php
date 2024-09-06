@@ -420,7 +420,7 @@ class MapService extends CoreService
 
             $hash = '';
             try {
-                $hash = $this->fileService->saveTemporaryFile(
+                $hash = $this->fileService->saveTemporaryLocalFile(
                     $file,
                     $fileName,
                     null,

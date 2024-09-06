@@ -77,7 +77,7 @@ class TusUploadEventSubscriber implements EventSubscriberInterface
         try {
             $checkVirus = FileService::VIRUSCHECK_ASYNC;
             $this->logger->info('Try to save temporary file', [$file->getFilePath()]);
-            $fileId = $this->fileService->saveTemporaryFile(
+            $fileId = $this->fileService->saveTemporaryLocalFile(
                 $file->getFilePath(),
                 $filename,
                 null,

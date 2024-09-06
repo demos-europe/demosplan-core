@@ -82,7 +82,7 @@ class ZipImportService
                     if (in_array($extension, self::IMPORT_FILE_TYPES_TO_NOT_BE_SAVED, true)) {
                         $fileMap[$fileHash] = $file;
                     } else {
-                        $fileMap[$fileHash] = $this->fileService->saveTemporaryFile(
+                        $fileMap[$fileHash] = $this->fileService->saveTemporaryLocalFile(
                             $file->getRealPath(),
                             $file->getFilename(),
                             null,

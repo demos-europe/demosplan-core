@@ -43,6 +43,6 @@ class ExternalFileSaver implements ExternalFileSaverInterface
 
         file_put_contents($path, $imageContent);
 
-        return $this->fileService->saveTemporaryFile($path, $basename, null, $procedureId, FileService::VIRUSCHECK_NONE);
+        return $this->fileService->saveTemporaryLocalFile($path, $basename, null, $procedureId, FileService::VIRUSCHECK_NONE);
     }
 }

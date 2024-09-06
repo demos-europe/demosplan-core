@@ -339,7 +339,7 @@ class FileService extends CoreService implements FileServiceInterface
     /**
      * @throws VirusFoundException|Throwable
      */
-    public function saveTemporaryFile(
+    public function saveTemporaryLocalFile(
         string $filePath,
         string $fileName,
         ?string $userId = null,

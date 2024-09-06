@@ -210,7 +210,7 @@ class DocumentHandler extends CoreHandler
                 // speichere die Datei im Fileservice ab
                 try {
                     // Viruscheck has been done for complete zip, so no check needed any more
-                    $this->fileService->saveTemporaryFile($entry['path'], $fileName, $this->currentUser->getUser()->getId(), $procedure, FileService::VIRUSCHECK_NONE);
+                    $this->fileService->saveTemporaryLocalFile($entry['path'], $fileName, $this->currentUser->getUser()->getId(), $procedure, FileService::VIRUSCHECK_NONE);
 
                     $singleDocument = new SingleDocument();
                     $singleDocument->setTitle($fileName);

@@ -218,7 +218,7 @@ class ServiceImporter implements ServiceImporterInterface
                             $hash = '';
                             // Übergebe temporäre Datei FileService
                             try {
-                                $hash = $this->fileService->saveTemporaryFile(
+                                $hash = $this->fileService->saveTemporaryLocalFile(
                                     $lf->getPathname(),
                                     $ca[0],
                                     null,

@@ -79,7 +79,7 @@ class FileServiceTest extends FunctionalTestCase
         $mimeType = mime_content_type($cacheDir.'/test.txt');
 
         // Test function
-        $fileIdent = $this->sut->saveTemporaryFile($cacheDir.'/test.txt', $originalFilename)->getId();
+        $fileIdent = $this->sut->saveTemporaryLocalFile($cacheDir.'/test.txt', $originalFilename)->getId();
         static::assertTrue(is_string($fileIdent));
 
         // Test DB-Entry
@@ -161,7 +161,8 @@ class FileServiceTest extends FunctionalTestCase
         $procedure = $this->fixtures->getReference(LoadProcedureData::TESTPROCEDURE);
 
         // Test function
-        $fileIdent = $this->sut->saveTemporaryFile($cacheDir.'/test.txt', $originalFilename, 'SomeRandomUserId', $procedure->getId())->getId();
+        $author = 'SomeRandomUserId';
+        $fileIdent = $this->sut->saveTemporaryLocalFile($cacheDir.'/test.txt', $originalFilename, $author, $procedure->getId())->getId();
         static::assertIsString($fileIdent);
 
         // Test DB-Entry
@@ -232,14 +233,14 @@ class FileServiceTest extends FunctionalTestCase
     {
         $this->expectException(Exception::class);
         // Test function
-        $this->sut->saveTemporaryFile('', '');
+        $this->sut->saveTemporaryLocalFile('', '');
     }
 
     public function testSaveTemporaryFileNull()
     {
         $this->expectException(TypeError::class);
         // Test function
-        $this->sut->saveTemporaryFile(null, '');
+        $this->sut->saveTemporaryLocalFile(null, '');
     }
 
     public function testMimeTypeNotAllowed()
@@ -287,7 +288,7 @@ class FileServiceTest extends FunctionalTestCase
 
         // Test function
         try {
-            $this->sut->saveTemporaryFile($cacheDir.'/'.$fileName, $fileName);
+            $this->sut->saveTemporaryLocalFile($cacheDir.'/'.$fileName, $fileName);
             $this->fail('Exception should have been thrown');
         } catch (FileException $e) {
             static::assertEquals(20, $e->getCode());
@@ -306,7 +307,7 @@ class FileServiceTest extends FunctionalTestCase
         $fs->dumpFile($cacheDir.'/'.$fileName, 'file3');
         static::assertFileExists($cacheDir.'/'.$fileName);
 
-        $fileId = $this->sut->saveTemporaryFile($cacheDir.'/'.$fileName, $fileName)->getId();
+        $fileId = $this->sut->saveTemporaryLocalFile($cacheDir.'/'.$fileName, $fileName)->getId();
         $file = $this->sut->getFileInfo($fileId);
         static::assertEquals('testfile.txt', $file->getFileName());
     }
@@ -455,8 +456,8 @@ class FileServiceTest extends FunctionalTestCase
         $cacheDir = $this->getContainer()->getParameter('kernel.cache_dir');
         $fs = new Filesystem();
         $fs->dumpFile($cacheDir.'/test.txt', 'file1');
-        $fileIdent = $this->sut->saveTemporaryFile($cacheDir.'/test.txt', 'Testfilename')->getId();
-        $fileInfo = $this->sut->getFileInfo($fileIdent);
+        $id = $this->sut->saveTemporaryLocalFile($cacheDir.'/test.txt', 'Testfilename')->getId();
+        $testFile = $this->sut->get($id);
 
         $copiedFileIdent = $this->sut->copy($fileIdent)->getId();
 
@@ -480,8 +481,8 @@ class FileServiceTest extends FunctionalTestCase
         $cacheDir = $this->getContainer()->getParameter('kernel.cache_dir');
         $fs = new Filesystem();
         $fs->dumpFile($cacheDir.'/test.txt', 'file1');
-        $fileIdent = $this->sut->saveTemporaryFile($cacheDir.'/test.txt', 'Testfilename')->getId();
-        $fileInfo = $this->sut->getFileInfo($fileIdent);
+        $fileIdent = $this->sut->saveTemporaryLocalFile($cacheDir.'/test.txt', 'Testfilename')->getId();
+        $testFile = $this->sut->get($fileIdent);
 
         $copiedFileIdent = $this->sut->copyByFileString($this->sut->getFileString())->getId();
 
