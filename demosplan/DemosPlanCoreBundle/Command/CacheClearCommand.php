@@ -63,7 +63,7 @@ class CacheClearCommand extends CoreCommand
         } catch (Exception) {
             $output->error('Failed to clear CLI APCu and OpCache, aborting');
 
-            return (int) Command::FAILURE;
+            return Command::FAILURE;
         }
 
         if ('test' !== $this->getApplication()->getKernel()->getEnvironment()) {
@@ -74,7 +74,7 @@ class CacheClearCommand extends CoreCommand
             $this->handleAppCacheClear($input, $output);
         }
 
-        return (int) Command::SUCCESS;
+        return Command::SUCCESS;
     }
 
     private function scheduleWebApcuClear(SymfonyStyle $output): void

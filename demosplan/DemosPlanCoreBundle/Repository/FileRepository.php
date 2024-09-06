@@ -111,7 +111,7 @@ class FileRepository extends FluentRepository implements ArrayInterface, ObjectI
      *
      * @param string $entityId
      *
-     * @return CoreEntity|null
+     * @return File|null
      */
     public function get($entityId)
     {
