@@ -108,7 +108,7 @@ class FileService extends CoreService implements FileServiceInterface
      */
     public function getFileInfo($hash, string $procedureId = null): FileInfo
     {
-        $file = $this->fileRepository->getFileInfo($hash, $procedureId);
+        $file = $this->fileRepository->getFile($hash, $procedureId);
 
         if (null !== $file) {
             $path = $file->getPath();
@@ -1074,7 +1074,7 @@ class FileService extends CoreService implements FileServiceInterface
         $fileStringParts = explode(':', $fileString);
 
         return $this->fileRepository
-            ->getFileInfo($fileStringParts[1]);
+            ->getFile($fileStringParts[1]);
     }
 
     public function sanitizeFileName(string $filename): string
