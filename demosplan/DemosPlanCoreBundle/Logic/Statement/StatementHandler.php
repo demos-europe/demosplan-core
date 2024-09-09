@@ -2319,7 +2319,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             $newTagData = [
                 'topic'          => $dataset[0] ?? '',
                 'tag'            => $dataset[1] ?? '',
-                'useBoilerplate' => isset($dataset[2]) ? 'ja' === $dataset[2] : 'nein',
+                'useBoilerplate' => isset($dataset[2]) ? 'ja' === $dataset[2] : false,
                 'boilerplate'    => $dataset[3] ?? '',
             ];
             $newTags[] = $newTagData;

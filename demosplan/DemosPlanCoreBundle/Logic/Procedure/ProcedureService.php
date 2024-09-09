@@ -1550,7 +1550,13 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         try {
             $data['procedure'] = $this->getProcedure($procedureId);
 
-            return $this->boilerplateRepository->add($data);
+            $addToCategories = [];
+            if ($this->currentUser->hasPermission('feature_enable_default_consideration_BoilerplateCategory')) {
+                // add consideration as BoilerplateCategory by default
+                $addToCategories[] = 'consideration';
+            }
+
+            return $this->boilerplateRepository->add($data, $addToCategories);
         } catch (Exception) {
             $this->logger->warning('Post boilerplate failed');
         }
