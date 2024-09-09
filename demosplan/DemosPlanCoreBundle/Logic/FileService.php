@@ -366,14 +366,7 @@ class FileService extends CoreService implements FileServiceInterface
             // Procedure does not exist
         }
 
-        [$path, $hash] = $this->storeLocalFile($symfonyFile, self::VIRUSCHECK_NONE !== $virencheck, $dplanFile);
-        $newEntity = $this->saveFileEntity($dplanFile, $hash, $path, $symfonyFile->getSize());
-
-        // delete temporary file. May be done with Symfony Filesystem component as file needs to exist locally
-        $fs = new Filesystem();
-        $fs->remove($filePath);
-
-        return $newEntity;
+        return $this->handleLocalFileStorage($symfonyFile, $virencheck, $dplanFile, $filePath);
     }
 
     /**
@@ -394,10 +387,9 @@ class FileService extends CoreService implements FileServiceInterface
         if ($this->currentProcedureService->getProcedure() instanceof Procedure) {
             $dplanFile->setProcedure($this->currentProcedureService->getProcedure());
         }
+        $filePath = $symfonyFile->getPathname();
 
-        [$path, $hash] = $this->storeLocalFile($symfonyFile, self::VIRUSCHECK_NONE !== $virencheck, $dplanFile);
-
-        return $this->saveFileEntity($dplanFile, $hash, $path, $symfonyFile->getSize());
+        return $this->handleLocalFileStorage($symfonyFile, $virencheck, $dplanFile,$filePath);
     }
 
     /**
@@ -1092,5 +1084,22 @@ class FileService extends CoreService implements FileServiceInterface
         $this->getLogger()->info('File moved', ['hash' => $hash]);
 
         return [$path, $hash];
+    }
+
+    private function handleLocalFileStorage(
+        \Symfony\Component\HttpFoundation\File\File $symfonyFile,
+        string $virencheck,
+        File $dplanFile,
+        string $filePath
+    ): File
+    {
+        [$path, $hash] = $this->storeLocalFile($symfonyFile, self::VIRUSCHECK_NONE !== $virencheck, $dplanFile);
+        $newEntity = $this->saveFileEntity($dplanFile, $hash, $path, $symfonyFile->getSize());
+
+        // delete temporary file. May be done with Symfony Filesystem component as file needs to exist locally
+        $fs = new Filesystem();
+        $fs->remove($filePath);
+
+        return $newEntity;
     }
 }
