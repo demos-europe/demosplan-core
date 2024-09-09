@@ -25,6 +25,7 @@ use League\Flysystem\FilesystemException;
 use PhpOffice\PhpSpreadsheet\Writer\Exception as WriterException;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -124,6 +125,9 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
                 $file['zipFileName'].'/'.$file['xlsx']['filename'],
                 $zipStream
             );
+            // uses local file, no need for flysystem
+            $fs = new Filesystem();
+            $fs->remove($temporaryFullFilePath);
         } catch (FilesystemException $e) {
             $this->handleError($e, self::FIILE_NOT_FOUND_OR_READABLE, self::XLSX_GENERIC);
         } catch (WriterException|Exception $e) {
