@@ -2372,6 +2372,7 @@ class DemosPlanStatementController extends BaseController
         try {
             // recreate uploaded array
             $uploads = explode(',', (string) $requestPost['uploadedFiles']);
+            // @todo is local file usage ok?
             $files = array_map($fileService->getFileInfo(...), $uploads);
             $importer = $importerFactory->createXlsxStatementImporter($excelImporter);
             $fileNames = [];

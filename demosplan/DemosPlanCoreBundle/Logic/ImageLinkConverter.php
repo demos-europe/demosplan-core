@@ -56,6 +56,7 @@ final class ImageLinkConverter
             $prefix
         );
 
+        // @todo use flysystem
         foreach ($imageReferencesFromSegmentText as $index => $imageReference) {
             $hash = $imageReference->getFileHash();
             $path = $this->getAbsoluteImagePath($hash);

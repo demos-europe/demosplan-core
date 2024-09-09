@@ -1678,6 +1678,7 @@ class DocxExporter
                 null,
                 $cellHCentered
             );
+            // @todo use flysystem
             if (file_exists($fileAbsolutePath)) {
                 // use Html::addHtml() because $cell2->addImage() ignored sizes
                 Html::addHtml($cell2, $this->getDocxImageTag($fileAbsolutePath));
@@ -1700,6 +1701,7 @@ class DocxExporter
         $width = 300;
         $height = 300;
         $margin = 10;
+        // @todo use flysystem
         if (!file_exists($imageFile)) {
             return $imgTag;
         }

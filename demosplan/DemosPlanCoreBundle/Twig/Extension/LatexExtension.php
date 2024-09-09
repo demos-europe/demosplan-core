@@ -629,6 +629,7 @@ class LatexExtension extends ExtensionBase
     {
         try {
             $fileInfo = $this->fileService->getFileInfo($hash);
+            // @todo use flysystem
             if (is_file($fileInfo->getAbsolutePath())) {
                 $sizeArray = getimagesize($fileInfo->getAbsolutePath());
 

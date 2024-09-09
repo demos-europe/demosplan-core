@@ -259,6 +259,7 @@ class AddonInstallFromZipCommand extends CoreCommand
      */
     private function createDirectoryIfNecessary(string $directory): void
     {
+        // uses local file, no need for flysystem
         if (!file_exists($directory)) {
             if (!mkdir($directory, 0777, true) && !is_dir($directory)) {
                 throw new RuntimeException(sprintf('Directory "%s" was not created', $directory));
@@ -289,6 +290,7 @@ class AddonInstallFromZipCommand extends CoreCommand
      */
     private function copyAndUnzipFileIfNecessary(OutputInterface $output, bool $reinstall): void
     {
+        // uses local file, no need for flysystem
         $doesFileExist = file_exists($this->zipSourcePath);
         $addonExistsInCache = file_exists($this->zipCachePath);
         $shouldUnzip = !$addonExistsInCache || $reinstall;
@@ -417,6 +419,7 @@ class AddonInstallFromZipCommand extends CoreCommand
 
         // tags are prefixed with v, but the zip file is not
         $path = DemosPlanPath::getRootPath($folder).'/'.$repo.'-'.str_replace('v', '', $tag).'.zip';
+        // uses local file, no need for flysystem
         if (file_exists($path) && !$input->getOption('force-download')) {
             $output->info('File '.$path.' already exists, skipping download. You may use the --force-download option to force a download.');
         } else {
@@ -558,6 +561,7 @@ class AddonInstallFromZipCommand extends CoreCommand
         // local file only, no need for flysystem
         $fs = new Filesystem();
         $addonDevFolder = DemosPlanPath::getRootPath('addonDev');
+        // uses local file, no need for flysystem
         if (!file_exists($addonDevFolder)) {
             throw new RuntimeException("No folder {$addonDevFolder} found. To develop addons locally, create a folder {$addonDevFolder} and put your addons in there.");
         }

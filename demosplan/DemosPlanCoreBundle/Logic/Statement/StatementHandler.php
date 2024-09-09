@@ -2298,6 +2298,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     public function importTags(string $procedureId, $file)
     {
         $hash = explode(':', $file)[1];
+        // @todo check local file usage
         $fileInfo = $this->fileService->getFileInfo($hash);
 
         $lexer = $this->getTagImportService();

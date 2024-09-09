@@ -531,6 +531,7 @@ class FileService extends CoreService implements FileServiceInterface
      */
     public function deleteFile($hash)
     {
+        // @todo use flysystem
         // try to delete File physically
         $fs = new DemosFilesystem();
         try {

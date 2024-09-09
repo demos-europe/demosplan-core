@@ -202,6 +202,7 @@ class WebpackBundleExtension extends ExtensionBase
         $manifestFile = DemosPlanPath::getProjectPath("web/{$manifest}.manifest.json");
 
         $manifestArray = [];
+        // uses local file, no need for flysystem
         if (file_exists($manifestFile)) {
             try {
                 // uses local file, no need for flysystem

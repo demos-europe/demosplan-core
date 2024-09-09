@@ -979,6 +979,7 @@ class DraftStatementService extends CoreService
 
     protected function checkMapScreenshotFile(array $statementArray, string $procedureId): array
     {
+        // @todo use flysystem
         // hat das Statement einen Screenshot aber kein Polygon?
         if (0 < strlen((string) $statementArray['polygon']) && 0 === strlen($statementArray['mapFile'] ?? '')) {
             $this->getLogger()->info('DraftStatement hat ein Polygon, aber keinen Screenshot. Erzeuge ihn');
@@ -1043,6 +1044,7 @@ class DraftStatementService extends CoreService
     {
         $index = count($pictures);
 
+        // @todo use flysystem
         if (is_file($file->getAbsolutePath())) {
             $this->getLogger()->info('Bild auf der Platte gefunden');
             $fileContent = file_get_contents($file->getAbsolutePath());

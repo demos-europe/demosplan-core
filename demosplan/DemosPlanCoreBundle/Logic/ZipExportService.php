@@ -113,6 +113,7 @@ class ZipExportService
         try {
             $fileInfo = $this->fileService->getFileInfoFromFileString($filePath);
             $path = Utf8::toAscii($zipPath.'/'.$fileInfo->getFileName());
+            //@todo use flysystem
             $this->addFileToZipStream($fileInfo->getAbsolutePath(), $path, $zip);
             $this->logger->info(
                 'Added File to Zip.',

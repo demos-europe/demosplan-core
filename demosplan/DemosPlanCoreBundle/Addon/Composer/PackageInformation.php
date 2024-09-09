@@ -39,6 +39,7 @@ final class PackageInformation
     {
         $installedPackagesPath = DemosPlanPath::getRootPath('addons/vendor/composer/installed.php');
 
+        // uses local file, no need for flysystem
         if (!file_exists($installedPackagesPath)) {
             return;
         }

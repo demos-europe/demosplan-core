@@ -443,6 +443,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
                 }
                 if (null !== $mapFile && 0 < strlen((string) $mapFile) && Statement::MAP_FILE_EMPTY_DASHED !== $mapFile) {
                     $fileInfo = $this->fileService->getFileInfoFromFileString($mapFile);
+                    // @todo use flysystem
                     if (is_file($fileInfo->getAbsolutePath())) {
                         $fileContent = file_get_contents($fileInfo->getAbsolutePath());
                         $pictures['picture'.$i] = $fileInfo->getHash().'###'.$fileInfo->getFileName().'###'.base64_encode($fileContent);

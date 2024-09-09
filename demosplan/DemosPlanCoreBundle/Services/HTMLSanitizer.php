@@ -23,6 +23,7 @@ class HTMLSanitizer
 
     public function __construct(private readonly HTMLPurifier $htmlPurifier, string $cacheDirectory)
     {
+        // uses local file, no need for flysystem
         // Make sure the cache directory exists, as the purifier won't create it for you
         if (!file_exists($cacheDirectory) && !mkdir($cacheDirectory, 0777, true) && !is_dir($cacheDirectory)) {
             throw new RuntimeException(sprintf('HTML purifier directory "%s" can not be created', $cacheDirectory));

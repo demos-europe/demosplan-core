@@ -721,6 +721,7 @@ class AssessmentTableServiceOutput
         $width = 300;
         $height = 300;
         $margin = 10;
+        // @todo use flysystem
         if (!file_exists($imageFile)) {
             return $imgTag;
         }

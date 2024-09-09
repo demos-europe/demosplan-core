@@ -97,6 +97,7 @@ class ParagraphExporter
                 try {
                     $file = $this->fileService->getFileInfo($match);
 
+                    // @todo use flysystem
                     if (is_file($file->getAbsolutePath())) {
                         $this->logger->info('Pdf: Bild auf der Platte gefunden');
                         $fileContent = file_get_contents($file->getAbsolutePath());

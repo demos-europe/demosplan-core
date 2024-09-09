@@ -139,6 +139,7 @@ class PresentableOriginalStatementFactory
             $mapFile = $this->mapService->createMapScreenshot($statement->getProcedure()->getId(), $statement->getId());
         }
         $fileAbsolutePath = $this->assessmentTableServiceOutput->getScreenshot($mapFile);
+        // @todo use flysystem
         if (file_exists($fileAbsolutePath)) {
             $data->setImage($fileAbsolutePath);
         }

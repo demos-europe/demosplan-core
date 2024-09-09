@@ -92,6 +92,7 @@ class TranslationsDumpCommand extends CoreCommand
             )
         );
 
+        // uses local file, no need for flysystem
         if (file_exists($translationsJsonPath) && $output->isVerbose()) {
             $output->writeln('Succesfully wrote translations to core client bundle');
         }

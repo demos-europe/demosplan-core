@@ -589,6 +589,7 @@ class StatementGeoService extends CoreService
         );
         $datasheetAbsolutePah = $event->getDatasheetFilePathAbsolute();
 
+        // uses local file, no need for flysystem
         return file_exists(
             $datasheetAbsolutePah.
             '/version4/pdf/'.

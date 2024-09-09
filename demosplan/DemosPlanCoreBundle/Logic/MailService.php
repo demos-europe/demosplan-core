@@ -134,6 +134,7 @@ class MailService extends CoreService
         $mail->setTitle($this->emailSubjectPrefix.$emailTitle);
 
         // persist all supplied attachments
+        // @todo use flysystem
         foreach ($attachments as $descriptor) {
             if (is_string($descriptor) && !file_exists($descriptor)) {
                 $this->logger->warning("Could not attach $descriptor to email. Does not exist in filesystem.");
@@ -142,7 +143,6 @@ class MailService extends CoreService
 
             if (isset($descriptor['content'], $descriptor['name'])) {
                 $filename = DemosPlanPath::getTemporaryPath(random_int(1000, 9999).'-'.$descriptor['name']);
-                // @todo use flysystem
                 file_put_contents($filename, $descriptor['content']);
             } else {
                 continue;

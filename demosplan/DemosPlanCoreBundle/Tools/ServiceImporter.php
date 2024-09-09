@@ -315,6 +315,7 @@ class ServiceImporter implements ServiceImporterInterface
             // @improve T14122
 
             $fileInfo = $this->fileService->getFileInfoFromFileString($uploadedFile);
+            // @todo check local file usage
             $file = new File($fileInfo->getAbsolutePath());
 
             // This should probably be in a configuration section
@@ -414,6 +415,7 @@ class ServiceImporter implements ServiceImporterInterface
             foreach ($matches[0] as $key => $match) {
                 try {
                     $fileInfo = $this->fileService->getFileInfo($hash);
+                    // @todo use flysystem
                     if (is_file($fileInfo->getAbsolutePath())) {
                         $sizeArray = getimagesize($fileInfo->getAbsolutePath());
                         $text = str_replace(["width='0'", "height='0'"],

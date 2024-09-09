@@ -167,8 +167,8 @@ class FileController extends BaseController
         // check whether file exists using Default storage
         if ($this->defaultStorage->fileExists($file->getAbsolutePath())) {
             $storage = $this->defaultStorage;
-            // as a fallback check whether file exists using Local storage
         }
+        // as a fallback check whether file exists using Local storage
         elseif ($this->localStorage->fileExists($file->getAbsolutePath())) {
             $storage = $this->localStorage;
         }

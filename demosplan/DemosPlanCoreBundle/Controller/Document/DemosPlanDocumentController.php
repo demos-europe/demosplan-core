@@ -782,6 +782,7 @@ class DemosPlanDocumentController extends BaseController
         }
 
         $extractDir = $this->getElementImportDir($procedureId, $currentUser->getUser());
+        // @todo is this file local?
         $fn = $uploadedFileInfo->getAbsolutePath();
         $zip = new ZipArchive();
         $res = $zip->open($fn);
@@ -1512,6 +1513,7 @@ class DemosPlanDocumentController extends BaseController
         try {
             // @improve T14122
             $fileInfo = $fileService->getFileInfo($hash);
+            // @todo use flysystem
             if (is_file($fileInfo->getAbsolutePath())) {
                 $sizeArray = getimagesize($fileInfo->getAbsolutePath());
 

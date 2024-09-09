@@ -100,6 +100,7 @@ final class FrontendAssetProvider
      */
     private function getAssetPathsFromManifest(string $manifestPath, string $entryName): array
     {
+        // uses local file, no need for flysystem
         if (!file_exists($manifestPath)) {
             AddonException::invalidManifest($manifestPath);
         }

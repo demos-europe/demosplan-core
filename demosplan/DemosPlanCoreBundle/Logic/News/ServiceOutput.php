@@ -126,6 +126,7 @@ class ServiceOutput
         foreach ($outputResult as $singleNews) {
             if (0 < strlen((string) $singleNews['picture'])) {
                 $fileInfo = $this->fileService->getFileInfoFromFileString($singleNews['picture']);
+                // @todo use flysystem
                 if (is_file($fileInfo->getAbsolutePath())) {
                     $fileContent = file_get_contents($fileInfo->getAbsolutePath());
                     $pictures['picture'.$i] = $fileInfo->getHash().'###'.$fileInfo->getFileName().'###'.base64_encode($fileContent);
