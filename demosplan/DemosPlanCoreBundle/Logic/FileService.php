@@ -33,6 +33,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Faker\Provider\Uuid;
+use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
 use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
@@ -632,18 +633,18 @@ class FileService extends CoreService implements FileServiceInterface
             $dplanFile->setProcedure($procedure);
         }
 
-        return $this->saveFileEntity($dplanFile, $hash, $fileToCopy->getPath(), $fileToCopy->getSize());
+        return $this->saveFileEntity($dplanFile, $newHash, $fileToCopy->getPath(), $fileToCopy->getSize());
     }
 
-    /**
-     * @return string PHP handles binary data as a string
-     */
     public function getContent(File $file): string
     {
-        $filePath = $this->getAbsolutePath($file->getFilePathWithHash());
+        try {
+            return $this->defaultStorage->read($file->getFilePathWithHash());
+        } catch (FilesystemException|InvalidDataException $e) {
+            $this->logger->error('Could not read file content', [$e, $file->getFilePathWithHash()]);
 
-        // @todo use flysystem
-        return file_get_contents($filePath);
+            return '';
+        }
     }
 
     /**
