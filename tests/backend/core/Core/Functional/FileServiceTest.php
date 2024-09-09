@@ -302,8 +302,9 @@ class FileServiceTest extends FunctionalTestCase
     {
         // build mock file to be saved
         $file = new File();
-        $file->setIdent('61fb0d7f316753bd676459b6a7f6a95b');
-        $file->setHash('61fb0d7f316753bd676459b6a7f6a95b');
+        $id = '61fb0d7f316753bd676459b6a7f6a95b';
+        $file->setIdent($id);
+        $file->setHash($id);
         $file->setMimetype('application/pdf');
         $file->setName('begruendung.pdf');
         $file->setFilename('begruendung.pdf');
@@ -315,7 +316,7 @@ class FileServiceTest extends FunctionalTestCase
         $fileInfo = $this->sut->getFileInfo($result->getId());
 
         static::assertEquals($result->getId(), $fileInfo->getHash());
-        static::assertSame('61fb0d7f316753bd676459b6a7f6a95b', $result->getHash());
+        static::assertSame($id, $result->getHash());
         static::assertSame('application/pdf', $result->getMimetype());
         static::assertSame('begruendung.pdf', $result->getName());
         static::assertSame('begruendung.pdf', $result->getFilename());
