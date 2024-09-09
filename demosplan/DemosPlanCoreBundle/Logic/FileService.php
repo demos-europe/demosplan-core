@@ -73,6 +73,7 @@ class FileService extends CoreService implements FileServiceInterface
         private readonly FileInUseChecker $fileInUseChecker,
         private readonly FileRepository $fileRepository,
         private readonly FilesystemOperator $defaultStorage,
+        private readonly FilesystemOperator $localStorage,
         private readonly GlobalConfigInterface $globalConfig,
         private readonly MessageBagInterface $messageBag,
         private readonly RequestStack $requestStack,
@@ -419,13 +420,8 @@ class FileService extends CoreService implements FileServiceInterface
             return $this->addFile($fileEntity);
         } catch (Throwable $e) {
             $this->logger->warning('File could not be saved', [$e, $e->getMessage()]);
-            // versuche ggf die angelegte Datei zu löschen
-            if (isset($hash)) {
-                $filesPath = $this->globalConfig
-                    ->getFileServiceFilePathAbsolute();
-                // @todo use flysystem
-                @unlink($filesPath.'/'.$hash);
-            }
+
+            $this->deleteFile($hash);
 
             throw $e;
         }
@@ -528,23 +524,19 @@ class FileService extends CoreService implements FileServiceInterface
      *
      * @throws Exception
      */
-    public function deleteFile($hash)
+    public function deleteFile($hash): bool
     {
-        // @todo use flysystem
         // try to delete File physically
-        $fs = new DemosFilesystem();
         try {
             // try to delete File. When File is not found an exception will
-            // be thrown (and catched) here. Orphaned file will be cleaned up by
+            // be thrown (and caught) here. Orphaned file will be cleaned up by
             // removeOrphanedFiles() called in daily maintenance task
+            // Files may be stored in different storages
             $file = $this->getFileInfo($hash);
             $this->getLogger()->info('Try to remove File', ['hash' => $file->getHash(), 'absolutePath' => $file->getAbsolutePath()]);
-            if (is_file($file->getAbsolutePath())) {
-                $fs->remove($file->getAbsolutePath());
-                $this->getLogger()->info('Removed File', ['hash' => $file->getHash(), 'absolutePath' => $file->getAbsolutePath()]);
-            } else {
-                $this->getLogger()->warning('File not found for deletion', ['hash' => $file->getHash(), 'absolutePath' => $file->getAbsolutePath()]);
-            }
+            $this->defaultStorage->delete($hash);
+            $this->localStorage->delete($hash);
+            $this->getLogger()->info('Removed File', ['hash' => $file->getHash(), 'absolutePath' => $file->getAbsolutePath()]);
         } catch (Exception $e) {
             $this->logger->warning('Could not delete File: ', [$e, $e->getMessage()]);
         }
