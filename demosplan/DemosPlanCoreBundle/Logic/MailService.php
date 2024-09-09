@@ -24,6 +24,8 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
+use League\Flysystem\FilesystemException;
+use League\Flysystem\FilesystemOperator;
 use League\HTMLToMarkdown\HtmlConverter;
 use Psr\Log\LoggerInterface;
 use stdClass;
@@ -60,6 +62,7 @@ class MailService extends CoreService
     private $globalConfig;
 
     public function __construct(
+        private readonly FilesystemOperator $defaultStorage,
         GlobalConfigInterface $globalConfig,
         LoggerInterface $logger,
         MailerInterface $mailer,
@@ -134,16 +137,21 @@ class MailService extends CoreService
         $mail->setTitle($this->emailSubjectPrefix.$emailTitle);
 
         // persist all supplied attachments
-        // @todo use flysystem
         foreach ($attachments as $descriptor) {
+            // @todo use flysystem
             if (is_string($descriptor) && !file_exists($descriptor)) {
                 $this->logger->warning("Could not attach $descriptor to email. Does not exist in filesystem.");
                 continue;
             }
 
             if (isset($descriptor['content'], $descriptor['name'])) {
-                $filename = DemosPlanPath::getTemporaryPath(random_int(1000, 9999).'-'.$descriptor['name']);
-                file_put_contents($filename, $descriptor['content']);
+                $filename = DemosPlanPath::getSystemFilesPath(random_int(1000, 9999).'-'.$descriptor['name']);
+
+                try {
+                    $this->defaultStorage->write($filename, $descriptor['content']);
+                } catch (FilesystemException $e) {
+                    $this->logger->warning("Attachment $filename could not be created: ", [$e]);
+                }
             } else {
                 continue;
             }
@@ -249,8 +257,6 @@ class MailService extends CoreService
         $em = $this->getDoctrine()->getManager();
         $em->getConnection()->getConfiguration()->setSQLLogger(null);
         $emailsSent = 0;
-        // @todo use flysystem
-        $fs = new Filesystem();
         try {
             try {
                 $mailList = $this->getMailsToSend($limit);
@@ -317,8 +323,8 @@ class MailService extends CoreService
                 /** @var MailAttachment $attachment */
                 foreach ($mail->getAttachments() as $attachment) {
                     // attach file only if it really exists
-                    if ($fs->exists($attachment->getFilename())) {
-                        $message->attachFromPath($attachment->getFilename());
+                    if ($this->defaultStorage->fileExists($attachment->getFilename())) {
+                        $message->attach($this->defaultStorage->readStream($attachment->getFilename()));
                     } else {
                         $this->logger->warning('Tried to add non existing attachment to Email', [$attachment->getFilename()]);
                     }
@@ -378,10 +384,10 @@ class MailService extends CoreService
 
                 /** @var MailAttachment $attachment */
                 foreach ($mail->getAttachments() as $attachment) {
-                    if ($attachment->getDeleteOnSent() && $fs->exists($attachment->getFilename())) {
+                    if ($attachment->getDeleteOnSent() && $this->defaultStorage->fileExists($attachment->getFilename())) {
                         try {
-                            $fs->remove($attachment->getFilename());
-                        } catch (IOException $exception) {
+                            $this->defaultStorage->delete($attachment->getFilename());
+                        } catch (Exception $exception) {
                             $this->logger->warning('failed to remove email attachment', [$exception]);
                         }
                     }

@@ -71,6 +71,11 @@ class DemosPlanPath
         return $tempDir.DIRECTORY_SEPARATOR.$path;
     }
 
+    public static function getSystemFilesPath(string $path = ''): string
+    {
+        return 'system'.DIRECTORY_SEPARATOR.$path;
+    }
+
     public static function makeTemporaryDir(string $path = '', $mode = 0777): string
     {
         $tempDir = static::getTemporaryPath($path);
