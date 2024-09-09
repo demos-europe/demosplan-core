@@ -26,7 +26,6 @@ use League\Flysystem\FilesystemOperator;
 use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Routing\RouterInterface;
 use Tests\Base\FunctionalTestCase;
 
@@ -351,7 +350,7 @@ class DocumentBundleImporterTest extends FunctionalTestCase
                 'title'        => 'Meine Überschrift',
                 'files'        => [
                     ['##khaeti4c3lmqpjfnqtped251ka' => 'khaeti4c3lmqpjfnqtped251ka.png::iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4//8/AAX+Av4N70a4AAAAAElFTkSuQmCC'],
-                    ['##ha3qod8qfr0s413ghve7vqqeqi' => 'ha3qod8qfr0s413ghve7vqqeqi.png::iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGNgYGAAAAAEAAH2FzhVAAAAAElFTkSuQmCC']
+                    ['##ha3qod8qfr0s413ghve7vqqeqi' => 'ha3qod8qfr0s413ghve7vqqeqi.png::iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGNgYGAAAAAEAAH2FzhVAAAAAElFTkSuQmCC'],
                 ],
                 'nestingLevel' => 0,
             ],
@@ -367,9 +366,8 @@ class DocumentBundleImporterTest extends FunctionalTestCase
         $this->sut->createParagraphsFromImportResult($importResult, $procedureId);
 
         $procedureParagraphsAfter = $paragraphService->getParaDocumentObjectList($procedureId, $elementId);
-        //check only for the width and height as the hash always differs
-        $expectedPart = "/file/procedure1slug";
+        // check only for the width and height as the hash always differs
+        $expectedPart = '/file/procedure1slug';
         static::assertStringContainsString($expectedPart, $procedureParagraphsAfter[count($procedureParagraphsAfter) - 1]->getText());
-
     }
 }

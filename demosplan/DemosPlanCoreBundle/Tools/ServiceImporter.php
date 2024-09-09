@@ -32,7 +32,6 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
@@ -203,7 +202,7 @@ class ServiceImporter implements ServiceImporterInterface
                             $tmpFilePath = DemosPlanPath::getTemporaryPath($tmpFilename);
                             $tmpFileContent = $contentParts[1];
                             $fs->dumpFile($tmpFilePath, base64_decode($tmpFileContent));
-                            $this->getLogger()->debug("file created", [$tmpFilePath]);
+                            $this->getLogger()->debug('file created', [$tmpFilePath]);
 
                             $hash = '';
                             // Übergebe temporäre Datei FileService
@@ -383,7 +382,7 @@ class ServiceImporter implements ServiceImporterInterface
             foreach ($matches[0] as $key => $match) {
                 try {
                     $fileInfo = $this->fileService->getFileInfo($hash);
-                    if($this->defaultStorage->fileExists($fileInfo->getAbsolutePath())) {
+                    if ($this->defaultStorage->fileExists($fileInfo->getAbsolutePath())) {
                         $sizeArray = getimagesizefromstring($this->defaultStorage->read($fileInfo->getAbsolutePath()));
                         $text = str_replace(["width='0'", "height='0'"],
                             [
