@@ -136,31 +136,24 @@ class MailService extends CoreService
 
         // persist all supplied attachments
         foreach ($attachments as $descriptor) {
-            // @todo use flysystem
-            if (is_string($descriptor) && !file_exists($descriptor)) {
-                $this->logger->warning("Could not attach $descriptor to email. Does not exist in filesystem.");
+            if (!isset($descriptor['content'], $descriptor['name'])) {
                 continue;
             }
+            $filename = DemosPlanPath::getSystemFilesPath(random_int(1000, 9999).'-'.$descriptor['name']);
 
-            if (isset($descriptor['content'], $descriptor['name'])) {
-                $filename = DemosPlanPath::getSystemFilesPath(random_int(1000, 9999).'-'.$descriptor['name']);
-
-                try {
-                    $this->defaultStorage->write($filename, $descriptor['content']);
-                } catch (FilesystemException $e) {
-                    $this->logger->warning("Attachment $filename could not be created: ", [$e]);
-                }
-            } else {
-                continue;
+            try {
+                $this->defaultStorage->write($filename, $descriptor['content']);
+            } catch (FilesystemException $e) {
+                $this->logger->warning("Attachment $filename could not be created: ", [$e]);
             }
 
-            if (preg_match("/^\w:/", (string) $filename)) {
+            if (preg_match("/^\w:/", $filename)) {
                 $this->logger->warning("Ignoring attachment created on a Windows™ system: $filename");
-            } else {
-                $attachment = $this->mailRepository->createAttachment($filename);
-                $mail->getAttachments()->add($attachment);
-                $attachment->setMailSend($mail);
             }
+
+            $attachment = $this->mailRepository->createAttachment($filename);
+            $mail->getAttachments()->add($attachment);
+            $attachment->setMailSend($mail);
         }
 
         // Mark this email als ready to send.
