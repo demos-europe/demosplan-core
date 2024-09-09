@@ -23,7 +23,7 @@
         <div class="c-publicindex__drawer-nav">
           <strong
             v-if="currentView !== 'DpDetailView'"
-            aria-live="polite"
+            aria-live="assertive"
             class="inline-block"
             data-cy="participationProcedures">
             {{ procedureCount }} {{ Translator.trans('participation.procedures') }}
