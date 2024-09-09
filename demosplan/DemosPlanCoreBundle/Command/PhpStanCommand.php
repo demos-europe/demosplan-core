@@ -101,7 +101,7 @@ class PhpStanCommand extends CoreCommand
         OutputInterface $output,
         string $configSavePath,
         string $path,
-        int $level
+        int $level,
     ): ?int {
         $isCi = $input->getOption('ci');
 

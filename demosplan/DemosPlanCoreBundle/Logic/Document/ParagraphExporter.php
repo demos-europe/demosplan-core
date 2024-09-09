@@ -64,7 +64,7 @@ class ParagraphExporter
         LoggerInterface $logger,
         ParagraphService $paragraphService,
         private readonly ProcedureService $procedureService,
-        ServiceImporter $serviceImporter
+        ServiceImporter $serviceImporter,
     ) {
         $this->documentHandler = $documentHandler;
         $this->fileService = $fileService;

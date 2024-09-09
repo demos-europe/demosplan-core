@@ -33,12 +33,12 @@ use Exception;
 use GdImage;
 use GeoJson\GeoJson;
 use geoPHP\geoPHP;
+use Illuminate\Support\Collection;
 use Intervention\Image\ImageManager;
 use Psr\Log\LoggerInterface;
 use stdClass;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Illuminate\Support\Collection;
 
 class MapScreenshotter
 {
@@ -90,7 +90,7 @@ class MapScreenshotter
         private readonly TextIntoImageInserter $textIntoImageInserter,
         private readonly TranslatorInterface $translator,
         private readonly UrlFileReader $urlFileReader,
-        private readonly WmsToWmtsCoordinatesConverter $wmsToWmtsCoordinatesConverter
+        private readonly WmsToWmtsCoordinatesConverter $wmsToWmtsCoordinatesConverter,
     ) {
         $this->logger = $logger;
         $this->mapEnableWmtsExport = $globalConfig->getMapEnableWmtsExport();
@@ -105,7 +105,7 @@ class MapScreenshotter
     public function makeScreenshot(
         string $polygon,
         $wms,
-        $copyrightText = null
+        $copyrightText = null,
     ): ?string {
         try {
             if ($this->mapEnableWmtsExport && $this->hasWmtsTile($polygon)) {
@@ -174,7 +174,7 @@ class MapScreenshotter
      */
     public function makeScreenshotWmts(
         string $geoJson,
-        $copyrightText = null
+        $copyrightText = null,
     ): ?string {
         try {
             $copyrightText ??= $this->translator->trans('map.attribution.exports', ['currentYear' => date('Y')]);
@@ -312,7 +312,7 @@ class MapScreenshotter
             // Bilder, die nicht statisch sind (WMS-Aufrufe bspw.)
             if (!str_contains(substr($path, -4), '.')
                 || 'http' === strtolower(substr($path, 0, 4))) {
-                //@todo: use Symfony HttpClient see UrlFileReader
+                // @todo: use Symfony HttpClient see UrlFileReader
                 $func = 'https:' === strtolower(substr($path, 0, 6)) ? 'file_get_contents_https'
                     : 'fileGetContentsCurl';
                 if (false === ($imageContent = @$func($path))) {
@@ -370,7 +370,7 @@ class MapScreenshotter
         int $src_y,
         int $src_w,
         int $src_h,
-        int $opacity
+        int $opacity,
     ): void {
         // Zwischenbild erzeugen
         $cut = imagecreatetruecolor($src_w, $src_h);

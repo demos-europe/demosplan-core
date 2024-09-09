@@ -78,7 +78,7 @@ class DemosPlanKernel extends Kernel
     public function __construct(
         private readonly string $activeProject,
         string $environment,
-        bool $debug
+        bool $debug,
     ) {
         parent::__construct($environment, $debug);
 
@@ -304,7 +304,7 @@ class DemosPlanKernel extends Kernel
      */
     private function determineParameterGlobs(
         string $coreConfigPath,
-        string $projectConfigPath
+        string $projectConfigPath,
     ): array {
         $parameterGlobs = [
             // global defaults
@@ -338,7 +338,7 @@ class DemosPlanKernel extends Kernel
      */
     private function determineServiceGlobs(
         string $coreConfigPath,
-        string $projectConfigPath
+        string $projectConfigPath,
     ): array {
         $bundleGlobs = [
             // default bundle configurations

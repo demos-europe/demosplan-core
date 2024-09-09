@@ -44,7 +44,7 @@ class ServiceOutput
         private readonly GlobalNewsHandler $globalNewsHandler,
         private readonly LoggerInterface $logger,
         private readonly ProcedureNewsService $procedureNewsService,
-        ServiceImporter $serviceImporter
+        ServiceImporter $serviceImporter,
     ) {
         $this->fileService = $serviceFiles;
         $this->serviceImporter = $serviceImporter;

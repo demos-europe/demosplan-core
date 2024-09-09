@@ -42,7 +42,7 @@ final class ImageLinkConverter
     public function convert(
         Segment $segment,
         string $statementExternId,
-        bool $asLinkedReference = true
+        bool $asLinkedReference = true,
     ): ConvertedSegment {
         $segmentText = $segment->getText();
         $recommendationText = $segment->getRecommendation();

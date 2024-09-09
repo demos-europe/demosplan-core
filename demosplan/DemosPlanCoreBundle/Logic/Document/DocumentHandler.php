@@ -63,7 +63,7 @@ class DocumentHandler extends CoreHandler
         SingleDocumentHandler $singleDocumentHandler,
         private readonly SingleDocumentService $singleDocumentService,
         private readonly TranslatorInterface $translator,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
     ) {
         parent::__construct($messageBag);
         $this->elementsService = $elementsService;
@@ -82,7 +82,7 @@ class DocumentHandler extends CoreHandler
         $sessionId,
         $sessionElementImportList,
         string $procedure,
-        string $importDir
+        string $importDir,
     ): array {
         // Schreibe den Status des Imports im ein temporäres File
         // local file only, no need for flysystem
@@ -153,7 +153,7 @@ class DocumentHandler extends CoreHandler
         $request,
         $sessionElementImportList,
         array &$errorReport,
-        $category = null
+        $category = null,
     ) {
         // @todo check: local file only, no need for flysystem?
         $fs = new Filesystem();

@@ -18,7 +18,6 @@ use demosplan\DemosPlanCoreBundle\Response\BinaryFileDownload;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Exception;
 use League\Flysystem\FilesystemOperator;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -29,7 +28,7 @@ class FileController extends BaseController
 {
     public function __construct(
         private readonly FilesystemOperator $defaultStorage,
-        private readonly FilesystemOperator $localStorage
+        private readonly FilesystemOperator $localStorage,
     ) {
     }
 
@@ -86,7 +85,7 @@ class FileController extends BaseController
     /**
      * @throws Exception
      */
-    protected function prepareResponseWithHash(FileService $fileService, string $hash, bool $strictCheck = false, string $procedureId = null): Response
+    protected function prepareResponseWithHash(FileService $fileService, string $hash, bool $strictCheck = false, ?string $procedureId = null): Response
     {
         $file = $fileService->getFileInfo($hash, $procedureId);
 
@@ -150,7 +149,6 @@ class FileController extends BaseController
 
             $file = $fileService->getFileInfo($hash);
             $response = $this->getStreamedResponse($file);
-
         } catch (Exception) {
             // return default image
             $response = new BinaryFileDownload($fileService->getNotFoundImagePath(), '');
@@ -171,8 +169,7 @@ class FileController extends BaseController
         // as a fallback check whether file exists using Local storage
         elseif ($this->localStorage->fileExists($file->getAbsolutePath())) {
             $storage = $this->localStorage;
-        }
-        else {
+        } else {
             $this->getLogger()->info('Could not find file', [$file->getAbsolutePath()]);
             throw new NotFoundHttpException();
         }
@@ -181,16 +178,16 @@ class FileController extends BaseController
         $stream = $storage->readStream($file->getAbsolutePath());
 
         // create a response with the stream content
-        $response = new StreamedResponse(function () use ($stream)
-        {
+        $response = new StreamedResponse(function () use ($stream) {
             fpassthru($stream);
             fclose($stream);
         });
         $response->headers->set('Content-Type', 'application/octet-stream');
         $response->headers->set(
             'Content-Disposition',
-            'attachment; filename="' . $file->getFileName() . '"'
+            'attachment; filename="'.$file->getFileName().'"'
         );
+
         return $response;
     }
 }

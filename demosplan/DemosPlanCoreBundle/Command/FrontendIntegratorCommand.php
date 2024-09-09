@@ -53,7 +53,7 @@ class FrontendIntegratorCommand extends CoreCommand
         private readonly JsApiResourceDefinitionBuilder $resourceDefinitionBuilder,
         private readonly OpenAPISchemaGenerator $apiDocumentationGenerator,
         ParameterBagInterface $parameterBag,
-        string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -65,7 +65,7 @@ class FrontendIntegratorCommand extends CoreCommand
 
     public function execute(
         InputInterface $input,
-        OutputInterface $output
+        OutputInterface $output,
     ): int {
         $data = $this->getParameters();
 

@@ -67,7 +67,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
         RequestStack $requestStack,
         ServiceImporter $serviceImport,
         StatementHandler $statementHandler,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ) {
         parent::__construct(
             $assessmentTableServiceOutput,

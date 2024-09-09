@@ -64,7 +64,7 @@ class MailService extends CoreService
         LoggerInterface $logger,
         MailerInterface $mailer,
         private readonly MailRepository $mailRepository,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
         $this->emailIsLiveSystem = $globalConfig->isEmailIsLiveSystem();
         $this->emailSubjectPrefix = $globalConfig->getEmailSubjectPrefix();
@@ -105,7 +105,7 @@ class MailService extends CoreService
         $bcc,
         $scope,
         $vars = [],
-        $attachments = []
+        $attachments = [],
     ): MailSend {
         if (!is_string($from) || '' === $from || (is_array($from) && 0 === count($from))) {
             $from = $this->emailSystem;
@@ -192,7 +192,7 @@ class MailService extends CoreService
         $bcc,
         $scope,
         $vars = [],
-        $attachments = []
+        $attachments = [],
     ) {
         $em = $this->getDoctrine()->getManager();
         $em->getConnection()->beginTransaction();

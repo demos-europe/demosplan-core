@@ -104,7 +104,7 @@ class DemosPlanDocumentController extends BaseController
         Request $request,
         ServiceImporter $serviceImporter,
         $procedure,
-        $elementId
+        $elementId,
     ) {
         $route = 'DemosPlan_elements_administration_edit';
 
@@ -178,7 +178,7 @@ class DemosPlanDocumentController extends BaseController
         ServiceImporter $serviceImporter,
         ElementHandler $elementHandler,
         string $procedure,
-        array $element
+        array $element,
     ) {
         try {
             $templateVars = [];
@@ -270,7 +270,7 @@ class DemosPlanDocumentController extends BaseController
         Request $request,
         TranslatorInterface $translator,
         $procedure,
-        $documentID
+        $documentID,
     ) {
         // Storage und Output initialisieren
         $paragraphDocument = $paragraphService->getParaDocument($documentID);
@@ -370,7 +370,7 @@ class DemosPlanDocumentController extends BaseController
         Request $request,
         TranslatorInterface $translator,
         $procedure,
-        $elementId
+        $elementId,
     ) {
         // get Element -> get Title
         $elementService = $this->elementsService;
@@ -457,7 +457,7 @@ class DemosPlanDocumentController extends BaseController
         TranslatorInterface $translator,
         $procedure,
         $elementId,
-        $category
+        $category,
     ) {
         $templateVars = [];
         $templateVars['procedure'] = $procedure;
@@ -531,7 +531,7 @@ class DemosPlanDocumentController extends BaseController
         SingleDocumentHandler $singleDocumentHandler,
         TranslatorInterface $translator,
         $procedure,
-        $documentID
+        $documentID,
     ) {
         $templateVars = [];
         $templateVars['procedure'] = $procedure;
@@ -745,7 +745,7 @@ class DemosPlanDocumentController extends BaseController
         Request $request,
         FileUploadService $fileUploadService,
         FileService $fileService,
-        string $procedureId
+        string $procedureId,
     ) {
         $templateVars = [];
         $session = $request->getSession();
@@ -1030,7 +1030,7 @@ class DemosPlanDocumentController extends BaseController
         TranslatorInterface $translator,
         EventDispatcherPostInterface $eventDispatcherPost,
         string $procedure,
-        string $elementId
+        string $elementId,
     ) {
         // Storage und Output initialisieren
         $elementService = $this->elementsService;
@@ -1181,7 +1181,7 @@ class DemosPlanDocumentController extends BaseController
         Request $request,
         ServiceOutput $serviceOutput,
         TranslatorInterface $translator,
-        $procedure
+        $procedure,
     ) {
         $title = 'element.admin.category.new';
         $inData = $this->prepareIncomingData($request, 'elementnew');
@@ -1256,7 +1256,7 @@ class DemosPlanDocumentController extends BaseController
         ElementsService $elementsService,
         Request $request,
         $procedure,
-        $title
+        $title,
     ): Response {
         $elements = $elementsService->getEnabledFileAndParagraphElements(
             $procedure,
@@ -1307,7 +1307,7 @@ class DemosPlanDocumentController extends BaseController
         Request $request,
         $procedure,
         $elementId,
-        $category
+        $category,
     ) {
         // @improve T14613
         $procedureId = $procedure;

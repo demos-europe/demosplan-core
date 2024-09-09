@@ -108,6 +108,7 @@ use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\SortMethodInterface;
 use Exception;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
+use Illuminate\Support\Collection;
 use ReflectionException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\FormInterface;
@@ -116,7 +117,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
-use Illuminate\Support\Collection;
 use TypeError;
 
 class ProcedureService extends CoreService implements ProcedureServiceInterface
@@ -216,7 +216,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         UserService $userService,
         private readonly ValidatorInterface $validator,
         private readonly AccessControlService $accessControlPermissionService,
-        private readonly string $environment
+        private readonly string $environment,
     ) {
         $this->contentService = $contentService;
         $this->elementsService = $elementsService;
@@ -597,7 +597,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         $sort = null,
         bool $template = false,
         $toLegacy = true,
-        $excludeArchived = true
+        $excludeArchived = true,
     ) {
         try {
             $adminConditions = $this->getAdminProcedureConditions($template, $user);
@@ -736,7 +736,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         $procedureId,
         ?User $user = null,
         $excludeUser = false,
-        $excludeProcedureAuthorizedUsers = true
+        $excludeProcedureAuthorizedUsers = true,
     ): Collection {
         if (null === $user) {
             $user = $this->currentUser->getUser();
@@ -1513,7 +1513,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         string $procedureId,
         bool $includeNewsCategory = true,
         bool $includeEmailCategory = true,
-        bool $includeConsiderationCategory = true
+        bool $includeConsiderationCategory = true,
     ): array {
         return $this->boilerplateCategoryRepository->getBoilerplateCategoryList(
             $procedureId,
@@ -2557,7 +2557,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         array $filters,
         $search,
         $excludeArchived,
-        bool $limitProcedureTemplatesToCustomer
+        bool $limitProcedureTemplatesToCustomer,
     ): array {
         $conditions = [];
         if (\is_string($search) && 0 < \strlen($search)) {

@@ -10,10 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use RuntimeException;
 use Symfony\Component\Filesystem\Filesystem;
 
 class DemosFilesystem extends Filesystem
 {
-
 }

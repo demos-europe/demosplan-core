@@ -202,7 +202,7 @@ class SurveyVoteValidatorTest extends SurveyVoteTestUtils
     private function checkSchemaValidity(
         string $json,
         bool $mustBeValid,
-        string $errorMsg
+        string $errorMsg,
     ): void {
         try {
             $validSchema = true;

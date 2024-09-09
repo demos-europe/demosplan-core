@@ -79,13 +79,12 @@ class FileService extends CoreService implements FileServiceInterface
         private readonly SingleDocumentRepository $singleDocumentRepository,
         private readonly TranslatorInterface $translator,
         private readonly VirusCheckInterface $virusChecker,
-        protected RpcClient $client
+        protected RpcClient $client,
     ) {
     }
 
     /**
      * Get file.
-     *
      */
     public function get(string $hash): ?File
     {
@@ -103,7 +102,7 @@ class FileService extends CoreService implements FileServiceInterface
      *
      * @throws Exception
      */
-    public function getFileInfo($hash, string $procedureId = null): FileInfo
+    public function getFileInfo($hash, ?string $procedureId = null): FileInfo
     {
         $file = $this->fileRepository->getFile($hash, $procedureId);
 
@@ -339,6 +338,7 @@ class FileService extends CoreService implements FileServiceInterface
      * Saves a temporary local file to the storage and returns the corresponding File entity.
      * File needs to be accessible for the file system of the current process.
      * No s3 or other remote storage is used.
+     *
      * @throws VirusFoundException|Throwable
      */
     public function saveTemporaryLocalFile(
@@ -347,7 +347,7 @@ class FileService extends CoreService implements FileServiceInterface
         ?string $userId = null,
         ?string $procedureId = null,
         ?string $virencheck = FileServiceInterface::VIRUSCHECK_SYNC,
-        ?string $hash = null
+        ?string $hash = null,
     ): File {
         $dplanFile = new File();
         $symfonyFile = new \Symfony\Component\HttpFoundation\File\File($filePath);
@@ -372,7 +372,6 @@ class FileService extends CoreService implements FileServiceInterface
         $fs->remove($filePath);
 
         return $newEntity;
-
     }
 
     /**
@@ -638,12 +637,11 @@ class FileService extends CoreService implements FileServiceInterface
         $dplanFile->setMimetype($fileToCopy->getMimetype());
         $dplanFile->setFilename($fileToCopy->getFilename());
         $dplanFile->setAuthor($fileToCopy->getAuthor());
-        if($procedure instanceof Procedure) {
+        if ($procedure instanceof Procedure) {
             $dplanFile->setProcedure($procedure);
         }
 
         return $this->saveFileEntity($dplanFile, $hash, $fileToCopy->getPath(), $fileToCopy->getSize());
-
     }
 
     /**
@@ -653,7 +651,7 @@ class FileService extends CoreService implements FileServiceInterface
     {
         $filePath = $this->getAbsolutePath($file->getFilePathWithHash());
 
-        //@todo use flysystem
+        // @todo use flysystem
         return file_get_contents($filePath);
     }
 
@@ -721,8 +719,6 @@ class FileService extends CoreService implements FileServiceInterface
      *
      * @param \Symfony\Component\HttpFoundation\File\File $file File or UploadedFile
      * @param string                                      $path
-     *
-     * @return string
      */
     protected function moveLocalFile(\Symfony\Component\HttpFoundation\File\File $file, $path = '', ?string $existingHash = null): string
     {
@@ -731,7 +727,7 @@ class FileService extends CoreService implements FileServiceInterface
 
         // Move the file to the directory where files are stored
         $stream = fopen($file->getPathname(), 'rb');
-        $this->defaultStorage->writeStream(sprintf("%s/%s", $path, $hash), $stream);
+        $this->defaultStorage->writeStream(sprintf('%s/%s', $path, $hash), $stream);
 
         if (is_resource($stream)) {
             fclose($stream);
@@ -1085,23 +1081,24 @@ class FileService extends CoreService implements FileServiceInterface
 
     private function storeLocalFile(\Symfony\Component\HttpFoundation\File\File $symfonyFile, bool $viruscheck, File $fileEntity): array
     {
-    // Check Mimetype
-    $this->checkMimeTypeAllowed($symfonyFile->getMimeType(), $symfonyFile->getPathname());
-    // Save file
-    // Sort into subfolders to avoid too many files in one folder
-    $path = date('Y') . '/' . date('m');
+        // Check Mimetype
+        $this->checkMimeTypeAllowed($symfonyFile->getMimeType(), $symfonyFile->getPathname());
+        // Save file
+        // Sort into subfolders to avoid too many files in one folder
+        $path = date('Y').'/'.date('m');
 
-    if ($viruscheck && $this->globalConfig->isAvscanEnabled()) {
-        $this->virusCheck($symfonyFile);
+        if ($viruscheck && $this->globalConfig->isAvscanEnabled()) {
+            $this->virusCheck($symfonyFile);
+        }
+
+        // save file into files path
+        $this->getLogger()->info(
+            'Try to move file',
+            ['from' => $symfonyFile->getRealPath(), 'to' => $path]
+        );
+        $hash = $this->moveLocalFile($symfonyFile, $path, $fileEntity->getHash());
+        $this->getLogger()->info('File moved', ['hash' => $hash]);
+
+        return [$path, $hash];
     }
-
-    // save file into files path
-    $this->getLogger()->info(
-        'Try to move file',
-        ['from' => $symfonyFile->getRealPath(), 'to' => $path]
-    );
-    $hash = $this->moveLocalFile($symfonyFile, $path, $fileEntity->getHash());
-    $this->getLogger()->info('File moved', ['hash' => $hash]);
-    return [$path, $hash];
-}
 }

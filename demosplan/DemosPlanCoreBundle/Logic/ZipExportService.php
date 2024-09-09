@@ -85,7 +85,7 @@ class ZipExportService
         string $folderPath,
         FileInfo $fileInfo,
         ZipStream $zip,
-        string $fileNamePrefix
+        string $fileNamePrefix,
     ): void {
         $path = Utf8::toAscii($folderPath.$fileNamePrefix.$fileInfo->getFileName());
         $pathHash = md5((string) $path);
@@ -113,7 +113,7 @@ class ZipExportService
         try {
             $fileInfo = $this->fileService->getFileInfoFromFileString($filePath);
             $path = Utf8::toAscii($zipPath.'/'.$fileInfo->getFileName());
-            //@todo use flysystem
+            // @todo use flysystem
             $this->addFileToZipStream($fileInfo->getAbsolutePath(), $path, $zip);
             $this->logger->info(
                 'Added File to Zip.',
@@ -148,7 +148,7 @@ class ZipExportService
         DemosFilesystem $fs,
         string $fileFolderPath,
         ZipStream $zip,
-        string ...$fileStrings
+        string ...$fileStrings,
     ): void {
         foreach ($fileStrings as $fileString) {
             try {

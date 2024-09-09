@@ -30,7 +30,7 @@ class ZipImportServiceTest extends FunctionalTestCase
 
     /** @var ZipImportService */
     protected $sut;
-    private null|Procedure|Proxy $testProcedure;
+    private Procedure|Proxy|null $testProcedure;
 
     public function setUp(): void
     {

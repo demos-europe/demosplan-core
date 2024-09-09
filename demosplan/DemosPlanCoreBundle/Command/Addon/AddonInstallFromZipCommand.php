@@ -68,7 +68,7 @@ class AddonInstallFromZipCommand extends CoreCommand
         private readonly HttpClientInterface $httpClient,
         private readonly Registrator $installer,
         ParameterBagInterface $parameterBag,
-        ?string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
     }

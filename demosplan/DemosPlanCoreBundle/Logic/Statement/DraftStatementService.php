@@ -140,7 +140,7 @@ class DraftStatementService extends CoreService
         private readonly StatementReportEntryFactory $statementReportEntryFactory,
         StatementService $statementService,
         StatementValidator $statementValidator,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
         $this->currentUser = $currentUser;
         $this->elementsService = $elementsService;
@@ -599,7 +599,7 @@ class DraftStatementService extends CoreService
         $user,
         ?NotificationReceiver $notificationReceiver = null,
         bool $gdprConsentReceived = false,
-        bool $convertToLegacy = true
+        bool $convertToLegacy = true,
     ): array {
         if (!is_array($draftStatementIds)) {
             $draftStatementIds = [$draftStatementIds];
@@ -628,7 +628,7 @@ class DraftStatementService extends CoreService
         $user,
         ?NotificationReceiver $notificationReceiver = null,
         bool $gdprConsentReceived = false,
-        bool $convertToLegacy = true
+        bool $convertToLegacy = true,
     ): array {
         $submittedStatements = [];
 
@@ -1373,7 +1373,7 @@ class DraftStatementService extends CoreService
         $search,
         $sort,
         $user,
-        $manualSortScope = null
+        $manualSortScope = null,
     ): DraftStatementResult {
         try {
             $results = $this->draftStatementVersionRepository->getOwnReleasedList(

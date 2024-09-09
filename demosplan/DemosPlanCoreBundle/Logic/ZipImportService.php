@@ -47,7 +47,7 @@ class ZipImportService
         private readonly LoggerInterface $logger,
         private readonly MessageBagInterface $messageBag,
         private readonly TranslatorInterface $translator,
-        private readonly FileService $fileService
+        private readonly FileService $fileService,
     ) {
         $this->finder = Finder::create();
     }
@@ -188,7 +188,7 @@ class ZipImportService
     public function getStatementAttachmentImportDir(
         string $procedureId,
         string $tempFileFolder,
-        UserInterface $user
+        UserInterface $user,
     ): string {
         $tmpDir = DemosPlanPath::getTemporaryPath($user->getId().'/'.$procedureId.'/'.$tempFileFolder);
 
