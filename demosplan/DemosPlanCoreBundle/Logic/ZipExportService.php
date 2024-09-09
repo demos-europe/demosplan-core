@@ -139,6 +139,7 @@ class ZipExportService
         fwrite($streamRead, $string);
         rewind($streamRead);
         $zip->addFileFromStream(Utf8::toAscii($filename), $streamRead);
+        fclose($streamRead);
     }
 
     public function addFiles(
