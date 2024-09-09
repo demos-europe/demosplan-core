@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Utilities\Map;
 
-use DemosEurope\DemosplanAddon\Contracts\ApiClientInterface;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Logic\Map\FeaturesToMapLayersConverter;
@@ -37,7 +36,6 @@ use Illuminate\Support\Collection;
 use Intervention\Image\ImageManager;
 use Psr\Log\LoggerInterface;
 use stdClass;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class MapScreenshotter

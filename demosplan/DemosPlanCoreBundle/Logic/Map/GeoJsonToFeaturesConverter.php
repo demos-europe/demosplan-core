@@ -25,10 +25,9 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayerTilePosition;
 use Exception;
 use Faker\Provider\Uuid;
 use geoPHP\geoPHP;
+use Illuminate\Support\Collection;
 use Intervention\Image\ImageManager;
 use Psr\Log\InvalidArgumentException;
-use Psr\Log\LoggerInterface;
-use Illuminate\Support\Collection;
 
 class GeoJsonToFeaturesConverter
 {
@@ -88,7 +87,6 @@ class GeoJsonToFeaturesConverter
     {
         $result = new Collection();
         foreach ($feature->properties->metadata->printLayers ?? [] as $printLayer) {
-
             // uses local file, no need for flysystem, files are removed after conversion
             // in PrintLayerToMapLayerConverter::convert
             $imagesDirectoryPath = DemosPlanPath::getTemporaryPath(
