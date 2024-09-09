@@ -134,6 +134,7 @@ class ZipExportService
 
     public function addStringToZipStream(string $filename, string $string, ZipStream $zip): void
     {
+        // local "file" is valid, no need for flysystem
         $streamRead = fopen('php://temp', 'rwb');
         fwrite($streamRead, $string);
         rewind($streamRead);

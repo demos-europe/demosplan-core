@@ -204,6 +204,7 @@ class WebpackBundleExtension extends ExtensionBase
         $manifestArray = [];
         if (file_exists($manifestFile)) {
             try {
+                // uses local file, no need for flysystem
                 $manifestArray = Json::decodeToArray(file_get_contents($manifestFile));
             } catch (InvalidArgumentException) {
                 throw new RuntimeException(<<<ERR

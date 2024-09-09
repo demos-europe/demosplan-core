@@ -142,6 +142,7 @@ class MailService extends CoreService
 
             if (isset($descriptor['content'], $descriptor['name'])) {
                 $filename = DemosPlanPath::getTemporaryPath(random_int(1000, 9999).'-'.$descriptor['name']);
+                // @todo use flysystem
                 file_put_contents($filename, $descriptor['content']);
             } else {
                 continue;
@@ -248,6 +249,7 @@ class MailService extends CoreService
         $em = $this->getDoctrine()->getManager();
         $em->getConnection()->getConfiguration()->setSQLLogger(null);
         $emailsSent = 0;
+        // @todo use flysystem
         $fs = new Filesystem();
         try {
             try {

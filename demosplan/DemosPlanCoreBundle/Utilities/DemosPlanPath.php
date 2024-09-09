@@ -132,6 +132,7 @@ class DemosPlanPath
                     if ('dir' === filetype($pathToObject)) {
                         self::recursiveRemovePath($pathToObject);
                     } else {
+                        // local file is valid, no need for flysystem
                         $deleted = unlink($pathToObject);
                         if (false === $deleted) {
                             throw new RuntimeException('Could not delete File recursively', [$pathToObject]);

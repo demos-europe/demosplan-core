@@ -148,6 +148,7 @@ class MapScreenshotter
         $bbox = $this->viewport->left.','.$this->viewport->bottom.','.$this->viewport->right.','.$this->viewport->top;
         $image = $this->preparePlaceholderMapWms();
         $this->getLayersTilesAndMergeThemIntoMap($wmsUrls, $bbox, $image);
+        // @todo: probably needs to copy to use flysystem
         $image = $this->imageManager->make($image);
 
         $mapLayer = new MapLayer(
@@ -311,6 +312,7 @@ class MapScreenshotter
             // Bilder, die nicht statisch sind (WMS-Aufrufe bspw.)
             if (!str_contains(substr($path, -4), '.')
                 || 'http' === strtolower(substr($path, 0, 4))) {
+                //@todo: use Symfony HttpClient see UrlFileReader
                 $func = 'https:' === strtolower(substr($path, 0, 6)) ? 'file_get_contents_https'
                     : 'fileGetContentsCurl';
                 if (false === ($imageContent = @$func($path))) {
@@ -318,6 +320,7 @@ class MapScreenshotter
                 }
 
                 $tempPath = 'temp_'.md5(microtime().random_int(0, mt_getrandmax())).'.img';
+                // local file is valid, no need for flysystem
                 file_put_contents($tempPath, $imageContent);
                 $path = $tempPath;
             }
@@ -418,6 +421,7 @@ class MapScreenshotter
                 continue;
             }
 
+            // local file is valid, no need for flysystem
             file_put_contents($tempFile, $imageContent);
             if (false === ($imageData = getimagesize($tempFile))) {
                 @unlink($tempFile);

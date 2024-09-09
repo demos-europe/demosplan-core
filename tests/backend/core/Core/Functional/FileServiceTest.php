@@ -274,6 +274,7 @@ class FileServiceTest extends FunctionalTestCase
         $fileName = 'testfile.php';
 
         // write File to test existance
+        // local file only, no need for flysystem
         $fs = new Filesystem();
         // copy this phpfile to generate a not allowed file
         $fs->copy(__FILE__, $cacheDir.'/'.$fileName);

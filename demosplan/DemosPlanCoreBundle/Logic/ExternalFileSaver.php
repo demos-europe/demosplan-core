@@ -41,6 +41,7 @@ class ExternalFileSaver implements ExternalFileSaverInterface
         $basename = uniqid(basename($url), true).'.png';
         $path = DemosPlanPath::getTemporaryPath($basename);
 
+        // local file is valid, no need for flysystem
         file_put_contents($path, $imageContent);
 
         return $this->fileService->saveTemporaryLocalFile($path, $basename, null, $procedureId, FileService::VIRUSCHECK_NONE);

@@ -36,6 +36,7 @@ class SurveyVoteValidatorTest extends SurveyVoteTestUtils
         $this->sut = self::$container->get(SurveyVoteValidator::class);
 
         $validJsonPath = __DIR__.'/inputFiles/surveyvote-input-create.json';
+        // uses local file, no need for flysystem
         $validJson = file_get_contents($validJsonPath);
         $this->validJsonArray = Json::decodeToArray($validJson);
     }
@@ -43,6 +44,7 @@ class SurveyVoteValidatorTest extends SurveyVoteTestUtils
     public function testValidJson(): void
     {
         $validJsonPath = __DIR__.'/inputFiles/surveyvote-input-create.json';
+        // uses local file, no need for flysystem
         $validJson = file_get_contents($validJsonPath);
         $this->checkSchemaValidity($validJson, true, 'Json should be valid and it is not');
     }

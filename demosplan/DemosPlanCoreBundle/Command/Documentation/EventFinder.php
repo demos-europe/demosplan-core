@@ -143,6 +143,7 @@ class EventFinder extends CoreCommand
 
 
         foreach ($phpFilePaths as $classFilePath) {
+            // uses local file, no need for flysystem
             $code = file_get_contents($classFilePath);
 
             try {
@@ -191,6 +192,7 @@ class EventFinder extends CoreCommand
     {
         foreach ($phpFilePaths as $filePath) {
 
+            // uses local file, no need for flysystem
             $code = file_get_contents($filePath);
             foreach ($eventMatches as $eventMatch) {
                 if ($eventMatch->getFilePath() !== $filePath && preg_match(

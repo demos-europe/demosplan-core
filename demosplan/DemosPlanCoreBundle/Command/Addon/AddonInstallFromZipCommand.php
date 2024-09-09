@@ -222,6 +222,7 @@ class AddonInstallFromZipCommand extends CoreCommand
 
         // If addons.yaml does not exist, create it
         if (!file_exists($this->addonsDirectory.'addons.yaml')) {
+            // local file is valid, no need for flysystem
             file_put_contents($this->addonsDirectory.'addons.yaml', Yaml::dump(['addons' => []]));
         }
 
@@ -246,6 +247,7 @@ class AddonInstallFromZipCommand extends CoreCommand
                     ],
                 ],
             ];
+            // local file is valid, no need for flysystem
             file_put_contents($this->addonsDirectory.'composer.json', Json::encode($content, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
         }
     }
@@ -309,6 +311,7 @@ class AddonInstallFromZipCommand extends CoreCommand
     public function loadPackageDefinition(): PackageInterface
     {
         $loader = new ArrayLoader();
+        // uses local file, no need for flysystem
         $composerJsonArray = Json::decodeToArray(file_get_contents($this->zipCachePath.'composer.json'));
 
         /*
@@ -338,11 +341,13 @@ class AddonInstallFromZipCommand extends CoreCommand
             $addonVersion = '*';
         }
 
+        // uses local file, no need for flysystem
         $composerContent = Json::decodeToArray(file_get_contents($this->addonsDirectory.'composer.json'));
 
         if (!array_key_exists('require', $composerContent)
             || !array_key_exists($addonName, $composerContent['require'])) {
             $composerContent['require'][$addonName] = $addonVersion;
+            // local file is valid, no need for flysystem
             file_put_contents(
                 $this->addonsDirectory.'composer.json',
                 Json::encode($composerContent, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)
@@ -419,6 +424,7 @@ class AddonInstallFromZipCommand extends CoreCommand
             $zipResponse = $this->httpClient->request('GET', $zipUrl, $addonRepositoryOptions);
 
             $zipContent = $zipResponse->getContent(false);
+            // local file is valid, no need for flysystem
             file_put_contents($path, $zipContent);
         }
 
@@ -480,6 +486,7 @@ class AddonInstallFromZipCommand extends CoreCommand
             $zipResponse = $this->httpClient->request('GET', $zipUrl, $ghOptions);
 
             $zipContent = $zipResponse->getContent(false);
+            // local file is valid, no need for flysystem
             file_put_contents($path, $zipContent);
         }
 
@@ -548,6 +555,7 @@ class AddonInstallFromZipCommand extends CoreCommand
 
     private function getPathFromLocalDevelopment(InputInterface $input, SymfonyStyle $output, mixed $folder): string
     {
+        // local file only, no need for flysystem
         $fs = new Filesystem();
         $addonDevFolder = DemosPlanPath::getRootPath('addonDev');
         if (!file_exists($addonDevFolder)) {

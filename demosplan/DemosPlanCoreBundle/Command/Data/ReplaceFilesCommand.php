@@ -133,6 +133,7 @@ class ReplaceFilesCommand extends CoreCommand
         SymfonyStyle $output
     ): void {
         try {
+            // local file is valid, no need for flysystem
             $uploadedFile = fopen($this->getStoragePath($file, $targetDirectory), 'wb+');
 
             /** @var DataGeneratorInterface $generator */

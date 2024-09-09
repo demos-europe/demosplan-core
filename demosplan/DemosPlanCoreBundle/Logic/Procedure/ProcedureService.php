@@ -1005,6 +1005,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $filesPath = $fileService->getFilesPathAbsolute();
             if (\is_dir($filesPath.'/procedure/'.$procedureId)) {
                 try {
+                    // @todo use flysystem
                     $fs = new Filesystem();
                     $fs->remove($filesPath.'/procedure/'.$procedureId);
                     $fs = null;

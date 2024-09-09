@@ -85,6 +85,7 @@ class DocumentHandler extends CoreHandler
         string $importDir
     ): array {
         // Schreibe den Status des Imports im ein temporäres File
+        // local file only, no need for flysystem
         $fs = new Filesystem();
         $statusHash = md5($sessionId.$procedure);
         $status = Json::encode(['bulkImportFilesTotal' => 0, 'bulkImportFilesProcessed' => 0]);
@@ -154,6 +155,7 @@ class DocumentHandler extends CoreHandler
         array &$errorReport,
         $category = null
     ) {
+        // @todo check: local file only, no need for flysystem?
         $fs = new Filesystem();
         $result = [];
 

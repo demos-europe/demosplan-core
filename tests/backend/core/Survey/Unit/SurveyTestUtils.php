@@ -111,6 +111,7 @@ class SurveyTestUtils extends UnitTestCase
      */
     protected function getValidInputJson(string $mode = 'update'): string
     {
+        // uses local file, no need for flysystem
         $json = file_get_contents(__DIR__."/inputFiles/survey-input-$mode.json");
         $jsonArray = Json::decodeToArray($json);
         $jsonArray['procedureId'] = $this->getProcedureIdByReference('testProcedure');

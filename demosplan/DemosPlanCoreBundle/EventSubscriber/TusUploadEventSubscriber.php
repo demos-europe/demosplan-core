@@ -61,7 +61,8 @@ class TusUploadEventSubscriber implements EventSubscriberInterface
         $filePathParts = explode('/', $file->getFilePath());
         $uploadedFilename = array_pop($filePathParts);
         if ($filename !== $uploadedFilename) {
-            $fs = new Filesystem(); // ok, because uploaded file and temporary
+            // local file is valid, no need for flysystem
+            $fs = new Filesystem();
             $filePathParts[] = $filename;
             $sanitizedPath = implode('/', $filePathParts);
             // rename uploaded file and update reference in uploaded file

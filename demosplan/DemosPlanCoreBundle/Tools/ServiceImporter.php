@@ -199,6 +199,7 @@ class ServiceImporter implements ServiceImporterInterface
                          */
                         $ca = explode('::', (string) $c);
                         if (2 === count($ca)) {
+                            // local file only, no need for flysystem
                             $fs = new Filesystem();
                             // Speichere dekodierte Datei als temporäre Datei
                             $fs->dumpFile(

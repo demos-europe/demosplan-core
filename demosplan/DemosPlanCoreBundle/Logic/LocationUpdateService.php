@@ -52,6 +52,7 @@ class LocationUpdateService
         $this->logger->info('Start to repopulate location Database', ['includeOnly', $includeOnly]);
         $xlsFile = DemosPlanPath::getTemporaryPath('GV1Q.xlsx');
         $csvFile = DemosPlanPath::getTemporaryPath('GV1Q.csv');
+        // local file only, no need for flysystem
         $fs = new Filesystem();
         $fileUrl = 'https://www.destatis.de/DE/Themen/Laender-Regionen/Regionales/Gemeindeverzeichnis/Administrativ/Archiv/GVAuszugQ/AuszugGV1QAktuell.xlsx?__blob=publicationFile';
         $guzzleClient = new Client();

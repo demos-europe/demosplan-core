@@ -1697,6 +1697,7 @@ class DemosPlanDocumentController extends BaseController
                         : $filesRequestInfo;
         $filesToZip = $this->validatefilesToZip($filesToZip, $procedureId);
         $fileInfo = [];
+        // @todo use flysystem
         $fs = new Filesystem();
         foreach ($filesToZip as $fileRequestInfo) {
             $singleDocId = $fileRequestInfo['id'];
@@ -1799,6 +1800,7 @@ class DemosPlanDocumentController extends BaseController
                 $zip = new ZipStream($translator->trans('plandocument.zip.file.name'), $options);
                 foreach ($filesInfo as $fileInfo) {
                     try {
+                        // @todo use flysystem
                         $streamRead = fopen($fileInfo['fullPath'], 'rb');
                         $zip->addFileFromStream(Utf8::toAscii($fileInfo['namedPath']), $streamRead);
                     } catch (Exception $e) {

@@ -122,6 +122,7 @@ class GeoJsonToFeaturesConverterTest extends UnitTestCase
 
     private function getFileContents(string $fullPath): string
     {
+        // uses local file, no need for flysystem
         if (!$fileContents = file_get_contents($fullPath)) {
             throw new FileNotFoundException('File not found in path: '.$fullPath);
         }

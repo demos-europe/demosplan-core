@@ -42,6 +42,7 @@ trait EntityClassGeneratorTrait
             throw new RuntimeException(sprintf('Directory "%s" was not created', $directoryPath));
         }
 
+        // local file is valid, no need for flysystem
         file_put_contents("$directoryPath/$className.php", $content);
     }
 }

@@ -273,6 +273,7 @@ class FileService extends CoreService implements FileServiceInterface
     public function removeOrphanedFiles(): int
     {
         $finder = new Finder();
+        // @todo use flysystem
         $fs = new Filesystem();
         $finder->files()->in($this->globalConfig->getFileServiceFilePathAbsolute());
 
@@ -302,6 +303,7 @@ class FileService extends CoreService implements FileServiceInterface
     public function removeTemporaryUploadFiles(): int
     {
         $finder = new Finder();
+        // local file only, no need for flysystem
         $fs = new Filesystem();
         $finder->files()->in(DemosPlanPath::getProjectPath('web/uploads/files'));
 
@@ -410,7 +412,7 @@ class FileService extends CoreService implements FileServiceInterface
             // $symfonyFile needs to be used before it is moved
             $fileEntity->setSize($size);
 
-            // reset hash even when it existed before as moveFile() always returns current hash
+            // reset hash even when it existed before as moveLocalFile() always returns current hash
             $fileEntity->setHash($hash);
             $fileEntity->setPath($path);
 
@@ -422,6 +424,7 @@ class FileService extends CoreService implements FileServiceInterface
             if (isset($hash)) {
                 $filesPath = $this->globalConfig
                     ->getFileServiceFilePathAbsolute();
+                // @todo use flysystem
                 @unlink($filesPath.'/'.$hash);
             }
 
@@ -649,6 +652,7 @@ class FileService extends CoreService implements FileServiceInterface
     {
         $filePath = $this->getAbsolutePath($file->getFilePathWithHash());
 
+        //@todo use flysystem
         return file_get_contents($filePath);
     }
 
@@ -702,6 +706,7 @@ class FileService extends CoreService implements FileServiceInterface
     {
         $allowedMimeTypes = $this->globalConfig->getAllowedMimeTypes();
         if (!in_array($mimeType, $allowedMimeTypes, true)) {
+            // used only on local files, no need for flysystem
             @unlink($temporaryFilePath);
             $this->logger->warning(
                 'MimeType is not allowed. Given MimeType: '.$mimeType

@@ -279,6 +279,7 @@ class DemosPlanMiscContentController extends BaseController
     public function softwareComponentsAction()
     {
         $templateVars = [];
+        // uses local file, no need for flysystem
         $templateVars['components'] = collect(
             Json::decodeToArray(
                 file_get_contents(
