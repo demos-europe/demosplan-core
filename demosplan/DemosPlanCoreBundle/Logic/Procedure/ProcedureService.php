@@ -1001,25 +1001,6 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
             $repository->deleteRelatedEntitiesOfProcedure($procedureId);
 
-            // delete pregenerated zips in filedirectory/procedure
-            $filesPath = $fileService->getFilesPathAbsolute();
-            if (\is_dir($filesPath.'/procedure/'.$procedureId)) {
-                try {
-                    // @todo use flysystem
-                    $fs = new Filesystem();
-                    $fs->remove($filesPath.'/procedure/'.$procedureId);
-                    $fs = null;
-                } catch (Exception $e) {
-                    $this->getLogger()->error(
-                        'Could not delete orphaned Directory  '.$filesPath.'/procedure/'.$procedureId.'. Reason: '.$e
-                    );
-                }
-            } else {
-                $this->getLogger()->info(
-                    'Pregenerated zips folder not found. '.$filesPath.'/procedure/'.$procedureId
-                );
-            }
-
             // delete Procedure
             $repository->delete($procedureId);
 
