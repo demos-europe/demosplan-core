@@ -20,7 +20,9 @@ use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use demosplan\DemosPlanCoreBundle\Tools\DocxImporterInterface;
 use demosplan\DemosPlanCoreBundle\Tools\PdfCreatorInterface;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
+use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Exception;
+use League\Flysystem\FilesystemOperator;
 use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -51,6 +53,7 @@ class DocumentBundleImporterTest extends FunctionalTestCase
         $this->sut = new ServiceImporter(
             self::$container->get(DocxImporterInterface::class),
             self::$container->get(FileService::class),
+            $this->createMock(FilesystemOperator::class),
             self::$container->get(GlobalConfigInterface::class),
             self::$container->get(LoggerInterface::class),
             self::$container->get(MessageBagInterface::class),
@@ -62,15 +65,24 @@ class DocumentBundleImporterTest extends FunctionalTestCase
         );
     }
 
-    public function testAllowedFileUploadFail()
+    public function testAllowedFileUploadFail(): void
     {
         $this->expectException(FileException::class);
 
-        $file = new UploadedFile(__DIR__.'/res/db_2Ebenen_wenigeDateien.zip', 'db_2Ebenen_wenigeDateien.zip');
-        $this->sut->checkFileIsValidToImport($file, []);
+        $fileInfo = new FileInfo(
+            hash: 'someHash',
+            fileName: 'myFile.zip',
+            fileSize: 12345,
+            contentType: 'not/allowed',
+            path: '/path/to/file',
+            absolutePath: '/path/to/file',
+            procedure: null
+        );
+
+        $this->sut->checkFileIsValidToImport($fileInfo);
     }
 
-    public function testParagraphImportCreateParagraphs()
+    public function testParagraphImportCreateParagraphs(): void
     {
         $procedureId = $this->fixtures->getReference('testProcedure')->getId();
         $elementId = $this->fixtures->getReference('testElement1')->getId();
@@ -356,7 +368,7 @@ class DocumentBundleImporterTest extends FunctionalTestCase
 
         $procedureParagraphsAfter = $paragraphService->getParaDocumentObjectList($procedureId, $elementId);
         //check only for the width and height as the hash always differs
-        $expectedPart = "width='1' height='1'";
+        $expectedPart = "/file/procedure1slug";
         static::assertStringContainsString($expectedPart, $procedureParagraphsAfter[count($procedureParagraphsAfter) - 1]->getText());
 
     }

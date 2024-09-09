@@ -20,9 +20,12 @@ use demosplan\DemosPlanCoreBundle\Exception\VirusFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
+use League\Flysystem\FilesystemOperator;
 use Monolog\Logger;
 use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
 use Psr\Log\LoggerInterface;
@@ -65,6 +68,7 @@ class ServiceImporter implements ServiceImporterInterface
     public function __construct(
         private readonly DocxImporterInterface $docxImporter,
         FileService $fileService,
+        private readonly FilesystemOperator $defaultStorage,
         GlobalConfigInterface $globalConfig,
         private LoggerInterface $logger,
         private readonly MessageBagInterface $messageBag,
@@ -80,28 +84,21 @@ class ServiceImporter implements ServiceImporterInterface
         $this->globalConfig = $globalConfig;
     }
 
-    /**
-     * Prüfe, ob die Datei importiert werden kann.
-     *
-     * @param File  $file
-     * @param array $allowedMimetypes
-     *
-     * @return File|FileException
-     */
-    public function checkFileIsValidToImport($file, $allowedMimetypes)
+    public function checkFileIsValidToImport(FileInfo $fileInfo): void
     {
-        // $file kann eine in Symfony hochgeladene Datei oder eine stdClass aus dem Unittest sein
-        if ($file instanceof File) {
-            // check for MimeType
-            $mimeType = $file->getMimeType();
+        // This should probably be in a configuration section
+        $allowedMimetypes = [
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/zip',
+            'application/msword',
+            'application/octet-stream',
+        ];
 
-            // mimetype is allowed
-            if (in_array($mimeType, $allowedMimetypes, true)) {
-                return $file;
-            }
-
-            $this->getLogger()->warning('MimeType is not allowed. Given MimeType: '.$mimeType);
-            throw new FileException('MimeType is not allowed. Given MimeType: '.$mimeType, 20);
+        // mimetype is allowed
+        $contentType = $fileInfo->getContentType();
+        if (!in_array($contentType, $allowedMimetypes, true)) {
+            $this->getLogger()->warning('MimeType is not allowed. Given MimeType: '.$contentType);
+            throw new FileException('MimeType is not allowed. Given MimeType: '.$contentType, 20);
         }
     }
 
@@ -192,36 +189,28 @@ class ServiceImporter implements ServiceImporterInterface
             // Prüfe ob eine oder mehrere Dateianhänge vorhanden sind
             if (null != $paragraph['files']) {
                 foreach ($paragraph['files'] as $files) {
-                    foreach ($files as $f => $c) {
+                    foreach ($files as $file => $content) {
                         /* Teile String in 2 Teile
                          * Teil 1 = Dateiname
                          * Teil 2 = Dateiinhalt base64 encoded
                          */
-                        $ca = explode('::', (string) $c);
-                        if (2 === count($ca)) {
+                        $contentParts = explode('::', (string) $content);
+                        if (2 === count($contentParts)) {
                             // local file only, no need for flysystem
                             $fs = new Filesystem();
-                            // Speichere dekodierte Datei als temporäre Datei
-                            $fs->dumpFile(
-                                sys_get_temp_dir(
-                                ).DIRECTORY_SEPARATOR.$ca[0],
-                                base64_decode($ca[1])
-                            );
-                            $this->getLogger()->debug(
-                                "Datei '".sys_get_temp_dir(
-                                ).DIRECTORY_SEPARATOR.$ca[0]."' angelegt."
-                            );
-                            $lf = new UploadedFile(
-                                sys_get_temp_dir(
-                                ).DIRECTORY_SEPARATOR.$ca[0], $ca[0]
-                            );
+                            // Save decoded file as a temporary file
+                            $tmpFilename = $contentParts[0];
+                            $tmpFilePath = DemosPlanPath::getTemporaryPath($tmpFilename);
+                            $tmpFileContent = $contentParts[1];
+                            $fs->dumpFile($tmpFilePath, base64_decode($tmpFileContent));
+                            $this->getLogger()->debug("file created", [$tmpFilePath]);
 
                             $hash = '';
                             // Übergebe temporäre Datei FileService
                             try {
                                 $hash = $this->fileService->saveTemporaryLocalFile(
-                                    $lf->getPathname(),
-                                    $ca[0],
+                                    $tmpFilePath,
+                                    $tmpFilename,
                                     null,
                                     $procedureId,
                                     FileService::VIRUSCHECK_NONE
@@ -232,17 +221,8 @@ class ServiceImporter implements ServiceImporterInterface
                                 $this->getLogger()->error('Error in Fileupload ', [$e]);
                             }
 
-                            $this->getLogger()->debug(
-                                "Datei '".sys_get_temp_dir(
-                                ).DIRECTORY_SEPARATOR.$ca[0]."' hochgeladen. FileService Hash: ".$hash
-                            );
-                            // Lösche temporäre Datei
-                            $fs->remove(
-                                sys_get_temp_dir(
-                                ).DIRECTORY_SEPARATOR.$ca[0]
-                            );
                             // Ersetze Platzhalter im Text mit FileService Hash
-                            $stringToReplace = '/file/'.substr((string) $f, 2);
+                            $stringToReplace = '/file/'.substr((string) $file, 2);
                             $paragraph['text'] = $this->fixImageSize($paragraph['text'], $stringToReplace, $hash);
                             $paragraph['text'] = str_replace(
                                 $stringToReplace,
@@ -312,37 +292,25 @@ class ServiceImporter implements ServiceImporterInterface
 
         // Transform document and save to database
         try {
-            // @improve T14122
-
             $fileInfo = $this->fileService->getFileInfoFromFileString($uploadedFile);
-            // @todo check local file usage
-            $file = new File($fileInfo->getAbsolutePath());
-
-            // This should probably be in a configuration section
-            $documentImportMimeTypes = [
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                'application/zip',
-                'application/msword',
-                'application/octet-stream',
-            ];
-
-            $file = $this->checkFileIsValidToImport(
+            // File needs to be saved as a local file, as any DocxImporterInterface need a local file path
+            // no need for flysystem
+            $fs = new Filesystem();
+            $temporaryPath = DemosPlanPath::getTemporaryPath($fileInfo->getHash());
+            $fs->dumpFile($temporaryPath, $this->defaultStorage->read($fileInfo->getAbsolutePath()));
+            $file = new File($temporaryPath);
+            $this->checkFileIsValidToImport($fileInfo);
+            $importResult = $this->importDocxWithRabbitMQ(
                 $file,
-                $documentImportMimeTypes
+                $elementId,
+                $procedureId,
+                'paragraph'
             );
-            $mimeType = $file->getMimeType();
-
-            if (in_array($mimeType, $documentImportMimeTypes, true)) {
-                $importResult = $this->importDocxWithRabbitMQ(
-                    $file,
-                    $elementId,
-                    $procedureId,
-                    'paragraph'
-                );
-                $this->createParagraphsFromImportResult($importResult, $procedureId);
-                // delete uploaded docx
-                $this->deleteDocxAfterImportWithRabbitMQ($fileInfo->getHash());
-            }
+            // cleanup temporary file
+            $fs->remove($temporaryPath);
+            $this->createParagraphsFromImportResult($importResult, $procedureId);
+            // delete uploaded docx
+            $this->deleteDocxAfterImportWithRabbitMQ($fileInfo->getHash());
 
             $this->messageBag->add('confirm', 'confirm.import');
         } catch (FileException $e) {
@@ -415,9 +383,8 @@ class ServiceImporter implements ServiceImporterInterface
             foreach ($matches[0] as $key => $match) {
                 try {
                     $fileInfo = $this->fileService->getFileInfo($hash);
-                    // @todo use flysystem
-                    if (is_file($fileInfo->getAbsolutePath())) {
-                        $sizeArray = getimagesize($fileInfo->getAbsolutePath());
+                    if($this->defaultStorage->fileExists($fileInfo->getAbsolutePath())) {
+                        $sizeArray = getimagesizefromstring($this->defaultStorage->read($fileInfo->getAbsolutePath()));
                         $text = str_replace(["width='0'", "height='0'"],
                             [
                                 sprintf("width='%s'", $sizeArray[0]),
