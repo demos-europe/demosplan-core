@@ -69,7 +69,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
         RequestStack $requestStack,
         ServiceImporter $serviceImport,
         StatementHandler $statementHandler,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ) {
         parent::__construct(
             $assessmentTableServiceOutput,
@@ -562,7 +562,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
         bool $original,
         array $fragmentIds,
         bool $anonymous,
-        ?Procedure $procedure
+        ?Procedure $procedure,
     ): array {
         if (null === $procedure) {
             throw ProcedureNotFoundException::createFromId($procedureId);
