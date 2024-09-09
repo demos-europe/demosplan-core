@@ -364,7 +364,7 @@ class FileService extends CoreService implements FileServiceInterface
             // Procedure does not exist
         }
 
-        [$path, $hash] = $this->storeFile($symfonyFile, self::VIRUSCHECK_NONE !== $virencheck, $dplanFile);
+        [$path, $hash] = $this->storeLocalFile($symfonyFile, self::VIRUSCHECK_NONE !== $virencheck, $dplanFile);
         $newEntity = $this->saveFileEntity($dplanFile, $hash, $path, $symfonyFile->getSize());
 
         // delete temporary file. May be done with Symfony Filesystem component as file needs to exist locally
@@ -394,7 +394,7 @@ class FileService extends CoreService implements FileServiceInterface
             $dplanFile->setProcedure($this->currentProcedureService->getProcedure());
         }
 
-        [$path, $hash] = $this->storeFile($symfonyFile, self::VIRUSCHECK_NONE !== $virencheck, $dplanFile);
+        [$path, $hash] = $this->storeLocalFile($symfonyFile, self::VIRUSCHECK_NONE !== $virencheck, $dplanFile);
 
         return $this->saveFileEntity($dplanFile, $hash, $path, $symfonyFile->getSize());
     }
@@ -723,7 +723,7 @@ class FileService extends CoreService implements FileServiceInterface
      *
      * @return string
      */
-    protected function moveFile(\Symfony\Component\HttpFoundation\File\File $file, $path = '', ?string $existingHash = null)
+    protected function moveLocalFile(\Symfony\Component\HttpFoundation\File\File $file, $path = '', ?string $existingHash = null): string
     {
         // Generate a unique name for the file before saving it
         $hash = $existingHash ?? $this->createHash();
@@ -1082,7 +1082,7 @@ class FileService extends CoreService implements FileServiceInterface
         return str_ireplace(' ', '_', $filename);
     }
 
-    private function storeFile(\Symfony\Component\HttpFoundation\File\File $symfonyFile, bool $viruscheck, File $fileEntity): array
+    private function storeLocalFile(\Symfony\Component\HttpFoundation\File\File $symfonyFile, bool $viruscheck, File $fileEntity): array
     {
     // Check Mimetype
     $this->checkMimeTypeAllowed($symfonyFile->getMimeType(), $symfonyFile->getPathname());
@@ -1099,7 +1099,7 @@ class FileService extends CoreService implements FileServiceInterface
         'Try to move file',
         ['from' => $symfonyFile->getRealPath(), 'to' => $path]
     );
-    $hash = $this->moveFile($symfonyFile, $path, $fileEntity->getHash());
+    $hash = $this->moveLocalFile($symfonyFile, $path, $fileEntity->getHash());
     $this->getLogger()->info('File moved', ['hash' => $hash]);
     return [$path, $hash];
 }

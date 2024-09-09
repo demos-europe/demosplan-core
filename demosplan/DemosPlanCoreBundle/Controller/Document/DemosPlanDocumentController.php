@@ -1001,7 +1001,7 @@ class DemosPlanDocumentController extends BaseController
         try {
             $request->getSession()->remove('element_import_list');
             if (is_dir($this->getElementImportDir($procedureId, $user))) {
-                DemosPlanPath::recursiveRemovePath($this->getElementImportDir($procedureId, $user));
+                DemosPlanPath::recursiveRemoveLocalPath($this->getElementImportDir($procedureId, $user));
             }
         } catch (Exception) {
         }

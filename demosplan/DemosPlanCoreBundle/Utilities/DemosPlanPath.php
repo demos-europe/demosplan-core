@@ -120,7 +120,7 @@ class DemosPlanPath
      *
      * @throws RuntimeException If anything fails
      */
-    public static function recursiveRemovePath($path)
+    public static function recursiveRemoveLocalPath($path)
     {
         if (is_dir($path)) {
             $objects = scandir($path, SCANDIR_SORT_NONE);
@@ -130,7 +130,7 @@ class DemosPlanPath
                     $pathToObject = $path.DIRECTORY_SEPARATOR.$object;
 
                     if ('dir' === filetype($pathToObject)) {
-                        self::recursiveRemovePath($pathToObject);
+                        self::recursiveRemoveLocalPath($pathToObject);
                     } else {
                         // local file is valid, no need for flysystem
                         $deleted = unlink($pathToObject);

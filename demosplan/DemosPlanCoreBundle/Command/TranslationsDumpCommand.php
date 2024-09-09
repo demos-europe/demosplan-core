@@ -96,7 +96,7 @@ class TranslationsDumpCommand extends CoreCommand
             $output->writeln('Succesfully wrote translations to core client bundle');
         }
 
-        DemosPlanPath::recursiveRemovePath($tempDir);
+        DemosPlanPath::recursiveRemoveLocalPath($tempDir);
 
         return Command::SUCCESS;
     }
