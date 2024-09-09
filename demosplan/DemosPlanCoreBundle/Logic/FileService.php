@@ -618,6 +618,7 @@ class FileService extends CoreService implements FileServiceInterface
         $this->defaultStorage->copy($fileToCopy->getFilePathWithHash(), $newFilename);
 
         // when specific target procedureId is given this shall win
+        $procedure = null;
         if ($fileToCopy->getProcedure() instanceof Procedure) {
             $procedure = $fileToCopy->getProcedure();
         }
