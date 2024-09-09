@@ -99,7 +99,6 @@ class FileServiceTest extends FunctionalTestCase
 
     public function testSaveFileFromUploadedFile(): void
     {
-
         $cacheDir = $this->getContainer()->getParameter('kernel.cache_dir');
         $fileName = 'test2.txt';
 
@@ -206,7 +205,6 @@ class FileServiceTest extends FunctionalTestCase
         static::assertEquals('text/plain', $fileEntity->getMimetype());
         static::assertEquals('file2', $this->sut->getContent($fileEntity));
 
-
         // Test original temporary file has moved
         static::assertFileDoesNotExist($cacheDir.'/'.$fileName);
 
@@ -236,7 +234,7 @@ class FileServiceTest extends FunctionalTestCase
 
         // write File to test existance
         $fs = new Filesystem();
-        $tmpFilePath = $cacheDir . '/' . $fileName;
+        $tmpFilePath = $cacheDir.'/'.$fileName;
         $fs->dumpFile($tmpFilePath, 'file3');
         static::assertFileExists($tmpFilePath);
 
@@ -247,7 +245,6 @@ class FileServiceTest extends FunctionalTestCase
         $uploadedFileMock->method('getMimeType')->willReturn('application/x-msdownload');
         $uploadedFileMock->method('getSize')->willReturn(filesize($tmpFilePath));
         $uploadedFileMock->method('getPathname')->willReturn($tmpFilePath);
-
 
         // Test function
         try {
@@ -324,7 +321,6 @@ class FileServiceTest extends FunctionalTestCase
         static::assertSame('begruendung.pdf', $result->getFilename());
         static::assertSame(1234, $result->getSize());
         static::assertFalse($result->getInfected());
-
     }
 
     public function testGetFileContainerMultipleFiles()
