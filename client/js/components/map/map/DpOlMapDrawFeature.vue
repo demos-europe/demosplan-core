@@ -259,7 +259,9 @@ export default {
         name: this.name,
         type: this.type,
         id: 'layer' + uuid(),
-        style: drawStyle(style)
+        style: drawStyle(style),
+        // make sure drawing layer is always on top
+        zIndex: 1000
       })
 
       this.map.addLayer(layer)

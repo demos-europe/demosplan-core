@@ -197,7 +197,8 @@
             "symfony/flex": true,
             "demos-europe/demosplan-addon-installer": true,
             "bamarni/composer-bin-plugin": true,
-            "php-http/discovery": false
+            "php-http/discovery": false,
+            "endroid/installer": true
         },
         "platform": {
             "php": "8.1.12"
