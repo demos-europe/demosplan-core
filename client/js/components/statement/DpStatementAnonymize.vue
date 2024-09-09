@@ -40,6 +40,7 @@
       </ul>
 
       <dp-checkbox
+        v-if="hasPermission('feature_statement_text_history_delete')"
         id="r_delete_statement_text_history"
         v-model="actions.deleteStatementTextHistory"
         class="u-mb-0_5"
