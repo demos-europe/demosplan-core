@@ -89,6 +89,9 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Handler\SingleDocumentHandlerInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentHandler
 
+    DemosEurope\DemosplanAddon\Contracts\Handler\ParagraphHandlerInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphHandler
+
     DemosEurope\DemosplanAddon\Contracts\Services\ElementsServiceInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService
 
@@ -1294,9 +1297,9 @@ services:
 
     EDT\Querying\ConditionParsers\Drupal\DrupalConditionParser:
         arguments:
-            $drupalConditionFactory: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
+            $drupalConditionFactory: '@demosplan\DemosPlanCoreBundle\Logic\ConditionFactory\DemosPlanDrupalConditionFactory'
 
-    EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory:
+    demosplan\DemosPlanCoreBundle\Logic\ConditionFactory\DemosPlanDrupalConditionFactory:
         arguments:
             $conditionFactory: '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
 
@@ -1309,7 +1312,7 @@ services:
 
     EDT\Querying\ConditionParsers\Drupal\DrupalFilterValidator:
         arguments:
-            $drupalConditionFactory: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
+            $drupalConditionFactory: '@demosplan\DemosPlanCoreBundle\Logic\ConditionFactory\DemosPlanDrupalConditionFactory'
 
     EDT\Querying\Utilities\ConditionEvaluator:
         arguments:
