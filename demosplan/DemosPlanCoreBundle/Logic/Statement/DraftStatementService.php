@@ -66,6 +66,7 @@ use Elastica\Query\BoolQuery;
 use Elastica\Query\MatchQuery;
 use Elastica\Query\Terms;
 use Exception;
+use League\Flysystem\FilesystemOperator;
 use ReflectionException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -124,6 +125,7 @@ class DraftStatementService extends CoreService
         private readonly EntityHelper $entityHelper,
         Environment $twig,
         FileService $fileService,
+        private readonly FilesystemOperator $defaultStorage,
         private readonly ManualListSorter $manualListSorter,
         MapService $serviceMap,
         private readonly MessageBagInterface $messageBag,
@@ -979,7 +981,6 @@ class DraftStatementService extends CoreService
 
     protected function checkMapScreenshotFile(array $statementArray, string $procedureId): array
     {
-        // @todo use flysystem
         // hat das Statement einen Screenshot aber kein Polygon?
         if (0 < strlen((string) $statementArray['polygon']) && 0 === strlen($statementArray['mapFile'] ?? '')) {
             $this->getLogger()->info('DraftStatement hat ein Polygon, aber keinen Screenshot. Erzeuge ihn');
@@ -990,7 +991,7 @@ class DraftStatementService extends CoreService
             $this->getLogger()->info('DraftStatement hat einen Screenshot.');
             $fileInfo = $this->fileService->getFileInfoFromFileString($statementArray['mapFile']);
             // Wenn der Screenshot da sein müsste, es aber nicht ist, versuche ihn neu zu generieren
-            if (!is_file($fileInfo->getAbsolutePath())) {
+            if(!$this->defaultStorage->fileExists($fileInfo->getAbsolutePath())) {
                 $this->getLogger()->info('Screenshot konnte nicht gefunden werden');
                 if (0 < strlen((string) $statementArray['polygon'])) {
                     $this->getLogger()->info('Erzeuge Screenshot neu');
@@ -1044,13 +1045,12 @@ class DraftStatementService extends CoreService
     {
         $index = count($pictures);
 
-        // @todo use flysystem
-        if (is_file($file->getAbsolutePath())) {
-            $this->getLogger()->info('Bild auf der Platte gefunden');
-            $fileContent = file_get_contents($file->getAbsolutePath());
+        if ($this->defaultStorage->fileExists($file->getAbsolutePath())) {
+            $this->getLogger()->debug('Picture found: ', [$file->getAbsolutePath()]);
+            $fileContent = $this->defaultStorage->read($file->getAbsolutePath());
             $pictures['picture'.$index] = $file->getHash().'###'.$file->getFileName().'###'.base64_encode($fileContent);
         } else {
-            $this->getLogger()->error('Bild nicht gefunden');
+            $this->getLogger()->error('Picture not found: ', [$file->getAbsolutePath()]);
         }
 
         return $pictures;

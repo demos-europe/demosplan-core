@@ -74,8 +74,6 @@ class MapScreenshotter
     private $mapEnableWmtsExport;
 
     public function __construct(
-        private readonly ApiClientInterface $apiClient,
-        private readonly Filesystem $filesystem,
         private readonly GeoJsonToFeaturesConverter $geoJsonToFeaturesConverter,
         GlobalConfigInterface $globalConfig,
         private readonly ImageManager $imageManager,
@@ -148,7 +146,6 @@ class MapScreenshotter
         $bbox = $this->viewport->left.','.$this->viewport->bottom.','.$this->viewport->right.','.$this->viewport->top;
         $image = $this->preparePlaceholderMapWms();
         $this->getLayersTilesAndMergeThemIntoMap($wmsUrls, $bbox, $image);
-        // @todo: probably needs to copy to use flysystem
         $image = $this->imageManager->make($image);
 
         $mapLayer = new MapLayer(

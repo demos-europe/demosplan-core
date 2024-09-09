@@ -569,8 +569,6 @@ class AssessmentTableServiceOutput
         string $sortType,
         string $viewMode = AssessmentTableViewMode::DEFAULT_VIEW,
     ): WriterInterface {
-        $this->docxExporter->setProcedureHandler($this->getProcedureHandler());
-
         return $this->docxExporter->generateDocx(
             $outputResult,
             $templateName,

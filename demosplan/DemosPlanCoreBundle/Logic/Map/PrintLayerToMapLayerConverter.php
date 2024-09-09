@@ -34,6 +34,7 @@ class PrintLayerToMapLayerConverter
             $printLayer->getWmsUrl()
         );
 
+        // uses local file, no need for flysystem
         $this->filesystem->remove($printLayer->getImagesDirectoryPath());
 
         return $mapLayer;
