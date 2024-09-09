@@ -127,7 +127,7 @@ class ExportService
         TranslatorInterface $translator,
         private readonly ZipExportService $zipExportService,
         private readonly string $rendererName,
-        private readonly string $rendererPath
+        private readonly string $rendererPath,
     ) {
         $this->assessmentTableOutput = $assessmentTableServiceOutput;
         $this->draftStatementService = $draftStatementService;
@@ -383,7 +383,7 @@ class ExportService
         string $procedureId,
         string $procedureName,
         string $exportType,
-        ZipStream $zip
+        ZipStream $zip,
     ): ZipStream {
         $rParams = [
             'filters' => [],
@@ -432,7 +432,7 @@ class ExportService
         string $procedureId,
         string $procedureName,
         string $exportType,
-        ZipStream $zip
+        ZipStream $zip,
     ): ZipStream {
         $type = [
             'anonymous'  => true,
@@ -490,7 +490,7 @@ class ExportService
     public function addAssessmentTableOriginalToZip(
         string $procedureId,
         string $procedureName,
-        ZipStream $zip
+        ZipStream $zip,
     ): ZipStream {
         $rParams = [
             'filters' => ['original' => 'IS NULL'],
@@ -810,7 +810,7 @@ class ExportService
         string $fileFolderPath,
         ZipStream $zip,
         string $fileNamePrefix,
-        Collection $attachments
+        Collection $attachments,
     ): void {
         collect($attachments)
             ->filter(

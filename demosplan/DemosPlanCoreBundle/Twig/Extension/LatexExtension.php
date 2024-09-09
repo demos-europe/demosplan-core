@@ -87,7 +87,7 @@ class LatexExtension extends ExtensionBase
         ContainerInterface $container,
         FileService $serviceFile,
         private readonly FilesystemOperator $defaultStorage,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
         parent::__construct($container);
         $this->fileService = $serviceFile;

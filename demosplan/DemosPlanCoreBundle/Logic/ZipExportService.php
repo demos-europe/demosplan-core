@@ -86,15 +86,14 @@ class ZipExportService
             $zip->addFileFromStream($zipPath, $this->defaultStorage->readStream($filePath));
             $this->logger->info('Added File to Zip from stream');
         // file may be stored temporarily locally
-        } elseif($fs->exists($filePath)) {
+        } elseif ($fs->exists($filePath)) {
             try {
                 $zip->addFileFromPath($zipPath, $filePath);
                 $this->logger->info('Added File to Zip from local stream');
             } catch (FileNotFoundException|FileNotReadableException $e) {
                 $this->logger->warning('Could not add File to Zip. File not found or not readable', ['path' => $filePath, 'exception' => $e]);
             }
-        }
-        else {
+        } else {
             $this->logger->warning('Could not add File to Zip. File does not exist', ['path' => $filePath]);
         }
     }
