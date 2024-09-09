@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
 use InvalidArgumentException;
+use League\Flysystem\FilesystemException;
 use PhpOffice\PhpSpreadsheet\Writer\Exception as WriterException;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use Psr\Log\LoggerInterface;
@@ -28,8 +29,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Webmozart\Assert\Assert;
-use ZipStream\Exception\FileNotFoundException;
-use ZipStream\Exception\FileNotReadableException;
 use ZipStream\ZipStream;
 
 use function Symfony\Component\String\u;
@@ -125,7 +124,7 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
                 $file['zipFileName'].'/'.$file['xlsx']['filename'],
                 $zipStream
             );
-        } catch (FileNotFoundException|FileNotReadableException $e) {
+        } catch (FilesystemException $e) {
             $this->handleError($e, self::FIILE_NOT_FOUND_OR_READABLE, self::XLSX_GENERIC);
         } catch (WriterException|Exception $e) {
             $this->handleError($e, self::UNKOWN_ERROR, self::XLSX_GENERIC);
@@ -165,7 +164,7 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
                         $originalAttachment['content']
                     );
                 }
-            } catch (FileNotFoundException|FileNotReadableException $e) {
+            } catch (FilesystemException $e) {
                 $this->handleError($e, self::FIILE_NOT_FOUND_OR_READABLE);
                 ++$this->errorCount['attachmentNotAddedCount'];
             } catch (InvalidDataException $e) {

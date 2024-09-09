@@ -16,6 +16,8 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidParameterTypeException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Exception;
+use League\Flysystem\FilesystemException;
+use League\Flysystem\FilesystemOperator;
 use Patchwork\Utf8;
 use PhpOffice\PhpWord\Writer\PDF;
 use PhpOffice\PhpWord\Writer\WriterInterface;
@@ -69,8 +71,7 @@ class ZipExportService
     }
 
     /**
-     * @throws FileNotFoundException
-     * @throws FileNotReadableException
+     * @throws FilesystemException
      */
     public function addFileToZipStream(string $filePath, string $zipPath, ZipStream $zip): void
     {
