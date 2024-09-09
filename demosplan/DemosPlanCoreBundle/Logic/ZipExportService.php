@@ -37,8 +37,11 @@ class ZipExportService
      */
     private $filesAdded = [];
 
-    public function __construct(private readonly FileService $fileService, private readonly LoggerInterface $logger)
-    {
+    public function __construct(
+        private readonly FilesystemOperator $defaultStorage,
+        private readonly FileService $fileService,
+        private readonly LoggerInterface $logger
+    ) {
     }
 
     /**
@@ -77,9 +80,12 @@ class ZipExportService
     {
         $fileOptions = new File();
         $fileOptions->setMethod(Method::STORE());
-        $zip->addFileFromPath($zipPath, $filePath, $fileOptions);
-
-        $this->logger->info('Added File to Zip');
+        if ($this->defaultStorage->fileExists($filePath)) {
+            $zip->addFileFromStream($zipPath, ($this->defaultStorage->readStream($filePath)));
+            $this->logger->info('Added File to Zip from stream');
+        } else {
+            $this->logger->warning('Could not add File to Zip. File does not exist', ['path' => $filePath]);
+        }
     }
 
     public function addFileToZip(
