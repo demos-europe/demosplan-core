@@ -520,8 +520,6 @@ class FileService extends CoreService implements FileServiceInterface
      *
      * @param string $hash
      *
-     * @return bool
-     *
      * @throws Exception
      */
     public function deleteFile($hash): bool

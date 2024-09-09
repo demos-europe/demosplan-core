@@ -23,8 +23,6 @@ use PhpOffice\PhpWord\Writer\PDF;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use ZipStream\Exception\FileNotFoundException;
-use ZipStream\Exception\FileNotReadableException;
 use ZipStream\Option\Archive;
 use ZipStream\Option\File;
 use ZipStream\Option\Method;
@@ -40,7 +38,7 @@ class ZipExportService
     public function __construct(
         private readonly FilesystemOperator $defaultStorage,
         private readonly FileService $fileService,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -81,7 +79,7 @@ class ZipExportService
         $fileOptions = new File();
         $fileOptions->setMethod(Method::STORE());
         if ($this->defaultStorage->fileExists($filePath)) {
-            $zip->addFileFromStream($zipPath, ($this->defaultStorage->readStream($filePath)));
+            $zip->addFileFromStream($zipPath, $this->defaultStorage->readStream($filePath));
             $this->logger->info('Added File to Zip from stream');
         } else {
             $this->logger->warning('Could not add File to Zip. File does not exist', ['path' => $filePath]);

@@ -51,7 +51,7 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
         NameGenerator $nameGenerator,
         private readonly ZipExportService $zipExportService,
         private readonly LoggerInterface $logger,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
         parent::__construct($nameGenerator);
         $this->supportedTypes = $supportedTypes;
