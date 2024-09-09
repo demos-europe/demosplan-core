@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Exception;
+use League\Flysystem\FilesystemOperator;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Twig\TwigFilter;
@@ -82,8 +83,12 @@ class LatexExtension extends ExtensionBase
         '</ins>'                               => '',
     ];
 
-    public function __construct(ContainerInterface $container, FileService $serviceFile, private readonly LoggerInterface $logger)
-    {
+    public function __construct(
+        ContainerInterface $container,
+        FileService $serviceFile,
+        private readonly FilesystemOperator $defaultStorage,
+        private readonly LoggerInterface $logger
+    ) {
         parent::__construct($container);
         $this->fileService = $serviceFile;
     }
@@ -629,9 +634,8 @@ class LatexExtension extends ExtensionBase
     {
         try {
             $fileInfo = $this->fileService->getFileInfo($hash);
-            // @todo use flysystem
-            if (is_file($fileInfo->getAbsolutePath())) {
-                $sizeArray = getimagesize($fileInfo->getAbsolutePath());
+            if ($this->defaultStorage->fileExists($fileInfo->getAbsolutePath())) {
+                $sizeArray = getimagesizefromstring($this->defaultStorage->read($fileInfo->getAbsolutePath()));
 
                 return $this->getLatexSizeCommand($sizeArray[0], $sizeArray[1]);
             }

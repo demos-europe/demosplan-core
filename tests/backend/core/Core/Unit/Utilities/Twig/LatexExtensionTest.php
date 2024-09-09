@@ -12,6 +12,7 @@ namespace Tests\Core\Core\Unit\Utilities\Twig;
 
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\LatexExtension;
+use League\Flysystem\FilesystemOperator;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Tests\Base\UnitTestCase;
@@ -40,7 +41,11 @@ class LatexExtensionTest extends UnitTestCase
 
         // Stubbe den Logger
         $stub = $this->getMockForAbstractClass(LoggerInterface::class);
-        $this->sut = new LatexExtension($containerStub, $fileService, $stub);
+        $flysystem = $this->createMock(FilesystemOperator::class);
+        $this->sut = new LatexExtension(
+            $containerStub, $fileService, $flysystem, $stub
+
+        );
     }
 
     public function testGetFilters()
@@ -412,13 +417,20 @@ class LatexExtensionTest extends UnitTestCase
 
     public function testTable()
     {
-        self::markSkippedForCIIntervention();
         // table-structure needs to be checked more closely
 
         $textToTest = '<table><tr><th></th><th>test</th></tr><tr><td></td><td>test</td></tr></table>';
         $resultString = $this->sut->latexFilter($textToTest);
 
-        $expected = '<table><tr><td></td><td>test</td></tr><tr><td></td><td>test</td></tr></table>';
+        $expected = '
+\begin{longtable}{|p{7cm}|p{7cm}|}
+\hline
+\textless~/th\textgreater~test\textless~/th\textgreater~\\\
+\hline
+&test\\\
+\hline
+
+\end{longtable}';
         $this->assertEquals($expected, $resultString);
     }
 
