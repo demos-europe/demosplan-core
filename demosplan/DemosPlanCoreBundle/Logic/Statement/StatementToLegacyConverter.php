@@ -35,7 +35,7 @@ class StatementToLegacyConverter extends CoreService
         private readonly DateHelper $dateHelper,
         private readonly ElementsService $elementsService,
         private readonly EntityHelper $entityHelper,
-        private readonly SingleDocumentVersionRepository $singleDocumentVersionRepository
+        private readonly SingleDocumentVersionRepository $singleDocumentVersionRepository,
     ) {
     }
 

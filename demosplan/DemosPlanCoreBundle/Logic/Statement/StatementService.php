@@ -281,7 +281,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         private readonly TranslatorInterface $translator,
         private readonly UserRepository $userRepository,
         UserService $userService,
-        private readonly StatementDeleter $statementDeleter
+        private readonly StatementDeleter $statementDeleter,
     ) {
         $this->assignService = $assignService;
         $this->entityContentChangeService = $entityContentChangeService;
@@ -564,7 +564,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         DraftStatement $draftStatement,
         $user,
         ?NotificationReceiver $notificationReceiver = null,
-        bool $gdprConsentReceived = false
+        bool $gdprConsentReceived = false,
     ) {
         try {
             $originalStatement = $this->statementRepository
@@ -831,7 +831,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         $aggregationsMinDocumentCount = 1,
         $logStatementViews = true,
         $addAllAggregations = true,
-        array $customAggregations = []
+        array $customAggregations = [],
     ): ElasticsearchResultSet {
         try {
             // get Elasticsearch aggregations aka Userfilters
@@ -2079,7 +2079,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     public function createElementsGroupStructure(
         string $procedureId,
         array $statementsIds,
-        array $fragmentIds
+        array $fragmentIds,
     ): StatementEntityGroup {
         $statements = $this->getStatementsByIds($statementsIds);
         $fragments = $this->statementFragmentRepository->getFragmentsById($fragmentIds);
