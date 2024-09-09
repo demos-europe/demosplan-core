@@ -176,8 +176,6 @@ class FileServiceTest extends FunctionalTestCase
 
     public function testSaveFileFromUploadedFileWithUserId()
     {
-        self::markSkippedForCIIntervention();
-
         $globalConfig = self::$container->get(GlobalConfigInterface::class);
         $cacheDir = $this->getContainer()->getParameter('kernel.cache_dir');
         $fileName = 'test2.txt';
@@ -199,24 +197,22 @@ class FileServiceTest extends FunctionalTestCase
         );
 
         // Test function
-        $fileIdent = $this->sut->saveUploadedFile($file, 'SomeRandomUserId')->getId();
-        static::assertTrue(is_string($fileIdent));
+        $fileId = $this->sut->saveUploadedFile($file, 'SomeRandomUserId')->getId();
+        static::assertTrue(is_string($fileId));
 
         // Test DB-Entry
-        $fileInfo = $this->sut->getFileInfo($fileIdent);
-        static::assertEquals($fileName, $fileInfo->getFileName());
-        static::assertEquals('text/plain', $fileInfo->getContentType());
+        $fileEntity = $this->sut->get($fileId);
+        static::assertEquals($fileName, $fileEntity->getFileName());
+        static::assertEquals('text/plain', $fileEntity->getMimetype());
+        static::assertEquals('file2', $this->sut->getContent($fileEntity));
 
-        // Test File exists
-        $filePath = realpath($fileInfo->getAbsolutePath());
-        static::assertFileExists($filePath);
 
         // Test original temporary file has moved
         static::assertFileDoesNotExist($cacheDir.'/'.$fileName);
 
         // Test Filestring
         $fileString = $this->sut->getFileString();
-        static::assertEquals($fileName.':'.$fileIdent.':'.$fileSize.':'.$mimeType, $fileString);
+        static::assertEquals($fileName.':'.$fileId.':'.$fileSize.':'.$mimeType, $fileString);
     }
 
     public function testSaveTemporaryFileEmpty()
@@ -235,33 +231,32 @@ class FileServiceTest extends FunctionalTestCase
 
     public function testMimeTypeNotAllowed()
     {
-        self::markSkippedForCIIntervention();
-
         $cacheDir = $this->getContainer()->getParameter('kernel.cache_dir');
         $fileName = 'test3.txt';
 
         // write File to test existance
         $fs = new Filesystem();
-        $fs->dumpFile($cacheDir.'/'.$fileName, 'file3');
-        static::assertFileExists($cacheDir.'/'.$fileName);
+        $tmpFilePath = $cacheDir . '/' . $fileName;
+        $fs->dumpFile($tmpFilePath, 'file3');
+        static::assertFileExists($tmpFilePath);
 
-        $file = new UploadedFile(
-            $cacheDir.'/'.$fileName,
-            $fileName,
-            'application/x-msdownload',
-            filesize($cacheDir.'/'.$fileName),
-            UPLOAD_ERR_OK,
-            true
-        );
+        $uploadedFileMock = $this->createMock(UploadedFile::class);
+
+        // Configure the mock to return specific values
+        $uploadedFileMock->method('getClientOriginalName')->willReturn($tmpFilePath);
+        $uploadedFileMock->method('getMimeType')->willReturn('application/x-msdownload');
+        $uploadedFileMock->method('getSize')->willReturn(filesize($tmpFilePath));
+        $uploadedFileMock->method('getPathname')->willReturn($tmpFilePath);
+
 
         // Test function
         try {
-            $this->sut->saveUploadedFile($file);
+            $this->sut->saveUploadedFile($uploadedFileMock);
             $this->fail('Exception should have been thrown');
         } catch (FileException $e) {
             static::assertEquals(20, $e->getCode());
             // Test original temporary file has moved
-            static::assertFileDoesNotExist($cacheDir.'/'.$fileName);
+            static::assertFileDoesNotExist($tmpFilePath);
         }
     }
 

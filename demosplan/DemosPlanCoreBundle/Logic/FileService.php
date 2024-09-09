@@ -685,15 +685,14 @@ class FileService extends CoreService implements FileServiceInterface
      *
      * @throws FileException
      */
-    public function checkMimeTypeAllowed($mimeType, $temporaryFilePath)
+    public function checkMimeTypeAllowed($mimeType, $temporaryFilePath): void
     {
         $allowedMimeTypes = $this->globalConfig->getAllowedMimeTypes();
         if (!in_array($mimeType, $allowedMimeTypes, true)) {
-            // used only on local files, no need for flysystem
-            @unlink($temporaryFilePath);
-            $this->logger->warning(
-                'MimeType is not allowed. Given MimeType: '.$mimeType
-            );
+            $this->logger->warning('MimeType is not allowed. Given MimeType: ', [$mimeType]);
+            // delete temporary file. May be done with Symfony Filesystem component as file needs to exist locally
+            $fs = new Filesystem();
+            $fs->remove($temporaryFilePath);
             throw new FileException('MimeType "'.$mimeType.'" is not allowed', 20);
         }
     }
