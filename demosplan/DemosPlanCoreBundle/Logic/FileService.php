@@ -389,7 +389,7 @@ class FileService extends CoreService implements FileServiceInterface
         }
         $filePath = $symfonyFile->getPathname();
 
-        return $this->handleLocalFileStorage($symfonyFile, $virencheck, $dplanFile,$filePath);
+        return $this->handleLocalFileStorage($symfonyFile, $virencheck, $dplanFile, $filePath);
     }
 
     /**
@@ -1089,9 +1089,8 @@ class FileService extends CoreService implements FileServiceInterface
         \Symfony\Component\HttpFoundation\File\File $symfonyFile,
         string $virencheck,
         File $dplanFile,
-        string $filePath
-    ): File
-    {
+        string $filePath,
+    ): File {
         [$path, $hash] = $this->storeLocalFile($symfonyFile, self::VIRUSCHECK_NONE !== $virencheck, $dplanFile);
         $newEntity = $this->saveFileEntity($dplanFile, $hash, $path, $symfonyFile->getSize());
 
