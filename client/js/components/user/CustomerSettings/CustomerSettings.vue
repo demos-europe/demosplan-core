@@ -203,6 +203,7 @@
           }" />
         <dp-button-row
           class="u-mt"
+          data-cy="customerSettings:accessibilityExplanation"
           primary
           secondary
           :busy="isBusy"
@@ -235,6 +236,7 @@
           :tus-endpoint="dplan.paths.tusEndpoint" />
         <dp-button-row
           class="u-mt"
+          data-cy="customerSettings:overviewDescription"
           primary
           secondary
           :busy="isBusy"
