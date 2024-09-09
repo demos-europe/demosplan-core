@@ -301,49 +301,30 @@ class FileServiceTest extends FunctionalTestCase
     /**
      * @throws Exception
      */
-    public function testAddFile()
+    public function testAddFile(): void
     {
-        self::markSkippedForCIIntervention();
+        // build mock file to be saved
+        $file = new File();
+        $file->setIdent('61fb0d7f316753bd676459b6a7f6a95b');
+        $file->setHash('61fb0d7f316753bd676459b6a7f6a95b');
+        $file->setMimetype('application/pdf');
+        $file->setName('begruendung.pdf');
+        $file->setFilename('begruendung.pdf');
+        $file->setSize(1234);
+        $file->setInfected(false);
 
-        $result = $this->sut->addFile(
-            'begruendung.pdf',
-            'D:/Development/PhpstormProjects/robob/web/uploads/files/577a687161bad.pdf',
-            'application/pdf',
-            1234,
-            null,
-            '61fb0d7f316753bd676459b6a7f6a95b',
-            '/2016/07'
-        );
-
+        $result = $this->sut->addFile($file);
         static::assertInstanceOf(File::class, $result);
-        $fileInfo = $this->sut->getFileInfo($result->getIdent());
+        $fileInfo = $this->sut->getFileInfo($result->getId());
 
-        static::assertEquals($result->getIdent(), $fileInfo->getHash());
+        static::assertEquals($result->getId(), $fileInfo->getHash());
         static::assertSame('61fb0d7f316753bd676459b6a7f6a95b', $result->getHash());
         static::assertSame('application/pdf', $result->getMimetype());
         static::assertSame('begruendung.pdf', $result->getName());
+        static::assertSame('begruendung.pdf', $result->getFilename());
         static::assertSame(1234, $result->getSize());
         static::assertFalse($result->getInfected());
 
-        $result = $this->sut->addFile(
-            'begruendung.pdf',
-            'D:/Development/PhpstormProjects/robob/web/uploads/files/577a687161bad.pdf',
-            'application/pdf',
-            1234,
-            null,
-            '61fb0d7f316753bd676459b6a7f6a95b',
-            '/2016/07'
-        );
-
-        static::assertInstanceOf(File::class, $result);
-        $fileInfo = $this->sut->getFileInfo($result->getIdent());
-
-        static::assertEquals($result->getIdent(), $fileInfo->getHash());
-        static::assertSame('61fb0d7f316753bd676459b6a7f6a95b', $result->getHash());
-        static::assertSame('application/pdf', $result->getMimetype());
-        static::assertSame('begruendung.pdf', $result->getName());
-        static::assertSame(1234, $result->getSize());
-        static::assertFalse($result->getInfected());
     }
 
     public function testGetFileContainerMultipleFiles()
@@ -423,21 +404,19 @@ class FileServiceTest extends FunctionalTestCase
         static::assertNull($deletedFile);
     }
 
-    public function testGetAllFiles()
+    public function testGetAllFiles(): void
     {
-        self::markSkippedForCIIntervention();
-
         $allFiles = $this->sut->getAllFiles();
-        static::assertCount(2, $allFiles);
+        static::assertCount(14, $allFiles);
     }
 
-    public function testGetFile()
+    public function testGetFile(): void
     {
         $file = $this->sut->get($this->testFile->getId());
         static::assertEquals($this->testFile->getId(), $file->getId());
     }
 
-    public function testCopyFile()
+    public function testCopyFile(): void
     {
         $cacheDir = $this->getContainer()->getParameter('kernel.cache_dir');
         $fs = new Filesystem();
