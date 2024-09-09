@@ -444,11 +444,6 @@ class MapService extends CoreService
                 $this->statementService->updateStatement($update, true, true, true);
             }
 
-            // Lösche die Datei falls vorhanden
-            if (file_exists($file)) {
-                @unlink($file);
-            }
-
             return $fileName.':'.$hash;
         } catch (Exception $e) {
             $this->getLogger()->error('Fehler beim Erstellen des Screenshots ', [$e]);
