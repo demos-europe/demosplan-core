@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
@@ -1733,6 +1734,7 @@ class DemosPlanProcedureController extends BaseController
 
         $currentProcedure = $currentProcedureService->getProcedureArray();
         $templateVars['procedureSettings'] = $currentProcedure['settings'];
+        $templateVars['procedureSettings']['territory'] = $this->convertJsonToCoordinates($currentProcedure['settings']['territory']);
         // Globale Sachdatenabfrage hinzufügen
         $templateVars['procedureSettings']['featureInfoUrl'] = $getFeatureInfo->getUrl();
 
@@ -1955,6 +1957,11 @@ class DemosPlanProcedureController extends BaseController
                 'templateVars' => $templateVars,
             ]
         );
+    }
+
+    protected function convertJsonToCoordinates(string $rawCoordinateValues): ?array
+    {
+        return '' === $rawCoordinateValues ? null : Json::decodeToArray($rawCoordinateValues);
     }
 
     /**
