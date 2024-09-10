@@ -2393,6 +2393,12 @@ class DemosPlanProcedureController extends BaseController
         $templateVars['list'] = $procedureService->getBoilerplateList($procedure);
         $templateVars['boilerplateGroups'] = $procedureService->getBoilerplateGroups($procedureId);
 
+        if (!$request->isMethod('GET')) {
+            // prevent sending the same post multiple times when browser reloads the same page (F5)
+            // therefore redirect to self as a get call instead.
+            return $this->redirectBack($request);
+        }
+
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanProcedure/administration_list_boilerplate.html.twig',
             [
