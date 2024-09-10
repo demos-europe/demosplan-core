@@ -58,7 +58,6 @@
         "geocoder-php/nominatim-provider": "^5.5",
         "goetas-webservices/xsd2php-runtime": "^0.2.2",
         "guzzlehttp/guzzle": "^7",
-        "hslavich/oneloginsaml-bundle": "^2.8",
         "illuminate/collections": "^10.48",
         "intervention/image": "^2.5",
         "intriro/csv-bundle": "^1.0",
