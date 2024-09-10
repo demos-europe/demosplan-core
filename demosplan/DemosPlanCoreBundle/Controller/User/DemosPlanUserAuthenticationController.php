@@ -24,8 +24,13 @@ use demosplan\DemosPlanCoreBundle\Logic\User\UserHasher;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\LoginFormAuthenticator;
+use Doctrine\ORM\EntityManagerInterface;
+use Endroid\QrCode\Builder\BuilderInterface;
+use Endroid\QrCodeBundle\Response\QrCodeResponse;
 use Exception;
 use Psr\Log\LoggerInterface;
+use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Email\Generator\CodeGeneratorInterface;
+use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Totp\TotpAuthenticatorInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -116,6 +121,62 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
             $requestPostFields['newEmail'],
             $hasherFactory
         );
+
+        return $this->redirectToRoute('DemosPlan_user_portal');
+    }
+
+    #[Route(path: '/authentication/2fa/qr-code', name: 'DemosPlan_user_qr_code')]
+    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions('feature_2fa')]
+    public function displayGoogleAuthenticatorQrCode(BuilderInterface $builder, TotpAuthenticatorInterface $totpAuthenticator)
+    {
+        $qrCodeContent = $totpAuthenticator->getQRContent($this->getUser());
+        $result = $builder
+            ->size(200)
+            ->margin(20)
+            ->data($qrCodeContent)
+            ->validateResult(true)
+            ->build();
+
+        return new QrCodeResponse($result);
+    }
+
+    #[Route(path: '/authentication/2fa/enable', name: 'DemosPlan_user_2fa_enable')]
+    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions('feature_2fa')]
+    public function enable2fa(
+        CurrentUserInterface $currentUser,
+        EntityManagerInterface $entityManager,
+        TotpAuthenticatorInterface $totpAuthenticator,
+    ): RedirectResponse {
+        $user = $currentUser->getUser();
+        if (!$user->isTotpEnabled()) {
+            $user->setTotpSecret($totpAuthenticator->generateSecret());
+            $entityManager->flush();
+        }
+
+        return $this->redirectToRoute('DemosPlan_user_portal');
+    }
+
+    #[Route(path: '/authentication/2faemail/enable', name: 'DemosPlan_user_2fa_email_enable')]
+    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions('feature_2fa')]
+    public function enable2faemail(
+        CodeGeneratorInterface $codeGenerator,
+        CurrentUserInterface $currentUser,
+    ): RedirectResponse {
+        $user = $currentUser->getUser();
+        if (!$user->isEmailAuthEnabled()) {
+            $codeGenerator->generateAndSend($user);
+        }
+
+        return $this->redirectToRoute('DemosPlan_user_portal');
+    }
+
+    #[Route(path: '/authentication/2faemail/send', name: 'DemosPlan_user_2fa_email_send')]
+    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions('feature_2fa')]
+    public function send2faemail(
+        CodeGeneratorInterface $codeGenerator,
+        CurrentUserInterface $currentUser,
+    ): RedirectResponse {
+        $codeGenerator->reSend($currentUser->getUser());
 
         return $this->redirectToRoute('DemosPlan_user_portal');
     }

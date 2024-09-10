@@ -9,15 +9,15 @@
  */
 
 return [
-    Symfony\Bundle\FrameworkBundle\FrameworkBundle::class                              => ['all' => true],
-    BabDev\PagerfantaBundle\BabDevPagerfantaBundle::class                              => ['all' => true],
-    Bazinga\Bundle\JsTranslationBundle\BazingaJsTranslationBundle::class               => ['all' => true],
-    Doctrine\Bundle\DoctrineBundle\DoctrineBundle::class                               => ['all' => true],
-    Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle::class                   => ['all' => true],
-    Enqueue\Bundle\EnqueueBundle::class                                                => ['all' => true],
-    Exercise\HTMLPurifierBundle\ExerciseHTMLPurifierBundle::class                      => ['all' => true],
-    FOS\ElasticaBundle\FOSElasticaBundle::class                                        => ['all' => true],
-    FOS\JsRoutingBundle\FOSJsRoutingBundle::class                                      => ['all' => true],
+    Symfony\Bundle\FrameworkBundle\FrameworkBundle::class                    => ['all' => true],
+    BabDev\PagerfantaBundle\BabDevPagerfantaBundle::class                    => ['all' => true],
+    Bazinga\Bundle\JsTranslationBundle\BazingaJsTranslationBundle::class     => ['all' => true],
+    Doctrine\Bundle\DoctrineBundle\DoctrineBundle::class                     => ['all' => true],
+    Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle::class         => ['all' => true],
+    Enqueue\Bundle\EnqueueBundle::class                                      => ['all' => true],
+    Exercise\HTMLPurifierBundle\ExerciseHTMLPurifierBundle::class            => ['all' => true],
+    FOS\ElasticaBundle\FOSElasticaBundle::class                              => ['all' => true],
+    FOS\JsRoutingBundle\FOSJsRoutingBundle::class                            => ['all' => true],
     Intriro\Bundle\CsvBundle\IntriroCsvBundle::class                                   => ['all' => true],
     JMS\SerializerBundle\JMSSerializerBundle::class                                    => ['all' => true],
     Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle::class           => ['all' => true],
@@ -44,4 +44,6 @@ return [
     Enqueue\ElasticaBundle\EnqueueElasticaBundle::class                                => ['all' => true],
     DemosEurope\DemosplanAddon\DemosPlanAddonBundle::class                             => ['all' => true],
     Zenstruck\Foundry\ZenstruckFoundryBundle::class                                    => ['dev' => true, 'test' => true],
+    Scheb\TwoFactorBundle\SchebTwoFactorBundle::class                                  => ['all' => true],
+    Endroid\QrCodeBundle\EndroidQrCodeBundle::class                                    => ['all' => true],
 ];
