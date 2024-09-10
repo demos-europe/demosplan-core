@@ -31,22 +31,22 @@
               {{ Translator.trans('address') }}
             </dt>
             <dd
-              v-if="locationContacts.street"
+              v-if="locationContacts?.street"
               class="ml-0">
               {{ locationContacts.street }}
             </dd>
             <dd
-              v-if="locationContacts.postalcode"
+              v-if="locationContacts?.postalcode"
               class="ml-0">
               {{ locationContacts.postalcode }}
             </dd>
             <dd
-              v-if="locationContacts.city"
+              v-if="locationContacts?.city"
               class="ml-0">
               {{ locationContacts.city }}
             </dd>
             <dd
-              v-if="!locationContacts.street && !locationContacts.city && !locationContacts.postalCode"
+              v-if="!locationContacts?.street && !locationContacts?.city && !locationContacts?.postalCode"
               class="ml-0">
               {{ Translator.trans('notspecified') }}
             </dd>
@@ -56,7 +56,7 @@
               {{ Translator.trans('phone') }}
             </dt>
             <dd
-              v-if="locationContacts.hasOwnProperty('phone') && locationContacts.phone"
+              v-if="locationContacts?.hasOwnProperty('phone') && locationContacts.phone"
               class="ml-0">
               {{ locationContacts.phone }}
             </dd>
@@ -179,8 +179,8 @@ export default {
 
     rowItems () {
       return Object.values(this.invitableToebItems).reduce((acc, item) => {
-        const locationContactId = item.relationships.locationContacts.data[0].id
-        const locationContact = this.getLocationContactById(locationContactId)
+        const locationContactId = item.relationships.locationContacts.data.length > 0 ? item.relationships.locationContacts.data[0].id : null
+        const locationContact = locationContactId ? this.getLocationContactById(locationContactId) : null
         const hasNoEmail = !item.attributes.participationFeedbackEmailAddress
 
         return [
@@ -189,10 +189,10 @@ export default {
             {
               id: item.id,
               ...item.attributes,
-              locationContacts: {
+              locationContacts: locationContact ? {
                 id: locationContact.id,
                 ...locationContact.attributes
-              },
+              } : null,
               hasNoEmail
             }
           ]
