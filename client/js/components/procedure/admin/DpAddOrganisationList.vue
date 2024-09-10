@@ -181,7 +181,7 @@ export default {
 
     rowItems () {
       return Object.values(this.invitableToebItems).reduce((acc, item) => {
-        const locationContactId = item.relationships.locationContacts.data.length > 0 ? item.relationships.locationContacts.data[0].id : null
+        const locationContactId = item.relationships.locationContacts?.data.length > 0 ? item.relationships.locationContacts.data[0].id : null
         const locationContact = locationContactId ? this.getLocationContactById(locationContactId) : null
         const hasNoEmail = !item.attributes.participationFeedbackEmailAddress
 
