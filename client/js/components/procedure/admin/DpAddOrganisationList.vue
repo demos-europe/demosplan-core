@@ -270,7 +270,7 @@ export default {
     },
 
     hasAdress () {
-      return this.rowItems.locationContacts.street || this.rowItems.locationContacts.postalcode || this.rowItems.locationContacts.city
+      return this.rowItems.locationContacts?.street || this.rowItems.locationContacts?.postalcode || this.rowItems.locationContacts?.city
     },
 
     returnPermissionChecksValuesArray (permissionChecks) {
