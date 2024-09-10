@@ -30,23 +30,25 @@
             <dt class="color--grey">
               {{ Translator.trans('address') }}
             </dt>
+            <template v-if="locationContacts && hasAdress">
+              <dd
+                v-if="locationContacts.street"
+                class="ml-0">
+                {{ locationContacts.street }}
+              </dd>
+              <dd
+                v-if="locationContacts.postalcode"
+                class="ml-0">
+                {{ locationContacts.postalcode }}
+              </dd>
+              <dd
+                v-if="locationContacts.city"
+                class="ml-0">
+                {{ locationContacts.city }}
+              </dd>
+            </template>
             <dd
-              v-if="locationContacts?.street"
-              class="ml-0">
-              {{ locationContacts.street }}
-            </dd>
-            <dd
-              v-if="locationContacts?.postalcode"
-              class="ml-0">
-              {{ locationContacts.postalcode }}
-            </dd>
-            <dd
-              v-if="locationContacts?.city"
-              class="ml-0">
-              {{ locationContacts.city }}
-            </dd>
-            <dd
-              v-if="!locationContacts?.street && !locationContacts?.city && !locationContacts?.postalCode"
+              v-else
               class="ml-0">
               {{ Translator.trans('notspecified') }}
             </dd>
@@ -265,6 +267,10 @@ export default {
 
     getLocationContactById (id) {
       return this.institutionLocationContactItems[id]
+    },
+
+    hasAdress () {
+      return this.rowItems.locationContacts.street || this.rowItems.locationContacts.postalcode || this.rowItems.locationContacts.city
     },
 
     returnPermissionChecksValuesArray (permissionChecks) {
