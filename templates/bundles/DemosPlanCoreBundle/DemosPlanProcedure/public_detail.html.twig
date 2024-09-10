@@ -29,7 +29,7 @@
  territory is now saved as geojson, so an empty territory is
  {"type":"FeatureCollection","features":[]} == 42 chars
 #}
-{% if procedureSettings.territory|default|length > 42 %}
+{% if procedureSettings.territory is iterable and procedureSettings.territory|length > 0 %}
     {% set hasTerritory = true %}
 {% endif %}
 
