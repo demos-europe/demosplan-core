@@ -56,7 +56,7 @@ pipeline {
                     containerName = "testContainer" + env.BRANCH_NAME + env.BUILD_NUMBER
                     commandDockerRun = 'docker run --cpus=1 -d --name ' + containerName + ' -v ${PWD}:/srv/www -v /var/cache/demosplanCI/:/srv/www/.cache/ --env CURRENT_HOST_USERNAME=$(whoami) --env CURRENT_HOST_USERID=$(id -u $(whoami)) demosdeutschland/demosplan-ci:latest'
                     commandExecYarn =  _dockerExecAsUser('YARN_CACHE_FOLDER=/srv/www/.cache/yarn yarn install --immutable --check-cache', containerName)
-                    commandExecComposer = _dockerExecAsRoot('composer install --classmap-authoritative --no-interaction', containerName)
+                    commandExecComposer = _dockerExecAsRoot('COMPOSER_CACHE_DIR=/srv/www/.cache/composer composer install --classmap-authoritative --no-interaction', containerName)
                     sh "mkdir -p .cache"
                     sh "echo ${PWD}"
                     sh "$commandDockerRun"
