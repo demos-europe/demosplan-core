@@ -48,11 +48,11 @@ RUN mkdir -p /srv/www/projects/$PROJECT_NAME/web/js && \
     mkdir -p /srv/www/projects/$PROJECT_NAME/web/fonts && \
     mkdir -p /srv/www/projects/$PROJECT_NAME/web/images && \
     mkdir -p /srv/www/projects/$PROJECT_NAME/web/video && \
-    mkdir -p /srv/www/projects/$PROJECT_NAME/app/cache && \
-    mkdir -p /srv/www/projects/$PROJECT_NAME/app/logs && \
+    mkdir -p /srv/www/var/cache && \
+    mkdir -p /srv/www/var/logs && \
     chown -R www-data /srv/www/projects/$PROJECT_NAME/web && \
-    chown -R www-data /srv/www/projects/$PROJECT_NAME/app/cache && \
-    chown -R www-data /srv/www/projects/$PROJECT_NAME/app/logs
+    chown -R www-data /srv/www/var/cache && \
+    chown -R www-data /srv/www/var/logs
 
 # define doctrine in memory database for the asset build
 RUN mv /srv/www/config/packages/doctrine.yaml /tmp/doctrine.yaml
