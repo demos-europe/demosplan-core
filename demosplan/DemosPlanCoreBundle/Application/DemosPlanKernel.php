@@ -151,23 +151,20 @@ class DemosPlanKernel extends Kernel
      */
     public function getCacheDir(): string
     {
-        // override default symfony4 cache dir
-        $dir = DemosPlanPath::getProjectPath('app/cache/'.$this->environment);
-
         if ($this->isLocalContainer()) {
-            $dir = DemosPlanPath::getTemporaryPath(
-                sprintf('dplan/%s/cache/%s', $this->activeProject, $this->environment)
+            return DemosPlanPath::getRootPath(
+                sprintf('var/%s/cache/%s', $this->activeProject, $this->environment)
             );
         }
 
         // use distinct caches for parallel tests if needed
         if ('test' === $this->getEnvironment()) {
-            $dir = DemosPlanPath::getTemporaryPath(
-                sprintf('dplan/%s/cache/%s/%s', $this->activeProject, $this->environment, $_SERVER['APP_TEST_SHARD'] ?? '')
+            return DemosPlanPath::getRootPath(
+                sprintf('var/%s/cache/%s/%s', $this->activeProject, $this->environment, $_SERVER['APP_TEST_SHARD'] ?? '')
             );
         }
 
-        return $dir;
+        return parent::getCacheDir();
     }
 
     /**
@@ -175,23 +172,20 @@ class DemosPlanKernel extends Kernel
      */
     public function getLogDir(): string
     {
-        // override default symfony4 cache dir
-        $dir = DemosPlanPath::getProjectPath('app/logs');
-
         if ($this->isLocalContainer()) {
-            $dir = DemosPlanPath::getTemporaryPath(
-                sprintf('dplan/%s/logs/%s', $this->activeProject, $this->environment)
+            return DemosPlanPath::getRootPath(
+                sprintf('var/%s/log/%s', $this->activeProject, $this->environment)
             );
         }
 
         // use distinct logfiles for parallel tests if needed
         if ('test' === $this->getEnvironment()) {
-            $dir = DemosPlanPath::getTemporaryPath(
-                sprintf('dplan/%s/logs/%s/%s', $this->activeProject, $this->environment, $_SERVER['APP_TEST_SHARD'] ?? '')
+            return DemosPlanPath::getRootPath(
+                sprintf('var/%s/logs/%s/%s', $this->activeProject, $this->environment, $_SERVER['APP_TEST_SHARD'] ?? '')
             );
         }
 
-        return $dir;
+        return parent::getLogDir();
     }
 
     /**
