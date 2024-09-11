@@ -24,7 +24,7 @@
       layer-type="overlay" />
 
     <div
-      v-if="0 < baseLayers.length && unfolded && showBaseLayers"
+      v-if="baseLayers.length > 0 && unfolded && showBaseLayers"
       :class="prefixClass('c-map__group')">
       <div :class="prefixClass('c-map__layer pointer-events-none bg-color--grey-light-1')">
         {{ Translator.trans('map.bases') }}
@@ -40,6 +40,7 @@
 <script>
 import DpPublicLayerList from './DpPublicLayerList'
 import { prefixClass } from '@demos-europe/demosplan-ui'
+import proj4 from 'proj4'
 
 export default {
   name: 'DpPublicLayerListWrapper',
@@ -83,6 +84,7 @@ export default {
   methods: {
     toggle () {
       const unfolded = this.unfolded = !this.unfolded
+
       if (unfolded) {
         this.$root.$emit('layer-list:unfolded')
       }
@@ -97,6 +99,36 @@ export default {
     this.$root.$on('custom-layer:unfolded map-tools:unfolded layer-legend:unfolded', () => {
       this.unfolded = false
     })
+  },
+
+  mounted () {
+
+    // Register the EPSG:25832 projection
+    proj4.defs("EPSG:25832", "+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs");
+
+    // Define the source CRS (EPSG:25832 for UTM zone 32N)
+    const sourceCRS = 'EPSG:25832';
+// Define the target CRS (WGS 84)
+    const targetCRS = 'EPSG:4326';
+
+    const minX = 1022620.5089412
+    const minY = 7303548.4394861
+    const maxX = 1082434.2285687
+    const maxY = 7336258.1049054
+
+// Define the BBOX coordinates
+//     const minX = 529491.15106134;
+//     const minY = 6072530.23884729;
+//     const maxX = 530143.40083621;
+//     const maxY = 6073456.86514068;
+
+// Transform the coordinates
+    const [minLon, minLat] = proj4(sourceCRS, targetCRS, [minX, minY]);
+    const [maxLon, maxLat] = proj4(sourceCRS, targetCRS, [maxX, maxY]);
+
+// Print the transformed coordinates
+    console.log(`Min coordinates (longitude, latitude): (${minLon}, ${minLat})`);
+    console.log(`Max coordinates (longitude, latitude): (${maxLon}, ${maxLat})`);
   }
 }
 </script>
