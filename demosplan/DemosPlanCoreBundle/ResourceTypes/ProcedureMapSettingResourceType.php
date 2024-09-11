@@ -34,7 +34,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
     public function __construct(
         protected readonly ContentService $contentService,
         protected readonly MasterTemplateService $masterTemplateService,
-        protected readonly CoordinateJsonConverter $coordinateJsonConverter
+        protected readonly CoordinateJsonConverter $coordinateJsonConverter,
     ) {
     }
 
