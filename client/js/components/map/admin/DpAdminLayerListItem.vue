@@ -707,13 +707,16 @@ export default {
 
   methods: {
     ...mapActions('layers', [
-      'updateListSort'
+      'changeRelationship',
+      'updateListSort',
+      'setNewIndex'
     ]),
 
     ...mapMutations('layers', [
       'set',
       'setAttributeForLayer',
-      'setChildrenFromCategory'
+      'setChildrenFromCategory',
+      'updateLayer'
     ]),
 
     // Add index property to item, so it can be accessed in the store
@@ -725,25 +728,39 @@ export default {
       })
     },
 
-    changeManualSort (event, item) {
+    changeManualSort (event, { id }) {
+      console.log('change manual sort from Item')
       const { newIndex, oldIndex } = event
       const targetParentId = event.to.parentElement.id ?? null
       const sourceParentId = event.from.parentElement.id ?? null
-      const layerType = item.attributes.layerType
-      const isCategory = !layerType
-      const listKey = isCategory || item.attributes.layerType === 'overlay' ? `${this.listType}List` : `${this.listType}BaseList`
-      const relationshipType = item.type === 'GisLayer' ? 'gisLayers' : 'categories'
+      // const layerType = item.attributes.layerType
+      // const isCategory = !layerType
+      // const listKey = isCategory || item.attributes.layerType === 'overlay' ? `${this.listType}List` : `${this.listType}BaseList`
+      // const relationshipType = item.type === 'GisLayer' ? 'gisLayers' : 'categories'
 
-      this.updateListSort({
-        listKey,
-        listType: 'tree',
-        newIndex,
+      this.setNewIndex({
+        id,
+        index: newIndex,
         oldIndex,
-        orderType: 'treeOrder',
-        relationshipType,
-        sourceParentId,
         targetParentId
       })
+      // this.updateListSort({
+      //   id: item.id,
+      //   newIndex,
+      //   oldIndex,
+      //   orderType: this.listType === 'map' || this.listType === 'mapBase' ? 'mapOrder' : 'treeOrder',
+      //   relationshipType,
+      //   sourceParentId,
+      //   targetParentId
+      // })
+
+      if (targetParentId !== sourceParentId) {
+        this.changeRelationship({
+          id,
+          newParentId: targetParentId,
+          oldParentId: sourceParentId
+        })
+      }
     },
 
     toggleChildren () {

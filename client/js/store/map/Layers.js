@@ -20,34 +20,30 @@ import {
  *
  * @return {array} list
  */
-const sortListByAttr = (list, attr) => {
+const sortListByAttr = (list, attr = 'treeOrder') => {
   return list.sort((a, b) => {
-    const formattedOrderA = a.attributes[attr]
-      .toString()
-      .padEnd(21, '0')
-
-    const formattedOrderB = b.attributes[attr]
-      .toString()
-      .padEnd(21, '0')
+    const formattedOrderA = a.attributes[attr].toString().padEnd(21, '0')
+    const formattedOrderB = b.attributes[attr].toString().padEnd(21, '0')
 
     return formattedOrderA - formattedOrderB
   })
 }
 
 const getDirectChildren = (elements, el, listType = 'treeOrder', layerType = 'overlay') => {
-  let children = el.relationships?.gisLayers?.data
+  let children = el.relationships?.gisLayers?.data ?? []
+  children = children
     .map(el => elements[el.id])
     .filter(layer => layer.attributes.layerType === layerType)
 
   if (layerType === 'overlay') {
+    const categories = el.relationships?.categories?.data ?? []
     children = [
       ...children,
-      ...el.relationships?.categories?.data
-        .map(el => elements[el.id]) ?? []
+      ...categories.map(el => elements[el.id]) ?? []
     ]
   }
 
-  return sortListByAttr(children, listType)
+  return children
 }
 
 const getFlatChildren = (state, layerType, orderType) => {
@@ -57,6 +53,12 @@ const getFlatChildren = (state, layerType, orderType) => {
     .filter(el => el.type === 'GisLayer' && el.attributes.layerType === layerType)
 
   return sortListByAttr(layer, orderType)
+}
+
+const sameParent = (el, parentId) => {
+  return el.type === 'GisLayer'
+    ? el.attributes.categoryId === parentId
+    : el.attributes.parentId === parentId // Category has parentId instead of categoryId
 }
 
 const LayersStore = {
@@ -77,15 +79,11 @@ const LayersStore = {
     hoverLayerId: '',
     isMapLoaded: false,
     legends: [],
-    list: [],
-    mapList: [],
-    mapBaseList: [],
+    layerList: {},
     originalApiData: {},
     procedureId: '',
     removedItem: {},
-    treeList: [],
-    treeBaseList: [],
-    visibilityGroups: {},
+    visibilityGroups: {}
   },
 
   mutations: {
@@ -95,10 +93,7 @@ const LayersStore = {
      * @param {String} listKey
      */
     addMissingProperties (state, { listKey }) {
-      const completeItem = state.apiData.included
-        .filter(el => el.type !== 'ContextualHelp')
-        .find(el => el.id === state.removedItem.id)
-      state.removedItem = completeItem
+      state.removedItem = state.layerList[state.removedItem.id]
     },
 
     /**
@@ -111,11 +106,11 @@ const LayersStore = {
      */
     addToCategoryRelationships (state, { newIndex, orderType, relationshipType, targetParentId }) {
       // add item to relationships
-      const targetParent = state.list[targetParentId]
+      const targetParent = state.layerList[targetParentId]
       targetParent.relationships[relationshipType].data.push({ id: state.removedItem.id, type: state.removedItem.type })
 
       // update index attribute of all children of the targetParent
-      let targetParentChildren = [...state.apiData.included.filter(current => {
+      let targetParentChildren = [...Object.values(state.layerList).filter(current => {
         const parentKey = (current.type === 'GisLayerCategory') ? 'parentId' : 'categoryId'
         const isChild = current.attributes[parentKey] === targetParentId
         const isRemovedItem = current.id === state.removedItem.id
@@ -127,19 +122,29 @@ const LayersStore = {
         targetParentChildren = sortListByAttr(targetParentChildren, orderType, state.apiData)
       }
 
-      targetParentChildren.splice(newIndex, 0, state.removedItem)
+      // targetParentChildren.splice(newIndex, 0, state.removedItem)
 
-      targetParentChildren.forEach((child, idx) => {
-        child.attributes.index = idx
-      })
+      targetParentChildren
+        .filter(el => el.attributes.layerType === 'overlay')
+        .forEach((el, idx) => {
+          el.attributes.index = idx
+        })
+
+      targetParentChildren
+        .filter(el => el.attributes.layerType === 'base')
+        .forEach((el, idx) => {
+          el.attributes.index = idx
+        })
     },
 
     /**
      * Adds child to root category
+     *
      * @param state
-     * @param {String} listKey 'mapBaseList' | 'mapList' | 'treeBaseList' | 'treeList'
+     * @param {String} id
      * @param {Number} newIndex
      * @param {String} relationshipType 'categories' | 'gisLayers'
+     * @param {String} orderType 'treeOrder' | 'mapOrder'
      */
     addToRoot (state, { listKey, newIndex, relationshipType }) {
       const { id, type } = state.removedItem
@@ -149,13 +154,16 @@ const LayersStore = {
       }
 
       // add item to root relationships
-      state.apiData.data.relationships[relationshipType].data.splice(newIndex, 0, relationshipItem)
+      // state.apiData.data.relationships[relationshipType].data.splice(newIndex, 0, relationshipItem)
 
-      // update index for all children of the root category
-      state[listKey].splice(newIndex, 0, state.removedItem)
-      state[listKey].forEach((el, idx) => {
-        el.attributes.index = idx
-      })
+      // Update index for all children of the root category
+      // state.layerList.splice(newIndex, 0, state.removedItem)
+      Object.values(state.layerList)
+        .filter(el => el.attributes.layerType === 'overlay' &&
+          (el.attributes.parentId === null || el.attributes.categoryId === null))
+        .forEach((el, idx) => {
+          el.attributes.index = idx
+        })
     },
 
     /**
@@ -165,24 +173,24 @@ const LayersStore = {
      * @param type 'base' | 'overlay'
      * @return {T[]|*[]}
      */
-    buildMapList (state, { listKey, type }) {
-      if (typeof state.apiData.included === 'undefined') {
-        return []
-      }
-
-      const mapList = state.apiData.included
-        .filter(current => {
-          const putInList = type ? type === current.attributes.layerType : true
-
-          return current.type === 'GisLayer' && putInList
-        })
-
-      if (mapList.length > 0) {
-        state[listKey] = sortListByAttr(mapList, 'mapOrder', state.apiData)
-      } else {
-        state[listKey] = []
-      }
-    },
+    // buildMapList (state, { listKey, type }) {
+    //   if (typeof state.apiData.included === 'undefined') {
+    //     return []
+    //   }
+    //
+    //   const mapList = state.apiData.included
+    //     .filter(current => {
+    //       const putInList = type ? type === current.attributes.layerType : true
+    //
+    //       return current.type === 'GisLayer' && putInList
+    //     })
+    //
+    //   if (mapList.length > 0) {
+    //     state[listKey] = sortListByAttr(mapList, 'mapOrder', state.apiData)
+    //   } else {
+    //     state[listKey] = []
+    //   }
+    // },
 
     /**
      * Removes child from non-root category
@@ -239,6 +247,32 @@ const LayersStore = {
       })
     },
 
+    removeRelationship  (state, { id, parentId, isRoot }) {
+      const parent = (isRoot || !parentId || parentId === '') ? state.apiData.data : state.layerList[parentId]
+      const type = state.layerList[id].type === 'GisLayerCategory' ? 'categories' : 'gisLayers'
+      const index = parent.relationships[type].data.findIndex(el => el.id === id)
+
+      parent.relationships[type].data.splice(index, 1)
+    },
+
+    addRelationship  (state, { id, parentId, isRoot }) {
+      const parent = (isRoot || !parentId || parentId === '') ? state.apiData.data : state.layerList[parentId]
+      const type = state.layerList[id].type === 'GisLayerCategory' ? 'categories' : 'gisLayers'
+
+      if (!parent.relationships) {
+        parent.relationships = {}
+      }
+
+      if (!parent.relationships[type]) {
+        parent.relationships[type] = { data: [] }
+      }
+
+      parent.relationships[type].data.push({
+        type,
+        id
+      })
+    },
+
     saveOriginalState (state, data) {
       state.originalApiData = JSON.parse(JSON.stringify(data))
     },
@@ -248,14 +282,16 @@ const LayersStore = {
     },
 
     set (state, { key, value }) {
-      console.log('set', key, value)
       state[key] = value
     },
 
     setApiData (state, data) {
       state.apiData = data
+      console.log('set apiData', data)
       data.included.forEach(el => {
-        state.list[el.id] = el
+        if (el.type !== 'ContextualHelp') {
+          state.layerList[el.id] = el
+        }
       })
     },
 
@@ -281,15 +317,32 @@ const LayersStore = {
      * @param {Number} parentOrder
      */
     updateOrderAttribute (state, { id, layerType, orderType, parentId, parentOrder }) {
-      const completeItem = state.list[id]
+      const completeItem = state.layerList[id]
       const isChildOfGivenCategory = completeItem.attributes.categoryId === parentId || completeItem.attributes.parentId === parentId
       const isCategory = completeItem.type === 'GisLayerCategory'
       const isLayerOfGivenType = completeItem.type === 'GisLayer' && completeItem.attributes.layerType === layerType
       const isEnabledLayer = completeItem.type === 'GisLayer' && completeItem.attributes.isEnabled === true
 
       if (isChildOfGivenCategory && (isCategory || (isLayerOfGivenType && isEnabledLayer))) {
+        console.log('updateOrderAttribute', id, layerType, orderType, parentId, parentOrder)
         completeItem.attributes[orderType] = (parentOrder * 100) + (completeItem.attributes.index + 1)
       }
+    },
+
+    updateIndex (state) {
+      Object.values(state.layerList)
+        .filter(el => el.attributes.layerType === 'overlay')
+        .sort((a, b) => a.attributes[state.currentSorting] - b.attributes[state.currentSorting])
+        .forEach((el, idx) => {
+          el.attributes.index = idx
+        })
+
+      Object.values(state.layerList)
+        .filter(el => el.attributes.layerType === 'base')
+        .sort((a, b) => a.attributes[state.currentSorting] - b.attributes[state.currentSorting])
+        .forEach((el, idx) => {
+          el.attributes.index = idx
+        })
     },
 
     /**
@@ -481,6 +534,11 @@ const LayersStore = {
 
     setIsMapLoaded (state) {
       state.isMapLoaded = true
+    },
+
+    updateLayer (state, { id, key, value }) {
+      console.log('updateLayer', state.layerList[id].attributes.name, key, value)
+      state.layerList[id].attributes[key] = value
     }
   },
 
@@ -497,17 +555,19 @@ const LayersStore = {
      * @param {Boolean} targetIsRoot
      * @param {String} targetParentId
      */
-    addItem ({ state, commit }, { listKey, newIndex, orderType, relationshipType, targetIsRoot, targetParentId }) {
+    addItem ({ state, commit }, { id, newIndex, orderType, targetIsRoot, targetParentId }) {
+      const relationshipType = state.layerList[id].type === 'GisLayerCategory' ? 'categories' : 'gisLayers'
+
       if (targetIsRoot) {
         commit('addToRoot', {
-          listKey,
+          id,
           newIndex,
-          relationshipType
+          relationshipType,
+          orderType
         })
-      }
-
-      if (!targetIsRoot) {
+      } else {
         commit('addToCategoryRelationships', {
+          id,
           newIndex,
           orderType,
           relationshipType,
@@ -526,60 +586,60 @@ const LayersStore = {
      * @param {boolean} withCategories
      * @return {*[]}
      */
-    buildChildrenListForTreeCategory ({ state, commit }, { categoryId = null, type, withCategories }) {
-      if (typeof state.apiData.data === 'undefined') {
-        return []
-      }
-
-      const listKey = type === 'base' ? 'treeBaseList' : 'treeList'
-      let categoryOrRootId = categoryId
-      //  If called without categoryId, set it to the id of the root category
-      if (categoryId === null) {
-        categoryOrRootId = state.apiData.data.id
-      }
-
-      // Get category children with all properties from included
-      const navigationList = state.apiData.included.filter(current => {
-        //  Only GisLayer has an attributes.layerType so this one will be false for categories + contextual help
-        const isLayer = type === current.attributes.layerType
-        const isCategory = current.type === 'GisLayerCategory'
-
-        if (!isLayer && !isCategory) {
-          return false
-        }
-
-        const shouldIncludeCategories = withCategories
-
-        /*
-         *  For categories, their parent category is determined by the field `parentId`
-         *  while the parent category of layers is called `categoryId`
-         */
-        const parentKey = current.type === 'GisLayerCategory'
-          ? 'parentId'
-          : 'categoryId'
-        const isInGivenCategory = current.attributes[parentKey] === categoryOrRootId
-
-        return isInGivenCategory && ((shouldIncludeCategories && isCategory) || isLayer)
-      })
-
-      //  Sort elements by treeOrder and store them in state
-      if (navigationList.length > 0) {
-        commit('sortList', {
-          listKey,
-          orderType: 'treeOrder',
-          data: navigationList
-        })
-      }
-
-      // update item index, needed for updating treeOrder/mapOrder in updateItemAttrs
-      state[listKey].forEach((el, idx) => {
-        commit('setAttributeForLayer', {
-          id: el.id,
-          attribute: 'index',
-          value: idx
-        })
-      })
-    },
+    // buildChildrenListForTreeCategory ({ state, commit }, { categoryId = null, type, withCategories }) {
+    //   if (typeof state.apiData.data === 'undefined') {
+    //     return []
+    //   }
+    //
+    //   const listKey = type === 'base' ? 'treeBaseList' : 'treeList'
+    //   let categoryOrRootId = categoryId
+    //   //  If called without categoryId, set it to the id of the root category
+    //   if (categoryId === null) {
+    //     categoryOrRootId = state.apiData.data.id
+    //   }
+    //
+    //   // Get category children with all properties from included
+    //   const navigationList = state.apiData.included.filter(current => {
+    //     //  Only GisLayer has an attributes.layerType so this one will be false for categories + contextual help
+    //     const isLayer = type === current.attributes.layerType
+    //     const isCategory = current.type === 'GisLayerCategory'
+    //
+    //     if (!isLayer && !isCategory) {
+    //       return false
+    //     }
+    //
+    //     const shouldIncludeCategories = withCategories
+    //
+    //     /*
+    //      *  For categories, their parent category is determined by the field `parentId`
+    //      *  while the parent category of layers is called `categoryId`
+    //      */
+    //     const parentKey = current.type === 'GisLayerCategory'
+    //       ? 'parentId'
+    //       : 'categoryId'
+    //     const isInGivenCategory = current.attributes[parentKey] === categoryOrRootId
+    //
+    //     return isInGivenCategory && ((shouldIncludeCategories && isCategory) || isLayer)
+    //   })
+    //
+    //   //  Sort elements by treeOrder and store them in state
+    //   if (navigationList.length > 0) {
+    //     commit('sortList', {
+    //       listKey,
+    //       orderType: 'treeOrder',
+    //       data: navigationList
+    //     })
+    //   }
+    //
+    //   // update item index, needed for updating treeOrder/mapOrder in updateItemAttrs
+    //   state[listKey].forEach((el, idx) => {
+    //     commit('setAttributeForLayer', {
+    //       id: el.id,
+    //       attribute: 'index',
+    //       value: idx
+    //     })
+    //   })
+    // },
 
     /**
      * Build list of (a) just layers (mapList, mapBaseList) or (b) only direct children (layers and categories) of a
@@ -599,15 +659,51 @@ const LayersStore = {
         type
       } = data
 
-      if (listKey === 'mapList' || listKey === 'mapBaseList') {
-        commit('buildMapList', {
-          listKey: listKey,
-          type: type
-        })
-      }
 
-      if (listKey === 'treeList' || listKey === 'treeBaseList') {
-        dispatch('buildChildrenListForTreeCategory', data)
+
+
+      // if (listKey === 'mapList' || listKey === 'mapBaseList') {
+      //   commit('buildMapList', {
+      //     listKey: listKey,
+      //     type: type
+      //   })
+      // }
+
+      // if (listKey === 'treeList') {
+      //   dispatch('buildChildrenListForTreeCategory', data)
+      // }
+    },
+
+    changeRelationship ({ state, commit }, { id, sourceParentId, targetParentId }) {
+      const layer = state.layerList[id]
+      const targetIsRoot = !targetParentId || targetParentId === '' || targetParentId === state.apiData.data.id
+      const sourceIsRoot = !sourceParentId || sourceParentId === '' || sourceParentId === state.apiData.data.id
+      const targetPId = targetIsRoot ? state.apiData.data.id : targetParentId
+
+      commit('removeRelationship', {
+        id: id,
+        parentId: sourceParentId,
+        isRoot: sourceIsRoot
+      })
+
+      commit('addRelationship', {
+        id: id,
+        parentId: targetPId,
+        isRoot: targetIsRoot
+      })
+
+      if (layer.type === 'GisLayerCategory') {
+        commit('updateLayer', {
+          id: id,
+          key: 'parentId',
+          value: targetPId
+        })
+      } else {
+        commit('updateLayer', {
+          id: id,
+          key: 'categoryId',
+          value: targetPId
+        })
       }
     },
 
@@ -621,27 +717,7 @@ const LayersStore = {
           include: [
             'categories',
             'gisLayers'
-          ].join() // ,
-          // A fields: {
-          //   GisLayer: [
-          //     'orderType',
-          //     'treeOrder',
-          //     'mapOrder',
-          //     'isBPlan',
-          //     'isEnabled',
-          //     'isVisible',
-          //     'hasDefaultVisibility',
-          //     'index',
-          //     'name',
-          //     'visibilityGroupId'
-          //   ],
-          //   GisLayerCategory: [
-          //     'orderType',
-          //     'treeOrder',
-          //     'mapOrder',
-          //     'index',
-          //   ]
-          // }
+          ].join()
         }),
         responseType: 'json'
       })
@@ -650,13 +726,53 @@ const LayersStore = {
           commit('setApiData', data)
           commit('saveOriginalState', data)
           commit('setVisibilityGroups')
+          commit('updateIndex')
           dispatch('buildLegends')
 
-          const listTypes = ['map', 'tree', 'mapBase', 'treeBase']
-          listTypes.forEach(type => dispatch('setListByType', { listType: type }))
+          // const listTypes = ['map', 'tree', 'mapBase', 'treeBase']
+          // listTypes.forEach(type => dispatch('setListByType', { listType: type }))
         })
     },
 
+    createIndexes ({ state, commit, dispatch }, { overlay }) {
+      const orderType = state.currentSorting
+      const parentId = state.apiData.data.id
+
+      if (overlay && orderType === 'treeOrder') {
+        Object.values(state.layerList)
+          .filter(el => {
+            if (el.type === 'GisLayerCategory') {
+              return el.attributes.parentId === parentId
+            }
+
+            return el.attributes.layerType === 'overlay' && el.attributes.categoryId === parentId
+          })
+          .sort((a, b) => a.attributes[orderType] - b.attributes[orderType])
+          .forEach((el, idx) => {
+            commit('updateLayer', { id: el.id, key: 'index', value: idx })
+            dispatch('createIndexForChildren', { parentId: el.id, orderType: orderType })
+          })
+      } else {
+        Object.values(state.layerList)
+          .filter(el => el.attributes.layerType === overlay ? 'overlay' : 'base')
+          .sort((a, b) => a.attributes[orderType] - b.attributes[orderType])
+          .forEach((el, idx) => {
+            commit('updateLayer', { id: el.id, key: 'index', value: idx })
+          })
+      }
+    },
+
+    createIndexForChildren ({ state, commit, dispatch }, { parentId, orderType }) {
+      const parent = state.layerList[parentId]
+      const children = getDirectChildren(state.layerList, parent, orderType)
+
+      children
+        .sort((a, b) => a.attributes[orderType] - b.attributes[orderType])
+        .forEach((el, idx) => {
+          commit('updateLayer', { id: el.id, key: 'index', value: idx })
+          dispatch('createIndexForChildren', { parentId: el.id, orderType: 'treeOrder' })
+        })
+    },
     /**
      * Get layer legends. Legends needs to be fetched for each single gislayer layer
      * as some map services are not able to group legends
@@ -704,26 +820,27 @@ const LayersStore = {
      * @param {String} sourceParentId
      */
     removeItem ({ state, commit }, { listKey, oldIndex, orderType, relationshipType, sourceIsRoot, sourceParentId }) {
-      if (sourceIsRoot) {
-        commit('removeFromRoot', {
-          listKey,
-          oldIndex,
-          relationshipType
-        })
-      }
+      // if (sourceIsRoot) {
+      //   commit('removeFromRoot', {
+      //     listKey,
+      //     oldIndex,
+      //     relationshipType
+      //   })
+      // }
 
-      if (!sourceIsRoot) {
-        commit('removeFromCategoryRelationships', {
-          listKey,
-          oldIndex,
-          orderType,
-          relationshipType,
-          sourceParentId
-        })
-      }
+      // if (!sourceIsRoot) {
+      //   commit('removeFromCategoryRelationships', {
+      //     listKey,
+      //     oldIndex,
+      //     orderType,
+      //     relationshipType,
+      //     sourceParentId
+      //   })
+      // }
     },
 
     save ({ state, commit, dispatch }) {
+
       return dpApi({
         method: 'POST',
         url: Routing.generate('dplan_api_procedure_layer_update', {
@@ -792,6 +909,51 @@ const LayersStore = {
     },
 
     /**
+     * Increeses the index by 1 and calls his next sibling to do the same
+     *
+     * @param state
+     * @param index
+     * @param parentId
+     */
+    setNewIndex ({ state, commit, dispatch }, { id, index, targetParentId, oldIndex }) {
+      // Check if parent is root
+      const parentId = (targetParentId === '' || !targetParentId) ? state.apiData.data.id : targetParentId
+      const isGislayer = state.layerList[id].type === 'GisLayer'
+      const layerType = state.layerList[id].attributes.layerType
+      // Check if the item is from another (nested/sub) list
+      const fromOtherList = isGislayer ? state.layerList[id].attributes.categoryId !== parentId : state.layerList[id].attributes.parentId !== parentId
+
+      commit('updateLayer', {
+        id,
+        key: 'index',
+        value: index
+      })
+
+      const nextSibling = Object.values(state.layerList).filter(el => {
+        const sameList = el.type === 'GisLayerCategory'
+          ? layerType === 'overlay'
+          : el.attributes.layerType === layerType
+
+        return el.attributes.index === index &&
+          sameParent(el, parentId) &&
+          el.id !== id &&
+          sameList
+      })
+
+      console.log('setNewIndex', nextSibling, parentId)
+      if (nextSibling.length > 0) {
+        const newIndex = (fromOtherList || index < oldIndex) ? index + 1 : index - 1
+
+        dispatch('setNewIndex', {
+          id: nextSibling[0].id,
+          index: newIndex,
+          oldIndex,
+          parentId
+        })
+      }
+    },
+
+    /**
      * Updates the categoryId/parentId as well as the 'treeOrder' or 'mapOrder' attribute of a list item
      * @param state
      * @param commit
@@ -801,6 +963,7 @@ const LayersStore = {
      * @param {String} orderType 'treeOrder' | 'mapOrder'
      */
     updateItemAttrs ({ state, commit }, { layerType, sourceParentId, targetParentId, orderType }) {
+      console.log('updateItemAttrs', layerType, sourceParentId, targetParentId, orderType)
       // update parentId (categoryId or parentId)
       if (orderType === 'treeOrder') {
         const targetCategoryId = targetParentId ?? state.apiData.data.id
@@ -821,7 +984,7 @@ const LayersStore = {
       // update treeOrder/mapOrder attribute for each child of the category
       parents.forEach(p => {
         let parentId = p === 'sourceParent' ? sourceParentId : targetParentId
-        let parent = state.list[parentId]
+        let parent = state.layerList[parentId]
         let parentOrder = parent?.attributes[orderType]
         const parentIsRoot = !parentId
 
@@ -848,6 +1011,48 @@ const LayersStore = {
       })
     },
 
+    updateSortOrder ({ state, commit, dispatch }, { parentId, parentOrder }) {
+      const pId = parentId ?? state.apiData.data.id
+      if (state.currentSorting === 'treeOrder') {
+        Object.values(state.layerList)
+          .filter(el => {
+            const isCategoryorOverlay = el.type === 'GisLayerCategory' || el.attributes.layerType === 'overlay'
+
+            return isCategoryorOverlay && sameParent(el, pId)
+          })
+          .forEach((el, idx) => {
+            commit('updateLayer', {
+              id: el.id,
+              key: 'treeOrder',
+              value: parentOrder + el.attributes.index
+            })
+          })
+      }
+
+      if (state.currentSorting === 'mapOrder') {
+        Object.values(state.layerList)
+          .filter(el => el.attributes.layerType === 'overlay')
+          .forEach(el => {
+            commit('updateLayer', {
+              id: el.id,
+              key: 'mapOrder',
+              value: parentOrder + el.attributes.index
+            })
+          })
+      }
+
+      // Always sort base layers. They are not sorted by treeOrder and don't have categories
+      Object.values(state.layerList)
+        .filter(el => el.type === 'GisLayer' && el.attributes.layerType === 'base')
+        .forEach(el => {
+          commit('updateLayer', {
+            id: el.id,
+            key: 'mapOrder',
+            value: parentOrder + el.attributes.index
+          })
+        })
+    },
+
     /**
      * Updates the order of a list item after moving it
      * - removes it from the old position in the source category
@@ -866,46 +1071,44 @@ const LayersStore = {
      * @param {String} sourceParentId
      * @param {String} targetParentId
      */
-    updateListSort ({state, commit, dispatch}, { listKey, listType, newIndex, oldIndex, orderType, relationshipType, sourceParentId, targetParentId }) {
+    updateListSort ({ state, commit, dispatch }, { id, newIndex, oldIndex, orderType, sourceParentId, targetParentId }) {
       const targetIsRoot = !targetParentId
       const sourceIsRoot = !sourceParentId
 
-      if (orderType === 'treeOrder') {
-        dispatch('removeItem', {
-          listKey,
-          oldIndex,
-          orderType,
-          relationshipType,
-          sourceIsRoot,
-          sourceParentId
-        })
+      // if (orderType === 'treeOrder') {
+      dispatch('removeItem', {
+        id,
+        oldIndex,
+        orderType,
+        sourceIsRoot,
+        sourceParentId
+      })
 
-        dispatch('addItem', {
-          listKey,
-          newIndex,
-          orderType,
-          relationshipType,
-          targetIsRoot,
-          targetParentId
-        })
+      dispatch('addItem', {
+        id,
+        newIndex,
+        orderType,
+        targetIsRoot,
+        targetParentId
+      })
 
-        const isCompleteItem = !!state.removedItem.attributes
+        // const isCompleteItem = !!state.removedItem.attributes
 
         /* If item has been moved from a non-root category, it only has properties `id` and `type`, but we need the
            complete item with all its properties */
-        if (!isCompleteItem) {
-          commit('addMissingProperties', {
-            listKey
-          })
-        }
-      }
+        // if (!isCompleteItem) {
+        //   commit('addMissingProperties', {
+        //     listKey
+        //   })
+        // }
+      // }
 
-      dispatch('updateItemAttrs', {
-        layerType: listKey.includes('Base') ? 'base' : 'overlay',
-        orderType: `${listType}Order`,
-        sourceParentId: sourceIsRoot ? null : sourceParentId,
-        targetParentId: targetIsRoot ? null : targetParentId
-      })
+      // dispatch('updateItemAttrs', {
+      //   layerType: listKey.includes('Base') ? 'base' : 'overlay',
+      //   orderType: `${listType}Order`,
+      //   sourceParentId: sourceIsRoot ? null : sourceParentId,
+      //   targetParentId: targetIsRoot ? null : targetParentId
+      // })
 
       // @fixme
       /* If there is just one order (map), the tree order should match the map order */
@@ -947,20 +1150,23 @@ const LayersStore = {
   getters: {
     /**
      * Returns direct children of a cagetory with all their properties sorted by treeOrder/mapOrder property
+     *
      * @param state
-     * @param commit
      * @param {String} parentId
      * @param {String} orderType
-     * @return {function(*, *): *}
+     *
+     * @return {Array}
      */
     directChildren: state => (parentId, orderType) => {
       const parent = parentId
-        ? state.apiData.included.filter(el => el.id === parentId)[0]
+        ? Object.values(state.layerList).filter(el => el.id === parentId)[0]
         : state.apiData.data // Root
 
       let children = [...parent.relationships?.categories?.data ?? [], ...parent.relationships?.gisLayers?.data ?? []]
-      children = children.map(child => state.apiData.included.filter(el => el.id === child.id)[0])
-      return sortListByAttr(children, orderType, state.apiData) || []
+      children = children
+        .map(child => state.layerList[child.id])
+        .filter(child => !!child)
+      return sortListByAttr(children, orderType) || []
     },
 
     /**
@@ -1154,7 +1360,10 @@ const LayersStore = {
     treeList: state => {
       if (typeof state.apiData.included === 'undefined') return []
 
-      return getDirectChildren(state.list, state.apiData.data, 'treeOrder', 'overlay')
+      console.log('treeList', state.layerList)
+
+      const children = getDirectChildren(state.layerList, state.apiData.data, 'treeOrder', 'overlay')
+      return sortListByAttr(children.map(el => state.layerList[el.id]), 'treeOrder')
     },
 
     /**

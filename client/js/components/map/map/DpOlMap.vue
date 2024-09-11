@@ -285,7 +285,8 @@ export default {
 
       const controls = this.options.controls ? this.options.controls : this._options.controls
 
-      return MasterportalApi.createMap(config, '2D', { mapParams: { controls } })
+      // return MasterportalApi.createMap(config, '2D', { mapParams: { controls } })
+      return null
     },
 
     /**
