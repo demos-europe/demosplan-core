@@ -181,7 +181,7 @@ class DemosPlanKernel extends Kernel
         // use distinct logfiles for parallel tests if needed
         if ('test' === $this->getEnvironment()) {
             return DemosPlanPath::getRootPath(
-                sprintf('var/logs/%s/%s/%s',  $this->environment, $this->activeProject, $_SERVER['APP_TEST_SHARD'] ?? '')
+                sprintf('var/logs/%s/%s/%s', $this->environment, $this->activeProject, $_SERVER['APP_TEST_SHARD'] ?? '')
             );
         }
 
