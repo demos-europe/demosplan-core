@@ -50,6 +50,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\Export\EntityPreparator;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
+use demosplan\DemosPlanCoreBundle\Logic\Map\CoordinateJsonConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\News\ProcedureNewsService;
@@ -152,7 +153,7 @@ class DemosPlanProcedureController extends BaseController
         ProcedureService $procedureService,
         ProcedureServiceOutput $procedureServiceOutput,
         private readonly ProcedureTypeResourceType $procedureTypeResourceType,
-        private readonly SortMethodFactory $sortMethodFactory
+        private readonly SortMethodFactory $sortMethodFactory,
     ) {
         $this->procedureServiceOutput = $procedureServiceOutput;
         $this->procedureService = $procedureService;
@@ -229,7 +230,7 @@ class DemosPlanProcedureController extends BaseController
         StatementService $statementService,
         SurveyService $surveyService,
         TranslatorInterface $translator,
-        string $procedure
+        string $procedure,
     ) {
         $templateVars = [];
         $procedureId = $procedure;
@@ -402,7 +403,7 @@ class DemosPlanProcedureController extends BaseController
         array $statementStatuses,
         array $statementPriorities,
         StatementService $statementService,
-        string $procedureId
+        string $procedureId,
     ): ?array {
         $priorityInitialValues = [];
         foreach ($statementPriorities as $key => $label) {
@@ -484,7 +485,7 @@ class DemosPlanProcedureController extends BaseController
     public function generateAssessmentTableFilterLinkFromStatus(
         string $statusLabel,
         string $procedureId,
-        string $type
+        string $type,
     ): string {
         $filterArray = [];
         // First, the status is transformed into the right format for the following method.
@@ -719,7 +720,7 @@ class DemosPlanProcedureController extends BaseController
         MasterTemplateService $masterTemplateService,
         Request $request,
         ServiceStorage $serviceStorage,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ) {
         $templateVars = [];
         // Reichere die breadcrumb mit zusätzl. items an
@@ -820,7 +821,7 @@ class DemosPlanProcedureController extends BaseController
         MasterTemplateService $masterTemplateService,
         Request $request,
         ServiceStorage $serviceStorage,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ) {
         $templateVars = [];
         // Reichere die breadcrumb mit zusätzl. items an
@@ -923,7 +924,7 @@ class DemosPlanProcedureController extends BaseController
         MasterToebService $masterToebService,
         Request $request,
         ServiceStorage $serviceStorage,
-        $procedure
+        $procedure,
     ) {
         // Storage initialisieren
         $requestPost = $request->request->all();
@@ -984,7 +985,7 @@ class DemosPlanProcedureController extends BaseController
         AddressBookEntryService $addressBookEntryService,
         Request $request,
         TranslatorInterface $translator,
-        $procedureId
+        $procedureId,
     ): Response {
         $procedureService = $this->procedureService;
         $procedure = $procedureService->getProcedure($procedureId);
@@ -1057,7 +1058,7 @@ class DemosPlanProcedureController extends BaseController
         AddressBookEntryService $addressBookEntryService,
         CurrentUserService $currentUserService,
         Request $request,
-        string $procedureId
+        string $procedureId,
     ): Response {
         $orgaId = $currentUserService->getUser()->getOrganisationId() ?? '';
 
@@ -1105,7 +1106,7 @@ class DemosPlanProcedureController extends BaseController
         OrgaService $orgaService,
         Request $request,
         string $procedureId,
-        string $title = 'email.invitation.write'
+        string $title = 'email.invitation.write',
     ): Response {
         $requestPost = $request->request->all();
         $selectedOrganisations = [];
@@ -1225,7 +1226,7 @@ class DemosPlanProcedureController extends BaseController
         StatementService $statementService,
         TranslatorInterface $translator,
         string $procedure,
-        bool $isMaster = false
+        bool $isMaster = false,
     ) {
         try {
             $procedureId = $procedure;
@@ -1469,7 +1470,7 @@ class DemosPlanProcedureController extends BaseController
         FileUploadService $fileUploadService,
         Request $request,
         ServiceStorage $serviceStorage,
-        $procedure
+        $procedure,
     ) {
         $currentProcedure = $currentProcedureService->getProcedureArray();
         $storageResult = [];
@@ -1504,7 +1505,7 @@ class DemosPlanProcedureController extends BaseController
         PermissionsInterface $permissions,
         ProcedureService $procedureService,
         StatementService $statementService,
-        string $procedureId
+        string $procedureId,
     ): Response {
         $currentUserId = $currentUser->getUser()->getId();
         $templateVars = [
@@ -1625,7 +1626,8 @@ class DemosPlanProcedureController extends BaseController
         StatementService $statementService,
         SurveyShowHandler $surveyShowHandler,
         StatementSubmissionNotifier $statementSubmissionNotifier,
-        string $procedure
+        CoordinateJsonConverter $coordinateJsonConverter,
+        string $procedure,
     ) {
         // @improve T14613
         $procedureId = $procedure;
@@ -1733,6 +1735,7 @@ class DemosPlanProcedureController extends BaseController
 
         $currentProcedure = $currentProcedureService->getProcedureArray();
         $templateVars['procedureSettings'] = $currentProcedure['settings'];
+        $templateVars['procedureSettings']['territory'] = $coordinateJsonConverter->convertJsonToCoordinates($currentProcedure['settings']['territory']);
         // Globale Sachdatenabfrage hinzufügen
         $templateVars['procedureSettings']['featureInfoUrl'] = $getFeatureInfo->getUrl();
 
@@ -2069,7 +2072,7 @@ class DemosPlanProcedureController extends BaseController
         StatementService $statementService,
         ServiceStorage $serviceStorage,
         TranslatorInterface $translator,
-        $procedure
+        $procedure,
     ) {
         // Storage und Output initialisieren
         $serviceOutput = $this->procedureServiceOutput;
@@ -2272,7 +2275,7 @@ class DemosPlanProcedureController extends BaseController
         Request $request,
         ServiceStorage $serviceStorage,
         TranslatorInterface $translator,
-        string $procedure
+        string $procedure,
     ) {
         $templateVars = [];
         $requestPost = $request->request->all();
@@ -2342,7 +2345,7 @@ class DemosPlanProcedureController extends BaseController
     public function boilerplateListAction(
         ProcedureHandler $procedureHandler,
         Request $request,
-        $procedure
+        $procedure,
     ) {
         $procedureId = $procedure;
         $requestPost = $request->request;
@@ -2684,7 +2687,7 @@ class DemosPlanProcedureController extends BaseController
      * @throws MessageBagException
      */
     protected function handleDeleteBoilerplateGroup(
-        string $boilerplateGroupId
+        string $boilerplateGroupId,
     ) {
         $boilerplatesOfGroupToDelete = new ArrayCollection();
         $boilerplateGroupToDelete = $this->procedureService->getBoilerplateGroup($boilerplateGroupId);
@@ -2719,7 +2722,7 @@ class DemosPlanProcedureController extends BaseController
      */
     protected function handleDeleteBoilerplates(
         ProcedureHandler $procedureHandler,
-        array $boilerplateIds
+        array $boilerplateIds,
     ) {
         $storageResult = $procedureHandler->deleteBoilerplates($boilerplateIds);
         if (true === $storageResult) {
@@ -2735,7 +2738,7 @@ class DemosPlanProcedureController extends BaseController
      * @throws MessageBagException
      */
     protected function handleDeleteBoilerplateGroups(
-        array $boilerplateGroupIds
+        array $boilerplateGroupIds,
     ) {
         $boilerplatesOfGroupsToDelete = new ArrayCollection();
         foreach ($boilerplateGroupIds as $boilerplateGroupId) {
@@ -2767,7 +2770,7 @@ class DemosPlanProcedureController extends BaseController
      */
     protected function addProcedureTypesToTemplateVars(
         array $templateVars,
-        bool $isProcedureTemplate
+        bool $isProcedureTemplate,
     ): array {
         // procedure types are completely irrelevant in procedure templates (Blaupausen), so no need
         // to pass the variable if it's a procedure template (Blaupause)
