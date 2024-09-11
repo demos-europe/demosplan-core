@@ -701,6 +701,21 @@ class DemosPlanProcedureController extends BaseController
         return $result;
     }
 
+    protected function initializeTemplateVars(Breadcrumb $breadcrumb, TranslatorInterface $translator, string $title, string $route): array {
+        $templateVars = [];
+        // Reichere die breadcrumb mit zusätzl. items an
+        $breadcrumb->addItem(
+            [
+                'title' => $translator->trans($title, [], 'page-title'),
+                'url'   => $this->generateUrl($route),
+            ]
+        );
+
+        $templateVars['breadcrumb'] = $breadcrumb;
+        $templateVars = $this->procedureService->setPlisInTemplateVars($templateVars);
+        return $templateVars;
+    }
+
     /**
      * Creates a new procedure (not a procedure template, use
      * {@link DemosPlanProcedureController::newProcedureTemplateAction()} for that).
@@ -721,17 +736,8 @@ class DemosPlanProcedureController extends BaseController
         ServiceStorage $serviceStorage,
         TranslatorInterface $translator
     ) {
-        $templateVars = [];
-        // Reichere die breadcrumb mit zusätzl. items an
-        $breadcrumb->addItem(
-            [
-                'title' => $translator->trans('procedure.admin.list', [], 'page-title'),
-                'url'   => $this->generateUrl('DemosPlan_procedure_administration_get'),
-            ]
-        );
 
-        $templateVars['breadcrumb'] = $breadcrumb;
-        $templateVars = $this->procedureService->setPlisInTemplateVars($templateVars);
+        $templateVars = $this->initializeTemplateVars($breadcrumb, $translator, 'procedure.admin.list', 'DemosPlan_procedure_administration_get');
 
         // Formulardaten verarbeiten
         $inData = $this->prepareIncomingData($request, 'new');
@@ -822,17 +828,7 @@ class DemosPlanProcedureController extends BaseController
         ServiceStorage $serviceStorage,
         TranslatorInterface $translator
     ) {
-        $templateVars = [];
-        // Reichere die breadcrumb mit zusätzl. items an
-        $breadcrumb->addItem(
-            [
-                'title' => $translator->trans('procedure.master.admin', [], 'page-title'),
-                'url'   => $this->generateUrl('DemosPlan_procedure_templates_list'),
-            ]
-        );
-
-        $templateVars['breadcrumb'] = $breadcrumb;
-        $templateVars = $this->procedureService->setPlisInTemplateVars($templateVars);
+        $templateVars = $this->initializeTemplateVars($breadcrumb, $translator, 'procedure.master.admin', 'DemosPlan_procedure_templates_list');
 
         // Formulardaten verarbeiten
         $inData = $this->prepareIncomingData($request, 'new');
