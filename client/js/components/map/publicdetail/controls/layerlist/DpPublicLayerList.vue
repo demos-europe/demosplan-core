@@ -42,6 +42,7 @@ export default {
   name: 'DpPublicLayerList',
 
   components: {
+    DpPublicLayerListCategory,
     DpPublicLayerListLayer
   },
 
