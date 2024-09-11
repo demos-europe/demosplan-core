@@ -395,7 +395,7 @@ export default {
     addTerritoryLayer () {
 
       //  If there is no territory wms layer defined but a "hand-drawn" territory, craft a vector layer from it
-      if (this.procedureSettings.territory !== null) { //adjust validation
+      if (!this.hasTerritoryWMS &&  this.hasTerritory()) {
         //  Read GeoJson features
         const features = new GeoJSON().readFeatures(this.procedureSettings.territory)
 
@@ -1613,6 +1613,10 @@ export default {
         }
       }
       this.$root.$emit('changeActive')
+    },
+
+    hasTerritory() {
+      return this.procedureSettings.territory && Object.keys(this.procedureSettings.territory).length > 0
     },
 
     removeOtherInteractions (reset) {
