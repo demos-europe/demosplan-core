@@ -716,6 +716,45 @@ class DemosPlanProcedureController extends BaseController
         return $templateVars;
     }
 
+    protected function handleNewProcedure($inData, $form, $serviceStorage, $currentUser, string $logErrorMessage, string $messageConfirmationText, string $messageErrorText, string $route) {
+        $inData = $this->procedureService->fillInData($inData, $form);
+
+        try {
+            $procedure = $serviceStorage->administrationNewHandler($inData, $currentUser->getUser()->getId());
+
+            $this->messageBag->addObject(
+                MessageSerializable::createMessage(
+                    'confirm',
+                    $messageConfirmationText,
+                    ['name' => $procedure->getName()]
+                ),
+                true
+            );
+
+            return $this->redirectToRoute($route, ['procedure' => $procedure->getId()]);
+        } catch (CriticalConcernException $criticalConcernException) {
+            foreach ($criticalConcernException->getConcerns() as $pluginIdentifier => $concerns) {
+                foreach ($concerns as $concern) {
+                    $this->logger->error('Error in '.$pluginIdentifier, [$concern->getException()]);
+                    $this->messageBag->add('error', $concern->getMessage());
+                }
+            }
+        } catch (PreNewProcedureCreatedEventConcernException $e) {
+            $this->logger->error("$logErrorMessage due to event concerns", [$e]);
+            foreach ($e->getMessages() as $message) {
+                $this->messageBag->add('error', $message);
+            }
+        } catch (ViolationsException $e) {
+            $this->logger->error("$logErrorMessage due to validation violations", [$e]);
+            foreach ($e->getViolationsAsStrings() as $violationMessage) {
+                $this->messageBag->add('error', $violationMessage);
+            }
+        } catch (Exception $e) {
+            $this->logger->error($logErrorMessage, [$e]);
+            $this->messageBag->add('error', $messageErrorText);
+        }
+    }
+
     /**
      * Creates a new procedure (not a procedure template, use
      * {@link DemosPlanProcedureController::newProcedureTemplateAction()} for that).
@@ -755,44 +794,15 @@ class DemosPlanProcedureController extends BaseController
         if (\array_key_exists('action', $inData) && 'new' === $inData['action']
             && $form->isSubmitted()
             && $form->isValid()) {
-            $inData = $this->procedureService->fillInData($inData, $form);
-
-            $logErrorMessage = 'Failed to create new procedure';
-
-            try {
-                $procedure = $serviceStorage->administrationNewHandler($inData, $currentUser->getUser()->getId());
-
-                $this->messageBag->addObject(
-                    MessageSerializable::createMessage(
-                        'confirm',
-                        'confirm.procedure.created',
-                        ['name' => $procedure->getName()]
-                    ),
-                    true
-                );
-
-                return $this->redirectToRoute('DemosPlan_procedure_edit', ['procedure' => $procedure->getId()]);
-            } catch (CriticalConcernException $criticalConcernException) {
-                foreach ($criticalConcernException->getConcerns() as $pluginIdentifier => $concerns) {
-                    foreach ($concerns as $concern) {
-                        $this->logger->error('Error in '.$pluginIdentifier, [$concern->getException()]);
-                        $this->messageBag->add('error', $concern->getMessage());
-                    }
-                }
-            } catch (PreNewProcedureCreatedEventConcernException $e) {
-                $this->logger->error("$logErrorMessage due to event concerns", [$e]);
-                foreach ($e->getMessages() as $message) {
-                    $this->messageBag->add('error', $message);
-                }
-            } catch (ViolationsException $e) {
-                $this->logger->error("$logErrorMessage due to validation violations", [$e]);
-                foreach ($e->getViolationsAsStrings() as $violationMessage) {
-                    $this->messageBag->add('error', $violationMessage);
-                }
-            } catch (Exception $e) {
-                $this->logger->error($logErrorMessage, [$e]);
-                $this->messageBag->add('error', 'error.procedure.create');
-            }
+            $this->handleNewProcedure(
+                $inData,
+                $form,
+                $serviceStorage,
+                $currentUser,
+                'Failed to create new procedure',
+                'confirm.procedure.created',
+                'error.procedure.create',
+                'DemosPlan_procedure_edit');
         }
         $this->writeErrorsIntoMessageBag($form->getErrors(true));
 
@@ -846,44 +856,15 @@ class DemosPlanProcedureController extends BaseController
         // skip email form validation if it is a blueprint because agencyMainEmailAddress is only mandatory when creating procedures
         // For blueprints/templates the agencyMainEmailAddress should be set to empty string
         if (\array_key_exists('action', $inData) && 'new' === $inData['action']) {
-            $inData = $this->procedureService->fillInData($inData, $form);
-
-            $logErrorMessage = 'Failed to create new procedure template';
-
-            try {
-                $procedure = $serviceStorage->administrationNewHandler($inData, $currentUser->getUser()->getId());
-
-                $this->messageBag->addObject(
-                    MessageSerializable::createMessage(
-                        'confirm',
-                        'confirm.procedure_template.created',
-                        ['name' => $procedure->getName()]
-                    ),
-                    true
-                );
-
-                return $this->redirectToRoute('DemosPlan_procedure_edit_master', ['procedure' => $procedure->getId()]);
-            } catch (CriticalConcernException $criticalConcernException) {
-                foreach ($criticalConcernException->getConcerns() as $pluginIdentifier => $concerns) {
-                    foreach ($concerns as $concern) {
-                        $this->logger->error('Error in '.$pluginIdentifier, [$concern->getException()]);
-                        $this->messageBag->add('error', $concern->getMessage());
-                    }
-                }
-            } catch (PreNewProcedureCreatedEventConcernException $e) {
-                $this->logger->error("$logErrorMessage due to event concerns", [$e]);
-                foreach ($e->getMessages() as $message) {
-                    $this->messageBag->add('error', $message);
-                }
-            } catch (ViolationsException $e) {
-                $this->logger->error("$logErrorMessage due to validation violations", [$e]);
-                foreach ($e->getViolationsAsStrings() as $violationMessage) {
-                    $this->messageBag->add('error', $violationMessage);
-                }
-            } catch (Exception $e) {
-                $this->logger->error($logErrorMessage, [$e]);
-                $this->messageBag->add('error', 'error.procedure_template.create');
-            }
+            $this->handleNewProcedure(
+                $inData,
+                $form,
+                $serviceStorage,
+                $currentUser,
+                'Failed to create new procedure template',
+                'confirm.procedure_template.created',
+                'error.procedure_template.create',
+                'DemosPlan_procedure_edit_master');
         }
         $this->writeErrorsIntoMessageBag($form->getErrors(true));
 
