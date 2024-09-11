@@ -393,9 +393,8 @@ export default {
     },
 
     addTerritoryLayer () {
-
       //  If there is no territory wms layer defined but a "hand-drawn" territory, craft a vector layer from it
-      if (!this.hasTerritoryWMS &&  this.hasTerritory()) {
+      if (!this.hasTerritoryWMS && this.hasTerritory()) {
         //  Read GeoJson features
         const features = new GeoJSON().readFeatures(this.procedureSettings.territory)
 
