@@ -61,13 +61,7 @@ class ReportService extends CoreService
     {
         $this->reportRepository->executeAndFlushInTransaction(
             function (EntityManagerInterface $em) use ($reportEntries) {
-                foreach ($reportEntries as $reportEntry) {
-                    $violations = $this->validator->validate($reportEntry);
-                    if (0 !== $violations->count()) {
-                        throw ViolationsException::fromConstraintViolationList($violations);
-                    }
-                    $em->persist($reportEntry);
-                }
+                $this->persistReportEntry($reportEntries, $em);
 
                 return null;
             }
@@ -346,5 +340,16 @@ class ReportService extends CoreService
         $report = $this->statementReportEntryFactory->createAnonymizationEntry($category, $event);
 
         return $this->reportRepository->addObject($report);
+    }
+
+    function persistReportEntry(array $reportEntries, EntityManagerInterface $em): void
+    {
+        foreach ($reportEntries as $reportEntry) {
+            $violations = $this->validator->validate($reportEntry);
+            if (0 !== $violations->count()) {
+                throw ViolationsException::fromConstraintViolationList($violations);
+            }
+            $em->persist($reportEntry);
+        }
     }
 }
