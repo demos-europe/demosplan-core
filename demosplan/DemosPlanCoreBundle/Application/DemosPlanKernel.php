@@ -153,14 +153,14 @@ class DemosPlanKernel extends Kernel
     {
         if ($this->isLocalContainer()) {
             return DemosPlanPath::getRootPath(
-                sprintf('var/%s/cache/%s', $this->activeProject, $this->environment)
+                sprintf('var/cache/%s/%s', $this->environment, $this->activeProject)
             );
         }
 
         // use distinct caches for parallel tests if needed
         if ('test' === $this->getEnvironment()) {
             return DemosPlanPath::getRootPath(
-                sprintf('var/%s/cache/%s/%s', $this->activeProject, $this->environment, $_SERVER['APP_TEST_SHARD'] ?? '')
+                sprintf('var/cache/%s/%s/%s', $this->environment, $this->activeProject, $_SERVER['APP_TEST_SHARD'] ?? '')
             );
         }
 
@@ -174,14 +174,14 @@ class DemosPlanKernel extends Kernel
     {
         if ($this->isLocalContainer()) {
             return DemosPlanPath::getRootPath(
-                sprintf('var/%s/log/%s', $this->activeProject, $this->environment)
+                sprintf('var/log/%s/%s', $this->environment, $this->activeProject)
             );
         }
 
         // use distinct logfiles for parallel tests if needed
         if ('test' === $this->getEnvironment()) {
             return DemosPlanPath::getRootPath(
-                sprintf('var/%s/logs/%s/%s', $this->activeProject, $this->environment, $_SERVER['APP_TEST_SHARD'] ?? '')
+                sprintf('var/logs/%s/%s/%s',  $this->environment, $this->activeProject, $_SERVER['APP_TEST_SHARD'] ?? '')
             );
         }
 
