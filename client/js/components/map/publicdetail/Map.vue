@@ -1615,7 +1615,7 @@ export default {
     },
 
     hasTerritory() {
-      return this.procedureSettings.territory && Object.keys(this.procedureSettings.territory).length > 0
+      return this.procedureSettings.territory && this.procedureSettings.territory.features.length > 0
     },
 
     removeOtherInteractions (reset) {
