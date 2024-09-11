@@ -51,6 +51,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\Export\EntityPreparator;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
+use demosplan\DemosPlanCoreBundle\Logic\Map\CoordinateJsonConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\News\ProcedureNewsService;
@@ -1626,6 +1627,7 @@ class DemosPlanProcedureController extends BaseController
         StatementService $statementService,
         SurveyShowHandler $surveyShowHandler,
         StatementSubmissionNotifier $statementSubmissionNotifier,
+        CoordinateJsonConverter $coordinateJsonConverter,
         string $procedure,
     ) {
         // @improve T14613
@@ -1734,7 +1736,7 @@ class DemosPlanProcedureController extends BaseController
 
         $currentProcedure = $currentProcedureService->getProcedureArray();
         $templateVars['procedureSettings'] = $currentProcedure['settings'];
-        $templateVars['procedureSettings']['territory'] = $this->convertJsonToCoordinates($currentProcedure['settings']['territory']);
+        $templateVars['procedureSettings']['territory'] = $coordinateJsonConverter->convertJsonToCoordinates($currentProcedure['settings']['territory']);
         // Globale Sachdatenabfrage hinzufügen
         $templateVars['procedureSettings']['featureInfoUrl'] = $getFeatureInfo->getUrl();
 
@@ -1957,11 +1959,6 @@ class DemosPlanProcedureController extends BaseController
                 'templateVars' => $templateVars,
             ]
         );
-    }
-
-    protected function convertJsonToCoordinates(string $rawCoordinateValues): ?array
-    {
-        return '' === $rawCoordinateValues ? null : Json::decodeToArray($rawCoordinateValues);
     }
 
     /**
