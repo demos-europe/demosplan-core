@@ -48,7 +48,7 @@ class ReportService extends CoreService
         private readonly SortMethodFactory $sortMethodFactory,
         private readonly StatementReportEntryFactory $statementReportEntryFactory,
         private readonly TranslatorInterface $translator,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
     ) {
     }
 
@@ -342,7 +342,7 @@ class ReportService extends CoreService
         return $this->reportRepository->addObject($report);
     }
 
-    function persistReportEntry(array $reportEntries, EntityManagerInterface $em): void
+    public function persistReportEntry(array $reportEntries, EntityManagerInterface $em): void
     {
         foreach ($reportEntries as $reportEntry) {
             $violations = $this->validator->validate($reportEntry);
