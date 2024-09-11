@@ -90,7 +90,7 @@
  --><template v-if="(layer.type === 'GisLayer') && hasPermission('feature_map_layer_visibility')"><!--
     --><div class="inline-block w-1/12 text-right">
         <a
-          v-if="('undefined' !== typeof activeLayer.id || '' !== hoverLayerId) && false === layer.attributes.isBaseLayer && (false === isChildOfCategoryThatAppearsAsLayer)"
+          v-if="layer.attributes.isBaseLayer === false && isChildOfCategoryThatAppearsAsLayer === false"
           @click.stop.prevent="toggleVisibilityGroup"
           @mouseover="setIconHoverState"
           @mouseout="unsetIconHoverState"

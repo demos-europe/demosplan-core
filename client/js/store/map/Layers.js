@@ -218,6 +218,7 @@ const LayersStore = {
             'name',
             'url',
             'isEnabled',
+            'isBaseLayer',
             'treeOrder',
             'mapOrder',
             'hasDefaultVisibility',
