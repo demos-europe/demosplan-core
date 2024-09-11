@@ -6,6 +6,9 @@ ENV PROJECT_PREFIX=$PROJECT_NAME \
     EXTERNAL_LINK_DIPLAN_COCKPIT=http://temporary.de \
     EXTERNAL_LINK_DIPLAN_PORTAL=http://temporary.de
 
+ENV TZ=Europe/Berlin
+RUN ln -snf /usr/share/zoneinfo/"$TZ" /etc/localtime && echo "$TZ"> /etc/timezone
+
 # install default-mysql-client to be able to dump database
 RUN apt update -y && apt --no-install-recommends install default-mysql-client php8.2-fpm -y \
     && apt-get clean \
@@ -81,6 +84,9 @@ FROM nginxinc/nginx-unprivileged:latest AS nginx
 
 ARG PROJECT_NAME
 ENV PHP_FPM_BETEILIGUNG_SERVICE=beteiligung
+
+ENV TZ=Europe/Berlin
+RUN ln -snf /usr/share/zoneinfo/"$TZ" /etc/localtime && echo "$TZ"> /etc/timezone
 
 COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 
