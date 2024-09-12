@@ -379,13 +379,6 @@ export default {
   },
 
   methods: {
-    dataCyFormating (str) {
-      return str
-        .replace(/\s(.)/g, (match, group1) => group1.toUpperCase())
-        .replace(/\s+/g, '')
-        .replace(/^(.)/, (match, group1) => group1.toLowerCase())
-    },
-
     href (link) {
       return Routing.generate(link.routeName, {
         procedureId: this.procedureId
