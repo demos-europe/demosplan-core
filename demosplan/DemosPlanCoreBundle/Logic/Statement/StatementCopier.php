@@ -430,7 +430,7 @@ class StatementCopier extends CoreService
         Statement $statement,
         Procedure $targetProcedure,
         bool $ignoreReviewer = false,
-        bool $ignoreInternId = false
+        bool $ignoreInternId = false,
     ): bool {
         $sourceProcedure = $statement->getProcedure();
 
@@ -540,7 +540,7 @@ class StatementCopier extends CoreService
         Statement $statement,
         bool $createReport = true,
         bool $copyOnCreateStatement = false,
-        bool $persistAndFlush = true
+        bool $persistAndFlush = true,
     ): Statement|false {
         try {
             $em = $this->getDoctrine()->getManager();
@@ -578,9 +578,9 @@ class StatementCopier extends CoreService
             // T15852 + T14880:
             // in each case reset public verified to ensure FP has to check each new statement
             if (!$newStatement->isManual() && in_array($newStatement->getPublicVerified(), [
-                    Statement::PUBLICATION_APPROVED,
-                    Statement::PUBLICATION_REJECTED,
-                ], true)
+                Statement::PUBLICATION_APPROVED,
+                Statement::PUBLICATION_REJECTED,
+            ], true)
             ) {
                 $newStatement = $this->statementService->setPublicVerified(
                     $newStatement,
@@ -656,7 +656,7 @@ class StatementCopier extends CoreService
     public function isCopyStatementAllowed(
         Statement $statement,
         bool $ignoreCluster = false,
-        bool $ignoreReviewer = false
+        bool $ignoreReviewer = false,
     ): bool {
         // check here for clustermember instead for cluster flag, because on create new cluster a statement will be created, marked as cluster and  have to be copied.
         if (false === $ignoreCluster && $statement->isClusterStatement()) {
