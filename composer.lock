@@ -713,21 +713,21 @@
         },
         {
             "name": "cocur/slugify",
-            "version": "v4.5.1",
+            "version": "v4.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cocur/slugify.git",
-                "reference": "7c6e088228b9f082050876ae8b0cd287b117b840"
+                "reference": "1d674022e9cbefa80b4f51aa3e2375b6e3c14fdb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cocur/slugify/zipball/7c6e088228b9f082050876ae8b0cd287b117b840",
-                "reference": "7c6e088228b9f082050876ae8b0cd287b117b840",
+                "url": "https://api.github.com/repos/cocur/slugify/zipball/1d674022e9cbefa80b4f51aa3e2375b6e3c14fdb",
+                "reference": "1d674022e9cbefa80b4f51aa3e2375b6e3c14fdb",
                 "shasum": ""
             },
             "require": {
                 "ext-mbstring": "*",
-                "php": "~8.0.0 || ~8.1.0 || ~8.2.0 || ~8.3.0"
+                "php": "~8.0.0 || ~8.1.0 || ~8.2.0 || ~8.3.0 || ~8.4.0"
             },
             "conflict": {
                 "symfony/config": "<3.4 || >=4,<4.3",
@@ -781,9 +781,9 @@
             ],
             "support": {
                 "issues": "https://github.com/cocur/slugify/issues",
-                "source": "https://github.com/cocur/slugify/tree/v4.5.1"
+                "source": "https://github.com/cocur/slugify/tree/v4.6.0"
             },
-            "time": "2023-09-17T07:26:20+00:00"
+            "time": "2024-09-10T14:09:25+00:00"
         },
         {
             "name": "composer/ca-bundle",
@@ -8267,16 +8267,16 @@
         },
         {
             "name": "nelmio/security-bundle",
-            "version": "v3.4.1",
+            "version": "v3.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nelmio/NelmioSecurityBundle.git",
-                "reference": "00d275a38ec99230df60160cb62d88fabf8f088e"
+                "reference": "3c4739628eafe886c001210aa0d97b33f3551599"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nelmio/NelmioSecurityBundle/zipball/00d275a38ec99230df60160cb62d88fabf8f088e",
-                "reference": "00d275a38ec99230df60160cb62d88fabf8f088e",
+                "url": "https://api.github.com/repos/nelmio/NelmioSecurityBundle/zipball/3c4739628eafe886c001210aa0d97b33f3551599",
+                "reference": "3c4739628eafe886c001210aa0d97b33f3551599",
                 "shasum": ""
             },
             "require": {
@@ -8335,9 +8335,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nelmio/NelmioSecurityBundle/issues",
-                "source": "https://github.com/nelmio/NelmioSecurityBundle/tree/v3.4.1"
+                "source": "https://github.com/nelmio/NelmioSecurityBundle/tree/v3.4.2"
             },
-            "time": "2024-09-03T15:05:21+00:00"
+            "time": "2024-09-10T13:22:26+00:00"
         },
         {
             "name": "nesbot/carbon",
@@ -23804,5 +23804,5 @@
     "platform-overrides": {
         "php": "8.1.12"
     },
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }
