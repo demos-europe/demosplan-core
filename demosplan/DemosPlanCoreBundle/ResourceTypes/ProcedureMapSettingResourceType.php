@@ -13,11 +13,11 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
-use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
+use demosplan\DemosPlanCoreBundle\Logic\Map\CoordinateJsonConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\ProcedureMapSettingResourceConfigBuilder;
@@ -33,7 +33,8 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 {
     public function __construct(
         protected readonly ContentService $contentService,
-        protected readonly MasterTemplateService $masterTemplateService
+        protected readonly MasterTemplateService $masterTemplateService,
+        protected readonly CoordinateJsonConverter $coordinateJsonConverter,
     ) {
     }
 
@@ -162,11 +163,11 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         if ($this->currentUser->hasPermission('feature_map_use_territory')) {
             $configBuilder->territory
                 ->updatable([], function (ProcedureSettings $procedureSettings, array $territory): array {
-                    $procedureSettings->setTerritory($this->convertCoordinatesToJson($territory));
+                    $procedureSettings->setTerritory($this->coordinateJsonConverter->convertCoordinatesToJson($territory));
 
                     return [];
                 })
-                ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertJsonToCoordinates($procedureSettings->getTerritory()));
+                ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->coordinateJsonConverter->convertJsonToCoordinates($procedureSettings->getTerritory()));
         }
 
         $configBuilder->defaultBoundingBox
@@ -276,16 +277,6 @@ class ProcedureMapSettingResourceType extends DplanResourceType
                 'longitude' => $coordinateValues[3],
             ],
         ];
-    }
-
-    protected function convertCoordinatesToJson(?array $coordinates): string
-    {
-        return null === $coordinates ? '' : Json::encode($coordinates, JSON_FORCE_OBJECT);
-    }
-
-    protected function convertJsonToCoordinates(string $rawCoordinateValues): ?array
-    {
-        return '' === $rawCoordinateValues ? null : Json::decodeToArray($rawCoordinateValues);
     }
 
     /**
