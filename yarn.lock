@@ -1963,9 +1963,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@demos-europe/demosplan-ui@npm:0.3.27":
-  version: 0.3.27
-  resolution: "@demos-europe/demosplan-ui@npm:0.3.27"
+"@demos-europe/demosplan-ui@npm:0.3.30":
+  version: 0.3.30
+  resolution: "@demos-europe/demosplan-ui@npm:0.3.30"
   dependencies:
     "@braintree/sanitize-url": "npm:^7.0.0"
     "@floating-ui/dom": "npm:^1.4.5"
@@ -2040,7 +2040,7 @@ __metadata:
       optional: true
     prosemirror-view:
       optional: true
-  checksum: 10c0/329cd24a0cb444b8f3c2e8306e8740ae12ee533b2b7f1d61c696be208e843ae14f33e0592c5c44f0b3bf990e559d4e2113ade77941f71789abb6c01c907d0daf
+  checksum: 10c0/df838666b89f2e28d35e260513fb14767935cf5871483f911ce66888e0561afdcfce7856ab8f3a099f78bd46a84058f0ba41d06d615d31f1fd98a05329767777
   languageName: node
   linkType: hard
 
@@ -2058,17 +2058,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@efrane/vuex-json-api@github:eFrane/vuex-json-api#19c2354ad97c17bdda02358dc9ee4a2ffce181dd":
-  version: 0.1.0
-  resolution: "@efrane/vuex-json-api@https://github.com/eFrane/vuex-json-api.git#commit=19c2354ad97c17bdda02358dc9ee4a2ffce181dd"
+"@efrane/vuex-json-api@npm:^0.1.2":
+  version: 0.1.2
+  resolution: "@efrane/vuex-json-api@npm:0.1.2"
   dependencies:
     deep-object-diff: "npm:^1.1.9"
     json-api-normalizer: "npm:^1.0"
-    qs: "npm:~6.10.3"
+    qs: "npm:~6.12.3"
   peerDependencies:
     "@vue/compat": 3.2.0
     vuex: ^4.0.2
-  checksum: 10c0/65259b7ca0625de98b7929f6caff25dcbc3eeb623d1145278010ee9f73af9b50404c04567c5c3f02ab2fb11687fd0e78e6803277a5d64ad873e82fe1d18966ff
+  checksum: 10c0/45ed234fc41eaba627461b8746cdb85d5a4fffe4779ebda4a44eff06ae2011a56d7220b34c4aa50b188d2e9823d41118cc309c467893911c39909ccccb7b9168
   languageName: node
   linkType: hard
 
@@ -9767,7 +9767,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"olcs@npm:^2.14.0":
+"olcs@npm:2.14.0, olcs@npm:^2.14.0":
   version: 2.14.0
   resolution: "olcs@npm:2.14.0"
   peerDependencies:
@@ -11355,21 +11355,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"qs@npm:^6.11.0, qs@npm:^6.12.1":
+"qs@npm:^6.11.0, qs@npm:^6.12.1, qs@npm:~6.12.3":
   version: 6.12.3
   resolution: "qs@npm:6.12.3"
   dependencies:
     side-channel: "npm:^1.0.6"
   checksum: 10c0/243ddcc8f49dab78fc51041f7f64c500b47c671c45a101a8aca565d8537cb562921da7ef1a831b4a7051596ec88bb35a0d5e25a240025e8b32c6bfb69f00bf2f
-  languageName: node
-  linkType: hard
-
-"qs@npm:~6.10.3":
-  version: 6.10.4
-  resolution: "qs@npm:6.10.4"
-  dependencies:
-    side-channel: "npm:^1.0.4"
-  checksum: 10c0/7a8c9d77968aeccb769aedd7e047c0e0109dad0cfa57cab1ad906f4069fd58f361b80abd2de5854ba9a09b4c5d06d6a2c82108766f1f1527572fe6130deaa471
   languageName: node
   linkType: hard
 
@@ -11747,9 +11738,9 @@ __metadata:
     "@babel/plugin-transform-runtime": "npm:^7.24.7"
     "@babel/preset-env": "npm:^7.24.8"
     "@babel/runtime": "npm:^7.24.8"
-    "@demos-europe/demosplan-ui": "npm:0.3.27"
+    "@demos-europe/demosplan-ui": "npm:0.3.30"
     "@demos-europe/dp-consent": "npm:^1.3"
-    "@efrane/vuex-json-api": "github:eFrane/vuex-json-api#19c2354ad97c17bdda02358dc9ee4a2ffce181dd"
+    "@efrane/vuex-json-api": "npm:^0.1.2"
     "@fullhuman/postcss-purgecss": "npm:^6.0.0"
     "@masterportal/masterportalapi": "npm:2.22.0"
     "@sentry/browser": "npm:^8.18.0"
@@ -11816,6 +11807,7 @@ __metadata:
     mini-css-extract-plugin: "npm:^2.9.0"
     node-notifier: "npm:^10.0.1"
     ol: "npm:~7.5.1"
+    olcs: "npm:2.14.0"
     plyr: "npm:^3.7.8"
     portal-vue: "npm:^2.1.7"
     postcss: "npm:^8.4.32"
