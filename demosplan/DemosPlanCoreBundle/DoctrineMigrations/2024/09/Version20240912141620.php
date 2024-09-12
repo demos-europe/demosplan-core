@@ -7,7 +7,7 @@ use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
-class Version20240912125339 extends AbstractMigration
+class Version20240912141620 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -20,9 +20,10 @@ class Version20240912125339 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->abortIfNotMysql();
-        $this->addSql('ALTER TABLE _platform_content ADD customer_id VARCHAR(100) DEFAULT NULL');
-        $this->addSql('CREATE INDEX _platform_content_customer_FK ON _platform_content (customer_id)');
-
+        ;
+        $this->addSql('ALTER TABLE _platform_content ADD customer_id CHAR(36) NOT NULL');
+        $this->addSql('ALTER TABLE _platform_content ADD CONSTRAINT FK_42348F4F9395C3F3 FOREIGN KEY (customer_id) REFERENCES customer (_c_id) ON DELETE CASCADE');
+        $this->addSql('CREATE INDEX IDX_42348F4F9395C3F3 ON _platform_content (customer_id)');
     }
 
     /**
@@ -31,9 +32,10 @@ class Version20240912125339 extends AbstractMigration
     public function down(Schema $schema): void
     {
         $this->abortIfNotMysql();
-        $this->addSql('DROP INDEX _platform_content_customer_FK ON _platform_content');
-        $this->addSql('ALTER TABLE _platform_content DROP customer_id');
 
+        $this->addSql('ALTER TABLE _platform_content DROP FOREIGN KEY FK_42348F4F9395C3F3');
+        $this->addSql('DROP INDEX IDX_42348F4F9395C3F3 ON _platform_content');
+        $this->addSql('ALTER TABLE _platform_content DROP customer_id');
     }
 
     /**
