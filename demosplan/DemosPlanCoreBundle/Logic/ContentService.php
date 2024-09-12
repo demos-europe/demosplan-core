@@ -146,7 +146,7 @@ class ContentService extends CoreService
     public function addContent($data)
     {
         try {
-            //add current customer to $data
+            // add current customer to $data
             $data['customer'] = $this->customerService->getCurrentCustomer();
             $singleGlobalContent = $this->contentRepository->add($data);
 

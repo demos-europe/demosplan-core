@@ -189,7 +189,6 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface, GlobalCon
     protected $categories;
 
     /**
-     *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
      *
      * @ORM\JoinColumn(name="customer_id", referencedColumnName="_c_id", onDelete="CASCADE", nullable=false)
@@ -634,5 +633,4 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface, GlobalCon
     {
         return $this->customer;
     }
-
 }
