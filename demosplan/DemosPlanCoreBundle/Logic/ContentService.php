@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\ContentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SettingRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
@@ -42,7 +43,8 @@ class ContentService extends CoreService
         // @improve T13447
         private readonly EntityHelper $entityHelper,
         private readonly ManualListSorter $manualListSorter,
-        private readonly SettingRepository $settingRepository
+        private readonly SettingRepository $settingRepository,
+        private readonly CustomerService $customerService,
     ) {
     }
 
@@ -144,6 +146,8 @@ class ContentService extends CoreService
     public function addContent($data)
     {
         try {
+            //add current customer to $data
+            $data['customer'] = $this->customerService->getCurrentCustomer();
             $singleGlobalContent = $this->contentRepository->add($data);
 
             // convert to Legacy Array
