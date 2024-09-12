@@ -759,7 +759,7 @@ export default {
      * Set active state when clicking on an overlay
      */
     setActiveState () {
-      if (!hasPermission('feature_map_category') ||
+      if (!hasPermission('feature_map_layer_visibility') ||
           this.layer.type !== 'GisLayer' ||
           this.layer.attributes.isBaseLayer ||
           this.isLoading ||
