@@ -48,7 +48,9 @@ class ReportService extends CoreService
         private readonly SortMethodFactory $sortMethodFactory,
         private readonly StatementReportEntryFactory $statementReportEntryFactory,
         private readonly TranslatorInterface $translator,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
+        private readonly EntityManagerInterface $entityManager
+
     ) {
     }
 
@@ -60,8 +62,8 @@ class ReportService extends CoreService
     public function persistAndFlushReportEntries(ReportEntry ...$reportEntries): void
     {
         $this->reportRepository->executeAndFlushInTransaction(
-            function (EntityManagerInterface $em) use ($reportEntries) {
-                $this->persistReportEntry($reportEntries, $em);
+            function () use ($reportEntries) {
+                $this->persistReportEntries($reportEntries);
 
                 return null;
             }
@@ -342,14 +344,14 @@ class ReportService extends CoreService
         return $this->reportRepository->addObject($report);
     }
 
-    function persistReportEntry(array $reportEntries, EntityManagerInterface $em): void
+    function persistReportEntries(array $reportEntries): void
     {
         foreach ($reportEntries as $reportEntry) {
             $violations = $this->validator->validate($reportEntry);
             if (0 !== $violations->count()) {
                 throw ViolationsException::fromConstraintViolationList($violations);
             }
-            $em->persist($reportEntry);
+            $this->entityManager->persist($reportEntry);
         }
     }
 }

@@ -41,7 +41,6 @@ use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
@@ -75,7 +74,6 @@ class StatementCopier extends CoreService
         private readonly StatementRepository $statementRepository,
         private readonly StatementService $statementService,
         private readonly NCNameGenerator $nameGenerator,
-        private readonly EntityManagerInterface $entityManager
     ) {
         $this->elasticsearchIndexManager = $elasticsearchIndexManager;
         $this->reportService = $reportService;
@@ -613,7 +611,7 @@ class StatementCopier extends CoreService
                     if ($persistAndFlush) {
                         $this->reportService->persistAndFlushReportEntries($entry);
                     } else {
-                        $this->reportService->persistReportEntry([$entry], $this->entityManager);
+                        $this->reportService->persistReportEntries([$entry]);
                     }
                     $this->logger->info(
                         'generate report of copyStatement(). ReportID: ',
