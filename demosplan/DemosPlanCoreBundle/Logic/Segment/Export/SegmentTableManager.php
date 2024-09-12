@@ -104,10 +104,10 @@ class SegmentTableManager
             $this->styles['segmentsTableBodyCell']
         );
         // Replace image tags in segment recommendation text with a linked reference to the image.
-        $recommendationText = $this->imageLinkConverter->convert($segment->getRecommendation(), $statementExternId);
+        $convertedSegment = $this->imageLinkConverter->convert($segment, $statementExternId);
         $this->addSegmentHtmlCell(
             $textRow,
-            $recommendationText,
+            $convertedSegment->getRecommendationText(),
             $this->styles['segmentsTableBodyCell']
         );
     }

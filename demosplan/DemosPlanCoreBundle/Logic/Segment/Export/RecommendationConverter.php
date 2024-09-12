@@ -30,11 +30,8 @@ class RecommendationConverter
         $recommendationTexts = [];
         foreach ($sortedSegments as $segment) {
             $externId = $segment->getExternId();
-            $recommendationTexts[$externId] = $this->imageLinkConverter->convert(
-                $segment->getRecommendation(),
-                $externId,
-                false
-            );
+            $convertedSegment = $this->imageLinkConverter->convert($segment, $externId, false);
+            $recommendationTexts[$externId] = $convertedSegment->getRecommendationText();
         }
         $this->imageLinkConverter->resetImages();
 
