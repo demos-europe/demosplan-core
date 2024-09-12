@@ -20,7 +20,7 @@ class Version20240912125339 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->abortIfNotMysql();
-        $this->addSql('ALTER TABLE _platform_content ADD customer_id VARCHAR(100) DEFAULT NOT NULL');
+        $this->addSql('ALTER TABLE _platform_content ADD customer_id VARCHAR(100) DEFAULT NULL');
         $this->addSql('CREATE INDEX _platform_content_customer_FK ON _platform_content (customer_id)');
 
     }
