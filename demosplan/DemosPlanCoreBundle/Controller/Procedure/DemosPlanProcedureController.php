@@ -2363,6 +2363,12 @@ class DemosPlanProcedureController extends BaseController
             if ($requestPost->has('boilerplateGroupIdsTo_delete')) {
                 $this->handleDeleteBoilerplateGroups($requestPost->get('boilerplateGroupIdsTo_delete'));
             }
+
+            if (false ===
+                $requestPost->has('boilerplate_delete') || $requestPost->has('boilerplateGroupIdsTo_delete')
+            ) {
+                $this->getMessageBag()->add('warning', 'explanation.entries.noneselected');
+            }
         }
 
         // delete single boilerplate
@@ -2395,6 +2401,12 @@ class DemosPlanProcedureController extends BaseController
         $templateVars = [];
         $templateVars['list'] = $procedureService->getBoilerplateList($procedure);
         $templateVars['boilerplateGroups'] = $procedureService->getBoilerplateGroups($procedureId);
+
+        if (!$request->isMethod('GET')) {
+            // prevent sending the same post multiple times when browser reloads the same page (F5)
+            // therefore redirect to self as a get call instead.
+            return $this->redirectBack($request);
+        }
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanProcedure/administration_list_boilerplate.html.twig',
