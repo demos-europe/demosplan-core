@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Entity;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GlobalContentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\News\NewsHandler;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -185,6 +186,15 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface, GlobalCon
      * )
      */
     protected $categories;
+
+    /**
+     * @var Customer
+     *
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer", inversedBy ="globalContents")
+     *
+     * @ORM\JoinColumn(referencedColumnName="_c_id", onDelete="CASCADE", nullable=false)
+     */
+    protected $customer;
 
     public function __construct()
     {
