@@ -125,7 +125,7 @@ _c_id = :category_id;', [
         $firstCustomerId = $firstCustomer['_c_id'];
 
         // Delete the entries in _platform_content_categories that were inserted for each customer except the first one
-        $this->addSql('DELETE FROM _platform_content_categories WHERE _platform_content_id IN (SELECT _pc_id FROM _platform_content WHERE customer_id != :first_customer_id)', [
+        $this->addSql('DELETE FROM _platform_content_categories WHERE _pc_id IN (SELECT _pc_id FROM _platform_content WHERE customer_id != :first_customer_id)', [
             'first_customer_id' => $firstCustomerId,
         ]);
 
