@@ -58,8 +58,11 @@ class Version20240912141620 extends AbstractMigration
 
         foreach ($platformContentEntries as $entry) {
             foreach ($customerIds as $customer) {
+                // Generate a unique ID for _pc_id
+                $newPcId = $this->connection->fetchOne('SELECT UUID()');
+
                 $this->addSql('INSERT INTO _platform_content SET
-    _pc_id = UUID(),
+    _pc_id = :pc_id,
     _pc_create_date = NOW(),
     _pc_modify_date = NOW(),
     _pc_delete_date = NOW(),
@@ -74,6 +77,7 @@ class Version20240912141620 extends AbstractMigration
     _pc_enabled = :_pc_enabled,
     _pc_deleted = :_pc_deleted,
     customer_id = :customer_id;', [
+                    'pc_id'             => $newPcId,
                     '_pc_type'          => $entry['_pc_type'],
                     '_pc_title'         => $entry['_pc_title'],
                     '_pc_description'   => $entry['_pc_description'],
@@ -86,8 +90,21 @@ class Version20240912141620 extends AbstractMigration
                     '_pc_deleted'       => $entry['_pc_deleted'],
                     'customer_id'       => $customer['_c_id'],
                 ]);
+
+                $categoryId = $this->connection->fetchOne('SELECT _c_id FROM _platform_content_categories WHERE _pc_id = :current_content_entry_id LIMIT 1', [
+                    'current_content_entry_id' => $entry['_pc_id'],
+                ]);
+
+                // Insert into _platform_content_categories
+                $this->addSql('INSERT INTO _platform_content_categories SET
+_pc_id = :platform_content_id,
+_c_id = :category_id;', [
+                    'platform_content_id' => $newPcId,
+                    'category_id' => $categoryId,
+                ]);
             }
         }
+
         // Enable foreign key checks
         $this->addSql('SET foreign_key_checks = 1;');
 
@@ -106,6 +123,11 @@ class Version20240912141620 extends AbstractMigration
         // Retrieve the first customer ID
         $firstCustomer = $this->connection->fetchAssociative('SELECT _c_id FROM customer LIMIT 1');
         $firstCustomerId = $firstCustomer['_c_id'];
+
+        // Delete the entries in _platform_content_categories that were inserted for each customer except the first one
+        $this->addSql('DELETE FROM _platform_content_categories WHERE _platform_content_id IN (SELECT _pc_id FROM _platform_content WHERE customer_id != :first_customer_id)', [
+            'first_customer_id' => $firstCustomerId,
+        ]);
 
         // Delete the entries in _platform_content that were inserted for each customer except the first one
         $this->addSql('DELETE FROM _platform_content WHERE customer_id != :first_customer_id', [
