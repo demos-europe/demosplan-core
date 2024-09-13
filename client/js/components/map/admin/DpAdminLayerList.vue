@@ -279,7 +279,7 @@ export default {
     ...mapActions('layers', [
       'changeRelationship',
       'createIndexes',
-      'fetLayers',
+      'fetchLayers',
       'saveLayerList',
       'setNewIndex',
       'updateSortOrder'
