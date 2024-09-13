@@ -92,8 +92,8 @@ class ContentService extends CoreService
     {
         // @improve T12886
         $category = $this->getCategoryByName($categoryName ?? 'news');
-        //$globalContentEntries = $category->getGlobalContents()->toArray();
-        //$currentCustomer = $this->customerService->getCurrentCustomer();
+        // $globalContentEntries = $category->getGlobalContents()->toArray();
+        // $currentCustomer = $this->customerService->getCurrentCustomer();
         $globalContentEntries = $category->getGlobalContentsbyCustomer($this->customerService->getCurrentCustomer());
 
         // Legacy Arrays
@@ -645,7 +645,6 @@ class ContentService extends CoreService
         $singleGlobalContent = $this->entityHelper->toArray($singleGlobalContent);
         $singleGlobalContent['roles'] = $rolesAsArray;
         $singleGlobalContent['categories'] = $categoriesAsArray;
-
 
         // won't return null as $singleGlobalContent is not null
         return $this->dateHelper->convertDatesToLegacy($singleGlobalContent);
