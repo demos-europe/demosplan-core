@@ -651,7 +651,6 @@ const LayersStore = {
 
       layersToSort
         .forEach(el => {
-          console.log(el.attributes.name)
           commit('updateLayer', {
             id: el.id,
             key: state.currentSorting,

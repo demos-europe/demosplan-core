@@ -297,7 +297,6 @@ export default {
       const targetParentId = event.to.parentElement.id ?? null
       const sourceParentId = event.from.parentElement.id ?? this.rootId
 
-      console.log('changeManualSort 1', id, item, targetParentId)
       if (this.currentSorting === 'treeOrder' && targetParentId !== sourceParentId) {
         this.changeRelationship({
           id,
@@ -330,12 +329,7 @@ export default {
     },
 
     async setActiveTab (sortOrder) {
-      console.log('setActiveTab', sortOrder, this.currentSorting)
       await this.updateSortOrder({ parentId: this.rootId, parentOrder: 100 })
-
-      console.log('changeManualSort', this.treeList.map(el => {
-        return `${el.attributes.name} - ${el.attributes.treeOrder}`
-      }))
 
       this.set({ key: 'currentSorting', value: sortOrder })
       lscache.set('layerOrderTab', sortOrder, 300)

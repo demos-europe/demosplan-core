@@ -724,7 +724,6 @@ export default {
     },
 
     changeManualSort (event, item) {
-      console.log('change manual sort from Item', item?.id ?? event.item.id)
       const id = event.item.id
       const { newIndex, oldIndex } = event
       const targetParentId = event.to.parentElement.id ?? null
@@ -828,7 +827,6 @@ export default {
      * Set active state when clicking on an overlay
      */
     setActiveState () {
-      console.log('setActiveState')
       if (this.layer.type !== 'GisLayer' ||
           this.layer.attributes.isBaseLayer ||
           this.isLoading ||
