@@ -72,6 +72,7 @@ class Version20240912141620 extends AbstractMigration
     _pc_pdf = :_pc_pdf,
     _pc_pdf_title = :_pc_pdf_title,
     _pc_enabled = :_pc_enabled,
+    _pc_deleted = :_pc_deleted,
     customer_id = :customer_id;', [
                     '_pc_type'          => $entry['_pc_type'],
                     '_pc_title'         => $entry['_pc_title'],
@@ -82,6 +83,7 @@ class Version20240912141620 extends AbstractMigration
                     '_pc_pdf'           => $entry['_pc_pdf'],
                     '_pc_pdf_title'     => $entry['_pc_pdf_title'],
                     '_pc_enabled'       => $entry['_pc_enabled'],
+                    '_pc_deleted'       => $entry['_pc_deleted'],
                     'customer_id'       => $customer['_c_id'],
                 ]);
             }
