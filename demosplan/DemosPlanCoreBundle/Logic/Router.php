@@ -132,6 +132,7 @@ class Router implements RouterInterface, WarmableInterface
     {
         if (array_key_exists('procedure', $parameters) && is_array($parameters['procedure']) && array_key_exists('id', $parameters['procedure']) && null !== $parameters['procedure']['id']) {
             $parameters['procedure'] = $this->slugifyProcedureIdParam($parameters['procedure']['id']);
+
             return $parameters;
         }
 
