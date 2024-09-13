@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
 use DemosEurope\DemosplanAddon\Contracts\FileServiceInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
@@ -369,6 +370,13 @@ class FileService extends CoreService implements FileServiceInterface
         return $this->handleLocalFileStorage($symfonyFile, $virencheck, $dplanFile, $filePath);
     }
 
+    /**
+     * @deprecated use {@link saveTemporaryLocalFile} instead
+     */
+    public function saveTemporaryFile(string $filePath, string $fileName, ?string $userId = null, ?string $procedureId = null, ?string $virencheck = FileServiceInterface::VIRUSCHECK_SYNC, ?string $hash = null): FileInterface
+    {
+        return $this->saveTemporaryLocalFile($filePath, $fileName, $userId, $procedureId, $virencheck, $hash);
+    }
     /**
      * Save an uploaded File.
      *
