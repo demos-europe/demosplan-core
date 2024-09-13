@@ -88,7 +88,7 @@ class DemosPlanDocumentController extends BaseController
         private readonly FileService $fileService,
         private readonly FilesystemOperator $defaultStorage,
         private readonly PermissionsInterface $permissions,
-        private readonly SingleDocumentService $singleDocumentService
+        private readonly SingleDocumentService $singleDocumentService,
     ) {
     }
 

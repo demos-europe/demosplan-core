@@ -377,6 +377,7 @@ class FileService extends CoreService implements FileServiceInterface
     {
         return $this->saveTemporaryLocalFile($filePath, $fileName, $userId, $procedureId, $virencheck, $hash);
     }
+
     /**
      * Save an uploaded File.
      *
@@ -1154,8 +1155,9 @@ class FileService extends CoreService implements FileServiceInterface
         }
 
         if (!$fs->exists($path)) {
-            throw new FileNotFoundException('File not found: ' . $path);
+            throw new FileNotFoundException('File not found: '.$path);
         }
+
         return $path;
     }
 }
