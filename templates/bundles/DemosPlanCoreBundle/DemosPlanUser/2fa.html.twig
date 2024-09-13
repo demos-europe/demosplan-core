@@ -1,0 +1,78 @@
+{% extends "@DemosPlanCore/DemosPlanCore/emptybase.html.twig" %}
+
+{% block component_part %}
+
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+        'content_heading': "2fa.email.subject"|trans({ projectName: ''}),
+    }%}
+
+        {% block content %}
+            <div class="w-8/12 mt-6">
+                {% set inputLabel = 'auth_code'|trans({}, 'SchebTwoFactorBundle') ~ ' ' ~ twoFactorProvider|trans %}
+                {% if twoFactorProvider == 'email' %}
+                    {% set inputLabel = inputLabel ~ '2fa.email.login.explanation'|trans %}
+                {% endif %}
+
+                <form
+                    action="{{ checkPathUrl ? checkPathUrl: path(checkPathRoute) }}"
+                    method="post">
+                    {{ uiComponent('form.element', {
+                        label: { text: inputLabel },
+                        control: {
+                            value: statement.element.title|default,
+                            autocomplete: 'one-time-code',
+                            autofocus: true,
+                            inputmode: 'numeric',
+                            pattern: '[0-9]*',
+                            name: authCodeParameterName
+                        },
+                        type: 'text',
+                        id: '_auth_code'
+                    }) }}
+
+                    {% if displayTrustedOption %}
+                        {{ uiComponent('form.element', {
+                            control: { name: '_trusted', value: 'on', checked: false },
+                            lable: { text: 'trusted'|trans({}, 'SchebTwoFactorBundle') },
+                            type: 'checkbox',
+                            id: '_trusted',
+                        })}}
+                    {% endif %}
+
+                    {# Authentication errors #}
+                    {% if authenticationError %}
+                        <p class="flash flash-error">
+                            <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                            {{ authenticationError|trans(authenticationErrorData, 'SchebTwoFactorBundle') }}
+                        </p>
+                    {% endif %}
+
+                    {% if isCsrfProtectionEnabled %}
+                        <input
+                            type="hidden"
+                            name="{{ csrfParameterName }}"
+                            value="{{ csrf_token(csrfTokenId) }}">
+                    {% endif %}
+
+                    <div class="mt-1">
+                        {{ uiComponent('button-row', {
+                            primary: uiComponent('button', { type: 'submit', text: 'login'|trans, attributes: ['data-cy=saveNews'] }),
+                            secondary: uiComponent('button', { color: 'secondary', href: logoutPath })
+                        }) }}
+                    </div>
+                </form>
+
+                {% if availableTwoFactorProviders|length > 1 %}
+                    <p class="mt-2">
+                        {{ "choose_provider"|trans({}, 'SchebTwoFactorBundle') }}:
+                        <a
+                            href="{{ path("2fa_login", { preferProvider: availableTwoFactorProviders[1] }) }}">
+                            {{ availableTwoFactorProviders[1]|trans }}
+                        </a>
+                    </p>
+                {% endif %}
+            </div>
+        {% endblock %}
+
+    {% endembed %}
+{% endblock %}

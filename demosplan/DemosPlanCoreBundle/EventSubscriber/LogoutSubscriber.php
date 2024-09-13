@@ -50,14 +50,6 @@ class LogoutSubscriber implements EventSubscriberInterface
             $response = $this->redirectToRoute('core_home');
         }
 
-        // let SAML handle logout when defined. It does no harm when user is logged in locally.
-        // Needs to be http://localhost/ as it needs to be some kind of url, and it is defined
-        // like this in the parameters_default.yml
-        if ('http://localhost/' !== $this->parameterBag->get('saml_idp_slo_url')) {
-            $this->logger->info('Redirecting to SAML for logout', [$this->parameterBag->get('saml_idp_slo_url')]);
-            $response = $this->redirectToRoute('saml_logout');
-        }
-
         // let oauth identity provider handle logout when defined
         if ('' !== $this->parameterBag->get('oauth_keycloak_logout_route')) {
             $logoutRoute = $this->parameterBag->get('oauth_keycloak_logout_route');
