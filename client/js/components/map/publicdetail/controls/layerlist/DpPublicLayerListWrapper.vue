@@ -24,7 +24,7 @@
       layer-type="overlay" />
 
     <div
-      v-if="0 < baseLayers.length && unfolded && showBaseLayers"
+      v-if="baseLayers.length > 0 && unfolded && showBaseLayers"
       :class="prefixClass('c-map__group')">
       <div :class="prefixClass('c-map__layer pointer-events-none bg-color--grey-light-1')">
         {{ Translator.trans('map.bases') }}
@@ -83,6 +83,7 @@ export default {
   methods: {
     toggle () {
       const unfolded = this.unfolded = !this.unfolded
+
       if (unfolded) {
         this.$root.$emit('layer-list:unfolded')
       }
