@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use Exception;
+use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
 use ReflectionException;
 use RuntimeException;
@@ -118,6 +119,12 @@ class DocumentHandler extends CoreHandler
         $this->getSession()->remove('bulkImportFilesTotal');
         $this->getSession()->remove('bulkImportFilesProcessed');
 
+        try {
+            $this->defaultStorage->deleteDirectory($importDir);
+        } catch (FilesystemException $e) {
+            $this->logger->error('Could not delete file: ', [$e]);
+        }
+
         return $errorReport;
     }
 
@@ -156,7 +163,7 @@ class DocumentHandler extends CoreHandler
         array &$errorReport,
         $category = null,
     ) {
-        // @todo check: local file only, no need for flysystem?
+        // used for local files only, no need for flysystem
         $fs = new Filesystem();
         $result = [];
 
