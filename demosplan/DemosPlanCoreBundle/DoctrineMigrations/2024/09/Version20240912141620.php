@@ -103,8 +103,20 @@ class Version20240912141620 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
+        // Retrieve the first customer ID
+        $firstCustomer = $this->connection->fetchAssociative('SELECT _c_id FROM customer LIMIT 1');
+        $firstCustomerId = $firstCustomer['_c_id'];
+
+        // Delete the entries in _platform_content that were inserted for each customer except the first one
+        $this->addSql('DELETE FROM _platform_content WHERE customer_id != :first_customer_id', [
+            'first_customer_id' => $firstCustomerId,
+        ]);
+
+        // Drop the foreign key constraint and index
         $this->addSql('ALTER TABLE _platform_content DROP FOREIGN KEY FK_42348F4F9395C3F3');
         $this->addSql('DROP INDEX IDX_42348F4F9395C3F3 ON _platform_content');
+
+        // Drop the customer_id column
         $this->addSql('ALTER TABLE _platform_content DROP customer_id');
     }
 
