@@ -100,7 +100,7 @@ class Version20240912141620 extends AbstractMigration
 _pc_id = :platform_content_id,
 _c_id = :category_id;', [
                     'platform_content_id' => $newPcId,
-                    'category_id' => $categoryId,
+                    'category_id'         => $categoryId,
                 ]);
             }
         }
