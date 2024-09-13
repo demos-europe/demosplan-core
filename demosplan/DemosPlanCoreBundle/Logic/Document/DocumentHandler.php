@@ -23,8 +23,8 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
-use DirectoryIterator;
 use Exception;
+use League\Flysystem\FilesystemOperator;
 use ReflectionException;
 use RuntimeException;
 use Symfony\Component\Filesystem\Exception\IOException;
@@ -57,6 +57,7 @@ class DocumentHandler extends CoreHandler
         private readonly ElementHandler $elementHandler,
         ElementsService $elementsService,
         private readonly FileService $fileService,
+        private readonly FilesystemOperator $defaultStorage,
         MessageBagInterface $messageBag,
         private readonly ParagraphService $paragraphService,
         private readonly ProcedureService $procedureService,
@@ -212,6 +213,7 @@ class DocumentHandler extends CoreHandler
                 // speichere die Datei im Fileservice ab
                 try {
                     // Viruscheck has been done for complete zip, so no check needed any more
+                    $entry['path'] = $this->fileService->ensureLocalFile($entry['path'], $entry['title']);
                     $this->fileService->saveTemporaryLocalFile($entry['path'], $fileName, $this->currentUser->getUser()->getId(), $procedure, FileService::VIRUSCHECK_NONE);
 
                     $singleDocument = new SingleDocument();
@@ -282,29 +284,26 @@ class DocumentHandler extends CoreHandler
         $result = [];
 
         // Gehe rekursiv alle Verzeichnisse durch. Speichere Ordner als Elements, dateien als Files in den Elements
-        $iter = new DirectoryIterator($dir);
-        foreach ($iter as $fileInfo) {
-            if ($fileInfo->isDot()) {
-                continue;
-            }
+        $contents = $this->defaultStorage->listContents($dir, true);
+        foreach ($contents as $item) {
 
-            if ($fileInfo->isDir()) {
+            if ($item->isDir()) {
                 $result[] = [
                     'isDir'   => true,
-                    'title'   => $fileInfo->getFilename(),
-                    'path'    => $fileInfo->getPathname(),
+                    'title'   => basename($item->path()),
+                    'path'    => $item->path(),
                     'entries' => $this->elementImportDirToArray(
-                        $fileInfo->getPathname()
+                        $item->path()
                     ),
                 ];
             } else {
                 // utf8_decode filename, weil Zip Umlaute kaputt macht
-                $filename = utf8_decode($fileInfo->getFilename());
+                $filename = utf8_decode(basename($item->path()));
 
                 $result[] = [
                     'isDir'  => false,
                     'title'  => $filename,
-                    'path'   => $fileInfo->getPathname(),
+                    'path'   => $item->path(),
                 ];
 
                 // Speichere die Anzahl der Dateien in die Session

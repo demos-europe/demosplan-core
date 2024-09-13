@@ -52,6 +52,7 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use DirectoryIterator;
 use Exception;
+use League\Flysystem\FilesystemOperator;
 use Pagerfanta\Adapter\ArrayAdapter;
 use Patchwork\Utf8;
 use ReflectionException;
@@ -81,8 +82,14 @@ use function set_time_limit;
  */
 class DemosPlanDocumentController extends BaseController
 {
-    public function __construct(private readonly ElementHandler $elementHandler, private readonly ElementsService $elementsService, private readonly FileService $fileService, private readonly PermissionsInterface $permissions, private readonly SingleDocumentService $singleDocumentService)
-    {
+    public function __construct(
+        private readonly ElementHandler $elementHandler,
+        private readonly ElementsService $elementsService,
+        private readonly FileService $fileService,
+        private readonly FilesystemOperator $defaultStorage,
+        private readonly PermissionsInterface $permissions,
+        private readonly SingleDocumentService $singleDocumentService
+    ) {
     }
 
     /**
@@ -782,10 +789,10 @@ class DemosPlanDocumentController extends BaseController
         }
 
         $extractDir = $this->getElementImportDir($procedureId, $currentUser->getUser());
-        // @todo is this file local?
-        $fn = $uploadedFileInfo->getAbsolutePath();
+        // zip file needs to be local to extract files. So move it to the import dir
+        $uploadedZipFileLocal = $fileService->ensureLocalFileFromHash($uploadedFileInfo->getHash());
         $zip = new ZipArchive();
-        $res = $zip->open($fn);
+        $res = $zip->open($uploadedZipFileLocal);
         $successFiles = 0;
         $folderCount = 0;
         if (true === $res) {
@@ -841,6 +848,7 @@ class DemosPlanDocumentController extends BaseController
 
             // Lösche das hochgeladene Zipfile, es wird nicht mehr benötigt
             $fileService->deleteFile($uploadedFileInfo->getHash());
+            $fileService->deleteFile($uploadedZipFileLocal);
         } else {
             $this->logger->warning('Could not open Zip file. Reason: '.$res);
             $this->getMessageBag()->add('error', 'error.elementimport.cantopen');
@@ -973,6 +981,7 @@ class DemosPlanDocumentController extends BaseController
                         $session
                     ),
                 ];
+                $this->defaultStorage->createDirectory($fileInfo->getPathname());
             } else {
                 $hash = 'file_'.random_int(1, 99_999_999);
                 // T5659 only filter filenames, do not translit
@@ -983,11 +992,17 @@ class DemosPlanDocumentController extends BaseController
                     'title' => $filename,
                     'hash'  => $hash,
                 ];
+                $stream = fopen($fileInfo->getPathname(), 'rb+');
+                $this->defaultStorage->writeStream($fileInfo->getPathname(), $stream);
+                fclose($stream);
             }
             $sessionImportList = $session->get('element_import_list');
             $sessionImportList[$hash] = $fileInfo->getPathname();
             $session->set('element_import_list', $sessionImportList);
         }
+        $fs = new Filesystem();
+        $fs->remove($dir);
+
         // Sortiere die Elements natürlichsprachig
         usort($result, [DocumentHandler::class, 'sortElementsAlphabetically']);
 
@@ -1494,6 +1509,7 @@ class DemosPlanDocumentController extends BaseController
 
     public function getElementImportDir(string $procedureId, User $user): string
     {
+        // @todo use flysystem
         $tmpDir = sys_get_temp_dir().'/'.$user->getId().'/'.$procedureId;
         if (!is_dir($tmpDir) && !mkdir($tmpDir, 0777, true) && !is_dir($tmpDir)) {
             throw new RuntimeException(sprintf('Directory "%s" was not created', $tmpDir));

@@ -727,6 +727,13 @@ class FileService extends CoreService implements FileServiceInterface
         return $hash;
     }
 
+    public function ensureLocalFileFromHash(string $hash, ?string $path = null): string
+    {
+        $file = $this->getFileInfo($hash);
+
+        return $this->ensureLocalFile($file->getAbsolutePath(), $hash, $path);
+    }
+
     /**
      * Generate a unique name for the file.
      */
@@ -1107,5 +1114,48 @@ class FileService extends CoreService implements FileServiceInterface
         $fs->remove($filePath);
 
         return $newEntity;
+    }
+
+    public function moveLocalFilesToFlysystem(string $localDir): string
+    {
+        $finder = new Finder();
+        $fs = new Filesystem();
+
+        $finder->files()->in($localDir);
+        // Move files from the temporary directory to Flysystem
+        foreach ($finder as $file) {
+            if ($file->isDir()) {
+                $this->defaultStorage->createDirectory($file->getPath());
+            } else {
+                $stream = fopen($file->getPathname(), 'rb+');
+                $this->defaultStorage->writeStream($file->getPathname(), $stream);
+                fclose($stream);
+            }
+        }
+
+        // Clean up the temporary directory
+        $fs->remove($localDir);
+
+        // return the temporary directory to be used in the next step
+        return $localDir;
+    }
+
+    public function ensureLocalFile(string $remotePath, ?string $hash = null, ?string $path = null): ?string
+    {
+        if (null === $path) {
+            $path = DemosPlanPath::getTemporaryPath(
+                sprintf('%s/%s', uniqid($hash, true), $hash ?? uniqid('', true))
+            );
+        }
+        // Move the file to local directory from flysystem
+        $fs = new Filesystem();
+        if ($this->defaultStorage->fileExists($remotePath)) {
+            $fs->dumpFile($path, $this->defaultStorage->read($remotePath));
+        }
+
+        if (!$fs->exists($path)) {
+            throw new FileNotFoundException('File not found: ' . $path);
+        }
+        return $path;
     }
 }
