@@ -584,7 +584,7 @@ const LayersStore = {
 
       const nextSibling = Object.values(state.layerList).filter(el => {
         let sameListType = false
-        let sameList = true // if its a mapOrder, this is always true, only for the overlay-treelist we have to check the parents
+        let sameList = true // If its a mapOrder, this is always true, only for the overlay-treelist we have to check the parents
 
         if (state.currentSorting === 'treeOrder') {
           sameList = layerType === 'base' ? true : sameParent(el, parentId)
@@ -596,8 +596,8 @@ const LayersStore = {
           sameListType = el.attributes.layerType === layerType // If its a layer, we compare the layerType to get the right list
         }
 
-        return el.attributes.index === index && // we want the get the element from the position we want to place our current element
-          sameList && // since we got the same index per (nested) list, just give us the one with the same parent
+        return el.attributes.index === index && // Ee want the get the element from the position we want to place our current element
+          sameList && // Since we got the same index per (nested) list, just give us the one with the same parent
           el.id !== id &&
           sameListType
       })
@@ -819,8 +819,10 @@ const LayersStore = {
         categoryId = state.apiData.data.id
       }
 
-      // create either list of overlay layers (can have categories) or list of base layers
-      //  Filter api response by layer type + categories
+      /*
+       * Create either list of overlay layers (can have categories) or list of base layers
+       * Filter api response by layer type + categories
+       */
       const elementList = state.apiData.included.filter(current => {
         //  Only GisLayer has an attributes.layerType so this one will be false for categories + contextual help
         const putLayerInList = type === current.attributes.layerType
