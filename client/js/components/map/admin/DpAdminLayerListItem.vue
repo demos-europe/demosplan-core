@@ -278,16 +278,14 @@ export default {
     ...mapGetters('layers', {
       directChildren: 'directChildren',
       getElement: 'element',
-      elementsByAttribute: 'elementsListByAttribute'
+      elementsByAttribute: 'elementsListByAttribute',
+      treeList: 'treeList'
     }),
 
     ...mapState('layers', [
+      'currentSorting',
       'draggableOptions',
-      'draggableOptionsForBaseLayer',
-      'mapList',
-      'mapBaseList',
-      'treeList',
-      'treeBaseList'
+      'layerList'
     ]),
 
     parentCategory () {
@@ -316,7 +314,7 @@ export default {
     },
 
     layer () {
-      return this.getElement({ id: this.element.id, type: this.element.type })
+      return this.layerList[this.element.id]
     },
 
     hasDefaultVisibility () {
@@ -708,15 +706,12 @@ export default {
   methods: {
     ...mapActions('layers', [
       'changeRelationship',
-      'updateListSort',
       'setNewIndex'
     ]),
 
     ...mapMutations('layers', [
       'set',
-      'setAttributeForLayer',
-      'setChildrenFromCategory',
-      'updateLayer'
+      'setAttributeForLayer'
     ]),
 
     // Add index property to item, so it can be accessed in the store
@@ -728,39 +723,27 @@ export default {
       })
     },
 
-    changeManualSort (event, { id }) {
-      console.log('change manual sort from Item')
+    changeManualSort (event, item) {
+      console.log('change manual sort from Item', item?.id ?? event.item.id)
+      const id = event.item.id
       const { newIndex, oldIndex } = event
       const targetParentId = event.to.parentElement.id ?? null
       const sourceParentId = event.from.parentElement.id ?? null
-      // const layerType = item.attributes.layerType
-      // const isCategory = !layerType
-      // const listKey = isCategory || item.attributes.layerType === 'overlay' ? `${this.listType}List` : `${this.listType}BaseList`
-      // const relationshipType = item.type === 'GisLayer' ? 'gisLayers' : 'categories'
+
+      if (this.currentSorting === 'treeOrder' && targetParentId !== sourceParentId) {
+        this.changeRelationship({
+          id,
+          targetParentId
+        })
+      }
 
       this.setNewIndex({
         id,
         index: newIndex,
         oldIndex,
-        targetParentId
+        targetParentId,
+        sourceParentId
       })
-      // this.updateListSort({
-      //   id: item.id,
-      //   newIndex,
-      //   oldIndex,
-      //   orderType: this.listType === 'map' || this.listType === 'mapBase' ? 'mapOrder' : 'treeOrder',
-      //   relationshipType,
-      //   sourceParentId,
-      //   targetParentId
-      // })
-
-      if (targetParentId !== sourceParentId) {
-        this.changeRelationship({
-          id,
-          newParentId: targetParentId,
-          oldParentId: sourceParentId
-        })
-      }
     },
 
     toggleChildren () {
@@ -853,13 +836,7 @@ export default {
         return false
       }
       if (this.preventActiveFromToggeling === false) {
-        if (this.isActive) {
-          // this.$store.commit('layers/setActiveLayerId', '')
-          this.set({ key: 'ativeLayerId', value: '' })
-        } else {
-          // this.$store.commit('layers/setActiveLayerId', this.layer.id)
-          this.set({ key: 'ativeLayerId', value: this.layer.id })
-        }
+        this.set({ key: 'activeLayerId', value: this.isActive ? '' : this.layer.id })
       } else {
         this.preventActiveFromToggeling = false
       }
@@ -880,13 +857,12 @@ export default {
       if (this.isLoading || this.layer.attributes.layerType !== 'overlay') {
         return false
       }
+
       this.set({ key: 'hoverLayerId', value: this.layer.id })
-      // this.$store.commit('layers/setHoverLayerId', this.layer.id)
     },
 
     mouseOutElement () {
-      this.set({ key: 'hoverLayerId', value: ''})
-      // this.$store.commit('layers/setHoverLayerId', '')
+      this.set({ key: 'hoverLayerId', value: '' })
     },
 
     /**
@@ -896,8 +872,8 @@ export default {
       if (this.isLoading) {
         return false
       }
+
       if (this.layer.attributes.layerType === 'overlay' && typeof this.activeLayer.id !== 'undefined') {
-        // this.$store.commit('layers/setHoverLayerIconIsHovered', true)
         this.set({ key: 'hoverLayerIconIsHovered', value: true })
       } else {
         this.unsetIconHoverState()
@@ -906,7 +882,6 @@ export default {
 
     unsetIconHoverState () {
       this.set({ key: 'hoverLayerIconIsHovered', value: false })
-      // this.$store.commit('layers/setHoverLayerIconIsHovered', false)
     },
 
     /**

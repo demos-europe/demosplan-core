@@ -38,13 +38,13 @@
         <button
           @click.prevent="setActiveTab('treeOrder')"
           class="btn--blank o-link--default"
-          :class="{'o-link--active': currentTab === 'treeOrder'}">
+          :class="{'o-link--active': currentSorting === 'treeOrder'}">
           {{ Translator.trans('map.set.order.tree') }}
         </button>
         <button
           @click.prevent="setActiveTab('mapOrder')"
           class="btn--blank o-link--default u-ml"
-          :class="{'o-link--active': currentTab === 'mapOrder'}">
+          :class="{'o-link--active': currentSorting === 'mapOrder'}">
           {{ Translator.trans('map.set.order.map') }}
         </button>
       </div>
@@ -92,9 +92,9 @@
         :index="idx"
         :is-loading="(false === isEditable)"
         layer-type="overlay"
-        :list-type="currentTab === 'mapOrder' ? 'map' : 'tree'"
+        :list-type="currentSorting === 'mapOrder' ? 'map' : 'tree'"
         :parent-order-position="1"
-        :sorting-type="currentTab" />
+        :sorting-type="currentSorting" />
     </dp-draggable>
 
     <dp-loading
@@ -145,8 +145,8 @@
         :index="idx"
         :is-loading="(false === isEditable)"
         layer-type="base"
-        :list-type="currentTab === 'mapOrder' ? 'mapBase' : 'treeBase'"
-        :sorting-type="currentTab" />
+        :list-type="currentSorting === 'mapOrder' ? 'mapBase' : 'treeBase'"
+        :sorting-type="currentSorting" />
     </dp-draggable>
     <div class="layout--flush u-mt u-mb">
       <h3 class="layout__item u-1-of-3">
@@ -226,7 +226,6 @@ export default {
   data () {
     return {
       isLoading: true,
-      currentTab: '',
       isEditable: true,
       drag: false
     }
@@ -234,19 +233,17 @@ export default {
 
   computed: {
     ...mapState('layers', [
+      'currentSorting',
       'draggableOptions',
-      'draggableOptionsForBaseLayer',
-      'draggableOptionsForCategorysWithHiddenLayers'
+      'draggableOptionsForBaseLayer'
     ]),
 
     ...mapGetters('layers', [
-      'gisLayerList',
-      'elementListForLayerSidebar',
       'minimapLayer',
-      'mapBaseList',
+      'baseList',
       'mapList',
-      'treeBaseList',
-      'treeList'
+      'treeList',
+      'rootId'
     ]),
 
     /**
@@ -255,15 +252,13 @@ export default {
      * refers to mapList or treeList
      */
     currentList () {
-      return this.currentTab === 'mapOrder'
+      return this.currentSorting === 'mapOrder'
         ? this.mapList
         : this.treeList
     },
 
     currentBaseList () {
-      return this.currentTab === 'mapOrder'
-        ? this.mapBaseList
-        : this.treeBaseList
+      return this.baseList // It gets re-sorted on Tab-Change, so we get always the List we want (map/tree)
     },
 
     canHaveCategories () {
@@ -284,61 +279,47 @@ export default {
     ...mapActions('layers', [
       'changeRelationship',
       'createIndexes',
-      'get',
-      'save',
+      'fetLayers',
+      'saveLayerList',
       'setNewIndex',
-      'updateListSort',
       'updateSortOrder'
     ]),
 
     ...mapMutations('layers', [
-      'updateIndex',
-      'updateLayer',
       'resetOrder',
-      'setChildrenFromCategory',
       'set',
       'setMinimapBaseLayer'
     ]),
 
-    changeManualSort ({ newIndex, oldIndex, from, to }, item) {
-      const id = item.id
-      const targetParentId = to.parentElement.id ?? null
-      const sourceParentId = from.parentElement.id ?? null
-      // const listType = this.currentTab === 'mapOrder' ? 'map' : 'tree'
-      // const listKey = item.attributes.layerType === 'overlay' ? `${listType}List` : `${listType}BaseList`
-      // const relationshipType = item.type === 'GisLayer' ? 'gisLayers' : 'categories'
+    changeManualSort (event, item) {
+      const id = event.item.id
+      const { newIndex, oldIndex } = event
+      const targetParentId = event.to.parentElement.id ?? null
+      const sourceParentId = event.from.parentElement.id ?? this.rootId
 
-      console.log('changeManualSort', id, item, targetParentId)
+      console.log('changeManualSort 1', id, item, targetParentId)
+      if (this.currentSorting === 'treeOrder' && targetParentId !== sourceParentId) {
+        this.changeRelationship({
+          id,
+          targetParentId
+        })
+      }
+
       this.setNewIndex({
         id,
         index: newIndex,
         oldIndex,
-        targetParentId
+        targetParentId,
+        sourceParentId
       })
-
-      if (targetParentId !== sourceParentId) {
-        this.changeRelationship({
-          id,
-          sourceParentId,
-          targetParentId
-        })
-      }
-      // this.updateListSort({
-      //   id: item.id,
-      //   newIndex,
-      //   oldIndex,
-      //   orderType: this.currentTab,
-      //   sourceParentId,
-      //   targetParentId
-      // })
     },
 
     async saveOrder (redirect) {
       this.isEditable = false
 
-      await this.updateSortOrder()
+      await this.updateSortOrder({ parentId: this.rootId, parentOrder: 100 })
 
-      this.save()
+      this.saveLayerList()
         .then(() => {
           this.isEditable = true
 
@@ -349,20 +330,26 @@ export default {
     },
 
     async setActiveTab (sortOrder) {
-      await this.updateSortOrder({ parentId: null, parentOrder: 100 })
+      console.log('setActiveTab', sortOrder, this.currentSorting)
+      await this.updateSortOrder({ parentId: this.rootId, parentOrder: 100 })
 
-      this.currentTab = sortOrder
+      console.log('changeManualSort', this.treeList.map(el => {
+        return `${el.attributes.name} - ${el.attributes.treeOrder}`
+      }))
+
       this.set({ key: 'currentSorting', value: sortOrder })
       lscache.set('layerOrderTab', sortOrder, 300)
-      this.updateIndex()
+
+      this.createIndexes()
     }
   },
 
   mounted () {
-    this.currentTab = lscache.get('layerOrderTab') || 'treeOrder'
-    this.set({ key: 'currentSorting', value: this.currentTab })
+    const currentTab = lscache.get('layerOrderTab') || 'treeOrder'
+    this.set({ key: 'currentSorting', value: currentTab })
+    this.set({ key: 'procedureId', value: this.procedureId })
 
-    this.get(this.procedureId)
+    this.fetchLayers()
       .then(() => {
         this.isLoading = false
         this.currentMinimapLayer = this.minimapLayer
@@ -370,8 +357,7 @@ export default {
           scrollTo('#gislayers', { offset: -10 })
         }
 
-        this.createIndexes({ overlay: true })
-        this.createIndexes({ overlay: false })
+        this.createIndexes()
       })
 
     const basicOptions = {

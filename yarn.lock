@@ -2209,6 +2209,7 @@ __metadata:
     lscache: "npm:^1.3.2"
     plyr: "npm:^3.7.2"
     qs: "npm:^6.11.0"
+    sortablejs: "npm:^1.15.3"
     tippy.js: "npm:^6.3.7"
     uuid: "npm:^9.0.0"
     v-tooltip: "npm:2.1.3"
@@ -2217,7 +2218,6 @@ __metadata:
     vue-sliding-pagination: "npm:^1.3.2"
   peerDependencies:
     prosemirror-history: ^1.3.0
-    prosemirror-model: ^1.18.1
     prosemirror-schema-basic: ^1.2.0
     prosemirror-schema-list: ^1.2.2
     prosemirror-state: ^1.4.1
@@ -2226,8 +2226,6 @@ __metadata:
     prosemirror-view: ^1.28.2
   peerDependenciesMeta:
     prosemirror-history:
-      optional: true
-    prosemirror-model:
       optional: true
     prosemirror-schema-basic:
       optional: true
@@ -13653,6 +13651,13 @@ __metadata:
   version: 1.10.2
   resolution: "sortablejs@npm:1.10.2"
   checksum: 10c0/0a7f17e417aacc4e8013c4964dfd8b31e4078ffe4b243fb03de024a11a53a07d82b3a818a21464a95fb63bd9ea24f7d87094e3a9faea9b15641459621b7379d5
+  languageName: node
+  linkType: hard
+
+"sortablejs@npm:^1.15.3":
+  version: 1.15.3
+  resolution: "sortablejs@npm:1.15.3"
+  checksum: 10c0/dfd79a7dd7041fe1080d58d2191cd4df62cfc9912bbb4069f295fb2c5f23eb31112931614faddce7011d30fe784d26af3416c94182e02bcf4f6274509b60242e
   languageName: node
   linkType: hard
 
