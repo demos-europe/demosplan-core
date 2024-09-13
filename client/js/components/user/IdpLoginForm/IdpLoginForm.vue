@@ -9,9 +9,9 @@
 
 <template>
   <div>
-    <!-- To test the functionality of this component you need to set the variable $useSaml in demosplan/DemosPlanCoreBundle/Controller/User/DemosPlanUserAuthenticationController.php:258 to true-->
-    <div :class="prefixClass(`${isSaml || hasPermission('feature_identity_broker_login') ? 'is-separated' : ''} c-login-register u-mt-desk-up u-mb-2-desk-up`)">
-      <div :class="prefixClass(`${isSaml || hasPermission('feature_identity_broker_login') ? 'c-login-register__col-left' : 'c-login-register__col-full'} c-login-register__col`)">
+    <!-- To test the functionality of this component you need to set the variable $useIdp in demosplan/DemosPlanCoreBundle/Controller/User/DemosPlanUserAuthenticationController.php:258 to true-->
+    <div :class="prefixClass(`${isIdp || hasPermission('feature_identity_broker_login') ? 'is-separated' : ''} c-login-register u-mt-desk-up u-mb-2-desk-up`)">
+      <div :class="prefixClass(`${isIdp || hasPermission('feature_identity_broker_login') ? 'c-login-register__col-left' : 'c-login-register__col-full'} c-login-register__col`)">
         <form
           ref="loginForm"
           :action="Routing.generate('DemosPlan_user_login')"
@@ -68,18 +68,18 @@
       </div>
 
       <div
-        v-if="isSaml || hasPermission('feature_identity_broker_login')"
+        v-if="isIdp || hasPermission('feature_identity_broker_login')"
         :class="prefixClass('c-login-register__col c-login-register__col-right')">
         <h2
           :class="prefixClass('font-size-large u-mb u-mt-lap-down')"
           v-text="Translator.trans('login.other_account')" />
-        <div v-if="isSaml">
+        <div v-if="isIdp">
           <p
             :class="prefixClass('u-mb-0_125')"
-            v-html="Translator.trans('login.saml.description')" />
+            v-html="Translator.trans('login.idp.description')" />
           <dp-button
-            :href="samlLoginPath"
-            :text="Translator.trans('login.saml.action')"
+            :href="idpLoginPath"
+            :text="Translator.trans('login.idp.action')"
             variant="outline" />
         </div>
         <div v-if="hasPermission('feature_identity_broker_login')">
@@ -102,7 +102,7 @@
 
     <p
       v-if="hasPermission('feature_citizen_registration') && hasPermission('feature_orga_registration')"
-      :class="isSaml ? '' : prefixClass('c-login-register__col c-login-register__col-full')"
+      :class="isIdp ? '' : prefixClass('c-login-register__col c-login-register__col-full')"
       v-html="Translator.trans('register.navigation.text', { organisation: Routing.generate('DemosPlan_citizen_registration_form'), user: Routing.generate('DemosPlan_orga_register_form') })" />
   </div>
 </template>
@@ -111,7 +111,7 @@
 import { DpButton, DpInput, dpValidateMixin, prefixClassMixin } from '@demos-europe/demosplan-ui'
 
 export default {
-  name: 'SamlLoginForm',
+  name: 'IdpLoginForm',
 
   components: {
     DpButton,
@@ -121,13 +121,13 @@ export default {
   mixins: [prefixClassMixin, dpValidateMixin],
 
   props: {
-    isSaml: {
+    isIdp: {
       type: Boolean,
       required: true,
       default: false
     },
 
-    samlLoginPath: {
+    idpLoginPath: {
       type: String,
       required: true,
       default: ''

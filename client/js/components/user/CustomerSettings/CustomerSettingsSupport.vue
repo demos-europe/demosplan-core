@@ -30,7 +30,7 @@
             class="u-mb-0_75"
             data-cy="contactTitle"
             :pattern="titlesInUsePattern"
-            :data-dp-validate-error="customerContact.title === '' ? 'error.name.required' : 'error.name.unique'"
+            :data-dp-validate-error="Translator.trans(customerContact.title === '' ? 'error.name.required' : 'error.name.unique')"
             :label="{
               text: Translator.trans('contact.name')
             }"
@@ -42,7 +42,7 @@
             autocomplete="tel"
             class="u-mb-0_75"
             data-cy="phoneNumber"
-            :data-dp-validate-error="!customerContact.phoneNumber ? 'error.phone.required' : 'error.phone.pattern'"
+            :data-dp-validate-error="Translator.trans(!customerContact.phoneNumber ? 'error.phone.required' : 'error.phone.pattern')"
             :label="{
               text: Translator.trans('contact.phone_number')
             }"

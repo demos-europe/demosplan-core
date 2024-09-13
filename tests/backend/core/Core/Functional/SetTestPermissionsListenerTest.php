@@ -33,7 +33,7 @@ class SetTestPermissionsListenerTest extends FunctionalTestCase
             ->with($this->equalTo($expectedPermissions));
 
         // Create an instance of SetHttpTestPermissionsListener
-        $listener = new SetHttpTestPermissionsListener($permissions);
+        $listener = new SetHttpTestPermissionsListener(static::$kernel, $permissions);
 
         // Create a mock request
         $request = new Request();

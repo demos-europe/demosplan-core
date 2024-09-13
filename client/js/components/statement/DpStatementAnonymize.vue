@@ -24,6 +24,7 @@
         id="r_anonymize_statement_meta"
         v-model="actions.anonymizeStatementMeta"
         :class="{'u-mb-0_5': !actions.anonymizeStatementMeta}"
+        data-cy="statementAnonymize:meta"
         :label="{
           hint: Translator.trans('statement.anonymize.meta.hint'),
           text: Translator.trans('statement.anonymize.meta.label')
@@ -40,9 +41,11 @@
       </ul>
 
       <dp-checkbox
+        v-if="hasPermission('feature_statement_text_history_delete')"
         id="r_delete_statement_text_history"
         v-model="actions.deleteStatementTextHistory"
         class="u-mb-0_5"
+        data-cy="statementAnonymize:history"
         :label="{
           hint: Translator.trans('statement.anonymize.delete.history.hint'),
           text: Translator.trans('statement.anonymize.delete.history.label')
@@ -52,6 +55,7 @@
         id="r_anonymize_statement_text"
         v-model="actions.anonymizeStatementText"
         :class="{'u-mb-0_5': !actions.anonymizeStatementText}"
+        data-cy="statementAnonymize:text"
         :label="{
           hint: Translator.trans('statement.anonymize.text.hint'),
           text: Translator.trans('statement.anonymize.text.label')
@@ -75,6 +79,7 @@
         id="r_delete_statement_attachments"
         v-model="actions.deleteStatementAttachments"
         class="u-mb-0_5"
+        data-cy="statementAnonymize:deleteAttachments"
         :label="{
           hint: Translator.trans('statement.anonymize.delete.attachments.hint'),
           text: Translator.trans('statement.anonymize.delete.attachments.label')
@@ -83,6 +88,7 @@
       <div class="flow-root">
         <dp-button
           color="secondary"
+          data-cy="statementAnonymize:backToOriginalStatements"
           :href="Routing.generate('dplan_assessmenttable_view_original_table', {
             procedureId: procedureId,
             filterHash: originalFilterHash
@@ -90,6 +96,7 @@
           :text="Translator.trans('back.to.statements.original')" />
         <dp-button
           class="float-right"
+          data-cy="statementAnonymize:next"
           :disabled="isInvalid()"
           icon-after="chevron-right"
           :text="Translator.trans('continue.confirm')"
@@ -136,12 +143,14 @@
       <div class="flow-root">
         <dp-button
           color="secondary"
+          data-cy="statementAnonymize:back"
           icon="chevron-left"
           :text="Translator.trans('bulk.edit.actions.edit')"
           @click="back" />
         <dp-button
-          class="float-right"
           :busy="busy"
+          class="float-right"
+          data-cy="statementAnonymize:submit"
           icon-after="chevron-right"
           :text="Translator.trans('bulk.edit.actions.apply')"
           @click="submit" />
@@ -220,6 +229,7 @@
 
       <div class="flow-root">
         <dp-button
+          data-cy="statementAnonymize:backToOriginalStatements"
           :href="Routing.generate('dplan_assessmenttable_view_original_table', {
             procedureId: procedureId,
             filterHash: originalFilterHash

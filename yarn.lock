@@ -1963,9 +1963,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@demos-europe/demosplan-ui@npm:0.3.28":
-  version: 0.3.28
-  resolution: "@demos-europe/demosplan-ui@npm:0.3.28"
+"@demos-europe/demosplan-ui@npm:0.3.31":
+  version: 0.3.31
+  resolution: "@demos-europe/demosplan-ui@npm:0.3.31"
   dependencies:
     "@braintree/sanitize-url": "npm:^7.0.0"
     "@floating-ui/dom": "npm:^1.4.5"
@@ -2040,7 +2040,7 @@ __metadata:
       optional: true
     prosemirror-view:
       optional: true
-  checksum: 10c0/9048c097b379c6072fd4ee605002886a27d3688702a4e77fdb983edeed8b7af97615d663032638d9e98543189bb96437484d4550b78ed1f8bcb0bac2ab29386c
+  checksum: 10c0/8fab5f53b4df1618749b4bec3ba06dcc5122f23c7cb476778167ea02159347f1bdd3d58c0b1ee48fe19f9806f4885a29e63b58b377427b21506d4c76e291de29
   languageName: node
   linkType: hard
 
@@ -2058,17 +2058,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@efrane/vuex-json-api@github:eFrane/vuex-json-api#19c2354ad97c17bdda02358dc9ee4a2ffce181dd":
-  version: 0.1.0
-  resolution: "@efrane/vuex-json-api@https://github.com/eFrane/vuex-json-api.git#commit=19c2354ad97c17bdda02358dc9ee4a2ffce181dd"
+"@efrane/vuex-json-api@npm:^0.1.2":
+  version: 0.1.2
+  resolution: "@efrane/vuex-json-api@npm:0.1.2"
   dependencies:
     deep-object-diff: "npm:^1.1.9"
     json-api-normalizer: "npm:^1.0"
-    qs: "npm:~6.10.3"
+    qs: "npm:~6.12.3"
   peerDependencies:
     "@vue/compat": 3.2.0
     vuex: ^4.0.2
-  checksum: 10c0/65259b7ca0625de98b7929f6caff25dcbc3eeb623d1145278010ee9f73af9b50404c04567c5c3f02ab2fb11687fd0e78e6803277a5d64ad873e82fe1d18966ff
+  checksum: 10c0/45ed234fc41eaba627461b8746cdb85d5a4fffe4779ebda4a44eff06ae2011a56d7220b34c4aa50b188d2e9823d41118cc309c467893911c39909ccccb7b9168
   languageName: node
   linkType: hard
 
@@ -2881,15 +2881,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tiptap/extension-bubble-menu@npm:^2.4.0":
-  version: 2.4.0
-  resolution: "@tiptap/extension-bubble-menu@npm:2.4.0"
+"@tiptap/extension-bubble-menu@npm:^2.6.6":
+  version: 2.6.6
+  resolution: "@tiptap/extension-bubble-menu@npm:2.6.6"
   dependencies:
     tippy.js: "npm:^6.3.7"
   peerDependencies:
-    "@tiptap/core": ^2.0.0
-    "@tiptap/pm": ^2.0.0
-  checksum: 10c0/9e5e48b92c690f08334d8c68ee645b2c115f07511d97cb51c3292289557a1d9e347a7f2e3c77b09532718a702e25d994ebe396554597143f1934c1b0209982e7
+    "@tiptap/core": ^2.6.6
+    "@tiptap/pm": ^2.6.6
+  checksum: 10c0/4a00b73d133a90bc9baf977da352ced971eeba3930a3e34ddc14bfbb0f7742d07f7087a8ec35b700ff64b2a21bf601a55bd96dcee28c9bdf9d2dd79d545d2a64
   languageName: node
   linkType: hard
 
@@ -2911,15 +2911,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tiptap/extension-floating-menu@npm:^2.4.0":
-  version: 2.4.0
-  resolution: "@tiptap/extension-floating-menu@npm:2.4.0"
+"@tiptap/extension-floating-menu@npm:^2.6.6":
+  version: 2.6.6
+  resolution: "@tiptap/extension-floating-menu@npm:2.6.6"
   dependencies:
     tippy.js: "npm:^6.3.7"
   peerDependencies:
-    "@tiptap/core": ^2.0.0
-    "@tiptap/pm": ^2.0.0
-  checksum: 10c0/60f31277ecc116a0fc1015834ecf08204995c182dc8ad0dd2854b4b6ec57208a665d2270e459df082d070f82bfbc1968bad0f6fcb386ca9048920a5aa7ccd83a
+    "@tiptap/core": ^2.6.6
+    "@tiptap/pm": ^2.6.6
+  checksum: 10c0/0184135d57f195e34f968645bb4c445bc089e8ac88886b3fed08500767b4f4cf2a5ac6d0d43735ddf13ed7c0eb44f4f179469f3b784edd63cca748ce46c7a55d
   languageName: node
   linkType: hard
 
@@ -3111,17 +3111,17 @@ __metadata:
   linkType: hard
 
 "@tiptap/vue-2@npm:^2.0.3":
-  version: 2.4.0
-  resolution: "@tiptap/vue-2@npm:2.4.0"
+  version: 2.6.6
+  resolution: "@tiptap/vue-2@npm:2.6.6"
   dependencies:
-    "@tiptap/extension-bubble-menu": "npm:^2.4.0"
-    "@tiptap/extension-floating-menu": "npm:^2.4.0"
+    "@tiptap/extension-bubble-menu": "npm:^2.6.6"
+    "@tiptap/extension-floating-menu": "npm:^2.6.6"
     vue-ts-types: "npm:^1.6.0"
   peerDependencies:
-    "@tiptap/core": ^2.0.0
-    "@tiptap/pm": ^2.0.0
+    "@tiptap/core": ^2.6.6
+    "@tiptap/pm": ^2.6.6
     vue: ^2.6.0
-  checksum: 10c0/9a0b2b7dd9d657d83a312342926f2fb6de40edfc38fa78c10fd27df1e2bbaa5a114ac3bc115cda58552be9beeddb0f565e375ddbfcb07fac27870aade3cc5307
+  checksum: 10c0/252513fac842b38839eb4bfcaeefa92083133e5c49ae1b23740a78d43cc47d7b43ba0a6d172c9e4f13dedc8e4c800f6bcbba1545b1ccd52a953fb4234595681f
   languageName: node
   linkType: hard
 
@@ -9767,7 +9767,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"olcs@npm:^2.14.0":
+"olcs@npm:2.14.0, olcs@npm:^2.14.0":
   version: 2.14.0
   resolution: "olcs@npm:2.14.0"
   peerDependencies:
@@ -11355,21 +11355,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"qs@npm:^6.11.0, qs@npm:^6.12.1":
+"qs@npm:^6.11.0, qs@npm:^6.12.1, qs@npm:~6.12.3":
   version: 6.12.3
   resolution: "qs@npm:6.12.3"
   dependencies:
     side-channel: "npm:^1.0.6"
   checksum: 10c0/243ddcc8f49dab78fc51041f7f64c500b47c671c45a101a8aca565d8537cb562921da7ef1a831b4a7051596ec88bb35a0d5e25a240025e8b32c6bfb69f00bf2f
-  languageName: node
-  linkType: hard
-
-"qs@npm:~6.10.3":
-  version: 6.10.4
-  resolution: "qs@npm:6.10.4"
-  dependencies:
-    side-channel: "npm:^1.0.4"
-  checksum: 10c0/7a8c9d77968aeccb769aedd7e047c0e0109dad0cfa57cab1ad906f4069fd58f361b80abd2de5854ba9a09b4c5d06d6a2c82108766f1f1527572fe6130deaa471
   languageName: node
   linkType: hard
 
@@ -11747,9 +11738,9 @@ __metadata:
     "@babel/plugin-transform-runtime": "npm:^7.24.7"
     "@babel/preset-env": "npm:^7.24.8"
     "@babel/runtime": "npm:^7.24.8"
-    "@demos-europe/demosplan-ui": "npm:0.3.28"
+    "@demos-europe/demosplan-ui": "npm:0.3.31"
     "@demos-europe/dp-consent": "npm:^1.3"
-    "@efrane/vuex-json-api": "github:eFrane/vuex-json-api#19c2354ad97c17bdda02358dc9ee4a2ffce181dd"
+    "@efrane/vuex-json-api": "npm:^0.1.2"
     "@fullhuman/postcss-purgecss": "npm:^6.0.0"
     "@masterportal/masterportalapi": "npm:2.22.0"
     "@sentry/browser": "npm:^8.18.0"
@@ -11816,6 +11807,7 @@ __metadata:
     mini-css-extract-plugin: "npm:^2.9.0"
     node-notifier: "npm:^10.0.1"
     ol: "npm:~7.5.1"
+    olcs: "npm:2.14.0"
     plyr: "npm:^3.7.8"
     portal-vue: "npm:^2.1.7"
     postcss: "npm:^8.4.32"
