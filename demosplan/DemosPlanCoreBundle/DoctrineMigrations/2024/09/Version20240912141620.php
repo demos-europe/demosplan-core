@@ -30,7 +30,11 @@ class Version20240912141620 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->abortIfNotMysql();
+
+        // Temporarily disable foreign key checks
         $this->addSql('SET foreign_key_checks = 0;');
+
+        // Add the customer_id column
         $this->addSql('ALTER TABLE _platform_content ADD customer_id CHAR(36) NOT NULL');
 
 
@@ -44,19 +48,18 @@ class Version20240912141620 extends AbstractMigration
         ]);
 
 
-        $this->write('Migrating data from _platform_content to _platform_content with customer_id');
+        //Migrating data from _platform_content to _platform_content with customer_id
+
         // Retrieve all entries from _platform_content
         $platformContentEntries = $this->connection->fetchAllAssociative('SELECT * FROM _platform_content');
 
-        // Retrieve all customer IDs
+        // Retrieve all customer IDs - except first one
         $customerIds = $this->connection->fetchAllAssociative('SELECT _c_id FROM customer WHERE _c_id != :first_customer_id', [
             'first_customer_id' => $firstCustomerId
         ]);
 
         foreach ($platformContentEntries as $entry) {
-            $this->write('Migrating entry with title: ' . $entry['_pc_title']);
             foreach ($customerIds as $customer) {
-                $this->write('Migrating entry for customer: ' . $customer['_c_id']);
                 $this->addSql('INSERT INTO _platform_content SET
     _pc_id = UUID(),
     _pc_create_date = NOW(),
@@ -87,8 +90,10 @@ class Version20240912141620 extends AbstractMigration
 
 
         }
+        // Enable foreign key checks
         $this->addSql('SET foreign_key_checks = 1;');
 
+        // Add the foreign key constraint
         $this->addSql('ALTER TABLE _platform_content ADD CONSTRAINT FK_42348F4F9395C3F3 FOREIGN KEY (customer_id) REFERENCES customer (_c_id) ON DELETE CASCADE');
         $this->addSql('CREATE INDEX IDX_42348F4F9395C3F3 ON _platform_content (customer_id)');
 
