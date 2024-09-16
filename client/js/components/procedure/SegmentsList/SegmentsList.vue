@@ -455,7 +455,7 @@ export default {
       if (Array.isArray(this.appliedFilterQuery) === false && Object.values(this.appliedFilterQuery).length > 0) {
         ids = Object.values(this.appliedFilterQuery).map(el => {
           if (!el.condition.value) {
-            return 'unassigned'
+            return 'novalue'
           }
 
           return el.condition.value
