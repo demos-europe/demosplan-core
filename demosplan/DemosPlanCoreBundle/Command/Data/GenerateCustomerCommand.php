@@ -33,12 +33,10 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-
 use Symfony\Component\Validator\Constraints\Url;
-use Symfony\Component\Validator\Constraints\UrlValidator;
-use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Webmozart\Assert\Assert;
+
 use function in_array;
 use function is_string;
 
@@ -52,7 +50,6 @@ class GenerateCustomerCommand extends CoreCommand
     private const DEFAULT_BASE_LAYER_URL = 'https://sgx.geodatenzentrum.de/wms_basemapde';
     private const DEFAULT_BASE_LAYER_LAYERS = 'de_basemapde_web_raster_farbe';
     private const DEFAULT_MAP_ATTRIBUTION = '© basemap.de / BKG ({currentYear})';
-
 
     protected static $defaultName = 'dplan:data:generate-customer';
     protected static $defaultDescription = 'Creates a new customer';
@@ -76,7 +73,7 @@ class GenerateCustomerCommand extends CoreCommand
         private readonly RoleRepository $roleRepository,
         private readonly UserService $userService,
         private readonly ValidatorInterface $validator,
-        ?string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
         $this->helper = new QuestionHelper();
@@ -136,7 +133,6 @@ class GenerateCustomerCommand extends CoreCommand
             $kernel = $this->getApplication()->getKernel();
             /** @var DemosPlanKernel $kernel */
             $activeProject = $kernel->getActiveProject();
-
 
             $this->registerDefaultUsers($customer);
             $this->entityManager->flush();
