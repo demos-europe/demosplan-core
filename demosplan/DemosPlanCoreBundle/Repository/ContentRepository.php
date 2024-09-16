@@ -195,6 +195,7 @@ class ContentRepository extends CoreRepository implements ArrayInterface
                 'pictitle',
                 'pdf',
                 'pdftitle',
+                'customer'
             ]
         );
 
@@ -206,7 +207,6 @@ class ContentRepository extends CoreRepository implements ArrayInterface
 
         $this->generateObjectValuesForRoles($globalContent, $data);
         $this->generateObjectValuesForCategories($globalContent, $data);
-        $globalContent->setCustomer($data['customer']);
 
         return $globalContent;
     }
