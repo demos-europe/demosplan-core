@@ -10,6 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use demosplan\DemosPlanCoreBundle\Entity\OriginalStatementAnonymization;
+
+/**
+ * @template-extends CoreRepository<OriginalStatementAnonymization>
+ */
 class OriginalStatementAnonymizationRepository extends CoreRepository
 {
 }

@@ -55,7 +55,7 @@
         :is-open="expandedCardId === id"
         @card:toggle="setExpandedCardId(id)"
         @item:selected="dpToggleOne"
-        :selected="hasOwnProp(itemSelections, user.id) && itemSelections[user.id] === true" />
+        :selected="Object.hasOwn(itemSelections, user.id) && itemSelections[user.id] === true" />
     </ul>
 
     <!-- pager -->
@@ -73,8 +73,7 @@ import {
   debounce,
   dpApi, DpButton,
   DpLoading,
-  dpSelectAllMixin,
-  hasOwnProp
+  dpSelectAllMixin
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import DpTableCardListHeader from '@DpJs/components/user/DpTableCardList/DpTableCardListHeader'
@@ -113,13 +112,10 @@ export default {
   },
 
   computed: {
-    ...mapState('department', {
-      departments: 'items'
-    }),
-    ...mapState('role', {
+    ...mapState('Role', {
       roles: 'items'
     }),
-    ...mapState('user', {
+    ...mapState('AdministratableUser', {
       users: 'items',
       currentPage: 'currentPage',
       totalPages: 'totalPages'
@@ -130,18 +126,19 @@ export default {
     },
 
     selectedItems () {
+      // The prop `itemSelections` and the method `dpToggleOne` are from `dpSelectAllMixin`
       return Object.keys(this.users).filter(id => this.itemSelections[id])
     }
   },
 
   methods: {
-    ...mapActions('department', {
+    ...mapActions('Department', {
       departmentList: 'list'
     }),
-    ...mapActions('role', {
+    ...mapActions('Role', {
       roleList: 'list'
     }),
-    ...mapActions('user', {
+    ...mapActions('AdministratableUser', {
       userList: 'list',
       deleteUser: 'delete'
     }),
@@ -153,7 +150,7 @@ export default {
 
       return this.deleteUser(id)
         .then(() => {
-          this.deleteUserFromSelection(id)
+          dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
         })
     },
 
@@ -165,17 +162,9 @@ export default {
       ids.map(id => {
         return this.deleteUser(id)
           .then(() => {
-            this.deleteUserFromSelection(id)
+            dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
           })
       })
-    },
-
-    /**
-     * Remove deleted item from itemSelections
-     */
-    deleteUserFromSelection (id) {
-      Vue.delete(this.itemSelections, id)
-      dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
     },
 
     /**
@@ -185,20 +174,13 @@ export default {
     fetchOrganisations () {
       const url = Routing.generate('api_resource_list', { resourceType: 'Orga' })
       return dpApi.get(url, {
-        include: 'masterToeb,departments',
-        'fields[Department]': [
-          'name'
-        ].join(),
-        'fields[Orga]': [
-          'departments',
-          'masterToeb',
-          'name'
-        ].join()
+        include: ['departments', 'masterToeb'].join(),
+        fields: {
+          Orga: ['departments', 'masterToeb', 'name'].join()
+        }
       })
         .then((response) => {
-          if (hasOwnProp(response.data, 'data')) {
-            this.organisations = response.data.data
-          }
+          this.organisations = response?.data?.data ?? {}
         })
         .catch(e => console.error(e))
     },
@@ -253,7 +235,7 @@ export default {
 
       this.userList({
         page: {
-          number: page
+          number: page ?? 1
         },
         filter: (this.filterValue !== '') ? filter : {},
         include: ['roles', 'orga', 'department'].join()
@@ -272,10 +254,6 @@ export default {
       this.getFilteredUsers()
       this.isFiltered = true
       this.setExpandedCardId('')
-    },
-
-    hasOwnProp (obj, prop) {
-      return hasOwnProp(obj, prop)
     },
 
     resetSearch () {

@@ -14,7 +14,7 @@
       v-if="hasActiveFilters || searchTerm !== ''"
       class="u-mt-0_5 u-pb-0 border--bottom">
       <legend
-        class="hide-visually"
+        class="sr-only"
         v-text="Translator.trans('filter.searchterm.active')" />
 
       <div
@@ -100,6 +100,7 @@
               <button
                 :disabled="selectedElementsLength > 0 || hasPermission('feature_statements_fragment_add') && Object.keys(selectedFragments).length > 0"
                 class="c-actionmenu__trigger"
+                data-cy="exportModal:open"
                 aria-haspopup="true"
                 aria-expanded="false"
                 type="button">
@@ -117,6 +118,7 @@
                   v-for="option in Object.values(filteredAssessmentExportOptions)"
                   :key="Object.keys(option)[0]"
                   class="c-actionmenu__menuitem"
+                  :data-cy="`statementsExport:${Object.values(option)[0].buttonLabel}`"
                   data-actionmenu-menuitem
                   role="menuitem"
                   tabindex="-1"
@@ -332,16 +334,16 @@ export default {
   },
 
   computed: {
-    ...mapGetters('fragment', [
+    ...mapGetters('Fragment', [
       'selectedFragments'
     ]),
 
-    ...mapGetters('statement', [
+    ...mapGetters('Statement', [
       'selectedElementsLength',
       'statements'
     ]),
 
-    ...mapState('assessmentTable', [
+    ...mapState('AssessmentTable', [
       'assessmentBaseLoaded',
       'currentTableView',
       'filterSet',
@@ -349,7 +351,7 @@ export default {
       'sort'
     ]),
 
-    ...mapState('statement', [
+    ...mapState('Statement', [
       'selectedElements'
     ]),
 
@@ -416,11 +418,11 @@ export default {
   },
 
   methods: {
-    ...mapActions('statement', [
+    ...mapActions('Statement', [
       'setSelectionAction'
     ]),
 
-    ...mapMutations('assessmentTable', [
+    ...mapMutations('AssessmentTable', [
       'setProperty'
     ]),
 

@@ -1,0 +1,17 @@
+name: Sync with ADO
+
+on:
+  push:
+    branches:
+      - main
+      - release
+
+
+jobs:
+  sync:
+    uses: demos-europe/demosplan-workflows/.github/workflows/ado_sync_ssh.yml@main
+    secrets:
+      ADO_TOKEN: ${{ secrets.ADO_SSH_KEY }}
+    with:
+      ADO_REPO_URL: "ssh://www.dev.diplanung.de:22/DefaultCollection/EfA%20DiPlanung/_git/diplanbeteiligung"
+      BRANCH_NAME: ${{ github.ref == 'refs/heads/main' && 'develop' || github.ref == 'refs/heads/release' && 'release' || 'other' }}

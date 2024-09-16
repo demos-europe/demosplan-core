@@ -232,7 +232,7 @@ class BoilerplateCategory extends CoreEntity implements UuidEntityInterface, Boi
     /**
      * Return the Boilerplates attached to this BoilerplateCategory.
      *
-     * @return ArrayCollection[Boilerplate]
+     * @return Collection<int, BoilerplateInterface>
      */
     public function getBoilerplates()
     {

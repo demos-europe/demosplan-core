@@ -10,9 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -22,7 +22,7 @@ class StatementFilterHandler extends CoreHandler
     /** @var Permissions */
     protected $permissions;
 
-    public function __construct(MessageBag $messageBag, PermissionsInterface $permissions, private readonly TranslatorInterface $translator)
+    public function __construct(MessageBagInterface $messageBag, PermissionsInterface $permissions, private readonly TranslatorInterface $translator)
     {
         parent::__construct($messageBag);
         $this->permissions = $permissions;
@@ -161,7 +161,7 @@ class StatementFilterHandler extends CoreHandler
     {
         $translator = $this->translator;
         $statusLabels = collect($this->getFormParameter('statement_status'))
-            ->transform(fn($transkey) => $translator->trans($transkey))
+            ->transform(fn ($transkey) => $translator->trans($transkey))
             ->toArray();
 
         return $this->getTranslatedLabelMapOptions($options, $statusLabels);
@@ -442,9 +442,11 @@ class StatementFilterHandler extends CoreHandler
             [
                 'key'           => 'reasonParagraph',
                 // FB or FPA
-                'hasPermission' => $this->permissions->hasPermission(
-                    'area_admin_assessmenttable'
-                ),
+                'hasPermission' => $this->permissions->hasPermissions(
+                    [
+                        'area_admin_assessmenttable',
+                        'feature_documents_category_use_paragraph',
+                    ]),
                 'type'          => 'statement',
             ],
             // Datei - documentParentId - documentParentId

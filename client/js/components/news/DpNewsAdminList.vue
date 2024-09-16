@@ -20,8 +20,7 @@
     <dp-bulk-edit-header
       class="layout__item u-12-of-12"
       v-if="selectedItems.length > 0"
-      :selected-items-count="selectedItems.length"
-      :selection-text="Translator.trans('news.notes')"
+      :selected-items-text="Translator.trans('news.notes.selected', { count: selectedItems.length })"
       @reset-selection="resetSelection">
       <button
         class="btn-icns u-m-0"
@@ -56,7 +55,7 @@
       </template>
       <template v-slot:enabled="rowData">
         <dp-news-item-status
-          class="flex space-inline-xs u-mt-0_125"
+          class="flex space-inline-xs u-mt-0_125 items-center"
           :switch-date="rowData.designatedSwitchDate || ''"
           :switch-state="rowData.designatedState ? 'released' : 'blocked'"
           :news-status="rowData.enabled"
@@ -74,7 +73,7 @@
 </template>
 
 <script>
-import { dpApi, DpBulkEditHeader, DpDataTable, makeFormPost } from '@demos-europe/demosplan-ui'
+import { checkResponse, dpApi, DpBulkEditHeader, DpDataTable, makeFormPost } from '@demos-europe/demosplan-ui'
 import DpNewsItemStatus from './DpNewsItemStatus'
 
 export default {
@@ -186,6 +185,7 @@ export default {
       })
 
       this.updateList()
+        .then(checkResponse)
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
         })

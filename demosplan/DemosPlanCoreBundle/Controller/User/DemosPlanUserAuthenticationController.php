@@ -18,7 +18,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
-use demosplan\DemosPlanCoreBundle\Logic\SessionHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHasher;
@@ -32,6 +31,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
@@ -158,14 +158,40 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_user_password_recover', path: '/password/recover', options: ['expose' => true])]
-    public function recoverPasswordAction(Request $request)
+    public function recoverPasswordAction(RateLimiterFactory $userRegisterLimiter, Request $request)
     {
         $requestPost = $request->request;
 
         if ($requestPost->has('email')) {
             $email = $requestPost->get('email');
             if (is_string($email)) {
-                $this->userHandler->recoverPasswordHandler($email);
+                // avoid brute force attacks
+                $limiter = $userRegisterLimiter->create($request->getClientIp());
+                if (false === $limiter->consume()->isAccepted()) {
+                    $this->messageBag->add('warning', 'warning.user.pass.reset.throttle');
+
+                    return $this->redirectToRoute('core_home');
+                }
+
+                $user = $this->userService->getUserByFields(['email' => $email]);
+
+                if (0 === count($user)) {
+                    $this->logger->error(
+                        "Couldn't find distinct user with given Email address for recover",
+                        ['email' => $email, 'found' => count($user)]
+                    );
+                    $this->messageBag->add('warning', 'error.user.login');
+
+                    return $this->redirectToRoute('core_home');
+                }
+
+                if (reset($user) instanceof User && null === reset($user)->getPassword()) {
+                    $this->messageBag->add('warning', 'error.user.registration.password');
+
+                    return $this->redirectToRoute('core_home');
+                }
+
+                $this->userHandler->recoverPasswordHandler(reset($user));
             }
         }
 
@@ -229,7 +255,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         $users = [];
         $currentCustomer = $customerService->getCurrentCustomer()->getSubdomain();
         $availableCustomers = $customerService->getReservedCustomerNamesAndSubdomains();
-        $customers = array_map(static fn(array $availableCustomer): string => $availableCustomer[1], $availableCustomers);
+        $customers = array_map(static fn (array $availableCustomer): string => $availableCustomer[1], $availableCustomers);
         $usersOsi = [];
         $customerKey = $customerService->getCurrentCustomer()->getSubdomain();
         $useIdp = false;
@@ -261,19 +287,19 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
 
         $useSaml = false;
         // this check needs to be reworked once we know better how to save saml parameters by customer
-        if ('' !== $parameterBag->get('saml_idp_entityid') &&
-            'bb' === $customerService->getCurrentCustomer()->getSubdomain()) {
+        if ('' !== $parameterBag->get('saml_idp_entityid')
+            && 'bb' === $customerService->getCurrentCustomer()->getSubdomain()) {
             $useSaml = true;
         }
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanUser/alternative_login.html.twig',
             [
-                'title'     => 'user.login',
-                'useSaml'   => $useSaml,
-                'customers' => $customers,
+                'title'           => 'user.login',
+                'useSaml'         => $useSaml,
+                'customers'       => $customers,
                 'currentCustomer' => $currentCustomer,
-                'loginList' => [
+                'loginList'       => [
                     'enabled'  => 0 < count($users) || 0 < count($usersOsi),
                     'useIdp'   => $useIdp,
                     'users'    => $users,

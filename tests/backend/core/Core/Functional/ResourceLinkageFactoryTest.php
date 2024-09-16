@@ -108,7 +108,7 @@ class ResourceLinkageFactoryTest extends FunctionalTestCase
      */
     public function testCreateFromJsonRequestStringWithInvalidJsonH()
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(TypeError::class);
         $this->sut->createFromJsonRequestString('{"data": [true]}');
     }
 

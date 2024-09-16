@@ -6,8 +6,8 @@
 <form
     action="{{ path('dplan_procedure_mail_send_all_submitters_send', {'procedureId': templateVars.procedureId}) }}"
     method="post"
-    data-dp-validate
->
+    data-dp-validate>
+    <input type="hidden" name="_token" value="{{ templateVars.form._token.vars.value }}" />
 
     <fieldset>
         <legend>
@@ -28,7 +28,13 @@
             elements: [
                 {
                     label: { text: 'subject'|trans },
-                    control: { name: 'r_email_subject', attributes: ['maxlength=78'] },
+                    control: {
+                        name: 'r_email_subject',
+                        attributes: [
+                            'data-cy=sendEmail:emailSubject',
+                            'maxlength=78'
+                        ]
+                    },
                     id: 'r_email_subject',
                     type: 'text',
                     required: true,
@@ -54,6 +60,7 @@
                 value="{{ templateVars.preparationMail.mailBody }}">
                 <template v-slot:modal="modalProps">
                     <dp-boiler-plate-modal
+                        v-if="hasPermission('area_admin_boilerplates')"
                         ref="boilerPlateModal"
                         boiler-plate-type="email"
                         procedure-id="{{ templateVars.procedureId }}"
@@ -62,6 +69,7 @@
                 </template>
                 <template v-slot:button>
                     <button
+                        v-if="hasPermission('area_admin_boilerplates')"
                         class="{{ 'menubar__button'|prefixClass }}"
                         type="button"
                         v-tooltip="'{{ 'boilerplate.insert'|trans }}'"

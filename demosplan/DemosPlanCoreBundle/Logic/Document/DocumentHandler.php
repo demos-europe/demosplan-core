@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
@@ -19,8 +20,8 @@ use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Exception\VirusFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use DirectoryIterator;
 use Exception;
@@ -56,7 +57,7 @@ class DocumentHandler extends CoreHandler
         private readonly ElementHandler $elementHandler,
         ElementsService $elementsService,
         private readonly FileService $fileService,
-        MessageBag $messageBag,
+        MessageBagInterface $messageBag,
         private readonly ParagraphService $paragraphService,
         private readonly ProcedureService $procedureService,
         SingleDocumentHandler $singleDocumentHandler,
@@ -171,9 +172,9 @@ class DocumentHandler extends CoreHandler
             $fileName = utf8_decode((string) $entry['title']);
             if (in_array($entry['path'], $sessionElementImportList)) {
                 $keys = array_keys($sessionElementImportList, $entry['path']);
-                if (is_array($keys) &&
-                    isset($request[$keys[0]]) &&
-                    0 < strlen((string) $request[$keys[0]])
+                if (is_array($keys)
+                    && isset($request[$keys[0]])
+                    && 0 < strlen((string) $request[$keys[0]])
                 ) {
                     $fileName = $request[$keys[0]];
                 }
@@ -222,7 +223,7 @@ class DocumentHandler extends CoreHandler
                     $singleDocument->setDeleted(false);
                     $singleDocument->setOrder($singleDocumentIndex);
 
-                    $violations = $this->validator->validate($singleDocument, null, ['Default', SingleDocument::IMPORT_CREATION]);
+                    $violations = $this->validator->validate($singleDocument, null, [ResourceTypeService::VALIDATION_GROUP_DEFAULT, SingleDocument::IMPORT_CREATION]);
                     if (0 !== $violations->count()) {
                         throw ViolationsException::fromConstraintViolationList($violations);
                     }
@@ -287,21 +288,21 @@ class DocumentHandler extends CoreHandler
 
             if ($fileInfo->isDir()) {
                 $result[] = [
-                  'isDir'   => true,
-                  'title'   => $fileInfo->getFilename(),
-                  'path'    => $fileInfo->getPathname(),
-                  'entries' => $this->elementImportDirToArray(
-                      $fileInfo->getPathname()
-                  ),
+                    'isDir'   => true,
+                    'title'   => $fileInfo->getFilename(),
+                    'path'    => $fileInfo->getPathname(),
+                    'entries' => $this->elementImportDirToArray(
+                        $fileInfo->getPathname()
+                    ),
                 ];
             } else {
                 // utf8_decode filename, weil Zip Umlaute kaputt macht
                 $filename = utf8_decode($fileInfo->getFilename());
 
                 $result[] = [
-                  'isDir'  => false,
-                  'title'  => $filename,
-                    'path' => $fileInfo->getPathname(),
+                    'isDir'  => false,
+                    'title'  => $filename,
+                    'path'   => $fileInfo->getPathname(),
                 ];
 
                 // Speichere die Anzahl der Dateien in die Session
@@ -357,8 +358,8 @@ class DocumentHandler extends CoreHandler
 
         foreach ($outputResultElementList as $element) {
             if ($element->getEnabled()
-                && (ElementsInterface::ELEMENTS_CATEGORY_FILE === $element->getCategory()
-                    || ElementsInterface::ELEMENTS_CATEGORY_PARAGRAPH === $element->getCategory())
+                && (ElementsInterface::ELEMENT_CATEGORIES['file'] === $element->getCategory()
+                    || ElementsInterface::ELEMENT_CATEGORIES['paragraph'] === $element->getCategory())
             ) {
                 $hasProcedureElements = true;
                 break;

@@ -12,20 +12,34 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\MissingPostParameterException;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use Doctrine\ORM\EntityManagerInterface;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Worksheet\RowCellIterator;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
-use Webmozart\Assert\Assert;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function array_key_exists;
 
 class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
 {
+    public function __construct(CurrentProcedureService $currentProcedureService, CurrentUserService $currentUser, ElementsService $elementsService, OrgaService $orgaService, StatementCopier $statementCopier, StatementService $statementService, TranslatorInterface $translator, ValidatorInterface $validator, private readonly EntityManagerInterface $entityManager)
+    {
+        parent::__construct($currentProcedureService, $currentUser, $elementsService, $orgaService, $statementCopier, $statementService, $translator, $validator);
+    }
+
     /**
      * Maps the actual column names to callbacks to be invoked with the cell corresponding that column.
      *
@@ -34,56 +48,83 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
      * The callbacks will be connected to the given builder, i.e. invoking its setter methods with the corresponding
      * cell.
      *
+     * If no callback is given for the current cell - null will be used as value.
+     *
      * `null` values indicate (currently) missing support for the corresponding column, while still allowing it to
      * be present in the input file. Such columns should be simply ignored.
      *
-     * @return array<string, callable(Cell): ConstraintViolationListInterface|null>
+     * @return array{array<string, callable(Cell): ConstraintViolationListInterface|null>, AbstractStatementFromRowBuilder}
      */
-    protected function getColumnCallbacks(StatementFromRowBuilder $builder, RowCellIterator $actualColumnNames): array
+    protected function getColumnCallbacks(RowCellIterator $actualColumnNames): array
     {
-        $columnMapping = [
-            'ID'                  => [$builder, 'setExternId'],
-            'Gruppenname'         => null,
-            'Text'                => [$builder, 'setText'],
-            'Begründung'          => null,
-            'Kreis'               => null,
-            'Schlagwort'          => null,
-            'Schlagwortkategorie' => null,
-            'Dokumentenkategorie' => [$builder, 'setPlanningDocumentCategoryName'],
-            'Dokument'            => null,
-            'Absatz'              => null,
-            'Status'              => null,
-            'Priorität'           => null,
-            'Votum'               => null,
-            'Organisation'        => [$builder, 'setOrgaName'],
-            'Abteilung'           => [$builder, 'setDepartmentName'],
-            'Verfasser*in'        => [$builder, 'setAuthorName'],
-            'Einreicher*in'       => [$builder, 'setSubmitterName'],
-            'E-Mail'              => [$builder, 'setSubmiterEmailAddress'],
-            'Straße'              => [$builder, 'setSubmitterStreetName'],
-            'Hausnummer'          => [$builder, 'setSubmitterHouseNumber'],
-            'PLZ'                 => [$builder, 'setSubmitterPostalCode'],
-            'Ort'                 => [$builder, 'setSubmitterCity'],
-            'Dateiname(n)'        => null,
-            'Einreichungsdatum'   => [$builder, 'setSubmitDate'],
-            'Verfassungsdatum'    => [$builder, 'setAuthoredDate'],
-            'Eingangsnummer'      => [$builder, 'setInternId'],
-            'Notiz'               => [$builder, 'setMemo'],
+        [$columnMapping, $builder] = $this->getColumnMapping();
+
+        $allColumnNames = [];
+        foreach ($actualColumnNames as $cellName) {
+            $allColumnNames[$cellName->getValue()] = null;
+        }
+        // the columns we support we now assign a setter
+        $columnMapping = array_intersect_key($columnMapping, $allColumnNames);
+        // merge them in the correct order.
+        $columnMapping = array_merge($allColumnNames, $columnMapping);
+
+        return [$columnMapping, $builder];
+    }
+
+    /**
+     * @return array{array<string, callable(Cell): ConstraintViolationListInterface|null>,StatementFromRowBuilder}
+     */
+    protected function getColumnMapping(): array
+    {
+        $builder = $this->getStatementFromRowBuilder($this->currentProcedureService->getProcedure());
+        $callBackMap = [
+            'ID'                            => $builder->setExternId(...),
+            'Gruppenname'                   => null,
+            'Text'                          => $builder->setText(...),
+            'Begründung'                    => null,
+            'Kreis'                         => null,
+            'Schlagwort'                    => null,
+            'Schlagwortkategorie'           => null,
+            'Dokumentenkategorie'           => $builder->setPlanningDocumentCategoryTitle(...),
+            'Dokument'                      => $builder->setPlanningDocumentTitle(...),
+            'Absatz'                        => $builder->setParagraphTitle(...),
+            'Status'                        => null,
+            'Priorität'                     => null,
+            'Votum'                         => null,
+            'Organisation'                  => $builder->setOrgaName(...),
+            'Abteilung'                     => $builder->setDepartmentName(...),
+            'Verfasser*in'                  => $builder->setAuthorName(...),
+            'Einreicher*in'                 => $builder->setSubmitterName(...),
+            'E-Mail'                        => $builder->setSubmiterEmailAddress(...),
+            'Straße'                        => $builder->setSubmitterStreetName(...),
+            'Hausnummer'                    => $builder->setSubmitterHouseNumber(...),
+            'PLZ'                           => $builder->setSubmitterPostalCode(...),
+            'Ort'                           => $builder->setSubmitterCity(...),
+            'Dateiname(n)'                  => null,
+            'Einreichungsdatum'             => $builder->setSubmitDate(...),
+            'Verfassungsdatum'              => $builder->setAuthoredDate(...),
+            'Eingangsnummer'                => $builder->setInternId(...),
+            'Notiz'                         => $builder->setMemo(...),
+            'Rückmeldung'                   => $builder->setFeedback(...),
+            'Mitzeichnende'                 => $builder->setNumberOfAnonymVotes(...),
+            'Verfahrensschritt'             => null,
+            'Art der Einreichung'           => null,
         ];
 
-        // Currently an exception will be thrown in case of unsorted columns. To avoid that you can adjust the sorting
-        // of the array above to the order of the actual columns.
-        $expectedColumns = array_keys($columnMapping);
-        foreach ($expectedColumns as $expectedColumnName) {
-            Assert::true($actualColumnNames->valid());
-            $actualColumn = $actualColumnNames->current();
-            Assert::notNull($actualColumn);
-            $actualColumnName = $actualColumn->getValue();
-            Assert::same($actualColumnName, $expectedColumnName);
-            $actualColumnNames->next();
-        }
+        return [$callBackMap, $builder];
+    }
 
-        return $columnMapping;
+    private function getStatementFromRowBuilder(ProcedureInterface $procedure): StatementFromRowBuilder
+    {
+        return new StatementFromRowBuilder(
+            $this->validator,
+            $procedure,
+            $this->currentUser->getUser(),
+            $this->orgaService->getOrga(User::ANONYMOUS_USER_ORGA_ID),
+            $this->elementsService,
+            $this->getStatementTextConstraint(),
+            $this->replaceLineBreak(...)
+        );
     }
 
     public function process(SplFileInfo $workbook): void
@@ -105,20 +146,11 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
         $currentProcedure = $this->currentProcedureService->getProcedure()
             ?? throw new MissingPostParameterException('Current procedure is missing.');
 
-        $builder = new StatementFromRowBuilder(
-            $this->validator,
-            $currentProcedure,
-            $this->currentUser->getUser(),
-            $this->orgaService->getOrga(User::ANONYMOUS_USER_ORGA_ID),
-            $this->elementsService->getStatementElement($currentProcedure->getId()),
-            $this->getStatementTextConstraint(),
-            [$this, 'replaceLineBreak']
-        );
-
         $usedExternIds = $this->statementService->getExternIdsInUse($currentProcedure->getId());
+        $usedInternIds = $this->statementService->getInternIdsInUse($currentProcedure->getId());
 
         // loop through all rows and (if valid) create corresponding original statements and statement copies
-        $columnCallbacks = $this->getColumnCallbacks($builder, $headIterator);
+        [$columnCallbacks, $builder] = $this->getColumnCallbacks($headIterator);
         for (; $rows->valid(); $rows->next()) {
             $row = $rows->current();
             $zeroBasedStatementIndex = $row->getRowIndex() - 2;
@@ -141,15 +173,37 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
                 array_diff($violationLists, [null])
             );
 
+            $internId = $builder->getInternId();
+            $externId = $builder->getExternId();
+
+            if (null !== $internId && array_key_exists($internId, $usedInternIds)) {
+                // skip statements with existing intern IDs
+                $this->skippedStatements[$internId] = ($this->skippedStatements[$internId] ?? 0) + 1;
+                $builder->resetStatement();
+                continue;
+            }
+            if (array_key_exists($externId, $usedExternIds)) {
+                // skip statements with existing extern IDs
+                $this->skippedStatements[$externId] = ($this->skippedStatements[$externId] ?? 0) + 1;
+                $builder->resetStatement();
+                continue;
+            }
+
+            $usedExternIds[$externId] = $externId;
+            $usedInternIds[$internId] = $internId;
+
             // create the original statement and its copy if valid
             $originalStatementOrViolations = $builder->buildStatementAndReset();
             if ($originalStatementOrViolations instanceof Statement) {
-                $externId = $originalStatementOrViolations->getExternId();
-                if (array_key_exists($externId, $usedExternIds)) {
-                    // skip statements with existing extern IDs
-                    continue;
-                }
-                $usedExternIds[$externId] = $externId;
+                /*
+                 * At this point the original Statement has been build including the file-references.
+                 * File-references are persisted inside the { @link FileContainer } but were not flushed yet.
+                 * Flushing the FileContainer needs to be done now - as the previously persisted original Statement is
+                 * only now in a valid state and will not throw validation errors on flush.
+                 * The File container has to be flushed now in order to create copies of them for the statement we
+                 * will actually use.
+                 */
+                $this->entityManager->flush();
 
                 $statementCopy = $this->createCopy($originalStatementOrViolations);
                 $violations = $this->validator->validate($statementCopy, null, [StatementInterface::IMPORT_VALIDATION]);

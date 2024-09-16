@@ -62,7 +62,9 @@
     demosplan\DemosPlanCoreBundle\Resources\views\DemosPlanCore\includes\pageheader.html.twig
 #}
 <header class="border--bottom {{ flush|default == true ? '' : 'u-mb' }} u-pb-0_5 flow-root">
-    <h1 class="font-size-h1 align-bottom inline-block u-m-0">
+    <h1
+        class="font-size-h1 align-bottom inline-block u-m-0"
+        :data-cy="{{ heading|responsive|json_encode }}">
         {{ heading|responsive }}
     </h1>
 
@@ -72,6 +74,7 @@
                 <li class="inline-block {{ loop.last ?: 'u-mr-0_5' }}">
                     <a
                         class="{{ item.current|default == true  ? 'o-link--active' : 'o-link--default' }} whitespace-nowrap"
+                        :data-cy="`pageHeader:item:{{ loop.index }}`"
                         href="{{ item.href }}"
                         {% if item.datacy|default != '' %}data-cy="{{ item.datacy }}"{% endif %}
                         {% if item.id|default != '' %}id="{{ item.id }}"{% endif %}

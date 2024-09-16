@@ -28,14 +28,15 @@
       </div>
     </div>
 
-    <div class="flex width-100p">
+    <div class="flex w-full">
       <dp-search-field
         input-width="u-1-of-2"
         @search="searchTerm => searchAdministrationProceduresList(searchTerm)"
         @reset="resetAdministrationProceduresList" />
 
       <dp-select
-        class="width-250 ml-auto"
+        class="w-11 ml-auto"
+        data-cy="selectedSort"
         :options="options"
         :selected="selectedSort"
         :show-placeholder="false"
@@ -81,6 +82,7 @@
 
     <dp-data-table
       v-else
+      data-cy="administrationProceduresListTable"
       :header-fields="headerFields"
       is-selectable
       :items="items"
@@ -218,18 +220,18 @@ export default {
           label: Translator.trans('name')
         },
         {
-          colClass: 'width-85',
+          colClass: 'w-8',
           field: 'count',
           isVisible: this.showStatementCount,
           label: Translator.trans('quantity')
         },
         {
-          colClass: 'width-200',
+          colClass: 'w-10',
           field: 'internalPhase',
           isVisible: this.showInternalPhases
         },
         {
-          colClass: this.showInternalPhases ? 'width-200' : 'u-1-of-4',
+          colClass: this.showInternalPhases ? 'w-10' : 'u-1-of-4',
           field: 'externalPhase',
           isVisible: true,
           label: !this.showInternalPhases && Translator.trans('procedure.public.phase')
@@ -262,7 +264,7 @@ export default {
 
     exportProcedures (event) {
       if (dpconfirm(Translator.trans('check.entries.marked.export'))) {
-        this.$refs.procedureForm.method = 'get'
+        this.$refs.procedureForm.method = 'post'
         this.$refs.procedureForm.action = Routing.generate('DemosPlan_procedures_export')
       } else {
         event.preventDefault()
@@ -302,23 +304,28 @@ export default {
         sort: sort
       }
 
-      dpApi.get(url, params, { serialize: true })
+      dpApi.get(url, params)
         .then(response => {
           response.data.data.forEach(el => this.items.push({
-            creationDate: formatDate(el.attributes.creationDate.date),
-            creationDateRaw: el.attributes.creationDate.date,
+            creationDate: formatDate(el.attributes.creationDate),
+            creationDateRaw: el.attributes.creationDate,
             name: el.attributes.name,
             externalName: el.attributes.externalName,
-            externalEndDate: formatDate(el.attributes.externalEndDate.date),
+            externalEndDate: formatDate(el.attributes.externalEndDate),
             externalPhase: el.attributes.externalPhaseTranslationKey,
-            externalStartDate: formatDate(el.attributes.externalStartDate.date),
+            externalStartDate: formatDate(el.attributes.externalStartDate),
             id: el.id,
-            internalEndDate: formatDate(el.attributes.internalEndDate.date),
+            internalEndDate: formatDate(el.attributes.internalEndDate),
             internalPhase: el.attributes.internalPhaseTranslationKey,
-            internalStartDate: formatDate(el.attributes.internalStartDate.date),
+            internalStartDate: formatDate(el.attributes.internalStartDate),
             originalStatementsCount: el.attributes.originalStatementsCount,
             statementsCount: el.attributes.statementsCount
           }))
+        })
+        .catch(e => {
+          console.error(e)
+        })
+        .finally(() => {
           this.isLoading = false
         })
     },

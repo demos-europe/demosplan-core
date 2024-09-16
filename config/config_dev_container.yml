@@ -7,7 +7,7 @@ parameters:
     database_user: "root"
     database_password: ""
 
-    elasticsearch_populate_workers: 4
+    elasticsearch_populate_workers: 3
     elasticsearch_urls:
         -   url: "http://search7:9200"
 
@@ -15,10 +15,12 @@ parameters:
 
     is_shared_folder: true
 
-    mailer_dsn: "smtp://mailhog:1025"
+    mailer_dsn: "smtp://mailpit:1025"
 
     https_only: false
 
+    demosplan_csp_frame_src:
+        - '*.youtube.com'
     demosplan_csp_script_src:
         - 'self'
         - 'unsafe-eval' # vue.js needs it if templates are not precompiled
@@ -26,6 +28,7 @@ parameters:
         - '*.demos-europe.eu'
         - 'matomo' # local matomo
         - '172.22.255.8' # local matomo
+        - '*.youtube.com'
     demosplan_csp_font_src:
         - 'self'
         - 'fonts.google.com'
@@ -43,8 +46,10 @@ parameters:
     rabbitmq_routing_disabled: true
     tex2pdf_url: "http://pdflatex_api_nginx:8080"
     docx_importer_route: "http://docx_importer_nginx:8080"
+    avscan_url: "http://avscan_api:3000"
 
     gateway_url: '/app_dev.php/dplan/login'
+    pipeline.ai.link.pattern: '/(http:\/\/dpp_endpoint_pdfimporter[:\/\-\w.?=&]+png)/'
 
     demosplan_user_authenticator_service:
         - 'demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OzgKeycloakAuthenticator'

@@ -15,6 +15,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentVersionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -34,7 +35,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository")
  */
-class SingleDocument extends CoreEntity implements SingleDocumentInterface
+class SingleDocument extends CoreEntity implements SingleDocumentInterface, UuidEntityInterface
 {
     /**
      * @var string|null

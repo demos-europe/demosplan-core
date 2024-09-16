@@ -25,11 +25,7 @@
 {% endif %}
 
 {# Selbiges gilt für den Geltungsbereich #}
-{#
- territory is now saved as geojson, so an empty territory is
- {"type":"FeatureCollection","features":[]} == 42 chars
-#}
-{% if procedureSettings.territory|default|length > 42 %}
+{% if procedureSettings.territory is defined and procedureSettings.territory.features|default|length > 0 %}
     {% set hasTerritory = true %}
 {% endif %}
 
@@ -118,24 +114,27 @@
                     {# procedure phase #}
                     {% if hasPermission('field_procedure_phase') %}
                      --><div class="{{ 'c-infolist__item c-infolist__item--bordered layout__item u-1-of-3 u-1-of-1-lap-down relative'|prefixClass }}">
-                            <h3 class="{{ 'c-infolist__title uppercase font-size-medium u-mb-0 block'|prefixClass }}">
+                            <h3 class="{{ 'c-infolist__title font-size-medium u-mb-0 block'|prefixClass }}">
                                 <i class="{{ 'fa fa-puzzle-piece u-mr-0_25'|prefixClass }}" aria-hidden="true"></i>{{ 'procedure.public.phase'|trans }}
                             </h3>
 
                                 {% if ownsProcedure(proceduresettings) %}
-                                    {# Display procedure phase of institutions to enable planner user to quickly check correct settings #}
+                                    {# Display procedure phase of institutions and citizens to enable planner user to quickly check correct settings #}
                                     {{ getProcedurePhase(proceduresettings, 'internal') }}
-                                    {{- contextualHelp('help.public.detail.phase.'~ getProcedurePhaseKey(proceduresettings, 'internal'), ['o-tooltip--question-circle'|prefixClass, 'c-infolist__help u-ml-0_25'|prefixClass]) -}}
+                                    {{- contextualHelp('help.public.detail.phase.'~ getProcedurePhaseKey(proceduresettings, 'internal'), ['c-infolist__help u-ml-0_25'|prefixClass]) -}}
                                     {{ '\n'|nl2br }}
+                                    {{ getProcedurePhase(proceduresettings, 'public') }}
+                                    {{- contextualHelp('help.public.detail.phase.'~ getProcedurePhaseKey(proceduresettings, 'public'), ['c-infolist__help u-ml-0_25'|prefixClass]) -}}
+                                {% else %}
+                                    {# Display procedure phase and help depending on role #}
+                                    {{ getProcedurePhase(proceduresettings) }}
+                                    {{- contextualHelp('help.public.detail.phase.'~ getProcedurePhaseKey(proceduresettings), ['c-infolist__help u-ml-0_25'|prefixClass]) -}}
                                 {% endif %}
 
                                 {# Display a "legal notice" for institutions #}
                                 {% if hasPermission('feature_procedure_legal_notice_read') and proceduresettings.settings.legalNotice|default != '' %}
                                     ({{ proceduresettings.settings.legalNotice }})
                                 {% endif %}
-                                {# Display public procedure phase without login or logged as citizen  #}
-                                {{ getProcedurePhase(proceduresettings, 'public') }}
-                                {{- contextualHelp('help.public.detail.phase.'~ getProcedurePhaseKey(proceduresettings, 'public'), ['o-tooltip--question-circle'|prefixClass, 'c-infolist__help u-ml-0_25'|prefixClass]) -}}
                         </div><!--
                     {% endif %}
 
@@ -144,12 +143,12 @@
                         class="{{ 'c-infolist__item c-infolist__item--bordered layout__item u-1-of-3 u-1-of-1-lap-down relative'|prefixClass }}"
                         aria-describedby="helpPublicDetailTimelimit"
                     >
-                        <h3 class="{{ 'c-infolist__title uppercase font-size-medium u-mb-0 block'|prefixClass }}">
+                        <h3 class="{{ 'c-infolist__title font-size-medium u-mb-0 block'|prefixClass }}">
                             <i class="{{ 'fa fa-calendar u-mr-0_25'|prefixClass }}" aria-hidden="true"></i>{{ 'period'|trans }}
                         </h3>
                         <span id="helpPublicDetailTimelimit">
                             {% include '@DemosPlanCore/DemosPlanProcedure/includes/procedure_date.html.twig' with { 'procedure' : proceduresettings } %}
-                            {{ contextualHelp('help.public.detail.timelimit', ['o-tooltip--question-circle', 'c-infolist__help u-ml-0_25']) }}
+                            {{ contextualHelp('help.public.detail.timelimit', ['c-infolist__help u-ml-0_25']) }}
                         </span>
                     </div><!--
 
@@ -157,7 +156,7 @@
                     {% if hasPermission('feature_procedure_categories') %}
                      --><div
                             class="{{ 'c-infolist__item layout__item u-1-of-3 u-1-of-1-lap-down relative'|prefixClass }}">
-                            <h3 class="{{ 'c-infolist__title uppercase font-size-medium u-mb-0 block'|prefixClass }}">
+                            <h3 class="{{ 'c-infolist__title font-size-medium u-mb-0 block'|prefixClass }}">
                                 <i class="{{ 'fa fa-tag u-mr-0_25'|prefixClass }}" aria-hidden="true"></i>{{ 'categories'|trans }}
                             </h3>
                             <ul class="{{ 'o-list o-list--csv inline-block'|prefixClass }}">
@@ -175,12 +174,12 @@
                      --><div
                             class="{{ 'c-infolist__item layout__item u-1-of-3 u-1-of-1-lap-down relative'|prefixClass }}"
                             aria-describedby="helpPublicDetailAdministration">
-                            <h3 class="{{ 'c-infolist__title uppercase font-size-medium u-mb-0 block'|prefixClass }}">
+                            <h3 class="{{ 'c-infolist__title font-size-medium u-mb-0 block'|prefixClass }}">
                                 <i class="{{ 'fa fa-university u-mr-0_25'|prefixClass }}" aria-hidden="true"></i>{{ 'administration.alt'|trans }}
                             </h3>
                             {{ proceduresettings.orgaName }}
                             <span id="helpPublicDetailAdministration">
-                                {{ contextualHelp('help.public.detail.administration', ['o-tooltip--question-circle', 'c-infolist__help']) }}
+                                {{ contextualHelp('help.public.detail.administration', ['c-infolist__help']) }}
                             </span>
                         </div>
                     {% endif %}
@@ -189,12 +188,13 @@
                 {# short info about procedure #}
                 {% if hasPermission('field_procedure_description') %}
                  --><div class="{{ 'o-toggle o-toggle--not-animated layout__item u-1-of-3-lap-up u-1-of-1-palm u-pr-palm u-pr-0_5-lap-up'|prefixClass }}">
-                        <h3 class="{{ 'c-infolist__title uppercase font-size-medium u-mb-0 block'|prefixClass }}">
+                        <h3 class="{{ 'c-infolist__title font-size-medium u-mb-0 block'|prefixClass }}">
                             <i class="{{ 'fa fa-file-text-o u-mr-0_25'|prefixClass }}" aria-hidden="true"></i>
                             {{- 'information.short'|trans -}}
                             <button
                                 type="button"
                                 class="{{ 'c-infolist__toggle o-toggle__trigger u-ml-0_25 js__toggleAnything'|prefixClass }}"
+                                data-cy="publicDetail:informationShort"
                                 data-toggle="#metaDescription"
                                 data-toggle-container=".c-infolist"
                                 aria-controls="infolistContentMetaDescription"
@@ -216,12 +216,13 @@
                 {# links with related content #}
                 {% if hasPermission('field_procedure_linkbox') and ( templateVars.linkbox is defined and templateVars.linkbox  != ''  ) %}
                  --><div class="{{ 'o-toggle o-toggle--not-animated layout__item u-1-of-3-lap-up u-1-of-1-palm u-pr-palm u-pr-0_5-lap-up'|prefixClass }}">
-                        <h3 class="{{ 'c-infolist__title uppercase font-size-medium u-mb-0 block'|prefixClass }}">
+                        <h3 class="{{ 'c-infolist__title font-size-medium u-mb-0 block'|prefixClass }}">
                             <i class="{{ 'fa fa-external-link u-mr-0_25'|prefixClass }}" aria-hidden="true"></i>
                             {{- 'links'|trans -}}
                             <button
                                 type="button"
                                 class="{{ 'c-infolist__toggle o-toggle__trigger u-ml-0_25 js__toggleAnything'|prefixClass }}"
+                                data-cy="publicDetail:metaLinks"
                                 data-toggle="#metaLinks"
                                 data-toggle-container=".c-infolist"
                                 aria-controls="infolistContentMetaLinks"
@@ -243,12 +244,13 @@
                 {# contact #}
                 {% if hasPermission('field_procedure_contact_person') %}
                  --><div class="{{ 'o-toggle o-toggle--not-animated layout__item u-1-of-3-lap-up u-1-of-1-palm u-pr-palm u-pr-0_5-lap-up'|prefixClass }}">
-                        <h3 class="{{ 'c-infolist__title uppercase font-size-medium u-mb-0 block'|prefixClass }}">
+                        <h3 class="{{ 'c-infolist__title font-size-medium u-mb-0 block'|prefixClass }}">
                             <i class="{{ 'fa fa-envelope-o u-mr-0_5'|prefixClass }}" aria-hidden="true"></i>
                             {{- 'public.participation.contact'|trans -}}
                             <button
                                 type="button"
                                 class="{{ 'c-infolist__toggle o-toggle__trigger u-ml-0_25 js__toggleAnything'|prefixClass }}"
+                                data-cy="publicDetail:contactPerson"
                                 data-toggle="#contactPerson"
                                 data-toggle-container=".c-infolist"
                                 aria-controls="infolistContentContactPerson"
@@ -270,13 +272,14 @@
                 {# list with latest news published with the procedure #}
                 {% if templateVars.newsList is defined and templateVars.newsList|default(0)|length > 0 and hasPermission("area_news") %}
                  --><div class="{{ 'o-toggle o-toggle--not-animated layout__item u-1-of-3-lap-up u-1-of-1-palm u-pr-palm u-pr-0_5-lap-up'|prefixClass }}">
-                        <h3 class="{{ 'c-infolist__title uppercase font-size-medium u-mb-0 block'|prefixClass }}">
+                        <h3 class="{{ 'c-infolist__title font-size-medium u-mb-0 block'|prefixClass }}">
                             <i class="{{ 'fa fa-info u-mr-0_5'|prefixClass }}" aria-hidden="true"></i>
                             <span class="{{ 'show-desk-up-i'|prefixClass }}">{{ 'news.notes'|trans }}</span>
                             <span class="{{ 'hide-desk-up-i'|prefixClass }}" aria-hidden="true">{{ 'news'|trans }}</span>
                             <button
                                 type="button"
                                 class="{{ 'c-infolist__toggle o-toggle__trigger u-ml-0_25 js__toggleAnything'|prefixClass }}"
+                                data-cy="publicDetail:newsNotes"
                                 data-toggle="#news"
                                 data-toggle-container=".c-infolist"
                                 aria-controls="infolistContentNews"
@@ -317,6 +320,7 @@
                                     :class="{ '{{ 'is-active-tab'|prefixClass }}' : activeTab === '#procedureDetailsMap'}">
                                     <a
                                         class="{{ 'c-tabs__title-button'|prefixClass }}"
+                                        data-cy="publicDetail:procedureDetailsMapTab"
                                         href="#procedureDetailsMap"
                                         id="procedureDetailsMapTab"
                                         @click.prevent="toggleTabs('#procedureDetailsMap')"
@@ -337,6 +341,7 @@
                                     :class="{ '{{ 'is-active-tab'|prefixClass }}' : activeTab === '#procedureDetailsDocumentlist'}">
                                     <a
                                         class="{{ 'c-tabs__title-button'|prefixClass }}"
+                                        data-cy="publicDetail:procedureDetailsDocumentlistTab"
                                         href="#procedureDetailsDocumentlist"
                                         id="procedureDetailsDocumentlistTab"
                                         @click.prevent="toggleTabs('#procedureDetailsDocumentlist')"
@@ -357,6 +362,7 @@
                                     :class="{ '{{ 'is-active-tab'|prefixClass }}' : activeTab === '#procedureDetailsStatementsPublic'}">
                                     <a
                                         class="{{ 'c-tabs__title-button'|prefixClass }}"
+                                        data-cy="publicDetail:procedureDetailsStatementsPublicTab"
                                         href="#procedureDetailsStatementsPublic"
                                         id="procedureDetailsStatementsPublicTab"
                                         @click.prevent="toggleTabs('#procedureDetailsStatementsPublic')"
@@ -377,6 +383,7 @@
                                     :class="{ '{{ 'is-active-tab'|prefixClass }}' : activeTab === '#procedureDetailsSurvey'}">
                                     <a
                                         class="{{ 'c-tabs__title-button'|prefixClass }}"
+                                        data-cy="publicDetail:procedureDetailsSurveyTab"
                                         href="#procedureDetailsSurvey"
                                         id="procedureDetailsSurveyTab"
                                         @click.prevent="toggleTabs('#procedureDetailsSurvey')"

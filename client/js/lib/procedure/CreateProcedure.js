@@ -23,7 +23,7 @@ const setWarningForUnsetBounds = () => {
   // Fill error-data for initialExtend into hidden fields
   document.querySelector('input[name="r_mapExtent"]').setAttribute('value', '')
   statusBox.innerText = Translator.trans('map.import.bounds.warning')
-  statusBox.classList.remove('hide-visually')
+  statusBox.classList.remove('sr-only')
   statusBox.classList.remove('flash-confirm')
   statusBox.classList.add('flash-warning')
   // Enable save-button
@@ -36,7 +36,7 @@ const setConfirmForBounds = function (data) {
   // Fill data for initialExtend into hidden fields
   document.querySelector('input[name="r_mapExtent"]').setAttribute('value', data.procedure.bounds)
   statusBox.innerText = Translator.trans('map.import.bounds.success')
-  statusBox.classList.remove('hide-visually')
+  statusBox.classList.remove('sr-only')
   statusBox.classList.remove('flash-warning')
   statusBox.classList.add('flash-confirm')
   // Enable save-button
@@ -45,9 +45,7 @@ const setConfirmForBounds = function (data) {
 
 function getXplanboxBounds (procedureName) {
   return dpApi({
-    method: 'get',
-    data: '',
-    responseType: 'json',
+    method: 'GET',
     url: Routing.generate('DemosPlan_xplanbox_get_bounds', { procedureName: procedureName })
   })
     .then(data => {
@@ -64,6 +62,7 @@ function getXplanboxBounds (procedureName) {
 
 export default function CreateProcedure () {
   const statusBox = document.getElementById('js__statusBox')
+  const saveBtn = document.getElementById('saveBtn')
 
   /*
    * @improve T15008
@@ -72,8 +71,6 @@ export default function CreateProcedure () {
   saveBtn.setAttribute('disabled', true)
 
   const planningCauseSelect = document.getElementById('js__plisPlanungsanlass')
-  planningCauseSelect.innerText = Translator.trans('planningcause.select.hint')
-  planningCauseSelect.classList.add('lbl__hint')
 
   //  Get plis data from BE
   const plisSelect = document.querySelector('select[name="r_plisId"]')
@@ -83,22 +80,21 @@ export default function CreateProcedure () {
     const selectedOption = plisSelect[value.currentTarget.selectedIndex]
     document.querySelector('input[name="r_name"]').setAttribute('value', selectedOption.text)
     // Hide status-box
-    statusBox.classList.add('hide-visually')
+    statusBox.classList.add('sr-only')
     // Ask BE about the selection - but only if selectedOption is not empty
     if (selectedOption.value !== '') {
       dpApi({
-        method: 'get',
-        data: '',
-        responseType: 'json',
-        url: Routing.generate('DemosPlan_plis_get_procedure', { uuid: selectedOption.value })
+        url: Routing.generate('DemosPlan_plis_get_procedure', { uuid: selectedOption.value }),
+        method: 'GET'
       })
         .then(data => {
-          if (data.data.code === 100 && data.data.success === true) {
+          const dataResponse = JSON.parse(data.data)
+          if (dataResponse.code === 100 && dataResponse.success === true) {
             planningCauseSelect.classList.remove('lbl__hint', 'flash-error', 'u-p-0_25', 'u-mt-0_25')
-            const planungsanlassText = data.data.procedure.planungsanlass
+            const planningOccasionText = dataResponse.procedure.planungsanlass
 
-            planningCauseSelect.innerHTML = planungsanlassText.replace(/\n/g, '<br>')
-            document.querySelector('input[name="r_externalDesc"]').setAttribute('value', planungsanlassText)
+            planningCauseSelect.innerHTML = planningOccasionText.replace(/\n/g, '<br>')
+            document.querySelector('input[name="r_externalDesc"]').setAttribute('value', planningOccasionText)
             const elt = document.querySelector('select[name="r_plisId"]')
             getXplanboxBounds(elt.options[elt.selectedIndex].text)
           } else {

@@ -14,6 +14,7 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ManualStatementCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Handler\StatementHandlerInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
 use DemosEurope\DemosplanAddon\Utilities\Json;
@@ -76,7 +77,6 @@ use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
@@ -105,6 +105,7 @@ use Doctrine\ORM\Query\QueryException;
 use Exception;
 use Goodby\CSV\Import\Standard\Interpreter;
 use Goodby\CSV\Import\Standard\Lexer;
+use Illuminate\Support\Collection;
 use ReflectionException;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\Validator\Constraints\Email;
@@ -114,7 +115,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
-use Tightenco\Collect\Support\Collection;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -222,7 +222,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         private readonly GlobalConfigInterface $globalConfig,
         private readonly JsonApiActionService $jsonApiActionService,
         MailService $mailService,
-        MessageBag $messageBag,
+        MessageBagInterface $messageBag,
         MunicipalityService $municipalityService,
         private readonly OrgaService $orgaService,
         ParagraphService $paragraphService,
@@ -244,7 +244,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         UserService $userService,
         private readonly StatementCopier $statementCopier,
         private readonly ValidatorInterface $validator,
-        private readonly StatementDeleter $statementDeleter
+        private readonly StatementDeleter $statementDeleter,
     ) {
         parent::__construct($messageBag);
         $this->assignService = $assignService;
@@ -350,22 +350,12 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         return $this->draftStatementService->addDraftStatement($statement);
     }
 
-    /**
-     * Get Statement by Id.
-     *
-     * @param string $id
-     */
     public function getStatement($id): ?Statement
     {
         return $this->statementService->getStatement($id);
     }
 
     /**
-     * Definitely get Statement by Id.
-     * ToImprove: I would prefer to rename "$this->getStatement()" to "$this->getStatementOrNull()", so that this method
-     *            could only be named "getStatement", but that would be a larger refactoring. This is a first step on
-     *            that path making the change easy.
-     *
      * @throws StatementNotFoundException
      */
     public function getStatementWithCertainty(string $statementId): Statement
@@ -1132,7 +1122,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         $draftStatementIds,
         $notificationReceiverId = '',
         $public = false,
-        bool $gdprConsentReceived = false
+        bool $gdprConsentReceived = false,
     ): array {
         if (!is_array($draftStatementIds)) {
             $draftStatementIds = [$draftStatementIds];
@@ -1158,7 +1148,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         array $draftStatementIds,
         $notificationReceiverId = '',
         $public = false,
-        bool $gdprConsentReceived = false
+        bool $gdprConsentReceived = false,
     ): array {
         $permissions = $this->permissions;
         // throw exception if GDPR consent is required, but was not given
@@ -1501,14 +1491,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         return $tagIds->diff($fragmentTagIds);
     }
 
-    /**
-     * Concatenate the text of the given text and the boilerplate-texts of the given tags.
-     *
-     * @param string[]|Collection $tagIds            - IDs of Tags which boilerplates will be concatenated
-     * @param string              $considerationText
-     *
-     * @return string - concatenated boilerplates
-     */
     public function addBoilerplatesOfTags($tagIds, $considerationText = ''): string
     {
         foreach ($tagIds as $tagId) {
@@ -2336,7 +2318,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             $newTagData = [
                 'topic'          => $dataset[0] ?? '',
                 'tag'            => $dataset[1] ?? '',
-                'useBoilerplate' => isset($dataset[2]) ? 'ja' === $dataset[2] : 'nein',
+                'useBoilerplate' => isset($dataset[2]) ? 'ja' === $dataset[2] : false,
                 'boilerplate'    => $dataset[3] ?? '',
             ];
             $newTags[] = $newTagData;
@@ -2879,12 +2861,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     }
 
     /**
-     * Neue manuelle Stellungnahme speichern
-     * Auf dem üblichen Weg eingereichte Stellungnahmen werden kopiert, nicht neu angelegt.
-     *
-     * @return Statement|bool
-     *
-     * @throws MessageBagException
+     * Used on create a manual statement.
      */
     public function newStatement(array $data, bool $isDataInput = false)
     {
@@ -3019,8 +2996,11 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     public function createNonOriginalStatement(array $originalStatementData, Statement $newOriginalStatement): Statement
     {
         $fieldsForUpdateStatement = $this->extractFieldsForUpdateStatement($originalStatementData);
-        $copyOfStatement = $this->statementCopier->copyStatementObjectWithinProcedure($newOriginalStatement, false, true);
-
+        if ($newOriginalStatement->getFiles()) {
+            $copyOfStatement = $this->statementCopier->copyStatementObjectWithinProcedureWithRelatedFiles($newOriginalStatement, false, true);
+        } else {
+            $copyOfStatement = $this->statementCopier->copyStatementObjectWithinProcedure($newOriginalStatement, false, true);
+        }
         // Some values should only be set on copied statement instead of OriginalStatement itself:
         $this->createVotesOnCreateStatement(
             $copyOfStatement,
@@ -3201,16 +3181,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         return $result;
     }
 
-    /**
-     * Updates a Statement-Object without create a report entry!
-     *
-     * @param Statement $statement
-     * @param bool      $ignoreAssignment
-     * @param bool      $ignoreCluster
-     * @param bool      $ignoreOriginal
-     *
-     * @return statement|false|null - If successful: the updated Statement as object will be returned
-     */
     public function updateStatementObject($statement, $ignoreAssignment = false, $ignoreCluster = false, $ignoreOriginal = false)
     {
         return $this->statementService->updateStatement($statement, $ignoreAssignment, $ignoreCluster, $ignoreOriginal);
@@ -3221,12 +3191,12 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      * No other data will be updated, whereby no special checks are needed.
      * This will not creating a report entry!
      *
-     * @param statementFragment $fragment - fragment, which will be assigned
+     * @param StatementFragment $fragment - fragment, which will be assigned
      * @param User              $user     - User to assign to. If the user is null, the fragment will be freed
      *
      * @throws Exception
      */
-    public function setAssigneeOfStatementFragment(StatementFragment $fragment, User $user = null)
+    public function setAssigneeOfStatementFragment(StatementFragment $fragment, ?User $user = null)
     {
         $fragment->setAssignee($user);
         $this->statementFragmentService->updateStatementFragment($fragment, true);
@@ -3239,13 +3209,13 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      * No other data will be updated, whereby no special checks are needed.
      * This will not creating a report entry!
      *
-     * @param statement $statement     - statement, which will be assigned
+     * @param Statement $statement     - statement, which will be assigned
      * @param User      $user          - User to assign to. If the user is null, the statement will be freed
      * @param bool      $ignoreCluster -
      *
      * @return bool|string - true if the given statement was successfully assigned, otherwise the Extern-ID of the statement
      */
-    public function setAssigneeOfStatement(Statement $statement, User $user = null, $ignoreCluster = false)
+    public function setAssigneeOfStatement(Statement $statement, ?User $user = null, $ignoreCluster = false)
     {
         $assignedStatementOfCluster = 0;
         $cluster = $statement->getCluster();
@@ -3446,14 +3416,14 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     /**
      * Create new Statement which will copy values of the following attributes of the given $statement:.
      *
-     * @param statement   $representativeStatement - Statement, whose attributes will be copied
+     * @param Statement   $representativeStatement - Statement, whose attributes will be copied
      * @param string|null $name                    - custom name of cluster-statement
      *
      * @return Statement - new created Statement which can be used to be HeadStatement of a Cluster
      *
      * @throws StatementNameTooLongException
      */
-    protected function generateHeadStatement(Statement $representativeStatement, string $name = null): Statement
+    protected function generateHeadStatement(Statement $representativeStatement, ?string $name = null): Statement
     {
         $headStatement = new Statement();
         try {
@@ -3556,14 +3526,14 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      * @param bool $ignoreAssignmentOfStatement     - Determines if a assignment statement will be updated regardless
      * @param bool $ignoreAssignmentOfHeadStatement - Determines if a assignment headStatement will be updated regardless
      *
-     * @return statement|bool - false the given statementToAdd was not added to the given headStatement,
+     * @return Statement|bool - false the given statementToAdd was not added to the given headStatement,
      *                        otherwise the headStatement
      */
     public function addStatementToCluster(
         Statement $headStatement,
         Statement $statementToAdd,
         $ignoreAssignmentOfStatement = false,
-        $ignoreAssignmentOfHeadStatement = false
+        $ignoreAssignmentOfHeadStatement = false,
     ) {
         try {
             if (!$headStatement->isClusterStatement()) {
@@ -3853,6 +3823,14 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
         return collect($fragments->getResult())
             ->filter(fn ($fragment) => $fragment['id'] === $fragmentId)->first(null, []);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getFragmentOfStatement(string $fragmentId): array
+    {
+        return $this->entityManager->getRepository(StatementFragment::class)->getAsArray($fragmentId);
     }
 
     /**
@@ -4398,7 +4376,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      * @throws NotAllStatementsGroupableException
      * @throws Exception
      */
-    public function createStatementCluster(string $procedureId, array $statementIds, string $headStatementId, string $headStatementName = null)
+    public function createStatementCluster(string $procedureId, array $statementIds, string $headStatementId, ?string $headStatementName = null)
     {
         if (!in_array($headStatementId, $statementIds)) {
             throw new InvalidArgumentException('Create statement cluster canceled: RepresentativeStatement have to be member of cluster');

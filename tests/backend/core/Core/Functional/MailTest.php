@@ -312,7 +312,7 @@ class MailTest extends FunctionalTestCase
             ],
             [
                 '<u>underline</u>',
-                '<unterstrichen>underline</unterstrichen>',
+                '<editor.underline>underline</editor.underline>',
             ],
             [
                 '<s>strikethrough</s>',

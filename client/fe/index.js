@@ -7,8 +7,9 @@
  * All rights reserved
  */
 
-const FE = require('commander')
+const { Command } = require('commander')
 const runWebpack = require('./webpack/runWebpack')
+const FE = new Command()
 
 // eslint-disable-next-line new-cap
 FE.storeOptionsAsProperties(true)
@@ -22,6 +23,7 @@ FE.command('build <project>')
   .option('--stats', 'Output webpack build statistics (does not work with --analyze)')
   .option('--json <filename>', 'Export build statistics / bundle analysis to json')
   .option('-A, --analyze', 'Run the bundle analyzer (does not work with --stats)')
+  .option('-S, --only-styles', 'Only build the styles')
   .action(runWebpack('build'))
 
 // Define the watch command

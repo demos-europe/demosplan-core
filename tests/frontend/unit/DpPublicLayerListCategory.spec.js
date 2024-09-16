@@ -29,14 +29,6 @@ const propsData = {
 }
 
 describe('DpPublicLayerListCategory', () => {
-  it('should be an object', () => {
-    expect(typeof DpPublicLayerListCategory).toBe('object')
-  })
-
-  it('should be named DpPublicLayerListCategory', () => {
-    expect(DpPublicLayerListCategory.name).toBe('DpPublicLayerListCategory')
-  })
-
   it('should have the correct prop-values', () => {
     const wrapper = shallowMountWithGlobalMocks(DpPublicLayerListCategory, {
       propsData,

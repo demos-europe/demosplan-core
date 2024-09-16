@@ -12,17 +12,13 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
- * @template-implements UpdatableDqlResourceTypeInterface<ProcedureUiDefinition>
- *
  * @template-extends DplanResourceType<ProcedureUiDefinition>
  *
  * @property-read End $statementFormHintStatement
@@ -33,7 +29,7 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  * @property-read ProcedureResourceType $procedure
  * @property-read ProcedureTypeResourceType $procedureType
  */
-final class ProcedureUiDefinitionResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface
+final class ProcedureUiDefinitionResourceType extends DplanResourceType
 {
     protected function getAccessConditions(): array
     {
@@ -64,6 +60,11 @@ final class ProcedureUiDefinitionResourceType extends DplanResourceType implemen
         return $this->currentUser->hasPermission('area_procedure_type_edit');
     }
 
+    public function isUpdateAllowed(): bool
+    {
+        return $this->currentUser->hasPermission('area_procedure_type_edit');
+    }
+
     public static function getName(): string
     {
         return 'ProcedureUiDefinition';
@@ -77,12 +78,12 @@ final class ProcedureUiDefinitionResourceType extends DplanResourceType implemen
     {
         foreach ($properties as $propertyName => $value) {
             match ($propertyName) {
-                $this->statementFormHintPersonalData->getAsNamesInDotNotation() => $object->setStatementFormHintPersonalData($value),
-                $this->statementFormHintRecheck->getAsNamesInDotNotation() => $object->setStatementFormHintRecheck($value),
-                $this->statementFormHintStatement->getAsNamesInDotNotation() => $object->setStatementFormHintStatement($value),
-                $this->mapHintDefault->getAsNamesInDotNotation() => $object->setMapHintDefault($value),
+                $this->statementFormHintPersonalData->getAsNamesInDotNotation()         => $object->setStatementFormHintPersonalData($value),
+                $this->statementFormHintRecheck->getAsNamesInDotNotation()              => $object->setStatementFormHintRecheck($value),
+                $this->statementFormHintStatement->getAsNamesInDotNotation()            => $object->setStatementFormHintStatement($value),
+                $this->mapHintDefault->getAsNamesInDotNotation()                        => $object->setMapHintDefault($value),
                 $this->statementPublicSubmitConfirmationText->getAsNamesInDotNotation() => $object->setStatementPublicSubmitConfirmationText($value),
-                default => throw new InvalidArgumentException("Property not available for update: {$propertyName}"),
+                default                                                                 => throw new InvalidArgumentException("Property not available for update: {$propertyName}"),
             };
         }
 
@@ -91,38 +92,28 @@ final class ProcedureUiDefinitionResourceType extends DplanResourceType implemen
         return new ResourceChange($object, $this, $properties);
     }
 
-    public function getUpdatableProperties(object $updateTarget): array
+    public function getUpdatableProperties(): array
     {
-        return $this->toProperties(
-            $this->statementFormHintPersonalData,
-            $this->statementFormHintRecheck,
-            $this->statementFormHintStatement,
-            $this->mapHintDefault,
-            $this->statementPublicSubmitConfirmationText
-        );
-    }
-
-    public function isReferencable(): bool
-    {
-        return true;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
+        return [
+            $this->statementFormHintPersonalData->getAsNamesInDotNotation()         => null,
+            $this->statementFormHintRecheck->getAsNamesInDotNotation()              => null,
+            $this->statementFormHintStatement->getAsNamesInDotNotation()            => null,
+            $this->mapHintDefault->getAsNamesInDotNotation()                        => null,
+            $this->statementPublicSubmitConfirmationText->getAsNamesInDotNotation() => null,
+        ];
     }
 
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true)->sortable()->filterable(),
-            $this->createAttribute($this->statementFormHintStatement)->readable(true)->sortable()->filterable(),
-            $this->createAttribute($this->statementFormHintPersonalData)->readable(true)->sortable()->filterable(),
-            $this->createAttribute($this->statementFormHintRecheck)->readable(true)->sortable()->filterable(),
-            $this->createAttribute($this->mapHintDefault)->readable(true)->sortable()->filterable(),
+            $this->createIdentifier()->readable()->sortable()->filterable(),
+            $this->createAttribute($this->statementFormHintStatement)->readable(true)->sortable()->filterable()->updatable(),
+            $this->createAttribute($this->statementFormHintPersonalData)->readable(true)->sortable()->filterable()->updatable(),
+            $this->createAttribute($this->statementFormHintRecheck)->readable(true)->sortable()->filterable()->updatable(),
+            $this->createAttribute($this->mapHintDefault)->readable(true)->sortable()->filterable()->updatable(),
             $this->createToOneRelationship($this->procedure)->readable()->sortable()->filterable(),
             $this->createToOneRelationship($this->procedureType)->readable()->sortable()->filterable(),
-            $this->createAttribute($this->statementPublicSubmitConfirmationText)->readable(true)->sortable()->filterable(),
+            $this->createAttribute($this->statementPublicSubmitConfirmationText)->readable(true)->sortable()->filterable()->updatable(),
         ];
     }
 }

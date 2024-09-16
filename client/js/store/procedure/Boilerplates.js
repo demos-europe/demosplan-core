@@ -13,7 +13,7 @@ import { dpApi } from '@demos-europe/demosplan-ui'
 const BoilerplatesStore = {
   namespaced: true,
 
-  name: 'boilerplates',
+  name: 'Boilerplates',
 
   state: {
     boilerplates: {},
@@ -32,7 +32,6 @@ const BoilerplatesStore = {
       commit('getBoilerplatesFired', true)
       return dpApi({
         method: 'GET',
-        responseType: 'json',
         url: Routing.generate('api_resource_list', {
           resourceType: 'Boilerplate',
           includes: ['groups']

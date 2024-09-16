@@ -19,6 +19,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Exception\TooManyLoginAttemptsAuthenticationException;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\CsrfTokenBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\PasswordUpgradeBadge;
@@ -77,7 +78,14 @@ final class LoginFormAuthenticator extends DplanAuthenticator implements Authent
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
     {
-        $this->messageBag->add('warning', 'warning.login.failed');
+        $message = 'warning.login.failed';
+        $params = [];
+        if ($exception instanceof TooManyLoginAttemptsAuthenticationException) {
+            $message = 'warning.login.failed.throttle';
+            $params = $exception->getMessageData();
+        }
+
+        $this->messageBag->add('warning', $message, $params);
         $this->logger->info('Login failed', [$exception]);
 
         return new RedirectResponse($this->urlGenerator->generate('DemosPlan_user_login_alternative'));

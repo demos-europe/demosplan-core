@@ -20,11 +20,15 @@
       type="hidden"
       :name="fragmentId+':r_paragraph'"
       :value="paragraphId">
+    <input
+      name="_token"
+      type="hidden"
+      :value="csrfToken">
 
     <!-- consideration advice, vote advice -->
     <fieldset class="layout__item u-1-of-2 u-pl-0">
       <legend
-        class="hide-visually"
+        class="sr-only"
         v-text="Translator.trans('fragment.voteAdvice')" />
       <template v-if="hasPermission('feature_statements_fragment_consideration_advice')">
         <label
@@ -79,7 +83,7 @@
     Complete reviewing fragment, assign back to planner
  --><fieldset class="layout__item u-1-of-2">
       <legend
-        class="hide-visually"
+        class="sr-only"
         v-text="Translator.trans('fragment.update.complete.button')" />
       <div
         v-if="hasPermission('feature_statements_fragment_update_complete')"
@@ -103,8 +107,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, DpButton, DpEditor, DpMultiselect } from '@demos-europe/demosplan-ui'
-import qs from 'qs'
+import { checkResponse, DpButton, DpEditor, DpMultiselect, makeFormPost } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpFragmentEdit',
@@ -116,6 +119,11 @@ export default {
   },
 
   props: {
+    csrfToken: {
+      type: String,
+      required: true
+    },
+
     fragmentId: {
       required: true,
       type: String
@@ -206,13 +214,7 @@ export default {
       saveData.forEach(el => {
         dataForRequest[el.name] = el.value
       })
-
-      dpApi({
-        method: 'post',
-        url: Routing.generate('DemosPlan_statement_fragment_edit_reviewer_ajax', { fragmentId: this.fragmentId }),
-        data: qs.stringify(dataForRequest),
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-      })
+      return makeFormPost(dataForRequest, Routing.generate('DemosPlan_statement_fragment_edit_reviewer_ajax', { fragmentId: this.fragmentId }))
         .then(checkResponse)
         .then(response => {
           /*

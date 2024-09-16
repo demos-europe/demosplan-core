@@ -20,11 +20,12 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
 use Doctrine\Common\Collections\Collection;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\PathBuilding\End;
-use Tightenco\Collect\Support\Collection as TightencoCollection;
+use Illuminate\Support\Collection as IlluminateCollection;
 
 /**
  * @template-extends DplanResourceType<Orga>
@@ -66,6 +67,7 @@ use Tightenco\Collect\Support\Collection as TightencoCollection;
  * @property-read BrandingResourceType             $branding
  * @property-read RoleResourceType                 $allowedRoles
  * @property-read InstitutionTagResourceType       $ownInstitutionTags
+ * @property-read End                              $canCreateProcedures
  */
 final class OrgaResourceType extends DplanResourceType
 {
@@ -84,7 +86,7 @@ final class OrgaResourceType extends DplanResourceType
      */
     private const REGISTRATION_STATUSES_SUBDOMAIN = 'subdomain';
 
-    public function __construct(private readonly RoleService $roleService)
+    public function __construct(private readonly RoleService $roleService, protected readonly AccessControlService $accessControlPermissionService)
     {
     }
 
@@ -105,7 +107,8 @@ final class OrgaResourceType extends DplanResourceType
             'area_manage_orgas',
             'area_manage_orgas_all',
             'area_organisations',
-            'area_report_mastertoeblist'
+            'area_report_mastertoeblist',
+            'feature_organisation_user_list'
         );
 
         $mandatoryConditions = $this->getMandatoryConditions();
@@ -149,21 +152,11 @@ final class OrgaResourceType extends DplanResourceType
         return true;
     }
 
-    public function isReferencable(): bool
-    {
-        return true;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
-    }
-
     protected function getProperties(): array
     {
         $statusInCustomers = $this->createToManyRelationship($this->statusInCustomers);
         $properties = [
-            $this->createAttribute($this->id)->sortable()->filterable()->readable(true),
+            $this->createIdentifier()->sortable()->filterable()->readable(),
             $this->createAttribute($this->name)->sortable()->filterable()->readable(true),
             $this->createAttribute($this->ccEmail2)->readable(true),
             $this->createAttribute($this->city)->readable(true, static fn (Orga $orga): string => $orga->getCity()),
@@ -188,9 +181,8 @@ final class OrgaResourceType extends DplanResourceType
             $this->createAttribute($this->submissionType)->readable(true, static fn (Orga $orga): string => $orga->getSubmissionType()),
             $this->createAttribute($this->types)->readable(true, fn (Orga $orga): array => $orga->getTypes($this->globalConfig->getSubdomain())),
             $this->createAttribute($this->registrationStatuses)->readable(true, $this->getRegistrationStatuses(...)),
-            $this->createToOneRelationship($this->currentSlug, true)->readable(true),
-            $this->createToManyRelationship($this->customers)->readable(false, static fn (Orga $orga): Collection => $orga->getCustomers()),
-            $this->createToManyRelationship($this->departments)->readable(false, static fn (Orga $orga): TightencoCollection => $orga->getDepartments()),
+            $this->createToOneRelationship($this->currentSlug)->readable(true, null, true),
+            $this->createToManyRelationship($this->departments)->readable(false, static fn (Orga $orga): IlluminateCollection => $orga->getDepartments()),
             $this->createAttribute($this->isPlanningOrganisation)->readable(true,
                 fn (Orga $orga): bool => $orga->hasType(OrgaType::MUNICIPALITY, $this->globalConfig->getSubdomain())
                     || $orga->hasType(OrgaType::PLANNING_AGENCY, $this->globalConfig->getSubdomain())
@@ -198,6 +190,10 @@ final class OrgaResourceType extends DplanResourceType
             ),
             $statusInCustomers,
         ];
+
+        if ($this->resourceTypeStore->getCustomerResourceType()->isReferencable()) {
+            $properties[] = $this->createToManyRelationship($this->customers)->readable(false, static fn (Orga $orga): Collection => $orga->getCustomers());
+        }
 
         if ($this->currentUser->hasPermission('feature_institution_tag_read')) {
             $properties[] = $this->createToManyRelationship($this->ownInstitutionTags)->readable()->filterable();
@@ -212,7 +208,7 @@ final class OrgaResourceType extends DplanResourceType
         }
 
         // OrgaStatusInCustomer @organisation-list filtering for orga
-        if ($this->currentUser->hasPermission('area_organisations')) {
+        if ($this->currentUser->hasAnyPermissions('area_organisations', 'feature_organisation_user_list')) {
             $statusInCustomers->sortable()->filterable()->readable();
         } else {
             $statusInCustomers->readable(false, $this->getRegistration(...));
@@ -221,6 +217,14 @@ final class OrgaResourceType extends DplanResourceType
         if ($this->currentUser->hasPermission('area_manage_users')) {
             $properties[] = $this->createToManyRelationship($this->allowedRoles)
                 ->readable(false, $this->getAllowedRoles(...));
+        }
+
+        if ($this->currentUser->hasPermission('feature_manage_procedure_creation_permission')) {
+            $properties[] = $this->createAttribute($this->canCreateProcedures)->readable(true, function (Orga $orga): bool {
+                $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
+
+                return $this->accessControlPermissionService->permissionExist(AccessControlService::CREATE_PROCEDURES_PERMISSION, $orga, $currentCustomer);
+            });
         }
 
         return $properties;

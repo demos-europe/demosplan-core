@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FilterUiDataProvider;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxSegmentImport;
 use demosplan\DemosPlanCoreBundle\StoredQuery\SegmentListQuery;
@@ -65,8 +66,10 @@ class SegmentController extends BaseController
         ProcedureService $procedureService,
         StatementHandler $statementHandler,
         string $procedureId,
-        string $statementId
+        string $statementId,
+        ProcedureCoupleTokenFetcher $tokenFetcher,
     ): Response {
+        $procedure = $procedureService->getProcedure($procedureId);
         $sessionProcedureId = $currentProcedureService->getProcedureIdWithCertainty();
         if ($sessionProcedureId !== $procedureId) {
             throw new BadRequestException('Conflicting procedure IDs in request');
@@ -86,6 +89,7 @@ class SegmentController extends BaseController
         }
 
         $recommendationProcedureIds = $procedureService->getRecommendationProcedureIds($currentUser->getUser(), $procedureId);
+        $isSourceAndCoupledProcedure = $tokenFetcher->isSourceAndCoupledProcedure($procedure);
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanProcedure/administration_statement_segments_list.html.twig',
@@ -95,6 +99,9 @@ class SegmentController extends BaseController
                 'statementId'                => $statementId,
                 'statementExternId'          => $statement->getExternId(),
                 'title'                      => 'segments.recommendations.create',
+                'templateVars'               => [
+                    'isSourceAndCoupledProcedure' => $isSourceAndCoupledProcedure,
+                ],
             ]
         );
     }
@@ -161,10 +168,10 @@ class SegmentController extends BaseController
                     $route,
                     compact('procedureId')
                 );
-            } catch (MissingDataException $e) {
+            } catch (MissingDataException) {
                 $this->getMessageBag()->add('error', 'error.missing.data',
                     ['%fileName%' => $fileName]);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $this->getMessageBag()->add(
                     'error',
                     'statements.import.error.document.unexpected',

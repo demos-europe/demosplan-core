@@ -11,9 +11,9 @@ import { nextTick, set } from 'vue'
 import { dpApi } from '@demos-europe/demosplan-ui'
 
 const ProcedureStore = {
-
   namespaced: true,
-  name: 'procedure',
+
+  name: 'Procedure',
 
   state: {
     currentProcedureId: '',
@@ -57,9 +57,8 @@ const ProcedureStore = {
       }
 
       return dpApi({
-        method: 'get',
-        url: Routing.generate('DemosPlan_procedure_search_ajax', urlParams),
-        responseType: 'json'
+        method: 'GET',
+        url: Routing.generate('DemosPlan_procedure_search_ajax', urlParams)
       }).then(response => {
         commit('reset')
         nextTick(() => {

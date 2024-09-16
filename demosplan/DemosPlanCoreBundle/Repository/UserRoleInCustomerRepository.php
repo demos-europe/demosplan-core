@@ -10,8 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer;
 
+/**
+ * @template-extends FluentRepository<UserRoleInCustomer>
+ */
 class UserRoleInCustomerRepository extends FluentRepository
 {
     /**

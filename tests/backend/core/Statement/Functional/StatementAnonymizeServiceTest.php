@@ -151,7 +151,7 @@ class StatementAnonymizeServiceTest extends FunctionalTestCase
         $this->logIn($user);
 
         $permissions = $this->sut->getPermissions();
-        $permissions->initPermissions($user, null);
+        $permissions->initPermissions($user);
         $permissions->enablePermissions(['feature_statements_fragment_edit']);
         $this->sut->setPermissions($permissions);
     }

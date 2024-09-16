@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
@@ -22,7 +23,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository;
@@ -90,7 +90,7 @@ class DraftStatementHandler extends CoreHandler
         FileService $fileService,
         private readonly GlobalConfigInterface $globalConfig,
         MailService $mailService,
-        MessageBag $messageBag,
+        MessageBagInterface $messageBag,
         ProcedureHandler $procedureHandler,
         RouterInterface $router,
         TranslatorInterface $translator,
@@ -203,9 +203,9 @@ class DraftStatementHandler extends CoreHandler
                     false
                 );
                 // continue if user does not want to get mails
-                if (is_array($userSettings) &&
-                    1 === count($userSettings) &&
-                    false === $userSettings[0]->getContentBool()) {
+                if (is_array($userSettings)
+                    && 1 === count($userSettings)
+                    && false === $userSettings[0]->getContentBool()) {
                     continue;
                 }
                 // by default coordinator gets mails, if not explicitly denied
@@ -773,7 +773,7 @@ class DraftStatementHandler extends CoreHandler
         foreach ($draftStatements as $draftStatement) {
             $user = $draftStatement->getUser();
             // only for users, who has enabled notification for unsubmitted draft statements:
-            if ($user->getFlag(UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED)) {
+            if ($user->getFlag(UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED->value)) {
                 $procedures[$draftStatement->getProcedureId()]['procedure'] = $draftStatement->getProcedure();
                 $procedures[$draftStatement->getProcedureId()]['users'][$draftStatement->getUId()]['user'] = $user;
                 $procedures[$draftStatement->getProcedureId()]['users'][$draftStatement->getUId()]['draftStatements'][] = $draftStatement->getUser();

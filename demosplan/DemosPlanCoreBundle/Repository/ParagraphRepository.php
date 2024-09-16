@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
@@ -28,6 +29,9 @@ use Exception;
 
 use function array_key_exists;
 
+/**
+ * @template-extends FluentRepository<Paragraph>
+ */
 class ParagraphRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
     /**
@@ -286,6 +290,25 @@ class ParagraphRepository extends FluentRepository implements ArrayInterface, Ob
         }
     }
 
+    public function deleteByProcedureIdAndElementId($procedureId, $elementId)
+    {
+        try {
+            $query = $this->getEntityManager()->createQueryBuilder()
+                ->delete(Paragraph::class, 'p')
+                ->andWhere('p.procedure = :procedureId')
+                ->andWhere('p.element = :elementId')
+                ->setParameter('procedureId', $procedureId)
+                ->setParameter('elementId', $elementId)
+                ->getQuery();
+            $query->execute();
+
+            return true;
+        } catch (Exception $e) {
+            $this->logger->warning('Delete Paragraphs of a procedure failed ', [$e]);
+            throw $e;
+        }
+    }
+
     /**
      * Kopiert alle Paragraph (Begründung und textliche Festsetzung) von einem Verfahren in ein anderes.
      *
@@ -456,8 +479,6 @@ class ParagraphRepository extends FluentRepository implements ArrayInterface, Ob
 
     /**
      * @param Paragraph $entity
-     *
-     * @return bool
      */
     public function deleteObject($entity): never
     {

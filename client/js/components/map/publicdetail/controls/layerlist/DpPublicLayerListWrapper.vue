@@ -11,6 +11,7 @@
   <div>
     <div :class="prefixClass('c-map__group u-mt-0_5')">
       <button
+        data-cy="publicLayerListWrapper:mapLayerShowHide"
         @click="toggle"
         :class="[dimmed ? prefixClass('color--grey'): '', unfolded ? prefixClass('is-active'): '', prefixClass('btn--blank o-link--default u-pv-0_25 c-map__group-header c-map__group-item u-m-0')]">
         {{ Translator.trans('maplayer.show/hide') }}
@@ -23,7 +24,7 @@
       layer-type="overlay" />
 
     <div
-      v-if="0 < baseLayers.length && unfolded && showBaseLayers"
+      v-if="baseLayers.length > 0 && unfolded && showBaseLayers"
       :class="prefixClass('c-map__group')">
       <div :class="prefixClass('c-map__layer pointer-events-none bg-color--grey-light-1')">
         {{ Translator.trans('map.bases') }}
@@ -67,11 +68,11 @@ export default {
     },
 
     overlayLayers () {
-      return this.$store.getters['layers/elementListForLayerSidebar'](null, 'overlay', true)
+      return this.$store.getters['Layers/elementListForLayerSidebar'](null, 'overlay', true)
     },
 
     baseLayers () {
-      return this.$store.getters['layers/elementListForLayerSidebar'](null, 'base', false)
+      return this.$store.getters['Layers/elementListForLayerSidebar'](null, 'base', false)
     },
 
     dimmed () {
@@ -82,6 +83,7 @@ export default {
   methods: {
     toggle () {
       const unfolded = this.unfolded = !this.unfolded
+
       if (unfolded) {
         this.$root.$emit('layer-list:unfolded')
       }

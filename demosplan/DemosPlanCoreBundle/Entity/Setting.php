@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SettingInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -23,7 +24,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\SettingRepository")
  */
-class Setting extends CoreEntity implements UuidEntityInterface
+class Setting extends CoreEntity implements UuidEntityInterface, SettingInterface
 {
     /**
      * @var string|null
@@ -310,7 +311,7 @@ class Setting extends CoreEntity implements UuidEntityInterface
     /**
      * Set Content.
      *
-     * @param string $content
+     * @param string|bool $content
      *
      * @return Setting
      */

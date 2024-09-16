@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Repositories\MapRepositoryInterface;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
@@ -25,6 +26,9 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
 
+/**
+ * @template-extends FluentRepository<GisLayer>
+ */
 class MapRepository extends FluentRepository implements ArrayInterface, ObjectInterface, MapRepositoryInterface
 {
     /**
@@ -142,7 +146,7 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
      * Inserts the content of the given array into the given gislayer.
      * Checks if the given array, has.
      *
-     * @param gisLayer $gis  - Gislayer, which is about to update
+     * @param GisLayer $gis  - Gislayer, which is about to update
      * @param array    $data - Array, which contains the key-value pairs, to set the values to the correspondent attribute
      *
      * @return GisLayer|null - null, if the given array is null or has no content, otherwise the GisLayer with the content from the given array
@@ -707,8 +711,6 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
 
     /**
      * @param CoreEntity $entity
-     *
-     * @return bool
      */
     public function deleteObject($entity): never
     {

@@ -10,18 +10,21 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use Doctrine\ORM\NoResultException;
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\OptimisticLockException;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementVersion;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use Exception;
 use InvalidArgumentException;
 
+/**
+ * @template-extends CoreRepository<DraftStatementVersion>
+ */
 class DraftStatementVersionRepository extends CoreRepository implements ArrayInterface
 {
     /**
@@ -259,8 +262,6 @@ class DraftStatementVersionRepository extends CoreRepository implements ArrayInt
      * Delete Entity.
      *
      * @param string $entityId
-     *
-     * @return bool
      */
     public function delete($entityId): never
     {

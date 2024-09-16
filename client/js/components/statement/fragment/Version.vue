@@ -23,7 +23,7 @@
     <!-- Content -->
     <div
       v-show="isActive"
-      class="max-height-300 overflow-x-auto u-mv-0_25">
+      class="max-h-12 overflow-x-auto u-mv-0_25">
       <dp-loading v-if="items === null" />
 
       <div v-if="items && items.length === 0">
@@ -86,13 +86,13 @@
 
 <script>
 import { checkResponse, CleanHtml, dpApi, DpLoading, formatDate } from '@demos-europe/demosplan-ui'
-import FragmentStatus from './Status'
+import DpFragmentStatus from './Status'
 
 export default {
   name: 'DpFragmentVersion',
 
   components: {
-    'dp-fragment-status': FragmentStatus,
+    DpFragmentStatus,
     DpLoading
   },
 

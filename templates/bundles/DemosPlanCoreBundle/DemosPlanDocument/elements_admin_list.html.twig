@@ -18,19 +18,19 @@
             map-attribution="{{ procedureSettings.copyright }}"
             procedure-coordinate="{{ procedureSettings.coordinate }}"
             :procedure-default-initial-extent="JSON.parse('{{ templateVars.procedureDefaultInitialExtent|json_encode|e('js', 'utf-8') }}')"
-            procedure-id="{{ procedure }}"
+            procedure-id="{{ templateVars.procedure.id }}"
             territory="{{ procedureSettings.territory }}"
         >
         </dp-map-settings-preview>
     {% endif %}
 
-    {% set addonProps = { 'procedureId': procedure } %}
+    {% set addonProps = { 'procedureId': templateVars.procedure.id } %}
     <addon-wrapper
         hook-name="procedure.adminlist.fields"
         :addon-props="JSON.parse('{{ addonProps|json_encode|e('js', 'utf-8') }}')">
     </addon-wrapper>
 
-    <div class="u-mt-0_75">
+    <div class="u-mv-0_75">
         {# Display errors from failed element import #}
         {% if templateVars.errorReport|default([])|length > 0 %}
             <ul class="flash flash-error u-m-0 u-mb">
@@ -46,26 +46,31 @@
             {% if hasPermission('feature_admin_element_edit') %}
                 <a
                     class="btn btn--primary float-right"
-                    href="{{ path('DemosPlan_elements_administration_new',{'procedure':procedure }) }}"
+                    href="{{ path('DemosPlan_elements_administration_new',{'procedure':templateVars.procedure.id }) }}"
                     data-cy="createElementCategory">
                     {{ "category.create"|trans }}
                 </a>
             {% endif %}
         </div>
 
-        <elements-admin-list>
-        </elements-admin-list>
+        {% if hasPermission("area_admin_elements") %}
+            <elements-admin-list>
+            </elements-admin-list>
+        {% endif %}
     </div>
 
 
     {% if hasPermission('feature_admin_element_import') %}
-        <h2 class="u-mt">
+        <h2 class="u-mt-0_75">
             {{ "elementimport"|trans }}
         </h2>
         <p>
             {{ "text.elementimport.fileupload"|trans }}
         </p>
-        <form action="{{ path('DemosPlan_element_import', {'procedureId':procedure }) }}" method="post" enctype="multipart/form-data">
+        <form
+            class="flow-root u-mb-0_75"
+            action="{{ path('DemosPlan_element_import', {'procedureId':templateVars.procedure.id }) }}" method="post" enctype="multipart/form-data">
+            {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
             {{
                 fileupload(
@@ -86,8 +91,7 @@
                 class="btn btn--primary u-mt-0_75 float-right"
                 data-cy="submitImport"
                 type="submit"
-                value="{{ "import.verb"|trans }}">
-
+                value="{{ "import.verb"|trans }}" />
         </form>
     {% endif %}
 

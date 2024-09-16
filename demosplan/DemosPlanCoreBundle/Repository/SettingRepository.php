@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
@@ -23,7 +24,10 @@ use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Exception;
 
-class SettingRepository extends FluentRepository implements ArrayInterface, ObjectInterface
+/**
+ * @template-extends FluentRepository<Setting>
+ */
+class SettingRepository extends CoreRepository implements ArrayInterface, ObjectInterface
 {
     /**
      * Get Entity by Id.

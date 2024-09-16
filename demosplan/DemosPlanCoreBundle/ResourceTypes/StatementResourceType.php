@@ -12,32 +12,35 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInterface;
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
-use DemosEurope\DemosplanAddon\Logic\ResourceChange;
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Exception\DuplicateInternIdException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementResourceTypeService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDeleter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryStatement;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
+use Doctrine\Common\Collections\ArrayCollection;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
+use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 use Elastica\Index;
+use Webmozart\Assert\Assert;
 
 /**
  * @template-implements ReadableEsResourceTypeInterface<StatementInterface>
- * @template-implements UpdatableDqlResourceTypeInterface<StatementInterface>
- * @template-implements DeletableDqlResourceTypeInterface<StatementInterface>
  *
  * @property-read ClaimResourceType $assignee
  * @property-read End $documentParentId @deprecated Use {@link StatementResourceType::$document} instead
@@ -50,9 +53,10 @@ use Elastica\Index;
  * @property-read End $paragraphParentId @deprecated Use {@link StatementResourceType::$paragraph} instead
  * @property-read End $paragraphTitle @deprecated Use {@link StatementResourceType::$paragraph} instead
  * @property-read End $segmentDraftList
+ * @property-read End $status
  * @property-read SimilarStatementSubmitterResourceType $similarStatementSubmitters
  */
-final class StatementResourceType extends AbstractStatementResourceType implements ReadableEsResourceTypeInterface, UpdatableDqlResourceTypeInterface, DeletableDqlResourceTypeInterface, StatementResourceTypeInterface
+final class StatementResourceType extends AbstractStatementResourceType implements ReadableEsResourceTypeInterface, StatementResourceTypeInterface
 {
     public function __construct(
         FileService $fileService,
@@ -60,7 +64,8 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         private readonly JsonApiEsService $jsonApiEsService,
         private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
         private readonly QueryStatement $esQuery,
-        private readonly StatementResourceTypeService $statementResourceTypeService
+        private readonly StatementService $statementService,
+        private readonly StatementDeleter $statementDeleter
     ) {
         parent::__construct($fileService, $htmlSanitizer);
     }
@@ -137,23 +142,32 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         return $conditions;
     }
 
-    public function updateObject(object $object, array $properties): ResourceChange
-    {
-        // currently updates are only needed for normal statements
-        $object = $this->getAsSimpleStatement($object);
-
-        return $this->statementResourceTypeService->update($object, $this, $properties);
-    }
-
     /**
      * @throws UserNotFoundException
      */
     public function isAvailable(): bool
     {
         return $this->hasAssessmentPermission()
-            || $this->currentUser->hasAnyPermissions(
-                'area_search_submitter_in_procedures',
-            );
+            || $this->currentUser->hasPermission('area_search_submitter_in_procedures');
+    }
+
+    public function isUpdateAllowed(): bool
+    {
+        if (!$this->hasAssessmentPermission()) {
+            return false;
+        }
+
+        // has admin list assign permission
+        if ($this->currentUser->hasAllPermissions('feature_statement_assignment', 'area_admin_statement_list')) {
+            return true;
+        }
+
+        // has admin consultation token list permission
+        if ($this->currentUser->hasPermission('area_admin_consultations')) {
+            return true;
+        }
+
+        return false;
     }
 
     public function getQuery(): AbstractQuery
@@ -176,128 +190,20 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         return [];
     }
 
-    /**
-     * Ensures the given $object is a normal statement; ie:
-     * * not a segment
-     * * not an original statement
-     * * not a cluster
-     * * not part of a cluster
-     * * not deleted.
-     *
-     * @return Statement The given $object
-     */
-    private function getAsSimpleStatement(object $object): Statement
+    public function deleteEntity(string $entityIdentifier): void
     {
-        if (!$object instanceof Statement
-            || $object->isSegment()
-            || $object->isOriginal()
-            || $object->isDeleted()
-            || $object->isClusterStatement()
-            || $object->isInCluster()) {
-            throw new InvalidArgumentException('Invalid target object');
-        }
-
-        return $object;
+        $this->getTransactionService()->executeAndFlushInTransaction(
+            function () use ($entityIdentifier): void {
+                $entity = $this->getEntity($entityIdentifier);
+                $success = $this->statementDeleter->deleteStatementObject($entity);
+                Assert::true($success, "Deletion of statement failed for the given ID '$entityIdentifier'");
+            }
+        );
     }
 
-    /**
-     * @param Statement $entity
-     */
-    public function delete(object $entity): ResourceChange
+    public function isDeleteAllowed(): bool
     {
-        $success = $this->statementResourceTypeService->deleteStatement($entity);
-        if (true !== $success) {
-            throw new InvalidArgumentException('Deletion request could not be executed.');
-        }
-        // TODO: refactor deleteStatement to return ResourceChange to not break transactions and improve performance
-        $resourceChange = new ResourceChange($entity, $this, []);
-        $resourceChange->addEntityToDelete($entity);
-
-        return $resourceChange;
-    }
-
-    public function getRequiredDeletionPermissions(): array
-    {
-        return ['feature_statement_delete'];
-    }
-
-    /**
-     * @param Statement $object
-     *
-     * @return array<int, array<string, mixed>>
-     *
-     * @throws UserNotFoundException
-     */
-    public function getUpdatableProperties(object $object): array
-    {
-        // has admin list assign permission
-        $adminListAssignPermission = $this->currentUser->hasAllPermissions('feature_statement_assignment', 'area_admin_statement_list');
-        // has admin consultation token list permission
-        $adminConsultationTokenListPermission = $this->currentUser->hasPermission('area_admin_consultations');
-
-        if (!$adminListAssignPermission && !$adminConsultationTokenListPermission) {
-            return [];
-        }
-
-        // updatable with special permission and an manual statements only
-        if ($this->currentUser->hasPermission('area_admin_statement_list') && $object->isManual()) {
-            $writableProperties = [
-                $this->fullText,
-                $this->initialOrganisationName,
-                $this->initialOrganisationDepartmentName,
-                $this->initialOrganisationPostalCode,
-                $this->initialOrganisationCity,
-                $this->initialOrganisationHouseNumber,
-                $this->initialOrganisationStreet,
-                $this->authorName,
-                $this->submitName,
-                $this->internId,
-                $this->authoredDate,
-                $this->submitDate,
-                $this->submitType,
-                $this->submitterEmailAddress,
-            ];
-        } else {
-            $writableProperties = [];
-        }
-
-        // always updatable if access to type and instances was granted
-        $writableProperties[] = $this->assignee;
-
-        if ($this->currentUser->hasPermission('field_statement_memo')) {
-            $writableProperties[] = $this->memo;
-        }
-
-        if ($object->isManual() && $this->currentUser->hasPermission('area_admin_consultations')) {
-            $writableProperties = array_merge($writableProperties, [
-                $this->submitterEmailAddress,
-                $this->submitterName,
-                $this->submitterPostalCode,
-                $this->submitterCity,
-                $this->submitterHouseNumber,
-                $this->submitterStreet,
-            ]);
-        }
-
-        if ($this->currentUser->hasPermission('area_statement_segmentation')) {
-            $writableProperties[] = $this->segmentDraftList;
-        }
-
-        if ($this->currentUser->hasPermission('feature_similar_statement_submitter')) {
-            $writableProperties[] = $this->similarStatementSubmitters;
-        }
-
-        return $this->toProperties(...$writableProperties);
-    }
-
-    public function isReferencable(): bool
-    {
-        return true;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
+        return $this->currentUser->hasPermission('feature_statement_delete');
     }
 
     /**
@@ -306,55 +212,78 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
      *
      * some of the following relationships are (currently) only needed in the assessment table
      */
-    protected function getProperties(): array
+    protected function getProperties(): array|ResourceConfigBuilderInterface
     {
-        $properties = parent::getProperties();
+        // some updates are allowed for manual statements only
+        $manualStatementCondition = $this->conditionFactory->propertyHasValue(true, $this->manual);
+        // currently updates are only needed for "normal" statements
+        $simpleStatementCondition = $this->conditionFactory->allConditionsApply(
+            $this->conditionFactory->propertyHasValue(false, Paths::statement()->deleted),
+            $this->conditionFactory->propertyHasValue(false, Paths::statement()->clusterStatement),
+            $this->conditionFactory->propertyIsNull(Paths::statement()->headStatement->id),
+            $this->conditionFactory->propertyIsNotNull(Paths::statement()->original->id),
+            // all segments must have a segment set, hence the following check is used to ensure this resource type does not return segments
+            $this->conditionFactory->isTargetEntityNotInstanceOf(Segment::class)
+        );
 
-        $authorName = $this->createAttribute($this->authorName)->aliasedPath($this->meta->authorName);
-        $submitName = $this->createAttribute($this->submitName)->aliasedPath($this->meta->submitName);
-        $properties[] = $authorName;
-        $properties[] = $submitName;
+        /** @var StatementResourceConfigBuilder $configBuilder */
+        $configBuilder = parent::getProperties();
+
+        $configBuilder->authorName->aliasedPath(Paths::statement()->meta->authorName);
+        $configBuilder->submitName->aliasedPath(Paths::statement()->meta->submitName);
+        $configBuilder->similarStatementSubmitters
+            ->setRelationshipType($this->getTypes()->getSimilarStatementSubmitterResourceType());
 
         if ($this->currentUser->hasPermission('area_search_submitter_in_procedures')) {
-            $authorName->filterable();
-            $submitName->filterable();
+            $configBuilder->authorName->filterable();
+            $configBuilder->submitName->filterable();
         }
 
         if ($this->currentUser->hasPermission('area_admin_submitters')) {
-            $submitName->filterable();
+            $configBuilder->submitName->filterable();
         }
 
         if ($this->hasAssessmentPermission()) {
-            $properties[] = $this->createAttribute($this->documentParentId)
+            $configBuilder->documentParentId
                 ->readable(true, static fn (Statement $statement): ?string => $statement->getDocumentParentId());
-            $properties[] = $this->createAttribute($this->documentTitle)
+            $configBuilder->documentTitle
                 ->readable(true, static fn (Statement $statement): ?string => $statement->getDocumentTitle());
-            $properties[] = $this->createAttribute($this->elementId)
-                ->readable(true)->aliasedPath($this->element->id);
-            $properties[] = $this->createAttribute($this->elementTitle)
-                ->readable(true)->aliasedPath($this->element->title);
-            $properties[] = $this->createAttribute($this->originalId)
-                ->readable(true)->aliasedPath($this->original->id);
-            $properties[] = $this->createAttribute($this->paragraphParentId)
-                ->readable(true)->aliasedPath($this->paragraph->paragraph->id);
-            $properties[] = $this->createAttribute($this->paragraphTitle)
-                ->readable(true)->aliasedPath($this->paragraph->title);
-            $properties[] = $this->createToOneRelationship($this->assignee)->readable()->filterable();
-            $authorName->readable(true)->filterable();
-            $submitName->readable(true)->filterable()->sortable();
+            $configBuilder->elementId
+                ->readable(true)->aliasedPath(Paths::statement()->element->id);
+            $configBuilder->elementTitle
+                ->readable(true)->aliasedPath(Paths::statement()->element->title);
+            $configBuilder->originalId
+                ->readable(true)->aliasedPath(Paths::statement()->original->id);
+            $configBuilder->paragraphParentId
+                ->readable(true)->aliasedPath(Paths::statement()->paragraph->paragraph->id);
+            $configBuilder->paragraphTitle
+                ->readable(true)->aliasedPath(Paths::statement()->paragraph->title);
+            $configBuilder->assignee->readable()->filterable();
+            $configBuilder->authorName->readable(true)->filterable();
+            $configBuilder->submitName->readable(true)->filterable()->sortable();
         }
 
         if ($this->currentUser->hasPermission('area_statement_segmentation')) {
-            $properties[] = $this->createAttribute($this->segmentDraftList)
+            $configBuilder->segmentDraftList
+                ->updatable([$simpleStatementCondition], function (Statement $statement, array $rawJson): array {
+                    $encodedJson = Json::encode($rawJson);
+                    $statement->setDraftsListJson($encodedJson);
+
+                    return [];
+                })
+                ->aliasedPath(Paths::statement()->draftsListJson)
                 ->readable(false, static function (Statement $statement): ?array {
                     $draftsListJson = $statement->getDraftsListJson();
 
                     return '' === $draftsListJson ? null : Json::decodeToArray($draftsListJson);
                 });
+            $configBuilder->status->readable(true, function (Statement $statement) {
+                return $this->statementService->getProcessingStatus($statement);
+            })->filterable();
         }
 
         if ($this->currentUser->hasPermission('feature_similar_statement_submitter')) {
-            $properties[] = $this->createToManyRelationship($this->similarStatementSubmitters)->readable();
+            $configBuilder->similarStatementSubmitters->readable();
         }
 
         if ($this->currentUser->hasAnyPermissions(
@@ -363,11 +292,131 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             'area_admin_statement_list',
             'area_admin_submitters'
         )) {
-            $properties[] = $this->createAttribute($this->isSubmittedByCitizen)
+            $configBuilder->isSubmittedByCitizen
                 ->readable(false, static fn (Statement $statement): bool => $statement->isSubmittedByCitizen());
         }
 
-        return $properties;
+        // updatable with special permission and on manual statements only
+        if ($this->currentUser->hasPermission('area_admin_statement_list')) {
+            $configBuilder->fullText
+                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->aliasedPath(Paths::statement()->text);
+            $configBuilder->initialOrganisationName
+                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->aliasedPath(Paths::statement()->meta->orgaName);
+            $configBuilder->initialOrganisationDepartmentName
+                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->aliasedPath(Paths::statement()->meta->orgaDepartmentName);
+            $configBuilder->initialOrganisationPostalCode
+                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->aliasedPath(Paths::statement()->meta->orgaPostalCode);
+            $configBuilder->initialOrganisationCity
+                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->aliasedPath(Paths::statement()->meta->orgaCity);
+            $configBuilder->initialOrganisationHouseNumber
+                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->aliasedPath(Paths::statement()->meta->houseNumber);
+            $configBuilder->initialOrganisationStreet
+                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->aliasedPath(Paths::statement()->meta->orgaStreet);
+            $configBuilder->authorName->updatable([$simpleStatementCondition, $manualStatementCondition]);
+            $configBuilder->submitName->updatable([$simpleStatementCondition, $manualStatementCondition]);
+            $configBuilder->internId->updatable(
+                [$simpleStatementCondition, $manualStatementCondition],
+                function (Statement $statement, string $internIdToSet): array {
+                    // check for unique
+                    $isUnique = $this->statementService->isInternIdUniqueForProcedure($internIdToSet, $statement->getProcedureId());
+                    if (!$isUnique) {
+                        throw DuplicateInternIdException::create($internIdToSet, $statement->getProcedureId());
+                    }
+
+                    $statement->getOriginal()->setInternId($internIdToSet);
+
+                    return [];
+                }
+            );
+            $configBuilder->authoredDate->updatable(
+                [$simpleStatementCondition, $manualStatementCondition],
+                function (Statement $statement, mixed $newValue): array {
+                    $unrequestedChange = false;
+                    // authoredDate should be less or equal to the submitDate
+                    $submitDate = $statement->getSubmitDateString();
+                    if ('' === $newValue || strtotime((string) $submitDate) < strtotime($newValue)) {
+                        $newValue = $submitDate;
+                        $unrequestedChange = true;
+                    }
+                    $statement->getMeta()->setAuthoredDate(new DateTime($newValue));
+
+                    return $unrequestedChange ? ['authoredDate'] : [];
+                }
+            );
+            $configBuilder->submitDate->updatable(
+                [$simpleStatementCondition, $manualStatementCondition],
+                static function (Statement $statement, string $value): array {
+                    $statement->setSubmit(new DateTime($value));
+
+                    return [];
+                }
+            );
+            $configBuilder->submitType->updatable(
+                [$simpleStatementCondition, $manualStatementCondition],
+                static function (Statement $statement, string $submitType): array {
+                    $statement->setSubmitType($submitType);
+
+                    return [];
+                }
+            );
+            $configBuilder->submitterEmailAddress->updatable(
+                [$simpleStatementCondition, $manualStatementCondition],
+                function (Statement $statement, mixed $value): array {
+                    $statement->setSubmitterEmailAddress($value);
+
+                    return [];
+                }
+            );
+        }
+
+        // always updatable if access to type and instances was granted
+        $configBuilder->assignee
+            ->setRelationshipType($this->resourceTypeStore->getClaimResourceType())
+            ->updatable([$simpleStatementCondition]);
+
+        if ($this->currentUser->hasPermission('field_statement_memo')) {
+            $configBuilder->memo->updatable([$simpleStatementCondition]);
+        }
+
+        if ($this->currentUser->hasPermission('area_admin_consultations')) {
+            $configBuilder->submitterEmailAddress->updatable([$simpleStatementCondition, $manualStatementCondition]);
+            $configBuilder->submitterName
+                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->aliasedPath(Paths::statement()->meta->submitName);
+            $configBuilder->submitterPostalCode
+                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->aliasedPath(Paths::statement()->meta->orgaPostalCode);
+            $configBuilder->submitterCity
+                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->aliasedPath(Paths::statement()->meta->orgaCity);
+            $configBuilder->submitterHouseNumber
+                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->aliasedPath(Paths::statement()->meta->houseNumber);
+            $configBuilder->submitterStreet
+                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->aliasedPath(Paths::statement()->meta->orgaStreet);
+        }
+
+        if ($this->currentUser->hasPermission('feature_similar_statement_submitter')) {
+            $configBuilder->similarStatementSubmitters->updatable(
+                [$simpleStatementCondition],
+                [],
+                static function (Statement $statement, array $newValue): array {
+                    $statement->setSimilarStatementSubmitters(new ArrayCollection($newValue));
+
+                    return [];
+                }
+            );
+        }
+
+        return $configBuilder;
     }
 
     /**

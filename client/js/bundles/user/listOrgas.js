@@ -24,22 +24,22 @@ const components = {
   DpEditor
 }
 
-const apiStores = ['customer', 'orga']
+const apiStores = ['Customer', 'Orga']
 const presetStoreModules = {
-  orga: [{
-    name: 'pending',
+  Orga: [{
+    name: 'Pending',
     defaultQuery: {
       sort: 'name',
       filter: {
         registerStatus: {
           condition: {
             path: 'statusInCustomers.status',
-            value: 'pending'
+            value: 'Pending'
           }
         }
       },
-      include: ['customer.branding', 'currentSlug', 'statusInCustomers'].join(),
-      group: 'pending'
+      include: ['branding', 'currentSlug', 'statusInCustomers'].join(),
+      group: 'Pending'
     }
   }]
 }

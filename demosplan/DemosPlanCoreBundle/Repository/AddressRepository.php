@@ -15,6 +15,9 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Doctrine\ORM\NoResultException;
 use Exception;
 
+/**
+ * @template-extends CoreRepository<Address>
+ */
 class AddressRepository extends CoreRepository implements ArrayInterface
 {
     /**

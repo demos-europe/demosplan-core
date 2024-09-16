@@ -37,6 +37,7 @@
     <form class="flow-root u-pb" name="xsubmititem" action="{{ actionPath }}" method="post" enctype="multipart/form-data" data-dp-validate>
 		<input name="action" type="hidden" value="{{ actionName }}">
         <input name="r_id" type="hidden" value="{% if faq.id is defined %}{{ faq.id }}{% endif %}">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         {{ uiComponent('form.row', {
             elements: [
@@ -163,8 +164,8 @@
         }) }}
 
         {{ uiComponent('button-row', {
-            primary: uiComponent('button', { type: 'submit', attributes: ['data-cy=saveNewFAQ'] }),
-            secondary: uiComponent('button', { color: 'secondary', href: cancelPath })
+            primary: uiComponent('button', { type: 'submit', attributes: ['data-cy=saveFAQ'] }),
+            secondary: uiComponent('button', { color: 'secondary', href: cancelPath, attributes: ['data-cy=abortFAQ']})
         }) }}
     </form>
 

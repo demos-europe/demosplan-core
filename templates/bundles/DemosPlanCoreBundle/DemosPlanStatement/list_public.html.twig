@@ -28,6 +28,7 @@
             name="sortform"
             method="post"
             action="{{ path('DemosPlan_statement_list_public',{'procedure':procedure}) }}">
+            {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
             {#  filter fieldsets  #}
             {%  include '@DemosPlanCore/DemosPlanStatement/includes/form_filter.html.twig'

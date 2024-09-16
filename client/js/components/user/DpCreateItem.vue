@@ -23,7 +23,8 @@
     @item:toggle="(open) => { toggleItem(open) }">
     <div class="o-box--dark soft">
       <div
-        class="u-ph-0_5 u-pt-0_5 u-pb-0_25"
+        class="px-3 py-3"
+        :data-cy="customComponent[entity].formName"
         :data-dp-validate="customComponent[entity].formName">
         <!-- Form fields   -->
         <component
@@ -34,6 +35,8 @@
 
         <!-- Save/Abort buttons   -->
         <dp-button-row
+          class="mt-6"
+          data-cy="createItem"
           :form-name="customComponent[entity].formName"
           primary
           secondary
@@ -177,7 +180,7 @@ export default {
     /**
      * Needed for entity === 'user'
      */
-    ...mapState('role', {
+    ...mapState('Role', {
       roles: 'items'
     }),
 
@@ -202,10 +205,10 @@ export default {
   },
 
   methods: {
-    ...mapActions('orga', {
+    ...mapActions('Orga', {
       createOrganisation: 'create'
     }),
-    ...mapActions('user', {
+    ...mapActions('User', {
       createUser: 'create'
     }),
 

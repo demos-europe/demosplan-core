@@ -43,6 +43,12 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class DemosPlanProcedureTypeController extends BaseController
 {
     /**
+     *  this temporary id is needed to bypass a validation within the resource type before the entity gets persisted
+     *  and a proper id gets set.
+     */
+    public const ID_VALIDATION_BYPASS = 'n/a';
+
+    /**
      * @DplanPermissions({"area_procedure_type_edit"})
      *
      * @throws QueryException
@@ -129,14 +135,9 @@ class DemosPlanProcedureTypeController extends BaseController
         string $procedureTypeId,
         TranslatorInterface $translator
     ): Response {
-        if (!$procedureTypeResourceType->isAvailable()) {
-            throw AccessException::typeNotAvailable($procedureTypeResourceType);
-        }
-
         // List of ProcedureTypes
         $procedureTypes = $procedureTypeService->getAllProcedureTypes();
-        /** @var ProcedureType $procedureTypeEntity */
-        $procedureTypeEntity = $procedureTypeResourceType->getEntityAsReadTarget($procedureTypeId);
+        $procedureTypeEntity = $procedureTypeResourceType->getEntity($procedureTypeId);
         $procedureTypeResource = $entityWrapperFactory->createWrapper($procedureTypeEntity, $procedureTypeResourceType);
 
         $template = '@DemosPlanCore/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
@@ -187,11 +188,10 @@ class DemosPlanProcedureTypeController extends BaseController
         string $procedureTypeId,
         TranslatorInterface $translator
     ): Response {
-        if (!$procedureTypeResourceType->isAvailable()) {
-            throw AccessException::typeNotAvailable($procedureTypeResourceType);
+        if (!$procedureTypeResourceType->isGetAllowed()) {
+            throw AccessException::typeNotDirectlyAccessible($procedureTypeResourceType);
         }
-
-        $procedureTypeEntity = $procedureTypeResourceType->getEntityAsReadTarget($procedureTypeId);
+        $procedureTypeEntity = $procedureTypeResourceType->getEntity($procedureTypeId);
         $procedureTypeResource = $wrapperFactory->createWrapper($procedureTypeEntity, $procedureTypeResourceType);
 
         $template = '@DemosPlanCore/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
@@ -246,13 +246,20 @@ class DemosPlanProcedureTypeController extends BaseController
             throw AccessException::typeNotAvailable($procedureTypeResourceType);
         }
 
+        $statementFormDefinition = new StatementFormDefinition();
+        $procedureBehaviorDefinition = new ProcedureBehaviorDefinition();
+        $procedureUiDefinition = new ProcedureUiDefinition();
+        $statementFormDefinition->setId(self::ID_VALIDATION_BYPASS);
+        $procedureBehaviorDefinition->setId(self::ID_VALIDATION_BYPASS);
+        $procedureUiDefinition->setId(self::ID_VALIDATION_BYPASS);
         $procedureTypeEntity = new ProcedureType(
             '',
             '',
-            new StatementFormDefinition(),
-            new ProcedureBehaviorDefinition(),
-            new ProcedureUiDefinition(),
+            $statementFormDefinition,
+            $procedureBehaviorDefinition,
+            $procedureUiDefinition,
         );
+        $procedureTypeEntity->setId(self::ID_VALIDATION_BYPASS);
         $procedureTypeResource = $wrapperFactory->createWrapper($procedureTypeEntity, $procedureTypeResourceType);
 
         $form = $this->getForm(
@@ -262,6 +269,9 @@ class DemosPlanProcedureTypeController extends BaseController
             false,
         );
 
+        if (!$procedureTypeResourceType->isGetAllowed()) {
+            throw AccessException::typeNotDirectlyAccessible($procedureTypeResourceType);
+        }
         // adds needed field definitions, behavior definition and ID to request form
         $request = $procedureTypeService->addMissingRequestData($request);
 
@@ -281,6 +291,7 @@ class DemosPlanProcedureTypeController extends BaseController
 
                 // UI definition changes
                 $newUiDefinitionEntity = new ProcedureUiDefinition();
+                $newUiDefinitionEntity->setId(self::ID_VALIDATION_BYPASS);
                 $procedureTypeService->updateProcedureUiDefinition(
                     $newUiDefinitionEntity,
                     $procedureTypeResourceProperties['procedureUiDefinitionProperties']
@@ -288,6 +299,7 @@ class DemosPlanProcedureTypeController extends BaseController
 
                 // behavior definition changes
                 $newBehaviorDefinitionEntity = new ProcedureBehaviorDefinition();
+                $newBehaviorDefinitionEntity->setId(self::ID_VALIDATION_BYPASS);
                 $procedureTypeService->updateProcedureBehaviorDefinition(
                     $newBehaviorDefinitionEntity,
                     $procedureTypeResourceProperties['procedureBehaviorDefinitionProperties']
@@ -295,6 +307,7 @@ class DemosPlanProcedureTypeController extends BaseController
 
                 // Form + Field Definition changes
                 $newFormDefinitionEntity = new StatementFormDefinition();
+                $newFormDefinitionEntity->setId(self::ID_VALIDATION_BYPASS);
                 foreach ($procedureTypeResourceProperties['fieldDefinitions'] as $key => $fieldDefinition) {
                     $statementFieldDefinitionProperties = $procedureTypeService->toKeyedValues(
                         $fieldDefinition,
@@ -326,7 +339,7 @@ class DemosPlanProcedureTypeController extends BaseController
         }
 
         $template = '@DemosPlanCore/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
-        $procedureTypes = $procedureTypeResourceType->listEntities([]);
+        $procedureTypes = $procedureTypeResourceType->getEntities([], []);
 
         // in case of invalid data or an exception
         return $this->renderTemplate(
@@ -367,11 +380,10 @@ class DemosPlanProcedureTypeController extends BaseController
         ResourcePersister $resourcePersister,
         string $procedureTypeId
     ) {
-        if (!$procedureTypeResourceType->isAvailable()) {
-            throw AccessException::typeNotAvailable($procedureTypeResourceType);
+        if (!$procedureTypeResourceType->isGetAllowed() || !$procedureTypeResourceType->isUpdateAllowed()) {
+            throw AccessException::typeNotDirectlyAccessible($procedureTypeResourceType);
         }
-
-        $procedureTypeEntity = $procedureTypeResourceType->getEntityAsReadTarget($procedureTypeId);
+        $procedureTypeEntity = $procedureTypeResourceType->getEntity($procedureTypeId);
         $procedureTypeResource = $wrapperFactory->createWrapper($procedureTypeEntity, $procedureTypeResourceType);
 
         $form = $this->getForm(
@@ -398,7 +410,7 @@ class DemosPlanProcedureTypeController extends BaseController
                     $formData
                 );
 
-                $procedureType = $procedureTypeResourceType->getEntityByTypeIdentifier($procedureTypeId);
+                $procedureType = $procedureTypeResourceType->getEntity($procedureTypeId);
 
                 // @improve: use symfony forms mapping capabilities to map fields automatically
                 $procedureTypeResourceChange = $resourcePersister->updateBackingObjectWithEntity(
@@ -407,7 +419,7 @@ class DemosPlanProcedureTypeController extends BaseController
                     $procedureTypeResourceProperties['procedureTypeProperties']
                 );
 
-                $procedureUiDefinition = $procedureUiDefinitionResourceType->getEntityByTypeIdentifier(
+                $procedureUiDefinition = $procedureUiDefinitionResourceType->getEntity(
                     $procedureType->getProcedureUiDefinition()->getId()
                 );
 
@@ -417,7 +429,7 @@ class DemosPlanProcedureTypeController extends BaseController
                     $procedureTypeResourceProperties['procedureUiDefinitionProperties']
                 );
 
-                $procedureBehaviorDefinition = $procedureBehaviorDefinitionResourceType->getEntityByTypeIdentifier(
+                $procedureBehaviorDefinition = $procedureBehaviorDefinitionResourceType->getEntity(
                     $procedureType->getProcedureBehaviorDefinition()->getId()
                 );
 

@@ -9,11 +9,11 @@
 
 <template>
   <fieldset class="u-pb-0 inline">
-    <legend class="hide-visually">
+    <legend class="sr-only">
       {{ Translator.trans('filter') }}
     </legend>
     <select
-      class="o-form__control-select width-200"
+      class="o-form__control-select w-10"
       id="districtFilter"
       @change="filterItems"
       v-model="selectedDistrict">
@@ -30,7 +30,7 @@
       </option>
     </select><!--
  --><select
-      class="o-form__control-select u-ml-0_5 width-200"
+      class="o-form__control-select u-ml-0_5 w-10"
       id="documentFilter"
       @change="filterItems"
       v-model="selectedDocument">

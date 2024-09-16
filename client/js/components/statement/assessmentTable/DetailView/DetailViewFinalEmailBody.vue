@@ -9,11 +9,13 @@
 
 <template>
   <dp-editor
+    :data-cy="dataCy"
     hidden-input="r_send_body"
     :toolbar-items="toolbarItems"
     v-model="text">
     <template v-slot:modal="modalProps">
       <dp-boiler-plate-modal
+        v-if="hasPermission('area_admin_boilerplates')"
         ref="boilerPlateModal"
         boiler-plate-type="email"
         :procedure-id="procedureId"
@@ -21,6 +23,7 @@
     </template>
     <template v-slot:button>
       <button
+        v-if="hasPermission('area_admin_boilerplates')"
         :class="prefixClass('menubar__button')"
         type="button"
         v-tooltip="Translator.trans('boilerplate.insert')"
@@ -49,6 +52,12 @@ export default {
   mixins: [prefixClassMixin],
 
   props: {
+    dataCy: {
+      type: String,
+      required: false,
+      default: 'statementDetailFinalEmailBody'
+    },
+
     initText: {
       type: String,
       required: true
@@ -72,7 +81,9 @@ export default {
 
   methods: {
     openBoilerPlate () {
-      this.$refs.boilerPlateModal.toggleModal()
+      if (hasPermission('area_admin_boilerplates')) {
+        this.$refs.boilerPlateModal.toggleModal()
+      }
     }
   }
 }

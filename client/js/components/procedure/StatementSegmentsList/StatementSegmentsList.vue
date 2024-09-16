@@ -23,6 +23,7 @@
       <segment-location-map
         v-show="slidebar.showTab === 'map'"
         ref="locationMap"
+        :map-data="procedureMapSettings"
         :procedure-id="procedureId"
         :segment-id="slidebar.segmentId"
         :statement-id="statementId" />
@@ -31,8 +32,11 @@
     <dp-sticky-element>
       <header class="border--bottom u-pv-0_5 flow-root">
         <div class="inline-flex space-inline-m">
-          <h1 :class="['font-size-larger align-middle inline-block u-m-0']">
-            {{ Translator.trans('statement') }} #{{ statementExternId }}
+          <status-badge
+            class="mr-2"
+            :status="statement.attributes.status || 'new'" />
+          <h1 class="font-size-larger align-middle inline-block u-m-0">
+            #{{ statementExternId }}
           </h1>
           <div
             v-if="hasPermission('feature_segment_recommendation_edit')"
@@ -53,25 +57,24 @@
             </button>
           </div>
         </div>
-        <ul class="float-right space-inline-s flex">
+        <ul class="float-right space-inline-s flex items-center">
           <li v-if="!statement.attributes.synchronized">
             <dp-claim
               class="o-flyout__trigger u-ph-0_25 line-height--2"
-              entity-type="statement"
               :assigned-id="currentAssignee.id"
               :assigned-name="currentAssignee.name"
               :assigned-organisation="currentAssignee.orgaName"
               :current-user-id="currentUser.id"
+              entity-type="statement"
               :is-loading="isLoading"
               :label="Translator.trans(`${currentUser.id === currentAssignee.id ? 'assigned' : 'assign'}`)"
               @click="toggleClaimStatement" />
           </li>
           <li>
-            <dp-button
-              class="u-ph-0_25"
-              :href="Routing.generate('dplan_segments_export', { procedureId: procedureId, statementId: statementId })"
-              :text="Translator.trans('export.verb')"
-              variant="subtle" />
+            <statement-export-modal
+              data-cy="statementSegmentsList:export"
+              @export="showHintAndDoExport"
+              is-single-statement-export />
           </li>
           <li v-if="hasPermission('feature_read_source_statement_via_api')">
             <dp-flyout :disabled="isDisabledAttachmentFlyout">
@@ -85,21 +88,21 @@
                 </span>
               </template>
               <template v-if="statement">
-                <div class="overflow-x-scroll break-words max-height-500 max-width-600 width-max-content">
+                <div class="overflow-x-scroll break-words max-h-13 max-w-14 w-max">
                   <span class="block weight--bold">{{ Translator.trans('original.pdf') }}</span>
                   <statement-meta-attachments-link
                     v-if="originalAttachment.hash"
-                    :attachment="originalAttachment"
                     class="block whitespace-normal u-mr-0_75"
+                    :attachment="originalAttachment"
                     :procedure-id="procedureId" />
                   <span
                     v-if="additionalAttachments.length > 0"
                     class="block weight--bold">{{ Translator.trans('more.attachments') }}</span>
                   <statement-meta-attachments-link
                     v-for="attachment in additionalAttachments"
-                    :key="attachment.hash"
-                    :attachment="attachment"
                     class="block whitespace-normal u-mr-0_75"
+                    :attachment="attachment"
+                    :key="attachment.hash"
                     :procedure-id="procedureId" />
                 </div>
               </template>
@@ -135,22 +138,23 @@
         v-if="showInfobox && statement"
         :attachments="filteredAttachments"
         :current-user-id="currentUser.id"
+        :editable="editable"
         :statement="statement"
         :submit-type-options="submitTypeOptions"
-        :editable="editable"
         @close="showInfobox = false"
         @save="(statement) => saveStatement(statement)"
         @input="checkStatementClaim" />
       <segments-recommendations
         v-if="currentAction === 'addRecommendation' && hasPermission('feature_segment_recommendation_edit')"
         :current-user="currentUser"
-        :statement-id="statementId"
-        :procedure-id="procedureId" />
+        :procedure-id="procedureId"
+        :statement-id="statementId" />
       <statement-segments-edit
         v-else-if="currentAction === 'editText'"
-        :editable="editable"
-        :statement-id="statementId"
         :current-user="currentUser"
+        :editable="editable"
+        :segment-draft-list="this.statement.attributes.segmentDraftList"
+        :statement-id="statementId"
         @statement-text-updated="checkStatementClaim"
         @save-statement="saveStatement" />
     </div>
@@ -172,10 +176,12 @@ import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHist
 import SegmentCommentsList from './SegmentCommentsList'
 import SegmentLocationMap from './SegmentLocationMap'
 import SegmentsRecommendations from './SegmentsRecommendations'
+import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
 import StatementMeta from './StatementMeta/StatementMeta'
 import StatementMetaAttachmentsLink from './StatementMeta/StatementMetaAttachmentsLink'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
 import StatementSegmentsEdit from './StatementSegmentsEdit'
+import StatusBadge from '../Shared/StatusBadge.vue'
 
 export default {
   name: 'StatementSegmentsList',
@@ -190,10 +196,12 @@ export default {
     SegmentCommentsList,
     SegmentLocationMap,
     SegmentsRecommendations,
+    StatementExportModal,
     StatementMeta,
     StatementMetaAttachmentsLink,
     StatementMetaTooltip,
-    StatementSegmentsEdit
+    StatementSegmentsEdit,
+    StatusBadge
   },
 
   provide () {
@@ -207,6 +215,16 @@ export default {
     currentUser: {
       type: Object,
       required: true
+    },
+
+    /**
+     * If inside a source procedure that is already coupled, HEARING_AUTHORITY_ADMIN users may copy statements to the
+     * respective target procedure, while HEARING_AUTHORITY_WORKER users may see which statements are synchronized.
+     */
+    isSourceAndCoupledProcedure: {
+      type: Boolean,
+      required: false,
+      default: false
     },
 
     procedureId: {
@@ -241,6 +259,8 @@ export default {
     return {
       currentAction: 'addRecommendation',
       isLoading: false,
+      procedureMapSettings: {},
+      segmentDraftList: '',
       // Add key to meta box to rerender the component in case the save request fails and the data is store in set back to initial values
       showInfobox: false,
       statementClaimChecked: false,
@@ -249,21 +269,21 @@ export default {
   },
 
   computed: {
-    ...mapState('assignableUser', {
+    ...mapState('AssignableUser', {
       assignableUsersObject: 'items'
     }),
 
-    ...mapState('statementSegment', {
+    ...mapState('StatementSegment', {
       segments: 'items'
     }),
 
-    ...mapState('statement', {
+    ...mapState('Statement', {
       statements: 'items'
     }),
 
-    ...mapState('segmentSlidebar', ['slidebar']),
+    ...mapState('SegmentSlidebar', ['slidebar']),
 
-    ...mapGetters('segmentSlidebar', ['commentsList']),
+    ...mapGetters('SegmentSlidebar', ['commentsList']),
 
     additionalAttachments () {
       /**
@@ -304,7 +324,7 @@ export default {
           return {
             hash: file.attributes.hash,
             filename: file.attributes.filename,
-            type: attachment.attributes.type
+            type: attachment.attributes.attachmentType
           }
         })
       } else {
@@ -332,7 +352,7 @@ export default {
 
       if (currentAssigneeId) {
         const assignee = this.assignableUsersObject[currentAssigneeId] || { attributes: {} }
-        const assigneeOrga = assignee.rel ? Object.values(assignee.rel('orga'))[0] : null
+        const assigneeOrga = assignee.rel ? assignee.rel('orga') : null
 
         return {
           id: currentAssigneeId,
@@ -396,27 +416,32 @@ export default {
   },
 
   methods: {
-    ...mapMutations('segmentSlidebar', [
+    ...mapMutations('SegmentSlidebar', [
       'setContent',
       'setProperty'
     ]),
 
-    ...mapMutations('statement', {
+    ...mapMutations('Statement', {
       setStatement: 'setItem'
     }),
 
-    ...mapActions('statement', {
+    ...mapActions('AssignableUser', {
+      listAssignableUser: 'list'
+    }),
+
+    ...mapActions('ProcedureMapSettings', {
+      fetchLayers: 'fetchLayers',
+      fetchProcedureMapSettings: 'fetchProcedureMapSettings'
+    }),
+
+    ...mapActions('Statement', {
       getStatementAction: 'get',
       saveStatementAction: 'save',
       updateStatementAction: 'update',
       restoreStatementAction: 'restoreFromInitial'
     }),
 
-    ...mapActions('assignableUser', {
-      listAssignableUser: 'list'
-    }),
-
-    ...mapActions('segmentSlidebar', [
+    ...mapActions('SegmentSlidebar', [
       'toggleSlidebarContent'
     ]),
 
@@ -447,7 +472,7 @@ export default {
           relationships: {
             assignee: {
               data: {
-                type: 'User',
+                type: 'Claim',
                 id: this.currentUser.id
               }
             }
@@ -460,7 +485,7 @@ export default {
         .then(() => {
           const dataToUpdate = this.setDataToUpdate(true)
 
-          this.setStatement({ ...dataToUpdate, id: this.statement.id, group: null })
+          this.setStatement({ ...dataToUpdate, id: this.statement.id })
           dplan.notify.notify('confirm', Translator.trans('confirm.statement.assignment.assigned'))
         })
         .catch((err) => {
@@ -474,6 +499,41 @@ export default {
     },
 
     getStatement () {
+      const statementFields = [
+        'assignee',
+        'attachments',
+        'similarStatementSubmitters',
+        'authoredDate',
+        'authorName',
+        'files',
+        'fullText',
+        'isSubmittedByCitizen',
+        'initialOrganisationCity',
+        'initialOrganisationDepartmentName',
+        'initialOrganisationHouseNumber',
+        'initialOrganisationName',
+        'initialOrganisationPostalCode',
+        'initialOrganisationStreet',
+        'internId',
+        'isManual',
+        'memo',
+        'recommendation',
+        'segmentDraftList',
+        'status',
+        'submitDate',
+        'submitName',
+        'submitType',
+        'submitterEmailAddress'
+      ]
+
+      if (this.isSourceAndCoupledProcedure) {
+        statementFields.push('synchronized')
+      }
+
+      if (hasPermission('area_statement_segmentation')) {
+        statementFields.push('segmentDraftList')
+      }
+
       return this.getStatementAction({
         id: this.statementId,
         include: [
@@ -484,31 +544,7 @@ export default {
           'similarStatementSubmitters'
         ].join(),
         fields: {
-          Statement: [
-            'assignee',
-            'attachments',
-            'similarStatementSubmitters',
-            'authoredDate',
-            'authorName',
-            'files',
-            'fullText',
-            'isSubmittedByCitizen',
-            'initialOrganisationCity',
-            'initialOrganisationDepartmentName',
-            'initialOrganisationHouseNumber',
-            'initialOrganisationName',
-            'initialOrganisationPostalCode',
-            'initialOrganisationStreet',
-            'internId',
-            'isManual',
-            'memo',
-            'recommendation',
-            'submitDate',
-            'submitName',
-            'submitType',
-            'submitterEmailAddress',
-            'synchronized'
-          ].join(),
+          Statement: statementFields.join(),
           SimilarStatementSubmitter: [
             'city',
             'emailAddress',
@@ -518,9 +554,8 @@ export default {
             'streetNumber'
           ].join(),
           StatementAttachment: [
-            'id',
             'file',
-            'type'
+            'attachmentType'
           ].join(),
           File: [
             'hash',
@@ -563,7 +598,7 @@ export default {
             ...this.statements[this.statement.id].relationships,
             assignee: {
               data: {
-                type: 'User',
+                type: 'Claim',
                 id: claimingStatement ? this.currentUser.id : null
               }
             }
@@ -582,6 +617,29 @@ export default {
 
       const defaultAction = hasPermission('feature_segment_recommendation_edit') ? 'addRecommendation' : 'editText'
       this.currentAction = action || defaultAction
+    },
+
+    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate }) {
+      const parameters = {
+        procedureId: this.procedureId,
+        statementId: this.statementId
+      }
+
+      if (docxHeaders) {
+        parameters.tableHeaders = {
+          col1: docxHeaders.col1,
+          col2: docxHeaders.col2,
+          col3: docxHeaders.col3
+        }
+      }
+
+      if (fileNameTemplate) {
+        parameters.fileNameTemplate = fileNameTemplate
+      }
+
+      if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
+        window.location.href = Routing.generate(route, parameters)
+      }
     },
 
     /**
@@ -644,7 +702,7 @@ export default {
         .then(() => {
           const dataToUpdate = this.setDataToUpdate()
 
-          this.setStatement({ ...dataToUpdate, id: this.statement.id, group: null })
+          this.setStatement({ ...dataToUpdate, id: this.statement.id })
           dplan.notify.notify('confirm', Translator.trans('confirm.statement.assignment.unassigned'))
         })
         .catch((err) => {
@@ -671,6 +729,17 @@ export default {
       }
     })
     this.setContent({ prop: 'commentsList', val: { ...this.commentsList, procedureId: this.procedureId, statementId: this.statementId } })
+    this.fetchProcedureMapSettings(this.procedureId)
+      .then(response => {
+        this.procedureMapSettings = { ...this.procedureMapSettings, ...response.attributes }
+      })
+
+    this.fetchLayers(this.procedureId)
+      .then(response => {
+        this.procedureMapSettings.layers = response.data
+          .filter(layer => layer.attributes.isEnabled && layer.attributes.hasDefaultVisibility)
+          .map(layer => layer.attributes)
+      })
   }
 }
 </script>

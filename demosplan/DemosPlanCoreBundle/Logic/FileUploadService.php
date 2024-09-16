@@ -27,19 +27,6 @@ class FileUploadService implements FileUploadServiceInterface
     {
     }
 
-    /**
-     * Speichere die hochgeladenen Dateien im Fileservice.
-     *
-     * Warning: don't omit the $field parameter when accessing multiple fields. The returned array
-     * is supposed to contain one entry for each field with the entry containing the file(s) for that
-     * field. However in reality one of the entries did contain a file from a different entry.
-     *
-     * @param string|null $field will return all files if set to null
-     *
-     * @return array|string Fileservice hash
-     *
-     * @throws Exception
-     */
     public function prepareFilesUpload(Request $request, $field = null, bool $suppressWarning = false)
     {
         $messageBag = $this->messageBag;
@@ -104,8 +91,6 @@ class FileUploadService implements FileUploadServiceInterface
      *
      * @param string|null      $field
      * @param UploadedFile[][] $fileBag
-     *
-     * @return mixed
      *
      * @throws MessageBagException
      */

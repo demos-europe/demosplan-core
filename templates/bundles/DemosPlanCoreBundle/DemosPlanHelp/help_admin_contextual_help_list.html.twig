@@ -8,9 +8,12 @@
     </h1>
 
     <form method="post" action="{{ path('dplan_contextual_help_list') }}" name="contextualHelpForm">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
         <div class="flow-root">
             <button
                 class="btn-icns"
+                data-cy="adminContextualHelpList:deleteMarkedItems"
                 name="delete"
                 data-form-actions-confirm="{{ "check.items.marked.delete" |trans }}"
             >
@@ -28,14 +31,15 @@
 
         <table
             aria-describedby="title"
-            class="c-table">
+            class="c-table"
+            data-cy="adminContextualHelpList">
             <colgroup>
                 <col>
             </colgroup>
 
             <thead>
                 <tr>
-                    <th class="width-20">
+                    <th class="w-3">
                         <label class="inline-block u-mb-0 u-mr-0_5">
                             <input
                                 id="select_all"
@@ -44,7 +48,7 @@
                                 data-cy="selectAll"
                                 aria-label="{{ "markall"|trans }}"
                                 data-form-actions-check-all>
-                            <span class="hide-visually">
+                            <span class="sr-only">
                                 {{ "markall"|trans }}
                             </span>
                         </label>
@@ -65,19 +69,19 @@
                 {% endif %}
 
                 {% for contextualHelp in templateVars.contextualHelpList %}
-                        <tr>
+                        <tr data-cy="adminContextualHelpList:item:{{ loop.index }}">
                             <td>
                                 <input
                                     type="checkbox"
                                     name="r_delete[]"
-                                    ata-cy="contextualHelpSelect"
+                                    data-cy="contextualHelpSelect"
                                     value="{{ contextualHelp.ident }}"
                                     data-checkable-item>
                             </td>
                             <td>
                                 <a
                                     href="{{ path('dplan_contextual_help_edit',{'contextualHelpId': contextualHelp.ident|default()}) }}"
-                                    data-cy="contextualHelpItem">
+                                    data-cy="contextualHelpItem:{{ loop.index }}">
                                     {{  contextualHelp.key|default }}
                                 </a>
                             </td>

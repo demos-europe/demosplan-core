@@ -53,7 +53,7 @@ export default {
   },
 
   computed: {
-    ...mapState('notify', ['messages']),
+    ...mapState('Notify', ['messages']),
 
     liveState () {
       return (this.isVisible) ? 'polite' : 'off'
@@ -65,7 +65,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('notify', ['add', 'remove']),
+    ...mapMutations('Notify', ['add', 'remove']),
 
     init () {
       for (const type in this.notifications) {

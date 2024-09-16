@@ -23,15 +23,18 @@
               :id="number"
               name="item_check[]"
               :value="id">
-            <label
-              :for="number"
-              data-cy="statementNumber"
-              class="inline u-mb-0 u-ml-0_25">{{ number || '' }}</label>
+            <span
+              class="c-public-statement__tooltip"
+              v-tooltip="renderTooltipContent(tooltipContent)">
+              <label
+                :for="number"
+                data-cy="statementNumber"
+                class="inline u-mb-0">
+                {{ `${ number || externId }` }}
+              </label>
+            </span>
           </div><!--
        --><div class="inline-block">
-            <span
-              class="u-mr-0_25 c-public-statement__tooltip"
-              v-tooltip="renderTooltipContent(tooltipContent)">#</span>
             <span>{{ headerContent }}</span>
             <button
               v-if="unsavedChangesItem"
@@ -232,7 +235,7 @@
           {{ Translator.trans('statementtext') }}
         </div>
         <div
-          class="break-words"
+          class="c-styled-html"
           v-cleanhtml="text" />
       </div>
     </template>
@@ -284,6 +287,11 @@ export default {
       default: () => Translator.trans('none')
     },
     elementId: {
+      type: String,
+      required: false,
+      default: ''
+    },
+    externId: {
       type: String,
       required: false,
       default: ''
@@ -380,7 +388,7 @@ export default {
   },
 
   computed: {
-    ...mapState('publicStatement', ['unsavedDrafts']),
+    ...mapState('PublicStatement', ['unsavedDrafts']),
 
     authoredBy () {
       return this.showAuthor ? this.user : '-'

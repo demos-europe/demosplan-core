@@ -12,22 +12,19 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\UserResourceTypeInterface;
-use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer;
-use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use EDT\PathBuilding\End;
 
 /**
- * @template-implements UpdatableDqlResourceTypeInterface<UserInterface>
- *
  * @template-extends DplanResourceType<UserInterface>
  *
  * @property-read End $firstname
@@ -45,7 +42,7 @@ use EDT\PathBuilding\End;
  * @property-read DepartmentResourceType $department
  * @property-read RoleResourceType $roles
  */
-final class UserResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface, UserResourceTypeInterface
+final class UserResourceType extends DplanResourceType implements UserResourceTypeInterface
 {
     public function __construct(private readonly ProcedureService $procedureService)
     {
@@ -59,74 +56,6 @@ final class UserResourceType extends DplanResourceType implements UpdatableDqlRe
     public static function getName(): string
     {
         return 'User';
-    }
-
-    public function updateObject(object $entity, array $properties): ResourceChange
-    {
-        // Special logic for moving users from one orga/department into another
-
-        /** @var User $entity */
-        $orgaUpdate = array_key_exists($this->orga->getAsNamesInDotNotation(), $properties);
-        if ($orgaUpdate) {
-            $originalOrga = $entity->getOrga();
-            if ($originalOrga instanceof Orga) {
-                $originalOrga->setGwId(null);
-                $originalOrga->removeUser($entity);
-            }
-        }
-
-        $departmentUpdate = array_key_exists($this->department->getAsNamesInDotNotation(), $properties);
-        if ($departmentUpdate) {
-            $originalDepartment = $entity->getDepartment();
-            if ($originalDepartment instanceof Department) {
-                $originalDepartment->setGwId(null);
-                $originalDepartment->removeUser($entity);
-            }
-        }
-
-        $resourceChange = new ResourceChange($entity, $this, $properties);
-
-        $this->resourceTypeService->updateObjectNaive($entity, $properties);
-        $this->resourceTypeService->validateObject($entity);
-
-        if (isset($originalOrga) && $originalOrga instanceof Orga) {
-            $newOrga = $entity->getOrga();
-            if (null !== $newOrga) {
-                $newOrga->addUser($entity);
-            }
-            $resourceChange->addEntityToPersist($newOrga);
-            $resourceChange->addEntityToPersist($originalOrga);
-        }
-        if (isset($originalDepartment) && $originalDepartment instanceof Department) {
-            $newDepartment = $entity->getDepartment();
-            if (null !== $newDepartment) {
-                $newDepartment->addUser($entity);
-            }
-            $resourceChange->addEntityToPersist($newDepartment);
-            $resourceChange->addEntityToPersist($originalDepartment);
-        }
-
-        return $resourceChange;
-    }
-
-    /**
-     * @return array<string,string|null>
-     *
-     * @throws UserNotFoundException
-     */
-    public function getUpdatableProperties(object $targetEntity): array
-    {
-        // only allow writing of these properties if users can be moved from one
-        // orga/department to another (which is currently only needed if the
-        // feature_mastertoeblist permission is enabled)
-        if ($this->currentUser->hasPermission('feature_mastertoeblist')) {
-            return $this->toProperties(
-                $this->orga,
-                $this->department
-            );
-        }
-
-        return [];
     }
 
     public function isAvailable(): bool
@@ -144,13 +73,36 @@ final class UserResourceType extends DplanResourceType implements UpdatableDqlRe
         );
     }
 
+    public function isUpdateAllowed(): bool
+    {
+        return $this->currentUser->hasAllPermissions(
+            'feature_user_edit',
+            // only allow writing of properties if users can be moved from one
+            // orga/department to another (which is currently only needed if the
+            // feature_mastertoeblist permission is enabled)
+            'feature_mastertoeblist'
+        );
+    }
+
     protected function getAccessConditions(): array
     {
         // Without this permission users can use their own User resource only.
+        $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
         if ($this->currentUser->hasPermission('area_manage_users')) {
-            return [];
+            return [
+                $this->conditionFactory->propertyHasValue(
+                    $currentCustomer->getId(),
+                    $this->roleInCustomers->customer->id
+                ),
+                $this->conditionFactory->propertyHasNotAnyOfValues(
+                    [RoleInterface::API_AI_COMMUNICATOR, RoleInterface::CITIZEN],
+                    $this->roleInCustomers->role->code
+                ),
+                $this->conditionFactory->propertyHasValue(false, $this->deleted),
+            ];
         }
         $currentProcedure = $this->currentProcedureService->getProcedure();
+
         $user = $this->currentUser->getUser();
         $userAuthorized = null === $currentProcedure
             ? false
@@ -164,21 +116,11 @@ final class UserResourceType extends DplanResourceType implements UpdatableDqlRe
         return [$this->conditionFactory->propertyHasValue($user->getId(), $this->id)];
     }
 
-    public function isReferencable(): bool
-    {
-        return true;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
-    }
-
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)
-                ->readable(true)->filterable()->sortable(),
+            $this->createIdentifier()
+                ->readable()->filterable()->sortable(),
             $this->createAttribute($this->firstname)
                 ->readable(true)->filterable()->sortable(),
             $this->createAttribute($this->lastname)
@@ -197,7 +139,7 @@ final class UserResourceType extends DplanResourceType implements UpdatableDqlRe
                 ->readable(true, static fn (User $user): bool => $user->getNewsletter()),
             $this->createAttribute($this->noPiwik)
                 ->readable(true, static fn (User $user): bool => $user->getNoPiwik()),
-            $this->createToManyRelationship($this->roles, true)
+            $this->createToManyRelationship($this->roles)
                 ->readable(true, static function (User $user): array {
                     $roles = [];
                     $roleRelations = $user->getRoleInCustomers()->toArray();
@@ -210,11 +152,35 @@ final class UserResourceType extends DplanResourceType implements UpdatableDqlRe
                     }
 
                     return $roles;
+                }, true),
+            $this->createToOneRelationship($this->department)
+                ->readable(true, static fn (User $user) => $user->getDepartment(), true)
+                ->updatable([], [], static function (User $user, Department $newDepartment): array {
+                    // Special logic for moving users from one department into another
+                    $originalDepartment = $user->getDepartment();
+                    if ($originalDepartment instanceof Department) {
+                        $originalDepartment->setGwId(null);
+                        $originalDepartment->removeUser($user);
+                    }
+                    $user->setDepartment($newDepartment);
+                    $newDepartment->addUser($user);
+
+                    return [];
                 }),
-            $this->createToOneRelationship($this->department, true)
-                ->readable(true, static fn (User $user) => $user->getDepartment()),
-            $this->createToOneRelationship($this->orga, true)
-                ->readable(true, static fn (User $user) => $user->getOrga()),
+            $this->createToOneRelationship($this->orga)
+                ->readable(true, static fn (User $user): ?OrgaInterface => $user->getOrga(), true)
+                ->updatable([], [], static function (User $user, Orga $newOrga): array {
+                    // Special logic for moving users from one organization into another
+                    $originalOrga = $user->getOrga();
+                    if ($originalOrga instanceof Orga) {
+                        $originalOrga->setGwId(null);
+                        $originalOrga->removeUser($user);
+                    }
+                    $user->setOrga($newOrga);
+                    $newOrga->addUser($user);
+
+                    return [];
+                }),
         ];
     }
 }

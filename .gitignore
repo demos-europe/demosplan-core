@@ -1,7 +1,9 @@
 .idea/
 */vendor
+addonDev
 addonZip
 addonZips
+addonDev
 addons
 node_modules
 yarn-error.log
@@ -19,6 +21,7 @@ phpstan.neon
 !.editorconfig
 !.env
 !.env.test
+!.yarnrc.yml
 .ssh/
 .lnav
 !.github
@@ -33,12 +36,13 @@ logs
 /projects/core/web/img
 /projects/core/web/js
 /projects/core/web/video
+/projects/core/web/files
 
 ###> symfony/framework-bundle ###
 /.env.local
 /.env.local.php
 /.env.*.local
-/demosplan/DemosPlanCoreBundle/Resources/config/secrets/prod/prod.decrypt.private.php
+/config/secrets/prod/prod.decrypt.private.php
 /public/bundles/
 /var/
 /vendor/

@@ -10,15 +10,18 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use Doctrine\ORM\NoResultException;
-use Doctrine\ORM\ORMException;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\ORMException;
 use Exception;
 use InvalidArgumentException;
 
+/**
+ * @template-extends CoreRepository<StatementAttribute>
+ */
 class StatementAttributeRepository extends CoreRepository implements ArrayInterface
 {
     public function get($entityId)

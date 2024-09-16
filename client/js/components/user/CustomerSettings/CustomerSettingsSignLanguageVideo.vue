@@ -14,7 +14,7 @@
     <template v-if="video.id">
       <div class="flex space-inline-m">
         <dp-video-player
-          class="shadow height-fit-content width-300"
+          class="shadow h-fit w-12"
           :sources="videoSources"
           :id="`file${video.file}`"
           icon-url="/img/plyr.svg" />
@@ -37,6 +37,7 @@
       <dp-input
         id="videoTitle"
         v-model="video.title"
+        data-cy="customerSettings:videoTitle"
         data-dp-validate-if="input[name='uploadedFiles[videoSrc]']!=='', #videoDescription!==''"
         :label="{
           text: Translator.trans('title')
@@ -55,6 +56,7 @@
         needs-hidden-input
         required
         data-dp-validate-if="#videoTitle!=='', #videoDescription!==''"
+        data-cy="customerSettings:videoUpload"
         :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '400MB' }) }"
         :tus-endpoint="dplan.paths.tusEndpoint"
         @file-remove="unsetVideoSrcId"
@@ -62,6 +64,7 @@
 
       <dp-text-area
         id="videoDescription"
+        data-cy="customerSettings:videoDescription"
         :label="Translator.trans('video.description')"
         name="videoDescription"
         required
@@ -71,6 +74,7 @@
 
       <dp-button-row
         class="u-mt"
+        data-cy="customerSettings:video"
         primary
         secondary
         :busy="isBusy"
@@ -109,6 +113,11 @@ export default {
   mixins: [dpValidateMixin],
 
   props: {
+    currentCustomerId: {
+      type: String,
+      required: true
+    },
+
     signLanguageOverviewVideo: {
       required: false,
       type: Object,
@@ -127,7 +136,7 @@ export default {
       required: false,
       type: String,
       default: ''
-    },
+    }
   },
 
   data () {
@@ -138,7 +147,7 @@ export default {
   },
 
   computed: {
-    ...mapState('customer', {
+    ...mapState('Customer', {
       customerList: 'items'
     }),
 
@@ -157,18 +166,18 @@ export default {
   },
 
   methods: {
-    ...mapActions('customer', {
+    ...mapActions('Customer', {
       fetchCustomer: 'list',
       saveCustomer: 'save'
     }),
 
-    ...mapMutations('customer', {
+    ...mapMutations('Customer', {
       updateCustomer: 'setItem'
     }),
 
     saveSignLanguageVideo () {
       this.isBusy = true
-      this.saveSignLanguage()
+      this.saveSignLanguageOverviewDescription()
       this.saveVideo()
         .then(() => {
           this.$emit('created')
@@ -185,12 +194,13 @@ export default {
         .then(() => this.$emit('deleted'))
     },
 
-    saveSignLanguage() {
+    saveSignLanguageOverviewDescription () {
       const payload = {
         id: this.currentCustomerId,
         type: 'Customer',
         attributes: {
-          ...this.customerList[this.currentCustomerId].attributes
+          ...this.customerList[this.currentCustomerId].attributes,
+          signLanguageOverviewDescription: this.signLanguageOverviewDescription
         }
       }
       this.updateCustomer(payload)

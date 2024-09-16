@@ -17,7 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\Events\IsOriginalStatementAvailableEven
 class IsOriginalStatementAvailableEvent extends DPlanEvent implements IsOriginalStatementAvailableEventInterface
 {
     /**
-     * @param bool
+     * @var bool
      */
     private $isOriginalStatementAvailable = false;
 

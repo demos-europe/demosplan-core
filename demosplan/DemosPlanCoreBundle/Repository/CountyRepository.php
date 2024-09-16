@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -23,6 +24,9 @@ use Doctrine\ORM\ORMException;
 use Exception;
 use InvalidArgumentException;
 
+/**
+ * @template-extends FluentRepository<County>
+ */
 class CountyRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
     /**
@@ -218,8 +222,6 @@ class CountyRepository extends FluentRepository implements ArrayInterface, Objec
 
     /**
      * @param CoreEntity $entity
-     *
-     * @return bool
      */
     public function deleteObject($entity): never
     {

@@ -22,7 +22,7 @@
       ATTENTION! To be able to reduce the dropdown's size, I had to change styling in _multiselect.scss (overflow and max-height props in dropdown__content). It may cause the comeback of T11129 bug -->
 
       <!-- modal content -->
-      <div class="height-220">
+      <div class="h-11">
         <h3>{{ Translator.trans('user.choose') }}:</h3>
         <div>
           <dp-multiselect
@@ -94,7 +94,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('assessmentTable', [
+    ...mapGetters('AssessmentTable', [
       'assignEntityModal'
     ]),
 
@@ -112,7 +112,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('assessmentTable', [
+    ...mapMutations('AssessmentTable', [
       'setModalProperty'
     ]),
 

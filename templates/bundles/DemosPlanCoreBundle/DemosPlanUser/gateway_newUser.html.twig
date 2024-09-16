@@ -63,6 +63,7 @@
                     method="post"
                     action="{{ path("DemosPlan_user_complete_data") }}"
                     data-dp-validate novalidate>
+                    {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
                     <h3 class="u-mt-2 u-mb-0_75">
                         {{ "customer.data"|trans }}
@@ -200,7 +201,7 @@
                                                 Spezifizieren Sie über eine Eintragung in das folgende Textfeld, welche Unterlagen Sie wünschen. Beispiel: 2 x Planzeichnung.
                                             </p>
                                             <textarea
-                                                class="height-130"
+                                                class="h-9"
                                                 name="paperCopySpec">
                                                 {{ orga.papercopyspec|default("") }}
                                             </textarea>
@@ -214,7 +215,7 @@
                                                 Falls Ihre Organisation nur unter bestimmten Bedingungen an einem Bauleitplanverfahren beteiligt werden soll, können Sie Ihre Zuständigkeit erläutern.
                                             </p>
                                             <textarea
-                                                class="height-130"
+                                                class="h-9"
                                                 name="competence">
                                                 {{ orga.competence|default("") }}
                                             </textarea>

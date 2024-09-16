@@ -13,149 +13,38 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType;
 
 use DateTime;
-use DemosEurope\DemosplanAddon\Contracts\ApiRequest\ApiPaginationInterface;
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeInterface;
-use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
+use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\DoctrineResourceType;
+use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
-use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
-use EDT\JsonApi\ResourceTypes\CachingResourceType;
-use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
-use EDT\PathBuilding\End;
-use EDT\PathBuilding\PropertyAutoPathInterface;
-use EDT\PathBuilding\PropertyAutoPathTrait;
-use EDT\Querying\Contracts\PathsBasedInterface;
-use EDT\Querying\Contracts\PropertyPathInterface;
-use EDT\Wrapping\Contracts\Types\ExposableRelationshipTypeInterface;
-use EDT\Wrapping\Properties\UpdatableRelationship;
-use IteratorAggregate;
+use EDT\JsonApi\ResourceConfig\Builder\MagicResourceConfigBuilder;
 
 /**
- * @template T of object
+ * @template T of EntityInterface
  *
- * @template-extends CachingResourceType<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, T>
- * @template-extends JsonApiResourceTypeInterface<T>
- * @template-extends IteratorAggregate<int, non-empty-string>
- *
- * @property-read End $id
+ * @template-extends DoctrineResourceType<T>
  */
-abstract class DplanResourceType extends CachingResourceType implements IteratorAggregate, PropertyAutoPathInterface, ExposableRelationshipTypeInterface, JsonApiResourceTypeInterface
+abstract class DplanResourceType extends DoctrineResourceType
 {
-    use PropertyAutoPathTrait;
     use DplanResourceTypeTrait;
 
     /**
-     * @param array<string, mixed> $parameters
+     * FIXME: just for experimental purposes, improve or replace altogether.
      *
-     * @throws MessageBagException
+     * @template TConfig of MagicResourceConfigBuilder
+     *
+     * @param class-string<TConfig> $class
+     *
+     * @return TConfig
      */
-    public function addCreationErrorMessage(array $parameters): void
+    protected function getConfig(string $class): MagicResourceConfigBuilder
     {
-        $this->dplanResourceTypeService->addCreationErrorMessage($parameters);
+        return new $class($this->getEntityClass(), $this->getPropertyBuilderFactory());
     }
 
-    public function getDefaultSortMethods(): array
+    public function getTypeName(): string
     {
-        return [];
-    }
-
-    public function getIdentifierPropertyPath(): array
-    {
-        return $this->id->getAsNames();
-    }
-
-    public function getInternalProperties(): array
-    {
-        return $this->dplanResourceTypeService->getInternalProperties(
-            $this,
-            $this->getAutoPathProperties()
-        );
-    }
-
-    public function isExposedAsPrimaryResource(): bool
-    {
-        return $this->dplanResourceTypeService->isExposedAsPrimaryResource($this);
-    }
-
-    /**
-     * @deprecated do not implement or call this method, it will be removed as soon as possible
-     */
-    public function isExposedAsRelationship(): bool
-    {
-        return $this->isAvailable() && $this->isReferencable();
-    }
-
-    /**
-     * @deprecated Move the permission-checks from the overrides of this method to the
-     *             {@link self::getProperties()} method of the referencing resource type instead.
-     *             Afterward, return `true` in the override of this method.
-     */
-    abstract public function isReferencable(): bool;
-
-    /**
-     * Convert the given array to an array with different mapping.
-     *
-     * The returned array will map using
-     *
-     * * as key: the dot notation of the property path
-     * * as value: the corresponding {@link ResourceTypeInterface::getName} return value in case of a
-     * relationship or `null` in case of an attribute
-     *
-     * The behavior for multiple given property paths with the same dot notation is undefined.
-     *
-     * @return array<non-empty-string, UpdatableRelationship|null>
-     */
-    protected function toProperties(PropertyPathInterface ...$propertyPaths): array
-    {
-        return $this->dplanResourceTypeService->toProperties($propertyPaths);
-    }
-
-    public function listEntities(array $conditions, array $sortMethods = []): array
-    {
-        return $this->dplanResourceTypeService->listEntities($this, $conditions, $sortMethods);
-    }
-
-    public function getEntityPaginator(
-        ApiPaginationInterface $pagination,
-        array $conditions,
-        array $sortMethods = []
-    ): DemosPlanPaginator {
-        return $this->dplanResourceTypeService->getEntityPaginator($this, $pagination, $conditions, $sortMethods);
-    }
-
-    public function listPrefilteredEntities(
-        array $dataObjects,
-        array $conditions = [],
-        array $sortMethods = []
-    ): array {
-        return $this->dplanResourceTypeService->listPrefilteredEntities($this, $dataObjects, $conditions, $sortMethods);
-    }
-
-    public function getEntityAsReadTarget(string $id): object
-    {
-        return $this->dplanResourceTypeService->getEntityAsReadTarget($this, $id);
-    }
-
-    public function getEntityCount(array $conditions): int
-    {
-        return $this->dplanResourceTypeService->getEntityCount($this, $conditions);
-    }
-
-    public function getEntityByTypeIdentifier(string $id): object
-    {
-        return $this->dplanResourceTypeService->getEntityByTypeIdentifier($this, $id);
-    }
-
-    public function listEntityIdentifiers(
-        array $conditions,
-        array $sortMethods
-    ): array {
-        return $this->dplanResourceTypeService->listEntityIdentifiers($this, $conditions, $sortMethods);
-    }
-
-    protected function processProperties(array $properties): array
-    {
-        return $this->dplanResourceTypeService->processProperties($this, $properties);
+        return $this::getName();
     }
 
     protected function formatDate(?DateTime $date): ?string
@@ -169,10 +58,55 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
     abstract protected function getAccessConditions(): array;
 
     /**
-     * @deprecated use and implement {@link DplanResourceType::getAccessConditions()} instead
+     * @return non-empty-string
+     *
+     * @deprecated use {@link getTypeName} instead
      */
-    public function getAccessCondition(): PathsBasedInterface
+    abstract public static function getName(): string;
+
+    /**
+     * Fetching resources via JSON:API `get` requests is allowed by default, if the resource type is
+     * set as available and directly accessible.
+     *
+     * Override this method to change the default.
+     */
+    public function isGetAllowed(): bool
     {
-        return $this->dplanResourceTypeService->getAccessCondition($this->getAccessConditions());
+        return $this->isAvailable();
+    }
+
+    /**
+     * Fetching resources via JSON:API `list` requests is allowed by default, if the resource type is
+     * set as available and directly accessible.
+     *
+     * Override this method to change the default.
+     */
+    public function isListAllowed(): bool
+    {
+        return $this->isAvailable();
+    }
+
+    /**
+     * Override this method if you want to allow to create resources of this type via JSON:API requests.
+     */
+    public function isCreateAllowed(): bool
+    {
+        throw new NotYetImplementedException('Permissions for creation were not set-up. Override the `getRequiredCreatePermissions` according to your use case.');
+    }
+
+    /**
+     * Override this method if you want to allow to delete resources of this type via JSON:API requests.
+     */
+    public function isDeleteAllowed(): bool
+    {
+        throw new NotYetImplementedException('Authorizations for deletion were not set-up. Override the `isDeleteAllowed` according to your use case.');
+    }
+
+    /**
+     * Override this method if you want to allow to update resources of this type via JSON:API requests.
+     */
+    public function isUpdateAllowed(): bool
+    {
+        throw new NotYetImplementedException('Authorizations for updating were not set-up. Override the `isUpdateAllowed` according to your use case.');
     }
 }

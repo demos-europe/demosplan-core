@@ -12,9 +12,15 @@
     <p class="u-mb">
       {{ Translator.trans('export.settings.hint') }}
     </p>
+    <dp-inline-notification
+      v-if="singleCheckedFieldId"
+      :message="Translator.trans('field.selectionRequired')"
+      type="warning" />
     <dp-checkbox
       id="check_all"
       v-model="allChecked"
+      :disabled="allChecked === true"
+      data-cy="exportSettings:allChecked"
       class="u-mb"
       :label="{
         bold: true,
@@ -30,12 +36,14 @@
       <dp-checkbox-group
         aria-labelledby="submitter"
         :options="submitterFields"
+        data-cy="exportSettingsSubmitter"
         @update="checked => updateCheckedFields(checked)"
         :selected-options="getSelectedOptions(submitterFields)" />
     </div><!--
  --><dp-checkbox-group
       :label="Translator.trans('statement.data')"
       :options="metaDataFields"
+      data-cy="exportSettingsMetaData"
       @update="checked => updateCheckedFields(checked)"
       :selected-options="getSelectedOptions(metaDataFields)"
     class="inline-block align-top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm u-mb u-pr-2" /><!--
@@ -43,12 +51,14 @@
       v-if="hasPermission('field_procedure_elements')"
       :label="Translator.trans('documents')"
       :options="documentFields"
+      data-cy="exportSettingsDocuments"
       @update="checked => updateCheckedFields(checked)"
       :selected-options="getSelectedOptions(documentFields)"
     class="inline-block align-top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm u-mb" /><!--
  --><dp-checkbox-group
       :label="Translator.trans('publication')"
       :options="publicationField"
+      data-cy="exportSettingsPublication"
       @update="checked => updateCheckedFields(checked)"
       :selected-options="getSelectedOptions(publicationField)"
       class="inline-block align-top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm" />
@@ -56,14 +66,15 @@
 </template>
 
 <script>
-import { DpCheckbox, DpCheckboxGroup } from '@demos-europe/demosplan-ui'
+import { DpCheckbox, DpCheckboxGroup, DpInlineNotification } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'ExportSettings',
 
   components: {
     DpCheckbox,
-    DpCheckboxGroup
+    DpCheckboxGroup,
+    DpInlineNotification
   },
 
   props: {
@@ -80,6 +91,7 @@ export default {
 
   data () {
     return {
+      activePreventDefaultCheckboxId: '',
       allChecked: false,
       checkedFields: {},
       configurableFields: [
@@ -309,7 +321,8 @@ export default {
           hasPermission: hasPermission('field_statement_user_position'),
           group: 'submitterData'
         }
-      ]
+      ],
+      singleCheckedFieldId: '',
     }
   },
 
@@ -336,6 +349,11 @@ export default {
   },
 
   methods: {
+    addPreventDefault (id) {
+      const checkbox = document.getElementById(id)
+      checkbox.addEventListener('click', this.preventCheck)
+    },
+
     getSelectedOptions (options) {
       const entries = {}
       options.forEach(option => {
@@ -352,6 +370,39 @@ export default {
       this.allChecked = typeof Object.values(this.checkedFields).find(val => val === false) === 'undefined'
     },
 
+    getSingleCheckedField () {
+      const checkedFieldEntries = Object.entries(this.checkedFields).filter(([, value]) => value)
+
+      if (checkedFieldEntries.length === 1) {
+        this.singleCheckedFieldId = checkedFieldEntries[0][0]
+      } else {
+        this.singleCheckedFieldId = ''
+      }
+    },
+
+    handlePreventDefaultForSingleField () {
+      this.getSingleCheckedField()
+
+      if (this.activePreventDefaultCheckboxId) {
+        this.removePreventDefault(this.activePreventDefaultCheckboxId)
+        this.activePreventDefaultCheckboxId = ''
+      }
+
+      if (this.singleCheckedFieldId) {
+        this.addPreventDefault(this.singleCheckedFieldId)
+        this.activePreventDefaultCheckboxId = this.singleCheckedFieldId
+      }
+    },
+
+    preventCheck (e) {
+      e.preventDefault()
+    },
+
+    removePreventDefault (id) {
+      const checkbox = document.getElementById(id)
+      checkbox.removeEventListener('click', this.preventCheck)
+    },
+
     setCheckedFields () {
       this.availableFields.forEach(field => {
         this.$set(this.checkedFields, field.id, field.initVal || false)
@@ -359,22 +410,25 @@ export default {
       this.setAllChecked()
     },
 
-    toggleAll (val) {
+    toggleAll () {
       this.availableFields.forEach(field => {
-        this.$set(this.checkedFields, field.id, val)
+        this.$set(this.checkedFields, field.id, true)
       })
+      this.handlePreventDefaultForSingleField()
     },
 
     updateCheckedFields (checkedFields) {
       Object.keys(checkedFields).forEach(id => {
         this.$set(this.checkedFields, id, checkedFields[id])
       })
+      this.handlePreventDefaultForSingleField()
       this.setAllChecked()
     }
   },
 
   mounted () {
     this.setCheckedFields()
+    this.handlePreventDefaultForSingleField()
   }
 }
 </script>

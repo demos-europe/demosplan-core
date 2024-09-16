@@ -9,7 +9,7 @@
 
 <script>
 import { addFormHiddenField, removeFormHiddenField } from '../../lib/core/libs/FormActions'
-import { DpButton, DpModal, dpValidateMixin, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { DpButton, DpContextualHelp, DpModal, dpValidateMixin, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { mapMutations, mapState } from 'vuex'
 import DpPublicStatementList from '@DpJs/components/statement/publicStatementLists/DpPublicStatementList'
 import DpPublicSurvey from '@DpJs/components/procedure/survey/DpPublicSurvey'
@@ -21,6 +21,7 @@ export default {
   components: {
     StatementModal,
     DpButton,
+    DpContextualHelp,
     DpModal,
     DpPublicSurvey,
     DpPublicStatementList,
@@ -65,7 +66,7 @@ export default {
   },
 
   computed: {
-    ...mapState('publicStatement', [
+    ...mapState('PublicStatement', [
       'activeActionBoxTab',
       'initForm',
       'statement',
@@ -78,7 +79,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('publicStatement', ['initialiseStore', 'updateHighlighted', 'updateStatement', 'localStorageName']),
+    ...mapMutations('PublicStatement', ['initialiseStore', 'updateHighlighted', 'updateStatement', 'localStorageName']),
 
     submitForm (formId, hiddenFieldName) {
       const form = this.$el.querySelector(`[data-dp-validate="${formId}"]`)

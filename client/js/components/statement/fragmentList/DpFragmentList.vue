@@ -11,6 +11,7 @@
   <section class="u-mb">
     <template v-if="fragments.length">
       <dp-statement-fragment
+        :csrf-token="csrfToken"
         :is-archive="isArchive"
         v-for="fragment in fragments"
         :key="missKeyValue(fragment.id, 0)"
@@ -29,18 +30,23 @@
 </template>
 
 <script>
-import { AnimateById } from '@demos-europe/demosplan-ui'
+import AnimateById from '@DpJs/lib/shared/AnimateById'
+import DpStatementFragment from './Fragment'
 import { mapMutations } from 'vuex'
-import StatementFragment from './Fragment'
 
 export default {
   name: 'DpFragmentList',
 
   components: {
-    'dp-statement-fragment': StatementFragment
+    DpStatementFragment
   },
 
   props: {
+    csrfToken: {
+      type: String,
+      required: true
+    },
+
     isArchive: {
       type: Boolean,
       required: false,
@@ -72,7 +78,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('assessmentTable', ['setAssessmentBaseProperty']),
+    ...mapMutations('AssessmentTable', ['setAssessmentBaseProperty']),
 
     missKeyValue (value, defaultValue) {
       if (typeof value === 'undefined' || value === null) {

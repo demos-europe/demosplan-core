@@ -29,7 +29,7 @@
         <div class="segment-list-col--l weight--bold text-right">
           {{ Translator.trans('segment.recommendation') }}
         </div>
-        <div class="segment-list-col--m width-160" />
+        <div class="segment-list-col--m w-10" />
       </div>
 
       <!-- info that statement has not been segmented yet -->
@@ -97,7 +97,7 @@ export default {
   },
 
   computed: {
-    ...mapState('statementSegment', {
+    ...mapState('StatementSegment', {
       segments: 'items'
     }),
 
@@ -106,20 +106,20 @@ export default {
     },
 
     statement () {
-      return this.$store.state.statement.items[this.statementId] || null
+      return this.$store.state.Statement.items[this.statementId] || null
     }
   },
 
   methods: {
-    ...mapMutations('statement', {
+    ...mapMutations('Statement', {
       setStatement: 'setItem'
     }),
 
-    ...mapActions('statement', {
+    ...mapActions('Statement', {
       restoreStatementAction: 'restoreFromInitial'
     }),
 
-    ...mapActions('statementSegment', {
+    ...mapActions('StatementSegment', {
       listSegments: 'list'
     }),
 
@@ -158,8 +158,8 @@ export default {
      * @return {Promise<*>}
      */
     claimStatement () {
-      const dataToUpdate = { ...this.statement, ...{ relationships: { ...this.statement.relationships, ...{ assignee: { data: { type: 'User', id: this.currentUser.id } } } } } }
-      this.setStatement({ ...dataToUpdate, id: this.statementId, group: null })
+      const dataToUpdate = { ...this.statement, ...{ relationships: { ...this.statement.relationships, ...{ assignee: { data: { type: 'Claim', id: this.currentUser.id } } } } } }
+      this.setStatement({ ...dataToUpdate, id: this.statementId })
 
       const payload = {
         data: {
@@ -168,7 +168,7 @@ export default {
           relationships: {
             assignee: {
               data: {
-                type: 'User',
+                type: 'Claim',
                 id: this.currentUser.id
               }
             }
@@ -201,7 +201,6 @@ export default {
         ].join(),
         fields: {
           StatementSegment: [
-            'id',
             'tags',
             'text',
             'assignee',
@@ -214,7 +213,6 @@ export default {
             'recommendation'
           ].join(),
           SegmentComment: [
-            'id',
             'creationDate',
             'text',
             'submitter',
