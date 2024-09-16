@@ -107,7 +107,11 @@
         <dp-data-table
           ref="dataTable"
           class="overflow-x-auto pb-3"
-          :class="{ 'px-2 overflow-y-scroll grow': isFullscreen, 'scrollbar-none': !isFullscreen }"
+          :class="{
+            'px-2 overflow-y-scroll grow': isFullscreen,
+            'scrollbar-none': !isFullscreen,
+            'min-h-12': items.length < 3
+          }"
           data-cy="segmentsList"
           has-flyout
           :header-fields="headerFields"
