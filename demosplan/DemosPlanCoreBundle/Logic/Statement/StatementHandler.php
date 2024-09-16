@@ -244,7 +244,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         UserService $userService,
         private readonly StatementCopier $statementCopier,
         private readonly ValidatorInterface $validator,
-        private readonly StatementDeleter $statementDeleter
+        private readonly StatementDeleter $statementDeleter,
     ) {
         parent::__construct($messageBag);
         $this->assignService = $assignService;
@@ -1122,7 +1122,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         $draftStatementIds,
         $notificationReceiverId = '',
         $public = false,
-        bool $gdprConsentReceived = false
+        bool $gdprConsentReceived = false,
     ): array {
         if (!is_array($draftStatementIds)) {
             $draftStatementIds = [$draftStatementIds];
@@ -1148,7 +1148,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         array $draftStatementIds,
         $notificationReceiverId = '',
         $public = false,
-        bool $gdprConsentReceived = false
+        bool $gdprConsentReceived = false,
     ): array {
         $permissions = $this->permissions;
         // throw exception if GDPR consent is required, but was not given
@@ -2318,7 +2318,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             $newTagData = [
                 'topic'          => $dataset[0] ?? '',
                 'tag'            => $dataset[1] ?? '',
-                'useBoilerplate' => isset($dataset[2]) ? 'ja' === $dataset[2] : 'nein',
+                'useBoilerplate' => isset($dataset[2]) ? 'ja' === $dataset[2] : false,
                 'boilerplate'    => $dataset[3] ?? '',
             ];
             $newTags[] = $newTagData;
@@ -3533,7 +3533,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         Statement $headStatement,
         Statement $statementToAdd,
         $ignoreAssignmentOfStatement = false,
-        $ignoreAssignmentOfHeadStatement = false
+        $ignoreAssignmentOfHeadStatement = false,
     ) {
         try {
             if (!$headStatement->isClusterStatement()) {

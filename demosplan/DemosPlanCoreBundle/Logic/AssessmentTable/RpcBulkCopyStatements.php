@@ -55,7 +55,7 @@ class RpcBulkCopyStatements extends AbstractRpcStatementBulkAction
     {
         try {
             foreach ($statements as $statement) {
-                $copyResult = $this->statementCopier->copyStatementObjectWithinProcedure($statement);
+                $copyResult = $this->statementCopier->copyStatementObjectWithinProcedureWithRelatedFiles($statement);
                 if (!$copyResult instanceof Statement) {
                     return false;
                 }
