@@ -100,7 +100,7 @@ class MaintenanceController extends BaseController
         GlobalConfigInterface $globalConfig,
         LoggerInterface $logger,
         Request $request,
-        $key
+        $key,
     ): JsonResponse {
         // @improve T17071
 

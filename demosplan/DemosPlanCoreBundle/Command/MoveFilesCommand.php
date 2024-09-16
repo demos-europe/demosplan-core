@@ -30,7 +30,7 @@ class MoveFilesCommand extends CoreCommand
         ParameterBagInterface $parameterBag,
         private readonly FilesystemOperator $s3Storage,
         private readonly FilesystemOperator $localStorage,
-        ?string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -53,17 +53,15 @@ class MoveFilesCommand extends CoreCommand
         $dryRun = $input->getOption('dry-run');
         $noDelete = $input->getOption('no-delete');
 
-
         $output->note('Moving files from '.$source.' to '.$target);
         // keep this simple as long as we only have two storage options
-        $sourceStorage = $source === 'local' ? $this->localStorage : $this->s3Storage;
-        $targetStorage = $target === 'local' ? $this->localStorage : $this->s3Storage;
+        $sourceStorage = 'local' === $source ? $this->localStorage : $this->s3Storage;
+        $targetStorage = 'local' === $target ? $this->localStorage : $this->s3Storage;
 
         $filesMoved = 0;
         try {
             $files = $sourceStorage->listContents('/', true);
             foreach ($files as $file) {
-
                 // only files could be moved via flysystem
                 if ($file->isDir()) {
                     continue;
@@ -79,17 +77,18 @@ class MoveFilesCommand extends CoreCommand
                     if (!$targetStorage->fileExists($file->path())) {
                         $output->writeln(sprintf('Move %s %s ', $file->type(), $file->path()));
                         $targetStorage->writeStream($file->path(), $sourceStream);
-                        if(!$noDelete) {
+                        if (!$noDelete) {
                             $sourceStorage->delete($file->path());
                         }
                     }
-                    $filesMoved++;
+                    ++$filesMoved;
                 } catch (FilesystemException $e) {
                     $output->error('Could not move file '.$file->path().' '.$e->getMessage());
                 }
             }
         } catch (FilesystemException $e) {
-            $output->error('Could not list files in source storage'.' '.$e->getMessage());
+            $output->error('Could not list files in source storage '.$e->getMessage());
+
             return Command::FAILURE;
         }
 

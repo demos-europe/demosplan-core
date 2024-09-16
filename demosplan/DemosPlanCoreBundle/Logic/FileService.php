@@ -301,7 +301,7 @@ class FileService extends CoreService implements FileServiceInterface
                 }
             }
         } catch (FilesystemException $e) {
-            $this->getLogger()->error('Could not list files in default storage'.' '.$e->getMessage());
+            $this->getLogger()->error('Could not list files in default storage '.$e->getMessage());
         }
 
         return $filesDeleted;
