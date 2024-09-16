@@ -6,6 +6,9 @@ ENV PROJECT_PREFIX=$PROJECT_NAME \
     EXTERNAL_LINK_DIPLAN_COCKPIT=http://temporary.de \
     EXTERNAL_LINK_DIPLAN_PORTAL=http://temporary.de
 
+ENV TZ=Europe/Berlin
+RUN ln -snf /usr/share/zoneinfo/"$TZ" /etc/localtime && echo "$TZ"> /etc/timezone
+
 # install default-mysql-client to be able to dump database
 RUN apt update -y && apt --no-install-recommends install default-mysql-client php8.2-fpm -y \
     && apt-get clean \
@@ -46,11 +49,11 @@ RUN mkdir -p /srv/www/projects/$PROJECT_NAME/web/js && \
     mkdir -p /srv/www/projects/$PROJECT_NAME/web/fonts && \
     mkdir -p /srv/www/projects/$PROJECT_NAME/web/images && \
     mkdir -p /srv/www/projects/$PROJECT_NAME/web/video && \
-    mkdir -p /srv/www/projects/$PROJECT_NAME/app/cache && \
-    mkdir -p /srv/www/projects/$PROJECT_NAME/app/logs && \
+    mkdir -p /srv/www/var/cache && \
+    mkdir -p /srv/www/var/logs && \
     chown -R www-data /srv/www/projects/$PROJECT_NAME/web && \
-    chown -R www-data /srv/www/projects/$PROJECT_NAME/app/cache && \
-    chown -R www-data /srv/www/projects/$PROJECT_NAME/app/logs
+    chown -R www-data /srv/www/var/cache && \
+    chown -R www-data /srv/www/var/logs
 
 USER www-data
 RUN DEVELOPMENT_CONTAINER=1 ./fe build $PROJECT_NAME && rm -rf /srv/www/node_modules && rm -rf /srv/www/.cache
@@ -81,6 +84,9 @@ FROM nginxinc/nginx-unprivileged:latest AS nginx
 
 ARG PROJECT_NAME
 ENV PHP_FPM_BETEILIGUNG_SERVICE=beteiligung
+
+ENV TZ=Europe/Berlin
+RUN ln -snf /usr/share/zoneinfo/"$TZ" /etc/localtime && echo "$TZ"> /etc/timezone
 
 COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 
