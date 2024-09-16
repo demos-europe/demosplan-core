@@ -92,9 +92,7 @@ class ContentService extends CoreService
     {
         // @improve T12886
         $category = $this->getCategoryByName($categoryName ?? 'news');
-        // $globalContentEntries = $category->getGlobalContents()->toArray();
-        // $currentCustomer = $this->customerService->getCurrentCustomer();
-        $globalContentEntries = $category->getGlobalContentsbyCustomer($this->customerService->getCurrentCustomer());
+        $globalContentEntries = $category->getGlobalContentsByCustomer($this->customerService->getCurrentCustomer());
 
         // Legacy Arrays
         $result = array_map($this->convertToLegacy(...), $globalContentEntries);
