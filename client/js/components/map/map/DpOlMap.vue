@@ -142,7 +142,7 @@ import DpOlMapScaleSelect from './DpOlMapScaleSelect'
 import { easeOut } from 'ol/easing'
 import { getResolutionsFromScales } from './utils/utils'
 import { Map } from 'ol'
-// import MasterportalApi from '@masterportal/masterportalapi/src/maps/map'
+import MasterportalApi from '@masterportal/masterportalapi/src/maps/map'
 import proj4 from 'proj4'
 import Projection from 'ol/proj/Projection'
 import { register } from 'ol/proj/proj4'
@@ -285,8 +285,7 @@ export default {
 
       const controls = this.options.controls ? this.options.controls : this._options.controls
 
-      // return MasterportalApi.createMap(config, '2D', { mapParams: { controls } })
-      return null
+      return MasterportalApi.createMap(config, '2D', { mapParams: { controls } })
     },
 
     /**
