@@ -274,24 +274,34 @@ class FileService extends CoreService implements FileServiceInterface
      */
     public function removeOrphanedFiles(): int
     {
-        $finder = new Finder();
-        // @todo use flysystem
-        $fs = new Filesystem();
-        $finder->files()->in($this->globalConfig->getFileServiceFilePathAbsolute());
+        try {
+            $filesDeleted = 0;
+            $files = $this->defaultStorage->listContents('/', true);
+            foreach ($files as $file) {
+                if ($file->isDir()) {
+                    continue;
+                }
 
-        $filesDeleted = 0;
-        foreach ($finder as $file) {
-            $filename = $file->getBasename();
-            $existingFile = $this->fileRepository->findBy(['hash' => $filename]);
-            if (is_array($existingFile) && 0 === count($existingFile)) {
-                $this->getLogger()->info('Remove orphaned file', [$filename, $file->getSize()]);
                 try {
-                    $fs->remove($file->getRealPath());
-                    ++$filesDeleted;
-                } catch (Exception) {
-                    $this->getLogger()->warning('Could not remove orphaned file', [$filename]);
+                    $filename = basename($file->path());
+                    $existingFile = $this->fileRepository->count(['hash' => $filename]);
+                    if (0 === $existingFile) {
+                        try {
+                            if ($this->defaultStorage->fileExists($file->path())) {
+                                $this->getLogger()->info('Remove orphaned file', [$filename]);
+                                $this->defaultStorage->delete($file->path());
+                            }
+                            ++$filesDeleted;
+                        } catch (Exception) {
+                            $this->getLogger()->warning('Could not remove orphaned file', [$file->path()]);
+                        }
+                    }
+                } catch (FilesystemException $e) {
+                    $this->getLogger()->error('Could not remove file '.$file->path().' '.$e->getMessage());
                 }
             }
+        } catch (FilesystemException $e) {
+            $this->getLogger()->error('Could not list files in default storage'.' '.$e->getMessage());
         }
 
         return $filesDeleted;
