@@ -105,6 +105,25 @@ _c_id = :category_id;', [
             }
         }
 
+        // Insert into _manual_list_sort
+        $manualListSortEntries = $this->connection->fetchAllAssociative('SELECT * FROM _manual_list_sort WHERE FIND_IN_SET(:pc_id, _mls_idents)', [
+            'pc_id' => $entry['_pc_id'],
+        ]);
+
+        foreach ($manualListSortEntries as $manualListSortEntry) {
+            $idents = explode(',', $manualListSortEntry['_mls_idents']);
+            $newIdents = array_map(function($id) use ($entry, $newPcId) {
+                return $id === $entry['_pc_id'] ? $newPcId : $id;
+            }, $idents);
+            $newIdentsString = implode(',', $newIdents);
+
+
+            $this->addSql('INSERT INTO _manual_list_sort SET _mls_id = UUID(), _mls_idents = :new_idents', [
+                'new_idents' => $newIdentsString,
+            ]);
+        }
+
+
         // Enable foreign key checks
         $this->addSql('SET foreign_key_checks = 1;');
 
