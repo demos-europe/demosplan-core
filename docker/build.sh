@@ -16,13 +16,6 @@ version=$3
 projectname=$4
 context=.context
 
-echo "Building base image..."
-
-cd demosplan-base || exit
-DOCKER_BUILDKIT=1 docker build -t demosplan-base .
-cd .. || exit
-
-
 printf "Building %s...\n" $folder
 
 if [ -d $context ]
