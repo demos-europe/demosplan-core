@@ -243,7 +243,7 @@ export default {
 
     /**
      * Construct the query object to be passed into vuex-json-api call.
-     * if the id is unassigned, then set the operator to IS NULL so that only segments with assignee null are taking.
+     * if the id is novalue, then set the operator to IS NULL so that only segments with assignee null are taking.
      * That is because the BE uses Elastic Search to make the filtering
      */
     filter () {
