@@ -120,7 +120,7 @@ export default {
   },
 
   computed: {
-    ...mapState('elements', {
+    ...mapState('Elements', {
       elements: 'items'
     }),
 
@@ -149,12 +149,12 @@ export default {
   },
 
   methods: {
-    ...mapActions('elements', {
+    ...mapActions('Elements', {
       elementList: 'list',
       deleteElement: 'delete'
     }),
 
-    ...mapMutations('elements', {
+    ...mapMutations('Elements', {
       setElement: 'set'
     }),
 
@@ -234,7 +234,7 @@ export default {
      * Nodes can be of type "singleDocument" or "elements" [sic!]
      */
     isBranch ({ node }) {
-      return node.type === 'elements'
+      return node.type === 'Elements'
     },
 
     /**
@@ -373,9 +373,9 @@ export default {
      */
     sortRecursive (tree, sortField) {
       tree.sort((a, b) => {
-        if (a.type !== 'singleDocument' && b.type === 'singleDocument') { return -1 }
-        if (a.type === 'singleDocument' && b.type !== 'singleDocument') { return 1 }
-        if (a.type === 'singleDocument' && b.type === 'singleDocument') {
+        if (a.type !== 'SingleDocument' && b.type === 'SingleDocument') { return -1 }
+        if (a.type === 'SingleDocument' && b.type !== 'SingleDocument') { return 1 }
+        if (a.type === 'SingleDocument' && b.type === 'SingleDocument') {
           return a.attributes.index - b.attributes.index
         }
         return a.attributes[sortField] - b.attributes[sortField]

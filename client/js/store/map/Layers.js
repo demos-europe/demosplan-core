@@ -82,7 +82,7 @@ const sameParent = (el, parentId) => {
 const LayersStore = {
   namespaced: true,
 
-  name: 'layers',
+  name: 'Layers',
 
   state: {
     activeLayerId: '',
@@ -252,7 +252,7 @@ const LayersStore = {
       if (indexParent >= 0) {
         relationships = state.apiData.included[indexParent].relationships[element.relationshipType].data
       } else {
-        relationships = state.apiData.data.relationships[element.relationshipType].data
+        relationships = state.apiData.data[0].relationships[element.relationshipType].data
       }
 
       // Get index of data in relationships based on above switch
@@ -290,7 +290,7 @@ const LayersStore = {
      *
      * @returns {void}
      */
-    setMinimapBaseLayer (state, id) { // Used in DpAdminLayerList component
+    setMinimapBaseLayer (state, id) { // Used in AdminLayerList component
       const previousMinimap = state.apiData.included.find(elem => elem.attributes.isMinimap === true)
       if (previousMinimap) { previousMinimap.attributes.isMinimap = false }
 
@@ -385,17 +385,43 @@ const LayersStore = {
         return Promise.reject(new Error('No procedureId given'))
       }
 
-      return dpApi({
-        method: 'GET',
-        url: Routing.generate('dplan_api_procedure_layer_list', {
-          procedureId: state.procedureId,
-          include: [
+      return dpApi.get(Routing.generate('api_resource_list', {
+        resourceType: 'GisLayerCategory',
+        include: 'gisLayers',
+        fields: {
+          GisLayerCategory: [
             'categories',
-            'gisLayers'
+            'gisLayers',
+            'name',
+            'layerWithChildrenHidden',
+            'treeOrder',
+            'isVisible',
+            'hasDefaultVisibility',
+            'parentId'
+          ].join(),
+          GisLayer: [
+            'name',
+            'url',
+            'isEnabled',
+            'treeOrder',
+            'mapOrder',
+            'hasDefaultVisibility',
+            'layers',
+            'layerType',
+            'visibilityGroupId',
+            'isMinimap',
+            'categoryId'
           ].join()
-        }),
-        responseType: 'json'
-      })
+        },
+        filter: {
+          name: {
+            condition: {
+              path: 'parentId',
+              operator: 'IS NULL',
+            }
+          }
+        }
+      }))
         .then(checkResponse)
         .then(data => {
           commit('setApiDataToList', data)
@@ -489,7 +515,7 @@ const LayersStore = {
     },
 
     /**
-     * Get layer legends. Legends needs to be fetched for each single gislayer layer
+     * Get layer legends. Legends needs to be fetched for each single gisLayer layer
      * as some map services are not able to group legends
      *
      * @param commit
@@ -508,7 +534,7 @@ const LayersStore = {
         const layerParamSplit = layerParam.split(',').map(function (item) {
           return item.trim()
         })
-        // Add each layer layer to GetLegendGraphic request
+        // Add each layer to GetLegendGraphic request
         for (let j = 0; j < layerParamSplit.length; j++) {
           if (layer.attributes.isEnabled) {
             const legendUrl = legendUrlBase + 'Layer=' + layerParamSplit[j] + '&Request=GetLegendGraphic&Format=image/png&version=1.1.1'
@@ -525,25 +551,75 @@ const LayersStore = {
       }
     },
 
-    /**
-     * Save the current state of the layers
-     * @param state
-     * @param commit
-     * @param dispatch
-     *
-     * @returns {*}
-     */
-    saveLayerList ({ state, commit }) {
-      return dpApi({
-        method: 'POST',
-        url: Routing.generate('dplan_api_procedure_layer_update', {
-          procedureId: state.procedureId
-        }),
-        responseType: 'json',
-        data: {
-          data: state.apiData
-        }
+    saveAll ({ state, dispatch }) {
+      /* save each GIS layer and GIS layer category with its relationships */
+      dispatch('save', state.apiData)
+
+      Object.values(state.layerList).forEach(el => {
+        dispatch('save', el)
       })
+    },
+
+    save ({ state, commit, dispatch }, resource) {
+      let payload
+      const { attributes, id, type } = resource
+
+      const {
+        categoryId,
+        parentId,
+        hasDefaultVisibility,
+        isMinimap,
+        mapOrder,
+        treeOrder,
+        visibilityGroupId
+      } = attributes
+
+      if (resource.type === 'GisLayer') {
+        payload = {
+          data: {
+            id,
+            type,
+            attributes: {
+              hasDefaultVisibility,
+              isMinimap,
+              mapOrder,
+              treeOrder,
+              visibilityGroupId
+            },
+            relationships: {
+              parentCategory: {
+                data: {
+                  id: categoryId,
+                  type: 'GisLayerCategory'
+                }
+              }
+            }
+          }
+        }
+      }
+
+      if (resource.type === 'GisLayerCategory') {
+        payload = {
+          data: {
+            id,
+            type,
+            attributes: {
+              treeOrder,
+              hasDefaultVisibility,
+            },
+            relationships: {
+              parentCategory: {
+                data: {
+                  id: parentId,
+                  type: 'GisLayerCategory'
+                }
+              }
+            }
+          }
+        }
+      }
+
+      return dpApi.patch(Routing.generate('api_resource_update', { resourceType: resource.type, resourceId: resource.id }), {}, payload)
         .then(checkResponse)
         .then(resonse => {
           commit('set', { key: 'activeLayerId', value: '' })
@@ -687,18 +763,15 @@ const LayersStore = {
      * @returns {PromiseLike<void>}
      */
     deleteElement ({ state, commit }, element) {
-      let url = Routing.generate('dplan_api_procedure_layer_delete', {
-        layerId: element.id,
-        procedureId: state.procedureId
-      })
+      let currentType = 'GisLayer'
+      let id = element.id
 
       if (element.route === 'layer_category') {
-        url = Routing.generate('dplan_api_procedure_layer_category_delete', {
-          layerCategoryId: element.categoryId
-        })
+        currentType = 'GisLayerCategory'
+        id = element.categoryId
       }
 
-      return dpApi.delete(url)
+      return dpApi.delete(Routing.generate('api_resource_delete', { resourceType: currentType, resourceId: id }))
         .then(this.api.checkResponse)
         .then(() => {
           commit('removeElement', {
@@ -734,14 +807,11 @@ const LayersStore = {
     },
 
     /**
-     * Get complete object for stripped object containing id and type
-     * (both have to match the corresponding 'included' array)
+     * Get complete object for stripped object containing element-Id and Type
+     * (both have to match the corresponding included-array)
      *
-     * @param {Object} element
-     * @param {String} element.id
-     * @param {String} element.type
-     *
-     * @returns {Object} element (GisLayer or GisLayerCategory)
+     * @param element|Object ( {id, type} )
+     * @returns Object|element(gisLayers or GisLayerCategory)
      */
     element: state => element => {
       if (typeof state.apiData.included === 'undefined') {
@@ -771,7 +841,7 @@ const LayersStore = {
     /**
      * Get List of all gisLayers
      *
-     * @returns Array|element(gislayers or GisLayerCategory)
+     * @returns Array|element(gisLayers or GisLayerCategory)
      */
     gisLayerList: state => type => {
       if (typeof state.apiData.included === 'undefined') return []
@@ -792,7 +862,7 @@ const LayersStore = {
      * @param state
      * @param {Object} attribute {'type', 'value'}
      *
-     * @returns Array|element(gislayers or GisLayerCategory)
+     * @returns Array|element(gisLayers or GisLayerCategory)
      */
     elementsListByAttribute: state => attribute => {
       return Object.values(state.layerList).filter(current => current.attributes[attribute.type] === attribute.value)
@@ -816,7 +886,7 @@ const LayersStore = {
 
       //  When called without categoryId, set it to the id of the root category
       if (categoryId === null) {
-        categoryId = state.apiData.data.id
+        categoryId = state.apiData.data[0].id
       }
 
       /*

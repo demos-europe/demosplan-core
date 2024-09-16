@@ -46,7 +46,8 @@ final class OrgaStatusInCustomerResourceType extends DplanResourceType
             'area_manage_orgas',
             'area_manage_orgas_all',
             'area_organisations',
-            'area_report_mastertoeblist'
+            'area_report_mastertoeblist',
+            'feature_organisation_user_list',
         );
     }
 

@@ -119,6 +119,7 @@
             <div>
               <dp-radio
                 id="role_0"
+                data-cy="statementVoter:roleCitizen"
                 :label="{
                   text: Translator.trans('role.citizen')
                 }"
@@ -127,6 +128,7 @@
                 @change="formFields.role = 0" />
               <dp-radio
                 id="role_1"
+                data-cy="statementVoter:invitableInstitution"
                 :label="{
                   text: Translator.trans('invitable_institution')
                 }"
@@ -309,7 +311,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('voter', ['getVoters']),
+    ...mapGetters('Voter', ['getVoters']),
 
     preFix () {
       return (index) => {
@@ -337,7 +339,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('voter', [
+    ...mapMutations('Voter', [
       'addNewVoter',
       'removeVoter',
       'setVoters',

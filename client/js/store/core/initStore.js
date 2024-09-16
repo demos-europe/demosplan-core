@@ -11,7 +11,7 @@ import { checkResponse, handleResponseMessages, hasOwnProp } from '@demos-europe
 import { initJsonApiPlugin, prepareModuleHashMap, StaticRouter } from '@efrane/vuex-json-api'
 import notify from './Notify'
 import { createStore } from 'vuex'
-import { VuexApiRoutes } from './VuexApiRoutes'
+import { api1_0Routes, generateApi2_0Routes } from './VuexApiRoutes'
 
 function registerPresetModules (store, presetStoreModules) {
   if (Object.keys(presetStoreModules).length > 0) {
@@ -35,7 +35,7 @@ function registerPresetModules (store, presetStoreModules) {
 
 function initStore (storeModules, apiStoreModules, presetStoreModules) {
   const staticModules = { notify, ...storeModules }
-
+  const VuexApiRoutes = [...generateApi2_0Routes(apiStoreModules), ...api1_0Routes]
   // This should probably be replaced with an adapter to our existing routes
   const router = new StaticRouter(VuexApiRoutes)
 
@@ -67,7 +67,7 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
               'X-JWT-Authorization': 'Bearer ' + dplan.jwtToken,
               'X-Demosplan-Procedure-Id': dplan.procedureId
             },
-            preprocessingCallbacks: [
+            successCallbacks: [
               (response) => {
                 if (typeof response.data !== 'undefined' &&
                 typeof response.data.meta !== 'undefined' &&

@@ -110,6 +110,7 @@
               }"
               value="0" />
             <dp-radio
+              :disabled="canNotBeNegativeReport"
               name="r_isNegativeReport"
               id="negative_report_true"
               data-cy="statementModal:indicationerror"
@@ -130,15 +131,16 @@
             :required="formData.r_isNegativeReport !== '1'" />
           <dp-editor
             :class="prefixClass('u-mb')"
-            hidden-input="r_text"
             :data-dp-validate-error-fieldname="Translator.trans('statement.text.short')"
+            hidden-input="r_text"
             id="statementText"
+            ref="statementEditor"
+            :readonly="formData.r_isNegativeReport === '1'"
+            :required="formData.r_isNegativeReport !== '1'"
             :toolbar-items="{
               mark: true,
               strikethrough: true
             }"
-            ref="statementEditor"
-            :required="formData.r_isNegativeReport !== '1'"
             :value="formData.r_text || ''"
             @input="val => setStatementData({r_text: val})" />
         </div>
@@ -173,7 +175,6 @@
 
         <template v-if="hasPermission('field_statement_add_assignment') && hasPlanningDocuments">
           <p
-            v-if="formData.r_isNegativeReport === '0'"
             aria-hidden="true"
             :class="prefixClass('c-statement__formblock-title u-mb-0_25 weight--bold inline-block')">
             {{ Translator.trans('element.assigned') }}
@@ -193,8 +194,8 @@
               <span :class="prefixClass('hide-lap-up')" />
               <button
                 @click="removeDocumentRelation"
-                :href="Routing.generate( 'DemosPlan_procedure_public_detail', { procedure: procedureId }) + '#procedureDetailsDocumentlist'"
-                :class="prefixClass('btn--blank o-link--default u-mr-0_5-lap-up u-1-of-1-palm')">
+                :class="prefixClass('btn--blank o-link--default u-mr-0_5-lap-up u-1-of-1-palm')"
+                :href="Routing.generate( 'DemosPlan_procedure_public_detail', { procedure: procedureId }) + '#procedureDetailsDocumentlist'">
                 <i
                   aria-hidden="true"
                   :class="prefixClass('fa fa-trash')" />
@@ -202,7 +203,8 @@
               </button>
             </template>
             <button
-              v-else-if="formData.r_isNegativeReport === '0'"
+              v-else
+              :disabled="formData.r_isNegativeReport !== '0'"
               data-cy="statementModal:elementAssign"
               @click="gotoTab('procedureDetailsDocumentlist')"
               :class="prefixClass('btn--blank o-link--default text-left')">
@@ -235,6 +237,7 @@
             :key="formDefinition.key"
             :draft-statement-id="draftStatementId"
             :is-map-enabled="isMapEnabled"
+            :disabled="formData.r_isNegativeReport !== '0'"
             :required="formDefinition.required && formData.r_isNegativeReport !== '1'"
             :logged-in="loggedIn"
             :counties="counties" />
@@ -243,7 +246,7 @@
         <template v-if="loggedIn">
           <fieldset>
             <legend
-              class="hide-visually"
+              class="sr-only"
               v-text="Translator.trans('files.upload')" />
             <div
               v-if="hasPermission('field_statement_file')"
@@ -284,6 +287,7 @@
 
                 <dp-upload-files
                   id="upload_files"
+                  :disabled="formData.r_isNegativeReport !== '0'"
                   allowed-file-types="pdf-img-zip"
                   :basic-auth="dplan.settings.basicAuth"
                   :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
@@ -390,6 +394,7 @@
             type="reset"
             :disabled="isLoading"
             :class="prefixClass('btn btn--secondary u-1-of-1-palm')"
+            data-cy="statementModal:discardStatement"
             @click.prevent="() => reset()">
             {{ Translator.trans('discard.statement') }}
           </button>
@@ -617,6 +622,7 @@
             <a
               :class="prefixClass('btn btn--primary u-1-of-1-palm')"
               :href="Routing.generate('DemosPlan_statement_single_export_pdf',{ sId: draftStatementId , procedure: procedureId })"
+              data-cy="statementModal:downloadPDF"
               rel="noopener"
               target="_blank">
               <i
@@ -630,6 +636,7 @@
                 :class="prefixClass('btn btn--secondary')"
                 @click="toggleModal"
                 :href="Routing.generate('DemosPlan_procedure_public_detail', { procedure: procedureId })"
+                data-cy="statementModal:close"
                 rel="noopener">
                 {{ Translator.trans('close') }}
               </a>
@@ -892,9 +899,9 @@ export default {
   },
 
   computed: {
-    ...mapState('notify', ['messages']),
+    ...mapState('Notify', ['messages']),
 
-    ...mapState('publicStatement', {
+    ...mapState('PublicStatement', {
       initFormDataJSON: 'initForm',
       initDraftStatements: 'initDraftStatements',
       formData: 'statement',
@@ -903,6 +910,14 @@ export default {
       unsavedDrafts: 'unsavedDrafts',
       userId: 'userId'
     }),
+
+    canNotBeNegativeReport () {
+      return this.formData.r_element_id !== '' ||
+        this.formData.r_document_id !== '' ||
+        this.formData.r_text !== '' ||
+        this.formData.r_location !== '' ||
+        this.formData.uploadedFiles !== ''
+    },
 
     commentingIcon () {
       return this.continueWriting ? 'fa-commenting' : 'fa-comment'
@@ -971,9 +986,9 @@ export default {
   },
 
   methods: {
-    ...mapMutations('notify', ['remove']),
+    ...mapMutations('Notify', ['remove']),
 
-    ...mapMutations('publicStatement', [
+    ...mapMutations('PublicStatement', [
       'addUnsavedDraft',
       'clearDraftState',
       'removeStatementProp',
@@ -1287,12 +1302,12 @@ export default {
           if (response.status === 429) {
             dplan.notify.notify('error', Translator.trans('error.statement.not.saved.throttle'))
 
-            return false;
+            return false
           }
           if (response.status !== 200) {
             dplan.notify.notify('error', Translator.trans('error.statement.not.saved'))
 
-            return false;
+            return false
           }
           /*
            * Handling for successful responses
@@ -1336,7 +1351,9 @@ export default {
           // @IMPROVE throw success message instead of sending it as Html with the response
           if (response.data && response.data.data && response.data.data.submitRoute) {
             // Go to confirm page to submit draft immediately
-            window.location.href = response.data.data.submitRoute
+            setTimeout(() => {
+              window.location.href = response.data.data.submitRoute
+            }, 2000)
           } else if (this.draftStatementId !== '') {
             // Go to draft statement list and highlight current draft
             this.toggleModal(false)

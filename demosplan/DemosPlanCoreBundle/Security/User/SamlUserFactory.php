@@ -109,7 +109,8 @@ class SamlUserFactory implements SamlUserFactoryInterface
 
         $orga = $orgas[0] ?? null;
         if (!$orga instanceof Orga) {
-            throw new InvalidArgumentException('Could not find valid orga in SAML request', [$orgas]);
+            $this->logger->error('Could not find valid orga in Keycloak request', [$orgas]);
+            throw new InvalidArgumentException('Could not find valid orga in SAML request');
         }
 
         $orga = $this->updateOrgaWithKnownValues($orga, $attributes);

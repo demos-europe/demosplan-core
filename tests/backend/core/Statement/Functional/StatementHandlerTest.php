@@ -13,6 +13,7 @@ namespace Tests\Core\Statement\Functional;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFragmentFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
@@ -37,6 +38,7 @@ use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
+use Illuminate\Support\Collection;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -44,7 +46,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Tests\Base\FunctionalTestCase;
 use Throwable;
-use Tightenco\Collect\Support\Collection;
+use Zenstruck\Foundry\Persistence\Proxy;
 
 class StatementHandlerTest extends FunctionalTestCase
 {
@@ -2329,8 +2331,9 @@ class StatementHandlerTest extends FunctionalTestCase
 
     public function testStateOfStatementFragment()
     {
-        /** @var StatementFragment $fragment */
-        $fragment = $this->fixtures->getReference('testStatementFragmentAssigned4');
+        $this->enablePermissions(['feature_statements_fragment_edit', 'field_fragment_status']);
+        /** @var StatementFragment|Proxy $fragment */
+        $fragment = StatementFragmentFactory::createOne();
         $fragmentId = $fragment->getId();
 
         $updatedFragment = $this->sut->updateStatementFragment($fragmentId, ['status' => 'read'], false);
@@ -2516,6 +2519,7 @@ class StatementHandlerTest extends FunctionalTestCase
     public function testFragmentStateSetVerified()
     {
         // prepare:
+        $this->enablePermissions(['feature_statements_fragment_edit', 'field_fragment_status']);
         /** @var StatementFragment $fragment */
         $fragment = $this->fixtures->getReference('testStatementFragmentAssignedToDepartment');
         static::assertEquals('fragment.status.assignedToFB', $fragment->getStatus());

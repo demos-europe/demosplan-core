@@ -34,7 +34,7 @@
 
             <p class="weight--bold">{{ news.description|wysiwyg('img') }}</p>
 
-            <p>{{ news.text|wysiwyg('img') }}</p>
+            <div class="c-styled-html">{{ news.text|wysiwyg('img') }}</div>
 
             {% if news.pdf is defined and news.pdf != '' %}
                 <p>

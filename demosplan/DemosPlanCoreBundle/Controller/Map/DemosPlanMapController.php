@@ -94,7 +94,7 @@ class DemosPlanMapController extends BaseController
      *
      * @throws MessageBagException
      */
-    #[Route(name: 'DemosPlan_map_administration_gislayer_new', path: '/verfahren/{procedure}/verwalten/gislayer/neu')]
+    #[Route(name: 'DemosPlan_map_administration_gislayer_new', path: '/verfahren/{procedure}/verwalten/gislayer/neu', options: ['expose' => true])]
     public function mapAdminGislayerNewAction(
         Breadcrumb $breadcrumb,
         FileUploadService $fileUploadService,
@@ -258,7 +258,7 @@ class DemosPlanMapController extends BaseController
      * @throws MessageBagException
      * @throws Exception
      */
-    #[Route(name: 'DemosPlan_map_administration_gislayer_category_new', path: '/verfahren/{procedureId}/verwalten/gislayergroup/new-category')]
+    #[Route(name: 'DemosPlan_map_administration_gislayer_category_new', path: '/verfahren/{procedureId}/verwalten/gislayergroup/new-category', options: ['expose' => true])]
     public function mapAdminGislayerCategoryNewAction(MapHandler $mapHandler, Request $request, $procedureId)
     {
         $request = $request->request->all();

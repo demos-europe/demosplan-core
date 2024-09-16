@@ -11,7 +11,8 @@ import { checkResponse, dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
 
 export default {
   namespaced: true,
-  name: 'fragment',
+
+  name: 'Fragment',
 
   state: {
     /**
