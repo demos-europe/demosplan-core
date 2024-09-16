@@ -87,7 +87,7 @@ class RpcSegmentFacetsProvider implements RpcMethodSolverInterface
                  * This way, the FE is notified that a NULL filter for a assignee is selected, even though it doesn't have an id.
                  */
 
-                $jsonArray['meta']['unassigned_selected'] = property_exists($rpcRequest->params->filter, 'novalue');
+                $jsonArray['meta']['unassigned_selected'] = property_exists($rpcRequest->params->filter, 'unassigned');
 
                 $resultResponse[] = $this->generateMethodResult($rpcRequest, $jsonArray);
             } catch (InvalidArgumentException|InvalidSchemaException) {
