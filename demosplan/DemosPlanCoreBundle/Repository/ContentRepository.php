@@ -195,7 +195,7 @@ class ContentRepository extends CoreRepository implements ArrayInterface
                 'pictitle',
                 'pdf',
                 'pdftitle',
-                'customer'
+                'customer',
             ]
         );
 
