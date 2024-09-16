@@ -207,26 +207,30 @@ const LayersStore = {
           GisLayerCategory: [
             'categories',
             'gisLayers',
+            'hasDefaultVisibility',
+            'isVisible',
             'name',
             'layerWithChildrenHidden',
+            'parentId',
             'treeOrder',
-            'isVisible',
-            'hasDefaultVisibility',
-            'parentId'
           ].join(),
           GisLayer: [
-            'name',
-            'url',
-            'isEnabled',
-            'isBaseLayer',
-            'treeOrder',
-            'mapOrder',
+            'canUserToggleVisibility',
+            'categoryId',
             'hasDefaultVisibility',
+            'isBaseLayer',
+            'isBplan',
+            'isEnabled',
+            'isMinimap',
+            'isScope',
             'layers',
             'layerType',
-            'visibilityGroupId',
-            'isMinimap',
-            'categoryId'
+            'mapOrder',
+            'name',
+            'opacity',
+            'treeOrder',
+            'url',
+            'visibilityGroupId'
           ].join()
         },
         filter: {
