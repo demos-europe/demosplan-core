@@ -406,6 +406,7 @@ class AssessmentTableServiceOutput
                 $section->addTextBreak();
                 $image = $presentableOriginalStatement->getImage();
                 if ((null !== $image) && $this->defaultStorage->fileExists($image)) {
+                    // temporary local file is needed for PhpWord
                     $fs = new Filesystem();
                     $tmpFilePath = DemosPlanPath::getTemporaryPath(random_int(10, 9999999).'.png');
                     $fs->dumpFile($tmpFilePath, $this->defaultStorage->read($image));

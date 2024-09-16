@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Document;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ElementsAdminListSaveEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
@@ -962,6 +963,7 @@ class DemosPlanDocumentController extends BaseController
         $result = [];
 
         // Gehe rekursiv alle Verzeichnisse durch. Speichere Ordner als Elements, dateien als Files in den Elements
+        // at this point local files need to be used, no flysystem needed
         $iter = new DirectoryIterator($dir);
         foreach ($iter as $fileInfo) {
             if ($fileInfo->isDot()) {
@@ -1507,10 +1509,10 @@ class DemosPlanDocumentController extends BaseController
         return $result;
     }
 
-    public function getElementImportDir(string $procedureId, User $user): string
+    public function getElementImportDir(string $procedureId, UserInterface $user): string
     {
-        // @todo use flysystem
-        $tmpDir = sys_get_temp_dir().'/'.$user->getId().'/'.$procedureId;
+        // import dir is used as real local file path but as well as path "name" in flysystem
+        $tmpDir = DemosPlanPath::getTemporaryPath($user->getId().'/'.$procedureId);
         if (!is_dir($tmpDir) && !mkdir($tmpDir, 0777, true) && !is_dir($tmpDir)) {
             throw new RuntimeException(sprintf('Directory "%s" was not created', $tmpDir));
         }
@@ -1525,13 +1527,10 @@ class DemosPlanDocumentController extends BaseController
      */
     protected function calculateImgSize(string $hash)
     {
-        $fileService = $this->fileService;
         try {
-            // @improve T14122
-            $fileInfo = $fileService->getFileInfo($hash);
-            // @todo use flysystem
-            if (is_file($fileInfo->getAbsolutePath())) {
-                $sizeArray = getimagesize($fileInfo->getAbsolutePath());
+            $fileInfo = $this->fileService->getFileInfo($hash);
+            if ($this->defaultStorage->fileExists($fileInfo->getAbsolutePath())) {
+                $sizeArray = getimagesizefromstring($this->defaultStorage->read($fileInfo->getAbsolutePath()));
 
                 return [$sizeArray[0], $sizeArray[1]];
             }
@@ -1715,8 +1714,6 @@ class DemosPlanDocumentController extends BaseController
                         : $filesRequestInfo;
         $filesToZip = $this->validatefilesToZip($filesToZip, $procedureId);
         $fileInfo = [];
-        // @todo use flysystem
-        $fs = new Filesystem();
         foreach ($filesToZip as $fileRequestInfo) {
             $singleDocId = $fileRequestInfo['id'];
             $fileId = $fileService->getFileIdFromSingleDocumentId($singleDocId);
@@ -1727,7 +1724,7 @@ class DemosPlanDocumentController extends BaseController
             }
             $fileName = $fileEntity->getFilename();
             $fileFullPath = $fileEntity->getFilePathWithHash();
-            if (!$fs->exists($fileFullPath)) {
+            if (!$this->defaultStorage->fileExists($fileFullPath)) {
                 $this->getLogger()->warning('Could not find file to add to zip', [$fileEntity->getId()]);
                 continue;
             }
@@ -1818,8 +1815,7 @@ class DemosPlanDocumentController extends BaseController
                 $zip = new ZipStream($translator->trans('plandocument.zip.file.name'), $options);
                 foreach ($filesInfo as $fileInfo) {
                     try {
-                        // @todo use flysystem
-                        $streamRead = fopen($fileInfo['fullPath'], 'rb');
+                        $streamRead = $this->defaultStorage->readStream($fileInfo['fullPath']);
                         $zip->addFileFromStream(Utf8::toAscii($fileInfo['namedPath']), $streamRead);
                     } catch (Exception $e) {
                         $this->getLogger()->error($e->getMessage(), $e->getTrace());
