@@ -2843,12 +2843,14 @@ class StatementService extends CoreService implements StatementServiceInterface
                 foreach ($agg['buckets'] as $bucket) {
                     /** @var Procedure $procedure */
                     $procedure = $this->procedureService->getProcedure($bucket['key']);
-                    $procedures[] = new StatementMovement(
-                        'from-'.$procedure->getId(),
-                        $procedure->getName(),
-                        $bucket['doc_count']
-                    );
-                    $total += $bucket['doc_count'];
+                    if (0 < $bucket['doc_count']) {
+                        $procedures[] = new StatementMovement(
+                            'from-'.$procedure->getId(),
+                            $procedure->getName(),
+                            $bucket['doc_count']
+                        );
+                        $total += $bucket['doc_count'];
+                    }
                 }
             }
         } catch (Exception $e) {
@@ -2895,12 +2897,14 @@ class StatementService extends CoreService implements StatementServiceInterface
             foreach ($aggs as $agg) {
                 foreach ($agg['buckets'] as $bucket) {
                     $procedure = $this->procedureService->getProcedure($bucket['key']);
-                    $procedures[] = new StatementMovement(
-                        'to-'.$procedure->getId(),
-                        $procedure->getName(),
-                        $bucket['doc_count']
-                    );
-                    $total += $bucket['doc_count'];
+                    if (0 < $bucket['doc_count']) {
+                        $procedures[] = new StatementMovement(
+                            'to-'.$procedure->getId(),
+                            $procedure->getName(),
+                            $bucket['doc_count']
+                        );
+                        $total += $bucket['doc_count'];
+                    }
                 }
             }
         } catch (Exception $e) {
