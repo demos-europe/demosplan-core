@@ -407,7 +407,6 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
                 );
 
 
-
             // Send invitation mail for each cc-email-addresses
             if (isset($recipientData['ccEmails']) && is_array($recipientData['ccEmails'])) {
                 foreach ($recipientData['ccEmails'] as $ccEmailAddress) {
@@ -432,7 +431,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         // send planning agency emails
         $ccMailAddresses = $this->getPlaningAgencyCCEmailRecipients($procedure, $ccEmailAddresses);
         foreach ($ccMailAddresses as $singleCC) {
-            $this->sendPublicAgencyInvitationMail($singleCC, $agencyMainEmailAddress, $providedEmailTitle, $providedEmailText);
+            $this->sendPublicAgencyInvitationMail($singleCC, $agencyMainEmailAddress, $providedEmailTitle);
         }
 
         try {
