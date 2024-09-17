@@ -150,8 +150,9 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         private readonly RoleHandler $roleHandler,
         private readonly TranslatorInterface $translator,
         private readonly UserHasher $userHasher,
+        private readonly UserSecurityHandler $userSecurityHandler,
         UserService $userService,
-        ValidatorInterface $validator
+        ValidatorInterface $validator,
     ) {
         parent::__construct($messageBag);
         $this->customerService = $customerService;
@@ -611,7 +612,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
      *
      * @param string $userId
      *
-     * @return array|User|bool
+     * @return array|UserInterface|bool
      *
      * @throws Exception
      */
@@ -688,7 +689,9 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             $data['departmentId'] = null;
         }
 
-        return $userService->updateUser($userId, $data);
+        $userObject = $userService->updateUser($userId, $data);
+
+        return $this->userSecurityHandler->handleUserSecurityPropertiesUpdate($userObject, $data);
     }
 
     /**
@@ -2014,7 +2017,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         string $orgaTypeName,
         string $activationStatus,
         array $customersPendingActivation,
-        ?Customer $currentCustomer
+        ?Customer $currentCustomer,
     ): array {
         $customers = $orga->getCustomersByActivationStatus($orgaTypeName, $activationStatus);
 

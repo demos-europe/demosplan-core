@@ -30,23 +30,25 @@
             <dt class="color--grey">
               {{ Translator.trans('address') }}
             </dt>
+            <template v-if="locationContacts && hasAdress">
+              <dd
+                v-if="locationContacts.street"
+                class="ml-0">
+                {{ locationContacts.street }}
+              </dd>
+              <dd
+                v-if="locationContacts.postalcode"
+                class="ml-0">
+                {{ locationContacts.postalcode }}
+              </dd>
+              <dd
+                v-if="locationContacts.city"
+                class="ml-0">
+                {{ locationContacts.city }}
+              </dd>
+            </template>
             <dd
-              v-if="locationContacts.street"
-              class="ml-0">
-              {{ locationContacts.street }}
-            </dd>
-            <dd
-              v-if="locationContacts.postalcode"
-              class="ml-0">
-              {{ locationContacts.postalcode }}
-            </dd>
-            <dd
-              v-if="locationContacts.city"
-              class="ml-0">
-              {{ locationContacts.city }}
-            </dd>
-            <dd
-              v-if="!locationContacts.street && !locationContacts.city && !locationContacts.postalCode"
+              v-else
               class="ml-0">
               {{ Translator.trans('notspecified') }}
             </dd>
@@ -56,7 +58,7 @@
               {{ Translator.trans('phone') }}
             </dt>
             <dd
-              v-if="locationContacts.hasOwnProperty('phone') && locationContacts.phone"
+              v-if="locationContacts?.hasOwnProperty('phone') && locationContacts.phone"
               class="ml-0">
               {{ locationContacts.phone }}
             </dd>
@@ -179,8 +181,8 @@ export default {
 
     rowItems () {
       return Object.values(this.invitableToebItems).reduce((acc, item) => {
-        const locationContactId = item.relationships.locationContacts.data[0].id
-        const locationContact = this.getLocationContactById(locationContactId)
+        const locationContactId = item.relationships.locationContacts?.data.length > 0 ? item.relationships.locationContacts.data[0].id : null
+        const locationContact = locationContactId ? this.getLocationContactById(locationContactId) : null
         const hasNoEmail = !item.attributes.participationFeedbackEmailAddress
 
         return [
@@ -189,10 +191,10 @@ export default {
             {
               id: item.id,
               ...item.attributes,
-              locationContacts: {
+              locationContacts: locationContact ? {
                 id: locationContact.id,
                 ...locationContact.attributes
-              },
+              } : null,
               hasNoEmail
             }
           ]
@@ -265,6 +267,10 @@ export default {
 
     getLocationContactById (id) {
       return this.institutionLocationContactItems[id]
+    },
+
+    hasAdress () {
+      return this.rowItems.locationContacts?.street || this.rowItems.locationContacts?.postalcode || this.rowItems.locationContacts?.city
     },
 
     returnPermissionChecksValuesArray (permissionChecks) {
