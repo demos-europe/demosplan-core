@@ -135,6 +135,8 @@
         }
 
         &__button {
+            @include keyboard-focus();
+
             min-height: 32px;
             min-width: 25px;
             padding: .2rem .4rem;
@@ -155,10 +157,6 @@
             &:hover,
             &:focus {
                 background-color: $dp-color-neutral-light-3;
-            }
-
-            &:focus-visible {
-                outline: 2px solid $dp-color-interactive-default;
             }
 
             &.is-active {
