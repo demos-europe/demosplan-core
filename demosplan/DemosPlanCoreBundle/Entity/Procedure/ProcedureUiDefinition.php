@@ -123,13 +123,6 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface, P
     private $statementFormHintRecheck = '';
 
     /**
-     * @var string
-     *
-     * @ORM\Column(type="text", nullable=false)
-     */
-    private $statementFormHintDataProtection = '';
-
-    /**
      * This text is shown after a non-manual statement was submitted. It may include a
      * placeholder for the external ID of the statement which will be automatically
      * replaced by the actual external ID when the text is shown.
@@ -224,16 +217,6 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface, P
     public function setStatementFormHintRecheck(string $statementFormHintRecheck): void
     {
         $this->statementFormHintRecheck = $statementFormHintRecheck;
-    }
-
-    public function getStatementFormHintDataProtection(): string
-    {
-        return $this->statementFormHintDataProtection;
-    }
-
-    public function setStatementFormHintDataProtection(string $statementFormHintDataProtection): void
-    {
-        $this->statementFormHintDataProtection = $statementFormHintDataProtection;
     }
 
     public function getCreationDate(): DateTime
