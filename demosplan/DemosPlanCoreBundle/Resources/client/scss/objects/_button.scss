@@ -237,7 +237,7 @@ $dp-form-element-spacing-vertical: $inuit-base-spacing-unit--tiny + 1px;
     @extend %btn-base;
     @include keyboard-focus($outline: false) {
         background-color: $dp-color-white;
-        box-shadow: 0 0 0 2px $dp-color-interactive-default;
+        box-shadow: 0 0 0 2px rgba($dp-color-interactive-default, 0.5);
         border-color: transparent !important;
     }
 
@@ -371,7 +371,7 @@ $dp-form-element-spacing-vertical: $inuit-base-spacing-unit--tiny + 1px;
     @extend %btn-base;
     @include keyboard-focus($outline: false) {
         background-color: $dp-color-white;
-        box-shadow: 0 0 0 2px $dp-color-interactive-default;
+        box-shadow: 0 0 0 2px rgba($dp-color-interactive-default, 0.5);
         border-color: transparent !important;
     }
 

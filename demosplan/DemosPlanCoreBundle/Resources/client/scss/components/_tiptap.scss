@@ -157,6 +157,10 @@
                 background-color: $dp-color-neutral-light-3;
             }
 
+            &:focus-visible {
+                outline: 2px solid $dp-color-interactive-default;
+            }
+
             &.is-active {
                 background-color: $dp-color-neutral-light-2;
             }
