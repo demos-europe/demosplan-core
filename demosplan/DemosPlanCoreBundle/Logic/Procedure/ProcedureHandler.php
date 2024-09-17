@@ -406,7 +406,6 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
                 $providedEmailText,
             );
 
-
             // Send invitation mail for each cc-email-addresses
             if (isset($recipientData['ccEmails']) && is_array($recipientData['ccEmails'])) {
                 foreach ($recipientData['ccEmails'] as $ccEmailAddress) {
