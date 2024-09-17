@@ -81,6 +81,13 @@
           </span>
         </div>
 
+        <div :class="prefixClass('c-statement__formhint flash-info u-mb-0_5')">
+          <span
+            :class="prefixClass('block u-ml')">
+            <p v-cleanhtml="statementFormHintDataProtection" />
+          </span>
+        </div>
+
         <div
           v-show="dpValidate.statementForm === false"
           id="statementFormErrors"
@@ -846,6 +853,12 @@ export default {
     },
 
     statementFormHintStatement: {
+      type: String,
+      required: false,
+      default: ''
+    },
+
+    statementFormHintDataProtection: {
       type: String,
       required: false,
       default: ''
