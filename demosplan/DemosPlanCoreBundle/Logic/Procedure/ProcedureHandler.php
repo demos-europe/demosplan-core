@@ -355,7 +355,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
      * @throws NoRecipientsWithEmailException
      * @throws MissingDataException           Thrown if email title or email text is empty
      */
-    public function sendInvitationEmails(array $procedure, array $request, string $emailTextAdded): InvitationEmailResult
+    public function sendInvitationEmails(array $procedure, array $request): InvitationEmailResult
     {
         $helperServices = $this->getHelperServices();
         if (!array_key_exists('serviceMail', $helperServices)
@@ -399,23 +399,13 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         foreach ($recipientsWithEmail as $recipientData) {
             // Send invitation mail for each selected public agency organisation:
 
-            if (strpos($providedEmailText, "HINWEIS") !== false) {
-                $this->sendPublicAgencyInvitationMail(
-                    $recipientData['email2'],
-                    $agencyMainEmailAddress,
-                    $providedEmailTitle,
-                    $providedEmailText,
-                    ''
+            $this->sendPublicAgencyInvitationMail(
+                $recipientData['email2'],
+                $agencyMainEmailAddress,
+                $providedEmailTitle,
+                $providedEmailText,
                 );
-            } else {
-                $this->sendPublicAgencyInvitationMail(
-                    $recipientData['email2'],
-                    $agencyMainEmailAddress,
-                    $providedEmailTitle,
-                    $providedEmailText,
-                    $emailTextAdded
-                );
-            }
+
 
 
             // Send invitation mail for each cc-email-addresses
@@ -426,7 +416,6 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
                         $agencyMainEmailAddress,
                         $providedEmailTitle,
                         $providedEmailText,
-                        $emailTextAdded
                     );
                 }
             }
@@ -443,7 +432,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         // send planning agency emails
         $ccMailAddresses = $this->getPlaningAgencyCCEmailRecipients($procedure, $ccEmailAddresses);
         foreach ($ccMailAddresses as $singleCC) {
-            $this->sendPublicAgencyInvitationMail($singleCC, $agencyMainEmailAddress, $providedEmailTitle, $providedEmailText, $emailTextAdded);
+            $this->sendPublicAgencyInvitationMail($singleCC, $agencyMainEmailAddress, $providedEmailTitle, $providedEmailText);
         }
 
         try {
@@ -995,14 +984,11 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         string $from,
         string $emailTitle,
         string $emailText,
-        string $emailTextAdded
     ): void {
         $vars = [];
         try {
             $vars['mailsubject'] = $emailTitle;
-            $vars['mailbody'] =
-                $emailText
-                .html_entity_decode(nl2br($emailTextAdded), ENT_QUOTES, 'UTF-8');
+            $vars['mailbody'] = $emailText;
 
             $this->mailService->sendMail(
                 'dm_toebeinladung',
