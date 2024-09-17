@@ -31,6 +31,9 @@ $h1-color:                                      $dp-color-text-default !default;
 $h2-color:                                      $dp-color-text-default !default;
 $h3-color:                                      $dp-color-text-default !default;
 
+// Link in flash info box, passes AA contrast check with $dp-color-message-info-bg
+$dp-color-message-info-interactive: $dp-color-blue-dark-2;
+
 // The [cta] tokens are used for coloring interactive elements of high importance (eg. actionbox).
 // The value of [cta] should pass AAA contrast check with the value of [cta-contrast].
 // They are defined here to complement the color tokens defined in demosplan-ui.
