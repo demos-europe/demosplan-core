@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
-use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -130,9 +129,6 @@ class GenerateCustomerCommand extends CoreCommand
             $customer->setBaseLayerUrl($mapParams[0]);
             $customer->setBaseLayerLayers($mapParams[1]);
             $customer->setMapAttribution($mapParams[2]);
-            $kernel = $this->getApplication()->getKernel();
-            /** @var DemosPlanKernel $kernel */
-            $activeProject = $kernel->getActiveProject();
 
             $this->registerDefaultUsers($customer);
             $this->entityManager->flush();
