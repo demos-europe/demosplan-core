@@ -9,11 +9,11 @@
 
 <template>
   <li
+    v-if="layer.attributes.isEnabled && !layer.attributes.isScope &&  !layer.attributes.isBplan"
     :id="id"
     :title="layerTitle"
     :class="[(isVisible && layer.attributes.canUserToggleVisibility) ? prefixClass('is-active') : '', prefixClass('c-map__group-item c-map__layer')]"
-    @click="toggleFromSelf(false)"
-    v-if="layer.attributes.isEnabled && false === layer.attributes.isScope && false === layer.attributes.isBplan">
+    @click="toggleFromSelf(false)">
     <span
       :class="prefixClass('c-map__group-item-controls')"
       @mouseover="toggleOpacityControl(true)"
@@ -66,6 +66,7 @@ import { DpContextualHelp, prefixClass } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpPublicLayerListLayer',
+
   components: { DpContextualHelp },
 
   props: {
