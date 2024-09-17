@@ -82,6 +82,9 @@
         </div>
 
         <div :class="prefixClass('c-statement__formhint flash-info u-mb-0_5')">
+          <i
+            aria-hidden="true"
+            :class="prefixClass('c-statement__hint-icon fa fa-lg fa-info-circle')" />
           <span
             :class="prefixClass('block u-ml')"
             v-html="Translator.trans('statement.modal.step.privacy.policy')">
