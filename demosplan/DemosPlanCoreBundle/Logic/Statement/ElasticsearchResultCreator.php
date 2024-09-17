@@ -114,7 +114,7 @@ class ElasticsearchResultCreator extends CoreService
         private readonly UserService $userService,
         private readonly ParagraphService $paragraphService,
         private readonly SingleDocumentRepository $singleDocumentRepository,
-        private readonly DepartmentRepository $departmentRepository
+        private readonly DepartmentRepository $departmentRepository,
     ) {
     }
 
@@ -144,7 +144,7 @@ class ElasticsearchResultCreator extends CoreService
         $aggregationsOnly = false,
         $aggregationsMinDocumentCount = 1,
         $addAllAggregations = true,
-        array $customAggregations = []
+        array $customAggregations = [],
     ): ElasticsearchResult {
         $elasticsearchResultStatement = new ElasticsearchResult();
         try {
