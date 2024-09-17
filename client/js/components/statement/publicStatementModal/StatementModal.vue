@@ -856,12 +856,6 @@ export default {
       type: String,
       required: false,
       default: ''
-    },
-
-    statementFormHintDataProtection: {
-      type: String,
-      required: false,
-      default: ''
     }
   },
 
