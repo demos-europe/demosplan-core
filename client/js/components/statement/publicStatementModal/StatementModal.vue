@@ -84,7 +84,7 @@
         <div :class="prefixClass('c-statement__formhint flash-info u-mb-0_5')">
           <span
             :class="prefixClass('block u-ml')"
-            v-html="Translator.trans('statement.modal.step.privacy.policy', { link: '<a href=\'/datenschutz\' target=\'_blank\' rel=\'noopener noreferrer\'>Datenschutzerklärung</a>' })">
+            v-html="Translator.trans('statement.modal.step.privacy.policy')">
           </span>
         </div>
 
