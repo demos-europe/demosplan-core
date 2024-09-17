@@ -585,7 +585,7 @@ export default {
 
     //  Map store getters to local computed properties with object spread operator
     ...mapGetters(
-      'assessmentTable',
+      'AssessmentTable',
       [
         'adviceValues',
         'agencies',
