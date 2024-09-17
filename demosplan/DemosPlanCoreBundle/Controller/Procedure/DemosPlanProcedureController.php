@@ -2162,8 +2162,7 @@ class DemosPlanProcedureController extends BaseController
                 try {
                     $storageResult = $this->procedureHandler->sendInvitationEmails(
                         $procedureAsArray,
-                        $this->prepareIncomingData($request, 'emailEdit'),
-                        $emailTextAdded
+                        $this->prepareIncomingData($request, 'emailEdit')
                     );
 
                     // generiere eine Erfolgsmeldung für die eingeladenen TöB
