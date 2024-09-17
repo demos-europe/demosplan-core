@@ -160,9 +160,7 @@
             class="u-ml-0_25"
             :text="filter.contextHelp" />
         </label><!--
-     --><div
-        :key="'select_' + filter.name"
-        :class="prefixClass('layout__item u-1-of-1 u-mb')">
+     --><div :class="prefixClass('layout__item u-1-of-1 u-mb')">
           <select
             :id="filter.name"
             :ref="'filter_' + idx"
