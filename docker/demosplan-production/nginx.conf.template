@@ -1,3 +1,10 @@
+gzip on;
+gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript font/woff2;
+gzip_proxied any;
+gzip_vary on;
+
+large_client_header_buffers 4 32k;
+
 server
 {
     listen 8080 default_server;
@@ -33,6 +40,11 @@ server
     fastcgi_busy_buffers_size 64k;
     fastcgi_read_timeout 600s;
     keepalive_timeout  600s;
+
+    # Handle requests to /web, /fonts, /css, /img, and /js directly by Nginx
+    location ~* ^/(web|fonts|css|img|js) {
+        try_files $uri $uri/ =404;
+    }
 
     # Try all locations and relay to app.php as a fallback.
     location /
