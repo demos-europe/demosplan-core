@@ -149,7 +149,7 @@ trait ElasticsearchQueryTrait
                 $limit = 1;
             }
 
-            $paginator->setMaxPerPage($limit);
+            $paginator->setMaxPerPage((int) $limit);
 
             // try to paginate Result, check for validity
             try {

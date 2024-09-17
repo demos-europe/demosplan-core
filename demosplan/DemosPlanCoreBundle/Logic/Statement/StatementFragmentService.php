@@ -1397,7 +1397,7 @@ class StatementFragmentService extends CoreService
                 $limit = 25;
             }
 
-            $paginator->setMaxPerPage($limit);
+            $paginator->setMaxPerPage((int) $limit);
             // try to paginate Result, check for validity
             try {
                 $paginator->setCurrentPage($page);

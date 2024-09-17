@@ -2390,13 +2390,6 @@ class StatementService extends CoreService implements StatementServiceInterface
             if ('r_view_mode' === $key && '' !== $rParams[$key]) {
                 $resParams['view_mode'] = AssessmentTableViewMode::create($rParams[$key]);
             }
-            if ('r_limit' === $key
-                && is_numeric($value)
-                && array_key_exists('request', $resParams)
-                && array_key_exists('limit', $resParams['request'])
-            ) {
-                $resParams['request']['limit'] = (int) $value;
-            }
         }
 
         return $resParams;
