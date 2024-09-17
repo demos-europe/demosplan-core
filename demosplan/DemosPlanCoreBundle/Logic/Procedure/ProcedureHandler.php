@@ -399,7 +399,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         foreach ($recipientsWithEmail as $recipientData) {
             // Send invitation mail for each selected public agency organisation:
 
-            if (strpos($providedEmailText, "HINWEIS") !== false) {
+            if (false !== strpos($providedEmailText, 'HINWEIS')) {
                 $this->sendPublicAgencyInvitationMail(
                     $recipientData['email2'],
                     $agencyMainEmailAddress,
@@ -416,7 +416,6 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
                     $emailTextAdded
                 );
             }
-
 
             // Send invitation mail for each cc-email-addresses
             if (isset($recipientData['ccEmails']) && is_array($recipientData['ccEmails'])) {
