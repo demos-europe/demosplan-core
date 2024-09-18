@@ -102,6 +102,21 @@ _c_id = :category_id;', [
                     'platform_content_id' => $newPcId,
                     'category_id'         => $categoryId,
                 ]);
+
+                // Retrieve roles for the current content entry
+                $roles = $this->connection->fetchAllAssociative('SELECT _r_id FROM _platform_content_roles WHERE _pc_id = :current_content_entry_id', [
+                    'current_content_entry_id' => $entry['_pc_id'],
+                ]);
+
+                // Insert into _platform_content_roles
+                foreach ($roles as $role) {
+                    $this->addSql('INSERT INTO _platform_content_roles SET
+                _pc_id = :platform_content_id,
+                _r_id = :role_id;', [
+                        'platform_content_id' => $newPcId,
+                        'role_id'             => $role['_r_id'],
+                    ]);
+                }
             }
         }
 
