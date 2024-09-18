@@ -69,6 +69,8 @@ class OrgaDeleter extends CoreService
         // delete orga report entries
         $this->deleteReportEntries($orgaIds, $isDryRun);
 
+        $this->deleteAccesssControl($orgaIds, $isDryRun);
+
         $orgasProcedureIds = Collect($this->procedureRepository->findBy(['orga' => $orgaIds]))->map(
             static fn (Procedure $procedure): string => $procedure->getId()
         );
@@ -206,6 +208,11 @@ class OrgaDeleter extends CoreService
     private function deleteReportEntries(array $orgaIds, bool $isDryRun): void
     {
         $this->queriesService->deleteFromTableByIdentifierArray('_report_entries', '_re_identifier', $orgaIds, $isDryRun);
+    }
+
+    private function deleteAccesssControl(array $orgaIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray('access_control', 'orga_id', $orgaIds, $isDryRun);
     }
 
     /**
