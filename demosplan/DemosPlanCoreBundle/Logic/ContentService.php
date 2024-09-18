@@ -62,7 +62,7 @@ class ContentService extends CoreService
             ? [Role::GUEST]
             : $user->getRoles();
 
-        $globalContentEntries = $this->contentRepository->getNewsListByRoles($roles);
+        $globalContentEntries = $this->contentRepository->getNewsListByRoles($roles, $this->customerService->getCurrentCustomer());
 
         // Legacy Arrays
         // @improve T13447
