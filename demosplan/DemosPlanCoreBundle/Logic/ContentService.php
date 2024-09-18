@@ -18,10 +18,12 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\ContentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SettingRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
+use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
@@ -126,6 +128,9 @@ class ContentService extends CoreService
     {
         try {
             $singleGlobalContent = $this->contentRepository->get($ident);
+            if ($this->customerService->getCurrentCustomer()->getId() !== $singleGlobalContent->getCustomer()->getId()) {
+                throw new CustomerNotFoundException('Content does not belong to current customer');
+            }
 
             return $this->convertToLegacy($singleGlobalContent);
         } catch (Exception $e) {
