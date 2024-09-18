@@ -77,7 +77,7 @@
           <div
             :class="prefixClass('u-ml')">
             <p v-cleanhtml="statementFormHintStatement" />
-            <p v-cleanhtml="Translator.trans('statement.modal.step.privacy.policy')" />
+            <p v-cleanhtml="Translator.trans('statement.modal.step.write.privacy_policy')" />
             {{ Translator.trans('error.mandatoryfields') }}
           </div>
         </div>
