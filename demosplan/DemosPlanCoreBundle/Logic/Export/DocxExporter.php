@@ -37,6 +37,7 @@ use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresTranslatorTrait;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementHandlingResult;
 use Exception;
+use Illuminate\Support\Collection;
 use Monolog\Logger;
 use PhpOffice\PhpWord\Element\AbstractContainer;
 use PhpOffice\PhpWord\Element\Cell;
@@ -51,7 +52,6 @@ use ReflectionException;
 use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Illuminate\Support\Collection;
 use Twig\Environment;
 
 class DocxExporter
@@ -141,7 +141,7 @@ class DocxExporter
         private readonly StatementFragmentService $statementFragmentService,
         private readonly StatementHandler $statementHandler,
         StatementService $statementService,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ) {
         $this->config = $config;
         $this->fileService = $fileService;
@@ -163,7 +163,7 @@ class DocxExporter
         ViewOrientation $viewOrientation,
         array $requestPost,
         string $sortType,
-        string $viewMode = AssessmentTableViewMode::DEFAULT_VIEW
+        string $viewMode = AssessmentTableViewMode::DEFAULT_VIEW,
     ): WriterInterface {
         /**
          * I tried to use templates with PHPWord 0.13.0, but it is not possible
@@ -662,8 +662,8 @@ class DocxExporter
         ViewOrientation $orientation,
         $exportType,
         bool $numberStatements = false,
-        int $statementNumber = 0
-    ): void{
+        int $statementNumber = 0,
+    ): void {
         $styles = $this->getDefaultDocxPageStyles($orientation);
 
         if (null === $item['movedToProcedureName']) {
@@ -721,7 +721,7 @@ class DocxExporter
         array $styles,
         bool $numberStatements = false,
         int $statementNumber = 0,
-        bool $fragmentShort = false
+        bool $fragmentShort = false,
     ): void {
         $translator = $this->translator;
 
@@ -1051,7 +1051,7 @@ class DocxExporter
         StatementEntityGroup $group,
         callable $entriesRenderFunction,
         Section $section,
-        int $depth = 0
+        int $depth = 0,
     ): void {
         $section->addTitle($group->getTitle(), $depth + 2);
 
@@ -1219,7 +1219,7 @@ class DocxExporter
         bool $anonym,
         string $templateName,
         int $statementNumber,
-        bool $numberStatements
+        bool $numberStatements,
     ): void {
         $statementAdviceValues = $this->config->getFormOptions()['statement_fragment_advice_values'];
         $styles = $this->getDefaultDocxPageStyles($orientation);
@@ -1706,7 +1706,7 @@ class DocxExporter
         $assessmentTable,
         $styles,
         $cellStyleLocation,
-        $cellHCentered
+        $cellHCentered,
     ) {
         $fileAbsolutePath = $this->getScreenshot($statement->getMapFile() ?? '');
         if (null !== $fileAbsolutePath) {
@@ -1842,7 +1842,7 @@ class DocxExporter
         bool $anonym,
         bool $numberStatements,
         string $templateName,
-        int $depth = 0
+        int $depth = 0,
     ) {
         foreach ($groupStructure->getSubgroups() as $subgroup) {
             // show subgroup title only if it has any entries
@@ -1900,7 +1900,7 @@ class DocxExporter
         StatementEntityGroup $groupStructure,
         ViewOrientation $orientation,
         PhpWord $phpWord,
-        callable $entriesRenderFunction
+        callable $entriesRenderFunction,
     ): WriterInterface {
         $phpWord->setDefaultFontSize(9);
         $phpWord->addTitleStyle(2, ['size' => 16, 'color' => '666666']);
@@ -1943,7 +1943,7 @@ class DocxExporter
         ViewOrientation $orientation,
         PhpWord $phpWord,
         $exportType,
-        array $requestPost
+        array $requestPost,
     ): WriterInterface {
         $phpWord->setDefaultFontSize(9);
         $styles = $this->getDefaultDocxPageStyles($orientation);
@@ -1977,7 +1977,7 @@ class DocxExporter
                 $numberStatements,
                 $statementNumber
             );
-            $statementNumber++;
+            ++$statementNumber;
         }
 
         $footer = $tableSection->addFooter();
@@ -2002,7 +2002,7 @@ class DocxExporter
         PhpWord $phpWord,
         ViewOrientation $viewOrientation,
         array $styles,
-        Section $section
+        Section $section,
     ): WriterInterface {
         $assessmentTable = $section->addTable('assessmentTable');
 
@@ -2027,7 +2027,7 @@ class DocxExporter
                 $statementNumber,
                 $numberStatements
             );
-            $statementNumber++;
+            ++$statementNumber;
         }
 
         $footer = $section->addFooter();
@@ -2053,7 +2053,7 @@ class DocxExporter
         PhpWord $phpWord,
         ViewOrientation $viewOrientation,
         array $styles,
-        Section $section
+        Section $section,
     ): WriterInterface {
         $section->addTextBreak(2);
         $section->addText($this->translator->trans('summary.colon'));
@@ -2085,7 +2085,7 @@ class DocxExporter
         array $data,
         ExportFieldsConfiguration $exportConfig,
         Statement $statement,
-        bool $anonym
+        bool $anonym,
     ): bool {
         return
             array_key_exists('postalAddressPartsOfAuthor', $data)

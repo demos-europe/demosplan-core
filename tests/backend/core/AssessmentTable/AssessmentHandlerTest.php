@@ -84,18 +84,18 @@ class AssessmentHandlerTest extends FunctionalTestCase
         ];
 
         $condensedExport = [
-            'template'   => 'condensed',
-            'anonymous'  => true,
+            'template'         => 'condensed',
+            'anonymous'        => true,
             'numberStatements' => true,
-            'exportType' => 'statementsOnly',
-            'sortType'   => AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT,
+            'exportType'       => 'statementsOnly',
+            'sortType'         => AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT,
         ];
         $landscapeExport = [
-            'template'   => 'landscape',
-            'anonymous'  => true,
+            'template'         => 'landscape',
+            'anonymous'        => true,
             'numberStatements' => true,
-            'exportType' => 'statementsOnly',
-            'sortType'   => AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT,
+            'exportType'       => 'statementsOnly',
+            'sortType'         => AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT,
         ];
 
         $exportChoices = [$condensedExport, $landscapeExport];
