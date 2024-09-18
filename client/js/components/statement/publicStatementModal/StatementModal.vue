@@ -1004,7 +1004,7 @@ export default {
         const fieldId = field.getAttribute('id')
         return `<li>${Translator.trans(fieldDescriptionsForErrors[fieldId])}</li>`
       })))
-      return `<p>${Translator.trans('error.in.fields')}</p><ul class="u-mb-0 u-ml">${uniqueFieldDescriptions.join('')}</ul>`
+      return `<p>${Translator.trans('error.in.fields')}</p><ul class="list-disc u-ml-0_75">${uniqueFieldDescriptions.join('')}</ul>`
     },
 
     fieldIsActive (fieldKey) {
