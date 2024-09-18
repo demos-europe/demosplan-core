@@ -30,7 +30,7 @@ class Version20240821091730 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->abortIfNotMysql();
-        $this->addSql('UPDATE _procedure_settings SET _ps_territory = "{}" WHERE _ps_territory = "[]"');
+        $this->addSql('UPDATE _procedure_settings SET _ps_territory = :object WHERE _ps_territory = :array', ['object' => '{}', 'array' => '[]']);
     }
 
     /**
