@@ -420,6 +420,7 @@ class DocxExporter
                 $objWriter = $this->createDocxUngrouped(
                     $statements,
                     $anonym,
+                    $numberStatements,
                     $templateName,
                     $phpWord,
                     $viewOrientation,
@@ -448,6 +449,7 @@ class DocxExporter
                 $objWriter = $this->createDocxGroupedBobHH(
                     $group,
                     $anonym,
+                    $numberStatements,
                     $templateName,
                     $phpWord,
                     $viewOrientation,
@@ -1187,7 +1189,9 @@ class DocxExporter
         Table $assessmentTable,
         ViewOrientation $orientation,
         bool $anonym,
-        string $templateName
+        string $templateName,
+        int $statementNumber,
+        bool $numberStatements
     ): void {
         $statementAdviceValues = $this->config->getFormOptions()['statement_fragment_advice_values'];
         $styles = $this->getDefaultDocxPageStyles($orientation);
@@ -1199,11 +1203,21 @@ class DocxExporter
         $cellStyleStatementDetails = ['gridSpan' => 2, 'bgColor' => 'CACACA', 'valign' => 'center', 'borderBottomSize' => 0, 'borderBottomColor' => 'CACACA'];
         $cellTop = ['valign' => 'top'];
         $cellHCentered = ['valign' => 'center', 'spaceAfter' => 0];
+        $statementNumberFontStyle = ['bold' => true];
 
         $assessmentTable->addRow(400);
         $cell1 = $assessmentTable->addCell($styles['firstCellWidth'], $cellRowSpan);
         $cell1AddText = $this->containerAddTextFunctionConstructor($cell1, null, $cellHCentered);
+        $cell1AddStatementNumber = $this->containerAddTextFunctionConstructor(
+            $cell1,
+            $statementNumberFontStyle,
+            $cellHCentered
+        );
         $exportConfig = $statement->getProcedure()->getDefaultExportFieldsConfiguration();
+
+        if ($numberStatements) {
+            $cell1AddStatementNumber('statement.nr', $statementNumber);
+        }
 
         if ($this->exportFieldDecider->isExportable(FieldDecider::FIELD_ID, $exportConfig, $statement)) {
             $cell1->addText(htmlspecialchars($this->getIdStringFromObject($statement)), null, $cellHCentered);
@@ -1798,6 +1812,7 @@ class DocxExporter
         array $styles,
         ViewOrientation $viewOrientation,
         bool $anonym,
+        bool $numberStatements,
         string $templateName,
         int $depth = 0
     ) {
@@ -1811,11 +1826,13 @@ class DocxExporter
                     $styles,
                     $viewOrientation,
                     $anonym,
+                    $numberStatements,
                     $templateName,
                     $depth + 1
                 );
             }
         }
+        $statementNumber = 1;
         foreach ($groupStructure->getEntries() as $entry) {
             $assessmentTable = $section->addTable('assessmentTable');
             $assessmentTable->addRow(100, $this->firstRowStyle);
@@ -1833,7 +1850,9 @@ class DocxExporter
                 $assessmentTable,
                 $viewOrientation,
                 $anonym,
-                $templateName
+                $templateName,
+                $statementNumber,
+                $numberStatements
             );
         }
         // add an empty line after the table containing statements
@@ -1939,6 +1958,7 @@ class DocxExporter
     protected function createDocxUngrouped(
         array $statements,
         bool $anonym,
+        bool $numberStatements,
         string $templateName,
         PhpWord $phpWord,
         ViewOrientation $viewOrientation,
@@ -1946,6 +1966,8 @@ class DocxExporter
         Section $section
     ): WriterInterface {
         $assessmentTable = $section->addTable('assessmentTable');
+
+        $statementNumber = 1;
         foreach ($statements as $statement) {
             $assessmentTable->addRow(100, $this->firstRowStyle);
 
@@ -1957,7 +1979,16 @@ class DocxExporter
 
             $assessmentTable->addCell($styles['cellWidth'], $this->cellHCentered)
                 ->addText(htmlspecialchars($this->translator->trans('considerationadvice')));
-            $this->createStatementDocxEntry($statement, $assessmentTable, $viewOrientation, $anonym, $templateName);
+            $this->createStatementDocxEntry(
+                $statement,
+                $assessmentTable,
+                $viewOrientation,
+                $anonym,
+                $templateName,
+                $statementNumber,
+                $numberStatements
+            );
+            $statementNumber++;
         }
 
         $footer = $section->addFooter();
@@ -1978,6 +2009,7 @@ class DocxExporter
     protected function createDocxGroupedBobHH(
         StatementEntityGroup $groupStructure,
         bool $anonym,
+        bool $numberStatements,
         string $templateName,
         PhpWord $phpWord,
         ViewOrientation $viewOrientation,
@@ -1989,7 +2021,15 @@ class DocxExporter
         $section->addTOC();
         $section->addPageBreak();
 
-        $this->renderStatementsInGroup($groupStructure, $section, $styles, $viewOrientation, $anonym, $templateName);
+        $this->renderStatementsInGroup(
+            $groupStructure,
+            $section,
+            $styles,
+            $viewOrientation,
+            $anonym,
+            $numberStatements,
+            $templateName
+        );
 
         $footer = $section->addFooter();
         $footer->addPreserveText('{PAGE}/{NUMPAGES}');
