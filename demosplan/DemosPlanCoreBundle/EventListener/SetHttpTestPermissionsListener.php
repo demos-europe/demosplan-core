@@ -29,13 +29,13 @@ class SetHttpTestPermissionsListener
         private readonly KernelInterface $kernel,
         private readonly PermissionsInterface $permissions,
         private readonly CurrentUserService $userService,
-        private readonly DatabaseToolCollection $databaseToolCollection
+        private readonly DatabaseToolCollection $databaseToolCollection,
     ) {
     }
 
     public function onKernelController(ControllerEvent $controllerEvent): void
     {
-        if ($this->kernel->getEnvironment() !== 'test') {
+        if ('test' !== $this->kernel->getEnvironment()) {
             return;
         }
 
@@ -43,18 +43,14 @@ class SetHttpTestPermissionsListener
 
         if ($request->server->has('TEST_USER')) {
             $fixtures = $this->databaseToolCollection->get()->loadAllFixtures(['TestData'])->getReferenceRepository();
-            $testUser = $fixtures->getReference( LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
+            $testUser = $fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
             $this->permissions->initPermissions($testUser);
             $this->userService->setUser($testUser);
-
         }
 
         if ($request->server->has(self::X_DPLAN_TEST_PERMISSIONS)) {
             $permissions = $request->server->get(self::X_DPLAN_TEST_PERMISSIONS);
             $this->permissions->enablePermissions(explode(',', $permissions));
         }
-
-
-
     }
 }

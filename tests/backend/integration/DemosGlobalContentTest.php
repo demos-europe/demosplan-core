@@ -12,9 +12,6 @@ declare(strict_types=1);
 
 namespace backend\integration;
 
-use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
-use demosplan\DemosPlanCoreBundle\EventListener\SetHttpTestPermissionsListener;
-use demosplan\DemosPlanCoreBundle\Logic\Customer\CustomerDeleter;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use Tests\Base\AbstractApiTest;
 
@@ -28,12 +25,12 @@ class DemosGlobalContentTest extends AbstractApiTest
         $currentUserService->setUser($user);
 
         $this->client->setServerParameter('TEST_USER', 'TEST_USER');
-       // $response = $this->sendRequest('/news/verwalten','GET', $user, null);
+        // $response = $this->sendRequest('/news/verwalten','GET', $user, null);
         $this->client->request('GET', '/news/verwalten');
         $content = $this->client->getResponse()->getContent();
         // Validate a successful response and some content
         self::assertResponseIsSuccessful();
-        //self::assertSelectorTextContains('h1', 'registrieren', $this->client->getResponse()->getContent());
+        // self::assertSelectorTextContains('h1', 'registrieren', $this->client->getResponse()->getContent());
     }
 
     protected function getServerParameters(): array
