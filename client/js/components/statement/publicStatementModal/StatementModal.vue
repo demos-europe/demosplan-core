@@ -68,34 +68,19 @@
       <section
         v-show="step === 0"
         data-dp-validate="statementForm">
-        <div
-          v-if="loggedIn === false"
-          :class="prefixClass('c-statement__formhint flash-info u-mb-0_5')">
-          <i
-            aria-hidden="true"
-            :class="prefixClass('c-statement__hint-icon fa fa-lg fa-info-circle')" />
-          <div
-            :class="prefixClass('u-ml')">
+          <dp-inline-notification
+            v-if="loggedIn === false"
+            type="info">
             <p v-cleanhtml="statementFormHintStatement" />
             <p v-cleanhtml="Translator.trans('statement.modal.step.write.privacy_policy')" />
-            {{ Translator.trans('error.mandatoryfields') }}
-          </div>
-        </div>
+            <p>{{ Translator.trans('error.mandatoryfields') }}</p>
+          </dp-inline-notification>
 
-        <div
+        <dp-inline-notification
           v-show="dpValidate.statementForm === false"
-          id="statementFormErrors"
-          aria-labelledby="statementFormErrorsContent"
-          tabindex="0"
-          :class="prefixClass('c-statement__formhint flash-error u-mb-0_5')">
-          <i
-            aria-hidden="true"
-            :class="prefixClass('c-statement__hint-icon fa fa-lg fa-exclamation-circle')" />
-          <div
-            id="statementFormErrorsContent"
-            :class="prefixClass('u-ml')"
-            v-cleanhtml="createErrorMessage('statementForm')" />
-        </div>
+          aria-live="assertive">
+          <p v-cleanhtml="createErrorMessage('statementForm')" />
+        </dp-inline-notification>
 
         <template v-if="loggedIn && hasPermission('feature_elements_use_negative_report') && planningDocumentsHasNegativeStatement">
           <div class="flex">
@@ -655,6 +640,7 @@ import {
   CleanHtml,
   dpApi,
   DpCheckbox,
+  DpInlineNotification,
   DpInput,
   DpLabel,
   DpLoading,
@@ -700,6 +686,7 @@ export default {
 
   components: {
     DpCheckbox,
+    DpInlineNotification,
     DpInput,
     DpLabel,
     DpLoading,
@@ -1465,7 +1452,6 @@ export default {
 
       const postValidation = () => {
         if (this.dpValidate.statementForm === false) {
-          this.$nextTick(() => document.getElementById('statementFormErrors').focus())
           return false
         }
         if (typeof this.dpValidate.invalidFields.statementForm.find(el => el.id === 'check_location_isset') !== 'undefined') {
