@@ -144,9 +144,9 @@ export default {
         wrapX: false,
         filter: (_feat, layer) => {
           if (layer) {
-            const id = layer.get('id')
+            const name = layer.get('name')
 
-            if (id === 'layer:mapSettingsPreviewMapExtent' || id === 'layer:mapSettingsPreviewInitExtent') {
+            if (name === 'layer:mapSettingsPreviewMapExtent' || name === 'layer:mapSettingsPreviewInitExtent') {
               return false
             }
           }

@@ -65,7 +65,7 @@ export default {
 
     geoJsonFeatures () {
       // Validate geojson? https://github.com/craveprogramminginc/GeoJSON-Validation
-      return this.isFeatureGeoJSON ? new GeoJSON().readFeatures({ properties: { id: this.name }, ...this.features }) : {}
+      return this.isFeatureGeoJSON ? new GeoJSON().readFeatures({ properties: { id: `feature:${this.name}` }, ...this.features }) : {}
     }
   },
 
@@ -127,7 +127,7 @@ export default {
         name: this.name,
         type: 'draw',
         properties: {
-          id: `layer:${this.name}`
+          name: `layer:${this.name}`
         },
         style: this.drawStyle !== '' ? drawStyle(JSON.parse(this.drawStyle)) : drawStyle(this.olMapState.drawStyles)
       })
