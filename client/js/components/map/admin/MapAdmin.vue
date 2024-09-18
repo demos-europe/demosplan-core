@@ -141,6 +141,12 @@ export default {
     }
   },
 
+  provide () {
+    return {
+      olMapState: this.olMapState
+    }
+  },
+
   data () {
     return {
       areScalesSuitable: true,
