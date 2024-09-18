@@ -30,6 +30,7 @@ use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Validator\Constraints\Url;
@@ -49,6 +50,9 @@ class GenerateCustomerCommand extends CoreCommand
     private const DEFAULT_BASE_LAYER_URL = 'https://sgx.geodatenzentrum.de/wms_basemapde';
     private const DEFAULT_BASE_LAYER_LAYERS = 'de_basemapde_web_raster_farbe';
     private const DEFAULT_MAP_ATTRIBUTION = '© basemap.de / BKG ({currentYear})';
+
+    private const CHOICE_DEFAULT = 'use default';
+    private const CHOICE_CUSTOMIZE = 'customize';
 
     protected static $defaultName = 'dplan:data:generate-customer';
     protected static $defaultDescription = 'Creates a new customer';
@@ -221,28 +225,81 @@ class GenerateCustomerCommand extends CoreCommand
                 self::DEFAULT_MAP_ATTRIBUTION,
             ];
         }
-        $questionMapUrl = new Question(
-            "Please enter the Base Layer URL of the customer\nDefaults to: ".self::DEFAULT_BASE_LAYER_URL.":\n",
-            self::DEFAULT_BASE_LAYER_URL
-        );
-        $questionMapUrl->setValidator($this->assertMapUrl(...));
-        $mapUrl = $this->helper->ask($input, $output, $questionMapUrl);
 
-        $questionMapLayers = new Question(
-            "Please enter the Base Layers of the customer\n Defaults to: ".self::DEFAULT_BASE_LAYER_LAYERS.":\n",
-            self::DEFAULT_BASE_LAYER_LAYERS
-        );
-        $questionMapLayers->setValidator($this->assertIsNonEmptyString(...));
-        $mapLayers = $this->helper->ask($input, $output, $questionMapLayers);
-
-        $questionMapAttribution = new Question(
-            "Please enter the map attribution of the customer\nDefaults to: ".self::DEFAULT_MAP_ATTRIBUTION.":\n",
-            self::DEFAULT_MAP_ATTRIBUTION
-        );
-        $questionMapAttribution->setValidator($this->assertIsNonEmptyString(...));
-        $mapAttribution = $this->helper->ask($input, $output, $questionMapAttribution);
+        $mapUrl = $this->askMapUrl($input, $output);
+        $mapLayers = $this->askMapLayers($input, $output);
+        $mapAttribution = $this->askMapAttribution($input, $output);
 
         return [$mapUrl, $mapLayers, $mapAttribution];
+    }
+
+    private function askMapUrl(InputInterface $input, OutputInterface $output): string
+    {
+        $questionMapUrl = new ChoiceQuestion(
+            "Please enter the Base Layer URL of the customer\nDefaults to:\n".self::DEFAULT_BASE_LAYER_URL,
+            [self::CHOICE_CUSTOMIZE, self::CHOICE_DEFAULT],
+            self::CHOICE_DEFAULT
+        );
+        $mapUrl = $this->helper->ask($input, $output, $questionMapUrl);
+        if (self::CHOICE_DEFAULT === $mapUrl) {
+            $mapUrl = self::DEFAULT_BASE_LAYER_URL;
+        }
+        if (self::CHOICE_CUSTOMIZE === $mapUrl) {
+            $questionMapUrl = new Question(
+                "Please enter the Base Layer URL of the customer\n",
+                ''
+            );
+            $questionMapUrl->setValidator($this->assertMapUrl(...));
+            $mapUrl = $this->helper->ask($input, $output, $questionMapUrl);
+        }
+
+        return $mapUrl;
+    }
+
+    private function askMapLayers(InputInterface $input, OutputInterface $output): string
+    {
+        $questionMapLayers = new ChoiceQuestion(
+            "Please enter the Base Layers of the customer\n Defaults to: ".self::DEFAULT_BASE_LAYER_LAYERS,
+            [self::CHOICE_CUSTOMIZE, self::CHOICE_DEFAULT],
+            self::CHOICE_DEFAULT
+        );
+        $mapLayers = $this->helper->ask($input, $output, $questionMapLayers);
+        if (self::CHOICE_DEFAULT === $mapLayers) {
+            $mapLayers = self::DEFAULT_BASE_LAYER_LAYERS;
+        }
+        if (self::CHOICE_CUSTOMIZE === $mapLayers) {
+            $questionMapLayers = new Question(
+                "Please enter the Base Layers of the customer\n",
+                ''
+            );
+            $questionMapLayers->setValidator($this->assertIsString(...));
+            $mapLayers = $this->helper->ask($input, $output, $questionMapLayers);
+        }
+
+        return $mapLayers;
+    }
+
+    private function askMapAttribution(InputInterface $input, OutputInterface $output): string
+    {
+        $questionMapAttribution = new ChoiceQuestion(
+            "Please enter the map attribution of the customer\nDefaults to: ".self::DEFAULT_MAP_ATTRIBUTION,
+            [self::CHOICE_CUSTOMIZE, self::CHOICE_DEFAULT],
+            self::CHOICE_DEFAULT
+        );
+        $mapAttribution = $this->helper->ask($input, $output, $questionMapAttribution);
+        if (self::CHOICE_DEFAULT === $mapAttribution) {
+            $mapAttribution = self::DEFAULT_MAP_ATTRIBUTION;
+        }
+        if (self::CHOICE_CUSTOMIZE === $mapAttribution) {
+            $questionMapAttribution = new Question(
+                "Please enter the map attribution of the customer\n",
+                ''
+            );
+            $questionMapAttribution->setValidator($this->assertIsString(...));
+            $mapAttribution = $this->helper->ask($input, $output, $questionMapAttribution);
+        }
+
+        return $mapAttribution;
     }
 
     private function assertMapUrl(mixed $mapUrl): string
@@ -250,6 +307,10 @@ class GenerateCustomerCommand extends CoreCommand
         if (!is_string($mapUrl)) {
             throw new InvalidArgumentException('Customer Base Layer URL must be a string.');
         }
+        if ('' === $mapUrl) {
+            return $mapUrl;
+        }
+
         $constraint = new Url();
         $violations = $this->validator->validate($mapUrl, $constraint);
         if (0 < count($violations)) {
@@ -263,9 +324,9 @@ class GenerateCustomerCommand extends CoreCommand
         return $mapUrl;
     }
 
-    private function assertIsNonEmptyString(mixed $value): string
+    private function assertIsString(mixed $value): string
     {
-        Assert::stringNotEmpty('the value should be a non-empty string');
+        Assert::string($value, 'the value should be a string');
 
         return $value;
     }
