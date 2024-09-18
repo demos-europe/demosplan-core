@@ -13,6 +13,9 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -25,6 +28,8 @@ class SetHttpTestPermissionsListener
     public function __construct(
         private readonly KernelInterface $kernel,
         private readonly PermissionsInterface $permissions,
+        private readonly CurrentUserService $userService,
+        private readonly DatabaseToolCollection $databaseToolCollection
     ) {
     }
 
@@ -35,9 +40,21 @@ class SetHttpTestPermissionsListener
         }
 
         $request = $controllerEvent->getRequest();
+
+        if ($request->server->has('TEST_USER')) {
+            $fixtures = $this->databaseToolCollection->get()->loadAllFixtures(['TestData'])->getReferenceRepository();
+            $testUser = $fixtures->getReference( LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
+            $this->permissions->initPermissions($testUser);
+            $this->userService->setUser($testUser);
+
+        }
+
         if ($request->server->has(self::X_DPLAN_TEST_PERMISSIONS)) {
             $permissions = $request->server->get(self::X_DPLAN_TEST_PERMISSIONS);
             $this->permissions->enablePermissions(explode(',', $permissions));
         }
+
+
+
     }
 }

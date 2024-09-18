@@ -22,6 +22,7 @@ class LoadCategoryData extends TestFixture
     final public const TEST_CATEGORY_FAQ = 'testCategoryFaq';
     final public const TEST_CATEGORY_FAQ_2 = 'testCategoryFaq2';
     final public const TEST_CATEGORY_NEWS = 'testCategoryNews';
+    final public const TEST_CATEGORY_PRESS = 'testCategoryPress';
 
     public function load(ObjectManager $manager): void
     {
@@ -64,9 +65,23 @@ class LoadCategoryData extends TestFixture
 
         $manager->persist($category3);
 
+        $category4 = new Category();
+        $category4->setName('press');
+        $category4->setTitle('Press Kategorie Nummer 1');
+        $category4->setDescription('Ich bin eine Press Kategorie für die GlobalNews');
+        $category4->setPicture('picturehash');
+        $category4->setPictitle('Titel für Bild');
+        $category4->setEnabled(true);
+        $category4->setDeleted(false);
+        $category4->setCreateDate(new DateTime());
+        $category4->setModifyDate(new DateTime());
+
+        $manager->persist($category4);
+
         $this->setReference(self::TEST_CATEGORY_FAQ, $category1);
         $this->setReference(self::TEST_CATEGORY_FAQ_2, $category2);
         $this->setReference(self::TEST_CATEGORY_NEWS, $category3);
+        $this->setReference(self::TEST_CATEGORY_PRESS, $category4);
 
         $manager->flush();
     }
