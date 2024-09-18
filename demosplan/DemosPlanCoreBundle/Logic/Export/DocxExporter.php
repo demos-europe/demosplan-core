@@ -158,6 +158,7 @@ class DocxExporter
         StatementHandlingResult $outputResult,
         string $templateName,
         bool $anonym,
+        bool $numberStatements,
         string $exportType,
         ViewOrientation $viewOrientation,
         array $requestPost,

@@ -250,6 +250,7 @@ class AssessmentHandler extends CoreHandler
                 $outputResult,
                 $exportChoice['template'],
                 $exportChoice['anonymous'],
+                $exportChoice['numberStatements'],
                 $exportChoice['exportType'],
                 $viewOrientation,
                 $requestPost,

@@ -48,6 +48,7 @@ class AssessmentTableDocxExporter extends AssessmentTableFileExporterAbstract
                 $outputResult,
                 $parameters['template'],
                 $parameters['anonymous'],
+                $parameters['numberStatements'],
                 $parameters['exportType'],
                 $viewOrientation,
                 $parameters,
