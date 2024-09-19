@@ -65,11 +65,6 @@ final class RoleResourceType extends DplanResourceType
     {
         $projectRoleCodes = $this->globalConfig->getRolesAllowed();
 
-        /*return [$this->conditionFactory->propertyHasAnyOfValues(
-            $projectRoleCodes,
-            $this->code
-        )];*/
-
         return [[] === $projectRoleCodes
             ? $this->conditionFactory->false()
             : $this->conditionFactory->propertyHasAnyOfValues($projectRoleCodes, $this->code)];

@@ -48,8 +48,6 @@ class APIDocumentationController extends BaseController
             return $this->redirectToRoute('core_home');
         }
 
-        // $openApi = $apiDocumentationGenerator->getOpenAPISpecification();
-
         $schemaGenerator = $manager->createOpenApiDocumentBuilder();
 
         $schemaGenerator->setGetActionConfig(

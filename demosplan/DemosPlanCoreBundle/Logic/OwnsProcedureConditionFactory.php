@@ -76,7 +76,6 @@ class OwnsProcedureConditionFactory
         $procedure = $this->userOrProcedure;
         $procedurePlanningOffices = $procedure->getPlanningOfficesIds();
 
-        // return $this->conditionFactory->propertyHasAnyOfValues($procedurePlanningOffices, ['orga', 'id']);
         return [] === $procedurePlanningOffices
             ? $this->conditionFactory->false()
             : $this->conditionFactory->propertyHasAnyOfValues($procedurePlanningOffices, ['orga', 'id']);
@@ -134,7 +133,6 @@ class OwnsProcedureConditionFactory
                 $conditions[] = [] === $relevantRoles
                     ? $this->conditionFactory->false()
                     : $this->conditionFactory->propertyHasAnyOfValues($relevantRoles, ['roleInCustomers', 'role', 'code']),
-                // $this->conditionFactory->propertyHasAnyOfValues($relevantRoles, ['roleInCustomers', 'role', 'code']),
                 $this->isUserInCustomer($customer),
             ];
         } else {
@@ -228,7 +226,6 @@ class OwnsProcedureConditionFactory
 
         $authorizedUserIds = $procedure->getAuthorizedUserIds();
 
-        // return $this->conditionFactory->propertyHasAnyOfValues($procedure->getAuthorizedUserIds(), ['id']);
         return [] === $authorizedUserIds
             ? $this->conditionFactory->false()
             : $this->conditionFactory->propertyHasAnyOfValues($authorizedUserIds, ['id']);

@@ -125,10 +125,6 @@ class PlanningDocumentCategoryTreeReorderer
             [] === $categoryToMoveAndNewParentIds
                 ? $this->conditionFactory->false()
                 : $this->conditionFactory->propertyHasAnyOfValues($categoryToMoveAndNewParentIds, $this->categoryResourceType->id),
-            /*$this->conditionFactory->propertyHasAnyOfValues(
-                $categoryToMoveAndNewParentIds,
-                $this->categoryResourceType->id
-            ),*/
         ], []);
 
         $categoryToMoveAndNewParent = array_column(

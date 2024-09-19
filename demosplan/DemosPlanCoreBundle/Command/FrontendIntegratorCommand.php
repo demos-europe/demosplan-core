@@ -55,7 +55,6 @@ class FrontendIntegratorCommand extends CoreCommand
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
         private readonly JsApiResourceDefinitionBuilder $resourceDefinitionBuilder,
-        // private readonly OpenAPISchemaGenerator $apiDocumentationGenerator,
         private readonly Manager $manager,
         ParameterBagInterface $parameterBag,
         private readonly RouterInterface $router,
@@ -150,8 +149,6 @@ class FrontendIntegratorCommand extends CoreCommand
 
         $allPermissions = Yaml::parseFile(DemosPlanPath::getConfigPath(Permissions::PERMISSIONS_YML));
         $this->currentUser->getPermissions()->enablePermissions(array_keys($allPermissions));
-
-        // $openApiSpec = $this->apiDocumentationGenerator->getOpenAPISpecification();
 
         $schemaGenerator = $this->manager->createOpenApiDocumentBuilder();
 

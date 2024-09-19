@@ -110,10 +110,6 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
         return [] === $procedureIds
             ? [$this->conditionFactory->false()]
             : [$this->conditionFactory->propertyHasAnyOfValues($procedureIds, $this->parentStatementOfSegment->procedure->id)];
-        /*return [$this->conditionFactory->propertyHasAnyOfValues(
-            $procedureIds,
-            $this->parentStatementOfSegment->procedure->id
-        )];*/
     }
 
     public function getFacetDefinitions(): array

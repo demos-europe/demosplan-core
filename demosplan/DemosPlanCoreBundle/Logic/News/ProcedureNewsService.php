@@ -75,7 +75,6 @@ class ProcedureNewsService extends CoreService implements ProcedureNewsServiceIn
             $conditions[] = [] === $roles
                 ? $this->conditionFactory->false()
                 : $this->conditionFactory->propertyHasAnyOfValues($roles, ['roles', 'code']);
-            // $conditions[] = $this->conditionFactory->propertyHasAnyOfValues($roles, ['roles', 'code']);
         }
 
         $sortMethod = $this->sortMethodFactory->propertyDescending(['createDate']);

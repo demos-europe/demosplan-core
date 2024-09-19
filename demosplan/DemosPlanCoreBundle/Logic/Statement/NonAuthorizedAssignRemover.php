@@ -123,10 +123,6 @@ class NonAuthorizedAssignRemover
     {
         return $this->statementRepository->getEntities([
             $this->conditionFactory->propertyIsNotNull(['assignee']),
-            /* $this->conditionFactory->propertyHasNotAnyOfValues(
-                $this->getAssignableUserIds($procedure),
-                ['assignee', 'id']
-            ),*/
             [] === $this->getAssignableUserIds($procedure)
                 ? $this->conditionFactory->false()
                 : $this->conditionFactory->propertyHasNotAnyOfValues($this->getAssignableUserIds($procedure), ['assignee', 'id']),

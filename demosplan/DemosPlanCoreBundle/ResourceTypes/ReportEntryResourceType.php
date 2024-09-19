@@ -81,11 +81,9 @@ class ReportEntryResourceType extends DplanResourceType
 
         return [
             $this->conditionFactory->propertyHasValue($procedure->getId(), $this->identifier),
-            // $this->conditionFactory->propertyHasAnyOfValues($this->getGroups(), $this->group),
             [] === $this->getGroups()
                 ? $this->conditionFactory->false()
                 : $this->conditionFactory->propertyHasAnyOfValues($this->getGroups(), $this->group),
-            // $this->conditionFactory->propertyHasAnyOfValues($this->getCategories(), $this->category),
             [] === $this->getCategories()
                 ? $this->conditionFactory->false()
                 : $this->conditionFactory->propertyHasAnyOfValues($this->getCategories(), $this->category),

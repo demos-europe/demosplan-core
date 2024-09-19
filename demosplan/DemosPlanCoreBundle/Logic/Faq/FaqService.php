@@ -147,7 +147,6 @@ class FaqService extends CoreService
             [] === $roles
                 ? $this->conditionFactory->false()
                 : $this->conditionFactory->propertyHasAnyOfValues($roles, $pathStart->roles->code),
-            // $this->conditionFactory->propertyHasAnyOfValues($roles, $pathStart->roles->code),
         ];
         $sortMethod = $this->sortMethodFactory->propertyAscending($pathStart->title);
 

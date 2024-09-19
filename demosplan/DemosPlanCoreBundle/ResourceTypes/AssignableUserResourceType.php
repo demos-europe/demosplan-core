@@ -67,7 +67,6 @@ final class AssignableUserResourceType extends DplanResourceType
         }
         if (0 < count($authorizedUsers)) {
             // only return users that are on the list of authorized users
-            // return [$this->conditionFactory->propertyHasAnyOfValues($authorizedUserIds, $this->id)];
             return [] === $authorizedUserIds
                 ? [$this->conditionFactory->false()]
                 : [$this->conditionFactory->propertyHasAnyOfValues($authorizedUserIds, $this->id)];

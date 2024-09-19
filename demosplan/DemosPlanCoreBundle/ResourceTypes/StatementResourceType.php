@@ -130,10 +130,6 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $this->conditionFactory->propertyIsNull($pathStartResourceType->headStatement->id),
             // statement placeholders are not considered actual statement resources
             $this->conditionFactory->propertyIsNull($pathStartResourceType->movedStatement),
-            /*$this->conditionFactory->propertyHasAnyOfValues(
-                $allowedProcedureIds,
-                $pathStartResourceType->procedure->id
-            ),*/
             [] === $allowedProcedureIds
                 ? $this->conditionFactory->false()
                 : $this->conditionFactory->propertyHasAnyOfValues($allowedProcedureIds, $pathStartResourceType->procedure->id),
