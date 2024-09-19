@@ -657,7 +657,7 @@ export default {
         this.resetFragmentSelection()
       }
       if (hasPermission('area_statements_fragment')) {
-        this.$store.commit('fragment/setInitFragments', response.meta.fragmentAssignments)
+        this.$store.commit('Fragment/setInitFragments', response.meta.fragmentAssignments)
         this.setSelectedFragments(response.meta.fragmentAssignments)
           .then(() => {
             // And we do the same with statements (making sure not to have statements and fragments checked)

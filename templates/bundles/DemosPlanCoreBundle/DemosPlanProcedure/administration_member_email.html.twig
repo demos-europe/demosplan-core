@@ -84,6 +84,9 @@
             >
         {% endfor %}
 
+        {% set translatedError = 'error.mandatoryfields'|trans %}
+        {% set attributeString = 'data-dp-validate-error="' ~ translatedError|e('html_attr') ~ '"' %}
+
         {{ uiComponent('form.row', {
             elements: [
                 {
@@ -92,7 +95,7 @@
                         name: 'r_emailTitle',
                         value: templateVars.procedure.settings.emailTitle,
                         attributes: [
-                            'data-dp-validate-error=error.mandatoryfields',
+                            attributeString,
                             'data-cy=administrationMemberEmail:emailTitle'
                         ]
                     },

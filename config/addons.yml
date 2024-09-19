@@ -1,0 +1,8 @@
+# example usage
+#dplan_addons:
+#    -
+#      name: "Name like in composer.json"
+#      version: "v0.6.1"
+#    -
+#      name: "mygithuborga/myaddon2"
+#      version: "v0.31.1"

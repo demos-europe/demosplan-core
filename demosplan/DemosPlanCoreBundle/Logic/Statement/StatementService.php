@@ -283,7 +283,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         private readonly TranslatorInterface $translator,
         private readonly UserRepository $userRepository,
         UserService $userService,
-        private readonly StatementDeleter $statementDeleter
+        private readonly StatementDeleter $statementDeleter,
     ) {
         $this->assignService = $assignService;
         $this->entityContentChangeService = $entityContentChangeService;
@@ -566,7 +566,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         DraftStatement $draftStatement,
         $user,
         ?NotificationReceiver $notificationReceiver = null,
-        bool $gdprConsentReceived = false
+        bool $gdprConsentReceived = false,
     ) {
         try {
             $originalStatement = $this->statementRepository
@@ -833,7 +833,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         $aggregationsMinDocumentCount = 1,
         $logStatementViews = true,
         $addAllAggregations = true,
-        array $customAggregations = []
+        array $customAggregations = [],
     ): ElasticsearchResultSet {
         try {
             // get Elasticsearch aggregations aka Userfilters
@@ -2210,7 +2210,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     public function createElementsGroupStructure(
         string $procedureId,
         array $statementsIds,
-        array $fragmentIds
+        array $fragmentIds,
     ): StatementEntityGroup {
         $statements = $this->getStatementsByIds($statementsIds);
         $fragments = $this->statementFragmentRepository->getFragmentsById($fragmentIds);
@@ -2974,12 +2974,14 @@ class StatementService extends CoreService implements StatementServiceInterface
                 foreach ($agg['buckets'] as $bucket) {
                     /** @var Procedure $procedure */
                     $procedure = $this->procedureService->getProcedure($bucket['key']);
-                    $procedures[] = new StatementMovement(
-                        'from-'.$procedure->getId(),
-                        $procedure->getName(),
-                        $bucket['doc_count']
-                    );
-                    $total += $bucket['doc_count'];
+                    if (0 < $bucket['doc_count']) {
+                        $procedures[] = new StatementMovement(
+                            'from-'.$procedure->getId(),
+                            $procedure->getName(),
+                            $bucket['doc_count']
+                        );
+                        $total += $bucket['doc_count'];
+                    }
                 }
             }
         } catch (Exception $e) {
@@ -3026,12 +3028,14 @@ class StatementService extends CoreService implements StatementServiceInterface
             foreach ($aggs as $agg) {
                 foreach ($agg['buckets'] as $bucket) {
                     $procedure = $this->procedureService->getProcedure($bucket['key']);
-                    $procedures[] = new StatementMovement(
-                        'to-'.$procedure->getId(),
-                        $procedure->getName(),
-                        $bucket['doc_count']
-                    );
-                    $total += $bucket['doc_count'];
+                    if (0 < $bucket['doc_count']) {
+                        $procedures[] = new StatementMovement(
+                            'to-'.$procedure->getId(),
+                            $procedure->getName(),
+                            $bucket['doc_count']
+                        );
+                        $total += $bucket['doc_count'];
+                    }
                 }
             }
         } catch (Exception $e) {

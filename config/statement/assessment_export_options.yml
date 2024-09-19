@@ -60,6 +60,12 @@ defaults:
 original_statements:
   docx:  false
   pdf:
+    _defaults:
+        newPagePerStn: false
+        anonymous: true
+        exportType: 'statementsOnly'
+        sortType: 'false'
+        template: 'portrait'
     obscure: false
     anonymize: false
     anonymous: false
