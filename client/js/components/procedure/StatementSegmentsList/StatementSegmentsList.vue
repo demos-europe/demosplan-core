@@ -794,7 +794,7 @@ export default {
       }
     })
     this.setContent({ prop: 'commentsList', val: { ...this.commentsList, procedureId: this.procedure.id, statementId: this.statementId } })
-    this.fetchProcedureMapSettings(this.procedureId)
+    this.fetchProcedureMapSettings(this.procedure.id)
       .then(response => {
         this.procedureMapSettings = { ...this.procedureMapSettings, ...response.attributes }
       })
