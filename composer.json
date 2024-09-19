@@ -16,7 +16,7 @@
         "ext-libxml": "*",
         "ext-mbstring": "*",
         "ext-openssl": "*",
-        "demos-europe/demosplan-addon": "dev-upgrade-edt-to-0.25",
+        "demos-europe/demosplan-addon": "0.39",
         "ext-pdo": "*",
         "ext-posix": "*",
         "ext-simplexml": "*",
