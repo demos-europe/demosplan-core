@@ -27,9 +27,9 @@
 <template>
   <fieldset id="gisLayers">
     <div class="flex">
-      <legend class="w-1/4">
+      <h2 class="w-1/4">
         {{ Translator.trans('gislayer') }}
-      </legend>
+      </h2>
       <div class="w-3/4 text-right">
         <dp-split-button>
           <a
