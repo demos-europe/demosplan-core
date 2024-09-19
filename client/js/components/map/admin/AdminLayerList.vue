@@ -142,7 +142,7 @@
           <div class="c-at-item__row-icon u-pl-0">
             <!-- DragHandler -->
           </div>
-          <div class="flex c-at-item__row">
+          <div class="flex">
               <div class="flex-1 u-pl-0_5">
                 {{ Translator.trans('description') }}
               </div>
