@@ -66,7 +66,7 @@ class DemosPlanAssessmentExportController extends BaseController
         FileResponseGeneratorStrategy $responseGenerator,
         PermissionsInterface $permissions,
         string $procedureId,
-        bool $original = false,
+        bool $original = false
     ): ?Response {
         $exportFormat = $request->request->get('r_export_format');
         // in case that only docx in elements view mode should be exportable override the view mode
