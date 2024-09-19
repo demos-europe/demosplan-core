@@ -78,8 +78,12 @@
 
         <dp-inline-notification
           v-show="dpValidate.statementForm === false"
-          aria-live="assertive">
-          <p v-cleanhtml="createErrorMessage('statementForm')" />
+          id="statementFormErrors"
+          aria-labelledby="statementFormErrorsContent"
+          tabindex="0">
+          <p
+            id="statementFormErrorsContent"
+            v-cleanhtml="createErrorMessage('statementForm')" />
         </dp-inline-notification>
 
         <template v-if="loggedIn && hasPermission('feature_elements_use_negative_report') && planningDocumentsHasNegativeStatement">
@@ -1452,6 +1456,7 @@ export default {
 
       const postValidation = () => {
         if (this.dpValidate.statementForm === false) {
+          this.$nextTick(() => document.getElementById('statementFormErrors').focus())
           return false
         }
         if (typeof this.dpValidate.invalidFields.statementForm.find(el => el.id === 'check_location_isset') !== 'undefined') {
