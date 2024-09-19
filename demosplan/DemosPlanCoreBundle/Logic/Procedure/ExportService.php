@@ -393,7 +393,7 @@ class ExportService
 
         $type = [
             'anonymous'        => false,
-            'numberStatements' => true,
+            'numberStatements' => false,
             'exportType'       => $exportType,
             'template'         => 'condensed',
             'sortType'         => AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT,
@@ -436,7 +436,7 @@ class ExportService
     ): ZipStream {
         $type = [
             'anonymous'        => true,
-            'numberStatements' => true,
+            'numberStatements' => false,
             'exportType'       => $exportType,
             'template'         => 'condensed',
             'sortType'         => AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT,
