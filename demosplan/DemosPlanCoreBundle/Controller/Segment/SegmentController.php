@@ -106,7 +106,7 @@ class SegmentController extends BaseController
                 'title'                      => 'segments.recommendations.create',
                 'templateVars'               => [
                     'isSourceAndCoupledProcedure' => $isSourceAndCoupledProcedure,
-                    'statementFormDefinition' => $statementFormDefinition
+                    'statementFormDefinition'     => $statementFormDefinition,
                 ],
             ]
         );
