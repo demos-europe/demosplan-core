@@ -98,18 +98,7 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType
                 ->readable();
             $configBuilder->pictureTitle->initializable(true)->aliasedPath(Paths::globalContent()->pictitle)->readable();
             $configBuilder->pdfTitle->initializable(true)->aliasedPath(Paths::globalContent()->pdftitle)->readable();
-            $configBuilder->picture
-                ->setRelationshipType($this->resourceTypeStore->getFileResourceType())
-                ->initializable(true, static function (GlobalContent $news, ?File $pictureFile): array {
-                    if (null === $pictureFile) {
-                        $news->setPicture('');
-                        $news->setPictitle('');
-                    } else {
-                        $news->setPicture($pictureFile->getFileString());
-                    }
-
-                    return [];
-                })->readable();
+            $configBuilder->pictureHash->initializable(true)->aliasedPath(Paths::globalContent()->picture)->readable();
             $configBuilder->pdf
                 ->setRelationshipType($this->resourceTypeStore->getFileResourceType())
                 ->initializable(true, static function (GlobalContent $news, ?File $pdfFile): array {
