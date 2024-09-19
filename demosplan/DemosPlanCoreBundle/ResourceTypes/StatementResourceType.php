@@ -66,7 +66,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
         private readonly QueryStatement $esQuery,
         private readonly StatementService $statementService,
-        private readonly StatementDeleter $statementDeleter
+        private readonly StatementDeleter $statementDeleter,
     ) {
         parent::__construct($fileService, $htmlSanitizer);
     }

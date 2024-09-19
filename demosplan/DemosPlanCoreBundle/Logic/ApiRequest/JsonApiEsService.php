@@ -40,7 +40,7 @@ class JsonApiEsService implements JsonApiEsServiceInterface
     public function __construct(
         private readonly DqlConditionFactory $conditionFactory,
         private readonly FacetFactory $facetFactory,
-        private readonly array $searchTypes
+        private readonly array $searchTypes,
     ) {
     }
 
@@ -49,7 +49,7 @@ class JsonApiEsService implements JsonApiEsServiceInterface
         array $prefilteredIdentifiers,
         SearchParams $searchParams,
         bool $scoredSort,
-        ?APIPagination $pagination
+        ?APIPagination $pagination,
     ): array {
         $query = $resourceType->getQuery();
         $type = $resourceType->getSearchType();
@@ -132,7 +132,7 @@ class JsonApiEsService implements JsonApiEsServiceInterface
         array $rawFilter,
         bool $requireEntities,
         array $sortMethods,
-        ?APIPagination $pagination
+        ?APIPagination $pagination,
     ): ApiListResult {
         $scoredSort = [] === $sortMethods;
         $elasticsearchResult = $this->getEsFilteredResult(
@@ -261,7 +261,7 @@ class JsonApiEsService implements JsonApiEsServiceInterface
         string $searchValue,
         ?array $fieldsToSearch,
         array $sortMethods,
-        ?PagePagination $pagination
+        ?PagePagination $pagination,
     ): ApiListResultInterface {
         Assert::isInstanceOf($type, ReadableEsResourceTypeInterface::class);
 

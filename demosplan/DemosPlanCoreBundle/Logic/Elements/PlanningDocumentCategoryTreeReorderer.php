@@ -28,7 +28,7 @@ class PlanningDocumentCategoryTreeReorderer
     public function __construct(
         private readonly DqlConditionFactory $conditionFactory,
         private readonly ElementsRepository $elementsRepository,
-        private readonly PlanningDocumentCategoryResourceType $categoryResourceType
+        private readonly PlanningDocumentCategoryResourceType $categoryResourceType,
     ) {
     }
 
@@ -47,7 +47,7 @@ class PlanningDocumentCategoryTreeReorderer
         Collection $list,
         $target,
         int $targetIndex,
-        bool $updateIndices
+        bool $updateIndices,
     ): void {
         if (!$updateIndices || !$list->containsKey($targetIndex)) {
             $newList = $list->toArray();
@@ -110,7 +110,7 @@ class PlanningDocumentCategoryTreeReorderer
         string $idOfCategoryToMove,
         ?string $newParentId,
         ?int $newIndex,
-        string $procedureId
+        string $procedureId,
     ): CategoryReorderingData {
         $categoryToMoveAndNewParentIds = [$idOfCategoryToMove];
         if (null !== $newParentId) {

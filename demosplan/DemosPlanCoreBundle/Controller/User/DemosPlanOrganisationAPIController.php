@@ -101,7 +101,7 @@ class DemosPlanOrganisationAPIController extends APIController
         PaginatorFactory $paginatorFactory,
         PermissionsInterface $permissions,
         Request $request,
-        JsonApiPaginationParser $paginationParser
+        JsonApiPaginationParser $paginationParser,
     ) {
         try {
             if ($permissions->hasPermission('area_organisations_view_of_customer')

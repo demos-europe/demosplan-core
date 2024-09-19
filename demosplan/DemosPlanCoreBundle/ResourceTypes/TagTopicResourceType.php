@@ -38,7 +38,7 @@ final class TagTopicResourceType extends DplanResourceType
 {
     public function __construct(
         private readonly TagService $tagService,
-        protected TagTopicRepository $tagTopicRepository
+        protected TagTopicRepository $tagTopicRepository,
     ) {
     }
 

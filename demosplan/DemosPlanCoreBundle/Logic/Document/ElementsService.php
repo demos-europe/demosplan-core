@@ -772,7 +772,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
         array $elementIdsToSwitch,
         DateTime $designatedSwitchDateTime,
         bool $designatedState,
-        string $procedureId
+        string $procedureId,
     ): array {
         $condition = $this->conditionFactory
             ->allConditionsApply(
@@ -962,7 +962,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
     public function guessSystemCategoryType(
         string $elementTitle,
         string $documentTitle,
-        string $paragraphTitle
+        string $paragraphTitle,
     ): string|ConstraintViolationListInterface|null {
         if ('' !== $documentTitle) {
             $violations = $this->validator->validate($paragraphTitle, new Blank(
@@ -999,7 +999,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
      *                                                      ConstraintViolationListInterface if given title is empty.
      *                                                      System-category-title if appropriate one was found, otherwise null.
      */
-    private function findSystemCategoryTypeTitleBasedOfTitle(string $title
+    private function findSystemCategoryTypeTitleBasedOfTitle(string $title,
     ): string|ConstraintViolationListInterface|null {
         $violations = $this->validator->validate(
             $title,
@@ -1052,14 +1052,14 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             ElementsInterface::ELEMENT_TITLES['protokolle_und_niederschriften'],
             ElementsInterface::ELEMENT_TITLES['landschaftsplan_aenderung'] => ElementsInterface::ELEMENT_CATEGORIES['file'],
 
-            default => null
+            default => null,
         };
     }
 
     public function getPlanningDocumentCategoryByTitleAndCategoryType(
         string $procedureId,
         string $title,
-        string $category
+        string $category,
     ): ?Elements {
         return $this->elementsRepository->findOneBy([
             'title'     => $title,

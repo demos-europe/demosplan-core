@@ -77,7 +77,7 @@ class DemosPlanStatementAPIController extends APIController
         GlobalConfigInterface $globalConfig,
         MessageBagInterface $messageBag,
         MessageFormatter $messageFormatter,
-        SchemaPathProcessor $schemaPathProcessor
+        SchemaPathProcessor $schemaPathProcessor,
     ) {
         parent::__construct(
             $apiLogger,
@@ -398,7 +398,7 @@ class DemosPlanStatementAPIController extends APIController
         StatementService $statementService,
         UserService $userService,
         string $filterSetHash,
-        string $procedureId
+        string $procedureId,
     ): APIResponse {
         try {
             // @improve T14024

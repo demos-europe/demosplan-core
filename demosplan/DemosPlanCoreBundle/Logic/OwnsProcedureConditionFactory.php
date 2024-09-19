@@ -48,7 +48,7 @@ class OwnsProcedureConditionFactory
         private readonly ConditionFactoryInterface&ConditionGroupFactoryInterface $conditionFactory,
         private readonly GlobalConfigInterface $globalConfig,
         private readonly LoggerInterface $logger,
-        private readonly User|Procedure $userOrProcedure
+        private readonly User|Procedure $userOrProcedure,
     ) {
     }
 

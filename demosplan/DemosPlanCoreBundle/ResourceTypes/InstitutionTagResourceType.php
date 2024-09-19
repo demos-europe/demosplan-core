@@ -44,7 +44,7 @@ class InstitutionTagResourceType extends DplanResourceType
 {
     public function __construct(
         private readonly ValidatorInterface $validator,
-        private readonly InstitutionTagRepository $institutionTagRepository
+        private readonly InstitutionTagRepository $institutionTagRepository,
     ) {
     }
 
@@ -194,7 +194,7 @@ class InstitutionTagResourceType extends DplanResourceType
      */
     private function getAddedTaggedInstitutions(
         Collection $currentTaggedInstitutions,
-        Collection $newTaggedInstitutions
+        Collection $newTaggedInstitutions,
     ): Collection {
         return $newTaggedInstitutions->filter(static fn (Orga $newOrga): bool => !$currentTaggedInstitutions->contains($newOrga));
     }
@@ -207,7 +207,7 @@ class InstitutionTagResourceType extends DplanResourceType
      */
     private function getRemovedTaggedInstitutions(
         Collection $currentTaggedInstitutions,
-        Collection $newTaggedInstitutions
+        Collection $newTaggedInstitutions,
     ): Collection {
         return $currentTaggedInstitutions->filter(
             static fn (Orga $currentOrga): bool => !$newTaggedInstitutions->contains($currentOrga)

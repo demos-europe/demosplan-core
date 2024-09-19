@@ -58,7 +58,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
         private readonly QuerySegment $esQuery,
         JsonApiEsService $jsonApiEsService,
         private readonly PlaceResourceType $placeResourceType,
-        private readonly ProcedureAccessEvaluator $procedureAccessEvaluator
+        private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
     ) {
         $this->esType = $jsonApiEsService->getElasticaTypeForTypeName(self::getName());
     }

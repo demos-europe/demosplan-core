@@ -71,7 +71,7 @@ class FrontendIntegratorCommand extends CoreCommand
 
     public function execute(
         InputInterface $input,
-        OutputInterface $output
+        OutputInterface $output,
     ): int {
         $data = $this->getParameters();
 
