@@ -22,7 +22,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\ApiDocumentation\JsApiResourceDefinitionBuilder;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use EDT\JsonApi\ApiDocumentation\OpenAPISchemaGenerator;
 use EDT\JsonApi\Manager;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
