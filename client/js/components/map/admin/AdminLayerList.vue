@@ -25,7 +25,9 @@
 </documentation>
 
 <template>
-  <fieldset id="gisLayers">
+  <fieldset
+    id="gisLayers"
+    class="pb-0">
     <div class="flex">
       <h2 class="w-1/4">
         {{ Translator.trans('gislayer') }}
@@ -173,13 +175,16 @@
             data-cy="baseMapLayerListItem"
             :index="idx" />
         </dp-draggable>
-        <div class="flex u-mt u-mb">
-          <h3 class="w-1/3">
+        <div class="u-mt u-mb">
+          <h3>
             {{ Translator.trans('map.base.minimap') }}
           </h3>
-          <div class="w-2/3">
+          <div>
+            <p class="font-size-small">
+              {{ Translator.trans('map.base.minimap.hint') }}
+            </p>
             <select
-              class="o-form__control-select"
+              class="o-form__control-select w-1/2"
               data-cy="adminLayerList:currentMinimapLayer"
               v-model="currentMinimapLayer">
               <option :value="{id: '', attributes: { name: 'default' }}">
@@ -193,13 +198,10 @@
               </option>
             </select>
           </div>
-          <p class="font-size-small">
-            {{ Translator.trans('map.base.minimap.hint') }}
-          </p>
         </div>
       </template>
       <div
-        class="text-right u-mv space-inline-s"
+        class="text-right u-mt-1_5 space-inline-s"
         v-if="!isLoading">
         <dp-button
           data-cy="adminLayerList:save"

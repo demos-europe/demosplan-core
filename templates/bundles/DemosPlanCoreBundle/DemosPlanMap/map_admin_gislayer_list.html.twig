@@ -10,7 +10,7 @@
 
     {% if hasPermission('feature_map_use_plan_draw_pdf') or hasPermission('feature_map_use_plan_pdf') or canEditMapHint %}
         <form
-            class="flow-root border--bottom u-pb-0_5 u-mb"
+            class="flow-root border--bottom u-pb u-mb"
             name="planform"
             action="{{ path('DemosPlan_map_administration_gislayer',{'procedureId':procedure}) }}"
             method="post"
@@ -58,7 +58,7 @@
                         {{ fileupload( "r_planPDF", "drawing.explanation"|trans, null, null, null, true ) }}
 
                         {% if templateVars.procedure.settings.planDrawPDF is defined and templateVars.procedure.settings.planPDF != '' %}
-                            <div class="u-mb break-words">
+                            <div class="u-mb-0_5 u-mt break-words">
                                 <a
                                     class="o-hellip"
                                     target="_blank"

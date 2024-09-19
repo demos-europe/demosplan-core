@@ -27,7 +27,7 @@
     @click="setActiveState"
     @mouseover="mouseOverElement"
     @mouseout="mouseOutElement">
-    <div class="c-at-item__row-icon layout__item u-pl-0">
+    <div class="c-at-item__row-icon layout__item pl-0">
       <i
         class="fa fa-bars handle w-[20px] cursor-grab"
         aria-hidden="true"
@@ -109,7 +109,7 @@
           :disabled="'' !== layer.attributes.visibilityGroupId || (true === isChildOfCategoryThatAppearsAsLayer)"
           @change.prevent="toggleHasDefaultVisibility"
           :checked="hasDefaultVisibility"
-          :class="iconClass">
+          :class="[iconClass, 'o-sortablelist__checkbox']">
       </div><!--
   --></template><!--
           Show this Stuff for 'special category that looks like an Layer and hides all his children'
@@ -119,7 +119,7 @@
           type="checkbox"
           data-cy="adminLayerListItem:toggleDefaultVisibility"
           :checked="hasDefaultVisibility"
-          :class="iconClass"
+          :class="[iconClass, 'o-sortablelist__checkbox']"
           @change.prevent="toggleHasDefaultVisibility">
       </div><!--
      -->
@@ -140,7 +140,7 @@
       </a>
       <button
         v-if="childElements.length <= 0"
-        class="btn--blank o-link--default u-mr-0_5"
+        class="btn--blank o-link--default u-mr-0_5 align-bottom"
         data-cy="adminLayerListItem:deleteElement"
         :title="Translator.trans('delete')"
         @click.prevent="deleteElement">
@@ -248,7 +248,7 @@ export default {
     return {
       drag: false,
       preventActiveFromToggeling: false,
-      iconClass: 'fa with--40 u-ml u-mr',
+      iconClass: 'mb-0 u-ml',
       showChildren: true
     }
   },
