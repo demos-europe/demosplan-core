@@ -19,6 +19,7 @@ use EDT\PathBuilding\End;
 /**
  * @template-extends DplanResourceType<Category>
  *
+ * @property-read End $name
  * @property-read End $deleted
  * @property-read End $enabled
  */
@@ -61,6 +62,7 @@ class GlobalNewsCategoryResourceType extends DplanResourceType
     {
         return [
             $this->createIdentifier()->readable(),
+            $this->createAttribute($this->name)->readable()
         ];
     }
 }

@@ -89,11 +89,13 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType
             $configBuilder->text->initializable()->readable();
             $configBuilder->roles
                 ->setRelationshipType($this->resourceTypeStore->getRoleResourceType())
-                ->initializable();
+                ->initializable()
+                ->readable();
             $configBuilder->enabled->initializable();
             $configBuilder->categories
                 ->setRelationshipType($this->resourceTypeStore->getGlobalNewsCategoryResourceType())
-                ->initializable();
+                ->initializable()
+                ->readable();
             $configBuilder->pictureTitle->initializable(true)->aliasedPath(Paths::globalContent()->pictitle)->readable();
             $configBuilder->pdfTitle->initializable(true)->aliasedPath(Paths::globalContent()->pdftitle)->readable();
             $configBuilder->picture
