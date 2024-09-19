@@ -84,9 +84,9 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType
         $configBuilder->id->readable()->aliasedPath($this->ident);
 
         if ($this->currentUser->hasPermission('area_admin_globalnews')) {
-            $configBuilder->title->initializable();
-            $configBuilder->description->initializable();
-            $configBuilder->text->initializable();
+            $configBuilder->title->initializable()->readable();
+            $configBuilder->description->initializable()->readable();
+            $configBuilder->text->initializable()->readable();
             $configBuilder->roles
                 ->setRelationshipType($this->resourceTypeStore->getRoleResourceType())
                 ->initializable();
@@ -94,8 +94,8 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType
             $configBuilder->categories
                 ->setRelationshipType($this->resourceTypeStore->getGlobalNewsCategoryResourceType())
                 ->initializable();
-            $configBuilder->pictureTitle->initializable(true)->aliasedPath(Paths::globalContent()->pictitle);
-            $configBuilder->pdfTitle->initializable(true)->aliasedPath(Paths::globalContent()->pdftitle);
+            $configBuilder->pictureTitle->initializable(true)->aliasedPath(Paths::globalContent()->pictitle)->readable();
+            $configBuilder->pdfTitle->initializable(true)->aliasedPath(Paths::globalContent()->pdftitle)->readable();
             $configBuilder->picture
                 ->setRelationshipType($this->resourceTypeStore->getFileResourceType())
                 ->initializable(true, static function (GlobalContent $news, ?File $pictureFile): array {
@@ -107,7 +107,7 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType
                     }
 
                     return [];
-                });
+                })->readable();
             $configBuilder->pdf
                 ->setRelationshipType($this->resourceTypeStore->getFileResourceType())
                 ->initializable(true, static function (GlobalContent $news, ?File $pdfFile): array {
@@ -119,7 +119,7 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType
                     }
 
                     return [];
-                });
+                })->readable();
             $configBuilder->addPostConstructorBehavior(new FixedSetBehavior(
                 function (GlobalContent $news, EntityDataInterface $entityData): array {
                     $news->setType(GlobalContent::TYPE_NEWS);
