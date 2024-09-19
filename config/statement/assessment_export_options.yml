@@ -9,6 +9,7 @@ defaults:
     obscure: true # can exports be generated obscured/unobscured? (depends on feature_latex_obscure)
     anonymize: true # can exports be generated with/without anonymized author names
     exportTypes: true # show export type options?
+    numberStatements: true # numbering of statements
     templates: # templates have an identifier and a translation key and *optionally* an explanation translation key
       condensed:
         name: export.compact
