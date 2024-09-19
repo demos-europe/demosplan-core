@@ -1297,9 +1297,9 @@ services:
 
     EDT\Querying\ConditionParsers\Drupal\DrupalConditionParser:
         arguments:
-            $drupalConditionFactory: '@demosplan\DemosPlanCoreBundle\Logic\ConditionFactory\DemosPlanDrupalConditionFactory'
+            $drupalConditionFactory: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
 
-    demosplan\DemosPlanCoreBundle\Logic\ConditionFactory\DemosPlanDrupalConditionFactory:
+    EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory:
         arguments:
             $conditionFactory: '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
 
@@ -1312,7 +1312,7 @@ services:
 
     EDT\Querying\ConditionParsers\Drupal\DrupalFilterValidator:
         arguments:
-            $drupalConditionFactory: '@demosplan\DemosPlanCoreBundle\Logic\ConditionFactory\DemosPlanDrupalConditionFactory'
+            $drupalConditionFactory: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
 
     EDT\Querying\Utilities\ConditionEvaluator:
         arguments:
