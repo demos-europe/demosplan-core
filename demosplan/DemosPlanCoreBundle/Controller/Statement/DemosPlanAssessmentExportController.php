@@ -111,7 +111,7 @@ class DemosPlanAssessmentExportController extends BaseController
             : false;
         $parameters['numberStatements'] = array_key_exists('numberStatements', $exportChoice)
             ? $exportChoice['numberStatements']
-            : true;
+            : false;
         $parameters['exportType'] = array_key_exists('exportType', $exportChoice)
             ? $exportChoice['exportType']
             : 'statementsOnly';
