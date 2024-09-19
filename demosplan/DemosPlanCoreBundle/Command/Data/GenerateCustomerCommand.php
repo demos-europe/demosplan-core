@@ -47,9 +47,9 @@ class GenerateCustomerCommand extends CoreCommand
 
     private const MAP_PARAMETERS = 'map-parameters'; // use value 'default' to automatically insert default values
 
-    private const DEFAULT_BASE_LAYER_URL = 'https://sgx.geodatenzentrum.de/wms_basemapde';
-    private const DEFAULT_BASE_LAYER_LAYERS = 'de_basemapde_web_raster_farbe';
-    private const DEFAULT_MAP_ATTRIBUTION = '© basemap.de / BKG ({currentYear})';
+    public const DEFAULT_BASE_LAYER_URL = 'https://sgx.geodatenzentrum.de/wms_basemapde';
+    public const DEFAULT_BASE_LAYER_LAYERS = 'de_basemapde_web_raster_farbe';
+    public const DEFAULT_MAP_ATTRIBUTION = '© basemap.de / BKG ({currentYear})';
 
     private const CHOICE_DEFAULT = 'use default';
     private const CHOICE_CUSTOMIZE = 'customize';
