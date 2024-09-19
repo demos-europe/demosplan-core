@@ -62,7 +62,7 @@ class GlobalNewsCategoryResourceType extends DplanResourceType
     {
         return [
             $this->createIdentifier()->readable(),
-            $this->createAttribute($this->name)->readable()
+            $this->createAttribute($this->name)->readable(),
         ];
     }
 }
