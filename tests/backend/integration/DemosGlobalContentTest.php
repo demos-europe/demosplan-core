@@ -49,12 +49,12 @@ class DemosGlobalContentTest extends AbstractApiTest
             // Step 4: Decode the JSON string
             $jsonData = json_decode($jsonString, true);
 
-            if (json_last_error() === JSON_ERROR_NONE) {
+            if (JSON_ERROR_NONE === json_last_error()) {
                 // Successfully parsed JSON data
                 print_r($jsonData);
             } else {
                 // Handle JSON parsing error
-                echo 'JSON parsing error: ' . json_last_error_msg();
+                echo 'JSON parsing error: '.json_last_error_msg();
             }
         } else {
             // Handle case where JSON string is not found
