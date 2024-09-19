@@ -161,6 +161,16 @@
                 class="sr-only"
                 v-text="Translator.trans('export.type')" />
               <dp-checkbox
+                id="docxNumberStatements"
+                class="mb-1"
+                data-cy="exportModal:docxNumberStatements"
+                :label="{
+                  bold: true,
+                  text: Translator.trans('export.numbered_statements'),
+                  hint: Translator.trans('explanation.export.numbered_statements')
+                  }"
+                v-model="exportChoice.docx.numberStatements"  />
+              <dp-checkbox
                 id="docxAnonymous"
                 v-model="exportChoice.docx.anonymous"
                 data-cy="exportModal:docxObscure"
