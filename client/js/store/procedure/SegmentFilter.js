@@ -35,11 +35,19 @@ const SegmentFilterStore = {
     updateFilterQuery (state, filter) {
       if (Object.keys(filter).length) {
         const filterQuery = Object.values(filter)[0]
-        const queryIdx = Object.values(state.filterQuery).findIndex(el => el.condition.value === filterQuery.condition.value)
+        const value = !filterQuery.condition.value ? 'unassigned' : filterQuery.condition.value
+        const queryIdx = Object.values(state.filterQuery).findIndex(el => {
+          if (value === 'unassigned') {
+            return el.condition.value === undefined
+          }
+
+          return el.condition.value === value
+        })
+
         if (queryIdx < 0) {
-          set(state.filterQuery, [filterQuery.condition.value], filterQuery)
+          set(state.filterQuery, [value], filterQuery)
         } else {
-          del(state.filterQuery, [filterQuery.condition.value])
+          del(state.filterQuery, [value])
         }
       } else {
         set(state, 'filterQuery', filter)

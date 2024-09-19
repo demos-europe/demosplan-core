@@ -249,12 +249,21 @@ export default {
     filter () {
       const filter = {}
       this.currentQuery.forEach(id => {
-        filter[id] = {
-          condition: {
-            path: this.path,
-            value: id,
-            operator: id === 'unassigned' ? 'IS NULL' : this.operator
+        if (id === 'unassigned') {
+          filter[id] = {
+            condition: {
+              path: this.path,
+              operator: 'IS NULL'
+            }
           }
+        } else {
+            filter[id] = {
+              condition: {
+                path: this.path,
+                value: id,
+                operator: this.operator
+              }
+            }
         }
       })
       return filter
