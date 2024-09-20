@@ -22,7 +22,7 @@ use EDT\PathBuilding\End;
 use EDT\Wrapping\Contracts\ContentField;
 use EDT\Wrapping\CreationDataInterface;
 use EDT\Wrapping\PropertyBehavior\Attribute\AttributeConstructorBehavior;
-use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\ToOneRelationshipConstructorBehavior;
+use EDT\Wrapping\PropertyBehavior\Relationship\RequiredRelationshipConstructorBehavior;
 use Webmozart\Assert\Assert;
 
 /**
@@ -73,11 +73,7 @@ final class SimilarStatementSubmitterResourceType extends DplanResourceType
 
                     return [];
                 }),
-            // FIXME : have to check this change, there is no RequiredToOneRelationshipConstructorBehavior class that's why i used
-            // the  ToOneRelationshipConstructorBehavior
-            $this->createToOneRelationship($this->procedure)->addConstructorBehavior(ToOneRelationshipConstructorBehavior::createFactory(
-                null,
-                [],
+            $this->createToOneRelationship($this->procedure)->addConstructorBehavior(RequiredRelationshipConstructorBehavior::createFactory(
                 function (CreationDataInterface $entityData): array {
                     $currentProcedure = $this->currentProcedureService->getProcedure();
                     $toOneRelationships = $entityData->getToOneRelationships();
@@ -91,8 +87,7 @@ final class SimilarStatementSubmitterResourceType extends DplanResourceType
                     }
 
                     return [$currentProcedure, []];
-                },
-                OptionalField::NO
+                }
             )),
         ];
     }
