@@ -27,27 +27,27 @@ class RecommendationConverter
      */
     public function convertImagesToReferencesInRecommendations(array $sortedSegments): array
     {
-        $recommendationTexts = [];
+        $convertedSegments = [];
         foreach ($sortedSegments as $segment) {
             $externId = $segment->getExternId();
             $convertedSegment = $this->imageLinkConverter->convert($segment, $externId, false);
-            $recommendationTexts[$externId] = $convertedSegment->getRecommendationText();
+            $convertedSegments[$externId] = $convertedSegment;
         }
         $this->imageLinkConverter->resetImages();
 
-        return $recommendationTexts;
+        return $convertedSegments;
     }
 
-    public function updateRecommendationsWithTextReferences(array $segmentsOrStatements, array $adjustedRecommendations): array
+    public function updateRecommendationsWithTextReferences(array $segmentsOrStatements, array $convertedSegments): array
     {
         foreach ($segmentsOrStatements as $key => $segmentOrStatement) {
             $isNotSegment = !array_key_exists('recommendation', $segmentOrStatement);
-            $externIdIsNotOfSegment = !array_key_exists($segmentOrStatement['externId'], $adjustedRecommendations);
+            $externIdIsNotOfSegment = !array_key_exists($segmentOrStatement['externId'], $convertedSegments);
             if ($isNotSegment || $externIdIsNotOfSegment) {
                 continue;
             }
 
-            $segmentOrStatement['recommendation'] = $adjustedRecommendations[$segmentOrStatement['externId']];
+            $segmentOrStatement['recommendation'] = $convertedSegments[$segmentOrStatement['externId']];
             $segmentsOrStatements[$key] = $segmentOrStatement;
         }
 

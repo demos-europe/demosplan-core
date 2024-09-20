@@ -46,24 +46,27 @@ class XlsxSegmentsExporter
     {
         Settings::setOutputEscapingEnabled(true);
         $exportData = [];
-        $adjustedRecommendations = [];
+        $convertedSegmentsPerStatement = [];
         // unfortunately for xlsx export data needs to be an array
         foreach ($statements as $statement) {
             $segmentsOrStatements = collect([$statement]);
             if (!$statement->getSegmentsOfStatement()->isEmpty()) {
                 $segmentsOrStatements = $statement->getSegmentsOfStatement();
-                $adjustedRecommendations[] = $this->recommendationConverter->convertImagesToReferencesInRecommendations(
-                    $this->segmentSorter->sortSegmentsByOrderInProcedure($segmentsOrStatements->toArray())
-                );
+                $convertedSegmentsPerStatement[] =
+                    $this->recommendationConverter->convertImagesToReferencesInRecommendations(
+                        $this->segmentSorter->sortSegmentsByOrderInProcedure($segmentsOrStatements->toArray())
+                    );
             }
             foreach ($segmentsOrStatements as $segmentOrStatement) {
                 $exportData[] = $this->exportDataArrayGenerator->convertIntoExportableArray($segmentOrStatement);
             }
         }
 
-        foreach ($adjustedRecommendations as $recommendation) {
-            $exportData =
-                $this->recommendationConverter->updateRecommendationsWithTextReferences($exportData, $recommendation);
+        foreach ($convertedSegmentsPerStatement as $convertedSegments) {
+            $exportData = $this->recommendationConverter->updateRecommendationsWithTextReferences(
+                $exportData,
+                $convertedSegments
+            );
         }
 
         $columnsDefinition = $this->assessmentTableXlsExporter->selectFormat('segments');
