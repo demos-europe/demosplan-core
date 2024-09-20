@@ -113,6 +113,9 @@ class DemosPlanAssessmentExportController extends BaseController
         $parameters['newPagePerStn'] = array_key_exists('newPagePerStn', $exportChoice)
             ? $exportChoice['newPagePerStn']
             : false;
+        $parameters['numberStatements'] = array_key_exists('numberStatements', $exportChoice)
+            ? $exportChoice['numberStatements']
+            : false;
         $parameters['exportType'] = array_key_exists('exportType', $exportChoice)
             ? $exportChoice['exportType']
             : 'statementsOnly';
