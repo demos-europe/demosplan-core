@@ -25,9 +25,7 @@
 </documentation>
 
 <template>
-  <fieldset
-    id="gisLayers"
-    class="pb-0">
+  <div id="gisLayers">
     <div class="flex">
       <h2 class="w-1/4">
         {{ Translator.trans('gislayer') }}
@@ -222,7 +220,7 @@
         </button>
       </div>
     </div>
-  </fieldset>
+  </div>
 </template>
 
 <script>
