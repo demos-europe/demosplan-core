@@ -245,6 +245,7 @@ export default {
 
     changeManualsort ({ newIndex, oldIndex }) {
       const element = this.places.splice(oldIndex, 1)[0]
+
       this.places.splice(newIndex, 0, element)
       this.updateSortOrder({ id: element.id, newIndex: newIndex })
     },
@@ -380,6 +381,7 @@ export default {
       if (!this.isUniquePlaceName(rowData.name)) {
         return dplan.notify.error(Translator.trans('workflow.place.error.duplication'))
       }
+
       const payload = {
         data: {
           id: rowData.id,
