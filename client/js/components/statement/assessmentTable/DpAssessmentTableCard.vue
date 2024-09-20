@@ -500,11 +500,11 @@
                 --><dd class="layout__item u-5-of-6">
                   <ul class="u-mb-0">
                     <li
-                      v-for="FragmentElement in statement.fragmentsElements"
-                      :key="FragmentElement.id">
-                      {{ FragmentElement.elementTitle }}
-                      <template v-if="hasOwnProp(FragmentElement,'paragraphTitle') && FragmentElement.paragraphTitle !== null">
-                        - {{ FragmentElement.paragraphTitle }}
+                      v-for="fragmentElement in statement.fragmentsElements"
+                      :key="fragmentElement.id">
+                      {{ fragmentElement.elementTitle }}
+                      <template v-if="hasOwnProp(fragmentElement,'paragraphTitle') && fragmentElement.paragraphTitle !== null">
+                        - {{ fragmentElement.paragraphTitle }}
                       </template>
                     </li>
                   </ul>
@@ -609,7 +609,7 @@
             </template>
           </dp-item-row><!--
          --><div
-              v-if="statement.files.length > 0 || statement.sourceAttachment !== '' && hasOwnProp(statement.sourceAttachment, 'filename')"
+              v-if="statement.files.length > 0 || statement.sourceAttachment !== '' && statement.sourceAttachment?.filename"
               class="layout--flush u-pv-0_25 u-ph-0_5">
               <div
                 class="layout__item c-at-item__row-icon color--grey"
@@ -621,7 +621,7 @@
 
            --><div class="layout--flush layout__item c-at-item__row break-words">
                 <a
-                  v-if="hasOwnProp(statement.sourceAttachment, 'filename') && hasPermission('feature_read_source_statement_via_api')"
+                  v-if="statement.sourceAttachment?.filename && hasPermission('feature_read_source_statement_via_api')"
                   class="u-pr-0_5 o-hellip border--right u-mr-0_5"
                   :href="Routing.generate('core_file_procedure', { hash: statement.sourceAttachment.hash, procedureId: procedureId })"
                   rel="noopener"

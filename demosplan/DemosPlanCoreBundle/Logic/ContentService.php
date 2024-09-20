@@ -18,6 +18,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\ContentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SettingRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
@@ -42,7 +44,8 @@ class ContentService extends CoreService
         // @improve T13447
         private readonly EntityHelper $entityHelper,
         private readonly ManualListSorter $manualListSorter,
-        private readonly SettingRepository $settingRepository
+        private readonly SettingRepository $settingRepository,
+        private readonly CustomerService $customerService,
     ) {
     }
 
@@ -60,7 +63,7 @@ class ContentService extends CoreService
             ? [Role::GUEST]
             : $user->getRoles();
 
-        $globalContentEntries = $this->contentRepository->getNewsListByRoles($roles);
+        $globalContentEntries = $this->contentRepository->getNewsListByRoles($roles, $this->customerService->getCurrentCustomer());
 
         // Legacy Arrays
         // @improve T13447
@@ -90,7 +93,7 @@ class ContentService extends CoreService
     {
         // @improve T12886
         $category = $this->getCategoryByName($categoryName ?? 'news');
-        $globalContentEntries = $category->getGlobalContents()->toArray();
+        $globalContentEntries = $category->getGlobalContentsByCustomer($this->customerService->getCurrentCustomer());
 
         // Legacy Arrays
         $result = array_map($this->convertToLegacy(...), $globalContentEntries);
@@ -124,6 +127,9 @@ class ContentService extends CoreService
     {
         try {
             $singleGlobalContent = $this->contentRepository->get($ident);
+            if ($this->customerService->getCurrentCustomer()->getId() !== $singleGlobalContent->getCustomer()->getId()) {
+                throw new CustomerNotFoundException('Content does not belong to current customer');
+            }
 
             return $this->convertToLegacy($singleGlobalContent);
         } catch (Exception $e) {
@@ -144,6 +150,8 @@ class ContentService extends CoreService
     public function addContent($data)
     {
         try {
+            // add current customer to $data
+            $data['customer'] = $this->customerService->getCurrentCustomer();
             $singleGlobalContent = $this->contentRepository->add($data);
 
             // convert to Legacy Array
