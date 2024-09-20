@@ -243,9 +243,10 @@ export default {
       this.setEditMode(rowData.id, false)
     },
 
-    changeManualsort (val) {
-      this.places.splice(val.moved.newIndex, 0, this.places.splice(val.moved.oldIndex, 1)[0])
-      this.updateSortOrder(val)
+    changeManualsort ({ newIndex, oldIndex }) {
+      const element = this.places.splice(oldIndex, 1)[0]
+      this.places.splice(newIndex, 0, element)
+      this.updateSortOrder({ id: element.id, newIndex: newIndex })
     },
 
     editPlace (rowData) {
@@ -400,12 +401,12 @@ export default {
         })
     },
 
-    updateSortOrder (placeData) {
+    updateSortOrder ({ id, newIndex }) {
       dpRpc(
         'workflowPlacesOfProcedure.reorder',
         {
-          workflowPlaceId: placeData.moved.element.id,
-          newWorkflowPlaceIndex: placeData.moved.newIndex
+          workflowPlaceId: id,
+          newWorkflowPlaceIndex: newIndex
         },
         this.procedureId
       ).then(() => {
