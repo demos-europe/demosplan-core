@@ -38,7 +38,7 @@ class SegmentsExporter
         protected readonly SegmentSorter $segmentSorter,
         protected readonly Slugify $slugify,
         protected readonly StatementDetailsManager $statementDetailsManager,
-        protected readonly TranslatorInterface $translator
+        protected readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -59,7 +59,7 @@ class SegmentsExporter
     public function exportForMultipleStatements(
         array $tableHeaders,
         Procedure $procedure,
-        Statement ...$statements
+        Statement ...$statements,
     ): WriterInterface {
         Settings::setOutputEscapingEnabled(true);
         $phpWord = $this->phpWordSectionBuilder->createPhpWord();
@@ -85,7 +85,7 @@ class SegmentsExporter
         PhpWord $phpWord,
         Procedure $procedure,
         Statement $statement,
-        array $tableHeaders
+        array $tableHeaders,
     ): void {
         $section = $this->phpWordSectionBuilder->createNewSection($phpWord);
         $this->phpWordSectionBuilder->addSectionHeader($section, $procedure);

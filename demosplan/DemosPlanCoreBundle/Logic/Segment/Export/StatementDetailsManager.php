@@ -30,7 +30,7 @@ class StatementDetailsManager
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
         StyleInitializer $styleInitializer,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
         $this->styles = $styleInitializer->getStyles();
     }

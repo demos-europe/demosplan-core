@@ -55,7 +55,7 @@ final class ImageLinkConverter
     public function convert(
         Segment $segment,
         string $statementExternId,
-        bool $asLinkedReference = true
+        bool $asLinkedReference = true,
     ): ConvertedSegment {
         $segmentText = $segment->getText();
         $recommendationText = $segment->getRecommendation();
@@ -100,15 +100,15 @@ final class ImageLinkConverter
     {
         $asLinkedReference
             ? $text = $this->htmlHelper->updateLinkTextWithClass(
-            $text,
-            HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL,
-            $prefix
-        )
+                $text,
+                HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL,
+                $prefix
+            )
             : $text = $this->htmlHelper->removeLinkTagsByClass(
-            $text,
-            HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL,
-            $prefix
-        );
+                $text,
+                HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL,
+                $prefix
+            );
 
         return $text;
     }

@@ -32,7 +32,7 @@ class PhpWordSectionBuilder
         private readonly SegmentTableManager $segmentTableManager,
         private readonly StatementDetailsManager $statementDetailsManager,
         StyleInitializer $styleInitializer,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
         $this->styles = $styleInitializer->getStyles();
     }

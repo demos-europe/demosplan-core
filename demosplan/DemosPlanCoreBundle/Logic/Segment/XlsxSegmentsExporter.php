@@ -29,7 +29,7 @@ class XlsxSegmentsExporter
         private readonly AssessmentTableXlsExporter $assessmentTableXlsExporter,
         private readonly ExportDataArrayGenerator $exportDataArrayGenerator,
         private readonly RecommendationConverter $recommendationConverter,
-        private readonly SegmentSorter $segmentSorter
+        private readonly SegmentSorter $segmentSorter,
     ) {
     }
 

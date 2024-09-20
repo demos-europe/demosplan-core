@@ -140,7 +140,7 @@ class ExportDataArrayGeneratorTest extends FunctionalTestCase
 
     private function assertDataThatInCaseOfSegmentIsTakenFromParentStatement(
         array $result,
-        StatementInterface $statement
+        StatementInterface $statement,
     ): void {
         static::assertArrayHasKey('memo', $result);
         static::assertSame($statement->getMemo(), $result['memo']);
@@ -155,7 +155,7 @@ class ExportDataArrayGeneratorTest extends FunctionalTestCase
     }
 
     private function createTagData(
-        StatementInterface|SegmentInterface $statementOrSegment
+        StatementInterface|SegmentInterface $statementOrSegment,
     ): StatementInterface|SegmentInterface {
         /** @var TagTopic $tagTopic1 */
         $tagTopic1 = TagTopicFactory::createOne()->_real();
