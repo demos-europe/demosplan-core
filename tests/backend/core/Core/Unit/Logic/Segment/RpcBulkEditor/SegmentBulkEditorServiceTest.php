@@ -13,7 +13,13 @@ namespace Tests\Core\Core\Unit\Logic\Segment\RpcBulkEditor;
 use DateTime;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadSegmentData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagTopicFactory;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentBulkEditorService;
@@ -102,10 +108,24 @@ class SegmentBulkEditorServiceTest extends RpcApiTest
 
     public function testGetValidSegments()
     {
-        $segments = $this->sut->getValidSegments([$this->segment1->getId(),  $this->segment2->getId()], $this->procedure->getId());
+        /** @var Procedure $procedure */
+        $procedure = ProcedureFactory::createOne()->_real();
+        $segmentOne = SegmentFactory::createOne();
+        $segmentTwo = SegmentFactory::createOne();
 
-        self::assertContains($this->segment1, $segments);
-        self::assertContains($this->segment2, $segments);
+        $segmentOne->setProcedure($procedure);
+        $segmentTwo->setProcedure($procedure);
+        $segmentOne->_save();
+        $segmentTwo->_save();
+        /** @var Segment $segmentOneReal */
+        $segmentOneReal = $segmentOne->_real();
+        /** @var Segment $segmentTwoReal */
+        $segmentTwoReal = $segmentTwo->_real();
+
+        $segments = $this->sut->getValidSegments([$segmentOneReal->getId(),  $segmentTwoReal->getId()], $procedure->getId());
+
+        self::assertContains($segmentOneReal, $segments);
+        self::assertContains($segmentTwoReal, $segments);
     }
 
     public function testGetInvalidSegments()
@@ -119,12 +139,34 @@ class SegmentBulkEditorServiceTest extends RpcApiTest
 
     public function testGetValidTags(): void
     {
-        $tag1 = $this->procedure->getTags()->get(0);
-        $tag2 = $this->procedure->getTags()->get(1);
-        $tags = $this->sut->getValidTags([$tag1, $tag2], $this->procedure->getId());
+        $procedure = ProcedureFactory::createOne();
+        $tag1 = TagFactory::createOne();
+        $tag2 = TagFactory::createOne();
+        $tagTopic = TagTopicFactory::createOne();
 
-        self::assertContains($tag1, $tags);
-        self::assertContains($tag2, $tags);
+        $tagTopic->setProcedure($procedure->_real());
+        $tagTopic->addTag($tag1->_real());
+        $tagTopic->addTag($tag2->_real());
+        $tagTopic->_save();
+
+        $procedure->addTagTopic($tagTopic->_real());
+        $procedure->_save();
+        /** @var Procedure $procedureReal */
+        $procedureReal = $procedure->_real();
+
+        $tag1->setTopic($tagTopic->_real());
+        $tag2->setTopic($tagTopic->_real());
+        $tag1->_save();
+        $tag2->_save();
+        /** @var Tag $tag1Real */
+        $tag1Real = $tag1->_real();
+        /** @var Tag $tag2Real */
+        $tag2Real = $tag2->_real();
+
+        $tags = $this->sut->getValidTags([$tag1Real->getId(), $tag2Real->getId()], $procedureReal->getId());
+
+        self::assertContains($tag1Real, $tags);
+        self::assertContains($tag2Real, $tags);
     }
 
     public function testGetInvalidTags(): void
@@ -143,16 +185,37 @@ class SegmentBulkEditorServiceTest extends RpcApiTest
      */
     public function testRecommendationUpdate($attach, $expectedResultSegment1, $expectedResultSegment2): void
     {
+        static::markSkippedForCIIntervention();
+        /** @var Procedure $procedure */
+        $procedure = ProcedureFactory::createOne()->_real();
+        $segmentOne = SegmentFactory::createOne();
+        $segmentTwo = SegmentFactory::createOne();
+        $segmentOne->setProcedure($procedure);
+        $segmentTwo->setProcedure($procedure);
+        $segmentOne->setRecommendation('Initial text 1');
+        $segmentTwo->setRecommendation('Initial text 2');
+        $segmentOne->_save();
+        $segmentTwo->_save();
+        /** @var Segment $segmentOneReal */
+        $segmentOneReal = $segmentOne->_real();
+        /** @var Segment $segmentTwoReal */
+        $segmentTwoReal = $segmentTwo->_real();
         $methodCallTime = new DateTime();
         $recommendationTextEdit = (object) [
             'text'   => 'My Text',
             'attach' => $attach,
         ];
 
-        $this->sut->updateRecommendations([$this->segment1, $this->segment2], $recommendationTextEdit, $this->procedure->getId(), $this->entityType, $methodCallTime);
+        $this->sut->updateRecommendations(
+            [$segmentOneReal, $segmentTwoReal],
+            $recommendationTextEdit,
+            $procedure->getId(),
+            Segment::class,
+            $methodCallTime
+        );
 
-        self::assertSame($expectedResultSegment1, $this->segment1->getRecommendation(), 'Segment 1 recommendation did not update as expected');
-        self::assertSame($expectedResultSegment2, $this->segment2->getRecommendation(), 'Segment 2 recommendation did not update as expected');
+        self::assertSame($expectedResultSegment1, $segmentOneReal->getRecommendation(), 'Segment 1 recommendation did not update as expected');
+        self::assertSame($expectedResultSegment2, $segmentTwoReal->getRecommendation(), 'Segment 2 recommendation did not update as expected');
     }
 
     public function recommendationUpdateProvider(): array

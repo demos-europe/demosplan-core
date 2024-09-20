@@ -13,7 +13,7 @@
     id="check"
     tabindex="-1">
     <legend
-      class="hide-visually"
+      class="sr-only"
       v-text="Translator.trans('statement.recheck')" />
     <p :class="prefixClass('c-statement__formhint flash-warning')">
       <i
@@ -120,8 +120,10 @@
      --><span
           v-if="(fieldIsActive('streetAndHouseNumber') || fieldIsActive('street')) && hasPermission('field_statement_meta_street')"
           :class="prefixClass('layout__item u-1-of-4-desk-up')">
-          <em>{{ Translator.trans('street') }}: </em> {{ statement.r_street }}<br>
-          <template v-if="fieldIsActive('streetAndHouseNumber')">
+          <template v-if="showStreet">
+            <em>{{ Translator.trans('street') }}: </em> {{ statement.r_street }}<br>
+          </template>
+          <template v-if="fieldIsActive('streetAndHouseNumber') && showHouseNumber">
             <em>{{ Translator.trans('street.number.short') }}: </em> {{ statement.r_houseNumber }}<br>
           </template>
         </span><!--
@@ -223,7 +225,7 @@
       </span>
 
       <div
-        :class="prefixClass('sm:h-9 overflow-auto')"
+        :class="prefixClass('sm:h-9 overflow-auto c-styled-html')"
         v-cleanhtml="statement.r_text" />
     </div>
   </fieldset>
@@ -287,8 +289,16 @@ export default {
       return this.statement.r_email && this.statement.r_email !== ''
     },
 
+    showHouseNumber () {
+      return this.statement.r_houseNumber && this.statement.r_houseNumber !== ''
+    },
+
     showPostalCode () {
       return hasPermission('field_statement_meta_postal_code') && this.statement.r_postalCode && this.statement.r_postalCode !== ''
+    },
+
+    showStreet () {
+      return this.statement.r_street && this.statement.r_street !== ''
     }
   },
 

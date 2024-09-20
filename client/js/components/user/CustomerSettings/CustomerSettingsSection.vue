@@ -14,7 +14,7 @@
 <template>
   <fieldset>
     <legend
-      class="hide-visually"
+      class="sr-only"
       v-text="title" />
     <dp-accordion
       :data-cy="dataCy !== '' ? dataCy : false"

@@ -11,8 +11,10 @@
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GlobalContentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\News\NewsHandler;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -185,6 +187,13 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface, GlobalCon
      * )
      */
     protected $categories;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer", cascade={"persist"})
+     *
+     * @ORM\JoinColumn(name="customer_id", referencedColumnName="_c_id", onDelete="CASCADE", nullable=false)
+     */
+    protected CustomerInterface $customer;
 
     public function __construct()
     {
@@ -611,5 +620,17 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface, GlobalCon
         $this->categories = $categories;
 
         return $this;
+    }
+
+    public function setCustomer(Customer $customer): self
+    {
+        $this->customer = $customer;
+
+        return $this;
+    }
+
+    public function getCustomer(): Customer
+    {
+        return $this->customer;
     }
 }

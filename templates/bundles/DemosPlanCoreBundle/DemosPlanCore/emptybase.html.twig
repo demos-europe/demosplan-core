@@ -20,8 +20,8 @@
     <meta name="viewport" content="initial-scale=1.0, user-scalable=yes">
 
     {% block stylesheets %}
-        <link rel="stylesheet" type="text/css" href="{{ asset('css/style.css') }}">
-    {% endblock %}
+        {{ webpackBundles(['preflight.css', 'style.css', 'demosplan-ui.css']) }}
+    {% endblock stylesheets %}
 
     {% block javascripts %}
         {{ webpackBundle('jquery-3.5.1.min.js', true) }}

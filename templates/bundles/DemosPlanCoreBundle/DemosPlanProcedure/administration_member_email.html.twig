@@ -84,6 +84,9 @@
             >
         {% endfor %}
 
+        {% set translatedError = 'error.mandatoryfields'|trans %}
+        {% set attributeString = 'data-dp-validate-error="' ~ translatedError|e('html_attr') ~ '"' %}
+
         {{ uiComponent('form.row', {
             elements: [
                 {
@@ -92,7 +95,7 @@
                         name: 'r_emailTitle',
                         value: templateVars.procedure.settings.emailTitle,
                         attributes: [
-                            'data-dp-validate-error=error.mandatoryfields',
+                            attributeString,
                             'data-cy=administrationMemberEmail:emailTitle'
                         ]
                     },
@@ -118,6 +121,11 @@
                 |json_encode|e('js', 'utf-8') }}')">
         </dp-email-list>
 
+        {% set emailText = templateVars.procedure.settings.emailText|default %}
+        {% if hasPermission('feature_email_invitable_institution_additional_invitation_text') and templateVars.emailTextAdded is defined %}
+            {% set emailText = emailText ~ '<br/><br/>' ~ templateVars.emailTextAdded|wysiwyg|nl2br  %}
+        {% endif %}
+
         <div class="{{ 'u-mb-0_75'|prefixClass }}">
             <dp-label
                 for="r_emailText"
@@ -133,7 +141,7 @@
                     linkButton: true
                 }"
                 required
-                value="{{ templateVars.procedure.settings.emailText|default }}">
+                value="{{ emailText }}">
                 <template v-slot:modal="modalProps">
                     <dp-boiler-plate-modal
                         ref="boilerPlateModal"
@@ -177,17 +185,6 @@
                 {{ "email.send"|trans }}
             </button>
         </div>
-
-        {% if hasPermission('feature_email_invitable_institution_additional_invitation_text') %}
-            <h2 class="u-mt-2">{{ "email.text"|trans }}:</h2>
-            <p>
-                {% if templateVars.emailTextAdded is defined %}
-                    {{ templateVars.emailTextAdded|wysiwyg|nl2br }}
-                {% else %}
-                    Kein Text definiert.
-                {% endif %}
-            </p>
-        {% endif %}
 
     </form>
 

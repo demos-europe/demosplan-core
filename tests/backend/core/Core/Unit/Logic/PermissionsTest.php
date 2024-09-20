@@ -255,6 +255,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_procedure_report_public_phase',
                     'field_statement_recommendation',
                     'feature_orga_edit',
+                    'feature_organisation_user_list',
                 ],
                 'featuresDenied'                    => [
                     'area_accessibility_explanation',
@@ -776,6 +777,7 @@ class PermissionsTest extends FunctionalTestCase
                     'area_mydata',
                     'area_portal_user',
                     'area_preferences',
+                    'feature_organisation_user_list',
                     'feature_procedure_single_document_upload_zip',
                     'feature_procedure_get_base_data',
                     'feature_statement_data_input_orga',
@@ -2602,6 +2604,7 @@ class PermissionsTest extends FunctionalTestCase
                     'area_demosplan',
                     'area_portal_user',
                     'feature_orga_get',
+                    'feature_organisation_user_list',
                     'feature_procedure_report_public_phase',
                     'feature_procedure_single_document_upload_zip',
                     'field_statement_recommendation',

@@ -65,7 +65,8 @@
           <dp-details
             v-for="explanation in explanations"
             :key="explanation.title"
-            :summary="explanation.title">
+            :summary="explanation.title"
+            :data-cy="explanation.dataCy">
             <span v-html="explanation.description" />
           </dp-details>
         </div>
@@ -152,10 +153,12 @@ export default {
       explanations: [
         {
           title: Translator.trans('search.options'),
+          dataCy: 'searchOptions',
           description: Translator.trans('search.options.description')
         },
         {
           title: Translator.trans('search.special.characters'),
+          dataCy: 'searchSpecialCharacters',
           description: Translator.trans('search.special.characters.description')
         }
       ],

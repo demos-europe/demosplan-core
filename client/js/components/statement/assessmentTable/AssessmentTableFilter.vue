@@ -14,7 +14,7 @@
       v-if="hasActiveFilters || searchTerm !== ''"
       class="u-mt-0_5 u-pb-0 border--bottom">
       <legend
-        class="hide-visually"
+        class="sr-only"
         v-text="Translator.trans('filter.searchterm.active')" />
 
       <div
@@ -388,7 +388,7 @@ export default {
 
     filteredAssessmentExportOptions () {
       return Object.entries(this.assessmentExportOptions)
-        .filter(([val, key]) => val !== false)
+        .filter(([key, val]) => val !== false)
         .map(([key, val]) => ({ [key]: val }))
     },
 

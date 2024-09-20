@@ -17,9 +17,9 @@ const components = { DpCheckbox }
 initialize(components, {}).then(() => {
   $('form').submit(function (e) {
     setInterval(function () { getImportStatus() }, 3000)
-    $(this).find('input[type="submit"]').prev('p').removeClass('hide-visually')
-    $(this).find('input[type="submit"]').next('a').addClass('hide-visually')
-    $(this).find('input[type="submit"]').addClass('hide-visually')
+    $(this).find('input[type="submit"]').prev('p').removeClass('sr-only')
+    $(this).find('input[type="submit"]').next('a').addClass('sr-only')
+    $(this).find('input[type="submit"]').addClass('sr-only')
   })
 
   /**

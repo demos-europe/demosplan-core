@@ -365,7 +365,7 @@ export default {
       },
       headerFieldsAvailable: [
         { field: 'externId', label: Translator.trans('id') },
-        { field: 'statementStatus', label: Translator.trans('status') },
+        { field: 'statementStatus', label: Translator.trans('statement.status') },
         { field: 'internId', label: Translator.trans('internId.shortened'), colWidth: '150px' },
         { field: 'submitter', label: Translator.trans('submitter') },
         { field: 'address', label: Translator.trans('address') },
@@ -454,6 +454,10 @@ export default {
       let ids = []
       if (Array.isArray(this.appliedFilterQuery) === false && Object.values(this.appliedFilterQuery).length > 0) {
         ids = Object.values(this.appliedFilterQuery).map(el => {
+          if (!el.condition.value) {
+            return 'unassigned'
+          }
+
           return el.condition.value
         })
       }
@@ -572,9 +576,11 @@ export default {
         })
         .finally(() => {
           this.isLoading = false
-          this.$nextTick(() => {
-            this.$refs.imageModal.addClickListener(this.$refs.dataTable.$el.querySelectorAll('img'))
-          })
+          if (this.items.length > 0) {
+            this.$nextTick(() => {
+              this.$refs.imageModal.addClickListener(this.$refs.dataTable.$el.querySelectorAll('img'))
+            })
+          }
         })
     },
 

@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
@@ -30,6 +31,7 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
 {
     public function __construct(
         EntityManagerInterface $entityManager,
+        private readonly AccessControlService $accessControlPermissionService,
         private readonly OrgaService $orgaService,
         private readonly UserHandler $userHandler,
         private readonly UserService $userService
@@ -55,6 +57,12 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
 
         // Citizen pseudo user suboptimal, but isso
         $this->createAnonymousCitizenUser($manager, $orgaTypeOlauth, $customer);
+
+        $this->accessControlPermissionService->enablePermissionCustomerOrgaRole(
+            AccessControlService::CREATE_PROCEDURES_PERMISSION,
+            $customer,
+            $this->getReference('role_RMOPSA')
+        );
     }
 
     public function getDependencies()

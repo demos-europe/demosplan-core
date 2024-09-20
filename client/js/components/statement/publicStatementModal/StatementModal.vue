@@ -246,7 +246,7 @@
         <template v-if="loggedIn">
           <fieldset>
             <legend
-              class="hide-visually"
+              class="sr-only"
               v-text="Translator.trans('files.upload')" />
             <div
               v-if="hasPermission('field_statement_file')"

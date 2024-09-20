@@ -17,15 +17,16 @@
 </documentation>
 <template>
   <div
+    :id="layer.id"
     class="o-sortablelist__item u-pv-0_5 u-pl-0_5 border--top"
     :class="{
       'is-active' : isActive,
       'cursor-pointer' : (false === layer.attributes.isBaseLayer && 'GisLayerCategory' !== layer.type && false === isChildOfCategoryThatAppearsAsLayer),
     }"
+    data-cy="adminLayerListItem:setLayerActive"
     @click="setActiveState"
     @mouseover="mouseOverElement"
-    @mouseout="mouseOutElement"
-    :id="layer.id">
+    @mouseout="mouseOutElement">
     <div class="c-at-item__row-icon layout__item u-pl-0">
       <i
         class="fa fa-bars handle w-[20px] cursor-grab"
@@ -43,46 +44,46 @@
         v-if="layer.type === 'GisLayerCategory' && false === layer.attributes.layerWithChildrenHidden"
         aria-hidden="true"
         class="fa u-mr-0_125"
-        @click="toggleChildren"
-        :class="[childElements.length > 0 ? (showChildren ? 'fa-folder-open' : 'fa-folder') :'fa-folder-o']" />
+        :class="[childElements.length > 0 ? (showChildren ? 'fa-folder-open' : 'fa-folder') :'fa-folder-o']"
+        @click="toggleChildren" />
       {{ layer.attributes.name }}
       <span
-        class="font-size-smaller u-mr-0_5"
-        v-if="isChildOfCategoryThatAppearsAsLayer && 'mapOrder' === sortingType">
+        v-if="isChildOfCategoryThatAppearsAsLayer && 'mapOrder' === sortingType"
+        class="font-size-smaller u-mr-0_5">
           <!-- children of categories that should appear as Layer
                     only in map-list (where no categories are shown)
                     -->
         <br>{{ Translator.trans('maplayer.hidden.child.of.category') }}
       </span>
       <span
-        class="font-size-smaller u-mr-0_5"
-        v-if="layer.attributes.layerWithChildrenHidden">
+        v-if="layer.attributes.layerWithChildrenHidden"
+        class="font-size-smaller u-mr-0_5">
           <!-- categories that should appear as Layer -->
         <br>{{ Translator.trans('maplayer.category.with.hidden.children') }}
       </span>
       <span
-        class="font-size-smaller u-mr-0_5"
-        v-if="layer.attributes.description">
+        v-if="layer.attributes.description"
+        class="font-size-smaller u-mr-0_5">
         <br>{{ layer.attributes.description }}
       </span>
       <span
-        class="font-size-smaller u-mr-0_5"
-        v-if="layer.attributes.isBplan">
+        v-if="layer.attributes.isBplan"
+        class="font-size-smaller u-mr-0_5">
         <br>{{ Translator.trans('explanation.gislayer.useas.bplan') }}
       </span>
       <span
-        class="font-size-smaller u-mr-0_5"
-        v-if="layer.attributes.isScope">
+        v-if="layer.attributes.isScope"
+        class="font-size-smaller u-mr-0_5">
         <br>{{ Translator.trans('explanation.gislayer.useas.scope') }}
       </span>
       <span
-        class="font-size-smaller"
-        v-if="false === layer.attributes.isEnabled">
+        v-if="false === layer.attributes.isEnabled"
+        class="font-size-smaller">
         <br>{{ Translator.trans('explanation.gislayer.useas.invisible') }}
       </span>
       <span
-        class="font-size-smaller"
-        v-if="layer.attributes.isPrint">
+        v-if="layer.attributes.isPrint"
+        class="font-size-smaller">
         <br>{{ Translator.trans('explanation.gislayer.useas.print') }}
       </span>
     </div><!--
@@ -90,14 +91,15 @@
  --><template v-if="(layer.type === 'GisLayer') && hasPermission('feature_map_layer_visibility')"><!--
     --><div class="inline-block w-1/12 text-right">
         <a
-          v-if="('undefined' !== typeof activeLayer.id || '' !== hoverLayerId) && false === layer.attributes.isBaseLayer && (false === isChildOfCategoryThatAppearsAsLayer)"
+          v-if="layer.attributes.isBaseLayer === false && isChildOfCategoryThatAppearsAsLayer === false"
+          data-cy="adminLayerListItem:toggleVisibilityGroup"
+          :title="hintTextForLockedLayer"
           @click.stop.prevent="toggleVisibilityGroup"
           @mouseover="setIconHoverState"
-          @mouseout="unsetIconHoverState"
-          :title="hintTextForLockedLayer">
+          @mouseout="unsetIconHoverState">
           <i
-            :class="[iconClass,showGroupableIcon]"
-            :aria-label="Translator.trans('gislayer.visibilitygroup.toggle')" />
+            :aria-label="Translator.trans('gislayer.visibilitygroup.toggle')"
+            :class="[iconClass,showGroupableIcon]"/>
         </a>
       </div><!--
    --><div class="inline-block w-1/12 text-right">
@@ -134,7 +136,7 @@
         <i
           class="fa fa-pencil u-mr-0_5"
           aria-hidden="true"
-          :title="Translator.trans('edit')" /><span class="hide-visually">{{ Translator.trans('edit') }}</span>
+          :title="Translator.trans('edit')" /><span class="sr-only">{{ Translator.trans('edit') }}</span>
       </a>
       <button
         v-if="childElements.length <= 0"
@@ -144,7 +146,7 @@
         @click.prevent="deleteElement">
         <i
           class="fa fa-trash"
-          aria-hidden="true" /><span class="hide-visually">{{ Translator.trans('delete') }}</span>
+          aria-hidden="true" /><span class="sr-only">{{ Translator.trans('delete') }}</span>
         </button>
       </div>
     </div>
@@ -759,7 +761,7 @@ export default {
      * Set active state when clicking on an overlay
      */
     setActiveState () {
-      if (!hasPermission('feature_map_category') ||
+      if (!hasPermission('feature_map_layer_visibility') ||
           this.layer.type !== 'GisLayer' ||
           this.layer.attributes.isBaseLayer ||
           this.isLoading ||

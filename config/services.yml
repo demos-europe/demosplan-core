@@ -89,6 +89,9 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Handler\SingleDocumentHandlerInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentHandler
 
+    DemosEurope\DemosplanAddon\Contracts\Handler\ParagraphHandlerInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphHandler
+
     DemosEurope\DemosplanAddon\Contracts\Services\ElementsServiceInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService
 
@@ -872,6 +875,10 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
+
+    demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticsearchResultCreator:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+        lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticSearchService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
