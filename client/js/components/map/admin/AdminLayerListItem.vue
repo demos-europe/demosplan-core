@@ -18,7 +18,7 @@
 <template>
   <div
     :id="layer.id"
-    class="o-sortablelist__item u-pv-0_5 u-pl-0_5 border--top"
+    class="o-sortablelist__item py-2 pl-2 border--top"
     :class="{
       'is-active' : isActive,
       'cursor-pointer' : (false === layer.attributes.isBaseLayer && 'GisLayerCategory' !== layer.type && false === isChildOfCategoryThatAppearsAsLayer),
@@ -49,7 +49,7 @@
       {{ layer.attributes.name }}
       <span
         v-if="isChildOfCategoryThatAppearsAsLayer && 'mapOrder' === sortingType"
-        class="font-size-smaller u-mr-0_5">
+        class="font-size-smaller mr-2">
           <!-- children of categories that should appear as Layer
                     only in map-list (where no categories are shown)
                     -->
@@ -57,23 +57,23 @@
       </span>
       <span
         v-if="layer.attributes.layerWithChildrenHidden"
-        class="font-size-smaller u-mr-0_5">
+        class="font-size-smaller mr-2">
           <!-- categories that should appear as Layer -->
         <br>{{ Translator.trans('maplayer.category.with.hidden.children') }}
       </span>
       <span
         v-if="layer.attributes.description"
-        class="font-size-smaller u-mr-0_5">
+        class="font-size-smaller mr-2">
         <br>{{ layer.attributes.description }}
       </span>
       <span
         v-if="layer.attributes.isBplan"
-        class="font-size-smaller u-mr-0_5">
+        class="font-size-smaller mr-2">
         <br>{{ Translator.trans('explanation.gislayer.useas.bplan') }}
       </span>
       <span
         v-if="layer.attributes.isScope"
-        class="font-size-smaller u-mr-0_5">
+        class="font-size-smaller mr-2">
         <br>{{ Translator.trans('explanation.gislayer.useas.scope') }}
       </span>
       <span
@@ -134,13 +134,13 @@
         :href="editLink"
         data-cy="editLink">
         <i
-          class="fa fa-pencil u-mr-0_5"
+          class="fa fa-pencil mr-2"
           aria-hidden="true"
           :title="Translator.trans('edit')" /><span class="sr-only">{{ Translator.trans('edit') }}</span>
       </a>
       <button
         v-if="childElements.length <= 0"
-        class="btn--blank o-link--default u-mr-0_5 align-bottom"
+        class="btn--blank o-link--default mr-2 align-bottom"
         data-cy="adminLayerListItem:deleteElement"
         :title="Translator.trans('delete')"
         @click.prevent="deleteElement">
@@ -154,7 +154,7 @@
     <!-- recursive nesting inside -->
     <dp-draggable
       v-if="(layer.type === 'GisLayerCategory' && false === layer.attributes.layerWithChildrenHidden) && showChildren"
-      class="layout u-ml u-mt-0_25"
+      class="layout ml-4 mt-1"
       :class="[childElements.length <= 0 ? 'o-sortablelist__empty' :'']"
       :opts="draggableOptions"
       v-model="childElements">
@@ -174,7 +174,7 @@
     <!-- if special category that looks like an Layer and hides all his children -->
     <dp-draggable
       v-if="(layer.type === 'GisLayerCategory' && layer.attributes.layerWithChildrenHidden) && showChildren"
-      class="layout u-ml u-mt-0_25"
+      class="layout ml-4 mt-1"
       :class="[childElements.length <= 0 ? 'o-sortablelist__empty' :'']"
       :opts="draggableOptions"
       v-model="childElements"
@@ -248,7 +248,7 @@ export default {
     return {
       drag: false,
       preventActiveFromToggeling: false,
-      iconClass: 'mb-0 u-ml',
+      iconClass: 'mb-0 ml-4',
       showChildren: true
     }
   },

@@ -53,7 +53,7 @@
     <div
       class="relative"
       :class="{'pointer-events-none': false === isEditable}">
-      <div class="u-mt flex">
+      <div class="mt-4 flex">
         <h3
           v-if="hasPermission('feature_map_baselayer')"
           class="flex-1 w-1/3">
@@ -70,7 +70,7 @@
           </button>
           <button
             @click.prevent="setActiveTab('mapOrder')"
-            class="btn--blank o-link--default u-ml"
+            class="btn--blank o-link--default ml-4"
             :class="{'o-link--active':currentTab === 'mapOrder'}">
             {{ Translator.trans('map.set.order.map') }}
           </button>
@@ -78,11 +78,11 @@
       </div>
 
       <!-- List-Head -->
-      <div class="color--grey u-mb-0_25 u-mt-0_5 u-mr-0_5">
-        <div class="c-at-item__row-icon u-pl-0">
+      <div class="color--grey mb-1 mt-2 mr-2">
+        <div class="c-at-item__row-icon pl-0">
           <!-- DragHandler -->
         </div>
-        <div class="flex u-pl-0_5">
+        <div class="flex pl-2">
           <div class="flex-1">
             {{ Translator.trans('description') }}
           </div>
@@ -90,14 +90,14 @@
             v-if="hasPermission('feature_map_layer_visibility')"
             class="w-1/12 text-right">
               <i
-                class="fa fa-link u-mr-0_5"
+                class="fa fa-link mr-2"
                 v-tooltip="{ content: Translator.trans('explanation.gislayer.visibilitygroup'), classes: 'max-w-none' }" />
           </div>
           <div
             v-if="hasPermission('feature_map_layer_visibility')"
             class="w-1/12 text-right">
               <i
-                class="fa fa-eye u-mr-0_5"
+                class="fa fa-eye mr-2"
                 v-tooltip="Translator.trans('explanation.gislayer.visibility')" />
           </div>
 
@@ -125,32 +125,32 @@
 
       <dp-loading
         v-if="isLoading"
-        class="list__item u-pv-0_5 border--top" />
+        class="list__item py-2 border--top" />
 
       <div
         v-if="(0 === currentList.length ) && false === isLoading"
-        class="list__item u-pv-0_5 border--top color--grey">
+        class="list__item py-2 border--top color--grey">
         {{ Translator.trans('no.data') }}
       </div>
 
       <template v-if="hasPermission('feature_map_baselayer')">
-        <h3 class="u-mt">
+        <h3 class="mt-4">
           {{ Translator.trans('map.bases') }}
         </h3>
         <!-- List-Head -->
-        <div class="color--grey u-mb-0_25 u-mt-0_5 u-mr-0_5">
-          <div class="c-at-item__row-icon u-pl-0">
+        <div class="color--grey mb-1 mt-2 mr-2">
+          <div class="c-at-item__row-icon pl-0">
             <!-- DragHandler -->
           </div>
           <div class="flex">
-              <div class="flex-1 u-pl-0_5">
+              <div class="flex-1 pl-2">
                 {{ Translator.trans('description') }}
               </div>
               <div
                 v-if="hasPermission('feature_map_layer_visibility')"
                 class="w-1/12 text-right">
                 <i
-                  class="fa fa-eye u-mr-0_5"
+                  class="fa fa-eye mr-2"
                   v-tooltip="Translator.trans('explanation.gislayer.visibility')" />
               </div>
               <div class="w-1/12 text-right">
@@ -173,7 +173,7 @@
             data-cy="baseMapLayerListItem"
             :index="idx" />
         </dp-draggable>
-        <div class="u-mt u-mb">
+        <div class="my-4">
           <h3>
             {{ Translator.trans('map.base.minimap') }}
           </h3>
@@ -199,7 +199,7 @@
         </div>
       </template>
       <div
-        class="text-right u-mt-1_5 space-inline-s"
+        class="text-right mt-5 space-x-2"
         v-if="!isLoading">
         <dp-button
           data-cy="adminLayerList:save"
