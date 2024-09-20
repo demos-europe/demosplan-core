@@ -27,7 +27,7 @@
     @click="setActiveState"
     @mouseover="mouseOverElement"
     @mouseout="mouseOutElement">
-    <div class="c-at-item__row-icon layout__item pl-0">
+    <div class="c-at-item__row-icon inline-block">
       <i
         class="fa fa-bars handle w-[20px] cursor-grab"
         aria-hidden="true"
