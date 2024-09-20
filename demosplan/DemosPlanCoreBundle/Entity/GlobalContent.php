@@ -195,6 +195,13 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface, GlobalCon
      */
     protected CustomerInterface $customer;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\File", cascade={"persist"})
+     *
+     * @ORM\JoinColumn(name="picture_id", referencedColumnName="_f_ident", onDelete="CASCADE")
+     */
+    protected File $pictureFile;
+
     public function __construct()
     {
         $this->roles = new ArrayCollection();
