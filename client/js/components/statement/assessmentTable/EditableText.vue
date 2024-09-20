@@ -38,7 +38,8 @@
           mark: mark,
           obscure: obscure,
           strikethrough: strikethrough
-        }">
+        }"
+        @transformObscureTag="transformObscureTag">
         <template v-slot:modal="modalProps">
           <dp-boiler-plate-modal
             v-if="boilerPlate"
@@ -249,6 +250,7 @@ export default {
       isShortened: false,
       loading: false,
       shortText: '',
+      transformedText: '',
       uneditedFullText: ''
     }
   },
@@ -267,6 +269,12 @@ export default {
     },
 
     save () {
+      /** transformedText contains the text with the obscure tag applied.
+       * To avoid the cursor jumping to the end, we update the fullText with transformedText only when the save action is triggered.
+       * */
+      if (this.transformedText && this.transformedText !== this.fullText) {
+        this.fullText = this.transformedText
+      }
       // If there are no changes, no need to save something.
       if (this.uneditedFullText === this.fullText) {
         this.isEditing = false
@@ -287,6 +295,10 @@ export default {
       this.$emit('field:save', emitData)
 
       this.fullTextLoaded = false
+    },
+
+    transformObscureTag (value) {
+      this.transformedText = value
     },
 
     toggleEditMode () {
