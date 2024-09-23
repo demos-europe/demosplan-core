@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace Tests\Core\Core\Functional;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
-use demosplan\DemosPlanCoreBundle\Command\Data\GenerateCustomerCommand;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadCustomerData;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use Symfony\Component\Console\Tester\CommandTester;

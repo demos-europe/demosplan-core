@@ -56,7 +56,7 @@ final class CustomerResourceType extends DplanResourceType
     public function __construct(
         protected readonly BrandingRepository $brandingRepository,
         protected readonly CustomerLoginSupportContactResourceType $customerLoginSupportContactResourceType,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
     ) {
     }
 
