@@ -33,8 +33,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterface, Stringable
 {
-    final public const GROUP_UPDATE = 'group_update';
-
     /**
      * @var string|null
      *

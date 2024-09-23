@@ -127,6 +127,12 @@ class ContentService extends CoreService
     {
         try {
             $singleGlobalContent = $this->contentRepository->get($ident);
+
+            if (!$singleGlobalContent instanceof GlobalContent) {
+                $message = 'No Content could be fetched for id: '.$ident;
+                throw new InvalidArgumentException($message);
+            }
+
             if ($this->customerService->getCurrentCustomer()->getId() !== $singleGlobalContent->getCustomer()->getId()) {
                 throw new CustomerNotFoundException('Content does not belong to current customer');
             }
