@@ -10,7 +10,7 @@
 
     {% if hasPermission('feature_map_use_plan_draw_pdf') or hasPermission('feature_map_use_plan_pdf') or canEditMapHint %}
         <form
-            class="flow-root border--bottom u-pb-0_5 u-mb"
+            class="flow-root border--bottom pb-4 mb-4"
             name="planform"
             action="{{ path('DemosPlan_map_administration_gislayer',{'procedureId':procedure}) }}"
             method="post"
@@ -27,15 +27,15 @@
             {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
             {% if hasPermission('feature_map_use_plan_draw_pdf') or hasPermission('feature_map_use_plan_pdf') %}
-                <fieldset class="u-pb layout layout--flush" id="drawingData">
+                <fieldset class="pb-4 layout layout--flush" id="drawingData">
                     {% if hasPermission('feature_map_use_plan_draw_pdf') %}
                         {# upload pdf #}
-                        <div class="u-mb">
+                        <div class="mb-4">
                             {{ fileupload( "r_planDrawPDF", "drawing"|trans, null, null, null, true) }}
                         </div>
 
                         {% if templateVars.procedure.settings.planDrawPDF is defined and templateVars.procedure.settings.planDrawPDF != '' %}
-                            <div class="u-mb break-words">
+                            <div class="mb-4 break-words">
                                 <a
                                     class="o-hellip"
                                     target="_blank"
@@ -58,7 +58,7 @@
                         {{ fileupload( "r_planPDF", "drawing.explanation"|trans, null, null, null, true ) }}
 
                         {% if templateVars.procedure.settings.planDrawPDF is defined and templateVars.procedure.settings.planPDF != '' %}
-                            <div class="u-mb break-words">
+                            <div class="mb-3 mt-4 break-words">
                                 <a
                                     class="o-hellip"
                                     target="_blank"
@@ -85,7 +85,7 @@
                     </h3>
                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                         helpText: 'map.hint.edit.contextual.help'|trans,
-                        cssClasses:'float-right u-mt-0_5'
+                        cssClasses:'float-right mt-3'
                     } %}
                     <p class="lbl__hint">
                         {{ 'map.hint.edit.explanation'|trans }}
@@ -105,7 +105,7 @@
                 </fieldset>
             {% endif %}
 
-            <div class="text-right space-inline-s">
+            <div class="text-right space-x-2">
                 <input
                     class="btn btn--primary"
                     type="submit"
