@@ -128,7 +128,7 @@ class ContentService extends CoreService
         try {
             $singleGlobalContent = $this->contentRepository->get($ident);
 
-            if(!$singleGlobalContent instanceof GlobalContent) {
+            if (!$singleGlobalContent instanceof GlobalContent) {
                 $message = 'No Content could be fetched for id: '.$ident;
                 throw new InvalidArgumentException($message);
             }
