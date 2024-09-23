@@ -11,12 +11,12 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 
@@ -50,7 +50,7 @@ class StatementAnonymizeHandler extends CoreHandler
     public function __construct(
         CurrentUserInterface $currentUserInterface,
         private readonly ManagerRegistry $doctrine,
-        MessageBag $messageBag,
+        MessageBagInterface $messageBag,
         private readonly PermissionsInterface $permissions,
         private readonly StatementAnonymizeService $statementAnonymizeService
     ) {
@@ -133,8 +133,8 @@ class StatementAnonymizeHandler extends CoreHandler
     private function deleteHistory(array $actions, Statement $statement): void
     {
         if (array_key_exists(self::DELETE_STATEMENT_TEXT_HISTORY, $actions)
-            && true === $actions[self::DELETE_STATEMENT_TEXT_HISTORY] &&
-            $this->permissions->hasPermission('feature_statement_text_history_delete')
+            && true === $actions[self::DELETE_STATEMENT_TEXT_HISTORY]
+            && $this->permissions->hasPermission('feature_statement_text_history_delete')
         ) {
             $this->statementAnonymizeService->deleteHistoryOfTextsRecursively($statement, true);
         }

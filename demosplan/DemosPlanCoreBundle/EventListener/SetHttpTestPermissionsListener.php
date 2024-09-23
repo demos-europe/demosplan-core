@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\EventListener;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 #[AsEventListener(event: 'kernel.controller', priority: 5)]
 class SetHttpTestPermissionsListener
@@ -22,12 +23,17 @@ class SetHttpTestPermissionsListener
     public const X_DPLAN_TEST_PERMISSIONS = 'x-dplan-test-permissions';
 
     public function __construct(
+        private readonly KernelInterface $kernel,
         private readonly PermissionsInterface $permissions,
     ) {
     }
 
     public function onKernelController(ControllerEvent $controllerEvent): void
     {
+        if ($this->kernel->getEnvironment() !== 'test') {
+            return;
+        }
+
         $request = $controllerEvent->getRequest();
         if ($request->server->has(self::X_DPLAN_TEST_PERMISSIONS)) {
             $permissions = $request->server->get(self::X_DPLAN_TEST_PERMISSIONS);

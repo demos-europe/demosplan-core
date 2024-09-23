@@ -23,7 +23,7 @@
 
     // Max width to tackle resize of the sidebar
     @include media-query('lap-up') {
-        max-width: $map-toolbar-width - $inuit-base-spacing-unit--small;
+        max-width: $map-toolbar-width
     }
 
     // Box without buttons

@@ -394,7 +394,7 @@ export default {
 
     addTerritoryLayer () {
       //  If there is no territory wms layer defined but a "hand-drawn" territory, craft a vector layer from it
-      if (!this.hasTerritoryWMS && this.procedureSettings.territory.length > 0 && this.procedureSettings.territory !== '{}') {
+      if (!this.hasTerritoryWMS && this.hasTerritory()) {
         //  Read GeoJson features
         const features = new GeoJSON().readFeatures(this.procedureSettings.territory)
 
@@ -701,7 +701,7 @@ export default {
       const mapLegends = $(this.prefixClass('.js__mapLayerLegends'))
 
       //  Initially hide all legends
-      mapLegends.find('[data-layername]').addClass(this.prefixClass('hide-visually'))
+      mapLegends.find('[data-layername]').addClass(this.prefixClass('sr-only'))
 
       //  Loop layers
       this.map.getLayers().forEach((layer, idx, a) => {
@@ -717,7 +717,7 @@ export default {
 
             //  Show appropriate legend if layer is visible
             if (sublayer.getVisible()) {
-              mapLegends.find('[data-layername="' + sublayer.get('title') + '"]').removeClass(this.prefixClass('hide-visually'))
+              mapLegends.find('[data-layername="' + sublayer.get('title') + '"]').removeClass(this.prefixClass('sr-only'))
             }
           })
         }
@@ -1612,6 +1612,10 @@ export default {
         }
       }
       this.$root.$emit('changeActive')
+    },
+
+    hasTerritory() {
+      return this.procedureSettings.territory && this.procedureSettings.territory.features.length > 0
     },
 
     removeOtherInteractions (reset) {

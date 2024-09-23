@@ -28,7 +28,8 @@ describe('StatementExportModal', () => {
     })
 
     const button = wrapper.find('[data-cy="exportModal:open"]')
-    button.trigger('click')
+    const mockEvent = { preventDefault: jest.fn() }
+    button.vm.$emit('click', mockEvent)
     wrapper.vm.setInitialValues()
   })
 

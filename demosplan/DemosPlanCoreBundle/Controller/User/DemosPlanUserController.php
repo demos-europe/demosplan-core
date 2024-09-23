@@ -36,7 +36,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementAnonymizeService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\User\AddressBookEntryService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
-use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
@@ -79,7 +78,7 @@ class DemosPlanUserController extends BaseController
         OrgaService $orgaService,
         Request $request,
         SessionHandler $sessionHandler,
-        UserHandler $userHandler
+        UserHandler $userHandler,
     ) {
         $orga = $orgaService->getOrga($this->currentUser->getUser()->getOrganisationId());
         $subdomain = $this->getGlobalConfig()->getSubdomain();
@@ -340,7 +339,7 @@ class DemosPlanUserController extends BaseController
         ContentService $contentService,
         Request $request,
         UserHandler $userHandler,
-        string $title = 'user.profile'
+        string $title = 'user.profile',
     ) {
         $templateVars = [];
         $userId = $currentUser->getUser()->getId();
@@ -416,7 +415,7 @@ class DemosPlanUserController extends BaseController
         RateLimiterFactory $userRegisterLimiter,
         Request $request,
         TranslatorInterface $translator,
-        UserHandler $userHandler
+        UserHandler $userHandler,
     ) {
         try {
             // check Honeypotfields
@@ -502,13 +501,13 @@ class DemosPlanUserController extends BaseController
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_citizen_registration_form', path: '/user/register', methods: ['GET'], options: ['expose' => true])]
-    public function showRegisterCitizenFormAction(CustomerService $customerService, ParameterBagInterface $parameterBag, Request $request)
+    public function showRegisterCitizenFormAction()
     {
         $title = 'user.register';
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanUser/citizen_register_form.html.twig',
-            ['title' => $title, 'useSaml' => false]
+            ['title' => $title, 'useIdp' => false]
         );
     }
 
@@ -716,7 +715,7 @@ class DemosPlanUserController extends BaseController
         StatementAnonymizeService $statementAnonymizeService,
         StatementService $statementService,
         Request $request,
-        string $statementId
+        string $statementId,
     ) {
         $statement = null;
         try {

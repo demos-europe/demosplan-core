@@ -17,9 +17,9 @@
       <!-- Logo and Color Variables -->
       <customer-settings-section
         v-if="hasPermission('feature_platform_logo_edit') || hasPermission('feature_customer_branding_edit')"
+        data-cy="customerSettings:customerBrandingLabel"
         is-open
-        :title="Translator.trans('customer.branding.label')"
-        data-cy="customerSettings:customerBrandingLabel">
+        :title="Translator.trans('customer.branding.label')">
         <customer-settings-branding
           :branding="branding"
           :branding-id="customerBrandingId"
@@ -29,9 +29,9 @@
       <!-- Map -->
       <customer-settings-section
         v-if="hasPermission('feature_platform_public_index_map_settings')"
+        data-cy="customerSettings:mapMainPageSettings"
         is-open
-        :title="Translator.trans('map.mainpage.settings')"
-        data-cy="customerSettings:mapMainPageSettings">
+        :title="Translator.trans('map.mainpage.settings')">
         <customer-settings-map
           :current-customer-id="currentCustomerId"
           :init-layer="initLayer"
@@ -43,8 +43,8 @@
       <!-- Imprint -->
       <customer-settings-section
         v-if="hasPermission('feature_imprint_text_customized_view')"
-        :title="Translator.trans('imprint')"
-        data-cy="customerSettings:imprint">
+        data-cy="customerSettings:imprint"
+        :title="Translator.trans('imprint')">
         <dp-label
           for="r_imprint"
           :text="Translator.trans('customer.imprint.explanation', { url: imprintUrl })" />
@@ -72,8 +72,8 @@
       <!-- Data Protection -->
       <customer-settings-section
         v-if="hasPermission('feature_data_protection_text_customized_view')"
-        :title="Translator.trans('data.protection.notes')"
-        data-cy="customerSettings:dataProtectionNotes">
+        data-cy="customerSettings:dataProtectionNotes"
+        :title="Translator.trans('data.protection.notes')">
         <dp-label
           for="r_dataProtection"
           :text="Translator.trans('customer.data.protection.explanation')" />
@@ -101,6 +101,7 @@
       <!-- Terms of use -->
       <customer-settings-section
         v-if="hasPermission('feature_customer_terms_of_use_edit')"
+        data-cy="customerSettings:termsOfUse"
         :title="Translator.trans('terms.of.use.notes')">
         <dp-label
           for="r_termsOfUse"
@@ -116,6 +117,7 @@
           }" />
         <dp-button-row
           class="u-mt"
+          data-cy="customerSettings:termsOfUse"
           primary
           secondary
           :busy="isBusy"
@@ -127,6 +129,7 @@
       <!-- Xplanning -->
       <customer-settings-section
         v-if="hasPermission('feature_customer_xplanning_edit')"
+        data-cy="customerSettings:xplanning"
         :title="Translator.trans('xplanning.notes')">
         <dp-label
           for="r_xplanning"
@@ -142,6 +145,7 @@
           }" />
         <dp-button-row
           class="u-mt"
+          data-cy="customerSettings:xplanning"
           primary
           secondary
           :busy="isBusy"
@@ -153,6 +157,7 @@
       <!-- Sign language video page -->
       <customer-settings-section
         v-if="hasPermission('field_sign_language_overview_video_edit')"
+        data-cy="customerSettings:overviewVideo"
         :title="Translator.trans('signLanguage.explanation')">
         <p v-text="Translator.trans('customer.signLanguage.explanation.hint')" />
         <dp-label
@@ -182,6 +187,7 @@
       <!-- Accessibility explanation -->
       <customer-settings-section
         v-if="hasPermission('field_customer_accessibility_explanation_edit')"
+        data-cy="customerSettings:customerAccessibilityExplanation"
         :title="Translator.trans('accessibility.explanation')">
         <dp-label
           for="r_accessibilityExplanation"
@@ -197,6 +203,7 @@
           }" />
         <dp-button-row
           class="u-mt"
+          data-cy="customerSettings:accessibilityExplanation"
           primary
           secondary
           :busy="isBusy"
@@ -207,6 +214,7 @@
 
       <customer-settings-section
         v-if="hasPermission('field_simple_language_overview_description_edit')"
+        data-cy="customerSettings:overviewDescription"
         :title="Translator.trans('language.simple')">
         <dp-label
           for="r_simpleLanguage"
@@ -228,6 +236,7 @@
           :tus-endpoint="dplan.paths.tusEndpoint" />
         <dp-button-row
           class="u-mt"
+          data-cy="customerSettings:overviewDescription"
           primary
           secondary
           :busy="isBusy"
@@ -238,12 +247,14 @@
 
       <customer-settings-section
         v-if="hasPermission('feature_customer_support_contact_administration')"
+        data-cy="customerSettings:supportContactAdministration"
         :title="Translator.trans('support')">
         <customer-settings-support />
       </customer-settings-section>
 
       <customer-settings-section
         v-if="hasPermission('feature_customer_login_support_contact_administration')"
+        data-cy="customerSettings:supportLogin"
         :title="Translator.trans('support.login')">
         <customer-settings-login-support />
       </customer-settings-section>
