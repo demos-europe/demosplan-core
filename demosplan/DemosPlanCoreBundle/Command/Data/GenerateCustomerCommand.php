@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
@@ -44,13 +45,7 @@ class GenerateCustomerCommand extends CoreCommand
 {
     private const OPTION_NAME = 'name';
     private const OPTION_SUBDOMAIN = 'subdomain';
-
     private const MAP_PARAMETERS = 'map-parameters'; // use value 'default' to automatically insert default values
-
-    public const DEFAULT_BASE_LAYER_URL = 'https://sgx.geodatenzentrum.de/wms_basemapde';
-    public const DEFAULT_BASE_LAYER_LAYERS = 'de_basemapde_web_raster_farbe';
-    public const DEFAULT_MAP_ATTRIBUTION = '© basemap.de / BKG ({currentYear})';
-
     private const CHOICE_DEFAULT = 'use default';
     private const CHOICE_CUSTOMIZE = 'customize';
 
@@ -220,9 +215,9 @@ class GenerateCustomerCommand extends CoreCommand
     {
         if ('default' === $mapParams) {
             return [
-                self::DEFAULT_BASE_LAYER_URL,
-                self::DEFAULT_BASE_LAYER_LAYERS,
-                self::DEFAULT_MAP_ATTRIBUTION,
+                CustomerInterface::DEFAULT_BASE_LAYER_URL,
+                CustomerInterface::DEFAULT_BASE_LAYER_LAYERS,
+                CustomerInterface::DEFAULT_MAP_ATTRIBUTION,
             ];
         }
 
@@ -236,13 +231,13 @@ class GenerateCustomerCommand extends CoreCommand
     private function askMapUrl(InputInterface $input, OutputInterface $output): string
     {
         $questionMapUrl = new ChoiceQuestion(
-            "Please enter the Base Layer URL of the customer\nDefaults to:\n".self::DEFAULT_BASE_LAYER_URL,
+            "Please enter the Base Layer URL of the customer\nDefaults to:\n".CustomerInterface::DEFAULT_BASE_LAYER_URL,
             [self::CHOICE_CUSTOMIZE, self::CHOICE_DEFAULT],
             self::CHOICE_DEFAULT
         );
         $mapUrl = $this->helper->ask($input, $output, $questionMapUrl);
         if (self::CHOICE_DEFAULT === $mapUrl) {
-            $mapUrl = self::DEFAULT_BASE_LAYER_URL;
+            $mapUrl = CustomerInterface::DEFAULT_BASE_LAYER_URL;
         }
         if (self::CHOICE_CUSTOMIZE === $mapUrl) {
             $questionMapUrl = new Question(
@@ -259,13 +254,13 @@ class GenerateCustomerCommand extends CoreCommand
     private function askMapLayers(InputInterface $input, OutputInterface $output): string
     {
         $questionMapLayers = new ChoiceQuestion(
-            "Please enter the Base Layers of the customer\n Defaults to: ".self::DEFAULT_BASE_LAYER_LAYERS,
+            "Please enter the Base Layers of the customer\n Defaults to: ".CustomerInterface::DEFAULT_BASE_LAYER_LAYERS,
             [self::CHOICE_CUSTOMIZE, self::CHOICE_DEFAULT],
             self::CHOICE_DEFAULT
         );
         $mapLayers = $this->helper->ask($input, $output, $questionMapLayers);
         if (self::CHOICE_DEFAULT === $mapLayers) {
-            $mapLayers = self::DEFAULT_BASE_LAYER_LAYERS;
+            $mapLayers = CustomerInterface::DEFAULT_BASE_LAYER_LAYERS;
         }
         if (self::CHOICE_CUSTOMIZE === $mapLayers) {
             $questionMapLayers = new Question(
@@ -282,13 +277,13 @@ class GenerateCustomerCommand extends CoreCommand
     private function askMapAttribution(InputInterface $input, OutputInterface $output): string
     {
         $questionMapAttribution = new ChoiceQuestion(
-            "Please enter the map attribution of the customer\nDefaults to: ".self::DEFAULT_MAP_ATTRIBUTION,
+            "Please enter the map attribution of the customer\nDefaults to: ".CustomerInterface::DEFAULT_MAP_ATTRIBUTION,
             [self::CHOICE_CUSTOMIZE, self::CHOICE_DEFAULT],
             self::CHOICE_DEFAULT
         );
         $mapAttribution = $this->helper->ask($input, $output, $questionMapAttribution);
         if (self::CHOICE_DEFAULT === $mapAttribution) {
-            $mapAttribution = self::DEFAULT_MAP_ATTRIBUTION;
+            $mapAttribution = CustomerInterface::DEFAULT_MAP_ATTRIBUTION;
         }
         if (self::CHOICE_CUSTOMIZE === $mapAttribution) {
             $questionMapAttribution = new Question(

@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Core\Functional;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use demosplan\DemosPlanCoreBundle\Command\Data\GenerateCustomerCommand;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadCustomerData;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -89,9 +90,9 @@ class GenerateCustomerCommandTest extends FunctionalTestCase
         $customer = reset($customers);
         self::assertSame('myName', $customer->getName());
         self::assertSame('mysubdomain', $customer->getSubdomain());
-        self::assertSame(GenerateCustomerCommand::DEFAULT_BASE_LAYER_URL, $customer->getBaseLayerUrl());
-        self::assertSame(GenerateCustomerCommand::DEFAULT_BASE_LAYER_LAYERS, $customer->getBaseLayerLayers());
-        self::assertSame(GenerateCustomerCommand::DEFAULT_MAP_ATTRIBUTION, $customer->getMapAttribution());
+        self::assertSame(CustomerInterface::DEFAULT_BASE_LAYER_URL, $customer->getBaseLayerUrl());
+        self::assertSame(CustomerInterface::DEFAULT_BASE_LAYER_LAYERS, $customer->getBaseLayerLayers());
+        self::assertSame(CustomerInterface::DEFAULT_MAP_ATTRIBUTION, $customer->getMapAttribution());
         $output = $commandTester->getDisplay();
         self::assertStringNotContainsString('Please enter the full name of the customer', $output);
         self::assertStringNotContainsString('Please enter the Subdomain of the customer', $output);
