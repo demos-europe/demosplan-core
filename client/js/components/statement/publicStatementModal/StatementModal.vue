@@ -68,33 +68,23 @@
       <section
         v-show="step === 0"
         data-dp-validate="statementForm">
-        <div
-          v-if="loggedIn === false"
-          :class="prefixClass('c-statement__formhint flash-info u-mb-0_5')">
-          <i
-            aria-hidden="true"
-            :class="prefixClass('c-statement__hint-icon fa fa-lg fa-info-circle')" />
-          <span
-            :class="prefixClass('block u-ml')">
+          <dp-inline-notification
+            v-if="loggedIn === false"
+            type="info">
             <p v-cleanhtml="statementFormHintStatement" />
-            {{ Translator.trans('error.mandatoryfields') }}
-          </span>
-        </div>
+            <p v-cleanhtml="Translator.trans('statement.modal.step.write.privacy_policy')" />
+            <p>{{ Translator.trans('error.mandatoryfields') }}</p>
+          </dp-inline-notification>
 
-        <div
+        <dp-inline-notification
           v-show="dpValidate.statementForm === false"
           id="statementFormErrors"
           aria-labelledby="statementFormErrorsContent"
-          tabindex="0"
-          :class="prefixClass('c-statement__formhint flash-error u-mb-0_5')">
-          <i
-            aria-hidden="true"
-            :class="prefixClass('c-statement__hint-icon fa fa-lg fa-exclamation-circle')" />
-          <div
+          tabindex="0">
+          <p
             id="statementFormErrorsContent"
-            :class="prefixClass('u-ml')"
             v-cleanhtml="createErrorMessage('statementForm')" />
-        </div>
+        </dp-inline-notification>
 
         <template v-if="loggedIn && hasPermission('feature_elements_use_negative_report') && planningDocumentsHasNegativeStatement">
           <div class="flex">
@@ -654,6 +644,7 @@ import {
   CleanHtml,
   dpApi,
   DpCheckbox,
+  DpInlineNotification,
   DpInput,
   DpLabel,
   DpLoading,
@@ -699,6 +690,7 @@ export default {
 
   components: {
     DpCheckbox,
+    DpInlineNotification,
     DpInput,
     DpLabel,
     DpLoading,
@@ -1016,7 +1008,7 @@ export default {
         const fieldId = field.getAttribute('id')
         return `<li>${Translator.trans(fieldDescriptionsForErrors[fieldId])}</li>`
       })))
-      return `<p>${Translator.trans('error.in.fields')}</p><ul class="u-mb-0 u-ml">${uniqueFieldDescriptions.join('')}</ul>`
+      return `<p>${Translator.trans('error.in.fields')}</p><ul class="list-disc u-ml-0_75">${uniqueFieldDescriptions.join('')}</ul>`
     },
 
     fieldIsActive (fieldKey) {
