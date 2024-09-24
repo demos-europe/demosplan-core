@@ -198,16 +198,16 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface, GlobalCon
     /**
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\File", cascade={"persist"})
      *
-     * @ORM\JoinColumn(name="picture_id", referencedColumnName="_f_ident", onDelete="CASCADE")
+     * @ORM\JoinColumn(name="picture_id", referencedColumnName="_f_ident", onDelete="CASCADE", nullable=true)
      */
-    protected File $pictureFile;
+    protected ?File $pictureFile;
 
     /**
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\File", cascade={"persist"})
      *
-     * @ORM\JoinColumn(name="pdf_id", referencedColumnName="_f_ident", onDelete="CASCADE")
+     * @ORM\JoinColumn(name="pdf_id", referencedColumnName="_f_ident", onDelete="CASCADE", nullable=true)
      */
-    protected File $pdfFile;
+    protected ?File $pdfFile;
 
     public function __construct()
     {
@@ -616,6 +616,11 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface, GlobalCon
     public function getCategories()
     {
         return $this->categories;
+    }
+
+    public function setPictureFile($pictureFile): void
+    {
+        $this->pictureFile = $pictureFile;
     }
 
     /**
