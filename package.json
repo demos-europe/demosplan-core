@@ -49,7 +49,7 @@
   "dependencies": {
     "@cesium/engine": "^11.0.0",
     "@csstools/postcss-scope-pseudo-class": "^4.0.0",
-    "@demos-europe/demosplan-ui": "github:demos-europe/demosplan-ui#f_T19759_vue3_draggable",
+    "@demos-europe/demosplan-ui": "0.4.0",
     "@demos-europe/dp-consent": "^1.1.2",
     "@efrane/vuex-json-api": "github:efrane/vuex-json-api#main",
     "@masterportal/masterportalapi": "2.36.0",
@@ -188,9 +188,7 @@
     "ff esr"
   ],
   "resolutions": {
-    "@mapbox/mapbox-gl-style-spec": "13.23.1",
-    "@demos-europe/demosplan-ui": "portal:/srv/www/local_modules/demosplan-ui",
-    "@masterportal/masterportalapi": "portal:/srv/www/test/masterportalapi/masterportalapi"
+    "@mapbox/mapbox-gl-style-spec": "13.23.1"
   },
   "packageManager": "yarn@4.2.2"
 }
