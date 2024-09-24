@@ -55,70 +55,73 @@ export default function AssessmentTable () {
       })
   }
 
-  window.submitForm = function (event, task) {
+  window.submitForm = function (event, task, isHashUpdateNeeded = true) {
     // In case the call originated from a native browser event it needs to be terminated
     if (event) {
       event.stopPropagation()
       event.preventDefault()
     }
 
+    const inputFields = $('form[name=bpform]').serializeArray()
+    const filterOptions = inputFields.filter(inputField => inputField.name.includes('filter') && inputField.value !== '')
+    const procedureId = $('form[name=bpform]').data('statement-admin-container')
+
+    if (isHashUpdateNeeded) {
+      window.updateFilterHash(procedureId, filterOptions)
+        .then((filterHash) => {
+          document.bpform.action = Routing.generate('dplan_assessmenttable_view_table', { procedureId, filterHash })
+          handleFormSubmission(task)
+        })
+    } else {
+      handleFormSubmission(task)
+    }
+  }
+
+  function handleFormSubmission (task) {
     const oldTarget = document.bpform.target
     const oldAction = document.bpform.action
     let abfrageBox
+    let formsend = false
 
-    const inputFields = $('form[name=bpform]').serializeArray()
-    const filterOptions = inputFields.filter(inputField => inputField.name.includes('filter') && inputField.value !== '')
-
-    const procedureId = $('form[name=bpform]').data('statement-admin-container')
-    window.updateFilterHash(procedureId, filterOptions)
-      .then((filterHash) => {
-        document.bpform.action = Routing.generate('dplan_assessmenttable_view_table', {
-          procedureId,
-          filterHash
-        })
-
-        let formsend = false
-
-        switch (task) {
-          case 'delete':
-            abfrageBox = dpconfirm(Translator.trans('check.entries.marked.delete'))
-            if (abfrageBox === true) {
-              document.getElementsByName('r_action')[0].value = 'delete'
-              document.bpform.submit()
-              formsend = true
-            } else {
-              return false
-            }
-            break
-
-          case 'copy':
-            // Copying of statements within one procedure is not handled in copyStatementModal yet
-            abfrageBox = dpconfirm(Translator.trans('check.entries.marked.copy'))
-            if (abfrageBox === true) {
-              document.getElementsByName('r_action')[0].value = 'copy'
-              document.bpform.submit()
-              formsend = true
-            } else {
-              return false
-            }
-            break
-
-          case 'search':
-          case 'filters':
-          case 'viewMode':
-            document.bpform.submit()
-            formsend = true
-            break
+    switch (task) {
+      case 'delete':
+        abfrageBox = dpconfirm(Translator.trans('check.entries.marked.delete'))
+        if (abfrageBox === true) {
+          document.getElementsByName('r_action')[0].value = 'delete'
+          document.bpform.submit()
+          formsend = true
+        } else {
+          return false
         }
+        break
 
-        /*
-         * If we want to send send the form, don'T reset those values
-         * otherwise it could be that it happens too fast so we send the wrong data.
-         */
-        if (formsend === false) {
-          document.bpform.target = oldTarget
-          document.bpform.action = oldAction
+      case 'copy':
+        // Copying of statements within one procedure is not handled in copyStatementModal yet
+        abfrageBox = dpconfirm(Translator.trans('check.entries.marked.copy'))
+        if (abfrageBox === true) {
+          document.getElementsByName('r_action')[0].value = 'copy'
+          document.bpform.submit()
+          formsend = true
+        } else {
+          return false
         }
-      })
+        break
+
+      case 'search':
+      case 'filters':
+      case 'viewMode':
+        document.bpform.submit()
+        formsend = true
+        break
+    }
+
+    /*
+     * if we want to submit the form, don't reset those values,
+     * otherwise, it might happen too quickly, causing incorrect data to be sent
+     */
+    if (formsend === false) {
+      document.bpform.target = oldTarget
+      document.bpform.action = oldAction
+    }
   }
 }
