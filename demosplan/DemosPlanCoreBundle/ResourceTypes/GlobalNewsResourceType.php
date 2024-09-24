@@ -130,6 +130,19 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType
 
                     return [];
                 })->readable();
+
+
+            $configBuilder->pdfFile->setRelationshipType($this->resourceTypeStore->getFileResourceType())
+                ->initializable(true, static function (GlobalContent $news, ?File $pdfFile): array {
+                    if (null === $pdfFile) {
+                        $news->setPicture('');
+                        $news->setPictitle('');
+                    } else {
+                        $news->setPicture($pdfFile->getFileString());
+                    }
+
+                    return [];
+                })->readable()->updatable();
             $configBuilder->addPostConstructorBehavior(new FixedSetBehavior(
                 function (GlobalContent $news, EntityDataInterface $entityData): array {
                     $news->setType(GlobalContent::TYPE_NEWS);
