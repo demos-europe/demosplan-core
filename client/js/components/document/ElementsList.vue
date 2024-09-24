@@ -26,11 +26,10 @@
         :value="csrfToken">
 
       <dp-tree-list
-        :branch-identifier="isBranch()"
-        :draggable="false"
-        :options="treeListOptions"
+        @node-selection-change="nodeSelectionChange"
         :tree-data="recursiveElements"
-        @node-selection-change="nodeSelectionChange">
+        :branch-identifier="isBranch()"
+        :options="treeListOptions">
         <template v-slot:header="">
           <span class="color--grey">Dokumente des Verfahrens</span>
         </template>

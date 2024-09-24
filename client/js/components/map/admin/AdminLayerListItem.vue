@@ -41,7 +41,7 @@
       :class="hasPermission('feature_map_layer_visibility') ? 'w-9/12 ' : 'w-11/12'">
       <!-- regular categories -->
       <i
-        v-if="layer.type === 'GisLayerCategory' && !layer.attributes.layerWithChildrenHidden"
+        v-if="layer.type === 'GisLayerCategory' && false === layer.attributes.layerWithChildrenHidden"
         aria-hidden="true"
         class="fa u-mr-0_125"
         :class="[childElements.length > 0 ? (showChildren ? 'fa-folder-open' : 'fa-folder') :'fa-folder-o']"
@@ -112,7 +112,7 @@
           :class="iconClass">
       </div><!--
   --></template><!--
-          Show this stuff for 'special category that looks like a layer and hides all its children'
+          Show this Stuff for 'special category that looks like an Layer and hides all his children'
  --><template v-if="(layer.type === 'GisLayerCategory' && layer.attributes.layerWithChildrenHidden)"><!--
    --><div class="inline-block w-2/12 text-right">
         <input
@@ -125,7 +125,7 @@
      -->
     </template><!--
   --><div
-      v-if="(layer.type !== 'GisLayer' && (!layer.attributes.layerWithChildrenHidden))"
+      v-if="(layer.type !== 'GisLayer' && (false === layer.attributes.layerWithChildrenHidden))"
       class="inline-block w-2/12 text-right">
       <!-- spacer for groups -->
     </div><!--
@@ -153,22 +153,17 @@
 
     <!-- recursive nesting inside -->
     <dp-draggable
-      v-if="(layer.type === 'GisLayerCategory' && !layer.attributes.layerWithChildrenHidden) && showChildren"
+      v-if="(layer.type === 'GisLayerCategory' && false === layer.attributes.layerWithChildrenHidden) && showChildren"
       class="layout u-ml u-mt-0_25"
       :class="[childElements.length <= 0 ? 'o-sortablelist__empty' :'']"
-      key="draggableLayers"
-      :group-id="groupId"
       :opts="draggableOptions"
-      :content-data="childElements"
-      :node-id="element.id"
-      @end="(event, item) => changeManualSort(event, item)">
+      v-model="childElements">
       <admin-layer-list-item
         v-for="(item, idx) in childElements"
-        :key="`layer:${item.id}`"
+        :key="item.id"
         :element="{ id: item.id, type: item.type }"
         :sorting-type="sortingType"
         :layer-type="layerType"
-        :list-type="listType"
         :parent-order-position="layer.attributes[sortingType]"
         :index="idx" />
       <div
@@ -176,25 +171,20 @@
         class="o-sortablelist__spacer" />
     </dp-draggable>
 
-    <!-- if special category that looks like a layer and hides all its children -->
+    <!-- if special category that looks like an Layer and hides all his children -->
     <dp-draggable
       v-if="(layer.type === 'GisLayerCategory' && layer.attributes.layerWithChildrenHidden) && showChildren"
       class="layout u-ml u-mt-0_25"
       :class="[childElements.length <= 0 ? 'o-sortablelist__empty' :'']"
-      :group-id="groupId"
-      key="draggableLayersWithChildrenHidden"
       :opts="draggableOptions"
-      :content-data="childElements"
-      :node-id="element.id"
-      @add="onAddToCategoryWithChildrenHidden"
-      @end="(event, item) => changeManualSort(event, item)">
+      v-model="childElements"
+      @add="onAddToCategoryWithChildrenHidden">
       <admin-layer-list-item
         v-for="(item, idx) in childElements"
-        :key="`layerWithChildrenHidden:${item.id}`"
+        :key="item.id"
         :element="item"
         :sorting-type="sortingType"
         :layer-type="layerType"
-        :list-type="listType"
         :parent-order-position="orderPosition"
         :index="idx" />
       <div
@@ -206,7 +196,7 @@
 
 <script>
 import { DpDraggable, hasOwnProp } from '@demos-europe/demosplan-ui'
-import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import { mapGetters, mapMutations, mapState } from 'vuex'
 import AdminLayerListItem from './AdminLayerListItem'
 import { v4 as uuid } from 'uuid'
 
@@ -223,32 +213,16 @@ export default {
       type: Object
     },
 
-    groupId: {
-      type: String,
-      default: null
-    },
-
     sortingType: {
       required: false,
       type: String,
-      default: 'treeOrder',
-      validator: (prop) => {
-        return ['mapOrder', 'treeOrder'].includes(prop)
-      }
+      default: 'treeOrder'
     },
 
     layerType: {
       required: false,
       type: String,
       default: ''
-    },
-
-    listType: {
-      type: String,
-      required: true,
-      validator: (prop) => {
-        return ['map', 'mapBase', 'tree', 'treeBase'].includes(prop)
-      }
     },
 
     isLoading: {
@@ -280,30 +254,15 @@ export default {
   },
 
   computed: {
-    ...mapGetters('layers', {
-      directChildren: 'directChildren',
-      getElement: 'element',
-      elementsByAttribute: 'elementsListByAttribute',
-      treeList: 'treeList'
-    }),
-
-    ...mapState('layers', [
-      'currentSorting',
-      'draggableOptions',
-      'layerList'
-    ]),
-
     parentCategory () {
-      // Get parentLayer and check if it hides its children
-      const parentLayer = this.getElement({
+      // Get parentLayer and check if if it hides his children
+      const parentLayer = this.$store.getters['Layers/element']({
         id: this.layer.attributes.categoryId,
         type: 'GisLayerCategory'
       })
-
       if (typeof parentLayer !== 'undefined') {
         return parentLayer
       }
-
       return {}
     },
 
@@ -319,7 +278,7 @@ export default {
     },
 
     layer () {
-      return this.layerList[this.element.id]
+      return this.$store.getters['Layers/element']({ id: this.element.id, type: this.element.type })
     },
 
     hasDefaultVisibility () {
@@ -499,8 +458,8 @@ export default {
      * returns Object|active Layer
      */
     activeLayer () {
-      return this.getElement({
-        id: this.$store.state.layers.activeLayerId,
+      return this.$store.getters['Layers/element']({
+        id: this.$store.state.Layers.activeLayerId,
         type: 'GisLayer'
       }) || { attributes: {} }
     },
@@ -667,15 +626,23 @@ export default {
     },
 
     /**
-     * Get all direct child elements
+     * Get/set all child elements
      * (only important for categories/ recursion)
      *
      * returns Array|List of Layers/Categories
      */
-    childElements () {
-      const parentId = this.element.id
-
-      return this.directChildren(parentId, this.sortingType)
+    childElements: {
+      get () {
+        return this.elementListForLayerSidebar(this.element.id, 'overlay', true)
+      },
+      set (value) {
+        this.setChildrenFromCategory({
+          categoryId: this.element.id,
+          data: value.newOrder,
+          orderType: 'treeOrder',
+          parentOrder: this.layer.attributes.treeOrder
+        })
+      }
     },
 
     /**
@@ -696,7 +663,10 @@ export default {
           procedure: this.procedureId
         })
       }
-    }
+    },
+
+    ...mapState('Layers', ['draggableOptions', 'draggableOptionsForBaseLayer']),
+    ...mapGetters('Layers', ['elementListForLayerSidebar'])
   },
 
   watch: {
@@ -709,47 +679,6 @@ export default {
   },
 
   methods: {
-    ...mapActions('layers', [
-      'changeRelationship',
-      'setNewIndex'
-    ]),
-
-    ...mapMutations('layers', [
-      'set',
-      'setAttributeForLayer'
-    ]),
-
-    // Add index property to item, so it can be accessed in the store
-    addIndex () {
-      this.setAttributeForLayer({
-        id: this.element.id,
-        attribute: 'index',
-        value: this.index
-      })
-    },
-
-    changeManualSort (event, item) {
-      const id = event.item.id
-      const { newIndex, oldIndex } = event
-      const targetParentId = event.to.parentElement.id ?? null
-      const sourceParentId = event.from.parentElement.id ?? null
-
-      if (this.currentSorting === 'treeOrder' && targetParentId !== sourceParentId) {
-        this.changeRelationship({
-          id,
-          targetParentId
-        })
-      }
-
-      this.setNewIndex({
-        id,
-        index: newIndex,
-        oldIndex,
-        targetParentId,
-        sourceParentId
-      })
-    },
-
     toggleChildren () {
       if (this.childElements.length < 1) {
         return
@@ -840,7 +769,11 @@ export default {
         return
       }
       if (this.preventActiveFromToggeling === false) {
-        this.set({ key: 'activeLayerId', value: this.isActive ? '' : this.layer.id })
+        if (this.isActive) {
+          this.$store.commit('Layers/setActiveLayerId', '')
+        } else {
+          this.$store.commit('Layers/setActiveLayerId', this.layer.id)
+        }
       } else {
         this.preventActiveFromToggeling = false
       }
@@ -861,12 +794,11 @@ export default {
       if (this.isLoading || this.layer.attributes.layerType !== 'overlay') {
         return false
       }
-
-      this.set({ key: 'hoverLayerId', value: this.layer.id })
+      this.$store.commit('Layers/setHoverLayerId', this.layer.id)
     },
 
     mouseOutElement () {
-      this.set({ key: 'hoverLayerId', value: '' })
+      this.$store.commit('Layers/setHoverLayerId', '')
     },
 
     /**
@@ -876,16 +808,15 @@ export default {
       if (this.isLoading) {
         return false
       }
-
       if (this.layer.attributes.layerType === 'overlay' && typeof this.activeLayer.id !== 'undefined') {
-        this.set({ key: 'hoverLayerIconIsHovered', value: true })
+        this.$store.commit('Layers/setHoverLayerIconIsHovered', true)
       } else {
         this.unsetIconHoverState()
       }
     },
 
     unsetIconHoverState () {
-      this.set({ key: 'hoverLayerIconIsHovered', value: false })
+      this.$store.commit('Layers/setHoverLayerIconIsHovered', false)
     },
 
     /**
@@ -953,7 +884,6 @@ export default {
           type: 'visibilityGroupId',
           value: newVisibilityGroupId
         })
-
         if (relatedLayers.length <= 2) {
           for (let i = 0; i < relatedLayers.length; i++) {
             this.setAttributeForLayer({
@@ -977,15 +907,13 @@ export default {
           value: newVisibilityGroupId
         })
       }
-    }
+    },
+
+    ...mapMutations('Layers', ['setAttributeForLayer', 'setChildrenFromCategory'])
   },
 
   beforeCreate () {
     this.$options.components.AdminLayerListItem = AdminLayerListItem
-  },
-
-  mounted () {
-    this.addIndex()
   }
 }
 </script>

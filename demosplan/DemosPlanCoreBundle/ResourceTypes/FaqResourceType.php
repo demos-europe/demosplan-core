@@ -12,8 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
-use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Faq;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
@@ -68,46 +66,31 @@ class FaqResourceType extends DplanResourceType
 
     protected function getProperties(): array
     {
-        $customerId = $this->currentCustomerService->getCurrentCustomer()->getId();
-
-        // ensure updates are done only to FAQ items in the current customer
-        $faqUpdateCondition = $this->conditionFactory->propertyHasValue(
-            $customerId,
-            Paths::faq()->faqCategory->customer->id
-        );
-
-        // ensure FAQ items are not moved into categories of different customers
-        $categoryUpdateRelationshipCondition = $this->conditionFactory->propertyHasValue(
-            $customerId,
-            Paths::faqCategory()->customer->id
-        );
-
         return [
             $this->createIdentifier()->readable(),
-            $this->createAttribute($this->enabled)->readable(true)->updatable([$faqUpdateCondition]),
+            $this->createAttribute($this->enabled)->readable(true)->updatable(),
             $this->createAttribute($this->title)->readable(true),
             $this->createAttribute($this->invitableInstitutionVisible)
-                ->readable(true, fn (Faq $faq): bool => $faq->hasRoleGroupCode(RoleInterface::GPSORG))
-                ->updatable([$faqUpdateCondition], function (Faq $faqEntity, mixed $newValue): array {
-                    $this->buildAddOrRemoveRoleGroupFunction($faqEntity, RoleInterface::GPSORG)($newValue);
+                ->readable(true, fn (Faq $faq): bool => $faq->hasRoleGroupCode(Role::GPSORG))
+                ->updatable([], function (Faq $faqEntity, mixed $newValue): array {
+                    $this->buildAddOrRemoveRoleGroupFunction($faqEntity, Role::GPSORG)($newValue);
 
                     return [];
                 }),
             $this->createAttribute($this->publicVisible)
-                ->readable(true, fn (Faq $faq): bool => $faq->hasRoleGroupCode(RoleInterface::GGUEST))
-                ->updatable([$faqUpdateCondition], function (Faq $faqEntity, mixed $newValue): array {
-                    $this->buildAddOrRemoveRoleGroupFunction($faqEntity, RoleInterface::GGUEST)($newValue);
+                ->readable(true, fn (Faq $faq): bool => $faq->hasRoleGroupCode(Role::GGUEST))
+                ->updatable([], function (Faq $faqEntity, mixed $newValue): array {
+                    $this->buildAddOrRemoveRoleGroupFunction($faqEntity, Role::GGUEST)($newValue);
 
                     return [];
                 }),
             $this->createAttribute($this->fpVisible)
-                ->readable(true, fn (Faq $faq): bool => $faq->hasRoleGroupCode(RoleInterface::GLAUTH))
-                ->updatable([$faqUpdateCondition], function (Faq $faqEntity, mixed $newValue): array {
-                    $this->buildAddOrRemoveRoleGroupFunction($faqEntity, RoleInterface::GLAUTH)($newValue);
+                ->readable(true, fn (Faq $faq): bool => $faq->hasRoleGroupCode(Role::GLAUTH))
+                ->updatable([], function (Faq $faqEntity, mixed $newValue): array {
+                    $this->buildAddOrRemoveRoleGroupFunction($faqEntity, Role::GLAUTH)($newValue);
 
                     return [];
                 }),
-            $this->createToOneRelationship($this->faqCategory)->updatable([$faqUpdateCondition], [$categoryUpdateRelationshipCondition]),
         ];
     }
 

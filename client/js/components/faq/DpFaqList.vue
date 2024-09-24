@@ -15,7 +15,6 @@
       :tree-data="transformedCategories"
       :branch-identifier="branchFunc()"
       :options="options"
-      @end="(event, item, parentId) => updateCategorySort(event, item, parentId)"
       @tree:change="updateCategorySort">
       <template v-slot:header="">
         <div class="layout--flush">
@@ -79,7 +78,9 @@ export default {
   data () {
     return {
       options: {
-        dragLeaves: true,
+        branchesSelectable: false,
+        leavesSelectable: false,
+        dragLeaves: true
       },
       treeListData: null,
       categories: null,
@@ -144,27 +145,14 @@ export default {
     },
 
     branchFunc () {
-      return function ({ node }) {
+      return function ({ node, id, children }) {
         return node.type === 'FaqCategory'
       }
     },
 
-    /**
-     * Update sort order inside a category; dragging across categories is not allowed
-     * @param event
-     * @param {Object} item
-     * @param {Object} item.attributes
-     * @param {String} item.id
-     * @param {String} item.type
-     * @param {String} parentId
-     */
-    updateCategorySort (event, item, parentId) {
-      const catCpy = JSON.parse(JSON.stringify(this.faqCategories[parentId]))
-      const children = catCpy.relationships.faq.data
-      const itemToBeMoved = children.splice(event.oldIndex, 1)[0]
-      children.splice(event.newIndex, 0, itemToBeMoved)
-
-      const newSort = children.map(item => {
+    updateCategorySort (e) {
+      const catCpy = JSON.parse(JSON.stringify(this.faqCategories[e.nodeId]))
+      const newSort = e.newOrder.map(item => {
         return {
           id: item.id,
           type: item.type
@@ -180,7 +168,7 @@ export default {
       }, '')
 
       const categoryParam = 'category=custom_category'
-      const categoryIdParam = 'categoryId=' + parentId
+      const categoryIdParam = 'categoryId=' + e.nodeId
 
       const postParams = manualSortParam + '&' + categoryParam + '&' + categoryIdParam
 

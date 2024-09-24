@@ -41,7 +41,6 @@ import { Circle as GCircle, LineString as GLineString, Polygon as GPolygon } fro
 import { GeoJSON, WMTSCapabilities } from 'ol/format'
 import { getArea, getLength } from 'ol/sphere'
 import { Map, View } from 'ol'
-import { mapActions, mapMutations } from 'vuex'
 import { TileWMS, WMTS } from 'ol/source'
 import { easeOut } from 'ol/easing'
 import Feature from 'ol/Feature'
@@ -290,9 +289,6 @@ export default {
   },
 
   methods: {
-    ...mapActions('layers', ['fetchLayers']),
-    ...mapMutations('layers', ['set']),
-
     addCustomLayerToggleButton ({ id, layerName, activated }) {
       const element = document.getElementById(id)
       //  Add click handler if button is present in DOM
@@ -2056,9 +2052,7 @@ export default {
   },
 
   mounted () {
-    this.set({ key: 'procedureId', value: this.procedureId })
-
-    this.fetchLayers().then(() => {
+    this.$store.dispatch('Layers/get', this.procedureId).then(() => {
       this.baseLayers = []
       this.overlayLayers = []
       this.progress = new Progress(document.getElementById('mapProgress'))
