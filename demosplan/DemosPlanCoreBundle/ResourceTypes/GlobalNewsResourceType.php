@@ -16,12 +16,15 @@ use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\GlobalContent;
 use demosplan\DemosPlanCoreBundle\Entity\ManualListSort;
+use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Repository\ManualListSortRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\GlobalContentResourceConfigBuilder;
 use EDT\Querying\Contracts\PathException;
+use EDT\Wrapping\Contracts\ContentField;
 use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
+use Webmozart\Assert\Assert;
 
 /**
  * @template-extends AbstractNewsResourceType<GlobalContent>
@@ -49,7 +52,13 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType
         return $this->currentUser->hasPermission('area_admin_globalnews');
     }
 
-    public function getEntityClass(): string
+    public function isUpdateAllowed(): bool
+    {
+        return $this->currentUser->hasPermission('area_admin_globalnews');
+    }
+
+
+        public function getEntityClass(): string
     {
         return GlobalContent::class;
     }
@@ -84,14 +93,14 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType
         $configBuilder->id->readable()->aliasedPath($this->ident);
 
         if ($this->currentUser->hasPermission('area_admin_globalnews')) {
-            $configBuilder->title->initializable()->readable();
-            $configBuilder->description->initializable()->readable();
+            $configBuilder->title->initializable()->readable()->updatable();
+            $configBuilder->description->initializable()->readable()->updatable();
             $configBuilder->text->initializable()->readable();
             $configBuilder->roles
                 ->setRelationshipType($this->resourceTypeStore->getRoleResourceType())
                 ->initializable()
                 ->readable();
-            $configBuilder->enabled->initializable();
+            $configBuilder->enabled->initializable()->updatable();
             $configBuilder->categories
                 ->setRelationshipType($this->resourceTypeStore->getGlobalNewsCategoryResourceType())
                 ->initializable()
@@ -109,7 +118,7 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType
                     }
 
                     return [];
-                })->readable();
+                })->readable()->updatable();
 
             $configBuilder->pdf
                 ->setRelationshipType($this->resourceTypeStore->getFileResourceType())
@@ -140,6 +149,13 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType
                         $this->updateManualListSort($manualListSort, $news);
                         $this->resourceTypeService->validateObject($manualListSort);
                     }
+
+                    //Adjust files
+                    $pictureFileRef = $this->pictureFile->getAsNamesInDotNotation();
+
+                    Assert::notNull($pictureFileRef);
+                    /** @var File $file */
+                    $file = $this->resourceTypeStore->getFileResourceType()->getEntity($fileRef[ContentField::ID]);
 
                     return [];
                 }
