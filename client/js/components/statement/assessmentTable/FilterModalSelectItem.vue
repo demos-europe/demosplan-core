@@ -58,7 +58,6 @@
             </template>
 
             <!-- sorting -->
-            <!-- don't remove slot-scope=props, without it, the button won't be displayed -->
             <template
               v-if="'fragment' !== filterGroup.type"
               v-slot:beforeList>
@@ -143,6 +142,11 @@ export default {
     }
   },
 
+  emits: [
+    'updating-filters',
+    'update-selected'
+  ],
+
   data () {
     return {
       isUpdating: false,
@@ -184,8 +188,11 @@ export default {
   },
 
   watch: {
-    filteredSelectedOptions: function () {
-      this.selected = this.filteredSelectedOptions
+    filteredSelectedOptions: {
+      handler () {
+        this.selected = this.filteredSelectedOptions
+      },
+      deep: true
     }
   },
 

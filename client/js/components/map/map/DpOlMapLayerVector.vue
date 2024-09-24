@@ -47,6 +47,10 @@ export default {
     }
   },
 
+  emits: [
+    'layer:features:changed'
+  ],
+
   data () {
     return {
       drawingExtent: '',

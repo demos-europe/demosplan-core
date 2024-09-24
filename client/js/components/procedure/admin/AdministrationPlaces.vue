@@ -243,15 +243,18 @@ export default {
       this.setEditMode(rowData.id, false)
     },
 
-    changeManualsort (val) {
-      this.places.splice(val.moved.newIndex, 0, this.places.splice(val.moved.oldIndex, 1)[0])
-      this.updateSortOrder(val)
+    changeManualsort (event, item) {
+      const removedElement = this.places.splice(event.oldIndex, 1)[0]
+      this.places.splice(event.newIndex, 0, removedElement)
+
+      this.updateSortOrder(item.id, event.newIndex)
     },
 
     editPlace (rowData) {
-      // Reset row which was in editing state before
       const editingPlace = this.places.find(place => place.edit === true)
+
       if (editingPlace) {
+        // Reset row which was in editing state before
         editingPlace.name = this.initialRowData.name
         editingPlace.description = this.initialRowData.description
         editingPlace.solved = this.initialRowData.solved
@@ -272,6 +275,7 @@ export default {
 
     fetchPlaces () {
       this.isInitiallyLoading = true
+
       dpApi.get(Routing.generate('api_resource_list', {
         resourceType: 'Place',
         fields: {
@@ -285,6 +289,7 @@ export default {
       }))
         .then(response => {
           const places = response.data.data
+
           places.forEach((place) => {
             this.places.push({
               id: place.id,
@@ -400,12 +405,12 @@ export default {
         })
     },
 
-    updateSortOrder (placeData) {
+    updateSortOrder (id, index) {
       dpRpc(
         'workflowPlacesOfProcedure.reorder',
         {
-          workflowPlaceId: placeData.moved.element.id,
-          newWorkflowPlaceIndex: placeData.moved.newIndex
+          workflowPlaceId: id,
+          newWorkflowPlaceIndex: index
         },
         this.procedureId
       ).then(() => {

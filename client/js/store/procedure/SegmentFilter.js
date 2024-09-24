@@ -6,9 +6,6 @@
  *
  * All rights reserved
  */
-
-import { del, set } from 'vue'
-
 const SegmentFilterStore = {
   namespaced: true,
 
@@ -45,12 +42,12 @@ const SegmentFilterStore = {
         })
 
         if (queryIdx < 0) {
-          set(state.filterQuery, [value], filterQuery)
+          state.filterQuery[filterQuery.condition.value] = filterQuery
         } else {
-          del(state.filterQuery, [value])
+          delete state.filterQuery[filterQuery.condition.value]
         }
       } else {
-        set(state, 'filterQuery', filter)
+        state.filterQuery = filter
       }
     }
   },

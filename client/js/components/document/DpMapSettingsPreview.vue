@@ -41,25 +41,23 @@
         }"
         :procedure-id="procedureId"
         small>
-        <template>
-          <dp-ol-map-layer-vector
-            v-if="hasPermission('area_procedure_adjustments_general_location') && procedureCoordinate"
-            class="u-mb-0_5"
-            :features="features.procedureCoordinate"
-            name="mapSettingsPreviewCoordinate" />
-          <dp-ol-map-layer-vector
-            v-if="initExtent"
-            class="u-mb-0_5"
-            :features="features.initExtent"
-            name="mapSettingsPreviewInitExtent"
-            zoom-to-drawing />
-          <dp-ol-map-layer-vector
-            v-if="territory"
-            class="u-mb-0_5"
-            :draw-style="drawingStyles.territory"
-            :features="features.territory"
-            name="mapSettingsPreviewTerritory" />
-        </template>
+        <dp-ol-map-layer-vector
+          v-if="hasPermission('area_procedure_adjustments_general_location') && procedureCoordinate"
+          class="u-mb-0_5"
+          :features="features.procedureCoordinate"
+          name="mapSettingsPreviewCoordinate" />
+        <dp-ol-map-layer-vector
+          v-if="initExtent"
+          class="u-mb-0_5"
+          :features="features.initExtent"
+          name="mapSettingsPreviewInitExtent"
+          zoom-to-drawing />
+        <dp-ol-map-layer-vector
+          v-if="territory"
+          class="u-mb-0_5"
+          :draw-style="drawingStyles.territory"
+          :features="features.territory"
+          name="mapSettingsPreviewTerritory" />
       </dp-ol-map>
     </div><!--
  --><div class="layout__item u-1-of-2">
