@@ -131,7 +131,6 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType
                     return [];
                 })->readable();
 
-
             $configBuilder->pdfFile->setRelationshipType($this->resourceTypeStore->getFileResourceType())
                 ->initializable(true, static function (GlobalContent $news, ?File $pdfFile): array {
                     if (null === $pdfFile) {
