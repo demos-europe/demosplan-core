@@ -162,11 +162,11 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType
                     }
 
                     // Adjust files
-                    //$pictureFileRef = $this->pictureFile->getAsNamesInDotNotation();
+                    // $pictureFileRef = $this->pictureFile->getAsNamesInDotNotation();
 
-                    //Assert::notNull($pictureFileRef);
-                    /** @var File $file */
-                    //$file = $this->resourceTypeStore->getFileResourceType()->getEntity($fileRef[ContentField::ID]);
+                    // Assert::notNull($pictureFileRef);
+                    /* @var File $file */
+                    // $file = $this->resourceTypeStore->getFileResourceType()->getEntity($fileRef[ContentField::ID]);
 
                     return [];
                 }
