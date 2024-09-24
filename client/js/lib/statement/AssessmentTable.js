@@ -80,13 +80,11 @@ export default function AssessmentTable () {
   function handleFormSubmission (task) {
     const oldTarget = document.bpform.target
     const oldAction = document.bpform.action
-    let abfrageBox
     let formsend = false
 
     switch (task) {
       case 'delete':
-        abfrageBox = dpconfirm(Translator.trans('check.entries.marked.delete'))
-        if (abfrageBox === true) {
+        if (dpconfirm(Translator.trans('check.entries.marked.delete'))) {
           document.getElementsByName('r_action')[0].value = 'delete'
           document.bpform.submit()
           formsend = true
@@ -97,8 +95,7 @@ export default function AssessmentTable () {
 
       case 'copy':
         // Copying of statements within one procedure is not handled in copyStatementModal yet
-        abfrageBox = dpconfirm(Translator.trans('check.entries.marked.copy'))
-        if (abfrageBox === true) {
+        if (dpconfirm(Translator.trans('check.entries.marked.copy'))) {
           document.getElementsByName('r_action')[0].value = 'copy'
           document.bpform.submit()
           formsend = true
