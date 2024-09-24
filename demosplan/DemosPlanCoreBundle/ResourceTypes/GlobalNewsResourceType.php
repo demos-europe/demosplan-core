@@ -16,7 +16,6 @@ use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\GlobalContent;
 use demosplan\DemosPlanCoreBundle\Entity\ManualListSort;
-use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Repository\ManualListSortRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\GlobalContentResourceConfigBuilder;
@@ -57,8 +56,7 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType
         return $this->currentUser->hasPermission('area_admin_globalnews');
     }
 
-
-        public function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return GlobalContent::class;
     }
@@ -150,7 +148,7 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType
                         $this->resourceTypeService->validateObject($manualListSort);
                     }
 
-                    //Adjust files
+                    // Adjust files
                     $pictureFileRef = $this->pictureFile->getAsNamesInDotNotation();
 
                     Assert::notNull($pictureFileRef);

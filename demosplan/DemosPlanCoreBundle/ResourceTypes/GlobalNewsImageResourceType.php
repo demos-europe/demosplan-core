@@ -41,7 +41,7 @@ final class GlobalNewsImageResourceType extends DplanResourceType
 {
     public function __construct(
         private readonly FileService $fileService,
-        private readonly GlobalNewsResourceType $globalNewsResourceType
+        private readonly GlobalNewsResourceType $globalNewsResourceType,
     ) {
     }
 
@@ -88,7 +88,6 @@ final class GlobalNewsImageResourceType extends DplanResourceType
                 ->filterable()
                 ->initializable(),
         ];
-
 
         if ($this->isCreateAllowed()) {
             $properties[] = $this->createToOneRelationship($this->globalNews)->initializable()->readable();
