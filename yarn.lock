@@ -3443,19 +3443,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@uppy/core@npm:^3.12.0":
-  version: 3.13.0
-  resolution: "@uppy/core@npm:3.13.0"
+"@uppy/core@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "@uppy/core@npm:4.2.0"
   dependencies:
     "@transloadit/prettier-bytes": "npm:^0.3.4"
-    "@uppy/store-default": "npm:^3.2.2"
-    "@uppy/utils": "npm:^5.9.0"
+    "@uppy/store-default": "npm:^4.1.0"
+    "@uppy/utils": "npm:^6.0.2"
     lodash: "npm:^4.17.21"
     mime-match: "npm:^1.0.2"
     namespace-emitter: "npm:^2.0.1"
-    nanoid: "npm:^4.0.0"
+    nanoid: "npm:^5.0.0"
     preact: "npm:^10.5.13"
-  checksum: 10c0/899aea1fc610fd35a3d8c27ee4dd930111d2793241ff4bbda7ad609b5fe5027849f4aaeb3995890a6058cfc3e9087fdc91abfd439225249d293f2ddc40b67cff
+  checksum: 10c0/c471a6085e251daa6220b1fde26c3cdbc1184b920f26b3d1be825f750e666452637df6e0fe31d451aef5d395be296a72ec2d587bed7c5aaabc0d1bd0242f2b78
   languageName: node
   linkType: hard
 
@@ -3502,6 +3502,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@uppy/store-default@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "@uppy/store-default@npm:4.1.0"
+  checksum: 10c0/35fa0576cfdcee005a2437e0899d494725462430d2d2a28991f4f91e2d81cc0e511812d2a5a9f946876412f3305b099408163cdcf46cd2ffeda5b9bab4beb759
+  languageName: node
+  linkType: hard
+
 "@uppy/tus@npm:^3.0.1":
   version: 3.5.5
   resolution: "@uppy/tus@npm:3.5.5"
@@ -3522,6 +3529,16 @@ __metadata:
     lodash: "npm:^4.17.21"
     preact: "npm:^10.5.13"
   checksum: 10c0/857c8fa11814816f0a1d97ce78f86cac8c9f4e46267d2d64631f7cce8d3b8caf3796cccdd4cecdfe110862ebbed5a76896522a965f09b0940f0979b91f04c793
+  languageName: node
+  linkType: hard
+
+"@uppy/utils@npm:^6.0.2":
+  version: 6.0.2
+  resolution: "@uppy/utils@npm:6.0.2"
+  dependencies:
+    lodash: "npm:^4.17.21"
+    preact: "npm:^10.5.13"
+  checksum: 10c0/a0fd7dc9e21bb681770aecf645cf9fdf29fb0dcf25d564038dd38dd8c3777a078d1334e552459c54fb484a0bdeb79fccb0c72b0fb082ca24c72ecd01d7e0ac92
   languageName: node
   linkType: hard
 
@@ -9553,6 +9570,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"nanoid@npm:^5.0.0":
+  version: 5.0.7
+  resolution: "nanoid@npm:5.0.7"
+  bin:
+    nanoid: bin/nanoid.js
+  checksum: 10c0/a3fb1c157e3e35378f44e5a7130c70f80c9037f66c9a37285e5e3d8298e8405fcb2399baaa420980b0fe5fd9c2e4186a6a31c3526f21de03cf34c1b459871401
+  languageName: node
+  linkType: hard
+
 "natural-compare@npm:^1.4.0":
   version: 1.4.0
   resolution: "natural-compare@npm:1.4.0"
@@ -11806,7 +11832,7 @@ __metadata:
     "@sentry/browser": "npm:^8.18.0"
     "@sentry/integrations": "npm:^7.114.0"
     "@sentry/tracing": "npm:^7.114.0"
-    "@uppy/core": "npm:^3.12.0"
+    "@uppy/core": "npm:^4.2.0"
     "@uppy/drag-drop": "npm:^3.0.3"
     "@uppy/progress-bar": "npm:^3.0.4"
     "@vue/test-utils": "npm:^1.3.6"
