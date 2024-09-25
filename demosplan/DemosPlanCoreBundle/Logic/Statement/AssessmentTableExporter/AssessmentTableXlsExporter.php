@@ -57,7 +57,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         ServiceImporter $serviceImport,
         SimpleSpreadsheetService $simpleSpreadsheetService,
         StatementHandler $statementHandler,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ) {
         parent::__construct(
             $assessmentTableServiceOutput,
@@ -373,7 +373,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         string $key,
         string $permission,
         string $columnTitle,
-        int $width = 20
+        int $width = 20,
     ): void {
         if ($this->permissions->hasPermission($permission)) {
             $columnsDefinition[] = $this->createColumnDefinition($key, $columnTitle, $width);
@@ -388,7 +388,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     protected function prepareDataForExcelExport(
         array $statements,
         bool $anonymous,
-        array $keysOfAttributesToExport
+        array $keysOfAttributesToExport,
     ): array {
         $attributeKeysWhichCauseNewLine = collect(['priorityAreaKeys', 'tagNames']);
         $formattedStatements = collect([]);
