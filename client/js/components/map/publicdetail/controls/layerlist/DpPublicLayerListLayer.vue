@@ -19,7 +19,7 @@
       @mouseover="toggleOpacityControl(true)"
       @mouseout="toggleOpacityControl(false)">
       <button
-        :class="prefixClass('btn--blank btn--focus w-3 text-left')"
+        :class="prefixClass('btn--blank btn--focus w-3 text-left py-0.5')"
         :aria-label="layer.attributes.name + ' ' + statusAriaText"
         :data-cy="dataCy"
         @focus="toggleOpacityControl(true)"
