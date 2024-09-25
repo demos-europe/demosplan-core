@@ -302,7 +302,7 @@ class DemosPlanNewsController extends BaseController
         $pressResult = $this->globalNewsHandler->getGlobalNewsAdminList('press');
 
         $mergedResult = array_merge($newsResult, $pressResult);
-        $sortedMergedResult = $manualListSorter->orderByManualListSort('global:news', 'global', 'content:news', $mergedResult, $customerService->getCurrentCustomer());
+        $sortedMergedResult = $manualListSorter->orderByManualListSort('global:news', 'global', 'content:news', $mergedResult, customer: $customerService->getCurrentCustomer());
 
         $templateVars = [
             'list' => [

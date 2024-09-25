@@ -32,8 +32,8 @@ class ManualListSorter
         string $procedureId,
         string $namespace,
         array $result,
-        ?CustomerInterface $customer = null,
         string $orderByKey = 'ident',
+        ?CustomerInterface $customer = null,
     ): array {
         $orderedResult = [
             'sorted' => false,
