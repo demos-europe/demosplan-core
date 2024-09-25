@@ -106,7 +106,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         return [
             'filename' => sprintf(
                 $this->translator->trans('considerationtable').'-%s.xlsx',
-                Carbon::now()->format('d-m-Y-H:i')
+                Carbon::now('Europe/Berlin')->format('d-m-Y H:i')
             ),
             'writer'       => $objWriter,
             'statementIds' => $statementIds,
