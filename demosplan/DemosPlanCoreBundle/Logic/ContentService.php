@@ -97,7 +97,7 @@ class ContentService extends CoreService
 
         // Legacy Arrays
         $result = array_map($this->convertToLegacy(...), $globalContentEntries);
-        $sorted = $this->manualListSorter->orderByManualListSort('global:news', 'global', 'content:news', $result, $this->customerService->getCurrentCustomer());
+        $sorted = $this->manualListSorter->orderByManualListSort('global:news', 'global', 'content:news', $result, customer: $this->customerService->getCurrentCustomer());
 
         return $sorted['list'];
     }
