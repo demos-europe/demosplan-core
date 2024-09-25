@@ -26,6 +26,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\User\BrandingService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Exception;
@@ -293,7 +294,7 @@ class DemosPlanNewsController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_globalnews_administration_news', path: '/news/verwalten', options: ['expose' => true])]
-    public function globalNewsAdminListAction(ManualListSorter $manualListSorter, Request $request, TranslatorInterface $translator)
+    public function globalNewsAdminListAction(ManualListSorter $manualListSorter, Request $request, TranslatorInterface $translator, CustomerService $customerService)
     {
         $this->handleNewsAdminListManualSortPostRequest($request, $translator);
 
@@ -301,7 +302,7 @@ class DemosPlanNewsController extends BaseController
         $pressResult = $this->globalNewsHandler->getGlobalNewsAdminList('press');
 
         $mergedResult = array_merge($newsResult, $pressResult);
-        $sortedMergedResult = $manualListSorter->orderByManualListSort('global:news', 'global', 'content:news', $mergedResult);
+        $sortedMergedResult = $manualListSorter->orderByManualListSort('global:news', 'global', 'content:news', $mergedResult, $customerService->getCurrentCustomer());
 
         $templateVars = [
             'list' => [

@@ -68,7 +68,7 @@ class ContentService extends CoreService
         // Legacy Arrays
         // @improve T13447
         $result = array_map($this->convertToLegacy(...), $globalContentEntries);
-        $sorted = $this->manualListSorter->orderByManualListSort('global:news', 'global', 'content:news', $result);
+        $sorted = $this->manualListSorter->orderByManualListSort('global:news', 'global', 'content:news', $result, $this->customerService->getCurrentCustomer());
         $result = $sorted['list'];
         // Is a limit given?
         if (isset($limit) && 0 < $limit) {
@@ -97,7 +97,7 @@ class ContentService extends CoreService
 
         // Legacy Arrays
         $result = array_map($this->convertToLegacy(...), $globalContentEntries);
-        $sorted = $this->manualListSorter->orderByManualListSort('global:news', 'global', 'content:news', $result);
+        $sorted = $this->manualListSorter->orderByManualListSort('global:news', 'global', 'content:news', $result, $this->customerService->getCurrentCustomer());
 
         return $sorted['list'];
     }

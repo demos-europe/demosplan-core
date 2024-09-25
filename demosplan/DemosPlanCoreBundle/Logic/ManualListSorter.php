@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use demosplan\DemosPlanCoreBundle\Repository\ManualListSortRepository;
 use Exception;
 
@@ -31,7 +32,9 @@ class ManualListSorter
         string $procedureId,
         string $namespace,
         array $result,
-        string $orderByKey = 'ident'
+        CustomerInterface $customer = null,
+        string $orderByKey = 'ident',
+
     ): array {
         $orderedResult = [
             'sorted' => false,
@@ -40,7 +43,7 @@ class ManualListSorter
 
         // fetch the sort order from DB
         $manualSort = $this->manualListSortRepository->findOneBy(
-            ['context' => $manualSortScope, 'pId' => $procedureId, 'namespace' => $namespace]
+            ['context' => $manualSortScope, 'pId' => $procedureId, 'namespace' => $namespace, 'customer' => $customer]
         );
 
         if (null !== $manualSort) {
