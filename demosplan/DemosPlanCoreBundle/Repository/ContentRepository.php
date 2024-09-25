@@ -99,6 +99,7 @@ class ContentRepository extends CoreRepository implements ArrayInterface
 
             $type = null;
             $manualSortScope = null;
+            $customer = null;
 
             if (array_key_exists('manualSortScope', $data)) {
                 $manualSortScope = $data['manualSortScope'];
