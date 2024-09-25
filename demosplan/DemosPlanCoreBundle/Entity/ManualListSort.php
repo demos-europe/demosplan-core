@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ManualListSortInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -57,6 +58,14 @@ class ManualListSort extends CoreEntity implements UuidEntityInterface, ManualLi
      * @ORM\Column(name="_mls_namespace", type="string", length=255, nullable=false)
      */
     protected $namespace;
+
+
+    /**
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer", cascade={"persist"})
+     *
+     * @ORM\JoinColumn(name="customer_id", referencedColumnName="_c_id", onDelete="CASCADE", nullable=true)
+     */
+    protected CustomerInterface $customer;
 
     /**
      * @var string
@@ -116,6 +125,13 @@ class ManualListSort extends CoreEntity implements UuidEntityInterface, ManualLi
     public function getContext()
     {
         return $this->context;
+    }
+
+    public function setCustomer(CustomerInterface $customer): ManualListSort
+    {
+        $this->customer = $customer;
+
+        return $this;
     }
 
     /**

@@ -178,12 +178,14 @@ class ContentService extends CoreService
      */
     public function setManualSortForGlobalContent($context, $sortIds, $type): bool
     {
+        $currentCustomer = $this->customerService->getCurrentCustomer();
         $sortIds = str_replace(' ', '', $sortIds);
         $data = [
             'ident'     => 'global',
             'context'   => $context,
             'namespace' => 'content:'.$type,
             'sortIdent' => $sortIds,
+            'customer'  => $currentCustomer,
         ];
 
         return $this->manualListSorter->setManualSort($data['context'], $data);

@@ -56,9 +56,9 @@ class ManualListSortRepository extends CoreRepository implements ImmutableArrayI
      *
      * @return ManualListSort|mixed|null
      */
-    public function getManualListSort($procedure, $context, $namespace)
+    public function getManualListSort($procedure, $context, $namespace, $customer)
     {
-        $result = $this->findBy(['pId' => $procedure, 'context' => $context, 'namespace' => $namespace]);
+        $result = $this->findBy(['pId' => $procedure, 'context' => $context, 'namespace' => $namespace, 'customer' => $customer]);
         if (0 < sizeof($result)) {
             return $result[0];
         }
@@ -89,15 +89,19 @@ class ManualListSortRepository extends CoreRepository implements ImmutableArrayI
             $namespace = $data['namespace'];
         }
 
-        if (is_null($procedure) || is_null($context) || is_null($idents) || is_null($namespace)) {
+        if (array_key_exists('customer', $data)) {
+            $customer = $data['customer'];
+        }
+
+        if (is_null($procedure) || is_null($context) || is_null($idents) || is_null($namespace) || is_null($customer)) {
             return false;
         }
 
         if ('' === $idents) {
-            return $this->deleteManualSort($procedure, $context, $namespace);
+            return $this->deleteManualSort($procedure, $context, $namespace, $customer);
         }
 
-        return $this->addList($procedure, $context, $namespace, $idents);
+        return $this->addList($procedure, $context, $namespace, $idents, $customer);
     }
 
     /**
@@ -113,14 +117,15 @@ class ManualListSortRepository extends CoreRepository implements ImmutableArrayI
      *
      * @throws Exception
      */
-    public function addList($procedureId, $context, $namespace, $idents): bool
+    public function addList($procedureId, $context, $namespace, $idents, $customer): bool
     {
         $sort = new ManualListSort();
         $sort->setPId($procedureId);
         $sort->setContext($context);
         $sort->setNamespace($namespace);
+        $sort->setCustomer($customer);
 
-        $manualListSorts = $this->findBy(['pId' => $procedureId, 'context' => $context, 'namespace' => $namespace]);
+        $manualListSorts = $this->findBy(['pId' => $procedureId, 'context' => $context, 'namespace' => $namespace, 'customer' => $customer]);
         if (0 < sizeof($manualListSorts)) {
             $sort = $manualListSorts[0];
         }
