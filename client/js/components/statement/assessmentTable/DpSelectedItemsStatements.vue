@@ -311,7 +311,7 @@ export default {
 
     deleteElements (event) {
       sessionStorage.setItem('selectedElements', '{}')
-      window.submitForm(event, 'delete')
+      window.submitForm(event, 'delete', false)
     },
 
     fetchFragmentByStatement (statement) {
