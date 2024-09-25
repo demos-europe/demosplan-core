@@ -59,7 +59,6 @@ class ManualListSort extends CoreEntity implements UuidEntityInterface, ManualLi
      */
     protected $namespace;
 
-
     /**
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer", cascade={"persist"})
      *

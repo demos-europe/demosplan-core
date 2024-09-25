@@ -120,7 +120,7 @@ class ContentRepository extends CoreRepository implements ArrayInterface
                     $identList = $manualListSort->getIdents();
                     $identList = $content->getIdent().','.$identList;
 
-                    $manualListSortRepos->addList('global', $manualSortScope, 'content:'.$type, $identList, $customer );
+                    $manualListSortRepos->addList('global', $manualSortScope, 'content:'.$type, $identList, $customer);
                 }
             }
 

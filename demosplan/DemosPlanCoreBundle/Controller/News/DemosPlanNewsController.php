@@ -72,7 +72,7 @@ class DemosPlanNewsController extends BaseController
         CurrentProcedureService $currentProcedureService,
         PermissionsInterface $permissions,
         string $newsID,
-        string $procedure
+        string $procedure,
     ) {
         // @improve T14613
         $procedureId = $procedure;
@@ -157,7 +157,7 @@ class DemosPlanNewsController extends BaseController
     public function newsListGlobalIndexAction(
         Breadcrumb $breadcrumb,
         CurrentUserService $currentUserService,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ) {
         // Reichere die breadcrumb mit einem extraItem an
         $breadcrumb->addItem(
@@ -394,7 +394,7 @@ class DemosPlanNewsController extends BaseController
         ProcedureService $procedureService,
         Request $request,
         TranslatorInterface $translator,
-        string $procedure
+        string $procedure,
     ) {
         // reichere die breadcrumb mit extraItem an (hier procedure news)
         $breadcrumb->addItem(
@@ -433,7 +433,7 @@ class DemosPlanNewsController extends BaseController
         Request $request,
         TranslatorInterface $translator,
         string $newsID,
-        string $procedure
+        string $procedure,
     ) {
         // reichere die breadcrumb mit extraItem an (hier procedure news)
         $breadcrumb->addItem(
@@ -469,7 +469,7 @@ class DemosPlanNewsController extends BaseController
         ProcedureService $procedureService,
         Request $request,
         TranslatorInterface $translator,
-        string $newsID
+        string $newsID,
     ) {
         // reichere die breadcrumb mit extraItem an (hier global news)
         $breadcrumb->addItem(
@@ -501,7 +501,7 @@ class DemosPlanNewsController extends BaseController
         FileUploadService $fileUploadService,
         ProcedureService $procedureService,
         Request $request,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ) {
         // reichere die breadcrumb mit extraItem an (hier global news)
         $breadcrumb->addItem(
@@ -750,7 +750,7 @@ class DemosPlanNewsController extends BaseController
     protected function handleNewsExport(
         string $pdfContent,
         string $pdfName,
-        NameGenerator $nameGenerator
+        NameGenerator $nameGenerator,
     ): Response {
         $this->getLogger()->debug('Got Response: '.DemosPlanTools::varExport($pdfContent, true));
 

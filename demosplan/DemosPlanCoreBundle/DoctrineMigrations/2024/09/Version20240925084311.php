@@ -1,4 +1,14 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace Application\Migrations;
 
@@ -21,13 +31,12 @@ class Version20240925084311 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-
         $this->addSql('DELETE FROM _manual_list_sort WHERE _p_id = :_p_id AND _mls_context = :_mls_context AND _mls_namespace = :_mls_namespace',
             [
-            '_p_id' => 'global',
-            '_mls_context' => 'global:news',
-            '_mls_namespace' => 'content:news'
-        ]);
+                '_p_id'          => 'global',
+                '_mls_context'   => 'global:news',
+                '_mls_namespace' => 'content:news',
+            ]);
 
         $this->addSql('ALTER TABLE _manual_list_sort ADD customer_id CHAR(36) DEFAULT NULL');
         $this->addSql('ALTER TABLE _manual_list_sort ADD CONSTRAINT FK_3DECBA329395C3F3 FOREIGN KEY (customer_id) REFERENCES customer (_c_id) ON DELETE CASCADE');
@@ -52,7 +61,7 @@ class Version20240925084311 extends AbstractMigration
     private function abortIfNotMysql(): void
     {
         $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof MySqlPlatform,
+            !$this->connection->getDatabasePlatform() instanceof MySQLPlatform,
             "Migration can only be executed safely on 'mysql'."
         );
     }
