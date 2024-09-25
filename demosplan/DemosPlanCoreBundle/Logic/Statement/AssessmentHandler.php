@@ -265,7 +265,7 @@ class AssessmentHandler extends CoreHandler
         return new DocxExportResult(
             sprintf(
                 $this->translator->trans('considerationtable').'-%s.docx',
-                Carbon::now('Europe/Berlin')->format('d-m-Y H:i')
+                Carbon::now('Europe/Berlin')->format('d-m-Y-H:i')
             ),
             $objWriter
         );
