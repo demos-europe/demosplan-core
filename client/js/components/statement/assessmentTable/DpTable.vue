@@ -455,7 +455,7 @@ export default {
       const dropdownOptions = []
       const ascPrefix = Translator.trans('ascending').charAt(0).toUpperCase() + Translator.trans('ascending').substring(1)
       const descPrefix = Translator.trans('descending').charAt(0).toUpperCase() + Translator.trans('descending').substring(1)
-
+      console.log('sortingOptions', this.sortingOptions)
       this.sortingOptions.forEach(option => {
         const hasSortingDirection = option.value !== 'forPoliticians'
         dropdownOptions.push({
@@ -548,7 +548,8 @@ export default {
     handleSortChange (newVal) {
       this.setProperty({
         prop: 'sort',
-        val: newVal
+        val: newVal,
+        hash: ''
       })
       this.triggerApiCallForStatements()
     },

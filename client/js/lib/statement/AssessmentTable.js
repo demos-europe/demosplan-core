@@ -13,7 +13,6 @@
  * their functionality to other components.
  */
 import { checkResponse, dpApi } from '@demos-europe/demosplan-ui'
-
 export default function AssessmentTable () {
   /*
    * Fix for T6396: if scrolled down the select parent has `position:fixed`
@@ -55,7 +54,7 @@ export default function AssessmentTable () {
       })
   }
 
-  window.submitForm = function (event, task, isHashUpdateNeeded = true) {
+  window.submitForm = function (event, task, isHashUpdateNeeded = null) {
     // In case the call originated from a native browser event it needs to be terminated
     if (event) {
       event.stopPropagation()
@@ -66,13 +65,16 @@ export default function AssessmentTable () {
     const filterOptions = inputFields.filter(inputField => inputField.name.includes('filter') && inputField.value !== '')
     const procedureId = $('form[name=bpform]').data('statement-admin-container')
 
-    if (isHashUpdateNeeded) {
+    if (!isHashUpdateNeeded) {
+      console.log('if')
       window.updateFilterHash(procedureId, filterOptions)
         .then((filterHash) => {
           document.bpform.action = Routing.generate('dplan_assessmenttable_view_table', { procedureId, filterHash })
           handleFormSubmission(task)
         })
     } else {
+      console.log('else', isHashUpdateNeeded)
+      document.bpform.action = Routing.generate('dplan_assessmenttable_view_table', { procedureId, isHashUpdateNeeded })
       handleFormSubmission(task)
     }
   }

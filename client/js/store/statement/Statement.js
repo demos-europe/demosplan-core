@@ -222,7 +222,8 @@ export default {
     pagination: {},
     persistStatementSelection: true,
     initStatements: [],
-    statementGrouping: {}
+    statementGrouping: {},
+    filterHash: ''
   },
 
   mutations: {
@@ -343,6 +344,10 @@ export default {
      */
     updatePagination (state, value) {
       set(state, 'pagination', Object.assign(state.pagination, value))
+    },
+
+    updateFilterHash (state, value) {
+      set(state, 'filterHash', value)
     },
 
     updatePersistStatementSelection (state, value) {
@@ -616,6 +621,7 @@ export default {
           commit('setFilteredState', response.meta.isFiltered)
           commit('setInitStatements', response.meta.statementAssignments)
           commit('setStatementGrouping', response.meta.grouping)
+          commit('updateFilterHash', response.meta.filterHash)
           const refinedStatements = {}
           const sessionStorageUpdates = {}
 
