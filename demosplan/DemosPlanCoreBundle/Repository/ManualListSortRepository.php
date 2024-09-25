@@ -56,7 +56,7 @@ class ManualListSortRepository extends CoreRepository implements ImmutableArrayI
      *
      * @return ManualListSort|mixed|null
      */
-    public function getManualListSort($procedure, $context, $namespace, $customer)
+    public function getManualListSort($procedure, $context, $namespace, $customer = null)
     {
         $result = $this->findBy(['pId' => $procedure, 'context' => $context, 'namespace' => $namespace, 'customer' => $customer]);
         if (0 < sizeof($result)) {
@@ -76,6 +76,7 @@ class ManualListSortRepository extends CoreRepository implements ImmutableArrayI
         $procedure = null;
         $idents = null;
         $namespace = null;
+        $customer = null;
 
         if (array_key_exists('ident', $data)) {
             $procedure = $data['ident'];
@@ -93,7 +94,7 @@ class ManualListSortRepository extends CoreRepository implements ImmutableArrayI
             $customer = $data['customer'];
         }
 
-        if (is_null($procedure) || is_null($context) || is_null($idents) || is_null($namespace) || is_null($customer)) {
+        if (is_null($procedure) || is_null($context) || is_null($idents) || is_null($namespace)) {
             return false;
         }
 
@@ -117,7 +118,7 @@ class ManualListSortRepository extends CoreRepository implements ImmutableArrayI
      *
      * @throws Exception
      */
-    public function addList($procedureId, $context, $namespace, $idents, $customer): bool
+    public function addList($procedureId, $context, $namespace, $idents, $customer = null): bool
     {
         $sort = new ManualListSort();
         $sort->setPId($procedureId);
@@ -171,10 +172,10 @@ class ManualListSortRepository extends CoreRepository implements ImmutableArrayI
      * @param string $context
      * @param string $namespace
      */
-    public function deleteManualSort($procedure, $context, $namespace): bool
+    public function deleteManualSort($procedure, $context, $namespace, $customer = null): bool
     {
         $em = $this->getEntityManager();
-        $mls = $this->getManualListSort($procedure, $context, $namespace);
+        $mls = $this->getManualListSort($procedure, $context, $namespace, $customer);
         if (!is_null($mls)) {
             $em->remove($mls);
             $em->flush();
