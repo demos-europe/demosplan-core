@@ -13,6 +13,7 @@
  * their functionality to other components.
  */
 import { checkResponse, dpApi } from '@demos-europe/demosplan-ui'
+
 export default function AssessmentTable () {
   /*
    * Fix for T6396: if scrolled down the select parent has `position:fixed`
