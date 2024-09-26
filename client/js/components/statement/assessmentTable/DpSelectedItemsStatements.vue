@@ -154,7 +154,8 @@ export default {
     ]),
 
     ...mapState('Statement', [
-      'statements'
+      'filterHash',
+      'statements',
     ]),
 
     ...mapState('Fragment', [
@@ -311,7 +312,7 @@ export default {
 
     deleteElements (event) {
       sessionStorage.setItem('selectedElements', '{}')
-      window.submitForm(event, 'delete', false)
+      window.submitForm(event, 'delete', this.filterHash)
     },
 
     fetchFragmentByStatement (statement) {
