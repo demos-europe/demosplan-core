@@ -38,6 +38,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Statement\PresentableOriginalState
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\ValuedLabel;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Exception;
+use Illuminate\Support\Collection;
 use PhpOffice\PhpWord\Element\AbstractContainer;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
@@ -51,7 +52,6 @@ use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Illuminate\Support\Collection;
 use Twig\Environment;
 
 use function collect;
@@ -144,7 +144,7 @@ class AssessmentTableServiceOutput
         private readonly StatementHandler $statementHandler,
         StatementService $statementService,
         private readonly TranslatorInterface $translator,
-        ValidatorInterface $validator
+        ValidatorInterface $validator,
     ) {
         $this->assessmentTableServiceStorage = $assessmentTableServiceStorage;
         $this->config = $config;
@@ -176,7 +176,7 @@ class AssessmentTableServiceOutput
         $rParams,
         $aggregationsOnly = false,
         $aggregationsMinDocumentCount = 1,
-        $addAllAggregations = true
+        $addAllAggregations = true,
     ): StatementHandlingResult {
         $orgaId = $this->currentUser->getUser()->getOrganisationId();
 
@@ -563,11 +563,12 @@ class AssessmentTableServiceOutput
         StatementHandlingResult $outputResult,
         string $templateName,
         bool $anonym,
+        bool $numberStatements,
         string $exportType,
         ViewOrientation $viewOrientation,
         array $requestPost,
         string $sortType,
-        string $viewMode = AssessmentTableViewMode::DEFAULT_VIEW
+        string $viewMode = AssessmentTableViewMode::DEFAULT_VIEW,
     ): WriterInterface {
         $this->docxExporter->setProcedureHandler($this->getProcedureHandler());
 
@@ -575,6 +576,7 @@ class AssessmentTableServiceOutput
             $outputResult,
             $templateName,
             $anonym,
+            $numberStatements,
             $exportType,
             $viewOrientation,
             $requestPost,
@@ -1025,7 +1027,7 @@ class AssessmentTableServiceOutput
         StatementEntityGroup $group,
         callable $entriesRenderFunction,
         Section $section,
-        int $depth = 0
+        int $depth = 0,
     ): void {
         $section->addTitle($group->getTitle(), $depth + 2);
 
@@ -1213,7 +1215,7 @@ class AssessmentTableServiceOutput
         return $leadingComma && '' !== $dateString ? ', '.$dateString : $dateString;
     }
 
-    private function addRow(Table $table, ValuedLabel $valuedLabel, array $valueFontStyle = [], int $endnoteRef = null): void
+    private function addRow(Table $table, ValuedLabel $valuedLabel, array $valueFontStyle = [], ?int $endnoteRef = null): void
     {
         $styles = $this->getDefaultDocxPageStyles(ViewOrientation::createPortrait());
         $secondCellWidth = $styles['cellWidthSecondThird'];
