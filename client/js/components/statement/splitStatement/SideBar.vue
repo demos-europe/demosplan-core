@@ -333,6 +333,12 @@ export default {
     },
 
     save () {
+      if (this.availablePlaces.length < 1) {
+        dplan.notify.notify('error', Translator.trans('error.api.generic'))
+
+        return
+      }
+
       if (this.needsUpdate) {
         this.updateSegment()
       }
@@ -358,7 +364,7 @@ export default {
 
       if (this.placeNeedsUpdate) {
         // Place can't be empty
-        if (this.selectedPlace.id !== '') {
+        if (this.selectedPlace?.id) {
           segment.placeId = this.selectedPlace.id
           const place = this.availablePlaces.find(aPlace => aPlace.id === this.selectedPlace.id)
           segment.place = place ? { id: place.id, name: place.name } : { id: this.availablePlaces[0].id, name: this.availablePlaces[0].name }
