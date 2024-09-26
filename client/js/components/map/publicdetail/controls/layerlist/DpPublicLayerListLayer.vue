@@ -12,7 +12,7 @@
     v-if="layer.attributes.isEnabled && !layer.attributes.isScope &&  !layer.attributes.isBplan"
     :id="id"
     :title="layerTitle"
-    :class="[(isVisible && layer.attributes.canUserToggleVisibility) ? prefixClass('is-active') : '', prefixClass('c-map__group-item c-map__layer')]"
+    :class="[(isVisible && layer.attributes.canUserToggleVisibility) ? prefixClass('is-active') : '', prefixClass('c-map__group-item c-map__layer flex items-center space-x-1')]"
     @click="toggleFromSelf(false)">
     <span
       :class="prefixClass('c-map__group-item-controls')"
