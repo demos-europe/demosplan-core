@@ -68,7 +68,7 @@ class ContentService extends CoreService
         // Legacy Arrays
         // @improve T13447
         $result = array_map($this->convertToLegacy(...), $globalContentEntries);
-        $sorted = $this->manualListSorter->orderByManualListSort('global:news', 'global', 'content:news', $result);
+        $sorted = $this->manualListSorter->orderByManualListSort('global:news', 'global', 'content:news', $result, customer: $this->customerService->getCurrentCustomer());
         $result = $sorted['list'];
         // Is a limit given?
         if (isset($limit) && 0 < $limit) {
@@ -97,7 +97,7 @@ class ContentService extends CoreService
 
         // Legacy Arrays
         $result = array_map($this->convertToLegacy(...), $globalContentEntries);
-        $sorted = $this->manualListSorter->orderByManualListSort('global:news', 'global', 'content:news', $result);
+        $sorted = $this->manualListSorter->orderByManualListSort('global:news', 'global', 'content:news', $result, customer: $this->customerService->getCurrentCustomer());
 
         return $sorted['list'];
     }
@@ -178,12 +178,14 @@ class ContentService extends CoreService
      */
     public function setManualSortForGlobalContent($context, $sortIds, $type): bool
     {
+        $currentCustomer = $this->customerService->getCurrentCustomer();
         $sortIds = str_replace(' ', '', $sortIds);
         $data = [
             'ident'     => 'global',
             'context'   => $context,
             'namespace' => 'content:'.$type,
             'sortIdent' => $sortIds,
+            'customer'  => $currentCustomer,
         ];
 
         return $this->manualListSorter->setManualSort($data['context'], $data);
