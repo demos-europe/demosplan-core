@@ -11,7 +11,6 @@
 {% endfor %}
 
 {% block component_part %}
-{#    TP DO: Fill statementFormDefinitions #}
     <statement-segments-list
         :available-counties="JSON.parse('{{ templateVars.availableCounties|default([])|json_encode|e('js', 'utf-8') }}')"
         :available-external-phases="JSON.parse('{{ templateVars.externalPhases|default([])|json_encode|e('js', 'utf-8') }}')"
@@ -25,7 +24,7 @@
         :recommendation-procedure-ids="JSON.parse('{{ recommendationProcedureIds|json_encode|e('js', 'utf-8') }}')"
         statement-id="{{ statementId }}"
         statement-extern-id="{{ statementExternId }}"
-        statement-form-definitions="{}"
+        :statement-form-definitions="JSON.parse('{{ templateVars.statementFormDefinition|json_encode|e('js', 'utf-8') }}')"
         :submit-type-options="JSON.parse('{{ submitTypeOptions|json_encode|e('js', 'utf-8') }}')">
     </statement-segments-list>
 {% endblock %}
