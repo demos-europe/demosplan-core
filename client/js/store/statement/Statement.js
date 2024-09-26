@@ -223,7 +223,7 @@ export default {
     pagination: {},
     persistStatementSelection: true,
     initStatements: [],
-    statementGrouping: {},
+    statementGrouping: {}
   },
 
   mutations: {
