@@ -250,7 +250,6 @@ const SplitStatementStore = {
 
           // This should not be neccessary once the BE always sends a place
           segments.forEach((segment, idx) => {
-            console.log('hhaha')
             if (hasOwnProp(segment, 'place') === false) {
               if (state.availablePlaces.length > 0) {
                 segments[idx].place = { id: state.availablePlaces[0].value, name: state.availablePlaces[0].label }
