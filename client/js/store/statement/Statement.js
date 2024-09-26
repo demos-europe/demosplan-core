@@ -216,6 +216,7 @@ export default {
   name: 'Statement',
 
   state: {
+    filterHash: '',
     statements: {},
     procedureId: '',
     selectedElements: {},
@@ -223,7 +224,6 @@ export default {
     persistStatementSelection: true,
     initStatements: [],
     statementGrouping: {},
-    filterHash: ''
   },
 
   mutations: {
@@ -342,12 +342,13 @@ export default {
     /**
      * @param value
      */
-    updatePagination (state, value) {
-      set(state, 'pagination', Object.assign(state.pagination, value))
-    },
 
     updateFilterHash (state, value) {
       set(state, 'filterHash', value)
+    },
+
+    updatePagination (state, value) {
+      set(state, 'pagination', Object.assign(state.pagination, value))
     },
 
     updatePersistStatementSelection (state, value) {

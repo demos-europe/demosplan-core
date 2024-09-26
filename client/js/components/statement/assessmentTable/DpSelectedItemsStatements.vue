@@ -154,8 +154,8 @@ export default {
     ]),
 
     ...mapState('Statement', [
+      'filterHash',
       'statements',
-      'filterHash'
     ]),
 
     ...mapState('Fragment', [
