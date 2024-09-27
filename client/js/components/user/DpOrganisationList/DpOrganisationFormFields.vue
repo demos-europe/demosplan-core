@@ -962,6 +962,9 @@ export default {
 
   created () {
     this.localOrganisation = JSON.parse(JSON.stringify(this.organisation))
+    if (!Array.isArray(this.localOrganisation.attributes.registrationStatuses)) {
+      this.localOrganisation.attributes.registrationStatuses = Object.values(this.localOrganisation.attributes.registrationStatuses)
+    }
     if (this.organisation && typeof this.organisation.hasRelationship === 'function' && this.organisation.hasRelationship('branding')) {
       this.localOrganisation.attributes.cssvars = this.organisation.rel('branding').attributes.cssvars
     }

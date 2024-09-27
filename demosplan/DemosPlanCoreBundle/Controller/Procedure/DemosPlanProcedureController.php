@@ -1634,7 +1634,7 @@ class DemosPlanProcedureController extends BaseController
 
         $subdomain = $this->globalConfig->getSubdomain();
         if (!$this->procedureHandler->isProcedureInCustomer($procedureId, $subdomain)) {
-            return $this->redirectToRoute('core_home');
+            #return $this->redirectToRoute('core_home');
         }
 
         // logged in users should see their procedure startpage if participation area is not used
