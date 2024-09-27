@@ -28,6 +28,7 @@ class SubdomainHandler implements SubdomainHandlerInterface
     public function setSubdomainParameter(Request $request): void
     {
         $this->getGlobalConfig()->setSubdomain($this->getSubdomain($request));
+        $this->globalConfig->addCurrentCustomerToUrl();
     }
 
     public function getSubdomain(Request $request): string

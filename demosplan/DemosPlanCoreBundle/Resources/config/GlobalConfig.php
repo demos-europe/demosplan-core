@@ -1752,6 +1752,12 @@ class GlobalConfig implements GlobalConfigInterface
         return $this->externalLinks;
     }
 
+    public function addCurrentCustomerToUrl(): void
+    {
+        $externalLinks = array_map($this->addCustomerToUrl(...), $this->externalLinks);
+        $this->externalLinks = $this->getValidatedExternalLinks($externalLinks);
+    }
+
     /**
      * @return array<non-empty-string, non-empty-string>
      */
