@@ -572,7 +572,7 @@ class GlobalConfig implements GlobalConfigInterface
     public function __construct(
         ParameterBagInterface $params,
         TranslatorInterface $translator,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
     ) {
         $this->setParams($params, $translator);
     }

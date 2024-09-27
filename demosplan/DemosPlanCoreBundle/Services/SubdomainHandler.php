@@ -21,7 +21,7 @@ class SubdomainHandler implements SubdomainHandlerInterface
     public function __construct(
         private readonly GlobalConfigInterface $globalConfig,
         private readonly LoggerInterface $logger,
-        private readonly CustomerRepository $customerRepository
+        private readonly CustomerRepository $customerRepository,
     ) {
     }
 
