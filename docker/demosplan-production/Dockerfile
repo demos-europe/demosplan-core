@@ -36,9 +36,7 @@ RUN --mount=type=cache,target=/var/composer composer install -o --prefer-dist --
 #RUN composer install --prefer-dist --no-dev --no-autoloader --no-scripts --no-progress;
 
 COPY package.json yarn.lock ./
-RUN yarn install --ignore-scripts --frozen-lockfile && \
-    yarn cache clean && \
-    rm -rf /srv/www/.cache
+RUN yarn install --ignore-scripts --frozen-lockfile && rm -rf /srv/www/.cache
 
 USER root
 COPY . /srv/www
@@ -54,15 +52,11 @@ RUN mkdir -p /srv/www/projects/$PROJECT_NAME/web/js && \
     chown -R www-data /srv/www/projects/$PROJECT_NAME/app/cache && \
     chown -R www-data /srv/www/projects/$PROJECT_NAME/app/logs
 
-# define doctrine in memory database for the asset build
-RUN mv /srv/www/config/packages/doctrine.yaml /tmp/doctrine.yaml
-COPY doctrine_inmemory.yaml /srv/www/config/packages/doctrine.yaml
-
 USER www-data
-RUN DEVELOPMENT_CONTAINER=1 ./fe build --prod $PROJECT_NAME && rm -rf /srv/www/node_modules && rm -rf /srv/www/.cache
+RUN DEVELOPMENT_CONTAINER=1 ./fe build $PROJECT_NAME && rm -rf /srv/www/node_modules && rm -rf /srv/www/.cache
+#RUN ./fe build --prod $PROJECT_NAME
 
 USER root
-RUN mv /tmp/doctrine.yaml /srv/www/config/packages/doctrine.yaml
 COPY projects/$PROJECT_NAME/app/config/parameters_docker.yml /opt/config/parameters.yml
 
 RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
@@ -83,7 +77,7 @@ EXPOSE 9000
 USER www-data
 CMD ["/usr/sbin/php-fpm8.2", "-F"]
 
-FROM nginxinc/nginx-unprivileged:alpine3.19-slim AS nginx
+FROM nginxinc/nginx-unprivileged:latest AS nginx
 
 ARG PROJECT_NAME
 ENV PHP_FPM_BETEILIGUNG_SERVICE=beteiligung

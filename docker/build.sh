@@ -37,7 +37,6 @@ rsync -az ../bin/$projectname $context/bin/$projectname
 rsync --exclude-from=rsyncExcludeProject.txt -az ../projects/$projectname $context/projects
 cp -r $folder/* $context
 cp -r $folder/.dockerignore $context
-# use --progress=plain to see all build output
 DOCKER_BUILDKIT=1 docker build --build-arg PROJECT_NAME=$projectname -t $imagename:$version -f $folder/Dockerfile --target fpm $context
 DOCKER_BUILDKIT=1 docker build --build-arg PROJECT_NAME=$projectname -t $imagename/nginx:$version -f $folder/Dockerfile --target nginx $context
 
