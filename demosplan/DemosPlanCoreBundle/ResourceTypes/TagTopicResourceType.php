@@ -19,12 +19,13 @@ use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
+use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 use EDT\Wrapping\EntityDataInterface;
-use EDT\Wrapping\PropertyBehavior\Attribute\Factory\AttributeConstructorBehaviorFactory;
+use EDT\Wrapping\PropertyBehavior\Attribute\AttributeConstructorBehavior;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
-use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\Factory\ToOneRelationshipConstructorBehaviorFactory;
+use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\ToOneRelationshipConstructorBehavior;
 
 /**
  * @template-extends DplanResourceType<TagTopic>
@@ -37,7 +38,7 @@ final class TagTopicResourceType extends DplanResourceType
 {
     public function __construct(
         private readonly TagService $tagService,
-        protected TagTopicRepository $tagTopicRepository
+        protected TagTopicRepository $tagTopicRepository,
     ) {
     }
 
@@ -85,12 +86,16 @@ final class TagTopicResourceType extends DplanResourceType
         $configBuilder->id->readable()->sortable()->filterable();
 
         $configBuilder->title->readable(true)->sortable()->filterable()
-            ->addConstructorBehavior(new AttributeConstructorBehaviorFactory(null, null));
+            ->addConstructorBehavior(
+                AttributeConstructorBehavior::createFactory(null, OptionalField::NO, null)
+            );
 
         $configBuilder->procedure
             ->setRelationshipType($this->resourceTypeStore->getProcedureResourceType())
             ->readable()->sortable()->filterable()
-            ->addConstructorBehavior(new ToOneRelationshipConstructorBehaviorFactory(null, [], null));
+            ->addConstructorBehavior(
+                ToOneRelationshipConstructorBehavior::createFactory(null, [], null, OptionalField::NO)
+            );
 
         $configBuilder->tags
             ->setRelationshipType($this->resourceTypeStore->getTagResourceType())
