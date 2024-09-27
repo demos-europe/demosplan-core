@@ -34,7 +34,7 @@
         "cebe/php-openapi": "^1.5",
         "cocur/slugify": "^4.0",
         "composer/package-versions-deprecated": "1.11.99.5",
-        "demos-europe/demosplan-addon": "0.40",
+        "demos-europe/demosplan-addon": "0.41",
         "doctrine/annotations": "^2.0",
         "doctrine/common": "^3.2",
         "doctrine/doctrine-bundle": "^2",
