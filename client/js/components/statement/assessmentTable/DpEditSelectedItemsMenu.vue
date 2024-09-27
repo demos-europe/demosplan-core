@@ -42,7 +42,7 @@
 
 <script>
 import { mapGetters, mapMutations, mapState } from 'vuex'
-import { DpButton } from '@demos-europe/demosplan-ui'
+import { capitalizeFirstLetter, DpButton } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpEditSelectedItemsMenu',
@@ -129,12 +129,8 @@ export default {
   },
 
   methods: {
-    capitalizeFirstLetter (str) {
-      return str.charAt(0).toUpperCase() + str.slice(1)
-    },
-
     resetSelection () {
-      this.$store.dispatch(`${this.capitalizeFirstLetter(this.visibleEntityType)}/resetSelection`)
+      this.$store.dispatch(`${capitalizeFirstLetter(this.visibleEntityType)}/resetSelection`)
     },
     ...mapMutations('Statement', ['updateStatement'])
   }
