@@ -334,7 +334,11 @@ export default {
 
     save () {
       if (this.availablePlaces.length < 1) {
-        dplan.notify.notify('error', Translator.trans('error.api.generic'))
+        dplan.notify.notify(
+          'error',
+          Translator.trans('error.split_statement.no_place'),
+          Routing.generate('DemosPlan_procedure_places_list', { procedureId: this.procedureId }),
+          Translator.trans('places.addPlace'))
 
         return
       }
