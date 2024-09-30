@@ -39,10 +39,10 @@ export default {
         .then(response => checkResponse(response))
     },
 
-    fetchProcedureMapSettings ({ commit }, args = { procedureId, isMaster: false }) {
+    fetchProcedureMapSettings ({ commit }, { procedureId, isMaster = false }) {
       try {
-        const resourceType = args.isMaster ? 'ProcedureTemplate' : 'Procedure'
-        const url = Routing.generate('api_resource_get', { resourceId: args.procedureId, resourceType: resourceType })
+        const resourceType = isMaster ? 'ProcedureTemplate' : 'Procedure'
+        const url = Routing.generate('api_resource_get', { resourceId: procedureId, resourceType: resourceType })
         const procedureMapSettingFields = ['availableScales',
           'boundingBox',
           'defaultBoundingBox',
