@@ -174,6 +174,7 @@
             <button
               v-if="hasPermission('area_admin_boilerplates')"
               :class="prefixClass('menubar__button')"
+              data-cy="segmentEditor:boilerplate"
               type="button"
               v-tooltip="Translator.trans('boilerplate.insert')"
               @click.stop="openBoilerPlate">
@@ -182,6 +183,7 @@
             <button
               v-if="asyncComponents.length > 1"
               :class="prefixClass('menubar__button')"
+              data-cy="segmentEditor:similarRecommendation"
               type="button"
               v-tooltip="Translator.trans('segment.recommendation.insert.similar')"
               @click.stop="toggleRecommendationModal">
