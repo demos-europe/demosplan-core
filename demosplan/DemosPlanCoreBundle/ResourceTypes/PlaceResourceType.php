@@ -36,7 +36,7 @@ use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 final class PlaceResourceType extends DplanResourceType
 {
     public function __construct(
-        private readonly PlaceRepository $placeRepository
+        private readonly PlaceRepository $placeRepository,
     ) {
     }
 
