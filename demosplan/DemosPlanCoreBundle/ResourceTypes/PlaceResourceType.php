@@ -108,7 +108,7 @@ final class PlaceResourceType extends DplanResourceType
             ->filterable();
 
         if ($this->currentUser->hasPermission('area_manage_segment_places')) {
-            $configBuilder->id->initializable(false, true);
+            $configBuilder->id->initializable();
             $configBuilder->name->updatable()->initializable(false, null, true);
             $configBuilder->solved->updatable()->initializable(true);
             $configBuilder->description->updatable()->initializable(true);
