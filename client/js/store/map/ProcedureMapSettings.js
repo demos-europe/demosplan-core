@@ -41,7 +41,7 @@ export default {
 
     fetchProcedureMapSettings ({ commit }, procedureId) {
       try {
-        const url = Routing.generate('api_resource_get', { resourceId: procedureId, resourceType: 'ProcedureTemplateResourceType' })
+        const url = Routing.generate('api_resource_get', { resourceId: procedureId, resourceType: 'ProcedureTemplate' })
         const procedureMapSettingFields = ['availableScales',
           'boundingBox',
           'defaultBoundingBox',
