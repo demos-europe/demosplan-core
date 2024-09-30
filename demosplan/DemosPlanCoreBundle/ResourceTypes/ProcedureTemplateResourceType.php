@@ -41,7 +41,6 @@ final class ProcedureTemplateResourceType extends DplanResourceType
     protected function getProperties(): array
     {
         if ($this->currentUser->hasAnyPermissions('area_public_participation', 'area_admin_map')) {
-            $properties[] = $this->createAttribute($this->coordinate)->readable()->aliasedPath(Paths::procedure()->settings->coordinate);
             $properties[] = $this->createToOneRelationship($this->mapSetting)->aliasedPath(Paths::procedure()->settings)->readable();
         }
 
