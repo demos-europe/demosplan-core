@@ -39,7 +39,7 @@ export default {
         .then(response => checkResponse(response))
     },
 
-    fetchProcedureMapSettings ({ commit }, args= { procedureId, isMaster }) {
+    fetchProcedureMapSettings ({ commit }, args= { procedureId, isMaster: false }) {
       try {
         const resourceType = args.isMaster ? 'ProcedureTemplate' : 'Procedure'
         const url = Routing.generate('api_resource_get', { resourceId: args.procedureId, resourceType: resourceType })
