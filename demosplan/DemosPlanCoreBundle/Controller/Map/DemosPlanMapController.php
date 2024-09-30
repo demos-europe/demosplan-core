@@ -62,7 +62,7 @@ class DemosPlanMapController extends BaseController
         Breadcrumb $breadcrumb,
         TranslatorInterface $translator,
         ProcedureService $procedureService,
-        $procedureId
+        $procedureId,
     ) {
         // reichere die breadcrumb mit extraItem an
         $breadcrumb->addItem(
@@ -104,7 +104,7 @@ class DemosPlanMapController extends BaseController
         Request $request,
         ServiceStorage $serviceStorage,
         TranslatorInterface $translator,
-        $procedure
+        $procedure,
     ) {
         $templateVars = [];
         try {
@@ -187,7 +187,7 @@ class DemosPlanMapController extends BaseController
         ServiceStorage $serviceStorage,
         TranslatorInterface $translator,
         $procedure,
-        $gislayerID
+        $gislayerID,
     ) {
         try {
             // Storage und Output initialisieren
@@ -404,7 +404,7 @@ class DemosPlanMapController extends BaseController
         ProcedureService $procedureService,
         ProcedureServiceStorage $procedureServiceStorage,
         Request $request,
-        $procedureId
+        $procedureId,
     ) {
         $mapOfProcedure = $elementHandler->mapHandler($procedureId);
         $requestPost = $request->request->all();
@@ -520,7 +520,7 @@ class DemosPlanMapController extends BaseController
         Request $request,
         ServiceStorage $serviceStorage,
         MapService $mapService,
-        MapHandler $mapHandler
+        MapHandler $mapHandler,
     ) {
         $requestPost = $request->request;
         if ($requestPost->has('gislayerdelete')) {
@@ -586,7 +586,7 @@ class DemosPlanMapController extends BaseController
         MasterTemplateService $masterTemplateService,
         ServiceStorage $serviceStorage,
         $type = 'edit',
-        $gislayerID = null
+        $gislayerID = null,
     ) {
         $templateVars = [];
         try {
