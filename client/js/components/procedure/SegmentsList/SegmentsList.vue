@@ -26,8 +26,8 @@
           @change-fields="updateSearchFields"
           @search="updateSearchQuery"
           @reset="updateSearchQuery" />
-        <div class="bg-color--grey-light-2 rounded-md space-inline-xs ml-2">
-          <span class="color--grey ml-2 line-height--2">
+        <div class="bg-color--grey-light-2 rounded-md ml-2">
+          <span class="color--grey ml-1 align-middle">
             {{ Translator.trans('filter') }}
           </span>
           <filter-flyout
