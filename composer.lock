@@ -19601,16 +19601,16 @@
         },
         {
             "name": "escapestudios/symfony2-coding-standard",
-            "version": "3.13.0",
+            "version": "3.14.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/djoos/Symfony-coding-standard.git",
-                "reference": "46d5387bc9e2fca44d46642550ffbaea22ebaf86"
+                "reference": "c1d17517d7b773ed6d124c85f2795fef923feac0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/djoos/Symfony-coding-standard/zipball/46d5387bc9e2fca44d46642550ffbaea22ebaf86",
-                "reference": "46d5387bc9e2fca44d46642550ffbaea22ebaf86",
+                "url": "https://api.github.com/repos/djoos/Symfony-coding-standard/zipball/c1d17517d7b773ed6d124c85f2795fef923feac0",
+                "reference": "c1d17517d7b773ed6d124c85f2795fef923feac0",
                 "shasum": ""
             },
             "require": {
@@ -19655,7 +19655,7 @@
                 "issues": "https://github.com/djoos/Symfony-coding-standard/issues",
                 "source": "https://github.com/djoos/Symfony-coding-standard"
             },
-            "time": "2022-09-08T09:37:16+00:00"
+            "time": "2024-09-27T11:08:25+00:00"
         },
         {
             "name": "evenement/evenement",
