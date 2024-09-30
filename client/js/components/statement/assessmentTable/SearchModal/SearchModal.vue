@@ -316,6 +316,20 @@ export default {
   methods: {
     ...mapMutations('Filter', ['setCurrentSearch']),
 
+    loadSelectedCheckboxes () {
+      const savedCheckboxes = JSON.parse(localStorage.getItem('selectedCheckboxes'))
+
+      if (savedCheckboxes) {
+        this.availableFilterFields.forEach(checkbox => {
+          const savedCheckbox = savedCheckboxes.find(savedCheckbox => savedCheckbox.id === checkbox.id)
+
+          if (savedCheckbox) {
+            checkbox.checked = savedCheckbox.checked
+          }
+        })
+      }
+    },
+
     toggleModal () {
       this.$refs.searchModal.toggle()
     },
@@ -335,6 +349,15 @@ export default {
       })
     },
 
+    saveSelectedCheckboxes () {
+      const selectedCheckboxes = this.filterCheckBoxesItems.map(checkbox => ({
+        id: checkbox.id,
+        checked: checkbox.checked
+      }))
+
+      localStorage.setItem('selectedCheckboxes', JSON.stringify(selectedCheckboxes))
+    },
+
     submit (event) {
       if (this.isForm) {
         const searchWordInput = document.querySelector('input[name="search_word2"]')
@@ -346,6 +369,8 @@ export default {
           this.toggleModal()
         }
       }
+
+      this.saveSelectedCheckboxes()
     }
   },
 
@@ -359,6 +384,8 @@ export default {
     this.availableFilterFields.forEach(checkbox => {
       Vue.set(checkbox, 'checked', this.preselectedFields.includes(checkbox.id))
     })
+
+    this.loadSelectedCheckboxes()
   }
 }
 </script>
