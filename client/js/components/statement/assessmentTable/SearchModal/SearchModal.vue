@@ -347,6 +347,7 @@ export default {
       this.availableFilterFields.forEach(checkbox => {
         checkbox.checked = false
       })
+      localStorage.removeItem('selectedCheckboxes')
     },
 
     saveSelectedCheckboxes () {
