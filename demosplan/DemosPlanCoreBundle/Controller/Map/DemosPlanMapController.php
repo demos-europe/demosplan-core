@@ -61,6 +61,7 @@ class DemosPlanMapController extends BaseController
     public function mapAdminAction(
         Breadcrumb $breadcrumb,
         TranslatorInterface $translator,
+        ProcedureService $procedureService,
         $procedureId
     ) {
         // reichere die breadcrumb mit extraItem an
@@ -74,9 +75,11 @@ class DemosPlanMapController extends BaseController
             ]
         );
 
+        $procedure = $procedureService->getProcedure($procedureId);
+
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanMap/map_admin.html.twig',
-            ['procedure' => $procedureId, 'title' => 'drawing.admin.adjustments.gis']
+            ['procedure' => $procedureId, 'master' => $procedure?->getMaster(), 'title' => 'drawing.admin.adjustments.gis']
         );
     }
 
