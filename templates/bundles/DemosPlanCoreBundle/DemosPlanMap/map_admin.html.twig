@@ -7,7 +7,7 @@
     } %}
 
     <map-admin
-        :is-master="{{ master }}"
+        :is-master="{{ master | json_encode() }}"
         procedure-id="{{ procedure }}">
     </map-admin>
 
