@@ -79,7 +79,7 @@ class DemosPlanMapController extends BaseController
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanMap/map_admin.html.twig',
-            ['procedure' => $procedureId, 'master' => $procedure?->getMaster(), 'title' => 'drawing.admin.adjustments.gis']
+            ['procedure' => $procedureId, 'isMaster' => $procedure?->getMaster(), 'title' => 'drawing.admin.adjustments.gis']
         );
     }
 
