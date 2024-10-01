@@ -176,7 +176,7 @@
               {{ Translator.trans('statement.details_and_recommendation') }}
             </a>
             <a
-              data-cy="detailView"
+              data-cy="listStatements:statementDetailView"
               :href="Routing.generate('dm_plan_assessment_single_view', { statement: id, procedureId: procedureId })"
               rel="noopener">
               {{ Translator.trans('detail.view') }}
