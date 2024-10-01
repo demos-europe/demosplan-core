@@ -181,7 +181,7 @@
               <i :class="prefixClass('fa fa-puzzle-piece')" />
             </button>
             <button
-              v-if="asyncComponents.length > 1"
+              v-if="asyncComponents.length > 0"
               :class="prefixClass('menubar__button')"
               data-cy="segmentEditor:similarRecommendation"
               type="button"
