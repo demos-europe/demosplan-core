@@ -30,7 +30,7 @@ class Version20240716115746 extends AbstractMigration
         $columnExists = $this->connection->fetchOne("SHOW COLUMNS FROM workflow_place LIKE 'solved'");
 
         // check for column existence because down migration was added later
-        if ($columnExists === false) {
+        if (false === $columnExists) {
             $this->addSql('ALTER TABLE workflow_place ADD solved TINYINT(1) DEFAULT FALSE');
         }
     }
