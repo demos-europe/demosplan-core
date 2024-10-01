@@ -1,16 +1,21 @@
 {% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
 {% block component_part %}
 
-    {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
-        heading: 'statements'|trans,
-        subnav: [ {
-            href: path('DemosPlan_procedure_import', { procedureId: procedure }),
-            label:  'statement.new'|trans,
-            datacy: 'createStatement',
-            icon: 'fa-plus'
-        }],
-        flush: true
-    } %}
+    {% set path = hasPermission('feature_statements_import_excel') or
+        hasPermission('feature_import_statement_pdf') or
+        hasPermission('feature_segments_import_excel') or
+        hasPermission('feature_simplified_new_statement_create') ? 'DemosPlan_procedure_import' : 'DemosPlan_statement_new_submitted' %}
+
+        {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+            heading: 'statements'|trans,
+            subnav: [ {
+                href: path(path, { procedureId: procedure }),
+                label:  'statement.new'|trans,
+                datacy: 'listStatements:statementNew',
+                icon: 'fa-plus'
+            }],
+            flush: true
+        } %}
 
     {% set submitTypesOptions = [] %}
     {% for key, translated in getFormOption('statement_submit_types.values', true)|filter(key => key != 'system') %}
