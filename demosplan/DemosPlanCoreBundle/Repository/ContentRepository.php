@@ -99,6 +99,7 @@ class ContentRepository extends CoreRepository implements ArrayInterface
 
             $type = null;
             $manualSortScope = null;
+            $customer = null;
 
             if (array_key_exists('manualSortScope', $data)) {
                 $manualSortScope = $data['manualSortScope'];
@@ -108,15 +109,19 @@ class ContentRepository extends CoreRepository implements ArrayInterface
                 $type = $data['type'];
             }
 
-            if (!is_null($manualSortScope) && !is_null($type)) {
+            if (array_key_exists('customer', $data)) {
+                $customer = $data['customer'];
+            }
+
+            if (!is_null($manualSortScope) && !is_null($type) && !is_null($customer)) {
                 /** @var ManualListSortRepository $manualListSortRepos */
                 $manualListSortRepos = $em->getRepository(ManualListSort::class);
-                $manualListSort = $manualListSortRepos->getManualListSort('global', $manualSortScope, 'content:'.$type);
+                $manualListSort = $manualListSortRepos->getManualListSort('global', $manualSortScope, 'content:'.$type, $customer);
                 if (!is_null($manualListSort)) {
                     $identList = $manualListSort->getIdents();
                     $identList = $content->getIdent().','.$identList;
 
-                    $manualListSortRepos->addList('global', $manualSortScope, 'content:'.$type, $identList);
+                    $manualListSortRepos->addList('global', $manualSortScope, 'content:'.$type, $identList, $customer);
                 }
             }
 

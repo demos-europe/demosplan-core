@@ -333,13 +333,14 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
             left: 10px;
             position: absolute;
             right: 30px;
-            top: 10px;
+            top: 9px;
 
             display: inline-block;
             padding-left: 10px;
 
             input[type='range'] {
                 width: 100%;
+                height: 15px;
 
                 &:focus {
                     @include keyboard-focus;
@@ -381,6 +382,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
         &__layer {
             padding: 4px 8px;
             line-height: 20px;
+            height: 33px;
 
             img {
                 max-width: none;

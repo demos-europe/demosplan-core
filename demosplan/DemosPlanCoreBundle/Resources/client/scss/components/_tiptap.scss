@@ -135,6 +135,8 @@
         }
 
         &__button {
+            @include keyboard-focus();
+
             min-height: 32px;
             min-width: 25px;
             padding: .2rem .4rem;
