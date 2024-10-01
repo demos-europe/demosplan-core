@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -55,7 +56,7 @@ final class CustomerResourceType extends DplanResourceType
     public function __construct(
         protected readonly BrandingRepository $brandingRepository,
         protected readonly CustomerLoginSupportContactResourceType $customerLoginSupportContactResourceType,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
     ) {
     }
 
@@ -266,7 +267,7 @@ final class CustomerResourceType extends DplanResourceType
 
     public function getUpdateValidationGroups(): array
     {
-        return [Customer::GROUP_UPDATE];
+        return [CustomerInterface::GROUP_UPDATE];
     }
 
     public function isUpdateAllowed(): bool

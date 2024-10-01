@@ -73,7 +73,7 @@ class DemosPlanUserAPIController extends APIController
         GlobalConfigInterface $globalConfig,
         MessageBagInterface $messageBag,
         MessageFormatter $messageFormatter,
-        SchemaPathProcessor $schemaPathProcessor
+        SchemaPathProcessor $schemaPathProcessor,
     ) {
         parent::__construct(
             $apiLogger,
@@ -134,7 +134,7 @@ class DemosPlanUserAPIController extends APIController
         JsonApiPaginationParser $paginationParser,
         PaginatorFactory $paginatorFactory,
         Request $request,
-        SortMethodFactory $sortMethodFactory
+        SortMethodFactory $sortMethodFactory,
     ): APIResponse {
         try {
             if ($request->query->has(UrlParameter::FILTER)) {
@@ -166,7 +166,7 @@ class DemosPlanUserAPIController extends APIController
                 25
             );
             $paginator->setCurrentPage($pagination->getNumber());
-            $paginatorAdapter = $paginatorFactory->createPaginatorAdapter($paginator);
+            $paginatorAdapter = $paginatorFactory->createPaginatorAdapter($paginator, $request);
 
             $transformer = $userType->getTransformer();
             $collection = new Collection($paginator, $transformer, 'User');

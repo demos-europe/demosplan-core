@@ -22,10 +22,11 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceTyp
 use demosplan\DemosPlanCoreBundle\Repository\InstitutionTagRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\PathBuilding\End;
 use EDT\Wrapping\CreationDataInterface;
 use EDT\Wrapping\EntityDataInterface;
-use EDT\Wrapping\PropertyBehavior\Attribute\Factory\AttributeConstructorBehaviorFactory;
+use EDT\Wrapping\PropertyBehavior\Attribute\AttributeConstructorBehavior;
 use EDT\Wrapping\PropertyBehavior\FixedConstructorBehavior;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -43,7 +44,7 @@ class InstitutionTagResourceType extends DplanResourceType
 {
     public function __construct(
         private readonly ValidatorInterface $validator,
-        private readonly InstitutionTagRepository $institutionTagRepository
+        private readonly InstitutionTagRepository $institutionTagRepository,
     ) {
     }
 
@@ -70,7 +71,7 @@ class InstitutionTagResourceType extends DplanResourceType
         }
 
         if ($this->currentUser->hasPermission('feature_institution_tag_create')) {
-            $configBuilder->label->addConstructorBehavior(new AttributeConstructorBehaviorFactory(null, null));
+            $configBuilder->label->addConstructorBehavior(AttributeConstructorBehavior::createFactory(null, OptionalField::NO, null));
             $configBuilder->taggedInstitutions->initializable(true, function (InstitutionTag $tag, array $institutions): array {
                 $institutionsCollection = new ArrayCollection($institutions);
                 $tag->setTaggedInstitutions($institutionsCollection);
@@ -193,7 +194,7 @@ class InstitutionTagResourceType extends DplanResourceType
      */
     private function getAddedTaggedInstitutions(
         Collection $currentTaggedInstitutions,
-        Collection $newTaggedInstitutions
+        Collection $newTaggedInstitutions,
     ): Collection {
         return $newTaggedInstitutions->filter(static fn (Orga $newOrga): bool => !$currentTaggedInstitutions->contains($newOrga));
     }
@@ -206,7 +207,7 @@ class InstitutionTagResourceType extends DplanResourceType
      */
     private function getRemovedTaggedInstitutions(
         Collection $currentTaggedInstitutions,
-        Collection $newTaggedInstitutions
+        Collection $newTaggedInstitutions,
     ): Collection {
         return $currentTaggedInstitutions->filter(
             static fn (Orga $currentOrga): bool => !$newTaggedInstitutions->contains($currentOrga)
