@@ -562,6 +562,7 @@ export default {
       const statementFields = [
         'assignee',
         'attachments',
+        'consentRevoked',
         'similarStatementSubmitters',
         'authoredDate',
         'authorName',
@@ -584,6 +585,7 @@ export default {
         'publicParticipationPhase', // TODO: has to be adjusted in the BE
         'recommendation',
         'segmentDraftList',
+        'submitterAndAuthorMetaDataAnonymized',
         'status',
         'submitDate',
         'submitName',
