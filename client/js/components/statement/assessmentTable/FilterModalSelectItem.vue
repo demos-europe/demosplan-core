@@ -9,7 +9,7 @@
 
 <template>
   <div
-    v-if="false === hidden"
+    v-if="false === hidden && (dplan.projectName === 'Planfeststellungsverfahren' && filterItem.attributes.label !== 'Datei')"
     :data-cy="filterItem.attributes.label">
     <label
       :for="filterItem.id"
