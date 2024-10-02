@@ -16,13 +16,6 @@ version=$3
 projectname=$4
 context=.context
 
-echo "Building base image..."
-
-cd demosplan-base || exit
-DOCKER_BUILDKIT=1 docker build -t demosplan-base .
-cd .. || exit
-
-
 printf "Building %s...\n" $folder
 
 if [ -d $context ]
@@ -37,6 +30,7 @@ rsync -az ../bin/$projectname $context/bin/$projectname
 rsync --exclude-from=rsyncExcludeProject.txt -az ../projects/$projectname $context/projects
 cp -r $folder/* $context
 cp -r $folder/.dockerignore $context
+# use --progress=plain to see all build output
 DOCKER_BUILDKIT=1 docker build --build-arg PROJECT_NAME=$projectname -t $imagename:$version -f $folder/Dockerfile --target fpm $context
 DOCKER_BUILDKIT=1 docker build --build-arg PROJECT_NAME=$projectname -t $imagename/nginx:$version -f $folder/Dockerfile --target nginx $context
 

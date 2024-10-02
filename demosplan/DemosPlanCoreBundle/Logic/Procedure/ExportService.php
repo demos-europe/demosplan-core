@@ -393,10 +393,11 @@ class ExportService
         ];
 
         $type = [
-            'anonymous'  => false,
-            'exportType' => $exportType,
-            'template'   => 'condensed',
-            'sortType'   => AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT,
+            'anonymous'        => false,
+            'numberStatements' => false,
+            'exportType'       => $exportType,
+            'template'         => 'condensed',
+            'sortType'         => AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT,
         ];
 
         try {
@@ -435,10 +436,11 @@ class ExportService
         ZipStream $zip,
     ): ZipStream {
         $type = [
-            'anonymous'  => true,
-            'exportType' => $exportType,
-            'template'   => 'condensed',
-            'sortType'   => AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT,
+            'anonymous'        => true,
+            'numberStatements' => false,
+            'exportType'       => $exportType,
+            'template'         => 'condensed',
+            'sortType'         => AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT,
         ];
 
         $rParams = [

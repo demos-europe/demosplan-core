@@ -68,9 +68,6 @@
     "composer/xdebug-handler": {
         "version": "1.4.6"
     },
-    "demos-europe/demosplan-addon": {
-        "version": "dev-main"
-    },
     "dnoegel/php-xdg-base-dir": {
         "version": "v0.1.1"
     },
@@ -477,12 +474,6 @@
     },
     "netresearch/jsonmapper": {
         "version": "v3.1.1"
-    },
-    "nette/php-generator": {
-        "version": "v3.5.4"
-    },
-    "nette/utils": {
-        "version": "v3.2.3"
     },
     "nikic/php-parser": {
         "version": "v4.12.0"

@@ -610,7 +610,11 @@ class StatementCopier extends CoreService
             if (true === $createReport) {
                 try {
                     $entry = $this->statementReportEntryFactory->createStatementCopiedEntry($newStatement);
-                    $this->reportService->persistAndFlushReportEntries($entry);
+                    if ($persistAndFlush) {
+                        $this->reportService->persistAndFlushReportEntries($entry);
+                    } else {
+                        $this->reportService->persistReportEntries([$entry]);
+                    }
                     $this->logger->info(
                         'generate report of copyStatement(). ReportID: ',
                         ['identifier' => $entry->getIdentifier()]

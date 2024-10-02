@@ -388,7 +388,7 @@ export default {
 
     filteredAssessmentExportOptions () {
       return Object.entries(this.assessmentExportOptions)
-        .filter(([val, key]) => val !== false)
+        .filter(([key, val]) => val !== false)
         .map(([key, val]) => ({ [key]: val }))
     },
 
