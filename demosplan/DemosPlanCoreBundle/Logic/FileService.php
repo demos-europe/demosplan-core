@@ -1176,4 +1176,15 @@ class FileService extends CoreService implements FileServiceInterface
 
         return $path;
     }
+
+    public function deleteLocalFile($getImagePath): void
+    {
+        $fs = new Filesystem();
+        try {
+            $fs->remove($getImagePath);
+        } catch (Exception $e) {
+            $this->getLogger()->error('Could not remove local file', [$getImagePath, $e->getMessage()]);
+        }
+
+    }
 }

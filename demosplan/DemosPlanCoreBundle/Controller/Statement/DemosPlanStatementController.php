@@ -2394,12 +2394,7 @@ class DemosPlanStatementController extends BaseController
                 $fileNames[] = $fileInfo->getFileName();
                 $statementCount += count($importer->getCreatedStatements());
                 $fileService->deleteFile($fileInfo->getHash());
-                try {
-                    $fs = new Filesystem();
-                    $fs->remove($localPath);
-                } catch (IOException $e) {
-                    $this->logger->error('Could not remove file', ['exception' => $e]);
-                }
+                $fileService->deleteLocalFile($localPath);
             }
             if ($importer->hasErrors()) {
                 return $this->createErrorResponse($procedureId, $importer->getErrorsAsArray());
@@ -2468,12 +2463,7 @@ class DemosPlanStatementController extends BaseController
                 $statementsCount += count($statements);
 
                 $fileService->deleteFile($zipFileInfo->getHash());
-                try {
-                    $fs = new Filesystem();
-                    $fs->remove($localPath);
-                } catch (IOException $e) {
-                    $this->logger->error('Could not remove file', ['exception' => $e]);
-                }
+                $fileService->deleteLocalFile($localPath);
             }
             if ($importer->hasErrors()) {
                 return $this->createErrorResponse($procedureId, $importer->getErrorsAsArray());
