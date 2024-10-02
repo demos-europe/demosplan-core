@@ -72,7 +72,6 @@ class XlsxSegmentImport
      */
     public function importFromFile(FileInfo $file): SegmentExcelImportResult
     {
-        // @todo check local file usage
         $fileInfo = new SplFileInfo($file->getAbsolutePath(), '', $file->getHash());
 
         // allow to rollback all in case of error
