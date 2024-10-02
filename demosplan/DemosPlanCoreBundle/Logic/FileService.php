@@ -628,8 +628,9 @@ class FileService extends CoreService implements FileServiceInterface
 
         try {
             $this->defaultStorage->copy($fileToCopy->getFilePathWithHash(), $newFilename);
-        } catch (FilesystemException | UnableToCopyFile $e) {
+        } catch (FilesystemException|UnableToCopyFile $e) {
             $this->logger->error('Could not copy file', [$e, $fileToCopy->getFilePathWithHash(), $newFilename]);
+
             return null;
         }
 
@@ -1185,6 +1186,5 @@ class FileService extends CoreService implements FileServiceInterface
         } catch (Exception $e) {
             $this->getLogger()->error('Could not remove local file', [$localFilePath, $e->getMessage()]);
         }
-
     }
 }

@@ -120,7 +120,7 @@ class SegmentController extends BaseController
         PermissionsInterface $permissions,
         Request $request,
         XlsxSegmentImport $importer,
-        string $procedureId
+        string $procedureId,
     ): Response {
         $requestPost = $request->request->all();
         $procedure = $currentProcedureService->getProcedure();
@@ -210,7 +210,7 @@ class SegmentController extends BaseController
         string $procedureId,
         string $queryHash,
         HashedQueryService $filterSetService,
-        FilterUiDataProvider $filterUiDataProvider
+        FilterUiDataProvider $filterUiDataProvider,
     ): Response {
         $querySet = $filterSetService->findHashedQueryWithHash($queryHash);
         $segmentListQuery = null === $querySet ? null : $querySet->getStoredQuery();
