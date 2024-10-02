@@ -75,6 +75,8 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementListFilter
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Exception;
 use RuntimeException;
+use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -2372,16 +2374,32 @@ class DemosPlanStatementController extends BaseController
         try {
             // recreate uploaded array
             $uploads = explode(',', (string) $requestPost['uploadedFiles']);
-            // @todo is local file usage ok?
             $files = array_map($fileService->getFileInfo(...), $uploads);
             $importer = $importerFactory->createXlsxStatementImporter($excelImporter);
             $fileNames = [];
             $statementCount = 0;
             /** @var FileInfo $fileInfo */
             foreach ($files as $fileInfo) {
-                $this->importStatementsFromXls($fileInfo, $importer);
+                $localPath = $fileService->ensureLocalFile($fileInfo->getAbsolutePath());
+                $localFileInfo = new FileInfo(
+                    $fileInfo->getHash(),
+                    '',
+                    0,
+                    '',
+                    $localPath,
+                    $localPath,
+                   null
+                );
+                $this->importStatementsFromXls($localFileInfo, $importer);
                 $fileNames[] = $fileInfo->getFileName();
                 $statementCount += count($importer->getCreatedStatements());
+                $fileService->deleteFile($fileInfo->getHash());
+                try {
+                    $fs = new Filesystem();
+                    $fs->remove($localPath);
+                } catch (IOException $e) {
+                    $this->logger->error('Could not remove file', ['exception' => $e]);
+                }
             }
             if ($importer->hasErrors()) {
                 return $this->createErrorResponse($procedureId, $importer->getErrorsAsArray());
@@ -2433,13 +2451,29 @@ class DemosPlanStatementController extends BaseController
             $statementsCount = 0;
             /** @var FileInfo $zipFileInfo */
             foreach ($files as $zipFileInfo) {
-                $this->importStatementsFromXls($zipFileInfo, $importer);
+                $localPath = $fileService->ensureLocalFile($zipFileInfo->getAbsolutePath());
+                $localFileInfo = new FileInfo(
+                    $zipFileInfo->getHash(),
+                    '',
+                    0,
+                    '',
+                    $localPath,
+                    $localPath,
+                    null
+                );
+                $this->importStatementsFromXls($localFileInfo, $importer);
 
                 $fileNames[] = $zipFileInfo->getFileName();
                 $statements = $importer->getCreatedStatements();
                 $statementsCount += count($statements);
 
                 $fileService->deleteFile($zipFileInfo->getHash());
+                try {
+                    $fs = new Filesystem();
+                    $fs->remove($localPath);
+                } catch (IOException $e) {
+                    $this->logger->error('Could not remove file', ['exception' => $e]);
+                }
             }
             if ($importer->hasErrors()) {
                 return $this->createErrorResponse($procedureId, $importer->getErrorsAsArray());
@@ -2463,15 +2497,13 @@ class DemosPlanStatementController extends BaseController
         FileInfo $fileInfo,
         XlsxStatementImport $importer,
     ): void {
-        if ($fileInfo instanceof FileInfo) {
-            $fileInfo = new SplFileInfo(
-                $fileInfo->getAbsolutePath(),
-                '',
-                $fileInfo->getHash()
-            );
-        }
+        $splFileInfo = new SplFileInfo(
+            $fileInfo->getAbsolutePath(),
+            '',
+            $fileInfo->getHash()
+        );
         try {
-            $importer->importFromFile($fileInfo);
+            $importer->importFromFile($splFileInfo);
         } catch (RowAwareViolationsException $e) {
             $this->getMessageBag()->add(
                 'error',
