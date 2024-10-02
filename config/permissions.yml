@@ -2013,6 +2013,11 @@ feature_statement_delete:
     expose: true
     label: 'Delete (non-draft, non-original) statements.'
     loginRequired: true
+feature_statement_file_filter_set:
+    description: 'Set file to filter in statement list'
+    expose: true
+    label: 'Allow User to can set File as a filter'
+    loginRequired: true
 feature_statement_fragment_bulk_edit:
     description: 'In assessment table, if this feature is active, after selecting multiple fragments, appears menu with options to edit them in batch.'
     label: 'Allows changes of multiple statement fragments at once'
