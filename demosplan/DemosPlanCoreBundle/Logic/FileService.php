@@ -36,6 +36,7 @@ use Exception;
 use Faker\Provider\Uuid;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
+use League\Flysystem\UnableToCopyFile;
 use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Filesystem;
@@ -625,7 +626,12 @@ class FileService extends CoreService implements FileServiceInterface
         $newHash = $this->createHash();
         $newFilename = $fileToCopy->getPath().'/'.$newHash;
 
-        $this->defaultStorage->copy($fileToCopy->getFilePathWithHash(), $newFilename);
+        try {
+            $this->defaultStorage->copy($fileToCopy->getFilePathWithHash(), $newFilename);
+        } catch (FilesystemException | UnableToCopyFile $e) {
+            $this->logger->error('Could not copy file', [$e, $fileToCopy->getFilePathWithHash(), $newFilename]);
+            return null;
+        }
 
         // when specific target procedureId is given this shall win
         $procedure = null;
