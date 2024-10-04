@@ -28,6 +28,7 @@ All rights reserved
       <dp-upload-files
         allowed-file-types="zip"
         :basic-auth="dplan.settings.basicAuth"
+        data-cy="uploadParticipation"
         :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
         :max-file-size="100 * 1024 * 1024/* 100 MiB */"
         needs-hidden-input
@@ -39,6 +40,7 @@ All rights reserved
         <button
           :disabled="fileIds.length === 0"
           type="submit"
+          data-cy="statementImport"
           class="btn btn--primary">
           {{ Translator.trans('import.verb') }}
         </button>

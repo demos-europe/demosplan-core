@@ -32,8 +32,11 @@
     <dp-sticky-element>
       <header class="border--bottom u-pv-0_5 flow-root">
         <div class="inline-flex space-inline-m">
-          <h1 :class="['font-size-larger align-middle inline-block u-m-0']">
-            {{ Translator.trans('statement') }} #{{ statementExternId }}
+          <status-badge
+            class="mr-2"
+            :status="statement.attributes.status || 'new'" />
+          <h1 class="font-size-larger align-middle inline-block u-m-0">
+            #{{ statementExternId }}
           </h1>
           <div
             v-if="hasPermission('feature_segment_recommendation_edit')"
@@ -178,6 +181,7 @@ import StatementMeta from './StatementMeta/StatementMeta'
 import StatementMetaAttachmentsLink from './StatementMeta/StatementMetaAttachmentsLink'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
 import StatementSegmentsEdit from './StatementSegmentsEdit'
+import StatusBadge from '../Shared/StatusBadge.vue'
 
 export default {
   name: 'StatementSegmentsList',
@@ -196,7 +200,8 @@ export default {
     StatementMeta,
     StatementMetaAttachmentsLink,
     StatementMetaTooltip,
-    StatementSegmentsEdit
+    StatementSegmentsEdit,
+    StatusBadge
   },
 
   provide () {
@@ -514,6 +519,7 @@ export default {
         'memo',
         'recommendation',
         'segmentDraftList',
+        'status',
         'submitDate',
         'submitName',
         'submitType',
@@ -613,7 +619,7 @@ export default {
       this.currentAction = action || defaultAction
     },
 
-    showHintAndDoExport ({ route, docxHeaders }) {
+    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate }) {
       const parameters = {
         procedureId: this.procedureId,
         statementId: this.statementId
@@ -625,6 +631,10 @@ export default {
           col2: docxHeaders.col2,
           col3: docxHeaders.col3
         }
+      }
+
+      if (fileNameTemplate) {
+        parameters.fileNameTemplate = fileNameTemplate
       }
 
       if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
@@ -719,7 +729,7 @@ export default {
       }
     })
     this.setContent({ prop: 'commentsList', val: { ...this.commentsList, procedureId: this.procedureId, statementId: this.statementId } })
-    this.fetchProcedureMapSettings(this.procedureId)
+    this.fetchProcedureMapSettings({ procedureId: this.procedureId })
       .then(response => {
         this.procedureMapSettings = { ...this.procedureMapSettings, ...response.attributes }
       })

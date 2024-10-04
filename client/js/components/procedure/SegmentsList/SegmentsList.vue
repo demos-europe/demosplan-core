@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div :class="{ 'top-0 left-0 flex flex-col w-full h-full fixed z-fixed bg-white': isFullscreen }">
+  <div :class="{ 'top-0 left-0 flex flex-col w-full h-full fixed z-fixed bg-surface': isFullscreen }">
     <dp-sticky-element
       border
       class="pt-2 pb-3"
@@ -101,10 +101,14 @@
 
     <template v-else>
       <template v-if="items.length > 0">
+        <image-modal
+          ref="imageModal"
+          data-cy="segment:imgModal"/>
         <dp-data-table
           ref="dataTable"
           class="overflow-x-auto pb-3"
           :class="{ 'px-2 overflow-y-scroll grow': isFullscreen, 'scrollbar-none': !isFullscreen }"
+          data-cy="segmentsList"
           has-flyout
           :header-fields="headerFields"
           is-resizable
@@ -130,6 +134,11 @@
                   :places="places" />
               </template>
             </v-popover>
+          </template>
+          <template v-slot:statementStatus="rowData">
+            <status-badge
+              class="mt-0.5"
+              :status="statementsObject[rowData.relationships.parentStatement.data.id].attributes.status" />
           </template>
           <template v-slot:internId="rowData">
             <div class="o-hellip__wrapper">
@@ -281,9 +290,11 @@ import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import CustomSearch from './CustomSearch'
 import FilterFlyout from './FilterFlyout'
 import fullscreenModeMixin from '@DpJs/components/shared/mixins/fullscreenModeMixin'
+import ImageModal from '@DpJs/components/shared/ImageModal'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
+import StatusBadge from '../Shared/StatusBadge.vue'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 
 export default {
@@ -301,7 +312,9 @@ export default {
     DpPager,
     DpStickyElement,
     FilterFlyout,
+    ImageModal,
     StatementMetaTooltip,
+    StatusBadge,
     VPopover
   },
 
@@ -352,6 +365,7 @@ export default {
       },
       headerFieldsAvailable: [
         { field: 'externId', label: Translator.trans('id') },
+        { field: 'statementStatus', label: Translator.trans('statement.status') },
         { field: 'internId', label: Translator.trans('internId.shortened'), colWidth: '150px' },
         { field: 'submitter', label: Translator.trans('submitter') },
         { field: 'address', label: Translator.trans('address') },
@@ -440,6 +454,10 @@ export default {
       let ids = []
       if (Array.isArray(this.appliedFilterQuery) === false && Object.values(this.appliedFilterQuery).length > 0) {
         ids = Object.values(this.appliedFilterQuery).map(el => {
+          if (!el.condition.value) {
+            return 'unassigned'
+          }
+
           return el.condition.value
         })
       }
@@ -519,6 +537,7 @@ export default {
             'initialOrganisationCity',
             'internId',
             'memo',
+            'status',
             'submitDate',
             'submitName',
             'submitType'
@@ -557,6 +576,11 @@ export default {
         })
         .finally(() => {
           this.isLoading = false
+          if (this.items.length > 0) {
+            this.$nextTick(() => {
+              this.$refs.imageModal.addClickListener(this.$refs.dataTable.$el.querySelectorAll('img'))
+            })
+          }
         })
     },
 

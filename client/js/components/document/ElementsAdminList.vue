@@ -46,6 +46,9 @@
       </template>
     </dp-bulk-edit-header>
     <dp-loading v-if="isLoading" />
+    <p
+      v-else-if="treeData.length < 1"
+      v-text="Translator.trans('plandocuments.no_elements')"/>
     <dp-tree-list
       v-else
       :branch-identifier="isBranch"

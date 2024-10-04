@@ -89,6 +89,9 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Handler\SingleDocumentHandlerInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentHandler
 
+    DemosEurope\DemosplanAddon\Contracts\Handler\ParagraphHandlerInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphHandler
+
     DemosEurope\DemosplanAddon\Contracts\Services\ElementsServiceInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService
 
@@ -481,6 +484,7 @@ services:
     # when $jwtRouter is injected via DI JwtRouter is used
     Symfony\Component\Routing\RouterInterface $jwtRouter: '@demosplan\DemosPlanCoreBundle\Logic\JwtRouter'
     Symfony\Component\Routing\RouterInterface: '@demosplan\DemosPlanCoreBundle\Logic\Router'
+    Symfony\Component\HttpFoundation\Request: ~
 
     demosplan\DemosPlanCoreBundle\Permissions\CachingYamlPermissionCollection:
         arguments:
@@ -873,6 +877,10 @@ services:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
+    demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticsearchResultCreator:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+        lazy: true
+
     demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticSearchService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
@@ -1259,6 +1267,8 @@ services:
 
     EDT\Wrapping\Contracts\Types\TypeInterface: ~
 
+    EDT\JsonApi\Manager: ~
+
     EDT\DqlQuerying\ConditionFactories\DqlConditionFactory: ~
 
     EDT\DqlQuerying\PropertyAccessors\Iso8601PropertyAccessor:
@@ -1271,14 +1281,9 @@ services:
 
     EDT\Wrapping\Utilities\AttributeTypeResolverInterface: '@EDT\JsonApi\ApiDocumentation\AttributeTypeResolver'
 
-    EDT\JsonApi\ApiDocumentation\OpenAPISchemaGenerator:
-        arguments:
-            # FIXME: limit provided resource types to those that are exposed as primary
-            $primaryExposedResourceTypes: !tagged dplan.resourceType
-            $schemaStore: '@EDT\JsonApi\ApiDocumentation\SchemaStore'
-            $defaultPageSize: !php/const 'demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser::DEFAULT_PAGE_SIZE'
-
     EDT\JsonApi\ApiDocumentation\SchemaStore: ~
+
+    EDT\JsonApi\ApiDocumentation\TagStore: ~
 
     EDT\JsonApi\RequestHandling\JsonApiSortingParser:
         arguments:
@@ -1351,8 +1356,12 @@ services:
     EDT\DqlQuerying\ClassGeneration\TypeHolderGenerator: ~
 
     EDT\JsonApi\Requests\GetRequest: ~
-    EDT\JsonApi\Requests\CreationRequest: ~
-    EDT\JsonApi\Requests\UpdateRequest: ~
+    EDT\JsonApi\Requests\CreationRequest:
+        arguments:
+            $maxBodyNestingDepth: 512
+    EDT\JsonApi\Requests\UpdateRequest:
+        arguments:
+            $maxBodyNestingDepth: 512
     EDT\JsonApi\Requests\DeletionRequest: ~
     EDT\JsonApi\Validation\SortValidator: ~
 

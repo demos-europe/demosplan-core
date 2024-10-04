@@ -110,11 +110,6 @@ export default {
   },
 
   props: {
-    allDepartments: {
-      type: Array,
-      required: true
-    },
-
     allOrganisations: {
       type: Array,
       required: true
@@ -235,8 +230,8 @@ export default {
     },
 
     getDepartmentName () {
-      const department = this.allDepartments.find(el => el.id === this.user?.relationships?.department.data?.id)
-      return department.attributes?.name
+      const department = Object.values(this.departmentsList).find(el => el.id === this.user?.relationships?.department.data?.id)
+      return department?.attributes?.name ?? ''
     },
 
     getOrgaName () {

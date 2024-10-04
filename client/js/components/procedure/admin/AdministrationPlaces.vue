@@ -48,8 +48,15 @@
             text: Translator.trans('description')
           }"
           maxlength="250" />
+        <dp-checkbox
+          id="newPlaceSolved"
+          v-model="newPlace.solved"
+          :label="{
+            text: Translator.trans('completed')
+          }" />
         <dp-button-row
           :busy="isLoading"
+          data-cy="addNewPlace"
           primary
           secondary
           @primary-action="dpValidateAction('addNewPlaceForm', () => saveNewPlace(newPlace), false)"
@@ -66,6 +73,12 @@
       :items="places"
       @changed-order="changeManualsort"
       track-by="id">
+      <template v-slot:header-solved="headerData">
+        {{ headerData.label }}
+        <dp-contextual-help
+          class="float-right u-mt-0_125"
+          :text="Translator.trans('statement.solved.hint')" />
+      </template>
       <template v-slot:name="rowData">
         <div
           v-if="!rowData.edit"
@@ -88,6 +101,13 @@
           data-cy="places:editPlaceDescription"
           maxlength="250"
           v-model="newRowData.description" />
+      </template>
+      <template v-slot:solved="rowData">
+        <dp-checkbox
+          :disabled="!rowData.edit"
+          id="editPlaceSolved"
+          :checked="rowData.edit ? newRowData.solved : rowData.solved"
+          @change="checked => newRowData.solved = checked" />
       </template>
       <template v-slot:flyout="rowData">
         <div class="float-right">
@@ -133,6 +153,8 @@ import {
   dpApi,
   DpButton,
   DpButtonRow,
+  DpCheckbox,
+  DpContextualHelp,
   DpDataTable,
   DpIcon,
   DpInlineNotification,
@@ -148,6 +170,8 @@ export default {
   components: {
     DpButton,
     DpButtonRow,
+    DpCheckbox,
+    DpContextualHelp,
     DpDataTable,
     DpIcon,
     DpInlineNotification,
@@ -184,8 +208,9 @@ export default {
   data () {
     return {
       headerFields: [
-        { field: 'name', label: 'Name', colClass: 'u-5-of-12' },
-        { field: 'description', label: 'Beschreibung', colClass: 'u-6-of-12' }
+        { field: 'name', label: Translator.trans('name'), colClass: 'u-4-of-12' },
+        { field: 'description', label: Translator.trans('description'), colClass: 'u-5-of-12' },
+        { field: 'solved', label: Translator.trans('completed'), colClass: 'u-2-of-12' }
       ],
       initialRowData: {},
       isInitiallyLoading: false,
@@ -212,6 +237,7 @@ export default {
     abort (rowData) {
       rowData.name = this.initialRowData.name
       rowData.description = this.initialRowData.description
+      rowData.solved = this.initialRowData.solved
       this.newRowData = {}
 
       this.setEditMode(rowData.id, false)
@@ -228,15 +254,18 @@ export default {
       if (editingPlace) {
         editingPlace.name = this.initialRowData.name
         editingPlace.description = this.initialRowData.description
+        editingPlace.solved = this.initialRowData.solved
         editingPlace.edit = false
       }
 
       // Save initial state of currently edited row
       this.initialRowData.name = rowData.name
       this.initialRowData.description = rowData.description
+      this.initialRowData.solved = rowData.solved
 
       this.newRowData.name = rowData.name
       this.newRowData.description = rowData.description
+      this.newRowData.solved = rowData.solved
 
       this.setEditMode(rowData.id)
     },
@@ -246,7 +275,11 @@ export default {
       dpApi.get(Routing.generate('api_resource_list', {
         resourceType: 'Place',
         fields: {
-          Place: ['name', 'description'].join()
+          Place: [
+            'name',
+            'description',
+            'solved'
+          ].join()
         },
         sort: 'sortIndex'
       }))
@@ -257,7 +290,8 @@ export default {
               id: place.id,
               name: place.attributes.name,
               description: place.attributes.description,
-              edit: false
+              edit: false,
+              solved: place.attributes.solved || false
             })
           })
         })
@@ -301,7 +335,8 @@ export default {
         type: 'Place',
         attributes: {
           name: this.newPlace.name,
-          description: this.newPlace.description
+          description: this.newPlace.description,
+          solved: this.newPlace.solved
         }
       }
       dpApi.post(Routing.generate('api_resource_create', { resourceType: 'Place' }), {}, { data: payload })
@@ -313,6 +348,7 @@ export default {
             name: this.newPlace.name,
             description: this.newPlace.description,
             edit: false,
+            solved: this.newPlace.solved,
             sortIndex: this.places.length
           }
           this.places.push(localDataToUpdate)
@@ -336,6 +372,7 @@ export default {
 
       this.places[idx].name = this.newRowData.name
       this.places[idx].description = this.newRowData.description
+      this.places[idx].solved = this.newRowData.solved
     },
 
     updatePlace (rowData) {
@@ -348,7 +385,8 @@ export default {
           type: 'Place',
           attributes: {
             name: this.newRowData.name,
-            description: this.newRowData.description
+            description: this.newRowData.description,
+            solved: this.newRowData.solved,
           }
         }
       }

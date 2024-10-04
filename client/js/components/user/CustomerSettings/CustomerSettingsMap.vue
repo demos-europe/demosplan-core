@@ -13,6 +13,7 @@
       id="r_baseLayerUrl"
       v-model="baseLayerUrl"
       class="u-mb-0_75"
+      data-cy="customerSettingsMap:mapBaseURLHint"
       :label="{
         hint: Translator.trans('map.base.url.hint'),
         text: Translator.trans('map.base.url')
@@ -24,6 +25,7 @@
       id="r_baseLayerLayers"
       v-model="baseLayerLayers"
       class="u-mb-0_75"
+      data-cy="customerSettingsMap:mapLayerNameHint"
       :label="{
         hint: Translator.trans('map.layer.name.hint'),
         text: Translator.trans('layers')
@@ -34,6 +36,7 @@
     <dp-input
       id="r_mapAttribution"
       class="u-mb-0_75"
+      data-cy="customerSettingsMap:mapAttribution"
       :label="{
         hint: `${Translator.trans('map.attribution.hint')} ${Translator.trans('map.attribution.placeholder')}`,
         text: Translator.trans('map.attribution')
@@ -63,6 +66,7 @@
 
     <dp-button-row
       class="u-mt"
+      data-cy="customerSettingsMap"
       primary
       secondary
       :secondary-text="Translator.trans('reset')"

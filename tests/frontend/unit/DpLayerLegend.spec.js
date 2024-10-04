@@ -19,7 +19,7 @@ describe('DpLayerLegend', () => {
   beforeEach(() => {
     store = new Vuex.Store({
       modules: {
-        layers: LayersStore
+        Layers: LayersStore
       }
     })
 

@@ -9,75 +9,98 @@
 
 <template>
   <div>
-    <button
-      type="button"
-      @click.prevent="openModal"
-      class="btn--blank o-link--default inline-block"
-      data-cy="exportModal:open">
-      {{ Translator.trans('export.verb') }}
-    </button>
+    <dp-button
+      data-cy="exportModal:open"
+      :text="Translator.trans('export.verb')"
+      variant="subtle"
+      @click.prevent="openModal" />
 
     <dp-modal
       ref="exportModalInner"
-      content-classes="w-11/12 sm:w-10/12 md:w-8/12 lg:w-6/12 xl:w-5/12">
+      content-classes="w-11/12 sm:w-10/12 md:w-8/12 lg:w-6/12 xl:w-5/12 h-[500px]"
+      content-body-classes="flex flex-col h-[95%]">
       <h2 class="mb-5">
         {{ exportModalTitle }}
       </h2>
 
-      <section v-if="!isSingleStatementExport">
-        <h3 class="text-lg">
-          {{ Translator.trans('export.type') }}
-        </h3>
+      <fieldset v-if="!isSingleStatementExport">
+        <legend
+          class="o-form__label text-base"
+          v-text="Translator.trans('export.type')" />
         <div class="flex flex-row mb-5 mt-1 gap-3">
           <dp-radio
             v-for="(exportType, key) in exportTypes"
             :key="key"
             :id="key"
+            :data-cy="`exportType:${key}`"
             :label="{
+              hint: active === key ? exportType.hint : '',
               text: Translator.trans(exportType.label)
             }"
             :value="key"
             :checked="active === key"
             @change="active = key" />
         </div>
-      </section>
+      </fieldset>
 
-      <section v-if="['docx', 'zip'].includes(this.active)">
-        <h3
+      <fieldset v-if="['docx', 'zip'].includes(this.active)">
+        <legend
           id="docxColumnTitles"
-          class="inline-block text-lg mr-1">
-          {{ Translator.trans('docx.export.column.title') }}
-        </h3>
+          class="o-form__label text-base float-left mr-1"
+          v-text="Translator.trans('docx.export.column.title')" />
         <dp-contextual-help
           aria-labelledby="docxColumnTitles"
           :text="Translator.trans('docx.export.column.title.hint')" />
         <div class="grid grid-cols-5 gap-3 mt-1 mb-5">
           <dp-input
             v-for="(column, key) in docxColumns"
-            :key="key"
             :id="key"
-            type="text"
+            :key="key"
+            v-model="column.title"
             :data-cy="column.dataCy"
             :placeholder="Translator.trans(column.placeholder)"
-            :width="column.width"
-            v-model="column.title" />
+            type="text"
+            :width="column.width" />
         </div>
-      </section>
+        <fieldset v-if="this.active === 'zip' || isSingleStatementExport">
+          <legend
+            id="docxFileName"
+            class="o-form__label text-base float-left mr-1"
+            v-text="Translator.trans('docx.export.file_name')" />
+          <dp-contextual-help
+            aria-labelledby="docxFileName"
+            :text="Translator.trans('docx.export.file_name.hint')" />
+          <dp-input
+            id="fileName"
+            v-model="fileName"
+            class="mt-1"
+            :placeholder="Translator.trans('docx.export.file_name.placeholder')"
+            type="text"/>
+          <div class="font-size-small mt-2">
+            <span
+              class="weight--bold"
+              v-text="Translator.trans('docx.export.example_file_name')" />
+            <span v-text="exampleFileName" />
+          </div>
+        </fieldset>
+      </fieldset>
 
-        <dp-button-row
-          class="text-right"
-          primary
-          secondary
-          :primary-text="Translator.trans('export.statements')"
-          :secondary-text="Translator.trans('abort')"
-          @primary-action="handleExport"
-          @secondary-action="closeModal" />
+      <dp-button-row
+        class="text-right mt-auto"
+        data-cy="statementExport"
+        primary
+        secondary
+        :primary-text="Translator.trans('export.statements')"
+        :secondary-text="Translator.trans('abort')"
+        @primary-action="handleExport"
+        @secondary-action="closeModal" />
     </dp-modal>
   </div>
 </template>
 
 <script>
 import {
+  DpButton,
   DpButtonRow,
   DpContextualHelp,
   DpInput,
@@ -90,6 +113,7 @@ export default {
   name: 'StatementExportModal',
 
   components: {
+    DpButton,
     DpButtonRow,
     DpContextualHelp,
     DpInput,
@@ -125,20 +149,24 @@ export default {
       exportTypes: {
         docx: {
           label: 'export.docx',
+          hint: '',
           exportPath: 'dplan_statement_segments_export',
           dataCy: 'exportModal:export:docx'
         },
         zip: {
           label: 'export.zip',
+          hint: '',
           exportPath: 'dplan_statement_segments_export_packaged',
           dataCy: 'exportModal:export:zip'
         },
         xlsx: {
           label: 'export.xlsx',
+          hint: Translator.trans('export.xlsx.hint'),
           exportPath: 'dplan_statement_xls_export',
           dataCy: 'exportModal:export:xlsx'
         }
       },
+      fileName: '',
       singleStatementExportPath: 'dplan_segments_export' /** used in the statements detail page */
     }
   },
@@ -154,6 +182,29 @@ export default {
   computed: {
     exportModalTitle () {
       return this.isSingleStatementExport ? Translator.trans('statement.export.do') : Translator.trans('export.statements')
+    },
+
+    exampleFileName () {
+      let exampleFileName = 'm101-jacob-meier-e5089.docx'
+      const exampleId = 'm101'
+      const exampleName = 'jacob-meier'
+      const exampleInternId = 'e5089'
+
+      if (this.fileName) {
+        exampleFileName = this.fileName
+          .replace(/{ID}/g, exampleId)
+          .replace(/{NAME}/g, exampleName)
+          .replace(/{EINGANGSNR}/g, exampleInternId)
+          .replace(/[_\s]/g, '-')
+
+        // Add example unique id if no placeholder was found
+        if (exampleFileName === this.fileName) {
+          exampleFileName += '-837474df23'
+        }
+        exampleFileName += '.docx'
+      }
+
+      return exampleFileName
     }
   },
 
@@ -180,7 +231,8 @@ export default {
 
       this.$emit('export', {
         route: this.isSingleStatementExport ? this.singleStatementExportPath : this.exportTypes[this.active].exportPath,
-        docxHeaders: ['docx', 'zip'].includes(this.active) ? columnTitles : null
+        docxHeaders: ['docx', 'zip'].includes(this.active) ? columnTitles : null,
+        fileNameTemplate: this.fileName || null
       })
       this.closeModal()
     },

@@ -19,13 +19,14 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\SegmentComment;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentCommentRepository;
+use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 use EDT\Wrapping\Contracts\AccessException;
 use EDT\Wrapping\EntityDataInterface;
-use EDT\Wrapping\PropertyBehavior\Attribute\Factory\AttributeConstructorBehaviorFactory;
+use EDT\Wrapping\PropertyBehavior\Attribute\AttributeConstructorBehavior;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
-use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\Factory\ToOneRelationshipConstructorBehaviorFactory;
+use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\ToOneRelationshipConstructorBehavior;
 use Geocoder\Assert;
 
 /**
@@ -40,7 +41,7 @@ use Geocoder\Assert;
 final class SegmentCommentResourceType extends DplanResourceType
 {
     public function __construct(
-        protected readonly SegmentCommentRepository $segmentCommentRepository
+        protected readonly SegmentCommentRepository $segmentCommentRepository,
     ) {
     }
 
@@ -91,12 +92,14 @@ final class SegmentCommentResourceType extends DplanResourceType
                 $this->currentUser->getUser()->getId(),
                 Paths::user()->id
             );
-            $configBuilder->submitter->addConstructorBehavior(new ToOneRelationshipConstructorBehaviorFactory(null, [$currentUserCondition], null));
-            $configBuilder->place->addConstructorBehavior(new ToOneRelationshipConstructorBehaviorFactory(null, [], null));
+            $configBuilder->submitter->addConstructorBehavior(ToOneRelationshipConstructorBehavior::createFactory(null, [$currentUserCondition], null, OptionalField::NO));
+            $configBuilder->place->addConstructorBehavior(ToOneRelationshipConstructorBehavior::createFactory(null, [], null, OptionalField::NO));
             $configBuilder->segment
                 ->setRelationshipType($this->resourceTypeStore->getStatementSegmentResourceType())
-                ->addConstructorBehavior(new ToOneRelationshipConstructorBehaviorFactory(null, [], null));
-            $configBuilder->text->addConstructorBehavior(new AttributeConstructorBehaviorFactory(null, null));
+                ->addConstructorBehavior(ToOneRelationshipConstructorBehavior::createFactory(null, [], null, OptionalField::NO));
+
+            $configBuilder->text->addConstructorBehavior(AttributeConstructorBehavior::createFactory(null, OptionalField::NO, null));
+
             $configBuilder->addPostConstructorBehavior(new FixedSetBehavior(function (SegmentComment $segmentComment, EntityDataInterface $entityData): array {
                 $segment = $segmentComment->getSegment();
                 $segmentCommentPlace = $segmentComment->getPlace();

@@ -23,7 +23,7 @@ describe('SearchModal', () => {
 
     store = new Vuex.Store({
       modules: {
-        filter: {
+        Filter: {
           namespaced: true,
           state: {},
           mutations

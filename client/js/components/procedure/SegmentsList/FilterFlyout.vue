@@ -70,6 +70,7 @@
     <div
       class="min-w-12 border--bottom u-p-0_5">
       <dp-resettable-input
+        :data-cy="`searchField:${path}`"
         :id="`searchField_${path}`"
         :input-attributes="{ placeholder: Translator.trans('search.list'), type: 'search' }"
         @reset="resetSearch"
@@ -124,6 +125,7 @@
         <button
           v-if="currentQuery.length"
           class="o-link--default btn--blank font-size-small u-m-0_5 float-right"
+          :data-cy="`filter:removeActiveFilter:${path}`"
           @click="resetAndApply">
           {{ Translator.trans('filter.active.remove') }}
         </button>
@@ -143,11 +145,13 @@
       <div class="flow-root u-p-0_5 u-pt-0">
         <dp-button
           class="float-left"
+          :data-cy="`filter:applyFilter:${path}`"
           :text="Translator.trans('apply')"
           @click="apply" />
         <dp-button
           class="float-right"
           color="secondary"
+          :data-cy="`filter:abortFilter:${path}`"
           :text="Translator.trans('abort')"
           @click="close" />
       </div>
@@ -245,12 +249,21 @@ export default {
     filter () {
       const filter = {}
       this.currentQuery.forEach(id => {
-        filter[id] = {
-          condition: {
-            path: this.path,
-            value: id,
-            operator: id === 'unassigned' ? 'IS NULL' : this.operator
+        if (id === 'unassigned') {
+          filter[id] = {
+            condition: {
+              path: this.path,
+              operator: 'IS NULL'
+            }
           }
+        } else {
+            filter[id] = {
+              condition: {
+                path: this.path,
+                value: id,
+                operator: this.operator
+              }
+            }
         }
       })
       return filter

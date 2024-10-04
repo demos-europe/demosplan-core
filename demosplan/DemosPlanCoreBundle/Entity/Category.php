@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Entity;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -422,6 +423,16 @@ class Category extends CoreEntity implements UuidEntityInterface, CategoryInterf
     public function getGlobalContents()
     {
         return $this->globalContents;
+    }
+
+    public function getGlobalContentsByCustomer(Customer $customer): array
+    {
+        $globalContentsArray = $this->globalContents->toArray();
+        $filteredGlobalContents = array_filter($globalContentsArray, function ($globalContent) use ($customer) {
+            return $globalContent->getCustomer() === $customer;
+        });
+
+        return $filteredGlobalContents;
     }
 
     /**

@@ -23,6 +23,7 @@ for (const alias in aliases) {
 }
 
 module.exports = {
+  // verbose: true, // enable to see result of each test case
   testEnvironment: 'jsdom',
   testRegex: '/tests/.*(test|spec)\\.js?$',
   rootDir: config.absoluteRoot,

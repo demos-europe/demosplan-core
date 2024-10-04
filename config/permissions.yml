@@ -552,6 +552,9 @@ area_use_mastertoeblist:
     expose: true
     label: 'use Mastertöbliste'
     loginRequired: true
+feature_2fa:
+    label: 'Allow two-factor authentication'
+    loginRequired: true
 feature_admin_assessmenttable_export_docx:
     label: 'Abwägungstabelle in Docx-Format exportieren'
     loginRequired: true
@@ -796,6 +799,12 @@ feature_data_protection_text_customized_view:
     label: 'View customized data protection text'
     parent: area_data_protection_text
     loginRequired: false
+feature_enable_default_consideration_BoilerplateCategory:
+    description: |-
+        Adds new Boilerplate(s) to the category consideration by default.
+        The checkbox - show within consideration - is checked by default.
+    label: show Boilerplate within considerations
+    loginRequired: true
 feature_department_add:
     description: 'allows the user to create a new department'
     label: 'create department'
@@ -1340,6 +1349,11 @@ feature_organisation_set_showlist:
     label: 'Anzeigen der Organisation in der Institutionen-Liste'
     loginRequired: true
     parent: [area_manage_orgas, area_manage_orgas_all]
+feature_organisation_user_list:
+    description: 'allows to show Organisations list but does not allow access to the Organisation area in the menu'
+    expose: true
+    label: 'Allow User to see Organisations fields'
+    loginRequired: true
 feature_original_newsletter:
     description: |-
         enables the internal newsletter - gets overruled by feature_alternative_newsletter in case both permissions
@@ -1498,6 +1512,21 @@ feature_procedure_export_include_assessment_table_original:
         "Originalstellungnahmen" directory in each procedure directory in the export.
     expose: false
     label: 'Procedure export with original statements'
+    loginRequired: true
+feature_procedure_export_include_cover_page:
+    description: |-
+        The procedure export generates a ZIP archive. If this permission is enabled
+        a document ("Deckblatt.pdf") will be included in each procedure directory in the export.
+    expose: false
+    label: 'Procedure export with cover page'
+    loginRequired: true
+feature_procedure_export_include_current_news:
+    description: |-
+        The procedure export generates a ZIP archive. If this permission is enabled
+        a document ("Aktuelles.pdf") containing a list of news will be included in
+        each procedure directory in the export.
+    expose: false
+    label: 'Procedure export with news'
     loginRequired: true
 feature_procedure_export_include_public_interest_bodies_member_list:
     description: |-

@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateCategoryInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateCategory;
@@ -43,7 +45,7 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
         $procedureId,
         $includeNewsCategory = true,
         $includeEmailCategory = true,
-        $includeConsiderationCategory = true
+        $includeConsiderationCategory = true,
     ): array {
         // short + performant way in case of all types are included:
         if ($includeNewsCategory && $includeEmailCategory && $includeConsiderationCategory) {
@@ -84,19 +86,13 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
     }
 
     /**
-     * Fetch all info about certain boilerplate.
-     *
-     * @param string $boilerplateCategoryTitle
-     *
-     * @return BoilerplateCategory|null
+     * Fetch all info about certain boilerplateCategory by title and procedure.
      */
-    public function getByTitle($boilerplateCategoryTitle)
-    {
-        try {
-            return $this->findOneBy(['title' => $boilerplateCategoryTitle]);
-        } catch (Exception) {
-            return null;
-        }
+    public function getByTitle(
+        string $boilerplateCategoryTitle,
+        ProcedureInterface $procedure,
+    ): ?BoilerplateCategoryInterface {
+        return $this->findOneBy(['title' => $boilerplateCategoryTitle, 'procedure' => $procedure]);
     }
 
     /**
@@ -128,7 +124,7 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
      * @param array $data         - holds the content of the boilerplate, which is about to post
      * @param bool  $returnEntity
      *
-     * @return boilerplateCategory|bool - true if the object could be mapped to the DB, otherwise false
+     * @return BoilerplateCategory|bool - true if the object could be mapped to the DB, otherwise false
      *
      * @throws Exception
      */

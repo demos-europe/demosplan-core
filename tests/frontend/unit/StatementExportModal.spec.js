@@ -28,7 +28,8 @@ describe('StatementExportModal', () => {
     })
 
     const button = wrapper.find('[data-cy="exportModal:open"]')
-    button.trigger('click')
+    const mockEvent = { preventDefault: jest.fn() }
+    button.vm.$emit('click', mockEvent)
     wrapper.vm.setInitialValues()
   })
 
@@ -53,9 +54,11 @@ describe('StatementExportModal', () => {
 
     exportTypes.map(async exportType => {
       await wrapper.setData({ active: exportType })
-      const inputs = wrapper.findAllComponents({ name: 'DpInput' })
 
-      expect(inputs.length).toBe(Object.keys(wrapper.vm.docxColumns).length)
+      Object.keys(wrapper.vm.docxColumns).forEach(key => {
+        const input = wrapper.find(`[datacy="exportModal:input:${key}"]`)
+        expect(input.exists()).toBe(true)
+      })
     })
   })
 
@@ -76,14 +79,14 @@ describe('StatementExportModal', () => {
         col1: sessionStorageValue,
         col2: null,
         col3: null
-      }
+      },
+      fileNameTemplate: null
     })
   })
 
   it('emits export event with updated col2 title', () => {
     const spy = jest.spyOn(wrapper.vm, '$emit')
     wrapper.setData({
-      ...wrapper.vm.docxColumns,
       docxColumns: {
         col2: { title: 'Test Column Title' }
       }
@@ -96,7 +99,8 @@ describe('StatementExportModal', () => {
         col1: sessionStorageValue,
         col2: 'Test Column Title',
         col3: null
-      }
+      },
+      fileNameTemplate: null
     })
   })
 
@@ -107,7 +111,8 @@ describe('StatementExportModal', () => {
 
     expect(emitSpy).toHaveBeenCalledWith('export', {
       route: 'dplan_statement_xls_export',
-      docxHeaders: null
+      docxHeaders: null,
+      fileNameTemplate: null
     })
   })
 

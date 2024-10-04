@@ -37,6 +37,7 @@ logs
 /projects/core/web/js
 /projects/core/web/video
 /projects/core/web/files
+!/var/.gitkeep
 
 ###> symfony/framework-bundle ###
 /.env.local

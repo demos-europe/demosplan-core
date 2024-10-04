@@ -89,7 +89,7 @@
           </div>
           <main
             ref="main"
-            class="container u-pv"
+            class="container pt-2"
             v-else-if="initialData">
             <segmentation-editor
               @prosemirror-initialized="runPostInitTasks"
@@ -143,6 +143,7 @@
               @click="saveAndFinish"
               :busy="isBusy"
               :text="Translator.trans('statement.split.complete')"
+              data-cy="statementSplitComplete"
               variant="outline" />
           </div>
         </div>
@@ -494,7 +495,11 @@ export default {
       return dpApi.get(Routing.generate('api_resource_list', {
         resourceType: 'Place',
         fields: {
-          Place: ['name', 'description'].join()
+          Place: [
+            'name',
+            'description',
+            'solved'
+          ].join()
         },
         sort: 'sortIndex'
       })).then((response) => {
@@ -663,14 +668,14 @@ export default {
     },
 
     immediatelyDeleteSegment (segmentId) {
-      const idToDelete = segmentId
-      const segment = this.segmentById(idToDelete)
-      this.ignoreProsemirrorUpdates = true
+      const segment = this.segmentById(segmentId)
       const { state } = this.prosemirror.view
       const tr = removeRange(state, segment.charStart, segment.charEnd)
+
+      this.ignoreProsemirrorUpdates = true
       this.prosemirror.view.dispatch(tr)
       this.ignoreProsemirrorUpdates = false
-      this.deleteSegmentAction(idToDelete)
+      this.deleteSegmentAction(segmentId)
       this.isSegmentDraftUpdated = true
       this.setCurrentTime()
     },
@@ -752,10 +757,15 @@ export default {
      * the range changes locally, saveSegmentsDrafts will save the new json to our API.
      */
     save () {
-      applySelectionChange(this.prosemirror.view, this.prosemirror.keyAccess.editStateTrackerKey, this.prosemirror.keyAccess.rangeTrackerKey)
+      const validSegment = applySelectionChange(this.prosemirror.view, this.prosemirror.keyAccess.editStateTrackerKey, this.prosemirror.keyAccess.rangeTrackerKey)
+
+      if (!validSegment) {
+        return
+      }
+
       this.saveSegmentsDrafts(true)
-      this.disableEditMode()
       this.isSegmentDraftUpdated = true
+      this.disableEditMode()
       this.setCurrentTime()
     },
 

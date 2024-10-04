@@ -532,6 +532,7 @@ const SplitStatementStore = {
     editingSegment: (state) => state.editingSegment,
     editingSegmentId: (state) => state.editingSegment ? state.editingSegment.id : null,
     initialData: (state) => state.initialData,
+    initialSegments: (state) => state.initialSegments,
     initText: (state) => state.initText,
     isBusy: (state) => state.isBusy,
     procedureId: (state) => state.procedureId,

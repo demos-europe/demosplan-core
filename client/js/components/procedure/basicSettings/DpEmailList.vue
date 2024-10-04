@@ -22,7 +22,7 @@
             type="email"
             :value="entry.mail"
             :name="formFieldName"
-            class="hide-visually">
+            class="sr-only">
         </span>
       </template>
 
