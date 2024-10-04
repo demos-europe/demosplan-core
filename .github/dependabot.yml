@@ -39,6 +39,12 @@ updates:
       - dependency-name: chalk
         versions:
           - ">= 5"
+
+      # We need to sync the ol version with the one used in the masterportal dependency.
+      # Currently, we are useing masterportal v2.40.0 which depends on ol v9.2.4
+      - dependency-name: ol
+        versions:
+          - "> 9.2.4"
     groups:
       babel:
         patterns:
