@@ -174,6 +174,10 @@ export default {
       return this.selectedFilterOptionsFromStore(this.filterItem.id)
     },
 
+    shouldCheckPermissionOnFileFilter () {
+      return this.filterItem.attributes.label === 'Datei'
+    },
+
     sortingLabel () {
       if (this.sortingType === 'count') {
         return '<i aria-hidden="true" class="fa fa-sort-numeric-desc u-pr-0_25"></i>' + Translator.trans('sort.count.desc')
