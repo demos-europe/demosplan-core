@@ -10689,17 +10689,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ol-mapbox-style@npm:^10.1.0":
-  version: 10.6.0
-  resolution: "ol-mapbox-style@npm:10.6.0"
-  dependencies:
-    "@mapbox/mapbox-gl-style-spec": "npm:^13.23.1"
-    mapbox-to-css-font: "npm:^2.4.1"
-    ol: "npm:^7.3.0"
-  checksum: 10c0/0652c993cf8f4cacd9b8f63579c6045304aee0f13c1abc54fbbeee0ed78bded1885d9ed88a8b87b012143e10fa4596f532434430bd5542d5c285139a119f07d0
-  languageName: node
-  linkType: hard
-
 "ol@npm:9.2.4":
   version: 9.2.4
   resolution: "ol@npm:9.2.4"
@@ -10711,19 +10700,6 @@ __metadata:
     pbf: "npm:3.2.1"
     rbush: "npm:^3.0.1"
   checksum: 10c0/6eb288d03908ef7276760011867836b737b7508c56a966013dbee6184e4c6b54a458c2efd2dfec08aa86b5cffc3d90488746737b64ef2c05b772ad6ee9bbbfd5
-  languageName: node
-  linkType: hard
-
-"ol@npm:^7.3.0, ol@npm:~7.5.1":
-  version: 7.5.1
-  resolution: "ol@npm:7.5.1"
-  dependencies:
-    earcut: "npm:^2.2.3"
-    geotiff: "npm:^2.0.7"
-    ol-mapbox-style: "npm:^10.1.0"
-    pbf: "npm:3.2.1"
-    rbush: "npm:^3.0.1"
-  checksum: 10c0/48c6a56d278128c6e64a739413d720f216f969aa6d87c41cc169d52628770b713cd1f587468b91157c843a68581b472e1c2dbce9fbce8d01403d7b353b03918f
   languageName: node
   linkType: hard
 
@@ -12855,7 +12831,7 @@ __metadata:
     lscache: "npm:^1.3.2"
     mini-css-extract-plugin: "npm:^2.9.0"
     node-notifier: "npm:^10.0.1"
-    ol: "npm:~7.5.1"
+    ol: "npm:9.2.4"
     olcs: "npm:2.14.0"
     plyr: "npm:^3.7.8"
     portal-vue: "npm:^2.1.7"
