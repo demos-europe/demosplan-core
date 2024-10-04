@@ -54,7 +54,7 @@
     "@sentry/browser": "^8.33.1",
     "@sentry/integrations": "^7.114.0",
     "@sentry/tracing": "^7.114.0",
-    "@uppy/core": "^3.12.0",
+    "@uppy/core": "^4.2.1",
     "@uppy/drag-drop": "^3.0.3",
     "@uppy/progress-bar": "^4.0.0",
     "a11y-datepicker": " ^0.9.0",
