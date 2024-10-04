@@ -1513,6 +1513,13 @@ feature_procedure_export_include_assessment_table_original:
     expose: false
     label: 'Procedure export with original statements'
     loginRequired: true
+feature_procedure_export_include_cover_page:
+    description: |-
+        The procedure export generates a ZIP archive. If this permission is enabled
+        a document ("Deckblatt.pdf") will be included in each procedure directory in the export.
+    expose: false
+    label: 'Procedure export with cover page'
+    loginRequired: true
 feature_procedure_export_include_current_news:
     description: |-
         The procedure export generates a ZIP archive. If this permission is enabled
