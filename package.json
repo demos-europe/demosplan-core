@@ -74,7 +74,7 @@
     "leaflet": "^1.9.4",
     "leaflet.markercluster": "^1.5.3",
     "lscache": "^1.3.2",
-    "ol": "~7.5.1",
+    "ol": "9.2.4",
     "olcs": "2.14.0",
     "plyr": "^3.7.8",
     "portal-vue": "^2.1.7",
