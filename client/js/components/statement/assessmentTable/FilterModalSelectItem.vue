@@ -9,7 +9,7 @@
 
 <template>
   <div
-    v-if="false === hidden && hasPermission('feature_statement_file_filter_set')"
+    v-if="false === hidden && (!shouldCheckPermissionOnFileFilter || hasPermission('feature_statement_file_filter_set'))"
     :data-cy="filterItem.attributes.label">
     <label
       :for="filterItem.id"
@@ -180,6 +180,10 @@ export default {
       } else {
         return '<i aria-hidden="true" class="fa fa-sort-alpha-asc u-pr-0_25"></i>' + Translator.trans('sort.alphabet.asc')
       }
+    },
+
+    shouldCheckPermissionOnFileFilter () {
+      return this.filterItem.attributes.label === 'Datei'
     }
   },
 
