@@ -31,7 +31,7 @@
             {{ 'email.body'|trans }}
         </label>
 
-        <div>{{ templateVars.preparationMail.mailBody|wysiwyg }}</div>
+        <div class="email-body">{{ templateVars.preparationMail.mailBody|wysiwyg }}</div>
         <input type="hidden" name="r_email_body" value="{{ templateVars.preparationMail.mailBody }}"/>
 
         {{ uiComponent('form.element', {
