@@ -150,7 +150,7 @@ class FileExtension extends ExtensionBase
         $fieldHint = '',
         $required = false,
         $callback = '',
-        $chunksize = '0',
+        $chunksize = 'Infinity',
         $maxFileSize = 0,
         $omitCssClassPrefix = true
     ) {
