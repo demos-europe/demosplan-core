@@ -105,6 +105,7 @@
             </template>
             <template v-slot:button>
               <button
+                v-if="hasPermission('area_admin_boilerplates')"
                 :class="prefixClass('menubar__button')"
                 type="button"
                 v-tooltip="Translator.trans('boilerplate.insert')"
