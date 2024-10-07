@@ -11,7 +11,7 @@ class Version20241004090021 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'refs T: adjust column category length';
+        return 'refs DPLAN-12593 : adjust column category length';
     }
 
     /**
