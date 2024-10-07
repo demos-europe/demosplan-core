@@ -327,6 +327,7 @@ export default {
       if (this.isRequestFormPost === false) {
         this.deleteSimilarStatementSubmitter()
       }
+      
       if (this.isRequestFormPost) {
         this.resetFormFields()
       }
