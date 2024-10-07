@@ -4,8 +4,10 @@
       ref="editableList"
       :entries="contacts"
       :translation-keys="translationKeys"
+      @delete="deleteEntry"
       @reset="resetForm"
-      @saveEntry="id => dpValidateAction('contactData', () => createOrUpdateContact(id), false)">
+      @saveEntry="id => dpValidateAction('contactData', () => createOrUpdateContact(id), false)"
+      @show-update-form="showUpdateForm">
       <template v-slot:list="contact">
         <h3 class="break-words" v-text="contact.attributes.title" />
         <p class="break-words" v-text="contact.attributes.phoneNumber" />
@@ -182,6 +184,12 @@ export default {
       this.resetForm()
     },
 
+    deleteEntry (id) {
+      this.deleteContact(id).then(() => {
+        dplan.notify.notify('confirm', Translator.trans('contact.deleted'))
+      })
+    },
+
     getContacts () {
       this.fetchContacts({
         fields: {
@@ -201,6 +209,13 @@ export default {
       this.updating = false
     },
 
+    showUpdateForm (index) {
+      this.updateForm(index)
+      this.$nextTick(() => {
+        document.getElementById('contactForm').scrollIntoView()
+      })
+    },
+
     updateForm (id) {
       const currentData = this.contacts[id].attributes
 
@@ -217,19 +232,6 @@ export default {
   },
 
   mounted () {
-    this.$on('showUpdateForm', (index) => {
-      this.updateForm(index)
-      this.$nextTick(() => {
-        document.getElementById('contactForm').scrollIntoView()
-      })
-    })
-
-    this.$on('delete', (id) => {
-      this.deleteContact(id).then(() => {
-        dplan.notify.notify('confirm', Translator.trans('contact.deleted'))
-      })
-    })
-
     this.getContacts()
   }
 }

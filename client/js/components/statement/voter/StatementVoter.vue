@@ -16,6 +16,7 @@
       <dp-editable-list
         :entries="voters"
         :has-permission-to-edit="!!(readonly !== '1' && isManual)"
+        @delete="deleteEntry"
         @reset="resetForm"
         @saveEntry="index => dpValidateAction('newVoterForm', () => addElement(index), false)"
         :translation-keys="translationKeys"
@@ -378,6 +379,12 @@ export default {
       return isEmpty
     },
 
+    deleteEntry (index) {
+      this.removeVoter(index)
+      this.resetForm()
+      dplan.notify.notify('confirm', Translator.trans('confirm.deleted'))
+    },
+
     resetForm () {
       this.formFields = {
         role: 0,
@@ -392,6 +399,13 @@ export default {
         active: true
       }
       this.updating = false
+    },
+
+    showUpdateForm (index) {
+      for (const key in this.formFields) {
+        this.formFields[key] = this.getVoters[index][key]
+      }
+      this.updating = true
     }
   },
 
@@ -414,19 +428,6 @@ export default {
     this.setVoters(objVoters)
     this.voters = this.getVoters
 
-    // Event handlers for emitted events
-    this.$on('delete', (index) => {
-      this.removeVoter(index)
-      this.resetForm()
-      dplan.notify.notify('confirm', Translator.trans('confirm.deleted'))
-    })
-
-    this.$on('showUpdateForm', (index) => {
-      for (const key in this.formFields) {
-        this.formFields[key] = this.getVoters[index][key]
-      }
-      this.updating = true
-    })
     // Add event listener to statement voter div to prevent form submit on enter
     if (document.getElementById('statementVoterDiv')) {
       document.getElementById('statementVoterDiv').addEventListener('keydown', preventSend)

@@ -91,7 +91,7 @@
     "timers-browserify": "^2.0.12",
     "tippy.js": "^6.3.7",
     "uuid": "^9.0.1",
-    "vue": "3.2.0",
+    "vue": "3.4.38",
     "vue-scrollto": "^2.20.0",
     "vue-sliding-pagination": "^1.3.2",
     "vue2-leaflet": "^2.7.1",
@@ -186,7 +186,9 @@
     "ff esr"
   ],
   "resolutions": {
-    "@mapbox/mapbox-gl-style-spec": "13.23.1"
+    "@mapbox/mapbox-gl-style-spec": "13.23.1",
+    "vue-sliding-pagination": "portal:/srv/www/local_modules/vue-sliding-pagination",
+    "@demos-europe/demosplan-ui": "portal:/srv/www/local_modules/demosplan-ui"
   },
   "packageManager": "yarn@4.2.2"
 }

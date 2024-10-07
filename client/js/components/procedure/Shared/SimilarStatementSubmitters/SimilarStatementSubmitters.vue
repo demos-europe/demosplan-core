@@ -19,8 +19,10 @@
       :entries="listEntries"
       :has-permission-to-edit="editable"
       :translation-keys="translationKeys"
+      @delete="deleteEntry"
       @reset="resetFormFields"
       @saveEntry="index => dpValidateAction('similarStatementSubmitterForm', () => handleSaveEntry(index), false)"
+      @show-update-form="showUpdateForm"
       ref="listComponent">
       <template v-slot:list="{ entry, index }">
         <ul class="o-list o-list--csv inline">
@@ -309,6 +311,27 @@ export default {
         })
     },
 
+    deleteEntry (index) {
+      this.updateStatement({
+        id: this.statementId,
+        relationship: 'similarStatementSubmitters',
+        action: 'remove',
+        value: {
+          id: this.listEntries[index].id,
+          type: 'SimilarStatementSubmitter'
+        }
+      })
+
+      this.listEntries.splice(index, 1)
+
+      if (this.isRequestFormPost === false) {
+        this.deleteSimilarStatementSubmitter()
+      }
+      if (this.isRequestFormPost) {
+        this.resetFormFields()
+      }
+    },
+
     deleteSimilarStatementSubmitter () {
       const payload = {
         type: 'Statement',
@@ -402,6 +425,15 @@ export default {
       }
     },
 
+    showUpdateForm (index) {
+      this.formFields.submitterCity = this.listEntries[index].submitterCity
+      this.formFields.submitterName = this.listEntries[index].submitterName
+      this.formFields.submitterAddress = this.listEntries[index].submitterAddress
+      this.formFields.submitterHouseNumber = this.listEntries[index].submitterHouseNumber
+      this.formFields.submitterPostalCode = this.listEntries[index].submitterPostalCode
+      this.formFields.submitterEmailAddress = this.listEntries[index].submitterEmailAddress
+    },
+
     toggleFormVisibility (visibility) {
       this.isFormVisible = visibility
     },
@@ -428,36 +460,6 @@ export default {
 
   mounted () {
     this.loadInitialListEntries()
-
-    this.$on('delete', (index) => {
-      this.updateStatement({
-        id: this.statementId,
-        relationship: 'similarStatementSubmitters',
-        action: 'remove',
-        value: {
-          id: this.listEntries[index].id,
-          type: 'SimilarStatementSubmitter'
-        }
-      })
-
-      this.listEntries.splice(index, 1)
-
-      if (this.isRequestFormPost === false) {
-        this.deleteSimilarStatementSubmitter()
-      }
-      if (this.isRequestFormPost) {
-        this.resetFormFields()
-      }
-    })
-
-    this.$on('showUpdateForm', (index) => {
-      this.formFields.submitterCity = this.listEntries[index].submitterCity
-      this.formFields.submitterName = this.listEntries[index].submitterName
-      this.formFields.submitterAddress = this.listEntries[index].submitterAddress
-      this.formFields.submitterHouseNumber = this.listEntries[index].submitterHouseNumber
-      this.formFields.submitterPostalCode = this.listEntries[index].submitterPostalCode
-      this.formFields.submitterEmailAddress = this.listEntries[index].submitterEmailAddress
-    })
   }
 }
 </script>

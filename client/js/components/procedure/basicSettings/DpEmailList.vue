@@ -12,8 +12,10 @@
     <dp-editable-list
       :entries="emails"
       :data-cy="dataCy !== '' ? `${dataCy}:emailList` : `emailList`"
+      @delete="deleteEntry"
       @reset="resetForm"
       @saveEntry="handleSubmit(itemIndex !== null ? itemIndex : 'new')"
+      @show-update-form="showUpdateForm"
       :translation-keys="translationKeys"
       ref="listComponent">
       <template v-slot:list="entry">
@@ -106,15 +108,16 @@ export default {
   },
 
   methods: {
-    delete (index) {
-      this.emails.splice(index, 1)
-      this.updateExtraEmailAddress(index)
-    },
-
     addElement () {
       this.emails.push({
         mail: this.formFields.mail
       })
+    },
+
+    deleteEntry (index) {
+      this.emails.splice(index, 1)
+      this.updateExtraEmailAddress(index)
+      this.resetForm()
     },
 
     handleSubmit (index) {
@@ -142,6 +145,11 @@ export default {
       this.$emit('saved', extraEmailAddress)
     },
 
+    showUpdateForm (index) {
+      this.formFields.mail = this.emails[index].mail
+      this.itemIndex = index
+    },
+
     updateExtraEmailAddress (index, extraEmailAddress) {
       this.$emit('updated', (index, extraEmailAddress))
     },
@@ -149,18 +157,6 @@ export default {
     updateEmailAddress (index) {
       this.emails[index].mail = this.formFields.mail
     }
-  },
-
-  mounted () {
-    this.$on('delete', (index) => {
-      this.delete(index)
-      this.resetForm()
-    })
-
-    this.$on('showUpdateForm', (index) => {
-      this.formFields.mail = this.emails[index].mail
-      this.itemIndex = index
-    })
   }
 }
 </script>
