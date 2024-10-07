@@ -7285,16 +7285,16 @@
         },
         {
             "name": "knpuniversity/oauth2-client-bundle",
-            "version": "v2.18.2",
+            "version": "v2.18.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/knpuniversity/oauth2-client-bundle.git",
-                "reference": "0f8db87efa064bc1800315c027a80b53ef935524"
+                "reference": "c38ca88a70aae3694ca346a41b13b9a8f6e33ed4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/knpuniversity/oauth2-client-bundle/zipball/0f8db87efa064bc1800315c027a80b53ef935524",
-                "reference": "0f8db87efa064bc1800315c027a80b53ef935524",
+                "url": "https://api.github.com/repos/knpuniversity/oauth2-client-bundle/zipball/c38ca88a70aae3694ca346a41b13b9a8f6e33ed4",
+                "reference": "c38ca88a70aae3694ca346a41b13b9a8f6e33ed4",
                 "shasum": ""
             },
             "require": {
@@ -7338,9 +7338,9 @@
             ],
             "support": {
                 "issues": "https://github.com/knpuniversity/oauth2-client-bundle/issues",
-                "source": "https://github.com/knpuniversity/oauth2-client-bundle/tree/v2.18.2"
+                "source": "https://github.com/knpuniversity/oauth2-client-bundle/tree/v2.18.3"
             },
-            "time": "2024-08-12T15:26:07+00:00"
+            "time": "2024-10-02T14:26:09+00:00"
         },
         {
             "name": "laminas/laminas-code",
@@ -22343,21 +22343,21 @@
         },
         {
             "name": "rector/rector",
-            "version": "1.2.5",
+            "version": "1.2.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rectorphp/rector.git",
-                "reference": "e98aa793ca3fcd17e893cfaf9103ac049775d339"
+                "reference": "6ca85da28159dbd3bb36211c5104b7bc91278e99"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rectorphp/rector/zipball/e98aa793ca3fcd17e893cfaf9103ac049775d339",
-                "reference": "e98aa793ca3fcd17e893cfaf9103ac049775d339",
+                "url": "https://api.github.com/repos/rectorphp/rector/zipball/6ca85da28159dbd3bb36211c5104b7bc91278e99",
+                "reference": "6ca85da28159dbd3bb36211c5104b7bc91278e99",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.2|^8.0",
-                "phpstan/phpstan": "^1.12.2"
+                "phpstan/phpstan": "^1.12.5"
             },
             "conflict": {
                 "rector/rector-doctrine": "*",
@@ -22390,7 +22390,7 @@
             ],
             "support": {
                 "issues": "https://github.com/rectorphp/rector/issues",
-                "source": "https://github.com/rectorphp/rector/tree/1.2.5"
+                "source": "https://github.com/rectorphp/rector/tree/1.2.6"
             },
             "funding": [
                 {
@@ -22398,7 +22398,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-09-08T17:43:24+00:00"
+            "time": "2024-10-03T08:56:44+00:00"
         },
         {
             "name": "sebastian/cli-parser",

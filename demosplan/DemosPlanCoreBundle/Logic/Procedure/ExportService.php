@@ -218,7 +218,9 @@ class ExportService
                 }
 
                 // Titelblatt
-                $zip = $this->addTitlePageToZip($procedureId, $procedureName, $zip);
+                if ($this->permissions->hasPermission('feature_procedure_export_include_cover_page')) {
+                    $zip = $this->addTitlePageToZip($procedureId, $procedureName, $zip);
+                }
 
                 // Aktuelles
                 if ($this->permissions->hasPermission('feature_procedure_export_include_current_news')) {
