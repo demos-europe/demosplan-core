@@ -152,7 +152,7 @@ class FileExtension extends ExtensionBase
         $callback = '',
         $chunksize = 'Infinity',
         $maxFileSize = 0,
-        $omitCssClassPrefix = true
+        $omitCssClassPrefix = true,
     ) {
         $elementId = $fieldName.'-'.str_replace('.', '', uniqid('', true));
 
