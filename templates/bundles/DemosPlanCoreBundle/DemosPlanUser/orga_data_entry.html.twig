@@ -1,6 +1,7 @@
 {% set user = currentUser %}
 {% set will_receive_new_statement_notification = ("RMOPSM" in user.roles or "RMOPSA" in user.roles or "RMOPPO" in user.roles )? true : false %}
 {% set may_edit_orga_data = true %}
+{% set streetNameLength = organisation.street|length | default(0) %}
 
 {% block organisationData %}
     <fieldset class="{{ 'u-3-of-4'|prefixClass }}">
@@ -18,25 +19,28 @@
             disabled: not may_edit_orga_data
         }] }) }}
 
-        {{ uiComponent('form.group', { elements: [
-            {
-                label: { text: 'street'|trans },
-                control: { name: organisation.ident|default ~ ':address_street' },
-                id: 'orga_address_street',
-                type: 'text',
-                value: organisation.street|default,
-                disabled: not may_edit_orga_data
-            },
-            {
-                label: { text: 'street.number.short'|trans },
-                control: { name: organisation.ident|default ~ ':address_houseNumber', attributes: ['size=5'] },
-                id: 'orga_addressHouseNumber',
-                type: 'text',
-                value: organisation.houseNumber|default,
-                disabled: not may_edit_orga_data,
-                group: 'shrink'
-            }
-        ] }) }}
+        {% block organisationStreet %}
+            {{ uiComponent('form.group', { elements: [
+                {
+                    label: { text: 'street'|trans },
+                    control: { name: organisation.ident|default ~ ':address_street', attributes: ['size=' ~ streetNameLength]},
+                    id: 'orga_address_street',
+                    type: 'text',
+                    value: organisation.street|default,
+                    disabled: not may_edit_orga_data,
+                    group: 'shrink'
+                },
+                {
+                    label: { text: 'street.number.short'|trans },
+                    control: { name: organisation.ident|default ~ ':address_houseNumber', attributes: ['size=5'] },
+                    id: 'orga_addressHouseNumber',
+                    type: 'text',
+                    value: organisation.houseNumber|default,
+                    disabled: not may_edit_orga_data,
+                    group: 'shrink'
+                }
+            ] }) }}
+        {% endblock organisationStreet %}
 
         {{ uiComponent('form.group', { elements: [
             {
