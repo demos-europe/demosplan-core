@@ -81,7 +81,7 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
     /**
      * @var string
      *
-     * @ORM\Column(name="_e_category", type="string", length=36, options={"fixed":true}, nullable=false)
+     * @ORM\Column(name="_e_category", type="string", length=255, options={"fixed":true}, nullable=false)
      */
     protected $category = '';
 

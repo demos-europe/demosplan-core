@@ -2506,6 +2506,7 @@ plandocuments.category.type.paragraph: "Kapitelbezogen (Dokument kann direkt imp
 plandocuments.category.type.set: "Kategorietyp festlegen"
 plandocuments.delete: "Planungsdokumente löschen"
 plandocuments.menu: "Planungs&shy;dokumente"
+plandocuments.no_elements: "Es sind derzeit keine Planungsdokumente hinterlegt."
 plandocuments.uploaded: "Hochgeladene Planungsdokumente"
 planningagency: "Planungsbüro"
 planningagency.participating: "beteiligtes Planungsbüro"
