@@ -2021,7 +2021,7 @@ feature_statement_delete:
     label: 'Delete (non-draft, non-original) statements.'
     loginRequired: true
 feature_statement_file_filter_set:
-    description: 'Allow the user to set file as a filter.'
+    description: 'Set file to filter in statement list.'
     expose: true
     label: 'Allow the user to set file as a filter'
     loginRequired: true
