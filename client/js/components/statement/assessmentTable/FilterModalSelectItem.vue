@@ -9,7 +9,7 @@
 
 <template>
   <div
-    v-if="false === hidden && (!shouldCheckPermissionOnFileFilter || hasPermission('feature_statement_file_filter_set'))"
+    v-if="false === hidden"
     :data-cy="filterItem.attributes.label">
     <label
       :for="filterItem.id"
@@ -172,10 +172,6 @@ export default {
 
     filteredSelectedOptions () {
       return this.selectedFilterOptionsFromStore(this.filterItem.id)
-    },
-
-    shouldCheckPermissionOnFileFilter () {
-      return this.filterItem.attributes.label === 'Datei'
     },
 
     sortingLabel () {
