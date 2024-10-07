@@ -83,11 +83,15 @@
   {% else %}
     {% if isOriginal is defined and isOriginal == true %}
 
+        {# the list width is already adjusted for every export to take up all the whitespace, the text should
+        actually have the same width as the lists and that's why we can use 'listwidth' as reference here. #}
+        {% set textWidth = templateVars.listwidth|default('24.5cm') %}
+
         \begin{{ '{' }}Parallel{{ '}' }}{{ '{' }}24.5cm{{ '}' }}{{ '{' }}0cm{{ '}' }}
         \ParallelLText{{ '{' }} \textbf{{ '{' }}{{ "statement"|trans|latex|raw }}{{ '}' }}{{ '}' }}
         \ParallelRText{{ '{' }}{{ '}' }}
         \end{Parallel}
-        \begin{{ '{' }}Parallel{{ '}' }}{{ '{' }}24.5cm{{ '}' }}{{ '{' }}0cm{{ '}' }}
+        \begin{{ '{' }}Parallel{{ '}' }}{{ '{' }}{{ textWidth ~ 'cm' }}{{ '}' }}{{ '{' }}0cm{{ '}' }}
         \ParallelLText{{ '{' }}{{ statement.text|default("notspecified"|trans)|latex(listwidth=templateVars.listwidth)|raw }}{{ '}' }}
         \ParallelRText{{ '{' }}{{ '}' }}
         \end{Parallel}
