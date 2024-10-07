@@ -2023,7 +2023,7 @@ feature_statement_delete:
 feature_statement_file_filter_set:
     description: 'Allow the user to set file as a filter.'
     expose: true
-    label: 'Allow User to can set File as a filter'
+    label: 'Allow the user to set file as a filter'
     loginRequired: true
 feature_statement_fragment_bulk_edit:
     description: 'In assessment table, if this feature is active, after selecting multiple fragments, appears menu with options to edit them in batch.'
