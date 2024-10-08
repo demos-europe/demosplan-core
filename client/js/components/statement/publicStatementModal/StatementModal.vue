@@ -13,10 +13,10 @@
       ref="statementModal"
       @modal:toggled="handleModalToggle"
       content-header-classes="border--none">
-      <template v-slot:header>
-        <span
-          :class="prefixClass('color-highlight')"
-          v-if="showHeader">
+      <template
+        v-if="showHeader"
+        v-slot:header>
+        <span :class="prefixClass('color-highlight')">
           <i
             aria-hidden="true"
             class="fa"
@@ -76,13 +76,15 @@
           <dp-inline-notification
             v-if="loggedIn === false"
             type="info">
-            <p v-cleanhtml="statementFormHintStatement" />
+            <p
+              v-if="statementFormHintStatement"
+              v-cleanhtml="statementFormHintStatement" />
             <p v-cleanhtml="Translator.trans('statement.modal.step.write.privacy_policy')" />
             <p>{{ Translator.trans('error.mandatoryfields') }}</p>
           </dp-inline-notification>
 
         <dp-inline-notification
-          v-show="dpValidate.statementForm === false"
+          v-if="dpValidate.statementForm === false"
           id="statementFormErrors"
           aria-labelledby="statementFormErrorsContent"
           tabindex="0">
@@ -91,33 +93,33 @@
             v-cleanhtml="createErrorMessage('statementForm')" />
         </dp-inline-notification>
 
-        <template v-if="loggedIn && hasPermission('feature_elements_use_negative_report') && planningDocumentsHasNegativeStatement">
-          <div class="flex">
-            <dp-radio
-              name="r_isNegativeReport"
-              id="negative_report_false"
-              data-cy="statementModal:publicParticipationParticipate"
-              class="u-mr-2"
-              :checked="formData.r_isNegativeReport === '0'"
-              @change="() => { setStatementData({ r_isNegativeReport: '0'}) }"
-              :label="{
-                text: Translator.trans('public.participation.participate')
-              }"
-              value="0" />
-            <dp-radio
-              :disabled="canNotBeNegativeReport"
-              name="r_isNegativeReport"
-              id="negative_report_true"
-              data-cy="statementModal:indicationerror"
-              :checked="formData.r_isNegativeReport === '1'"
-              @change="() => { setStatementData({ r_isNegativeReport: '1'}) }"
-              :label="{
-                hint: Translator.trans('link.title.indicationerror'),
-                text: Translator.trans('indicationerror')
-              }"
-              value="1" />
-          </div>
-        </template>
+        <div
+          v-if="loggedIn && hasPermission('feature_elements_use_negative_report') && planningDocumentsHasNegativeStatement"
+          class="flex mt-4">
+          <dp-radio
+            name="r_isNegativeReport"
+            id="negative_report_false"
+            data-cy="statementModal:publicParticipationParticipate"
+            class="u-mr-2"
+            :checked="formData.r_isNegativeReport === '0'"
+            @change="() => { setStatementData({ r_isNegativeReport: '0'}) }"
+            :label="{
+              text: Translator.trans('public.participation.participate')
+            }"
+            value="0" />
+          <dp-radio
+            :disabled="canNotBeNegativeReport"
+            name="r_isNegativeReport"
+            id="negative_report_true"
+            data-cy="statementModal:indicationerror"
+            :checked="formData.r_isNegativeReport === '1'"
+            @change="() => { setStatementData({ r_isNegativeReport: '1'}) }"
+            :label="{
+              hint: Translator.trans('link.title.indicationerror'),
+              text: Translator.trans('indicationerror')
+            }"
+            value="1" />
+        </div>
 
         <div :class="prefixClass('c-statement__text')">
           <dp-label
