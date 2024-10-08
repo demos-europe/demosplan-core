@@ -171,36 +171,14 @@
         </div>
 
         <template v-if="hasPermission('field_statement_add_assignment') && hasPlanningDocuments">
-          <p
-            aria-hidden="true"
-            :class="prefixClass('c-statement__formblock-title u-mb-0_25 weight--bold inline-block')">
-            {{ Translator.trans('element.assigned') }}
-          </p>
-          <p
-            aria-hidden="true"
-            :class="prefixClass('c-statement__formblock u-ml u-mb-0_5 u-mt-0_5 inline-block')">
-            <template v-if="formData.r_element_id !== ''">
-              <button
-                @click="gotoTab('procedureDetailsDocumentlist')"
-                :class="prefixClass('btn--blank o-link--default u-mr-0_5-lap-up u-1-of-1-palm')">
-                <i
-                  aria-hidden="true"
-                  :class="prefixClass('fa fa-pencil')" />
-                {{ Translator.trans('document.reference.change') }}
-              </button>
-              <span :class="prefixClass('hide-lap-up')" />
-              <button
-                @click="removeDocumentRelation"
-                :class="prefixClass('btn--blank o-link--default u-mr-0_5-lap-up u-1-of-1-palm')"
-                :href="Routing.generate( 'DemosPlan_procedure_public_detail', { procedure: procedureId }) + '#procedureDetailsDocumentlist'">
-                <i
-                  aria-hidden="true"
-                  :class="prefixClass('fa fa-trash')" />
-                {{ Translator.trans('document.reference.delete') }}
-              </button>
-            </template>
+          <fieldset>
+            <legend :class="prefixClass('c-statement__formblock-title')">
+              {{ Translator.trans('element.assigned') }}
+            </legend>
+
             <button
-              v-else
+              v-if="formData.r_element_id === ''"
+              aria-labelledby="documentReference"
               :disabled="formData.r_isNegativeReport !== '0'"
               data-cy="statementModal:elementAssign"
               @click="gotoTab('procedureDetailsDocumentlist')"
@@ -210,20 +188,67 @@
                 :class="prefixClass('fa fa-plus')" />
               {{ Translator.trans('element.assign') }}
             </button>
-          </p>
-          <p
-            v-if="formData.r_element_id !== ''"
-            aria-hidden="true"
-            :class="[prefixClass('u-mb-0_5 u-ph-0_5 u-pv-0_25'), highlighted.documents ? prefixClass(' animation--bg-highlight-grey--light-2') : prefixClass('bg-color--grey-light-2')]">
-            {{ Translator.trans('document') }}: {{ formData.r_element_title }}
-            <br>
-            <template v-if="formData.r_paragraph_id !== ''">
-              {{ Translator.trans('paragraph') }}: {{ formData.r_paragraph_title }}
-            </template>
-            <template v-if="formData.r_document_id !== ''">
-              {{ Translator.trans('file') }}: {{ formData.r_document_title }}
-            </template>
-          </p>
+
+            <div
+              v-if="formData.r_element_id !== ''"
+              :class="prefixClass('mb-3')">
+              <button
+                aria-labelledby="documentReference"
+                :class="prefixClass('btn--blank o-link--default u-mr-0_5-lap-up w-fit')"
+                @click="gotoTab('procedureDetailsDocumentlist')">
+                <i
+                  aria-hidden="true"
+                  :class="prefixClass('fa fa-pencil')" />
+                {{ Translator.trans('document.reference.change') }}
+              </button>
+
+              <button
+                aria-labelledby="documentReference"
+                :class="prefixClass('btn--blank o-link--default u-mr-0_5-lap-up w-fit')"
+                :href="Routing.generate( 'DemosPlan_procedure_public_detail', { procedure: procedureId }) + '#procedureDetailsDocumentlist'"
+                @click="removeDocumentRelation">
+                <i
+                  aria-hidden="true"
+                  :class="prefixClass('fa fa-trash')" />
+                {{ Translator.trans('document.reference.delete') }}
+              </button>
+            </div>
+
+            <dl
+              v-if="formData.r_element_id !== ''"
+              :class="[highlighted.documents ? prefixClass('animation--bg-highlight-grey--light-2 space-y-2') : prefixClass('bg-color--grey-light-2'), 'mb-1 py-1 px-2']">
+              <div :class="prefixClass('md:flex')">
+                <dt :class="prefixClass('font-semibold w-1/6')">
+                  {{ Translator.trans('document') }}:
+                </dt>
+                <dd :class="prefixClass('ml-0')">
+                  {{ formData.r_element_title }}
+                </dd>
+              </div>
+
+              <div
+                v-if="formData.r_paragraph_id !== ''"
+                :class="prefixClass('md:flex')">
+                <dt :class="prefixClass('font-semibold w-1/6')">
+                  {{ Translator.trans('paragraph') }}:
+                </dt>
+                <dd :class="prefixClass('ml-0')">
+                  {{ formData.r_paragraph_title }}
+                </dd>
+              </div>
+
+              <div
+                v-if="formData.r_document_id !== ''"
+                :class="prefixClass('md:flex')">
+                <dt :class="prefixClass('font-semibold w-1/6')">
+                  {{ Translator.trans('file') }}:
+                </dt>
+                <dd :class="prefixClass('ml-0')">
+                  {{ formData.r_document_title }}
+                </dd>
+              </div>
+            </dl>
+          </fieldset>
         </template>
 
         <!-- location reference -->

@@ -15,8 +15,8 @@
     aria-labelledby="statementMapReference"
     aria-required="true"
     id="locationFieldset">
-    <p
-      :class="prefixClass('c-statement__formblock-title weight--bold u-mt u-mb-0')"
+    <legend
+      :class="prefixClass('c-statement__formblock-title mt-0 mb-0')"
       id="statementMapReference">
       {{ Translator.trans('statement.map.reference') }}
       <span
