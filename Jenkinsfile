@@ -121,6 +121,10 @@ pipeline {
 
     post {
         always {
+            // Navigate to the workspace directory and delete node_modules
+            dir("${env.WORKSPACE}") {
+            sh 'rm -rf node_modules'
+        }
             script {
                 def containerExists = sh(script: "docker ps -a -q -f name=$containerName", returnStdout: true).trim()
                 if (containerExists) {
