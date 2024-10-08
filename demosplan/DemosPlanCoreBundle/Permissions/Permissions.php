@@ -530,7 +530,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
             $this->enablePermissions([
                 'area_admin',  // Verwalten
-                'area_admin_assessmenttable',  // Verwalten Abwaegungstabelle
                 'area_admin_dashboard',  // Übersichtsseite
                 'area_admin_map',  // Verwalten Planzeichnung
                 'area_admin_map_description',  // Verwalten Planzeichenerklärung
