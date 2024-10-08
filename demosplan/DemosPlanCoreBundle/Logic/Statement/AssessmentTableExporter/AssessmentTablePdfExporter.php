@@ -68,7 +68,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
         RequestStack $requestStack,
         ServiceImporter $serviceImport,
         StatementHandler $statementHandler,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ) {
         parent::__construct(
             $assessmentTableServiceOutput,
@@ -263,8 +263,6 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
 
             $templateVars['listwidth'] = $this->determineListLineWidth($template, $templateName, $original);
             $templateVars['textwidth'] = $this->determineTextLineWidth($template, $templateName, $original);
-
-
 
             $content = $this->twig->render(
                 $fullTemplateName,
