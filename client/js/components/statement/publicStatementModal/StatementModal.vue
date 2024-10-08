@@ -44,11 +44,10 @@
       </template>
 
       <header
+        v-if="loggedIn === false && showHeader"
         role="banner"
         :class="prefixClass('c-statement__header u-mb-0_5')">
         <dp-multistep-nav
-          v-if="loggedIn === false && showHeader"
-          @change-step="val => step = val"
           :active-step="step"
           :steps="[{
             label: Translator.trans('statement.yours'),
@@ -62,7 +61,8 @@
             label: Translator.trans('recheck'),
             icon: 'fa-check',
             title: Translator.trans('statement.modal.step.recheck')
-          }]" />
+          }]"
+          @change-step="val => step = val" />
       </header>
       <dp-inline-notification
         dismissible
