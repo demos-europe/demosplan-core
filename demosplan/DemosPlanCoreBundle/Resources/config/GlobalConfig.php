@@ -818,11 +818,7 @@ class GlobalConfig implements GlobalConfigInterface
 
         $this->advancedSupport = $parameterBag->get('advanced_support');
 
-        $externalLinks = $parameterBag->get('external_links');
-        if (is_array($externalLinks)) {
-            $externalLinks = array_map($this->addCustomerToUrl(...), $externalLinks);
-        }
-        $this->externalLinks = $this->getValidatedExternalLinks($externalLinks);
+        $this->externalLinks = $parameterBag->get('external_links');
     }
 
     /**
