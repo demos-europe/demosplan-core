@@ -598,18 +598,18 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
 
     private function determineTextLineWidth(string $template, string $templateName, bool $original): int
     {
-        $listLineWidth = ListLineWidth::VERTICAL_SPLIT_VIEW->value;
+        $textLineWidth = ListLineWidth::VERTICAL_SPLIT_VIEW->value;
         if ('portrait' === $template && 'export_original' === $templateName) {
-            $listLineWidth = TextLineWidth::VERTICAL_NOT_SPLIT_VIEW->value;
+            $textLineWidth = TextLineWidth::VERTICAL_NOT_SPLIT_VIEW->value;
         }
         if ($this->isHorizontalSplitView($template, $templateName, $original)) {
-            $listLineWidth = TextLineWidth::HORIZONTAL_SPLIT_VIEW->value;
+            $textLineWidth = TextLineWidth::HORIZONTAL_SPLIT_VIEW->value;
         }
         if ($this->isHorizontalNotSplitView($template, $templateName, $original)) {
-            $listLineWidth = TextLineWidth::HORIZONTAL_NOT_SPLIT_VIEW->value;
+            $textLineWidth = TextLineWidth::HORIZONTAL_NOT_SPLIT_VIEW->value;
         }
 
-        return $listLineWidth;
+        return $textLineWidth;
     }
 
     private function isHorizontalSplitView(string $template, string $templateName, bool $original): bool
