@@ -76,7 +76,7 @@ class AssessmentHandler extends CoreHandler
         StatementFragmentService $statementFragmentService,
         StatementService $statementService,
         TranslatorInterface $translator,
-        UserFilterSetService $userFilterSetService
+        UserFilterSetService $userFilterSetService,
     ) {
         parent::__construct($messageBag);
         $this->assessmentTableServiceOutput = $assessmentTableServiceOutput;
@@ -210,7 +210,7 @@ class AssessmentHandler extends CoreHandler
         array $requestPost,
         array $exportChoice,
         string $viewMode,
-        bool $original = false
+        bool $original = false,
     ): DocxExportResult {
         $outputResult = $this->prepareOutputResult($procedureId, $original, $requestPost);
         try {
@@ -250,6 +250,7 @@ class AssessmentHandler extends CoreHandler
                 $outputResult,
                 $exportChoice['template'],
                 $exportChoice['anonymous'],
+                $exportChoice['numberStatements'],
                 $exportChoice['exportType'],
                 $viewOrientation,
                 $requestPost,

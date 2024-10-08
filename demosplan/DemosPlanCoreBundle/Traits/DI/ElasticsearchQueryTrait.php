@@ -89,7 +89,7 @@ trait ElasticsearchQueryTrait
         $esQuery,
         $limit = -1,
         $page = 1,
-        Index $index = null): array
+        ?Index $index = null): array
     {
         $result = [];
 
@@ -149,7 +149,7 @@ trait ElasticsearchQueryTrait
                 $limit = 1;
             }
 
-            $paginator->setMaxPerPage($limit);
+            $paginator->setMaxPerPage((int) $limit);
 
             // try to paginate Result, check for validity
             try {
