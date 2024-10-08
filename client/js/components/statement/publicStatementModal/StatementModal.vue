@@ -302,8 +302,9 @@
                   </label>
                 </div>
               </div><!--
-           --><div :class="[prefixClass(initialFiles.length === 0 ? 'u-1-of-1' : 'u-1-of-2'), prefixClass('layout__item u-mt u-mb')]">
+           --><div :class="[prefixClass(initialFiles.length === 0 ? 'u-1-of-1' : 'u-1-of-2'), prefixClass('layout__item u-mb')]">
                 <dp-label
+                  :class="prefixClass('mb-2')"
                   :text="Translator.trans('upload.files')"
                   for="r_file" />
 
@@ -318,7 +319,6 @@
                   ref="uploadFiles"
                   :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
                   :tus-endpoint="dplan.paths.tusEndpoint"
-                  :side-by-side="initialFiles.length === 0"
                   :storage-name="fileStorageName"
                   @file-remove="removeUnsavedFile"
                   @upload-success="addUnsavedFile" />
@@ -329,7 +329,7 @@
               :class="prefixClass('layout')">
               <dp-input
                 id="r_represents"
-                :class="prefixClass('layout__item u-1-of-2')"
+                :class="prefixClass('layout__item md:w-1/2')"
                 :label="{
                   text: Translator.trans('statement.representation.creation')
                 }"
@@ -342,7 +342,7 @@
         </template>
         <div
           v-if="loggedIn"
-          :class="prefixClass('text-right u-mv-0_5 flow-root u-mt-0_5 space-inline-s')">
+          :class="prefixClass('text-right sm:text-center md:text-right mb-2 flow-root')">
           <!-- Logged in, existing draft statement -->
           <dp-loading
             v-if="isLoading"
@@ -352,7 +352,7 @@
             v-if="displayEditSubmit"
             type="submit"
             :disabled="isLoading"
-            :class="prefixClass('btn btn--primary u-1-of-1-palm u-mt-0_5-palm')"
+            :class="prefixClass('btn btn--primary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-palm')"
             @click="sendStatement"
             data-cy="saveChangedStatement">
             {{ Translator.trans('save.and.close') }}
@@ -361,7 +361,7 @@
             v-if="displayEditSubmit"
             type="submit"
             :disabled="isLoading"
-            :class="prefixClass('btn btn--secondary u-1-of-1-palm u-mt-0_5-palm')"
+            :class="prefixClass('btn btn--secondary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-palm u-ml-0_5-desk-up')"
             @click="e => sendStatement(e,false, true)"
             data-cy="saveChangedStatementWothoutClosing">
             {{ Translator.trans('save') }}
@@ -375,7 +375,7 @@
               :disabled="isLoading"
               data-cy="statementModal:statementSaveImmediate"
               @click="e => sendStatement(e,true)"
-              :class="prefixClass('btn btn--primary u-1-of-1-palm u-mt-0_5-palm')">
+              :class="prefixClass('btn btn--primary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-lap-down')">
               {{ Translator.trans('statement.save.immediate') }}
             </button>
             <button
@@ -383,7 +383,7 @@
               :disabled="isLoading"
               :class="[
                 hasPermission('feature_draft_statement_citizen_immediate_submit') ? prefixClass('btn--secondary') : prefixClass('btn--primary'),
-                prefixClass('btn u-1-of-1-palm u-mt-0_5-palm')
+                prefixClass('btn u-1-of-1-palm u-1-of-2-lap u-mt-0_5-lap-down u-ml-0_5-desk-up')
               ]"
               @click="sendStatement"
               data-cy="statementModal:saveAsDraft">
@@ -399,7 +399,7 @@
             type="reset"
             data-cy="statementModal:discardChanges"
             :disabled="isLoading"
-            :class="prefixClass('btn btn--secondary u-1-of-1-palm u-ml-lap-up')"
+            :class="prefixClass('btn btn--secondary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-lap-down u-ml-0_5-desk-up')"
             @click.prevent="() => reset()">
             {{ Translator.trans('discard.changes') }}
           </button>
@@ -407,7 +407,7 @@
         <!-- for not logged in users -->
         <div
           v-else
-          :class="prefixClass('text-right u-mt-0_5 space-inline-s')">
+          :class="prefixClass('text-right sm:text-center md:text-right mb-2')">
           <dp-loading
             v-if="isLoading"
             :class="prefixClass('align-text-bottom inline-block')"
@@ -415,7 +415,7 @@
           <button
             type="reset"
             :disabled="isLoading"
-            :class="prefixClass('btn btn--secondary u-1-of-1-palm')"
+            :class="prefixClass('btn btn--secondary u-1-of-1-palm u-1-of-2-lap')"
             data-cy="statementModal:discardStatement"
             @click.prevent="() => reset()">
             {{ Translator.trans('discard.statement') }}
@@ -424,7 +424,7 @@
             type="submit"
             data-cy="statementFormSubmit"
             :disabled="isLoading"
-            :class="prefixClass('btn btn--primary u-1-of-1-palm u-mt-0_5-palm')"
+            :class="prefixClass('btn btn--primary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-lap-down u-ml-0_5-desk-up')"
             form-name="statementForm"
             @click="validateStatementStep">
             {{ Translator.trans('continue.personal_data') }}
