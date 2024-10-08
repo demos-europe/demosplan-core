@@ -26,14 +26,15 @@
       </template>
       <template v-slot:closeButton>
         <button
-          type="button"
-          @click="toggleModal(false)"
-          aria-label="Stellungnahme-Formular minimieren"
           aria-describedby="statementDialogCloseTitle"
-          :class="prefixClass('c-statement__close btn-icns u-m-0 u-p-0')">
+          aria-label="Stellungnahme-Formular minimieren"
+          :class="prefixClass('c-statement__close btn-icns color-highlight u-m-0_25 p-0 absolute u-right-0')"
+          title="Stellungnahme-Formular minimieren"
+          type="button"
+          @click="toggleModal(false)">
           <span
             id="statementDialogCloseTitle"
-            :class="prefixClass('show-lap-up-i')">
+            :class="prefixClass('sr-only')">
             {{ Translator.trans('explanation.statement.autosave') }}
           </span>
           <i
@@ -63,7 +64,11 @@
             title: Translator.trans('statement.modal.step.recheck')
           }]" />
       </header>
-
+      <dp-inline-notification
+        dismissible
+        dismissible-key="statementModalCloseExplanation"
+        :message="Translator.trans('explanation.statement.autosave')"
+        type="info" />
       <!-- Statement form incl. documents and location -->
       <section
         v-show="step === 0"
