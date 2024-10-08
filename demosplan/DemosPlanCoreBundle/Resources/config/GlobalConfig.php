@@ -572,7 +572,7 @@ class GlobalConfig implements GlobalConfigInterface
     public function __construct(
         ParameterBagInterface $params,
         TranslatorInterface $translator,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
     ) {
         $this->setParams($params, $translator);
     }
@@ -818,11 +818,7 @@ class GlobalConfig implements GlobalConfigInterface
 
         $this->advancedSupport = $parameterBag->get('advanced_support');
 
-        $externalLinks = $parameterBag->get('external_links');
-        if (is_array($externalLinks)) {
-            $externalLinks = array_map($this->addCustomerToUrl(...), $externalLinks);
-        }
-        $this->externalLinks = $this->getValidatedExternalLinks($externalLinks);
+        $this->externalLinks = $parameterBag->get('external_links');
     }
 
     /**
@@ -1750,6 +1746,12 @@ class GlobalConfig implements GlobalConfigInterface
     public function getExternalLinks(): array
     {
         return $this->externalLinks;
+    }
+
+    public function addCurrentCustomerToUrl(): void
+    {
+        $externalLinks = array_map($this->addCustomerToUrl(...), $this->externalLinks);
+        $this->externalLinks = $this->getValidatedExternalLinks($externalLinks);
     }
 
     /**
