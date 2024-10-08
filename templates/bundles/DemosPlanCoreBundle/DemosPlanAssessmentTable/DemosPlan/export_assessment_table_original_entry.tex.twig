@@ -57,7 +57,7 @@
 
     {# the list width is already adjusted for every export to take up all the whitespace, the text should
         actually have the same width as the lists and that's why we can use 'listwidth' as reference here. #}
-    {% set textWidth = templateVars.listwidth|default('18cm') %}
+    {% set textWidth = templateVars.textwidth|default('18cm') %}
 
     {% if statement.movedToProcedureName is defined and statement.movedToProcedureName is not null %}
         \verb|{{ "statement.moved"|trans({ name: statement.movedToProcedureName })|latex }}|
