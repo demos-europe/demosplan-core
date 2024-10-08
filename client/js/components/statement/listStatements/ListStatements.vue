@@ -176,12 +176,6 @@
               {{ Translator.trans('statement.details_and_recommendation') }}
             </a>
             <a
-              data-cy="listStatements:statementDetailView"
-              :href="Routing.generate('dm_plan_assessment_single_view', { statement: id, procedureId: procedureId })"
-              rel="noopener">
-              {{ Translator.trans('detail.view') }}
-            </a>
-            <a
               v-if="hasPermission('feature_read_source_statement_via_api')"
               data-cy="listStatements:originalPDF"
               :class="{'is-disabled': originalPdf === null}"
