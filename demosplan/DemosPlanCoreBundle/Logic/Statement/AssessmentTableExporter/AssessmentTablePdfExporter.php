@@ -28,6 +28,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ListLineWidth;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\TextLineWidth;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
@@ -261,6 +262,9 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             $fullTemplateName = '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/'.$templateName.'.tex.twig';
 
             $templateVars['listwidth'] = $this->determineListLineWidth($template, $templateName, $original);
+            $templateVars['textwidth'] = $this->determineTextLineWidth($template, $templateName, $original);
+
+
 
             $content = $this->twig->render(
                 $fullTemplateName,
@@ -587,6 +591,22 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
         }
         if ($this->isHorizontalNotSplitView($template, $templateName, $original)) {
             $listLineWidth = ListLineWidth::HORIZONTAL_NOT_SPLIT_VIEW->value;
+        }
+
+        return $listLineWidth;
+    }
+
+    private function determineTextLineWidth(string $template, string $templateName, bool $original): int
+    {
+        $listLineWidth = ListLineWidth::VERTICAL_SPLIT_VIEW->value;
+        if ('portrait' === $template && 'export_original' === $templateName) {
+            $listLineWidth = TextLineWidth::VERTICAL_NOT_SPLIT_VIEW->value;
+        }
+        if ($this->isHorizontalSplitView($template, $templateName, $original)) {
+            $listLineWidth = TextLineWidth::HORIZONTAL_SPLIT_VIEW->value;
+        }
+        if ($this->isHorizontalNotSplitView($template, $templateName, $original)) {
+            $listLineWidth = TextLineWidth::HORIZONTAL_NOT_SPLIT_VIEW->value;
         }
 
         return $listLineWidth;
