@@ -2021,9 +2021,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@demos-europe/demosplan-ui@github:demos-europe/demosplan-ui#f_T19759_vue3_draggable":
-  version: 0.4.0
-  resolution: "@demos-europe/demosplan-ui@https://github.com/demos-europe/demosplan-ui.git#commit=d0351337803395c67a10e4723ed6220f37f4b039"
+"@demos-europe/demosplan-ui@npm:0.4.1":
+  version: 0.4.1
+  resolution: "@demos-europe/demosplan-ui@npm:0.4.1"
   dependencies:
     "@braintree/sanitize-url": "npm:^7.0.0"
     "@floating-ui/dom": "npm:^1.4.5"
@@ -2065,7 +2065,6 @@ __metadata:
     ismobilejs: "npm:^1.1.1"
     lscache: "npm:^1.3.2"
     plyr: "npm:^3.7.2"
-    prosemirror-model: "npm:1.22.3"
     qs: "npm:^6.11.0"
     sortablejs: "npm:^1.15.3"
     tippy.js: "npm:^6.3.7"
@@ -2075,7 +2074,7 @@ __metadata:
     vue-multiselect: "npm:^3.1.0"
     vue-omnibox: "npm:^0.3.7"
     vue-sliding-pagination: "npm:^1.3.2"
-  checksum: 10c0/76972669267e0eaf1f9e8b351feb763b9fdb7e6d262a8984108f969de389c9119afb27f6faf5f5586b720de08eb56c0b71bba9c3226222d30cd423d6bafd0c97
+  checksum: 10c0/c3bcf5a0c537d11b23769eec9bff9a3e104c9cccc3cec62a7a0140b78b57b35a8041ae7b038746c5171c1f3c3c4591ba2b10532afff90a0772b008677ea99b1c
   languageName: node
   linkType: hard
 
@@ -11650,21 +11649,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prosemirror-model@npm:1.22.3, prosemirror-model@npm:^1.21.3":
-  version: 1.22.3
-  resolution: "prosemirror-model@npm:1.22.3"
-  dependencies:
-    orderedmap: "npm:^2.0.0"
-  checksum: 10c0/c1405f9643a720fa65acb23f5f6c3980eb7df3ea6098828e3cfeab1b8d35e4952c96406dc25877f7ec02647970090ef96288776554b50be90ecac139a8ca268b
-  languageName: node
-  linkType: hard
-
 "prosemirror-model@npm:^1.0.0, prosemirror-model@npm:^1.19.0, prosemirror-model@npm:^1.20.0, prosemirror-model@npm:^1.21.0, prosemirror-model@npm:^1.8.1":
   version: 1.21.0
   resolution: "prosemirror-model@npm:1.21.0"
   dependencies:
     orderedmap: "npm:^2.0.0"
   checksum: 10c0/ec0d23540b816e4c292698030fe5d1ce827ec9dcd1c785f95a70e67c5ebda4b0f1d714a7ff8ecdb49ad97b864b4bcaa20e00e50533639c303a1662eaeb83b834
+  languageName: node
+  linkType: hard
+
+"prosemirror-model@npm:^1.21.3":
+  version: 1.22.3
+  resolution: "prosemirror-model@npm:1.22.3"
+  dependencies:
+    orderedmap: "npm:^2.0.0"
+  checksum: 10c0/c1405f9643a720fa65acb23f5f6c3980eb7df3ea6098828e3cfeab1b8d35e4952c96406dc25877f7ec02647970090ef96288776554b50be90ecac139a8ca268b
   languageName: node
   linkType: hard
 
@@ -12218,7 +12217,7 @@ __metadata:
     "@babel/preset-env": "npm:^7.24.8"
     "@babel/preset-flow": "npm:^7.22.15"
     "@babel/runtime": "npm:^7.24.8"
-    "@demos-europe/demosplan-ui": "github:demos-europe/demosplan-ui#f_T19759_vue3_draggable"
+    "@demos-europe/demosplan-ui": "npm:0.4.1"
     "@demos-europe/dp-consent": "npm:^1.3"
     "@efrane/vuex-json-api": "npm:^0.1.2"
     "@fullhuman/postcss-purgecss": "npm:^6.0.0"
