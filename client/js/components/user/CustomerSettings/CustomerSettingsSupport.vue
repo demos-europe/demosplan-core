@@ -211,6 +211,7 @@ export default {
 
     showUpdateForm (index) {
       this.updateForm(index)
+
       this.$nextTick(() => {
         document.getElementById('contactForm').scrollIntoView()
       })

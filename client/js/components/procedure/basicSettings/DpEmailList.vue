@@ -12,7 +12,7 @@
     <dp-editable-list
       :entries="emails"
       :data-cy="dataCy !== '' ? `${dataCy}:emailList` : `emailList`"
-      @delete="deleteEntry"
+      @delete="handleDelete"
       @reset="resetForm"
       @saveEntry="handleSubmit(itemIndex !== null ? itemIndex : 'new')"
       @show-update-form="showUpdateForm"
@@ -116,7 +116,10 @@ export default {
 
     deleteEntry (index) {
       this.emails.splice(index, 1)
-      this.updateExtraEmailAddress(index)
+    },
+
+    handleDelete (index) {
+      this.deleteEntry(index)
       this.resetForm()
     },
 
@@ -127,7 +130,6 @@ export default {
           this.saveExtraEmailAddress(this.formFields.mail)
         } else {
           this.updateEmailAddress(index)
-          this.updateExtraEmailAddress(index, this.formFields.mail[index])
         }
 
         this.resetForm()
@@ -148,10 +150,6 @@ export default {
     showUpdateForm (index) {
       this.formFields.mail = this.emails[index].mail
       this.itemIndex = index
-    },
-
-    updateExtraEmailAddress (index, extraEmailAddress) {
-      this.$emit('updated', (index, extraEmailAddress))
     },
 
     updateEmailAddress (index) {
