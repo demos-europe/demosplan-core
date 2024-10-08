@@ -3078,7 +3078,7 @@ class PermissionsTest extends FunctionalTestCase
         bool $ownsProcedure,
         bool $isMember,
         array $allowedPermissions,
-        array $disallowedPermissions
+        array $disallowedPermissions,
     ): void {
         // do debug a specific permission enable debugging and paste dataset name
         $debugPermission = false;
