@@ -101,7 +101,7 @@ class DemosPlanOrganisationAPIController extends APIController
         PaginatorFactory $paginatorFactory,
         PermissionsInterface $permissions,
         Request $request,
-        JsonApiPaginationParser $paginationParser
+        JsonApiPaginationParser $paginationParser,
     ) {
         try {
             if ($permissions->hasPermission('area_organisations_view_of_customer')
@@ -143,7 +143,7 @@ class DemosPlanOrganisationAPIController extends APIController
             $paginator->setMaxPerPage($pagination->getSize());
 
             $collection = new Collection($paginator, $orgaResourceType->getTransformer(), $orgaResourceType::getName());
-            $paginatorAdapter = $paginatorFactory->createPaginatorAdapter($paginator);
+            $paginatorAdapter = $paginatorFactory->createPaginatorAdapter($paginator, $request);
             $collection->setPaginator($paginatorAdapter);
 
             return $this->renderResource($collection);
