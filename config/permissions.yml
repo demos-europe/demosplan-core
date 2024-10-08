@@ -149,6 +149,10 @@ area_admin_statement_list:
 area_admin_statements_tag:
     label: 'Verwaltung der Schlagworte'
     loginRequired: true
+area_admin_subheading_analysis:
+    label: 'Zwischenüberschrift Auswertung'
+    loginRequired: true
+    parent: area_admin
 area_admin_submitters:
     description: 'Grants access to admin the users which have submitted Statements to a Procedure'
     label: 'Admin Statement submitters in a Procedure'
