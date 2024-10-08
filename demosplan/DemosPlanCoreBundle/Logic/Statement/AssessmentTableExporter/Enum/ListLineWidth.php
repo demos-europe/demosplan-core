@@ -15,7 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\
 enum ListLineWidth: int
 {
     case VERTICAL_SPLIT_VIEW = 7;
-    case VERTICAL_NOT_SPLIT_VIEW = 18;
+    case VERTICAL_NOT_SPLIT_VIEW = 17;
     case HORIZONTAL_SPLIT_VIEW = 12;
-    case HORIZONTAL_NOT_SPLIT_VIEW = 27;
+    case HORIZONTAL_NOT_SPLIT_VIEW = 24;
 }
