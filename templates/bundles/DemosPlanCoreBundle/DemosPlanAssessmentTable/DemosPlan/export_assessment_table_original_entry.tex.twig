@@ -54,12 +54,15 @@
     {% block priority %} {% endblock %}
   		\hline
 	\end{longtable}
+
+    {% set textWidth = templateVars.textwidth|default('18cm') %}
+
     {% if statement.movedToProcedureName is defined and statement.movedToProcedureName is not null %}
         \verb|{{ "statement.moved"|trans({ name: statement.movedToProcedureName })|latex }}|
     {% else %}
     \begin{{ '{' }}longtable{{ '}' }}{{ '{' }}p{{ '{' }}17cm{{ '}' }}p{{ '{' }}0cm{{ '}' }}{{ '}' }}\centering \textbf{{ '{' }}{{ "statement"|trans|latex|raw }}{{ '}' }} & \\
     \end{{ '{' }}longtable{{ '}' }}
-    \begin{{ '{' }}Parallel{{ '}' }}{{ '{' }}17cm{{ '}' }}{{ '{' }}0cm{{ '}' }}
+    \begin{{ '{' }}Parallel{{ '}' }}{{ '{' }}{{ textWidth ~ 'cm' }}{{ '}' }}{{ '{' }}0cm{{ '}' }}
     \ParallelLText{{ '{' }}{{ statement.text|default('')|latex(listwidth=templateVars.listwidth)|raw }}{{ '}' }}
     \ParallelRText{{ '{' }}{{ '}' }}
     \end{Parallel}
