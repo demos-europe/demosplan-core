@@ -179,10 +179,10 @@
             <button
               v-if="formData.r_element_id === ''"
               aria-labelledby="documentReference"
-              :disabled="formData.r_isNegativeReport !== '0'"
+              :class="prefixClass('btn--blank o-link--default text-left')"
               data-cy="statementModal:elementAssign"
-              @click="gotoTab('procedureDetailsDocumentlist')"
-              :class="prefixClass('btn--blank o-link--default text-left')">
+              :disabled="formData.r_isNegativeReport !== '0'"
+              @click="gotoTab('procedureDetailsDocumentlist')">
               <i
                 aria-hidden="true"
                 :class="prefixClass('fa fa-plus')" />
