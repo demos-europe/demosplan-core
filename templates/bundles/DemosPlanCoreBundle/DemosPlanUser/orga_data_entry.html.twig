@@ -36,8 +36,6 @@
         :is-orga-data-editable="Boolean({{ may_edit_orga_data }})"
         :procedures-directlink-prefix="JSON.parse('{{ templateVars.proceduresDirectlinkPrefix|json_encode|e('js', 'utf-8') }}')"
         :organisation="JSON.parse('{{ orga |default({})|json_encode|e('js', 'utf-8') }}')"
-        :submission-type-default="{{ submissionTypeDefault }}"
-        :submission-type-short="{{ submissionTypeShort }}"
         :will-receive-new-statement-notification="Boolean({{ will_receive_new_statement_notification }})">
     </organisation-data-entry>
 

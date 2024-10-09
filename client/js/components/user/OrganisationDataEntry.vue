@@ -125,7 +125,7 @@
           type="text"
           id="orga_slug"
           :name="organisation.ident + ':slug'"
-          v-model="organisation.currentSlug.name"
+          v-model="organisation.currentSlugName"
           :class="submittedAuthorClass"
           :data-organisation-id="organisation.ident"
           size="medium" />
@@ -134,8 +134,8 @@
           <strong>{{ Translator.trans('preview') }}:</strong>
           <p
             :id="organisation.ident + ':urlPreview'"
-            :data-shorturl="templateVars.proceduresDirectlinkPrefix + '/'" >
-            {{ proceduresDirectlinkPrefix }}/{{ organisation.currentSlug.name || '' }}
+            :data-shorturl="proceduresDirectlinkPrefix + '/'" >
+            {{ proceduresDirectlinkPrefix }}/{{ organisation.currentSlugName || '' }}
           </p>
         </div>
       </div>
@@ -149,20 +149,19 @@
             {{ Translator.trans('organisation.procedurelist.slug') }}
           </dt>
           <dd class="color--grey">
-            {{ proceduresDirectlinkPrefix }}/{{ organisation.currentSlug.name }}
+            {{ proceduresDirectlinkPrefix }}/{{ organisation.currentSlugName }}
           </dd>
         </div>
 
         <div v-if="displayCustomer">
           <dt class="weight--bold">
-            {{ Translator.trans('customer', { count: organisation.customers.length }) }}
+            {{ Translator.trans('customer', { count: customers.length }) }}
           </dt>
-          <dd class="color--grey">
-          <span
-            v-for="(customer, index) in organisation.customers"
-            :key="index">
-            {{ customer.name }}<span v-if="index < organisation.customers.length - 1">, </span>
-          </span>
+          <dd
+            v-for="(customer, index) in customers"
+            :key="customer.id"
+            class="color--grey">
+            {{ customer.name }}<span v-if="index < customers.length - 1">, </span>
           </dd>
         </div>
       </dl>
@@ -373,24 +372,26 @@ export default {
     },
     customers: {
       type: Array,
-      required: true
+      required: false,
+      default: () => ([])
     }
   },
+
   computed: {
     displaySlug() {
       return hasPermission('feature_orga_slug') &&
         !hasPermission('feature_orga_slug_edit') &&
-        this.organisation.currentSlug.name !== ''
+        this.organisation.currentSlugName !== ''
     },
 
     displayCustomer() {
       return hasPermission('feature_display_customer_names') &&
-        this.organisation.customers && this.organisation.customers.length > 0
+        this.customers && this.customers.length > 0
     },
 
     showNotificationsSection() {
-      return (this.willReceiveNewStatementNotification && this.hasPermission('feature_notification_statement_new')) ||
-        (this.user.isPublicAgency && this.hasPermission('feature_notification_ending_phase'))
+      return (this.willReceiveNewStatementNotification && hasPermission('feature_notification_statement_new')) ||
+        (this.user.isPublicAgency && hasPermission('feature_notification_ending_phase'))
     }
   }
 }
