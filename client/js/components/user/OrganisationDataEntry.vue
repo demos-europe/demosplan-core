@@ -1,11 +1,11 @@
 <template>
   <div>
     <fieldset class="w-3/4">
-      <legend class="font-size-large weight--normal u-mb-0_75">
+      <legend class="font-size-large weight--normal mb-3">
         {{ Translator.trans('organisation.data') }}
       </legend>
 
-      <div class="u-mb-0_75">
+      <div class="mb-2">
         <!-- Legal Name -->
         <label
           :for="organisation.ident + ':name'"
@@ -23,7 +23,7 @@
       </div>
 
       <!-- Address -->
-      <div class="flex items-start u-mb-0_75">
+      <div class="flex items-start mb-2">
         <div>
           <label
             :for="organisation.ident + ':address_street'"
@@ -39,7 +39,7 @@
             :disabled="!isOrgaDataEditable" />
         </div>
 
-        <div class="u-mb-0_75">
+        <div>
           <label
             :for="organisation.ident + ':address_houseNumber'"
             class="o-form__label w-full">
@@ -57,7 +57,7 @@
       </div>
 
       <!-- Postal Code and City -->
-      <div class="flex items-start u-mb-0_75">
+      <div class="flex items-start mb-2">
         <div class="o-form__group-item shrink">
           <label
             :for="organisation.ident + ':address_postalcode'"
@@ -94,7 +94,7 @@
       <!-- Phone -->
       <div
         v-if="hasPermission('field_organisation_phone')"
-        class="u-mb-0_75">
+        class="mb-2">
         <label
           :for="organisation.ident + ':address_phone'"
           class="o-form__label w-full">
@@ -113,7 +113,7 @@
         <label
           :for="organisation.ident + ':slug'"
           :title="Translator.trans('organisation.procedurelist.slug.explanation')"
-          class="o-form__label u-1-of-1">
+          class="o-form__label w-full">
           {{ Translator.trans('organisation.procedurelist.slug') }}
         </label>
 
@@ -172,7 +172,7 @@
     <fieldset
       v-if="hasPermission('feature_change_submission_type')"
       class="w-3/4">
-      <legend class="font-size-large weight--normal u-mb-0_75">
+      <legend class="font-size-large weight--normal mb-3">
         {{ Translator.trans('statement.submission.type') }}
       </legend>
 
@@ -181,7 +181,7 @@
         :name="`${organisation.ident || ''}:current_submission_type`"
         :value="organisation.submissionType" />
 
-      <div class="u-mb-0_75">
+      <div class="mb-2">
         <div class="w-full o-form__element--radio">
           <input
             type="radio"
@@ -193,9 +193,9 @@
             for="submission_type_short"
             class="o-form__label w-full">
             {{ Translator.trans('statement.submission.shorthand') }}
-            <p class="lbl__hint">
+            <small class="lbl__hint block">
               {{ Translator.trans('explanation.statement.submit.process.short') }}
-            </p>
+            </small>
           </label>
         </div>
 
@@ -210,9 +210,9 @@
             for="submission_type_default"
             class="o-form__label w-full">
             {{ Translator.trans('statement.submission.default') }}
-            <p class="lbl__hint">
+            <small class="lbl__hint block">
               {{ Translator.trans('explanation.statement.submit.process.default') }}
-            </p>
+            </small>
           </label>
         </div>
       </div>
@@ -228,17 +228,20 @@
       <!-- Email2 address for Public Agencies -->
       <div
         v-if="user.isPublicAgency"
-        class="form-row">
-        <label :for="`${organisation.ident}:email2`">
+        class="w-full mb-3">
+        <label
+          :for="`${organisation.ident}:email2`"
+          class="o-form__label w-full">
           {{ Translator.trans('email.participation') }}
-          <p class="lbl__hint">
+          <small class="lbl__hint block">
             {{ Translator.trans('explanation.organisation.email.participation') }}
-          </p>
+          </small>
         </label>
         <input
           type="email"
           :name="`${organisation.ident}:email2`"
           id="orga_email2"
+          class="u-1-of-1 o-form__control-input"
           v-model="organisation.email2"
           required />
       </div>
@@ -246,40 +249,46 @@
       <!-- ccEmail2 for adding extra addresses for participation invitations -->
       <div
         v-if="user.isPublicAgency && hasPermission('field_organisation_email2_cc')"
-        class="form-row">
-        <label :for="`${organisation.ident}:ccEmail2`">
+        class="w-full mb-3">
+        <label
+          :for="`${organisation.ident}:ccEmail2`"
+          class="o-form__label w-full">
           {{ Translator.trans('email.cc.participation') }}
-          <span class="lbl__hint">
+          <small class="lbl__hint block">
             {{ Translator.trans('explanation.organisation.email.cc') }}
-          </span>
+          </small>
         </label>
         <input
           type="text"
           :name="`${organisation.ident}:ccEmail2`"
           id="orga_ccEmail2"
+          class="u-1-of-1 o-form__control-input"
           v-model="organisation.ccEmail2" />
       </div>
 
       <!-- Email for reviewer admins section (PLANNING_SUPPORTING_DEPARTMENT users may specify an email address to receive notifications whenever a fragment is assigned to someone) -->
       <div
         v-if="hasPermission('feature_organisation_email_reviewer_admin') && hasPermission('field_organisation_email_reviewer_admin')"
-        class="form-row">
-        <label :for="`${organisation.ident}:emailReviewerAdmin`">
+        class="w-full mb-3">
+        <label
+          :for="`${organisation.ident}:emailReviewerAdmin`"
+          class="o-form__label w-full">
           {{ Translator.trans('email.reviewer.admin') }}
-          <span class="lbl__hint">
+          <small class="lbl__hint block">
             {{ Translator.trans('explanation.organisation.email.reviewer.admin') }}
-          </span>
+          </small>
         </label>
         <input
           type="email"
           :name="`${organisation.ident}:emailReviewerAdmin`"
           id="orga_emailReviewerAdmin"
+          class="w-full o-form__control-input"
           v-model="organisation.emailReviewerAdmin" />
       </div>
 
       <!-- Notifications Settings Section -->
       <div v-if="showNotificationsSection">
-        <p class="o-form__label u-mb-0_25">
+        <p class="o-form__label mb-1">
           {{ Translator.trans('email.notifications') }}
         </p>
 

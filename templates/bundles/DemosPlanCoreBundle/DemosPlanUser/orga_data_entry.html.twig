@@ -12,7 +12,9 @@
     currentSlugName: organisation.currentSlug.name|default,
     emailReviewerAdmin: organisations.emailReviewerAdmin|default,
     emailNotificationNewStatement: organisation.notifications.emailNotificationNewStatement|default({}),
-    emailNotificationEndingPhase: organisations.notifications.emailNotificationEndingPhase|default({})
+    emailNotificationEndingPhase: organisations.notifications.emailNotificationEndingPhase|default({}),
+    email2: organisation.email2|default,
+    ccEmail2: organisation.ccEmail2|default
 } %}
 
 {% set userData = {
