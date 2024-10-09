@@ -33,7 +33,6 @@ use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryStatement;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use Doctrine\Common\Collections\ArrayCollection;
-use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
@@ -68,7 +67,6 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         private readonly QueryStatement $esQuery,
         private readonly StatementService $statementService,
         private readonly StatementDeleter $statementDeleter,
-        private readonly ConditionFactoryInterface $condition,
     ) {
         parent::__construct($fileService, $htmlSanitizer);
     }
