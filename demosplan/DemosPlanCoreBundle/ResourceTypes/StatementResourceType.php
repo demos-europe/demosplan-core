@@ -33,6 +33,7 @@ use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryStatement;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use Doctrine\Common\Collections\ArrayCollection;
+use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
@@ -67,6 +68,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         private readonly QueryStatement $esQuery,
         private readonly StatementService $statementService,
         private readonly StatementDeleter $statementDeleter,
+        private readonly ConditionFactoryInterface $condition,
     ) {
         parent::__construct($fileService, $htmlSanitizer);
     }
@@ -216,8 +218,12 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
      */
     protected function getProperties(): array|ResourceConfigBuilderInterface
     {
-        // some updates are allowed for manual statements only
-        $manualStatementCondition = $this->conditionFactory->propertyHasValue(true, $this->manual);
+        // The permission 'feature_allow_update_on_non_manual_statements' decides if updates are allowed
+        // for non-manual statements too.
+        $manualStatementCondition = $this->conditionFactory->true();
+        if (!$this->currentUser->hasPermission('feature_allow_update_on_non_manual_statements')) {
+            $manualStatementCondition = $this->conditionFactory->propertyHasValue(true, $this->manual);
+        }
         // currently updates are only needed for "normal" statements
         $simpleStatementCondition = $this->conditionFactory->allConditionsApply(
             $this->conditionFactory->propertyHasValue(false, Paths::statement()->deleted),
