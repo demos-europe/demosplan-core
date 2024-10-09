@@ -294,7 +294,7 @@
         <!-- New Statement Notification -->
         <div
           v-if="willReceiveNewStatementNotification && hasPermission('feature_notification_statement_new')"
-          class="u-1-of-1 o-form__element--checkbox">
+          class="w-full o-form__element--checkbox">
           <label
             for="orga_emailNotificationNewStatement">
             {{ Translator.trans('explanation.notification.new.statement') }}
@@ -310,7 +310,7 @@
         <!-- Ending Phase Notification -->
         <div
           v-if="user.isPublicAgency && hasPermission('feature_notification_ending_phase')"
-          class="u-1-of-1 o-form__element--checkbox">
+          class="w-full o-form__element--checkbox">
           <label
             for="orga_emailNotificationEndingPhase">
             {{ Translator.trans('explanation.notification.phase.ending') }}
