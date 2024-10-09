@@ -437,24 +437,19 @@
         autocomplete="on"
         v-show="step === 1"
         data-dp-validate="submitterForm">
-        <div :class="prefixClass('c-statement__formhint flash-info u-mb-0_5')">
-          <i
-            :class="prefixClass('c-statement__hint-icon fa fa-lg fa-info-circle')"
-            aria-hidden="true" />
-          <span :class="prefixClass('block u-ml')">
-            <p v-cleanhtml="statementFormHintPersonalData" />
-            {{ Translator.trans('error.mandatoryfields') }}
-          </span>
+      <dp-inline-notification
+        type="info">
+        <p
+          v-if="statementFormHintPersonalData"
+          v-cleanhtml="statementFormHintPersonalData" />
+        <p>
+          {{ Translator.trans('error.mandatoryfields') }}
+        </p>
+        <p v-if="extraPersonalHint !== ''">
+          {{ extraPersonalHint }}
+        </p>
+      </dp-inline-notification>
 
-          <template v-if="extraPersonalHint !== ''">
-            <i
-              :class="prefixClass('c-statement__hint-icon fa fa-lg fa-info-circle')"
-              aria-hidden="true" />
-            <span :class="prefixClass('block u-ml')">
-              {{ extraPersonalHint }}
-            </span>
-          </template>
-        </div>
         <div
           v-show="dpValidate.submitterForm === false"
           id="submitterFormErrors"
