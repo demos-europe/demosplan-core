@@ -644,6 +644,11 @@ feature_admin_new_procedure:
     label: 'Neues Verfahren anlegen'
     loginRequired: true
     parent: feature_admin
+feature_allow_update_on_non_manual_statements:
+    description: 'Allow to update non-manual statements'
+    expose: false
+    label: 'Allow to update non-manual statements'
+    loginRequired: true
 feature_alternative_newsletter:
     description: 'Provides links to the service of the alternative (non-internal) newsletter and disables the internal newsletter.'
     expose: false
