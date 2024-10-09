@@ -27,9 +27,9 @@
       <template v-slot:closeButton>
         <button
           aria-describedby="statementDialogCloseTitle"
-          aria-label="Stellungnahme-Formular minimieren"
+          :aria-label="Translator.trans('statement.dialog.close')"
           :class="prefixClass('c-statement__close btn-icns color-highlight u-m-0_25 p-0 absolute u-right-0')"
-          title="Stellungnahme-Formular minimieren"
+          :title="Translator.trans('statement.dialog.close')"
           type="button"
           @click="toggleModal(false)">
           <span
