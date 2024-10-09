@@ -217,6 +217,105 @@
         </div>
       </div>
     </fieldset>
+
+    <!-- Email Notifications -->
+    <fieldset class="w-3/4">
+      <legend v-if="user.isPublicAgency || hasPermission('field_organisation_email2_cc') ||
+      (hasPermission('feature_organisation_email_reviewer_admin') && hasPermission('field_organisation_email_reviewer_admin'))">
+        {{ Translator.trans('email.notifications') }}
+      </legend>
+
+      <!-- Email2 address for Public Agencies -->
+      <div
+        v-if="user.isPublicAgency"
+        class="form-row">
+        <label :for="`${organisation.ident}:email2`">
+          {{ Translator.trans('email.participation') }}
+          <p class="lbl__hint">
+            {{ Translator.trans('explanation.organisation.email.participation') }}
+          </p>
+        </label>
+        <input
+          type="email"
+          :name="`${organisation.ident}:email2`"
+          id="orga_email2"
+          v-model="organisation.email2"
+          required />
+      </div>
+
+      <!-- ccEmail2 for adding extra addresses for participation invitations -->
+      <div
+        v-if="user.isPublicAgency && hasPermission('field_organisation_email2_cc')"
+        class="form-row">
+        <label :for="`${organisation.ident}:ccEmail2`">
+          {{ Translator.trans('email.cc.participation') }}
+          <span class="lbl__hint">
+            {{ Translator.trans('explanation.organisation.email.cc') }}
+          </span>
+        </label>
+        <input
+          type="text"
+          :name="`${organisation.ident}:ccEmail2`"
+          id="orga_ccEmail2"
+          v-model="organisation.ccEmail2" />
+      </div>
+
+      <!-- Email for reviewer admins section (PLANNING_SUPPORTING_DEPARTMENT users may specify an email address to receive notifications whenever a fragment is assigned to someone) -->
+      <div
+        v-if="hasPermission('feature_organisation_email_reviewer_admin') && hasPermission('field_organisation_email_reviewer_admin')"
+        class="form-row">
+        <label :for="`${organisation.ident}:emailReviewerAdmin`">
+          {{ Translator.trans('email.reviewer.admin') }}
+          <span class="lbl__hint">
+            {{ Translator.trans('explanation.organisation.email.reviewer.admin') }}
+          </span>
+        </label>
+        <input
+          type="email"
+          :name="`${organisation.ident}:emailReviewerAdmin`"
+          id="orga_emailReviewerAdmin"
+          v-model="organisation.emailReviewerAdmin" />
+      </div>
+
+      <!-- Notifications Settings Section -->
+      <div v-if="showNotificationsSection">
+        <p class="o-form__label u-mb-0_25">
+          {{ Translator.trans('email.notifications') }}
+        </p>
+
+        <!-- New Statement Notification -->
+        <div
+          v-if="willReceiveNewStatementNotification && hasPermission('feature_notification_statement_new')"
+          class="u-1-of-1 o-form__element--checkbox">
+          <label
+            for="orga_emailNotificationNewStatement">
+            {{ Translator.trans('explanation.notification.new.statement') }}
+          </label>
+          <input
+            type="checkbox"
+            :name="`${organisation.ident}:emailNotificationNewStatement`"
+            id="orga_emailNotificationNewStatement"
+            class="o-form__control-input"
+            :checked="organisation.emailNotificationNewStatement.content" />
+        </div>
+
+        <!-- Ending Phase Notification -->
+        <div
+          v-if="user.isPublicAgency && hasPermission('feature_notification_ending_phase')"
+          class="u-1-of-1 o-form__element--checkbox">
+          <label
+            for="orga_emailNotificationEndingPhase">
+            {{ Translator.trans('explanation.notification.phase.ending') }}
+          </label>
+          <input
+            type="checkbox"
+            :name="`${organisation.ident}:emailNotificationEndingPhase`"
+            :id="`orga_emailNotificationEndingPhase`"
+            class="o-form__control-input"
+            :checked="organisation.emailNotificationEndingPhase?.content" />
+        </div>
+      </div>
+    </fieldset>
   </div>
 </template>
 
@@ -253,6 +352,19 @@ export default {
       type: String,
       required: false,
       default: ''
+    },
+    user: {
+      type: Object,
+      required: true
+    },
+    willReceiveNewStatementNotification: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+    customers: {
+      type: Array,
+      required: true
     }
   },
   computed: {
@@ -265,6 +377,11 @@ export default {
     displayCustomer() {
       return hasPermission('feature_display_customer_names') &&
         this.organisation.customers && this.organisation.customers.length > 0
+    },
+
+    showNotificationsSection() {
+      return (this.willReceiveNewStatementNotification && this.hasPermission('feature_notification_statement_new')) ||
+        (this.user.isPublicAgency && this.hasPermission('feature_notification_ending_phase'))
     }
   }
 }
