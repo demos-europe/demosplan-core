@@ -49,6 +49,7 @@
         :class="prefixClass('c-statement__header u-mb-0_5')">
         <dp-multistep-nav
           :active-step="step"
+          :class="prefixClass('pb-0')"
           :steps="[{
             label: Translator.trans('statement.yours'),
             icon: commentingIcon,
@@ -64,11 +65,13 @@
           }]"
           @change-step="val => step = val" />
       </header>
+
       <dp-inline-notification
         dismissible
         dismissible-key="statementModalCloseExplanation"
         :message="Translator.trans('explanation.statement.autosave')"
         type="info" />
+
       <!-- Statement form incl. documents and location -->
       <section
         v-show="step === 0"
