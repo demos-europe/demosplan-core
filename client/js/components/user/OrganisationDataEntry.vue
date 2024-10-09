@@ -324,12 +324,69 @@
         </div>
       </div>
     </fieldset>
+
+    <!-- Paper copy -->
+    <fieldset
+      v-if="displayPaperCopySection"
+      class="w-3/4">
+      <legend class="font-size-large weight--normal u-mb-0_75">
+        {{ Translator.trans('copies.paper') }}
+      </legend>
+
+      <div
+        v-if="hasPermission('field_organisation_paper_copy')"
+        class="w-full mb-3">
+        <dp-select
+          id="orga_paperCopy"
+          :name="`${organisation.ident || ''}:paperCopy`"
+          v-model="organisation.paperCopy"
+          data-cy="orgaDataEntry:paperCopy:select"
+          :label="{
+            text: Translator.trans('copies.paper'),
+            hint: Translator.trans('explanation.organisation.copies.paper')
+          }"
+          :selected="organisation.paperCopy"
+          :options="paperCopyCountOptions">
+        </dp-select>
+      </div>
+
+      <div
+        v-if="hasPermission('field_organisation_paper_copy_spec')"
+        class="w-full mb-3">
+        <dp-text-area
+          id="orga_paperCopySpec"
+          data-cy="orgaDataEntry:paperCopy:specification"
+          :name="`${organisation.ident || ''}:paperCopySpec`"
+          :value="organisation.paperCopySpec"
+          :label="Translator.trans('copies.kind')"
+          :hint="Translator.trans('explanation.organisation.copies.kind')" />
+      </div>
+
+      <div
+        v-if="hasPermission('field_organisation_competence')"
+        class="w-full mb-3">
+        <dp-text-area
+          id="orga_competence"
+          data-cy="orgaDataEntry:paperCopy:competence"
+          :name="`${organisation.ident || ''}:competence`"
+          :value="organisation.competence"
+          :label="Translator.trans('competence.explanation')"
+          :hint="Translator.trans('explanation.organisation.competence')" />
+      </div>
+    </fieldset>
   </div>
 </template>
 
 <script>
+import { DpSelect, DpTextArea } from '@demos-europe/demosplan-ui'
+
 export default {
   name: 'OrganisationDataEntry',
+
+  components: {
+    DpTextArea,
+    DpSelect
+  },
 
   props: {
     organisation:  {
@@ -378,20 +435,33 @@ export default {
   },
 
   computed: {
-    displaySlug() {
+    displaySlug () {
       return hasPermission('feature_orga_slug') &&
         !hasPermission('feature_orga_slug_edit') &&
         this.organisation.currentSlugName !== ''
     },
 
-    displayCustomer() {
+    displayCustomer () {
       return hasPermission('feature_display_customer_names') &&
         this.customers && this.customers.length > 0
     },
 
-    showNotificationsSection() {
+    showNotificationsSection () {
       return (this.willReceiveNewStatementNotification && hasPermission('feature_notification_statement_new')) ||
         (this.user.isPublicAgency && hasPermission('feature_notification_ending_phase'))
+    },
+
+    displayPaperCopySection () {
+      return hasPermission('field_organisation_paper_copy') ||
+        hasPermission('field_organisation_paper_copy_spec') ||
+        hasPermission('field_organisation_competence')
+    },
+
+    paperCopyCountOptions () {
+      return Array.from({ length: 11 }, (_, i) => ({
+        label: i.toString(),
+        value: i,
+      }))
     }
   }
 }
