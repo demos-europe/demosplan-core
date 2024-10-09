@@ -455,21 +455,22 @@
           id="submitterFormErrors"
           tabindex="0"
           aria-labelledby="submitterFormErrorsContent"
-          :class="prefixClass('c-statement__formhint flash-error u-mb-0_5')">
+          :class="prefixClass('c-statement__formhint flash-error mb-2')">
           <i
             aria-hidden="true"
             :class="prefixClass('c-statement__hint-icon fa fa-lg fa-exclamation-circle')" />
           <div
             id="submitterFormErrorsContent"
-            :class="prefixClass('u-ml')"
+            :class="prefixClass('ml-4')"
             v-cleanhtml="createErrorMessage('submitterForm')" />
         </div>
 
         <fieldset
-          role="radiogroup"
-          required
           aria-required="true"
-          id="personalInfoFieldset">
+          :class="prefixClass('mt-5')"
+          id="personalInfoFieldset"
+          role="radiogroup"
+          required>
           <div
             aria-live="polite"
             aria-relevant="all"
@@ -479,25 +480,26 @@
             ]"
             aria-labelledby="statement-detail-post-publicly">
             <dp-radio
-              id="r_useName_1"
-              name="r_useName"
-              data-cy="submitPublicly"
-              value="1"
-              @change="val => setPrivacyPreference({r_useName: '1'})"
               :checked="formData.r_useName === '1'"
+              :class="prefixClass('mb-1')"
+              data-cy="submitPublicly"
+              id="r_useName_1"
               :label="{
                 text: Translator.trans('statement.detail.form.personal.post_publicly')
-              }" />
+              }"
+              name="r_useName"
+              value="1"
+              @change="val => setPrivacyPreference({r_useName: '1'})"  />
             <div
               v-show="formData.r_useName === '1'"
-              :class="prefixClass('layout')">
+              :class="prefixClass('layout mb-3 ml-2')">
               <component
                 v-for="formDefinition in personalDataFormDefinitions"
                 :is="formDefinition.component"
                 :draft-statement-id="draftStatementId"
                 :required="formDefinition.required"
                 :form-options="formOptions"
-                :class="prefixClass('layout__item u-1-of-1-palm u-mt-0_5 ' + formDefinition.width)"
+                :class="prefixClass('layout__item u-1-of-1-palm mt-1 ' + formDefinition.width)"
                 :key="formDefinition.key" />
             </div>
           </div>
@@ -507,16 +509,16 @@
               prefixClass('c-statement__formblock')
             ]">
             <dp-radio
-              id="r_useName_0"
-              name="r_useName"
-              value="0"
-              @change="val => setPrivacyPreference({r_useName: '0'})"
+              aria-labelledby="statement-detail-post-anonymously"
               :checked="formData.r_useName === '0'"
+              data-cy="submitAnonymously"
+              id="r_useName_0"
               :label="{
                 text: Translator.trans('statement.detail.form.personal.post_anonymously')
               }"
-              aria-labelledby="statement-detail-post-anonymously"
-              data-cy="submitAnonymously" />
+              name="r_useName"
+              value="0"
+              @change="val => setPrivacyPreference({r_useName: '0'})" />
           </div>
         </fieldset>
 
@@ -526,7 +528,7 @@
           :key="formDefinition.key"
           :draft-statement-id="draftStatementId"
           :required="formDefinition.required" />
-        <div :class="prefixClass('text-right u-mt-0_5')">
+        <div :class="prefixClass('text-right mt-3')">
           <button
             type="button"
             data-cy="submitterForm"
