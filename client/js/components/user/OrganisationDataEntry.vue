@@ -5,135 +5,113 @@
         {{ Translator.trans('organisation.data') }}
       </legend>
 
-      <div class="mb-2">
-        <!-- Legal Name -->
-        <label
-          :for="organisation.id + ':name'"
-          class="o-form__label w-full">
-          {{ Translator.trans('name.legal') }}
-        </label>
-        <input
-          type="text"
-          id="orga_name"
-          class="o-form__control-input w-full mt-1 color--grey"
-          :name="organisation.id + ':name'"
-          v-model="organisation.nameLegal"
-          :disabled="!isOrgaDataEditable"
-          required />
-      </div>
+      <!-- Name -->
+      <dp-input
+        id="orga_name"
+        v-model="organisation.name"
+        class="mb-2"
+        data-cy="organisationData:name"
+        :name="organisation.id + ':name'"
+        :label="{
+          text: Translator.trans('name.legal')
+        }"
+        :disabled="!isOrgaDataEditable"
+        required />
 
-      <!-- Address -->
+      <!-- Street -->
       <div class="flex items-start mb-2">
-        <div>
-          <label
-            :for="organisation.id + ':address_street'"
-            class="o-form__label w-full">
-            {{ Translator.trans('street') }}
-          </label>
-          <input
-            type="text"
-            id="orga_address_street"
-            class="o-form__control-input w-full mt-1 mt-1 color--grey"
-            :name="organisation.id + ':address_street'"
-            v-model="organisation.street"
-            :disabled="!isOrgaDataEditable" />
-        </div>
+        <dp-input
+          id="orga_address_street"
+          v-model="organisation.street"
+          data-cy="organisationData:address:street"
+          :name="`${organisation.id}:address_street`"
+          :label="{
+            text: Translator.trans('street')
+          }"
+          :disabled="!isOrgaDataEditable" />
 
-        <div>
-          <label
-            :for="organisation.id + ':address_houseNumber'"
-            class="o-form__label w-full">
-            {{ Translator.trans('street.number.short') }}
-          </label>
-          <input
-            type="text"
-            id="orga_addressHouseNumber"
-            class="o-form__control-input w-full mt-1 color--grey"
-            :name="organisation.id + ':address_houseNumber'"
-            v-model="organisation.houseNumber"
-            :size="5"
-            :disabled="!isOrgaDataEditable" />
-        </div>
+        <dp-input
+          id="orga_addressHouseNumber"
+          v-model="organisation.houseNumber"
+          data-cy="organisationData:address:houseNumber"
+          :name="`${organisation.id}:address_houseNumber`"
+          :label="{
+            text: Translator.trans('street.number.short')
+          }"
+          :size="5"
+          :disabled="!isOrgaDataEditable" />
       </div>
 
       <!-- Postal Code and City -->
       <div class="flex items-start mb-2">
-        <div class="o-form__group-item shrink">
-          <label
-            :for="organisation.id + ':address_postalcode'"
-            class="o-form__label w-full">
-            {{ Translator.trans('postalcode') }}
-          </label>
-          <input
-            type="text"
-            id="orga_address_postalcode"
-            class="o-form__control-input w-full mt-1 color--grey"
-            :name="organisation.id + ':address_postalcode'"
-            v-model="organisation.postalcode"
-            :size="5"
-            :pattern="isOrgaDataEditable ? '^[0-9]{5}$' : ''"
-            :disabled="!isOrgaDataEditable" />
-        </div>
+        <dp-input
+          id="orga_address_postalcode"
+          v-model="organisation.postalcode"
+          data-cy="organisationData:address:postalcode"
+          class="shrink"
+          :name="`${organisation.id}:address_postalcode`"
+          :label="{
+            text: Translator.trans('postalcode')
+          }"
+          :pattern="isOrgaDataEditable ? '^[0-9]{5}$' : ''"
+          :size="5"
+          :disabled="!isOrgaDataEditable" />
 
-        <div class="o-form__group-item">
-          <label
-            :for="organisation.id + ':address_city'"
-            class="o-form__label w-full">
-            {{ Translator.trans('city') }}
-          </label>
-          <input
-            type="text"
-            id="orga_address_city"
-            class="o-form__control-input w-full mt-1 color--grey"
-            :name="organisation.id + ':address_city'"
-            v-model="organisation.city"
-            :disabled="!isOrgaDataEditable" />
-        </div>
+        <dp-input
+          id="orga_address_city"
+          v-model="organisation.city"
+          data-cy="organisationData:address:city"
+          :name="`${organisation.id}:address_city`"
+          :label="{
+            text: Translator.trans('city')
+          }"
+          :disabled="!isOrgaDataEditable" />
       </div>
 
       <!-- Phone -->
-      <div
+      <dp-input
         v-if="hasPermission('field_organisation_phone')"
-        class="mb-2">
-        <label
-          :for="organisation.id + ':address_phone'"
-          class="o-form__label w-full">
-          {{ Translator.trans('phone') }}
-        </label>
-        <input
-          type="tel"
-          id="orga_address_phone"
-          :name="organisation.id + ':address_phone'"
-          v-model="organisation.phone"
-          :disabled="!isOrgaDataEditable" />
-      </div>
+        id="orga_address_phone"
+        class="mb-2"
+        v-model="organisation.phone"
+        data-cy="organisationData:phone"
+        :name="`${organisation.id}:address_phone`"
+        :label="{
+            text: Translator.trans('phone')
+          }"
+        :disabled="!isOrgaDataEditable" />
 
       <!-- Slug -->
       <div v-if="hasPermission('feature_orga_slug') && hasPermission('feature_orga_slug_edit')">
         <label
-          :for="organisation.id + ':slug'"
-          :title="Translator.trans('organisation.procedurelist.slug.explanation')"
-          class="o-form__label w-full">
+          for="orga_slug"
+          class="o-form__label">
           {{ Translator.trans('organisation.procedurelist.slug') }}
         </label>
+        <small class="lbl_hint block">
+          {{ Translator.trans('organisation.procedurelist.slug.explanation') }}
+        </small>
 
-        <p class="inline color--grey align-middle">
-          {{ proceduresDirectlinkPrefix }}
-        </p>
-
-        <input
-          type="text"
-          id="orga_slug"
-          :name="organisation.id + ':slug'"
-          v-model="organisation.currentSlugName"
-          :class="submittedAuthorClass"
-          :data-organisation-id="organisation.id"
-          size="medium" />
+        <div class="flex flex-row items-center">
+          <span class="color--grey">
+            {{ proceduresDirectlinkPrefix }}
+          </span>
+          <dp-input
+            id="orga_slug"
+            v-model="organisation.currentSlugName"
+            data-cy="organisationData:currentSlugName"
+            :data-organisation-id="organisation.id"
+            :name="`${organisation.id}:slug`" />
+        </div>
 
         <div>
-          <strong>{{ Translator.trans('preview') }}:</strong>
+          <label
+            :for="`${organisation.id}:urlPreview`"
+            class="o-form__label">
+            {{ Translator.trans('preview') }}
+          </label>
           <p
-            :id="organisation.id + ':urlPreview'"
+            :id="`${organisation.id}:urlPreview`"
             :data-shorturl="proceduresDirectlinkPrefix + '/'" >
             {{ proceduresDirectlinkPrefix }}/{{ organisation.currentSlugName || '' }}
           </p>
@@ -321,7 +299,7 @@
           <input
             type="checkbox"
             :name="`${organisation.id}:emailNotificationEndingPhase`"
-            :id="`orga_emailNotificationEndingPhase`"
+            id="orga_emailNotificationEndingPhase"
             class="o-form__control-input"
             :checked="organisation.emailNotificationEndingPhase?.content" />
         </div>
@@ -343,7 +321,7 @@
           id="orga_paperCopy"
           :name="`${organisation.id || ''}:paperCopy`"
           v-model="organisation.paperCopy"
-          data-cy="orgaDataEntry:paperCopy:select"
+          data-cy="organisationData:paperCopy:select"
           :label="{
             text: Translator.trans('copies.paper'),
             hint: Translator.trans('explanation.organisation.copies.paper')
@@ -358,7 +336,7 @@
         class="w-full mb-3">
         <dp-text-area
           id="orga_paperCopySpec"
-          data-cy="orgaDataEntry:paperCopy:specification"
+          data-cy="organisationData:paperCopy:specification"
           :name="`${organisation.id || ''}:paperCopySpec`"
           :value="organisation.paperCopySpec"
           :label="Translator.trans('copies.kind')"
@@ -370,7 +348,7 @@
         class="w-full mb-3">
         <dp-text-area
           id="orga_competence"
-          data-cy="orgaDataEntry:paperCopy:competence"
+          data-cy="organisationData:paperCopy:competence"
           :name="`${organisation.id || ''}:competence`"
           :value="organisation.competence"
           :label="Translator.trans('competence.explanation')"
@@ -407,7 +385,7 @@
         <dp-editor
           :id="organisation.id + ':data_protection'"
           class="o-form__control-tiptap u-mb-0_75"
-          data-cy="orgaDataEntry:branding:dataProtection"
+          data-cy="organisationData:branding:dataProtection"
           :hidden-input="organisation.dataProtection || ''"
           :toolbar-items="{ linkButton: true, headings: [3, 4] }"
           :value="organisation.dataProtection || ''" />
@@ -428,7 +406,7 @@
         <dp-editor
           :id="organisation.id + ':imprint'"
           class="o-form__control-tiptap u-mb-0_75"
-          data-cy="orgaDataEntry:branding:imprint"
+          data-cy="organisationData:branding:imprint"
           :hidden-input="organisation.id + ':imprint'"
           :toolbar-items="{ linkButton: true, headings: [3, 4] }"
           :value="organisation.imprint || ''" />
@@ -458,12 +436,13 @@
 </template>
 
 <script>
-import { CleanHtml, DpSelect, DpTextArea, DpEditor, DpCheckbox } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpInput, DpSelect, DpTextArea, DpEditor, DpCheckbox } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'OrganisationDataEntry',
 
   components: {
+    DpInput,
     DpTextArea,
     DpSelect,
     DpEditor,
