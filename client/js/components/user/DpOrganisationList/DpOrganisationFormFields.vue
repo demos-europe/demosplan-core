@@ -322,7 +322,7 @@
           :id="`${organisation.id}:cssvars`"
           :label="Translator.trans('branding.styling.input')"
           reduced-height
-          @input="emitOrganisationUpdate"
+          @update:model-value="emitOrganisationUpdate"
           v-model="localOrganisation.attributes.cssvars" />
         <dp-details
           data-cy="organisationFormFields:brandingStyling"
@@ -700,7 +700,7 @@
       <dp-editor
         data-cy="orgaFormField:imprint"
         v-model="localOrganisation.attributes.imprint"
-        @input="emitOrganisationUpdate"
+        @update:model-value="emitOrganisationUpdate"
         :toolbar-items="{
           fullscreenButton: true,
           headings: [2,3,4],
@@ -716,7 +716,7 @@
       <dp-editor
         data-cy="orgaFormField:dataProtection"
         v-model="localOrganisation.attributes.dataProtection"
-        @input="emitOrganisationUpdate"
+        @update:model-value="emitOrganisationUpdate"
         :toolbar-items="{
           fullscreenButton: true,
           headings: [2,3,4],

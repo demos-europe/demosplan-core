@@ -11,7 +11,7 @@
       multiple
       :options="availableScales"
       track-by="value"
-      @input="updateScales">
+      @update:model-value="updateScales">
       <template v-slot:option="{ props }">
         {{ props.option.label }}
       </template>

@@ -63,7 +63,7 @@
           {{ Translator.trans('email.body') }}
         </label>
         <dp-editor
-          :value="emailText"
+          :model-value="emailText"
           hidden-input="r_publicRejectionEmail" />
       </div>
     </div>

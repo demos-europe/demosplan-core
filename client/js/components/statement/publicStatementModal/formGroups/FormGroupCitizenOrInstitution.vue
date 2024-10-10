@@ -62,9 +62,9 @@
           text: Translator.trans('institution.name')
         }"
         required
-        :value="statement.r_userOrganisation"
+        :model-value="statement.r_userOrganisation"
         width="u-1-of-2 u-1-of-1-lap-down"
-        @input="val => setStatementData({ r_userOrganisation: val})" />
+        @update:model-value="val => setStatementData({ r_userOrganisation: val})" />
     </div>
   </div>
 </template>

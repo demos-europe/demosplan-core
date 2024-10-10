@@ -5,7 +5,7 @@
 #}
 {% set omitPrefix  = omitCssPrefix ?? true %}
 <dp-datepicker
-    value="{{ value }}"
+    :model-value="{{ value }}"
     id="{{ id|default }}"
     name="{{ name|default }}"
     class="{{ class|default|prefixClass(omitPrefix) }}"

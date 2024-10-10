@@ -247,10 +247,10 @@
                 ref="r_text"
                 editor-id="newsText"
                 hidden-input="r_text"
+                model-value="{{ news.text }}"
                 :toolbar-items="{
                     linkButton: true
-                }"
-                value="{{ news.text }}">
+                }">
                 {% include '@DemosPlanCore/DemosPlanNews/includes/news_editor_boilerplate_modal.html.twig' %}
             </dp-editor>
         </div>

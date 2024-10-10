@@ -39,7 +39,7 @@
       :options="clusterList"
       ref="multiselect"
       track-by="id"
-      @input="closeMultiselect">
+      @update:model-valueF="closeMultiselect">
       <template v-slot:option="{ props }">
         <strong>{{ props.option.externId ? props.option.externId : '' }}</strong>
         <span class="weight--normal">{{ props.option.name ? ` ${props.option.name}` : '' }}</span>

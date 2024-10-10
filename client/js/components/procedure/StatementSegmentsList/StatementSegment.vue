@@ -118,8 +118,8 @@
             linkButton: true
           }"
           :tus-endpoint="dplan.paths.tusEndpoint"
-          :value="segment.attributes.recommendation"
-          @input="value => updateSegment('recommendation', value)">
+          :model-value="segment.attributes.recommendation"
+          @update:model-value="value => updateSegment('recommendation', value)">
           <template v-slot:modal="modalProps">
             <dp-boiler-plate-modal
               v-if="hasPermission('area_admin_boilerplates')"

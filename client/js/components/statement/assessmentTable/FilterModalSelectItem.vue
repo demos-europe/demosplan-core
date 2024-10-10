@@ -33,7 +33,7 @@
             :options="availableOptions"
             selection-controls
             track-by="label"
-            :value="selected"
+            :model-value="selected"
             @close="updateFilterOptions"
             @open="loadFilterOptions"
             @remove="removeFilterOption"

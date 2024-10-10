@@ -66,7 +66,7 @@
         data-cy="customerSettingsBranding:brandingStylingInput"
         :label="Translator.trans('branding.styling.input')"
         reduced-height
-        :value="branding.cssvars" />
+        :model-value="branding.cssvars" />
       <dp-details
         :summary="Translator.trans('branding.styling.details')"
         data-cy="customerSettingsBranding:brandingStylingDetails">

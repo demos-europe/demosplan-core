@@ -20,9 +20,9 @@
     name="r_email"
     :required="required && statement.r_useName === '1'"
     type="email"
-    :value="statement.r_email"
+    :model-value="statement.r_email"
     width="u-1-of-2"
-    @input="val => setStatementData({r_email: val})" />
+    @update:model-value="val => setStatementData({r_email: val})" />
 </template>
 
 <script>

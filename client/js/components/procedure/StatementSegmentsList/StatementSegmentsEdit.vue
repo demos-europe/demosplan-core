@@ -57,8 +57,8 @@
               <dp-editor
                 class="u-mr u-pt-0_25"
                 :toolbar-items="{ linkButton: true }"
-                :value="segment.attributes.text"
-                @input="(val) => updateSegmentText(segment.id, val)" />
+                :model-value="segment.attributes.text"
+                @update:model-value="(val) => updateSegmentText(segment.id, val)" />
             </template>
           </dp-edit-field>
         </div>
@@ -72,8 +72,8 @@
           hidden-input="statementText"
           required
           :toolbar-items="{ linkButton: true }"
-          :value="statement.attributes.fullText || ''"
-          @input="updateStatementText" />
+          :model-value="statement.attributes.fullText || ''"
+          @update:model-value="updateStatementText" />
         <dp-button-row
           class="u-mv"
           primary

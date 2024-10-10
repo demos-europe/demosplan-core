@@ -282,7 +282,7 @@
               multiple
               :options="tags"
               track-by="id"
-              @input="sortSelected('tags', 'title')">
+              @update:model-value="sortSelected('tags', 'title')">
               <template v-slot:option="{ props }">
                 <span v-if="props.option.$isLabel">
                   {{ props.option.$groupLabel }}

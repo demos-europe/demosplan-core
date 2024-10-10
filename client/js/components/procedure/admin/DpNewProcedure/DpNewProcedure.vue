@@ -145,7 +145,7 @@
           name="agencyMainEmailAddress[fullAddress]"
           required
           type="email"
-          :value="mainEmail" />
+          :model-value="mainEmail" />
       </dp-form-row>
       <dp-form-row class="u-mb-0_75">
         <dp-text-area

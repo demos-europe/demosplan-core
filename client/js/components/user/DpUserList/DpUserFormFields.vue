@@ -18,7 +18,7 @@
           text: Translator.trans('name.first')
         }"
         required
-        @input="emitUserUpdate" />
+        @update:model-value="emitUserUpdate" />
     </div>
 
     <div class="inline-block w-1/2 pr-3 my-3">
@@ -30,7 +30,7 @@
           text: Translator.trans('name.last')
         }"
         required
-        @input="emitUserUpdate" />
+        @update:model-value="emitUserUpdate" />
     </div>
 
     <!-- Email -->
@@ -44,7 +44,7 @@
           text: Translator.trans('email')
         }"
         required
-        @input="emitUserUpdate" />
+        @update:model-value="emitUserUpdate" />
     </div>
 
     <div class="w-1/2 pr-3 inline-block">
@@ -64,7 +64,7 @@
         :placeholder="Translator.trans('search.three.signs')"
         required
         track-by="id"
-        :value="currentUserOrga"
+        :model-value="currentUserOrga"
         @select="changeUserOrga">
         <template v-slot:option="{ props }">
           <span>{{ props.option.name }}</span>
@@ -115,7 +115,7 @@
         :options="allowedRolesForOrga"
         required
         track-by="id"
-        :value="localUser.relationships.roles.data"
+        :model-value="localUser.relationships.roles.data"
         @remove="removeRole"
         @select="addRole">
         <template v-slot:option="{ props }">

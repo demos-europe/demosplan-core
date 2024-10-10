@@ -141,8 +141,8 @@
               mark: true,
               strikethrough: true
             }"
-            :value="formData.r_text || ''"
-            @input="val => setStatementData({r_text: val})" />
+            :model-value="formData.r_text || ''"
+            @update:model-value="val => setStatementData({r_text: val})" />
         </div>
         <div
           v-if="loggedIn === false"
@@ -313,8 +313,8 @@
                 }"
                 name="r_represents"
                 :placeholder="Translator.trans('institution.represents')"
-                :value="formData.r_represents"
-                @input="val => setStatementData({r_represents: val})" />
+                :model-value="formData.r_represents"
+                @update:model-value="val => setStatementData({r_represents: val})" />
             </div>
           </fieldset>
         </template>

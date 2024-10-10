@@ -20,7 +20,7 @@
       :preserve-search="true"
       selection-controls
       track-by="title"
-      @input="updateSelected">
+      @update:model-value="updateSelected">
       <template v-slot:option="{ props }">
         <input
           type="checkbox"
