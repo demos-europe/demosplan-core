@@ -11,7 +11,7 @@
         v-model="organisation.name"
         class="mb-2"
         data-cy="organisationData:name"
-        :name="organisation.id + ':name'"
+        :name="`${organisation.id}:name`"
         :label="{
           text: Translator.trans('name.legal')
         }"
@@ -20,15 +20,17 @@
 
       <!-- Street -->
       <div class="flex items-start mb-2">
-        <dp-input
-          id="orga_address_street"
-          v-model="organisation.street"
-          data-cy="organisationData:address:street"
-          :name="`${organisation.id}:address_street`"
-          :label="{
-            text: Translator.trans('street')
-          }"
-          :disabled="!isOrgaDataEditable" />
+        <div class="w-fit">
+          <dp-input
+            id="orga_address_street"
+            v-model="organisation.street"
+            data-cy="organisationData:address:street"
+            :name="`${organisation.id}:address_street`"
+            :label="{
+              text: Translator.trans('street')
+            }"
+            :disabled="!isOrgaDataEditable" />
+        </div>
 
         <dp-input
           id="orga_addressHouseNumber"
@@ -264,7 +266,7 @@
 
     <!-- Paper copy Section -->
     <fieldset
-      v-if="displayPaperCopySection"
+      v-if="showPaperCopySection"
       class="w-3/4">
       <legend class="font-size-large weight--normal u-mb-0_75">
         {{ Translator.trans('copies.paper') }}
@@ -273,6 +275,7 @@
       <div
         v-if="hasPermission('field_organisation_paper_copy')"
         class="w-full mb-3">
+        <!-- TODO: InitVue.js:67 [Vue warn]: Invalid prop: type check failed for prop "selected". Expected String with value "1", got Number with value 1 -->
         <dp-select
           id="orga_paperCopy"
           :name="`${organisation.id || ''}:paperCopy`"
@@ -312,9 +315,9 @@
       </div>
     </fieldset>
 
-    <!-- Organisation Branding -->
+    <!-- Organisation Branding Section -->
     <fieldset
-      v-if="displayOrganisationBranding"
+      v-if="showOrganisationBrandingSection"
       class="w-3/4">
       <legend
         v-if="hasPermission('feature_orga_logo_edit')"
@@ -372,7 +375,9 @@
       <div
         v-if="hasPermission('field_organisation_agreement_showname')"
         class="mb-0">
-        <label class="o-form__label">
+        <label
+          :for="`${organisation.id}:showname`"
+          class="o-form__label">
           {{ Translator.trans('agree.publication') }}
         </label>
         <small class="lbl__hint block">
@@ -478,13 +483,13 @@ export default {
         (this.user.isPublicAgency && hasPermission('feature_notification_ending_phase'))
     },
 
-    displayPaperCopySection () {
+    showPaperCopySection () {
       return hasPermission('field_organisation_paper_copy') ||
         hasPermission('field_organisation_paper_copy_spec') ||
         hasPermission('field_organisation_competence')
     },
 
-    displayOrganisationBranding () {
+    showOrganisationBrandingSection () {
       return hasPermission('feature_orga_logo_edit') ||
         hasPermission('field_data_protection_text_customized_edit_orga') ||
         hasPermission('field_imprint_text_customized_edit_orga') ||
