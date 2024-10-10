@@ -77,8 +77,8 @@
         data-cy="organisationData:phone"
         :name="`${organisation.id}:address_phone`"
         :label="{
-            text: Translator.trans('phone')
-          }"
+          text: Translator.trans('phone')
+        }"
         :disabled="!isOrgaDataEditable" />
 
       <!-- Slug -->
@@ -146,53 +146,39 @@
     </fieldset>
 
     <!-- Submission type  -->
+    <!--TODO: check: (organisation.submissionType || submissionTypeDefault) === submissionTypeDefault; check what is submissionTypeDefault and submissionTypeShort -->
     <fieldset
       v-if="hasPermission('feature_change_submission_type')"
-      class="w-3/4">
+      class="w-3/4 mb-2">
       <legend class="font-size-large weight--normal mb-3">
         {{ Translator.trans('statement.submission.type') }}
       </legend>
-
       <input
         type="hidden"
         :name="`${organisation.id || ''}:current_submission_type`"
         :value="organisation.submissionType" />
-
-      <div class="mb-2">
-        <div class="w-full o-form__element--radio">
-          <input
-            type="radio"
-            :name="`${organisation.id || ''}:submission_type`"
-            :value="organisation.submissionType"
-            id="submission_type_short"
-            :checked="(organisation.submissionType || submissionTypeDefault) === submissionTypeShort" />
-          <label
-            for="submission_type_short"
-            class="o-form__label w-full">
-            {{ Translator.trans('statement.submission.shorthand') }}
-            <small class="lbl__hint block">
-              {{ Translator.trans('explanation.statement.submit.process.short') }}
-            </small>
-          </label>
-        </div>
-
-        <div class="w-full o-form__element--radio">
-          <input
-            type="radio"
-            :name="`${organisation.id || ''}:submission_type`"
-            :value="organisation.submissionType"
-            id="submission_type_default"
-            :checked="(organisation.submissionType || submissionTypeDefault) === submissionTypeDefault" />
-          <label
-            for="submission_type_default"
-            class="o-form__label w-full">
-            {{ Translator.trans('statement.submission.default') }}
-            <small class="lbl__hint block">
-              {{ Translator.trans('explanation.statement.submit.process.default') }}
-            </small>
-          </label>
-        </div>
-      </div>
+      <dp-radio
+        id="submission_type_short"
+        :name="`${organisation.id || ''}:submission_type`"
+        :value="organisation.submissionType"
+        data-cy="organisationData:submissionType:short"
+        :label="{
+          text: Translator.trans('statement.submission.shorthand'),
+          bold: true,
+          hint: Translator.trans('explanation.statement.submit.process.short')
+        }"
+        :checked="(organisation.submissionType || submissionTypeDefault) === submissionTypeShort" />
+      <dp-radio
+        id="submission_type_default"
+        :name="`${organisation.id || ''}:submission_type`"
+        :value="organisation.submissionType"
+        data-cy="organisationData:submissionType:default"
+        :label="{
+          text: Translator.trans('statement.submission.default'),
+          bold: true,
+          hint: Translator.trans('explanation.statement.submit.process.default')
+        }"
+        :checked="(organisation.submissionType || submissionTypeDefault) === submissionTypeDefault" />
     </fieldset>
 
     <!-- Email Notifications -->
@@ -436,12 +422,13 @@
 </template>
 
 <script>
-import { CleanHtml, DpInput, DpSelect, DpTextArea, DpEditor, DpCheckbox } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpInput, DpSelect, DpRadio, DpTextArea, DpEditor, DpCheckbox } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'OrganisationDataEntry',
 
   components: {
+    DpRadio,
     DpInput,
     DpTextArea,
     DpSelect,
