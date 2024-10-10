@@ -334,7 +334,7 @@
         v-if="hasPermission('field_data_protection_text_customized_edit_orga')"
         class="o-form__label w-full">
         <label
-          :for="organisation.id + ':data_protection'"
+          :for="`${organisation.id}:data_protection`"
           class="o-form__label w-full">
           {{ Translator.trans('data.protection.notes') }}
           <small class="lbl__hint block">
@@ -342,11 +342,14 @@
           </small>
         </label>
         <dp-editor
-          :id="organisation.id + ':data_protection'"
+          :id="`${organisation.id}:data_protection`"
           class="o-form__control-tiptap u-mb-0_75"
           data-cy="organisationData:branding:dataProtection"
           :hidden-input="organisation.dataProtection || ''"
-          :toolbar-items="{ linkButton: true, headings: [3, 4] }"
+          :toolbar-items="{
+            linkButton: true,
+            headings: [3, 4]
+          }"
           :value="organisation.dataProtection || ''" />
       </div>
 
@@ -363,11 +366,14 @@
           </small>
         </label>
         <dp-editor
-          :id="organisation.id + ':imprint'"
+          :id="`${organisation.id}:imprint`"
           class="o-form__control-tiptap u-mb-0_75"
           data-cy="organisationData:branding:imprint"
-          :hidden-input="organisation.id + ':imprint'"
-          :toolbar-items="{ linkButton: true, headings: [3, 4] }"
+          :hidden-input="`${organisation.id}:imprint`"
+          :toolbar-items="{
+            linkButton: true,
+            headings: [3, 4]
+          }"
           :value="organisation.imprint || ''" />
       </div>
 
