@@ -1513,6 +1513,13 @@ feature_procedure_export_include_assessment_table_original:
     expose: false
     label: 'Procedure export with original statements'
     loginRequired: true
+feature_procedure_export_include_cover_page:
+    description: |-
+        The procedure export generates a ZIP archive. If this permission is enabled
+        a document ("Deckblatt.pdf") will be included in each procedure directory in the export.
+    expose: false
+    label: 'Procedure export with cover page'
+    loginRequired: true
 feature_procedure_export_include_current_news:
     description: |-
         The procedure export generates a ZIP archive. If this permission is enabled
@@ -2012,6 +2019,11 @@ feature_statement_delete:
         unclaimed.
     expose: true
     label: 'Delete (non-draft, non-original) statements.'
+    loginRequired: true
+feature_statement_file_filter_set:
+    description: 'Set file to filter in statement list.'
+    expose: true
+    label: 'Allow the user to set file as a filter'
     loginRequired: true
 feature_statement_fragment_bulk_edit:
     description: 'In assessment table, if this feature is active, after selecting multiple fragments, appears menu with options to edit them in batch.'
