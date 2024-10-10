@@ -31,6 +31,7 @@
     <div class="layout__item u-1-of-2">
       <dp-ol-map
         ref="map"
+        :layers-to-add="layersToAdd"
         :options="{
           scaleSelect: false,
           autoSuggest: false,
@@ -248,6 +249,7 @@
 <script>
 import { checkResponse, dpApi, DpDatepicker, DpToggle, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { Attribution } from 'ol/control'
+import { createVectorLayer } from '@DpJs/lib/map/createVectorLayer'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapLayerVector from '@DpJs/components/map/map/DpOlMapLayerVector'
 import { fromExtent } from 'ol/geom/Polygon'
@@ -328,6 +330,7 @@ export default {
       isPlanningAreaEditing: false,
       isPlanStatusEditing: false,
       isMapEnabled: false,
+      layersToAdd: {},
       mapIdent: '',
       planningArea: '',
       planningAreaOptions: [],
@@ -570,11 +573,14 @@ export default {
 
   async mounted () {
     await this.getInitialData()
-
+    this.layersToAdd = {
+      procedureCoordinate: createVectorLayer(this.features.procedureCoordinate),
+      initExtent: createVectorLayer(this.features.initExtent),
+      territory: createVectorLayer(this.features.territory)
+    }
     this.previousValues.isMapEnabled = this.isMapEnabled
     this.previousValues.planstatus = this.planstatus
     this.previousValues.planningArea = this.planningArea
   }
-
 }
 </script>
