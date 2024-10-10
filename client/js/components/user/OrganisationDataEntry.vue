@@ -184,73 +184,49 @@
     <!-- Email Notifications -->
     <fieldset class="w-3/4">
       <legend
-        v-if="user.isPublicAgency || hasPermission('field_organisation_email2_cc') ||
+        v-if="user.isPublicAgency ||
+        hasPermission('field_organisation_email2_cc') ||
         (hasPermission('feature_organisation_email_reviewer_admin') &&
         hasPermission('field_organisation_email_reviewer_admin'))"
         class="font-size-large weight--normal u-mb-0_75">
         {{ Translator.trans('email.notifications') }}
       </legend>
-
       <!-- Email2 address for Public Agencies -->
-      <div
+      <dp-input
         v-if="user.isPublicAgency"
-        class="w-full mb-3">
-        <label
-          :for="`${organisation.id}:email2`"
-          class="o-form__label w-full">
-          {{ Translator.trans('email.participation') }}
-          <small class="lbl__hint block">
-            {{ Translator.trans('explanation.organisation.email.participation') }}
-          </small>
-        </label>
-        <input
-          type="email"
-          :name="`${organisation.id}:email2`"
-          id="orga_email2"
-          class="u-1-of-1 o-form__control-input"
-          v-model="organisation.email2"
-          required />
-      </div>
+        id="orga_email2"
+        class="mb-3"
+        :name="`${organisation.id}:email2`"
+        :label="{
+          text: Translator.trans('email.participation'),
+          hint: Translator.trans('explanation.organisation.email.participation')
+        }"
+        v-model="organisation.email2"
+        required />
 
       <!-- ccEmail2 for adding extra addresses for participation invitations -->
-      <div
+      <dp-input
         v-if="user.isPublicAgency && hasPermission('field_organisation_email2_cc')"
-        class="w-full mb-3">
-        <label
-          :for="`${organisation.id}:ccEmail2`"
-          class="o-form__label w-full">
-          {{ Translator.trans('email.cc.participation') }}
-          <small class="lbl__hint block">
-            {{ Translator.trans('explanation.organisation.email.cc') }}
-          </small>
-        </label>
-        <input
-          type="text"
-          :name="`${organisation.id}:ccEmail2`"
-          id="orga_ccEmail2"
-          class="u-1-of-1 o-form__control-input"
-          v-model="organisation.ccEmail2" />
-      </div>
+        id="orga_ccEmail2"
+        class="mb-3"
+        :name="`${organisation.id}:ccEmail2`"
+        :label="{
+          text: Translator.trans('email.cc.participation'),
+          hint: Translator.trans('explanation.organisation.email.cc')
+        }"
+        v-model="organisation.ccEmail2" />
 
       <!-- Email for reviewer admins section (PLANNING_SUPPORTING_DEPARTMENT users may specify an email address to receive notifications whenever a fragment is assigned to someone) -->
-      <div
+      <dp-input
         v-if="hasPermission('feature_organisation_email_reviewer_admin') && hasPermission('field_organisation_email_reviewer_admin')"
-        class="w-full mb-3">
-        <label
-          :for="`${organisation.id}:emailReviewerAdmin`"
-          class="o-form__label w-full">
-          {{ Translator.trans('email.reviewer.admin') }}
-          <small class="lbl__hint block">
-            {{ Translator.trans('explanation.organisation.email.reviewer.admin') }}
-          </small>
-        </label>
-        <input
-          type="email"
-          :name="`${organisation.id}:emailReviewerAdmin`"
-          id="orga_emailReviewerAdmin"
-          class="w-full o-form__control-input"
-          v-model="organisation.emailReviewerAdmin" />
-      </div>
+        id="orga_emailReviewerAdmin"
+        class="mb-3"
+        :name="`${organisation.id}:emailReviewerAdmin`"
+        :label="{
+          text: Translator.trans('email.reviewer.admin'),
+          hint: Translator.trans('explanation.organisation.email.reviewer.admin')
+        }"
+        v-model="organisation.emailReviewerAdmin" />
 
       <!-- Notifications Settings Section -->
       <div v-if="showNotificationsSection">
@@ -259,36 +235,24 @@
         </p>
 
         <!-- New Statement Notification -->
-        <div
+        <dp-checkbox
           v-if="willReceiveNewStatementNotification && hasPermission('feature_notification_statement_new')"
-          class="w-full o-form__element--checkbox">
-          <label
-            for="orga_emailNotificationNewStatement">
-            {{ Translator.trans('explanation.notification.new.statement') }}
-          </label>
-          <input
-            type="checkbox"
-            :name="`${organisation.id}:emailNotificationNewStatement`"
-            id="orga_emailNotificationNewStatement"
-            class="o-form__control-input"
-            :checked="organisation.emailNotificationNewStatement.content" />
-        </div>
+          id="orga_emailNotificationNewStatement"
+          :name="`${organisation.id}:emailNotificationNewStatement`"
+          :label="{
+            text: Translator.trans('explanation.notification.new.statement'),
+          }"
+          :checked="organisation.emailNotificationNewStatement.content" />
 
         <!-- Ending Phase Notification -->
-        <div
+        <dp-checkbox
           v-if="user.isPublicAgency && hasPermission('feature_notification_ending_phase')"
-          class="w-full o-form__element--checkbox">
-          <label
-            for="orga_emailNotificationEndingPhase">
-            {{ Translator.trans('explanation.notification.phase.ending') }}
-          </label>
-          <input
-            type="checkbox"
-            :name="`${organisation.id}:emailNotificationEndingPhase`"
-            id="orga_emailNotificationEndingPhase"
-            class="o-form__control-input"
-            :checked="organisation.emailNotificationEndingPhase?.content" />
-        </div>
+          id="orga_emailNotificationEndingPhase"
+          :name="`${organisation.id}:emailNotificationEndingPhase`"
+          :label="{
+            text: Translator.trans('explanation.notification.phase.ending'),
+          }"
+          :checked="organisation.emailNotificationEndingPhase?.content" />
       </div>
     </fieldset>
 
