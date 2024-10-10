@@ -36,6 +36,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\PathException;
 use Elastica\Index;
 use Webmozart\Assert\Assert;
 
@@ -65,7 +66,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
         private readonly QueryStatement $esQuery,
         private readonly StatementService $statementService,
-        private readonly StatementDeleter $statementDeleter
+        private readonly StatementDeleter $statementDeleter,
     ) {
         parent::__construct($fileService, $htmlSanitizer);
     }
@@ -101,6 +102,8 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
      * {@link StatementAttachmentResourceType} to the {@link StatementResourceType}.
      *
      * @return list<ClauseFunctionInterface<bool>>
+     *
+     * @throws PathException
      */
     public function buildAccessConditions(StatementResourceType $pathStartResourceType, bool $allowOriginals = false): array
     {
@@ -127,10 +130,9 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $this->conditionFactory->propertyIsNull($pathStartResourceType->headStatement->id),
             // statement placeholders are not considered actual statement resources
             $this->conditionFactory->propertyIsNull($pathStartResourceType->movedStatement),
-            $this->conditionFactory->propertyHasAnyOfValues(
-                $allowedProcedureIds,
-                $pathStartResourceType->procedure->id
-            ),
+            [] === $allowedProcedureIds
+                ? $this->conditionFactory->false()
+                : $this->conditionFactory->propertyHasAnyOfValues($allowedProcedureIds, $pathStartResourceType->procedure->id),
         ];
         if (!$allowOriginals) {
             // Normally the path to the relationship would suffice for a NULL check, but the ES
@@ -216,6 +218,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
     {
         // some updates are allowed for manual statements only
         $manualStatementCondition = $this->conditionFactory->propertyHasValue(true, $this->manual);
+
         // currently updates are only needed for "normal" statements
         $simpleStatementCondition = $this->conditionFactory->allConditionsApply(
             $this->conditionFactory->propertyHasValue(false, Paths::statement()->deleted),
@@ -225,6 +228,11 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             // all segments must have a segment set, hence the following check is used to ensure this resource type does not return segments
             $this->conditionFactory->isTargetEntityNotInstanceOf(Segment::class)
         );
+
+        $statementConditions = $this->currentUser
+            ->hasPermission('feature_allow_update_on_non_manual_statements')
+            ? [$simpleStatementCondition]
+            : [$simpleStatementCondition, $manualStatementCondition];
 
         /** @var StatementResourceConfigBuilder $configBuilder */
         $configBuilder = parent::getProperties();
@@ -299,30 +307,30 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         // updatable with special permission and on manual statements only
         if ($this->currentUser->hasPermission('area_admin_statement_list')) {
             $configBuilder->fullText
-                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->text);
             $configBuilder->initialOrganisationName
-                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->meta->orgaName);
             $configBuilder->initialOrganisationDepartmentName
-                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->meta->orgaDepartmentName);
             $configBuilder->initialOrganisationPostalCode
-                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->meta->orgaPostalCode);
             $configBuilder->initialOrganisationCity
-                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->meta->orgaCity);
             $configBuilder->initialOrganisationHouseNumber
-                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->meta->houseNumber);
             $configBuilder->initialOrganisationStreet
-                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->meta->orgaStreet);
-            $configBuilder->authorName->updatable([$simpleStatementCondition, $manualStatementCondition]);
-            $configBuilder->submitName->updatable([$simpleStatementCondition, $manualStatementCondition]);
+            $configBuilder->authorName->updatable($statementConditions);
+            $configBuilder->submitName->updatable($statementConditions);
             $configBuilder->internId->updatable(
-                [$simpleStatementCondition, $manualStatementCondition],
+                $statementConditions,
                 function (Statement $statement, string $internIdToSet): array {
                     // check for unique
                     $isUnique = $this->statementService->isInternIdUniqueForProcedure($internIdToSet, $statement->getProcedureId());
@@ -336,7 +344,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 }
             );
             $configBuilder->authoredDate->updatable(
-                [$simpleStatementCondition, $manualStatementCondition],
+                $statementConditions,
                 function (Statement $statement, mixed $newValue): array {
                     $unrequestedChange = false;
                     // authoredDate should be less or equal to the submitDate
@@ -351,7 +359,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 }
             );
             $configBuilder->submitDate->updatable(
-                [$simpleStatementCondition, $manualStatementCondition],
+                $statementConditions,
                 static function (Statement $statement, string $value): array {
                     $statement->setSubmit(new DateTime($value));
 
@@ -359,7 +367,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 }
             );
             $configBuilder->submitType->updatable(
-                [$simpleStatementCondition, $manualStatementCondition],
+                $statementConditions,
                 static function (Statement $statement, string $submitType): array {
                     $statement->setSubmitType($submitType);
 
@@ -367,7 +375,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 }
             );
             $configBuilder->submitterEmailAddress->updatable(
-                [$simpleStatementCondition, $manualStatementCondition],
+                $statementConditions,
                 function (Statement $statement, mixed $value): array {
                     $statement->setSubmitterEmailAddress($value);
 
@@ -386,21 +394,21 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         }
 
         if ($this->currentUser->hasPermission('area_admin_consultations')) {
-            $configBuilder->submitterEmailAddress->updatable([$simpleStatementCondition, $manualStatementCondition]);
+            $configBuilder->submitterEmailAddress->updatable($statementConditions);
             $configBuilder->submitterName
-                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->meta->submitName);
             $configBuilder->submitterPostalCode
-                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->meta->orgaPostalCode);
             $configBuilder->submitterCity
-                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->meta->orgaCity);
             $configBuilder->submitterHouseNumber
-                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->meta->houseNumber);
             $configBuilder->submitterStreet
-                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->meta->orgaStreet);
         }
 

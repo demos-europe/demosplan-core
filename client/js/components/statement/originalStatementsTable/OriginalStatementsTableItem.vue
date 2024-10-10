@@ -24,7 +24,7 @@
           <col class="w-[5%] text-right">
         </colgroup>
         <thead>
-          <tr class="hide-visually">
+          <tr class="sr-only">
             <th scope="col">
               {{ Translator.trans('statement.id') }}
             </th>

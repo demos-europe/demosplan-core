@@ -20,7 +20,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\ImageLinkConverter;
-use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageManager;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\ValueObject\CellExportStyle;
 use demosplan\DemosPlanCoreBundle\ValueObject\ExportOrgaInfoHeader;
 use PhpOffice\PhpWord\Element\Footer;
@@ -38,10 +39,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SegmentsExporter
 {
-    private const STANDARD_DPI = 72;
-    private const STANDARD_PT_TEXT = 10;
-    private const MAX_WIDTH_INCH = 10.69;
-    private const MAX_HEIGHT_INCH = 5.42;
     /**
      * @var array<string, mixed>
      */
@@ -53,7 +50,8 @@ class SegmentsExporter
 
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
-        private readonly HTMLSanitizer $htmlSanitizer,
+        private readonly HtmlHelper $htmlHelper,
+        private readonly ImageManager $imageManager,
         protected readonly ImageLinkConverter $imageLinkConverter,
         Slugify $slugify,
         TranslatorInterface $translator
@@ -119,7 +117,7 @@ class SegmentsExporter
     {
         if (Footer::FIRST === $headerType) {
             $preamble = $this->translator->trans('docx.export.preamble');
-            Html::addHtml($header, $this->getHtmlValidText($preamble), false, false);
+            Html::addHtml($header, $this->htmlHelper->getHtmlValidText($preamble), false, false);
         }
     }
 
@@ -234,50 +232,7 @@ class SegmentsExporter
         foreach ($sortedSegments as $segment) {
             $this->addSegmentTableBody($table, $segment, $statement->getExternId());
         }
-        $this->addImages($section);
-    }
-
-    private function addImages(Section $section): void
-    {
-        // Add images after all segments of one statement.
-        $images = $this->imageLinkConverter->getImages();
-        if ([] === $images) {
-            return;
-        }
-        $imageSpaceCurrentlyUsed = 0;
-        $section->addPageBreak();
-        foreach ($images as $imageReference => $imagePath) {
-            [$width, $height] = getimagesize($imagePath);
-            [$maxWidth, $maxHeight] = $this->getMaxWidthAndHeight();
-
-            if ($width > $maxWidth) {
-                $factor = $maxWidth / $width;
-                $width = $maxWidth;
-                $height *= $factor;
-            }
-            if ($height > $maxHeight) {
-                $factor = $maxHeight / $height;
-                $height = $maxHeight;
-                $width *= $factor;
-            }
-            if ($height > $maxHeight - $imageSpaceCurrentlyUsed) {
-                $section->addPageBreak();
-            }
-            $imageSpaceCurrentlyUsed += $height + self::STANDARD_PT_TEXT * 2;
-
-            $imageStyle = [
-                'width'  => $width,
-                'height' => $height,
-                'align'  => Jc::START,
-            ];
-
-            $section->addText($imageReference);
-            $section->addBookmark($imageReference);
-            $section->addImage($imagePath, $imageStyle);
-        }
-
-        // remove already printed images
-        $this->imageLinkConverter->resetImages();
+        $this->imageManager->addImages($section);
     }
 
     protected function sortSegmentsByOrderInProcedure(array $segments): array
@@ -290,14 +245,6 @@ class SegmentsExporter
     private function compareOrderInProcedure(Segment $segmentA, Segment $segmentB): int
     {
         return $segmentA->getOrderInProcedure() - $segmentB->getOrderInProcedure();
-    }
-
-    private function getMaxWidthAndHeight(): array
-    {
-        $maxWidth = self::MAX_WIDTH_INCH * self::STANDARD_DPI;
-        $maxHeight = self::MAX_HEIGHT_INCH * self::STANDARD_DPI - self::STANDARD_PT_TEXT;
-
-        return [$maxWidth, $maxHeight];
     }
 
     private function addSegmentsTableHeader(Section $section, array $tableHeaders): Table
@@ -341,6 +288,8 @@ class SegmentsExporter
     private function addSegmentTableBody(Table $table, Segment $segment, string $statementExternId): void
     {
         $textRow = $table->addRow();
+        // Replace image tags in segment text and in segment recommendation text with text references.
+        $convertedSegment = $this->imageLinkConverter->convert($segment, $statementExternId);
         $this->addSegmentHtmlCell(
             $textRow,
             $segment->getExternId(),
@@ -348,14 +297,12 @@ class SegmentsExporter
         );
         $this->addSegmentHtmlCell(
             $textRow,
-            $segment->getText(),
+            $convertedSegment->getText(),
             $this->styles['segmentsTableBodyCell']
         );
-        // Replace image tags in segment recommendation text with a linked reference to the image.
-        $recommendationText = $this->imageLinkConverter->convert($segment->getRecommendation(), $statementExternId);
         $this->addSegmentHtmlCell(
             $textRow,
-            $recommendationText,
+            $convertedSegment->getRecommendationText(),
             $this->styles['segmentsTableBodyCell']
         );
     }
@@ -366,20 +313,7 @@ class SegmentsExporter
             $cellExportStyle->getWidth(),
             $cellExportStyle->getCellStyle()
         );
-        Html::addHtml($cell, $this->getHtmlValidText($text), false, false);
-    }
-
-    private function getHtmlValidText(string $text): string
-    {
-        /** @var string $text $text */
-        $text = str_replace('<br>', '<br/>', $text);
-
-        // strip all a tags without href
-        $pattern = '/<a\s+(?!.*?\bhref\s*=\s*([\'"])\S*\1)(.*?)>(.*?)<\/a>/i';
-        $text = preg_replace($pattern, '$3', $text);
-
-        // avoid problems in phpword parser
-        return $this->htmlSanitizer->purify($text);
+        Html::addHtml($cell, $this->htmlHelper->getHtmlValidText($text), false, false);
     }
 
     private function addSegmentCell(Row $row, string $text, CellExportStyle $cellExportStyle): void

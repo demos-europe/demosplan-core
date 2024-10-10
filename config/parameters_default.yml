@@ -310,21 +310,9 @@ parameters:
     # LocationUpdateService::repopulateDatabase()
     use_opengeodb: true
 
-    # SAML-related settings. These are set in config files in project folder
-    # this is just an example to document the keys
-    saml_baseurl: 'http://localhost/'
-    saml_idp_entityid: 'id'
-    saml_idp_slo_url: 'http://localhost/'
-    saml_idp_sso_url: 'http://localhost/'
-    saml_idp_x509_string: 'secretString'
-    saml_sp_acs_url: 'http://localhost/'
-    saml_sp_entityid: 'id'
-    saml_sp_sls_url: 'http://localhost/'
-    saml_sp_x509_private_string: 'secretString'
-    saml_sp_x509_string: 'secretString'
-    saml_registration_url: 'http://localhost/'
-
     # knpu_oauth2_client settings
+    # oath client referenced by knpu_oauth2_client when oauth is used
+    oauth_client: ''
     oauth_keycloak_client_id: ''
     oauth_keycloak_client_secret: ''
     oauth_keycloak_auth_server_url: ''

@@ -25,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementReportEntryResourceType
 use EDT\JsonApi\RequestHandling\PaginatorFactory;
 use Exception;
 use League\Fractal\Resource\Collection;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Webmozart\Assert\Assert;
 
@@ -47,7 +48,8 @@ class DemosPlanReportAPIController extends APIController
     public function listProcedureReportsAction(
         JsonApiPaginationParser $paginationParser,
         PaginatorFactory $paginatorFactory,
-        $group = null
+        Request $request,
+        $group = null,
     ): APIResponse {
         $resourceTypeName = match ($group) {
             'general'             => GeneralReportEntryResourceType::getName(),
@@ -71,7 +73,7 @@ class DemosPlanReportAPIController extends APIController
             $paginator = $resourceType->getEntityPaginator($pagination, []);
             $transformer = $resourceType->getTransformer();
             $collection = new Collection($paginator, $transformer, ReportEntryResourceType::getName());
-            $paginatorAdapter = $paginatorFactory->createPaginatorAdapter($paginator);
+            $paginatorAdapter = $paginatorFactory->createPaginatorAdapter($paginator, $request);
             $collection->setPaginator($paginatorAdapter);
 
             return $this->renderResource($collection);

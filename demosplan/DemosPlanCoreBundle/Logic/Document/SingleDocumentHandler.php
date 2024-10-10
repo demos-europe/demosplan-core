@@ -170,4 +170,9 @@ class SingleDocumentHandler implements SingleDocumentHandlerInterface
 
         return $this->service->updateSingleDocument($document);
     }
+
+    public function administrationDocumentDeleteHandler($data)
+    {
+        $this->service->deleteSingleDocument($data['r_ident']);
+    }
 }

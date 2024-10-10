@@ -10,8 +10,13 @@
     {% set submitTypeOptions = submitTypeOptions|merge([{ label: label, value: value }]) %}
 {% endfor %}
 
+    {# Available form definitions #}
+    {% set formDefinitions = {} %}
+    {% for definition in templateVars.statementFormDefinition.fieldDefinitions %}
+        {% set formDefinitions = formDefinitions|merge({ (definition.name): { id: definition.id, enabled: definition.enabled, required: definition.required } }) %}
+    {% endfor %}
+
 {% block component_part %}
-{#    TP DO: Fill statementFormDefinitions #}
     <statement-segments-list
         :available-counties="JSON.parse('{{ templateVars.availableCounties|default([])|json_encode|e('js', 'utf-8') }}')"
         :available-external-phases="JSON.parse('{{ templateVars.externalPhases|default([])|json_encode|e('js', 'utf-8') }}')"
@@ -26,7 +31,7 @@
         :recommendation-procedure-ids="JSON.parse('{{ recommendationProcedureIds|json_encode|e('js', 'utf-8') }}')"
         statement-id="{{ statementId }}"
         statement-extern-id="{{ statementExternId }}"
-        statement-form-definitions="{}"
+        :statement-form-definitions="JSON.parse('{{ formDefinitions|json_encode|e('js', 'utf-8') }}')"
         :submit-type-options="JSON.parse('{{ submitTypeOptions|json_encode|e('js', 'utf-8') }}')">
     </statement-segments-list>
 {% endblock %}

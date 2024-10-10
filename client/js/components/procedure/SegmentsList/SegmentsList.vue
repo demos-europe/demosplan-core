@@ -26,8 +26,8 @@
           @change-fields="updateSearchFields"
           @search="updateSearchQuery"
           @reset="updateSearchQuery" />
-        <div class="bg-color--grey-light-2 rounded-md space-inline-xs ml-2">
-          <span class="color--grey ml-2 line-height--2">
+        <div class="bg-color--grey-light-2 rounded-md ml-2">
+          <span class="color--grey ml-1 align-middle">
             {{ Translator.trans('filter') }}
           </span>
           <filter-flyout
@@ -106,7 +106,7 @@
           data-cy="segment:imgModal"/>
         <dp-data-table
           ref="dataTable"
-          class="overflow-x-auto pb-3"
+          class="overflow-x-auto pb-3 min-h-12"
           :class="{ 'px-2 overflow-y-scroll grow': isFullscreen, 'scrollbar-none': !isFullscreen }"
           data-cy="segmentsList"
           has-flyout
@@ -365,7 +365,7 @@ export default {
       },
       headerFieldsAvailable: [
         { field: 'externId', label: Translator.trans('id') },
-        { field: 'statementStatus', label: Translator.trans('status') },
+        { field: 'statementStatus', label: Translator.trans('statement.status') },
         { field: 'internId', label: Translator.trans('internId.shortened'), colWidth: '150px' },
         { field: 'submitter', label: Translator.trans('submitter') },
         { field: 'address', label: Translator.trans('address') },
@@ -454,6 +454,10 @@ export default {
       let ids = []
       if (Array.isArray(this.appliedFilterQuery) === false && Object.values(this.appliedFilterQuery).length > 0) {
         ids = Object.values(this.appliedFilterQuery).map(el => {
+          if (!el.condition.value) {
+            return 'unassigned'
+          }
+
           return el.condition.value
         })
       }
@@ -572,9 +576,11 @@ export default {
         })
         .finally(() => {
           this.isLoading = false
-          this.$nextTick(() => {
-            this.$refs.imageModal.addClickListener(this.$refs.dataTable.$el.querySelectorAll('img'))
-          })
+          if (this.items.length > 0) {
+            this.$nextTick(() => {
+              this.$refs.imageModal.addClickListener(this.$refs.dataTable.$el.querySelectorAll('img'))
+            })
+          }
         })
     },
 

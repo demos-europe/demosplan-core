@@ -61,7 +61,7 @@
                                                             {% for i in 1..vote.numberOfVotes %}
                                                                 <i class="fa fa-circle color-main" aria-hidden="true"></i>
                                                             {% endfor %}
-                                                            <span class="hide-visually">{{ vote.numberOfVotes }} {{ 'userStory.votes'|trans }}</span>
+                                                            <span class="sr-only">{{ vote.numberOfVotes }} {{ 'userStory.votes'|trans }}</span>
                                                         </dt>
                                                         <dd> {{ vote.orgaName|default() }}</dd>
                                                     </dl>

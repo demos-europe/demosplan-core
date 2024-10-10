@@ -174,14 +174,16 @@
             <button
               v-if="hasPermission('area_admin_boilerplates')"
               :class="prefixClass('menubar__button')"
+              data-cy="segmentEditor:boilerplate"
               type="button"
               v-tooltip="Translator.trans('boilerplate.insert')"
               @click.stop="openBoilerPlate">
               <i :class="prefixClass('fa fa-puzzle-piece')" />
             </button>
             <button
-              v-if="asyncComponents"
+              v-if="asyncComponents.length > 0"
               :class="prefixClass('menubar__button')"
+              data-cy="segmentEditor:similarRecommendation"
               type="button"
               v-tooltip="Translator.trans('segment.recommendation.insert.similar')"
               @click.stop="toggleRecommendationModal">
@@ -223,13 +225,35 @@
             class="u-1-of-1"
             label="name"
             :options="places"
+            :sub-slots="['option', 'singleLabel', 'tag']"
             track-by="id">
             <template v-slot:option="{ props }">
               <div
                 v-for="prop in props"
                 v-tooltip="prop.description"
-                :key="prop.id"
-                v-text="prop.name" />
+                :key="prop.id">
+                {{ prop.name }}
+                <dp-contextual-help
+                  v-if="prop.solved"
+                  class="float-right color--grey"
+                  icon="check"
+                  size="small"
+                  :text="Translator.trans('statement.solved.description')" />
+              </div>
+            </template>
+            <template v-slot:singleLabel="{ props }">
+              <div
+                v-for="prop in props"
+                v-tooltip="prop.description"
+                :key="prop.id">
+                {{ prop.name }}
+                <dp-contextual-help
+                  v-if="prop.solved"
+                  class="float-right color--grey mt-0.5"
+                  icon="check"
+                  size="small"
+                  :text="Translator.trans('statement.solved.description')" />
+              </div>
             </template>
           </dp-multiselect>
         </div>
@@ -507,8 +531,8 @@ export default {
     },
 
     tagsAsString () {
-      if (this.segment.hasRelationship('tag')) {
-        return Object.values(this.segment.rel('tag')).map(el => el.attributes.title).join(', ')
+      if (this.segment.hasRelationship('tags')) {
+        return Object.values(this.segment.rel('tags')).map(el => el.attributes.title).join(', ')
       }
 
       return '-'
@@ -655,7 +679,7 @@ export default {
     },
 
     save () {
-      const comments = { ...this.segment.relationships.comments } || null
+      const comments = this.segment.relationships.comments ? { ...this.segment.relationships.comments } : null
 
       this.updateRelationships()
       return this.saveSegmentAction(this.segment.id)
@@ -673,7 +697,9 @@ export default {
 
           this.toggleAssignableUsersSelect()
           this.$nextTick(() => {
-            this.$refs.imageModal.addClickListener(this.$refs.recommendationContainer.querySelectorAll('img'))
+            if (this.$refs.recommendationContainer) {
+              this.$refs.imageModal.addClickListener(this.$refs.recommendationContainer.querySelectorAll('img'))
+            }
           })
         })
         .catch(() => {
@@ -716,6 +742,7 @@ export default {
       this.$parent.$parent.resetSlidebar()
       this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'map' } })
       this.$root.$emit('show-slidebar')
+      this.$root.$emit('segmentMap:show')
     },
 
     showSegmentVersionHistory () {
@@ -852,7 +879,9 @@ export default {
       handler: function (newVal, oldVal) {
         if (!newVal) {
           this.$nextTick(() => {
-            this.$refs.imageModal.addClickListener(this.$refs.recommendationContainer.querySelectorAll('img'))
+            if (this.$refs.recommendationContainer) {
+              this.$refs.imageModal.addClickListener(this.$refs.recommendationContainer.querySelectorAll('img'))
+            }
           })
         }
       },
@@ -863,7 +892,12 @@ export default {
   mounted () {
     this.fetchPlaces({
       fields: {
-        Place: ['name', 'sortIndex', 'description'].join()
+        Place: [
+          'description',
+          'name',
+          'solved',
+          'sortIndex'
+        ].join()
       },
       sort: 'sortIndex'
     })

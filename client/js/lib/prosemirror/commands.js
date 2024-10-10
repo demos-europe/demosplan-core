@@ -30,15 +30,25 @@ const applySelectionChange = (view, editStateTrackerKey, rangeTrackerKey) => {
   const nodes = flattenNode(state.doc)
   const marks = getMarks(nodes, 'rangeselection', 'rangeType')
   const { from, to } = marks.selection
+  let tr = state.tr
+
+  if (to - from < 10) {
+    dplan.notify.notify('warning', Translator.trans('warning.segment.too_short'))
+    dispatch(tr)
+
+    return false
+  }
 
   /**
    * This replaces the old range with a new range. It also removes any ranges which might now be covered by the new range.
    */
-  let tr = state.tr
   tr = removeRange(state, range.from, range.to, tr)
   tr = replaceRange(state, from, to, { rangeId: rangeId, isActive: true, isConfirmed: true }, tr)
   tr = disableRangeEdit(view, editStateTrackerKey, tr)
+
   dispatch(tr)
+
+  return true
 }
 
 /**
@@ -58,6 +68,7 @@ const replaceRange = (state, from, to, rangeAttrs, tr = false) => {
    * occur. If no transaction is passed, we will just use the current state.
    */
   const mappedState = tr?.doc || state.doc
+
   if (splitsExistingRange(from, to, mappedState)) {
     throw new Error('Ranges can not be split in two parts.')
   }
@@ -78,7 +89,9 @@ const replaceRange = (state, from, to, rangeAttrs, tr = false) => {
 const removeRange = (state, from, to, tr = false) => {
   const rangeMarkType = state.config.schema.marks.range
   let transaction = tr || state.tr
+
   transaction = transaction.removeMark(from, to, rangeMarkType)
+
   return transaction
 }
 
@@ -97,10 +110,12 @@ const removeMarkByName = (state, markName, markAttr, tr = false) => {
   const marks = getMarks(nodes, markName, markAttr)
   const transaction = tr || state.tr
   const markType = state.config.schema.marks[markName]
+
   Object.values(marks).forEach(mark => {
     const { from, to } = mark
     transaction.removeMark(from, to, markType)
   })
+
   return transaction
 }
 
@@ -119,6 +134,7 @@ const setRangeEditingState = (view, rangeTrackerKey, editingDecorationsKey) => (
 
   let tr = replaceRange(state, from, to, { rangeId, isConfirmed, isActive: editingState })
   tr = tr.setMeta(editingDecorationsKey, { editing: editingState, from, to, id })
+
   dispatch(tr)
 }
 
@@ -158,15 +174,18 @@ const replaceMarkInRange = (state, from, to, markKey, markAttrs, tr = false) => 
   }
 
   transaction = transaction.removeMark(from, to, markType)
+
   const newMark = markType.create(newAttrs)
   transaction = transaction.addMark(from, to, newMark)
   const markCollection = getMarks(flattenNode(transaction.doc), markKey, 'pmId')
   const currentMarkCollection = markCollection[pmId]
+
   currentMarkCollection.marks.forEach(m => {
     transaction = transaction.removeMark(m.from, m.to, markType)
     const uniqueMark = markType.create({ ...newAttrs, pmId: uuidv4() })
     transaction = transaction.addMark(m.from, m.to, uniqueMark)
   })
+
   return transaction
 }
 
@@ -181,6 +200,7 @@ const replaceMarkInRange = (state, from, to, markKey, markAttrs, tr = false) => 
 const setRange = (view) => (from, to, rangeAttrs) => {
   const { state, dispatch } = view
   const tr = replaceRange(state, from, to, rangeAttrs)
+
   dispatch(tr)
 }
 
@@ -217,6 +237,7 @@ const makeDecoration = (id, pos, isActive = false) => {
 const genEditingDecorations = (state, from, to, id, activePosition = null) => {
   const start = Decoration.widget(from, makeDecoration(id, from, activePosition === from), { id })
   const end = Decoration.widget(to, makeDecoration(id, to, activePosition === to), { id })
+
   return DecorationSet.create(state.doc, [
     start,
     end
@@ -269,6 +290,7 @@ const disableRangeEdit = (view, editStateTrackerKey, tr = null) => {
   const { state } = view
   let transaction = tr || state.tr
   transaction = transaction.setMeta(editStateTrackerKey, 'stop-editing')
+
   return transaction
 }
 

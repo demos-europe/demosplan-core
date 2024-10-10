@@ -568,6 +568,7 @@ export default {
       const statementFields = [
         'assignee',
         'attachments',
+        'consentRevoked',
         'similarStatementSubmitters',
         'authoredDate',
         'authorName',
@@ -590,6 +591,7 @@ export default {
         'publicParticipationPhase', // TODO: has to be adjusted in the BE
         'recommendation',
         'segmentDraftList',
+        'submitterAndAuthorMetaDataAnonymized',
         'status',
         'submitDate',
         'submitName',
@@ -800,7 +802,7 @@ export default {
       }
     })
     this.setContent({ prop: 'commentsList', val: { ...this.commentsList, procedureId: this.procedure.id, statementId: this.statementId } })
-    this.fetchProcedureMapSettings(this.procedureId)
+    this.fetchProcedureMapSettings({ procedureId: this.procedure.id })
       .then(response => {
         this.procedureMapSettings = { ...this.procedureMapSettings, ...response.attributes }
       })

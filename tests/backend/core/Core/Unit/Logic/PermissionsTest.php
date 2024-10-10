@@ -255,6 +255,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_procedure_report_public_phase',
                     'field_statement_recommendation',
                     'feature_orga_edit',
+                    'feature_organisation_user_list',
                 ],
                 'featuresDenied'                    => [
                     'area_accessibility_explanation',
@@ -776,6 +777,7 @@ class PermissionsTest extends FunctionalTestCase
                     'area_mydata',
                     'area_portal_user',
                     'area_preferences',
+                    'feature_organisation_user_list',
                     'feature_procedure_single_document_upload_zip',
                     'feature_procedure_get_base_data',
                     'feature_statement_data_input_orga',
@@ -2385,7 +2387,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_accessibility_explanation',
                     'area_admin',
                     'area_admin_analysis',
-                    'area_admin_assessmenttable',
                     'area_admin_consultations',
                     'area_admin_faq',
                     'area_admin_preferences',
@@ -2602,6 +2603,7 @@ class PermissionsTest extends FunctionalTestCase
                     'area_demosplan',
                     'area_portal_user',
                     'feature_orga_get',
+                    'feature_organisation_user_list',
                     'feature_procedure_report_public_phase',
                     'feature_procedure_single_document_upload_zip',
                     'field_statement_recommendation',
@@ -2747,7 +2749,6 @@ class PermissionsTest extends FunctionalTestCase
                 'isMember'                          => true,
                 'featuresAllowed'                   => [
                     'area_admin',
-                    'area_admin_assessmenttable',
                     'area_admin_dashboard',
                     'area_data_protection_text',
                     'area_demosplan',
@@ -2831,7 +2832,6 @@ class PermissionsTest extends FunctionalTestCase
                 ],
                 'featuresDenied'                    => [
                     'area_admin',
-                    'area_admin_assessmenttable',
                     'area_admin_faq',
                     'area_admin_procedures',
                     'area_admin_statement_list',
@@ -2904,7 +2904,6 @@ class PermissionsTest extends FunctionalTestCase
                 ],
                 'featuresDenied'                    => [
                     'area_admin',
-                    'area_admin_assessmenttable',
                     'area_admin_faq',
                     'area_admin_procedures',
                     'area_admin_statement_list',
@@ -3079,7 +3078,7 @@ class PermissionsTest extends FunctionalTestCase
         bool $ownsProcedure,
         bool $isMember,
         array $allowedPermissions,
-        array $disallowedPermissions
+        array $disallowedPermissions,
     ): void {
         // do debug a specific permission enable debugging and paste dataset name
         $debugPermission = false;

@@ -38,7 +38,7 @@
     <!-- Tags Section -->
     <div
       aria-labelledby="floatingContextButton_tags"
-      class="flex-1 flex overflow-y-hidden pl-2 pr-5 -mr-4"
+      :class="['flex-1', 'flex', 'pl-2', 'pr-5', '-mr-4', { 'overflow-y-hidden': availableTags.length && tagTopics.length > 8 }]"
       @mouseover="showFloatingContextButton.tags = true"
       @mouseleave="showFloatingContextButton.tags = false">
 
@@ -52,7 +52,7 @@
 
       <div
         v-else
-        class="flex flex-col">
+        class="flex flex-col w-full">
         <div>
           <!-- search available tags -->
           <search-select
@@ -70,7 +70,8 @@
 
         <div
           v-if="tagTopics.length"
-          class="flex-1 overflow-y-scroll mt-2 pr-1">
+          :class="['flex-1', 'mt-2', 'pr-1', { 'overflow-y-scroll': tagTopics.length > 8 }]"
+          data-cy="tagTopicsContainer">
           <!-- categorized tags -->
           <tag-select
             v-for="(topic, idx) in tagTopics"
@@ -124,6 +125,7 @@
           v-model="selectedPlace"
           label="name"
           class="mb-1"
+          data-cy="selectedPlace"
           :allow-empty="false"
           :options="availablePlaces"
           :show-placeholder="false"
@@ -146,6 +148,7 @@
           v-model="selectedAssignee"
           label="name"
           class="mb-1"
+          data-cy="selectedAssignee"
           :allow-empty="false"
           :options="assignableUsers"
           :show-placeholder="false"
@@ -155,6 +158,7 @@
 
     <dp-button-row
       class="p-2"
+      data-cy="assignedTags"
       alignment="left"
       secondary
       primary
@@ -329,6 +333,16 @@ export default {
     },
 
     save () {
+      if (this.availablePlaces.length < 1) {
+        dplan.notify.notify(
+          'error',
+          Translator.trans('error.split_statement.no_place'),
+          Routing.generate('DemosPlan_procedure_places_list', { procedureId: this.procedureId }),
+          Translator.trans('places.addPlace'))
+
+        return
+      }
+
       if (this.needsUpdate) {
         this.updateSegment()
       }
@@ -354,7 +368,7 @@ export default {
 
       if (this.placeNeedsUpdate) {
         // Place can't be empty
-        if (this.selectedPlace.id !== '') {
+        if (this.selectedPlace?.id) {
           segment.placeId = this.selectedPlace.id
           const place = this.availablePlaces.find(aPlace => aPlace.id === this.selectedPlace.id)
           segment.place = place ? { id: place.id, name: place.name } : { id: this.availablePlaces[0].id, name: this.availablePlaces[0].name }
