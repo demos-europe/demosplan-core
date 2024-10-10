@@ -374,6 +374,69 @@
           :hint="Translator.trans('explanation.organisation.competence')" />
       </div>
     </fieldset>
+
+    <!-- Organisation Branding -->
+    <fieldset
+      v-if="displayOrganisationBranding"
+      class="w-3/4">
+      <legend v-if="hasPermission('feature_orga_logo_edit')">
+        <span>{{ Translator.trans('organisation.procedures.branding') }}</span>
+        <span>{{ brandingExplanation }}</span>
+      </legend>
+      <legend v-else>
+        <span>{{ Translator.trans('organisation.procedures.branding') }}</span>
+      </legend>
+
+      <!-- Data Protection Section -->
+      <div
+        v-if="hasPermission('field_data_protection_text_customized_edit_orga')"
+        class="o-form__label w-full">
+        <label :for="organisation.ident + ':data_protection'">
+          {{ Translator.trans('data.protection.notes') }}
+          <small class="lbl__hint">{{ Translator.trans('customer.data.protection.explanation') }}</small>
+        </label>
+        <editor
+          :id="organisation.ident + ':data_protection'"
+          class="o-form__control-tiptap u-mb"
+          :value="organisation.dataProtection || ''"
+          :hidden-input="organisation.ident + ':data_protection'"
+          :headings="[3, 4]"
+          link-button />
+      </div>
+
+      <!-- Imprint Section -->
+      <div v-if="hasPermission('field_imprint_text_customized_edit_orga')" class="form-row">
+        <label :for="organisation.ident + ':imprint'" class="o-form__label w-full">
+          {{ Translator.trans('imprint') }}
+          <span class="lbl__hint">{{ Translator.trans('organisation.imprint.hint') }}</span>
+        </label>
+        <editor
+          :id="organisation.ident + ':imprint'"
+          class="o-form__control-tiptap u-mb"
+          :value="organisation.imprint || ''"
+          :hidden-input="organisation.ident + ':imprint'"
+          :headings="[3, 4]"
+          link-button />
+      </div>
+
+      <!-- Public Display Section -->
+      <div v-if="hasPermission('field_organisation_agreement_showname')" class="mb-0">
+        <p class="u-mb-0">{{ Translator.trans('agree.publication') }}</p>
+        <p class="lbl__hint">{{ Translator.trans('agree.publication.explanation', { projectName }) }}</p>
+
+        <div class="u-1-of-1 o-form__element--checkbox">
+          <label :for="organisation.ident + ':showname'" class="o-form__label u-1-of-1">
+            {{ Translator.trans('agree.publication.text') }}
+          </label>
+          <input
+            type="checkbox"
+            :id="organisation.ident + ':showname'"
+            class="o-form__control-input"
+            :name="organisation.ident + ':showname'"
+            :checked="organisation.showname === true" />
+        </div>
+      </div>
+    </fieldset>
   </div>
 </template>
 
@@ -457,11 +520,30 @@ export default {
         hasPermission('field_organisation_competence')
     },
 
+    displayOrganisationBranding () {
+      return hasPermission('feature_orga_logo_edit') ||
+        hasPermission('field_data_protection_text_customized_edit_orga') ||
+        hasPermission('field_imprint_text_customized_edit_orga') ||
+        hasPermission('field_organisation_agreement_showname')
+    },
+
     paperCopyCountOptions () {
       return Array.from({ length: 11 }, (_, i) => ({
         label: i.toString(),
         value: i,
       }))
+    },
+
+    brandingExplanation() {
+      if (this.hasPermission('feature_orga_logo_edit')) {
+        return Translator.trans('organisation.procedures.branding.link', {
+          href: this.$router.resolve({
+            name: 'DemosPlan_orga_branding_edit',
+            params: { orgaId: this.organisation.ident || '' },
+          }).href,
+        })
+      }
+      return ''
     }
   }
 }
