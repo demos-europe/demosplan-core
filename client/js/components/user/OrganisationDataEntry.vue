@@ -8,7 +8,7 @@
       <div class="mb-2">
         <!-- Legal Name -->
         <label
-          :for="organisation.ident + ':name'"
+          :for="organisation.id + ':name'"
           class="o-form__label w-full">
           {{ Translator.trans('name.legal') }}
         </label>
@@ -16,7 +16,7 @@
           type="text"
           id="orga_name"
           class="o-form__control-input w-full mt-1 color--grey"
-          :name="organisation.ident + ':name'"
+          :name="organisation.id + ':name'"
           v-model="organisation.nameLegal"
           :disabled="!isOrgaDataEditable"
           required />
@@ -26,7 +26,7 @@
       <div class="flex items-start mb-2">
         <div>
           <label
-            :for="organisation.ident + ':address_street'"
+            :for="organisation.id + ':address_street'"
             class="o-form__label w-full">
             {{ Translator.trans('street') }}
           </label>
@@ -34,14 +34,14 @@
             type="text"
             id="orga_address_street"
             class="o-form__control-input w-full mt-1 mt-1 color--grey"
-            :name="organisation.ident + ':address_street'"
+            :name="organisation.id + ':address_street'"
             v-model="organisation.street"
             :disabled="!isOrgaDataEditable" />
         </div>
 
         <div>
           <label
-            :for="organisation.ident + ':address_houseNumber'"
+            :for="organisation.id + ':address_houseNumber'"
             class="o-form__label w-full">
             {{ Translator.trans('street.number.short') }}
           </label>
@@ -49,7 +49,7 @@
             type="text"
             id="orga_addressHouseNumber"
             class="o-form__control-input w-full mt-1 color--grey"
-            :name="organisation.ident + ':address_houseNumber'"
+            :name="organisation.id + ':address_houseNumber'"
             v-model="organisation.houseNumber"
             :size="5"
             :disabled="!isOrgaDataEditable" />
@@ -60,7 +60,7 @@
       <div class="flex items-start mb-2">
         <div class="o-form__group-item shrink">
           <label
-            :for="organisation.ident + ':address_postalcode'"
+            :for="organisation.id + ':address_postalcode'"
             class="o-form__label w-full">
             {{ Translator.trans('postalcode') }}
           </label>
@@ -68,7 +68,7 @@
             type="text"
             id="orga_address_postalcode"
             class="o-form__control-input w-full mt-1 color--grey"
-            :name="organisation.ident + ':address_postalcode'"
+            :name="organisation.id + ':address_postalcode'"
             v-model="organisation.postalcode"
             :size="5"
             :pattern="isOrgaDataEditable ? '^[0-9]{5}$' : ''"
@@ -77,7 +77,7 @@
 
         <div class="o-form__group-item">
           <label
-            :for="organisation.ident + ':address_city'"
+            :for="organisation.id + ':address_city'"
             class="o-form__label w-full">
             {{ Translator.trans('city') }}
           </label>
@@ -85,7 +85,7 @@
             type="text"
             id="orga_address_city"
             class="o-form__control-input w-full mt-1 color--grey"
-            :name="organisation.ident + ':address_city'"
+            :name="organisation.id + ':address_city'"
             v-model="organisation.city"
             :disabled="!isOrgaDataEditable" />
         </div>
@@ -96,14 +96,14 @@
         v-if="hasPermission('field_organisation_phone')"
         class="mb-2">
         <label
-          :for="organisation.ident + ':address_phone'"
+          :for="organisation.id + ':address_phone'"
           class="o-form__label w-full">
           {{ Translator.trans('phone') }}
         </label>
         <input
           type="tel"
           id="orga_address_phone"
-          :name="organisation.ident + ':address_phone'"
+          :name="organisation.id + ':address_phone'"
           v-model="organisation.phone"
           :disabled="!isOrgaDataEditable" />
       </div>
@@ -111,7 +111,7 @@
       <!-- Slug -->
       <div v-if="hasPermission('feature_orga_slug') && hasPermission('feature_orga_slug_edit')">
         <label
-          :for="organisation.ident + ':slug'"
+          :for="organisation.id + ':slug'"
           :title="Translator.trans('organisation.procedurelist.slug.explanation')"
           class="o-form__label w-full">
           {{ Translator.trans('organisation.procedurelist.slug') }}
@@ -124,16 +124,16 @@
         <input
           type="text"
           id="orga_slug"
-          :name="organisation.ident + ':slug'"
+          :name="organisation.id + ':slug'"
           v-model="organisation.currentSlugName"
           :class="submittedAuthorClass"
-          :data-organisation-id="organisation.ident"
+          :data-organisation-id="organisation.id"
           size="medium" />
 
         <div>
           <strong>{{ Translator.trans('preview') }}:</strong>
           <p
-            :id="organisation.ident + ':urlPreview'"
+            :id="organisation.id + ':urlPreview'"
             :data-shorturl="proceduresDirectlinkPrefix + '/'" >
             {{ proceduresDirectlinkPrefix }}/{{ organisation.currentSlugName || '' }}
           </p>
@@ -177,14 +177,14 @@
 
       <input
         type="hidden"
-        :name="`${organisation.ident || ''}:current_submission_type`"
+        :name="`${organisation.id || ''}:current_submission_type`"
         :value="organisation.submissionType" />
 
       <div class="mb-2">
         <div class="w-full o-form__element--radio">
           <input
             type="radio"
-            :name="`${organisation.ident || ''}:submission_type`"
+            :name="`${organisation.id || ''}:submission_type`"
             :value="organisation.submissionType"
             id="submission_type_short"
             :checked="(organisation.submissionType || submissionTypeDefault) === submissionTypeShort" />
@@ -201,7 +201,7 @@
         <div class="w-full o-form__element--radio">
           <input
             type="radio"
-            :name="`${organisation.ident || ''}:submission_type`"
+            :name="`${organisation.id || ''}:submission_type`"
             :value="organisation.submissionType"
             id="submission_type_default"
             :checked="(organisation.submissionType || submissionTypeDefault) === submissionTypeDefault" />
@@ -232,7 +232,7 @@
         v-if="user.isPublicAgency"
         class="w-full mb-3">
         <label
-          :for="`${organisation.ident}:email2`"
+          :for="`${organisation.id}:email2`"
           class="o-form__label w-full">
           {{ Translator.trans('email.participation') }}
           <small class="lbl__hint block">
@@ -241,7 +241,7 @@
         </label>
         <input
           type="email"
-          :name="`${organisation.ident}:email2`"
+          :name="`${organisation.id}:email2`"
           id="orga_email2"
           class="u-1-of-1 o-form__control-input"
           v-model="organisation.email2"
@@ -253,7 +253,7 @@
         v-if="user.isPublicAgency && hasPermission('field_organisation_email2_cc')"
         class="w-full mb-3">
         <label
-          :for="`${organisation.ident}:ccEmail2`"
+          :for="`${organisation.id}:ccEmail2`"
           class="o-form__label w-full">
           {{ Translator.trans('email.cc.participation') }}
           <small class="lbl__hint block">
@@ -262,7 +262,7 @@
         </label>
         <input
           type="text"
-          :name="`${organisation.ident}:ccEmail2`"
+          :name="`${organisation.id}:ccEmail2`"
           id="orga_ccEmail2"
           class="u-1-of-1 o-form__control-input"
           v-model="organisation.ccEmail2" />
@@ -273,7 +273,7 @@
         v-if="hasPermission('feature_organisation_email_reviewer_admin') && hasPermission('field_organisation_email_reviewer_admin')"
         class="w-full mb-3">
         <label
-          :for="`${organisation.ident}:emailReviewerAdmin`"
+          :for="`${organisation.id}:emailReviewerAdmin`"
           class="o-form__label w-full">
           {{ Translator.trans('email.reviewer.admin') }}
           <small class="lbl__hint block">
@@ -282,7 +282,7 @@
         </label>
         <input
           type="email"
-          :name="`${organisation.ident}:emailReviewerAdmin`"
+          :name="`${organisation.id}:emailReviewerAdmin`"
           id="orga_emailReviewerAdmin"
           class="w-full o-form__control-input"
           v-model="organisation.emailReviewerAdmin" />
@@ -304,7 +304,7 @@
           </label>
           <input
             type="checkbox"
-            :name="`${organisation.ident}:emailNotificationNewStatement`"
+            :name="`${organisation.id}:emailNotificationNewStatement`"
             id="orga_emailNotificationNewStatement"
             class="o-form__control-input"
             :checked="organisation.emailNotificationNewStatement.content" />
@@ -320,7 +320,7 @@
           </label>
           <input
             type="checkbox"
-            :name="`${organisation.ident}:emailNotificationEndingPhase`"
+            :name="`${organisation.id}:emailNotificationEndingPhase`"
             :id="`orga_emailNotificationEndingPhase`"
             class="o-form__control-input"
             :checked="organisation.emailNotificationEndingPhase?.content" />
@@ -341,7 +341,7 @@
         class="w-full mb-3">
         <dp-select
           id="orga_paperCopy"
-          :name="`${organisation.ident || ''}:paperCopy`"
+          :name="`${organisation.id || ''}:paperCopy`"
           v-model="organisation.paperCopy"
           data-cy="orgaDataEntry:paperCopy:select"
           :label="{
@@ -359,7 +359,7 @@
         <dp-text-area
           id="orga_paperCopySpec"
           data-cy="orgaDataEntry:paperCopy:specification"
-          :name="`${organisation.ident || ''}:paperCopySpec`"
+          :name="`${organisation.id || ''}:paperCopySpec`"
           :value="organisation.paperCopySpec"
           :label="Translator.trans('copies.kind')"
           :hint="Translator.trans('explanation.organisation.copies.kind')" />
@@ -371,7 +371,7 @@
         <dp-text-area
           id="orga_competence"
           data-cy="orgaDataEntry:paperCopy:competence"
-          :name="`${organisation.ident || ''}:competence`"
+          :name="`${organisation.id || ''}:competence`"
           :value="organisation.competence"
           :label="Translator.trans('competence.explanation')"
           :hint="Translator.trans('explanation.organisation.competence')" />
@@ -397,7 +397,7 @@
         v-if="hasPermission('field_data_protection_text_customized_edit_orga')"
         class="o-form__label w-full">
         <label
-          :for="organisation.ident + ':data_protection'"
+          :for="organisation.id + ':data_protection'"
           class="o-form__label w-full">
           {{ Translator.trans('data.protection.notes') }}
           <small class="lbl__hint block">
@@ -405,7 +405,7 @@
           </small>
         </label>
         <dp-editor
-          :id="organisation.ident + ':data_protection'"
+          :id="organisation.id + ':data_protection'"
           class="o-form__control-tiptap u-mb-0_75"
           data-cy="orgaDataEntry:branding:dataProtection"
           :hidden-input="organisation.dataProtection || ''"
@@ -418,7 +418,7 @@
         v-if="hasPermission('field_imprint_text_customized_edit_orga')"
         class="w-full">
         <label
-          :for="`${organisation.ident}:imprint`"
+          :for="`${organisation.id}:imprint`"
           class="o-form__label w-full">
           {{ Translator.trans('imprint') }}
           <small class="lbl__hint block">
@@ -426,10 +426,10 @@
           </small>
         </label>
         <dp-editor
-          :id="organisation.ident + ':imprint'"
+          :id="organisation.id + ':imprint'"
           class="o-form__control-tiptap u-mb-0_75"
           data-cy="orgaDataEntry:branding:imprint"
-          :hidden-input="organisation.ident + ':imprint'"
+          :hidden-input="organisation.id + ':imprint'"
           :toolbar-items="{ linkButton: true, headings: [3, 4] }"
           :value="organisation.imprint || ''" />
       </div>
@@ -445,8 +445,8 @@
           {{ Translator.trans('agree.publication.explanation', { projectName }) }}
         </small>
         <dp-checkbox
-          :id="`${organisation.ident}:showname`"
-          :name="`${organisation.ident}:showname`"
+          :id="`${organisation.id}:showname`"
+          :name="`${organisation.id}:showname`"
           :checked="organisation.showname"
           :label="{
             text: Translator.trans('agree.publication.text'),
@@ -566,7 +566,7 @@ export default {
       if (hasPermission('feature_orga_logo_edit')) {
         return Translator.trans('organisation.procedures.branding.link', {
           href: Routing.generate('DemosPlan_orga_branding_edit', {
-            orgaId: this.organisation.ident || ''
+            orgaId: this.organisation.id || ''
           })
         })
       }
