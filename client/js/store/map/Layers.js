@@ -76,10 +76,11 @@ const LayersStore = {
     /**
      *
      * @param state
-     * @param data|Object {'id': LayerId, 'attribute':AttributeName, 'value':AttributeValue}
+     * @param {Object} data {'id': LayerId, 'attribute':AttributeName, 'value':AttributeValue}
      */
     setAttributeForLayer (state, data) {
       const index = state.apiData.included.findIndex(elem => elem.id === data.id)
+
       if (index >= 0) {
         state.apiData.included[index].attributes[data.attribute] = data.value
       }

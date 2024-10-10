@@ -251,9 +251,10 @@ export default {
     },
 
     editPlace (rowData) {
-      // Reset row which was in editing state before
       const editingPlace = this.places.find(place => place.edit === true)
+
       if (editingPlace) {
+        // Reset row which was in editing state before
         editingPlace.name = this.initialRowData.name
         editingPlace.description = this.initialRowData.description
         editingPlace.solved = this.initialRowData.solved
@@ -274,6 +275,7 @@ export default {
 
     fetchPlaces () {
       this.isInitiallyLoading = true
+
       dpApi.get(Routing.generate('api_resource_list', {
         resourceType: 'Place',
         fields: {
@@ -287,6 +289,7 @@ export default {
       }))
         .then(response => {
           const places = response.data.data
+
           places.forEach((place) => {
             this.places.push({
               id: place.id,

@@ -96,7 +96,8 @@
           class="inline-block u-3-of-4"
           v-model="planstatus"
           :calendars-before="2"
-          :disabled="!isPlanStatusEditing" /><!--
+          :disabled="!isPlanStatusEditing"
+          name="planstatus" /><!--
        --><div class="inline-block u-1-of-4 text-right">
             <button
               v-if="false === isPlanStatusEditing"
