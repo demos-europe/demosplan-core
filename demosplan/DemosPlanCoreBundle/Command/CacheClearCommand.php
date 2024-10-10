@@ -87,7 +87,7 @@ class CacheClearCommand extends CoreCommand
             $this->handleAppCacheClear($input, $output);
         }
 
-        return (int) Command::SUCCESS;
+        return Command::SUCCESS;
     }
 
     private function scheduleWebApcuClear(SymfonyStyle $output): void

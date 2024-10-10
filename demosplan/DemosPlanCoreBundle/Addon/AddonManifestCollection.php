@@ -19,6 +19,7 @@ final class AddonManifestCollection
 
     public static function load(): array
     {
+        // uses local file, no need for flysystem
         if (!file_exists(DemosPlanPath::getRootPath(self::ADDONS_YAML))) {
             return [];
         }
