@@ -5,6 +5,7 @@ framework:
     secret: '%env(APP_SECRET)%'
     form: ~
     csrf_protection: ~
+    enabled_locales: ['de']
     validation: { enable_annotations: true }
     trusted_hosts: ~
     #csrf_protection: true
