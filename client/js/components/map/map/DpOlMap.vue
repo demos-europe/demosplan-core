@@ -189,6 +189,12 @@ export default {
       default: () => ([])
     },
 
+    layersToAdd: {
+      required: false,
+      type: Object,
+      default: () => ({})
+    },
+
     /*
      * If there is no procedureId, mapOptions have to be passed as prop
      * if there is a procedureId, mapOptions are not needed.
@@ -485,6 +491,7 @@ export default {
      *  @see https://css-tricks.com/using-scoped-slots-in-vue-js-to-abstract-functionality/#article-header-id-0
      */
     this.olMapState.map = this.createMap()
+    this.olMapState.map.addLayer(this.layersToAdd.territory)
     /*
      *  Layers have their own attributions, so copyright is not rendered into svg here atm.
      *  this.olMapState.map.on('postrender', e => renderCopyright(e.context, 'test'));

@@ -576,7 +576,85 @@ export default {
     this.layersToAdd = {
       procedureCoordinate: createVectorLayer(this.features.procedureCoordinate),
       initExtent: createVectorLayer(this.features.initExtent),
-      territory: createVectorLayer(this.features.territory)
+      territory: createVectorLayer({
+        "type": "FeatureCollection",
+        "features": [
+          {
+            "type": "Feature",
+            "properties": {},
+            "geometry": {
+              "coordinates": [
+                [
+                  [
+                    9.902943814047006,
+                    54.31332966945678
+                  ],
+                  [
+                    9.902943814047006,
+                    54.19193683449174
+                  ],
+                  [
+                    10.146400986174427,
+                    54.19193683449174
+                  ],
+                  [
+                    10.146400986174427,
+                    54.31332966945678
+                  ],
+                  [
+                    9.902943814047006,
+                    54.31332966945678
+                  ]
+                ]
+              ],
+              "type": "Polygon"
+            }
+          },
+          {
+            "type": "Feature",
+            "properties": {},
+            "geometry": {
+              "coordinates": [
+                [
+                  [
+                    9.910507481145032,
+                    54.37392146205758
+                  ],
+                  [
+                    9.850156138244984,
+                    54.44058235048607
+                  ],
+                  [
+                    9.776212281018445,
+                    54.39617551960421
+                  ],
+                  [
+                    9.559413460228939,
+                    54.166015610648856
+                  ],
+                  [
+                    9.707215463567763,
+                    54.27622280240681
+                  ],
+                  [
+                    9.993049184869307,
+                    54.10467459017718
+                  ],
+                  [
+                    10.28621262107282,
+                    54.23590651357412
+                  ],
+                  [
+                    9.910507481145032,
+                    54.37392146205758
+                  ]
+                ]
+              ],
+              "type": "Polygon"
+            }
+          }
+        ]
+      })
     }
     this.previousValues.isMapEnabled = this.isMapEnabled
     this.previousValues.planstatus = this.planstatus
