@@ -809,17 +809,22 @@ export default {
   created () {
     this.setProperty({ prop: 'statementId', val: this.statementId })
     this.setProperty({ prop: 'procedureId', val: this.procedureId })
-
-    // Add event listener to close sidebar on esc
-    document.addEventListener('keydown', (e) => this.toggleSideBar(e))
-    this.$once('hook:destroyed', () => {
-      document.removeEventListener('keydown', (e) => this.toggleSideBar(e))
-    })
   },
 
   mounted () {
     this.fetchAssignableUsers()
     this.fetchAvailablePlaces()
+
+    // Add event listener to close sidebar on esc
+    document.addEventListener('keydown', (e) => this.toggleSideBar(e))
+  },
+
+  unmounted () {
+    /**
+     * Remove event listener when component is destroyed
+     * This is necessary to prevent memory leaks
+     */
+    document.removeEventListener('keydown', (e) => this.toggleSideBar(e))
   }
 }
 </script>
