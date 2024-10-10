@@ -145,7 +145,7 @@
       </dl>
     </fieldset>
 
-    <!-- Submission type  -->
+    <!-- Submission type Section -->
     <!--TODO: check: (organisation.submissionType || submissionTypeDefault) === submissionTypeDefault; check what is submissionTypeDefault and submissionTypeShort -->
     <fieldset
       v-if="hasPermission('feature_change_submission_type')"
@@ -181,7 +181,7 @@
         :checked="(organisation.submissionType || submissionTypeDefault) === submissionTypeDefault" />
     </fieldset>
 
-    <!-- Email Notifications -->
+    <!-- Email Notifications Section -->
     <fieldset class="w-3/4">
       <legend
         v-if="user.isPublicAgency ||
@@ -196,6 +196,7 @@
         v-if="user.isPublicAgency"
         id="orga_email2"
         class="mb-3"
+        data-cy="organisationData:email2"
         :name="`${organisation.id}:email2`"
         :label="{
           text: Translator.trans('email.participation'),
@@ -209,6 +210,7 @@
         v-if="user.isPublicAgency && hasPermission('field_organisation_email2_cc')"
         id="orga_ccEmail2"
         class="mb-3"
+        data-cy="organisationData:ccEmail2"
         :name="`${organisation.id}:ccEmail2`"
         :label="{
           text: Translator.trans('email.cc.participation'),
@@ -216,11 +218,12 @@
         }"
         v-model="organisation.ccEmail2" />
 
-      <!-- Email for reviewer admins section (PLANNING_SUPPORTING_DEPARTMENT users may specify an email address to receive notifications whenever a fragment is assigned to someone) -->
+      <!-- PLANNING_SUPPORTING_DEPARTMENT users may specify an email address to receive notifications whenever a fragment is assigned to someone -->
       <dp-input
         v-if="hasPermission('feature_organisation_email_reviewer_admin') && hasPermission('field_organisation_email_reviewer_admin')"
         id="orga_emailReviewerAdmin"
         class="mb-3"
+        data-cy="organisationData:emailReviewerAdmin"
         :name="`${organisation.id}:emailReviewerAdmin`"
         :label="{
           text: Translator.trans('email.reviewer.admin'),
@@ -235,10 +238,12 @@
         </p>
 
         <!-- New Statement Notification -->
+        <!-- TODO: Contact BE about the type of organisation.emailNotificationNewStatement?.content, as it should be a boolean and not a string -->
         <dp-checkbox
           v-if="willReceiveNewStatementNotification && hasPermission('feature_notification_statement_new')"
           id="orga_emailNotificationNewStatement"
           :name="`${organisation.id}:emailNotificationNewStatement`"
+          data-cy="organisationData:notification:newStatement"
           :label="{
             text: Translator.trans('explanation.notification.new.statement'),
           }"
@@ -249,6 +254,7 @@
           v-if="user.isPublicAgency && hasPermission('feature_notification_ending_phase')"
           id="orga_emailNotificationEndingPhase"
           :name="`${organisation.id}:emailNotificationEndingPhase`"
+          data-cy="organisationData:notification:endingPhase"
           :label="{
             text: Translator.trans('explanation.notification.phase.ending'),
           }"
@@ -256,7 +262,7 @@
       </div>
     </fieldset>
 
-    <!-- Paper copy -->
+    <!-- Paper copy Section -->
     <fieldset
       v-if="displayPaperCopySection"
       class="w-3/4">
