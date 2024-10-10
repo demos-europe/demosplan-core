@@ -219,8 +219,11 @@
 
     <!-- Email Notifications -->
     <fieldset class="w-3/4">
-      <legend v-if="user.isPublicAgency || hasPermission('field_organisation_email2_cc') ||
-      (hasPermission('feature_organisation_email_reviewer_admin') && hasPermission('field_organisation_email_reviewer_admin'))">
+      <legend
+        v-if="user.isPublicAgency || hasPermission('field_organisation_email2_cc') ||
+        (hasPermission('feature_organisation_email_reviewer_admin') &&
+        hasPermission('field_organisation_email_reviewer_admin'))"
+        class="font-size-large weight--normal u-mb-0_75">
         {{ Translator.trans('email.notifications') }}
       </legend>
 
@@ -379,11 +382,13 @@
     <fieldset
       v-if="displayOrganisationBranding"
       class="w-3/4">
-      <legend v-if="hasPermission('feature_orga_logo_edit')">
-        <span>{{ Translator.trans('organisation.procedures.branding') }}</span>
-        <span>{{ brandingExplanation }}</span>
+      <legend
+        v-if="hasPermission('feature_orga_logo_edit')"
+        class="font-size-large weight--normal u-mb-0_25">
+        {{ Translator.trans('organisation.procedures.branding') }}
       </legend>
-      <legend v-else>
+      <p v-cleanhtml="brandingExplanation"></p>
+      <legend class="font-size-large weight--normal u-mb-0_75">
         <span>{{ Translator.trans('organisation.procedures.branding') }}</span>
       </legend>
 
@@ -391,64 +396,82 @@
       <div
         v-if="hasPermission('field_data_protection_text_customized_edit_orga')"
         class="o-form__label w-full">
-        <label :for="organisation.ident + ':data_protection'">
+        <label
+          :for="organisation.ident + ':data_protection'"
+          class="o-form__label w-full">
           {{ Translator.trans('data.protection.notes') }}
-          <small class="lbl__hint">{{ Translator.trans('customer.data.protection.explanation') }}</small>
+          <small class="lbl__hint block">
+            {{ Translator.trans('customer.data.protection.explanation') }}
+          </small>
         </label>
-        <editor
+        <dp-editor
           :id="organisation.ident + ':data_protection'"
-          class="o-form__control-tiptap u-mb"
-          :value="organisation.dataProtection || ''"
-          :hidden-input="organisation.ident + ':data_protection'"
-          :headings="[3, 4]"
-          link-button />
+          class="o-form__control-tiptap u-mb-0_75"
+          data-cy="orgaDataEntry:branding:dataProtection"
+          :hidden-input="organisation.dataProtection || ''"
+          :toolbar-items="{ linkButton: true, headings: [3, 4] }"
+          :value="organisation.dataProtection || ''" />
       </div>
 
       <!-- Imprint Section -->
-      <div v-if="hasPermission('field_imprint_text_customized_edit_orga')" class="form-row">
-        <label :for="organisation.ident + ':imprint'" class="o-form__label w-full">
+      <div
+        v-if="hasPermission('field_imprint_text_customized_edit_orga')"
+        class="w-full">
+        <label
+          :for="`${organisation.ident}:imprint`"
+          class="o-form__label w-full">
           {{ Translator.trans('imprint') }}
-          <span class="lbl__hint">{{ Translator.trans('organisation.imprint.hint') }}</span>
+          <small class="lbl__hint block">
+            {{ Translator.trans('organisation.imprint.hint') }}
+          </small>
         </label>
-        <editor
+        <dp-editor
           :id="organisation.ident + ':imprint'"
-          class="o-form__control-tiptap u-mb"
-          :value="organisation.imprint || ''"
+          class="o-form__control-tiptap u-mb-0_75"
+          data-cy="orgaDataEntry:branding:imprint"
           :hidden-input="organisation.ident + ':imprint'"
-          :headings="[3, 4]"
-          link-button />
+          :toolbar-items="{ linkButton: true, headings: [3, 4] }"
+          :value="organisation.imprint || ''" />
       </div>
 
       <!-- Public Display Section -->
-      <div v-if="hasPermission('field_organisation_agreement_showname')" class="mb-0">
-        <p class="u-mb-0">{{ Translator.trans('agree.publication') }}</p>
-        <p class="lbl__hint">{{ Translator.trans('agree.publication.explanation', { projectName }) }}</p>
-
-        <div class="u-1-of-1 o-form__element--checkbox">
-          <label :for="organisation.ident + ':showname'" class="o-form__label u-1-of-1">
-            {{ Translator.trans('agree.publication.text') }}
-          </label>
-          <input
-            type="checkbox"
-            :id="organisation.ident + ':showname'"
-            class="o-form__control-input"
-            :name="organisation.ident + ':showname'"
-            :checked="organisation.showname === true" />
-        </div>
+      <div
+        v-if="hasPermission('field_organisation_agreement_showname')"
+        class="mb-0">
+        <label class="o-form__label">
+          {{ Translator.trans('agree.publication') }}
+        </label>
+        <small class="lbl__hint block">
+          {{ Translator.trans('agree.publication.explanation', { projectName }) }}
+        </small>
+        <dp-checkbox
+          :id="`${organisation.ident}:showname`"
+          :name="`${organisation.ident}:showname`"
+          :checked="organisation.showname"
+          :label="{
+            text: Translator.trans('agree.publication.text'),
+            bold: true
+          }" />
       </div>
     </fieldset>
   </div>
 </template>
 
 <script>
-import { DpSelect, DpTextArea } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpSelect, DpTextArea, DpEditor, DpCheckbox } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'OrganisationDataEntry',
 
   components: {
     DpTextArea,
-    DpSelect
+    DpSelect,
+    DpEditor,
+    DpCheckbox
+  },
+
+  directives: {
+    cleanhtml: CleanHtml,
   },
 
   props: {
@@ -494,6 +517,11 @@ export default {
       type: Array,
       required: false,
       default: () => ([])
+    },
+    projectName: {
+      type: String,
+      required: false,
+      default: ''
     }
   },
 
@@ -535,12 +563,11 @@ export default {
     },
 
     brandingExplanation() {
-      if (this.hasPermission('feature_orga_logo_edit')) {
+      if (hasPermission('feature_orga_logo_edit')) {
         return Translator.trans('organisation.procedures.branding.link', {
-          href: this.$router.resolve({
-            name: 'DemosPlan_orga_branding_edit',
-            params: { orgaId: this.organisation.ident || '' },
-          }).href,
+          href: Routing.generate('DemosPlan_orga_branding_edit', {
+            orgaId: this.organisation.ident || ''
+          })
         })
       }
       return ''
