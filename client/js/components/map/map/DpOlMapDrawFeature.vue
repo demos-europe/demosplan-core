@@ -169,6 +169,7 @@ export default {
       currentlyActive: this.initActive,
       drawingExtent: '',
       drawInteraction: null,
+      featureId: uuid(),
       layerToDrawInto: null,
       snap: null,
       vectorSourceOptions: {}
@@ -178,12 +179,6 @@ export default {
   computed: {
     map () {
       return this.olMapState.map
-    }
-  },
-
-  watch: {
-    features () {
-      this.init()
     }
   },
 
@@ -203,7 +198,7 @@ export default {
           source: this.layerToDrawInto.getSource(),
           type: this.type,
           name: this.name,
-          id: 'draw' + uuid(),
+          id: `draw${this.featureId}`,
           style: drawStyle(style)
         })
 
@@ -244,7 +239,7 @@ export default {
       this.vectorSourceOptions = {
         format: new GeoJSON(),
         projection: this.map.getView().getProjection(),
-        id: 'source' + uuid()
+        id: `source${this.featureId}`
       }
 
       // Validate geojson? https://github.com/craveprogramminginc/GeoJSON-Validation
@@ -263,8 +258,10 @@ export default {
         title: this.name, // Title?
         name: this.name,
         type: this.type,
-        id: 'layer' + uuid(),
-        style: drawStyle(style)
+        id: `layer${this.featureId}`,
+        style: drawStyle(style),
+        // make sure drawing layer is always on top
+        zIndex: 1000
       })
 
       this.map.addLayer(layer)

@@ -63,14 +63,14 @@
  --><div class="layout__item u-1-of-2">
       <ul>
         <li
-          v-for="link in permittedLinks"
+          v-for="(link, index) in permittedLinks"
           class="layout__item"
           :key="link.tooltipContent">
           <a
             v-tooltip="Translator.trans(link.tooltipContent)"
             class="o-link"
             :class="{'color-status-complete-text': link.done()}"
-            :data-cy="Translator.trans(link.label)"
+            :data-cy="`gisLayerLink:${index}`"
             :href="href(link)">
             <i
               aria-hidden="true"
@@ -83,7 +83,9 @@
           </a>
         </li>
       </ul>
-      <div class="layout__item u-mb-0_25 u-mt-0_25">
+      <div
+        v-if="hasPermission('feature_map_planstate')"
+        class="layout__item u-mb-0_25 u-mt-0_25">
         <label
           class="inline-block u-1-of-3 u-mb-0"
           for="planstatus">{{ Translator.trans('planstatus') }}
@@ -100,6 +102,7 @@
             <button
               v-if="false === isPlanStatusEditing"
               class="btn--blank o-link--default"
+              data-cy="planStatusEditing"
               :title="Translator.trans('edit')"
               type="button"
               @click="setEditingStatus('isPlanStatusEditing', true)">
@@ -149,6 +152,7 @@
             <button
               v-if="false === isMapStatusEditing"
               class="btn--blank o-link--default"
+              data-cy="mapStatusEditing"
               :title="Translator.trans('edit')"
               type="button"
               @click="setEditingStatus('isMapStatusEditing', true)">
@@ -159,6 +163,7 @@
             <button
               v-if="isMapStatusEditing"
               class="btn--blank o-link--default"
+              data-cy="mapStatusEditingSave"
               :title="Translator.trans('save')"
               type="button"
               @click="updateIsMapEnabled">
@@ -169,6 +174,7 @@
             <button
               v-if="isMapStatusEditing"
               class="btn--blank o-link--default"
+              data-cy="mapStatusEditingReset"
               :title="Translator.trans('reset')"
               type="button"
               @click="reset('isMapEnabled', 'isMapStatusEditing')">

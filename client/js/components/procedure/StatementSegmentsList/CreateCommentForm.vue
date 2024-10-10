@@ -54,16 +54,16 @@ export default {
   },
 
   computed: {
-    ...mapGetters('segmentSlidebar', [
+    ...mapGetters('SegmentSlidebar', [
       'commentsList',
       'currentCommentText'
     ]),
 
-    ...mapState('statementSegment', {
+    ...mapState('StatementSegment', {
       segments: 'items'
     }),
 
-    ...mapState('segmentSlidebar', [
+    ...mapState('SegmentSlidebar', [
       'isLoading'
     ]),
 
@@ -77,21 +77,21 @@ export default {
   },
 
   methods: {
-    ...mapActions('statementSegment', {
+    ...mapActions('StatementSegment', {
       listSegments: 'list',
       restoreSegmentAction: 'restoreFromInitial'
     }),
 
-    ...mapMutations('segmentSlidebar', [
+    ...mapMutations('SegmentSlidebar', [
       'setContent',
       'setProperty'
     ]),
 
-    ...mapMutations('statementSegment', {
+    ...mapMutations('StatementSegment', {
       updateSegment: 'update'
     }),
 
-    ...mapMutations('segmentComment', {
+    ...mapMutations('SegmentComment', {
       setComment: 'setItem'
     }),
 
@@ -146,20 +146,20 @@ export default {
                 data: payloadRel.place?.data?.id
                   ? {
                       id: payloadRel.place.data.id,
-                      type: 'place'
+                      type: 'Place'
                     }
                   : null
               },
               segment: {
                 data: {
                   id: payloadRel.segment.data.id,
-                  type: 'statementSegment'
+                  type: 'StatementSegment'
                 }
               },
               submitter: {
                 data: {
                   id: payloadRel.submitter.data.id,
-                  type: 'user'
+                  type: 'User'
                 }
               }
             }
@@ -170,7 +170,7 @@ export default {
             action: 'add',
             value: {
               id: id,
-              type: 'segmentComment'
+              type: 'SegmentComment'
             }
           }
 

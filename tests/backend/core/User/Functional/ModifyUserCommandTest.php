@@ -24,7 +24,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Tests\Base\FunctionalTestCase;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 class ModifyUserCommandTest extends FunctionalTestCase
 {

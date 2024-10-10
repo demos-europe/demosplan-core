@@ -205,7 +205,7 @@ export default {
     },
 
     layers () {
-      return this.$store.getters['layers/gisLayerList']()
+      return this.$store.getters['Layers/gisLayerList']()
     },
 
     mapx () {
@@ -402,7 +402,7 @@ export default {
 
     addTerritoryLayer () {
       //  If there is no territory wms layer defined but a "hand-drawn" territory, craft a vector layer from it
-      if (!this.hasTerritoryWMS && this.procedureSettings.territory.length > 0 && this.procedureSettings.territory !== '{}') {
+      if (!this.hasTerritoryWMS && this.hasTerritory()) {
         //  Read GeoJson features
         const features = new GeoJSON().readFeatures(this.procedureSettings.territory)
 
@@ -709,7 +709,7 @@ export default {
       const mapLegends = $(this.prefixClass('.js__mapLayerLegends'))
 
       //  Initially hide all legends
-      mapLegends.find('[data-layername]').addClass(this.prefixClass('hide-visually'))
+      mapLegends.find('[data-layername]').addClass(this.prefixClass('sr-only'))
 
       //  Loop layers
       this.map.getLayers().forEach((layer, idx, a) => {
@@ -725,7 +725,7 @@ export default {
 
             //  Show appropriate legend if layer is visible
             if (sublayer.getVisible()) {
-              mapLegends.find('[data-layername="' + sublayer.get('title') + '"]').removeClass(this.prefixClass('hide-visually'))
+              mapLegends.find('[data-layername="' + sublayer.get('title') + '"]').removeClass(this.prefixClass('sr-only'))
             }
           })
         }
@@ -1529,20 +1529,25 @@ export default {
       const layerArray = Array.isArray(layer.attributes.layers) ? layer.attributes.layers : layer.attributes.layers.split(',')
       const url = this.addGetCapabilityParamToUrl(layer.attributes.url)
 
-      return $.ajax({
-        dataType: 'xml',
-        url: url || '',
-        async: false,
-        success: response => {
-          const result = this.parser.read(response)
-          const options = optionsFromCapabilities(result, {
-            layer: layerArray[0] || '',
-            matrixSet: layer.attributes.tileMatrixSet
-          })
+      let xml
 
-          return new WMTS({ ...options, layers: layerArray })
-        }
+      const xhr = new XMLHttpRequest()
+      xhr.open('GET', url, false)
+      xhr.send(null)
+
+      if (xhr.status === 200) {
+        xml = xhr.responseXML
+      } else {
+        throw new Error(`Error fetching WMTS source: ${xhr.statusText}`)
+      }
+
+      const result = this.parser.read(xml)
+      const options = optionsFromCapabilities(result, {
+        layer: layerArray[0] || '',
+        matrixSet: layer.attributes.tileMatrixSet
       })
+
+      return new WMTS({ ...options, layers: layerArray })
     },
 
     getWMSSource (layer) {
@@ -1615,6 +1620,10 @@ export default {
         }
       }
       this.$root.$emit('changeActive')
+    },
+
+    hasTerritory() {
+      return this.procedureSettings.territory && this.procedureSettings.territory.features.length > 0
     },
 
     removeOtherInteractions (reset) {
@@ -2043,7 +2052,7 @@ export default {
   },
 
   mounted () {
-    this.$store.dispatch('layers/get', this.procedureId).then(() => {
+    this.$store.dispatch('Layers/get', this.procedureId).then(() => {
       this.baseLayers = []
       this.overlayLayers = []
       this.progress = new Progress(document.getElementById('mapProgress'))
@@ -2060,7 +2069,7 @@ export default {
       this.addLayersToMap()
       this.doAllTheOtherExcitingStuff()
       this.addCustomZoomControls()
-      this.$store.commit('layers/setIsMapLoaded')
+      this.$store.commit('Layers/setIsMapLoaded')
 
       if (JSON.stringify(this.procedureInitialExtent) === JSON.stringify(this.procedureDefaultInitialExtent) && this.procedureSettings.coordinate !== '') {
         this.panToCoordinate(JSON.parse('[' + this.procedureSettings.coordinate + ']'))

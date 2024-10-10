@@ -31,7 +31,7 @@ nelmio_security:
             base-uri: '%demosplan_csp_base_uri%'
             form-action: '%demosplan_csp_form_action%'
             worker-src:
-                - 'none'
+                - 'blob:'
             upgrade-insecure-requests: '%https_only%' # upgrades HTTP requests to HTTPS transport
 
         compat_headers: false #Disable compat_headers to avoid sending X-Content-Security-Policy (IE10, IE11, Firefox < 23). This will mean those browsers get no CSP instructions.

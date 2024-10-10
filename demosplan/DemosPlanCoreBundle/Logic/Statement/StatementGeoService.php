@@ -30,7 +30,7 @@ use geoPHP\Geometry\Polygon;
 use geoPHP\geoPHP;
 use SimpleXMLElement;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;

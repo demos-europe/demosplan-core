@@ -4,7 +4,7 @@
       <dp-select
         v-model="selectedPhase"
         class="w-8/12"
-        :data-cy="dataCySelect"
+        :data-cy="`${dataCy}:select`"
         :label="{
           text: labelText,
           tooltip: helpText
@@ -17,7 +17,7 @@
       <dp-input
         v-if="hasPermission('field_phase_iterator')"
         :id="iterator.name"
-        :data-cy="dataCyIterator"
+        :data-cy="`${dataCy}:iterator`"
         :label="{
           text: iterator.label,
           tooltip: iterator.tooltip
@@ -64,13 +64,7 @@ export default {
       default: ''
     },
 
-    dataCySelect: {
-      type: String,
-      required: false,
-      default: ''
-    },
-
-    dataCyIterator: {
+    dataCy: {
       type: String,
       required: false,
       default: ''

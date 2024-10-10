@@ -5,7 +5,7 @@
       v-model="contact.title"
       class="u-mb-0_75"
       data-cy="contactTitle"
-      data-dp-validate-error="error.name.required"
+      :data-dp-validate-error="Translator.trans('error.name.required')"
       :label="{
         text: Translator.trans('contact.name')
       }"
@@ -17,7 +17,7 @@
       autocomplete="tel"
       class="u-mb-0_75"
       data-cy="phoneNumber"
-      :data-dp-validate-error="!contact.phoneNumber ? 'error.phone.required' : 'error.phone.pattern'"
+      :data-dp-validate-error="Translator.trans(!contact.phoneNumber ? 'error.phone.required' : 'error.phone.pattern')"
       :label="{
         text: Translator.trans('contact.phone_number')
       }"
@@ -100,20 +100,20 @@ export default {
   },
 
   computed: {
-    ...mapState('customerLoginSupportContact', {
+    ...mapState('CustomerLoginSupportContact', {
       contacts: 'items'
     })
   },
 
   methods: {
-    ...mapActions('customerLoginSupportContact', {
+    ...mapActions('CustomerLoginSupportContact', {
       create: 'create',
       delete: 'delete',
       fetch: 'list',
       save: 'save'
     }),
 
-    ...mapMutations('customerLoginSupportContact', {
+    ...mapMutations('CustomerLoginSupportContact', {
       update: 'setItem'
     }),
 

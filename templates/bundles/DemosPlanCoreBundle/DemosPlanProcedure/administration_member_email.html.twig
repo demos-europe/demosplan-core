@@ -36,6 +36,7 @@
             type="{{ type }}"></dp-inline-notification>
 
         <dp-accordion
+            data-cy="administrationMemberEmail:recipients"
             title="{{ 'recipients'|trans }}"
             class="u-mb"
             compressed>
@@ -83,11 +84,21 @@
             >
         {% endfor %}
 
+        {% set translatedError = 'error.mandatoryfields'|trans %}
+        {% set attributeString = 'data-dp-validate-error="' ~ translatedError|e('html_attr') ~ '"' %}
+
         {{ uiComponent('form.row', {
             elements: [
                 {
                     label: { text: 'subject'|trans },
-                    control: { name: 'r_emailTitle', value: templateVars.procedure.settings.emailTitle, attributes: ['data-dp-validate-error=error.mandatoryfields'] },
+                    control: {
+                        name: 'r_emailTitle',
+                        value: templateVars.procedure.settings.emailTitle,
+                        attributes: [
+                            attributeString,
+                            'data-cy=administrationMemberEmail:emailTitle'
+                        ]
+                    },
                     type: 'text',
                     required: true
                 }
@@ -110,6 +121,11 @@
                 |json_encode|e('js', 'utf-8') }}')">
         </dp-email-list>
 
+        {% set emailText = templateVars.procedure.settings.emailText|default %}
+        {% if hasPermission('feature_email_invitable_institution_additional_invitation_text') and templateVars.emailTextAdded is defined %}
+            {% set emailText = emailText ~ '<br/><br/>' ~ templateVars.emailTextAdded|wysiwyg|nl2br  %}
+        {% endif %}
+
         <div class="{{ 'u-mb-0_75'|prefixClass }}">
             <dp-label
                 for="r_emailText"
@@ -118,13 +134,14 @@
             <dp-editor
                 id="r_emailText"
                 ref="r_emailText"
+                data-cy="administrationMemberEmail:emailText"
                 hidden-input="r_emailText"
                 :toolbar-items="{
                     headings: [1, 2, 3],
                     linkButton: true
                 }"
                 required
-                value="{{ templateVars.procedure.settings.emailText|default }}">
+                value="{{ emailText }}">
                 <template v-slot:modal="modalProps">
                     <dp-boiler-plate-modal
                         ref="boilerPlateModal"
@@ -147,35 +164,27 @@
 
         <a
             href="{{ path('DemosPlan_procedure_member_index', {'procedure': procedureId}) }}"
-            class="btn btn--secondary text-left u-mt-0_5">
+            class="btn btn--secondary text-left u-mt-0_5"
+            data-cy="administrationMemberEmail:back">
             {{ 'back'|trans }}
         </a>
 
         <div class="flow-root inline text-right float-right u-mt-0_5 space-inline-s">
             <input
                 class="btn btn--secondary"
+                data-cy="administrationMemberEmail:draftSave"
                 type="submit"
                 value="{{ "draft.save"|trans }}"
                 name="updateEmailText">
             <button
                 type="submit"
                 class="btn btn--primary"
+                data-cy="administrationMemberEmail:sendInvitationEmail"
                 name="sendInvitationEmail"
                 {% if selectedPublicAgencies|length == 0 %}disabled{% endif %}>
                 {{ "email.send"|trans }}
             </button>
         </div>
-
-        {% if hasPermission('feature_email_invitable_institution_additional_invitation_text') %}
-            <h2 class="u-mt-2">{{ "email.text"|trans }}:</h2>
-            <p>
-                {% if templateVars.emailTextAdded is defined %}
-                    {{ templateVars.emailTextAdded|wysiwyg|nl2br }}
-                {% else %}
-                    Kein Text definiert.
-                {% endif %}
-            </p>
-        {% endif %}
 
     </form>
 

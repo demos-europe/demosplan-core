@@ -18,20 +18,11 @@ use Symfony\Component\HttpFoundation\Request;
 
 class SubdomainHandler implements SubdomainHandlerInterface
 {
-    /** @var GlobalConfigInterface */
-    protected $globalConfig;
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
-
     public function __construct(
-        GlobalConfigInterface $globalConfig,
-        LoggerInterface $logger,
+        private readonly GlobalConfigInterface $globalConfig,
+        private readonly LoggerInterface $logger,
         private readonly CustomerRepository $customerRepository
     ) {
-        $this->globalConfig = $globalConfig;
-        $this->logger = $logger;
     }
 
     public function setSubdomainParameter(Request $request): void
@@ -39,10 +30,6 @@ class SubdomainHandler implements SubdomainHandlerInterface
         $this->getGlobalConfig()->setSubdomain($this->getSubdomain($request));
     }
 
-    /**
-     * Returns the url's subdomain if it exists and it is in allowedSubdomains' array.
-     * Otherwise returns the Config Parameter 'subdomain'.
-     */
     public function getSubdomain(Request $request): string
     {
         $urlSubdomain = $this->getUrlSubdomain($request);

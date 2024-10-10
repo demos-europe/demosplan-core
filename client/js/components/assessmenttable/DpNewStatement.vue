@@ -158,7 +158,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('assessmentTable', [
+    ...mapGetters('AssessmentTable', [
       'counties',
       'municipalities',
       'priorityAreas',
@@ -185,7 +185,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('assessmentTable', ['applyBaseData']),
+    ...mapActions('AssessmentTable', ['applyBaseData']),
 
     addLocationPrompt (data) {
       if (data.counties.length > 0) {

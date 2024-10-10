@@ -79,6 +79,7 @@ class Helpers
 
             return [$subdomain => $name];
         })
+            ->sort()
             ->toArray();
         $questionCustomer = new ChoiceQuestion(
             'Please select a customer: ',

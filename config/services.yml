@@ -25,6 +25,10 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\Factory\GisLayerFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\GisLayerFactory'
 
+    DemosEurope\DemosplanAddon\Contracts\Factory\BoilerplateFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\BoilerplateFactory'
+
+    DemosEurope\DemosplanAddon\Contracts\Factory\BoilerplateCategoryFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\BoilerplateCategoryFactory'
+
     DemosEurope\DemosplanAddon\Contracts\Factory\PercentageDistributionFactoryInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\Factory\PercentageDistributionFactory'
 
@@ -84,6 +88,9 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\Handler\SingleDocumentHandlerInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentHandler
+
+    DemosEurope\DemosplanAddon\Contracts\Handler\ParagraphHandlerInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphHandler
 
     DemosEurope\DemosplanAddon\Contracts\Services\ElementsServiceInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService
@@ -255,7 +262,7 @@ services:
     # which needs the permission-settings to execute its logic.
     demosplan\DemosPlanCoreBundle\EventListener\CheckPermissionListener:
         tags:
-            - { name: kernel.event_listener, event: kernel.controller, method: onControllerRequest, priority: 5 }
+            - { name: kernel.event_listener, event: kernel.controller, method: onControllerRequest, priority: 4 }
 
     demosplan\DemosPlanCoreBundle\EventListener\DemosPlanRequestListener:
         tags:
@@ -868,6 +875,10 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
+
+    demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticsearchResultCreator:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+        lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticSearchService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService

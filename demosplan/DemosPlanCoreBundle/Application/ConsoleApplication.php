@@ -41,8 +41,9 @@ class ConsoleApplication extends Application
     private function addProjectFolderConsoleDeprecationNotice(OutputInterface $output): void
     {
         if ($this->isDeprecatedFrontController) {
-            $activeProject = $this->getKernel()->getActiveProject();
-
+            /** @var DemosPlanKernel $kernel */
+            $kernel = $this->getKernel();
+            $activeProject = $kernel->getActiveProject();
             $message = "Warning, this console is moving to bin/{$activeProject}, please adjust your usage accordingly.";
 
             $output->write("\e[31m{$message}\e[0m\n");
@@ -52,7 +53,7 @@ class ConsoleApplication extends Application
     /**
      * @return DemosPlanKernel|KernelInterface
      */
-    public function getKernel()
+    public function getKernel(): KernelInterface
     {
         return parent::getKernel();
     }

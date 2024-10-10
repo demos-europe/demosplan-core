@@ -1,0 +1,3 @@
+/* stylelint-disable */
+@config '../../tailwind.preflight.config.js';
+@tailwind base;

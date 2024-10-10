@@ -23,24 +23,24 @@ const components = {
 }
 
 const stores = {
-  procedureMapSettings,
+  ProcedureMapSettings: procedureMapSettings,
   SegmentSlidebar,
-  splitstatement: SplitStatementStore
+  SplitStatement: SplitStatementStore
 }
 
 if (hasPermission('area_admin_boilerplates')) {
-  stores.boilerplates = BoilerplatesStore
+  stores.Boilerplates = BoilerplatesStore
 }
 
 const apiStores = [
-  'aggregationFilterItems',
-  'assignableUser',
-  'place',
-  'segmentComment',
-  'statement',
-  'statementSegment',
-  'tags',
-  'user'
+  'AggregationFilterItems',
+  'AssignableUser',
+  'Place',
+  'SegmentComment',
+  'Statement',
+  'StatementSegment',
+  'Tags',
+  'User'
 ]
 
 initialize(components, stores, apiStores)

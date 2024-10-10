@@ -841,7 +841,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     /**
      * @param string $designatedPublicPhase
      */
-    public function setDesignatedPublicPhase($designatedPublicPhase)
+    public function setDesignatedPublicPhase($designatedPublicPhase): self
     {
         $this->procedure->getPublicParticipationPhaseObject()->setDesignatedPhase($designatedPublicPhase);
 

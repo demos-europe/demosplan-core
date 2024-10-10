@@ -8,7 +8,8 @@
  */
 const SegmentSlidebarStore = {
   namespaced: true,
-  name: 'segmentSlidebar',
+
+  name: 'SegmentSlidebar',
 
   state: {
     slidebar: {

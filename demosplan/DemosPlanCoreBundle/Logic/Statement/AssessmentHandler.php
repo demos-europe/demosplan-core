@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
@@ -23,7 +24,6 @@ use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOu
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\ViewOrientation;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\UserFilterSetService;
 use demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService;
@@ -68,7 +68,7 @@ class AssessmentHandler extends CoreHandler
         private readonly CurrentUserInterface $currentUser,
         private readonly GlobalConfig $globalConfig,
         HashedQueryService $filterSetService,
-        MessageBag $messageBag,
+        MessageBagInterface $messageBag,
         private readonly PresentableOriginalStatementFactory $presentableOriginalStatementFactory,
         private readonly ProcedureService $procedureService,
         private readonly RouterInterface $router,
@@ -76,7 +76,7 @@ class AssessmentHandler extends CoreHandler
         StatementFragmentService $statementFragmentService,
         StatementService $statementService,
         TranslatorInterface $translator,
-        UserFilterSetService $userFilterSetService
+        UserFilterSetService $userFilterSetService,
     ) {
         parent::__construct($messageBag);
         $this->assessmentTableServiceOutput = $assessmentTableServiceOutput;
@@ -210,7 +210,7 @@ class AssessmentHandler extends CoreHandler
         array $requestPost,
         array $exportChoice,
         string $viewMode,
-        bool $original = false
+        bool $original = false,
     ): DocxExportResult {
         $outputResult = $this->prepareOutputResult($procedureId, $original, $requestPost);
         try {
@@ -250,6 +250,7 @@ class AssessmentHandler extends CoreHandler
                 $outputResult,
                 $exportChoice['template'],
                 $exportChoice['anonymous'],
+                $exportChoice['numberStatements'],
                 $exportChoice['exportType'],
                 $viewOrientation,
                 $requestPost,

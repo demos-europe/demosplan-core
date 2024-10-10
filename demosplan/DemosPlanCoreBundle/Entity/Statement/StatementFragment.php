@@ -33,7 +33,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Exception;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
-use Tightenco\Collect\Support\Collection as SupportCollection;
+use Illuminate\Support\Collection as SupportCollection;
 
 /**
  * StatementFragment - Represents a fragment of a statement.

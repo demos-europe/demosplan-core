@@ -53,7 +53,7 @@ class ReportEntryResourceType extends DplanResourceType
 
     public static function getName(): string
     {
-        return 'Report';
+        return 'report';
     }
 
     public function getEntityClass(): string

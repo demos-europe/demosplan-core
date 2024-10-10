@@ -14,7 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\ValueObject\Map;
 
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 use Psr\Log\InvalidArgumentException;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 /**
  * @method bool                isBaseLayer()

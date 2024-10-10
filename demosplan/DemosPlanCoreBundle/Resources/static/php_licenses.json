@@ -91,6 +91,11 @@
     },
     {
         "license": "MIT",
+        "package": "endroid/qr-code-bundle",
+        "website": "https://github.com/endroid/qr-code-bundle"
+    },
+    {
+        "license": "MIT",
         "package": "enqueue/elastica-bundle",
         "website": "https://github.com/php-enqueue/enqueue-elastica-bundle"
     },
@@ -161,8 +166,8 @@
     },
     {
         "license": "MIT",
-        "package": "hslavich/oneloginsaml-bundle",
-        "website": "https://github.com/hslavich/OneloginSamlBundle"
+        "package": "illuminate/collections",
+        "website": "https://github.com/illuminate/collections"
     },
     {
         "license": "MIT",
@@ -188,6 +193,11 @@
         "license": "MIT",
         "package": "jms/serializer-bundle",
         "website": "https://github.com/schmittjoh/JMSSerializerBundle"
+    },
+    {
+        "license": "MIT",
+        "package": "khanamiryan/qrcode-detector-decoder",
+        "website": "https://github.com/khanamiryan/php-qrcode-detector-decoder"
     },
     {
         "license": "MIT",
@@ -331,8 +341,18 @@
     },
     {
         "license": "MIT",
-        "package": "sensio/framework-extra-bundle",
-        "website": "https://github.com/sensiolabs/SensioFrameworkExtraBundle"
+        "package": "scheb/2fa-bundle",
+        "website": "https://github.com/scheb/2fa-bundle"
+    },
+    {
+        "license": "MIT",
+        "package": "scheb/2fa-email",
+        "website": "https://github.com/scheb/2fa-email"
+    },
+    {
+        "license": "MIT",
+        "package": "scheb/2fa-totp",
+        "website": "https://github.com/scheb/2fa-totp"
     },
     {
         "license": "MIT",
@@ -588,11 +608,6 @@
         "license": "MIT",
         "package": "symfony/yaml",
         "website": "https://github.com/symfony/yaml"
-    },
-    {
-        "license": "MIT",
-        "package": "tightenco/collect",
-        "website": "https://github.com/tighten/collect"
     },
     {
         "license": "MIT",

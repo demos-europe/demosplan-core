@@ -317,13 +317,6 @@ submenu_procedures:
         link_attributes:
             data-cy: 'documentsAndMapSettings'
             data-extern-dataport: 'documentsAndMapSettings'
-    map_settings:
-        label: 'map_settings.menu'
-        path: 'DemosPlan_map_administration_map'
-        permission: ['area_admin_initial_map_view'] # Only controls the menu item. 'area_admin_map' is required for the map settings
-        path_params: [ 'procedureId' ]
-        link_attributes:
-            data-cy: 'mapSettings'
     invitable_institution_administer:
         label: 'invitable_institution.administer'
         path: 'DemosPlan_procedure_member_index'
@@ -368,7 +361,7 @@ submenu_procedures:
         path_params: ['procedureId']
         permission: 'area_admin_statement_list'
         link_attributes:
-            data-cy: 'statementslist'
+            data-cy: 'assessmenttable'
             data-extern-dataport: 'statementslist'
     segments:
         label: 'segments'

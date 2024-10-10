@@ -40,13 +40,11 @@ class EventFinderTest extends FunctionalTestCase
         static::assertStringContainsString('"className": "DPlanEvent"', $output);
         static::assertStringContainsString('"matchingParent": "DPlanEvent"', $output);
         static::assertStringContainsString('"className": "RpcEvent', $output);
-        static::assertStringContainsString('"className": "BeforeResourceUpdateEvent', $output);
         static::assertStringContainsString('"className": "ProcedureEditedEvent', $output);
         static::assertStringContainsString('"className": "PostProcedureDeletedEvent', $output);
         static::assertStringContainsString('"className": "StatementUpdatedEvent', $output);
         static::assertStringContainsString('"className": "StatementCreatedEvent', $output);
         static::assertStringContainsString('"className": "StatementActionEvent', $output);
-        static::assertStringContainsString('"className": "BeforeResourceUpdateEvent', $output);
         static::assertStringContainsString('"className": "StatementActionEvent', $output);
         static::assertStringContainsString('"className": "RpcEvent', $output);
         static::assertStringContainsString('"className": "OrgaEditedEvent', $output);

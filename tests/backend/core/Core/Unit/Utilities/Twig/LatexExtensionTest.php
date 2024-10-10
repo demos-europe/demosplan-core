@@ -311,6 +311,11 @@ class LatexExtensionTest extends UnitTestCase
         $resultString = $this->sut->prepareImage($textToTest);
         $this->assertSame($expected, $resultString);
 
+        $textToTest = "<img src='/file/baf2cdc3-675b-4213-badb-686c13eeaf97/6e5f465d-0400-4d1f-8768-703990a358d9' >";
+        $expected = 'IMAGEPLACEHOLDER-baf2cdc3-675b-4213-badb-686c13eeaf97/6e5f465d-0400-4d1f-8768-703990a358d9IMAGEPLACEHOLDEREND';
+        $resultString = $this->sut->prepareImage($textToTest);
+        $this->assertSame($expected, $resultString);
+
         $textToTest = "<img src='/app_dev.php/file/6e5f465d-0400-4d1f-8768-703990a358d9' >";
         $expected = 'IMAGEPLACEHOLDER-6e5f465d-0400-4d1f-8768-703990a358d9IMAGEPLACEHOLDEREND';
         $resultString = $this->sut->prepareImage($textToTest);
@@ -357,6 +362,13 @@ class LatexExtensionTest extends UnitTestCase
     public function testImageHtmlTagLatexOutput()
     {
         $textToTest = "<img src='/file/6e5f465d-0400-4d1f-8768-703990a358d9' >";
+        $preparedString = $this->sut->prepareImage($textToTest);
+        $resultString = $this->sut->outputImage($this->sut->latexFilter($preparedString));
+        $res = explode("\n", $resultString);
+        $expected = '\includegraphics{6e5f465d-0400-4d1f-8768-703990a358d9}';
+        $this->assertSame($expected, $res[3]);
+
+        $textToTest = "<img src='/file/baf2cdc3-675b-4213-badb-686c13eeaf97/6e5f465d-0400-4d1f-8768-703990a358d9' >";
         $preparedString = $this->sut->prepareImage($textToTest);
         $resultString = $this->sut->outputImage($this->sut->latexFilter($preparedString));
         $res = explode("\n", $resultString);

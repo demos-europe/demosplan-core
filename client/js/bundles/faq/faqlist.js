@@ -21,7 +21,7 @@ const components = {
   RegisterFlyout
 }
 
-const apiStores = ['customerContact']
+const apiStores = ['CustomerContact']
 
 initialize(components, {}, apiStores).then(() => {
   highlightActiveLinks('[data-highlight-current]')

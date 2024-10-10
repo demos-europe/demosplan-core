@@ -25,6 +25,7 @@ window.dplan = {
     projectCoreVersion      : "{{ projectCoreVersion|default('') }}",
     projectName             : "{{ projectName|default('') }}",
     projectVersion          : "{{ projectVersion|default('') }}",
+    loadedAddons            : {},
     loggedIn                : Boolean({{ loggedin|default(0) }}),
     currentUserId           : "{{ currentUser.id|default }}",
     currentUser             : {

@@ -3,7 +3,7 @@
 {% if currentUser.loggedIn == true  %}
     <nav class="u-mb u-pb-2" aria-labelledby="navHeading">
         {# not visible main menu heading only to be read out to screen readers#}
-        <h1 id="navHeading" class="hide-visually">
+        <h1 id="navHeading" class="sr-only">
             {{ "administer"|trans }}
         </h1>
         {{ knp_menu_render('sidemenu', {'template': '@DemosPlanCore/sidemenu.html.twig'}) }}

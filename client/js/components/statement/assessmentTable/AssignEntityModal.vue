@@ -92,7 +92,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('assessmentTable', [
+    ...mapGetters('AssessmentTable', [
       'assignEntityModal'
     ]),
 
@@ -110,7 +110,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('assessmentTable', [
+    ...mapMutations('AssessmentTable', [
       'setModalProperty'
     ]),
 
@@ -125,7 +125,7 @@ export default {
       this.loading = true
 
       //  Fire action from store
-      this.$store.dispatch(`${this.entityType}/setAssigneeAction`, this.actionParams)
+      this.$store.dispatch(`${this.capitalizeFirstLetter(this.entityType)}/setAssigneeAction`, this.actionParams)
         .then(checkResponse)
         .catch(() => {
           dplan.notify.notify('error', Translator.trans('error.api.generic'))
@@ -134,6 +134,10 @@ export default {
           this.toggleModal()
           this.loading = false
         })
+    },
+
+    capitalizeFirstLetter (str) {
+      return str.charAt(0).toUpperCase() + str.slice(1)
     },
 
     handleClose (isOpen) {

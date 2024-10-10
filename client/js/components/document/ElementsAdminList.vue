@@ -121,7 +121,7 @@ export default {
   },
 
   computed: {
-    ...mapState('elements', {
+    ...mapState('Elements', {
       elements: 'items'
     }),
 
@@ -150,12 +150,12 @@ export default {
   },
 
   methods: {
-    ...mapActions('elements', {
+    ...mapActions('Elements', {
       elementList: 'list',
       deleteElement: 'delete'
     }),
 
-    ...mapMutations('elements', {
+    ...mapMutations('Elements', {
       setElement: 'set'
     }),
 
@@ -235,7 +235,7 @@ export default {
      * Nodes can be of type "singleDocument" or "elements" [sic!]
      */
     isBranch ({ node }) {
-      return node.type === 'elements'
+      return node.type === 'Elements'
     },
 
     /**
@@ -310,10 +310,11 @@ export default {
      * Callback that is executed whenever an item is dragged over a new target.
      * Here it is used to cancel the drag action when dragging over singleDocument (=!isBranch)
      * elements, hereby keeping folders above files.
-     * @param event
+     * @param _event
      * @param {Boolean} isAllowedTarget Is the item allowed to be dragged into the target list?
+     * @return {Boolean} isAllowedTarget
      */
-    onMove (event, isAllowedTarget) {
+    onMove (_event, isAllowedTarget) {
       return isAllowedTarget
     },
 
@@ -346,7 +347,7 @@ export default {
       this.moveElementInList({ indexToMoveFrom: oldIndex, indexToMoveTo: newIndex})
 
       // Find the element that is directly following the moved element (only folders, no files)
-      const nextSibling = this.treeData.filter(node => node.type === 'elements')[newIndex + 1]
+      const nextSibling = this.treeData.filter(node => node.type === 'Elements')[newIndex + 1]
       // Either send the index of the element that is being "pushed down" or null (if the moved element is the last item)
       const index = nextSibling ? nextSibling.attributes.index : null
 
@@ -402,9 +403,9 @@ export default {
      */
     sortRecursive (tree, sortField) {
       tree.sort((a, b) => {
-        if (a.type !== 'singleDocument' && b.type === 'singleDocument') { return -1 }
-        if (a.type === 'singleDocument' && b.type !== 'singleDocument') { return 1 }
-        if (a.type === 'singleDocument' && b.type === 'singleDocument') {
+        if (a.type !== 'SingleDocument' && b.type === 'SingleDocument') { return -1 }
+        if (a.type === 'SingleDocument' && b.type !== 'SingleDocument') { return 1 }
+        if (a.type === 'SingleDocument' && b.type === 'SingleDocument') {
           return a.attributes.index - b.attributes.index
         }
         return a.attributes[sortField] - b.attributes[sortField]

@@ -60,7 +60,29 @@ export default {
     initialize () {
       const proseSchema = new Schema({
         nodes: addListNodes(schema.spec.nodes, 'paragraph block*', 'block'),
-        marks: schema.spec.marks
+        marks: {
+          ...schema.spec.marks,
+          link: {
+            attrs: {
+              href: {},
+              class: { default: null }
+            },
+            inclusive: false,
+            parseDOM: [{
+              tag: 'a[href]',
+              getAttrs(dom) {
+                return {
+                  href: dom.getAttribute('href'),
+                  class: dom.getAttribute('class')
+                }
+              }
+            }],
+            toDOM(node) {
+              let { href, class: className } = node.attrs
+              return ['a', { href, class: className }, 0]
+            }
+          }
+        }
       })
       const wrapper = document.createElement('div')
       wrapper.innerHTML = this.initStatementText ?? ''

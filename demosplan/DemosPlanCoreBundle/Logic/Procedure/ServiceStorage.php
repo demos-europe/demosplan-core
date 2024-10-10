@@ -15,6 +15,7 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PreNewProcedureCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\ProcedureServiceStorageInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -32,7 +33,6 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ArrayHelper;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\LegacyFlashMessageCreator;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedureReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
@@ -95,7 +95,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         private readonly LoggerInterface $logger,
         private readonly LegacyFlashMessageCreator $legacyFlashMessageCreator,
         private readonly MasterTemplateService $masterTemplateService,
-        private readonly MessageBag $messageBag,
+        private readonly MessageBagInterface $messageBag,
         private readonly NotificationReceiverRepository $notificationReceiverRepository,
         private readonly OrgaService $orgaService,
         private readonly PermissionsInterface $permissions,

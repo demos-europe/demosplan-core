@@ -26,7 +26,7 @@ use demosplan\DemosPlanCoreBundle\Repository\FloodRepository;
 use Exception;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 use Twig\Environment;
 
 class FloodControlService extends CoreService

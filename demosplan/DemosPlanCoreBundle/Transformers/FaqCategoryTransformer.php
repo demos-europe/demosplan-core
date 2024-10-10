@@ -19,7 +19,7 @@ use League\Fractal\Resource\Collection;
 
 class FaqCategoryTransformer extends BaseTransformer
 {
-    protected $type = 'faq-category';
+    protected $type = 'FaqCategory';
 
     protected array $defaultIncludes = ['faq'];
 

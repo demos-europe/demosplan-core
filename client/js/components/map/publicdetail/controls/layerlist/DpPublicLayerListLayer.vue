@@ -9,11 +9,11 @@
 
 <template>
   <li
+    v-if="layer.attributes.isEnabled && !layer.attributes.isScope &&  !layer.attributes.isBplan"
     :id="id"
     :title="layerTitle"
     :class="[(isVisible && layer.attributes.canUserToggleVisibility) ? prefixClass('is-active') : '', prefixClass('c-map__group-item c-map__layer')]"
-    @click="toggleFromSelf(false)"
-    v-if="layer.attributes.isEnabled && false === layer.attributes.isScope && false === layer.attributes.isBplan">
+    @click="toggleFromSelf(false)">
     <span
       :class="prefixClass('c-map__group-item-controls')"
       @mouseover="toggleOpacityControl(true)"
@@ -21,6 +21,7 @@
       <button
         :class="prefixClass('btn--blank btn--focus w-3 text-left')"
         :aria-label="layer.attributes.name + ' ' + statusAriaText"
+        :data-cy="dataCy"
         @focus="toggleOpacityControl(true)"
         @click.prevent.stop="toggleFromSelf(true)"
         @keydown.tab.shift.exact="toggleOpacityControl(false)">
@@ -65,9 +66,16 @@ import { DpContextualHelp, prefixClass } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpPublicLayerListLayer',
+
   components: { DpContextualHelp },
 
   props: {
+    dataCy: {
+      type: String,
+      required: false,
+      default: 'publicLayerListLayer'
+    },
+
     layer: {
       type: Object,
       required: true
@@ -116,7 +124,7 @@ export default {
 
   computed: {
     contextualHelpText () {
-      const contextualHelp = this.$store.getters['layers/element']({ id: this.layer.id, type: 'ContextualHelp' })
+      const contextualHelp = this.$store.getters['Layers/element']({ id: this.layer.id, type: 'ContextualHelp' })
       const hasContextualHelp = contextualHelp && contextualHelp.attributes.text
       return hasContextualHelp ? contextualHelp.attributes.text : ''
     },
@@ -252,7 +260,7 @@ export default {
 
     setOpacity (e) {
       let val = e.target.value
-      this.$store.commit('layers/setAttributeForLayer', { id: this.id, attribute: 'opacity', value: val })
+      this.$store.commit('Layers/setAttributeForLayer', { id: this.id, attribute: 'opacity', value: val })
       if (isNaN(val * 1)) return false
       val /= 100
       this.$root.$emit('layer-opacity:change', { id: this.id, opacity: val })

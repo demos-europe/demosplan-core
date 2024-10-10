@@ -1,7 +1,5 @@
-/**
- * @noinspection
- * PHPStorm complains about unset css vars in rendered css. This is irritating and can be suppressed.
- */
+/* stylelint-disable */
+@config '../../tailwind.config.js';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

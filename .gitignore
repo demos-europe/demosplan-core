@@ -3,6 +3,7 @@
 addonDev
 addonZip
 addonZips
+addonDev
 addons
 node_modules
 yarn-error.log
@@ -20,6 +21,7 @@ phpstan.neon
 !.editorconfig
 !.env
 !.env.test
+!.yarnrc.yml
 .ssh/
 .lnav
 !.github
@@ -35,6 +37,7 @@ logs
 /projects/core/web/js
 /projects/core/web/video
 /projects/core/web/files
+!/var/.gitkeep
 
 ###> symfony/framework-bundle ###
 /.env.local

@@ -64,7 +64,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('invitableInstitution', {
+    ...mapActions('InvitableInstitution', {
       listInvitableInstitution: 'list',
     }),
 

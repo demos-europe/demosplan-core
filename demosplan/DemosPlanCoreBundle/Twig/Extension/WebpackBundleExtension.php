@@ -17,7 +17,7 @@ use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use GuzzleHttp\Exception\InvalidArgumentException;
 use RuntimeException;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 use Twig\TwigFunction;
 
 class WebpackBundleExtension extends ExtensionBase

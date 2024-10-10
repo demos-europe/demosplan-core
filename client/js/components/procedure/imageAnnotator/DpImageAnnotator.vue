@@ -786,6 +786,50 @@ export default {
 
   mounted () {
     this.getInitialData()
+
+    /*
+     * Display a warning for firefox if "privacy.resistFingerprinting" is enabled,
+     * because openLayers' getFeaturesAtPixel() will not behave correctly then.
+     */
+    useResistFingerprintingDuckTest((isEnabled) => {
+      if (isEnabled) {
+        dplan.notify.notify('error', Translator.trans('warning.resistFingerPrinting'))
+      }
+    })
   }
+}
+
+const useResistFingerprintingDuckTest = (callback) => {
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')
+
+  // Draw something on the canvas
+  ctx.fillStyle = 'rgb(0,0,0)'
+  ctx.fillRect(0, 0, 10, 10)
+
+  // Convert canvas to data URL
+  const dataUrl = canvas.toDataURL()
+
+  // Check if the produced data URL corresponds to the expected black square
+  const image = new Image()
+
+  image.onload = function () {
+    // Draw the image onto a new canvas to read the pixel values
+    const testCanvas = document.createElement('canvas')
+    const testCtx = testCanvas.getContext('2d')
+    testCanvas.width = image.width
+    testCanvas.height = image.height
+    testCtx.drawImage(image, 0, 0)
+
+    // Check the first pixel
+    const pixelData = testCtx.getImageData(0, 0, 1, 1).data
+
+    // If the pixel is black, we assume that resistFingerprinting is disabled
+    const resistFingerprintingEnabled = !(pixelData[0] === 0 && pixelData[1] === 0 && pixelData[2] === 0)
+
+    callback(resistFingerprintingEnabled)
+  }
+
+  image.src = dataUrl
 }
 </script>

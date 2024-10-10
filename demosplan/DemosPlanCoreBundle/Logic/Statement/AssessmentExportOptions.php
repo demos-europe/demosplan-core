@@ -13,13 +13,13 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Exception\AssessmentExportOptionsException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use Illuminate\Support\Collection;
 use JsonSerializable;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Tightenco\Collect\Support\Collection;
 
 /**
  * A configuration container for export options of statements, original statements and fragments.

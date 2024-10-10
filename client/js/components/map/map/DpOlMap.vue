@@ -95,11 +95,22 @@
 
         <!-- Default layer -->
         <dp-ol-map-layer
+          v-if="!options.hideDefaultLayer"
           :attributions="options?.defaultAttribution"
-          :url="baselayer"
           :layers="baselayerLayers"
           :projection="baseLayerProjection"
-          v-if="!options.hideDefaultLayer" />
+          :url="baselayer" />
+
+        <!-- Layer from outside -->
+        <dp-ol-map-layer
+          v-for="layer in layers"
+          :key="layer.name"
+          :attributions="layer.attribution || ''"
+          :order="layer.mapOrder + 1"
+          :opacity="layer.opacity"
+          :url="layer.url"
+          :layers="layer.layers"
+          :projection="layer.projectionValue" />
       </div>
 
       <!-- Map container -->
@@ -166,16 +177,16 @@ export default {
   },
 
   props: {
-    procedureId: {
+    isValid: {
       required: false,
-      type: String,
-      default: ''
+      type: Boolean,
+      default: true
     },
 
-    options: {
+    layers: {
       required: false,
-      type: Object,
-      default: () => ({})
+      type: Array,
+      default: () => ([])
     },
 
     /*
@@ -194,16 +205,22 @@ export default {
       default: 'dplan_api_map_options_admin'
     },
 
+    options: {
+      required: false,
+      type: Object,
+      default: () => ({})
+    },
+
+    procedureId: {
+      required: false,
+      type: String,
+      default: ''
+    },
+
     small: {
       required: false,
       type: Boolean,
       default: false
-    },
-
-    isValid: {
-      required: false,
-      type: Boolean,
-      default: true
     }
   },
 
@@ -479,7 +496,7 @@ export default {
       this.updateMapInstance()
 
       // If startkartenausschnitt is defined by user, show it on mounted
-      if (this._options.initialExtent && JSON.stringify(this.maxExtent) !== JSON.stringify(this.initialExtent)) {
+      if (this._options.initialExtent.length > 0 && JSON.stringify(this.maxExtent) !== JSON.stringify(this.initialExtent)) {
         this.map.getView().fit(this.initialExtent, { size: this.map.getSize() })
         // If it is not defined, but procedure has coordinates, zoom the map to the coordinates
       } else if (this.initCenter) {

@@ -22,7 +22,7 @@
         class="u-pb-0 u-mt"
         id="consolidationMethod">
         <legend
-          class="hide-visually"
+          class="sr-only"
           v-text="Translator.trans('action.choose')" />
         <input
           type="radio"
@@ -257,11 +257,11 @@ export default {
   },
 
   computed: {
-    ...mapState('assessmentTable', [
+    ...mapState('AssessmentTable', [
       'currentUserId'
     ]),
 
-    ...mapState('statement', [
+    ...mapState('Statement', [
       'selectedElements',
       'statements'
     ]),
@@ -321,16 +321,16 @@ export default {
   },
 
   methods: {
-    ...mapActions('statement', [
+    ...mapActions('Statement', [
       'createClusterAction',
       'updateClusterAction'
     ]),
 
-    ...mapMutations('assessmentTable', [
+    ...mapMutations('AssessmentTable', [
       'setModalProperty'
     ]),
 
-    ...mapMutations('statement', [
+    ...mapMutations('Statement', [
       'addElementToSelection',
       'removeElementFromSelection',
       'replaceElementSelection'

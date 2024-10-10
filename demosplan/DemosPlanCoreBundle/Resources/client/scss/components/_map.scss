@@ -141,11 +141,11 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
         //  left sidebar with map tools
         &__toolbar {
+
             @extend %map-width-toolbar;
 
             @include media-query('lap-up') {
                 float: left;
-
                 height: $map-height;
             }
 
@@ -160,6 +160,14 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
                 > ul.c-map__group {
                     display: none;
                 }
+            }
+        }
+
+        &__toolbar-content {
+            @include media-query('lap-up') {
+                overflow-y: auto;
+                height: $map-height;
+                padding-right: 6px;
             }
         }
 
@@ -182,10 +190,6 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
             margin: 0;
 
-            @include media-query('lap-up') {
-                margin: 0 $inuit-base-spacing-unit--small 0 0;
-            }
-
             .js & {
                 &--toggleable {
                     display: none;
@@ -198,10 +202,6 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
             //  extra positioning to attach layer box to the bottom of toolbar
             &--bottom {
-
-                overflow-x: hidden;
-                overflow-y: auto;
-
                 @include media-query('lap-up') {
                     bottom: 0;
                     left: 0;
@@ -333,7 +333,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
             left: 10px;
             position: absolute;
             right: 30px;
-            top: 5px;
+            top: 10px;
 
             display: inline-block;
             padding-left: 10px;

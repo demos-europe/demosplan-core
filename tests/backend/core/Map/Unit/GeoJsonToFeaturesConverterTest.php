@@ -20,7 +20,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayerTile;
 use Geometry;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Tests\Base\UnitTestCase;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 class GeoJsonToFeaturesConverterTest extends UnitTestCase
 {

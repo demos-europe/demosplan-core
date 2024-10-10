@@ -209,9 +209,9 @@ function setStatementAssignee (statement) {
   return statement
 }
 export default {
-
   namespaced: true,
-  name: 'statement',
+
+  name: 'Statement',
 
   state: {
     statements: {},
@@ -524,7 +524,7 @@ export default {
             number: data.pagination.current_page,
             size: data.pagination.count
           },
-          view_mode: rootState.assessmentTable.viewMode,
+          view_mode: rootState.AssessmentTable.viewMode,
           sort: data.sort,
           // Size: data.pagination.size,
           fields: {

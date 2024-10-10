@@ -263,13 +263,13 @@ export default {
   },
 
   computed: {
-    ...mapState('filter', {
+    ...mapState('Filter', {
       filterGroups: 'filterGroups',
       filterList: 'filterList',
       filterOptionsSelected: 'selectedOptions'
     }),
 
-    ...mapGetters('filter', {
+    ...mapGetters('Filter', {
       filterByType: 'filterByType',
       getFilterHash: 'userFilterSetFilterHash',
       userFilterSets: 'userFilterSets',
@@ -342,7 +342,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('filter', [
+    ...mapActions('Filter', [
       'getFilterListAction',
       'getFilterOptionsAction',
       'getUserFilterSetsAction',
@@ -350,11 +350,11 @@ export default {
       'updateBaseState'
     ]),
 
-    ...mapMutations('assessmentTable', [
+    ...mapMutations('AssessmentTable', [
       'setProperty'
     ]),
 
-    ...mapMutations('filter', [
+    ...mapMutations('Filter', [
       'loadAppliedFilterOptions',
       'loadSelectedFilterOptions',
       'resetSelectedOptions'

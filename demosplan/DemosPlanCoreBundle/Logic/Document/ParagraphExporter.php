@@ -100,7 +100,7 @@ class ParagraphExporter
                     if (is_file($file->getAbsolutePath())) {
                         $this->logger->info('Pdf: Bild auf der Platte gefunden');
                         $fileContent = file_get_contents($file->getAbsolutePath());
-                        $pictures['picture'.$i] = $file->getHash().'###'.$file->getFileName().'###'.base64_encode($fileContent);
+                        $pictures['picture'.$i] = $match.'###'.$file->getFileName().'###'.base64_encode($fileContent);
                         ++$i;
                     }
                 } catch (Exception) {
@@ -136,6 +136,9 @@ class ParagraphExporter
 
         $templateVars['list'] = ['documentlist' => $documentList];
         $templateVars['procedure'] = $procedure;
+        // the line width of lists inside the generated pdf differs and that depends on which circumstances. In this case
+        // the pdf vertical format view will not be split and the width has to be adjusted to 17 instead the default 7cm.
+        $templateVars['listwidth'] = 17;
 
         $content = $this->twig->render(
             '@DemosPlanCore/DemosPlanDocument/paragraph_list_export.tex.twig',
