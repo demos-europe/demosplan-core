@@ -124,7 +124,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         ProcedureAccessEvaluator $procedureAccessEvaluator,
         private ProcedureRepository $procedureRepository,
         private readonly ValidatorInterface $validator,
-        private readonly AccessControlService $accessControlPermission
+        private readonly AccessControlService $accessControlPermission,
     ) {
         $this->addonPermissionInitializers = $addonRegistry->getPermissionInitializers();
         $this->globalConfig = $globalConfig;
@@ -530,7 +530,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
             $this->enablePermissions([
                 'area_admin',  // Verwalten
-                'area_admin_assessmenttable',  // Verwalten Abwaegungstabelle
                 'area_admin_dashboard',  // Übersichtsseite
                 'area_admin_map',  // Verwalten Planzeichnung
                 'area_admin_map_description',  // Verwalten Planzeichenerklärung
