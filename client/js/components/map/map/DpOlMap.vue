@@ -491,7 +491,7 @@ export default {
      *  @see https://css-tricks.com/using-scoped-slots-in-vue-js-to-abstract-functionality/#article-header-id-0
      */
     this.olMapState.map = this.createMap()
-    this.olMapState.map.addLayer(this.layersToAdd.territory)
+    console.log(this.layersToAdd.territory)
     /*
      *  Layers have their own attributions, so copyright is not rendered into svg here atm.
      *  this.olMapState.map.on('postrender', e => renderCopyright(e.context, 'test'));
@@ -500,6 +500,9 @@ export default {
     //  After child components have added their stuff to the map instance, it needs to update accordingly
 
     this.$nextTick(() => {
+      if (this.layersToAdd.territory) {
+        this.olMapState.map.addLayer(this.layersToAdd.territory)
+      }
       this.updateMapInstance()
 
       // If startkartenausschnitt is defined by user, show it on mounted

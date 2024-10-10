@@ -54,12 +54,6 @@
             :features="features.initExtent"
             name="mapSettingsPreviewInitExtent"
             zoom-to-drawing />
-          <dp-ol-map-layer-vector
-            v-if="territory"
-            class="u-mb-0_5"
-            :draw-style="drawingStyles.territory"
-            :features="features.territory"
-            name="mapSettingsPreviewTerritory" />
         </template>
       </dp-ol-map>
     </div><!--
