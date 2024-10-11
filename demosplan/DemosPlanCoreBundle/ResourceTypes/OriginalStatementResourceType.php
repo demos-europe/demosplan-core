@@ -15,9 +15,12 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\IsOriginalStatementAvailableEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\OriginalStatementResourceTypeInterface;
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\IsOriginalStatementAvailableEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\OriginalStatementResourceConfigBuilder;
+use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 
 /**
@@ -46,7 +49,7 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
         /** @var IsOriginalStatementAvailableEvent $event * */
         $event = $this->eventDispatcher->dispatch(new IsOriginalStatementAvailableEvent(), IsOriginalStatementAvailableEventInterface::class);
 
-        return $event->isOriginalStatementeAvailable() || $this->currentUser->hasPermission('feature_json_api_original_statement');
+        return $event->isOriginalStatementeAvailable() || $this->hasAccessPermissions();
     }
 
     protected function getAccessConditions(): array
@@ -67,18 +70,31 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
 
     public function isGetAllowed(): bool
     {
-        return $this->currentUser->hasPermission('feature_json_api_original_statement');
+        return $this->hasAccessPermissions();
     }
 
     public function isListAllowed(): bool
     {
-        return $this->currentUser->hasPermission('feature_json_api_original_statement');
+        return $this->hasAccessPermissions();
     }
 
-    protected function getProperties(): array
+    protected function getProperties(): ResourceConfigBuilderInterface
     {
-        return [
-            $this->createIdentifier()->readable()->filterable(),
-        ];
+        $configBuilder = $this->getConfig(OriginalStatementResourceConfigBuilder::class);
+        $configBuilder->externId->setReadableByPath();
+        $configBuilder->meta->setReadableByPath();
+        $configBuilder->submitDate->setAliasedPath(Paths::statement()->submit);
+        $configBuilder->submitName->setAliasedPath(Paths::statement()->meta->submitName);
+        $configBuilder->isSubmittedByCitizen
+            ->setReadableByCallable(static fn (Statement $statement): bool => $statement->isSubmittedByCitizen());
+        // fullText
+        // shortText
+
+        return $configBuilder;
+    }
+
+    private function hasAccessPermissions(): bool
+    {
+        return $this->currentUser->hasPermission('feature_json_api_original_statement');
     }
 }
