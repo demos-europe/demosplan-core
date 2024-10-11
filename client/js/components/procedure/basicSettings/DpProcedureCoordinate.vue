@@ -40,7 +40,7 @@
         <div :class="prefixClass('inline-block')">
           <dp-ol-map-draw-point
             :class="prefixClass('u-mb-0_5')"
-            target="procedureCoordinateDrawer"
+            target="layer:procedureCoordinateDrawer"
             :active="isDrawingActive"
             @tool:setPoint="checkProcedureValidation"
             @tool:activated="setDrawingActive" />

@@ -18,14 +18,16 @@ use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseVideoResourceConfigBuil
 use demosplan\DemosPlanCoreBundle\Entity\Video;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\VideoRepository;
+use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\PathException;
 use EDT\Wrapping\CreationDataInterface;
 use EDT\Wrapping\EntityDataInterface;
-use EDT\Wrapping\PropertyBehavior\Attribute\Factory\AttributeConstructorBehaviorFactory;
+use EDT\Wrapping\PropertyBehavior\Attribute\AttributeConstructorBehavior;
 use EDT\Wrapping\PropertyBehavior\FixedConstructorBehavior;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
-use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\Factory\ToOneRelationshipConstructorBehaviorFactory;
+use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\ToOneRelationshipConstructorBehavior;
 
 /**
  * @template-extends DplanResourceType<Video>
@@ -38,7 +40,7 @@ use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\Factory\ToOneRelationshipCo
 class SignLanguageOverviewVideoResourceType extends DplanResourceType
 {
     public function __construct(
-        protected readonly VideoRepository $videoRepository
+        protected readonly VideoRepository $videoRepository,
     ) {
     }
 
@@ -80,6 +82,9 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType
         ];
     }
 
+    /**
+     * @throws PathException
+     */
     protected function getProperties(): array|ResourceConfigBuilderInterface
     {
         // ensure update of title and description is only allowed
@@ -89,20 +94,26 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType
             ->map(fn (VideoInterface $video): ?string => $video->getId())
             ->filter(fn (?string $videoId): bool => null !== $videoId)
             ->getValues();
-        $customerCondition = $this->conditionFactory->propertyHasAnyOfValues($currentCustomerVideoIds, Paths::video()->id);
+        $customerCondition = [] === $currentCustomerVideoIds
+            ? $this->conditionFactory->false()
+            : $this->conditionFactory->propertyHasAnyOfValues($currentCustomerVideoIds, Paths::video()->id);
 
         $configBuilder = $this->getConfig(BaseVideoResourceConfigBuilder::class);
 
         $configBuilder->id->readable();
+
         $configBuilder->title->readable()->updatable([$customerCondition])->addConstructorBehavior(
-            new AttributeConstructorBehaviorFactory(null, null)
+            AttributeConstructorBehavior::createFactory(null, OptionalField::NO, null)
         );
+
         $configBuilder->description->readable()->updatable([$customerCondition])->addConstructorBehavior(
-            new AttributeConstructorBehaviorFactory(null, null));
+            AttributeConstructorBehavior::createFactory(null, OptionalField::NO, null)
+        );
+
         $configBuilder->file
             ->setRelationshipType($this->resourceTypeStore->getFileResourceType())
             ->readable()->addConstructorBehavior(
-                new ToOneRelationshipConstructorBehaviorFactory(null, [], null)
+                ToOneRelationshipConstructorBehavior::createFactory(null, [], null, OptionalField::NO)
             );
         $configBuilder->addConstructorBehavior(new FixedConstructorBehavior(
             Paths::video()->uploader->getAsNamesInDotNotation(),

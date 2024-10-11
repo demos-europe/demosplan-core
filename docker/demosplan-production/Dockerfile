@@ -103,9 +103,6 @@ FROM nginxinc/nginx-unprivileged:alpine3.19-slim AS nginx
 ARG PROJECT_NAME
 ENV PHP_FPM_BETEILIGUNG_SERVICE=beteiligung
 
-ENV TZ=Europe/Berlin
-RUN ln -snf /usr/share/zoneinfo/"$TZ" /etc/localtime && echo "$TZ"> /etc/timezone
-
 COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 
 WORKDIR /srv/www

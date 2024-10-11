@@ -1293,7 +1293,7 @@ export default {
 
     // Update card view if table view has been change (per Ansicht Button)
     this.$store.subscribe(mutation => {
-      if (mutation.type === 'assessmentTable/setProperty' && mutation.payload.prop === 'currentTableView') {
+      if (mutation.type === 'AssessmentTable/setProperty' && mutation.payload.prop === 'currentTableView') {
         this.toggleView(mutation.payload.val)
       }
     })

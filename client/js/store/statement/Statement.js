@@ -214,6 +214,7 @@ export default {
   name: 'Statement',
 
   state: {
+    filterHash: '',
     statements: {},
     procedureId: '',
     selectedElements: {},
@@ -339,6 +340,11 @@ export default {
     /**
      * @param value
      */
+
+    updateFilterHash (state, value) {
+      set(state, 'filterHash', value)
+    },
+
     updatePagination (state, value) {
       state.pagination = Object.assign(state.pagination, value)
     },
@@ -614,6 +620,7 @@ export default {
           commit('setFilteredState', response.meta.isFiltered)
           commit('setInitStatements', response.meta.statementAssignments)
           commit('setStatementGrouping', response.meta.grouping)
+          commit('updateFilterHash', response.meta.filterHash)
           const refinedStatements = {}
           const sessionStorageUpdates = {}
 

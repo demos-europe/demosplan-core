@@ -21,13 +21,14 @@ class SubdomainHandler implements SubdomainHandlerInterface
     public function __construct(
         private readonly GlobalConfigInterface $globalConfig,
         private readonly LoggerInterface $logger,
-        private readonly CustomerRepository $customerRepository
+        private readonly CustomerRepository $customerRepository,
     ) {
     }
 
     public function setSubdomainParameter(Request $request): void
     {
         $this->getGlobalConfig()->setSubdomain($this->getSubdomain($request));
+        $this->globalConfig->addCurrentCustomerToUrl();
     }
 
     public function getSubdomain(Request $request): string

@@ -1622,8 +1622,8 @@ export default {
       this.$root.$emit('changeActive')
     },
 
-    hasTerritory() {
-      return this.procedureSettings.territory && this.procedureSettings.territory.features.length > 0
+    hasTerritory () {
+      return this.procedureSettings.territory?.features?.length > 0
     },
 
     removeOtherInteractions (reset) {
