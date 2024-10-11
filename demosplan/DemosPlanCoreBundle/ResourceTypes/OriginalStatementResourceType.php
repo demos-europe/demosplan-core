@@ -84,8 +84,8 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
         $configBuilder->id->setReadableByPath();
         $configBuilder->externId->setReadableByPath();
         //$configBuilder->meta->setReadableByPath();
-        $configBuilder->submitDate->setAliasedPath(Paths::statement()->submit);
-        $configBuilder->submitName->setAliasedPath(Paths::statement()->meta->submitName);
+        $configBuilder->submitDate->setReadableByPath()->setAliasedPath(Paths::statement()->submit);
+        $configBuilder->submitName->setReadableByPath()->setAliasedPath(Paths::statement()->meta->submitName);
         $configBuilder->isSubmittedByCitizen
             ->setReadableByCallable(static fn (Statement $statement): bool => $statement->isSubmittedByCitizen());
         // fullText
