@@ -33,8 +33,11 @@
         current-user-id="{{ currentUser.ident }}"
         :is-source-and-coupled-procedure="{{ templateVars.isSourceAndCoupledProcedure == 1 ? 'true' : 'false' }}"
         procedure-id="{{ procedure }}"
-        :submit-type-options="JSON.parse('{{ submitTypesOptions|json_encode|e('js', 'utf-8') }}')"
-    ></list-statements>
+        :submit-type-options="JSON.parse('{{ submitTypesOptions|json_encode|e('js', 'utf-8') }}')">
+    </list-statements>
+
+    <list-original-statements procedure-id="{{ procedure }}">
+    </list-original-statements>
 {% endblock %}
 
 {% block javascripts %}
