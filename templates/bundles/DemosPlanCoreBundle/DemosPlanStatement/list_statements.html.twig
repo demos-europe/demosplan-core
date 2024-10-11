@@ -8,12 +8,19 @@
 
         {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
             heading: 'statements'|trans,
-            subnav: [ {
-                href: path(path, { procedureId: procedure }),
-                label:  'statement.new'|trans,
-                datacy: 'listStatements:statementNew',
-                icon: 'fa-plus'
-            }],
+            subnav: [
+                {
+                    href: path('dplan_procedure_statement_list', { procedureId: procedure }),
+                    label: 'statements.original'|trans,
+                    datacy: 'listStatements:originalStatementList'
+                },
+                {
+                    href: path(path, { procedureId: procedure }),
+                    label:  'statement.new'|trans,
+                    datacy: 'listStatements:statementNew',
+                    icon: 'fa-plus'
+                }
+            ],
             flush: true
         } %}
 
