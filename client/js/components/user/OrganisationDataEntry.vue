@@ -1,6 +1,8 @@
 <template>
   <div>
-    <fieldset class="w-3/4">
+    <fieldset
+      id="organisationData"
+      class="w-3/4">
       <legend class="font-size-large weight--normal mb-3">
         {{ Translator.trans('organisation.data') }}
       </legend>
@@ -20,17 +22,16 @@
 
       <!-- Street -->
       <div class="flex items-start mb-2">
-        <div class="w-fit">
-          <dp-input
-            id="orga_address_street"
-            v-model="organisation.street"
-            data-cy="organisationData:address:street"
-            :name="`${organisation.id}:address_street`"
-            :label="{
-              text: Translator.trans('street')
-            }"
-            :disabled="!isOrgaDataEditable" />
-        </div>
+        <dp-input
+          id="orga_address_street"
+          v-model="organisation.street"
+          data-cy="organisationData:address:street"
+          :name="`${organisation.id}:address_street`"
+          :label="{
+            text: Translator.trans('street')
+          }"
+          :size="organisation.street.length"
+          :disabled="!isOrgaDataEditable" />
 
         <dp-input
           id="orga_addressHouseNumber"
@@ -148,9 +149,9 @@
     </fieldset>
 
     <!-- Submission type Section -->
-    <!--TODO: check: (organisation.submissionType || submissionTypeDefault) === submissionTypeDefault; check what is submissionTypeDefault and submissionTypeShort -->
     <fieldset
       v-if="hasPermission('feature_change_submission_type')"
+      id="submissionType"
       class="w-3/4 mb-2">
       <legend class="font-size-large weight--normal mb-3">
         {{ Translator.trans('statement.submission.type') }}
@@ -162,34 +163,36 @@
       <dp-radio
         id="submission_type_short"
         :name="`${organisation.id || ''}:submission_type`"
-        :value="organisation.submissionType"
+        :value="submissionTypeShort"
         data-cy="organisationData:submissionType:short"
         :label="{
           text: Translator.trans('statement.submission.shorthand'),
           bold: true,
           hint: Translator.trans('explanation.statement.submit.process.short')
         }"
-        :checked="(organisation.submissionType || submissionTypeDefault) === submissionTypeShort" />
+        :checked="organisation.submissionType === submissionTypeShort" />
       <dp-radio
         id="submission_type_default"
         :name="`${organisation.id || ''}:submission_type`"
-        :value="organisation.submissionType"
+        :value="submissionTypeDefault"
         data-cy="organisationData:submissionType:default"
         :label="{
           text: Translator.trans('statement.submission.default'),
           bold: true,
           hint: Translator.trans('explanation.statement.submit.process.default')
         }"
-        :checked="(organisation.submissionType || submissionTypeDefault) === submissionTypeDefault" />
+        :checked="organisation.submissionType === submissionTypeDefault" />
     </fieldset>
 
     <!-- Email Notifications Section -->
-    <fieldset class="w-3/4">
+    <fieldset
+      v-if="user.isPublicAgency ||
+      hasPermission('field_organisation_email2_cc') ||
+      (hasPermission('feature_organisation_email_reviewer_admin') &&
+      hasPermission('field_organisation_email_reviewer_admin'))"
+      id="mailNotification"
+      class="w-3/4">
       <legend
-        v-if="user.isPublicAgency ||
-        hasPermission('field_organisation_email2_cc') ||
-        (hasPermission('feature_organisation_email_reviewer_admin') &&
-        hasPermission('field_organisation_email_reviewer_admin'))"
         class="font-size-large weight--normal u-mb-0_75">
         {{ Translator.trans('email.notifications') }}
       </legend>
@@ -240,7 +243,7 @@
         </p>
 
         <!-- New Statement Notification -->
-        <!-- TODO: Contact BE about the type of organisation.emailNotificationNewStatement?.content, as it should be a boolean and not a string -->
+        <!-- TODO: type of organisation.emailNotificationNewStatement.content should be a boolean and not a string -->
         <dp-checkbox
           v-if="willReceiveNewStatementNotification && hasPermission('feature_notification_statement_new')"
           id="orga_emailNotificationNewStatement"
@@ -260,13 +263,14 @@
           :label="{
             text: Translator.trans('explanation.notification.phase.ending'),
           }"
-          :checked="organisation.emailNotificationEndingPhase?.content" />
+          :checked="organisation.emailNotificationEndingPhase.content" />
       </div>
     </fieldset>
 
     <!-- Paper copy Section -->
     <fieldset
       v-if="showPaperCopySection"
+      id="paperCopy"
       class="w-3/4">
       <legend class="font-size-large weight--normal u-mb-0_75">
         {{ Translator.trans('copies.paper') }}
@@ -275,7 +279,7 @@
       <div
         v-if="hasPermission('field_organisation_paper_copy')"
         class="w-full mb-3">
-        <!-- TODO: InitVue.js:67 [Vue warn]: Invalid prop: type check failed for prop "selected". Expected String with value "1", got Number with value 1 -->
+        <!-- TODO: create PR in demosplan-ui -->
         <dp-select
           id="orga_paperCopy"
           :name="`${organisation.id || ''}:paperCopy`"
@@ -329,7 +333,7 @@
         <span>{{ Translator.trans('organisation.procedures.branding') }}</span>
       </legend>
 
-      <!-- Data Protection Section -->
+      <!-- Data Protection -->
       <div
         v-if="hasPermission('field_data_protection_text_customized_edit_orga')"
         class="o-form__label w-full">
@@ -353,7 +357,7 @@
           :value="organisation.dataProtection || ''" />
       </div>
 
-      <!-- Imprint Section -->
+      <!-- Imprint -->
       <div
         v-if="hasPermission('field_imprint_text_customized_edit_orga')"
         class="w-full">
@@ -377,7 +381,7 @@
           :value="organisation.imprint || ''" />
       </div>
 
-      <!-- Public Display Section -->
+      <!-- Public Display -->
       <div
         v-if="hasPermission('field_organisation_agreement_showname')"
         class="mb-0">

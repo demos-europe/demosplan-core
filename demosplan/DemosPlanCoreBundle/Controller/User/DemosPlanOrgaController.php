@@ -374,6 +374,8 @@ class DemosPlanOrgaController extends BaseController
         $templateVars = [];
         $orga = $this->orgaHandler->getOrga($orgaId);
         $templateVars['orga'] = $orga;
+        $templateVars['submissionTypeDefault'] = Orga::STATEMENT_SUBMISSION_TYPE_DEFAULT;
+        $templateVars['submissionTypeShort'] = Orga::STATEMENT_SUBMISSION_TYPE_SHORT;
 
         // Add OrgaTypes to frontend. Needed in create orga form.
         $templateVars['orgaTypes'] = [];
