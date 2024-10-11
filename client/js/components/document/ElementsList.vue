@@ -166,7 +166,7 @@ export default {
      */
     isBranch () {
       return function ({ node }) {
-        return node.type === 'elements'
+        return node.type !== 'SingleDocument' && node.type === 'Elements'
       }
     },
 

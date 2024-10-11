@@ -17,28 +17,31 @@ use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
-class Version20240716115746 extends AbstractMigration
+class Version20241004090021 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'ref DPALN-163 create new flag';
+        return 'refs DPLAN-12593 : adjust column category length';
     }
 
+    /**
+     * @throws Exception
+     */
     public function up(Schema $schema): void
     {
         $this->abortIfNotMysql();
-        $columnExists = $this->connection->fetchOne("SHOW COLUMNS FROM workflow_place LIKE 'solved'");
 
-        // check for column existence because down migration was added later
-        if (false === $columnExists) {
-            $this->addSql('ALTER TABLE workflow_place ADD solved TINYINT(1) DEFAULT FALSE');
-        }
+        $this->addSql('ALTER TABLE _elements CHANGE _e_category _e_category CHAR(255) NOT NULL');
     }
 
+    /**
+     * @throws Exception
+     */
     public function down(Schema $schema): void
     {
         $this->abortIfNotMysql();
-        $this->addSql('ALTER TABLE workflow_place DROP COLUMN solved');
+
+        $this->addSql('ALTER TABLE _elements CHANGE _e_category _e_category CHAR(36) NOT NULL');
     }
 
     /**

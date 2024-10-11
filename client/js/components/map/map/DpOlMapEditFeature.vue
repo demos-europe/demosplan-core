@@ -145,7 +145,18 @@ export default {
     return {
       selectInteraction: new Select({
         hitTolerance: 10,
-        wrapX: false
+        wrapX: false,
+        filter: (_feat, layer) => {
+          if (layer) {
+            const name = layer.get('name')
+
+            if (name === 'layer:mapSettingsPreviewMapExtent' || name === 'layer:mapSettingsPreviewInitExtent') {
+              return false
+            }
+          }
+
+          return true
+        }
       }),
       modifyInteraction: null,
       currentlyActive: this.initActive,
