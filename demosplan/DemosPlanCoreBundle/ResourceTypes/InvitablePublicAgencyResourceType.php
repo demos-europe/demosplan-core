@@ -90,7 +90,7 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
             $this->conditionFactory->propertyHasValue(
                 OrgaStatusInCustomer::STATUS_ACCEPTED,
                 $this->statusInCustomers->status
-            )
+            ),
         ];
         // avoid already invited organisations
         $invitedOrgaIdsCondition[] = [] === $invitedOrgaIds->toArray()
