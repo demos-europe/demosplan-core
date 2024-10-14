@@ -72,7 +72,7 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
             static fn (Orga $orga): string => $orga->getId()
         );
 
-        return [
+        $conditions = [
             $this->conditionFactory->propertyHasValue(false, $this->deleted),
             $this->conditionFactory->propertyHasValue(true, $this->showlist),
             $this->conditionFactory->propertyHasValue(
@@ -90,12 +90,14 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
             $this->conditionFactory->propertyHasValue(
                 OrgaStatusInCustomer::STATUS_ACCEPTED,
                 $this->statusInCustomers->status
-            ),
-            // avoid already invited organisations
-            [] === $invitedOrgaIds->toArray()
-                ? $this->conditionFactory->false()
-                : $this->conditionFactory->propertyHasNotAnyOfValues($invitedOrgaIds->toArray(), $this->id),
+            )
         ];
+        // avoid already invited organisations
+        $invitedOrgaIdsCondition[] = [] === $invitedOrgaIds->toArray()
+            ? $this->conditionFactory->true()
+            : $this->conditionFactory->propertyHasNotAnyOfValues($invitedOrgaIds->toArray(), $this->id);
+
+        return array_merge($conditions, $invitedOrgaIdsCondition);
     }
 
     public function getDefaultSortMethods(): array
