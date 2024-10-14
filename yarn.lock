@@ -11998,23 +11998,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"proj4@npm:^2.10.0":
+"proj4@npm:^2.10.0, proj4@npm:^2.12.1":
   version: 2.12.1
   resolution: "proj4@npm:2.12.1"
   dependencies:
     mgrs: "npm:1.0.0"
     wkt-parser: "npm:^1.3.3"
   checksum: 10c0/0a6f5f87137aa4297f02a95fab41f2cf5d39924f0e9800999be90e901b2d77a0b4fcab44a0c664839f4828c5a433fe81ec4c270a8fce62728f980ab4c8becdd4
-  languageName: node
-  linkType: hard
-
-"proj4@npm:^2.11.0":
-  version: 2.11.0
-  resolution: "proj4@npm:2.11.0"
-  dependencies:
-    mgrs: "npm:1.0.0"
-    wkt-parser: "npm:^1.3.3"
-  checksum: 10c0/d3856090b99b5c8f45d78e0f0ba4ef85025e53b4b3bc1b0279ffa70990af6ae856c8330957879d553069e408412d93521f27440dd1d1f72d272ae030cc664774
   languageName: node
   linkType: hard
 
@@ -12832,7 +12822,7 @@ __metadata:
     postcss-loader: "npm:^8.1.1"
     postcss-prefix-selector: "npm:^2.1.0"
     postcss-preset-env: "npm:^9.6.0"
-    proj4: "npm:^2.11.0"
+    proj4: "npm:^2.12.1"
     purgecss-webpack-plugin: "npm:^6.0.0"
     qs: "npm:^6.13.0"
     raf: "npm:^3.4.1"
