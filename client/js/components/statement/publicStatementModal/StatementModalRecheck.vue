@@ -13,27 +13,20 @@
     id="check"
     tabindex="-1">
     <legend
-      class="sr-only"
+      :class="prefixClass('sr-only')"
       v-text="Translator.trans('statement.recheck')" />
-    <p :class="prefixClass('c-statement__formhint flash-warning')">
-      <i
-        :class="prefixClass('c-statement__hint-icon fa fa-lg fa-exclamation-circle')"
-        aria-hidden="true" />
-      <span :class="prefixClass('block u-ml')">
-        {{ Translator.trans('statement.recheck') }}
-      </span>
-    </p>
 
-    <p
+    <dp-inline-notification
+      :class="prefixClass('mt-1')"
+      :message="Translator.trans('statement.recheck')"
+      type="warning"
+      />
+
+    <dp-inline-notification
       v-if="statementFormHintRecheck !== ''"
-      :class="prefixClass('c-statement__formhint flash-info')">
-      <i
-        :class="prefixClass('c-statement__hint-icon fa fa-lg fa-info-circle')"
-        aria-hidden="true" />
-      <span
-        :class="prefixClass('block u-ml')"
-        v-cleanhtml="statementFormHintRecheck" />
-    </p>
+      type="info">
+      <p v-cleanhtml="statementFormHintRecheck" />
+    </dp-inline-notification>
 
     <div
       v-if="hasPermission('field_statement_public_allowed') && publicParticipationPublicationEnabled"
@@ -232,10 +225,14 @@
 </template>
 
 <script>
-import { CleanHtml, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpInlineNotification, prefixClassMixin } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'StatementModalRecheck',
+
+  components: {
+    DpInlineNotification
+  },
 
   directives: {
     cleanhtml: CleanHtml

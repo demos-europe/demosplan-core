@@ -1,5 +1,5 @@
 # Use `sed 's/:.*//' messages.de.yml | sort | uniq -cd` to list all duplicated keys in this file with the number of occurrences of each one
-# you can also use `php app/console lint:yaml $filename` for a general yaml check
+# you can also use `php app/console lint:yaml $filename ` for a general yaml check
 2fa: "Zwei-Faktor-Authentifizierung"
 2fa.email: "Authentifizierung per Email"
 2fa.email.activate: 'Um die Zwei-Faktor-Authentifizierung per Email zu aktivieren, wurde Ihnen ein Code an Ihre Email-Adresse gesendet. Bitte prüfen Sie Ihr Postfach und geben Sie diesen bitte ein und speichern Sie das Formular. Sollte der Token abgelaufen sein, <a href="{link}">lassen Sie sich den aktuellen Code erneut an Ihre Email-Adresse senden</a>'
