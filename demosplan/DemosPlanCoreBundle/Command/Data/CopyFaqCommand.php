@@ -41,7 +41,7 @@ class CopyFaqCommand extends CoreCommand
         private readonly FaqRepository $faqRepository,
         private readonly EntityManagerInterface $entityManager,
         ParameterBagInterface $parameterBag,
-        ?string $name = null
+        string $name = null
     ) {
         parent::__construct($parameterBag, $name);
         $this->helper = new QuestionHelper();
