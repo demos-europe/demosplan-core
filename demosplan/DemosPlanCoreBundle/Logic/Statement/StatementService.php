@@ -1524,7 +1524,8 @@ class StatementService extends CoreService implements StatementServiceInterface
 
     /**
      * Add a report entry to the DB.
-     * @var StatementViewed[] $viewsToLog
+     *
+     * @var StatementViewed[]
      *
      * @throws ORMException
      * @throws OptimisticLockException
@@ -1555,7 +1556,6 @@ class StatementService extends CoreService implements StatementServiceInterface
                 $procedureId,
                 $accessMap
             );
-
         }
 
         $this->reportService->persistAndFlushReportEntries($entries);

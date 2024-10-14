@@ -15,9 +15,9 @@ namespace demosplan\DemosPlanCoreBundle\ValueObject\Statement;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 
 /**
- * @method string      getProcedureId()
- * @method array       getAccessMap()
- * @method string      getStatementId()
+ * @method string getProcedureId()
+ * @method array  getAccessMap()
+ * @method string getStatementId()
  */
 class StatementViewed extends ValueObject
 {
