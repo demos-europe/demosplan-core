@@ -10,9 +10,9 @@
     city: organisation.city|default,
     phone: organisation.phone|default,
     currentSlugName: organisation.currentSlug.name|default,
-    emailReviewerAdmin: organisations.emailReviewerAdmin|default,
+    emailReviewerAdmin: organisation.emailReviewerAdmin|default,
     emailNotificationNewStatement: organisation.notifications.emailNotificationNewStatement|default({}),
-    emailNotificationEndingPhase: organisations.notifications.emailNotificationEndingPhase|default({}),
+    emailNotificationEndingPhase: organisation.notifications.emailNotificationEndingPhase|default({}),
     email2: organisation.email2|default,
     ccEmail2: organisation.ccEmail2|default,
     paperCopy: organisation.paperCopy|default,
@@ -37,365 +37,35 @@
 {% set submissionTypeShort = templateVars.submissionTypeShort %}
 
 {% block organisationData %}
-    <organisation-data-entry
-        :user="JSON.parse('{{ userData|json_encode|e('js', 'utf-8') }}')"
-        project-name="{{ projectName }}"
+    <organisation-data-field
         submission-type-default="{{ submissionTypeDefault }}"
         submission-type-short="{{ submissionTypeShort }}"
         :customers="JSON.parse('{{ customers|default([])|json_encode|e('js', 'utf-8') }}')"
         :is-orga-data-editable="Boolean({{ may_edit_orga_data }})"
         :procedures-directlink-prefix="JSON.parse('{{ templateVars.proceduresDirectlinkPrefix|json_encode|e('js', 'utf-8') }}')"
         :organisation="JSON.parse('{{ organisationData |default({})|json_encode|e('js', 'utf-8') }}')"
-        :will-receive-new-statement-notification="Boolean({{ will_receive_new_statement_notification }})">
-    </organisation-data-entry>
-
-    <fieldset class="{{ 'u-3-of-4'|prefixClass }}">
-        {{ uiComponent('form.legend', {
-            text: 'organisation.data'|trans
-        }) }}
-
-        {{ uiComponent('form.group', { elements: [{
-            label: { text: 'name.legal'|trans },
-            control: { name: organisation.ident|default ~ ':name' },
-            id: 'orga_name',
-            type: 'text',
-            required: true,
-            value: organisation.nameLegal|default,
-            disabled: not may_edit_orga_data
-        }] }) }}
-
-        {{ uiComponent('form.group', { elements: [
-            {
-                label: { text: 'street'|trans },
-                control: { name: organisation.ident|default ~ ':address_street' },
-                id: 'orga_address_street',
-                type: 'text',
-                value: organisation.street|default,
-                disabled: not may_edit_orga_data
-            },
-            {
-                label: { text: 'street.number.short'|trans },
-                control: { name: organisation.ident|default ~ ':address_houseNumber', attributes: ['size=5'] },
-                id: 'orga_addressHouseNumber',
-                type: 'text',
-                value: organisation.houseNumber|default,
-                disabled: not may_edit_orga_data,
-                group: 'shrink'
-            }
-        ] }) }}
-
-        {{ uiComponent('form.group', { elements: [
-            {
-                label: { text: 'postalcode'|trans },
-                control: { name: organisation.ident|default ~ ':address_postalcode', attributes: may_edit_orga_data ? ['size=5', 'pattern=^[0-9]{5}$'] : ['size=5'] },
-                id: 'orga_address_postalcode',
-                type: 'text',
-                value: organisation.postalcode|default,
-                disabled: not may_edit_orga_data,
-                group: 'shrink'
-            },
-            {
-                label: { text: 'city'|trans },
-                control: { name: organisation.ident|default ~ ':address_city' },
-                id: 'orga_address_city',
-                type: 'text',
-                value: organisation.city|default,
-                disabled: not may_edit_orga_data
-            }
-        ] }) }}
-
-        {% if hasPermission('field_organisation_phone') %}
-            {{ uiComponent('form.row', { elements: [{
-                label: { text: 'phone'|trans },
-                control: { name: organisation.ident|default ~ ':address_phone' },
-                id: 'orga_address_phone',
-                type: 'tel',
-                value: organisation.phone|default,
-                disabled: not may_edit_orga_data,
-            }] }) }}
-        {% endif %}
-
-        {% if hasPermission('feature_orga_slug') and hasPermission('feature_orga_slug_edit') %}
-            {{ uiComponent('form.label', {
-                text: 'organisation.procedurelist.slug'|trans,
-                hint: 'organisation.procedurelist.slug.explanation'|trans,
-                id: organisation.ident|default ~ ':slug'
-            }) }}
-
-            <p class="{{ 'inline color--grey align-middle'|prefixClass }}">{{ templateVars.proceduresDirectlinkPrefix }}/</p>
-
-            {{ uiComponent('form.input.text', {
-                id: organisation.ident|default ~ ':slug',
-                name: organisation.ident|default ~ ':slug',
-                class: submittedAuthorClass|default,
-                value: organisation.currentSlug.name|default,
-                attributes: ['data-organisation-id=' ~ organisation.ident|default, 'data-slug'],
-                size: 'medium'
-            }) }}
-
-            <div>
-                <strong>{{ 'preview'|trans }}:</strong>
-                <p
-                    id="{{ organisation.ident|default }}:urlPreview"
-                    data-shorturl="{{ templateVars.proceduresDirectlinkPrefix }}/">
-                    {{ templateVars.proceduresDirectlinkPrefix }}/{% if organisation is defined %}{{ organisation.currentSlug.name|default }}{% endif %}
-                </p>
-            </div>
-        {% endif %}
-
-        {% set display_slug = hasPermission('feature_orga_slug') and not hasPermission('feature_orga_slug_edit') and organisation.currentSlug.name|default != '' %}
-        {% set display_customer = hasPermission('feature_display_customer_names') and organisation is defined %}
-        {% if display_slug or display_customer %}
-            <dl class="description-list space-stack-s">
-                {% if display_slug %}
-                    <div>
-                        <dt class="{{ 'weight--bold'|prefixClass }}">
-                            {{ 'organisation.procedurelist.slug'|trans }}
-                        </dt>
-                        <dd class="{{ 'color--grey'|prefixClass }}">
-                            {{ templateVars.proceduresDirectlinkPrefix }}/{% if organisation is defined %}{{ organisation.currentSlug.name|default }}{% endif %}
-                        </dd>
-                    </div>
-                {% endif %}
-                {% if display_customer %}
-                    <div>
-                        <dt class="{{ 'weight--bold'|prefixClass }}">
-                            {{ 'customer'|trans({ count: organisation.customers|default([])|length }) }}
-                        </dt>
-                        <dd class="{{ 'color--grey'|prefixClass }}">
-                            {% for customer in organisation.customers|default([]) %}
-                                {{ customer.name }}{% if customer != organisation.customers|last %}, {% endif %}
-                            {% endfor %}
-                        </dd>
-                    </div>
-                {% endif %}
-            </dl>
-        {% endif %}
-    </fieldset>
+        display-full-data>
+    </organisation-data-field>
 {% endblock organisationData %}
 
-
-{# Submission type #}
-{% if hasPermission('feature_change_submission_type') %}
-    <fieldset class="{{ 'u-3-of-4'|prefixClass }}">
-        {{ uiComponent('form.legend', {
-            text: 'statement.submission.type'|trans
-        }) }}
-
-        <input
-            type="hidden"
-            name="{{ organisation.ident|default }}:current_submission_type"
-            value="{{ organisation.submissionType }}">
-
-        {{ uiComponent('form.row', { elements: [
-            {
-                label: { text: 'statement.submission.shorthand'|trans, hint: 'explanation.statement.submit.process.short'|trans },
-                control: {
-                    name: organisation.ident|default ~ ':submission_type',
-                    value: submissionTypeShort,
-                    style: 'inline',
-                    checked: organisation.submissionType|default(submissionTypeDefault) == submissionTypeShort
-                },
-                id: 'submission_type_short',
-                type: 'radio'
-            },
-            {
-                label: { text: 'statement.submission.default'|trans, hint: 'explanation.statement.submit.process.default'|trans },
-                control: {
-                    name: organisation.ident|default ~ ':submission_type',
-                    value: submissionTypeDefault,
-                    style: 'inline',
-                    checked: organisation.submissionType|default(submissionTypeDefault) == submissionTypeDefault
-                },
-                id: 'submission_type_default',
-                type: 'radio'
-            }
-        ] }) }}
-
-    </fieldset>
-{% endif %}
-
 {# Email & Notification settings #}
-<fieldset class="{{ 'u-3-of-4'|prefixClass }}">
-    {% if user.isPublicAgency
-        or hasPermission('field_organisation_email2_cc')
-        or (hasPermission('feature_organisation_email_reviewer_admin') and hasPermission('field_organisation_email_reviewer_admin'))
-    %}
-        {{ uiComponent('form.legend', {
-            text: 'email.notifications'|trans
-        }) }}
-    {% endif %}
-
-    {# The email2 address is used to invite public agencies for participation, must be set for PublicAgency orgas. #}
-    {% if user.isPublicAgency %}
-        {{ uiComponent('form.row', { elements: [{
-            label: { text: 'email.participation'|trans, hint: 'explanation.organisation.email.participation'|trans|wysiwyg },
-            control: { name: organisation.ident|default ~ ':email2' },
-            id: 'orga_email2',
-            type: 'email',
-            required: true,
-            value: organisation.email2|default,
-        }] }) }}
-    {% endif %}
-
-    {# The ccEmail2 address allows public agencies to add additional email addresses for participation invitation. #}
-    {% if user.isPublicAgency and hasPermission('field_organisation_email2_cc') %}
-        {{ uiComponent('form.row', { elements: [{
-            label: { text: 'email.cc.participation'|trans, hint: 'explanation.organisation.email.cc'|trans|wysiwyg },
-            control: { name: organisation.ident|default ~ ':ccEmail2' },
-            id: 'orga_ccEmail2',
-            type: 'text',
-            value: organisation.ccEmail2|default != '-' ? organisation.ccEmail2 : '',
-        }] }) }}
-    {% endif %}
-
-    {# PLANNING_SUPPORTING_DEPARTMENT users may specify an email address that is notified whenever a fragment is assigned to someone. #}
-    {% if hasPermission('feature_organisation_email_reviewer_admin') and hasPermission('field_organisation_email_reviewer_admin') %}
-        {{ uiComponent('form.row', { elements: [{
-            label: { text: 'email.reviewer.admin'|trans, hint: 'explanation.organisation.email.reviewer.admin'|trans|wysiwyg },
-            control: { name: organisation.ident|default ~ ':emailReviewerAdmin' },
-            id: 'orga_emailReviewerAdmin',
-            type: 'email',
-            value: organisation.emailReviewerAdmin|default != '-' ? organisation.emailReviewerAdmin : '',
-        }] }) }}
-    {% endif %}
-
-    {% block notification_settings %}
-        {% if (will_receive_new_statement_notification == true and hasPermission('feature_notification_statement_new'))
-            or (user.isPublicAgency and hasPermission('feature_notification_ending_phase'))
-        %}
-            <p class="{{ 'o-form__label u-mb-0_25'|prefixClass }}">
-                {{ "email.notifications"|trans }}
-            </p>
-        {% endif %}
-
-        {% if will_receive_new_statement_notification == true and hasPermission('feature_notification_statement_new') %}
-            {{ uiComponent('form.row', { elements: [{
-                label: { text: 'explanation.notification.new.statement'|trans },
-                control: {
-                    name: organisation.ident|default ~ ':emailNotificationNewStatement',
-                    checked: organisation.notifications.emailNotificationNewStatement is defined and organisation.notifications.emailNotificationNewStatement.content == 'true'
-                },
-                type: 'checkbox',
-                id: 'orga_emailNotificationNewStatement',
-            }] }) }}
-        {% endif %}
-
-        {% if user.isPublicAgency and hasPermission('feature_notification_ending_phase') %}
-            {{ uiComponent('form.row', { elements: [{
-                label: { text: 'explanation.notification.phase.ending'|trans },
-                control: {
-                    name: organisation.ident|default ~ ':emailNotificationEndingPhase',
-                    checked: organisation.notifications.emailNotificationEndingPhase is defined and organisation.notifications.emailNotificationEndingPhase.content == 'true'
-                },
-                type: 'checkbox',
-                id: 'orga_emailNotificationEndingPhase',
-            }] }) }}
-        {% endif %}
-    {% endblock notification_settings %}
-</fieldset>
+<email-notifications-field
+    :user="JSON.parse('{{ userData|json_encode|e('js', 'utf-8') }}')"
+    :organisation="JSON.parse('{{ organisationData |default({})|json_encode|e('js', 'utf-8') }}')"
+    :will-receive-new-statement-notification="Boolean({{ will_receive_new_statement_notification }})">
+</email-notifications-field>
 
 
 {% block paper_copy %}
-    <fieldset class="{{ 'u-3-of-4'|prefixClass }}">
-        {% if hasPermission('field_organisation_paper_copy')
-            or hasPermission('field_organisation_paper_copy_spec')
-            or hasPermission('field_organisation_competence')
-        %}
-            {{ uiComponent('form.legend', {
-                text: 'copies.paper'|trans
-            }) }}
-        {% endif %}
-
-        {% if hasPermission('field_organisation_paper_copy') %}
-            {{ uiComponent('form.row', { elements: [{
-                label: { text: 'copies.paper'|trans, hint: 'explanation.organisation.copies.paper'|trans },
-                control: {
-                    name: organisation.ident|default ~ ':paperCopy',
-                    options: [0,1,2,3,4,5,6,7,8,9,10]|map(i => { label: i, value: i, selected: i == organisation.paperCopy|default }),
-                    size: 0
-                },
-                type: 'select',
-                id: 'orga_paperCopy',
-            }] }) }}
-        {% endif %}
-
-        {% if hasPermission('field_organisation_paper_copy_spec') %}
-            {{ uiComponent('form.row', { elements: [{
-                label: { text: 'copies.kind'|trans, hint: 'explanation.organisation.copies.kind'|trans|wysiwyg },
-                control: { value: organisation.paperCopySpec|default, name: organisation.ident|default ~ ':paperCopySpec', height: '8' },
-                type: 'textarea',
-                id: 'orga_paperCopySpec',
-            }] }) }}
-        {% endif %}
-
-        {% if hasPermission('field_organisation_competence') %}
-            {{ uiComponent('form.row', { elements: [{
-                label: { text: 'competence.explanation'|trans, hint: 'explanation.organisation.competence'|trans },
-                control: { value: organisation.competence|default, name: organisation.ident|default ~ ':competence', height: '8' },
-                type: 'textarea',
-                id: 'orga_competence',
-            }] }) }}
-        {% endif %}
-    </fieldset>
+    <paper-copy-field
+        :organisation="JSON.parse('{{ organisationData |default({})|json_encode|e('js', 'utf-8') }}')">
+    </paper-copy-field>
 {% endblock paper_copy %}
 
-
-{% if hasPermission('feature_orga_logo_edit')
-    or hasPermission('field_data_protection_text_customized_edit_orga')
-    or hasPermission('field_imprint_text_customized_edit_orga')
-    or hasPermission('field_organisation_agreement_showname') %}
-    <fieldset class="{{ 'u-3-of-4'|prefixClass }}">
-        {% if hasPermission('feature_orga_logo_edit') %}
-            {{ uiComponent('form.legend', {
-                text: 'organisation.procedures.branding'|trans,
-                explanation: 'organisation.procedures.branding.link'|trans({ href: path('DemosPlan_orga_branding_edit', {'orgaId': organisation.ident|default() })})|wysiwyg
-            }) }}
-        {% else %}
-            {{ uiComponent('form.legend', { text: 'organisation.procedures.branding'|trans }) }}
-        {% endif %}
-
-        {% if hasPermission('field_data_protection_text_customized_edit_orga') %}
-            {{ uiComponent('form.row', { elements: [{
-                label: { text: 'data.protection.notes'|trans, hint: 'customer.data.protection.explanation'|trans },
-                control: { hiddenInput: organisation.ident|default ~ ':data_protection', headings: [3,4], linkButton: true },
-                id: 'orga_data_protection',
-                type: 'editor',
-                value: organisation.dataProtection|default,
-            }] }) }}
-        {% endif %}
-
-        {% if hasPermission('field_imprint_text_customized_edit_orga') %}
-            {{ uiComponent('form.row', { elements: [{
-                label: { text: 'imprint'|trans, hint: 'organisation.imprint.hint'|trans },
-                control: { name: 'data_protection', hiddenInput: organisation.ident|default ~ ':imprint', headings: [3,4], linkButton: true },
-                id: 'orga_imprint',
-                type: 'editor',
-                value: organisation.imprint|default,
-            }] }) }}
-        {% endif %}
-
-        {% block public_display %}
-            {% if hasPermission('field_organisation_agreement_showname') %}
-                <p class="{{ 'u-mb-0'|prefixClass }}">
-                    {{ 'agree.publication'|trans|wysiwyg }}
-                </p>
-
-                <p class="{{ 'lbl__hint'|prefixClass }}">
-                    {{ 'agree.publication.explanation'|trans({ projectName: projectName }) }}
-                </p>
-
-                {{ uiComponent('form.row', { elements: [{
-                    label: { text: 'agree.publication.text'|trans },
-                    control: { name: organisation.ident|default ~ ':showname', value: '1', checked: organisation.showname == true },
-                    type: 'checkbox',
-                    id: 'orga_showname'
-                }] }) }}
-            {% endif %}
-        {% endblock %}
-    </fieldset>
-{% endif %}
-
+<orga-branding-field
+    :organisation="JSON.parse('{{ organisationData |default({})|json_encode|e('js', 'utf-8') }}')"
+    project-name="{{ projectName }}">
+</orga-branding-field>
 
 {% block buttonRow %}
     {{ uiComponent('button-row', {

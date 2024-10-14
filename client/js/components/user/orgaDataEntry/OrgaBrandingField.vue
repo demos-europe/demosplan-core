@@ -71,7 +71,7 @@
         class="o-form__label bald">
         {{ Translator.trans('agree.publication') }}
       </label>
-      <small class="lbl__hint font-semibold">
+      <small class="lbl__hint">
         {{ Translator.trans('agree.publication.explanation', { projectName }) }}
       </small>
       <dp-checkbox
@@ -104,8 +104,7 @@ export default {
   props: {
     projectName: {
       type: String,
-      required: false,
-      default: ''
+      required: true
     },
 
     organisation: {

@@ -97,8 +97,7 @@ export default {
   props: {
     organisation:  {
       type: Object,
-      required: false,
-      default: {}
+      required: true
     },
     user: {
       type: Object,

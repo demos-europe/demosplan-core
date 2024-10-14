@@ -273,28 +273,32 @@ export default {
 
     organisation:  {
       type: Object,
-      required: false,
-      default: {}
+      required: true
     },
+
     isOrgaDataEditable: {
       type: Boolean,
       required: true
     },
+
     proceduresDirectlinkPrefix: {
       type: String,
       required: false,
       default: ''
     },
+
     submissionTypeDefault: {
       type: String,
       required: false,
       default: ''
     },
+
     submissionTypeShort: {
       type: String,
       required: false,
       default: ''
     },
+
     customers: {
       type: Array,
       required: false,
