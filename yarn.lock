@@ -3782,15 +3782,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@uppy/drag-drop@npm:^3.0.3":
-  version: 3.1.0
-  resolution: "@uppy/drag-drop@npm:3.1.0"
+"@uppy/drag-drop@npm:^4.0.2":
+  version: 4.0.2
+  resolution: "@uppy/drag-drop@npm:4.0.2"
   dependencies:
-    "@uppy/utils": "npm:^5.7.5"
+    "@uppy/utils": "npm:^6.0.2"
     preact: "npm:^10.5.13"
   peerDependencies:
-    "@uppy/core": ^3.10.0
-  checksum: 10c0/46a3d4bf7a79b86280c6db58ac383c46dbc56bc9b3672b597088c773852ef21f2b755f5b7f01ff43d40a9b57a033ad88ffa99ca8a41c509f85b9814c05c32b1f
+    "@uppy/core": ^4.1.1
+  checksum: 10c0/a9b6da8fd75b3c1db1bfa1cbde05ed6eea0cbcaa508c4abd2da6be5308e7fbad9d74aa440c63e5bddad7d3152b2a9ca423af0db099f9087ae1e4bd2b828a554d
   languageName: node
   linkType: hard
 
@@ -12764,7 +12764,7 @@ __metadata:
     "@sentry/integrations": "npm:^7.114.0"
     "@sentry/tracing": "npm:^7.114.0"
     "@uppy/core": "npm:^4.2.1"
-    "@uppy/drag-drop": "npm:^3.0.3"
+    "@uppy/drag-drop": "npm:^4.0.2"
     "@uppy/progress-bar": "npm:^4.0.0"
     "@vue/test-utils": "npm:^1.3.6"
     "@vue/vue2-jest": "npm:^27.0.0"
