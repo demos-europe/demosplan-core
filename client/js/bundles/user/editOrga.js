@@ -13,13 +13,21 @@
 
 import { DpAccordion, DpEditor, dpValidate } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
-import OrganisationDataEntry from '@DpJs/components/user/OrganisationDataEntry'
+import OrganisationDataField from '@DpJs/components/user/orgaDataEntry/OrganisationDataField'
+import EmailNotificationsField from '@DpJs/components/user/orgaDataEntry/EmailNotificationsField'
+import PaperCopyField from '@DpJs/components/user/orgaDataEntry/PaperCopyField'
+import OrgaBrandingField from '@DpJs/components/user/orgaDataEntry/OrgaBrandingField'
+
+
 import UrlPreview from '@DpJs/lib/shared/UrlPreview'
 
 const components = {
   DpAccordion,
   DpEditor,
-  OrganisationDataEntry
+  OrganisationDataField,
+  EmailNotificationsField,
+  PaperCopyField,
+  OrgaBrandingField
 }
 
 initialize(components).then(() => {
