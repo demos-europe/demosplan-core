@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="segment && segment.tags.length > 0"
-    class="flex flex-wrap gap-1 bg-white">
+    class="flex flex-wrap gap-1 bg-surface">
     <div
       v-for="(tag, idx) in segment.tags"
       :key="`tag_${idx}`"
