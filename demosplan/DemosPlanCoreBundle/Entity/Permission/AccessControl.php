@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\Permission;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\AccessControlInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
@@ -28,7 +29,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Table(name="access_control", uniqueConstraints={@ORM\UniqueConstraint(name="unique_orga_customer_role_permission", columns={"orga_id", "customer_id", "role_id", "permission"})})
  */
-class AccessControl extends CoreEntity implements UuidEntityInterface
+class AccessControl extends CoreEntity implements UuidEntityInterface, AccessControlInterface
 {
     /**
      * @ORM\Column(type="string", length=36, options={"fixed":true})
@@ -96,17 +97,17 @@ class AccessControl extends CoreEntity implements UuidEntityInterface
         $this->permission = $permission;
     }
 
-    public function setOrga(?OrgaInterface $orga)
+    public function setOrga(?OrgaInterface $orga): void
     {
         $this->organisation = $orga;
     }
 
-    public function setRole(?RoleInterface $role)
+    public function setRole(?RoleInterface $role): void
     {
         $this->role = $role;
     }
 
-    public function setCustomer(?CustomerInterface $customer)
+    public function setCustomer(?CustomerInterface $customer): void
     {
         $this->customer = $customer;
     }
