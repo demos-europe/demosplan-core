@@ -3,7 +3,7 @@
     class="w-3/4">
     <legend
       v-if="user.isPublicAgency ||
-        hasPermission('field_organisation_email2_cc') ||
+        (user.isPublicAgency && hasPermission('field_organisation_email2_cc')) ||
         (hasPermission('feature_organisation_email_reviewer_admin') && hasPermission('field_organisation_email_reviewer_admin'))"
       class="font-size-large weight--normal u-mb-0_75">
       {{ Translator.trans('email.notifications') }}
@@ -48,8 +48,8 @@
         }"
       v-model="organisation.emailReviewerAdmin" />
 
-    <!-- Notifications Settings Section -->
-    <div v-if="showNotificationsSection">
+    <!-- Notifications Section -->
+    <div v-if="hasNotificationSection && hasNotificationSectionPermission">
       <p class="o-form__label mb-1">
         {{ Translator.trans('email.notifications') }}
       </p>
@@ -63,10 +63,9 @@
         :name="`${organisation.id}:emailNotificationNewStatement`"
         data-cy="organisationData:notification:newStatement"
         :label="{
-            text: Translator.trans('explanation.notification.new.statement'),
-            bold: true
-          }"
-        :checked="organisation.emailNotificationNewStatement.content" />
+          text: Translator.trans('explanation.notification.new.statement')
+        }"
+        :checked="organisation.emailNotificationNewStatement.content === 'true'" />
 
       <!-- Ending Phase Notification -->
       <dp-checkbox
@@ -75,10 +74,9 @@
         :name="`${organisation.id}:emailNotificationEndingPhase`"
         data-cy="organisationData:notification:endingPhase"
         :label="{
-            text: Translator.trans('explanation.notification.phase.ending'),
-            bold: true
-          }"
-        :checked="organisation.emailNotificationEndingPhase.content" />
+          text: Translator.trans('explanation.notification.phase.ending')
+        }"
+        :checked="organisation.emailNotificationEndingPhase.content === 'true'" />
     </div>
   </fieldset>
 </template>
@@ -99,11 +97,19 @@ export default {
       type: Object,
       required: true
     },
+
     user: {
       type: Object,
       required: true
     },
+
     willReceiveNewStatementNotification: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
+    hasNotificationSection: {
       type: Boolean,
       required: false,
       default: false
@@ -111,8 +117,8 @@ export default {
   },
 
   computed: {
-    showNotificationsSection () {
-      return (this.willReceiveNewStatementNotification && hasPermission('feature_notification_statement_new')) ||
+    hasNotificationSectionPermission () {
+      return this.willReceiveNewStatementNotification && hasPermission('feature_notification_statement_new') ||
         (this.user.isPublicAgency && hasPermission('feature_notification_ending_phase'))
     }
   }

@@ -66,8 +66,13 @@
     <div
       v-if="hasPermission('field_organisation_agreement_showname')"
       class="mb-0">
+      <!-- showList needs to be defined as it is an mandatory field, if orga is changed by support user (bobhh) -->
+      <input
+        type="hidden"
+        :name="`${organisation.id}:showlist`"
+        :value="organisation && organisation.showlist ? 1 : 0">
       <label
-        :for="`${organisation.id}:showname`"
+        for="orga_showname"
         class="o-form__label bald">
         {{ Translator.trans('agree.publication') }}
       </label>
@@ -75,13 +80,13 @@
         {{ Translator.trans('agree.publication.explanation', { projectName }) }}
       </small>
       <dp-checkbox
-        :id="`${organisation.id}:showname`"
+        id="orga_showname"
         :name="`${organisation.id}:showname`"
         :checked="organisation.showname"
         :label="{
-            text: Translator.trans('agree.publication.text'),
-            bold: true
-          }" />
+          text: Translator.trans('agree.publication.text'),
+          bold: true
+        }" />
     </div>
   </fieldset>
 </template>
@@ -110,7 +115,7 @@ export default {
     organisation: {
       type: Object,
       required: true
-    },
+    }
   },
 
   computed: {

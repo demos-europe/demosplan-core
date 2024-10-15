@@ -21,7 +21,8 @@
     showname: organisation.showname|default,
     dataProtection: organisation.dataProtection|default,
     imprint: organisation.imprint|default,
-    submissionType: organisation.submissionType|default
+    submissionType: organisation.submissionType|default,
+    showlist: organisation.showlist|default
 } %}
 
 {% set userData = {
@@ -38,34 +39,38 @@
 
 {% block organisationData %}
     <organisation-data-field
-        submission-type-default="{{ submissionTypeDefault }}"
-        submission-type-short="{{ submissionTypeShort }}"
         :customers="JSON.parse('{{ customers|default([])|json_encode|e('js', 'utf-8') }}')"
         :is-orga-data-editable="Boolean({{ may_edit_orga_data }})"
+        :organisation="JSON.parse('{{ organisationData|default({})|json_encode|e('js', 'utf-8') }}')"
         :procedures-directlink-prefix="JSON.parse('{{ templateVars.proceduresDirectlinkPrefix|json_encode|e('js', 'utf-8') }}')"
-        :organisation="JSON.parse('{{ organisationData |default({})|json_encode|e('js', 'utf-8') }}')"
-        display-full-data>
+        submission-type-default="{{ submissionTypeDefault }}"
+        submission-type-short="{{ submissionTypeShort }}"
+        has-title
+        show-detailed-info>
     </organisation-data-field>
 {% endblock organisationData %}
 
-{# Email & Notification settings #}
-<email-notifications-field
-    :user="JSON.parse('{{ userData|json_encode|e('js', 'utf-8') }}')"
-    :organisation="JSON.parse('{{ organisationData |default({})|json_encode|e('js', 'utf-8') }}')"
-    :will-receive-new-statement-notification="Boolean({{ will_receive_new_statement_notification }})">
-</email-notifications-field>
+{% block emailNotifications %}
+    <email-notifications-field
+        :organisation="JSON.parse('{{ organisationData|default({})|json_encode|e('js', 'utf-8') }}')"
+        :user="JSON.parse('{{ userData|json_encode|e('js', 'utf-8') }}')"
+        :will-receive-new-statement-notification="Boolean({{ will_receive_new_statement_notification }})"
+        has-notification-section>
+    </email-notifications-field>
+{% endblock emailNotifications %}
 
-
-{% block paper_copy %}
+{% block paperCopy %}
     <paper-copy-field
-        :organisation="JSON.parse('{{ organisationData |default({})|json_encode|e('js', 'utf-8') }}')">
+        :organisation="JSON.parse('{{ organisationData|default({})|json_encode|e('js', 'utf-8') }}')">
     </paper-copy-field>
-{% endblock paper_copy %}
+{% endblock paperCopy %}
 
-<orga-branding-field
-    :organisation="JSON.parse('{{ organisationData |default({})|json_encode|e('js', 'utf-8') }}')"
-    project-name="{{ projectName }}">
-</orga-branding-field>
+{% block orgaBranding %}
+    <orga-branding-field
+        :organisation="JSON.parse('{{ organisationData|default({})|json_encode|e('js', 'utf-8') }}')"
+        project-name="{{ projectName }}">
+    </orga-branding-field>
+{% endblock orgaBranding %}
 
 {% block buttonRow %}
     {{ uiComponent('button-row', {

@@ -1,11 +1,13 @@
 <template>
   <div>
     <fieldset class="w-3/4">
-      <legend class="font-size-large weight--normal mb-3">
+      <legend
+        v-if="hasTitle"
+        class="font-size-large weight--normal mb-3">
         {{ Translator.trans('organisation.data') }}
       </legend>
 
-      <template v-if="displayFullData">
+      <template v-if="showDetailedInfo">
         <!-- Name -->
         <dp-input
           id="orga_name"
@@ -24,12 +26,13 @@
           <dp-input
             id="orga_address_street"
             v-model="organisation.street"
+            :class="{ 'w-4': !organisation.street.length }"
             data-cy="organisationData:address:street"
             :name="`${organisation.id}:address_street`"
             :label="{
               text: Translator.trans('street')
             }"
-            :size="organisation.street.length"
+            :size="!isOrgaDataEditable ? organisation.street.length : null"
             :disabled="!isOrgaDataEditable" />
 
           <dp-input
@@ -38,8 +41,8 @@
             data-cy="organisationData:address:houseNumber"
             :name="`${organisation.id}:address_houseNumber`"
             :label="{
-            text: Translator.trans('street.number.short')
-          }"
+              text: Translator.trans('street.number.short')
+            }"
             :size="5"
             :disabled="!isOrgaDataEditable" />
         </div>
@@ -125,7 +128,7 @@
           v-if="displaySlug || displayCustomer"
           class="description-list space-stack-s">
           <div v-if="displaySlug">
-            <dt class="weight--bold">
+            <dt class="font-semibold">
               {{ Translator.trans('organisation.procedurelist.slug') }}
             </dt>
             <dd class="color--grey">
@@ -134,13 +137,13 @@
           </div>
 
           <div v-if="displayCustomer">
-            <dt class="weight--bold">
+            <dt class="font-semibold">
               {{ Translator.trans('customer', { count: customers.length }) }}
             </dt>
             <dd
               v-for="(customer, index) in customers"
               :key="customer.id"
-              class="color--grey">
+              class="color--grey inline">
               {{ customer.name }}<span v-if="index < customers.length - 1">, </span>
             </dd>
           </div>
@@ -148,72 +151,84 @@
       </template>
 
       <template v-else>
-        <div>
-          <dp-input
-            id="orga_name"
-            v-model="organisation.name"
-            class="mb-2 layout__item"
-            data-cy="organisationData:name"
-            :name="`${organisation.id}:name`"
-            :label="{
-              text: Translator.trans('name.legal')
-            }"
-            :disabled="!isOrgaDataEditable" />
+        <dp-input
+          id="orga_name"
+          v-model="organisation.name"
+          class="mb-2"
+          data-cy="organisationData:name"
+          :name="`${organisation.id}:name`"
+          :label="{
+            text: Translator.trans('name.legal')
+          }"
+          :disabled="!isOrgaDataEditable" />
 
-          <dp-input
-            id="orga_address_street"
-            v-model="organisation.street"
-            class="mb-2 layout__item"
-            data-cy="organisationData:address:street"
-            :name="`${organisation.id}:address_street`"
-            :label="{
-              text: Translator.trans('street')
-            }"
-            :size="organisation.street.length"
-            :disabled="!isOrgaDataEditable" />
+        <dp-input
+          id="orga_address_street"
+          v-model="organisation.street"
+          class="mb-2"
+          data-cy="organisationData:address:street"
+          :name="`${organisation.id}:address_street`"
+          :label="{
+            text: Translator.trans('street')
+          }"
+          :disabled="!isOrgaDataEditable" />
 
-          <dp-input
-            id="orga_address_postalcode"
-            v-model="organisation.postalcode"
-            data-cy="organisationData:address:postalcode"
-            class="layout__item"
-            :name="`${organisation.id}:address_postalcode`"
-            :label="{
-              text: Translator.trans('postalcode')
-            }"
-            :pattern="isOrgaDataEditable ? '^[0-9]{5}$' : ''"
-            :size="5"
-            :disabled="!isOrgaDataEditable" />
+        <dp-input
+          id="orga_address_postalcode"
+          v-model="organisation.postalcode"
+          data-cy="organisationData:address:postalcode"
+          class="mb-2"
+          :name="`${organisation.id}:address_postalcode`"
+          :label="{
+            text: Translator.trans('postalcode')
+          }"
+          :pattern="isOrgaDataEditable ? '^[0-9]{5}$' : ''"
+          :size="5"
+          :disabled="!isOrgaDataEditable" />
 
-          <dp-input
-            id="orga_address_city"
-            v-model="organisation.city"
-            class="layout__item mb-2"
-            data-cy="organisationData:address:city"
-            :name="`${organisation.id}:address_city`"
-            :label="{
-              text: Translator.trans('city')
-            }"
-            :disabled="!isOrgaDataEditable" />
+        <dp-input
+          id="orga_address_city"
+          v-model="organisation.city"
+          class="mb-2"
+          data-cy="organisationData:address:city"
+          :name="`${organisation.id}:address_city`"
+          :label="{
+            text: Translator.trans('city')
+          }"
+          :disabled="!isOrgaDataEditable" />
 
-          <dp-input
-            v-if="hasPermission('field_organisation_phone')"
-            id="orga_address_phone"
-            class="mb-2 layout__item"
-            v-model="organisation.phone"
-            data-cy="organisationData:phone"
-            :name="`${organisation.id}:address_phone`"
-            :label="{
-              text: Translator.trans('phone')
-            }"
-            :disabled="!isOrgaDataEditable" />
-        </div>
+        <dp-input
+          v-if="hasPermission('field_organisation_phone')"
+          id="orga_address_phone"
+          class="mb-2"
+          v-model="organisation.phone"
+          data-cy="organisationData:phone"
+          :name="`${organisation.id}:address_phone`"
+          :label="{
+            text: Translator.trans('phone')
+          }"
+          :disabled="!isOrgaDataEditable" />
+
+        <!-- TODO: show all types instead of disabled select-->
+        <dp-select
+          v-if="hasTypes"
+          id="orga_type"
+          class="mb-2"
+          data-cy="organisationData:type"
+          :name="`${organisation.id}:type`"
+          :options="orgaTypes"
+          :selected="orgaTypes[0]"
+          :label="{
+            text: Translator.trans('type')
+          }"
+          :disabled="!isOrgaDataEditable">
+        </dp-select>
       </template>
     </fieldset>
 
     <!-- Submission type -->
     <fieldset
-      v-if="showSubmissionTypeSection"
+      v-if="hasPermission('feature_change_submission_type')"
       id="submissionType"
       class="w-3/4 mb-2">
       <legend class="font-size-large weight--normal mb-3">
@@ -265,7 +280,19 @@ export default {
   },
 
   props: {
-    displayFullData: {
+    hasTitle: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
+    hasTypes: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
+    showDetailedInfo: {
       type: Boolean,
       required: false,
       default: false
@@ -303,6 +330,12 @@ export default {
       type: Array,
       required: false,
       default: () => ([])
+    },
+
+    orgaTypes: {
+      type: Array,
+      required: false,
+      default: () => ([])
     }
   },
 
@@ -316,10 +349,6 @@ export default {
     displayCustomer () {
       return hasPermission('feature_display_customer_names') &&
         this.customers && this.customers.length > 0
-    },
-
-    showSubmissionTypeSection () {
-      return hasPermission('feature_change_submission_type')
     }
   }
 }
