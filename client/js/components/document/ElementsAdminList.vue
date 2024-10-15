@@ -57,7 +57,7 @@
       :on-move="onMove"
       :options="treeListOptions"
       :tree-data="treeData"
-      @end="(event, item, parentId) => saveNewSort(event, item, parentId)"
+      @end="(event, item, parentId) => saveNewSort(event, parentId)"
       @node-selection-change="nodeSelectionChange"
       @tree:change="updateTreeData">
       <template v-slot:header="">
@@ -330,15 +330,10 @@ export default {
      * Persist new sort order.
      * The parentId is used to save sort across branches.
      *
-     * @param event
-     * @param {Object} item
-     * @param {Object} item.attributes
-     * @param {String} item.id
-     * @param {String} item.type
+     * @param {Object< newIndex, oldIndex, item >} event
      * @param {String} parentId
      */
-    saveNewSort (event, item, parentId) {
-      const { newIndex, oldIndex } = event
+    saveNewSort ({ newIndex, oldIndex, item }, parentId) {
       const { id } = item
 
       // If item is not moved, do nothing
