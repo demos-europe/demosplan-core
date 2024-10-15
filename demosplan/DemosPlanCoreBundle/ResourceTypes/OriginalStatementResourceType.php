@@ -80,18 +80,24 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
 
     protected function getProperties(): ResourceConfigBuilderInterface
     {
-        $configBuilder = $this->getConfig(OriginalStatementResourceConfigBuilder::class);
-        $configBuilder->id->setReadableByPath();
-        $configBuilder->externId->setReadableByPath();
-        // $configBuilder->meta->setReadableByPath();
-        $configBuilder->submitDate->setReadableByPath()->setAliasedPath(Paths::statement()->submit);
-        $configBuilder->submitName->setReadableByPath()->setAliasedPath(Paths::statement()->meta->submitName);
-        $configBuilder->isSubmittedByCitizen
+        $originalStatementConfig = $this->getConfig(OriginalStatementResourceConfigBuilder::class);
+        $originalStatementConfig->id->setReadableByPath();
+        $originalStatementConfig->externId->setReadableByPath();
+        $originalStatementConfig->meta->setRelationshipType(
+            $this->getTypes()->getStatementMetaResourceType()
+        )->setReadableByPath();
+        $originalStatementConfig->submitDate->setReadableByPath()->setAliasedPath(Paths::statement()->submit);
+        $originalStatementConfig->isSubmittedByCitizen
             ->setReadableByCallable(static fn (Statement $statement): bool => $statement->isSubmittedByCitizen());
-        // fullText
-        // shortText
+        $originalStatementConfig->fullText->setReadableByPath()->setAliasedPath(Paths::statement()->text);
+        $originalStatementConfig->shortText->setReadableByCallable(
+            static fn (Statement $statement): string => $statement->getTextShort()
+        )->setAliasedPath(Paths::statement()->text);
+        $originalStatementConfig->procedure->setRelationshipType(
+            $this->getTypes()->getProcedureResourceType()
+        )->setReadableByPath();
 
-        return $configBuilder;
+        return $originalStatementConfig;
     }
 
     private function hasAccessPermissions(): bool
