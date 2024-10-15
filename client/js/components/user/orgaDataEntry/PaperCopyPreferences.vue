@@ -14,15 +14,15 @@
       <!-- TODO: create PR in demosplan-ui -->
       <dp-select
         id="orga_paperCopy"
-        :name="`${organisation.id || ''}:paperCopy`"
+        :name="`${organisation.id}:paperCopy`"
         v-model="organisation.paperCopy"
         data-cy="organisationData:paperCopy:select"
         :label="{
-            text: Translator.trans('copies.paper'),
-            hint: Translator.trans('explanation.organisation.copies.paper')
-          }"
+          text: Translator.trans('copies.paper'),
+          hint: Translator.trans('explanation.organisation.copies.paper')
+        }"
         :selected="organisation.paperCopy"
-        :options="paperCopyCountOptions">
+        :options="paperCopyCountOptions()">
       </dp-select>
     </div>
 
@@ -32,7 +32,7 @@
       <dp-text-area
         id="orga_paperCopySpec"
         data-cy="organisationData:paperCopy:specification"
-        :name="`${organisation.id || ''}:paperCopySpec`"
+        :name="`${organisation.id}:paperCopySpec`"
         :value="organisation.paperCopySpec"
         :label="Translator.trans('copies.kind')"
         :hint="Translator.trans('explanation.organisation.copies.kind')" />
@@ -44,7 +44,7 @@
       <dp-text-area
         id="orga_competence"
         data-cy="organisationData:paperCopy:competence"
-        :name="`${organisation.id || ''}:competence`"
+        :name="`${organisation.id}:competence`"
         :value="organisation.competence"
         :label="Translator.trans('competence.explanation')"
         :hint="Translator.trans('explanation.organisation.competence')" />
@@ -59,8 +59,8 @@ export default {
   name: 'PaperCopyPreferences',
 
   components: {
-    DpTextArea,
-    DpSelect
+    DpSelect,
+    DpTextArea
   },
 
   props: {
@@ -71,17 +71,19 @@ export default {
   },
 
   computed: {
+    showPaperCopySection () {
+      return hasPermission('field_organisation_paper_copy') ||
+        hasPermission('field_organisation_paper_copy_spec') ||
+        hasPermission('field_organisation_competence')
+    }
+  },
+
+  methods: {
     paperCopyCountOptions () {
       return Array.from({ length: 11 }, (_, i) => ({
         label: i.toString(),
         value: i,
       }))
-    },
-
-    showPaperCopySection () {
-      return hasPermission('field_organisation_paper_copy') ||
-        hasPermission('field_organisation_paper_copy_spec') ||
-        hasPermission('field_organisation_competence')
     }
   }
 }

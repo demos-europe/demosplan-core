@@ -13,10 +13,10 @@
 
 import { DpAccordion, DpEditor, dpValidate } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
-import OrganisationDataForm from '@DpJs/components/user/orgaDataEntry/OrganisationDataForm'
 import EmailNotificationSettings from '@DpJs/components/user/orgaDataEntry/EmailNotificationSettings'
-import PaperCopyPreferences from '@DpJs/components/user/orgaDataEntry/PaperCopyPreferences'
 import OrganisationBrandingSettings from '@DpJs/components/user/orgaDataEntry/OrganisationBrandingSettings'
+import OrganisationDataForm from '@DpJs/components/user/orgaDataEntry/OrganisationDataForm'
+import PaperCopyPreferences from '@DpJs/components/user/orgaDataEntry/PaperCopyPreferences'
 
 import UrlPreview from '@DpJs/lib/shared/UrlPreview'
 

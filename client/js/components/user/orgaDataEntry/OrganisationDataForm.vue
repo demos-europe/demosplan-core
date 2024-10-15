@@ -265,21 +265,24 @@
 </template>
 
 <script>
-import { DpInput, DpSelect, DpRadio, DpTextArea, DpEditor, DpCheckbox } from '@demos-europe/demosplan-ui'
+import { DpInput, DpRadio, DpSelect } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'OrganisationDataForm',
 
   components: {
-    DpRadio,
     DpInput,
-    DpTextArea,
-    DpSelect,
-    DpEditor,
-    DpCheckbox
+    DpRadio,
+    DpSelect
   },
 
   props: {
+    customers: {
+      type: Array,
+      required: false,
+      default: () => ([])
+    },
+
     hasTitle: {
       type: Boolean,
       required: false,
@@ -292,10 +295,9 @@ export default {
       default: false
     },
 
-    showDetailedInfo: {
+    isOrgaDataEditable: {
       type: Boolean,
-      required: false,
-      default: false
+      required: true
     },
 
     organisation:  {
@@ -303,15 +305,22 @@ export default {
       required: true
     },
 
-    isOrgaDataEditable: {
-      type: Boolean,
-      required: true
+    orgaTypes: {
+      type: Array,
+      required: false,
+      default: () => ([])
     },
 
     proceduresDirectlinkPrefix: {
       type: String,
       required: false,
       default: ''
+    },
+
+    showDetailedInfo: {
+      type: Boolean,
+      required: false,
+      default: false
     },
 
     submissionTypeDefault: {
@@ -324,18 +333,6 @@ export default {
       type: String,
       required: false,
       default: ''
-    },
-
-    customers: {
-      type: Array,
-      required: false,
-      default: () => ([])
-    },
-
-    orgaTypes: {
-      type: Array,
-      required: false,
-      default: () => ([])
     }
   },
 
@@ -347,8 +344,7 @@ export default {
     },
 
     displayCustomer () {
-      return hasPermission('feature_display_customer_names') &&
-        this.customers && this.customers.length > 0
+      return hasPermission('feature_display_customer_names') && this.customers?.length
     }
   }
 }

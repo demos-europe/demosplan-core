@@ -56,9 +56,9 @@
         data-cy="organisationData:branding:imprint"
         :hidden-input="`${organisation.id}:imprint`"
         :toolbar-items="{
-            linkButton: true,
-            headings: [3, 4]
-          }"
+          linkButton: true,
+          headings: [3, 4]
+        }"
         :value="organisation.imprint || ''" />
     </div>
 
