@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\IsOriginalStatementAvailableEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\OriginalStatementResourceTypeInterface;
@@ -19,6 +20,7 @@ use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\IsOriginalStatementAvailableEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\OriginalStatementResourceConfigBuilder;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
@@ -31,9 +33,16 @@ use EDT\PathBuilding\End;
  * @property-read End                   $deleted
  * @property-read StatementResourceType $headStatement
  * @property-read StatementResourceType $movedStatement
+ * @property-read ProcedurePhaseResourceType $institutionPhase
+ * @property-read ProcedurePhaseResourceType $publicParticipationPhase
  */
 final class OriginalStatementResourceType extends DplanResourceType implements OriginalStatementResourceTypeInterface
 {
+
+    public function __construct(
+        private StatementService $statementService,
+    ) {
+    }
     public static function getName(): string
     {
         return 'OriginalStatement';
@@ -93,9 +102,23 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
         $originalStatementConfig->shortText->setReadableByCallable(
             static fn (Statement $statement): string => $statement->getTextShort()
         )->setAliasedPath(Paths::statement()->text);
-        $originalStatementConfig->procedure->setRelationshipType(
-            $this->getTypes()->getProcedureResourceType()
-        )->setReadableByPath();
+        $originalStatementConfig->phase
+        ->setReadableByCallable(
+            fn (Statement $statement): string
+            => $this->statementService->getInternalOrExternalPhaseNameFromObject($statement)
+        );
+        $originalStatementConfig->elements
+        ->setRelationshipType($this->resourceTypeStore->getPlanningDocumentCategoryResourceType())
+        ->setReadableByPath()->aliasedPath(Paths::statement()->element);
+        $originalStatementConfig->document
+        ->setRelationshipType($this->resourceTypeStore->getSingleDocumentResourceType())
+        ->setReadableByCallable(
+            static fn (Statement $statement): ?SingleDocumentInterface
+            => $statement->getDocument()?->getSingleDocument()
+        );
+        $originalStatementConfig->paragraph
+        ->setRelationshipType($this->resourceTypeStore->getParagraphVersionResourceType())
+        ->setReadableByPath();
 
         return $originalStatementConfig;
     }
