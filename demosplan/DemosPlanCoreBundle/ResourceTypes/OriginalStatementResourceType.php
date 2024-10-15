@@ -38,11 +38,11 @@ use EDT\PathBuilding\End;
  */
 final class OriginalStatementResourceType extends DplanResourceType implements OriginalStatementResourceTypeInterface
 {
-
     public function __construct(
         private StatementService $statementService,
     ) {
     }
+
     public static function getName(): string
     {
         return 'OriginalStatement';
@@ -104,8 +104,7 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
         )->setAliasedPath(Paths::statement()->text);
         $originalStatementConfig->phase
         ->setReadableByCallable(
-            fn (Statement $statement): string
-            => $this->statementService->getInternalOrExternalPhaseNameFromObject($statement)
+            fn (Statement $statement): string => $this->statementService->getInternalOrExternalPhaseNameFromObject($statement)
         );
         $originalStatementConfig->elements
         ->setRelationshipType($this->resourceTypeStore->getPlanningDocumentCategoryResourceType())
@@ -113,8 +112,7 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
         $originalStatementConfig->document
         ->setRelationshipType($this->resourceTypeStore->getSingleDocumentResourceType())
         ->setReadableByCallable(
-            static fn (Statement $statement): ?SingleDocumentInterface
-            => $statement->getDocument()?->getSingleDocument()
+            static fn (Statement $statement): ?SingleDocumentInterface => $statement->getDocument()?->getSingleDocument()
         );
         $originalStatementConfig->paragraph
         ->setRelationshipType($this->resourceTypeStore->getParagraphVersionResourceType())
