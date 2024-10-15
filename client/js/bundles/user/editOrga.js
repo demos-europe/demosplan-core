@@ -18,7 +18,6 @@ import EmailNotificationSettings from '@DpJs/components/user/orgaDataEntry/Email
 import PaperCopyPreferences from '@DpJs/components/user/orgaDataEntry/PaperCopyPreferences'
 import OrganisationBrandingSettings from '@DpJs/components/user/orgaDataEntry/OrganisationBrandingSettings'
 
-
 import UrlPreview from '@DpJs/lib/shared/UrlPreview'
 
 const components = {
