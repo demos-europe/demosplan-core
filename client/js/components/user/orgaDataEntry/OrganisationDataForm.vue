@@ -268,7 +268,7 @@
 import { DpInput, DpSelect, DpRadio, DpTextArea, DpEditor, DpCheckbox } from '@demos-europe/demosplan-ui'
 
 export default {
-  name: 'OrganisationDataField',
+  name: 'OrganisationDataForm',
 
   components: {
     DpRadio,

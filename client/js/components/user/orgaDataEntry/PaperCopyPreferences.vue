@@ -56,7 +56,7 @@
 import { DpSelect, DpTextArea } from '@demos-europe/demosplan-ui'
 
 export default {
-  name: 'PaperCopyField',
+  name: 'PaperCopyPreferences',
 
   components: {
     DpTextArea,

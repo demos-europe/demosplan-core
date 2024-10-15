@@ -38,7 +38,7 @@
 {% set submissionTypeShort = templateVars.submissionTypeShort %}
 
 {% block organisationData %}
-    <organisation-data-field
+    <organisation-data-form
         :customers="JSON.parse('{{ customers|default([])|json_encode|e('js', 'utf-8') }}')"
         :is-orga-data-editable="Boolean({{ may_edit_orga_data }})"
         :organisation="JSON.parse('{{ organisationData|default({})|json_encode|e('js', 'utf-8') }}')"
@@ -47,29 +47,29 @@
         submission-type-short="{{ submissionTypeShort }}"
         has-title
         show-detailed-info>
-    </organisation-data-field>
+    </organisation-data-form>
 {% endblock organisationData %}
 
 {% block emailNotifications %}
-    <email-notifications-field
+    <email-notification-settings
         :organisation="JSON.parse('{{ organisationData|default({})|json_encode|e('js', 'utf-8') }}')"
         :user="JSON.parse('{{ userData|json_encode|e('js', 'utf-8') }}')"
         :will-receive-new-statement-notification="Boolean({{ will_receive_new_statement_notification }})"
         has-notification-section>
-    </email-notifications-field>
+    </email-notification-settings>
 {% endblock emailNotifications %}
 
 {% block paperCopy %}
-    <paper-copy-field
+    <paper-copy-preferences
         :organisation="JSON.parse('{{ organisationData|default({})|json_encode|e('js', 'utf-8') }}')">
-    </paper-copy-field>
+    </paper-copy-preferences>
 {% endblock paperCopy %}
 
 {% block orgaBranding %}
-    <orga-branding-field
+    <organisation-branding-settings
         :organisation="JSON.parse('{{ organisationData|default({})|json_encode|e('js', 'utf-8') }}')"
         project-name="{{ projectName }}">
-    </orga-branding-field>
+    </organisation-branding-settings>
 {% endblock orgaBranding %}
 
 {% block buttonRow %}

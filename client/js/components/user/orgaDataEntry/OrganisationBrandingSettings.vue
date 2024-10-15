@@ -95,7 +95,7 @@
 import { CleanHtml, DpEditor, DpCheckbox } from '@demos-europe/demosplan-ui'
 
 export default {
-  name: 'OrgaBrandingField',
+  name: 'OrganisationBrandingSettings',
 
   components: {
     DpEditor,

@@ -85,7 +85,7 @@
 import { DpInput, DpCheckbox } from '@demos-europe/demosplan-ui'
 
 export default {
-  name: 'EmailNotificationsField',
+  name: 'EmailNotificationSettings',
 
   components: {
     DpInput,
