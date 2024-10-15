@@ -145,7 +145,7 @@ class DemosPlanOrgaController extends BaseController
         Request $request,
         UserHandler $userHandler,
         OrgaHandler $orgaHandler,
-        string $orgaId
+        string $orgaId,
     ) {
         $requestPost = $request->request;
         $accessPreventionRedirect = $this->preventInvalidOrgaAccess($orgaId, $currentUser->getUser());
@@ -180,6 +180,7 @@ class DemosPlanOrgaController extends BaseController
                 }
             }
         }
+
         // Lade die Seite neu, damit das Formular nicht erneut abgeschickt werden kann
         return $this->redirectToRoute('DemosPlan_orga_edit_view', ['orgaId' => $orgaId]);
     }
@@ -338,7 +339,7 @@ class DemosPlanOrgaController extends BaseController
         CurrentUserInterface $currentUser,
         OsiHHAuthenticator $osiHHAuthenticator,
         Request $request,
-        UserAuthenticatorInterface $userAuthenticator
+        UserAuthenticatorInterface $userAuthenticator,
     ): Response {
         // Wenn es zwei Organisationen zu dem User gibt, tausche die aktive Session aus
         if ($currentUser->getUser()->hasTwinUser()) {
@@ -430,7 +431,7 @@ class DemosPlanOrgaController extends BaseController
         RateLimiterFactory $userRegisterLimiter,
         Request $request,
         OrgaService $orgaService,
-        CustomerHandler $customerHandler
+        CustomerHandler $customerHandler,
     ): RedirectResponse {
         try {
             // check Honeypotfields
