@@ -20,6 +20,7 @@ use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\IsOriginalStatementAvailableEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\OriginalStatementResourceConfigBuilder;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
@@ -39,7 +40,8 @@ use EDT\PathBuilding\End;
 final class OriginalStatementResourceType extends DplanResourceType implements OriginalStatementResourceTypeInterface
 {
     public function __construct(
-        private StatementService $statementService,
+        private readonly FileService $fileService,
+        private readonly StatementService $statementService,
     ) {
     }
 
@@ -134,6 +136,16 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
         $originalStatementConfig->attachments
             ->setRelationshipType($this->resourceTypeStore->getStatementAttachmentResourceType())
             ->setReadableByPath();
+        $originalStatementConfig->files
+            ->setRelationshipType($this->resourceTypeStore->getFileResourceType())
+            // files need to be fetched via Filecontainer
+            ->setReadableByCallable(
+                fn (Statement $statement): array => $this->fileService->getEntityFiles(
+                    Statement::class,
+                    $statement->getId(),
+                    'file'
+                )
+            );
 
         return $originalStatementConfig;
     }
