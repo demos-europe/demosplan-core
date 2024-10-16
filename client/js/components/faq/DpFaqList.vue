@@ -159,48 +159,81 @@ export default {
      * @param {String} parentId
      */
     updateCategorySort (event, item, parentId) {
-      const catCpy = JSON.parse(JSON.stringify(this.faqCategories[parentId]))
-      const children = catCpy.relationships.faq.data
-      const itemToBeMoved = children.splice(event.oldIndex, 1)[0]
-      children.splice(event.newIndex, 0, itemToBeMoved)
+      let categoryIds = []
+      const sourceId = event.from.id
+      let targetId = event.to.id
 
-      const newSort = children.map(item => {
-        return {
-          id: item.id,
-          type: item.type
-        }
-      })
+      if (targetId === 'noIdGiven') {
+        const targetList = event.to.querySelector('ul')
 
-      catCpy.relationships.faq.data = newSort
-
-      this.updateCategory({ ...catCpy, id: catCpy.id })
-
-      const manualSortParam = 'manualsort=' + newSort.reduce((acc, item, idx) => {
-        return idx !== newSort.length - 1 ? acc + item.id + ',' : acc + item.id
-      }, '')
-
-      const categoryParam = 'category=custom_category'
-      const categoryIdParam = 'categoryId=' + parentId
-
-      const postParams = manualSortParam + '&' + categoryParam + '&' + categoryIdParam
-
-      const xhr = new XMLHttpRequest()
-      const url = Routing.generate('DemosPlan_faq_administration_faq')
-      xhr.open('POST', url, true)
-
-      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
-      xhr.setRequestHeader('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
-      xhr.setRequestHeader('Upgrade-Insecure-Requests', '1')
-
-      // Display notifications on success or failure of the request
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status < 300) {
-          dplan.notify.notify('confirm', Translator.trans('confirm.sort.saved'))
-        } else if (xhr.readyState === 4) {
-          dplan.notify.error(Translator.trans('error.update.manual.order'))
+        if (targetList) {
+          targetId = targetList.id
         }
       }
-      xhr.send(postParams)
+
+      if (sourceId !== targetId) {
+        categoryIds = [event.from.id, targetId]
+      } else {
+        categoryIds = [parentId]
+      }
+
+      // remove item from old category, add to new category
+      categoryIds.forEach(id => {
+        const category = JSON.parse(JSON.stringify(this.faqCategories[id]))
+        const children = category.relationships.faq.data
+        const itemIsChild = children.findIndex(child => child.id === item.id) !== -1
+
+        // move to another category
+        if (sourceId !== targetId) {
+          if (itemIsChild) {
+            // remove item from old category
+            children.splice(event.oldIndex, 1)
+            this.updateCategory({ ...category, id: category.id })
+          } else {
+            // add item to new category
+            children.splice(event.newIndex, 0, { id: item.id, type: item.type })
+            this.updateCategory({ ...category, id: category.id })
+          }
+        }
+
+        // move inside the same category
+        if (sourceId === targetId) {
+          if (itemIsChild) {
+            // remove item from old position
+            const item = children.splice(event.oldIndex, 1)[0]
+            // add item at new position
+            children.splice(event.newIndex, 0, item)
+            this.updateCategory({ ...category, id: category.id })
+          }
+        }
+
+        const manualSortParam = 'manualsort=' + children.reduce((acc, child, idx) => {
+          return idx !== children.length - 1 ? acc + child.id + ',' : acc + child.id
+        }, '')
+
+        const categoryParam = 'category=custom_category'
+        const categoryIdParam = 'categoryId=' + id
+
+        const postParams = manualSortParam + '&' + categoryParam + '&' + categoryIdParam
+
+        const xhr = new XMLHttpRequest()
+        const url = Routing.generate('DemosPlan_faq_administration_faq')
+        xhr.open('POST', url, true)
+
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
+        xhr.setRequestHeader('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
+        xhr.setRequestHeader('Upgrade-Insecure-Requests', '1')
+
+        // Display notifications on success or failure of the request
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status < 300) {
+            dplan.notify.notify('confirm', Translator.trans('confirm.sort.saved'))
+          } else if (xhr.readyState === 4) {
+            dplan.notify.error(Translator.trans('error.update.manual.order'))
+          }
+        }
+        xhr.send(postParams)
+      })
     }
   },
 

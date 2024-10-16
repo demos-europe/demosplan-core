@@ -1,10 +1,10 @@
 <license>
-  (c) 2010-present DEMOS plan GmbH.
+(c) 2010-present DEMOS plan GmbH.
 
-  This file is part of the package demosplan,
-  for more information see the license file.
+This file is part of the package demosplan,
+for more information see the license file.
 
-  All rights reserved
+All rights reserved
 </license>
 
 <documentation>
@@ -90,66 +90,66 @@
             Show this Stuff (Visibility-group / show initially on load) only for layer, not for Categories
  --><template v-if="(layer.type === 'GisLayer') && hasPermission('feature_map_layer_visibility')"><!--
     --><div class="inline-block w-1/12 text-right">
-        <a
-          v-if="layer.attributes.isBaseLayer === false && isChildOfCategoryThatAppearsAsLayer === false"
-          data-cy="adminLayerListItem:toggleVisibilityGroup"
-          :title="hintTextForLockedLayer"
-          @click.stop.prevent="toggleVisibilityGroup"
-          @mouseover="setIconHoverState"
-          @mouseout="unsetIconHoverState">
-          <i
-            :aria-label="Translator.trans('gislayer.visibilitygroup.toggle')"
-            :class="[iconClass,showGroupableIcon]"/>
-        </a>
-      </div><!--
+    <a
+      v-if="layer.attributes.isBaseLayer === false && isChildOfCategoryThatAppearsAsLayer === false"
+      data-cy="adminLayerListItem:toggleVisibilityGroup"
+      :title="hintTextForLockedLayer"
+      @click.stop.prevent="toggleVisibilityGroup"
+      @mouseover="setIconHoverState"
+      @mouseout="unsetIconHoverState">
+      <i
+        :aria-label="Translator.trans('gislayer.visibilitygroup.toggle')"
+        :class="[iconClass,showGroupableIcon]"/>
+    </a>
+  </div><!--
    --><div class="inline-block w-1/12 text-right">
-        <input
-          type="checkbox"
-          data-cy="adminLayerListItem:toggleDefaultVisibility"
-          :disabled="'' !== layer.attributes.visibilityGroupId || (true === isChildOfCategoryThatAppearsAsLayer)"
-          @change.prevent="toggleHasDefaultVisibility"
-          :checked="hasDefaultVisibility"
-          :class="[iconClass, 'o-sortablelist__checkbox']">
-      </div><!--
+    <input
+      type="checkbox"
+      data-cy="adminLayerListItem:toggleDefaultVisibility"
+      :disabled="'' !== layer.attributes.visibilityGroupId || (true === isChildOfCategoryThatAppearsAsLayer)"
+      @change.prevent="toggleHasDefaultVisibility"
+      :checked="hasDefaultVisibility"
+      :class="[iconClass, 'o-sortablelist__checkbox']">
+  </div><!--
   --></template><!--
           Show this Stuff for 'special category that looks like an Layer and hides all his children'
  --><template v-if="(layer.type === 'GisLayerCategory' && layer.attributes.layerWithChildrenHidden)"><!--
    --><div class="inline-block w-2/12 text-right">
-        <input
-          type="checkbox"
-          data-cy="adminLayerListItem:toggleDefaultVisibility"
-          :checked="hasDefaultVisibility"
-          :class="[iconClass, 'o-sortablelist__checkbox']"
-          @change.prevent="toggleHasDefaultVisibility">
-      </div><!--
+    <input
+      type="checkbox"
+      data-cy="adminLayerListItem:toggleDefaultVisibility"
+      :checked="hasDefaultVisibility"
+      :class="[iconClass, 'o-sortablelist__checkbox']"
+      @change.prevent="toggleHasDefaultVisibility">
+  </div><!--
      -->
-    </template><!--
+  </template><!--
   --><div
-      v-if="(layer.type !== 'GisLayer' && (false === layer.attributes.layerWithChildrenHidden))"
-      class="inline-block w-2/12 text-right">
-      <!-- spacer for groups -->
-    </div><!--
+    v-if="(layer.type !== 'GisLayer' && (false === layer.attributes.layerWithChildrenHidden))"
+    class="inline-block w-2/12 text-right">
+    <!-- spacer for groups -->
+  </div><!--
   --><div class="inline-block w-1/12 text-right">
-      <a
-        :href="editLink"
-        data-cy="editLink">
-        <i
-          class="fa fa-pencil mr-2"
-          aria-hidden="true"
-          :title="Translator.trans('edit')" /><span class="sr-only">{{ Translator.trans('edit') }}</span>
-      </a>
-      <button
-        v-if="childElements.length <= 0"
-        class="btn--blank o-link--default mr-2 align-bottom"
-        data-cy="adminLayerListItem:deleteElement"
-        :title="Translator.trans('delete')"
-        @click.prevent="deleteElement">
-        <i
-          class="fa fa-trash"
-          aria-hidden="true" /><span class="sr-only">{{ Translator.trans('delete') }}</span>
-        </button>
-      </div>
-    </div>
+    <a
+      :href="editLink"
+      data-cy="editLink">
+      <i
+        class="fa fa-pencil mr-2"
+        aria-hidden="true"
+        :title="Translator.trans('edit')" /><span class="sr-only">{{ Translator.trans('edit') }}</span>
+    </a>
+    <button
+      v-if="childElements.length <= 0"
+      class="btn--blank o-link--default mr-2 align-bottom"
+      data-cy="adminLayerListItem:deleteElement"
+      :title="Translator.trans('delete')"
+      @click.prevent="deleteElement">
+      <i
+        class="fa fa-trash"
+        aria-hidden="true" /><span class="sr-only">{{ Translator.trans('delete') }}</span>
+    </button>
+  </div>
+  </div>
 
     <!-- recursive nesting inside -->
     <dp-draggable
@@ -610,19 +610,19 @@ export default {
     hasSettingsThatPreventGrouping () {
       if (typeof this.activeLayer.id === 'undefined') {
         return this.layer.attributes.canUserToggleVisibility === false ||
-            this.layer.attributes.layerType !== 'overlay' ||
-            this.layer.attributes.isScope ||
-            this.layer.attributes.isBplan
+          this.layer.attributes.layerType !== 'overlay' ||
+          this.layer.attributes.isScope ||
+          this.layer.attributes.isBplan
       }
 
       return this.layer.attributes.canUserToggleVisibility === false ||
-          this.activeLayer.attributes.canUserToggleVisibility === false ||
-          this.layer.attributes.layerType !== 'overlay' ||
-          this.activeLayer.attributes.layerType !== 'overlay' ||
-          this.layer.attributes.isScope ||
-          this.activeLayer.attributes.isScope ||
-          this.layer.attributes.isBplan ||
-          this.activeLayer.attributes.isBplan
+        this.activeLayer.attributes.canUserToggleVisibility === false ||
+        this.layer.attributes.layerType !== 'overlay' ||
+        this.activeLayer.attributes.layerType !== 'overlay' ||
+        this.layer.attributes.isScope ||
+        this.activeLayer.attributes.isScope ||
+        this.layer.attributes.isBplan ||
+        this.activeLayer.attributes.isBplan
     },
 
     /**
@@ -762,10 +762,10 @@ export default {
      */
     setActiveState () {
       if (!hasPermission('feature_map_layer_visibility') ||
-          this.layer.type !== 'GisLayer' ||
-          this.layer.attributes.isBaseLayer ||
-          this.isLoading ||
-          this.isChildOfCategoryThatAppearsAsLayer) {
+        this.layer.type !== 'GisLayer' ||
+        this.layer.attributes.isBaseLayer ||
+        this.isLoading ||
+        this.isChildOfCategoryThatAppearsAsLayer) {
         return
       }
       if (this.preventActiveFromToggeling === false) {
@@ -854,11 +854,11 @@ export default {
       this.preventActiveFromToggeling = true
 
       if (typeof this.activeLayer.id === 'undefined' ||
-          this.layerType === 'base' ||
-          this.isActive ||
-          (this.layer.attributes.visibilityGroupId !== newVisibilityGroupId && this.layer.attributes.visibilityGroupId !== '') ||
-          this.hasSettingsThatPreventGrouping ||
-          this.isLoading) {
+        this.layerType === 'base' ||
+        this.isActive ||
+        (this.layer.attributes.visibilityGroupId !== newVisibilityGroupId && this.layer.attributes.visibilityGroupId !== '') ||
+        this.hasSettingsThatPreventGrouping ||
+        this.isLoading) {
         return false
       }
 
